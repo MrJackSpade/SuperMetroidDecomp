@@ -56,8 +56,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>Header word of the layer-2 overlay's pictures, laid out as <see cref="OverlayWord"/>'s, or zero without one (#1348).</summary>
     private const int Bg2OverlayWord = Bg3Word + 1;
     /// <summary>
-    /// Header word of the perspective floor's sheets' colour slots, one word each in the order the floor image numbers
-    /// its sheets, or zero without a floor (#1408).
+    /// Header word of the perspective floor's pictures' colour slots, one word each in the order the floor image numbers
+    /// its pictures, or zero without a floor (#1408, #1467).
     /// </summary>
     private const int FloorSheetsWord = Bg2OverlayWord + 1;
     /// <summary>
@@ -247,7 +247,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             words += SkyPictures.Rows;
         int floorOffset = mode7 is null ? 0 : words;
         if (mode7 is not null)
-            words += mode7.Tiles.Sheets.Length;
+            words += mode7.Pictures.Length;
         // Each picture's header once, and each image and how it is coloured once as a colour slot (#1408).
         var pictureWords = new Dictionary<SpriteSheetFrame, int>(ReferenceEqualityComparer.Instance);
         var slots = new Dictionary<D3D11ColourSlot, int>();
@@ -262,8 +262,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 words += PictureHeaderWords;
             }
         }
-        // The floor image draws from its sheets directly, so they hold colour slots but no place in the image texture.
-        foreach (SpriteSheetFrame sheet in mode7?.Tiles.Sheets ?? [])
+        // The floor image draws from its pictures directly, so they hold colour slots but no place in the image texture.
+        foreach (SpriteSheetFrame sheet in mode7?.Pictures ?? [])
             slots.TryAdd(new D3D11ColourSlot(sheet.Sheet, D3D11PictureColouring.Frame), slots.Count);
         if (words > Upload.Length)
         {
@@ -330,7 +330,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         upload[FloorSheetsWord] = (uint)floorOffset;
         if (mode7 is not null)
         {
-            ImmutableArray<SpriteSheetFrame> sheets = mode7.Tiles.Sheets;
+            ImmutableArray<SpriteSheetFrame> sheets = mode7.Pictures;
             for (int sheet = 0; sheet < sheets.Length; sheet++)
                 upload[floorOffset + sheet] = (uint)slots[new D3D11ColourSlot(sheets[sheet].Sheet, D3D11PictureColouring.Frame)];
         }

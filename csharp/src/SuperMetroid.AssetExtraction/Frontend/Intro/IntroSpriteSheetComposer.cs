@@ -58,12 +58,13 @@ internal static class IntroSpriteSheetComposer
 
     /// <summary>
     /// What the Ceres destruction scene's sheet composes: the scene's destruction and shared Ceres flight families over
-    /// the OBJ characters <paramref name="uploads"/> leave, coloured as the scene loads the flight's palette.
+    /// the OBJ characters the scene loads, with the Zebes reveal's when <paramref name="zebesRevealed"/>, coloured as the
+    /// scene loads the flight's palette.
     /// </summary>
-    internal static SpriteSheetSources CeresDestructionSources(IntroCinematicArtwork intro, IReadOnlyList<CeresDestructionUpload> uploads)
+    internal static SpriteSheetSources CeresDestructionSources(IntroCinematicArtwork intro, bool zebesRevealed)
     {
         Ensure.NotNull(intro);
-        SpriteArtwork page = CeresDestructionObjectPage.Of(intro, uploads);
+        SpriteArtwork page = CeresDestructionObjectPage.Of(intro, zebesRevealed);
         return Compose(CeresDestructionFamilies(intro), page, intro.CeresFlight.Palette.LoadTo);
     }
 

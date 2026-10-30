@@ -6,6 +6,7 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
@@ -45,7 +46,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new StandaloneRoomEnemyServices(() => throw new InvalidOperationException("The getaway draws no random numbers here."))
             {
-                FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()),
+                Floor = RoomBackgroundsFixtures.CeresFloor(),
             })
         {
             BossArtworkBinding =
@@ -91,7 +92,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         foreach (CeresFloorAnimationFrame list in new[] { capsule, wing })
         {
             var source = new SnesAddress(0xa6, CeresNativeWords.FloorAnimationFrames.Word(list));
-            for (int descriptor = 0; descriptor < CeresFloorAnimation.Get(list).Count; descriptor++, offset += descriptorBytes)
+            for (int descriptor = 0; descriptor < CeresFloorDrawingDefinitions.Frames[list].Count; descriptor++, offset += descriptorBytes)
             {
                 for (int index = 0; index < descriptorBytes; index++)
                     image[offset + index] = rom.ReadCartridgeByte((int)source.AddWithinBank(descriptor * descriptorBytes + index));

@@ -18,11 +18,11 @@ internal static class TitleGraphicsExtractor
         Ensure.NotNull(bus);
         byte[] mode7 = Read(
             TitleSourceDefinitions.FloorCharacters,
-            TitleSequenceDefinitions.Graphics.FloorCharacterByteCount,
+            TitleFloorTileDefinitions.FloorCharacterByteCount,
             "Mode 7 characters");
         byte[] map = Read(
             TitleSourceDefinitions.FloorMap,
-            TitleSequenceDefinitions.Graphics.FloorMapByteCount,
+            TitleFloorTileDefinitions.FloorMapByteCount,
             "Mode 7 map");
         byte[] objects = Read(
             TitleSourceDefinitions.ObjectCharacters,
@@ -30,7 +30,7 @@ internal static class TitleGraphicsExtractor
             "OBJ characters");
         byte[] baby = Read(
             TitleSourceDefinitions.BabyMetroidCharacters,
-            TitleSequenceDefinitions.Graphics.BabyCharacterByteCount,
+            TitleFloorTileDefinitions.BabyCharacterByteCount,
             "Baby Metroid characters");
 
         byte[] mode7Pixels = SnesGraphics.DecodeMode7Tiles(mode7, 16, out Extent16<ImagePixels> mode7Size);

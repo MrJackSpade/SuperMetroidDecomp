@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
@@ -22,7 +24,7 @@ internal static class CeresFlightScreenMemory
         // byte with tile $8C, then overwrites only one view's $300-byte map.
         var mode7 = new Mode7Vram(vram);
         mode7.LoadCharacters(artwork.FloorCharacters.Span[..CeresFlightArtworkFormat.FloorByteCount]);
-        mode7.FillMap(CeresFlightSceneDefinitions.BlankFloorCharacter, AffineFloor.CellCount);
+        mode7.FillMap(CeresFloorShotDefinitions.BlankTile, FloorSheetComposer.CellCount);
         int slice = rear ? CeresFlightArtworkFormat.MapCellsPerView : 0;
         mode7.LoadMap(artwork.FloorMaps.Span.Slice(slice, CeresFlightArtworkFormat.MapCellsPerView));
         new CeresVram(vram).ObjectCharacters.Load(artwork.ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount]);

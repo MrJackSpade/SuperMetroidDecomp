@@ -59,7 +59,10 @@ internal static class EnemyTileArtworkCeresDoorVerification
             AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(compiledColors.AsPaletteColors())),
                 $"installed Ceres-door animated RGB5 row {row} matches the cartridge");
         }
-        for (int frame = 0; frame < CeresDoorVisualDefinitions.PlatformFrameCount; frame++)
+        // The platform's strips are pictures of the room's floor (#1467); the import pictures each from the native transfer.
+        CeresFloorAnimationFrame[] strips = [CeresFloorAnimationFrame.ElevatorLight, CeresFloorAnimationFrame.ElevatorDark];
+        const int stripCells = 4, stripFirstCell = 12 * 128 + 14;
+        for (int frame = 0; frame < strips.Length; frame++)
         {
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 EnemyRomTablePointers.Ceres.DoorTransferPointers + frame * sizeof(ushort));
@@ -70,20 +73,20 @@ internal static class EnemyTileArtworkCeresDoorVerification
             AssertEqual(frame == 0 ? CeresSourceDefinitions.Door.PlatformFrames :
                     CeresSourceDefinitions.Door.PlatformFrames + CeresSourceDefinitions.Door.PlatformFrameBytes,
                 source, $"Ceres-door Mode-7 transfer {frame} source");
-            AssertEqual(CeresDoorVisualDefinitions.PlatformCellCount,
+            AssertEqual(stripCells,
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 4),
                 $"Ceres-door Mode-7 transfer {frame} length");
-            AssertEqual(CeresDoorVisualDefinitions.PlatformFloorCell,
+            AssertEqual(stripFirstCell,
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6),
                 $"Ceres-door Mode-7 transfer {frame} destination");
             AssertEqual((byte)0, CpuBusRegionRead.Read(bus, record + 8),
                 $"Ceres-door Mode-7 transfer {frame} increment mode");
             AssertEqual((byte)0, CpuBusRegionRead.Read(bus, record + 9),
                 $"Ceres-door Mode-7 transfer {frame} terminator");
-            byte[] nativeFrame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
-                CeresDoorVisualDefinitions.PlatformCellCount);
-            AssertTrue(nativeFrame.SequenceEqual(visual.PlatformFrame(frame)),
-                $"installed Ceres-door Mode-7 frame {frame} matches native transfer");
+            byte[] nativeFrame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, stripCells);
+            IReadOnlyDictionary<int, byte> pictured = CeresFloorDrawings.Cells(strips[frame]);
+            AssertTrue(nativeFrame.Select((tile, cell) => pictured[stripFirstCell + cell] == tile).All(same => same),
+                $"the import pictures Ceres-door floor strip {frame} from the native transfer");
         }
 
         string overrides = Path.Combine(directory, "ceres-door-overrides");
@@ -109,7 +112,6 @@ internal static class EnemyTileArtworkCeresDoorVerification
         {
             Blue = (document.Animation[0][0].Blue + 1) & 31,
         };
-        document.Mode7DoorFrames[0][0] ^= 1;
         File.WriteAllBytes(Path.Combine(overrides,
             CeresDoorVisualFormat.ColorsFileName),
             CeresDoorVisualFiles.Write(document));
@@ -128,7 +130,5 @@ internal static class EnemyTileArtworkCeresDoorVerification
         AssertTrue(editedCgram.Colors[CeresDoorVisualConstants.AnimationTargetColor] !=
             stockAnimationCgram.Colors[CeresDoorVisualConstants.AnimationTargetColor],
             "Ceres-door animation override changes the live selected frame");
-        AssertTrue(!edited.PlatformFrame(0).SequenceEqual(visual.PlatformFrame(0)),
-            "Ceres-door Mode-7 frame override changes the live tilemap");
     }
 }

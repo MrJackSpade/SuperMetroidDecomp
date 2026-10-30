@@ -59,8 +59,8 @@ internal static class EndingSheetFixtures
         var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
         var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => InstalledFixtures.IntroArtwork,
             RepositoryInstallation.Installation.LoadEndingObjectArt, () => palettes.Value, () => mode7);
-        foreach (SpriteSheetId sheet in new[] { SpriteSheetId.EndingEscapeAFloorTiles, SpriteSheetId.EndingEscapeBFloorTiles,
-                     SpriteSheetId.EndingPlanetExplosionFloorTiles, SpriteSheetId.EndingRewardIconFloorTiles })
+        foreach (SpriteSheetId sheet in new[] { SpriteSheetId.EndingEscapeAFloor, SpriteSheetId.EndingEscapeBFloor,
+                     SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingRewardIconFloor })
         {
             ComposedSpriteSheet tiles = ScreenTileSheetComposer.ComposeMode7(sheet, tileSources);
             sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),

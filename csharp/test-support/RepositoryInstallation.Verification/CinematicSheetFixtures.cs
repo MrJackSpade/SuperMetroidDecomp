@@ -70,7 +70,7 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key);
                 sheets[SpriteSheetId.CeresFlightObjectTiles] = LoadTiles(SpriteSheetId.CeresFlightObjectTiles, ScreenTileSheetComposer.ComposeFlightObjects(key),
                     $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
-                sheets[SpriteSheetId.CeresFlightFloorTiles] = LoadTiles(SpriteSheetId.CeresFlightFloorTiles, ScreenTileSheetComposer.ComposeFlightMode7(key),
+                sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor, ScreenTileSheetComposer.ComposeFlightMode7(key),
                     $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
@@ -92,9 +92,9 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.IntroSprites] = Load(IntroSpriteSheetComposer.Sources(key), $"intro-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key.CeresFlight);
                 sheets[SpriteSheetId.CeresDestructionSprites] = Load(IntroSpriteSheetComposer.CeresDestructionSources(key,
-                    [CeresDestructionUpload.CeresScene]), $"ceres-destruction-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
+                    zebesRevealed: false), $"ceres-destruction-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.ZebesRevealSprites] = Load(IntroSpriteSheetComposer.CeresDestructionSources(key,
-                    [CeresDestructionUpload.CeresScene, CeresDestructionUpload.ZebesReveal]), $"zebes-reveal-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
+                    zebesRevealed: true), $"zebes-reveal-fixture-{RuntimeHelpers.GetHashCode(key):X8}");
                 // The cinematics' background tiles are pre-coloured from the intro's characters and palettes (#1392).
                 var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => key,
                     RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes,
@@ -102,7 +102,7 @@ internal static class CinematicSheetFixtures
                 foreach (SpriteSheetId id in new[] { SpriteSheetId.IntroSceneTiles, SpriteSheetId.IntroFontTiles, SpriteSheetId.CeresFlightObjectTiles,
                              SpriteSheetId.CeresIntroObjectTiles, SpriteSheetId.ZebesRevealTiles })
                     sheets[id] = LoadTiles(id, ScreenTileSheetComposer.Compose(id, tileSources), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
-                sheets[SpriteSheetId.CeresFlightFloorTiles] = LoadTiles(SpriteSheetId.CeresFlightFloorTiles,
+                sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
                     ScreenTileSheetComposer.ComposeFlightMode7(key.CeresFlight), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });

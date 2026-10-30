@@ -71,7 +71,7 @@ internal static class RoomContentIdentityVerification
         return new InstalledRoomArtwork(new Dictionary<TilesetDefinition, RoomBlockSheet> { [default] = sheet },
             new Dictionary<string, RoomBackgroundImage>(), new Dictionary<TilesetDefinition, WrittenPictureSheet>(),
             new Dictionary<TilesetDefinition, WrittenPictureSheet>(), new Dictionary<TilesetDefinition, MessageBoxSheet>(),
-            new Dictionary<TilesetDefinition, FloorTileSheet>()).ContentIdentity;
+            new Dictionary<TilesetDefinition, RoomFloorSheet>()).ContentIdentity;
     }
 
     /// <summary>Builds stock-shaped room catalogs with one optional visual edit and optional reversed insertion order.</summary>

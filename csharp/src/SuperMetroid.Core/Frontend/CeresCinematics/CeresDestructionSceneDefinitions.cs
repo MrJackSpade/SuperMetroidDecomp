@@ -38,28 +38,6 @@ internal static class CeresDestructionSceneDefinitions
         internal const ushort QueueDelay = 14;
     }
 
-    /// <summary>
-    /// The floor cells the installed Ceres maps hold, one per cell: the flight's front and rear gunship views, the station
-    /// scene's two views, then the blank view that clears the scene.
-    /// </summary>
-    internal static class Floor
-    {
-        /// <summary>The cells of one view: 32 by 24.</summary>
-        internal const int ViewCells = CeresDestructionArtworkFormat.CellsPerView;
-        /// <summary>Where the station scene's two views start.</summary>
-        internal const int CeresSceneStart = 2 * ViewCells;
-        /// <summary>The cells of the station scene's two views.</summary>
-        internal const int CeresSceneCells = 2 * ViewCells;
-        /// <summary>Where the blank view starts.</summary>
-        internal const int BlankViewStart = 4 * ViewCells;
-        /// <summary>The cells of every installed view together.</summary>
-        internal const int MapCells = 5 * ViewCells;
-        /// <summary>The floor cell the lower view starts at.</summary>
-        internal const ushort LowerViewFirstCell = ViewCells;
-        /// <summary>The floor character every cell shows before the station's views are loaded.</summary>
-        internal const byte BlankCharacter = 140;
-    }
-
     /// <summary>Authored holds and the planet reveal's mosaic fade, in updates.</summary>
     internal static class Timing
     {

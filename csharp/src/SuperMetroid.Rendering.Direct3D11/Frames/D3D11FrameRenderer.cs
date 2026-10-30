@@ -700,7 +700,7 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>
     /// Uploads the frame's floor transform: signed matrix, center, scroll, what shows outside the floor, and optional
-    /// color math. The floor's map and tile pictures are in the room buffer (#1403).
+    /// color math. The floor's pictures' colour slots are in the room buffer (#1403, #1467).
     /// </summary>
     private unsafe void DispatchFloor(AffineTransform transform, int firstScanline = 0, int endScanline = 224,
         bool subtractSprites = false, bool addLayer1 = false)
@@ -715,7 +715,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[24] = transform.Outside switch
         {
             FloorOverflowMode.Transparent => 0,
-            FloorOverflowMode.CharacterZero => 1,
             FloorOverflowMode.Wrap => 2,
             _ => throw new ArgumentOutOfRangeException(nameof(transform), transform.Outside, "Unknown floor overflow."),
         };

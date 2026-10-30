@@ -39,29 +39,12 @@ internal sealed class EndingScreen
     [NonSerialized]
     private Dictionary<EndingObjectFragmentId, BackgroundTile[]>? explosionPlanes;
 
-    /// <summary>The floor's cells, until the uploads or the artwork change.</summary>
-    [NonSerialized]
-    private byte[]? floorCells;
-
     /// <summary>The sheets <see cref="tiles"/> were read from.</summary>
     [NonSerialized]
     private InstalledSpriteSheets? tileSheets;
 
-    /// <summary>What the uploads' Mode 7 characters show (#1392), until the uploads change.</summary>
-    [NonSerialized]
-    private FloorTilePictures? floorTiles;
-
-    /// <summary>What the uploads' Mode 7 characters show (#1392).</summary>
-    internal FloorTilePictures FloorTiles(InstalledSpriteSheets sheets)
-    {
-        if (!ReferenceEquals(tileSheets, sheets))
-        {
-            tiles = null;
-            floorTiles = null;
-            tileSheets = sheets;
-        }
-        return floorTiles ??= EndingScreenTiles.Floor(sheets, uploads);
-    }
+    /// <summary>The shot whose turning floor the scenes have loaded (#1467).</summary>
+    internal EndingFloorShot FloorShot => EndingScreenFloor.Shot(uploads);
 
     /// <summary>What <paramref name="layer"/> shows, reading <paramref name="depth"/> characters (#1392).</summary>
     internal ScreenLayerPictures Tiles(InstalledSpriteSheets sheets, EndingTileLayer layer, TileInkDepth depth)
@@ -69,7 +52,6 @@ internal sealed class EndingScreen
         if (!ReferenceEquals(tileSheets, sheets))
         {
             tiles = null;
-            floorTiles = null;
             tileSheets = sheets;
         }
         tiles ??= [];
@@ -126,18 +108,12 @@ internal sealed class EndingScreen
         return tiles;
     }
 
-    /// <summary>The floor's cells over <paramref name="floor"/> and <paramref name="flight"/>.</summary>
-    internal byte[] FloorCells(EndingFloorArtwork? floor, CeresFlightArtwork? flight) =>
-        floorCells ??= EndingScreenFloor.Cells(uploads, floor, flight);
-
     /// <summary>Forgets every plane, cell and tile the screen showed.</summary>
     private void ForgetShown()
     {
         tiles = null;
         planes = null;
         explosionPlanes = null;
-        floorCells = null;
-        floorTiles = null;
     }
 
     /// <summary>Appends <paramref name="upload"/>, dropping the earlier transfer whose cells it covers.</summary>

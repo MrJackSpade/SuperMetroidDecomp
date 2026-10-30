@@ -3,16 +3,17 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>
-/// Reads where the getaway's floor runs take their tile numbers from out of the cartridge's floor update lists, and
-/// reads and writes the installed document that carries them (#1415).
+/// Reads the descriptors the getaway's floor runs queue out of the cartridge's floor update lists, and reads and writes
+/// the installed document that carries them (#1415, #1467).
 /// </summary>
 public static class CeresRidleyFloorUpdateFiles
 {
-    /// <summary>Reads each capsule and wing run's tile source from its descriptor and serializes the validated document.</summary>
+    /// <summary>Reads each capsule and wing run's descriptor and serializes the validated document.</summary>
     /// <param name="bus">Supported-cartridge address space holding the getaway's floor update lists.</param>
     /// <returns>UTF-8 JSON bytes for the versioned floor update document.</returns>
     /// <exception cref="InvalidDataException">A run takes its tiles from outside its list's bank.</exception>
@@ -23,12 +24,12 @@ public static class CeresRidleyFloorUpdateFiles
         return Write(new CeresRidleyFloorUpdateDocument
         {
             Version = CeresRidleyFloorUpdateFormat.Version,
-            CapsuleFrames = Sources(cartridge, CeresSourceDefinitions.FloorAnimation.CapsuleFrames, CeresRidleyFloorUpdateSources.CapsuleRunCount),
-            WingFrames = Sources(cartridge, CeresSourceDefinitions.FloorAnimation.WingFrames, CeresRidleyFloorUpdateSources.WingRunCount),
+            CapsuleFrames = Runs(cartridge, CeresSourceDefinitions.FloorAnimation.CapsuleFrames, CeresRidleyFloorUpdateSources.CapsuleRunCount),
+            WingFrames = Runs(cartridge, CeresSourceDefinitions.FloorAnimation.WingFrames, CeresRidleyFloorUpdateSources.WingRunCount),
         });
     }
 
-    /// <summary>Loads the installed sources, rejecting unknown properties, another version or a misshapen frame.</summary>
+    /// <summary>Loads the installed descriptors, rejecting unknown properties, another version or a misshapen frame.</summary>
     /// <param name="json">Caller-owned stream holding the floor update document.</param>
     /// <returns>The validated sources.</returns>
     /// <exception cref="InvalidDataException">The document's schema, version or shape is invalid.</exception>
@@ -39,7 +40,7 @@ public static class CeresRidleyFloorUpdateFiles
             JsonAssetDocument.Read<CeresRidleyFloorUpdateDocument>(json, ArtworkJson.Options, "Ceres Ridley floor update");
         if (document.Version != CeresRidleyFloorUpdateFormat.Version)
             throw new InvalidDataException($"Ceres Ridley floor updates require version {CeresRidleyFloorUpdateFormat.Version}.");
-        return CeresRidleyFloorUpdateSources.Load(document.CapsuleFrames, document.WingFrames);
+        return CeresRidleyFloorUpdateSources.Load(Updates(document.CapsuleFrames), Updates(document.WingFrames));
     }
 
     /// <summary>Serializes the document as UTF-8 JSON and validates it through <see cref="Read"/> before returning it.</summary>
@@ -48,9 +49,32 @@ public static class CeresRidleyFloorUpdateFiles
     public static byte[] Write(CeresRidleyFloorUpdateDocument document) =>
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Read(json));
 
-    /// <summary>Each of <paramref name="frames"/>' first <paramref name="runCount"/> run sources, by frame then run.</summary>
-    private static int[][] Sources(IImportCartridgeSource cartridge, SnesAddress[] frames, int runCount) =>
-        [.. frames.Select(list => Enumerable.Range(0, runCount).Select(run => Source(cartridge, list, run)).ToArray())];
+    /// <summary>The floor updates <paramref name="frames"/>' runs describe, by frame then run.</summary>
+    /// <exception cref="InvalidDataException">A frame or run is missing.</exception>
+    private static IReadOnlyList<IReadOnlyList<FloorUpdate>> Updates(CeresRidleyFloorUpdateRunDocument[][]? frames)
+    {
+        var updates = new List<IReadOnlyList<FloorUpdate>>();
+        foreach (CeresRidleyFloorUpdateRunDocument[]? runs in frames ?? throw new InvalidDataException("Ceres Ridley floor updates name no frames."))
+        {
+            var frame = new List<FloorUpdate>();
+            foreach (CeresRidleyFloorUpdateRunDocument? run in runs ?? throw new InvalidDataException("A Ceres Ridley floor update frame names no runs."))
+            {
+                CeresRidleyFloorUpdateRunDocument descriptor = run ?? throw new InvalidDataException("A Ceres Ridley floor update run is empty.");
+                frame.Add(new FloorUpdate(descriptor.Source, descriptor.Count, descriptor.Cell));
+            }
+            updates.Add(frame);
+        }
+        return updates;
+    }
+
+    /// <summary>Each of <paramref name="frames"/>' first <paramref name="runCount"/> run descriptors, by frame then run.</summary>
+    private static CeresRidleyFloorUpdateRunDocument[][] Runs(IImportCartridgeSource cartridge, SnesAddress[] frames, int runCount) =>
+        [.. frames.Select(list => Enumerable.Range(0, runCount).Select(run => new CeresRidleyFloorUpdateRunDocument
+        {
+            Source = Source(cartridge, list, run),
+            Count = RomDataReader.ReadWordFixedBank(cartridge, list.AddWithinBank(run * CeresSourceDefinitions.FloorAnimation.DescriptorBytes + CeresSourceDefinitions.FloorAnimation.DescriptorCount)),
+            Cell = RomDataReader.ReadWordFixedBank(cartridge, list.AddWithinBank(run * CeresSourceDefinitions.FloorAnimation.DescriptorBytes + CeresSourceDefinitions.FloorAnimation.DescriptorCell)),
+        }).ToArray())];
 
     /// <summary>The tile source descriptor <paramref name="run"/> of <paramref name="list"/> names, within the list's own bank.</summary>
     /// <exception cref="InvalidDataException">The descriptor names a source in another bank, which the floor update residue cannot record.</exception>

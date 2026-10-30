@@ -113,7 +113,7 @@ internal static class MenuSheetFixtures
                 sheets[SpriteSheetId.Title] = Load(SpriteSheetId.Title, TitleSheetComposer.Sources(key, InstalledFixtures.Maps.TitlePalette),
                     $"title-{RuntimeHelpers.GetHashCode(key):X8}");
                 // The title's Mode 7 characters are pre-coloured from these graphics (#1392).
-                sheets[SpriteSheetId.TitleFloorTiles] = LoadTiles(SpriteSheetId.TitleFloorTiles,
+                sheets[SpriteSheetId.TitleFloor] = LoadTiles(SpriteSheetId.TitleFloor,
                     ScreenTileSheetComposer.ComposeTitleMode7(key, InstalledFixtures.Maps.TitlePalette), $"title-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.TitleBabyTiles] = LoadTiles(SpriteSheetId.TitleBabyTiles,
                     ScreenTileSheetComposer.ComposeTitleBaby(key, InstalledFixtures.Maps.TitlePalette), $"title-{RuntimeHelpers.GetHashCode(key):X8}");

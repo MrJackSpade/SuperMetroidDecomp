@@ -106,10 +106,10 @@ internal static class EndingSpriteSheetComposer
                 SpriteSheetId.EndingTextFontTiles or SpriteSheetId.EndingSubtitleTiles or
                 SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
                 SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles or
-                SpriteSheetId.TitleFloorTiles or SpriteSheetId.TitleBabyTiles or
-                SpriteSheetId.CeresFlightFloorTiles or SpriteSheetId.EndingEscapeAFloorTiles or
-                SpriteSheetId.EndingEscapeBFloorTiles or SpriteSheetId.EndingPlanetExplosionFloorTiles or
-                SpriteSheetId.EndingFlyawayFloorTiles or SpriteSheetId.EndingRewardIconFloorTiles =>
+                SpriteSheetId.TitleFloor or
+                SpriteSheetId.CeresFloor or SpriteSheetId.EndingEscapeAFloor or
+                SpriteSheetId.EndingEscapeBFloor or SpriteSheetId.EndingPlanetExplosionFloor or
+                SpriteSheetId.EndingFlyawayFloor or SpriteSheetId.EndingRewardIconFloor =>
                 throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Not an ending sheet."),
             _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
         };

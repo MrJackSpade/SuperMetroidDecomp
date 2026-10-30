@@ -137,9 +137,9 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
     public void WriteBg2Picture(WrittenPicture picture) =>
         Loaded("write over the room's BG2").WriteBg2Picture(picture);
 
-    /// <summary>Writes tile numbers into the loaded room's Mode 7 map.</summary>
-    public void DrawFloorMap(int firstCell, ReadOnlySpan<byte> tiles) =>
-        Loaded("write the room's Mode 7 map").DrawFloorMap(firstCell, tiles);
+    /// <summary>Draws a picture over the loaded room's turning floor.</summary>
+    public void DrawFloor(string picture) =>
+        Loaded("draw over the room's turning floor").DrawFloor(picture);
 
     /// <summary>Queries the loaded room's active PLM headers.</summary>
     public bool HasActiveHeader(PlmHeaderId header) =>

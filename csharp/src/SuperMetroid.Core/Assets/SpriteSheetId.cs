@@ -152,20 +152,18 @@ public enum SpriteSheetId
     EndingWavySamusTiles,
     /// <summary>The Zebes explosion characters under the explosion palette (#1392).</summary>
     EndingExplosionTiles,
-    /// <summary>The title's Mode 7 characters under its palette (#1392).</summary>
-    TitleFloorTiles,
-    /// <summary>The title's Baby Metroid animation pages under its palette (#1392).</summary>
-    TitleBabyTiles,
-    /// <summary>The Ceres flight's Mode 7 characters under its palette, which the destruction shows too (#1392).</summary>
-    CeresFlightFloorTiles,
-    /// <summary>The ending's first escape backdrop's Mode 7 characters under the escape palette (#1392).</summary>
-    EndingEscapeAFloorTiles,
-    /// <summary>The ending's second escape backdrop's Mode 7 characters under the escape palette (#1392).</summary>
-    EndingEscapeBFloorTiles,
-    /// <summary>The ending's planet explosion's Mode 7 characters under the explosion palette (#1392).</summary>
-    EndingPlanetExplosionFloorTiles,
-    /// <summary>The flyaway's gunship Mode 7 characters under the escape palette (#1392).</summary>
-    EndingFlyawayFloorTiles,
-    /// <summary>The reward icon's Mode 7 characters under the post-credits palette (#1392).</summary>
-    EndingRewardIconFloorTiles,
+    /// <summary>The title's turning floor with each Baby Metroid page shown, under its palette (#1392, #1467).</summary>
+    TitleFloor,
+    /// <summary>The Ceres flight's and destruction's turning floor in each of their shots, under the flight's palette (#1392, #1467).</summary>
+    CeresFloor,
+    /// <summary>The ending's first escape backdrop's turning floor under the escape palette (#1392, #1467).</summary>
+    EndingEscapeAFloor,
+    /// <summary>The ending's second escape backdrop's turning floor under the escape palette (#1392, #1467).</summary>
+    EndingEscapeBFloor,
+    /// <summary>The ending's planet explosion's turning floor under the explosion palette (#1392, #1467).</summary>
+    EndingPlanetExplosionFloor,
+    /// <summary>The flyaway gunship's turning floor under the escape palette (#1392, #1467).</summary>
+    EndingFlyawayFloor,
+    /// <summary>The reward icon's turning floor under the post-credits palette (#1392, #1467).</summary>
+    EndingRewardIconFloor,
 }

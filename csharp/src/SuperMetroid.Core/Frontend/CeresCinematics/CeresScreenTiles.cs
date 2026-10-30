@@ -19,41 +19,21 @@ internal static class CeresScreenTiles
             CeresFlightArtworkFormat.ObjectByteCount / CharacterBytes)
         .Pictures();
 
-    /// <summary>The characters the destruction's <paramref name="uploads"/> leave over the OBJ characters, in the order it made them.</summary>
-    internal static ScreenLayerPictures Destruction(InstalledSpriteSheets sheets, IEnumerable<CeresDestructionUpload> uploads)
+    /// <summary>
+    /// The characters the destruction leaves over the OBJ characters: the station's, then, once the Zebes reveal has
+    /// loaded, the reveal's over them.
+    /// </summary>
+    internal static ScreenLayerPictures Destruction(InstalledSpriteSheets sheets, bool zebesRevealed)
     {
         Ensure.NotNull(sheets);
         var tiles = new ScreenTileSet(TileInkDepth.SixteenColours);
-        foreach (CeresDestructionUpload upload in Ensure.NotNull(uploads))
-        {
-            if (upload == CeresDestructionUpload.CeresScene)
-            {
-                tiles.Place(ScreenTileSheets.Of(sheets, SpriteSheetId.CeresFlightObjectTiles), CeresTileSetDefinitions.ObjectFirstTile, 0,
-                    CeresFlightArtworkFormat.ObjectByteCount / CharacterBytes);
-                tiles.Place(ScreenTileSheets.Of(sheets, SpriteSheetId.CeresIntroObjectTiles), CeresTileSetDefinitions.ObjectFirstTile, 0,
-                    CeresDestructionSceneDefinitions.SharedObjectCharacterBytes / CharacterBytes);
-            }
-            else if (upload == CeresDestructionUpload.ZebesReveal)
-                tiles.Place(ScreenTileSheets.Of(sheets, SpriteSheetId.ZebesRevealTiles), CeresTileSetDefinitions.ObjectFirstTile, 0,
-                    CeresDestructionArtworkFormat.ZebesCharacterByteCount / CharacterBytes);
-        }
-        return tiles.Pictures();
-    }
-
-    /// <summary>The Ceres flight's Mode 7 view: its Mode 7 characters.</summary>
-    internal static FloorTilePictures FlightFloor(InstalledSpriteSheets sheets) => new FloorCharacters()
-        .Show(ScreenTileSheets.Floor(Ensure.NotNull(sheets), SpriteSheetId.CeresFlightFloorTiles), 0, 0,
-            CeresFlightArtworkFormat.FloorByteCount / FloorCharacterSheet.TileBytes)
-        .Pictures();
-
-    /// <summary>The Mode 7 characters the destruction's <paramref name="uploads"/> leave: the flight's, once the Ceres scene loads them.</summary>
-    internal static FloorTilePictures DestructionFloor(InstalledSpriteSheets sheets, IEnumerable<CeresDestructionUpload> uploads)
-    {
-        Ensure.NotNull(sheets);
-        var tiles = new FloorCharacters();
-        if (Ensure.NotNull(uploads).Contains(CeresDestructionUpload.CeresScene))
-            tiles.Show(ScreenTileSheets.Floor(sheets, SpriteSheetId.CeresFlightFloorTiles), 0, 0,
-                CeresFlightArtworkFormat.FloorByteCount / FloorCharacterSheet.TileBytes);
+        tiles.Place(ScreenTileSheets.Of(sheets, SpriteSheetId.CeresFlightObjectTiles), CeresTileSetDefinitions.ObjectFirstTile, 0,
+            CeresFlightArtworkFormat.ObjectByteCount / CharacterBytes);
+        tiles.Place(ScreenTileSheets.Of(sheets, SpriteSheetId.CeresIntroObjectTiles), CeresTileSetDefinitions.ObjectFirstTile, 0,
+            CeresDestructionSceneDefinitions.SharedObjectCharacterBytes / CharacterBytes);
+        if (zebesRevealed)
+            tiles.Place(ScreenTileSheets.Of(sheets, SpriteSheetId.ZebesRevealTiles), CeresTileSetDefinitions.ObjectFirstTile, 0,
+                CeresDestructionArtworkFormat.ZebesCharacterByteCount / CharacterBytes);
         return tiles.Pictures();
     }
 

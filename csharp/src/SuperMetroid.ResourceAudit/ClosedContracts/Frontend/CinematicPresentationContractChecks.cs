@@ -54,8 +54,6 @@ internal static class CinematicPresentationContractChecks
                     door.LoadEscapeColors(screen.SpriteSets.Set(7));
                     door.LoadAnimationColors(backgrounds, CeresDoorVisualDefinitions.AnimationRowCount - 1);
                     door.LoadAnimationColors(backgrounds, CeresDoorVisualDefinitions.AnimationRowCount);
-                    door.PlatformFrame(CeresDoorVisualDefinitions.PlatformFrameCount - 1);
-                    door.PlatformFrame(CeresDoorVisualDefinitions.PlatformFrameCount);
                     timer.Draw(countdown, sprites, timerSheet);
                 }
             }
@@ -79,9 +77,9 @@ internal static class CinematicPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "CinematicPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 20, "twenty constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 12 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
-            after.Consumers.Count == 20, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 18, "eighteen constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 11 && after.UnresolvedCount == 7 && after.MissingCount == 0 &&
+            after.Consumers.Count == 18, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
         Require(after.Findings.Count(item => item.Owner == "TitleGraphicsPresentation.DrawSprite") == 2,
             "undefined title compositions must not be accepted as loaded title compositions");
     }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Areas.Ceres;
@@ -31,17 +32,16 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0xf019, CeresNativeWords.SteamFunctions.Word(CeresSteamFunction.ApplyRotatingElevatorOffset), "rotating steam function word");
         AssertEqual(0xad80, CeresNativeWords.FloorAnimationFrames.Word(CeresFloorAnimationFrame.WingFrame1), "second wing frame list word");
         AssertEqual(CeresFloorAnimationFrame.BabyFrame1, CeresFloorAnimation.BabyFrameForPhase(3), "the capsule's fourth phase reuses frame one");
-        AssertEqual(11 * 128 + 4, CeresFloorAnimation.Get(CeresFloorAnimationFrame.BabyFrame1)[1].FloorCell, "the capsule's lower run's floor cell");
-        AssertEqual(6, CeresFloorAnimation.Get(CeresFloorAnimationFrame.WingFrame0).Count, "the wings' six runs");
+        AssertTrue(CeresFloorDrawings.Cells(CeresFloorAnimationFrame.BabyFrame1).ContainsKey(11 * 128 + 4), "the capsule's lower run's floor cell");
+        AssertEqual(6, CeresFloorDrawingDefinitions.Frames[CeresFloorAnimationFrame.WingFrame0].Count, "the wings' six runs");
 
         // CeresDoorVisualRomData: its counts are Core's, its sources extraction's.
         AssertEqual(0x0400, CeresDoorVisualDefinitions.CharacterBytes, "door character bytes");
         AssertEqual(15, CeresDoorVisualDefinitions.SetupColorCount, "door setup colours");
         AssertEqual(8, CeresDoorVisualDefinitions.AnimationRowCount, "door glow rows");
         AssertEqual(6, CeresDoorVisualDefinitions.AnimationColorCount, "door glow colours");
-        AssertEqual(2, CeresDoorVisualDefinitions.PlatformFrameCount, "platform frames");
-        AssertEqual(4, CeresDoorVisualDefinitions.PlatformCellCount, "platform cells");
-        AssertEqual(12 * 128 + 14, CeresDoorVisualDefinitions.PlatformFloorCell, "platform floor cell");
+        AssertTrue(CeresFloorDrawings.Cells(CeresFloorAnimationFrame.ElevatorLight).Keys.Order().SequenceEqual(Enumerable.Range(12 * 128 + 14, 4)),
+            "the platform's four floor cells");
         AssertEqual(0xb0c400, CeresSourceDefinitions.Door.Characters, "door character source");
         AssertEqual(0xa6f4ee, CeresSourceDefinitions.Door.NormalColors, "door normal colour source");
         AssertEqual(0x10, CeresSourceDefinitions.Door.AnimationRowBytes, "door glow row stride");

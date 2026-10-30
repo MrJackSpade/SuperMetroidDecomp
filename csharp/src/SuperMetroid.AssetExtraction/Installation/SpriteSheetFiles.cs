@@ -20,7 +20,11 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.Title;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -80,8 +84,12 @@ public static class SpriteSheetFiles
         // Every screen tile sheet is whole blocks of tiles coloured for its characters' depth (#1392).
         foreach (SpriteSheetId sheet in ScreenTileSheetDefinitions.Depths.Keys)
             _ = ScreenTileSheets.Of(installed, sheet);
+        // Every frontend floor picture is the whole floor (#1467).
         foreach (SpriteSheetId sheet in ScreenTileSheetDefinitions.FloorSheets)
-            _ = ScreenTileSheets.Floor(installed, sheet);
+        {
+            foreach (string frame in FrameNames(sheet, body, maps, intro, ending))
+                _ = FloorShots.Of(installed, sheet, frame);
+        }
         return installed;
     }
 
@@ -115,11 +123,12 @@ public static class SpriteSheetFiles
             SpriteSheetId.EndingSubtitleTiles or SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
             SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles =>
             [ScreenTileSheet.FrameName],
-        SpriteSheetId.TitleFloorTiles or SpriteSheetId.TitleBabyTiles or SpriteSheetId.CeresFlightFloorTiles or
-            SpriteSheetId.EndingEscapeAFloorTiles or SpriteSheetId.EndingEscapeBFloorTiles or
-            SpriteSheetId.EndingPlanetExplosionFloorTiles or SpriteSheetId.EndingFlyawayFloorTiles or
-            SpriteSheetId.EndingRewardIconFloorTiles =>
-            [FloorCharacterSheet.FrameName],
+        SpriteSheetId.TitleFloor => Enumerable.Range(0, TitleFloorTileDefinitions.BabyPageCount).Select(TitleFloors.FrameName),
+        SpriteSheetId.CeresFloor => Enum.GetValues<CeresFloorShot>().Select(CeresFloors.FrameName),
+        SpriteSheetId.EndingEscapeAFloor or SpriteSheetId.EndingEscapeBFloor or
+            SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or
+            SpriteSheetId.EndingRewardIconFloor =>
+            [EndingFloorDefinitions.FrameName],
         SpriteSheetId.EscapeTimer => EscapeTimerPresentationDefinitions.Glyphs.Select(EscapeTimerComposition.FrameName),
         SpriteSheetId.Grapple => GrappleSheets.Frames,
         SpriteSheetId.SamusBodyTop or SpriteSheetId.SamusBodyBottom => SamusBodySheetComposer.FrameNames(body.Value, sheet),

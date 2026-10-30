@@ -15,7 +15,7 @@ cbuffer TileParameters : register(b0)
     uint AddB, Reserved2, RoomSource, Reserved3;
     int MatrixA, MatrixB, MatrixC, MatrixD;
     int CenterX, CenterY, OffsetX, OffsetY;
-    uint FillCharacterZero, FirstScanline, EndScanline;
+    uint FloorOutside, FirstScanline, EndScanline;
     uint Reserved27;
     uint Reserved28, Reserved29, Reserved30, Reserved31;
     uint4 ScanlineParameters[224];
@@ -64,10 +64,10 @@ static const uint PictureColoursWord = 0, PicturePlaceWord = 1, PictureSizeWord 
 // tile priority above it, and above that whether it is colour zero and whether it keeps its group.
 Texture2D<uint2> Images : register(t4);
 static const uint InkColourZero = 65536, InkKeepsGroup = 131072;
-// The perspective floor's image (D3D11FloorImage): the 1024-pixel floor, then its first tile's picture beside it. Each
-// texel's ink word keeps the index of the floor sheet it comes from, and marks a tile nothing pictures.
+// The perspective floor's image (D3D11FloorImage): the 1024-pixel floor with its states' pictures laid over it. Each
+// texel's ink word keeps the index of the floor picture it comes from.
 Texture2D<uint2> Floor : register(t5);
-static const uint FloorSide = 1024, FloorSheetShift = 20, InkUnpictured = 524288;
+static const uint FloorSheetShift = 20;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> SpriteLayer : register(u1);
 
@@ -378,20 +378,15 @@ void Main(uint3 id : SV_DispatchThreadID)
         int x = (startX + MatrixA * (int)id.x) >> 8;
         int y = (startY + MatrixC * (int)id.x) >> 8;
         bool outside = (uint)x >= 1024 || (uint)y >= 1024;
-        bool transparentOutside = outside && FillCharacterZero == 0;
-        uint wrappedX = (uint)x & 1023, wrappedY = (uint)y & 1023;
-        // Outside the floor, it shows nothing, fills with its first tile, or repeats.
-        uint2 at = outside && FillCharacterZero == 1 ? uint2(FloorSide + (wrappedX & 7), wrappedY & 7) : uint2(wrappedX, wrappedY);
+        bool transparentOutside = outside && FloorOutside == 0;
+        // Outside the floor, it shows nothing or repeats.
+        uint2 at = uint2((uint)x & 1023, (uint)y & 1023);
         uint2 texel = Floor.Load(int3(at, 0));
-        // `shown` is the colour a nonzero pixel shows; a tile nothing pictures draws nothing.
-        uint color = 0, shown = 0;
-        if ((texel.y & InkUnpictured) == 0)
-        {
-            uint index;
-            bool high;
-            shown = TexelColour(texel, RoomLevels[RoomLevels[RoomFloorSheetsWord] + (texel.y >> FloorSheetShift)], index, high);
-            color = index;
-        }
+        // `shown` is the colour a nonzero pixel shows.
+        uint index;
+        bool high;
+        uint shown = TexelColour(texel, RoomLevels[RoomLevels[RoomFloorSheetsWord] + (texel.y >> FloorSheetShift)], index, high);
+        uint color = index;
         if (transparentOutside) color = 0;
         if (Reserved27 == 2)
         {

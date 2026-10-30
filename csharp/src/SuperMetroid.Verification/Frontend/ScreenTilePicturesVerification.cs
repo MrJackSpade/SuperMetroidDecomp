@@ -152,7 +152,7 @@ internal static class ScreenTilePicturesVerification
         for (int tick = 0; tick < TitleTicks && !title.FileSelectRequested; tick++)
         {
             FloorScene scene = title.CaptureRenderSnapshot();
-            if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Tiles.GetHashCode()}"))
+            if (scene.Floor is { } floor && sampled.Add($"{title.Phase} {floor.Image.GetHashCode()}"))
             {
                 RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(DisplayRendering.NextFrame(), scene)).ToArray();
                 var shownTitle = title.ShownVram();
@@ -214,7 +214,7 @@ internal static class ScreenTilePicturesVerification
             {
                 ScreenTilesLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
                 ScreenTilesViewportLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
-                TurningFloorLayer mode7 => mode7 with { Floor = new AffineFloor(mode7.Floor.Cells, AffineFloorFixtures.Floor(vram, scene.Paint.Colors).Tiles) },
+                TurningFloorLayer mode7 => mode7 with { Floor = AffineFloorFixtures.Floor(vram, scene.Paint.Colors) },
                 AddedScreenTilesLayer sub => sub with
                 {
                     Cells = FromCharacters(sub.Cells),

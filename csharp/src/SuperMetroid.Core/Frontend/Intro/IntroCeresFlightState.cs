@@ -18,10 +18,6 @@ internal sealed class IntroCeresFlightState
     internal readonly ScreenSprites objects;
     /// <summary>Installed flight artwork the frame is drawn from, rebound after debugger restoration.</summary>
     [field: NonSerialized] internal CeresFlightArtwork? Artwork { get; private set; }
-    /// <summary>The floor's cells for the front or the rear view of the bound artwork, until the view or the artwork changes.</summary>
-    [NonSerialized] private byte[]? floorMap;
-    /// <summary>Whether <see cref="floorMap"/> lays out the rear view.</summary>
-    [NonSerialized] private bool floorMapIsRear;
     /// <summary>Installed sprite compositions, rebound without restarting the scene.</summary>
     [NonSerialized] private CinematicSpriteSheet? spriteArtwork;
     /// <summary>Optional edited rear-view actor positions.</summary>
@@ -81,16 +77,11 @@ internal sealed class IntroCeresFlightState
 
         CeresFlightArtwork content = artwork ?? throw new InvalidOperationException(
             "Ceres approach requires installed cinematic artwork.");
-        RequireMinimum(content.FloorCharacterCount * CeresFlightArtworkFormat.FloorCharacterBytes, CeresFlightArtworkFormat.FloorByteCount,
-            "gunship/Ceres Mode 7 characters");
-        RequireMinimum(content.FloorMaps.Length, CeresFlightArtworkFormat.MapCellCount,
-            "gunship front/rear Mode 7 tilemaps");
         RequireMinimum(content.ObjectCharacterCount * CeresFlightArtworkFormat.ObjectCharacterBytes, CeresFlightArtworkFormat.ObjectByteCount,
             "space/Ceres OBJ characters");
         Artwork = content;
 
-        // $BCCD uploads the Mode 7 characters, the blank-filled front-view map and the OBJ characters;
-        // the scene binds that artwork and its capture composes them.
+        // $BCCD loads the floor's front view and the OBJ characters; the scene shows the front view's installed floor (#1467).
         objects = new ScreenSprites();
         content.Palette.LoadTo(palette);
         // The PPU loads above are invisible: the screen stays in forced blank until $8B:BDE4.
@@ -103,11 +94,11 @@ internal sealed class IntroCeresFlightState
     {
         spriteArtwork = sheets is null ? null : new CinematicSpriteSheet(sheets.Get(SpriteSheetId.CeresFlightSprites), CinematicSpriteFamily.CeresFlight);
         captionTiles = sheets is null ? null : CeresScreenTiles.Flight(sheets);
-        floorTiles = sheets is null ? null : CeresScreenTiles.FlightFloor(sheets);
+        floorSheets = sheets;
     }
 
-    /// <summary>What the Mode 7 view's tiles show (#1392); artwork, never saved.</summary>
-    [NonSerialized] private FloorTilePictures? floorTiles;
+    /// <summary>The installed sheets the floor's views are pictured in (#1467); artwork, never saved.</summary>
+    [NonSerialized] private InstalledSpriteSheets? floorSheets;
 
     /// <summary>What the caption's characters show (#1392); artwork, never saved.</summary>
     [NonSerialized] private ScreenLayerPictures? captionTiles;
@@ -117,7 +108,6 @@ internal sealed class IntroCeresFlightState
     {
         actorLayout = artwork?.Actors;
         Artwork = artwork;
-        floorMap = null;
         if (artwork is null) return;
         artwork.Palette.LoadTo(palette);
     }
@@ -219,7 +209,8 @@ internal sealed class IntroCeresFlightState
         {
             layers.Add(new TurningFloorLayer(FloorRotationMatrix.Transform(angle, zoom,
                 CeresFlightRenderDefinitions.FloorCenter, background.Whole.AsSignedWord()),
-                AffineFloor.Of(FloorMap(), floorTiles ?? throw new InvalidOperationException("The Ceres flight's Mode 7 view requires the installed sprite sheets."))));
+                CeresFloors.Of(floorSheets ?? throw new InvalidOperationException("The Ceres flight's floor requires the installed sprite sheets."),
+                    ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront)));
             layers.Add(new SpriteDepthLayer(1));
         }
         layers.Add(new SpriteDepthLayer(2));
@@ -246,29 +237,10 @@ internal sealed class IntroCeresFlightState
     internal bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
         IntroCeresFlightPhase.FlyingIntoCamera);
 
-    /// <summary>The floor's cells: the blank tile everywhere, with the front or the rear view's map over the start.</summary>
-    private byte[] FloorMap()
-    {
-        CeresFlightArtwork content = Artwork ?? throw new InvalidOperationException(
-            "Ceres approach rendering requires installed cinematic artwork.");
-        bool rear = ShowsRearView;
-        if (floorMap is null || floorMapIsRear != rear)
-        {
-            var cells = new byte[AffineFloor.CellCount];
-            cells.AsSpan(0, AffineFloor.CellCount).Fill(CeresFlightSceneDefinitions.BlankFloorCharacter);
-            int slice = rear ? CeresFlightArtworkFormat.MapCellsPerView : 0;
-            content.FloorMaps.Span.Slice(slice, CeresFlightArtworkFormat.MapCellsPerView).CopyTo(cells);
-            floorMap = cells;
-            floorMapIsRear = rear;
-        }
-        return floorMap;
-    }
-
     /// <summary>Loads the rear map, places five actors, and primes the white fixed-color flash.</summary>
     private void SetupRearView()
     {
-        // $BE22 queues the second $300-byte map immediately behind the front view in the
-        // same decompressed stream; the rear view's phase selects it in the composed image.
+        // $BE22 loads the rear view's map; the rear view's phase selects its installed floor (#1467).
         background = new(new(unchecked((ushort)-32), 0), new(unchecked((ushort)-128), 0));
         angle = RotationAngle.FromTableIndex(32);
 

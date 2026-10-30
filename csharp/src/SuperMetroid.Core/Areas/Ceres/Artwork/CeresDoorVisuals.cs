@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
-/// <summary>Editable Ceres-door tile DMA and RGB5 palettes; actor timing remains engine-owned.</summary>
+/// <summary>Editable Ceres-door characters and RGB5 palettes; actor timing remains engine-owned, and the elevator platform's strips are pictures of the room's floor (#1467).</summary>
 public sealed class CeresDoorVisuals
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
@@ -23,13 +23,6 @@ public sealed class CeresDoorVisuals
                 for (int color = 0; color < rowColors.Length; color++) rowColors[color] = AnimationColor(row, color);
                 content.AppendColors("row", rowColors);
             }
-            content.Append("mode7-frames", CeresDoorVisualDefinitions.PlatformFrameCount);
-            Span<byte> platform = stackalloc byte[CeresDoorVisualDefinitions.PlatformCellCount];
-            for (int frame = 0; frame < CeresDoorVisualDefinitions.PlatformFrameCount; frame++)
-            {
-                for (int index = 0; index < platform.Length; index++) platform[index] = PlatformTile(frame, index);
-                content.Append("mode7-frame", platform);
-            }
         });
 
     /// <summary>Validated 4bpp door characters used for the VRAM transfer.</summary>
@@ -40,39 +33,30 @@ public sealed class CeresDoorVisuals
     internal readonly CeresDoorEscapePaint escape;
     /// <summary>Eight animation rows resolved against the normal palette.</summary>
     internal readonly CeresDoorAnimationPaint animation;
-    /// <summary>Platform strip cells that differ from the canonical platform frames.</summary>
-    internal readonly Dictionary<int, byte> platformEdits = [];
-
-    /// <summary>Retains validated visual data and extracts independently edited platform cells.</summary>
+    /// <summary>Retains validated visual data.</summary>
     private CeresDoorVisuals(RoomCharacterAtlas tiles, RgbColor[] normal,
-        RgbColor[] escape, RgbColor[][] animation, byte[][] platformFrames)
+        RgbColor[] escape, RgbColor[][] animation)
     {
         this.tiles = tiles;
         this.normal = new(normal);
         this.escape = new(escape, this.normal);
         this.animation = new(animation, this.normal);
-        for (int frame = 0; frame < platformFrames.Length; frame++)
-        for (int index = 0; index < CeresDoorVisualDefinitions.PlatformCellCount; index++)
-            if (platformFrames[frame][index] != PlatformTile(frame, index))
-                platformEdits.Add(frame * CeresDoorVisualDefinitions.PlatformCellCount + index, platformFrames[frame][index]);
     }
 
-    /// <summary>Retains the door sheet's characters, validating their count, and the door colours and platform strips the installed visual document supplied.</summary>
+    /// <summary>Retains the door sheet's characters, validating their count, and the door colours the installed visual document supplied.</summary>
     /// <param name="tiles">The installed <c>ceres-door-tiles.png</c> characters, 32 of them.</param>
     /// <param name="normal">Fifteen normal setup colours.</param>
     /// <param name="escape">Fifteen escape setup colours.</param>
     /// <param name="animation">Eight rows of six animation colours.</param>
-    /// <param name="platformFrames">The elevator platform's two four-cell floor strips, light then dark.</param>
     /// <returns>The compiled visual snapshot.</returns>
     /// <exception cref="InvalidDataException">The characters are not the door's 32.</exception>
     internal static CeresDoorVisuals Load(RoomCharacterAtlas tiles, RgbColor[] normal, RgbColor[] escape,
-        RgbColor[][] animation, byte[][] platformFrames)
+        RgbColor[][] animation)
     {
         Ensure.NotNull(tiles);
         if (tiles.Characters.Length != CeresDoorVisualDefinitions.CharacterBytes)
             throw new InvalidDataException($"Ceres-door tiles hold {tiles.Characters.Length} bytes; expected {CeresDoorVisualDefinitions.CharacterBytes}.");
-        return new CeresDoorVisuals(tiles, normal, escape, animation,
-            platformFrames);
+        return new CeresDoorVisuals(tiles, normal, escape, animation);
     }
 
     /// <summary>The door's 32 four-bit characters, which its second variant shows over the sprite characters.</summary>
@@ -108,19 +92,4 @@ public sealed class CeresDoorVisuals
 
     /// <summary>Resolves one ink from the actor-selected door animation row.</summary>
     private RgbColor AnimationColor(int row, int color) => animation.ColorAt(row, color);
-
-    /// <summary>Resolves one platform cell from the shared canonical strip or an independently supplied cell edit.</summary>
-    private byte PlatformTile(int frame, int index)
-    {
-        return platformEdits.GetValueOrDefault(frame * CeresDoorVisualDefinitions.PlatformCellCount + index,
-            CeresFloorAnimation.PlatformTile(frame, index));
-    }
-
-    /// <summary>The selected light (0) or dark (1) platform strip: the four floor cells the rotating-elevator door draws.</summary>
-    public byte[] PlatformFrame(int frame)
-    {
-        var tiles = new byte[CeresDoorVisualDefinitions.PlatformCellCount];
-        for (int index = 0; index < tiles.Length; index++) tiles[index] = PlatformTile(frame, index);
-        return tiles;
-    }
 }

@@ -325,9 +325,9 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // AnimateCeresElevatorPlatform at $A6:F8F1 does not belong to either arrival
         // projectile. It survives their touchdown deletion because the rotating-room door
         // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
-        // queue made the moving OBJ pad flash correctly, then left the landed tile platform
-        // frozen on whichever frame happened to be present at deletion.
-        _room.Services.DrawFloorMap(CeresDoorVisualDefinitions.PlatformFloorCell, SelectedCeresDoorVisual.PlatformFrame((frame & 2) >> 1));
+        // queue made the moving OBJ pad flash correctly, then left the landed floor platform
+        // frozen on whichever frame happened to be present at deletion. The import pictures both strips (#1467).
+        _room.Services.DrawFloor(CeresFloorAnimation.PictureOf(CeresFloorAnimation.PlatformFrame((frame & 2) >> 1)));
 
         // Bits 3..5 of the frame counter: a new row of six colors every eight frames.
         int colorRow = (frame >> 3) % 8;

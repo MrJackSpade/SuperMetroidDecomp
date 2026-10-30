@@ -477,11 +477,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>What <paramref name="layer"/> shows reading <paramref name="depth"/> characters: their pre-coloured tiles (#1392).</summary>
     internal ScreenLayerPictures LayerTiles(EndingTileLayer layer, TileInkDepth depth) => screen.Tiles(InstalledArtwork.Sheets, layer, depth);
 
-    /// <summary>The floor's cells: what the floor scene, flyaway and reward uploads lay out.</summary>
-    internal byte[] FloorCells() => screen.FloorCells(Stage.FloorArtwork, Flyaway.FlightArtwork);
-
-    /// <summary>What the Mode 7 map shows: the pre-coloured characters the uploads leave (#1392).</summary>
-    internal FloorTilePictures FloorTiles() => screen.FloorTiles(InstalledArtwork.Sheets);
+    /// <summary>The turning floor the scenes have loaded: its shot's installed picture (#1467).</summary>
+    internal AffineFloor Floor() => EndingScreenFloor.Of(InstalledArtwork.Sheets, screen.FloorShot);
 
     /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
     internal LayeredScene CaptureExplosionFinale()

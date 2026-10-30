@@ -63,5 +63,11 @@ internal static class CeresSourceDefinitions
 
         /// <summary>Where a descriptor's three-byte tile source starts within it.</summary>
         internal const int DescriptorSource = 1;
+
+        /// <summary>Where a descriptor's two-byte tile count starts within it.</summary>
+        internal const int DescriptorCount = 4;
+
+        /// <summary>Where a descriptor's two-byte first floor cell starts within it.</summary>
+        internal const int DescriptorCell = 6;
     }
 }

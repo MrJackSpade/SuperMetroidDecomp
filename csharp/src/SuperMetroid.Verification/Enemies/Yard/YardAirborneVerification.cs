@@ -11,6 +11,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Verification.Harness;
 namespace SuperMetroid.Verification.Enemies.Yard;
 
 /// <summary>Checks Yard kick distance publication and airborne fixed-point trajectories.</summary>
@@ -40,8 +41,7 @@ internal static class YardAirborneVerification
     /// <summary>Checks dropped, kicked, and beam-launched motion across signed carry and vertical speed caps.</summary>
     internal static void VerifyYardAirborneTrajectories(SelectedRoom room)
     {
-        var empty = new ushort[64 * 64];
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(empty, new byte[empty.Length], new ushort[empty.Length]));
+        RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(64, 64));
         // Signed whole/fraction boundary cases exercise native ADC carry, the
         // unusual suppressed zero-high-word write, and the vertical speed cap.
         uint[] horizontal = [0, 0x00008000, 0x00010000, 0x00018000, 0xFFFF8000, 0xFFFF0000, 0xFFFE8000];

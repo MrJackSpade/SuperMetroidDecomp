@@ -31,7 +31,7 @@ internal static class EtecoonFanfareVerification
             EtecoonBehavior.InitializeEtecoon(slot);
         }
         var samus = new SamusState { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(48, 192), new RoomLevelPlanes(new ushort[48 * 192], new byte[48 * 192], new ushort[48 * 192]));
+        RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(48, 192));
         enemies.ElevatorBehavior.ElevatorDoorTransitionActive = true;
         for (int frame = 0; frame < 3; frame++)
         {

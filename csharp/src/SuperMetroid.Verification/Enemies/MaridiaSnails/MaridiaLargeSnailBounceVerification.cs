@@ -18,10 +18,8 @@ internal static class MaridiaLargeSnailBounceVerification
     /// </summary>
     internal static void VerifyMaridiaLargeSnailBounceRecord()
     {
-        var air = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(new ushort[64], new byte[64], new ushort[64]));
-        var floorBlocks = new ushort[64];
-        Array.Fill(floorBlocks, RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw, 32, 32);
-        var floor = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(floorBlocks, new byte[64], new ushort[64]));
+        RoomLevelData air = VerificationHelpersVerification.CreateEmptyRoom(new(8, 8));
+        RoomLevelData floor = VerificationHelpersVerification.CreateSolidRowsRoom(new(8, 8), firstSolidRow: 4, solidRowCount: 4);
 
         foreach ((string context, RoomLevelData level, MaridiaLargeSnailBounceFunction phase, int start, int expected, MaridiaLargeSnailBounceFunction expectedPhase, bool expectedSettled) in
                  new VerifyMaridiaLargeSnailBounceRecordCase[]

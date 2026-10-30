@@ -41,8 +41,7 @@ internal static class BoulderBehaviorVerification
     /// </summary>
     internal static void VerifyBoulderReboundClock()
     {
-        var blocks = new ushort[64];
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(blocks, new byte[64], new ushort[64]));
+        RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(8, 8));
         foreach ((int start, int expected, BoulderAiFunction function) in new VerifyBoulderReboundClockCase[]
                  {
                      new VerifyBoulderReboundClockCase(200, 0, BoulderAiFunction.Falling),

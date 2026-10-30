@@ -65,7 +65,6 @@ internal static class ChozoStatuePlmDefinitionsVerification
 
             const int width = 32;
             const int height = 16;
-            int blockCount = width * height;
             var level = CreateEmptyRoom(new(width, height));
             var plms = PlmFixtures.Unbound();
             var request = new ChozoStatuePlmRequest(

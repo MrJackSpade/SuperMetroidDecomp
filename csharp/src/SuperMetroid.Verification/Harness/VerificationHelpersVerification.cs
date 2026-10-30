@@ -12,6 +12,9 @@ namespace SuperMetroid.Verification.Harness;
 /// <summary>Shared assertion and sparse-cartridge-fixture helpers for byte-accurate movement, rendering and instruction checks.</summary>
 internal static class VerificationHelpersVerification
 {
+    /// <summary>A plain solid block showing block zero, unmirrored: what synthetic floors and filled rooms are built from.</summary>
+    private static readonly RoomTerrainBlock PlainSolid = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+
     /// <summary>Compares two memory images, reporting the first differing byte offset and values.</summary>
     internal static void AssertSameBytes(ReadOnlySpan<byte> expected, ReadOnlySpan<byte> actual, string context)
     {
@@ -221,6 +224,19 @@ internal static class VerificationHelpersVerification
             size,
             new RoomTerrainBlock[blockCount],
             new RoomBlockBehavior[blockCount]);
+    }
+
+    /// <summary>
+    /// Creates a room of open air in which <paramref name="solidRowCount"/> whole rows, starting at
+    /// <paramref name="firstSolidRow"/>, are plain solid blocks. No block has a behaviour and the background is cleared:
+    /// the floor, lower half or filled room that enemy movement fixtures stand on. Rows outside the room fail.
+    /// </summary>
+    internal static RoomLevelData CreateSolidRowsRoom(Extent16<RoomBlocks> size, int firstSolidRow, int solidRowCount)
+    {
+        int blockCount = checked(size.X * size.Y);
+        var terrain = new RoomTerrainBlock[blockCount];
+        terrain.AsSpan(checked(firstSolidRow * size.X), checked(solidRowCount * size.X)).Fill(PlainSolid);
+        return CreateRoom(size, terrain, new RoomBlockBehavior[blockCount]);
     }
 
     /// <summary>

@@ -16,7 +16,7 @@ internal static class YardSurfaceLossVerification
     /// </summary>
     internal static void VerifyYardSurfaceLoss()
     {
-        var air = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new ushort[4096], new byte[4096], new ushort[4096]));
+        RoomLevelData air = VerificationHelpersVerification.CreateEmptyRoom(new(64, 64));
         foreach ((int counted, int expected, YardBehavior expectedBehavior, YardMovementFunction expectedMovement) in
                  new VerifyYardSurfaceLossCase[]
                  {

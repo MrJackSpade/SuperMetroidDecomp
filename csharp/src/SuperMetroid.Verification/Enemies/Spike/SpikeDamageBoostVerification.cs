@@ -9,11 +9,21 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Enemies.Spike;
 
 /// <summary>Checks Samus's spike knockback release, residual speed, and landing transitions.</summary>
 internal static class SpikeDamageBoostVerification
 {
+    /// <summary>A plain solid block showing block zero: the walls of the fixture's box.</summary>
+    private static readonly RoomTerrainBlock Solid = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+
+    /// <summary>Open air showing block zero: the inside of the box.</summary>
+    private static readonly RoomTerrainBlock OpenAir = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
+
+    /// <summary>Spike air showing block zero: the hazard inside the box.</summary>
+    private static readonly RoomTerrainBlock SpikeAirTerrain = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeAir);
+
     /// <summary>Replays focused spike and hurt-expiry trajectories through the runtime movement path.</summary>
     internal static void VerifyMorphedSpikeRelease()
     {
@@ -26,10 +36,10 @@ internal static class SpikeDamageBoostVerification
         var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y <= 16; y++)
         for (int x = 0; x < level.Size.X; x++)
-            level.SetForegroundEntry(y * level.Size.X + x,
-                y is 0 or 16 || x is 0 or 15 ? (ushort)0x8000 : (ushort)0);
+            level.SetTerrain(y * level.Size.X + x,
+                y is 0 or 16 || x is 0 or 15 ? Solid : OpenAir);
         int hazardBlock = 10 * level.Size.X + 8;
-        level.SetForegroundEntry(hazardBlock, 0x2000);
+        level.SetTerrain(hazardBlock, SpikeAirTerrain);
         level.SetBehavior(hazardBlock, SpikeHazardDefinitions.DamagingSpikeAirBehavior);
         runtime.InitializeDebugGroundedSamus(128, 160, 16);
         var samus = runtime.Player.IntroducedSamus;
@@ -98,7 +108,7 @@ internal static class SpikeDamageBoostVerification
         // Native carry trace contact=5, delay=2, immediately after the contact frame.
         // One neutral hurt frame must cancel momentum without clearing its numeric
         // extra speed; the next normal movement frame consumes that cancellation.
-        level.SetForegroundEntry(hazardBlock, 0);
+        level.SetTerrain(hazardBlock, OpenAir);
         samus.Pose = SamusPoseId.SpinJumpRightPose;
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;

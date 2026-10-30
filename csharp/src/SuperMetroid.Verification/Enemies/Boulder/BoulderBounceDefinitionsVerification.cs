@@ -3,6 +3,7 @@ using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Boulder;
 
@@ -14,9 +15,7 @@ internal static class BoulderBounceDefinitionsVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession());
         Action<RoomEnemySlot, BoulderEnemyState, RoomLevelData> fall = enemies.BoulderBehavior.RunBoulderFalling;
-        var blocks = new ushort[64];
-        Array.Fill(blocks, (ushort)0x8000, 32, 32);
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(blocks, new byte[64], new ushort[64]));
+        RoomLevelData level = VerificationHelpersVerification.CreateSolidRowsRoom(new(8, 8), firstSolidRow: 4, solidRowCount: 4);
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
         var state = new BoulderEnemyState();
         actor.Position = actor.Position.WithWholeX(40);

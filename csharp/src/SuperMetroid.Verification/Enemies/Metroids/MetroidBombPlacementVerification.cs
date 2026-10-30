@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Enemies.Metroids;
 
 using SuperMetroid.Verification.Harness;
@@ -23,6 +24,12 @@ using SuperMetroid.Core.World.RoomStates;
 /// <summary>Checks a placed bomb detaching a Metroid and its subsequent escape motion.</summary>
 internal static class MetroidBombPlacementVerification
 {
+    /// <summary>A plain solid block showing block zero: the fixture's floor.</summary>
+    private static readonly RoomTerrainBlock Solid = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+
+    /// <summary>Open air showing block zero: everything above the floor.</summary>
+    private static readonly RoomTerrainBlock OpenAir = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air);
+
     /// <summary>Checks natural bomb detonation, four native jitter updates, and return to homing.</summary>
     internal static void VerifyMetroidBombPlacement()
     {
@@ -95,8 +102,8 @@ internal static class MetroidBombPlacementVerification
         for (int x = 0; x < level.Size.X; x++)
         {
             int index = level.GetBlockIndex(new(checked((ushort)x), checked((ushort)y)));
-            level.SetForegroundEntry(index, y >= 10 ? (ushort)0x8000 : (ushort)0);
-            level.SetBehavior(index, 0);
+            level.SetTerrain(index, y >= 10 ? Solid : OpenAir);
+            level.SetBehavior(index, RoomBlockBehaviorValues.None);
         }
         runtime.InitializeDebugGroundedSamus(128, 100, 10);
         var samus = runtime.Player.IntroducedSamus;

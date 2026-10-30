@@ -79,7 +79,7 @@ internal static class KiHunterSpitAudioVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(block.Bts.Value, samus.Pose.ForRoomCollision(), true);
+            level.ResolveDoorCollision(block.Behavior.Value, samus.Pose.ForRoomCollision(), true);
             selected = true;
         }
         AssertTrue(selected, "real KiHunter room has an exit");

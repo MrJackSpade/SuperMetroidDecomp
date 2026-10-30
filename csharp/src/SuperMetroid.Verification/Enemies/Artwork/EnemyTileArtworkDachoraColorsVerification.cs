@@ -13,6 +13,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
 
@@ -94,7 +95,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         enemies.DachoraBehavior.LoadDachoraPalette(slot, DachoraPalettePhase.Default, 0);
         CheckLive(DachoraPalettePhase.Default, 0);
 
-        var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]));
+        RoomLevelData empty = VerificationHelpersVerification.CreateEmptyRoom(new(16, 16));
         for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
         {
             state.Speed = SignedSixteenSixteen.FromParts(8, 0);

@@ -163,15 +163,15 @@ internal static class RoomAssetRomDataVerification
         IReadOnlyDictionary<string, byte[]> files = RoomCharacterAtlasExtractor.Extract(bus);
         var sources = new Dictionary<string, int>
         {
-            [RoomCharacterAtlasFormat.CreFileName] = (int)RoomTilesetSourceDefinitions.CreCharacters,
+            [RoomCharacterSheetFiles.CreFileName] = (int)RoomTilesetSourceDefinitions.CreCharacters,
         };
         for (byte graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             int address = RoomTilesets.Get(graphicsSet).CharacterAddress;
-            sources[RoomCharacterAtlasFormat.SourceFileName(address)] = address;
+            sources[RoomCharacterSheetFiles.SourceFileName(address)] = address;
         }
         int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
-        sources[RoomCharacterAtlasFormat.SourceFileName(ghostSource)] = ghostSource;
+        sources[RoomCharacterSheetFiles.SourceFileName(ghostSource)] = ghostSource;
         AssertEqual(sources.Count, files.Count, "one PNG per distinct retail room-character source");
 
         var compiledBySource = new Dictionary<int, RoomCharacterAtlas>();
@@ -184,7 +184,7 @@ internal static class RoomAssetRomDataVerification
                 : RomDataReader.Decompress(bus, sourceAddress);
             byte[] png = files[name];
             RoomCharacterAtlas atlas = RoomCharacterAtlasPng.Read(new MemoryStream(png), native.Length);
-            if (name == RoomCharacterAtlasFormat.CreFileName) compiledCre = atlas;
+            if (name == RoomCharacterSheetFiles.CreFileName) compiledCre = atlas;
             else compiledBySource.Add(sourceAddress, atlas);
             AssertTrue(atlas.Characters.Span.SequenceEqual(native),
                 $"room atlas {name} preserves every native character byte");
@@ -220,7 +220,7 @@ internal static class RoomAssetRomDataVerification
         int landingColumns = Math.Min(RoomCharacterAtlasFormat.TileColumns, landingTiles);
         int landingRows = (landingTiles + landingColumns - 1) / landingColumns;
         IndexedPngImage landingImage = IndexedPng.Read(
-            new MemoryStream(files[RoomCharacterAtlasFormat.SourceFileName(landingSource)]),
+            new MemoryStream(files[RoomCharacterSheetFiles.SourceFileName(landingSource)]),
             new(checked((ushort)(landingColumns * 8)), checked((ushort)(landingRows * 8))));
         byte[] painted = (byte[])landingImage.Pixels.Clone();
         painted[0] ^= 1;

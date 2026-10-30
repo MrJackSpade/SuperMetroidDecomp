@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.LevelData;
+namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>A sheet of room background characters, shared by the graphics sets that draw with it.</summary>
 public enum RoomCharacterSet

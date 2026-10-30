@@ -21,15 +21,15 @@ public static class RoomCharacterAtlasExtractor
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
         RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
-        Add(RoomCharacterAtlasFormat.CreFileName,
+        Add(RoomCharacterSheetFiles.CreFileName,
             RoomTilesetSourceDefinitions.CreCharacters);
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomCharacterSet set = RoomTilesets.Get(graphicsSet).Characters;
-            string name = RoomCharacterAtlasFormat.FileName(set);
+            string name = RoomCharacterSheetFiles.FileName(set);
             if (!files.ContainsKey(name)) Add(name, sources.Characters[set]);
         }
-        Add(RoomCharacterAtlasFormat.FileName(RoomCharacterSet.TourianStatueGhost),
+        Add(RoomCharacterSheetFiles.FileName(RoomCharacterSet.TourianStatueGhost),
             sources.Characters[RoomCharacterSet.TourianStatueGhost], compressed: false);
         return files;
 

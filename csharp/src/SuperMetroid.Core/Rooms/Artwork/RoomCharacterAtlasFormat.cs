@@ -9,12 +9,6 @@ public static class RoomCharacterAtlasFormat
     public const int BytesPerTile = 32;
     /// <summary>Largest accepted compiled stream: $8000 bytes, or 1024 complete 4-bpp characters.</summary>
     public const int MaximumByteCount = 32768;
-    /// <summary>Editable PNG filename for the common room elements (CRE) character stream shared by room graphics sets.</summary>
-    public const string CreFileName = "room-characters-cre.png";
-
-    /// <summary>The editable PNG file name of a character sheet; graphics sets that share a sheet share one PNG.</summary>
-    public static string FileName(SuperMetroid.Core.Rooms.LevelData.RoomCharacterSet set) =>
-        $"room-characters-{SuperMetroid.Core.Assets.InstalledArtworkNames.Hyphenated(set.ToString())}.png";
 
     /// <summary>Validates a positive, tile-aligned stream of at most $8000 bytes and returns its 8x8 character count.</summary>
     /// <param name="byteCount">Compiled transfer length in bytes.</param>

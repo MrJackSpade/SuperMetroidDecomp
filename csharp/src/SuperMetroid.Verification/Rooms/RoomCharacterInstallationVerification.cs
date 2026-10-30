@@ -67,12 +67,12 @@ internal static class RoomCharacterInstallationVerification
             // Room characters are the import's input and take no overrides (#1466): rooms show pre-composed pictures, which
             // take theirs as composed sheets in the block sheet override directory.
             int source = native.Tileset.CharacterAddress;
-            string name = RoomCharacterAtlasFormat.SourceFileName(source);
+            string name = RoomCharacterSheetFiles.SourceFileName(source);
             AssertTrue(stock.GetAt(source).Characters.Span.SequenceEqual(nativeCharacters.Span),
                 "the installed Landing Site character sheet holds the native characters");
 
             int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
-            string ghostName = RoomCharacterAtlasFormat.SourceFileName(ghostSource);
+            string ghostName = RoomCharacterSheetFiles.SourceFileName(ghostSource);
             string ghostStockPath = Path.Combine(installed.RoomCharacterDirectory, ghostName);
             byte[] nativeGhost = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                 ghostSource, LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);

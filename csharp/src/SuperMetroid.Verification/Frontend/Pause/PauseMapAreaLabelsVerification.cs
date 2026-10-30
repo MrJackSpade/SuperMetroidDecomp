@@ -108,9 +108,9 @@ internal static class PauseMapAreaLabelsVerification
             }
             // The separate current-area heading was already installed correctly.
             int title = 0x820000 | Read(0x82965f + (int)area * 2);
-            BackgroundTile[] frame = pause.ShownBg2Tiles;
+            BackgroundTile[] shownFrame = pause.ShownBg2Tiles;
             for (int word = 0; word < 12; word++)
-                AssertEqual(BackgroundTileWords.ToTile(Read(title + word * 2)), frame[0xaa + word], $"{area} heading agrees with native BG2 patch");
+                AssertEqual(BackgroundTileWords.ToTile(Read(title + word * 2)), shownFrame[0xaa + word], $"{area} heading agrees with native BG2 patch");
         }
         Console.WriteLine("Pause area labels: five outside-Tourian areas match raw ROM destination OAM and area-title words.");
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);

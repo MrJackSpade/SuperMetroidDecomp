@@ -1,11 +1,9 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -20,52 +18,6 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// </summary>
 internal static class ScreenTileSheetComposer
 {
-    /// <summary>Composes screen tile sheet <paramref name="sheet"/> from the stock artwork <paramref name="sources"/> read.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The sheet holds no screen tiles.</exception>
-    internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)
-    {
-        Ensure.NotNull(sources);
-        AreaMapPresentation maps = sources.Maps;
-        return sheet switch
-        {
-            SpriteSheetId.PauseMapTiles => Compose(MapCharacterArtwork.Of(maps).Map.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
-            SpriteSheetId.PauseInterfaceTiles => Compose(MapCharacterArtwork.Of(maps).Pause.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
-            SpriteSheetId.AreaMapForegroundCrateria or SpriteSheetId.AreaMapForegroundBrinstar or
-                SpriteSheetId.AreaMapForegroundNorfair or SpriteSheetId.AreaMapForegroundWreckedShip or
-                SpriteSheetId.AreaMapForegroundMaridia or SpriteSheetId.AreaMapForegroundTourian or
-                SpriteSheetId.AreaMapBackgroundCrateria or SpriteSheetId.AreaMapBackgroundBrinstar or
-                SpriteSheetId.AreaMapBackgroundNorfair or SpriteSheetId.AreaMapBackgroundWreckedShip or
-                SpriteSheetId.AreaMapBackgroundMaridia or SpriteSheetId.AreaMapBackgroundTourian or
-                SpriteSheetId.RoomMapPictures or SpriteSheetId.PausePictures or
-            SpriteSheetId.PauseHud or SpriteSheetId.MenuPictures or SpriteSheetId.EscapeTimer or SpriteSheetId.Grapple or SpriteSheetId.SamusBodyTop or
-                SpriteSheetId.SamusBodyBottom or SpriteSheetId.SamusOverlays or SpriteSheetId.SamusAtmosphere or
-                SpriteSheetId.SamusDeath or SpriteSheetId.GameOver or SpriteSheetId.FileSelect or
-                SpriteSheetId.GameOptions or SpriteSheetId.MapSprites or SpriteSheetId.PauseSprites or
-                SpriteSheetId.Title or SpriteSheetId.IntroSprites or SpriteSheetId.CeresFlightSprites or
-                SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites or
-                SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
-                SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
-                SpriteSheetId.EndingShootingSprites or SpriteSheetId.EndingShootingLogoQuarterSprites or
-                SpriteSheetId.EndingShootingLogoHalfSprites or
-                SpriteSheetId.EndingShootingLogoThreeQuartersSprites or SpriteSheetId.EndingLogoSprites or
-                SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or SpriteSheetId.ProjectilesWave or
-                SpriteSheetId.ProjectilesIce or SpriteSheetId.ProjectilesIceWave or
-                SpriteSheetId.ProjectilesSpazer or SpriteSheetId.ProjectilesSpazerWave or
-                SpriteSheetId.ProjectilesSpazerIce or SpriteSheetId.ProjectilesSpazerIceWave or
-                SpriteSheetId.ProjectilesPlasma or SpriteSheetId.ProjectilesPlasmaWave or
-                SpriteSheetId.ProjectilesPlasmaIce or SpriteSheetId.ProjectilesPlasmaIceWave or
-                SpriteSheetId.ProjectilesSpazerPlasmaWave or SpriteSheetId.ProjectilesSpazerPlasmaIce or
-                SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or SpriteSheetId.EndingEscapeAFloor or
-                SpriteSheetId.EndingEscapeBFloor or SpriteSheetId.EndingPlanetExplosionFloor or
-                SpriteSheetId.EndingFlyawayFloor or SpriteSheetId.EndingRewardIconFloor or SpriteSheetId.EndingCreditsRows or
-                SpriteSheetId.EndingPostCreditsPictures or SpriteSheetId.EndingWavySamusPicture or
-                SpriteSheetId.EndingExplosionPictures or SpriteSheetId.CeresCinematicPictures or SpriteSheetId.IntroScenePictures or
-                SpriteSheetId.IntroNarrationPictures =>
-                throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no screen tiles."),
-            _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
-        };
-    }
-
     /// <summary>
     /// The sheet of <paramref name="characters"/>, planar <paramref name="depth"/> characters, each under each palette row
     /// coloured from <paramref name="palette"/>'s background half.

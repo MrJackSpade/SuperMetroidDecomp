@@ -141,23 +141,13 @@ internal static class MenuSheetFixtures
                      (SpriteSheetId.Title, TitleSheetComposer.Sources(maps)),
                  })
             sheets[id] = Load(id, sources, $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
-        // The menus' background tiles are pre-coloured from the maps' characters and palettes (#1392).
-        foreach (SpriteSheetId id in ScreenTileSheetDefinitions.Depths.Keys)
-        {
-            ComposedSpriteSheet tiles = ScreenTileSheetComposer.Compose(id, new ScreenTileSources(() => maps, () => InstalledFixtures.IntroArtwork,
-                RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes,
-                RepositoryInstallation.Installation.LoadEndingMode7Art));
-            sheets[id] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
-                $"{SpriteSheetDefinitions.FileNames[id]}-fixture-maps-{RuntimeHelpers.GetHashCode(maps):X8}", tiles.Size, tiles.Pixels,
-                tiles.PaletteIndices, tiles.Priorities, tiles.PartGroups);
-        }
         // Pause's HUD plane draws the HUD's images, pictured from the maps' HUD artwork and characters (#1466).
         sheets[SpriteSheetId.PauseHud] = LoadTiles(SpriteSheetId.PauseHud, HudImageSheet.ComposePause(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         // The menus' pages and the pictures placed over them are pictured from the maps' presentation (#1467).
         sheets[SpriteSheetId.MenuPictures] = LoadTiles(SpriteSheetId.MenuPictures, MenuPictureSheet.Compose(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         // The room maps' cells and frames, and each area's world-map pages, are pictured from the maps' presentation (#1467).
         sheets[SpriteSheetId.RoomMapPictures] = LoadTiles(SpriteSheetId.RoomMapPictures, MapPictureSheets.ComposeRoomMap(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
-        // The pause screen's map cells, backdrops and buttons are pictured from the maps' presentation (#1467).
+        // The pause screen's map cells, backdrops, buttons and equipment page are pictured from the maps' presentation (#1467).
         sheets[SpriteSheetId.PausePictures] = LoadTiles(SpriteSheetId.PausePictures, PausePictureSheet.Compose(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         foreach (KeyValuePair<AreaId, SpriteSheetId> foreground in ScreenTileSheetDefinitions.AreaMapForegrounds)
             sheets[foreground.Value] = LoadTiles(foreground.Value, MapPictureSheets.ComposeWorldForeground(maps, foreground.Key), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");

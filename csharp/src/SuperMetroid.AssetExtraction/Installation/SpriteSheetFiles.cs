@@ -83,9 +83,6 @@ public static class SpriteSheetFiles
             sheets.Add(sheet, loaded);
         }
         var installed = new InstalledSpriteSheets(sheets);
-        // Every screen tile sheet is whole blocks of tiles coloured for its characters' depth (#1392).
-        foreach (SpriteSheetId sheet in ScreenTileSheetDefinitions.Depths.Keys)
-            _ = ScreenTileSheets.Of(installed, sheet);
         // Every frontend floor picture is the whole floor (#1467).
         foreach (SpriteSheetId sheet in ScreenTileSheetDefinitions.FloorSheets)
         {
@@ -111,8 +108,6 @@ public static class SpriteSheetFiles
     internal static IEnumerable<string> FrameNames(SpriteSheetId sheet, Lazy<InstalledSamusBodyArtwork> body,
         Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending) => sheet switch
     {
-        SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles =>
-            [ScreenTileSheet.FrameName],
         SpriteSheetId.IntroScenePictures => IntroScenePictures.FrameNames,
         SpriteSheetId.IntroNarrationPictures => IntroNarrationPictures.FrameNames,
         SpriteSheetId.CeresCinematicPictures => CeresCinematicPictures.FrameNames,

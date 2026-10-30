@@ -99,7 +99,7 @@ internal static class EndingSpriteSheetComposer
                 SpriteSheetId.AreaMapBackgroundCrateria or SpriteSheetId.AreaMapBackgroundBrinstar or
                 SpriteSheetId.AreaMapBackgroundNorfair or SpriteSheetId.AreaMapBackgroundWreckedShip or
                 SpriteSheetId.AreaMapBackgroundMaridia or SpriteSheetId.AreaMapBackgroundTourian or
-                SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHud or
+                SpriteSheetId.PauseHud or
                 SpriteSheetId.IntroScenePictures or SpriteSheetId.IntroNarrationPictures or
                 SpriteSheetId.CeresCinematicPictures or SpriteSheetId.EndingCreditsRows or
                 SpriteSheetId.EndingPostCreditsPictures or SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or

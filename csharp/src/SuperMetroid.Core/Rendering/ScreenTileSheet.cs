@@ -22,22 +22,22 @@ public sealed class ScreenTileSheet
     /// <summary>Pixels along a tile's side.</summary>
     public const int TilePixels = 8;
 
-    /// <summary>Checks the sheet holds whole blocks of tiles for each palette row, coloured for <paramref name="depth"/>.</summary>
+    /// <summary>Checks the sheet <paramref name="name"/> holds whole blocks of tiles for each palette row, coloured for <paramref name="depth"/>.</summary>
     /// <exception cref="InvalidDataException">The picture is not whole blocks of tiles, or not coloured for the depth.</exception>
-    public ScreenTileSheet(SpriteSheetId id, SpriteSheet sheet, TileInkDepth depth)
+    public ScreenTileSheet(string name, SpriteSheet sheet, TileInkDepth depth)
     {
-        Id = id;
+        Name = Ensure.NotNull(name);
         Depth = depth;
         Picture = Ensure.NotNull(sheet).Frame(FrameName);
         if (Picture.Sheet.Colours != ColoursOf(depth))
-            throw new InvalidDataException($"Screen tile sheet {id} is not coloured for {depth} characters.");
+            throw new InvalidDataException($"Screen tile sheet {name} is not coloured for {depth} characters.");
         if (Picture.Size.X != Columns * TilePixels || Picture.Size.Y == 0 || Picture.Size.Y % (ColourVariants * TilePixels) != 0)
-            throw new InvalidDataException($"Screen tile sheet {id} is {Picture.Size.X}x{Picture.Size.Y}, not whole blocks of tiles for each palette row.");
+            throw new InvalidDataException($"Screen tile sheet {name} is {Picture.Size.X}x{Picture.Size.Y}, not whole blocks of tiles for each palette row.");
         BlockRows = Picture.Size.Y / (ColourVariants * TilePixels);
     }
 
-    /// <summary>The installed sheet.</summary>
-    public SpriteSheetId Id { get; }
+    /// <summary>The sheet's name, for diagnostics.</summary>
+    public string Name { get; }
 
     /// <summary>The bit depth of the artwork's characters.</summary>
     public TileInkDepth Depth { get; }

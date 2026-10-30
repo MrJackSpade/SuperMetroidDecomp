@@ -27,10 +27,18 @@ internal static class CeresCinematicPictureSheetComposer
 
     /// <summary>Composes the sheet from the installed intro artwork.</summary>
     /// <exception cref="InvalidDataException">A picture's tile names a character the scene never loads.</exception>
-    internal static ComposedSpriteSheet Compose(IntroCinematicArtwork intro)
+    internal static ComposedSpriteSheet Compose(IntroCinematicArtwork intro) => Compose(Ensure.NotNull(intro).CeresFlight, intro);
+
+    /// <summary>
+    /// Composes the sheet from the flight artwork <paramref name="ceresFlight"/> and the rest of <paramref name="intro"/>'s
+    /// artwork, as an installation whose flight artwork is replaced composes it.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A picture's tile names a character the scene never loads.</exception>
+    internal static ComposedSpriteSheet Compose(CeresFlightArtwork ceresFlight, IntroCinematicArtwork intro)
     {
+        Ensure.NotNull(ceresFlight);
         Ensure.NotNull(intro);
-        byte[] flight = CeresFlightCharacters.Of(intro.CeresFlight).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount].ToArray();
+        byte[] flight = CeresFlightCharacters.Of(ceresFlight).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount].ToArray();
         // The destruction loads the shared cinematic sheet over the start of the flight's objects; the reveal its own over them.
         byte[] zebes = (byte[])flight.Clone();
         IntroCinematicSourceArtwork.Of(intro).IntroObjectCharacters.Characters.Span[..CeresDestructionSceneDefinitions.SharedObjectCharacterBytes].CopyTo(zebes);
@@ -41,7 +49,7 @@ internal static class CeresCinematicPictureSheetComposer
         int width = Math.Max(captionWidth, PlanetCells * CharacterPixels);
         int captionHeight = japaneseRows * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)(captionHeight + PlanetCells * CharacterPixels))));
-        RgbColor[] colours = ScreenTileSheetComposer.FlightColours(intro.CeresFlight)[..SpriteImage.SpriteColourCount].ToArray();
+        RgbColor[] colours = ScreenTileSheetComposer.FlightColours(ceresFlight)[..SpriteImage.SpriteColourCount].ToArray();
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         // The caption letters side by side, then the katakana caption beside them, then the planet below.
         for (int letter = 0; letter < letters; letter++)

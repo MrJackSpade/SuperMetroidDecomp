@@ -220,7 +220,7 @@ internal static class ContactCrumbleProgramsVerification
             .ToArray();
         RoomPlmVisualRunEntry first = entries.Single(entry =>
             entry.Id == "single-breakup-0");
-        first.Runs[0][0] = 0x0054;
+        first.Runs[0][0] = RoomBlockAppearance.Of(0x054);
         var edited = new InstalledRoomPlmShotBlockVisuals(entries);
 
         RenderBreakResult RenderBreak(
@@ -302,7 +302,7 @@ internal static class ContactCrumbleProgramsVerification
         var words = new RoomTerrainBlock[width * width];
         words[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.SpecialBlock);
         var behaviors = new RoomBlockBehavior[words.Length];
-        behaviors[blockIndex] = bts;
+        behaviors[blockIndex] = new RoomBlockBehavior(bts);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]));
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BlockReactions.TrySpawnSamusContactCrumbleBlock(level, blockIndex,

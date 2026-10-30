@@ -118,7 +118,7 @@ internal static class KraidRoomVisualsVerification
     {
         var tube = new InstalledRoomPlmMaridiaElevatubeVisuals(
             [new RoomPlmVisualEntry(
-                MaridiaElevatubePlmDefinitions.VisualId, [0x005b])]);
+                MaridiaElevatubePlmDefinitions.VisualId, [RoomBlockAppearance.Of(0x05b)])]);
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock), RoomBlockAppearance.Of(0x058), new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidCeiling, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.ClearCeiling)), 14, RoomTerrainBlock.Of(0x130, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x059), new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
         Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidSpikes, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.ClearSpikes)), 21, RoomTerrainBlock.Of(0x110, BlockMirroring.None, RoomCollisionType.Air), RoomBlockAppearance.Of(0x05a), new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));

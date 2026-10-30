@@ -108,8 +108,8 @@ internal static class RoomContentIdentityVerification
         RoomLevelId firstLevel = new("FixtureLevelA"), secondLevel = new("FixtureLevelB");
         var layouts = new Dictionary<RoomLevelId, RoomLevelArtwork>
         {
-            [firstLevel] = new RoomLevelArtwork(firstLevel, new Extent16<RoomBlocks>(1, 2), [0, 1], [editLayout ? (ushort)2 : (ushort)0, 1]),
-            [secondLevel] = new RoomLevelArtwork(secondLevel, new Extent16<RoomBlocks>(2, 1), [1, 0], [0, 1]),
+            [firstLevel] = new RoomLevelArtwork(firstLevel, new Extent16<RoomBlocks>(1, 2), [RoomBlockAppearance.Of(0), RoomBlockAppearance.Of(1)], [RoomBlockAppearance.Of(editLayout ? 2 : 0), RoomBlockAppearance.Of(1)]),
+            [secondLevel] = new RoomLevelArtwork(secondLevel, new Extent16<RoomBlocks>(2, 1), [RoomBlockAppearance.Of(1), RoomBlockAppearance.Of(0)], [RoomBlockAppearance.Of(0), RoomBlockAppearance.Of(1)]),
         };
         if (reverse) layouts = layouts.Reverse().ToDictionary(pair => pair.Key, pair => pair.Value);
         return new RoomIdentityFixture(

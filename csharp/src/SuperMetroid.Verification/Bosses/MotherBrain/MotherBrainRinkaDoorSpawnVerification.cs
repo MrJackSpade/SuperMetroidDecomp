@@ -50,10 +50,10 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock ||
-                level.ResolveDoorCollision(block.Bts.Value, samus.Pose.ForRoomCollision(), publishDoorSideEffects: false)
+                level.ResolveDoorCollision(block.Behavior.Value, samus.Pose.ForRoomCollision(), publishDoorSideEffects: false)
                     .Door?.DestinationRoom != RoomHeaderDefinitions.MotherBrain)
                 continue;
-            level.ResolveDoorCollision(block.Bts.Value, samus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
+            level.ResolveDoorCollision(block.Behavior.Value, samus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
             selected = true;
         }
         AssertTrue(selected, "the shaft has a door into Mother Brain's room");

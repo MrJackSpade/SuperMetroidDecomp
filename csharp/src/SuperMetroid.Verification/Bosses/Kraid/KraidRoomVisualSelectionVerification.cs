@@ -67,7 +67,7 @@ internal static class KraidRoomVisualSelectionVerification
                 "Kraid visual selection rejects each duplicate role");
         }
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmKraidVisuals(
-            entries.Append(new("unknown", [0]))), "Kraid visual selection rejects unknown ID");
+            entries.Append(new("unknown", [RoomBlockAppearance.Of(0)]))), "Kraid visual selection rejects unknown ID");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmKraidVisuals(
             entries.Skip(1).Append(new("crumble-first", []))), "Kraid visual selection rejects empty frame");
         Console.WriteLine("Kraid room visual selection: ten roles, all 45 blocks, legacy identity, copied data and validation pass.");

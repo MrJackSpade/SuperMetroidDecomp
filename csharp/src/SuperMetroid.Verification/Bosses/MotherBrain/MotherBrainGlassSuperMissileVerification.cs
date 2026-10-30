@@ -63,7 +63,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         AssertTrue(shots.Slots[0].PackedDirection.HasLowByteLifecycleState, "the walker marks the first slot");
         AssertTrue(!shots.Slots[1].PackedDirection.HasLowByteLifecycleState, "the pair's second slot is not marked");
 
-        var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
+        var level = CreateEmptyRoom(new(16, 16));
         shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
         head.AiStates = EnemyAiStates.None;
         head.FlashTimer = WrappingCountdown.Start(0);

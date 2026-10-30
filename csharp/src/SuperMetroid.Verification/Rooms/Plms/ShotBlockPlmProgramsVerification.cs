@@ -131,12 +131,12 @@ internal static class ShotBlockPlmProgramsVerification
                     $"shot-block draw list ${PlmDrawAddressCodec.Of(list.Draw):X4} direction/count");
                 forbidden.Add(0x840000 | cursor++);
                 forbidden.Add(0x840000 | cursor++);
-                foreach (ushort word in run.Blocks.Span)
+                foreach (RoomTerrainBlock terrain in run.Blocks.Span)
                 {
-                    AssertEqual(word, calculated.BlockAt(runIndex, blockIndex++), "shot-block direct and exported word agree");
-                    AssertEqual(word,
-                        CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
-                        $"shot-block draw list ${PlmDrawAddressCodec.Of(list.Draw):X4} level word at ${cursor:X4}");
+                    AssertEqual(terrain, calculated.BlockAt(runIndex, blockIndex++), "shot-block direct and exported block agree");
+                    AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)),
+                        terrain,
+                        $"shot-block draw list ${PlmDrawAddressCodec.Of(list.Draw):X4} block decoded from the level word at ${cursor:X4}");
                     forbidden.Add(0x840000 | cursor++);
                     forbidden.Add(0x840000 | cursor++);
                 }
@@ -322,8 +322,8 @@ internal static class ShotBlockPlmProgramsVerification
             AssertEqual(pair.Value[run][word], stock.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(pair.Key), run, word), "shot-block calculated native stock word");
             AssertEqual(pair.Value[run][word], loaded.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(pair.Key), run, word), "shot-block imported native stock word");
         }
-        native[0xa345][0][0] = 0x0054;
-        native[0xa48b][1][1] = 0x0258;
+        native[0xa345][0][0] = RoomBlockAppearance.Of(0x054);
+        native[0xa48b][1][1] = RoomBlockAppearance.Of(0x258);
         var edited = new InstalledRoomPlmShotBlockVisuals(native.Select(pair => new RoomPlmVisualRunEntry(ShotId(pair.Key), pair.Value)));
         AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmShotBlockVisuals), native.ToDictionary(pair => ShotId(pair.Key), pair => pair.Value)), edited.ContentIdentity,
             "shot-block mixed stock/custom identity preserves original framing");
@@ -331,7 +331,7 @@ internal static class ShotBlockPlmProgramsVerification
         for (int run = 0; run < pair.Value.Length; run++)
         for (int word = 0; word < pair.Value[run].Length; word++)
             AssertEqual(pair.Value[run][word], edited.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(pair.Key), run, word), "shot-block mixed payload output");
-        native[0xa345][0][0] = 0;
+        native[0xa345][0][0] = RoomBlockAppearance.Of(0);
         AssertEqual(RoomBlockAppearance.Of(0x054), edited.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(0xa345), 0, 0), "shot-block custom data cloned");
         AssertEqual(RoomBlockAppearance.Of(0x053), loaded.GetAppearance(NativePlmDraws.At<ShotBlockPlmDraws.Draw>(0xa345), 0, 0), "shot-block normalized stock isolated from caller mutation");
         foreach (var catalog in new[] {stock, loaded, edited})
@@ -358,7 +358,7 @@ internal static class ShotBlockPlmProgramsVerification
             .Select(list => new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(list.Draw),
                 list.Runs.Span
                     .SelectToArray(run => run.Blocks.Span
-                        .SelectToArray(word => unchecked((ushort)(word & 0x0fff))))
+                        .SelectToArray(terrain => terrain.Appearance))
                     ))
             .ToArray();
         RoomPlmVisualRunEntry first = editedEntries.Single(entry =>

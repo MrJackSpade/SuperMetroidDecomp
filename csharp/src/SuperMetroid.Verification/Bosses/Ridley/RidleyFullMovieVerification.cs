@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
@@ -261,7 +262,7 @@ internal static class RidleyFullMovieVerification
     /// <summary>Checks Samus's retained horizontal momentum across the recorded Ridley movement transition.</summary>
     internal static void VerifyRetainedHorizontalSpeed()
     {
-        var room = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
+        var room = CreateEmptyRoom(new(16, 16));
         foreach (int branch in new[] { 0, 1, 2, 3 })
         {
             var samus = new SamusState
@@ -357,7 +358,7 @@ internal static class RidleyFullMovieVerification
     /// <summary>Checks the camera checkpoint selected during Samus's morph transition.</summary>
     internal static void VerifyMorphCameraCheckpoint()
     {
-        var level = CreateRoom(new(16, 32), new ushort[16 * 32], new byte[16 * 32]);
+        var level = CreateEmptyRoom(new(16, 32));
         foreach (bool left in new[] { false, true })
         {
             var samus = new SamusState
@@ -392,7 +393,7 @@ internal static class RidleyFullMovieVerification
     /// <summary>Checks the aim-up landing pose's animation timing at the recorded boundary.</summary>
     internal static void VerifyAimUpLandingAnimation()
     {
-        var level = CreateRoom(new(16, 32), new ushort[16 * 32], new byte[16 * 32]);
+        var level = CreateEmptyRoom(new(16, 32));
         foreach (SamusPoseId pose in new[] { SamusPoseId.FallingAimUpRightPose, SamusPoseId.FallingAimUpLeftPose })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
@@ -741,9 +742,9 @@ internal static class RidleyFullMovieVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
+            var door = level.ResolveDoorCollision(block.Behavior.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
             if (door.Door?.DestinationRoom != RoomHeaderDefinitions.Ridley) continue;
-            level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), true);
+            level.ResolveDoorCollision(block.Behavior.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), true);
             found = true;
         }
         AssertTrue(found, "native Ridley entry door");
@@ -1408,11 +1409,15 @@ internal static class RidleyFullMovieVerification
                 var activeLevel = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active collision data.");
                 for (int block = 0; block < activeLevel.Size.X * activeLevel.Size.Y; block++)
                 {
-                    Check($"Room block {block}", activeLevel.ForegroundEntries.Span[block], NativeSnapshotMemory.Level + block * 2);
-                    byte expectedBehavior = memory[NativeSnapshotMemory.Bts + block];
-                    byte actualBehavior = activeLevel.BehaviorBytes.AsSpan()[block];
+                    // The native level word and BTS byte decode to the terrain and behaviour the port's grid holds.
+                    RoomTerrainBlock expectedTerrain = RoomLevelWordCodec.Decode(W(NativeSnapshotMemory.Level + block * 2));
+                    RoomTerrainBlock actualTerrain = activeLevel.TerrainGrid[block];
+                    if (actualTerrain != expectedTerrain)
+                        mismatches.Add($"Room block {block}: native={expectedTerrain} port={actualTerrain}");
+                    var expectedBehavior = new RoomBlockBehavior(memory[NativeSnapshotMemory.Bts + block]);
+                    RoomBlockBehavior actualBehavior = activeLevel.BehaviorGrid[block];
                     if (actualBehavior != expectedBehavior)
-                        mismatches.Add($"Room BTS {block}: native={expectedBehavior:X2} port={actualBehavior:X2}");
+                        mismatches.Add($"Room behaviour {block}: native={expectedBehavior} port={actualBehavior}");
                 }
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
@@ -1735,9 +1740,9 @@ internal static class RidleyFullMovieVerification
                 Console.Error.WriteLine($"Room width={level.Size.X}, Samus radius={samus.Kinematics.Radius.X}/{samus.Kinematics.Radius.Y}, speed={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4}+{samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4}");
                 for (int block = 0; block < level.Size.X * level.Size.Y; block++)
                 {
-                    ushort expectedBlock = W(NativeSnapshotMemory.Level + block * 2);
-                    ushort actualBlock = level.ForegroundEntries.Span[block];
-                    if (expectedBlock != actualBlock) Console.Error.WriteLine($"Block {block} ({block % level.Size.X},{block / level.Size.X}): native={expectedBlock:X4} port={actualBlock:X4}");
+                    RoomTerrainBlock expectedBlock = RoomLevelWordCodec.Decode(W(NativeSnapshotMemory.Level + block * 2));
+                    RoomTerrainBlock actualBlock = level.TerrainGrid[block];
+                    if (expectedBlock != actualBlock) Console.Error.WriteLine($"Block {block} ({block % level.Size.X},{block / level.Size.X}): native={expectedBlock} port={actualBlock}");
                 }
                 throw new InvalidDataException($"Full movie first divergence at update {frame} (SMV source frame {(frame == 0 ? 0 : updates[frame - 1].GetProperty("sourceFrame").GetInt32())}): " + string.Join("; ", mismatches));
             }

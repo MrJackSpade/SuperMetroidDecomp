@@ -106,7 +106,7 @@ internal static class SamusEaterVisualsVerification
         var counts = new Dictionary<ushort, int[]>();
         foreach (var frame in frames)
         {
-            var words = new List<ushort>();
+            var appearances = new List<RoomBlockAppearance>();
             var runs = new List<int>();
             int cursor = 0x840000 | frame.Pointer;
             while (true)
@@ -114,13 +114,13 @@ internal static class SamusEaterVisualsVerification
                 int count = ReadSamusEaterPlmWord(rom, cursor) & 0x7fff;
                 runs.Add(count);
                 for (int block = 0; block < count; block++)
-                    words.Add(RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterPlmWord(rom, cursor + 2 + block * 2)));
+                    appearances.Add(RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterPlmWord(rom, cursor + 2 + block * 2)));
                 cursor += 2 + count * 2;
                 ushort offset = ReadSamusEaterPlmWord(rom, cursor);
                 cursor += 2;
                 if (offset == 0) break;
             }
-            native.Add(frame.Pointer, words.ToArray());
+            native.Add(frame.Pointer, appearances.ToArray());
             counts.Add(frame.Pointer, runs.ToArray());
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();

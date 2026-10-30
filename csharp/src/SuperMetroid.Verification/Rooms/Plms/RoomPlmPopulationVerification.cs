@@ -1159,7 +1159,7 @@ internal static class RoomPlmPopulationVerification
 
         StationActivationEvent saveRequest = plms.Stations.StationActivationEvents.Single();
         samus.Position = samus.Position.WithWholeX(0x0127);
-        ushort[] levelBeforeSave = Enumerable.Range(0, level.Size.X * level.Size.Y)
+        RoomTerrainBlock[] levelBeforeSave = Enumerable.Range(0, level.Size.X * level.Size.Y)
             .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).Terrain)
             .ToArray();
         bool saving = plms.Stations.ResolveSaveStationConfirmation(saveRequest, accepted: true, level: level);
@@ -1342,7 +1342,7 @@ internal static class RoomPlmPopulationVerification
         }
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
             "save message enters shared yes/no selection phase");
-        AssertEqual(RoomTerrainBlock.Of(0x100, BlockMirroring.None, RoomCollisionType.HorizontalExtension), message.Tilemap(messages)[128].Terrain,
+        AssertEqual(BackgroundTileWords.ToTile(0x5100), message.Tilemap(messages)[128],
             "save message begins with native selected-YES row");
         // $85:84BA waits two lag frames before its first ReadControllerInput.
         message.Step(0);
@@ -1351,7 +1351,7 @@ internal static class RoomPlmPopulationVerification
         message.Step(ControllerButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "save cursor changes the shared confirmation selection");
-        AssertEqual(RoomTerrainBlock.Of(0x200, BlockMirroring.None, RoomCollisionType.HorizontalExtension), message.Tilemap(messages)[128].Terrain,
+        AssertEqual(BackgroundTileWords.ToTile(0x5200), message.Tilemap(messages)[128],
             "save cursor redraws the native selected-NO row");
         // Later reads come every second frame: the read's frame holds the next first wait.
         // A toggle's redraw wait precedes that cycle once (#1269), so the first read after

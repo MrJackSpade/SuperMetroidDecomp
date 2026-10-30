@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -35,11 +36,11 @@ internal static class BotwoonWallPlmsVerification
         AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), draw.Runs.Span[0],
             "Botwoon clear run header");
         cursor += 2;
-        foreach (ushort word in draw.Runs.Span[0].Blocks.Span)
-            AssertWord(word);
+        foreach (RoomTerrainBlock block in draw.Runs.Span[0].Blocks.Span)
+            AssertBlock(block);
         for (int index = 0; index < 9; index++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x849311 + index * 2),
-                BotwoonWallPlmDraws.BlockAt(index), "Botwoon calculated clear word matches native");
+            AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x849311 + index * 2)),
+                BotwoonWallPlmDraws.BlockAt(index), "Botwoon calculated clear block matches the native word");
         foreach (int index in new[] {int.MinValue,-1,9,int.MaxValue})
             AssertThrows<ArgumentOutOfRangeException>(() => BotwoonWallPlmDraws.BlockAt(index), "Botwoon fill rejects invalid block index");
         AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
@@ -56,10 +57,10 @@ internal static class BotwoonWallPlmsVerification
         Console.WriteLine(
             "Botwoon wall: typed programs match ROM, and they and the nine-block clear draw run their timed crumble/clear paths without source reads.");
 
-        void AssertWord(ushort expected)
+        void AssertBlock(RoomTerrainBlock expected)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
-                expected, $"Botwoon draw word +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
+            AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)),
+                expected, $"Botwoon draw block +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
             cursor += 2;
         }
     }

@@ -7,10 +7,10 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The codec between Core's enemy slot ordinals and the byte offsets the cartridge numbers its enemy records by (#1471):
 /// each record takes 64 bytes of work memory, so slot <c>n</c> is offset <c>64 * n</c>, and a word that names no enemy
 /// holds all ones. Core addresses enemies by slot object or ordinal; this type is the one place that knows the offset,
-/// for the native-state imports and the checks that compare with native memory.
+/// for the checks and native-snapshot imports that compare with native memory.
 /// </summary>
 [EncodingOwner("enemy slot byte offsets")]
-public static class EnemySlotOffsets
+internal static class EnemySlotOffsets
 {
     /// <summary>The bytes each enemy record takes in the cartridge's work memory.</summary>
     public const int RecordSize = 64;

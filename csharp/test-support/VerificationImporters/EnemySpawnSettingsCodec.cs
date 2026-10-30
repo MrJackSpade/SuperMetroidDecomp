@@ -13,10 +13,10 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The codec between a population entry's initialization word and the typed spawn settings its species reads (#1471).
 /// The cartridge copies the word into the enemy's instruction-list field, and a few species read that field at
 /// initialization as packed selectors before replacing it; every other species ignores the word. This type is the one
-/// place that knows each species' packing, for the population import and for checks that compare with native data.
+/// place that knows each species' packing, for the checks that compare the compiled populations and fixtures with native words.
 /// </summary>
 [EncodingOwner("population entry initialization word")]
-public static class EnemySpawnSettingsCodec
+internal static class EnemySpawnSettingsCodec
 {
     /// <summary>The one GRipper selector bit its direction test ignores: any other set bit starts it moving right.</summary>
     private const int GRipperIgnoredSelectorBit = 1 << 8;

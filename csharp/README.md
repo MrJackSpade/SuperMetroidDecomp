@@ -501,18 +501,16 @@ selected by both Windows and Android after restart. Initialization refuses to ov
 existing override directory. Instrument, sample and sequence edits are not overrides: they are
 stock-content diagnostics in `game/audio` and are replaced by repair.
 
-Room tileset artwork is modded the same way: place an edited copy of a stock file in
-`overrides/room-characters` or `overrides/room-palettes` under the same name
-as the stock file. Files are named for the artwork, not its cartridge location: a character sheet
-is `room-characters-{set}.png` (for example `room-characters-upper-crateria.png`) and a palette
-`room-palette-{set}.json` (for example `room-palette-heated-norfair.json`); the common room elements stay
-`room-characters-cre.png`. A room's 16x16 blocks are changed only through their pictures in the block sheets
-(below); the stock block compositions in `game/room-blocks` are what those sheets are composed from and have no
+Room tileset palettes are modded the same way: place an edited copy of a stock file in `overrides/room-palettes`
+under the same name as the stock file. Files are named for the artwork, not its cartridge location: a palette is
+`room-palette-{set}.json` (for example `room-palette-heated-norfair.json`). Room characters take no overrides: the
+stock character sheets in `game/room-characters` are what the room pictures are composed from, and a room's blocks,
+backgrounds and written pictures are changed only through those pictures in the block sheets (below); the stock block compositions in `game/room-blocks` are what those sheets are composed from and have no
 override. Library-background tilemaps and scrolling-sky pages go in
 `overrides/room-backgrounds`: a tilemap is named for the background it pictures,
 `room-background-{background}.json` (for example `room-background-brinstar-kraid-upper.json`), and a sky page
 for its place among the seven, `scrolling-sky-page-{0-6}.json`. Overrides saved under the older names, which
-carried the cartridge address (`room-characters-BAC629.png`, `room-background-B9FA38.json`,
+carried the cartridge address (`room-palette-C2BC9C.json`, `room-background-B9FA38.json`,
 `scrolling-sky-8AB180.json`), are renamed when the installation is rebuilt; an override present
 under both names stops the rebuild, leaving the previous installation in place, until one of them is removed.
 

@@ -64,25 +64,12 @@ internal static class RoomCharacterInstallationVerification
                 installedRoom.TilesetCharactersIn(stock).Span.SequenceEqual(nativeCharacters.Span),
                 "installed stock room PNGs retain Landing Site character bytes");
 
+            // Room characters are the import's input and take no overrides (#1466): rooms show pre-composed pictures, which
+            // take theirs as composed sheets in the block sheet override directory.
             int source = native.Tileset.CharacterAddress;
             string name = RoomCharacterAtlasFormat.SourceFileName(source);
-            int tileCount = nativeCharacters.Length / RoomCharacterAtlasFormat.BytesPerTile;
-            int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
-            int rows = (tileCount + columns - 1) / columns;
-            IndexedPngImage image;
-            using (var stockFile = File.OpenRead(Path.Combine(installed.RoomCharacterDirectory, name)))
-                image = IndexedPng.Read(stockFile, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))));
-            image.Pixels[0] ^= 1;
-            Directory.CreateDirectory(installed.RoomCharacterOverrideDirectory);
-            string overridePath = Path.Combine(installed.RoomCharacterOverrideDirectory, name);
-            using (var output = File.Create(overridePath))
-                IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
-            RoomCharacterAtlases edited = installed.LoadRoomCharacters();
-            LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing);
-            AssertTrue(!editedRoom.TilesetCharactersIn(edited).Span.SequenceEqual(nativeCharacters.Span),
-                "installed PNG override changes the real room-loader output");
             AssertTrue(stock.GetAt(source).Characters.Span.SequenceEqual(nativeCharacters.Span),
-                "room override does not mutate stock artwork already loaded");
+                "the installed Landing Site character sheet holds the native characters");
 
             int ghostSource = RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters;
             string ghostName = RoomCharacterAtlasFormat.SourceFileName(ghostSource);
@@ -109,25 +96,6 @@ internal static class RoomCharacterInstallationVerification
                 LibraryBackgroundOperands.DestinationWord(LibraryBackgroundDestination.StatueGhostSpriteCharacters));
             AssertTrue(nativeGhostVram.ImageEquals(installedGhostVram),
                 "installed statue-ghost library upload matches the native one apart from the characters only the ghost would draw");
-            int ghostTileCount = nativeGhost.Length / RoomCharacterAtlasFormat.BytesPerTile;
-            int ghostColumns = Math.Min(RoomCharacterAtlasFormat.TileColumns, ghostTileCount);
-            int ghostRows = (ghostTileCount + ghostColumns - 1) / ghostColumns;
-            IndexedPngImage ghostImage;
-            using (var stockFile = File.OpenRead(ghostStockPath))
-                ghostImage = IndexedPng.Read(stockFile, new(checked((ushort)(ghostColumns * 8)), checked((ushort)(ghostRows * 8))));
-            ghostImage.Pixels[0] ^= 1;
-            string ghostOverridePath = Path.Combine(installed.RoomCharacterOverrideDirectory, ghostName);
-            using (var output = File.Create(ghostOverridePath))
-                IndexedPng.Write(output, new(ghostImage.Size.X, ghostImage.Size.Y),
-                    ghostImage.Pixels, ghostImage.Colours);
-            RoomCharacterAtlases editedGhost = installed.LoadRoomCharacters();
-            SnesVram editedGhostVram = ShownVram(LibraryBackgroundProgramDefinitions.Get(ghostTransfer.ListPointer), new LibraryBackgroundArtwork { TilemapArt = RepositoryInstallation.Installation.LoadRoomBackgroundTilemaps(), CharacterArt = editedGhost });
-            // The edit reaches the installed ghost characters only: the replay writes them to no shown video memory (#1466).
-            ReadOnlySpan<byte> editedGhostCharacters = editedGhost.GetAt(ghostSource).Characters.Span;
-            AssertTrue(editedGhostCharacters[0] != nativeGhost[0] && editedGhostCharacters[1..].SequenceEqual(nativeGhost.AsSpan(1)),
-                "edited statue-ghost pixel changes only its selected character byte");
-            AssertTrue(editedGhostVram.ImageEquals(installedGhostVram),
-                "an edited statue-ghost character leaves the shown library upload unchanged");
 
             AssertTrue(File.Exists(Path.Combine(installed.RoomPaletteDirectory,
                     RoomStaticPaletteArtworkFiles.ManifestFileName)),
@@ -280,14 +248,11 @@ internal static class RoomCharacterInstallationVerification
             File.Delete(skyStockPath);
             GameInstallation repaired = GameAssetInstaller.EnsureInstalled(root)
                 ?? throw new InvalidOperationException("Installed room-art repair lost its ROM.");
-            AssertTrue(File.Exists(overridePath), "room-character override survives stock repair");
             AssertTrue(File.Exists(Path.Combine(repaired.RoomCharacterDirectory, name)),
                 "room-character stock sheet is restored by repair");
-            AssertTrue(File.Exists(ghostOverridePath) &&
-                File.Exists(Path.Combine(repaired.RoomCharacterDirectory, ghostName)) &&
-                repaired.LoadRoomCharacters().GetAt(ghostSource).Characters.Span.SequenceEqual(
-                    editedGhost.GetAt(ghostSource).Characters.Span),
-                "statue-ghost stock sheet is repaired without losing the user edit");
+            AssertTrue(File.Exists(Path.Combine(repaired.RoomCharacterDirectory, ghostName)) &&
+                repaired.LoadRoomCharacters().GetAt(ghostSource).Characters.Span.SequenceEqual(nativeGhost),
+                "statue-ghost stock sheet is restored by repair");
             AssertTrue(File.Exists(paletteOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomPaletteDirectory, paletteName)),
                 "room-palette stock is restored while its override survives repair");
@@ -299,10 +264,8 @@ internal static class RoomCharacterInstallationVerification
             AssertTrue(File.Exists(skyOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, skyName)),
                 "scrolling-sky stock is restored while its override survives repair");
-            RoomCharacterAtlases repairedCharacters = repaired.LoadRoomCharacters();
-            LoadedRoomAssets repairedEdited = LoadFixtureRoomAssets(landing);
-            AssertTrue(repairedEdited.TilesetCharactersIn(repairedCharacters).Span.SequenceEqual(editedRoom.TilesetCharactersIn(edited).Span),
-                "repaired installation retains the selected user room artwork");
+            AssertTrue(repaired.LoadRoomCharacters().GetAt(source).Characters.Span.SequenceEqual(nativeCharacters.Span),
+                "repaired installation restores the stock room characters");
             LoadedRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing,
                 paletteArt: repaired.LoadRoomPalettes());
             var repairedCgram = new GameplayColours(new SpriteColourSets());
@@ -318,14 +281,6 @@ internal static class RoomCharacterInstallationVerification
             AssertTrue(BackgroundTileWordBytes.Of(repaired.LoadRoomSkyTilemaps().Page(skyPage, landingSky.ByteCount / sizeof(ushort)).Span).AsSpan().SequenceEqual(changedSky.Span),
                 "repaired installation retains selected user scrolling sky");
 
-            File.WriteAllBytes(overridePath, "invalid indexed PNG"u8.ToArray());
-            AssertThrows<InvalidDataException>(() => repaired.LoadRoomCharacters(),
-                "invalid room-art override fails loudly instead of reverting to stock");
-            File.Delete(overridePath);
-            File.WriteAllBytes(ghostOverridePath, "invalid indexed PNG"u8.ToArray());
-            AssertThrows<InvalidDataException>(() => repaired.LoadRoomCharacters(),
-                "invalid statue-ghost override fails loudly");
-            File.Delete(ghostOverridePath);
             File.WriteAllText(paletteOverridePath, "invalid RGB5 JSON");
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomPalettes(),
                 "invalid room-palette override fails loudly instead of reverting to stock");
@@ -337,8 +292,8 @@ internal static class RoomCharacterInstallationVerification
             AssertThrows<InvalidDataException>(() => repaired.LoadRoomSkyTilemaps(),
                 "invalid scrolling-sky override fails loudly instead of reverting to stock");
 
-            Console.WriteLine("  Room artwork installation: PNG, statue ghost, RGB5, block, BG and sky stock import, live edits, " +
-                "repair preservation and invalid-override rejection verified.");
+            Console.WriteLine("  Room artwork installation: PNG, statue ghost, RGB5, block, BG and sky stock import, palette, " +
+                "background and sky edits, repair preservation and invalid-override rejection verified.");
         }
         finally
         {

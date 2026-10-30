@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
@@ -10,21 +9,20 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// One bank-$8C post-credit cinematic BG object, including the item-percentage opcodes.
 /// </summary>
 /// <remarks>
-/// The final messages are two-tile-high glyph rectangles, not an installed desktop font.
-/// Interpreting their ROM records preserves localization, spacing, palette bits, and the
-/// four-frame typewriter cadence while keeping the staging tilemap debugger-visible.
+/// The typed characters are the installed glyph pictures of their style, written to the staging page at their cells
+/// with the four-frame typewriter cadence; the page is shown after each written glyph (#1467).
 /// </remarks>
 internal sealed class EndingBackgroundTextState
 {
-    /// <summary>Mutable 32-by-32 staging tilemap uploaded after each revealed glyph.</summary>
-    private readonly BackgroundTile[] tilemap;
+    /// <summary>The staging page, shown after each revealed glyph.</summary>
+    private readonly EndingTextPage page;
     /// <summary>Collected ammo and item counts used for the final item-percentage message.</summary>
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Selects the Japanese subtitle row during the percentage hold.</summary>
     private readonly bool japaneseText;
     /// <summary>Remaining calls until the next installed character or hold transition.</summary>
     internal WrappingCountdown InstructionTimer { get; set; } = WrappingCountdown.Start(1);
-    /// <summary>Scene-selected background map the staging tilemap is uploaded into.</summary>
+    /// <summary>Scene-selected text page the staging page is shown on.</summary>
     private readonly EndingTextTilemap destinationTilemap;
     /// <summary>The installed ending text presentation; it is rebound after state restoration.</summary>
     [field: NonSerialized]
@@ -37,18 +35,17 @@ internal sealed class EndingBackgroundTextState
         throw new InvalidOperationException("No ending text sequence is installed.");
     /// <summary>Selected completion or item-percentage program that controls terminal behavior.</summary>
     private readonly EndingTextSequence? installedSequence;
-    /// <summary>Next installed character to reveal in the staging tilemap.</summary>
+    /// <summary>Next installed character to reveal on the staging page.</summary>
     internal int InstalledCharacterIndex { get; set; }
     /// <summary>Preserves the native initial pause before the first glyph.</summary>
     internal bool InstalledInitialMarkerPending { get; set; } = true;
     /// <summary>Tracks whether the item-percentage display hold has begun.</summary>
     private bool installedHoldStarted;
 
-    /// <summary>Binds installed typewriter art and an existing scene tilemap without advancing its pacing.</summary>
+    /// <summary>Binds installed typewriter text and an existing staging page without advancing its pacing.</summary>
     public EndingBackgroundTextState(EndingBackgroundTextSetup setup)
     {
-        this.tilemap = Ensure.NotNull(setup.Tilemap);
-        Ensure.LengthEqual(setup.Tilemap, EndingScreenDefinitions.TilemapWords);
+        this.page = Ensure.NotNull(setup.Page);
         this.inventory = setup.Inventory;
         this.japaneseText = setup.JapaneseText;
         this.destinationTilemap = setup.DestinationTilemap;
@@ -66,7 +63,7 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Set when the item-percentage text clears and the scene may scroll onward.</summary>
     public bool RequestedItemPercentageScroll { get; private set; }
 
-    /// <summary>Consumes one ending text tick and uploads the tilemap when a glyph or terminal change appears.</summary>
+    /// <summary>Consumes one ending text tick and shows the page when a glyph or terminal change appears.</summary>
     public void Step(EndingScreen screen)
     {
         Ensure.NotNull(screen);
@@ -101,10 +98,10 @@ internal sealed class EndingBackgroundTextState
         if (InstalledCharacterIndex < InstalledProgram.Length)
         {
             EndingTextCharacter character = InstalledProgram[InstalledCharacterIndex++];
-            int target = character.Row * EndingTextDefinitions.TilemapWidth + character.Column;
-            tilemap[target] = character.Top;
-            if (character.Bottom is { } bottom)
-                tilemap[target + EndingTextDefinitions.TilemapWidth] = bottom;
+            // A space writes its style's blank glyph, which shows nothing.
+            if (character.Character != ' ')
+                page.Write(EndingPictureNames.Glyph(character.Style, character.Character), new Position16<TilemapCells>(
+                    checked((ushort)character.Column), checked((ushort)character.Row)));
             InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.CharacterDelayFrames);
             Upload(screen);
             return;
@@ -113,9 +110,7 @@ internal sealed class EndingBackgroundTextState
         {
             DrawItemPercentage();
             if (japaneseText)
-                Presentation.JapaneseSubtitle.CopyTo(tilemap.AsSpan(
-                    EndingResultTextLayout.JapaneseSubtitleFirstCell,
-                    EndingResultTextLayout.JapaneseSubtitleWords));
+                page.Write(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
             installedHoldStarted = true;
             InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.PercentageHoldFrames);
             Upload(screen);
@@ -123,16 +118,15 @@ internal sealed class EndingBackgroundTextState
         }
         if (installedSequence == EndingTextSequence.ItemPercentage)
         {
-            Array.Fill(tilemap, EndingScreenDefinitions.BlankTile,
-                EndingResultTextLayout.JapaneseSubtitleFirstCell,
-                EndingResultTextLayout.JapaneseSubtitleWords);
+            // The subtitle's rows are cleared whether or not it was drawn.
+            page.EraseIfWritten(EndingPictureNames.JapaneseSubtitle);
             RequestedItemPercentageScroll = true;
         }
         Completed = true;
         Upload(screen);
     }
 
-    /// <summary>Counts collected expansions and item bits, clamps to 100, and writes native two-row digits and percent mark.</summary>
+    /// <summary>Counts collected expansions and item bits, clamps to 100, and writes the two-row digits and percent sign.</summary>
     private void DrawItemPercentage()
     {
         int count = inventory.MaxHealth / 100
@@ -150,28 +144,19 @@ internal sealed class EndingBackgroundTextState
         int tens = count / 10 % 10;
         int units = count % 10;
         if (hundreds != 0)
-            WriteDigit(EndingResultTextLayout.PercentageHundredsTopIndex, hundreds);
+            page.Write(EndingPictureNames.PercentDigit(hundreds), PercentageCell(0));
         if (tens != 0 || hundreds != 0)
-            WriteDigit(EndingResultTextLayout.PercentageHundredsTopIndex + 1, tens);
-        WriteDigit(EndingResultTextLayout.PercentageHundredsTopIndex + 2, units);
-        tilemap[EndingResultTextLayout.PercentageHundredsTopIndex + 3] =
-            EndingResultTextLayout.PercentTopTile;
-        tilemap[
-            EndingResultTextLayout.PercentageHundredsTopIndex + 3 +
-            EndingScreenDefinitions.TilemapWidth] =
-            EndingResultTextLayout.PercentBottomTile;
+            page.Write(EndingPictureNames.PercentDigit(tens), PercentageCell(1));
+        page.Write(EndingPictureNames.PercentDigit(units), PercentageCell(2));
+        page.Write(EndingPictureNames.PercentSign, PercentageCell(3));
     }
 
-    /// <summary>Writes one decimal digit's top and bottom tiles.</summary>
-    private void WriteDigit(int topIndex, int digit)
-    {
-        BackgroundTile top = EndingResultTextLayout.DigitTopTile, bottom = EndingResultTextLayout.DigitBottomTile;
-        tilemap[topIndex] = top with { Tile = top.Tile + digit };
-        tilemap[topIndex + EndingScreenDefinitions.TilemapWidth] = bottom with { Tile = bottom.Tile + digit };
-    }
+    /// <summary>The cell of the item percentage's glyph <paramref name="place"/> places right of the hundreds digit.</summary>
+    private static Position16<TilemapCells> PercentageCell(int place) => new(
+        checked((ushort)(EndingResultTextLayout.PercentageHundredsCell.X + place)), EndingResultTextLayout.PercentageHundredsCell.Y);
 
-    /// <summary>Transfers the current staging tilemap to the selected background map.</summary>
+    /// <summary>Shows the staging page on the selected text page.</summary>
     private void Upload(EndingScreen screen) =>
-        screen.Record(destinationTilemap, tilemap);
+        screen.ShowText(destinationTilemap, page.Written);
 
 }

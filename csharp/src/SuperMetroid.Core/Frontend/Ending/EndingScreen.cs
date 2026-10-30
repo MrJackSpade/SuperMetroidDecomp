@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
@@ -7,100 +8,120 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The ending's screen (#1358): its palette and the graphics transfers its scenes have made since the last full clear,
-/// which the capture replays over the bound artwork. A transfer covering exactly an earlier one's words replaces it, so the
-/// record stays as small as the distinct transfers it holds.
+/// The ending's screen (#1358, #1467): its palette, which of the ending's pre-assembled pictures its scenes have loaded,
+/// the post-credits text each text page shows, and the floor's loads since the last full clear.
 /// </summary>
 internal sealed class EndingScreen
 {
-    /// <summary>The transfers since the last full clear, oldest first.</summary>
+    /// <summary>The floor's loads since the last full clear, oldest first, which the floor's cells and tiles are read from.</summary>
     internal readonly List<EndingUpload> uploads = [];
 
-
-    /// <summary>The ending's colors, including partial fades.</summary>
+    /// <summary>The ending's colours, including partial fades.</summary>
     public ScreenPalette Palette { get; } = new();
 
-    /// <summary>Clears every transfer, as a full VRAM clear does.</summary>
+    /// <summary>Whether the explosion's four maps and their characters are loaded, which the explosion displays show.</summary>
+    internal bool ExplosionMapsLoaded { get; private set; }
+
+    /// <summary>Whether the post-credits art is loaded: the waiting backdrop and the wavy Samus the post-credits scenes show.</summary>
+    internal bool PostCreditsArtLoaded { get; private set; }
+
+    /// <summary>How many of the post-shot's subtitle and logo parts are shown.</summary>
+    internal int PostShotPartsShown { get; private set; }
+
+    /// <summary>The text the result and copyright page shows, as of its last showing.</summary>
+    internal ImmutableArray<ShownEndingText> ResultPageText { get; private set; } = [];
+
+    /// <summary>The text the final page's upper screen shows, or null before the white flash first shows it.</summary>
+    internal ImmutableArray<ShownEndingText>? FinalPageText { get; private set; }
+
+    /// <summary>The text the final page's lower screen shows, a copy of the staging page at the end of the white flash.</summary>
+    internal ImmutableArray<ShownEndingText> FinalPageLowerText { get; private set; } = [];
+
+    /// <summary>Clears every load and every page, as a full VRAM clear does.</summary>
     public void Clear()
     {
         uploads.Clear();
+        ExplosionMapsLoaded = false;
+        PostCreditsArtLoaded = false;
+        PostShotPartsShown = 0;
+        ResultPageText = [];
+        FinalPageText = null;
+        FinalPageLowerText = [];
         ForgetShown();
     }
 
-    /// <summary>What each tile layer shows (#1392), until the uploads change.</summary>
-    [NonSerialized]
-    private Dictionary<EndingLayerTiles, ScreenLayerPictures>? tiles;
+    /// <summary>Loads the explosion's maps and characters.</summary>
+    internal void LoadExplosionMaps() => ExplosionMapsLoaded = true;
 
-    /// <summary>The tiles each plane holds, until the uploads or the artwork change.</summary>
-    [NonSerialized]
-    private Dictionary<EndingPlane, BackgroundTile[]>? planes;
+    /// <summary>Loads the post-credits art, whose reward and shooting characters replace the floor's.</summary>
+    internal void LoadPostCreditsArt()
+    {
+        PostCreditsArtLoaded = true;
+        Record(new EndingSheetUpload(EndingUploadKind.CreditsCharacterArt));
+    }
 
-    /// <summary>The tiles each explosion map holds, until the uploads or the artwork change.</summary>
-    [NonSerialized]
-    private Dictionary<EndingObjectFragmentId, BackgroundTile[]>? explosionPlanes;
+    /// <summary>Shows the post-shot's next subtitle or logo part.</summary>
+    /// <exception cref="InvalidOperationException">Every part is already shown.</exception>
+    internal void ShowPostShotPart()
+    {
+        if (PostShotPartsShown >= EndingPostShotParts.Count)
+            throw new InvalidOperationException("The post-shot has shown every part.");
+        PostShotPartsShown++;
+    }
 
-    /// <summary>The floor's cells, until the uploads or the artwork change.</summary>
-    [NonSerialized]
-    private byte[]? floorCells;
+    /// <summary>Whether the post-shot has shown the logo's map, so the logo plane shows the logo.</summary>
+    internal bool LogoShown => PostShotPartsShown == EndingPostShotParts.Count;
 
-    /// <summary>The sheets <see cref="tiles"/> were read from.</summary>
+    /// <summary>How many of the logo's character parts the post-shot has shown.</summary>
+    internal int LogoChunksShown => Math.Clamp(PostShotPartsShown - EndingPostShotParts.FirstLogoPart, 0, EndingPostShotParts.LogoParts);
+
+    /// <summary>Shows <paramref name="text"/> on the text page <paramref name="page"/>.</summary>
+    internal void ShowText(EndingTextTilemap page, ImmutableArray<ShownEndingText> text)
+    {
+        switch (page)
+        {
+            case EndingTextTilemap.ResultPanel:
+                ResultPageText = text;
+                break;
+            case EndingTextTilemap.FinalText:
+                FinalPageText = text;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(page), page, "Undefined ending text page.");
+        }
+    }
+
+    /// <summary>Shows <paramref name="text"/> on the final page's lower screen.</summary>
+    internal void ShowFinalLowerText(ImmutableArray<ShownEndingText> text) => FinalPageLowerText = text;
+
+    /// <summary>The sheets <see cref="floorTiles"/> were read from.</summary>
     [NonSerialized]
     private InstalledSpriteSheets? tileSheets;
 
-    /// <summary>What the uploads' Mode 7 characters show (#1392), until the uploads change.</summary>
+    /// <summary>The floor's cells, until the loads or the artwork change.</summary>
+    [NonSerialized]
+    private byte[]? floorCells;
+
+    /// <summary>What the floor's loads' characters show (#1392), until the loads change.</summary>
     [NonSerialized]
     private FloorTilePictures? floorTiles;
 
-    /// <summary>What the uploads' Mode 7 characters show (#1392).</summary>
+    /// <summary>What the floor's loads' characters show (#1392).</summary>
     internal FloorTilePictures FloorTiles(InstalledSpriteSheets sheets)
     {
         if (!ReferenceEquals(tileSheets, sheets))
         {
-            tiles = null;
             floorTiles = null;
             tileSheets = sheets;
         }
         return floorTiles ??= EndingScreenTiles.Floor(sheets, uploads);
     }
 
-    /// <summary>What <paramref name="layer"/> shows, reading <paramref name="depth"/> characters (#1392).</summary>
-    internal ScreenLayerPictures Tiles(InstalledSpriteSheets sheets, EndingTileLayer layer, TileInkDepth depth)
-    {
-        if (!ReferenceEquals(tileSheets, sheets))
-        {
-            tiles = null;
-            floorTiles = null;
-            tileSheets = sheets;
-        }
-        tiles ??= [];
-        var key = new EndingLayerTiles(layer, depth);
-        if (!tiles.TryGetValue(key, out ScreenLayerPictures? shown))
-            tiles.Add(key, shown = EndingScreenTiles.Layer(sheets, layer, depth, uploads));
-        return shown;
-    }
-
-    /// <summary>Records a transfer of the whole installed sheet <paramref name="sheet"/>.</summary>
-    public void Record(EndingUploadKind sheet) => Record(new EndingSheetUpload(sheet));
-
-    /// <summary>Records a transfer of chunk <paramref name="chunk"/> of installed artwork.</summary>
+    /// <summary>Records a load of chunk <paramref name="chunk"/> of the floor's installed artwork.</summary>
     public void Record(EndingUploadKind kind, int chunk) => Record(new EndingChunkUpload(kind, chunk));
 
-    /// <summary>Records a tilemap transfer of <paramref name="tiles"/>, copying them as they are now.</summary>
-    public void Record(EndingUploadKind kind, ReadOnlySpan<BackgroundTile> tiles) => Record(new EndingTilemapUpload(kind, tiles.ToArray()));
-
-    /// <summary>Records the transfer of the installed floor scene <paramref name="scene"/>.</summary>
+    /// <summary>Records the load of the installed floor scene <paramref name="scene"/>.</summary>
     public void Record(EndingFloorSceneId scene) => Record(new EndingFloorSceneUpload(scene));
-
-    /// <summary>Records the transfer of the installed explosion map <paramref name="fragment"/>.</summary>
-    public void Record(EndingObjectFragmentId fragment) => Record(new EndingObjectFragmentUpload(fragment));
-
-    /// <summary>Records a transfer of <paramref name="tiles"/> to the text tilemap <paramref name="tilemap"/>, copying them as they are now.</summary>
-    internal void Record(EndingTextTilemap tilemap, ReadOnlySpan<BackgroundTile> tiles) =>
-        Record(new EndingTextTilemapUpload(tilemap, tiles.ToArray()));
-
-    /// <summary>How many of the logo's character chunks the post-shot has shown.</summary>
-    internal int LogoChunksShown => uploads.Count(upload => upload is EndingChunkUpload { Kind: EndingUploadKind.PostShotTransfer } transfer &&
-        EndingPostShotUploads.Get(transfer.Chunk).Source == EndingPostShotUploadSource.LogoTiles);
 
     /// <summary>Forgets what the screen shows after the bound artwork changes.</summary>
     public void Invalidate()
@@ -108,39 +129,18 @@ internal sealed class EndingScreen
         ForgetShown();
     }
 
-    /// <summary>The tiles <paramref name="plane"/> holds over <paramref name="objects"/>.</summary>
-    internal ReadOnlySpan<BackgroundTile> Plane(EndingPlane plane, EndingObjectArtwork? objects)
-    {
-        planes ??= [];
-        if (!planes.TryGetValue(plane, out BackgroundTile[]? tiles))
-            planes.Add(plane, tiles = EndingScreenPlanes.Of(plane, uploads, objects));
-        return tiles;
-    }
-
-    /// <summary>The tiles the explosion's <paramref name="fragment"/> map holds over <paramref name="objects"/>.</summary>
-    internal ReadOnlySpan<BackgroundTile> ExplosionPlane(EndingObjectFragmentId fragment, EndingObjectArtwork? objects)
-    {
-        explosionPlanes ??= [];
-        if (!explosionPlanes.TryGetValue(fragment, out BackgroundTile[]? tiles))
-            explosionPlanes.Add(fragment, tiles = EndingScreenPlanes.Explosion(fragment, uploads, objects));
-        return tiles;
-    }
-
     /// <summary>The floor's cells over <paramref name="floor"/> and <paramref name="flight"/>.</summary>
     internal byte[] FloorCells(EndingFloorArtwork? floor, CeresFlightArtwork? flight) =>
         floorCells ??= EndingScreenFloor.Cells(uploads, floor, flight);
 
-    /// <summary>Forgets every plane, cell and tile the screen showed.</summary>
+    /// <summary>Forgets the floor's cells and tiles.</summary>
     private void ForgetShown()
     {
-        tiles = null;
-        planes = null;
-        explosionPlanes = null;
         floorCells = null;
         floorTiles = null;
     }
 
-    /// <summary>Appends <paramref name="upload"/>, dropping the earlier transfer whose cells it covers.</summary>
+    /// <summary>Appends <paramref name="upload"/>, dropping the earlier load whose cells it covers.</summary>
     private void Record(EndingUpload upload)
     {
         uploads.RemoveAll(earlier => earlier.IsReplacedBy(upload));

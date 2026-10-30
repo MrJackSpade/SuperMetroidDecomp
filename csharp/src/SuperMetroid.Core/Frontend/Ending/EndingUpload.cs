@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// One recorded ending transfer (#1358). Each kind of transfer is its own record holding only what distinguishes it: the
+/// One recorded load of the ending's floor (#1358). Each kind of transfer is its own record holding only what distinguishes it: the
 /// chunk, the subject or the words a tilemap transfer wrote. A later transfer that covers exactly the same VRAM words
 /// replaces it.
 /// </summary>

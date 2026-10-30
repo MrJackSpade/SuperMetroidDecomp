@@ -1,11 +1,8 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
-/// <summary>Compiled placement and tiles for one ending-text character.</summary>
-/// <param name="Row">Zero-based destination tile row.</param>
-/// <param name="Column">Zero-based destination tile column.</param>
-/// <param name="Top">The glyph's top or only tile.</param>
-/// <param name="Bottom">The glyph's bottom half, present only for two-row glyphs.</param>
-public readonly record struct EndingTextCharacter(
-    int Row, int Column, BackgroundTile Top, BackgroundTile? Bottom);
+/// <summary>One typed ending-text character (#1467): where it is placed and which glyph it shows.</summary>
+/// <param name="Row">Zero-based destination cell row.</param>
+/// <param name="Column">Zero-based destination cell column.</param>
+/// <param name="Style">The text style whose glyph it shows; a large style's glyph is two rows tall.</param>
+/// <param name="Character">The character: a space, which shows nothing, or a letter.</param>
+public readonly record struct EndingTextCharacter(int Row, int Column, EndingTextStyle Style, char Character);

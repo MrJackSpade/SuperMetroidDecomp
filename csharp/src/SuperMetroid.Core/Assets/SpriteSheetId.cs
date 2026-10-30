@@ -138,20 +138,14 @@ public enum SpriteSheetId
     CeresIntroObjectTiles,
     /// <summary>The Zebes reveal's characters under the Ceres flight palette (#1392).</summary>
     ZebesRevealTiles,
-    /// <summary>The ending font under the credits palette, which the credits roll shows (#1392).</summary>
-    EndingCreditsFontTiles,
-    /// <summary>The ending font under the post-credits palette, which the post-credits text shows (#1392).</summary>
-    EndingTextFontTiles,
-    /// <summary>The post-shot subtitle font under the post-credits palette (#1392).</summary>
-    EndingSubtitleTiles,
-    /// <summary>The post-shot logo characters under the post-credits palette (#1392).</summary>
-    EndingLogoTiles,
-    /// <summary>The waiting-for-credits backdrop characters under the post-credits palette (#1392).</summary>
-    EndingWaitingTiles,
-    /// <summary>The wavy Samus backdrop characters under the post-credits palette (#1392).</summary>
-    EndingWavySamusTiles,
-    /// <summary>The Zebes explosion characters under the explosion palette (#1392).</summary>
-    EndingExplosionTiles,
+    /// <summary>The credits roll's staff line pictures under the credits palette (#1467).</summary>
+    EndingCreditsRows,
+    /// <summary>The post-credits pictures under the post-credits palette: the waiting backdrop, the logo, the panels and the typed glyphs (#1467).</summary>
+    EndingPostCreditsPictures,
+    /// <summary>The wavy Samus transformation's four-colour picture under the post-credits palette (#1467).</summary>
+    EndingWavySamusPicture,
+    /// <summary>The Zebes explosion's four maps' pictures under the explosion palette (#1467).</summary>
+    EndingExplosionPictures,
     /// <summary>The title's Mode 7 characters under its palette (#1392).</summary>
     TitleFloorTiles,
     /// <summary>The title's Baby Metroid animation pages under its palette (#1392).</summary>

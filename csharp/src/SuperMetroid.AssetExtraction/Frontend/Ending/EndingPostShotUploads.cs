@@ -1,6 +1,6 @@
-using static SuperMetroid.Core.Frontend.Ending.EndingPostShotUploadDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Ending.EndingPostShotUploadDefinitions;
 
-namespace SuperMetroid.Core.Frontend.Ending;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
 /// Selects the post-shot transfers of the ending (<see cref="EndingPostShotUploadDefinitions"/>) in native order.

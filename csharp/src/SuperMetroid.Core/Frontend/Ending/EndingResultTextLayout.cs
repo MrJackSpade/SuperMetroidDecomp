@@ -1,40 +1,21 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>The result panel's page cells, percentage glyphs, counted items and clear-time digit positions (#1416).</summary>
+/// <summary>The result page's panel and percentage cells, counted items and clear-time digit positions (#1416, #1467).</summary>
 public static class EndingResultTextLayout
 {
-    /// <summary>Row-major tile-word index 288, column zero of row nine, where the 9-row result panel is placed.</summary>
-    public const int ResultPanelFirstCell = 288;
+    /// <summary>The cell the nine-row result panel's upper-left corner sits in: column zero of row nine.</summary>
+    public static Position16<TilemapCells> ResultPanelCell { get; } = new(0, 9);
 
-    /// <summary>The tile words of the 32-column, 9-row result panel cleared before the copyright panel.</summary>
-    public const int ResultPanelWords = 288;
+    /// <summary>The cell the two-row copyright panel's upper-left corner sits in: column zero of row twelve.</summary>
+    public static Position16<TilemapCells> CopyrightPanelCell { get; } = new(0, 12);
 
-    /// <summary>Row-major tile-word index 384, column zero of row twelve, where the copyright panel is placed.</summary>
-    public const int CopyrightPanelFirstCell = 384;
+    /// <summary>The cell the two-row Japanese subtitle's upper-left corner sits in: column zero of row twenty-three.</summary>
+    public static Position16<TilemapCells> JapaneseSubtitleCell { get; } = new(0, 23);
 
-    /// <summary>Row-major tile-word index 736, column zero of row twenty-three, where the Japanese subtitle is drawn or cleared.</summary>
-    public const int JapaneseSubtitleFirstCell = 736;
-
-    /// <summary>The tile words of the two-row, 32-column Japanese subtitle.</summary>
-    public const int JapaneseSubtitleWords = 64;
-
-    /// <summary>Tile-word index of the top half of the item percentage's hundreds digit; tens, units and the percent sign follow to its right.</summary>
-    public const int PercentageHundredsTopIndex = 462;
-
-    /// <summary>The upper half of percentage digit zero; the next nine tiles show digits one through nine.</summary>
-    public static BackgroundTile DigitTopTile { get; } = new(0x060, 6, highPriority: true);
-
-    /// <summary>The lower half of percentage digit zero, one row below its upper half.</summary>
-    public static BackgroundTile DigitBottomTile { get; } = new(0x070, 6, highPriority: true);
-
-    /// <summary>The upper half of the percent sign, after the three digits.</summary>
-    public static BackgroundTile PercentTopTile { get; } = new(0x06a, 6, highPriority: true);
-
-    /// <summary>The lower half of the percent sign, one row below its upper half.</summary>
-    public static BackgroundTile PercentBottomTile { get; } = new(0x07a, 6, highPriority: true);
+    /// <summary>The cell of the item percentage's hundreds digit; tens, units and the percent sign follow to its right.</summary>
+    public static Position16<TilemapCells> PercentageHundredsCell { get; } = new(14, 14);
 
     /// <summary>The items that each count one toward the ending item percentage; ammo and energy pickups are counted separately.</summary>
     public const SamusEquipmentFlags CollectibleItemMask =

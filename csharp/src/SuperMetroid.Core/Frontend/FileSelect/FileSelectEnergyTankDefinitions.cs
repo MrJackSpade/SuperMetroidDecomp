@@ -13,10 +13,9 @@ internal static class FileSelectEnergyTankDefinitions
     internal const int FirstRowCount = 7;
     /// <summary>$81:A10C permits eight cells after wrapping (native harmless off-by-one).</summary>
     internal const int WrappedRowCount = 8;
-    /// <summary>$81:A108 subtracts $4E bytes after incrementing past the row.</summary>
-    internal const int RowRewindCells = 39;
-    /// <summary>$81:A0F5: the filled-tank tile, drawn in the installed health digit's colour variant.</summary>
-    internal const int FilledTile = 0x98;
-    /// <summary>$81:A0EC: the empty-tank tile, drawn in the installed health digit's colour variant.</summary>
-    internal const int EmptyTile = 0x99;
+    /// <summary>
+    /// $81:A108 steps back $4E bytes after a row: up one row and back seven columns, so a wrapped row starts where the
+    /// first row started, and a third row one column right of that.
+    /// </summary>
+    internal const int RowRewindColumns = 7;
 }

@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Options;
@@ -69,7 +70,18 @@ internal static class MenuScreenPublicationVerification
         for (int frame = 0; frame < 60 && fileSelect.Phase != FileSelectPhase.Main; frame++)
             fileSelect.Step(0);
         AssertEqual(FileSelectPhase.Main, fileSelect.Phase, "file select reaches its main menu");
-        AssertPublished(fileSelect.screen, fileSelect.CaptureRenderSnapshot(), "file select");
+        // File select shows its backdrop's picture, then its page's picture with its slots' fields over it (#1467).
+        SpriteSheet fileSelectPictures = MenuSheetFixtures.For(maps).Get(SpriteSheetId.MenuPictures);
+        LayeredScene fileSelectScene = fileSelect.CaptureRenderSnapshot();
+        AssertTrue(fileSelectScene.Layers.Length == 3 && fileSelectScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } fileBackdrop] } &&
+            fileBackdrop.Picture.Equals(fileSelectPictures.Frame(FileSelectParts.BackgroundFrame)) && fileSelectScene.Layers[2] is SpritesLayer,
+            "file select shows its backdrop's picture under its page and sprites");
+        AssertTrue(fileSelectScene.Layers[1] is PicturedPlaneLayer { Plane.Pictures: { } filePage } && filePage.Length > 1 &&
+            filePage[0].Picture.Equals(fileSelectPictures.Frame(FileSelectParts.PageFrame(FileSelectPage.MainWithData))) &&
+            filePage.Any(placed => placed.Picture.Equals(fileSelectPictures.Frame(FileSelectParts.PatchFrame(FileSelectPatch.Energy)))),
+            "file select shows the main page with the saved slot's ENERGY field");
+        AssertTrue(fileSelectScene.Paint.Colors.SequenceEqual(fileSelect.screen.Palette.Colors), "file select draws its own palette");
+        AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.Paint.SpriteDraws, fileSelect.screen.Objects.Draws), "file select draws its own sprite entries");
 
         InstalledSpriteSheets optionsSheets = MenuSheetFixtures.For(maps);
         var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: optionsSheets);
@@ -100,29 +112,7 @@ internal static class MenuScreenPublicationVerification
             page.Corner == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");
         AssertTrue(gameOverScene.Paint.Colors.SequenceEqual(gameOver.screen.Palette.Colors), "game over draws its own palette");
         AssertTrue(PaintedSpriteEntries.AreOwn(gameOverScene.Paint.SpriteDraws, gameOver.screen.Objects.Draws), "game over draws its own sprite entries");
-        Console.WriteLine("  Menu screens: file select publishes its own tilemaps, palette and sprite entries; options and game over their pages' pictures.");
-    }
-
-    /// <summary>Asserts that <paramref name="snapshot"/> is composed from <paramref name="screen"/>'s published state.</summary>
-    private static void AssertPublished(MenuScreen screen, LayeredScene snapshot, string menu)
-    {
-        FramePaint memory = snapshot.Paint;
-        // The image the menu composes from its screen when it captures a frame (#1403).
-        byte[] vram = MenuScreenMemory.Compose(screen);
-        ReadOnlySpan<BackgroundTile> tilemaps = screen.Tilemaps.All;
-        int first = MenuVramLayout.Bg1TilemapWord * sizeof(ushort);
-        for (int word = 0; word < tilemaps.Length; word++)
-            AssertEqual(tilemaps[word], BackgroundTileWords.ToTile(LittleEndianBytes.Word(vram[first + word * 2], vram[first + word * 2 + 1])),
-                $"{menu} draws its own tilemap tile {word}");
-        int last = first + tilemaps.Length * sizeof(ushort);
-        AssertTrue(vram[..first].SequenceEqual(screen.Characters[..first]) && vram[last..].SequenceEqual(screen.Characters[last..]),
-            $"{menu} draws its bound characters");
-        AssertTrue(memory.Colors.SequenceEqual(screen.Palette.Colors), $"{menu} draws its own palette");
-        AssertTrue(screen.Objects.Draws.Length > 0, $"{menu} places sprite entries");
-        AssertTrue(PaintedSpriteEntries.AreOwn(memory.SpriteDraws, screen.Objects.Draws), $"{menu} draws its own sprite entries");
-        // A screen's sprites draw whole frames from its sheet.
-        foreach (SpriteDraw draw in memory.SpriteDraws)
-            AssertTrue(draw is ImageSpriteDraw, $"{menu} sprite entries draw sheet frames");
+        Console.WriteLine("  Menu screens: file select, options and game over publish their pages' pictures, palette and sprite entries.");
     }
 
     /// <summary>Runs the screen sprite placement and menu screen publication checks.</summary>

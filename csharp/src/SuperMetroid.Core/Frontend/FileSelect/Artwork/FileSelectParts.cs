@@ -3,8 +3,8 @@ using static SuperMetroid.Core.Frontend.FileSelect.Artwork.FileSelectPresentatio
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 /// <summary>
-/// Names and composes the file-select document's parts (<see cref="FileSelectPresentationDefinitions"/>): its pages, patches,
-/// borders and anchors, each bordered heading, and each patch's cells.
+/// Names the file-select document's parts (<see cref="FileSelectPresentationDefinitions"/>): its pages, patches,
+/// borders and anchors, each bordered heading, and the menus' pictures of its pages and fields (#1467).
 /// </summary>
 public static class FileSelectParts
 {
@@ -29,29 +29,29 @@ public static class FileSelectParts
         Ensure.Listed(FileSelectPresentationDefinitions.AnchorNames, anchor);
 
 
-    /// <summary>Native one-row patch extents at $81:B496, B4A8 and B4AC, excluding terminators.</summary>
-    internal static int PatchCellCount(FileSelectPatch patch) =>
-        Ensure.Listed(FileSelectPresentationDefinitions.PatchCellCounts, patch);
+    /// <summary>The menus' picture of the file-select backdrop page (#1467).</summary>
+    public const string BackgroundFrame = "FileSelect.Background";
 
-    /// <summary>Calculates text glyph selection and left-to-right cell placement for one native patch.</summary>
-    internal static FileSelectCompiledPatchCell PatchCell(FileSelectPatch patch, int index)
-    {
-        if ((uint)index >= PatchCellCount(patch)) throw new ArgumentOutOfRangeException(nameof(index));
-        return new(new Offset16<TilemapCells>(checked((short)index), 0), patch switch
-        {
-            FileSelectPatch.Energy => index < 3
-                ? FileSelectPresentationDefinitions.EnergyLabelFirst with { Tile = FileSelectPresentationDefinitions.EnergyLabelFirst.Tile + index }
-                : FileSelectPresentationDefinitions.EnergyLabelFinal,
-            FileSelectPatch.TimeColon => FileSelectPresentationDefinitions.TimeColonGlyph,
-            FileSelectPatch.NoData => index == 0 ? FileSelectLayout.BlankTile
-                : FileSelectPresentationDefinitions.NoDataLabel[index] == ' ' ? FileSelectPresentationDefinitions.SmallSpace
-                : FileSelectPresentationDefinitions.SmallLetterA with
-                {
-                    Tile = FileSelectPresentationDefinitions.SmallLetterA.Tile + FileSelectPresentationDefinitions.NoDataLabel[index] - 'A',
-                },
-            _ => throw new ArgumentOutOfRangeException(nameof(patch)),
-        });
-    }
+    /// <summary>The menus' picture of <paramref name="page"/>, without its slots' fields (#1467).</summary>
+    public static string PageFrame(FileSelectPage page) => $"FileSelect.Page.{PageName(page)}";
+
+    /// <summary>The menus' picture of decimal digit <paramref name="digit"/> (#1467).</summary>
+    public static string DigitFrame(int digit) =>
+        $"FileSelect.Digit.{Ensure.BetweenInclusive(0, FileSelectPresentationDefinitions.DigitCount - 1, digit)}";
+
+    /// <summary>The menus' picture of save slot <paramref name="slot"/>'s letter (#1467).</summary>
+    public static string LetterFrame(int slot) =>
+        $"FileSelect.Letter.{Ensure.BetweenInclusive(0, FileSelectPresentationDefinitions.SlotLetterCount - 1, slot)}";
+
+    /// <summary>The menus' picture of a slot field's <paramref name="patch"/>, placed at the patch's anchor (#1467).</summary>
+    public static string PatchFrame(FileSelectPatch patch) => $"FileSelect.Patch.{PatchName(patch)}";
+
+    /// <summary>
+    /// The menus' picture of an energy tank, filled or empty, in the colours of the health tens digit
+    /// <paramref name="tensDigit"/> the field shows beside it (#1467).
+    /// </summary>
+    public static string TankFrame(bool filled, int tensDigit) =>
+        $"FileSelect.Tank.{(filled ? "Filled" : "Empty")}.{Ensure.BetweenInclusive(0, FileSelectPresentationDefinitions.DigitCount - 1, tensDigit)}";
 
     /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
     public static string CursorSpriteName(int frame) =>

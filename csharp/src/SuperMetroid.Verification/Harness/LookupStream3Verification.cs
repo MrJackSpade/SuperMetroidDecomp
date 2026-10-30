@@ -654,7 +654,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks file-select patch cells and terminators against ROM, then verifies edited placement and order.</summary>
-    internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
+    internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectSourcePresentation stock)
     {
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         FileSelectSourcePresentation Load(FileSelectPresentationDocument document) => FileSelectSourcePresentation.Load(new MemoryStream(
@@ -667,13 +667,13 @@ internal static class LookupStream3Verification
         })
         {
             string name = FileSelectParts.PatchName(patch);
-            FileSelectCompiledPatch Compiled(FileSelectPresentation value) => value.patches[patch];
+            FileSelectCompiledPatch Compiled(FileSelectSourcePresentation value) => value.patches[patch];
             AssertTrue(Compiled(stock).suppliedCells is null,
                 "file-select stock patch retains no cells " + name);
             for (int index = 0; index < count; index++)
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectParts.PatchCell(patch, index),
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectFieldTiles.PatchCell(patch, index),
                     "file-select calculated patch exact native cell");
                 foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
                 {
@@ -703,7 +703,7 @@ internal static class LookupStream3Verification
             Array.Reverse(reversed.Patches[name].Cells);
             Confirm(Load(reversed), reversed.Patches[name].Cells);
 
-            void Confirm(FileSelectPresentation presentation, FileSelectPatchCellDocument[] cells)
+            void Confirm(FileSelectSourcePresentation presentation, FileSelectPatchCellDocument[] cells)
             {
                 var expected = new ushort[1024];
                 var actual = new BackgroundTile[1024];

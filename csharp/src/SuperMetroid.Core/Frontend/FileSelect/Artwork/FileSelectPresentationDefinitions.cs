@@ -5,28 +5,6 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// <summary>Schema names and fixed dimensions for <c>file-select.json</c>.</summary>
 public static class FileSelectPresentationDefinitions
 {
-    /// <summary>$81:B4AC-B4C0, the literal small-font empty-slot label including its padding.</summary>
-    internal const string NoDataLabel = " NO DATA   ";
-    /// <summary>$81:B4B6: tile $6A is the small-font A; following alphabet glyphs are consecutive.</summary>
-    internal static readonly BackgroundTile SmallLetterA = new(0x6a, 0, highPriority: true);
-    /// <summary>$81:B4B2 and B4BC-B4C0: the small-font space.</summary>
-    internal static readonly BackgroundTile SmallSpace = new(0x0f, 0, highPriority: true);
-    /// <summary>$81:B496-B49A: three consecutive tiles composing the ENERGY label.</summary>
-    internal static readonly BackgroundTile EnergyLabelFirst = new(0x9d, 0, highPriority: true);
-    /// <summary>$81:B49C: the separately placed final glyph of the ENERGY patch.</summary>
-    internal static readonly BackgroundTile EnergyLabelFinal = new(0xcc, 0, highPriority: true);
-    /// <summary>$81:B4A8: the time-field colon glyph.</summary>
-    internal static readonly BackgroundTile TimeColonGlyph = new(0x8c, 0, highPriority: true);
-
-    /// <summary>Native one-row patch extents at $81:B496, B4A8 and B4AC, excluding terminators.</summary>
-    internal static readonly IReadOnlyDictionary<FileSelectPatch, int> PatchCellCounts =
-        new Dictionary<FileSelectPatch, int>
-        {
-            [FileSelectPatch.Energy] = 4,
-            [FileSelectPatch.TimeColon] = 1,
-            [FileSelectPatch.NoData] = NoDataLabel.Length,
-        };
-
     /// <summary>Supported file-select presentation JSON schema version.</summary>
     public const int Version = 1;
     /// <summary>Extracted JSON filename for menu pages, fields, sprite compositions, and layout.</summary>
@@ -43,9 +21,9 @@ public static class FileSelectPresentationDefinitions
     public const int CharacterColumns = 32;
     /// <summary>Height in characters of the sheet addressed by authored background tile cells.</summary>
     public const int CharacterRows = 32;
-    /// <summary>Ten consecutive digit cells beginning at FileSelectLayout.DigitTileBase.</summary>
+    /// <summary>Ten consecutive digit cells in the import's digit glyphs.</summary>
     public const int DigitCount = 10;
-    /// <summary>Three consecutive save-slot letters beginning at FileSelectLayout.SamusLetterTileBase.</summary>
+    /// <summary>Three consecutive save-slot letters in the import's slot-letter glyphs.</summary>
     public const int SlotLetterCount = 3;
     /// <summary>The missile cursor's looping animation frames.</summary>
     public const int CursorFrameCount = 4;

@@ -76,8 +76,8 @@ internal sealed class ActiveRoomState
     /// <summary>The loaded room's Ceres elevator arrival; null while a load builds the next room's scope.</summary>
     public CeresElevatorArrivalState? CeresElevatorArrival => _construction is null ? Scope?.CeresElevatorArrival : null;
 
-    /// <summary>Room-main scratch word <c>$07E1</c>, which room loading never clears.</summary>
-    public RoomMainScratchState RoomMainScratch { get; } = new();
+    /// <summary>The value one room's main leaves for the next, which room loading never clears.</summary>
+    public RoomMainCarryover RoomMainCarryover { get; } = new();
 
     /// <summary>
     /// Active layer-1 scroll-boundary state. It remains null until a room-specific scroll

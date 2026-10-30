@@ -28,13 +28,13 @@ internal sealed class EscapeRoomEffects
         _system = system;
     }
     /// <summary>Initializes the selected room's quake and clears diagonal countdowns only for the two native switchers.</summary>
-    internal void SetupEscapeRoomEffects(RoomSetupCallback setup, RoomEnemySystem enemies)
+    internal void SetupEscapeRoomEffects(RoomSetupCallback setup, RoomEnemySystem enemies, EscapeDiagonalQuakeState diagonalQuake)
     {
-        // $8F:C93C/$C964 clear the diagonal countdown (RoomMainASMVar1) for the two rooms
-        // whose mains switch quake types; the other setups leave the shared word alone.
+        // $8F:C93C/$C964 clear the diagonal countdown for the two rooms whose mains switch quake types; the other
+        // setups leave the countdown the previous room's main left.
         if (setup is RoomSetupCallback.SetLightHorizontalRoomShaking or
             RoomSetupCallback.SetupEscapeRoom4PlmAndMediumHorizontalShaking)
-            _room.RoomMainScratch.Var1 = 0;
+            diagonalQuake.Countdown = WrappingCountdown.Start(0);
         int? type = setup switch
         {
             RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking or
@@ -71,8 +71,10 @@ internal sealed class EscapeRoomEffects
     }
 
     /// <summary>Dispatches the escape room-main callbacks at the native post-draw boundary.</summary>
-    internal void StepEscapeRoomEffects(RoomEnemySystem enemies)
+    internal void StepEscapeRoomEffects(RoomScope room)
     {
+        RoomEnemySystem enemies = room.Enemies;
+        EscapeDiagonalQuakeState diagonalQuake = room.EscapeDiagonalQuake;
         if (_room.ActiveRoom is null || _room.Camera is null || _room.LevelData is null) return;
         RoomMainCallback main = _room.ActiveRoom.State.MainCallback;
         bool nonblank = main is RoomMainCallback.ScrollingSkyLandZebesTimebombSet or
@@ -83,15 +85,15 @@ internal sealed class EscapeRoomEffects
             return;
         if (light || medium)
         {
-            if (!_room.RoomMainScratch.Countdown.IsZero)
+            if (!diagonalQuake.Countdown.IsZero)
             {
-                _room.RoomMainScratch.Countdown = _room.RoomMainScratch.Countdown.Decrement().Remaining;
-                if (_room.RoomMainScratch.Countdown.IsZero)
+                diagonalQuake.Countdown = diagonalQuake.Countdown.Decrement().Remaining;
+                if (diagonalQuake.Countdown.IsZero)
                     enemies.Earthquake.EarthquakeType = light ? ZebesEscapeDefinitions.LightHorizontal : ZebesEscapeDefinitions.MediumHorizontal;
             }
             else if (_system.NextRandom() < (light ? ZebesEscapeDefinitions.LightChance : ZebesEscapeDefinitions.MediumChance))
             {
-                _room.RoomMainScratch.Countdown = WrappingCountdown.Start(ZebesEscapeDefinitions.DiagonalFrames);
+                diagonalQuake.Countdown = WrappingCountdown.Start(ZebesEscapeDefinitions.DiagonalFrames);
                 enemies.Earthquake.EarthquakeType = light ? ZebesEscapeDefinitions.MediumDiagonal : ZebesEscapeDefinitions.StrongDiagonal;
             }
         }

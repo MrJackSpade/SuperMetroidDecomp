@@ -9,18 +9,23 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// Cartridge-authored room-main state for Ceres room <c>$DF45</c>'s elevator shaft.
 /// </summary>
 /// <remarks>
-/// Door ASM <c>$8F:E4E0</c> seeds two room-main words before the shaft becomes visible.
-/// Room main <c>$89:ACC3</c> later consumes them as a bidirectional index through the
-/// three-word records at <c>$89:AD5F</c>. The index is the shared <c>RoomMainASMVar1</c>,
-/// which the following room inherits; the timer word is owned here.
+/// Door ASM <c>$8F:E4E0</c> seeds the shaft's turn step and timer before the shaft becomes visible.
+/// Room main <c>$89:ACC3</c> later sweeps the step forward and back through the records at <c>$89:AD5F</c>. The
+/// step it last reached is what the following room's main inherits (<see cref="RoomMainCarryover"/>).
 /// </remarks>
 [RoomLifetime]
 public sealed class CeresElevatorShaftRoomMainState
 {
-    /// <summary>Initial value written to RoomMainASMVar1 by door ASM <c>$8F:E4E0</c>.</summary>
-    public const ushort InitialRotationIndex = 34;
+    /// <summary>The turn step door ASM <c>$8F:E4E0</c> starts the shaft at, sweeping forward.</summary>
+    public const int InitialRotationIndex = 34;
 
-    /// <summary>Initial value written to RoomMainASMVar2 by door ASM <c>$8F:E4E0</c>.</summary>
+    /// <summary>The last step of the forward sweep; the turn reverses after it.</summary>
+    private const int LastForwardStep = 67;
+
+    /// <summary>The step the backward sweep starts at.</summary>
+    private const int FirstBackwardStep = 68;
+
+    /// <summary>Initial turn timer written by door ASM <c>$8F:E4E0</c>.</summary>
     public const ushort InitialRotationTimer = 60;
 
     /// <summary>Native state-$20 hold written by <c>SamusCode_02_ReachCeresElevator</c>.</summary>
@@ -29,8 +34,14 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>Whether the active room owns this room-main routine.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Live RoomMainASMVar2 countdown.</summary>
+    /// <summary>The countdown to the shaft's next turn step.</summary>
     public WrappingCountdown RotationTimer { get; private set; }
+
+    /// <summary>The shaft's turn step: its rotation record, 0 through 68.</summary>
+    public int RotationStep { get; private set; }
+
+    /// <summary>Whether the turn is sweeping backward, from step 68 down to 1, rather than forward from 0 to 67.</summary>
+    public bool RotatingBackward { get; private set; }
 
     /// <summary>True after the elevator bounds have admitted Samus once.</summary>
     public bool DepartureRequested { get; private set; }
@@ -46,14 +57,15 @@ public sealed class CeresElevatorShaftRoomMainState
     /// door, whose ASM <c>$8F:E4E0</c> writes the rotation index and timer.
     /// </summary>
     /// <param name="active">Whether the room's main routine is the shaft and its entry door uses Mode 7.</param>
-    /// <param name="scratch">The session's RoomMainASMVar1, which receives the initial rotation index.</param>
-    public CeresElevatorShaftRoomMainState(bool active, RoomMainScratchState scratch)
+    /// <param name="carryover">The room-main value the following room inherits, which receives the initial turn step.</param>
+    public CeresElevatorShaftRoomMainState(bool active, RoomMainCarryover carryover)
     {
-        Ensure.NotNull(scratch);
+        Ensure.NotNull(carryover);
         IsActive = active;
         if (active)
         {
-            scratch.Var1 = InitialRotationIndex;
+            RotationStep = InitialRotationIndex;
+            carryover.LeaveTurnStep(RotationStep, RotatingBackward);
             RotationTimer = WrappingCountdown.Start(InitialRotationTimer);
         }
     }
@@ -71,15 +83,15 @@ public sealed class CeresElevatorShaftRoomMainState
     /// ordinary gameplay body, but the native room main explicitly rejects their game-state
     /// numbers; keeping that input explicit preserves the same ownership boundary.
     /// </param>
-    /// <param name="scratch">Shared mutable room-main scratch: Var1 supplies and receives the encoded forward/reverse rotation index inherited by subsequent room owners; the countdown remains in this state's <see cref="RotationTimer"/>.</param>
+    /// <param name="carryover">The room-main value the following room inherits, which receives every turn step.</param>
     [IndependentFlag("independent room facts the caller reads from data: the elevator door's state and whether departure is allowed")]
     public CeresElevatorShaftRoomMainResult Step(
         SamusState? samus,
         bool elevatorDoorDestroyed,
         bool allowDeparture,
-        RoomMainScratchState scratch)
+        RoomMainCarryover carryover)
     {
-        Ensure.NotNull(scratch);
+        Ensure.NotNull(carryover);
         DepartureRequestedThisFrame = false;
 
         // The room code is entirely dormant until the Ceres door's destruction publishes
@@ -116,11 +128,8 @@ public sealed class CeresElevatorShaftRoomMainState
         if (timer.IsNonNegative)
             return new(Transform, MatrixChanged: false, DepartureRequestedThisFrame);
 
-        // Native computes `(uint16)(6 * index) >> 1`, not a conventional array index.
-        // The encoded phase $8044 relies on the multiplication wrapping before the shift,
-        // mapping back into the tail of this very table during the reverse sweep.
-        int rotationIndex = checked((ushort)scratch.Var1);
-        var record = CeresShaftRotation.Read(rotationIndex);
+        // Both sweeps read the record of the current step.
+        var record = CeresShaftRotation.Read(RotationStep);
         RotationTimer = WrappingCountdown.FromRaw(record.Timer);
         int sine = record.Sine;
         int cosine = record.Cosine;
@@ -130,31 +139,27 @@ public sealed class CeresElevatorShaftRoomMainState
             MatrixC: unchecked((short)-sine),
             Center: CeresShaftRotationCenter);
 
-        // Values 0..67 sweep forward. The comparison occurs after INC, so 67 becomes the
-        // reversing phase 68. Reversing phases decrement until reversing phase 1 maps to
-        // zero, restarting the forward sweep without ever exposing the bare reversing flag.
-        if (unchecked((short)rotationIndex) < 0)
+        // Steps 0..67 sweep forward; after 67 the turn reverses at step 68. The backward sweep counts down until
+        // step 1 hands over to forward step 0, so the backward sweep never reaches step 0 itself.
+        if (RotatingBackward)
         {
-            scratch.Var1 = rotationIndex == ReversingPhase(1)
-                ? (ushort)0
-                : unchecked((ushort)(rotationIndex - 1));
+            if (RotationStep == 1)
+                RotatingBackward = false;
+            RotationStep--;
+        }
+        else if (RotationStep == LastForwardStep)
+        {
+            RotatingBackward = true;
+            RotationStep = FirstBackwardStep;
         }
         else
         {
-            scratch.Var1 = rotationIndex == 67
-                ? ReversingPhase(68)
-                : unchecked((ushort)(rotationIndex + 1));
+            RotationStep++;
         }
+        carryover.LeaveTurnStep(RotationStep, RotatingBackward);
 
         return new(Transform, MatrixChanged: true, DepartureRequestedThisFrame);
     }
-
-    /// <summary>
-    /// The phase of reversing step <paramref name="step"/>: the step with the phase word's sign set, which marks the
-    /// backward sweep (the sign test above reads it back). The low bits count down from 68 to 1, so the phase never holds
-    /// the bare sign.
-    /// </summary>
-    private static ushort ReversingPhase(int step) => unchecked((ushort)(step | short.MinValue));
 
     /// <summary>
     /// Applies $89:ACD0's asymmetric elevator bounds: X in (112,144], Y in [75,128),

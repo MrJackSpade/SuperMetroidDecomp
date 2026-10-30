@@ -130,6 +130,12 @@ internal sealed record RoomScope
     /// <summary>The room's Ceres elevator shaft room main, active only when the elevator door enters it.</summary>
     public required CeresElevatorShaftRoomMainState CeresElevatorShaft { get; init; }
 
+    /// <summary>The room's Ceres falling-debris room main, which runs only in the pre-elevator hall.</summary>
+    public required CeresFallingDebrisRoomMainState CeresFallingDebris { get; init; }
+
+    /// <summary>The room's escape diagonal-quake countdown, which the escape rooms' shaking mains keep.</summary>
+    public required EscapeDiagonalQuakeState EscapeDiagonalQuake { get; init; }
+
     /// <summary>The room's enemy population and the species owners that run it.</summary>
     public required RoomEnemySystem Enemies { get; init; }
 

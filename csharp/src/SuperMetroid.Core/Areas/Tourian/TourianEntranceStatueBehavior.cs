@@ -96,7 +96,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             "Tourian entrance statues require installed palette artwork.")).ApplyEntrance(_presentation.Colours);
     }
 
-    /// <summary>Allocates a decorative projectile when a slot is free and retains its authored position in variable words.</summary>
+    /// <summary>Allocates a decorative projectile when a slot is free tied to its authored position.</summary>
     internal void SpawnTourianEntranceStatueProjectile(
         RoomEnemyProjectileKind kind,
         Position16<RoomPixels> position)
@@ -107,9 +107,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
 
         TourianStatueProjectileStarts.Initialize(projectile, kind, graphics: default);
         projectile.Position = projectile.Position.WithWhole(position);
-        // The projectile's two general words retain the authored spawn coordinates.
-        projectile.Variable0 = position.X;
-        projectile.Variable1 = position.Y;
+        // The decoration stays tied to its authored spawn point as the statue descends.
+        projectile.State = new AnchoredProjectileState(position);
     }
 
     /// <summary>Tracks the BG2 statue's vertical displacement and publishes the base decoration's completion latch.</summary>
@@ -121,12 +120,13 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             TourianEntranceStatueFinished = true;
         }
 
-        projectile.Position = projectile.Position.WithWholeX(checked((ushort)projectile.Variable0));
+        Position16<RoomPixels> anchor = projectile.StateOf<AnchoredProjectileState>().Anchor;
+        projectile.Position = projectile.Position.WithWholeX(anchor.X);
 
         // $86:BA42 adds layer1_y_pos and subtracts HDMA's layer1_y_pos + displacement.
         // The camera terms cancel here; ordinary OBJ drawing subtracts the camera once.
         // This keeps all sprite pieces attached to the descending BG2 statue artwork.
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Variable1 - TourianEntranceStatueVerticalOffset)));
+        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(anchor.Y - TourianEntranceStatueVerticalOffset)));
     }
 
     /// <summary>Registers the shared pre-instruction for base, Ridley, and Phantoon decoration actors.</summary>

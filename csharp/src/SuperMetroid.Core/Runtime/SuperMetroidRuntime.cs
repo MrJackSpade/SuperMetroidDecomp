@@ -936,7 +936,7 @@ internal sealed class SuperMetroidRuntime
             Room.ScrollingSky.ProcessFrame(Room.Camera.PixelPosition.Y, timeIsFrozen: Freeze.TimeIsFrozen);
 
         RoomMains.RunAnimatedTilesObjectHandler(Room.LoadedScope);
-        EscapeEffects.StepEscapeRoomEffects(Room.LoadedScope.Enemies);
+        EscapeEffects.StepEscapeRoomEffects(Room.LoadedScope);
 
         // Room main $8F:E2B6 is selected by the room state rather than by coordinates.
         // It runs at the common room-main seam after gameplay drawing and before shaking.
@@ -950,7 +950,7 @@ internal sealed class SuperMetroidRuntime
                 Player.Samus,
                 Clock.Counter,
                 Room.LoadedScope.Plms,
-                Room.RoomMainScratch);
+                Room.RoomMainCarryover);
         }
 
         // Execute the active room's bank-$8F wrapper at the same seam as Landing Site's
@@ -961,7 +961,7 @@ internal sealed class SuperMetroidRuntime
             Player.Samus,
             Room.LoadedScope.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
             allowDeparture: policy.AllowCeresElevatorDeparture,
-            Room.RoomMainScratch);
+            Room.RoomMainCarryover);
         if (RoomMains.LastCeresElevatorShaftRoomMain.MatrixChanged)
             Display.ActiveTurningFloor = RoomMains.LastCeresElevatorShaftRoomMain.Transform;
 

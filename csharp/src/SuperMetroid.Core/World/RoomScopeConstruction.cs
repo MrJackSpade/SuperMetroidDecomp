@@ -93,6 +93,12 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
     /// <summary>The Ceres elevator shaft room main, once the header step has built it.</summary>
     public CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; set; }
 
+    /// <summary>The Ceres falling-debris room main, once the header step has built it.</summary>
+    public CeresFallingDebrisRoomMainState? CeresFallingDebris { get; set; }
+
+    /// <summary>The escape diagonal-quake countdown, once the header step has built it.</summary>
+    public EscapeDiagonalQuakeState? EscapeDiagonalQuake { get; set; }
+
     /// <summary>The enemy system, once the enemy step has built it.</summary>
     public RoomEnemySystem? Enemies { get; set; }
 
@@ -143,6 +149,8 @@ internal sealed class RoomScopeConstruction(DoorDefinition door, SelectedRoom ro
         TourianStatues = TourianStatues ?? throw Missing(nameof(TourianStatues)),
         MaridiaElevatube = MaridiaElevatube ?? throw Missing(nameof(MaridiaElevatube)),
         CeresElevatorShaft = CeresElevatorShaft ?? throw Missing(nameof(CeresElevatorShaft)),
+        CeresFallingDebris = CeresFallingDebris ?? throw Missing(nameof(CeresFallingDebris)),
+        EscapeDiagonalQuake = EscapeDiagonalQuake ?? throw Missing(nameof(EscapeDiagonalQuake)),
         Enemies = Enemies ?? throw Missing(nameof(Enemies)),
         Plms = Plms ?? throw Missing(nameof(Plms)),
         Services = Services ?? throw Missing(nameof(Services)),

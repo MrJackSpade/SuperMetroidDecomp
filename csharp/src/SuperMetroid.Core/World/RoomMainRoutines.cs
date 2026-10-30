@@ -109,13 +109,10 @@ internal sealed class RoomMainRoutines
             room.Enemies.Ceres.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             return;
 
-        // The timer is RoomMainASMVar1, inherited from the shaft's rotation index.
-        CountdownStep timer = _room.RoomMainScratch.Countdown.Decrement();
-        _room.RoomMainScratch.Countdown = timer.Remaining;
-        if (timer.IsNonNegative)
+        // The countdown starts from what the previous room's main left, normally the shaft's turn step.
+        if (!room.CeresFallingDebris.Step())
             return;
 
-        _room.RoomMainScratch.Countdown = WrappingCountdown.Start(8);
         int random = _system.RandomNumber;
         bool dark = unchecked((short)random) < 0;
         room.Enemies.Projectiles.SpawnCeresFallingDebris(

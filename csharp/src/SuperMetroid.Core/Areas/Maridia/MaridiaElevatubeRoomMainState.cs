@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Areas.Maridia;
 
 /// <summary>
 /// Shared translation of Maridia elevatube room main <c>$8F:E2B6</c> and the four door
-/// callbacks that initialize or release it. The state preserves the cartridge's scratch
-/// words so their signed fixed-point behavior remains debugger-visible. The fraction of the
-/// tracked position is the shared <c>RoomMainASMVar1</c>, which the door callbacks leave stale.
+/// callbacks that initialize or release it. The fraction of the tracked position starts from what the previous
+/// room's main left (<see cref="RoomMainCarryover"/>), because the door callbacks do not set it, and is left for the
+/// following room's main.
 /// </summary>
 [RoomLifetime]
 public sealed class MaridiaElevatubeRoomMainState
@@ -19,10 +19,12 @@ public sealed class MaridiaElevatubeRoomMainState
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// The tube's tracked room position at X zero: its whole Y pixels, whose subpixels the shared room-main scratch
-    /// carries, wrapping at 16 bits as the cartridge's word does.
+    /// The tube's tracked room position at X zero: its whole Y pixels, wrapping at 16 bits as the cartridge's word does.
     /// </summary>
     public Position16<RoomPixels> TrackedPosition { get; private set; }
+
+    /// <summary>The fraction of the tracked position's Y, 0 through 65535.</summary>
+    public int TrackedFraction { get; private set; }
 
     /// <summary>The tube's signed 8.8 vertical velocity in room pixels per update.</summary>
     public SignedEightEight Velocity { get; private set; }
@@ -35,14 +37,19 @@ public sealed class MaridiaElevatubeRoomMainState
     /// room-main words this routine reads.
     /// </summary>
     /// <param name="active">Whether the room state names main routine $8F:E2B6.</param>
-    public MaridiaElevatubeRoomMainState(bool active) => IsActive = active;
+    /// <param name="carryover">The room-main value the previous room left, whose fraction the tube adopts.</param>
+    public MaridiaElevatubeRoomMainState(bool active, RoomMainCarryover carryover)
+    {
+        IsActive = active;
+        TrackedFraction = Ensure.NotNull(carryover).Fraction;
+    }
 
     /// <summary>Applies door callback $8F:E26C for entry from Oasis to the south.</summary>
     public void SetUpFromSouth(SamusState samus)
     {
         EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromSouth);
         Ensure.NotNull(samus);
-        // $8F:E272 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
+        // $8F:E272 leaves the tracked fraction as it was.
         TrackedPosition = new(0, MaridiaElevatubeDefinitions.SouthStartingY);
         Velocity = MaridiaElevatubeDefinitions.SouthStartingVelocity;
         Acceleration = MaridiaElevatubeDefinitions.SouthAcceleration;
@@ -54,7 +61,7 @@ public sealed class MaridiaElevatubeRoomMainState
     {
         EnsureActive(DoorSetupCode.DoorASM_SetupElevatubeFromNorth);
         Ensure.NotNull(samus);
-        // $8F:E297 is STZ $07E3, immediately overwritten; RoomMainASMVar1 stays as it was.
+        // $8F:E297 leaves the tracked fraction as it was.
         TrackedPosition = new(0, MaridiaElevatubeDefinitions.NorthStartingY);
         Velocity = MaridiaElevatubeDefinitions.NorthStartingVelocity;
         Acceleration = MaridiaElevatubeDefinitions.NorthAcceleration;
@@ -74,7 +81,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
     /// <summary>
     /// Runs one call of $8F:E2B6: pin X to $0080, integrate signed 8.8 velocity into both
-    /// the room scratch position and Samus's 16.16 position through the ordinary bank-$94
+    /// the tracked position and Samus's 16.16 position through the ordinary bank-$94
     /// vertical collision dispatcher, then apply the cartridge's bounded acceleration.
     /// </summary>
     internal BlockMoveResult? Step(
@@ -83,12 +90,12 @@ public sealed class MaridiaElevatubeRoomMainState
         SamusState? samus,
         int frameCounter,
         ISamusRoomPlms plms,
-        RoomMainScratchState scratch)
+        RoomMainCarryover carryover)
     {
         if (!IsActive)
             return null;
 
-        Ensure.NotNull(scratch);
+        Ensure.NotNull(carryover);
         Ensure.NotNull(level);
         Ensure.NotNull(plms);
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
@@ -98,10 +105,11 @@ public sealed class MaridiaElevatubeRoomMainState
         activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new FixedCoordinate(MaridiaElevatubeDefinitions.SamusCenterX, 0));
 
         int displacement = SixteenSixteen.FromEightEight(Velocity.SignedRawValue);
-        uint trackedPosition = SixteenSixteen.Compose(TrackedPosition.Y, scratch.Var1);
+        uint trackedPosition = SixteenSixteen.Compose(TrackedPosition.Y, TrackedFraction);
         trackedPosition = unchecked(trackedPosition + (uint)displacement);
         TrackedPosition = new(0, FixedCoordinate.WholeOf(unchecked((int)trackedPosition)));
-        scratch.Var1 = unchecked((ushort)trackedPosition);
+        TrackedFraction = unchecked((ushort)trackedPosition);
+        carryover.LeaveFraction(TrackedFraction);
 
         BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, activeSamus.Kinematics, activeSamus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false });
 

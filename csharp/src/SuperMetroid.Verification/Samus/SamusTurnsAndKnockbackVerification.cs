@@ -751,7 +751,7 @@ floorLevel, downKnockback, frameCounter: 0);
         {
             Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
-            BombJumpDirection = 0x0802,
+            BombJumpRequest = SamusBombJumpRequest.Published(SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Straight).Accept(),
             MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound,
         };
         SamusPoseMetadata.RefreshCollisionRadii(ball);
@@ -771,7 +771,7 @@ floorLevel, downKnockback, frameCounter: 0);
             $"morphed pose ${(int)pose:X2} retains rolling animation frame");
         AssertEqual(preservedTimer, ball.AnimationFrameTimer.RawValue,
             $"morphed pose ${(int)pose:X2} retains rolling animation timer");
-        AssertEqual(0, ball.BombJumpDirection,
+        AssertEqual(SamusBombJumpRequest.None, ball.BombJumpRequest,
             $"morphed pose ${(int)pose:X2} start clears pending bomb jump");
         AssertEqual(SamusContactDamageIndex.None, ball.HorizontalSpeed.ContactDamageIndex,
             $"morphed pose ${(int)pose:X2} start clears contact damage");

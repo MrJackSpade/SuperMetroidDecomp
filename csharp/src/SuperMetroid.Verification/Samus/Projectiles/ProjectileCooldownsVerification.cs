@@ -56,7 +56,7 @@ internal static class ProjectileCooldownsVerification
             var shared = CreateBombFixture();
             var samus = new SamusState { Pose = SamusPoseId.NormalJumpGunExtendedLeftPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (SamusBeamFlags)((ushort)(chargeEquipped ? 0x1009 : 9)) };
-            samus.PoseTransitionShotDirection = 0x8007;
+            samus.PendingTransitionShot = new SamusTransitionShot(7);
             SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
             projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? 0 : ControllerButton.X }, new(0, 0), shared);
             AssertEqual(0, slotsBefore.FiredSlot(projectiles),

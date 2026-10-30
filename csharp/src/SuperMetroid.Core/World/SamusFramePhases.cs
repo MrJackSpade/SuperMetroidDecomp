@@ -187,7 +187,7 @@ internal sealed class SamusFramePhases
         if (!_player.Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
-        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.Status != 0, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter }, XrayActivation.Deferred);
+        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.IsActive, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter }, XrayActivation.Deferred);
     }
 
     /// <summary>
@@ -398,7 +398,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // immediately clears `$0B5E`. Pose initialization occurs later in the
             // new-state handler, so a bridge published below survives precisely
             // until this point in the following gameplay frame.
-            SamusAerialPoseTransitions.ClearPoseTransitionShotDirection(samus);
+            SamusAerialPoseTransitions.DropPendingTransitionShot(samus);
             samus.ProjectileInheritance.ClearMovement();
 
             // `$0CD0` is one shared WRAM word, not independent projectile/movement
@@ -1250,7 +1250,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // soon as it selects a DIFFERENT pose, before collision and movement.
         if (_player.ProspectiveSamusPose is { } matchedBombCancel &&
             matchedBombCancel.ProspectivePose != samus.Pose)
-            samus.BombJumpDirection = 0;
+            samus.BombJumpRequest = SamusBombJumpRequest.None;
         frame.SamplePoseLookup(poseLookup, samus);
         _player.ProspectiveSamusFallbackPose = null;
         _player.ProspectiveSamusWallCollisionPose = null;

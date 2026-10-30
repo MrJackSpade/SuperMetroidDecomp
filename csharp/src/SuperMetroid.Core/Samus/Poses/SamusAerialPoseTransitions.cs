@@ -108,7 +108,7 @@ internal static class SamusAerialPoseTransitions
         // $91:F5CF publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this record. The projectile producer consumes it in alpha.
         if ((controllerNewInput & ControllerButton.X) != ControllerButton.None)
-            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
+            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadShotDirection(samus));
 
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
@@ -908,9 +908,9 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
             (controllerNewInput & ControllerButton.X) != ControllerButton.None)
         {
             // `$91:F5CF-$F5E6` runs only in the normal-jumping initializer. It reads the
-            // newly installed pose's direction byte and adds `$8000`; spin-jump's separate
+            // newly installed pose's direction and hands it to the weapon handler; spin-jump's separate
             // initializer never publishes this bridge even when Shoot and Jump share a frame.
-            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
+            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadShotDirection(samus));
         }
     }
 
@@ -920,7 +920,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
     /// HUD/projectile handler. A failed cooldown/slot allocation must lose the bridge too;
     /// it is deliberately not retained until some later shot succeeds.
     /// </summary>
-    public static void ClearPoseTransitionShotDirection(SamusState samus) => samus.PoseTransitionShotDirection = 0;
+    public static void DropPendingTransitionShot(SamusState samus) => samus.PendingTransitionShot = null;
 
 
     /// <summary>
@@ -947,7 +947,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
     {
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.NormalJumping &&
             (controllerNewInput & ControllerButton.X) != ControllerButton.None)
-            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.NormalJumpTag | SamusPoseMetadata.ReadShotDirection(samus)));
+            samus.PendingTransitionShot = new SamusTransitionShot(SamusPoseMetadata.ReadShotDirection(samus));
     }
 
     /// <summary>

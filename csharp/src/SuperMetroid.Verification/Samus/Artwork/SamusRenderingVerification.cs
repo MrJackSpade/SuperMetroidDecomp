@@ -308,7 +308,7 @@ internal static void VerifySamusRenderingSlice()
         "knockback overrides odd-frame invincibility blink");
 
     samus.KnockbackTimer = WrappingCountdown.Start(0);
-    AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)),
+    AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(4, 0)),
         "test fixture installs nonzero native shine timer");
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);

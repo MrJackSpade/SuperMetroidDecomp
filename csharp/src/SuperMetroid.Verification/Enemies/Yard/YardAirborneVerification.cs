@@ -26,15 +26,15 @@ internal static class YardAirborneVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.StepFrame(0);
-        AssertEqual(0x00010000u, runtime.Player.IntroducedSamus.AbsoluteMovedLastFrameXFixed,
+        AssertEqual(SignedSixteenSixteen.FromRaw(0x00010000), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
             "stationary native distance includes one pixel for the next Yard kick");
         runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xE000);
         runtime.StepFrame(0);
-        AssertEqual(0x0001E000u, runtime.Player.IntroducedSamus.AbsoluteMovedLastFrameXFixed,
+        AssertEqual(SignedSixteenSixteen.FromRaw(0x0001E000), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
             "Yard receives full fractional camera checkpoint displacement");
         runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithFractionX(0xC000);
         runtime.StepFrame(0);
-        AssertEqual(0x0000E000u, runtime.Player.IntroducedSamus.AbsoluteMovedLastFrameXFixed,
+        AssertEqual(SignedSixteenSixteen.FromRaw(0x0000E000), runtime.Player.IntroducedSamus.HorizontalDistanceMovedPlusOne,
             "native integer-only direction test allows biased distance below one pixel");
     }
 

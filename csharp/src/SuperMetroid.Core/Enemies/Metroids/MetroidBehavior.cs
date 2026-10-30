@@ -299,7 +299,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Function = MetroidAiFunction.AttachedToSamus;
-        samus.SpecialSuperPaletteFlags = 1;
+        samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext;
         SetMetroidProgram(slot, state, MetroidProgram.DrainingSamus);
     }
 
@@ -376,7 +376,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MetroidAiFunction.PowerBombEscape;
         SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
         if (samus is not null)
-            samus.SpecialSuperPaletteFlags = 0;
+            samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
     }
 
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
@@ -387,7 +387,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OuterBodyA.Cursor = null;
         state.OuterBodyB.Cursor = null;
         if (samus is not null)
-            samus.SpecialSuperPaletteFlags = 0;
+            samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
     }
 
     /// <summary>

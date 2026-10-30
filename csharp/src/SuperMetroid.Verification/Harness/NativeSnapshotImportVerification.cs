@@ -34,6 +34,7 @@ namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.TestSupport.ScenarioFixtures;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx.PaletteFx;
 
@@ -160,7 +161,7 @@ internal static class NativeSnapshotImportVerification
             : throw new InvalidDataException($"Native charge palette byte offset {chargePaletteByteOffset} names no step.");
         runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
         samus.BombSpreadChargeTimeoutCounter = W(NativeSnapshotMemory.BombSpreadChargeTimeout);
-        samus.PoseTransitionShotDirection = W(NativeSnapshotMemory.PoseShotDirection);
+        samus.PendingTransitionShot = SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection));
         samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
         samus.ResumeChargingBeamSound = SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound));
         samus.InputSnapshot.PreviousDrawHeldInput = (ControllerButton)W(NativeSnapshotMemory.SamusFilteredHeld);
@@ -201,7 +202,7 @@ internal static class NativeSnapshotImportVerification
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.ExtraSpeed), W(NativeSnapshotMemory.ExtraFraction));
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationModeImport.FromNative(W(NativeSnapshotMemory.AccelerationMode));
         samus.HorizontalSpeed.HasRunningMomentum = W(NativeSnapshotMemory.Momentum) != 0;
-        samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(W(NativeSnapshotMemory.BoostCounter));
+        samus.HorizontalSpeed.SpeedBoostCounter = SamusSnapshotWords.DecodeSpeedBoostCounter(W(NativeSnapshotMemory.BoostCounter));
         samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.VerticalSpeed), W(NativeSnapshotMemory.VerticalFraction));
         samus.Kinematics.YDirection = ClosedEnumWordDecoding.Decode<SamusVerticalDirection>(
             W(NativeSnapshotMemory.VerticalDirection), "Samus vertical direction");
@@ -212,9 +213,8 @@ internal static class NativeSnapshotImportVerification
         samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
         samus.HorizontalSpeed.ContactDamageIndex = ClosedEnumWordDecoding.Decode<SamusContactDamageIndex>(
             W(NativeSnapshotMemory.ContactDamageIndex), "Samus contact damage index");
-        samus.MorphBallBounceState = ClosedEnumWordDecoding.Decode<SamusBallBounceState>(
-            W(NativeSnapshotMemory.MorphBallBounceState), "Samus morph-ball bounce state");
-        samus.BombJumpDirection = W(NativeSnapshotMemory.BombJumpDirection);
+        samus.MorphBallBounceState = SamusSnapshotWords.DecodeBallBounce(W(NativeSnapshotMemory.MorphBallBounceState));
+        samus.BombJumpRequest = SamusBombJumpRequestCodec.FromNative(W(NativeSnapshotMemory.BombJumpDirection));
 
         foreach (var trail in runtime.Projectiles.TrailSlots)
         {

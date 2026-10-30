@@ -99,31 +99,30 @@ internal static class FixedPointVocabularyVerification
         }
     }
 
-    /// <summary>The counter's predicates, decrement and stage advance match the replaced word expressions.</summary>
+    /// <summary>
+    /// The counter's full-stage test, countdown, borrow and stage advance (#1470): every stage the boost reaches is
+    /// full only at four, a zero cadence borrows a stage, and stage zero cannot borrow.
+    /// </summary>
     private static void VerifySpeedBoostCounter()
     {
-        foreach (int word in new[] { 0x03ff, 0x0400, 0x0402, 0x0f00 })
-        {
-            var counter = new SamusSpeedBoostCounter(word);
-            AssertEqual((word & 0x0f00) == 0x0400, counter.IsActivelySpeedBoosting, $"active boost {word:X4}");
-            AssertEqual((word & 1 << 10) != 0, counter.HasActiveStageBit, $"stage-four bit {word:X4}");
-            AssertEqual(word / 0x100 * 0x100 == 0x0400, counter.HighByteIsStageFour, $"full boost {word:X4}");
-            AssertEqual(unchecked((short)((word & 0xff00) - 0x0400)) >= 0, counter.MeetsShinesparkStoreThreshold, $"shinespark store {word:X4}");
-        }
+        for (int stage = 0; stage <= SamusSpeedBoostCounter.FullStage; stage++)
+            AssertEqual(stage == 4, new SamusSpeedBoostCounter(stage, 2).IsAtFullStage, $"stage {stage} full boost");
+        AssertEqual(new SamusSpeedBoostCounter(4, 0), SamusSpeedBoostCounter.AtFullStage, "a windup's counter is full with no cadence");
 
-        (SamusSpeedBoostCounter borrowed, bool borrowedExpired) = new SamusSpeedBoostCounter(0x0400).DecrementForAnimationCommand();
-        AssertEqual(0x03ff, borrowed.RawValue, "a zero cadence borrows from stage four");
-        AssertEqual(3, borrowed.Stage, "the borrow leaves stage three");
-        AssertTrue(!borrowedExpired, "$03FF's cadence is not expired");
+        (SamusSpeedBoostCounter borrowed, bool borrowedExpired) = SamusSpeedBoostCounter.AtFullStage.DecrementForAnimationCommand();
+        AssertEqual(new SamusSpeedBoostCounter(3, 255), borrowed, "a zero cadence borrows from stage four");
+        AssertTrue(!borrowedExpired, "the borrowed cadence is not expired");
+        AssertThrows<InvalidOperationException>(() => new SamusSpeedBoostCounter(0, 0).DecrementForAnimationCommand(),
+            "stage zero with no cadence has no stage to borrow");
 
         for (int stage = 0; stage <= 3; stage++)
         {
-            (SamusSpeedBoostCounter expired, bool cadenceExpired) = new SamusSpeedBoostCounter(stage * 0x100 + 1).DecrementForAnimationCommand();
-            AssertEqual(stage * 0x100, expired.RawValue, $"stage {stage} cadence reaches zero");
+            (SamusSpeedBoostCounter expired, bool cadenceExpired) = new SamusSpeedBoostCounter(stage, 1).DecrementForAnimationCommand();
+            AssertEqual(new SamusSpeedBoostCounter(stage, 0), expired, $"stage {stage} cadence reaches zero");
             AssertTrue(cadenceExpired, $"stage {stage} cadence expires");
-            AssertTrue((expired.RawValue & 0x0400) == 0 == !expired.HasActiveStageBit, $"stage {stage} advance guard");
-            AssertEqual(stage * 0x100 + 0x100, expired.AdvanceStage().RawValue, $"stage {stage} advances");
-            AssertEqual((stage + 1) * 0x100 | 0x0012, expired.AdvanceStage().WithCadenceWord(0x0012).RawValue, $"stage {stage + 1} cadence reset");
+            AssertTrue(!expired.IsAtFullStage, $"stage {stage} advance guard");
+            AssertEqual(new SamusSpeedBoostCounter(stage + 1, 0), expired.AdvanceStage(), $"stage {stage} advances");
+            AssertEqual(new SamusSpeedBoostCounter(stage + 1, 18), expired.AdvanceStage().WithCadence(18), $"stage {stage + 1} cadence reset");
         }
     }
 

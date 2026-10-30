@@ -540,7 +540,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementFunction = YardMovementFunction.Airborne;
         SetYardAirborneLists(slot, state);
 
-        var horizontal = SignedSixteenSixteen.FromRaw(unchecked((int)samus.AbsoluteMovedLastFrameXFixed));
+        SignedSixteenSixteen horizontal = samus.HorizontalDistanceMovedPlusOne;
         SignedSixteenSixteen kick = YardKicks.ForHorizontalSpeed(horizontal.WholeWord);
         if ((SamusPoseMetadata.ReadPoseXDirection(samus) & 4) != 0)
             horizontal = NegateWordsSeparately(horizontal);

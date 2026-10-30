@@ -249,8 +249,8 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash cleans up on the call after the native fade count");
     AssertEqual(PowerBombExplosionPhase.Inactive, crystalWindow.Phase,
         "Crystal Flash HDMA cleanup clears phase");
-    AssertEqual(0, crystalWindow.Status,
-        "Crystal Flash HDMA cleanup clears shared status");
+    AssertTrue(!crystalWindow.IsActive,
+        "Crystal Flash HDMA cleanup ends the shared explosion");
     SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
     AssertEqual(2, samus.AnimationFrameTimer.RawValue,
         "same beta frame decrements forced timer three to two");

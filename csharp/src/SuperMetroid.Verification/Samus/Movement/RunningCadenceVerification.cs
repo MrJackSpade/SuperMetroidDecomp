@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 namespace SuperMetroid.Verification.Samus.Movement;
 
@@ -45,9 +46,10 @@ internal static class RunningCadenceVerification
             () => ordinary(residue, 0x0100),
             "Ordinary restored index cannot parse unrelated high-bank ROM");
 
-        for (byte stage = 0; stage <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; stage++)
+        // The counter's own stage reaches full boost; the sound-queue selection five is read below through the echo.
+        for (int stage = 0; stage <= SamusSpeedBoostCounter.FullStage; stage++)
         {
-            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(LittleEndianBytes.Word(0, unchecked(stage)));
+            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(stage, 0);
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + stage * 2));
             for (ushort index = 0; index <= 10; index++)
             {
@@ -58,10 +60,9 @@ internal static class RunningCadenceVerification
                 AssertEqual(expected, speed.ReadSpeedBoosterAnimationByte(residue, index, InstalledFixtures.SamusOverreads.AnimationWindows), "Native Max6 cadence byte selection");
             }
         }
-        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0600);
-        AssertThrows<InvalidDataException>(
-            () => speed.ReadSpeedBoosterAnimationByte(residue, 0, InstalledFixtures.SamusOverreads.AnimationWindows),
-            "Restored non-native stage cannot reinterpret adjacent code as a pointer");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => new SamusSpeedBoostCounter(SamusSpeedBoostCounter.FullStage + 2, 0),
+            "A stage past full boost is not a Speed Booster stage, so it cannot reinterpret adjacent code as a pointer");
 
         if (definitionsOnly) return;
 
@@ -86,15 +87,24 @@ internal static class RunningCadenceVerification
                 : (ushort)0;
             if (intercept) next = (ushort)((LittleEndianBytes.HighByteInPlace(next)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + selection * 2)));
             int calls = 0;
-            speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = new SamusSpeedBoostCounter((ushort)raw);
+            speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(stage, low);
             speed.EchoSoundRequested = false; speed.ContactDamageIndex = SamusContactDamageIndex.None;
             int frame = 7;
+            if (admitted && raw == 0)
+            {
+                // The cartridge would wrap the whole word to stage 255; the port's stage-zero counter has no
+                // stage to borrow from, so the countdown fails instead.
+                AssertThrows<InvalidOperationException>(() => speed.TryAdvanceSpeedBoosterAnimationStage(residue,
+                    SamusMovementType.Running, ControllerButton.B, 0, ref frame, out _, () => SoundQueueAdmission.Admitted(5)),
+                    "A stage-zero counter with no cadence cannot borrow a stage");
+                continue;
+            }
             bool actual = speed.TryAdvanceSpeedBoosterAnimationStage(residue,
                 running ? SamusMovementType.Running : SamusMovementType.Standing,
                 dash ? ControllerButton.B : 0, (ushort)raw, ref frame, out int timer,
                 () => { calls++; return SoundQueueAdmission.Admitted(5); });
             AssertEqual(intercept, actual, "Native boost interception gates and low-byte countdown");
-            AssertEqual(next, speed.SpeedBoostCounter.RawValue, "Native counter decrement, stage bit and reset-word OR");
+            AssertEqual(SamusSnapshotWords.DecodeSpeedBoostCounter(next), speed.SpeedBoostCounter, "Native counter decrement, stage advance and cadence reset");
             AssertEqual(intercept ? 0 : 7, frame, "Only intercepted command resets frame");
             AssertEqual(expectedTimer, timer, "Selected first-frame delay and wrapping frame buffer");
             AssertEqual(sound ? 1 : 0, calls, "Echo call only on bit-two stage entry");
@@ -111,11 +121,11 @@ internal static class RunningCadenceVerification
             int accumulator = LittleEndianBytes.Word(unchecked((byte)low), unchecked((byte)stage));
             bus.MutableDelay = (byte)accumulator;
             residue.Write(stageFiveOffset, bus.MutableDelay);
-            speed.HasRunningMomentum = true; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
+            speed.HasRunningMomentum = true; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
             int frame = 9;
             speed.TryAdvanceSpeedBoosterAnimationStage(residue, SamusMovementType.Running, ControllerButton.B,
                 (ushort)accumulator, ref frame, out int timer, () => SoundQueueAdmission.Admitted(stage));
-            AssertEqual(0x0400 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + stage * 2)), speed.SpeedBoostCounter.RawValue, "All returned queue words retain native reset selection");
+            AssertEqual(SamusSnapshotWords.DecodeSpeedBoostCounter(checked((ushort)(0x0400 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + stage * 2))))), speed.SpeedBoostCounter, "All returned queue words retain native reset selection");
             byte expectedDelay = stage == 5
                 ? bus.MutableDelay
                 : rom.ReadCartridgeByte(0x910000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + stage * 2)));
@@ -124,7 +134,7 @@ internal static class RunningCadenceVerification
         }
 
         speed.HasRunningMomentum = true;
-        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);
+        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
         int invalidFrame = 9;
         AssertThrows<InvalidDataException>(
             () => speed.TryAdvanceSpeedBoosterAnimationStage(
@@ -139,11 +149,11 @@ internal static class RunningCadenceVerification
 
         speed = new SamusHorizontalSpeedState();
         speed.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, true);
-        AssertEqual(1, speed.SpeedBoostCounter.RawValue, "First running frame seeds native countdown");
+        AssertEqual(new SamusSpeedBoostCounter(0, 1), speed.SpeedBoostCounter, "First running frame seeds native countdown");
         AssertEqual(0x1000, speed.ExtraRunSpeed.Fraction, "Cadence migration leaves run acceleration intact");
-        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0); speed.SpecialPaletteTimer = WrappingCountdown.Start(8); speed.CyclePaletteStep = 3;
+        speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0); speed.SpecialPaletteTimer = WrappingCountdown.Start(8); speed.CyclePaletteStep = 3;
         speed.ReconcilePauseSpeedBoosterState(true);
-        AssertEqual(1, speed.SpeedBoostCounter.RawValue, "Pause equipment reconciliation seeds native countdown");
+        AssertEqual(new SamusSpeedBoostCounter(0, 1), speed.SpeedBoostCounter, "Pause equipment reconciliation seeds native countdown");
         AssertEqual(0, speed.SpecialPaletteTimer.RawValue, "Pause reconciliation palette timer differs from initial run");
         AssertEqual(0, speed.CyclePaletteStep, "Pause reconciliation palette frame reset");
         Console.WriteLine("Running cadence: 90 bounded bytes, all native Max6 selections, 10240 command/gate cases, 1536 sound-return words, mutable stage-five alias, and loud non-native rejection pass.");

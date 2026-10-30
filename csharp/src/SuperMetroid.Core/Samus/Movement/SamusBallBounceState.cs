@@ -1,24 +1,23 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Morph-ball bounce state at WRAM <c>$0B20</c>. The low byte counts rebounds; the Spring Ball
-/// landing handler (<c>$91:F25E</c>) additionally stores high byte <c>$06</c> as its bounce
-/// family. Bank <c>$91</c> stores only these five words.
+/// How far a landing Morph Ball or Spring Ball has bounced, and which of the two bounced. A Spring Ball landing takes
+/// either family's first rebound to its own second; a Morph Ball landing after a Spring Ball rebound comes to rest.
 /// </summary>
 public enum SamusBallBounceState
 {
-    /// <summary>Zero: not bouncing.</summary>
-    None = 0x0000,
+    /// <summary>Not bouncing.</summary>
+    None,
 
-    /// <summary>Morph Ball first rebound (<c>$91:EFxx</c> ordinary landing).</summary>
-    FirstRebound = 0x0001,
+    /// <summary>Morph Ball first rebound.</summary>
+    FirstRebound,
 
     /// <summary>Morph Ball second rebound.</summary>
-    SecondRebound = 0x0002,
+    SecondRebound,
 
-    /// <summary>Spring Ball first rebound: family <c>$06</c>, rebound one.</summary>
-    SpringBallFirstRebound = 0x0601,
+    /// <summary>Spring Ball first rebound.</summary>
+    SpringBallFirstRebound,
 
-    /// <summary>Spring Ball second rebound: family <c>$06</c>, rebound two.</summary>
-    SpringBallSecondRebound = 0x0602,
+    /// <summary>Spring Ball second rebound.</summary>
+    SpringBallSecondRebound,
 }

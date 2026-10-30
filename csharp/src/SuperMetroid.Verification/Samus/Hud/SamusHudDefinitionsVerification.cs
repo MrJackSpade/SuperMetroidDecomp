@@ -41,7 +41,8 @@ internal static class SamusHudDefinitionsVerification
                 "Every posture pose and active-Grapple branch");
         }
         var samus = new SamusState();
-        Action<SamusState, ushort> setTurn = (state, direction) => state.PoseTransitionShotDirection = direction;
+        Action<SamusState, ushort> setTurn = (state, turn) =>
+            state.PendingTransitionShot = turn == 0 ? null : new SamusTransitionShot(turn & byte.MaxValue);
         for (byte movement = 0; movement < 28; movement++)
         {
             ushort handler = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90dd05 + movement * 2));

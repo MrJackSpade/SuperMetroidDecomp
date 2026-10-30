@@ -26,6 +26,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
         unchecked((ushort)((EightEight.FromWhole(state.Position.Y.Whole)) | LittleEndianBytes.HighByte(state.Kinematics.Position.Y.Fraction)));
 
     var movement = new MotherBrainRainbowBeamSamusMovement();
+    var cameraCheckpoint = new RainbowBeamCameraCheckpoint();
     var samus = new SamusState
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
@@ -37,7 +38,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0xffaa).WithFractionY(0xf0bb);
     movement.BeginFallingAfterRainbowBeam();
     MotherBrainForcedSamusMovementResult first =
-        movement.StepFallingAfterRainbowBeam(samus);
+        movement.StepFallingAfterRainbowBeam(samus, cameraCheckpoint);
     AssertEqual(new EightEightVector<RoomPixels>(unchecked((short)0xff02), 0x0018), movement.CustomVelocity,
         "rainbow fall first eased X and accelerated Y velocity");
     AssertEqual(100, samus.Position.X.Whole, "rainbow fall signed X plus fractional carry");
@@ -50,9 +51,9 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     // Exactly 127 more +$0002 updates carry the negative X word to zero. Native clamps it
     // there instead of allowing a positive recoil; subsequent calls must remain zero.
     for (int call = 1; call < 128; call++)
-        movement.StepFallingAfterRainbowBeam(samus);
+        movement.StepFallingAfterRainbowBeam(samus, cameraCheckpoint);
     AssertEqual(0, movement.CustomVelocity.X.SignedRawValue, "rainbow fall X easing clamps at zero");
-    movement.StepFallingAfterRainbowBeam(samus);
+    movement.StepFallingAfterRainbowBeam(samus, cameraCheckpoint);
     AssertEqual(0, movement.CustomVelocity.X.SignedRawValue, "rainbow fall X easing stays zero");
     AssertEqual(0x00c0, samus.Position.Y.Whole, "rainbow fall clamps at arena floor Y $C0");
     AssertEqual(0, samus.Kinematics.Position.Y.Fraction, "arena floor clamp clears Y subposition");
@@ -62,7 +63,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Position = samus.Position.WithWholeY(0x007c);
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xd055);
     ushort middleDownBefore = YEightEight(samus);
-    MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
+    MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus, cameraCheckpoint);
     AssertEqual(0x0040, unchecked((ushort)(YEightEight(samus) - middleDownBefore)),
         "middle-wall below target velocity");
     AssertEqual(0x007d, samus.Position.Y.Whole, "middle-wall downward whole carry");
@@ -70,7 +71,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
 
     // Above $7C, two's-complement $FFC0 moves upward. $7D.10 + (-$00.40) becomes $7C.D0.
     ushort middleUpBefore = YEightEight(samus);
-    MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
+    MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus, cameraCheckpoint);
     AssertEqual(0xffc0, unchecked((ushort)(YEightEight(samus) - middleUpBefore)),
         "middle-wall above target velocity");
     AssertEqual(0x007c, samus.Position.Y.Whole, "middle-wall upward whole borrow");
@@ -84,7 +85,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x0033);
     movement.RainbowBeamAngle = RotationAngle.Zero;
     ushort beamBefore = YEightEight(samus);
-    MotherBrainForcedSamusMovementResult beam = movement.MoveTowardWall(samus);
+    MotherBrainForcedSamusMovementResult beam = movement.MoveTowardWall(samus, cameraCheckpoint);
     AssertEqual(0x1000, unchecked((ushort)(YEightEight(samus) - beamBefore)),
         "rainbow beam table-derived Y velocity");
     AssertEqual(116, samus.Position.X.Whole, "rainbow beam horizontal $10.00 step");
@@ -95,7 +96,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Position = samus.Position.WithWholeX(0x00e0);
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x7777);
     samus.Position = samus.Position.WithWholeY(100);
-    MotherBrainForcedSamusMovementResult wall = movement.MoveTowardWall(samus);
+    MotherBrainForcedSamusMovementResult wall = movement.MoveTowardWall(samus, cameraCheckpoint);
     AssertTrue(samus.Position.X.Whole == 0x00eb && wall.ReachedVerticalBoundary, "rainbow beam wall clamp returns carry");
     AssertEqual(0x00eb, samus.Position.X.Whole, "rainbow beam hardcoded wall X $EB");
     AssertEqual(0, samus.Kinematics.Position.X.Fraction, "rainbow wall clamp clears X subposition");
@@ -108,7 +109,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Position = samus.Position.WithWholeY(0x0030);
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x9999);
     movement.RainbowBeamAngle = RotationAngle.HalfTurn;
-    MotherBrainForcedSamusMovementResult ceiling = movement.MoveTowardWall(samus);
+    MotherBrainForcedSamusMovementResult ceiling = movement.MoveTowardWall(samus, cameraCheckpoint);
     AssertTrue(samus.Position.Y.Whole == 0x0030 && samus.Kinematics.Position.Y.Fraction == 0 && !ceiling.ReachedVerticalBoundary,
         "rainbow ceiling clamp is hidden from caller carry");
     AssertEqual(0x0030, samus.Position.Y.Whole, "rainbow hardcoded ceiling Y $30");
@@ -123,13 +124,25 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
     var frameStart = samus.Position;
     // The earlier clamps above queued their own writes; each frame's scroll applies them.
-    samus.ApplyPreviousPositionWrites(frameStart);
+    cameraCheckpoint.Consume(samus.ApplyPreviousPositionWrites(frameStart));
     movement.BeginFallingAfterRainbowBeam();
-    movement.StepFallingAfterRainbowBeam(samus);
+    movement.StepFallingAfterRainbowBeam(samus, cameraCheckpoint);
     AssertEqual(0x00c0, samus.Position.Y.Whole, "the fall reaches the floor clamp");
-    FixedPosition<RoomPixels> checkpoint = samus.ApplyPreviousPositionWrites(frameStart);
+    FixedPosition<RoomPixels> checkpoint = cameraCheckpoint.Consume(samus.ApplyPreviousPositionWrites(frameStart));
     AssertEqual(samus.Position, checkpoint,
         "the forced move leaves the camera checkpoint at Samus's new position");
+
+    // #1470: a push inside the arena hides only its coarse sub-pixel movement. The camera's record keeps its own fine
+    // sub-pixel, so fine movement Samus made since the record was taken still reaches the camera's speed.
+    samus.Position = samus.Position.WithWholeY(0x007c);
+    samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xd055);
+    FixedPosition<RoomPixels> recorded = samus.Position.WithFractionY(0xd0aa);
+    MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus, cameraCheckpoint);
+    AssertEqual(0x1055, samus.Kinematics.Position.Y.Fraction, "the push moves Samus's coarse sub-pixel");
+    AssertEqual(recorded.WithWholeY(0x007d).WithFractionY(0x10aa),
+        cameraCheckpoint.Consume(samus.ApplyPreviousPositionWrites(recorded)),
+        "the camera's record takes the push's whole pixel and coarse sub-pixel and keeps its own fine sub-pixel");
+    AssertEqual(recorded, cameraCheckpoint.Consume(recorded), "the hidden push is consumed once");
 
     Console.WriteLine("  Mother Brain: rainbow-beam forced 8.8 movement and arena clamps agree.");
 }
@@ -141,6 +154,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
 /// </summary>
 internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 {
+    var cameraCheckpoint = new RainbowBeamCameraCheckpoint();
 
     var samus = new SamusState
     {
@@ -167,7 +181,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertTrue(attack.RainbowAttack.BeamActive, "rainbow start shows the beam");
     AssertEqual(0x0200, attack.RainbowAttack.AngularWidth, "rainbow start width");
 
-    MotherBrainRainbowBeamAttackStepResult wall = attack.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 2, MainEnemyExecutionCounter = 1 });
+    MotherBrainRainbowBeamAttackStepResult wall = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 2, MainEnemyExecutionCounter = 1 });
     AssertEqual(0x00eb, samus.Position.X.Whole, "actor sequence moves Samus to hardcoded wall");
     AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay, attack.State.Phase,
         "wall carry installs one-frame-delay function");
@@ -177,7 +191,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertTrue(wall.Explosion is { Offset: { X: 6, Y: 2 } },
         "zero explosion timer increments to literal offset record one");
 
-    MotherBrainRainbowBeamAttackStepResult delay = attack.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 2 });
+    MotherBrainRainbowBeamAttackStepResult delay = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 2 });
     AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus, attack.State.Phase,
         "zero delay timer underflows and schedules drain initializer");
     AssertEqual(8, attack.State.EarthquakeType, "delay underflow selects earthquake type eight");
@@ -189,7 +203,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     while (attack.State.Phase is MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus or
            MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus)
     {
-        MotherBrainRainbowBeamAttackStepResult drain = attack.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = unchecked((ushort)drainCalls), MainEnemyExecutionCounter = unchecked((ushort)drainCalls) });
+        MotherBrainRainbowBeamAttackStepResult drain = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = unchecked((ushort)drainCalls), MainEnemyExecutionCounter = unchecked((ushort)drainCalls) });
         drainCalls++;
         if (drain.SoundQueued)
             queuedBeamSounds++;
@@ -212,7 +226,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     bool lockedBeforeNarrowing = samus.Control.AlphaLocked;
     while (attack.State.Phase == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring)
     {
-        attack.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+        attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         narrowingCalls++;
     }
     AssertEqual(7, narrowingCalls, "$0C00 beam narrows below $0200 in seven calls");
@@ -226,7 +240,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     while (attack.State.Phase is MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall or
            MotherBrainBodyFunction.SecondPhaseRainbowWaitForSamusToLand)
     {
-        MotherBrainRainbowBeamAttackStepResult falling = attack.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+        MotherBrainRainbowBeamAttackStepResult falling = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         fallingCalls++;
         AssertTrue(falling.Movement is not null,
             $"custom post-beam fall call {fallingCalls} owns Samus coordinates");
@@ -237,7 +251,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, samus.Pose,
         "let-fall controller selects left drained pose from forced $54 direction");
 
-    attack.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+    attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
     AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction, attack.State.Phase,
         "lower-head function installs decision timer");
     AssertEqual(0x0080, attack.State.FunctionTimer.RawValue, "lower-head function seeds $80 timer");
@@ -245,7 +259,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     int decisionCalls = 0;
     while (attack.State.Phase == MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction)
     {
-        attack.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+        attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         decisionCalls++;
     }
     AssertEqual(129, decisionCalls, "$80 decision timer expires on 129th DEC/BPL call");
@@ -254,7 +268,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(MotherBrainBodyProgram.WalkForwardReallySlow, attack.State.Body.Program,
         "low-health decision immediately requests the native forward body walk");
     MotherBrainHeadProgram? headBeforeFinishThreshold = attack.State.HeadProgram;
-    MotherBrainRainbowBeamAttackStepResult finishThreshold = attack.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+    MotherBrainRainbowBeamAttackStepResult finishThreshold = attack.Step(samus, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
     AssertEqual(MotherBrainBodyFunction.SecondPhaseFinishSamusOff, finishThreshold.PhaseAfter,
         "399 energy remains above no-suit finish threshold 340");
     AssertEqual(headBeforeFinishThreshold, attack.State.HeadProgram,
@@ -276,9 +290,9 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     lowAttack.RainbowAttack.StartActiveBeam(low);
     AssertEqual(DrainedGetUpHandler.UnableToStand, low.Drained.GetUpHandler,
         "energy 699 selects command $18 unable handler");
-    lowAttack.Step(low, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 1 });
-    lowAttack.Step(low, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 2 });
-    MotherBrainRainbowBeamAttackStepResult firstDrain = lowAttack.Step(low, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+    lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 1 });
+    lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 2 });
+    MotherBrainRainbowBeamAttackStepResult firstDrain = lowAttack.Step(low, new RainbowBeamAttackFrame { CameraCheckpoint = cameraCheckpoint, EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
     AssertEqual(MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus, firstDrain.PhaseAfter,
         "drain initializer falls through into first resource tick");
     AssertEqual(0, low.Missiles,

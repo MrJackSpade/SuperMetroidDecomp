@@ -101,6 +101,12 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The session's floor update residue, bound into the enemies and every Samus this runtime creates.</summary>
     internal SuperMetroid.Core.Compatibility.FloorUpdateResidue FloorQueueResidue { get; }
 
+    /// <summary>
+    /// What Mother Brain's rainbow-beam push hides from the camera this update, bound into the enemies and consumed by
+    /// the update's scrolling.
+    /// </summary>
+    internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint { get; } = new();
+
     /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
     internal XrayReveal Xray { get; }
 
@@ -144,6 +150,7 @@ internal sealed class SuperMetroidRuntime
         Options = new GameplayOptions();
         FloorQueueResidue = Ensure.NotNull(floorQueueResidue);
         EnemySession.FloorQueueResidue = FloorQueueResidue;
+        EnemySession.RainbowBeamCameraCheckpoint = RainbowBeamCameraCheckpoint;
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
@@ -352,16 +359,14 @@ internal sealed class SuperMetroidRuntime
     public SuperMetroid.Core.Progression.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
 
     /// <summary>
-    /// Native power-bomb explosion status at WRAM <c>$0CE2</c>, 0 through 65535. X-ray setup rejects every
-    /// nonzero phase. The getter reads the translated bank-$88 owner; the setter is a
-    /// debugger seam for forcing preconditions without constructing an explosion.
+    /// Whether a power-bomb explosion is under way; X-ray setup and the pause check reject one. The getter reads the
+    /// room's explosion; the setter is a debugger seam for forcing preconditions without constructing an explosion.
     /// </summary>
-    /// <remarks>Before the first room exists there is no explosion, so its status is the cleared one.</remarks>
-    [PackedFields("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]
-    public int PowerBombExplosionStatus
+    /// <remarks>Before the first room exists there is no explosion.</remarks>
+    public bool PowerBombExplosionActive
     {
-        get => Room.BombProjectiles?.PowerBombExplosion.Status ?? 0;
-        set => Room.LoadedScope.BombProjectiles.PowerBombExplosion.SetStatusForDebugging(value);
+        get => Room.BombProjectiles?.PowerBombExplosion.IsActive == true;
+        set => Room.LoadedScope.BombProjectiles.PowerBombExplosion.SetActiveForDebugging(value);
     }
 
     /// <summary>
@@ -808,7 +813,7 @@ internal sealed class SuperMetroidRuntime
 
             ActiveRoomGeometry roomGeometry = RoomLoader.GetActiveRoomGeometry();
 
-            previousCameraPoint = samus.ApplyPreviousPositionWrites(previousCameraPoint);
+            previousCameraPoint = RainbowBeamCameraCheckpoint.Consume(samus.ApplyPreviousPositionWrites(previousCameraPoint));
             var currentCameraPoint = samus.Position;
 
             // GameState_8 calls MainScrollingRoutine after movement/PLMs and before
@@ -847,7 +852,7 @@ internal sealed class SuperMetroidRuntime
             // kick setup. Publish the camera calculation itself, including its
             // integer-only sign test and previous scrolling checkpoint. A second
             // frame-end absolute delta loses both the bias and checkpoint timing.
-            samus.AbsoluteMovedLastFrameXFixed = unchecked((uint)camera.Speed.X.RawValue);
+            samus.HorizontalDistanceMovedPlusOne = camera.Speed.X;
             samus.ProjectileInheritance.CameraYSubspeed = camera.Speed.Y.Fraction;
 
             // MainScrollingRoutine `$90:9563` invokes the mutable global

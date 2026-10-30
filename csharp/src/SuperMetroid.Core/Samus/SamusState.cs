@@ -322,22 +322,12 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// WRAM <c>$0B5E</c>, <c>PoseTransitionShotDirection</c>. A pose initializer can
-    /// publish one shot direction after the current frame's projectile handler has already
-    /// run. The following frame's bank-$90 producer consumes the low byte, then the normal
-    /// current-state epilogue clears the complete word whether or not allocation succeeded.
+    /// The shot a pose transition handed to the next update's weapon handler, or null. A pose initializer can hand one
+    /// after the current update's weapon handler has already run: a normal jump started on a fresh Shoot press hands
+    /// the new pose's direction, and a turn out of a moonwalk hands the moonwalk's. The next update's weapon handler
+    /// fires it, and that update then drops it whether or not a shot was fired.
     /// </summary>
-    /// <remarks>
-    /// The high byte is meaningful provenance, not part of the direction: `$8000` marks a
-    /// fresh-shot normal-jump transition and `$0100` marks a moonwalk turn. Keeping the raw
-    /// word visible makes both native producers and the single consumer debugger-auditable.
-    /// </remarks>
-    [PackedFields("packed transition word: the low byte is the shot direction and the high byte records which native producer wrote it")]
-    public int PoseTransitionShotDirection
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public SamusTransitionShot? PendingTransitionShot { get; internal set; }
 
     /// <summary>WRAM `$0A76`: whether Mother Brain's hyper beam is enabled (native `$8000`).</summary>
     public bool HyperBeamEnabled { get; set; }
@@ -357,35 +347,20 @@ public sealed class SamusState
     public SamusEquipmentFlags CollectedItems { get; set; }
 
     /// <summary>
-    /// The Metroid-attachment palette phase, 0 through 65535 (native <c>samus_special_super_palette_flags</c>). Zero
-    /// is inactive. Ordinary Metroid command $12 writes one while attached; bank-$91 palette handling then advances
-    /// the phase every frame, alternating the speed-boost and normal suit palettes until command $13 clears it. A
-    /// phase of 32768 or more is the separate drained/rainbow branch modeled by <see cref="Drained"/>: Metroid AI
-    /// never produces it and the alternation never advances it. The setter rejects values outside the range.
+    /// The suit palette a draining Metroid or the Baby Metroid makes Samus flash through next, or inactive. Attachment
+    /// starts on the Speed Booster palette; the palette handling then alternates it with the normal suit every update
+    /// until the attacker lets go.
     /// </summary>
-    public int SpecialSuperPaletteFlags
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public SamusMetroidAttachmentPalette MetroidAttachmentPalette { get; internal set; }
 
-    /// <summary>
-    /// Morph-ball bounce state at WRAM <c>$0B20</c>: zero is not bouncing, one is the first
-    /// rebound, and two is the second rebound. Spring Ball also stores high byte $06 as its
-    /// bounce family; see <see cref="SamusBallBounceState"/>.
-    /// </summary>
+    /// <summary>How far a landing Morph Ball or Spring Ball has bounced; see <see cref="SamusBallBounceState"/>.</summary>
     public SamusBallBounceState MorphBallBounceState { get; set; }
 
     /// <summary>
-    /// WRAM `$0A56`: low byte 1/2/3 is left/straight/right; bit `$0800` marks the bank-$91
-    /// special prospective command as accepted and prevents the same explosion rearming it.
+    /// The bomb jump a bomb's blast asked of Samus: its launch direction, and whether her pose handling has accepted it,
+    /// which keeps the same request from arming the jump again.
     /// </summary>
-    [PackedFields("WRAM $0A56: low byte left, straight or right, plus the $0800 accepted-command bit; zero means no bomb jump")]
-    public int BombJumpDirection
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public SamusBombJumpRequest BombJumpRequest { get; set; }
 
     /// <summary>True for `$90:E025`'s one-frame velocity-initialization handler.</summary>
     public bool BombJumpStarting { get; set; }
@@ -536,11 +511,10 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Native 16.16 horizontal distance-plus-one from the most recent scrolling pass.
-    /// This is <c>absolute_moved_last_frame_x</c> and its fractional companion, not
-    /// an unbiased absolute delta. Yard consumes the same words as camera tracking.
+    /// How far Samus moved horizontally in the most recent scrolling pass, plus one pixel, as the camera measured it
+    /// for its speed: not an unbiased distance. A Yard kick reads it.
     /// </summary>
-    public uint AbsoluteMovedLastFrameXFixed { get; internal set; }
+    public SignedSixteenSixteen HorizontalDistanceMovedPlusOne { get; internal set; }
 
     /// <summary>
     /// The solid vertical collision result the latest vertical movement or wall jump published. Most translated
@@ -799,27 +773,15 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// wrote it. Only <see cref="WritePreviousXPosition"/> stores it.
     /// </summary>
     private int? _previousXPositionWrite;
-    /// <summary>Masked writes to previous X/Y fractions $0B12/$0B16; zero masks mean no write.</summary>
-    private PreviousFractionWrites _previousFractionWrites;
 
     /// <summary>
     /// Records a direct write of SamusPreviousXPosition ($0B10) by an owner that runs
     /// before MainScrollingRoutine, such as the landed gunship placing Samus at $A2:A925.
-    /// Only the whole word changes; the previous X fraction ($0B12) is untouched.
+    /// Only the whole word changes; the previous X fraction is untouched (Mother Brain's
+    /// rainbow-beam push records its fraction in <see cref="RainbowBeamCameraCheckpoint"/>).
     /// </summary>
     internal void WritePreviousXPosition(int xPosition) =>
         _previousXPositionWrite = xPosition;
-
-    /// <summary>
-    /// Records a write to bits of SamusPreviousXSubPosition ($0B12): a byte store sets mask
-    /// $FF00, a word store $FFFF. Later writes this frame replace the bits they cover.
-    /// </summary>
-    internal void WritePreviousXSubposition(int mask, int value) =>
-        _previousFractionWrites = _previousFractionWrites with { X = _previousFractionWrites.X.Write(mask, value) };
-
-    /// <summary>Records a write to bits of SamusPreviousYSubPosition ($0B16), as for X.</summary>
-    internal void WritePreviousYSubposition(int mask, int value) =>
-        _previousFractionWrites = _previousFractionWrites with { Y = _previousFractionWrites.Y.Write(mask, value) };
 
     /// <summary>
     /// Applies $90:EC7E Samus_AlignBottomWithPrevPose after installing a new pose:
@@ -853,43 +815,21 @@ level, probe, this, amount, scanLeftToRight, plms);
         unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta)));
 
     /// <summary>
-    /// Applies this frame's previous-position word writes before $90:94EC calculates
-    /// distance. Its normal tail subsequently replaces the complete checkpoint.
+    /// Applies this frame's whole previous-position writes before $90:94EC calculates
+    /// distance; the fractions are kept. Its normal tail subsequently replaces the complete checkpoint.
     /// </summary>
     internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
     {
         int correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
             + _poseAlignmentPreviousYDelta));
         int xPosition = checked((ushort)(_previousXPositionWrite ?? previous.X.Whole));
-        int xSubposition = _previousFractionWrites.X.ApplyTo(previous.X.Fraction);
-        int ySubposition = _previousFractionWrites.Y.ApplyTo(previous.Y.Fraction);
         _poseCollisionPreviousYPosition = null;
         _poseAlignmentPreviousYDelta = 0;
         _previousXPositionWrite = null;
-        _previousFractionWrites = default;
         return new FixedPosition<RoomPixels>(
-            FixedCoordinate.Of(xPosition, xSubposition),
-            FixedCoordinate.Of(correctedY, ySubposition));
+            FixedCoordinate.Of(xPosition, previous.X.Fraction),
+            FixedCoordinate.Of(correctedY, previous.Y.Fraction));
     }
-
-    /// <summary>
-    /// Bit-masked pending writes to one previous-fraction word: bits set in
-    /// <see cref="Mask"/> are replaced by the matching <see cref="Value"/> bits on apply. Both are sixteen-bit
-    /// patterns of the fraction word, 0 through 65535, because a store covers either its high byte or all of it.
-    /// </summary>
-    private readonly record struct MaskedWordWrite(int Mask, int Value)
-    {
-        /// <summary>Records a byte ($FF00) or word ($FFFF) store; later stores replace the bits they cover.</summary>
-        public MaskedWordWrite Write(int mask, int value) =>
-            new(Mask | mask, (Value & ~mask) | (value & mask));
-
-        /// <summary>Applies only the bits written this frame to an earlier fraction word.</summary>
-        public ushort ApplyTo(int word) => (ushort)((word & ~Mask) | Value);
-    }
-
-    /// <summary>The pending masked writes to both previous-fraction words as one value.</summary>
-    [SpatialComponents("Spatial value type: the pending masked writes to the previous X/Y fraction words $0B12/$0B16, one per axis.")]
-    private readonly record struct PreviousFractionWrites(MaskedWordWrite X, MaskedWordWrite Y);
 
     /// <summary>Persistent $0A6A warning state, shared by native beta and reserve recovery.</summary>
     public SamusHealthWarningState HealthWarning => field ??= new();

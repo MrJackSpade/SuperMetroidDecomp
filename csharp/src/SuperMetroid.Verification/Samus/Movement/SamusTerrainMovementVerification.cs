@@ -1636,16 +1636,16 @@ internal static void VerifySamusMoonwalking()
     }
 
     // `$91:F8F3-$F903` is specific to a turn whose PREVIOUS movement type is Moonwalk.
-    // It publishes the source pose's shot direction with tag `$0100`; ordinary standing
-    // turns, including the disabled-option substitution above, must not create this word.
-    AssertEqual(0, disabled.PoseTransitionShotDirection,
+    // It hands over the source pose's shot direction; ordinary standing turns, including
+    // the disabled-option substitution above, must not hand over a shot.
+    AssertEqual<SamusTransitionShot?>(null, disabled.PendingTransitionShot,
         "ordinary standing turn does not publish moonwalk shot bridge");
     var moonwalkBridge = new SamusState { Pose = SamusPoseId.MoonwalkFacingRightPose };
     SamusGroundedPoseTransitions.ApplyGroundedTurn(moonwalkBridge, SamusPoseId.TurningRightToLeftPose);
-    AssertEqual(0x0102, moonwalkBridge.PoseTransitionShotDirection,
-        "moonwalk turn publishes tagged source shot direction");
-    SamusAerialPoseTransitions.ClearPoseTransitionShotDirection(moonwalkBridge);
-    AssertEqual(0, moonwalkBridge.PoseTransitionShotDirection,
+    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(2), moonwalkBridge.PendingTransitionShot,
+        "moonwalk turn hands over the source shot direction");
+    SamusAerialPoseTransitions.DropPendingTransitionShot(moonwalkBridge);
+    AssertEqual<SamusTransitionShot?>(null, moonwalkBridge.PendingTransitionShot,
         "moonwalk shot bridge is one-current-handler state");
 
     // Enabled entry must preserve every exact candidate, not merely the unaimed pair.
@@ -1749,8 +1749,8 @@ floor, walker, frameCounter: 0);
         turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
         int sourceMuzzleDirection = SamusPoseMetadata.ReadShotDirection(turn);
         SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
-        AssertEqual((ushort)(SamusShotDirectionHandoff.MoonwalkTag | sourceMuzzleDirection),
-            turn.PoseTransitionShotDirection, "all six Moonwalk jump routes publish their original muzzle direction");
+        AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(sourceMuzzleDirection),
+            turn.PendingTransitionShot, "all six Moonwalk jump routes publish their original muzzle direction");
         AssertEqual(target, turn.Pose, $"moonwalk ${(int)source:X2} selects exact turn ${(int)target:X2}");
         AssertEqual(SamusAccelerationMode.Turning, turn.HorizontalSpeed.AccelerationMode,
             $"moonwalk turn ${(int)target:X2} preserves reversal mode");

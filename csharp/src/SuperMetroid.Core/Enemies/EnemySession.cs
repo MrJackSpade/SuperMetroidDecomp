@@ -54,6 +54,9 @@ public sealed class EnemySession : ISpriteObjectPage
     /// <summary>The session's floor update residue, which Ceres Ridley's getaway writes; the runtime binds it.</summary>
     internal SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; set; }
 
+    /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera; the runtime binds it.</summary>
+    internal RainbowBeamCameraCheckpoint? RainbowBeamCameraCheckpoint { get; set; }
+
     /// <summary>
     /// The sprite looks gameplay has shown, which enemy frames select their pictures from (#1463): the standard sprites,
     /// each room's graphics-set members and its encounters' looks, in the order shown. They outlive each room, as what a

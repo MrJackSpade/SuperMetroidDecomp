@@ -24,13 +24,13 @@ internal static class SamusImpulseDefinitionsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         for (int liquid = 1; liquid <= 2; liquid++)
         for (int gravity = 0; gravity <= 1; gravity++)
-        for (int direction = 1; direction <= 3; direction++)
+        foreach (SamusBombJumpDirection direction in new[] { SamusBombJumpDirection.Left, SamusBombJumpDirection.Straight, SamusBombJumpDirection.Right })
         {
             bomb.EquippedItems = (SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster | (gravity == 1 ? SamusEquipmentFlags.GravitySuit : 0));
             bomb.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
             bomb.LiquidPhysics.FxYPosition = liquid == 1 ? (ushort)raw : ushort.MaxValue;
             bomb.LiquidPhysics.LavaAcidYPosition = liquid == 2 ? (ushort)raw : ushort.MaxValue;
-            bomb.BombJumpDirection = (ushort)(0x0800 | direction);
+            bomb.BombJumpRequest = SamusBombJumpRequest.Published(direction).Accept();
             bomb.BombJumpStarting = true;
             bomb.BombJumpActive = false;
             bomb.Kinematics.YAcceleration = new UnsignedSixteenSixteen(7, 123);
@@ -61,7 +61,7 @@ internal static class SamusImpulseDefinitionsVerification
             hurt.LiquidPhysics.FxYPosition = environment is 1 or 3 ? (ushort)0 : ushort.MaxValue;
             hurt.LiquidPhysics.LavaAcidYPosition = environment == 2 ? (ushort)0 : ushort.MaxValue;
             hurt.LiquidPhysics.LiquidOptions = environment == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
-            hurt.BombJumpDirection = 0x0801;
+            hurt.BombJumpRequest = SamusBombJumpRequest.Published(SamusBombJumpDirection.Left).Accept();
             hurt.BombJumpStarting = true;
             hurt.BombJumpActive = true;
             hurt.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
@@ -73,7 +73,7 @@ internal static class SamusImpulseDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), hurt.Kinematics.YAcceleration.Fraction, "Hurt refreshes native gravity");
             AssertEqual((ushort)11, hurt.KnockbackTimer.RawValue, "Hurt retains producer timer");
             AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
-            AssertEqual(0, hurt.BombJumpDirection, "Hurt clears bomb direction");
+            AssertEqual(SamusBombJumpRequest.None, hurt.BombJumpRequest, "Hurt drops the bomb-jump request");
             AssertEqual(1, hurt.HurtFlashCounter, "Hurt starts flash");
             AssertEqual(SamusContactDamageIndex.None, hurt.HorizontalSpeed.ContactDamageIndex, "Hurt cancels contact attack");
             hurtCases++;

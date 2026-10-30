@@ -570,8 +570,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
     /// <summary>
     /// Resolves `$91:F25E` for Spring Ball. Holding Jump immediately calls the same
     /// cartridge-backed jump initializer as a grounded Spring Ball press; otherwise the
-    /// low bounce byte advances through two rebounds while high byte `$0600` records the
-    /// native Spring Ball bounce family.
+    /// bounce advances through the Spring Ball family's two rebounds.
     /// </summary>
     public static bool ApplySpringBallLanding(SamusState samus, ControllerButton controllerInput)
     {
@@ -588,7 +587,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
             return false;
         }
 
-        // $91:F26E dispatches on the low (rebound) byte only, so an ordinary-ball
+        // $91:F26E dispatches on the rebound count only, so an ordinary-ball
         // rebound left over from a Spring Ball toggle selects the same rebound step.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
             unchecked((short)(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FirstBallBounceMinimumSpeed)) >= 0)

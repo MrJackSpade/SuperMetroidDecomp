@@ -41,7 +41,7 @@ internal static class SpeedBoostPalettePointersVerification
             var samus = new SamusState
             {
                 EquippedItems = equipment[selection],
-                SpecialSuperPaletteFlags = 1,
+                MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,
                 Presentation = { FullBodyCycleColors = cycleColors },
             };
             var installedColors = new SamusColourRig();
@@ -51,37 +51,18 @@ internal static class SpeedBoostPalettePointersVerification
                 AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
                     installedColors.Samus.Suit[color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
-            AssertEqual(2, samus.SpecialSuperPaletteFlags,
-                "special palette counter increments");
+            AssertEqual(SamusMetroidAttachmentPalette.NormalSuitNext, samus.MetroidAttachmentPalette,
+                "the Speed Booster palette alternates to the normal suit");
         }
 
-        // The last alternating phase still draws and advances onto the drained/rainbow branch, which the
-        // alternation then leaves alone: the cartridge's signed test stops the phase there instead of wrapping.
-        const int LastAlternatingPhase = 32767;
-        var lastPhase = new SamusState
-        {
-            SpecialSuperPaletteFlags = LastAlternatingPhase,
-            Presentation = { FullBodyCycleColors = cycleColors },
-        };
-        AssertTrue(SamusSpecialSuperPalette.Update(new SamusColourRig().Samus, lastPhase),
-            "the last alternating phase still owns the palette");
-        AssertEqual(LastAlternatingPhase + 1, lastPhase.SpecialSuperPaletteFlags,
-            "the last alternating phase advances onto the drained branch");
-        AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColourRig().Samus, lastPhase),
-            "the drained branch is not the Metroid alternation");
-        AssertEqual(LastAlternatingPhase + 1, lastPhase.SpecialSuperPaletteFlags,
-            "the alternation leaves the drained branch's phase alone");
-        var highestPhase = new SamusState
-        {
-            SpecialSuperPaletteFlags = ushort.MaxValue,
-            Presentation = { FullBodyCycleColors = cycleColors },
-        };
-        AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColourRig().Samus, highestPhase),
-            "the highest stored phase is the drained branch too");
-        AssertEqual(ushort.MaxValue, highestPhase.SpecialSuperPaletteFlags,
-            "the highest stored phase does not wrap to zero");
+        // Without an attacker the alternation leaves the palette alone.
+        var unattached = new SamusState { Presentation = { FullBodyCycleColors = cycleColors } };
+        AssertTrue(!SamusSpecialSuperPalette.Update(new SamusColourRig().Samus, unattached),
+            "no attachment, no alternation");
+        AssertEqual(SamusMetroidAttachmentPalette.Inactive, unattached.MetroidAttachmentPalette,
+            "an inactive alternation stays inactive");
         AssertThrows<InvalidOperationException>(() => SamusSpecialSuperPalette.Update(
-            new SamusColourRig().Samus, new SamusState { SpecialSuperPaletteFlags = 1 }),
+            new SamusColourRig().Samus, new SamusState { MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext }),
             "Metroid attachment requires installed Speed Booster colors");
         Console.WriteLine("Speed Booster palettes: four equipment cases match ROM and live CGRAM with no CPU bus; missing assets fail.");
     }

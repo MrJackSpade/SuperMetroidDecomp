@@ -21,11 +21,6 @@ public readonly record struct PlmFrameInputs
     /// <summary>Collected items.</summary>
     public SuperMetroid.Core.Progression.SamusEquipmentFlags CollectedItems { get; init; }
 
-    /// <summary>Power bomb explosion status.</summary>
-    [PackedFields("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]
-    public int PowerBombExplosionStatus
-    {
-        get;
-        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>Whether a power-bomb explosion is under way.</summary>
+    public bool PowerBombExplosionActive { get; init; }
 }

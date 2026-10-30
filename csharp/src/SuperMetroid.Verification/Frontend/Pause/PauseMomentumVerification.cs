@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks Speed Booster state reconciliation when gameplay resumes from pause.</summary>
@@ -11,16 +12,16 @@ internal static class PauseMomentumVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int counterAddress = SamusMovementDefinitions.HorizontalMotion.SpeedBoostCounterLowBytes;
-        ushort initialCounter = bus.ReadCartridgeWord(counterAddress);
+        SamusSpeedBoostCounter initialCounter = SamusSnapshotWords.DecodeSpeedBoostCounter(bus.ReadCartridgeWord(counterAddress));
         foreach (bool equipped in new[] { false, true })
         foreach (bool momentum in new[] { false, true })
-        foreach (ushort counter in new ushort[] { 0, 0x0402 })
+        foreach (SamusSpeedBoostCounter counter in new[] { new SamusSpeedBoostCounter(0, 0), new SamusSpeedBoostCounter(4, 2) })
         {
             var speed = new SamusHorizontalSpeedState
             {
                 BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000),
                 ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000),
-                SpeedBoostCounter = new SamusSpeedBoostCounter(0x0402),
+                SpeedBoostCounter = new SamusSpeedBoostCounter(4, 2),
                 CyclePaletteStep = 3,
                 SpecialPaletteTimer = WrappingCountdown.Start(3),
             };
@@ -30,15 +31,15 @@ internal static class PauseMomentumVerification
             speed.CaptureSpeedEchoPosition(4, new(90, 200));
             speed.CancelRunningMomentum(SamusFacingDirection.Right);
             speed.HasRunningMomentum = momentum;
-            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(counter);
+            speed.SpeedBoostCounter = counter;
             speed.ReconcilePauseSpeedBoosterState(equipped);
             AssertEqual(0x00014000u, speed.BaseFixed, "unpause preserves numeric base speed");
             AssertEqual(2, speed.ExtraRunSpeed.Whole, "unpause leaves extra whole speed for the next movement update");
             AssertEqual(0x8000, speed.ExtraRunSpeed.Fraction, "unpause leaves extra fractional speed for the next movement update");
             AssertTrue(speed.HasRunningMomentum == (equipped && momentum), "unpause reconciles momentum to Speed Booster equipment");
-            ushort expectedCounter = equipped ? momentum && counter == 0
-                ? initialCounter : counter : (ushort)0;
-            AssertEqual(expectedCounter, speed.SpeedBoostCounter.RawValue, "unpause preserves, arms or clears boost countdown");
+            SamusSpeedBoostCounter expectedCounter = equipped ? momentum && counter == new SamusSpeedBoostCounter(0, 0)
+                ? initialCounter : counter : new SamusSpeedBoostCounter(0, 0);
+            AssertEqual(expectedCounter, speed.SpeedBoostCounter, "unpause preserves, arms or clears boost countdown");
             if (!equipped)
             {
                 AssertEqual(0, speed.CyclePaletteStep, "unpause clears boost palette frame");

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks equipment-mask, wireframe, and reserve-transfer rules through the live pause menu.</summary>

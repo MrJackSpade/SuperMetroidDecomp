@@ -11,10 +11,7 @@ internal static class ProjectileObjectPagesAccess
     /// <summary>Selects a page by equipped-beam word.</summary>
     extension(ProjectileObjectPages pages)
     {
-        /// <summary>The page bound for an equipped-beam word.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">The word selects no beam combination (bits 4-11 set).</exception>
-        internal SpriteArtwork For(SamusBeamFlags equippedBeams) =>
-            pages.For(new SamusBeamLoadoutWord(equippedBeams).Combination ?? throw new ArgumentOutOfRangeException(
-                nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables."));
+        /// <summary>The page bound for the equipped beams' combination.</summary>
+        internal SpriteArtwork For(SamusBeamFlags equippedBeams) => pages.For(SamusBeamCombinations.Of(equippedBeams));
     }
 }

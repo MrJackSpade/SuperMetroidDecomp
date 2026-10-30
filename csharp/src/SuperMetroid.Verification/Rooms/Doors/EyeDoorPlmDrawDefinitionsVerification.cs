@@ -176,7 +176,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
                 .PreInstruction,
             $"{orientation} retail eye-door program arms its missile pre-instruction");
         AssertTrue(plms.TryNotifyColoredDoorHit(eyeBlock,
-                new SamusProjectileTypeWord(0x0200)),
+                SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             $"{orientation} retail eye door accepts a Super Missile collision");
         plms.Step(level);
         for (int frame = 0; frame < 1024 && plms.SlotTable.ActiveCount != 0; frame++)

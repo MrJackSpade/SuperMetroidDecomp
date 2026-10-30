@@ -8,6 +8,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks that a missile hit resets Mother Brain's sequence-owned walk counter.</summary>
 internal static class MotherBrainMissileWalkResetVerification
@@ -36,10 +37,10 @@ internal static class MotherBrainMissileWalkResetVerification
         head.Health = 0x8bd8;
 
         var shot = runtime.Projectiles.Slots[0];
-        shot.Type = 0x8100; shot.Damage = 100; shot.Direction = 8;
+        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile); shot.Damage = 100; shot.Direction = SamusProjectileDirection.UpLeft;
         shot.Position = shot.Position.WithWhole(head.Position.Whole);
         shot.Radius = new(8, 8);
-        runtime.Enemies.MotherBrainBehavior.Combat.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, new SamusProjectileTypeWord(0x8100), 100);
+        runtime.Enemies.MotherBrainBehavior.Combat.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
         AssertEqual(MotherBrainWalkCredit.Empty, sequence.ThirdPhaseFight.Phase3WalkCounter, "a missile empties the sequence-owned walk credit");
         AssertEqual(MotherBrainWalkCredit.Empty, state.WalkCounter, "the encounter projection publishes the reset");
         Console.WriteLine("Mother Brain missile walk reset: the reaction reaches the counter's owner.");

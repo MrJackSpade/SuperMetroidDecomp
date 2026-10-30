@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Owtch.Artwork;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
@@ -250,7 +249,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
                     return false;
                 if (c.MarksCollision)
-                    c.Projectile.Direction = unchecked((ushort)(c.Projectile.Direction | SamusProjectileDirectionMasks.Spent));
+                    c.Projectile.IsSpent = true;
                 return true;
             },
         });

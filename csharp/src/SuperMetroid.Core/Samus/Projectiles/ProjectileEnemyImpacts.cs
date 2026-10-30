@@ -38,7 +38,7 @@ internal sealed class ProjectileEnemyImpacts
         if (!slot.HasEnemyCollisionPayload)
             return;
 
-        if (slot.PackedType.Family == SamusProjectileFamily.SuperMissile)
+        if (slot.Type.Family == SamusProjectileFamily.SuperMissile)
         {
             // The collision walkers write the enemy-hit quake before dispatching the enemy's
             // shot callback. This remains observable even when gold Ninja armor ignores a
@@ -47,7 +47,7 @@ internal sealed class ProjectileEnemyImpacts
         }
 
         if (markCollisionState)
-            slot.Direction = slot.PackedDirection.WithCollisionLifecycleState();
+            slot.IsSpent = true;
     }
 
     /// <summary>
@@ -73,22 +73,20 @@ internal sealed class ProjectileEnemyImpacts
         if (!slot.HasEnemyCollisionPayload)
             return;
 
-        SamusProjectileFamily family = slot.PackedType.Family;
+        SamusProjectileFamily family = slot.Type.Family;
         if (family == SamusProjectileFamily.SuperMissile)
         {
-            // A live Super Missile stores its invisible collision-link byte index in the
-            // variable's low byte. `$90:BE17` clears that exact slot before repurposing the
-            // owner; it does not broadly delete unrelated Super Missile records.
-            int linkIndex = slot.MissileLinkSlotOffset >> 1;
-            if ((uint)linkIndex < SamusProjectileSystem.SlotCount && linkIndex != slotIndex && _slotTable.Slots[linkIndex].IsActive)
+            // `$90:BE17` clears the slot the Super Missile names as its link before
+            // repurposing the owner; it does not broadly delete unrelated Super Missiles.
+            if (slot.SuperMissileLinkSlot is { } linkIndex && linkIndex != slotIndex && _slotTable.Slots[linkIndex].IsActive)
                 _animation.ClearProjectile(_slotTable.Slots[linkIndex]);
         }
 
         if (family == SamusProjectileFamily.Beam)
         {
             // Beam reflection alone reinitializes velocity immediately. Missile families
-            // retain their old velocity until variable `$00F0` crosses into `$01F0` in the
-            // next Missile_Func1 call, at which point the new direction takes effect.
+            // retain their old velocity until they re-ignite on their next update, at
+            // which point the new direction takes effect.
             BeamFiring.InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
         }
 
@@ -96,15 +94,15 @@ internal sealed class ProjectileEnemyImpacts
         int selectorIndex;
         if (family == SamusProjectileFamily.Beam)
         {
-            selectorTable = slot.PackedType.IsChargedBeam
+            selectorTable = slot.Type.IsChargedBeam
                 ? SamusProjectileSelectorTable.ChargedBeam
                 : SamusProjectileSelectorTable.UnchargedBeam;
-            selectorIndex = slot.PackedType.BeamCombination.TableIndex;
+            selectorIndex = slot.Type.BeamCombination.TableIndex;
         }
         else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
             selectorTable = SamusProjectileSelectorTable.NonBeam;
-            selectorIndex = SamusProjectileFamilies.IndexOf(slot.PackedType.Raw);
+            selectorIndex = family.TableRow;
         }
         else
         {
@@ -112,12 +110,12 @@ internal sealed class ProjectileEnemyImpacts
             // families. Reaching this method with a bomb/explosion payload is corrupt
             // scheduler state rather than an unimplemented reflection behavior.
             throw new InvalidDataException(
-                $"Projectile family ${slot.PackedType.FamilyValue:X3} is not reflectable.");
+                $"Projectile family {family} is not reflectable.");
         }
 
         SamusProjectileHeader header = SamusProjectileSelection.Select(selectorTable, selectorIndex);
         slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.PackedDirection.DirectionIndex);
+        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -125,16 +123,18 @@ internal sealed class ProjectileEnemyImpacts
         if (family == SamusProjectileFamily.Missile)
         {
             slot.PreInstruction = SamusProjectilePreInstruction.Missile;
-            slot.Variable = 240;
+            slot.MissileIgnition = SamusMissileIgnition.PendingAfterReflection;
+            slot.SuperMissileLinkSlot = null;
         }
         else if (family == SamusProjectileFamily.SuperMissile)
         {
             slot.PreInstruction = SamusProjectilePreInstruction.SuperMissile;
-            slot.Variable = 240;
+            slot.MissileIgnition = SamusMissileIgnition.PendingAfterReflection;
+            slot.SuperMissileLinkSlot = null;
         }
         else
         {
-            slot.PreInstruction = !slot.PackedType.BeamCombination.HasWave
+            slot.PreInstruction = !slot.Type.BeamCombination.HasWave
                 ? SamusProjectilePreInstruction.NoWaveBeam
                 : SamusProjectilePreInstruction.WaveBeamFourFrameTrail;
         }
@@ -144,8 +144,8 @@ internal sealed class ProjectileEnemyImpacts
     /// Applies intro Mother Brain's external projectile test at <c>$8B:B78A..B7BA</c>.
     /// </summary>
     /// <remarks>
-    /// The cinematic scans native byte indices $08 down through $00 for the first ordinary
-    /// missile (<c>type &amp; $0FFF == $0100</c>) and only kills it once its signed X coordinate
+    /// The cinematic scans the slots from the highest down for the first ordinary missile
+    /// and only kills it once its signed X coordinate
     /// is below $54. This is not terrain collision, so the actor owns the predicate while
     /// the projectile system owns the exact bank-$90 impact conversion.
     /// </remarks>
@@ -157,7 +157,7 @@ internal sealed class ProjectileEnemyImpacts
         for (int slotIndex = SamusProjectileSystem.SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
-            if (!slot.PackedType.HasPlainFamilyPayload(SamusProjectileFamily.Missile))
+            if (!slot.Type.IsFamily(SamusProjectileFamily.Missile))
                 continue;
 
             if (unchecked((short)(slot.Position.X.Whole - 84)) >= 0)
@@ -198,21 +198,21 @@ internal sealed class ProjectileEnemyImpacts
             // replacing that handler with a beam explosion loses their family lifecycle.
             // Plasma normally pierces, unless the target explicitly stops Plasma beams.
             ApplyEnemyCollisionPrelude(slotIndex,
-                blocksPlasmaBeam || !slot.PackedType.BeamCombination.HasPlasma);
+                blocksPlasmaBeam || !slot.Type.BeamCombination.HasPlasma);
             return true;
         }
 
-        if (slot.PackedDirection.HasLowByteLifecycleState)
+        if (slot.IsSpent)
             return false;
 
-        switch (slot.PackedType.Family)
+        switch (slot.Type.Family)
         {
             case SamusProjectileFamily.Beam:
                 // Native enemy collision marks direction bit $10 only when the
                 // target blocks Plasma or the shot lacks Plasma. Ordinary penetrating
                 // beams, not just special beam-combo particles, retain their lifecycle.
                 if (!blocksPlasmaBeam &&
-                    slot.PackedType.BeamCombination.HasPlasma)
+                    slot.Type.BeamCombination.HasPlasma)
                     return true;
                 // $A0:9A07 only marks the shot; enemy hits never reach Kill_Projectile's sound.
                 ProjectileTerrainCollision.KillBeam(slot);
@@ -229,7 +229,7 @@ internal sealed class ProjectileEnemyImpacts
                 // increment an enemy hit counter merely because their art still overlaps.
                 return false;
             default:
-                throw new InvalidOperationException($"Undefined SamusProjectileFamily {slot.PackedType.Family}.");
+                throw new InvalidOperationException($"Undefined SamusProjectileFamily {slot.Type.Family}.");
         }
     }
 }

@@ -253,10 +253,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         SamusProjectileSlot? firstAllocated = null;
         for (int index = SamusProjectileSystem.SlotCount - 1; index >= 0; index--)
         {
-            // Native code tests projectile_type, not the instruction pointer. More
-            // importantly, it stops at the first nonzero high-index slot even when that
-            // shot is far away; it never searches lower slots for a closer projectile.
-            if (projectiles.Slots[index].Type != 0)
+            // Native code tests the projectile type, not the program. More importantly,
+            // it stops at the first occupied high-index slot even when that shot is far
+            // away; it never searches lower slots for a closer projectile.
+            if (!projectiles.Slots[index].Type.IsNone)
             {
                 firstAllocated = projectiles.Slots[index];
                 break;
@@ -629,20 +629,19 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)
         {
             c.Enemy.InvincibilityTimer = WrappingCountdown.Start(10);
-            // A shot aimed straight left or right reflects up and away; every other aim, including the unnamed aim
-            // indexes past the ten directions, reflects down.
-            SamusProjectileDirection reflected = SamusProjectileDirectionCodec.TryFromAimIndex(
-                c.Projectile.PackedDirection.DirectionIndex) switch
+            // A shot aimed straight left or right reflects up and away; every other aim reflects down.
+            SamusProjectileDirection reflected = c.Projectile.Direction switch
             {
                 SamusProjectileDirection.Left => SamusProjectileDirection.UpRight,
                 SamusProjectileDirection.Right => SamusProjectileDirection.UpLeft,
                 SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or SamusProjectileDirection.DownRight
                     or SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft
                     or SamusProjectileDirection.DownLeft or SamusProjectileDirection.UpLeft
-                    or SamusProjectileDirection.UpFacingLeft or null => SamusProjectileDirection.DownFacingLeft,
+                    or SamusProjectileDirection.UpFacingLeft => SamusProjectileDirection.DownFacingLeft,
                 _ => throw new InvalidDataException($"Projectile aim {c.Projectile.Direction} decoded to an undefined direction."),
             };
-            c.Projectile.Direction = reflected.ToAimIndex();
+            c.Projectile.Direction = reflected;
+            c.Projectile.IsSpent = false;
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),
                 c.Projectile.SlotIndex);
             LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WalkingPirateReflectSound;

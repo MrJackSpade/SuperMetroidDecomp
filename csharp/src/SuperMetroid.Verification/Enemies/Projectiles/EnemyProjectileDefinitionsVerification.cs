@@ -25,6 +25,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.EyeDoor;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks all compiled enemy projectile definitions and their production collision consumers.</summary>
 internal static class EnemyProjectileDefinitionsVerification
@@ -130,9 +131,9 @@ internal static class EnemyProjectileDefinitionsVerification
             projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
             var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             SamusProjectileSlot shot = shots.Slots[0];
-            shot.Type = 1;
+            shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false);
             shot.Damage = 1;
-            shot.Direction = (ushort)SamusProjectileDirection.Right;
+            shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
             int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 shots,

@@ -29,11 +29,11 @@ public static class ProjectileTrailSelection
             ProjectileTrailPrograms programs = SpecialSelectionPrograms[selection - FirstSpecialSelection];
             return right ? programs.Right : programs.Left;
         }
-        var type = new SamusProjectileTypeWord((ushort)selection);
-        bool charged = type.IsChargedBeam;
+        bool charged = selection >= SamusFiringTableDefinitions.ChargedRowOffset;
+        SamusBeamCombination beams = SamusBeamCombinations.FromTableIndex(selection % SamusFiringTableDefinitions.ChargedRowOffset);
         // Ice draws its sparkle unless Spazer and Plasma are both present.
         return right
-            ? type.BeamCombination switch
+            ? beams switch
             {
                 SamusBeamCombination.Wave => charged ? ProjectileTrailProgram.Wave : ProjectileTrailProgram.Empty,
                 SamusBeamCombination.IceWave => charged ? ProjectileTrailProgram.RightIce : ProjectileTrailProgram.Empty,
@@ -46,7 +46,7 @@ public static class ProjectileTrailSelection
                     SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave => ProjectileTrailProgram.Empty,
                 _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination."),
             }
-            : type.BeamCombination switch
+            : beams switch
             {
                 SamusBeamCombination.Wave => ProjectileTrailProgram.Wave,
                 SamusBeamCombination.Power => charged ? ProjectileTrailProgram.LeftIce : ProjectileTrailProgram.Empty,

@@ -16,6 +16,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks shot-block PLM programs, editable draw frames, and ROM-free runtime execution against cartridge data.</summary>
 internal static class ShotBlockPlmProgramsVerification
@@ -383,7 +384,7 @@ internal static class ShotBlockPlmProgramsVerification
         {
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmShotBlockVisuals = visuals });
-            AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
+            AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, SamusProjectileType.None, true),
                 "visual-only test allocates the production shot-block PLM");
             plms.Step(level);
             return new ShotBlockPlmProgramsRenderResult(level.GetCollisionBlockByIndex(block).Terrain,
@@ -488,7 +489,7 @@ internal static class ShotBlockPlmProgramsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]));
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.TrySpawnProjectileShotBlock(
-                level, blockIndex, behavior, 0, solidBlock: true),
+                level, blockIndex, behavior, SamusProjectileType.None, solidBlock: true),
             $"shot-block BTS {behavior} allocates its native PLM program");
         return new ShotBlockFixture(level, plms);
     }

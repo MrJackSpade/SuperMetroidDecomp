@@ -66,8 +66,8 @@ internal static class WrapShotWidthsVerification
                 var shot = shots.Slots[0];
                 RoomTerrainBlock targetWord = level.GetCollisionBlockByIndex(target).Terrain;
                 if (hit < 0 && targetWord == OpenedDoorCap) hit = frame;
-                string actual = $"{room},{beam},{offset},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},{shot.Radius.X:X4},{shot.Radius.Y:X4},{RoomLevelWordEncoder.Encode(targetWord):X4}";
-                string expected = native[cursor++];
+                string actual = $"{room},{beam},{offset},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type},{shot.InstructionPointer:X4},{shot.Radius.X:X4},{shot.Radius.Y:X4},{RoomLevelWordEncoder.Encode(targetWord):X4}";
+                string expected = WrapShotsVerification.NativeTypeAsProjectile(native[cursor++], column: 8);
                 if (actual != expected && mismatches++ < 8) Console.WriteLine($"Width mismatch:\n{actual}\n{expected}");
             }
             Console.WriteLine($"Width room={room} beam={beam} offset={offset}: hit={hit}");

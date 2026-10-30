@@ -65,7 +65,7 @@ internal static class RedTowerHeroVerification
                 {
                     AssertTrue(shot.IsActive, "Retail target probe launches its single shot");
                 }
-                if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
+                if (shot.Type.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impact = frame;
                     AssertEqual(118, shot.Position.X.Whole, "Shot impacts the target column, not a distant enemy");

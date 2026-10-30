@@ -56,7 +56,7 @@ internal sealed class KraidCombat
                 // then returns to the multibox walker that has already installed direction bit `$10`. `$94B5` is the
                 // adjacent literal RTL used by protected arm frames and every foot rectangle.
                 if (c.SelectedShotAi == EnemyInteractionCallback.KraidArmShot)
-                    SpawnKraidArmShotExplosion(c.Bomb.PackedType, c.Bomb.Position.Whole);
+                    SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);
             });
     }
 
@@ -115,11 +115,13 @@ internal sealed class KraidCombat
     /// shared room-graphics projectile allocator and queues sound-library-one effect `$3D`.
     /// </summary>
     private void SpawnKraidArmShotExplosion(
-        SamusProjectileTypeWord projectileType,
+        SamusProjectileType projectileType,
         Position16<RoomPixels> position)
     {
-        // Family bit 1 ($0200) is set for super missiles and power bombs.
-        MiscDustAnimation animationIndex = (projectileType.Raw & 512) != 0
+        // Super Missiles, Power Bombs and beam explosions take the big explosion; the
+        // cartridge tests one bit of their family's table row.
+        MiscDustAnimation animationIndex = projectileType.Family is SamusProjectileFamily.SuperMissile or
+                SamusProjectileFamily.PowerBomb or SamusProjectileFamily.BeamExplosion
             ? MiscDustAnimation.BigExplosion
             : MiscDustAnimation.DudShotTinyExplosion;
         _projectiles.SpawnRoomGraphicsDustExplosion(position, animationIndex);
@@ -150,17 +152,17 @@ internal sealed class KraidCombat
             for (int index = lastSlot; index >= 0; index--)
             {
                 KraidBehavior.KraidCollisionShot shot = shots.Read(index);
-                SamusProjectileTypeWord type = shot.Type;
+                SamusProjectileType type = shot.Type;
                 if (!scratch.OverlapsMouth(shot) ||
                     (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
                     continue;
 
                 if (type.Family == SamusProjectileFamily.Beam)
                     state.MouthFlags |= KraidMouthFlags.Hit;
-                // The common shot callback reuses DP $12/$14 for type/vulnerability.
-                // In particular, $8200 left by a Super Missile changes the next shot's
-                // signed CMP; rebuilding a clean rectangle here doubles close-range damage.
-                scratch.Bottom = shot.Type.Raw;
+                // The common shot callback leaves the mouth's bounds as the hit's leftovers.
+                // In particular, a Super Missile's leftover changes the next shot's signed
+                // compare; rebuilding a clean rectangle here doubles close-range damage.
+                scratch.Bottom = unchecked((ushort)KraidMouthHitBound.After(shot.Type, shot.IsPlacedBomb));
                 scratch.Top = unchecked((ushort)KraidContactDefinitions.ShotUpperBoundAfterHit);
                 // A vulnerability entry's multiplier is its low nibble for charged beams and its low seven bits otherwise.
                 int multiplier = type.Family switch

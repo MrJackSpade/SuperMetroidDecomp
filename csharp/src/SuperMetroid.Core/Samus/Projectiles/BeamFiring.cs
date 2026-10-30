@@ -91,13 +91,7 @@ internal sealed class BeamFiring
             return new(slot, sound, sound is null ? null : SoundQueueLimit.Max15);
         }
 
-        // Retail inventory normally owns twelve low-nibble combinations, but the native
-        // routine never validates that domain before indexing its adjacent tables. Invalid
-        // equipment combinations are observable cartridge behavior used by advanced beam
-        // glitches, so this producer must preserve the raw four-bit index.
-        SamusBeamLoadoutWord beamLoadout = samus.EquippedBeams;
-
-        bool chargeEquipped = beamLoadout.HasAny(SamusBeamFlags.Charge);
+        bool chargeEquipped = samus.EquippedBeams.HasAny(SamusBeamFlags.Charge);
         bool held = (controllerInput & shoot) != ControllerButton.None;
         if (!chargeEquipped)
         {
@@ -259,23 +253,23 @@ internal sealed class BeamFiring
 
         int direction = samus.PendingTransitionShot?.Direction ?? SamusPoseMetadata.ReadShotDirection(samus);
 
-        if (!new SamusProjectileDirectionWord(checked((ushort)direction)).IsValidInitialDirection)
+        if (SamusProjectileDirectionCodec.TryFromAimIndex(direction) is not { } aim)
         {
             _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return new BeamShot(null, null);
         }
 
-        slot.Direction = direction;
+        slot.Direction = aim;
+        slot.IsSpent = false;
         InitializePosition(samus, slot);
         slot.TrailTimer = WrappingCountdown.Start(4);
-        slot.Type = SamusProjectileTypeWord.CreateBeam(samus.EquippedBeams, charged);
+        slot.Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(samus.EquippedBeams), charged);
         ProjectileInvincibilityTimer = WrappingCountdown.Start(10);
 
-        // The four low bits are a direct ROM table index, not four independent animation
-        // layers composed by the host. In particular, Spazer's familiar three streaks live
-        // in one bank-$93 spritemap selected by one data pointer and occupy one projectile
-        // slot. This is why no synthetic child projectiles are created here.
-        SamusBeamCombination beamType = slot.PackedType.BeamCombination;
+        // The combination selects one projectile, not four independent animation layers
+        // composed by the host. In particular, Spazer's familiar three streaks are one
+        // composition in one projectile slot, so no child projectiles are created here.
+        SamusBeamCombination beamType = slot.Type.BeamCombination;
 
         // `$93:8000` indexes a data-table pointer by beam type, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
@@ -353,26 +347,27 @@ internal sealed class BeamFiring
         // As for ordinary beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
         int direction = SamusPoseMetadata.ReadShotDirection(samus);
-        if (!new SamusProjectileDirectionWord(checked((ushort)direction)).IsValidInitialDirection)
+        if (SamusProjectileDirectionCodec.TryFromAimIndex(direction) is not { } aim)
         {
             _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return new BeamShot(null, null);
         }
-        slot.Direction = direction;
+        slot.Direction = aim;
+        slot.IsSpent = false;
 
         InitializePosition(samus, slot);
         ProjectileInvincibilityTimer = WrappingCountdown.Start(10);
 
-        // The literal `$9018` is charged Plasma for bank-$93 data/art purposes even though
-        // acquisition equips `$1009` Wave+Plasma tiles/palette. InitializeProjectile first
-        // reads charged table entry eight; `$90:BD21` then deliberately replaces its damage
-        // with 1000 before the first instruction record executes.
-        slot.Type = SamusProjectileTypeWord.CreateBeam((SamusBeamFlags.Charge | SamusBeamFlags.Plasma), charged: true);
+        // The Hyper Beam is a charged Plasma beam for its projectile data and art even though
+        // acquisition equips Wave and Plasma tiles and palette. It first reads the charged
+        // Plasma entry; `$90:BD21` then deliberately replaces its damage with 1000 before the
+        // first instruction record executes.
+        slot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         SamusProjectileHeader header = SamusProjectileSelection.Select(
             SamusProjectileSelectorTable.ChargedBeam, hyperBeamType.TableIndex);
         slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.PackedDirection.DirectionIndex);
+        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -441,9 +436,10 @@ internal sealed class BeamFiring
         // As for beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
         int direction = SamusPoseMetadata.ReadShotDirection(samus);
-        if (!new SamusProjectileDirectionWord(checked((ushort)direction)).IsValidInitialDirection)
+        if (SamusProjectileDirectionCodec.TryFromAimIndex(direction) is not { } aim)
             return new BeamShot(null, null);
-        slot.Direction = direction;
+        slot.Direction = aim;
+        slot.IsSpent = false;
 
         InitializePosition(samus, slot);
         _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
@@ -453,18 +449,19 @@ internal sealed class BeamFiring
         else
             samus.Missiles = SamusQuantity.DecrementWord(samus.Missiles);
         slot.TrailTimer = WrappingCountdown.Start(4);
-        slot.Type = SamusProjectileTypeWord.Live(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
-        slot.Variable = 0;
+        slot.Type = SamusProjectileType.Of(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile);
+        slot.MissileIgnition = SamusMissileIgnition.Pending;
+        slot.SuperMissileLinkSlot = 0;
 
         // The producer first calls the generic velocity initializer with base speed zero.
-        // Missile_Func1 replaces that zero with `$0100` during this same frame's alpha pass;
+        // Ignition replaces that zero with one pixel per update during this same frame's alpha pass;
         // keeping both calls makes the one-frame ignition transition directly inspectable.
         InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: 0);
 
         SamusProjectileHeader header = SamusProjectileSelection.Select(
             SamusProjectileSelectorTable.NonBeam, samus.SelectedHudItem.ToWord());
         slot.Damage = SamusProjectileDamage.Read(header);
-        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.PackedDirection.DirectionIndex);
+        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, slot.Direction.ToAimIndex());
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -503,7 +500,7 @@ internal sealed class BeamFiring
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
-        var origin = SamusMuzzleOrigins.Read(runningOrigin, slot.PackedDirection);
+        var origin = SamusMuzzleOrigins.Read(runningOrigin, slot.Direction.ToAimIndex());
         slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + origin.X)), unchecked((ushort)(samus.Position.Y.Whole + origin.Y - poseYOffset))));
     }
 
@@ -512,9 +509,9 @@ internal sealed class BeamFiring
         ProjectileInheritanceRecords inheritance,
         SamusProjectileSlot slot)
     {
-        int direction = slot.PackedDirection.DirectionIndex;
+        int direction = slot.Direction.ToAimIndex();
         bool diagonal = direction is 1 or 3 or 6 or 8;
-        int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusFiringTableDefinitions.InitialSpeedRowBytes;
+        int rowOffset = slot.Type.BeamCombination.TableIndex * SamusFiringTableDefinitions.InitialSpeedRowBytes;
         int speed = unchecked((short)SamusProjectileAccelerations.ReadWord(
             (diagonal
                 ? SamusFiringTableDefinitions.DiagonalSpeeds
@@ -530,7 +527,7 @@ internal sealed class BeamFiring
         int baseSpeed)
     {
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
-        slot.Velocity = inheritance.ReadVelocity(slot.PackedDirection.Raw, baseSpeed);
+        slot.Velocity = inheritance.ReadVelocity(slot.Direction, baseSpeed);
     }
 
     /// <summary>

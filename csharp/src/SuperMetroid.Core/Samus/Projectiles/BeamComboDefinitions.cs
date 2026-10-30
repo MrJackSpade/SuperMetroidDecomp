@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Native identities and definition tables for bank-$90 special beam attacks.</summary>
@@ -18,8 +17,9 @@ public static class BeamComboDefinitions
     public static readonly SoundEffectId WaveRemovalSound = Library1Sound.WaveSpecialAttackEnd;
     /// <summary>ProjPreInstr_WaveSba ($90:DA08): the sound of the oscillator's pulse.</summary>
     public static readonly SoundEffectId WavePulseSound = Library1Sound.WaveSpecialAttack;
-    /// <summary>FireSBA's charged, non-interacting projectile type tag.</summary>
-    public const ushort ProjectileTag = SamusProjectileTypeWord.LiveMarker | SamusProjectileTypeWord.ChargedBeamMarker;
-    /// <summary>FireSpazerSBA's auxiliary trail projectile type.</summary>
-    public const ushort SpazerTrailType = SamusProjectileTypeWord.LiveMarker | 0x24;
+    /// <summary>
+    /// The echo-and-trail selector table's entries trail the echo beam-table rows by two: an echo's entry is its
+    /// beam combination's table index less two.
+    /// </summary>
+    internal const int EchoTableLeadingRows = 2;
 }

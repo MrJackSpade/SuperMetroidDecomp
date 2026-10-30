@@ -103,10 +103,10 @@ internal static class NoobTubePlmVerification
             ControllerButton.X, plms);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "solid resident trigger cancels the grapple endpoint");
-        AssertEqual(0x8000, plms.PopulationSlots.Single().LoopTimer,
-            "grapple publishes the native hit bit without a missile/power-bomb family");
+        AssertEqual(new ResidentPlmProjectileHit(SamusProjectileFamily.Beam), plms.PopulationSlots.Single().ProjectileHit,
+            "grapple publishes a hit that reads as a beam, not a missile or power bomb");
         StepNoobTube(plms, level);
-        AssertEqual(0, plms.PopulationSlots.Single().LoopTimer, "resident consumes grapple notification once");
+        AssertEqual(null, plms.PopulationSlots.Single().ProjectileHit, "resident consumes grapple notification once");
         AssertTrue(!brokenEvent && projectiles.Count == 0, "grapple must not shatter the power-bomb-only tube");
         AssertTrue(plms.Sounds.SoundRequests.Contains(new SoundRequest(
             NoobTubePlmDefinitions.IneffectiveShotSound, SoundQueueLimit.Max6)),
@@ -114,14 +114,14 @@ internal static class NoobTubePlmVerification
 
         // A non-power-bomb hit is consumed by the same resident collision dispatcher but
         // only queues the retail ineffective-shot sound and clears the transient hit word.
-        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, 0x0100),
+        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
             "n00b-tube collision block locates its resident PLM");
         StepNoobTube(plms, level);
         AssertTrue(plms.Sounds.SoundRequests.Contains(new SoundRequest(
                 NoobTubePlmDefinitions.IneffectiveShotSound,
                 SoundQueueLimit.Max6)),
             "ordinary shot queues the cartridge rejection sound");
-        AssertEqual((ushort)0, plms.PopulationSlots.Single().LoopTimer,
+        AssertEqual(null, plms.PopulationSlots.Single().ProjectileHit,
             "projectile notification is consumed exactly once");
 
         // The intact retail draw changes the origin from setup's type $8 to type $C while
@@ -145,8 +145,8 @@ internal static class NoobTubePlmVerification
         AssertEqual(RoomBlockBehaviorValues.ResidentPlmProjectileTrigger,
             level.GetCollisionBlockByIndex(blockIndex).Behavior,
             "Power Bomb observes the intact tube's BTS-$44 trigger");
-        AssertEqual((ushort)0x8300, plms.PopulationSlots.Single().LoopTimer,
-            "generic trigger publishes the native marked Power Bomb word");
+        AssertEqual(new ResidentPlmProjectileHit(SamusProjectileFamily.PowerBomb), plms.PopulationSlots.Single().ProjectileHit,
+            "generic trigger publishes the Power Bomb hit");
         StepNoobTube(plms, level);
         RoomPlmSlotSnapshot armed = plms.PopulationSlots.Single();
         AssertEqual(PlmPreInstructionNativeWords.NoobTube.Word(NoobTubePlmPreInstruction.WakeOnAcceptedInput),

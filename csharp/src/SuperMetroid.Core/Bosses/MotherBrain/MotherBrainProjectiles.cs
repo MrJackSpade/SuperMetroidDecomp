@@ -253,7 +253,7 @@ internal sealed class MotherBrainProjectiles
 
         foreach (SamusBombProjectileSlot samusBomb in samusBombs.Slots)
         {
-            if (samusBomb.PackedType.Family != SamusProjectileFamily.Bomb ||
+            if (samusBomb.Type.Family != SamusProjectileFamily.Bomb ||
                 !samusBomb.BombTimer.IsZero ||
                 !MotherBrainBombStrictOverlap(
                     bomb.Position.Whole,

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
@@ -8,15 +7,6 @@ public static class MorphBallBombDefinitions
 {
     /// <summary>Five physical bomb slots at projectile byte indices $0A-$12.</summary>
     public const int SlotCount = 5;
-
-    /// <summary>Normal-bomb projectile type written by <c>$90:BF9D</c>.</summary>
-    public const ushort NormalBombType = 0x0500;
-
-    /// <summary>Bomb-spread projectile type written by <c>BombSpread</c> at $90:D849.</summary>
-    public static ushort BombSpreadType => SamusProjectileTypeWord.Live(SamusProjectileFamily.Bomb);
-
-    /// <summary>Power-bomb projectile type formed from HUD item index three.</summary>
-    public const ushort PowerBombType = 0x0300;
 
     /// <summary>Normal-bomb cooldown selected from non-beam table entry five.</summary>
     public const ushort NormalBombCooldown = 0x0010;

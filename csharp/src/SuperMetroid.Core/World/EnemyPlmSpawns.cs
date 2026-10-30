@@ -41,7 +41,7 @@ internal sealed class EnemyPlmSpawns(
     public void SpawnOldTourianEscapeShaftWallExplosion() => oldTourianWall.SpawnOldTourianEscapeShaftWallExplosion();
 
     /// <inheritdoc/>
-    public void DisableDraygonCannon(DraygonCannonControlWord word) => draygon.DisableDraygonCannon(word);
+    public void DisableDraygonCannon(DraygonWallCannon cannon) => draygon.DisableDraygonCannon(cannon);
 
     /// <inheritdoc/>
     public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request) => motherBrain.Projectiles.SpawnMotherBrainGlassProjectile(request);

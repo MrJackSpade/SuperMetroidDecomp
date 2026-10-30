@@ -166,10 +166,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (index < SamusProjectileSystem.SlotCount)
             {
                 SamusProjectileSlot shot = _projectiles.Slots[index];
-                return new(shot.Position.Whole, shot.Radius, shot.PackedType.Raw, shot.Damage);
+                return new(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false);
             }
             SamusBombProjectileSlot bomb = _sharedProjectiles.Slots[0];
-            return new(bomb.Position.Whole, bomb.Radius, bomb.PackedType.Raw, bomb.Damage);
+            return new(bomb.Position.Whole, bomb.Radius, bomb.Type, bomb.Damage, IsPlacedBomb: !bomb.IsBombSpread);
         }
 
         /// <summary>Marks the selected shot or bomb as having collided with Kraid.</summary>
@@ -178,12 +178,12 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (index < SamusProjectileSystem.SlotCount)
             {
                 SamusProjectileSlot shot = _projectiles.Slots[index];
-                shot.Direction = shot.PackedDirection.WithCollisionLifecycleState();
+                shot.IsSpent = true;
             }
             else
             {
                 SamusBombProjectileSlot bomb = _sharedProjectiles.Slots[0];
-                bomb.Direction = bomb.PackedDirection.WithCollisionLifecycleState();
+                bomb.IsSpent = true;
             }
         }
     }
@@ -193,7 +193,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="Radius">The projectile's collision half-extents.</param>
     /// <param name="Type">The projectile's type: its family, beams and charge.</param>
     /// <param name="Damage">The projectile's damage before Kraid's vulnerability multiplier; a copy of the slot's non-negative damage.</param>
-    internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileTypeWord Type, int Damage);
+    /// <param name="IsPlacedBomb">Whether the projectile is a placed bomb or Power Bomb rather than a fired or spread one.</param>
+    internal readonly record struct KraidCollisionShot(Position16<RoomPixels> Position, Extent16<RoomPixels> Radius, SamusProjectileType Type, int Damage, bool IsPlacedBomb);
 
     /// <summary>
     /// The three bounds Kraid's mouth and body collision passes compare shots against. Between shots the damage and

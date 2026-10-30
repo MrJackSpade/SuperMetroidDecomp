@@ -180,7 +180,7 @@ internal sealed class BlockReactionPlms
         RoomLevelData level,
         int blockIndex,
         RoomBlockBehavior behavior,
-        SamusProjectileTypeWord projectileType)
+        SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
         if (!behavior.IsNormalReactionIndex(16))
@@ -232,7 +232,7 @@ internal sealed class BlockReactionPlms
         RoomLevelData level,
         int blockIndex,
         RoomBlockBehavior behavior,
-        SamusProjectileTypeWord projectileType,
+        SamusProjectileType projectileType,
         bool solidBlock)
     {
         Ensure.NotNull(level);
@@ -371,7 +371,7 @@ internal sealed class BlockReactionPlms
         int blockIndex,
         RoomBlockBehavior behavior,
         AreaId areaIndex,
-        SamusProjectileTypeWord projectileType)
+        SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
         _ = AreaIds.ToIndex(areaIndex);

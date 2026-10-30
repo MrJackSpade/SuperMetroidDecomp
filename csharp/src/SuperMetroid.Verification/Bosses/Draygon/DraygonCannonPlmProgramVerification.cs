@@ -51,7 +51,7 @@ internal static class DraygonCannonPlmProgramVerification
         var guarded = NewDraygonCannonProgramReadGuard(source);
         const int width = 32;
         var level = CreateEmptyRoom(new(width, 32));
-        var disabled = new List<DraygonCannonControlWord>();
+        var disabled = new List<DraygonWallCannon>();
         var plms = PlmFixtures.Unbound();
         var entries = DraygonCannonDraws.All.Select(draw =>
             new RoomPlmVisualEntry(
@@ -84,10 +84,10 @@ internal static class DraygonCannonPlmProgramVerification
         AssertEqual(RoomBlockAppearance.Of(0x54),
             level.DisplayedAppearance(leftShieldBlock),
             "edited offscreen left shield enters later background streaming");
-        AssertTrue(disabled.Contains(DraygonCannonControlWord.UpperLeft),
+        AssertTrue(disabled.Contains(DraygonWallCannon.UpperLeft),
             "pre-destroyed cannon executes its retail damage-list entry");
         int rightBlock = rightShieldBlock;
-        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(rightBlock, 0x0200),
+        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(rightBlock, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             "Super Missile reaches live right cannon");
         var seenRightDamageBlocks = new HashSet<RoomTerrainBlock>();
         for (int frame = 0; frame < 28; frame++)
@@ -99,10 +99,10 @@ internal static class DraygonCannonPlmProgramVerification
         foreach (int block in new[] { 0x180, 0x181, 0x182, 0x183 })
             AssertTrue(seenRightDamageBlocks.Contains(RoomTerrainBlock.Of(block, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock)),
                 $"right cannon damage loop draws compiled mirrored spike block ${block:X3}");
-        AssertTrue(disabled.Contains(DraygonCannonControlWord.LowerLeft),
+        AssertTrue(disabled.Contains(DraygonWallCannon.LowerLeft),
             "right cannon follows native three-hit threshold to damaged list");
         int leftBlock = leftShieldBlock;
-        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(leftBlock, 0x0200),
+        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(leftBlock, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             "Super Missile reaches live left cannon");
         var seenLeftDamageBlocks = new HashSet<RoomTerrainBlock>();
         for (int frame = 0; frame < 28; frame++)
@@ -114,7 +114,7 @@ internal static class DraygonCannonPlmProgramVerification
         foreach (int block in new[] { 0x180, 0x181, 0x182, 0x183 })
             AssertTrue(seenLeftDamageBlocks.Contains(RoomTerrainBlock.Of(block, BlockMirroring.None, RoomCollisionType.SpikeBlock)),
                 $"left cannon damage loop draws compiled spike block ${block:X3}");
-        AssertTrue(disabled.Contains(DraygonCannonControlWord.UpperRight),
+        AssertTrue(disabled.Contains(DraygonWallCannon.UpperRight),
             "left cannon follows native threshold to damaged list");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail right/left cannon sequences do not reread compiled program or draw bytes");

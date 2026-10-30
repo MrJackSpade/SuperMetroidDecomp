@@ -276,14 +276,14 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Implements bank $84's write through <c>PLM_Variable</c>. Cannon setup names one of
-    /// Draygon's cannon-control words, then the damage instruction disables it here.
+    /// Draygon's wall cannons, then the damage instruction disables it here.
     /// </summary>
-    public void DisableDraygonCannon(DraygonCannonControlWord word)
+    public void DisableDraygonCannon(DraygonWallCannon cannon)
     {
         // The defeated room still has cannon PLMs even though its enemy population no
         // longer includes Draygon; only a live Draygon reads the disabled words.
         _room.EnsureLoaded();
-        Parts.Draygon?.DisabledCannonWords.Add(word);
+        Parts.Draygon?.DisabledCannons.Add(cannon);
     }
 
     /// <inheritdoc/>

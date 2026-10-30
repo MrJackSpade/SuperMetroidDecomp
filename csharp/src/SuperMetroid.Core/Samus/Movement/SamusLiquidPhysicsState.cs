@@ -596,8 +596,8 @@ public sealed class SamusLiquidPhysicsState
     private void DeleteLandingPair()
     {
         // Native STZ writes only the packed frame/type words; timers and coordinates survive.
-        AtmosphericEffects.ClearFrameAndType(2);
-        AtmosphericEffects.ClearFrameAndType(3);
+        AtmosphericEffects.ClearEffect(2);
+        AtmosphericEffects.ClearEffect(3);
     }
 
     /// <summary>
@@ -696,7 +696,7 @@ public sealed class SamusLiquidPhysicsState
         int mouthY = unchecked((ushort)(top - 24));
         if (unchecked((short)(mouthY - FxYPosition)) < 0 ||
             (frameCounter & 127) != 0 ||
-            AtmosphericEffects.Slots[2].FrameAndType != 0)
+            !AtmosphericEffects.Slots[2].IsEmpty)
         {
             return;
         }
@@ -715,7 +715,9 @@ public sealed class SamusLiquidPhysicsState
         int frameCounter)
     {
         if (unchecked((short)(top - LavaAcidYPosition)) >= 0 ||
-            (AtmosphericEffects.Slots[0].FrameAndType & 1 << 10) != 0)
+            // The cartridge tests one bit of slot zero's effect, which the lava spray, bubbles and both dusts set.
+            AtmosphericEffects.Slots[0].Type is SamusAtmosphericEffectType.LavaSurfaceDamage or SamusAtmosphericEffectType.Bubbles or
+                SamusAtmosphericEffectType.Dust or SamusAtmosphericEffectType.AlternateDust)
         {
             return;
         }

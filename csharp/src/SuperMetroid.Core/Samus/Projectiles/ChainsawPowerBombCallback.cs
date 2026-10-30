@@ -29,10 +29,9 @@ internal sealed class ChainsawPowerBombCallback
     {
         InstalledProjectileListPositions Lists() => (overreads ?? throw new InvalidOperationException(
             "The chainsaw window store needs the installed Samus overread catalog.")).ProjectileLists;
-        // The misaligned callback runs the Power Bomb fuse over the shot's multipurpose
-        // variable word, so the fuse countdown is read from and written back to that word.
-        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(WrappingCountdown.FromRaw(checked((ushort)slot.Variable)), sharedProjectiles.PowerBombExplosion.IsArmed);
-        slot.Variable = fuse.Timer.RawValue;
+        // The misaligned callback runs the Power Bomb fuse over the shot, from a zero fuse.
+        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.ChainsawPowerBombFuse, sharedProjectiles.PowerBombExplosion.IsArmed);
+        slot.ChainsawPowerBombFuse = fuse.Timer;
         // On a beam the fuse's fast-list switch adds its offset to the beam's own list pointer, so where it lands is
         // the native list layout's: a glitch the port reproduces through that layout.
         if (fuse.FastAnimation && slot.Cursor is { } live)
@@ -45,7 +44,7 @@ internal sealed class ChainsawPowerBombCallback
 
         // `$90:B0AE` always falls through from PowerBomb_Func3 to `$94:9CAC`, even
         // when the zero-timer/no-flag branch just cleared the projectile. The latter
-        // case consequently dispatches with the cleared type word, while both paths
+        // case consequently dispatches as no projectile, while both paths
         // use the global Power Bomb centre/radius rather than the Chainsaw's position.
         // Preserve the inclusive edge traversal and its synchronous PLM mutations.
         var reactions = new List<BombBlockReaction>();
@@ -56,6 +55,6 @@ internal sealed class ChainsawPowerBombCallback
             reactions,
             roomPlms,
             samus.LiquidPhysics.AreaIndex,
-            slot.PackedType.Raw);
+            slot.Type);
     }
 }

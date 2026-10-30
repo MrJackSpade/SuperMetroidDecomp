@@ -39,16 +39,16 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     /// <summary>
     /// The grey cap's pre-instructions: an unlock check wakes the cap at its activation once the door's condition holds
     /// (setting Zebes awake for the enemy quota), and otherwise plays the dud sound for a shot; once activated, any
-    /// shot wakes the cap at its hit. Each consumes the hit word.
+    /// shot wakes the cap at its hit. Each consumes the hit.
     /// </summary>
     internal void RunGreyDoorPreInstruction(PlmSlot slot, GreyDoorPreInstruction preInstruction, int enemyDeaths, int enemyDeathQuota)
     {
         switch (preInstruction)
         {
             case GreyDoorPreInstruction.WakeWhenShot:
-                if (slot.LoopTimer == 0)
+                if (slot.ProjectileHit is null)
                     return;
-                slot.LoopTimer = 0;
+                slot.ProjectileHit = null;
                 slot.WakeAtLink();
                 return;
             case GreyDoorPreInstruction.PlayDudSound:
@@ -67,7 +67,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
                 }
                 if (preInstruction == GreyDoorPreInstruction.WakeIfEnemiesDead)
                     RequireSystem().SetEvent(EventNumber.ZebesAwake);
-                slot.LoopTimer = 0;
+                slot.ProjectileHit = null;
                 slot.WakeAtLink();
                 return;
             case GreyDoorPreInstruction.None:
@@ -76,12 +76,12 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         }
     }
 
-    /// <summary><c>$84:BDC4</c>: a shot on a locked cap queues the dud sound; the hit word is consumed either way.</summary>
+    /// <summary><c>$84:BDC4</c>: a shot on a locked cap queues the dud sound; the hit is consumed either way.</summary>
     private void PlayDudSoundIfShot(PlmSlot slot)
     {
-        if (slot.LoopTimer != 0)
+        if (slot.ProjectileHit is not null)
             _sounds.Queue(Library2Sound.DudShotOnDoor, MaximumQueued: DudSoundMaximumQueued);
-        slot.LoopTimer = 0;
+        slot.ProjectileHit = null;
     }
 
     /// <summary>The dud sound's native queue cap.</summary>

@@ -37,6 +37,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.ScenarioFixtures;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Constructs a replay's initial production state from native WRAM and SRAM while
@@ -137,10 +138,10 @@ internal static class NativeSnapshotImportVerification
         samus.Presentation.BottomSpritemap = SamusSpritemapNative.Frame(spritemaps, (SamusPoseId)W(NativeSnapshotMemory.Pose), SamusBodyHalf.Bottom, W(NativeSnapshotMemory.SamusBottomSpritemap));
         samus.Presentation.SpritemapPosition = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
         samus.ArmCannon.Frame = W(NativeSnapshotMemory.CannonFrame);
-        samus.ArmCannon.ToggleFlag = W(NativeSnapshotMemory.CannonToggle);
-        samus.ArmCannon.DrawingMode = W(NativeSnapshotMemory.CannonDrawingMode);
-        samus.ArmCannon.OpenFlag = memory[NativeSnapshotMemory.CannonFlags];
-        samus.ArmCannon.CloseFlag = memory[NativeSnapshotMemory.CannonFlags + 1];
+        samus.ArmCannon.StableSelectionUpdates = W(NativeSnapshotMemory.CannonToggle);
+        samus.ArmCannon.DrawOrder = SamusArmCannonState.DrawOrderOf(W(NativeSnapshotMemory.CannonDrawingMode));
+        samus.ArmCannon.IsOpen = memory[NativeSnapshotMemory.CannonFlags] != 0;
+        samus.ArmCannon.IsTransitioning = memory[NativeSnapshotMemory.CannonFlags + 1] != 0;
         new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
         samus.Kinematics.PositionAdjustedBySlope = W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0;
@@ -233,7 +234,17 @@ internal static class NativeSnapshotImportVerification
         for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
         {
             ushort packed = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
-            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, (SamusAtmosphericEffectType)LittleEndianBytes.HighByte(packed), (byte)packed,
+            SamusAtmosphericEffectType effectType = SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeType(packed);
+            if (effectType == SamusAtmosphericEffectType.Inactive)
+            {
+                samus.LiquidPhysics.AtmosphericEffects.ClearEffect(index);
+                samus.LiquidPhysics.AtmosphericEffects.Slots[index].AnimationTimer = WrappingCountdown.FromRaw(W(NativeSnapshotMemory.AtmosphericTimer + index * 2));
+                samus.LiquidPhysics.AtmosphericEffects.Slots[index].Position =
+                    new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2));
+                continue;
+            }
+            samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, effectType,
+                SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeFrame(packed),
                 W(NativeSnapshotMemory.AtmosphericTimer + index * 2),
                 new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
         }

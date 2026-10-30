@@ -846,15 +846,15 @@ public static class SamusGrappleMovement
                     // power-bomb rejection in Setup_BlueDoor; the ordinary opening owner
                     // supplies all four cap tiles, timing, collision changes, and sound.
                     if (block.Behavior.TryGetDownwardGateTrigger(out _))
-                        plms.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, projectileType: 0);
+                        plms.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, projectileType: SamusProjectileType.None);
                     else if (block.Behavior.TryGetBlueDoorOrientation(out _))
-                        plms.DoorPlms.TrySpawnBlueDoorOpening(level, block.Index, block.Behavior, projectileType: 0);
+                        plms.DoorPlms.TrySpawnBlueDoorOpening(level, block.Index, block.Behavior, projectileType: SamusProjectileType.None);
                     else if (block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
                     {
                         // Generic shot-trigger setup also belongs to the grapple table.
                         // Notify the resident actor with no weapon family; its own native
                         // pre-instruction decides whether to reject the hit or wake up.
-                        if (!plms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType: 0))
+                        if (!plms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType: SamusProjectileType.None))
                             throw new InvalidOperationException(
                                 $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident PLM owner.");
                     }
@@ -868,7 +868,7 @@ public static class SamusGrappleMovement
                                 level,
                                 block.Index,
                                 block.Behavior,
-                                projectileType: 0,
+                                projectileType: SamusProjectileType.None,
                                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
                         }
                         catch (UnsupportedShotBlockReactionException error)

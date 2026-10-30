@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Samus's independent items, one flag each. The values are arbitrary and nothing reads them: the equipment word that
-/// save slots, Samus's animation item masks and the projectile type record store is produced and read only by
-/// <see cref="SamusEquipmentWordCodec"/>. Members keep the word's bit order, so enumerating them lists the items in
-/// that order.
+/// Samus's independent items, one flag each. The values are arbitrary and nothing reads them: the save slot equipment
+/// word is the import's SamusEquipmentWordCodec's, and the animation item operand is
+/// <see cref="Compatibility.SamusAnimationItemOperand"/>'s. Members keep the word's bit order, so enumerating them lists
+/// the items in that order.
 /// </summary>
 [Flags]
 public enum SamusEquipmentFlags

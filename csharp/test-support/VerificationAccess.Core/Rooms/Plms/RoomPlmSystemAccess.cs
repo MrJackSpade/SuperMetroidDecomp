@@ -109,7 +109,7 @@ internal static class RoomPlmSystemAccess
         /// Publishes a projectile hit to a resident coloured or grey cap through the production trigger. A cap whose shot
         /// wake is gone (opening, closing or converted) no longer reacts, so the hit is refused.
         /// </summary>
-        internal bool TryNotifyColoredDoorHit(int blockIndex, SamusProjectileTypeWord projectileType)
+        internal bool TryNotifyColoredDoorHit(int blockIndex, SamusProjectileType projectileType)
         {
             if (self.TryNotifyEyeDoorHit(blockIndex, projectileType))
                 return true;
@@ -176,7 +176,7 @@ internal static class RoomPlmSystemAccess
         /// </summary>
         internal bool TryNotifyEyeDoorHit(
             int blockIndex,
-            SamusProjectileTypeWord projectileType)
+            SamusProjectileType projectileType)
         {
             foreach (var slot in self.SlotTable.Slots)
             {
@@ -187,9 +187,9 @@ internal static class RoomPlmSystemAccess
                     continue;
                 }
 
-                // PLM_Timers is a single pending word. A later collision before the handler
-                // pass replaces it rather than accumulating a host-side queue.
-                slot.LoopTimer = projectileType.Raw;
+                // The pending hit is single. A later collision before the handler pass
+                // replaces it rather than accumulating a host-side queue.
+                slot.ProjectileHit = new ResidentPlmProjectileHit(projectileType.Family);
                 door.HasPendingHit = true;
                 return true;
             }
@@ -226,6 +226,7 @@ internal static class RoomPlmSystemAccess
                 PreInstruction: PlmPreInstructionNativeRoutines.Of(slot.PreInstruction),
                 InstructionTimer: slot.InstructionTimer.RawValue,
                 LoopTimer: checked((ushort)slot.LoopTimer),
+                ProjectileHit: slot.ProjectileHit,
                 Animation: slot.Animation);
         }
 
@@ -297,7 +298,7 @@ internal static class RoomPlmSystemAccess
             RoomLevelData level,
             int blockIndex,
             byte behavior,
-            SamusProjectileTypeWord projectileType)
+            SamusProjectileType projectileType)
             => self.BlockReactions.TrySpawnBombReactionBlock(
                 level,
                 blockIndex,
@@ -322,7 +323,7 @@ internal static class RoomPlmSystemAccess
             RoomLevelData level,
             int blockIndex,
             byte behavior,
-            SamusProjectileTypeWord projectileType)
+            SamusProjectileType projectileType)
             => self.TrySpawnBombedShootableBlock(
                 level,
                 blockIndex,
@@ -334,7 +335,7 @@ internal static class RoomPlmSystemAccess
             RoomLevelData level,
             int blockIndex,
             RoomBlockBehavior bts,
-            SamusProjectileTypeWord projectileType)
+            SamusProjectileType projectileType)
         {
             Ensure.NotNull(level);
             bool areaDependent = bts.UsesAreaReactionTable;
@@ -437,7 +438,7 @@ internal static class RoomPlmSystemAccess
             RoomLevelData level,
             int blockIndex,
             byte behavior,
-            SamusProjectileTypeWord projectileType,
+            SamusProjectileType projectileType,
             bool solidBlock)
             => self.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
@@ -465,7 +466,7 @@ internal static class RoomPlmSystemAccess
             int blockIndex,
             byte behavior,
             AreaId areaIndex,
-            SamusProjectileTypeWord projectileType)
+            SamusProjectileType projectileType)
             => self.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
                 blockIndex,

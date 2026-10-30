@@ -59,22 +59,21 @@ public sealed class SamusAtmosphericEffectsState
     {
         ValidateSlotIndex(slotIndex);
         SamusAtmosphericEffectSlot slot = _slots[slotIndex];
-        slot.SetFrameAndType(type, animationFrame);
+        slot.SetEffect(type, animationFrame);
         slot.AnimationTimer = WrappingCountdown.FromRaw(animationTimer);
         slot.Position = anchor;
     }
 
     /// <summary>
-    /// Clears only a slot's packed frame/type word, exactly like the landing-graphics delete
-    /// paths at <c>$91:F0BE/$91:F1CC</c>. The cartridge deliberately leaves the timer and
-    /// coordinates behind; retaining that stale debugger-visible state matters when proving
+    /// Empties a slot's effect, exactly like the landing-graphics delete paths at <c>$91:F0BE/$91:F1CC</c>. The
+    /// cartridge deliberately leaves the timer and coordinates behind; retaining that stale state matters when proving
     /// that a later producer really initialized every field it owns.
     /// </summary>
     /// <param name="slotIndex">Zero-based slot index, 0..3; its timer and coordinates are not cleared.</param>
-    public void ClearFrameAndType(int slotIndex)
+    public void ClearEffect(int slotIndex)
     {
         ValidateSlotIndex(slotIndex);
-        _slots[slotIndex].FrameAndType = 0;
+        _slots[slotIndex].ClearEffect();
     }
 
     /// <summary>
@@ -99,7 +98,7 @@ public sealed class SamusAtmosphericEffectsState
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusAtmosphericEffectSlot slot = _slots[slotIndex];
-            if (slot.FrameAndType == 0)
+            if (slot.IsEmpty)
                 continue;
 
             SamusAtmosphericEffectType type = slot.Type;
@@ -108,16 +107,16 @@ public sealed class SamusAtmosphericEffectsState
 
             if (slot.AnimationTimer.IsZero)
             {
-                // `$90:8A86` reloads using the OLD frame and only then increments the
-                // packed word. That ordering is why a newly created timer-three frame is
-                // visible for two calls before frame one begins.
+                // `$90:8A86` reloads using the OLD frame and only then advances the frame.
+                // That ordering is why a newly created timer-three frame is visible for
+                // two calls before frame one begins.
                 slot.AnimationTimer =
                     WrappingCountdown.FromRaw(SamusAtmosphericAnimations.FrameTimer(type, frameBeforeTimer));
-                slot.FrameAndType = WrappingCounter.IncrementWord(slot.FrameAndType);
+                slot.AdvanceFrame();
                 if (slot.AnimationFrame >=
                     SamusAtmosphericAnimations.FrameCount(type))
                 {
-                    slot.FrameAndType = 0;
+                    slot.ClearEffect();
                     continue;
                 }
             }

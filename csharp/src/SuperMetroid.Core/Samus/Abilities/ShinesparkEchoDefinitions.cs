@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -6,8 +5,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>Native identities for the ordinary projectile slots used by crash echoes.</summary>
 public static class ShinesparkEchoDefinitions
 {
-    /// <summary>$90:D40D writes type $8029 before InitializeShinesparkEchoOrSpazerSba.</summary>
-    public const ushort EchoType = SamusProjectileTypeWord.LiveMarker | 0x29;
     /// <summary>The value each key selects; DepartureAngles looks it up.</summary>
     internal static readonly IReadOnlyDictionary<SamusPoseId, ShinesparkDepartureAngles> DepartureAngleTable = new Dictionary<SamusPoseId, ShinesparkDepartureAngles>
     {

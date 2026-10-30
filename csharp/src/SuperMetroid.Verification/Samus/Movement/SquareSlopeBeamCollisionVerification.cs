@@ -72,7 +72,7 @@ internal static class SquareSlopeBeamCollisionVerification
         {
             runtime.StepFrame(0);
             SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
-            if (shot.PackedType.IsFamily(SamusProjectileFamily.BeamExplosion))
+            if (shot.Type.IsFamily(SamusProjectileFamily.BeamExplosion))
             {
                 // The explosion is anchored at the beam's leading edge: the slope column
                 // or, for a beam that passed it, the wall four blocks further on.

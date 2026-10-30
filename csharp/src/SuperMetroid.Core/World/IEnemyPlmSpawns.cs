@@ -20,7 +20,7 @@ internal interface IEnemyPlmSpawns
     void SpawnOldTourianEscapeShaftWallExplosion();
 
     /// <summary>Disables the Draygon cannon a PLM identifies.</summary>
-    void DisableDraygonCannon(DraygonCannonControlWord word);
+    void DisableDraygonCannon(DraygonWallCannon cannon);
 
     /// <summary>Spawns a projectile Mother Brain's glass bytecode requested.</summary>
     void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request);

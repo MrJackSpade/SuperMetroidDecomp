@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>One bank-$A5 cannon-control word paired with its wall projectile origin.</summary>
+/// <summary>One wall cannon paired with its projectile origin.</summary>
 internal readonly record struct DraygonCannonTarget(
-    DraygonCannonControlWord DisabledWord,
+    DraygonWallCannon Cannon,
     Position16<RoomPixels> Origin);

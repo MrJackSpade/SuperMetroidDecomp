@@ -40,7 +40,7 @@ internal sealed class SamusAnimationSegment
     private static byte ItemMaskByte(SamusEquipmentFlags item, int index)
     {
         Span<byte> mask = stackalloc byte[sizeof(ushort)];
-        BinaryPrimitives.WriteUInt16LittleEndian(mask, item.ToEquipmentWord());
+        BinaryPrimitives.WriteUInt16LittleEndian(mask, checked((ushort)SamusAnimationItemOperand.Of(item)));
         return mask[index];
     }
 

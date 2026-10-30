@@ -112,10 +112,10 @@ internal static class LookupRetailPopulationsVerification
                     3 => placement.NativeRoomArgument,
                     _ => 0,
                 };
-                if (field == 3 && placement.CannonControl is { } control)
+                if (field == 3 && placement.Cannon is { } control)
                 {
                     // A Draygon cannon's argument names its control word, which the population carries typed (#1448).
-                    AssertEqual(DraygonCannonControlWordAddresses.Decode(checked((ushort)expected)), control,
+                    AssertEqual(DraygonWallCannonAddresses.Decode(checked((ushort)expected)), control,
                         $"population {pointer:X4} operation {count} cannon control");
                     AssertEqual(0, result, $"population {pointer:X4} operation {count} cannon carries no raw argument");
                 }

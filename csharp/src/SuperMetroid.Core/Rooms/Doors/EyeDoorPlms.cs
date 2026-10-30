@@ -388,8 +388,8 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
                 if (!eyeDoor.HasPendingHit)
                     return;
 
-                SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
-                slot.LoopTimer = 0;
+                SamusProjectileFamily? family = slot.ProjectileHit?.Family;
+                slot.ProjectileHit = null;
                 eyeDoor.HasPendingHit = false;
                 if (family == SamusProjectileFamily.SuperMissile)
                 {

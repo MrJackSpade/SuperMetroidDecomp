@@ -46,13 +46,8 @@ public sealed class ProjectileInheritanceRecords
     internal void ClearMovement() => Array.Clear(Bytes, FirstRecordOffset, ByteCount - FirstRecordOffset);
 
     /// <summary>Combines a shot's base speed with the direction-specific overlapping words using native signed arithmetic.</summary>
-    internal EightEightVector<RoomPixels> ReadVelocity(int directionWord, int baseSpeed)
+    internal EightEightVector<RoomPixels> ReadVelocity(SamusProjectileDirection direction, int baseSpeed)
     {
-        var word = new SamusProjectileDirectionWord(checked((ushort)directionWord));
-        if (word.DirectionIndex > 9)
-            throw new InvalidDataException($"Projectile velocity initialization received invalid direction ${word.DirectionIndex:X2}.");
-        SamusProjectileDirection direction = word.Direction
-            ?? throw new InvalidDataException($"Projectile velocity initialization received invalid direction ${word.DirectionIndex:X2}.");
         int upward = LaunchVelocityWord(SamusCollisionDirection.Up);
         int upContribution = upward <= byte.MaxValue ? 0 : (upward >> 2) | 3 << 14; // An arithmetic shift by two fills both top bits.
         int x = unchecked((short)(direction switch

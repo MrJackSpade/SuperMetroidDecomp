@@ -6,12 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainShotReaction
 {
-    /// <summary>The eight projectile classes of the reaction table, in the order the masked type word counts them.</summary>
-    internal static readonly IdentitySequence<MotherBrainProjectileType> ReactionClasses = new(
-        MotherBrainProjectileType.Beam, MotherBrainProjectileType.Missile, MotherBrainProjectileType.SuperMissile,
-        MotherBrainProjectileType.PowerBomb, MotherBrainProjectileType.ClassFour, MotherBrainProjectileType.Bomb,
-        MotherBrainProjectileType.ClassSix, MotherBrainProjectileType.BeamExplosion);
-
     /// <summary>Updates phase-two/three walk credit after a shot and signals recoil only on form-four Hyper Beam underflow.</summary>
     public static MotherBrainShotReactionResult Resolve(
         MotherBrainForm form,

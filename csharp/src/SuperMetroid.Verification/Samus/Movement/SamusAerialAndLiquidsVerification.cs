@@ -1296,8 +1296,8 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         landing.Kinematics.YSpeed);
-    AssertEqual(0, landing.LiquidPhysics.AtmosphericEffects.Slots[2].FrameAndType,
-        "Ceres deletes landing packed word");
+    AssertTrue(landing.LiquidPhysics.AtmosphericEffects.Slots[2].IsEmpty,
+        "Ceres deletes the landing effect");
     AssertEqual(9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer.RawValue,
         "Ceres delete preserves atmospheric timer");
     AssertEqual(77, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.X,

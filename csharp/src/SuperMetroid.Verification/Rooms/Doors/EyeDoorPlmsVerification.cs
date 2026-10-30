@@ -176,7 +176,7 @@ internal static class EyeDoorPlmsVerification
 
         AssertTrue(plms.TryNotifyColoredDoorHit(
                 eyeBlock,
-                new SamusProjectileTypeWord(0x0000)),
+                SamusProjectileType.None),
             $"{orientation} beam collision reaches resident eye");
         StepEyeDoorPlms(plms, level);
         AssertTrue(plms.Sounds.SoundRequests.Any(request =>
@@ -191,7 +191,7 @@ internal static class EyeDoorPlmsVerification
         {
             AssertTrue(plms.TryNotifyColoredDoorHit(
                     eyeBlock,
-                    new SamusProjectileTypeWord(projectileWord)),
+                    SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectileWord)),
                 $"{orientation} missile-family hit {hit + 1} reaches resident eye");
             StepEyeDoorPlms(plms, level);
             if (hit + 1 < acceptedHits && !effects.Any(effect => effect.Definition == EyeDoorProjectileDefinition.Sweat))

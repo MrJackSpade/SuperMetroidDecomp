@@ -23,6 +23,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Focused cartridge-probe comparison for Chainsaw shot admission, collision, lifetime and door interference.</summary>
 internal static class ChainsawFiringVerification
@@ -106,7 +107,7 @@ internal static class ChainsawFiringVerification
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
             "Chainsaw blue-door setup mutates cap synchronously");
         AssertTrue(doorProjectiles.Slots.All(slot =>
-                !slot.PackedType.IsFamily(SamusProjectileFamily.BeamExplosion)),
+                !slot.Type.IsFamily(SamusProjectileFamily.BeamExplosion)),
             "Wave scan opens door without synthesizing a visible beam impact");
         AssertEqual(0, doorProjectiles.SlotTable.ProjectileCounter,
             "door-opening no-Power-Bomb Chainsaw still deletes in B0AC callback");
@@ -157,8 +158,8 @@ internal static class ChainsawFiringVerification
             "active Chainsaw overlaps one ordinary enemy");
         AssertEqual(850, target.Health,
             "Chainsaw uses Super-Missile vulnerability byte for a 150-point hit");
-        AssertEqual(0x800d, combatProjectiles.Slots[0].Type,
-            "Plasma bit keeps Chainsaw alive after enemy damage");
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false), combatProjectiles.Slots[0].Type,
+            "Plasma keeps the uncharged Chainsaw shot alive after enemy damage");
 
         // The documented Orange Door interference is an ordering effect, not a special
         // door exception. Native processes the bomb-owned slots before the ordinary
@@ -189,7 +190,7 @@ internal static class ChainsawFiringVerification
             interferenceReactions,
             interferencePlms,
             AreaId.Crateria,
-            (ushort)SamusProjectileFamily.PowerBomb);
+            SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             interferenceLevel,
             new(32, 32),
@@ -197,7 +198,7 @@ internal static class ChainsawFiringVerification
             interferenceReactions,
             interferencePlms,
             AreaId.Crateria,
-            0x800d);
+            SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         interferencePlms.Step(interferenceLevel);
         ColoredDoorPlmSnapshot suppressedDoor = interferencePlms.ColoredDoors.Single();
         AssertEqual(ColoredDoorPhase.Waiting, suppressedDoor.Phase,
@@ -218,7 +219,7 @@ internal static class ChainsawFiringVerification
             breakingReactions,
             breakingPlms,
             AreaId.Crateria,
-            (ushort)SamusProjectileFamily.PowerBomb);
+            SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,
             new(32, 32),
@@ -226,7 +227,7 @@ internal static class ChainsawFiringVerification
             breakingReactions,
             breakingPlms,
             AreaId.Crateria,
-            0x800d);
+            SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         AssertEqual(RoomCollisionType.SolidBlock,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
             "Chainsaw callback preserves the Power Bomb's synchronous break setup");
@@ -266,7 +267,7 @@ internal static class ChainsawFiringVerification
         AssertEqual(SamusProjectilePreInstruction.ChargedChainsawOverrun,
             chargedProjectiles.Slots[0].PreInstruction,
             "charged Chainsaw retains its native unstable callback identity");
-        AssertEqual(0x901d, chargedProjectiles.Slots[0].Type,
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: true), chargedProjectiles.Slots[0].Type,
             "charged Chainsaw is fully allocated before unstable callback execution");
 
         Console.WriteLine("Chainsaw firing: native admission, door/enemy reactions, Orange-Door interference, callback stores, Power-Bomb-gated lifetime and charged WRAM execution agree.");

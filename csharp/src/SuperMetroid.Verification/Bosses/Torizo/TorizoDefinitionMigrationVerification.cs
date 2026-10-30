@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 

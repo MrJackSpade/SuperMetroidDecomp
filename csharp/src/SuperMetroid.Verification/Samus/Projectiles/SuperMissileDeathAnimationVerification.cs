@@ -12,6 +12,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the explosion program selected when a Super Missile kills enemies with different death headers.</summary>
 internal static class SuperMissileDeathAnimationVerification
@@ -53,7 +54,7 @@ internal static class SuperMissileDeathAnimationVerification
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(enemy.Position.Whole);
 
         SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
-        shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;
+        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(enemy.Position.Whole);
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);

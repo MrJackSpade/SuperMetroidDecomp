@@ -62,7 +62,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             RoomBlockBehavior behavior = new(unchecked((byte)(
                 RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)orientation)));
             AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin, behavior,
-                new SamusProjectileTypeWord(0)),
+                SamusProjectileType.None),
                 $"{orientation} blue door allocates its native opening actor");
             var guarded = NewBlueDoorDrawReadGuard(rom, lists);
             plms.Step(level);
@@ -90,7 +90,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             foreach (BlueDoorProgram program in new[] { BlueDoorPlmProgramDefinitions.ClosingPrograms[orientation], BlueDoorPlmProgramDefinitions.ClosedPrograms[orientation] })
             {
                 AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin, behavior,
-                    new SamusProjectileTypeWord(0)),
+                    SamusProjectileType.None),
                     $"{orientation} allocates actor for {program}");
                 plms.StartSoleProgramForVerification(PlmProgramStart.Typed(program));
                 for (int frame = 0; frame < 20 && plms.SlotTable.ActiveCount != 0; frame++)

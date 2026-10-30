@@ -49,5 +49,5 @@ internal sealed class RoomPlmRuntimeServices(
         Enemies.PlmSpawns.SpawnOldTourianEscapeShaftWallExplosion();
 
     /// <summary>Lets a PLM disable the Draygon cannon identified by its enemy variable pointer.</summary>
-    public void DisableDraygonCannon(DraygonCannonControlWord word) => Enemies.PlmSpawns.DisableDraygonCannon(word);
+    public void DisableDraygonCannon(DraygonWallCannon cannon) => Enemies.PlmSpawns.DisableDraygonCannon(cannon);
 }

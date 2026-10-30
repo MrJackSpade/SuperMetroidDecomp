@@ -13,6 +13,8 @@ internal static class SamusFiringTableDefinitions
     internal const int CombinationCount = 12;
     /// <summary>Offset from the uncharged delays to the charged-shot delay row.</summary>
     internal const int ChargedRowOffset = 0x10;
+    /// <summary>Offset from the uncharged rows to the echo rows of the beam-row-indexed tables.</summary>
+    internal const int EchoRowOffset = 0x20;
     /// <summary>The speed table holds two speed words per beam combination.</summary>
     internal const int InitialSpeedRowBytes = 2 * sizeof(ushort);
 

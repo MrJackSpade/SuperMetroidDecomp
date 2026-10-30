@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Compares ceiling projectile reactions and PLM allocation with a native CPU trace.</summary>
 internal static class CeilingWrapVerification
@@ -28,8 +29,8 @@ internal static class CeilingWrapVerification
             var words = Enumerable.Repeat(RoomTerrainBlock.Of(0x040, BlockMirroring.None, RoomCollisionType.Air), 128 * 32).ToArray();
             var level = CreateRoom(new(128, 32), words, new RoomBlockBehavior[words.Length]);
             var plms = PlmFixtures.Unbound();
-            var shot = new SamusProjectileSlot(0) { Position = new(new((ushort)(tileX * 16), 0), new(4, 0)), Radius = new(1, 8), Type = 1,
-                Direction = (ushort)SamusProjectileDirection.Right };
+            var shot = new SamusProjectileSlot(0) { Position = new(new((ushort)(tileX * 16), 0), new(4, 0)), Radius = new(1, 8), Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false),
+                Direction = SamusProjectileDirection.Right };
             for (int call = 0; call < 45; call++)
             {
                 system.TerrainCollision.RunInitialBeamCollision(level, shot, plms, true, powerBomb);

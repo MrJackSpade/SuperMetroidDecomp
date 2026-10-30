@@ -25,8 +25,8 @@ internal static class SamusArmCannonDefinitionsVerification
             byte expected = rom.ReadCartridgeByte(
                 SamusArmCannonDefinitions.OpenFlagTable + (int)selectedHudItem);
             AssertEqual(
-                expected,
-                SamusArmCannonOpening.DesiredOpenFlag(selectedHudItem),
+                expected != 0,
+                SamusArmCannonOpening.Opens(selectedHudItem),
                 $"arm-cannon HUD item {selectedHudItem} matches cartridge table");
 
             var samus = new SamusState
@@ -43,20 +43,20 @@ internal static class SamusArmCannonDefinitionsVerification
             // flags and frame therefore prove that no transition began.
             SamusArmCannonState cannon = samus.ArmCannon;
             Initial initial =
-                new Initial(cannon.OpenFlag, cannon.CloseFlag, cannon.Frame);
+                new Initial(cannon.IsOpen ? 1 : 0, cannon.IsTransitioning ? 1 : 0, cannon.Frame);
             cannon.Update(samus);
-            AssertEqual(initial, new Initial(cannon.OpenFlag, cannon.CloseFlag, cannon.Frame),
+            AssertEqual(initial, new Initial(cannon.IsOpen ? 1 : 0, cannon.IsTransitioning ? 1 : 0, cannon.Frame),
                 $"arm-cannon HUD item {selectedHudItem} waits for a stable second sample");
-            int openBeforeSecond = cannon.OpenFlag;
+            bool openBeforeSecond = cannon.IsOpen;
             cannon.Update(samus);
             AssertEqual(
                 expected != 0,
-                cannon.OpenFlag != openBeforeSecond,
+                cannon.IsOpen != openBeforeSecond,
                 $"arm-cannon HUD item {selectedHudItem} starts only its native opening transition");
             AssertEqual(
-                expected,
-                cannon.OpenFlag,
-                $"arm-cannon HUD item {selectedHudItem} publishes its compiled open flag");
+                expected != 0,
+                cannon.IsOpen,
+                $"arm-cannon HUD item {selectedHudItem} opens the cover as the cartridge table says");
         }
 
         // An imported toggle word at its top wraps to zero on a stable sample, as the native 16-bit INC does, and the
@@ -64,20 +64,18 @@ internal static class SamusArmCannonDefinitionsVerification
         var wrapping = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
         PrepareRetailSamusFixture(wrapping);
         wrapping.ArmCannon.Artwork = artwork;
-        wrapping.ArmCannon.ToggleFlag = ushort.MaxValue;
+        wrapping.ArmCannon.StableSelectionUpdates = ushort.MaxValue;
         wrapping.ArmCannon.Update(wrapping);
-        AssertEqual(0, wrapping.ArmCannon.ToggleFlag, "a stable sample wraps the toggle word from 65535 to zero");
+        AssertEqual(0, wrapping.ArmCannon.StableSelectionUpdates, "a stable sample wraps the toggle word from 65535 to zero");
         wrapping.ArmCannon.Update(wrapping);
-        AssertEqual(1, wrapping.ArmCannon.ToggleFlag, "the wrapped toggle word counts up again");
-        AssertEqual(new VerifySamusArmCannonDefinitionsCase(0, 0, 0), new VerifySamusArmCannonDefinitionsCase(wrapping.ArmCannon.OpenFlag, wrapping.ArmCannon.CloseFlag, wrapping.ArmCannon.Frame),
+        AssertEqual(1, wrapping.ArmCannon.StableSelectionUpdates, "the wrapped toggle word counts up again");
+        AssertEqual(new VerifySamusArmCannonDefinitionsCase(0, 0, 0), new VerifySamusArmCannonDefinitionsCase(wrapping.ArmCannon.IsOpen ? 1 : 0, wrapping.ArmCannon.IsTransitioning ? 1 : 0, wrapping.ArmCannon.Frame),
             "the closed Beam selection starts no transition");
-        AssertThrows<ArgumentOutOfRangeException>(() => wrapping.ArmCannon.ToggleFlag = ushort.MaxValue + 1,
-            "the toggle word rejects a value above sixteen bits");
-        AssertThrows<ArgumentOutOfRangeException>(() => wrapping.ArmCannon.OpenFlag = byte.MaxValue + 1,
-            "the open flag rejects a value above a byte");
+        AssertThrows<ArgumentOutOfRangeException>(() => wrapping.ArmCannon.StableSelectionUpdates = ushort.MaxValue + 1,
+            "the stable-selection count rejects a value above sixteen bits");
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusArmCannonOpening.DesiredOpenFlag(
+            () => SamusArmCannonOpening.Opens(
                 (HudItem)Enum.GetValues<HudItem>().Length),
             "arm-cannon policy rejects an out-of-range HUD selection");
 
@@ -91,15 +89,13 @@ internal static class SamusArmCannonDefinitionsVerification
     /// </summary>
     internal static void VerifyArmCannonDrawOrder()
     {
-        var cannon = new SamusArmCannonState();
         for (int mode = 0; mode <= byte.MaxValue; mode++)
         {
-            cannon.DrawingMode = (ushort)mode;
             int lowNibble = mode % 16;
             SamusArmCannonDrawOrder expected = lowNibble == 0 ? SamusArmCannonDrawOrder.Hidden
                 : lowNibble == 2 ? SamusArmCannonDrawOrder.AfterBody
                 : SamusArmCannonDrawOrder.BeforeBody;
-            AssertEqual(expected, cannon.DrawOrder, $"arm-cannon drawing mode {mode} draw order");
+            AssertEqual(expected, SamusArmCannonState.DrawOrderOf(mode), $"arm-cannon drawing mode {mode} draw order");
         }
         Console.WriteLine("Arm-cannon draw order: all 256 drawing-mode bytes select hidden, before-body or after-body by their low nibble.");
     }

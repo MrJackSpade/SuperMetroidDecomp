@@ -42,7 +42,7 @@ internal sealed class BeamCombos
         Ensure.NotNull(shared);
         sound = null;
         if (samus.SelectedHudItem != HudItem.PowerBomb) return false;
-        SamusBeamCombination beam = new SamusBeamLoadoutWord(samus.EquippedBeams).LowNibbleCombination;
+        SamusBeamCombination beam = SamusBeamCombinations.Of(samus.EquippedBeams);
         if (!beam.IsRetail)
             throw new NotSupportedException("Out-of-table Spazer/Plasma combo dispatcher requires emulated ROM execution.");
         int remaining = samus.PowerBombs - SamusComboMechanics.GetPowerBombCost(beam);
@@ -57,8 +57,9 @@ internal sealed class BeamCombos
             for (int i = 3; i >= 0; i--)
             {
                 var slot = _slotTable.Slots[i];
-                slot.Type = (ushort)((samus.EquippedBeams & SamusProjectileTypeWord.EquippedBeamBits).ToEquipmentWord() | BeamComboDefinitions.ProjectileTag);
-                slot.Direction = kind == SamusComboKind.Spazer ? (ushort)5 : (ushort)0;
+                slot.Type = SamusProjectileType.Beam(beam, charged: true);
+                slot.Direction = kind == SamusComboKind.Spazer ? SamusProjectileDirection.DownFacingLeft : SamusProjectileDirection.UpFacingRight;
+                slot.IsSpent = false;
                 slot.PreInstruction = kind switch
                 {
                     SamusComboKind.Wave => SamusProjectilePreInstruction.WaveCombo,
@@ -68,9 +69,10 @@ internal sealed class BeamCombos
                     _ => throw new InvalidOperationException($"Undefined combo {kind}."),
                 };
                 if (kind != SamusComboKind.Plasma) slot.TrailTimer = WrappingCountdown.FromRaw(kind == SamusComboKind.Spazer && i < 2 ? (ushort)0 : (ushort)4);
-                slot.Variable = kind is SamusComboKind.Ice or SamusComboKind.Plasma
+                slot.ComboAngle = kind is SamusComboKind.Ice or SamusComboKind.Plasma
                     ? SamusComboMechanics.GetOriginAngle(i)
-                    : (ushort)0;
+                    : default;
+                slot.WaveComboVerticalSpeed = default;
                 if (kind is SamusComboKind.Wave or SamusComboKind.Spazer)
                 {
                     slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
@@ -84,12 +86,12 @@ internal sealed class BeamCombos
                 {
                     slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + (i < 2 ? 128 : -128))), unchecked((ushort)(samus.Position.Y.Whole + (i is 0 or 3 ? 128 : -128)))));
                 }
-                if (kind == SamusComboKind.Spazer && i >= 2) slot.Type = BeamComboDefinitions.SpazerTrailType;
+                if (kind == SamusComboKind.Spazer && i >= 2) slot.Type = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail);
                 InitializeComboData(slot, kind == SamusComboKind.Ice ? BeamComboData.Charged
                     : kind == SamusComboKind.Spazer && i >= 2 ? BeamComboData.Echo : BeamComboData.Combo);
             }
             _slotTable.ProjectileCounter = 4;
-            shared.SetSharedCooldown(SamusProjectileCooldowns.ReadByte(SamusFiringTableDefinitions.UnchargedCooldowns + (_slotTable.Slots[0].Type & 63)));
+            shared.SetSharedCooldown(SamusProjectileCooldowns.ReadByte(SamusFiringTableDefinitions.UnchargedCooldowns + _slotTable.Slots[0].Type.BeamTableRow));
             ComboState = kind == SamusComboKind.Spazer ? 0
                 : kind == SamusComboKind.Wave || SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? 4 : -4;
             sound = kind switch
@@ -112,16 +114,20 @@ internal sealed class BeamCombos
         bool echo = comboData == BeamComboData.Echo;
         SamusProjectileSelectorTable table = comboData == BeamComboData.Charged ? SamusProjectileSelectorTable.ChargedBeam :
             echo ? SamusProjectileSelectorTable.EchoAndTrail : SamusProjectileSelectorTable.SpecialAttack;
-        int index = echo ? (byte)slot.Type - 34 : slot.Type & 15;
+        int index = echo ? EchoTableIndex(slot.Type) : slot.Type.BeamCombination.TableIndex;
         SamusProjectileHeader header = SamusProjectileSelection.Select(table, index);
         slot.Damage = SamusProjectileDamage.Read(header);
         if (unchecked((short)slot.Damage) < 0) throw new InvalidDataException("Negative native combo projectile damage.");
-        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, comboData != BeamComboData.Combo ? slot.Direction & 15 : 0);
+        SamusProjectileProgram? program = SamusProjectileHeaders.Program(header, comboData != BeamComboData.Combo ? slot.Direction.ToAimIndex() : 0);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         if (comboData == BeamComboData.Charged)
             slot.Radius = SamusProjectilePrograms.InitialRadius(program);
     }
+    /// <summary>The echo-and-trail selector entry an echo reads: its beam-table row past the table's two leading rows.</summary>
+    private static int EchoTableIndex(SamusProjectileType echo) =>
+        echo.BeamTableRow - SamusFiringTableDefinitions.EchoRowOffset - BeamComboDefinitions.EchoTableLeadingRows;
+
     /// <summary>Runs $90:CF09/$CF7A for one Ice combo slot and returns its optional library-one sound request.</summary>
     internal SoundEffectId? StepIceCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
@@ -129,7 +135,7 @@ internal sealed class BeamCombos
         bool outward = slot.PreInstruction == SamusProjectilePreInstruction.IceComboOutward;
         if (!outward && slot.PreInstruction != SamusProjectilePreInstruction.IceCombo)
             throw new InvalidOperationException("Ice combo update requires its own pre-instruction.");
-        if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
+        if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
             return outward ? null : Library1Sound.IceSpecialAttackEnd;
@@ -142,7 +148,7 @@ internal sealed class BeamCombos
             _trails.SpawnTrail(slot);
         }
         int distance = outward ? unchecked((ushort)slot.Velocity.X.SignedRawValue) : 32;
-        Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(checked(new ByteAngle(unchecked((byte)((ushort)slot.Variable)))), distance);
+        Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(slot.ComboAngle, distance);
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(samus.Position.X.Whole + orbit.X)));
         if (outward && (unchecked((short)(slot.Position.X.Whole - camera.X + 32)) < 0 ||
                         unchecked((short)(slot.Position.X.Whole - camera.X - 288)) >= 0))
@@ -157,7 +163,7 @@ internal sealed class BeamCombos
             _animation.ClearProjectile(slot);
             return null;
         }
-        slot.Variable = unchecked((byte)(slot.Variable + ComboState));
+        slot.ComboAngle = slot.ComboAngle.AddTableUnits(ComboState);
         SoundEffectId? sound = null;
         if (outward)
             slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((byte)(slot.Velocity.X.SignedRawValue + 8))));
@@ -182,7 +188,7 @@ internal sealed class BeamCombos
     {
         if (slot.PreInstruction != SamusProjectilePreInstruction.PlasmaCombo)
             throw new InvalidOperationException("Plasma update requires its own pre-instruction.");
-        if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
+        if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
             return;
@@ -190,9 +196,9 @@ internal sealed class BeamCombos
         shared.SetSharedCooldown(2);
         _charge.FlareCounter = 0;
         Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
-            checked(new ByteAngle(unchecked((byte)((ushort)slot.Variable)))), unchecked((ushort)slot.Velocity.X.SignedRawValue));
+            slot.ComboAngle, unchecked((ushort)slot.Velocity.X.SignedRawValue));
         slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(orbit.X + samus.Position.X.Whole)), unchecked((ushort)(orbit.Y + samus.Position.Y.Whole))));
-        slot.Variable = unchecked((byte)(slot.Variable + ComboState));
+        slot.ComboAngle = slot.ComboAngle.AddTableUnits(ComboState);
         switch (slot.Velocity.Y.SignedRawValue)
         {
             case 0:
@@ -228,7 +234,7 @@ internal sealed class BeamCombos
         SamusProjectileSlot slot)
     {
         int inheritedY = slot.Sprite is null
-            ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *
+            ? unchecked((ushort)(slot.Type.BeamCombination.TableIndex *
                 SamusFiringTableDefinitions.InitialSpeedRowBytes))
             : unchecked((ushort)((overreads ?? throw new InvalidOperationException(
                 "The SpaceTime palette copy needs the installed Samus overread catalog.")).ProjectileLists.Position(slot.Cursor) -
@@ -253,7 +259,7 @@ internal sealed class BeamCombos
         bool falling = slot.PreInstruction == SamusProjectilePreInstruction.SpazerComboFalling;
         if (!falling && slot.PreInstruction != SamusProjectilePreInstruction.SpazerCombo)
             throw new InvalidOperationException("Spazer update requires its own pre-instruction.");
-        if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
+        if (slot.IsSpent)
         {
             int partner = slot.SlotIndex ^ 2;
             _animation.ClearProjectile(slot);
@@ -279,17 +285,18 @@ internal sealed class BeamCombos
         else
         {
             Offset16<RoomPixels> orbit = SamusComboMechanics.GetSineOffset(
-                checked(new ByteAngle(unchecked((byte)((ushort)slot.Variable)))), unchecked((ushort)slot.Velocity.X.SignedRawValue));
+                slot.ComboAngle, unchecked((ushort)slot.Velocity.X.SignedRawValue));
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + orbit.X)), unchecked((ushort)(samus.Position.Y.Whole + orbit.Y - (slot.AuxiliaryPhase == SpazerComboPhase.Circling ? 0 : 114)))));
             switch (slot.AuxiliaryPhase)
             {
                 case SpazerComboPhase.Circling:
                     AdvanceSpazerAngle(slot);
-                    if (slot.Variable == 128)
+                    if (slot.ComboAngle == ByteAngle.HalfTurn)
                     {
                         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(160));
                         slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw((short)((slot.SlotIndex & 1) == 0 ? 2 : -2)));
-                        slot.Direction = 0;
+                        slot.Direction = SamusProjectileDirection.UpFacingRight;
+                        slot.IsSpent = false;
                         slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpTowardsPoint;
                     }
                     break;
@@ -303,7 +310,7 @@ internal sealed class BeamCombos
                         if (slot.Velocity.X.SignedRawValue == 0)
                         {
                             slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw((short)((slot.SlotIndex & 1) == 0 ? -2 : 2)));
-                            slot.Variable = unchecked((byte)(slot.Variable + 128));
+                            slot.ComboAngle = slot.ComboAngle.AddTableUnits(ByteAngle.HalfTurn.RawValue);
                             slot.AuxiliaryPhase = SpazerComboPhase.FlyingUpAwayFromPoint;
                             shared.SetSharedCooldown(2);
                             _charge.FlareCounter = 0;
@@ -331,18 +338,19 @@ internal sealed class BeamCombos
 
     /// <summary>Advances the Spazer particle's byte-sized angular phase by its signed native step.</summary>
     private static void AdvanceSpazerAngle(SamusProjectileSlot slot) =>
-        slot.Variable = unchecked((byte)(slot.Variable + slot.Velocity.Y.SignedRawValue));
+        slot.ComboAngle = slot.ComboAngle.AddTableUnits(slot.Velocity.Y.SignedRawValue);
 
     /// <summary>Moves a circling Spazer particle outward and switches its primary pair to falling echo artwork.</summary>
     private static void BeginSpazerFall(SamusProjectileSlot slot)
     {
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (slot.SlotIndex < 2 ? 16 : -16))));
-        slot.Direction = 5;
+        slot.Direction = SamusProjectileDirection.DownFacingLeft;
+        slot.IsSpent = false;
         slot.TrailTimer = WrappingCountdown.Start(4);
         slot.PreInstruction = SamusProjectilePreInstruction.SpazerComboFalling;
         if (slot.SlotIndex < 2)
         {
-            slot.Type = BeamComboDefinitions.SpazerTrailType;
+            slot.Type = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail);
             InitializeComboData(slot, BeamComboData.Echo);
         }
     }
@@ -354,7 +362,7 @@ internal sealed class BeamCombos
             throw new InvalidOperationException("Wave update requires its own pre-instruction.");
         // A hit skips even the lifetime decrement. Expiry and collision both queue
         // the terminal sound, unlike Ice's silent outward-phase removal.
-        if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
+        if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
             return BeamComboDefinitions.WaveRemovalSound;
@@ -376,8 +384,8 @@ internal sealed class BeamCombos
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.Velocity.X.SignedRawValue, unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)))));
         uint x = unchecked(new FixedCoordinate(slot.Position.X.Whole, slot.Position.X.Fraction).RawValue + (uint)(SixteenSixteen.FromEightEight(slot.Velocity.X.SignedRawValue)));
         slot.Position = slot.Position.WithWholeX(FixedCoordinate.WholeOf(unchecked((int)x))).WithFractionX(unchecked((ushort)x));
-        int ySpeed = AccelerateWaveAxis(unchecked((short)slot.Variable), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)));
-        slot.Variable = unchecked((ushort)ySpeed);
+        int ySpeed = AccelerateWaveAxis(slot.WaveComboVerticalSpeed.SignedRawValue, unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)));
+        slot.WaveComboVerticalSpeed = SignedEightEight.FromSignedRaw(unchecked((short)ySpeed));
         uint y = unchecked(new FixedCoordinate(slot.Position.Y.Whole, slot.Position.Y.Fraction).RawValue + (uint)(SixteenSixteen.FromEightEight(ySpeed)));
         slot.Position = slot.Position.WithWholeY(FixedCoordinate.WholeOf(unchecked((int)y))).WithFractionY(unchecked((ushort)y));
         shared.SetSharedCooldown(2);

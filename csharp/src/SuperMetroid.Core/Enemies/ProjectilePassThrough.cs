@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus.Projectiles;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -12,11 +10,11 @@ internal static class ProjectilePassThrough
     /// <summary>Clears the projectile's spent bit after the super-missile quake.</summary>
     internal static readonly EnemyShotStage Shot = (in EnemyShotContext c) =>
     {
-        c.Projectile.Direction = unchecked((ushort)(c.Projectile.Direction & ~SamusProjectileDirectionMasks.Spent));
+        c.Projectile.IsSpent = false;
         return true;
     };
 
     /// <summary>Undoes the spent mark the bomb walker installed just before.</summary>
     internal static readonly Action<EnemyBombContext> Bomb =
-        c => c.Bomb.Direction = unchecked((ushort)(c.Bomb.Direction & ~SamusProjectileDirectionMasks.Spent));
+        c => c.Bomb.IsSpent = false;
 }

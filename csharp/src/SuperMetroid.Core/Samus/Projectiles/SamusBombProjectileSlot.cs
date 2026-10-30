@@ -3,31 +3,37 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>One semantic view over a physical WRAM bomb slot.</summary>
+/// <summary>One of Samus's five bomb slots: a placed bomb, a Power Bomb, or a bomb-spread bomb.</summary>
 public sealed class SamusBombProjectileSlot
 {
-    /// <summary>Creates one view over the specified logical index in the five-slot bomb half.</summary>
+    /// <summary>Creates the bomb slot at its position among the five.</summary>
     internal SamusBombProjectileSlot(int index) => Index = index;
 
-    /// <summary>Logical bomb index zero through four; physical projectile index is 5+Index.</summary>
+    /// <summary>The slot's position among the bomb slots, zero through four.</summary>
     public int Index { get; }
 
-    /// <summary>
-    /// Room-pixel 16.16 position: whole words <c>SamusProjectile_X/YPositions</c> at
-    /// <c>$0B6E/$0B82 + 2*Index</c>, subpixels <c>SamusProjectile_X/YSubPositions</c> at
-    /// <c>$0B96/$0BAA + 2*Index</c>.
-    /// </summary>
+    /// <summary>Room-pixel 16.16 position.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
-    /// <summary>Raw native <c>SamusProjectile_BombDirections</c> word at <c>$0C0E + 2*Index</c>; any <c>$F0</c> kill-request bit clears the slot before its pre-instruction, and the <c>$10</c> collision marker also excludes Samus overlap.</summary>
-    public int Direction { get; internal set; }
-    /// <summary>Packed native projectile family/type word at <c>$0C22 + 2*Index</c>, preserving bomb, Power Bomb, spread, and status bits; use <see cref="PackedType"/> for semantic decoding.</summary>
-    [PackedFields("WRAM $0C22 projectile type word; PackedType decodes its bomb and status fields, and zero marks an empty slot")]
-    public int Type { get; internal set; }
-    /// <summary>Lossless semantic view of the native projectile family/type word.</summary>
-    public SamusProjectileTypeWord PackedType => new(checked((ushort)Type));
-    /// <summary>Lossless semantic view of the native direction/lifecycle word.</summary>
-    public SamusProjectileDirectionWord PackedDirection => new(checked((ushort)Direction));
-    /// <summary>Native damage word at <c>$0C36 + 2*Index</c>, initialized from bank-$93 projectile data; zero excludes the slot from damage-bearing overlap tests.</summary>
+
+    /// <summary>
+    /// Whether the bomb has already struck an enemy: its explosion keeps running, but it no longer launches Samus and
+    /// later enemy collision skips it.
+    /// </summary>
+    public bool IsSpent { get; internal set; }
+
+    /// <summary>
+    /// The direction the shared projectile reactions read for a bomb. Bombs are placed without an aim, so they read as
+    /// fired upward facing right.
+    /// </summary>
+    public SamusProjectileDirection Direction => SamusProjectileDirection.UpFacingRight;
+
+    /// <summary>What the slot holds; <see cref="SamusProjectileType.None"/> marks an empty slot.</summary>
+    public SamusProjectileType Type { get; internal set; }
+
+    /// <summary>Whether a placed bomb's explosion has reacted with the five-block cross of terrain around it; it does so once.</summary>
+    public bool HasReactedToTerrain { get; internal set; }
+
+    /// <summary>Damage from the bomb's projectile data; zero excludes the slot from damage-bearing overlap tests.</summary>
     public int Damage
     {
         get;
@@ -35,14 +41,14 @@ public sealed class SamusBombProjectileSlot
     }
     /// <summary>Where the slot's projectile program resumes; null marks an inactive slot, and a consumed timed frame advances it past that record.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
-    /// <summary>Wrapping sixteen-bit duration countdown at <c>$0C5E + 2*Index</c>, decremented once per unfrozen projectile update; reaching zero runs the next bank-$93 instruction.</summary>
+    /// <summary>Wrapping duration countdown, decremented once per unfrozen projectile update; reaching zero runs the next program instruction.</summary>
     public WrappingCountdown InstructionTimer { get; internal set; }
-    /// <summary>The composition the bomb shows (native <c>$0CC2 + 2*Index</c>), selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
+    /// <summary>The composition the bomb shows, selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
-    /// <summary>Collision half-extents in whole pixels, loaded from timed-frame bytes and stored in native <c>SamusProjectile_X/YRadii</c> at <c>$0BBE/$0BD2 + 2*Index</c>; not the global Power Bomb blast radius.</summary>
+    /// <summary>Collision half-extents in whole pixels, loaded from the timed frames; not the global Power Bomb blast radius.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
 
-    /// <summary>Whether bank-$90 installed <c>ProjectilePreInstruction_BombSpread</c>.</summary>
+    /// <summary>Whether the bomb is one of a bomb spread's five.</summary>
     public bool IsBombSpread { get; internal set; }
 
     /// <summary>The spread bomb's horizontal travel; a wall reverses its direction.</summary>
@@ -54,21 +60,19 @@ public sealed class SamusBombProjectileSlot
     /// <summary>The upward launch velocity, signed 16.16, that a floor bounce restores.</summary>
     public SignedSixteenSixteen BombSpreadLaunchVelocity { get; internal set; }
 
-    /// <summary>
-    /// The word called <c>projectile_variables[5+Index]</c> by bank $90 and
-    /// <c>bomb_timers[Index]</c> by bank $A0 due to the original overlapping arrays.
-    /// </summary>
+    /// <summary>The bomb's fuse, and after detonation its explosion phase counter.</summary>
     public WrappingCountdown BombTimer { get; internal set; }
 
-    /// <summary>Instruction pointer is the native active-slot sentinel.</summary>
+    /// <summary>A live program marks the slot active.</summary>
     public bool IsActive => Cursor is not null;
 
-    /// <summary>Zeroes the complete per-slot native projectile state before reuse or deletion.</summary>
+    /// <summary>Clears the slot's state before reuse or deletion.</summary>
     internal void ClearFields()
     {
         Position = FixedPosition<RoomPixels>.Zero;
-        Direction = 0;
-        Type = 0;
+        IsSpent = false;
+        Type = SamusProjectileType.None;
+        HasReactedToTerrain = false;
         Damage = 0;
         Cursor = null;
         InstructionTimer = WrappingCountdown.Start(0);

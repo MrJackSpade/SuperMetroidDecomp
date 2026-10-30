@@ -11,6 +11,7 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Confirms an enemy's empty extended frame cannot receive a beam hit before its next solid frame.</summary>
 internal static class EmptyExtendedFrameShotsVerification
@@ -41,7 +42,7 @@ internal static class EmptyExtendedFrameShotsVerification
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
 
         SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
-        shot.Type = 0x9010; shot.Damage = 60; shot.Direction = 7;
+        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true); shot.Damage = 60; shot.Direction = SamusProjectileDirection.Left;
         shot.Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
         shot.Radius = new(8, 8);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);

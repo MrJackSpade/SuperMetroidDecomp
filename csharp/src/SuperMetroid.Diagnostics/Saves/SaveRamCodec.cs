@@ -5,6 +5,7 @@ using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Diagnostics.Saves;
 

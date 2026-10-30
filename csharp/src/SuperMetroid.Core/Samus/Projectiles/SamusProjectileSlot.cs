@@ -3,17 +3,20 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>One debugger-readable ordinary slot corresponding to a native even byte index.</summary>
+/// <summary>One of Samus's five ordinary projectile slots: a beam, missile, special-attack particle, echo or explosion.</summary>
 public sealed class SamusProjectileSlot
 {
-    /// <summary>Associates a host slot with the native parallel-array byte index twice its ordinal.</summary>
+    /// <summary>Creates the slot at its position in the projectile table.</summary>
     internal SamusProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
-    /// <summary>Host slot 0..4; native byte index is this value times two.</summary>
+    /// <summary>The slot's position in the projectile table, 0 through 4.</summary>
     [IntegerQuantity("position of the slot in the projectile table")]
     public int SlotIndex { get; }
 
-    /// <summary>Native byte index used by the parallel WRAM arrays.</summary>
+    /// <summary>
+    /// The slot's position in the bytes the per-slot tables are read at: twice <see cref="SlotIndex"/>. The SpaceTime
+    /// beam's palette copy starts from it.
+    /// </summary>
     public int SlotTableOffset => SlotIndex * 2;
 
     /// <summary>Damage doubles as the producer's free-slot sentinel.</summary>
@@ -23,27 +26,23 @@ public sealed class SamusProjectileSlot
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Projectile family/beam flags from WRAM <c>$0C18</c>.</summary>
-    [PackedFields("WRAM $0C18 projectile type word; PackedType decodes its family and beam fields, and zero marks an empty slot")]
-    public int Type { get; internal set; }
+    /// <summary>What the slot holds; <see cref="SamusProjectileType.None"/> marks an empty slot.</summary>
+    public SamusProjectileType Type { get; internal set; }
+
+    /// <summary>The direction the projectile was fired or reflected in.</summary>
+    public SamusProjectileDirection Direction { get; internal set; }
 
     /// <summary>
-    /// Lossless semantic view of <see cref="Type"/>. Raw storage remains public for exact
-    /// WRAM comparison and debugging; consumers no longer need to repeat packed masks.
+    /// Whether the projectile has already struck something: enemy and enemy-projectile collision set it so later
+    /// collision walkers skip the projectile, and the projectile's own update then deletes or converts it.
     /// </summary>
-    public SamusProjectileTypeWord PackedType => new(checked((ushort)Type));
+    public bool IsSpent { get; internal set; }
 
-    /// <summary>Low nibble is direction 0..9; upper bits are lifecycle flags.</summary>
-    public int Direction { get; internal set; }
-
-    /// <summary>Lossless semantic view of <see cref="Direction"/>.</summary>
-    public SamusProjectileDirectionWord PackedDirection => new(checked((ushort)Direction));
-
-    /// <summary>Room-pixel 16.16 position: whole words <c>$0B64/$0B78</c>, subpixels <c>$0B8C/$0BA0</c>.</summary>
+    /// <summary>Room-pixel 16.16 position.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>
-    /// Signed 8.8 per-frame velocity words <c>$0C2C/$0C40</c>. Charge combos reuse the same two
-    /// WRAM words for their own orbit radius, lifetime and phase counters.
+    /// Signed 8.8 per-update velocity. Special attacks keep their orbit radius, lifetime and phase counters here
+    /// instead.
     /// </summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Collision half-extents in pixels.</summary>
@@ -52,7 +51,7 @@ public sealed class SamusProjectileSlot
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
     public WrappingCountdown InstructionTimer { get; internal set; }
-    /// <summary>The composition the projectile shows (native <c>$0CC2 + 2*Index</c>), selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
+    /// <summary>The composition the projectile shows, selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
     public ProjectileSpriteId? Sprite { get; internal set; }
     /// <summary>Current animation frame index.</summary>
     public int AnimationFrame
@@ -62,55 +61,50 @@ public sealed class SamusProjectileSlot
     }
     /// <summary>Countdown controlling projectile-trail emission.</summary>
     public WrappingCountdown TrailTimer { get; internal set; }
-    /// <summary>WRAM <c>$0C7C</c>; missile ignition/acceleration state in the high byte.</summary>
-    [PackedFields("projectile variable word whose meaning each projectile family decodes")]
-    public int Variable
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-    /// <summary>
-    /// A missile's ignition speed in whole pixels, from <see cref="Variable"/>: zero until the shared missile
-    /// accelerator first crosses one pixel per frame.
-    /// </summary>
-    public int MissileIgnitionPixels => UnsignedEightEight.Whole(Variable);
+
+    /// <summary>A missile or Super Missile's ignition.</summary>
+    public SamusMissileIgnition MissileIgnition { get; internal set; }
 
     /// <summary>
-    /// A live Super Missile's collision-link slot table offset, kept in <see cref="Variable"/> below its ignition speed,
-    /// where the accelerator's fraction would otherwise be.
+    /// The slot an ignited Super Missile moves as its invisible collision link, or null when it names none. An unlinked
+    /// Super Missile names slot zero: a missile that ignites with no free slot, or is reflected before igniting, treats
+    /// slot zero as its link, as the cartridge does. A reflection leaves it naming none until it re-ignites.
     /// </summary>
-    public int MissileLinkSlotOffset => UnsignedEightEight.Fraction(Variable);
+    public int? SuperMissileLinkSlot { get; internal set; }
 
-    /// <summary>Stores a Super Missile's collision-link slot table offset below its ignition speed, as <c>$90:BF46</c> adds it.</summary>
-    internal void SetMissileLinkSlotOffset(int slotTableOffset) =>
-        Variable = unchecked((ushort)(UnsignedEightEight.WithoutFraction(Variable) + slotTableOffset));
+    /// <summary>The orbit angle of an Ice, Plasma or Spazer special-attack particle.</summary>
+    public ByteAngle ComboAngle { get; internal set; }
 
-    /// <summary>WRAM $0CA4: phase word used by Spazer special-attack particles.</summary>
+    /// <summary>The homing vertical speed of a Wave special-attack particle.</summary>
+    public SignedEightEight WaveComboVerticalSpeed { get; internal set; }
+
+    /// <summary>The departure angle of a Shinespark crash echo, to the angle table's whole steps.</summary>
+    public ByteAngle EchoAngle { get; internal set; }
+
+    /// <summary>The Power Bomb fuse the glitched Chainsaw beam runs over its shot.</summary>
+    public WrappingCountdown ChainsawPowerBombFuse { get; internal set; }
+
+    /// <summary>The Spazer special attack's particle phase; it survives slot reuse.</summary>
     public SpazerComboPhase AuxiliaryPhase { get; internal set; }
-    /// <summary>Semantic identity of the slot's bank-$90 pre-instruction.</summary>
+    /// <summary>The slot's projectile pre-instruction.</summary>
     public SamusProjectilePreInstruction PreInstruction { get; internal set; }
 
-    /// <summary>Bank-$93 considers a nonzero instruction pointer allocated and drawable.</summary>
+    /// <summary>A live projectile program marks the slot allocated and drawable.</summary>
     public bool IsActive => Cursor is not null;
 
     /// <summary>
-    /// Bank-$A0 enemy collision admits a nonzero beam, missile, or Super Missile type even
-    /// when bank $93 has no instruction list to animate. This distinction is observable for
-    /// the left-facing Murder Beam, whose type and damage remain live while its list is zero.
+    /// Enemy collision admits a beam, missile, or Super Missile even when the slot has no program to animate. This
+    /// distinction is observable for the left-facing Murder Beam, whose type and damage remain live while it has none.
     /// </summary>
-    public bool HasEnemyCollisionPayload =>
-        Type != 0 &&
-        PackedType.Family is not (
-            SamusProjectileFamily.PowerBomb or
-            SamusProjectileFamily.Bomb) &&
-        !PackedType.IsFamilyAtOrAfter(SamusProjectileFamily.BeamExplosion);
+    public bool HasEnemyCollisionPayload => !Type.IsNone && Type.Family.IsBeamOrMissile;
 
-    /// <summary>Clears the words owned by $90:ADB7; trail and auxiliary words survive reuse.</summary>
+    /// <summary>Clears the per-projectile state deletion clears; trail and Spazer phase state survive reuse.</summary>
     internal void ClearFields()
     {
         Damage = 0;
-        Type = 0;
-        Direction = 0;
+        Type = SamusProjectileType.None;
+        Direction = default;
+        IsSpent = false;
         Position = FixedPosition<RoomPixels>.Zero;
         Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
@@ -118,28 +112,39 @@ public sealed class SamusProjectileSlot
         InstructionTimer = WrappingCountdown.Start(0);
         Sprite = null;
         AnimationFrame = 0;
-        Variable = 0;
+        ClearKindState();
         PreInstruction = SamusProjectilePreInstruction.None;
     }
 
     /// <summary>
-    /// The per-slot words <c>ResetProjectileData</c> ($90:AD22) clears on a door load or
-    /// elevator ride. Unlike deletion it keeps both subpixels, the animation frame and
-    /// $0CA4, which a later shot in the slot inherits.
+    /// The per-slot state a door load or elevator ride clears. Unlike deletion it keeps both subpixels, the animation
+    /// frame and the Spazer phase, which a later shot in the slot inherits.
     /// </summary>
     internal void ClearForProjectileDataReset()
     {
         TrailTimer = WrappingCountdown.Start(0);
         Position = Position.WithWhole(Position16<RoomPixels>.Zero);
-        Direction = 0;
+        Direction = default;
+        IsSpent = false;
         Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
-        Type = 0;
+        Type = SamusProjectileType.None;
         Damage = 0;
         Cursor = null;
         InstructionTimer = WrappingCountdown.Start(0);
-        Variable = 0;
+        ClearKindState();
         Sprite = null;
         PreInstruction = SamusProjectilePreInstruction.None;
+    }
+
+    /// <summary>Clears the state each projectile kind keeps: missile ignition and link, particle angles and speeds, the Chainsaw fuse.</summary>
+    private void ClearKindState()
+    {
+        MissileIgnition = SamusMissileIgnition.Pending;
+        SuperMissileLinkSlot = 0;
+        ComboAngle = default;
+        WaveComboVerticalSpeed = default;
+        EchoAngle = default;
+        ChainsawPowerBombFuse = WrappingCountdown.Start(0);
     }
 }

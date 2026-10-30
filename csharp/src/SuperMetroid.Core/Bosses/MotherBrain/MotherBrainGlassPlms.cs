@@ -100,10 +100,9 @@ internal sealed class MotherBrainGlassPlms
     /// <summary>Counts missile or super-missile block hits through the installed glass pre-instruction.</summary>
     internal static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {
-        SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
-        if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
+        if (slot.ProjectileHit?.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
             slot.HitCounter = WrappingCounter.IncrementWord(slot.HitCounter);
-        slot.LoopTimer = 0;
+        slot.ProjectileHit = null;
     }
     /// <summary>Whether Mother Brain, the area boss, is dead.</summary>
     internal bool IsBossDead() => _bosses?.IsDefeated(BossBits.AreaBoss) == true;

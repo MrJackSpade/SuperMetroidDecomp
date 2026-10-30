@@ -15,14 +15,13 @@ internal sealed class ProjectileTriggerPlms
         _slotTable = slotTable;
     }
     /// <summary>
-    /// Models setup <c>$84:C7E2</c> for the generic BTS-$44 collision trigger. The
-    /// temporary trigger searches for the resident PLM at <paramref name="blockIndex"/>
-    /// and publishes the projectile family to that actor; both type-$8 special collision
-    /// and type-$C shootable collision use this same cartridge route.
+    /// Publishes a projectile's hit on a resident-trigger block to the PLM at <paramref name="blockIndex"/>: the
+    /// highest-numbered active slot at that block receives the hit's family, whatever PLM it holds. The grapple
+    /// beam's touch (<see cref="SamusProjectileType.None"/>) arrives as a beam.
     /// </summary>
     public bool TryNotifyResidentProjectileHit(
         int blockIndex,
-        SamusProjectileTypeWord projectileType)
+        SamusProjectileType projectileType)
     {
         // Native searches physical slots from $4E down to zero and accepts the first
         // matching block regardless of its header. Preserve that generality: reaction
@@ -33,13 +32,10 @@ internal sealed class ProjectileTriggerPlms
             if (!slot.Active || slot.BlockIndex != blockIndex)
                 continue;
 
-            SamusProjectileTypeWord publishedType = new(
-                projectileType.AsResidentPlmTriggerWord());
-            slot.LoopTimer = publishedType.Raw;
+            slot.ProjectileHit = new ResidentPlmProjectileHit(projectileType.Family);
 
-            // These translated actors mirror native PLM_Timers with explicit pending
-            // state so their semantic pre-instructions cannot mistake stale timer data
-            // for a fresh collision on a later frame.
+            // These actors also keep their own pending flag, which their pre-instructions
+            // clear only when they accept the hit.
             if (slot.Family is IShotTriggeredPlm triggered)
                 triggered.RecordShot();
 

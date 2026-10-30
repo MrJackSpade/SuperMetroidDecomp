@@ -85,7 +85,7 @@ internal sealed class MotherBrainCombat
         RoomEnemySlot head,
         SamusProjectileSlot projectile,
         SamusProjectileSystem projectiles,
-        SamusProjectileTypeWord projectileType,
+        SamusProjectileType projectileType,
         int projectileDamage)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
@@ -162,7 +162,7 @@ internal sealed class MotherBrainCombat
         RoomEnemySlot head,
         SamusProjectileSlot projectile,
         SamusProjectileSystem projectiles,
-        SamusProjectileTypeWord projectileType,
+        SamusProjectileType projectileType,
         int projectileDamage)
     {
         // The bank-$A0 walker marked the projectile before dispatching this callback.
@@ -171,10 +171,18 @@ internal sealed class MotherBrainCombat
             head.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                 !projectileType.BeamCombination.HasPlasma);
 
-        // `$B58E` indexes its reaction table with the type word's high byte masked to three
-        // bits, so missile explosions (`$08`) alias beams exactly as natively.
-        MotherBrainProjectileType reactionProjectile =
-            MotherBrainShotReaction.ReactionClasses.At(projectileType.FamilyIndex & 7);
+        // `$B58E` reads its eight-row reaction table at the family's row wrapped to eight
+        // rows, so missile explosions alias beams exactly as natively.
+        MotherBrainProjectileType reactionProjectile = projectileType.Family switch
+        {
+            SamusProjectileFamily.Beam or SamusProjectileFamily.MissileExplosion => MotherBrainProjectileType.Beam,
+            SamusProjectileFamily.Missile => MotherBrainProjectileType.Missile,
+            SamusProjectileFamily.SuperMissile => MotherBrainProjectileType.SuperMissile,
+            SamusProjectileFamily.PowerBomb => MotherBrainProjectileType.PowerBomb,
+            SamusProjectileFamily.Bomb => MotherBrainProjectileType.Bomb,
+            SamusProjectileFamily.BeamExplosion => MotherBrainProjectileType.BeamExplosion,
+            _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileFamily)} {projectileType.Family}."),
+        };
         if (state.RainbowBeamSequence is { } sequence)
         {
             // The attached sequence shares walk counter `$7E:780E` with the encounter. `$B5BA/$B5BD`

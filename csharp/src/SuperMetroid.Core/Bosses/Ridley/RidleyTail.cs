@@ -157,7 +157,7 @@ internal sealed class RidleyTail
             RidleyTailSegment tip = state.TailSegments[6];
             foreach (var projectile in projectiles.Slots.Take(5))
             {
-                if (projectile.PackedType.Family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)) continue;
+                if (projectile.Type.Family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)) continue;
                 if (Math.Abs((short)(projectile.Position.X.Whole - tip.Position.X)) - projectile.Radius.X >= 64 ||
                     Math.Abs((short)(projectile.Position.Y.Whole - tip.Position.Y)) - projectile.Radius.Y >= 64) continue;
                 aim = projectile.Position.Whole;
@@ -467,15 +467,12 @@ internal sealed class RidleyTail
         int radius,
         SamusProjectileSystem projectiles)
     {
-        // CheckForProjectileCollisionWithRectangle scans the five ordinary native slots in
-        // ascending order. Its signed-type gate admits active beam/missile/super records and
-        // rejects bomb, power-bomb, and already-converted impact families.
+        // CheckForProjectileCollisionWithRectangle scans the five ordinary slots in ascending
+        // order. It admits beams, missiles and Super Missiles and rejects bombs, Power Bombs
+        // and shots already converted to explosions.
         foreach (SamusProjectileSlot projectile in projectiles.Slots)
         {
-            int typeNibble = SamusProjectileFamilies.IndexOf(projectile.PackedType.Raw);
-            if (!projectile.HasEnemyCollisionPayload ||
-                unchecked((short)projectile.Type) >= 0 ||
-                typeNibble >= 3)
+            if (!projectile.HasEnemyCollisionPayload)
             {
                 continue;
             }
@@ -489,13 +486,14 @@ internal sealed class RidleyTail
             }
 
             projectile.Position = projectile.Position.WithWhole(joint.Position);
-            projectile.Direction = projectile.PackedDirection.WithCollisionLifecycleState();
+            projectile.IsSpent = true;
 
-            // Missile family one gets the tiny dud and library-one sound $3D. Beams and
-            // supers use the larger smoke variant $0C, exactly as $A6:E126 selects it.
-            MiscDustAnimation dustVariant = typeNibble == 1 ? MiscDustAnimation.DudShotTinyExplosion : MiscDustAnimation.Smoke;
+            // A missile gets the tiny dud and library-one sound $3D. Beams and supers
+            // use the larger smoke variant, exactly as $A6:E126 selects it.
+            bool missile = projectile.Type.Family == SamusProjectileFamily.Missile;
+            MiscDustAnimation dustVariant = missile ? MiscDustAnimation.DudShotTinyExplosion : MiscDustAnimation.Smoke;
             _projectiles.SpawnRoomGraphicsDustExplosion(joint.Position, dustVariant);
-            if (typeNibble == 1)
+            if (missile)
                 _projectiles.LastEnemyProjectileDudSoundEffect = Library1Sound.DudShot;
             return true;
         }

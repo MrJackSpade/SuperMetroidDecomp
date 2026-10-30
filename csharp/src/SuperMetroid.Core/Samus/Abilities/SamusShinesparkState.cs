@@ -986,7 +986,7 @@ false,             CrashSequenceFinished: true);
             _ => throw new InvalidOperationException("Crash echo requires fixed slot three or four.")
         };
         echo.Radius = unchecked((ushort)projectile.Velocity.X.SignedRawValue);
-        echo.Angle = RotationAngle.FromTableIndex(unchecked((byte)projectile.Variable));
+        echo.Angle = projectile.EchoAngle.ToAngle();
         if (!StepReleasedCrashEcho(samus, layer1,
             echo, slotOwner: CrashEchoSlotOwner.Projectile)) return false;
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)echo.Radius)));

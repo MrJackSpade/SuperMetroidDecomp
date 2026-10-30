@@ -197,15 +197,14 @@ internal sealed class EnemyCollision
 
             foreach (SamusProjectileSlot projectile in projectiles.Slots)
             {
-                // `$0C18,x` is still the live beam/missile type when the enemy collision
+                // The slot still holds the live beam or missile when the enemy collision
                 // handler selects vulnerability. Starting the impact below deliberately
-                // rewrites that slot to explosion family `$0700`, so retain the incoming
-                // word instead of accidentally asking the vulnerability table about the
-                // newly-created visual effect.
-                SamusProjectileTypeWord projectileType = projectile.PackedType;
+                // turns the slot into an explosion, so retain the incoming type instead of
+                // accidentally asking the vulnerability table about the visual effect.
+                SamusProjectileType projectileType = projectile.Type;
                 int projectileDamage = checked((ushort)projectile.Damage);
-                SamusProjectileDirectionWord projectileDirection = projectile.PackedDirection;
-                SamusProjectileFamily family = projectile.PackedType.Family;
+                SamusProjectileDirection projectileDirection = projectile.Direction;
+                SamusProjectileFamily family = projectile.Type.Family;
                 if (!projectile.HasEnemyCollisionPayload)
                     continue;
 
@@ -321,7 +320,7 @@ internal sealed class EnemyCollision
                     projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
-                            !projectile.PackedType.BeamCombination.HasPlasma);
+                            !projectile.Type.BeamCombination.HasPlasma);
                 }
                 else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile.SlotIndex,
                     enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam)))
@@ -465,19 +464,18 @@ internal sealed class EnemyCollision
 
             foreach (SamusBombProjectileSlot bomb in bombs.Slots)
             {
-                SamusProjectileFamily family = bomb.PackedType.Family;
+                SamusProjectileFamily family = bomb.Type.Family;
 
-                // `$A0:A24E-$A265` admits an exploding family-$0500 normal bomb. The
-                // ordinary-radius handler also retains the high-bit alternative used by
-                // reflected bomb-like actors. `$A0:9D23`'s extended-spritemap handler is
-                // narrower: it requires exactly family $0500 and a nonzero X word.
-                if (bomb.Type == 0 ||
+                // `$A0:A24E-$A265` admits an exploding normal bomb. The ordinary-radius
+                // handler also admits a spread bomb. `$A0:9D23`'s extended-spritemap
+                // handler is narrower: it requires a bomb and a nonzero X word.
+                if (bomb.Type.IsNone ||
                     !bomb.BombTimer.IsZero ||
                     (usesExtendedHitboxes
                         ? family != SamusProjectileFamily.Bomb ||
                           bomb.Position.X.Whole == 0
                         : family != SamusProjectileFamily.Bomb &&
-                          (bomb.Type & SamusProjectileTypeWord.LiveMarker) == 0))
+                          !bomb.IsBombSpread))
                 {
                     continue;
                 }
@@ -513,7 +511,7 @@ internal sealed class EnemyCollision
                 // EnemyBombCollHandler marks the physical bomb before dispatch. Unlike an
                 // ordinary beam impact, the bomb is already running its explosion program;
                 // common shot AI must not replace it with a bank-$93 impact animation.
-                bomb.Direction = unchecked((ushort)(bomb.Direction | SamusProjectileDirectionMasks.Spent));
+                bomb.IsSpent = true;
                 var bombContext = new EnemyBombContext(
                     enemy,
                     bomb,
@@ -731,7 +729,7 @@ internal sealed class EnemyCollision
     /// </summary>
     internal static NormalShotVulnerability ReadNormalShotVulnerability(
         RoomEnemySlot enemy,
-        SamusProjectileTypeWord projectileType)
+        SamusProjectileType projectileType)
     {
         EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
         SamusProjectileFamily family = projectileType.Family;
@@ -794,7 +792,7 @@ internal sealed class EnemyCollision
     /// <summary>Selects the enemy's beam-combination or weapon-family vulnerability byte.</summary>
     internal static byte ReadProjectileVulnerability(
         RoomEnemySlot enemy,
-        SamusProjectileTypeWord projectileType)
+        SamusProjectileType projectileType)
     {
         EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
         SamusProjectileFamily family = projectileType.Family;

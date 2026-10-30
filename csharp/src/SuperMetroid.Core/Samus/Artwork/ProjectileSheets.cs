@@ -29,12 +29,10 @@ public sealed class ProjectileSheets
     /// <summary>The intro's flashback context, drawing from the intro's sheet.</summary>
     public static ProjectileSheets IntroFlashbacks(InstalledSpriteSheets sheets) => new(sheets, IntroSheet);
 
-    /// <summary>The sheet drawn while <paramref name="loadedBeams"/> is the loaded beam word.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The word selects no beam combination, or one with no sheet.</exception>
+    /// <summary>The sheet drawn while <paramref name="loadedBeams"/> are the loaded beams.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The beams' combination has no sheet.</exception>
     /// <exception cref="InvalidOperationException">The intro's flashbacks load a beam other than the power beam.</exception>
-    public SpriteSheet For(SamusBeamFlags loadedBeams) => sheets.Get(sheetFor(
-        new SamusBeamLoadoutWord(loadedBeams).Combination ?? throw new ArgumentOutOfRangeException(
-            nameof(loadedBeams), loadedBeams, "Equipped-beam index is outside the beam-combination tables.")));
+    public SpriteSheet For(SamusBeamFlags loadedBeams) => sheets.Get(sheetFor(SamusBeamCombinations.Of(loadedBeams)));
 
     /// <summary>The intro's sheet, which shows only the power beam its flashbacks load.</summary>
     private static SpriteSheetId IntroSheet(SamusBeamCombination beams) => beams == SamusBeamCombination.Power

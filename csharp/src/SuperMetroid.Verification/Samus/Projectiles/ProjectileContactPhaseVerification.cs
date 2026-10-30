@@ -11,6 +11,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks enemy-projectile contact ordering, damage, and delayed hurt movement.</summary>
 internal static class ProjectileContactPhaseVerification

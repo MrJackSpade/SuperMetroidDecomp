@@ -22,6 +22,7 @@ using SuperMetroid.TestSupport.RenderFixtures;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Compares GPU captures through Kraid's rise, growth, death, and defeated-room exits.</summary>
 internal static class RetailKraidCaptureTests
@@ -188,8 +189,8 @@ internal static class RetailKraidCaptureTests
             boss.DisplayedHeadFrame?.InvulnerableShape ?? throw new InvalidOperationException("Kraid shows no inner mouth shape to strike."));
         var shots = InstalledFixtures.CreateProjectileSystem();
         var shot = shots.Slots[0];
-        shot.Type = KraidCaptureDefinitions.AuditMissileType;
-        shot.Damage = 100; shot.Direction = (ushort)SamusProjectileDirection.Right;
+        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
+        shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + left + 2)), unchecked((ushort)(body.Position.Y.Whole + (top + bottom) / 2))));
         shot.Radius = new(2, 2);
         // Any live missile program marks the slot active; this staged shot only enters collision, not animation.

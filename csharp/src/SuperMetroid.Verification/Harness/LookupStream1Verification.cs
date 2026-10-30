@@ -2619,7 +2619,7 @@ internal static class LookupStream1Verification
                 if (deleted)
                 {
                     AssertEqual(0, slot.Damage, "Projectile deletion clears occupancy");
-                    AssertEqual(0, bomb.Type, "Bomb deletion clears occupancy");
+                    AssertTrue(bomb.Type.IsNone, "Bomb deletion clears occupancy");
                     deletions++; finished = true; break;
                 }
                 AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail),

@@ -40,11 +40,13 @@ internal static class WallJumpDustVerification
             string context = $"wall dust grapple={grapple} right={facingRight} medium={medium}";
             // These exact four native output words are independently checked by the
             // cartridge-byte fixture: GrapplePoseAudit audit.exe ROM wall-jump-dust.
-            AssertEqual(suppressed ? 0x0102 : 0x0600, dust.FrameAndType, context + " type/frame");
+            AssertEqual(suppressed ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Dust, dust.Type, context + " type");
+            AssertEqual(suppressed ? 2 : 0, dust.AnimationFrame, context + " frame");
             AssertEqual(suppressed ? 7 : 3, dust.AnimationTimer.RawValue, context + " timer");
             AssertEqual(suppressed ? 33 : facingRight ? 122 : 134, dust.Position.X, context + " X");
             AssertEqual(suppressed ? 44 : 114, dust.Position.Y, context + " Y");
-            AssertEqual(0x0101, liquid.AtmosphericEffects.Slots[2].FrameAndType, context + " preserves other slot");
+            AssertEqual(SamusAtmosphericEffectType.FootstepSplash, liquid.AtmosphericEffects.Slots[2].Type, context + " preserves other slot's effect");
+            AssertEqual(1, liquid.AtmosphericEffects.Slots[2].AnimationFrame, context + " preserves other slot's frame");
         }
         Console.WriteLine("Wall-jump dust: both launch paths match native facing, liquid boundary, timer and slot-preservation outputs.");
     }

@@ -7,6 +7,8 @@ namespace SuperMetroid.Verification.Enemies.Metroids;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks Metroid death explosion and special-drop ordering for fresh and already-marked missiles.</summary>
 internal static class MetroidDeathDropsVerification
@@ -42,7 +44,7 @@ internal static class MetroidDeathDropsVerification
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
 
         var shot = runtime.Projectiles.Slots[0];
-        shot.Type = 0x0100; shot.Damage = 100; shot.Direction = (ushort)(alreadyMarked ? 0x12 : 0x02);
+        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile); shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right; shot.IsSpent = alreadyMarked;
         shot.Position = shot.Position.WithWhole(metroid.Position.Whole);
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);

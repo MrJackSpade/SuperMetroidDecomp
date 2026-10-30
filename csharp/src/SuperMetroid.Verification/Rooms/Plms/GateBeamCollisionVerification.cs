@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Rooms.Plms;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks beam impact and gate scan termination in the Kronic Boost room.</summary>
 internal static class GateBeamCollisionVerification
@@ -41,7 +42,7 @@ internal static class GateBeamCollisionVerification
         bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
         shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 224), bombs);
         var shot = shots.Slots[0];
-        AssertEqual(0x8700, shot.Type, "Native beam impacts gate during producer collision");
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false).AsFamily(SamusProjectileFamily.BeamExplosion), shot.Type, "Native beam impacts gate during producer collision");
         AssertEqual((ushort)113, shot.Position.X.Whole, "Native impact X, before any continuing flight");
         AssertEqual((ushort)329, shot.Position.Y.Whole, "Native impact Y");
         AssertEqual(0xa00f, shot.InstructionPointer, "Same-frame native impact instruction advancement");
@@ -69,7 +70,7 @@ internal static class GateBeamCollisionVerification
             var plms = PlmFixtures.Unbound();
             if (full)
                 for (int i = 0; i < 40; i++)
-                    AssertTrue(plms.TrySpawnProjectileShotBlock(level, first, 0x10, 0, true), "Fill gate probe pool");
+                    AssertTrue(plms.TrySpawnProjectileShotBlock(level, first, 0x10, SamusProjectileType.None, true), "Fill gate probe pool");
             var shot = new SamusProjectileSlot(0) { Position = new(new(33, 0), new(33, 0)),
                 Radius = new(17, 17), Velocity = new(-1, -1) };
             bool result = false;

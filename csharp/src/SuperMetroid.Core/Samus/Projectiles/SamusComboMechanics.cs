@@ -45,11 +45,11 @@ internal static class SamusComboMechanics
     /// reads word offsets 6,4,2,0; the caller supplies undoubled projectile slots.
     /// The adjacent unused diagonal-angle words are not further projectile slots;
     /// the bounded progression does not extrapolate into them.</remarks>
-    internal static ushort GetOriginAngle(int projectileSlot)
+    internal static ByteAngle GetOriginAngle(int projectileSlot)
     {
         if ((uint)projectileSlot >= 4)
             throw new ArgumentOutOfRangeException(nameof(projectileSlot));
-        return (ushort)(64 * projectileSlot);
+        return new ByteAngle(0).AddTableUnits(ByteAngle.QuarterTurn.RawValue * projectileSlot);
     }
 
     /// <summary>

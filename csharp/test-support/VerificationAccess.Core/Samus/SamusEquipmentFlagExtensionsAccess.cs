@@ -2,6 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Verification access to equipment-flag queries production does not use.</summary>
 internal static class SamusEquipmentFlagExtensionsAccess

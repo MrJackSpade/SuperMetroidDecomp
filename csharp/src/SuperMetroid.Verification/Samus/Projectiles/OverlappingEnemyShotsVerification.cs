@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks that a missile hits all overlapping Beetoms before deferred projectile removal.</summary>
 internal static class OverlappingEnemyShotsVerification
@@ -41,9 +42,9 @@ internal static class OverlappingEnemyShotsVerification
         var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var bombs = new SamusBombProjectileSystem();
         var shot = shots.Slots[0];
-        shot.Type = 0x8100;
+        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         shot.Damage = 100;
-        shot.Direction = 2;
+        shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(128, 128));
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active;
@@ -54,11 +55,11 @@ internal static class OverlappingEnemyShotsVerification
             "one missile reaches all three overlapping Beetoms in the same pass");
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))
             AssertEqual(80, enemy.Health, "each overlapping Beetom takes native missile damage");
-        AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "non-piercing shot is marked for deferred removal");
-        AssertEqual(0x8100, shot.Type, "collision preserves payload until projectile processing");
+        AssertTrue(shot.IsSpent, "non-piercing shot is marked for deferred removal");
+        AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.Missile), shot.Type, "collision preserves the missile until projectile processing");
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
-        AssertEqual(0, shot.Type, "next projectile pass consumes the removal marker");
+        AssertTrue(shot.Type.IsNone, "next projectile pass consumes the removal marker");
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))
         {
             enemy.AiStates = EnemyAiStates.None;

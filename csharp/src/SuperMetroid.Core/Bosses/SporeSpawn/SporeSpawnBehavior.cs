@@ -466,7 +466,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// uncharged beam and a missile explosion. The cartridge tests the family nibble's low three bits, which only those
     /// two families (nibbles 0 and 8) leave clear.
     /// </summary>
-    private static bool SporeSpawnAcceptsProjectile(SamusProjectileTypeWord projectileType) =>
+    private static bool SporeSpawnAcceptsProjectile(SamusProjectileType projectileType) =>
         !projectileType.IsFamily(SamusProjectileFamily.Beam) && !projectileType.IsFamily(SamusProjectileFamily.MissileExplosion) ||
         projectileType.IsChargedBeam;
 

@@ -32,11 +32,11 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Number of physical bomb slots at projectile byte indices $0A-$12.</summary>
     public const int SlotCount = MorphBallBombDefinitions.SlotCount;
 
-    /// <summary>Normal-bomb projectile type written by $90:BF9D.</summary>
-    public const ushort NormalBombType = MorphBallBombDefinitions.NormalBombType;
+    /// <summary>A placed Morph Ball bomb.</summary>
+    public static SamusProjectileType NormalBombType => SamusProjectileType.Of(SamusProjectileFamily.Bomb);
 
-    /// <summary>Power-bomb projectile type formed from HUD item index three.</summary>
-    public const ushort PowerBombType = MorphBallBombDefinitions.PowerBombType;
+    /// <summary>A placed Power Bomb.</summary>
+    public static SamusProjectileType PowerBombType => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb);
 
     /// <summary>Semantic views of native projectile indices five through nine, in their scan order.</summary>
     private readonly SamusBombProjectileSlot[] _slots =
@@ -187,7 +187,7 @@ public sealed class SamusBombProjectileSystem
             if (slot.Cursor is null)
                 continue;
 
-            bool wasNormalBomb = slot.PackedType.Family == SamusProjectileFamily.Bomb;
+            bool wasNormalBomb = slot.Type.Family == SamusProjectileFamily.Bomb;
             // Spawn queues its startup cue before setting the active bit. Preserve
             // that earlier guard separately from sounds produced after the pre-instruction.
             bool soundSuppressedBeforePreInstruction = PowerBombExplosion.IsActive;
@@ -273,7 +273,7 @@ public sealed class SamusBombProjectileSystem
             // Type $0300 power bombs and type $0500 normal bombs both use the same bank-$93
             // timed-spritemap interpreter. The large power-bomb flash itself is an HDMA
             // color-math window and is composed separately from OAM.
-            SamusProjectileFamily family = slot.PackedType.Family;
+            SamusProjectileFamily family = slot.Type.Family;
             if (slot.Cursor is null ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
@@ -413,7 +413,6 @@ public sealed class SamusBombProjectileSystem
         SamusBombProjectileSlot slot = _slots[slotIndex];
         slot.ClearFields();
         slot.Type = placingPowerBomb ? PowerBombType : NormalBombType;
-        slot.Direction = 0;
         slot.Position = slot.Position.WithWhole(samus.Position.Whole);
         slot.BombTimer = WrappingCountdown.Start(MorphBallBombDefinitions.InitialBombTimer);
         InitializeBomb(slot);
@@ -488,7 +487,7 @@ public sealed class SamusBombProjectileSystem
         {
             SamusBombProjectileSlot slot = _slots[index];
             slot.ClearFields();
-            slot.Type = MorphBallBombDefinitions.BombSpreadType;
+            slot.Type = NormalBombType;
             slot.IsBombSpread = true;
             slot.Position = slot.Position.WithWhole(samus.Position.Whole);
             InitializeBomb(slot);
@@ -536,7 +535,7 @@ public sealed class SamusBombProjectileSystem
     private int FindFreeBombSlot()
     {
         int slotIndex = 0;
-        while (_slots[slotIndex].Type != 0)
+        while (!_slots[slotIndex].Type.IsNone)
         {
             slotIndex++;
             if (slotIndex >= SlotCount)
@@ -554,10 +553,8 @@ public sealed class SamusBombProjectileSystem
     internal static void InitializeBomb(
         SamusBombProjectileSlot slot)
     {
-        // $93:80A6 reads the HIGH byte of type, masks its low nibble, and indexes the
-        // non-beam pointer table. Type $0500 therefore selects word five -> $8675.
-        int projectileTypeIndex = SamusProjectileFamilies.IndexOf(slot.PackedType.Raw);
-        SamusProjectileHeader header = SamusProjectileSelection.Select(SamusProjectileSelectorTable.NonBeam, projectileTypeIndex);
+        // The non-beam selector is read at the family's row.
+        SamusProjectileHeader header = SamusProjectileSelection.Select(SamusProjectileSelectorTable.NonBeam, slot.Type.Family.TableRow);
 
         slot.Damage = SamusProjectileDamage.Read(header);
         if (unchecked((short)slot.Damage) < 0)
@@ -576,15 +573,14 @@ public sealed class SamusBombProjectileSystem
         AreaId areaIndex,
         SamusKinematicsState samusKinematics)
     {
-        // Direction high nibble is a generic projectile kill request. Normal placed bombs
-        // leave direction zero for their lifetime, but debugger state can exercise it.
-        if ((slot.Direction & SamusProjectileDirectionWord.LifecycleBits) != 0)
+        // A bomb that struck an enemy is cleared before its fuse runs.
+        if (slot.IsSpent)
         {
             ClearProjectile(slot);
             return false;
         }
 
-        SamusProjectileFamily typeFamily = slot.PackedType.Family;
+        SamusProjectileFamily typeFamily = slot.Type.Family;
         if (typeFamily is not (SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb))
         {
             // This class owns only physical projectile slots five through nine after
@@ -637,12 +633,11 @@ public sealed class SamusBombProjectileSystem
 
         if (typeFamily == SamusProjectileFamily.Bomb &&
             slot.BombTimer.IsZero &&
-            (slot.Type & 1) == 0)
+            !slot.HasReactedToTerrain)
         {
-            // Normal bomb type five maps through $94:9C73 to collision mode two. As soon
-            // as timer zero is visible, $94:9CF4 sets type bit zero and reacts to a
-            // five-block cross exactly once.
-            slot.Type |= 1;
+            // As soon as a normal bomb's fuse reads zero its explosion reacts with the
+            // five-block cross around it, exactly once.
+            slot.HasReactedToTerrain = true;
             CollectBlockExplosionReactions(level, slot, blockReactions, roomPlms, areaIndex);
         }
         else if (typeFamily == SamusProjectileFamily.PowerBomb)
@@ -663,7 +658,7 @@ public sealed class SamusBombProjectileSystem
                     blockReactions,
                     roomPlms,
                     areaIndex,
-                    slot.PackedType.Raw);
+                    slot.Type);
             }
 
         }
@@ -766,7 +761,7 @@ public sealed class SamusBombProjectileSystem
         List<BombBlockReaction> reactions,
         ISamusRoomPlms? roomPlms,
         AreaId areaIndex,
-        int projectileType)
+        SamusProjectileType projectileType)
     {
         int horizontalRadius = explosionRadius.WholePixels;
         int verticalRadius = (3 * horizontalRadius) >> 2;
@@ -826,7 +821,7 @@ public sealed class SamusBombProjectileSystem
                 reactions,
                 roomPlms,
                 areaIndex,
-                slot.PackedType.Raw);
+                slot.Type);
         }
     }
 
@@ -837,9 +832,8 @@ public sealed class SamusBombProjectileSystem
         List<BombBlockReaction> reactions,
         ISamusRoomPlms? roomPlms,
         AreaId areaIndex,
-        int projectileType)
+        SamusProjectileType projectileType)
     {
-        SamusProjectileTypeWord typeWord = checked((ushort)projectileType);
         int x = bombedBlock.X;
         int y = bombedBlock.Y;
         RoomCollisionBlock visitedBlock = level.GetCollisionBlock(bombedBlock);
@@ -872,7 +866,7 @@ public sealed class SamusBombProjectileSystem
             block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
             if (roomPlms is null ||
-                !roomPlms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, typeWord))
+                !roomPlms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
             {
                 throw new InvalidOperationException(
                     $"Bombed resident-trigger block {block.Index} has no active PLM owner.");
@@ -898,7 +892,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 block.Index,
                 block.Behavior,
-                typeWord);
+                projectileType);
             return;
         }
 
@@ -949,7 +943,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 block.Index,
                 block.Behavior,
-                typeWord);
+                projectileType);
             return;
         }
 
@@ -969,7 +963,7 @@ public sealed class SamusBombProjectileSystem
                     level,
                     block.Index,
                     block.Behavior,
-                    typeWord);
+                    projectileType);
                 return;
             }
 
@@ -1006,7 +1000,7 @@ public sealed class SamusBombProjectileSystem
                 level,
                 block.Index,
                 block.Behavior,
-                typeWord,
+                projectileType,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
             return;
         }
@@ -1025,7 +1019,7 @@ public sealed class SamusBombProjectileSystem
                 block.Index,
                 block.Behavior,
                 areaIndex,
-                typeWord);
+                projectileType);
             return;
         }
 
@@ -1069,15 +1063,15 @@ public sealed class SamusBombProjectileSystem
     {
         SamusBombJumpDirection publishedDirection = SamusBombJumpDirection.None;
 
-        // $A0:97BF scans ascending projectile indices. Only damage-bearing, unreflected,
-        // pre-explosion projectile types below $0700 reach the geometric test.
+        // The bomb-jump scan runs in ascending slot order. Only damage-bearing placed
+        // bombs that have not struck an enemy reach the geometric test; spread bombs never launch Samus.
         for (int slotIndex = 0; slotIndex < SlotCount; slotIndex++)
         {
             SamusBombProjectileSlot slot = _slots[slotIndex];
             if (slot.Damage == 0 ||
-                (slot.Type & SamusProjectileTypeWord.LiveMarker) != 0 ||
-                slot.PackedType.IsFamilyAtOrAfter(SamusProjectileFamily.BeamExplosion) ||
-                slot.PackedDirection.HasCollisionLifecycleState)
+                slot.IsBombSpread ||
+                slot.Type.Family.IsExplosion ||
+                slot.IsSpent)
             {
                 continue;
             }
@@ -1090,7 +1084,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
             }
 
-            SamusProjectileFamily typeFamily = slot.PackedType.Family;
+            SamusProjectileFamily typeFamily = slot.Type.Family;
             if (typeFamily is not (
                     SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb) ||
                 slot.BombTimer.RawValue != 8)

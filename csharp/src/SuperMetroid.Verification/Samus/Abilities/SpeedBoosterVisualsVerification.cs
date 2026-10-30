@@ -97,7 +97,7 @@ internal static class SpeedBoosterVisualsVerification
             PlmFixtures.VisualsOf(plms).RoomPlmSpeedBoosterVisuals = edited;
             var guard = NewSpeedBoosterPlmReadGuard(bus);
             AssertTrue(plms.BlockReactions.TrySpawnBombedSpecialBlock(level, blockIndex,
-                    new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
+                    new RoomBlockBehavior(0x82), AreaId.Brinstar, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
                 "bomb triggers the production Speed Booster reveal PLM");
             plms.Step(level);
             AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),

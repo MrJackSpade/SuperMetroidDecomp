@@ -22,6 +22,7 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Frontend;
 

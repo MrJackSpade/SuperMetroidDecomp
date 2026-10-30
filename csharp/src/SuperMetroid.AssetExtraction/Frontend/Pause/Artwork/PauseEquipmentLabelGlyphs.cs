@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseEquipmentLabelArtworkDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;

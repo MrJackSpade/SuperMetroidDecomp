@@ -1,5 +1,5 @@
-﻿using SuperMetroid.Core.Assets;
-using SuperMetroid.Core;
+﻿using SuperMetroid.Core;
+using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverPageDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;

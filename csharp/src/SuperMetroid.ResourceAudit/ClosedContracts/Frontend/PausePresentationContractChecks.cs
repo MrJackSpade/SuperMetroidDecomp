@@ -29,7 +29,7 @@ internal static class PausePresentationContractChecks
                 void Inspect(PauseEquipmentBasePresentation baseImage, PauseBackdropPresentation backdrop,
                     PauseWireframePresentation wireframe, PauseEquipmentLabelPresentation labels,
                     PauseSelectorPresentation selector, PauseReserveTankPresentation tanks,
-                    Span<SuperMetroid.Core.Assets.BackgroundTile> page, Span<SuperMetroid.Core.Assets.BackgroundTile> tilemap, SuperMetroid.Core.Assets.ScreenSprites oam,
+                    Span<SuperMetroid.AssetExtraction.Artwork.BackgroundTile> page, Span<SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tilemap, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteSheet sheet) {
                     baseImage.CreateTilemap();
                     backdrop.LoadTo(tilemap, AreaId.Ceres);

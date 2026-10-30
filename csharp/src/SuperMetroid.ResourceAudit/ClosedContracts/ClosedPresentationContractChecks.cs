@@ -21,6 +21,7 @@ internal static class ClosedPresentationContractChecks
             .ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
+            using SuperMetroid.AssetExtraction.Artwork;
             using SuperMetroid.Core.Areas.Tourian.Artwork;
             using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Bosses.Crocomire.Artwork;

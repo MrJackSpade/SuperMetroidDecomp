@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 

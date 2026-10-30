@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
@@ -10,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 /// <summary>Provides a mutable-RAM Mother Brain body fixture for instruction and drawing verification.</summary>
 internal static class MotherBrainBodyPresentationFixtureVerification

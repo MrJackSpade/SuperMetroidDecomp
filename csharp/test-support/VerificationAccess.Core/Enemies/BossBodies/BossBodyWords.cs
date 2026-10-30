@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
 

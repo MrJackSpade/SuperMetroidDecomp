@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Core.Map;
 

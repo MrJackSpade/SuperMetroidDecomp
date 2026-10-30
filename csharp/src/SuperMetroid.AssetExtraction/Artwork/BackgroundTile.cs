@@ -1,11 +1,13 @@
 using System.Text.Json.Serialization;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Assets;
+namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>
 /// One placed background tile (#1403, #1422): which of a layer's tiles it shows, under which of the tile's colour
-/// variants, mirrored and prioritised as the screen, room or HUD lays it out. Rooms, the HUD, room effects, bosses drawn
-/// as backgrounds and the frontend screens all lay their backgrounds out in these.
+/// variants, mirrored and prioritised as the cartridge's tilemaps lay it out. Only the import reads these (#1467): it
+/// composes the rooms', the HUD's, room effects', bosses' and the frontend screens' tilemaps into installed pictures.
 /// </summary>
 /// <param name="Tile">The tile shown, by its place in the layer's tile set.</param>
 /// <param name="ColourVariant">Which of the tile's pre-coloured variants the tile shows.</param>

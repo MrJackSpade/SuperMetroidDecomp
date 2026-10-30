@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.AssetExtraction.Rooms;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Bosses;
 

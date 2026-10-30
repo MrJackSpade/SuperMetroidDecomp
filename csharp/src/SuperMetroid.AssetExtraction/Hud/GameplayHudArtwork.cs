@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 

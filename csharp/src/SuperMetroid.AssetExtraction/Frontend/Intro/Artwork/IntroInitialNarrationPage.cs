@@ -1,6 +1,6 @@
-using SuperMetroid.Core.Assets;
 using static SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroInitialNarrationTilemapDefinitions;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 

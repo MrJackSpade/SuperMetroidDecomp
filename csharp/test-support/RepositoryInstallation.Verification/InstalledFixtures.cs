@@ -19,6 +19,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

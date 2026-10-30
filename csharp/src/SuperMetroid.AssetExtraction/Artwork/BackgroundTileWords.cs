@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using System.Buffers.Binary;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -6,9 +5,8 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <summary>
 /// Converts a <see cref="BackgroundTile"/> to and from the packed sixteen-bit tilemap entry the cartridge stores it as:
 /// the import pipeline decodes cartridge tilemaps and block tables into tiles once, and encodes tiles back where an
-/// imported file or a content identity keeps the cartridge's words. It belongs to the import pipeline; it stays in Core
-/// only while the room effects' pages, the boss BG2 bodies, the message boxes and the frontend screens still hold words
-/// (#1422).
+/// imported file or a content identity keeps the cartridge's words. Like the tiles themselves, it belongs to the import
+/// pipeline (#1422, #1467).
 /// </summary>
 public static class BackgroundTileWords
 {

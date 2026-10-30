@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Verification.Areas.Ceres;
 

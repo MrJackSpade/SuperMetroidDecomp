@@ -58,7 +58,7 @@ internal sealed class EnemyDrawList
     [NonSerialized] private InclusiveRange _preparedLayers;
 
     /// <summary>
-    /// The simulation half of <c>WriteEnemyOams</c> for an inclusive layer range, in native slot order: each queued
+    /// The simulation half of <c>WriteEnemyOams</c> for an inclusive layer range, in queue order: each queued
     /// enemy's shake tick is consumed while its origin is formed, and an extended enemy's boss body frame is
     /// drawn. These run whenever the cartridge's draw pass runs, whether or not the frame is shown.
     /// </summary>
@@ -130,7 +130,7 @@ internal sealed class EnemyDrawList
     }
 
     /// <summary>
-    /// Publishes the draws <see cref="AdvanceLayers"/> prepared for the same layer range, in native slot order, as
+    /// Publishes the draws <see cref="AdvanceLayers"/> prepared for the same layer range, in queue order, as
     /// whole-frame entries over the gameplay OBJ page. An occupant's supplemental sprites and the layer-five boss hooks
     /// still write OAM between them, in the cartridge's order.
     /// </summary>

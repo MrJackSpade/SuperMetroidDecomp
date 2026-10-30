@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>One literal 16-byte bank-$A1 room-population record.</summary>
-/// <param name="DefinitionId">Record +$00 bank-$A0 enemy header pointer; population list terminator $FFFF is not a spawn record.</param>
-/// <param name="Position">Record +$02/+$04 initial room position in whole pixels, retaining both native sixteen-bit words.</param>
+/// <summary>One entry of a room's enemy population: which enemy spawns, where, and how it starts.</summary>
+/// <param name="DefinitionId">The enemy that spawns.</param>
+/// <param name="Position">The initial room position in whole pixels, each coordinate wrapping at sixteen bits.</param>
 /// <param name="SpawnSettings">What the entry tells its species about how to start, decoded by the import (#1471).</param>
 /// <param name="Properties">The enemy's properties governing interaction, processing and visibility.</param>
 /// <param name="ExtraProperties">The enemy's additional properties, including extended-spritemap selection.</param>

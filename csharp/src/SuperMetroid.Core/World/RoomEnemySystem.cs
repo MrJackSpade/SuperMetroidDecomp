@@ -96,11 +96,9 @@ namespace SuperMetroid.Core.World;
 /// gameplay definitions are compiled; installed artwork supplies pixels and colors.
 /// </summary>
 /// <remarks>
-/// This deliberately retains the cartridge's 32 fixed slots and its native slot offsets
-/// ($0000, $0040, ... $07C0). Those offsets are data: enemy AI uses them for multi-part
-/// actors, collision lists publish them, and the gunship bottom initializer even relies on
-/// WRAM-array aliasing to copy fields from earlier slots. A compact host list would appear
-/// cleaner while destroying behavior that the original code expects.
+/// The room keeps a fixed set of enemy slots in <see cref="EnemySlotOrder"/>, each with a stable ordinal. The ordinals
+/// are gameplay: multi-part enemies find their parts by neighbouring ordinals, Samus records the ordinal of the enemy she
+/// meets, and the gunship's lower part copies fields from the slot before it. A compact host list would lose that.
 /// </remarks>
 [RoomLifetime]
 public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrameResults, IEnemyDisplaySources
@@ -569,7 +567,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BossFrameResults.RemoveLiquidEffects, FrameResults.Gunship, BossFrameResults.RoomEffects());
 
     /// <summary>
-    /// Creates a room's enemy system: all 32 stable physical slot objects, starting from the words the replaced room's
+    /// Creates a room's enemy system: every enemy slot, each with its stable ordinal, starting from the words the replaced room's
     /// enemies left, with the door-transition gates clear, without loading a population or binding memory, graphics,
     /// random-number, or gameplay services.
     /// </summary>

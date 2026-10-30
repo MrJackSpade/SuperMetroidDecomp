@@ -36,7 +36,7 @@ public sealed class RoomEnemySlot
     internal IEnemyEntity? Entity { get; private set; }
 
     /// <summary>
-    /// Each species' state installed in this physical slot, keyed by state type. Like the slot's words it outlives the
+    /// Each species' state installed in this slot, keyed by state type. Like the slot's other state it outlives the
     /// occupant: a reaction tail that runs after common damage killed the enemy still reads it, until the next occupant of
     /// that species replaces it or the room loads.
     /// </summary>
@@ -96,7 +96,7 @@ public sealed class RoomEnemySlot
         Entity = definitionId == EnemyDefinitionId.None ? null : _registry.Create(this);
     }
 
-    /// <summary>Empties the slot's identity, as the deleted-property path does, leaving its other words.</summary>
+    /// <summary>Empties the slot's identity, as the deleted-property path does, leaving its other state.</summary>
     internal void Unbind()
     {
         DefinitionId = 0;

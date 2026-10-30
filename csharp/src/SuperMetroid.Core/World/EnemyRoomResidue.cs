@@ -17,7 +17,7 @@ internal sealed class EnemyRoomResidue
         [.. Enumerable.Repeat(new ProjectileResidue(FixedPosition<RoomPixels>.Zero, default), EnemyProjectileEngine.RoomEnemyProjectileSlotCount)],
         RoomEnemyGraphicsSetDefinitions.SessionStart);
 
-    /// <summary>Per-slot projectile residue in native slot order.</summary>
+    /// <summary>Per-slot projectile residue, in the enemy projectile slots' order.</summary>
     private readonly ImmutableArray<ProjectileResidue> _projectiles;
 
 

@@ -31,7 +31,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
     }
 
     /// <summary>
-    /// Copies population and definition fields into a physical slot, resolving room graphics
+    /// Copies population and definition fields into a slot, resolving room graphics
     /// indexes and recording a spawn snapshot before initialization AI runs.
     /// </summary>
     internal void InitializeSlotFromDefinition(

@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.AssetExtraction.Frontend;

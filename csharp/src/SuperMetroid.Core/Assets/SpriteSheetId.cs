@@ -94,10 +94,6 @@ public enum SpriteSheetId
     ProjectilesSpazerPlasmaWave,
     /// <summary>Samus's projectiles, bombs, charge flare and trails with the spazer, plasma, ice beam equipped.</summary>
     ProjectilesSpazerPlasmaIce,
-    /// <summary>The menu's world foreground characters under the file-select palette (#1392).</summary>
-    MenuForegroundTiles,
-    /// <summary>The menu's map characters under the file-select palette (#1392).</summary>
-    MenuMapTiles,
     /// <summary>The menus' pictures under the file-select palette: each menu page and the pictures placed over it (#1467).</summary>
     MenuPictures,
     /// <summary>The room maps' pictures under the file-select palette: each map cell picture and each area's room frame (#1467).</summary>

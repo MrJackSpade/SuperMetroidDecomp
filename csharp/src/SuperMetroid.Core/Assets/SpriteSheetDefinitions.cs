@@ -50,8 +50,6 @@ public static class SpriteSheetDefinitions
         [SpriteSheetId.ProjectilesPlasmaIceWave] = "projectiles-plasma-ice-wave",
         [SpriteSheetId.ProjectilesSpazerPlasmaWave] = "projectiles-spazer-plasma-wave",
         [SpriteSheetId.ProjectilesSpazerPlasmaIce] = "projectiles-spazer-plasma-ice",
-        [SpriteSheetId.MenuForegroundTiles] = "menu-foreground-tiles",
-        [SpriteSheetId.MenuMapTiles] = "menu-map-tiles",
         [SpriteSheetId.MenuPictures] = "menu-pictures",
         [SpriteSheetId.RoomMapPictures] = "room-map-pictures",
         [SpriteSheetId.AreaMapForegroundCrateria] = "area-map-foreground-crateria",

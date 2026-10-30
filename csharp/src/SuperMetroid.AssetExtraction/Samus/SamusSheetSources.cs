@@ -33,7 +33,6 @@ internal static class SamusSheetSources
             SpriteSheetId.ProjectilesPlasma or SpriteSheetId.ProjectilesPlasmaWave or
             SpriteSheetId.ProjectilesPlasmaIce or SpriteSheetId.ProjectilesPlasmaIceWave or
             SpriteSheetId.ProjectilesSpazerPlasmaWave or SpriteSheetId.ProjectilesSpazerPlasmaIce or
-            SpriteSheetId.MenuForegroundTiles or SpriteSheetId.MenuMapTiles or
             SpriteSheetId.AreaMapForegroundCrateria or SpriteSheetId.AreaMapForegroundBrinstar or
             SpriteSheetId.AreaMapForegroundNorfair or SpriteSheetId.AreaMapForegroundWreckedShip or
             SpriteSheetId.AreaMapForegroundMaridia or SpriteSheetId.AreaMapForegroundTourian or

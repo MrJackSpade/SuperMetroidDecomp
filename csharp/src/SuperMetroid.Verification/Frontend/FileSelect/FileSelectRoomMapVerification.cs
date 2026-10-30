@@ -56,7 +56,7 @@ internal static class FileSelectRoomMapVerification
             var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
             byte[] pause = BackgroundTileWordBytes.Of(ShownAreaMapTiles.Of(AreaMapProjection.Project(map, system, MapTileWords.PauseBlank.ToCell())));
             // The room map's image is built once and every cell and frame word read from it.
-            var shownRoomMap = MenuScreenFixtures.Vram(graphics.screen);
+            var shownRoomMap = MenuScreenFixtures.Vram(graphics, RetailPresentationFixture());
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
             {

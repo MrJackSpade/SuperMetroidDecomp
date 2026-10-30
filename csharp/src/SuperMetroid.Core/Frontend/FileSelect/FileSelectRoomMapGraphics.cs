@@ -15,14 +15,14 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>The room map's menu screen: its artwork, tilemaps, palette and sprite entries.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
-    private readonly FileSelectMapIcons icons;
+    internal readonly FileSelectMapIcons icons;
 
     /// <summary>The installed map sprite sheet the icons, marker and arrows draw from.</summary>
     [NonSerialized] private SpriteSheet? mapSheet;
     /// <summary>The installed room-map pictures the map's cells and the frame draw from (#1467).</summary>
     [NonSerialized] private SpriteSheet? roomPictures;
     /// <summary>How the room map shows the area's cells (#1466, #1467).</summary>
-    private ShownAreaMap areaMap;
+    internal ShownAreaMap areaMap;
     /// <summary>The room map's palette, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
     public ScreenPalette Palette => screen.Palette;
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>

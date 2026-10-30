@@ -141,7 +141,7 @@ internal static class FileSelectMapWindowVerification
             if (area != 0)
                 AssertEqual(0x4a52, graphics.screen.Palette.Colors[86], "switching area restores Crateria inactive color");
             // The selected area's image is built once and every tilemap byte read from it.
-            var shownArea = MenuScreenFixtures.Vram(graphics.screen);
+            var shownArea = MenuScreenFixtures.Vram(graphics, maps);
             for (int offset = 0; offset < MapSourceDefinitions.Menu.TilemapBytes; offset++)
                 AssertEqual(FileSelectAreaMapGraphicsRomByte(bus, MapSourceDefinitions.FileSelectMap.AreaBackgrounds + area * MapSourceDefinitions.Menu.TilemapBytes + offset),
                     shownArea.ReadByte(FileSelectMapNativeSources.AreaBackgroundVram * 2 + offset), "selected area BG3 DMA bytes");

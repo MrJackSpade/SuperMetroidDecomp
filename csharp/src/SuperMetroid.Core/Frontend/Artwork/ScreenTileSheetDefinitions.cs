@@ -14,8 +14,6 @@ public static class ScreenTileSheetDefinitions
     /// <summary>Each screen tile sheet's character depth.</summary>
     public static IReadOnlyDictionary<SpriteSheetId, TileInkDepth> Depths { get; } = new Dictionary<SpriteSheetId, TileInkDepth>
     {
-        [SpriteSheetId.MenuForegroundTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.MenuMapTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.PauseMapTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.PauseInterfaceTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.IntroSceneTiles] = TileInkDepth.SixteenColours,

@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>
 /// The shared menu screen <c>LoadInitialMenuTiles</c> ($81:8DDB) sets up for file select, options, game over and the
-/// file-select maps (#1358): the installed artwork it draws, its own tilemaps and palette, and its sprite entries. It
-/// publishes these; the capture composes them, so no menu owns PPU memory.
+/// file-select maps (#1358): the installed artwork it draws, its palette and its sprite entries; its pages are installed
+/// pictures it places (#1467). It publishes these; the capture composes them, so no menu owns PPU memory.
 /// </summary>
 internal sealed class MenuScreen
 {
@@ -23,22 +23,14 @@ internal sealed class MenuScreen
         BindScreenTiles(sheets);
     }
 
-    /// <summary>The installed sheets the screen's background tiles come from (#1392).</summary>
+    /// <summary>The installed sheets the screen's pictures come from (#1467).</summary>
     [field: NonSerialized]
     [AllowNull]
-    private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The menu's screen tiles are rebound after debugger restoration."); set; }
+    private InstalledSpriteSheets Sheets { get => field ?? throw new InvalidOperationException("The menu's pictures are rebound after debugger restoration."); set; }
 
-    /// <summary>Each area map's tiles, once read.</summary>
-    [NonSerialized] private Dictionary<AreaId, AreaMapTiles>? areaMapTiles;
-
-    /// <summary>Rebinds the sheets the screen's background tiles come from (#1392).</summary>
-    public void BindScreenTiles(InstalledSpriteSheets? sheets)
-    {
+    /// <summary>Rebinds the sheets the screen's pictures come from (#1467).</summary>
+    public void BindScreenTiles(InstalledSpriteSheets? sheets) =>
         Sheets = sheets ?? throw new InvalidOperationException("Menus require the installed sprite sheets.");
-        MenuTiles = null;
-        RoomMapTiles = null;
-        areaMapTiles = null;
-    }
 
     /// <summary>The size of a menu page in cells: one screen's tilemap, which a scrolled page repeats across.</summary>
     internal static Extent16<TilemapCells> PageSize { get; } =
@@ -81,33 +73,11 @@ internal sealed class MenuScreen
         return new(picture, new((ushort)(((left % page) + page) % page), (ushort)(((top % page) + page) % page)));
     }
 
-    /// <summary>What the menu planes show under the file-select palette (#1392).</summary>
-    [field: NonSerialized]
-    [AllowNull]
-    internal ScreenLayerPictures MenuTiles { get => field ??= MenuScreenTiles.Menu(Sheets); private set; }
-
-    /// <summary>What the room map's planes show under the file-select palette (#1392).</summary>
-    [field: NonSerialized]
-    [AllowNull]
-    internal ScreenLayerPictures RoomMapTiles { get => field ??= MenuScreenTiles.RoomMap(Sheets); private set; }
-
-    /// <summary>What the area map's layers show under <paramref name="area"/>'s world-map palette (#1392).</summary>
-    internal AreaMapTiles AreaMapTiles(AreaId area)
-    {
-        areaMapTiles ??= [];
-        if (!areaMapTiles.TryGetValue(area, out AreaMapTiles? tiles))
-            areaMapTiles.Add(area, tiles = MenuScreenTiles.AreaMap(Sheets, area));
-        return tiles;
-    }
-
     /// <summary>The installed world-map characters.</summary>
     [field: NonSerialized]
     [AllowNull]
     public WorldMapArtwork WorldArtwork { get => field ?? throw new InvalidOperationException("The menu's world-map characters are rebound after debugger restoration."); private set; }
 
-
-    /// <summary>The menu's tilemaps.</summary>
-    public MenuTilemaps Tilemaps { get; } = new();
 
     /// <summary>The menu's palette.</summary>
     public ScreenPalette Palette { get; } = new();

@@ -48,8 +48,6 @@ internal static class ScreenTileSheetComposer
                 TileInkDepth.SixteenColours, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionArtworkFormat.ZebesCharacterByteCount],
                 TileInkDepth.SixteenColours, FlightColours(sources.Intro.CeresFlight)),
-            SpriteSheetId.MenuForegroundTiles => Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
-            SpriteSheetId.MenuMapTiles => Compose(MapCharacterArtwork.Of(maps).Map.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
             SpriteSheetId.PauseMapTiles => Compose(MapCharacterArtwork.Of(maps).Map.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
             SpriteSheetId.PauseInterfaceTiles => Compose(MapCharacterArtwork.Of(maps).Pause.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
             SpriteSheetId.AreaMapForegroundCrateria or SpriteSheetId.AreaMapForegroundBrinstar or
@@ -160,7 +158,7 @@ internal static class ScreenTileSheetComposer
                 SpriteSheetId.ProjectilesPlasma or SpriteSheetId.ProjectilesPlasmaWave or
                 SpriteSheetId.ProjectilesPlasmaIce or SpriteSheetId.ProjectilesPlasmaIceWave or
                 SpriteSheetId.ProjectilesSpazerPlasmaWave or SpriteSheetId.ProjectilesSpazerPlasmaIce or
-                SpriteSheetId.MenuForegroundTiles or SpriteSheetId.MenuMapTiles or SpriteSheetId.MenuPictures or SpriteSheetId.RoomMapPictures or
+                SpriteSheetId.MenuPictures or SpriteSheetId.RoomMapPictures or
                 SpriteSheetId.AreaMapForegroundCrateria or SpriteSheetId.AreaMapForegroundBrinstar or
                 SpriteSheetId.AreaMapForegroundNorfair or SpriteSheetId.AreaMapForegroundWreckedShip or
                 SpriteSheetId.AreaMapForegroundMaridia or SpriteSheetId.AreaMapForegroundTourian or

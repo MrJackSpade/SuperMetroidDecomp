@@ -1279,7 +1279,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "resident colored-door loader allocates red door actor");
     residentDoorPlms.Step(residentDoorLevel);
 
-    AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0000),
+    AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.None),
         "resident red door receives power-beam family for native rejection");
     residentDoorPlms.Step(residentDoorLevel);
     AssertTrue(residentDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundQueueLimit.Max6)),
@@ -1289,7 +1289,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     for (int hit = 1; hit <= 5; hit++)
     {
-        AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0100),
+        AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
             $"red door accepts missile collision {hit}");
         residentDoorPlms.Step(residentDoorLevel);
     }
@@ -1300,13 +1300,13 @@ internal static void VerifySamusPowerBeamProjectiles()
         "red door retains exact five-missile threshold");
     AssertTrue(residentDoorSystem.HasOpenedDoorBit(residentDoorArgument),
         "opening instruction persists room-argument door bit");
-    AssertTrue(!residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0100),
+    AssertTrue(!residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
         "opening door no longer runs projectile pre-instruction");
 
     residentDoorPlms = PlmFixtures.Unbound();
     AssertEqual(0, residentDoorPlms.ColoredDoors.Count,
         "room reset discards resident colored-door actors");
-    AssertTrue(!residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, 0x0100),
+    AssertTrue(!residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.Of(SamusProjectileFamily.Missile)),
         "room reset cannot leak a hit into the discarded population");
 
     var reopenedWords = new RoomTerrainBlock[16 * 16];
@@ -1353,7 +1353,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "grey-door setup removes condition selector before persistence checks");
 
     greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
-    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
+    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
         "shared BTS $44 collision publishes power-beam hit to grey door");
     greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
     AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundQueueLimit.Max6)),
@@ -1363,7 +1363,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     // Publish a second hit on the exact quota-completion frame. BE01 clears the PLM shot
     // timer while selecting its activation link, so this impact must not persist/open it.
-    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
+    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
         "quota-completion frame can observe a colliding shot");
     greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
     AssertTrue(greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
@@ -1373,7 +1373,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(!greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
         "quota-completion hit is cleared rather than opening grey door");
 
-    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, 0x0000),
+    AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
         "later shot reaches flashing grey door's installed shot pre-instruction");
     greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 2, enemyDeathQuota: 2);
     AssertEqual(GreyDoorPhase.Opening, greyDoorPlms.GreyDoorSnapshots.Single().Phase,

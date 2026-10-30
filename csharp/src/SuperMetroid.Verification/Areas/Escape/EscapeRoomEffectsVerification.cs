@@ -81,12 +81,12 @@ internal static class EscapeRoomEffectsVerification
                 var level = runtime.Room.LoadedLevelData;
                 int origin = level.GetBlockIndex(new(15, 10));
                 AssertEqual(0x4f, level.GetCollisionBlock(new(15, 10)).Behavior.Value, "retail room loader installs rescue wall");
-                runtime.Plms.TrySpawnProjectileShotBlock(level, origin, 0x4f, 1, true);
+                runtime.Plms.TrySpawnProjectileShotBlock(level, origin, 0x4f, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false), true);
                 for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
                 AssertTrue(runtime.System.HasEvent(EventNumber.CrittersEscaped), "live rescue room publishes escaped event");
                 var door = runtime.Plms.GreyDoorSnapshots.Single();
                 AssertEqual(SuperMetroid.Core.Rooms.Doors.GreyDoorPhase.Flashing, door.Phase, "rescue unlocks exit door");
-                runtime.Plms.ProjectileTriggers.TryNotifyResidentProjectileHit(door.BlockIndex, 1);
+                runtime.Plms.ProjectileTriggers.TryNotifyResidentProjectileHit(door.BlockIndex, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false));
                 for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
                 AssertEqual(0, runtime.Plms.GreyDoorSnapshots.Count, "exit door finishes opening");
                 var samus = runtime.Player.IntroducedSamus;

@@ -164,7 +164,7 @@ internal static class DownwardGatePlmsVerification
                 level,
                 gateBlockIndex - 1,
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-                0x0004),
+                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)),
             "power beam reaches the sleeping blue gate");
         StepDownwardGatePlm(plms, level);
         DownwardGateProjectileRequest wake = plms.Gates.TakeDownwardGateProjectileRequests().Single();
@@ -196,7 +196,7 @@ internal static class DownwardGatePlmsVerification
                 level,
                 gateBlockIndex - 1,
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-                0x0004),
+                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)),
             "second power beam reaches the sleeping open blue gate");
         // The open-state collision image remains for sixteen frames before $BBE1 spawns
         // the downward-moving actor, exactly as list $BC13 specifies.
@@ -227,7 +227,7 @@ internal static class DownwardGatePlmsVerification
             ? gateBlockIndex - 1
             : gateBlockIndex + 1;
         RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Behavior;
-        AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(level, triggerBlockIndex, bts, projectile),
+        AssertTrue(plms.Gates.TrySpawnDownwardGateTrigger(level, triggerBlockIndex, bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile)),
             $"{trigger} is claimed by the gate dispatcher");
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);

@@ -190,7 +190,7 @@ internal static class ChainsawFiringVerification
             interferenceReactions,
             interferencePlms,
             AreaId.Crateria,
-            (ushort)SamusProjectileFamily.PowerBomb);
+            SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             interferenceLevel,
             new(32, 32),
@@ -198,7 +198,7 @@ internal static class ChainsawFiringVerification
             interferenceReactions,
             interferencePlms,
             AreaId.Crateria,
-            0x800d);
+            SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         interferencePlms.Step(interferenceLevel);
         ColoredDoorPlmSnapshot suppressedDoor = interferencePlms.ColoredDoors.Single();
         AssertEqual(ColoredDoorPhase.Waiting, suppressedDoor.Phase,
@@ -219,7 +219,7 @@ internal static class ChainsawFiringVerification
             breakingReactions,
             breakingPlms,
             AreaId.Crateria,
-            (ushort)SamusProjectileFamily.PowerBomb);
+            SamusProjectileType.Of(SamusProjectileFamily.PowerBomb));
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,
             new(32, 32),
@@ -227,7 +227,7 @@ internal static class ChainsawFiringVerification
             breakingReactions,
             breakingPlms,
             AreaId.Crateria,
-            0x800d);
+            SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaWave, charged: false));
         AssertEqual(RoomCollisionType.SolidBlock,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
             "Chainsaw callback preserves the Power Bomb's synchronous break setup");

@@ -147,7 +147,7 @@ internal static class SpeedBoosterPlmProgramsVerification
                 AreaId.Brinstar);
         var bombGuard = NewSpeedBoosterPlmReadGuard(bombBus);
         AssertTrue(bombPlms.BlockReactions.TrySpawnBombedSpecialBlock(bombLevel, bombBlock,
-                new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
+                new RoomBlockBehavior(0x82), AreaId.Brinstar, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
             "normal bomb allocates the Speed Booster reveal PLM");
         bombPlms.Step(bombLevel);
         AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),

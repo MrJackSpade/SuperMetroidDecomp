@@ -322,10 +322,10 @@ internal static class BombBlockProgramsVerification
                 plms.TrySpawnCollisionBombBlock(level, blockIndex, behavior),
             BombBlockProducer.Bomb =>
                 plms.TrySpawnBombReactionBlock(level, blockIndex, behavior,
-                    (ushort)SamusProjectileFamily.Bomb),
+                    SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
             BombBlockProducer.PowerBomb =>
                 plms.TrySpawnBombReactionBlock(level, blockIndex, behavior,
-                    (ushort)SamusProjectileFamily.PowerBomb),
+                    SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
             _ => throw new ArgumentOutOfRangeException(nameof(producer)),
         };
         AssertTrue(spawned, $"bomb BTS {behavior}/{producer} installs its native program");

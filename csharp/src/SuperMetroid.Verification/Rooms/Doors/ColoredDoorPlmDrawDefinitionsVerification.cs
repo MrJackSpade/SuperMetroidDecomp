@@ -135,11 +135,11 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 PlmHeaderId.YellowDoorFacingLeft or
                     PlmHeaderId.YellowDoorFacingRight or
                     PlmHeaderId.YellowDoorFacingUp or
-                    PlmHeaderId.YellowDoorFacingDown => new(0x0300),
+                    PlmHeaderId.YellowDoorFacingDown => SamusProjectileType.Of(SamusProjectileFamily.PowerBomb),
                 PlmHeaderId.GreenDoorFacingLeft or
                     PlmHeaderId.GreenDoorFacingRight or
                     PlmHeaderId.GreenDoorFacingUp or
-                    PlmHeaderId.GreenDoorFacingDown => new(0x0200),
+                    PlmHeaderId.GreenDoorFacingDown => SamusProjectileType.Of(SamusProjectileFamily.SuperMissile),
                 PlmHeaderId.None or
                     PlmHeaderId.Nothing or
                     PlmHeaderId.CollisionReactionClearCarry or
@@ -411,8 +411,8 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                     PlmHeaderId.ShotBlockSpaceJump or
                     PlmHeaderId.ShotBlockScrewAttack or
                     PlmHeaderId.ShotBlockMorphBall or
-                    PlmHeaderId.ShotBlockReserveTank => new(0x0100),
-                _ => new(0x0100),
+                    PlmHeaderId.ShotBlockReserveTank => SamusProjectileType.Of(SamusProjectileFamily.Missile),
+                _ => SamusProjectileType.Of(SamusProjectileFamily.Missile),
             };
             int hits = header >= PlmHeaderId.RedDoorFacingLeft ? 5 : 1;
             for (int hit = 0; hit < hits; hit++)

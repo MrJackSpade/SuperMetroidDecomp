@@ -1458,12 +1458,26 @@ internal static class LookupStream2Verification
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1), "Trail selector rejects unaligned reads");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the following word");
-        for (int selection = 0; selection < 64; selection++)
+        // Every projectile that trails: each beam combination uncharged and charged, both echoes, and both missiles.
+        SamusProjectileType[] trailing =
+        [
+            .. Enum.GetValues<SamusBeamCombination>().Select(beams => SamusProjectileType.Beam(beams, charged: false)),
+            .. Enum.GetValues<SamusBeamCombination>().Select(beams => SamusProjectileType.Beam(beams, charged: true)),
+            SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail), SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho),
+            SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileType.Of(SamusProjectileFamily.SuperMissile),
+        ];
+        foreach (SamusProjectileType trailingType in trailing)
         {
+            int selection = trailingType.Family switch
+            {
+                SamusProjectileFamily.Missile => ProjectileTrailDefinitions.FirstSpecialSelection,
+                SamusProjectileFamily.SuperMissile => ProjectileTrailDefinitions.FirstSpecialSelection + 1,
+                _ => trailingType.BeamTableRow,
+            };
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
             var projectile = new SamusProjectileSlot(0)
             {
-                Type = (ushort)selection,
+                Type = trailingType,
                 Cursor = SamusProjectileProgramAddresses.CursorAt(0x86e3),
                 Position = new(new(100, 0), new(200, 0)),
             };
@@ -1477,7 +1491,7 @@ internal static class LookupStream2Verification
             AssertEqual(1, trail.Left.InstructionTimer.RawValue, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
-        Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
+        Console.WriteLine("Trail selectors: 103 reachable native words and every trailing projectile's real spawn selection pass with the complete selector window forbidden.");
     }
 
     /// <summary>Checks Mother Brain tube palette ramps and actual CGRAM sequence.</summary>

@@ -87,7 +87,7 @@ internal static class DraygonCannonPlmProgramVerification
         AssertTrue(disabled.Contains(DraygonWallCannon.UpperLeft),
             "pre-destroyed cannon executes its retail damage-list entry");
         int rightBlock = rightShieldBlock;
-        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(rightBlock, 0x0200),
+        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(rightBlock, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             "Super Missile reaches live right cannon");
         var seenRightDamageBlocks = new HashSet<RoomTerrainBlock>();
         for (int frame = 0; frame < 28; frame++)
@@ -102,7 +102,7 @@ internal static class DraygonCannonPlmProgramVerification
         AssertTrue(disabled.Contains(DraygonWallCannon.LowerLeft),
             "right cannon follows native three-hit threshold to damaged list");
         int leftBlock = leftShieldBlock;
-        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(leftBlock, 0x0200),
+        AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(leftBlock, SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
             "Super Missile reaches live left cannon");
         var seenLeftDamageBlocks = new HashSet<RoomTerrainBlock>();
         for (int frame = 0; frame < 28; frame++)

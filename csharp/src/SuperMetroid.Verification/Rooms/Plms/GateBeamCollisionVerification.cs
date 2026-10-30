@@ -70,7 +70,7 @@ internal static class GateBeamCollisionVerification
             var plms = PlmFixtures.Unbound();
             if (full)
                 for (int i = 0; i < 40; i++)
-                    AssertTrue(plms.TrySpawnProjectileShotBlock(level, first, 0x10, 0, true), "Fill gate probe pool");
+                    AssertTrue(plms.TrySpawnProjectileShotBlock(level, first, 0x10, SamusProjectileType.None, true), "Fill gate probe pool");
             var shot = new SamusProjectileSlot(0) { Position = new(new(33, 0), new(33, 0)),
                 Radius = new(17, 17), Velocity = new(-1, -1) };
             bool result = false;

@@ -58,7 +58,7 @@ internal static class CollectiblesVerification
             if (bts is > 0x3f and not 0x4e) continue;
             var emptyLevel = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
             var unusedPlms = PlmFixtures.Unbound();
-            AssertTrue(unusedPlms.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, 0, true),
+            AssertTrue(unusedPlms.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, SamusProjectileType.None, true),
                 "unused shootable entry allocates native nothing PLM");
             AssertEqual(1, unusedPlms.SlotTable.ActiveCount, "nothing PLM retains its provisional slot");
             AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), emptyLevel.GetCollisionBlockByIndex(0).Terrain, "nothing PLM leaves terrain unchanged");
@@ -125,7 +125,7 @@ internal static class CollectiblesVerification
                     fixture.BlockIndex,
                     behavior: 8,
                     areaIndex: AreaId.Crateria,
-                    projectileType: 0x0500),
+                    projectileType: SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
                 $"{kind} freed PLM slot can be reused by a bomb-special actor");
             AssertEqual(0, fixture.Plms.CollectiblePlms.Collectibles.Count,
                 $"{kind} semantic owner does not survive physical slot reuse");

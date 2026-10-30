@@ -282,7 +282,12 @@ internal static class ScreenTilePicturesVerification
         }
         var fromVram = new LayeredScene(scene.Paint, [.. scene.Layers.ToArray().Select(FromVram)], scene.Brightness);
         AssertTrue(layers > 0, $"{name} draws pictured backgrounds");
-        AssertTrue(RenderNamed(scene, name).SequenceEqual(RenderNamed(fromVram, name)), $"{name}: its pictures draw what VRAM's characters draw of the cartridge's tilemaps");
+        RgbaPixel[] pictured = RenderNamed(scene, name);
+        RgbaPixel[] characters = RenderNamed(fromVram, name);
+        int mismatch = Enumerable.Range(0, pictured.Length).FirstOrDefault(pixel => pictured[pixel] != characters[pixel], -1);
+        AssertTrue(mismatch < 0, $"{name}: its pictures draw what VRAM's characters draw of the cartridge's tilemaps, but pixel " +
+            $"({mismatch % 256}, {mismatch / 256}) is {(mismatch < 0 ? default : pictured[mismatch])} where its characters draw " +
+            $"{(mismatch < 0 ? default : characters[mismatch])}");
         return layers;
     }
 

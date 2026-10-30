@@ -62,7 +62,6 @@ internal sealed class SpriteSheetSourceCatalog
             ? MapPictureSheets.ComposeWorldForeground(maps.Value, ScreenTileSheetDefinitions.AreaMapForegrounds.Single(entry => entry.Value == sheet).Key)
         : ScreenTileSheetDefinitions.AreaMapBackgrounds.Values.Contains(sheet)
             ? MapPictureSheets.ComposeWorldBackground(maps.Value, ScreenTileSheetDefinitions.AreaMapBackgrounds.Single(entry => entry.Value == sheet).Key)
-        : ScreenTileSheetDefinitions.Depths.ContainsKey(sheet) ? ScreenTileSheetComposer.Compose(sheet, ScreenTiles())
         : ScreenTileSheetDefinitions.FloorSheets.Contains(sheet) ? FrontendFloorSheetComposer.Compose(sheet, ScreenTiles())
         : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
         : sheet == SpriteSheetId.CeresCinematicPictures ? CeresCinematicPictureSheetComposer.Compose(intro.Value)
@@ -114,8 +113,7 @@ internal sealed class SpriteSheetSourceCatalog
             SpriteSheetId.AreaMapForegroundTourian or SpriteSheetId.AreaMapBackgroundCrateria or
             SpriteSheetId.AreaMapBackgroundBrinstar or SpriteSheetId.AreaMapBackgroundNorfair or
             SpriteSheetId.AreaMapBackgroundWreckedShip or SpriteSheetId.AreaMapBackgroundMaridia or
-            SpriteSheetId.AreaMapBackgroundTourian or SpriteSheetId.PauseMapTiles or
-            SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.IntroScenePictures or
+            SpriteSheetId.AreaMapBackgroundTourian or SpriteSheetId.IntroScenePictures or
             SpriteSheetId.IntroNarrationPictures or SpriteSheetId.CeresCinematicPictures or
             SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or

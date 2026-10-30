@@ -65,8 +65,6 @@ public static class SpriteSheetDefinitions
         [SpriteSheetId.AreaMapBackgroundWreckedShip] = "area-map-background-wrecked-ship",
         [SpriteSheetId.AreaMapBackgroundMaridia] = "area-map-background-maridia",
         [SpriteSheetId.AreaMapBackgroundTourian] = "area-map-background-tourian",
-        [SpriteSheetId.PauseMapTiles] = "pause-map-tiles",
-        [SpriteSheetId.PauseInterfaceTiles] = "pause-interface-tiles",
         [SpriteSheetId.PauseHud] = "pause-hud",
         [SpriteSheetId.IntroScenePictures] = "intro-scene-pictures",
         [SpriteSheetId.IntroNarrationPictures] = "intro-narration-pictures",

@@ -14,7 +14,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 /// <summary>
 /// The pause screen's picture sheet (#1467), over the map characters and the pause interface characters after them under
 /// the pause palette: every map cell picture any area map shows, each area's backdrop without the button rows, the button
-/// rows without their labels, and each label lit and dim. The game places them by frame name.
+/// rows without their labels, each label lit and dim, and the equipment page's template and dynamic parts in each state
+/// (<see cref="PauseEquipmentPageLayout"/>). The game places them by frame name.
 /// </summary>
 internal static class PausePictureSheet
 {
@@ -47,6 +48,8 @@ internal static class PausePictureSheet
                 shaded[cell] = shaded[cell] with { ColourVariant = PaletteOf(shade) };
             yield return ScreenPictureSubject.Cells(PauseFramePictures.ButtonFrame(label, shade), shaded, Columns, cells);
         }
+        foreach (ScreenPictureSubject equipment in PauseEquipmentPageLayout.Subjects(maps))
+            yield return equipment;
     }
 
     /// <summary>

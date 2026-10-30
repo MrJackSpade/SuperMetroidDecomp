@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>Cartridge values of <see cref="PauseMenuLayout"/> that only verification reads.</summary>
+/// <summary>Cartridge values of the pause screen's layout that only verification reads.</summary>
 internal static class PauseMenuLayoutConstants
 {
     /// <summary>Number of decimal digits written by $82:8F70.</summary>
@@ -15,17 +15,8 @@ internal static class PauseMenuLayoutConstants
     /// matching <c>EquipmentScreenBG1Tilemap+$310</c> at $82:8FCE.
     /// </summary>
     public const int ReserveSupplyDigitsByteOffset = 0x0310;
-
-    /// <summary>Provides reserve supply digit count, zero tile, and byte offset for pause menu layout checks.</summary>
-    extension(PauseMenuLayout)
-    {
-        /// <inheritdoc cref="PauseMenuLayoutConstants.ReserveSupplyDigitCount"/>
-        internal static int ReserveSupplyDigitCount => PauseMenuLayoutConstants.ReserveSupplyDigitCount;
-        /// <inheritdoc cref="PauseMenuLayoutConstants.ReserveSupplyDigitZeroTile"/>
-        internal static ushort ReserveSupplyDigitZeroTile => PauseMenuLayoutConstants.ReserveSupplyDigitZeroTile;
-        /// <inheritdoc cref="PauseMenuLayoutConstants.ReserveSupplyDigitsByteOffset"/>
-        internal static int ReserveSupplyDigitsByteOffset => PauseMenuLayoutConstants.ReserveSupplyDigitsByteOffset;
-    }
+    /// <summary>The tiles in the frame's two button-label rows, which each highlight change uploads.</summary>
+    public const int ButtonRowsTileCount = 0x0040;
     /// <summary>BG1 tilemap base word used by the map and equipment pages.</summary>
     public const ushort Bg1TilemapWord = 0x3000;
     /// <summary>BG2 tilemap base word used by the pause-screen frame.</summary>

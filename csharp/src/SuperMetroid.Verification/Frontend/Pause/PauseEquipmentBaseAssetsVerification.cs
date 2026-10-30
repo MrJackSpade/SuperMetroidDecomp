@@ -19,7 +19,7 @@ namespace SuperMetroid.Verification.Frontend.Pause;
 /// <summary>Checks installed pause equipment base tiles through page transitions and debugger rebinding.</summary>
 internal static class PauseEquipmentBaseAssetsVerification
 {
-    /// <summary>Compares 1,024 native cells, checks a visible edit, and preserves live cells on artwork rebind.</summary>
+    /// <summary>Compares 1,024 native cells, checks a visible edit, and keeps the live page across an artwork rebind.</summary>
     internal static void VerifyPauseEquipmentBaseAssets(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentation original)
     {
@@ -53,7 +53,7 @@ internal static class PauseEquipmentBaseAssetsVerification
 
         const int editedCell = 194;
         AssertTrue(!PauseEquipmentBaseTiles.IsLiveOwnedCell(editedCell) &&
-            !PauseEquipmentBaseTiles.IsArrowCell(editedCell), "edited control cell belongs to static base presentation");
+            !original.PauseReserveUi.ArrowPageCells().Contains(editedCell), "edited control cell belongs to static base presentation");
         PauseBackdropCell[] cells = document.Cells.ToArray();
         cells[editedCell] = cells[editedCell] with
         {
@@ -69,19 +69,8 @@ internal static class PauseEquipmentBaseAssetsVerification
         AssertTrue(!stockPause.Render().SequenceEqual(editedPause.Render()),
             "edited static equipment cell reaches actual menu pixels");
 
-        // Every cell starts as a sentinel tile, so a cell the rebind leaves alone keeps it.
-        var sentinel = new BackgroundTile(0x25a, 6, FlipHorizontally: true, FlipVertically: false, HighPriority: false);
-        BackgroundTile[] rebound = Enumerable.Repeat(sentinel, PauseEquipmentBaseDefinitions.Cells).ToArray();
-        int protectedCell = Enumerable.Range(0, PauseEquipmentBaseDefinitions.Cells)
-            .First(PauseEquipmentBaseTiles.IsLiveOwnedCell);
-        int arrowCell = Enumerable.Range(0, PauseEquipmentBaseDefinitions.Cells)
-            .First(PauseEquipmentBaseTiles.IsArrowCell);
-        rebound[arrowCell] = new BackgroundTile(0, 2, highPriority: false);
-        edited.PauseEquipmentBase.RebindBaseInto(rebound);
-        AssertEqual(sentinel, rebound[protectedCell], "base rebind preserves live inventory/wireframe/reserve cells");
-        AssertEqual(2, rebound[arrowCell].ColourVariant, "base rebind preserves the live reserve-arrow palette");
-        AssertTrue(rebound[editedCell] != sentinel, "base rebind refreshes ordinary authored cells");
-
+        // The equipment page is typed state (#1467): a rebind only changes the pictures it is drawn from, which the restored
+        // menu below shows with the stock artwork's VRAM and pixels.
         using var captured = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(captured, editedPause); captured.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<PauseMenuState>(captured);

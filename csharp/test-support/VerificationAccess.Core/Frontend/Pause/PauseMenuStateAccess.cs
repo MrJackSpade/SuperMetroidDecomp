@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 
@@ -43,7 +44,7 @@ internal static class PauseMenuStateAccess
             {
                 BackgroundTile[] tiles = ShownAreaMapTiles.Of(self.ShownMap);
                 if (self.ScreenMode != PauseScreenMode.Map)
-                    self.screen.Tilemaps.Equipment.CopyTo(tiles);
+                    self.ShownEquipmentTiles.CopyTo(tiles, 0);
                 return tiles;
             }
         }
@@ -55,8 +56,8 @@ internal static class PauseMenuStateAccess
         internal BackgroundTile ShownBg1Tile(Position16<MapTiles> cell)
         {
             int index = AreaMapPages.GetTilemapWordIndex(cell);
-            if (self.ScreenMode != PauseScreenMode.Map && index < self.screen.Tilemaps.Equipment.Length)
-                return self.screen.Tilemaps.Equipment[index];
+            if (self.ScreenMode != PauseScreenMode.Map && index < PauseEquipmentBaseDefinitions.Cells)
+                return self.ShownEquipmentTiles[index];
             ShownMapCell shown = self.ShownMap[cell];
             return new BackgroundTile(shown.Cell.Shape.Picture, shown.ColourVariant, shown.Cell.InFront, shown.Cell.Mirroring);
         }
@@ -75,22 +76,30 @@ internal static class PauseMenuStateAccess
         {
             const int firstUploadedNativeWordIndex = 0x0320;
             int uploadedWordOffset = nativeWordIndex - firstUploadedNativeWordIndex;
-            if ((uint)uploadedWordOffset >= PauseMenuLayout.ButtonRowsTileCount)
+            if ((uint)uploadedWordOffset >= PauseMenuLayoutConstants.ButtonRowsTileCount)
                 throw new ArgumentOutOfRangeException(nameof(nativeWordIndex));
             return BackgroundTileWords.ToWord(self.ShownBg2Tiles[nativeWordIndex]);
         }
 
         /// <summary>
-        /// Reads one of the three reserve-supply digits from the mutable equipment tilemap.
-        /// This exposes rendered menu state to focused tests without exposing mutation.
+        /// The equipment page's tiles as the cartridge's tilemap holds what the menu last uploaded (#1467), laid out by the
+        /// import's replay of the writes that page records.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">No equipment page has been uploaded.</exception>
+        internal BackgroundTile[] ShownEquipmentTiles => PauseEquipmentPageLayout.LayOut(self.screen.Artwork,
+            self.ShownEquipment ?? throw new InvalidOperationException("No equipment page has been uploaded."));
+
+        /// <summary>
+        /// Reads one of the three reserve-supply digits as the equipment page's writes have left it, uploaded or not (#1467):
+        /// the tile the import's replay of the page's writes lays out at the digit's place.
         /// </summary>
         internal SnesBgTilemapWord ReadReserveSupplyDigit(int digitIndex)
         {
-            if ((uint)digitIndex >= PauseMenuLayout.ReserveSupplyDigitCount)
+            if ((uint)digitIndex >= PauseMenuLayoutConstants.ReserveSupplyDigitCount)
                 throw new ArgumentOutOfRangeException(nameof(digitIndex));
 
-            int tile = PauseMenuLayout.ReserveSupplyDigitsByteOffset / sizeof(ushort) + digitIndex;
-            return new SnesBgTilemapWord(BackgroundTileWords.ToWord(self.equipmentTilemap[tile]));
+            int tile = PauseMenuLayoutConstants.ReserveSupplyDigitsByteOffset / sizeof(ushort) + digitIndex;
+            return new SnesBgTilemapWord(BackgroundTileWords.ToWord(PauseEquipmentPageLayout.LayOut(self.screen.Artwork, self.Equipment)[tile]));
         }
     }
 }

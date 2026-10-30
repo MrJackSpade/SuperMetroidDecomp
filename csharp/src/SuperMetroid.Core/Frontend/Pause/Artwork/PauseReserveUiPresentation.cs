@@ -60,6 +60,20 @@ public sealed class PauseReserveUiPresentation
     private static int ArrowCell(int cell) => cell < PauseReserveUiDefinitions.VerticalCount
         ? PauseReserveUiDefinitions.VerticalStartCell + cell * PauseReserveUiDefinitions.RowStrideCells
         : PauseReserveUiDefinitions.HorizontalStartCell + cell - PauseReserveUiDefinitions.VerticalCount;
+    /// <summary>The equipment-page cells <paramref name="name"/> covers, first to last (#1467).</summary>
+    /// <exception cref="InvalidDataException"><paramref name="name"/> is not a reserve label.</exception>
+    internal IEnumerable<int> LabelCells(PauseReserveLabel name) => labels.TryGetValue(name, out ReserveLabel? label)
+        ? Enumerable.Range(label.Cell, label.CellCount) : throw new InvalidDataException($"Unknown reserve label {name}.");
+
+    /// <summary>The equipment-page cell supply digit <paramref name="position"/> shows in, hundreds first (#1467).</summary>
+    internal int DigitCell(int position) => (uint)position < PauseReserveUiDefinitions.SupplyDigitPlaces
+        ? digitCell + position : throw new ArgumentOutOfRangeException(nameof(position));
+
+    /// <summary>The ten equipment-page cells the reserve arrow's tiles occupy, stem before arm (#1467).</summary>
+    internal IEnumerable<int> ArrowPageCells() =>
+        Enumerable.Range(0, PauseReserveUiDefinitions.VerticalCount + PauseReserveUiDefinitions.HorizontalCount)
+            .Select(cell => arrowCells is null ? ArrowCell(cell) : arrowCells[cell]);
+
     /// <summary>Writes one selected label's tiles into its authored equipment-page location.</summary>
     /// <param name="tilemap">The equipment tilemap, large enough for the entire authored label range.</param>
     /// <param name="name">The label to write.</param>

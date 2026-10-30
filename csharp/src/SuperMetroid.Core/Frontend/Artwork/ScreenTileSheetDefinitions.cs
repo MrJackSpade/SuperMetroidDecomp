@@ -1,22 +1,13 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.Artwork;
 
 /// <summary>
-/// The installed sheets of frontend background characters (#1392), each one artwork's characters pre-coloured with the
-/// standard palette of the screen that shows it, and the bit depth of each one's characters.
+/// The installed sheets of frontend turning floors' pictures and of the menu's world-map pages (#1392, #1467).
 /// </summary>
 public static class ScreenTileSheetDefinitions
 {
-    /// <summary>Each screen tile sheet's character depth.</summary>
-    public static IReadOnlyDictionary<SpriteSheetId, TileInkDepth> Depths { get; } = new Dictionary<SpriteSheetId, TileInkDepth>
-    {
-        [SpriteSheetId.PauseMapTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.PauseInterfaceTiles] = TileInkDepth.SixteenColours,
-    };
-
     /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>
     public static IReadOnlyList<SpriteSheetId> FloorSheets { get; } =
     [

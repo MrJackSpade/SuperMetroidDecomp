@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
-/// Places the pause menu's button labels (<see cref="PauseMenuLayout"/>).
+/// Places the pause frame's button labels on its two button rows.
 /// </summary>
 internal static class PauseMenuButtonLabels
 {

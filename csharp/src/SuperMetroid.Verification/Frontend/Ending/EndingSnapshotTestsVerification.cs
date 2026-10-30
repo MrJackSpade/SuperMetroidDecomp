@@ -361,5 +361,5 @@ internal static class EndingSnapshotTestsVerification
 
     /// <summary>Whether <paramref name="plane"/> shows exactly the installed picture <paramref name="picture"/> of <paramref name="sheet"/> (#1467).</summary>
     private static bool ShowsOnly(EndingCreditsState ending, PicturedPlane plane, SpriteSheetId sheet, string picture) =>
-        plane.Pictures.Length == 1 && plane.Pictures[0].Picture == ending.InstalledArtwork.SpriteSheet(sheet).Frame(picture);
+        plane.Pictures is [var only] && only.Picture == ending.InstalledArtwork.SpriteSheet(sheet).Frame(picture);
 }

@@ -9,7 +9,6 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Assets;

@@ -2,7 +2,10 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Hud;
 
-/// <summary>The cartridge's tiles the pause screen's HUD plane shows beyond the HUD's own (#1466).</summary>
+/// <summary>
+/// The cartridge's tiles the pause screen's BG3 tilemap holds beyond the HUD's own (#1466), which verification lays out to
+/// compare with native VRAM; the game draws nothing for them, as the cleared cell shows nothing.
+/// </summary>
 internal static class PauseHudPlaneDefinitions
 {
     /// <summary>

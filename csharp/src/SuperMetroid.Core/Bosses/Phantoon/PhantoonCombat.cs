@@ -63,7 +63,7 @@ internal sealed class PhantoonCombat
                     throw new InvalidOperationException("Phantoon shot callback has no encounter state.");
                 int appliedDamage = c.HealthBefore - c.Enemy.Health;
                 phantoon.AcceptedProjectileHits++;
-                ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.PackedType, appliedDamage);
+                ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.Type, appliedDamage);
             },
         });
     }
@@ -164,9 +164,9 @@ internal sealed class PhantoonCombat
             if (!projectile.HasEnemyCollisionPayload)
                 continue;
 
-            SamusProjectileTypeWord projectileType = projectile.PackedType;
+            SamusProjectileType projectileType = projectile.Type;
             int projectileDamage = projectile.Damage;
-            SamusProjectileFamily family = projectile.PackedType.Family;
+            SamusProjectileFamily family = projectile.Type.Family;
             // A0:9BE6..9BF6 excludes bombs and every family at/above beam
             // explosions. Lingering missile explosions must not reach shot AI.
             if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
@@ -205,7 +205,7 @@ internal sealed class PhantoonCombat
                 projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(
                     projectile.SlotIndex,
                     body.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
-                        !projectile.PackedType.HasAnyBeam(SamusBeamFlags.Plasma));
+                        !projectile.Type.HasAnyBeam(SamusBeamFlags.Plasma));
                 return 1;
             }
 
@@ -269,7 +269,7 @@ internal sealed class PhantoonCombat
     internal void ResolvePhantoonShotReaction(
         RoomEnemySlot body,
         PhantoonEnemyState state,
-        SamusProjectileTypeWord projectileType,
+        SamusProjectileType projectileType,
         int damage)
     {
         if (body.Health == 0)

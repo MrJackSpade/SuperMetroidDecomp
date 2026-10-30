@@ -29,6 +29,19 @@ using SuperMetroid.Core.Progression;
 /// <summary>Checks projectile wrapping at both room edges against a preserved native trace.</summary>
 internal static class WrapShotsVerification
 {
+    /// <summary>
+    /// A recorded trace line with its projectile type word replaced by the projectile the import codec decodes it to,
+    /// so the line compares with a trace that writes the projectile itself.
+    /// </summary>
+    /// <param name="line">The recorded comma-separated line.</param>
+    /// <param name="column">The type word's column.</param>
+    internal static string NativeTypeAsProjectile(string line, int column)
+    {
+        string[] fields = line.Split(',');
+        fields[column] = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(Convert.ToInt32(fields[column], 16)).ToString();
+        return string.Join(',', fields);
+    }
+
     /// <summary>Compares 240 shot frames, including remote block writes and non-Wave controls.</summary>
     internal static void VerifyWrapShotTrace(string nativeTrace)
     {
@@ -61,7 +74,7 @@ internal static class WrapShotsVerification
                 shared.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                 projectiles.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left != 0 ? 0 : 768), 0), shared);
                 var shot = projectiles.Slots[0];
-                string actual = $"{left},{beam},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},";
+                string actual = $"{left},{beam},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type},{shot.InstructionPointer:X4},";
                 for (int row = 0; row < 128; row++)
                 {
                     var block = level.GetCollisionBlock(new(checked((ushort)(left != 0 ? 63 : 0)), checked((ushort)row)));
@@ -73,7 +86,7 @@ internal static class WrapShotsVerification
                     firstRemoteHit = frame;
                     AssertTrue(shot.IsActive, "Remote reaction occurs while the real projectile is retained");
                 }
-                string expected = native[(left * 3 + beam) * 40 + frame];
+                string expected = NativeTypeAsProjectile(native[(left * 3 + beam) * 40 + frame], column: 7);
                 if (actual != expected && mismatches++ < 8) Console.WriteLine($"Wrap mismatch:\n{actual}\n{expected}");
             }
             AssertEqual(beam == 0 ? -1 : left != 0 ? 3 : 4, firstRemoteHit, "Exact native remote-tile reaction and non-Wave negative");

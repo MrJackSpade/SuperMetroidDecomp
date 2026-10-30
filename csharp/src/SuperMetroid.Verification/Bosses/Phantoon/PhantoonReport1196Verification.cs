@@ -65,7 +65,7 @@ internal static class PhantoonReport1196Verification
         wave.Step(boss);
         boss.BodyLayerPlacement = boss.BodyLayerPlacement.WithX(13);
         boss.Body.Health = 0;
-        enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(boss.Body, boss, new SamusProjectileTypeWord(0x0100), 100);
+        enemies.PhantoonBehavior.Combat.ResolvePhantoonShotReaction(boss.Body, boss, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
         PhantoonDeath.BeginPhantoonWavyMosaicDeath(boss.Body, boss);
         wave.Step(boss);
         wave.LatchDisplay();

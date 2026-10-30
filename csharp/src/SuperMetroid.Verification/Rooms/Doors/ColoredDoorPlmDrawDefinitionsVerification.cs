@@ -130,7 +130,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             AssertEqual(ColoredDoorPhase.Waiting, plms.ColoredDoors.Single().Phase,
                 $"resident colored door {header} finishes closing and resumes its owner");
 
-            SamusProjectileTypeWord accepted = header switch
+            SamusProjectileType accepted = header switch
             {
                 PlmHeaderId.YellowDoorFacingLeft or
                     PlmHeaderId.YellowDoorFacingRight or

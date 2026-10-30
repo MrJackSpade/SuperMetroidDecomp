@@ -30,7 +30,7 @@ internal static class BullBehaviorVerification
             EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BullAnimations.Programs, BullProgram.Normal)),
             "Bull normal loop");
 
-        BullBehavior.ResolveBullImmuneShot(slot, state, new SamusProjectileDirectionWord(2));
+        BullBehavior.ResolveBullImmuneShot(slot, state, SamusProjectileDirection.Right);
         AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot), state.Program, "Bull immune-shot animation");
         ushort[] shot = BullAnimationsConstants.Spritemaps(BullProgram.ShotLoop).ToArray();
         ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullProgram.Normal).First()];

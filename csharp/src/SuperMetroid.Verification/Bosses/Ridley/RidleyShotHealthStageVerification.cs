@@ -11,6 +11,7 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Reproduces a Ridley hit crossing the 9000-health threshold while
 /// his shot reaction leaves acceleration stage changes for the later AI phase.</summary>
@@ -49,7 +50,7 @@ internal static class RidleyShotHealthStageVerification
         foreach (int index in new[] { 0, 1 })
         {
             SamusProjectileSlot shot = runtime.Projectiles.Slots[index];
-            shot.Type = 0x8200; shot.Damage = 300; shot.Direction = 2;
+            shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x00c5, 0x0164));
             shot.Radius = new(8, 8);
             shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);

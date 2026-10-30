@@ -134,7 +134,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 AssertEqual(GreyDoorPhase.Flashing, plms.GreyDoorSnapshots.Single().Phase,
                     $"resident grey door {header} unlocks after boss event");
                 AssertTrue(plms.TryNotifyColoredDoorHit(origin,
-                        new SamusProjectileTypeWord(0)),
+                        SamusProjectileType.None),
                     $"resident grey door {header} accepts a beam hit");
                 plms.Step(level);
                 AssertEqual(GreyDoorPhase.Opening, plms.GreyDoorSnapshots.Single().Phase,
@@ -213,7 +213,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         room.Plms.Step(room.Level);
         AssertEqual(GreyDoorPhase.Flashing, room.Plms.GreyDoorSnapshots.Single().Phase,
             "Bomb Torizo defeat unlocks the special grey door");
-        AssertTrue(room.Plms.TryNotifyColoredDoorHit(origin, new SamusProjectileTypeWord(0)),
+        AssertTrue(room.Plms.TryNotifyColoredDoorHit(origin, SamusProjectileType.None),
             "Bomb Torizo grey door accepts a post-unlock beam hit");
         room.Plms.Step(room.Level);
         AssertEqual(GreyDoorPhase.Opening, room.Plms.GreyDoorSnapshots.Single().Phase,
@@ -267,7 +267,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = edited });
         AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin,
                 RoomBlockBehaviorValues.BlueDoorFacingRight,
-                new SamusProjectileTypeWord(0)),
+                SamusProjectileType.None),
             "shared clear visual test allocates a real blue-door opening actor");
         var guarded = NewGreyDoorDrawGuard(rom, lists);
         int frame = 0;

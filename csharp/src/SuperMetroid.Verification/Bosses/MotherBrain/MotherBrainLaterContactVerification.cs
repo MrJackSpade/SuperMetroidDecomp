@@ -10,6 +10,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks later-form Mother Brain contact and projectile blocking.</summary>
 internal static class MotherBrainLaterContactVerification
@@ -55,18 +56,18 @@ internal static class MotherBrainLaterContactVerification
         body.Health = 1000;
         var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
         interactive.Add(body.EnemyIndex);
-        foreach (ushort type in new ushort[] { 0x8000, 0x8100 })
+        foreach (SamusProjectileType type in new[] { SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), SamusProjectileType.Of(SamusProjectileFamily.Missile) })
         {
             var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             var shot = shots.Slots[0];
-            shot.Type = type; shot.Damage = 100; shot.Direction = 2;
+            shot.Type = type; shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
             shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
-            shot.PreInstruction = type == 0x8100 ? SamusProjectilePreInstruction.Missile : SamusProjectilePreInstruction.NoWaveBeam;
+            shot.PreInstruction = type.Family == SamusProjectileFamily.Missile ? SamusProjectilePreInstruction.Missile : SamusProjectilePreInstruction.NoWaveBeam;
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, new SamusBombProjectileSystem(), new SamusState()),
                 "Mother Brain body accepts the projectile collision callback");
             AssertEqual(1000, body.Health, "Body projectile callback retains body health");
-            AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "Body blocks the beam or missile");
+            AssertTrue(shot.IsSpent, "Body blocks the beam or missile");
             AssertEqual((SoundEffectId?)Library1Sound.DudShot, enemies.Projectiles.LastEnemyProjectileDudSoundEffect, "Body emits native dud sound");
         }
         AssertEqual(2, enemies.RoomSpriteObjects.Count(slot => slot.Kind == RoomSpriteObjectKind.EnemyProjectileDud),

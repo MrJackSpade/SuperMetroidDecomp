@@ -107,7 +107,7 @@ internal sealed class GatePlms : IPlmFamilySource
         RoomLevelData level,
         int blockIndex,
         RoomBlockBehavior bts,
-        SamusProjectileTypeWord projectileType)
+        SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
         if (!bts.TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger))
@@ -120,7 +120,6 @@ internal sealed class GatePlms : IPlmFamilySource
             return true;
         temporary.Header = HeaderForGateTrigger(trigger);
         temporary.BlockIndex = blockIndex;
-        temporary.LoopTimer = projectileType.Raw;
 
         bool accepted = GateTriggerAcceptsProjectile(trigger, projectileType);
         if (!accepted)
@@ -240,11 +239,11 @@ internal sealed class GatePlms : IPlmFamilySource
     /// <summary>Applies cartridge projectile-family rules, including the right-yellow acceptance asymmetry.</summary>
     private static bool GateTriggerAcceptsProjectile(
         DownwardGateTriggerBehavior trigger,
-        SamusProjectileTypeWord projectileType)
+        SamusProjectileType projectileType)
     {
-        bool plainMissile = projectileType.HasPlainFamilyPayload(SamusProjectileFamily.Missile);
-        bool plainSuper = projectileType.HasPlainFamilyPayload(SamusProjectileFamily.SuperMissile);
-        bool plainPowerBomb = projectileType.HasPlainFamilyPayload(SamusProjectileFamily.PowerBomb);
+        bool plainMissile = projectileType.IsFamily(SamusProjectileFamily.Missile);
+        bool plainSuper = projectileType.IsFamily(SamusProjectileFamily.SuperMissile);
+        bool plainPowerBomb = projectileType.IsFamily(SamusProjectileFamily.PowerBomb);
         return trigger switch
         {
             DownwardGateTriggerBehavior.GreenLeft or DownwardGateTriggerBehavior.GreenRight => plainSuper,

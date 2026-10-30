@@ -8,6 +8,8 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks projectile collision with Mother Brain's extended body rectangles.</summary>
 internal static class MotherBrainBodyHitboxesVerification
@@ -38,18 +40,18 @@ internal static class MotherBrainBodyHitboxesVerification
         head.Health = 0x8020;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Slots[0];
-        shot.Type = 0x9018; shot.Damage = 1000; shot.Direction = 7;
+        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 1000; shot.Direction = SamusProjectileDirection.Left;
         shot.Position = shot.Position.WithWhole(new(0x008e, 0x0061)); shot.Radius = new(0x1c, 8);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus);
-        AssertTrue((shot.Direction & 0x0010) != 0, "the beam stops on the body's arm rectangle");
+        AssertTrue(shot.IsSpent, "the beam stops on the body's arm rectangle");
         AssertEqual(0x8020, head.Health, "a body hit is a dud and never damages the head");
 
         // Lowered clear of that rectangle (and above the torso's), the same beam passes.
-        shot.Direction = 7;
+        shot.IsSpent = false;
         shot.Position = shot.Position.WithWholeY(0x0080);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus);
-        AssertTrue((shot.Direction & 0x0010) == 0, "a beam clear of every body rectangle passes");
+        AssertTrue(!shot.IsSpent, "a beam clear of every body rectangle passes");
         Console.WriteLine("Mother Brain body hitboxes: shots resolve against the body's extended frame rectangles.");
     }
 

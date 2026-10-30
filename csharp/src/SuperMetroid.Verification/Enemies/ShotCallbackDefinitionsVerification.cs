@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Enemies;
 
@@ -151,9 +152,9 @@ internal static class ShotCallbackDefinitionsVerification
             });
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             SamusProjectileSlot projectile = projectiles.Slots[0];
-            projectile.Type = 0x8000;
+            projectile.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
             projectile.Damage = 20;
-            projectile.Direction = 2;
+            projectile.Direction = SamusProjectileDirection.Right;
             projectile.Position = projectile.Position.WithWhole(enemy.Position.Whole);
             projectile.Radius = new(4, 4);
             projectile.Cursor = ProjectileFixtureCursors.Active;

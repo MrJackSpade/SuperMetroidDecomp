@@ -43,6 +43,13 @@ public static class SamusBeamCombinations
         ? TableOrder[index]
         : throw new ArgumentOutOfRangeException(nameof(index), index, "Beam-combination table index is outside $0-$F.");
 
+    /// <summary>The combination of the beam components in <paramref name="beams"/>; other equipment such as Charge is ignored.</summary>
+    public static SamusBeamCombination Of(SamusBeamFlags beams)
+    {
+        SamusBeamFlags components = beams & (SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma);
+        return TableOrder[Array.IndexOf(TableComponents, components)];
+    }
+
     /// <summary>Exposes the native table index and equipment-bit predicates for a beam combination.</summary>
     extension(SamusBeamCombination combination)
     {

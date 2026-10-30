@@ -150,7 +150,7 @@ internal static class ProjectileInstructionsVerification
                 if (deleted)
                 {
                     AssertEqual(0, slot.Damage, "Delete clears projectile occupancy");
-                    AssertEqual(0, bomb.Type, "Delete clears bomb occupancy");
+                    AssertTrue(bomb.Type.IsNone, "Delete clears bomb occupancy");
                     break;
                 }
                 AssertEqual(new VerifyLookupStream1ProjectileProgramsCase(timer, pointer, sprite, x, y, trail), new VerifyLookupStream1ProjectileProgramsCase(slot.InstructionTimer.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame), "Exact projectile frame matches ROM interpreter");

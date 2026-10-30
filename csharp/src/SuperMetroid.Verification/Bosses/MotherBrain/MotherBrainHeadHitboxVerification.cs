@@ -9,6 +9,8 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks Mother Brain's persistent head collision frame separately from her drawn brain animation.</summary>
 internal static class MotherBrainHeadHitboxVerification
@@ -41,7 +43,7 @@ internal static class MotherBrainHeadHitboxVerification
         head.InvincibilityTimer = WrappingCountdown.Start(0);
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Slots[0];
-        shot.Type = 0x901b; shot.Damage = 900; shot.Direction = 8;
+        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.PlasmaIceWave, charged: true); shot.Damage = 900; shot.Direction = SamusProjectileDirection.UpLeft;
         shot.Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.Radius = new(24, 24);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus);

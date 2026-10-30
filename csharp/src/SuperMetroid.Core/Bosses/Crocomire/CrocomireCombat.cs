@@ -63,7 +63,7 @@ internal sealed class CrocomireCombat
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
                                   c.Enemy.Definition.ShotBody == EnemyCallbackBody.None && c.UsesExtendedHitboxes &&
                                   c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,
-            c => ResolveCrocomireHitboxShot(c.Bomb.PackedType.Raw, c.Bomb.Position.Whole, c.SelectedShotAi));
+            c => ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShotAi));
     }
 
     /// <summary>Registers Crocomire's owned projectile setup, movement, and instruction handlers.</summary>
@@ -115,7 +115,7 @@ internal sealed class CrocomireCombat
                 if (!c.UsesExtendedHitboxes)
                     throw new InvalidDataException("Crocomire components require extended-spritemap collision.");
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-                ResolveCrocomireHitboxShot(c.Projectile.PackedType.Raw, c.Projectile.Position.Whole, c.HitboxShotAi);
+                ResolveCrocomireHitboxShot(c.Projectile.Type, c.Projectile.Position.Whole, c.HitboxShotAi);
                 return true;
             },
         });
@@ -154,7 +154,7 @@ internal sealed class CrocomireCombat
 
     /// <summary>Dispatches $A4:B951/$B968/$BA05/$BAB4 after multibox collision.</summary>
     private void ResolveCrocomireHitboxShot(
-        SamusProjectileTypeWord projectileType,
+        SamusProjectileType projectileType,
         Position16<RoomPixels> projectile,
         EnemyInteractionCallback? callback)
     {
@@ -317,7 +317,7 @@ internal sealed class CrocomireCombat
     private void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemySlot body,
-        SamusProjectileTypeWord projectileType,
+        SamusProjectileType projectileType,
         Position16<RoomPixels> projectile)
     {
         body.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -375,7 +375,7 @@ internal sealed class CrocomireCombat
 
     /// <summary>Places a dust effect at the shot impact while preserving its component-relative offset.</summary>
     private void SpawnCrocomireShotDust(
-        SamusProjectileTypeWord projectileType,
+        SamusProjectileType projectileType,
         Position16<RoomPixels> projectile)
     {
         MiscDustAnimation animationIndex = projectileType.Family != SamusProjectileFamily.SuperMissile

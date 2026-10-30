@@ -29,10 +29,10 @@ internal static class PirateHitboxShotActions
         if (enemy.DefinitionId != EnemyDefinitionId.PirateGoldNinja)
             return PirateHitboxShotAction.Normal;
 
-        SamusProjectileFamily family = projectile.PackedType.Family;
+        SamusProjectileFamily family = projectile.Type.Family;
         if (hitboxShotAi == EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot)
         {
-            if (family == SamusProjectileFamily.SuperMissile && projectile.Variable == 0)
+            if (family == SamusProjectileFamily.SuperMissile && projectile.MissileIgnition == SamusMissileIgnition.Pending)
                 return PirateHitboxShotAction.Ignore;
             return IsBeamOrMissile(family)
                 ? PirateHitboxShotAction.Reflect
@@ -45,7 +45,7 @@ internal static class PirateHitboxShotActions
         EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
         int vulnerabilityOffset = family switch
         {
-            SamusProjectileFamily.Beam => projectile.PackedType.BeamCombination.TableIndex,
+            SamusProjectileFamily.Beam => projectile.Type.BeamCombination.TableIndex,
             SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
             SamusProjectileFamily.SuperMissile =>
                 EnemyVulnerabilityDefinitions.SuperMissileOffset,

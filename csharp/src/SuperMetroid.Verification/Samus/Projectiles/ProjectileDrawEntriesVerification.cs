@@ -31,8 +31,7 @@ internal static class ProjectileDrawEntriesVerification
         AssertEqual(source, draw.Source, $"{subject} names its slot as the source");
         AssertTrue(draw is ImageSpriteDraw, $"{subject} is drawn from a pre-coloured sheet");
         var image = (ImageSpriteDraw)draw;
-        SamusBeamCombination beam = new SamusBeamLoadoutWord(artwork.EquippedBeams).Combination
-            ?? throw new InvalidOperationException($"{subject} uses an equipped-beam word with no combination.");
+        SamusBeamCombination beam = SamusBeamCombinations.Of(artwork.EquippedBeams);
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(ProjectileSheetFrames.For(beam));
         AssertTrue(ReferenceEquals(sheet.Image, image.Image.Sheet), $"{subject} is drawn from the {beam} beam's sheet");
         AssertEqual(sheet.Frame(frame), image.Image, $"{subject} shows its frame {frame}");

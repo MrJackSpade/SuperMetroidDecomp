@@ -1399,7 +1399,18 @@ internal static class RidleyFullMovieVerification
                     Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(slot.BlockIndex * 2)), NativeSnapshotMemory.PlmBlockIndex + offset);
                     Check($"PLM {slotIndex} PreInstruction", preInstruction, NativeSnapshotMemory.PlmPreInstruction + offset);
                     Check($"PLM {slotIndex} InstructionPointer", instruction, NativeSnapshotMemory.PlmInstructionPointer + offset);
-                    Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, NativeSnapshotMemory.PlmLoopTimer + offset);
+                    // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
+                    // compared as the family the recorded word decodes to, otherwise the loop counter is compared.
+                    if (slot.ProjectileHit is { } pendingHit)
+                    {
+                        SamusProjectileFamily recordedHit = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.PlmLoopTimer + offset)).Family;
+                        if (recordedHit != pendingHit.Family)
+                            mismatches.Add($"PLM {slotIndex} projectile hit: native={recordedHit} port={pendingHit.Family}");
+                    }
+                    else
+                    {
+                        Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, NativeSnapshotMemory.PlmLoopTimer + offset);
+                    }
                     Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, NativeSnapshotMemory.PlmRoomArgument + offset);
                     // The native sleep leaves the countdown at zero and lets it run on from $FFFF; the typed hold re-arms
                     // one on each pass. Both wake with one, so only a sleeping door's countdown is left uncompared.
@@ -1455,7 +1466,7 @@ internal static class RidleyFullMovieVerification
                 foreach (var bomb in runtime.BombProjectiles.Slots)
                 {
                     int address = NativeSnapshotMemory.ProjectileType + (bomb.Index + 5) * 2;
-                    Check($"Bomb {bomb.Index} type", bomb.Type, address);
+                    AssertTrue(bomb.Type.IsNone, $"Bomb {bomb.Index} holds no bomb");
                     AssertTrue(W(address) == 0,
                         "Movie now activates a bomb slot; add its full live-state mapping");
                 }
@@ -1477,8 +1488,11 @@ internal static class RidleyFullMovieVerification
             {
                 int index = projectile.SlotTableOffset;
                 string owner = $"Projectile {projectile.SlotIndex}";
-                Check(owner + " type", projectile.Type, NativeSnapshotMemory.ProjectileType + index);
-                if (projectile.Type == 0 || W(NativeSnapshotMemory.ProjectileType + index) == 0) continue;
+                // The recorded type, direction and missile variable words are compared as the projectile state they decode to.
+                SamusProjectileType recordedType = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.ProjectileType + index));
+                if (projectile.Type != recordedType)
+                    mismatches.Add($"{owner} type: native={recordedType} port={projectile.Type}");
+                if (projectile.Type.IsNone || recordedType.IsNone) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.ProjectileX + index);
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.ProjectileY + index);
                 Check(owner + " X radius", projectile.Radius.X, NativeSnapshotMemory.ProjectileXRadius + index);
@@ -1488,7 +1502,10 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " YFraction", unchecked(projectile.Position.Y.Fraction), NativeSnapshotMemory.ProjectileYFraction + index);
                 Check(owner + " XVelocity", unchecked((ushort)projectile.Velocity.X.SignedRawValue), NativeSnapshotMemory.ProjectileXVelocity + index);
                 Check(owner + " YVelocity", unchecked((ushort)projectile.Velocity.Y.SignedRawValue), NativeSnapshotMemory.ProjectileYVelocity + index);
-                Check(owner + " Direction", unchecked((ushort)projectile.Direction), NativeSnapshotMemory.ProjectileDirection + index);
+                ushort recordedDirection = W(NativeSnapshotMemory.ProjectileDirection + index);
+                if (projectile.Direction != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(recordedDirection) ||
+                    projectile.IsSpent != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeSpent(recordedDirection))
+                    mismatches.Add($"{owner} Direction: native={recordedDirection:X4} port={projectile.Direction} spent={projectile.IsSpent}");
                 Check(owner + " Instruction", unchecked((ushort)projectile.InstructionPointer), NativeSnapshotMemory.ProjectileInstruction + index);
                 ushort callback = projectile.PreInstruction switch
                 {
@@ -1515,7 +1532,14 @@ internal static class RidleyFullMovieVerification
                 };
                 Check(owner + " PreInstruction", callback, NativeSnapshotMemory.ProjectilePreInstruction + index);
                 Check(owner + " InstructionTimer", unchecked(projectile.InstructionTimer.RawValue), NativeSnapshotMemory.ProjectileInstructionTimer + index);
-                Check(owner + " Variable", unchecked((ushort)projectile.Variable), NativeSnapshotMemory.ProjectileVariable + index);
+                // Only missiles keep state in the variable word that this movie reaches: their ignition and link.
+                if (projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
+                {
+                    ushort recordedVariable = W(NativeSnapshotMemory.ProjectileVariable + index);
+                    if (projectile.MissileIgnition != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileIgnition(recordedVariable) ||
+                        projectile.SuperMissileLinkSlot != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable))
+                        mismatches.Add($"{owner} missile ignition: native={recordedVariable:X4} port={projectile.MissileIgnition}/{projectile.SuperMissileLinkSlot}");
+                }
                 Check(owner + " TrailTimer", unchecked(projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
                 Check(owner + " AuxiliaryPhase", unchecked((ushort)projectile.AuxiliaryPhase), NativeSnapshotMemory.ProjectileAuxiliaryPhase + index);
                 Check(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), NativeSnapshotMemory.ProjectileSpritemap + index);

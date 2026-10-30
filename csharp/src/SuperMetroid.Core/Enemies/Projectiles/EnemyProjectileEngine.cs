@@ -177,7 +177,7 @@ internal sealed class EnemyProjectileEngine
                 if (!shot.HasEnemyCollisionPayload)
                     continue;
 
-                SamusProjectileTypeWord shotType = shot.PackedType;
+                SamusProjectileType shotType = shot.Type;
                 if (shotType.Family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or
                     SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                     continue;
@@ -191,14 +191,12 @@ internal sealed class EnemyProjectileEngine
                     continue;
                 }
 
-                // `$A0:99F9-$9A07` only sets direction lifecycle bit $10 for non-plasma
-                // shots. It does not call the ordinary enemy-impact routine and therefore
-                // cannot rewrite a freshly fired Super Missile (or its invisible link) to
-                // family $0800 in the producer frame. Its own pre-instruction consumes the
-                // mark on the next projectile pass.
-                int collidedProjectileType = shot.PackedType.Raw;
-                if ((collidedProjectileType & 8) == 0)
-                    shot.Direction = shot.PackedDirection.WithCollisionLifecycleState();
+                // `$A0:99F9-$9A07` only marks non-plasma shots spent. It does not call the
+                // ordinary enemy-impact routine and therefore cannot turn a freshly fired
+                // Super Missile (or its invisible link) into an explosion in the producer
+                // frame. Its own pre-instruction consumes the mark on the next projectile pass.
+                if (!shot.Type.HasAnyBeam(SamusBeamFlags.Plasma))
+                    shot.IsSpent = true;
 
                 if (enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.IndestructibleDud)
                 {
@@ -206,7 +204,6 @@ internal sealed class EnemyProjectileEngine
                 }
                 else
                 {
-                    enemyProjectile.CollidedProjectileType = collidedProjectileType;
                     // Every shot list without a typed reaction of its own is the shared delete list.
                     enemyProjectile.StartAnimation(Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation)
                         ? shotAnimation()
@@ -978,7 +975,7 @@ internal sealed class EnemyProjectileEngine
             RoomSpriteObjectKind.EnemyProjectileDud,
             graphics: default);
         LastEnemyProjectileDudSoundEffect = Library1Sound.DudShot;
-        projectile.Direction = unchecked((ushort)(projectile.Direction | SamusProjectileDirectionMasks.Spent));
+        projectile.IsSpent = true;
     }
 
     /// <summary>

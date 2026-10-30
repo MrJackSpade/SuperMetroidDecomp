@@ -69,15 +69,21 @@ internal static class HeroShotsVerification
                 projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), shared);
                 if (native is not null)
                 {
+                    ushort[] expected = native[new HeroShotsNative(vertical ? 1 : 0, cameraMode, frame)];
+                    // The recorded type word is compared as the projectile it decodes to: the column agrees when the
+                    // shot is that projectile.
+                    const int TypeColumn = 8;
+                    ushort type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(expected[TypeColumn]) == shot.Type
+                        ? expected[TypeColumn] : unchecked((ushort)~expected[TypeColumn]);
                     ushort[] actual = [cameraX, cameraY, shot.Position.X.Whole, shot.Position.X.Fraction,
                         shot.Position.Y.Whole, shot.Position.Y.Fraction, unchecked((ushort)shot.Velocity.X.SignedRawValue),
-                        unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.PackedType.Raw, checked((ushort)shot.InstructionPointer)];
-                    AssertTrue(actual.SequenceEqual(native[new HeroShotsNative(vertical ? 1 : 0, cameraMode, frame)]),
+                        unchecked((ushort)shot.Velocity.Y.SignedRawValue), type, checked((ushort)shot.InstructionPointer)];
+                    AssertTrue(actual.SequenceEqual(expected),
                         $"Native Hero trace vertical={vertical}, camera={cameraMode}, frame={frame}: actual {string.Join(',', actual.Select(x => x.ToString("X4")))}");
                     comparedFrames++;
                 }
                 if (frame == 0) AssertEqual(0, beforeStep.FiredSlot(projectiles), "Hero fixture fires through normal input dispatch");
-                if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
+                if (shot.Type.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impactFrame = frame;
                     AssertTrue(vertical ? shot.Position.Y.Whole is >= 248 and <= 288 : shot.Position.X.Whole is >= 496 and <= 520,

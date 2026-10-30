@@ -134,11 +134,11 @@ internal static class ProjectileCompositionsVerification
             var bombs = new SamusBombProjectileSystem();
             var shot = shots.Slots[0];
             shot.Cursor = ProjectileFixtureCursors.Active; shot.SpritemapPointer = id;
-            shot.Type = type; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
+            shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
             shot.Damage = 123; shot.Radius = shot.Radius.WithX(7).WithY(9);
             var bomb = bombs.Slots[0];
             bomb.Cursor = ProjectileFixtureCursors.Active; bomb.SpritemapPointer = id;
-            bomb.Type = type; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
+            bomb.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
             bomb.BombTimer = WrappingCountdown.Start(1);
             foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
@@ -206,13 +206,13 @@ internal static class ProjectileCompositionsVerification
             if (family == 0x500)
             {
                 var slot = runtime.BombProjectiles.Slots[0];
-                slot.Type = family; slot.Cursor = ProjectileFixtureCursors.Active; slot.SpritemapPointer = sprite;
+                slot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); slot.Cursor = ProjectileFixtureCursors.Active; slot.SpritemapPointer = sprite;
                 slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
             else
             {
                 var slot = runtime.Projectiles.Slots[0];
-                slot.Type = family; slot.Cursor = ProjectileFixtureCursors.Active; slot.SpritemapPointer = sprite;
+                slot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); slot.Cursor = ProjectileFixtureCursors.Active; slot.SpritemapPointer = sprite;
                 slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
             SpriteSheet power = sheets.Get(SpriteSheetId.ProjectilesPower);

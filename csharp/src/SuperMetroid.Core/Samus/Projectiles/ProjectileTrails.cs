@@ -23,20 +23,27 @@ internal sealed class ProjectileTrails
     internal void SpawnTrail(SamusProjectileSlot projectile)
     {
         int trailEntry;
-        if (projectile.PackedType.IsFamily(SamusProjectileFamily.Beam))
+        switch (projectile.Type.Family)
         {
-            // Beam indices retain charge/SBA bits in the low six bits. Charged plain power
-            // therefore selects entry $10, not ordinary-power entry zero.
-            trailEntry = projectile.Type & 63;
-        }
-        else
-        {
-            // Missiles and supers map families $01/$02 to table entries $20/$21. Other
-            // projectile families return carry set and do not consume a trail slot.
-            int family = SamusProjectileFamilies.IndexOf(projectile.PackedType.Raw);
-            if (family >= 3)
+            case SamusProjectileFamily.Beam:
+                // Beams select by their beam-table row, so charged plain power selects
+                // the charged row, not ordinary power's.
+                trailEntry = projectile.Type.BeamTableRow;
+                break;
+            case SamusProjectileFamily.Missile:
+                trailEntry = ProjectileTrailDefinitions.FirstSpecialSelection;
+                break;
+            case SamusProjectileFamily.SuperMissile:
+                trailEntry = ProjectileTrailDefinitions.FirstSpecialSelection + 1;
+                break;
+            case SamusProjectileFamily.PowerBomb:
+            case SamusProjectileFamily.Bomb:
+            case SamusProjectileFamily.BeamExplosion:
+            case SamusProjectileFamily.MissileExplosion:
+                // Other families do not consume a trail slot.
                 return;
-            trailEntry = family + 31;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(SamusProjectileFamily)} {projectile.Type.Family}.");
         }
 
         ProjectileTrailProgram? leftProgram = ProjectileTrailSelection.Select(trailEntry, HorizontalDirection.Left);
@@ -45,11 +52,11 @@ internal sealed class ProjectileTrails
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
         int animationFrame = GetTrailAnimationFrame(projectile, Overreads);
-        ProjectileTrailFamilyGroup group = (projectile.Type & 1 << 5) != 0
+        ProjectileTrailFamilyGroup group = projectile.Type.Echo is not null
             ? ProjectileTrailFamilyGroup.SpecialBeamAttack
-            : projectile.PackedType.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged;
+            : projectile.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged;
         ProjectileTrailPlacementList? list = ProjectileTrailPlacements.List(
-            group, projectile.PackedType.BeamCombination, projectile.PackedDirection.DirectionIndex);
+            group, projectile.Type.BeamCombination, projectile.Direction.ToAimIndex());
 
         // A selection that names no program or placement list draws no trail, and so does a read that reaches direct-page
         // scratch: its exact appearance would need direct-page emulation the port does not model, so it is exempt (owner

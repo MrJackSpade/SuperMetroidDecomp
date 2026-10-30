@@ -352,13 +352,13 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         if (!state.HasPendingHit)
             return;
 
-        SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
+        SamusProjectileFamily? family = slot.ProjectileHit?.Family;
         if (family == SamusProjectileFamily.SuperMissile)
             slot.HitCounter = DraygonCannonDefinitions.SuperMissileHitCounterSeed;
         else if (family != SamusProjectileFamily.Missile)
             return;
 
-        slot.LoopTimer = 0;
+        slot.ProjectileHit = null;
         state.HasPendingHit = false;
         slot.WakeAtLink();
     }

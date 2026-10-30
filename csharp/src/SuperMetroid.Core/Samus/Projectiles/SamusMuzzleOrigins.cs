@@ -31,10 +31,13 @@ internal static class SamusMuzzleOrigins
         _ => throw new InvalidOperationException("Muzzle source owner must contain a named direction."),
     };
 
-    /// <summary>Reads the selected X/Y muzzle offsets using the native low-nibble direction and running table layout.</summary>
-    internal static Offset16<RoomPixels> Read(bool running, SamusProjectileDirectionWord direction)
+    /// <summary>
+    /// Reads the X/Y muzzle offsets at an aim index in the running or ordinary origin table. Indices past the ten
+    /// directions read the adjacent origin and cooldown rows.
+    /// </summary>
+    internal static Offset16<RoomPixels> Read(bool running, int aimIndex)
     {
-        int offset = direction.DirectionIndex * sizeof(ushort);
+        int offset = aimIndex * sizeof(ushort);
         int x = running ? SamusFiringTableDefinitions.RunningXOrigins : SamusFiringTableDefinitions.DefaultXOrigins;
         int y = running ? SamusFiringTableDefinitions.RunningYOrigins : SamusFiringTableDefinitions.DefaultYOrigins;
         return new Offset16<RoomPixels>(ReadWord(x + offset), ReadWord(y + offset));

@@ -177,11 +177,11 @@ internal static class IntroMotherBrainDefinitionsVerification
         SamusProjectileSlot missile = shots.Slots[0];
         for (int hit = 1; hit <= 5; hit++)
         {
-            missile.Type = 0x0100;
+            missile.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
             missile.Position = missile.Position.WithWhole(new(0x40, 0x80));
             bool fourth = motherBrain.TakeMissileHit(shots.EnemyImpacts, bombs);
             AssertEqual(hit == 4, fourth, $"missile {hit} starts the explosion only on the fourth hit");
-            AssertEqual(hit <= 4, missile.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion),
+            AssertEqual(hit <= 4, missile.Type.IsFamily(SamusProjectileFamily.MissileExplosion),
                 $"missile {hit} is killed only while $8B:B786 tests missiles");
             AssertEqual(Math.Min(hit, 4), motherBrain.HitCount, $"missile {hit} leaves the hit count at most four");
         }

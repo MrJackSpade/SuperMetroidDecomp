@@ -14,6 +14,9 @@ using SuperMetroid.Core.Progression;
 /// <summary>Checks a missile impact at two camera positions against a native frame trace.</summary>
 internal static class MissileEdgeVerification
 {
+    /// <summary>The recorded trace's column holding the projectile type word, after the edge and frame columns.</summary>
+    private const int NativeTypeColumn = 6;
+
     /// <summary>Compares projectile position, velocity, type, instruction, and explosion lifetime on every recorded frame.</summary>
     internal static void VerifyMissileImpactCameraEdge(string nativeTrace)
     {
@@ -39,12 +42,16 @@ internal static class MissileEdgeVerification
                 if (frame == 0) AssertEqual(4, samus.Missiles,
                     "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Slots[0];
+                ushort[] expected = native[new MissileEdgeNative(edge, frame)];
                 ushort[] actual = [shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
-                    unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.PackedType.Raw, checked((ushort)shot.InstructionPointer)];
-                AssertTrue(actual.SequenceEqual(native[new MissileEdgeNative(edge, frame)]),
+                    unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), checked((ushort)shot.InstructionPointer)];
+                // The recorded type word is compared as the projectile it decodes to.
+                AssertTrue(actual.SequenceEqual(expected.Where((_, column) => column != NativeTypeColumn)),
                     $"Missile edge={edge} frame={frame} native comparison: {string.Join(',', actual.Select(v => v.ToString("X4")))}");
+                AssertEqual(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(expected[NativeTypeColumn]), shot.Type,
+                    $"Missile edge={edge} frame={frame} projectile matches the recorded type");
                 compared++;
-                if (!shot.IsActive || shot.PackedType.Family == SamusProjectileFamily.MissileExplosion)
+                if (!shot.IsActive || shot.Type.Family == SamusProjectileFamily.MissileExplosion)
                 {
                     AssertEqual(edge == 0, shot.IsActive, "Only the centered-camera impact retains its explosion");
                     break;

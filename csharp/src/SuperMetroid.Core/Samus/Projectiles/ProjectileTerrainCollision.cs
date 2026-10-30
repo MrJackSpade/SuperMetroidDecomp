@@ -56,12 +56,12 @@ internal sealed class ProjectileTerrainCollision
         // the sole exception: `$90:BDA4/$BDF2` writes -1 before the horizontal scan so the
         // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
         // including the cartridge's counterintuitive right-edge initial horizontal probe.
-        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(slot.PackedDirection.Direction == SamusProjectileDirection.Left
+        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(slot.Direction == SamusProjectileDirection.Left
             ? (short)-1
             : (short)0));
         slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(0));
 
-        SamusProjectileDirection? direction = slot.PackedDirection.Direction;
+        SamusProjectileDirection direction = slot.Direction;
         bool collided = false;
         if (direction is
             SamusProjectileDirection.UpRight or
@@ -249,8 +249,8 @@ internal sealed class ProjectileTerrainCollision
     private static bool SquareSlopeShotReaction(SamusProjectileSlot slot, RoomCollisionBlock block,
         ShotSpan span, bool horizontalMovement)
     {
-        if (slot.PackedType.IsFamily(SamusProjectileFamily.Missile) ||
-            slot.PackedType.IsFamily(SamusProjectileFamily.SuperMissile))
+        if (slot.Type.IsFamily(SamusProjectileFamily.Missile) ||
+            slot.Type.IsFamily(SamusProjectileFamily.SuperMissile))
         {
             // Missiles take the point test in RunMissilePreInstruction; the native missile
             // branch ($1E set) has no caller in this port.
@@ -346,7 +346,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
-            NotifyResidentProjectileHit(roomPlms, block, slot.PackedType.Raw);
+            NotifyResidentProjectileHit(roomPlms, block, slot.Type);
             return true;
         }
 
@@ -357,7 +357,7 @@ internal sealed class ProjectileTerrainCollision
                 // Gate setup ends the caller's span and forces its collision counter.
                 // A full PLM pool skips setup entirely, so it must not end the scan.
                 endSpan = roomPlms?.BlockReactions.TrySpawnProjectileShotBlock(
-                    level, block.Index, block.Behavior, slot.PackedType.Raw,
+                    level, block.Index, block.Behavior, slot.Type,
                     block.CollisionType == RoomCollisionType.ShootableBlock) == true;
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
@@ -442,7 +442,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Behavior.TryGetDownwardGateTrigger(out _))
         {
-            roomPlms.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, slot.PackedType);
+            roomPlms.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, slot.Type);
             return;
         }
 
@@ -451,7 +451,7 @@ internal sealed class ProjectileTerrainCollision
         // after generic trigger $C83E publishes the projectile word.
         if (block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
-            NotifyResidentProjectileHit(roomPlms, block, slot.PackedType.Raw);
+            NotifyResidentProjectileHit(roomPlms, block, slot.Type);
             return;
         }
 
@@ -466,7 +466,7 @@ internal sealed class ProjectileTerrainCollision
                 level,
                 block.Index,
                 block.Behavior,
-                slot.PackedType.Raw);
+                slot.Type);
             return;
         }
 
@@ -486,7 +486,7 @@ internal sealed class ProjectileTerrainCollision
                 level,
                 block.Index,
                 block.Behavior,
-                slot.PackedType.Raw,
+                slot.Type,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }
     }
@@ -495,7 +495,7 @@ internal sealed class ProjectileTerrainCollision
     private static void NotifyResidentProjectileHit(
         ISamusRoomPlms? roomPlms,
         RoomCollisionBlock block,
-        SamusProjectileTypeWord projectileType)
+        SamusProjectileType projectileType)
     {
         if (roomPlms is not null &&
             roomPlms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, projectileType))
@@ -531,7 +531,7 @@ internal sealed class ProjectileTerrainCollision
     {
         // `$90:AE3A` moves the explosion anchor to the leading edge before bank $93 swaps
         // the instruction list. Diagonals adjust both axes in their respective signs.
-        int direction = slot.PackedDirection.DirectionIndex;
+        int direction = slot.Direction.ToAimIndex();
         if (direction is 1 or 2 or 3)
             slot.Position += new Offset16<RoomPixels>(unchecked((short)slot.Radius.X), 0);
         else if (direction is 6 or 7 or 8)
@@ -542,7 +542,7 @@ internal sealed class ProjectileTerrainCollision
         else if (direction is 3 or 4 or 5 or 6)
             slot.Position += new Offset16<RoomPixels>(0, unchecked((short)slot.Radius.Y));
 
-        slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.BeamExplosion);
+        slot.Type = slot.Type.AsFamily(SamusProjectileFamily.BeamExplosion);
         slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BeamExplosion);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Damage = 8;
@@ -557,7 +557,7 @@ internal sealed class ProjectileTerrainCollision
         // The native kill dispatcher clears families beyond missiles immediately. A Super
         // Missile's supplemental probe can collide again after becoming an explosion;
         // restarting its animation here would extend both its lifetime and damage.
-        if (slot.PackedType.IsFamilyAtOrAfter(SamusProjectileFamily.PowerBomb))
+        if (slot.Type.Family.IsBombOrExplosion)
         {
             _animation.ClearProjectile(slot);
             return;
@@ -569,8 +569,8 @@ internal sealed class ProjectileTerrainCollision
         // Impact audio is separate from launch audio and can also originate in enemy
         // collision before the projectile movement owner executes.
         _impactAudio.RequestMissileImpactSound(sharedProjectiles.PowerBombExplosion);
-        bool wasSuperMissile = slot.PackedType.IsFamily(SamusProjectileFamily.SuperMissile);
-        slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.MissileExplosion);
+        bool wasSuperMissile = slot.Type.IsFamily(SamusProjectileFamily.SuperMissile);
+        slot.Type = slot.Type.AsFamily(SamusProjectileFamily.MissileExplosion);
         slot.Cursor = SamusProjectilePrograms.Start(
             wasSuperMissile ? SamusProjectileProgram.SuperMissileExplosion : SamusProjectileProgram.MissileExplosion);
         slot.InstructionTimer = WrappingCountdown.Start(1);

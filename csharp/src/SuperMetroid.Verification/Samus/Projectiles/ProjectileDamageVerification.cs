@@ -61,18 +61,18 @@ internal static class ProjectileDamageVerification
             system.Firing.TryFireBeam(room, samus, ControllerButton.X, new SamusBombProjectileSystem(), null, charged);
             var slot = system.Slots[0];
             int table = charged ? SamusProjectileBeamTables.ChargedDataPointers : SamusProjectileBeamTables.UnchargedDataPointers;
-            Check(slot, table, beam, slot.Direction & 15);
+            Check(slot, table, beam, slot.Direction.ToAimIndex());
             system.EnemyImpacts.ReflectFromEnemy(samus, 0);
-            Check(slot, table, beam, slot.Direction & 15);
+            Check(slot, table, beam, slot.Direction.ToAimIndex());
         }
         foreach (ushort item in new ushort[] { 1, 2 })
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None); var samus = Samus(); samus.SelectedHudItem = HudItems.Decode(item);
             var result = system.Firing.TryFireMissile(samus, ControllerButton.X, 0, new SamusBombProjectileSystem());
             AssertEqual(0, result.Slot, "Missile allocation succeeds");
-            Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction & 15);
+            Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction.ToAimIndex());
             system.EnemyImpacts.ReflectFromEnemy(samus, 0);
-            Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction & 15);
+            Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction.ToAimIndex());
             if (item == 2)
             {
                 system.Motion.SpawnSuperMissileLink(samus, system.Slots[0]);
@@ -141,7 +141,7 @@ internal static class ProjectileDamageVerification
     {
         for (int slot = 0; slot < 4; slot++)
             AssertEqual(readWord(BeamComboDefinitions.OriginAngles + slot * 2),
-                SamusComboMechanics.GetOriginAngle(slot),
+                (ushort)SamusComboMechanics.GetOriginAngle(slot).RawValue,
                 $"compiled combo origin angle {slot}");
         AssertThrows<ArgumentOutOfRangeException>(
             () => SamusComboMechanics.GetOriginAngle(4),
@@ -203,17 +203,15 @@ internal static class ProjectileDamageVerification
             for (int slot = 0; slot < 4; slot++)
                 AssertEqual(beam is 2 or 8
                         ? SamusComboMechanics.GetOriginAngle(slot)
-                        : (ushort)0,
-                    projectiles.Slots[slot].Variable,
+                        : default,
+                    projectiles.Slots[slot].ComboAngle,
                     $"beam {beam:X} slot {slot} receives its compiled origin angle");
 
             if (beam == 1)
                 continue;
             SamusProjectileSlot first = projectiles.Slots[0];
-            ushort angle = checked((ushort)first.Variable);
             ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.Velocity.X.SignedRawValue);
-            Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(
-                new ByteAngle(unchecked((byte)angle)), amplitude);
+            Offset16<RoomPixels> offset = SamusComboMechanics.GetSineOffset(first.ComboAngle, amplitude);
             if (beam == 2)
                 projectiles.Combos.StepIceCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             else if (beam == 4)
@@ -256,9 +254,9 @@ internal static class ProjectileDamageVerification
                 $"{pose} Plasma special attack activates");
             AssertEqual(step, projectiles.Combos.ComboState, $"{pose} Plasma special attack angle step");
             SamusProjectileSlot first = projectiles.Slots[0];
-            first.Variable = from;
+            first.ComboAngle = new ByteAngle(checked((byte)from));
             projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
-            AssertEqual(to, first.Variable, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
+            AssertEqual(new ByteAngle(checked((byte)to)), first.ComboAngle, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
         }
         Console.WriteLine("Special beam angle step: right- and left-facing Plasma attacks wrap the slot angle at the byte boundary.");
     }

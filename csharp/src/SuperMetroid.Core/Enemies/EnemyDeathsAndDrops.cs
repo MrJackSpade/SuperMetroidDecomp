@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies;
@@ -153,14 +152,13 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Chooses header death art, upgrading a small explosion for Super Missile kills.</summary>
     internal static int SelectNormalShotDeathAnimation(
         RoomEnemySlot enemy,
-        SamusProjectileTypeWord projectileType,
+        SamusProjectileType projectileType,
         ShotDeathAnimationRule rule = ShotDeathAnimationRule.ByProjectile)
     {
         if (rule == ShotDeathAnimationRule.PirateBigExplosion)
             return 4;
 
-        int causeOfDeath = (ushort)SamusProjectileFamilies.IndexOf(projectileType.Raw);
-        if (causeOfDeath != 2)
+        if (projectileType.Family != SamusProjectileFamily.SuperMissile)
             return enemy.Definition.DeathAnimation;
 
         // A Super Missile raises headers zero, one and two to explosion two and keeps three

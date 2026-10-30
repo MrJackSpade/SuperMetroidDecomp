@@ -38,6 +38,13 @@ internal sealed class PlmSlot
         set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
     /// <summary>
+    /// The projectile hit on the slot's trigger block that its pre-instruction has not yet consumed, or null for none.
+    /// The cartridge keeps the hit in the loop counter's storage; no PLM that reads hits runs a counted loop while its
+    /// block still triggers (the eye door turns its block into a blue door before its counted opening flashes), so the
+    /// two are kept apart.
+    /// </summary>
+    public ResidentPlmProjectileHit? ProjectileHit { get; set; }
+    /// <summary>
     /// The semantic state of the family this slot belongs to, or null while the slot runs only its native words under the
     /// shared pre-instruction, timer and instruction interpreter.
     /// </summary>
@@ -61,6 +68,7 @@ internal sealed class PlmSlot
         Argument = null;
         HitCounter = 0;
         LoopTimer = 0;
+        ProjectileHit = null;
         Family = null;
     }
 

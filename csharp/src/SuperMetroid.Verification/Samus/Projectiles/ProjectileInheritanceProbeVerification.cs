@@ -118,7 +118,7 @@ internal static class ProjectileInheritanceProbeVerification
                     3 or 4 or 5 or 6 => speed + LittleEndianBytes.Word(LittleEndianBytes.HighByte(snapshot[6]), unchecked((byte)snapshot[7])),
                     _ => 0,
                 }));
-                AssertEqual(new EightEightVector<RoomPixels>(x, y), inheritance.ReadVelocity(direction, speed),
+                AssertEqual(new EightEightVector<RoomPixels>(x, y), inheritance.ReadVelocity(SamusProjectileDirections.At(direction), speed),
                     "projectile inheritance preserves each directional overlapping word");
             }
         }
@@ -133,15 +133,15 @@ internal static class ProjectileInheritanceProbeVerification
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         samus.ProjectileInheritance.ClearMovement();
         SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = 0x00031234 });
-        AssertEqual((short)0x0300, samus.ProjectileInheritance.ReadVelocity(2, 0).X.SignedRawValue,
+        AssertEqual((short)0x0300, samus.ProjectileInheritance.ReadVelocity(SamusProjectileDirection.Right, 0).X.SignedRawValue,
             "Live movement publishes right integer displacement");
         SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = -0x00018000 });
-        AssertEqual(unchecked((short)0xfe00), samus.ProjectileInheritance.ReadVelocity(7, 0).X.SignedRawValue,
+        AssertEqual(unchecked((short)0xfe00), samus.ProjectileInheritance.ReadVelocity(SamusProjectileDirection.Left, 0).X.SignedRawValue,
             "Negative movement preserves two's-complement integer half");
-        AssertEqual((short)0x0380, samus.ProjectileInheritance.ReadVelocity(2, 0).X.SignedRawValue,
+        AssertEqual((short)0x0380, samus.ProjectileInheritance.ReadVelocity(SamusProjectileDirection.Right, 0).X.SignedRawValue,
             "Opposite direction fraction leaks into rightward velocity, not net displacement");
         SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = 0x00020000 });
-        AssertEqual((short)0x0280, samus.ProjectileInheritance.ReadVelocity(2, 0).X.SignedRawValue,
+        AssertEqual((short)0x0280, samus.ProjectileInheritance.ReadVelocity(SamusProjectileDirection.Right, 0).X.SignedRawValue,
             "Second move overwrites one directional record instead of accumulating");
         var records = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance);
         byte[] beforeProbe = records.Capture();
@@ -156,7 +156,7 @@ internal static class ProjectileInheritanceProbeVerification
             "Collision publishes clipped displacement, not the twenty-pixel request");
         samus.ProjectileInheritance.CameraYSubspeed = 0xabcd;
         samus.ProjectileInheritance.ClearMovement();
-        AssertEqual(unchecked((short)0xfcab), samus.ProjectileInheritance.ReadVelocity(7, 0x400).X.SignedRawValue,
+        AssertEqual(unchecked((short)0xfcab), samus.ProjectileInheritance.ReadVelocity(SamusProjectileDirection.Left, 0x400).X.SignedRawValue,
             "Alpha reset preserves camera fractional high byte");
         AssertTrue(records.CaptureDistanceRecords().All(value => value == 0),
             "Alpha reset clears exactly all eight directional words");

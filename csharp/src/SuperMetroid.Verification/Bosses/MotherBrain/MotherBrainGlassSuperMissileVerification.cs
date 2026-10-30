@@ -11,6 +11,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Reproduces a Super Missile pair striking Mother Brain's first-form glass.</summary>
 internal static class MotherBrainGlassSuperMissileVerification
@@ -49,7 +50,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         for (int slot = 0; slot < pair.Length; slot++)
         {
             var shot = shots.Slots[slot];
-            shot.Type = 0x8200; shot.Damage = 300; shot.Direction = 7;
+            shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Left;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(pair[slot].Radius, pair[slot].Radius);
             shot.Cursor = SamusProjectileProgramAddresses.CursorAt(pair[slot].List); shot.InstructionTimer = WrappingCountdown.Start(1);
             shot.PreInstruction = pair[slot].Pre;
@@ -60,8 +61,8 @@ internal static class MotherBrainGlassSuperMissileVerification
         AssertEqual(1, glassHits, "the hit advances the glass PLM argument once");
         AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == Library2Sound.ShotMotherBrain),
             "the hit queues library-two $6E");
-        AssertTrue(shots.Slots[0].PackedDirection.HasLowByteLifecycleState, "the walker marks the first slot");
-        AssertTrue(!shots.Slots[1].PackedDirection.HasLowByteLifecycleState, "the pair's second slot is not marked");
+        AssertTrue(shots.Slots[0].IsSpent, "the walker marks the first slot");
+        AssertTrue(!shots.Slots[1].IsSpent, "the pair's second slot is not marked");
 
         var level = CreateEmptyRoom(new(16, 16));
         shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);

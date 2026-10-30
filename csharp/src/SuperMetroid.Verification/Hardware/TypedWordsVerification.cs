@@ -530,17 +530,17 @@ internal static void VerifyTypedNativeWords()
         () => SnesObjAttributeWordConstants.FromPaletteBits(0x1000),
         "OBJ palette fragment rejects priority bits");
 
-    // The $1000 high bit is deliberately outside every named projectile field here. Family
-    // replacement changes only bits 8-11 and must therefore retain that unknown state.
-    var projectileType = new SamusProjectileTypeWord(0x9219);
+    // The import codec decodes a projectile type word once into the projectile it records; the Charge
+    // equipment bit ($1000) records nothing the game reads and is not carried.
+    SamusProjectileType projectileType = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x9219);
     AssertEqual(SamusProjectileFamily.SuperMissile, projectileType.Family,
-        "projectile family enum");
-    AssertEqual(SamusBeamCombination.PlasmaWave, projectileType.BeamCombination, "projectile low-nibble payload");
-    AssertTrue(projectileType.IsChargedBeam && projectileType.IsLive,
-        "projectile verified control fields");
-    AssertEqual(0x9819,
-        projectileType.WithFamily(SamusProjectileFamily.MissileExplosion),
-        "projectile family replacement preserves all other bits");
+        "projectile family decodes from the family row");
+    AssertEqual(SamusBeamCombination.PlasmaWave, projectileType.BeamCombination, "projectile beams decode from the low nibble");
+    AssertTrue(projectileType.IsChargedBeam, "projectile charge decodes from its bit");
+    AssertEqual(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x9819),
+        projectileType.AsFamily(SamusProjectileFamily.MissileExplosion),
+        "a projectile becoming another family keeps its beams and charge");
+    AssertTrue(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0).IsNone, "the zero type word is no projectile");
 
     ProjectileDispatchCase[] projectileDispatchCases =
     [
@@ -552,26 +552,21 @@ internal static void VerifyTypedNativeWords()
     ];
     foreach ((ushort raw, SamusProjectileFamily family) in projectileDispatchCases)
     {
-        SamusProjectileTypeWord dispatchWord = new(raw);
-        AssertEqual(family, dispatchWord.Family,
-            $"projectile family dispatch for raw word ${raw:X4}");
-        AssertTrue(dispatchWord.IsFamily(family),
+        SamusProjectileType dispatchType = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(raw);
+        AssertEqual(family, dispatchType.Family,
+            $"projectile family decoded from raw word ${raw:X4}");
+        AssertTrue(dispatchType.IsFamily(family),
             $"projectile family predicate for raw word ${raw:X4}");
     }
 
-    var direction = new SamusProjectileDirectionWord(0xab07);
-    AssertEqual(SamusProjectileDirection.Left, direction.Direction,
-        "projectile direction enum");
-    AssertTrue(direction.IsValidInitialDirection,
-        "projectile direction ignores deliberately unnamed high byte");
-    AssertTrue(!new SamusProjectileDirectionWord(0x0017).IsValidInitialDirection,
-        "projectile low-byte lifecycle state rejects initial movement");
-
-    var beams = new SamusBeamLoadoutWord((SamusBeamFlags)0x9009);
-    AssertTrue(beams.HasAny(SamusBeamFlags.Charge | SamusBeamFlags.Plasma),
-        "beam loadout exposes verified flags");
-    AssertEqual(0x9002, beams.WithCombinationIndex(2),
-        "beam combination replacement preserves upper raw bits");
+    AssertEqual(SamusProjectileDirection.Left, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(0xab07),
+        "projectile direction decodes from the low nibble");
+    AssertTrue(!SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeSpent(0xab07),
+        "projectile direction word's high byte records nothing spent");
+    AssertTrue(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeSpent(0x0017),
+        "projectile low-byte lifecycle bit decodes as spent");
+    AssertEqual(SamusBeamCombination.Plasma, SamusBeamCombinations.Of(SamusBeamFlags.Charge | SamusBeamFlags.Plasma),
+        "equipped beams select their combination, ignoring Charge");
 
     AssertTrue(LayerBlendingConfiguration.VisorBackdrop2A.AnimatesVisor(),
         "layer blending enum selects visor backdrop handler");

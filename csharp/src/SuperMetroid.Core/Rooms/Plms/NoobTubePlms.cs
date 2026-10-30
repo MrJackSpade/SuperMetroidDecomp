@@ -50,19 +50,17 @@ internal sealed class NoobTubePlms
         switch (preInstruction)
         {
             case NoobTubePlmPreInstruction.WakeOnPowerBomb:
-                SamusProjectileFamily projectileFamily =
-                    new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
-                if (projectileFamily == SamusProjectileFamily.PowerBomb)
+                if (slot.ProjectileHit?.Family == SamusProjectileFamily.PowerBomb)
                 {
                     slot.WakeAtLink();
                 }
-                else if (slot.LoopTimer != 0)
+                else if (slot.ProjectileHit is not null)
                 {
                     _sounds.Queue(
                         NoobTubePlmDefinitions.IneffectiveShotSound,
                         MaximumQueued: SoundQueueLimit.Max6);
                 }
-                slot.LoopTimer = 0;
+                slot.ProjectileHit = null;
                 return;
 
             case NoobTubePlmPreInstruction.WakeOnAcceptedInput:

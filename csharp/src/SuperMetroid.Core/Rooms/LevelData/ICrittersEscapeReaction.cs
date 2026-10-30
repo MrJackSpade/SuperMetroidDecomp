@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 internal interface ICrittersEscapeReaction
 {
     /// <summary>Runs $84:B978 for the block at <paramref name="blockIndex"/>, or returns false when the shot does not trigger it.</summary>
-    bool TrySpawnCrittersEscapeReaction(RoomLevelData level, int blockIndex, SamusProjectileTypeWord projectileType);
+    bool TrySpawnCrittersEscapeReaction(RoomLevelData level, int blockIndex, SamusProjectileType projectileType);
 }

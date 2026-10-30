@@ -96,7 +96,7 @@ internal static class RidleyFlightTailVerification
         int? samusTarget = state.ClockwiseWhipTarget;
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         projectiles.SlotTable.ProjectileCounter = 1;
-        projectiles.Slots[0].Type = (ushort)SamusProjectileFamily.Missile;
+        projectiles.Slots[0].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWhole(new(96, 128));
         enemies.FrameContext.SeedSamusProjectiles(projectiles);
         aim(state, samus, 0);

@@ -90,7 +90,7 @@ internal static class GModeGateGlitchVerification
                     level,
                     gate.BlockIndex,
                     DownwardGateDefinitions.ClosedGateBehavior,
-                    SamusProjectileTypeWord.CreateBeam(SamusBeamFlags.Wave, charged: false),
+                    SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false),
                     solidBlock: true),
                 "direct G-Mode fixture fills the native forty-slot PLM pool");
         }
@@ -123,7 +123,7 @@ internal static class GModeGateGlitchVerification
             shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, layer1: new(0, 224), sharedProjectiles: bombs);
 
             SamusProjectileSlot shot = shots.Slots[0];
-            if (shot.Type != 0 && shot.Position.X.Whole < 112 && passedGateFrame < 0)
+            if (!shot.Type.IsNone && shot.Position.X.Whole < 112 && passedGateFrame < 0)
                 passedGateFrame = frame;
 
             if (!samus.Xray.ArePlmsSuspended)
@@ -255,7 +255,7 @@ internal static class GModeGateGlitchVerification
                 freeLevel,
                 doorIndex,
                 RoomBlockBehaviorValues.BlueDoorFacingRight,
-                SamusProjectileTypeWord.CreateBeam(0, charged: false)),
+                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
             "G-Mode shot at a blue door allocates its inert opening actor while a slot remains");
         AssertEqual(RoomCollisionType.SolidBlock,
             freeLevel.GetCollisionBlockByIndex(doorIndex).CollisionType,
@@ -270,7 +270,7 @@ internal static class GModeGateGlitchVerification
                 fullLevel,
                 doorIndex,
                 RoomBlockBehaviorValues.BlueDoorFacingRight,
-                SamusProjectileTypeWord.CreateBeam(0, charged: false)),
+                SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
             "overloaded G-Mode PLM pool drops a blue-door opening request");
         AssertEqual(RoomCollisionType.ShootableBlock,
             fullLevel.GetCollisionBlockByIndex(doorIndex).CollisionType,
@@ -452,8 +452,8 @@ internal static class GModeGateGlitchVerification
                 blockIndex,
                 SamusBombProjectileSystem.PowerBombType),
             "Power Bomb publishes its hit to the intact glass-tube resident");
-        AssertEqual((ushort)0x8300, plms.PopulationSlots.Single().LoopTimer,
-            "G-Mode-disabled tube retains the marked Power Bomb request");
+        AssertEqual(new ResidentPlmProjectileHit(SamusProjectileFamily.PowerBomb), plms.PopulationSlots.Single().ProjectileHit,
+            "G-Mode-disabled tube retains the pending Power Bomb hit");
         AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.Control.AlphaLocked,
             "without a PLM handler pass the glass tube cannot arm, break, or lock Samus");
         AssertTrue((roomFx.LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != 0,

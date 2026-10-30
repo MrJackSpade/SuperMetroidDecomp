@@ -145,13 +145,9 @@ public sealed class SamusProjectileSystem
         SuperMetroid.Core.Samus.Artwork.InstalledBeamPalettes? palettes) =>
         LoadBeamPalette(beam, SelectedCombination(equippedBeams), palettes);
 
-    /// <summary>
-    /// $90:AC8D/$90:ACCD index their tables by the equipped-beam word's low twelve bits; an
-    /// index above $F (unknown bits 4-11 set) selects no beam combination.
-    /// </summary>
+    /// <summary>The beam combination the equipped beams select.</summary>
     private static SamusBeamCombination SelectedCombination(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
-        new SamusBeamLoadoutWord(equippedBeams).Combination ?? throw new ArgumentOutOfRangeException(
-            nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables.");
+        SamusBeamCombinations.Of(equippedBeams);
 
     /// <summary>Loads a beam combination's final CGRAM palette from installed art or the special beam definitions.</summary>
     public static void LoadBeamPalette(ColourRun beam,
@@ -401,7 +397,7 @@ public sealed class SamusProjectileSystem
         // installing ordinary movement. A muzzle born against a solid door can therefore
         // already be an explosion before the descending alpha-pass loop begins below.
         bool collisionStartedExplosion = firedSlot is { } initialCollisionSlot &&
-            SlotTable.Slots[initialCollisionSlot].PackedType.IsFamily(
+            SlotTable.Slots[initialCollisionSlot].Type.IsFamily(
                 SamusProjectileFamily.BeamExplosion);
         bool projectileDeleted = false;
         List<SoundRequest>? comboSounds = null;
@@ -621,21 +617,20 @@ public sealed class SamusProjectileSystem
         {
             SamusProjectileSlot slot = SlotTable.Slots[slotIndex];
             if (!slot.IsActive ||
-                slot.PackedType.IsFamilyAtOrAfter(SamusProjectileFamily.PowerBomb))
+                slot.Type.Family.IsBombOrExplosion)
                 continue;
 
-            // `$93:8268` first exempts every charged/projectile-family word selected by
-            // mask `$0F10`. Only an ordinary uncharged beam reaches the flicker branches;
-            // a charged beam must remain visible on every NMI parity.
-            if ((slot.Type & (SamusProjectileTypeWord.FamilyMask | SamusProjectileTypeWord.ChargedBeamMarker)) == 0)
+            // Only an ordinary uncharged beam reaches the flicker branches; a charged beam,
+            // missile or explosion remains visible on every NMI parity.
+            if (slot.Type.Family == SamusProjectileFamily.Beam && !slot.Type.IsChargedBeam)
             {
                 // Native X is the even byte index `$00,$02,...,$08`, so native `X & 2`
                 // is exactly the parity of this host slot index. Spazer/plasma combinations
-                // (low mask `$0C`) use NMI bit one and the opposite phase from power/ice/
+                // use NMI bit one and the opposite phase from power/ice/
                 // wave, which use NMI bit zero. Keeping these branches separate is what
                 // prevents the wider beam art from disappearing on the wrong video field.
                 bool oddSlot = (slotIndex & 1) != 0;
-                bool skip = slot.PackedType.HasAnyBeam(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
+                bool skip = slot.Type.HasAnyBeam(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
                     ? oddSlot != ((frameCounter & 2) != 0)
                     : oddSlot == ((frameCounter & 1) != 0);
                 if (skip)
@@ -703,7 +698,7 @@ public sealed class SamusProjectileSystem
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileSlot slot = SlotTable.Slots[slotIndex];
-            SamusProjectileFamily family = slot.PackedType.Family;
+            SamusProjectileFamily family = slot.Type.Family;
             if (!slot.IsActive || family is not (
                     SamusProjectileFamily.BeamExplosion or
                     SamusProjectileFamily.MissileExplosion))

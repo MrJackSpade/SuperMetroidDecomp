@@ -57,7 +57,7 @@ internal static class PoseProjectileOriginVerification
                 byte physicalY = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
                 bool running = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 1) == 1;
                 bool beamRunning = running || pose is 0x75 or 0x76;
-                slot.Direction = direction;
+                slot.Direction = SamusProjectileDirections.At(direction);
                 initialize(samus, slot);
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + Word((beamRunning ? SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.RunningXOrigins : SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.DefaultXOrigins) + direction * 2))), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.RunningYOrigins : SamusSourceDefinitionsConstants.FiringTables.Value + SamusFiringTableDefinitions.DefaultYOrigins) + direction * 2) - physicalY)), slot.Position.Y.Whole, "Pose art leaves projectile collision Y unchanged");

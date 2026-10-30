@@ -8,6 +8,8 @@ namespace SuperMetroid.Verification.Enemies.SpacePirates;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks the Gold Ninja Pirate death projectile order observed in the Metal Pirates fight.</summary>
 internal static class GoldNinjaDeathDropsVerification
@@ -41,7 +43,7 @@ internal static class GoldNinjaDeathDropsVerification
         MotherBrainRinkaDoorSpawnExpected target = new MotherBrainRinkaDoorSpawnExpected(pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
 
         var shot = runtime.Projectiles.Slots[0];
-        shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;
+        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
         shot.Position = shot.Position.WithWhole(new(target.X, target.Y));
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);

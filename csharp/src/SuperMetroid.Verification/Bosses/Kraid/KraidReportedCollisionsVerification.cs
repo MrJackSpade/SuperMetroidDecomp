@@ -49,7 +49,7 @@ internal static class KraidReportedCollisionsVerification
                 foreach (var shot in runtime.Projectiles.Slots.Where(p => p.IsActive))
                 {
                     spawned = true;
-                    marked |= shot.PackedDirection.HasLowByteLifecycleState;
+                    marked |= shot.IsSpent;
                     AssertEqual(true, shot.Position.X.Whole < 224, "Spazer must impact before crossing through Kraid's head");
                 }
             }
@@ -107,12 +107,12 @@ internal static class KraidReportedCollisionsVerification
             runtime.Enemies.KraidBehavior.Rise.RunKraidRiseFunction(body, state, samus);
             AssertEqual((AnimationProgramCursor<KraidHeadProgram>?)KraidHeadAnimations.RoarAfterEntryFrame, state.HeadProgram, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Slots[0];
-            shot.Type = 0x8004; shot.Damage = 40;
+            shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false); shot.Damage = 40;
             shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));
             shot.Radius = new(8, 8);
             runtime.Projectiles.SlotTable.ProjectileCounter = 1;
             runtime.Enemies.ResolveKraidProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles);
-            AssertEqual(true, shot.PackedDirection.HasLowByteLifecycleState,
+            AssertEqual(true, shot.IsSpent,
                 "Initial closed head blocks shots before the first head animation executes");
         });
         Check("Kraid body contact", () =>

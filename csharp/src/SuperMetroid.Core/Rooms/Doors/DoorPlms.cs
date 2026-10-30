@@ -128,15 +128,14 @@ internal sealed class DoorPlms : IPlmFamilySource
 
     /// <summary>
     /// The coloured cap's shot wake (<c>$84:BD26</c>, <c>$BD50</c>, <c>$BD88</c>): a hit by the colour's projectile wakes
-    /// the cap at its hit program; any other hit queues the dud sound. Either way the hit word is consumed.
+    /// the cap at its hit program; any other hit queues the dud sound. Either way the hit is consumed.
     /// </summary>
     internal void RunColoredDoorWake(PlmSlot slot, ColoredDoorPreInstruction preInstruction)
     {
         ColoredDoorPlmState door = slot.Family as ColoredDoorPlmState
             ?? throw new InvalidOperationException("A coloured cap's wake ran without its door state.");
-        if (slot.LoopTimer == 0)
+        if (slot.ProjectileHit is not { Family: var family })
             return;
-        SamusProjectileFamily family = new SamusProjectileTypeWord(checked((ushort)slot.LoopTimer)).Family;
         bool accepted = preInstruction switch
         {
             ColoredDoorPreInstruction.WakeOnPowerBomb => family == SamusProjectileFamily.PowerBomb,
@@ -150,12 +149,12 @@ internal sealed class DoorPlms : IPlmFamilySource
             door.HitCounter = ColoredDoorPlmProgramDefinitions.RedSuperMissileHitCounter;
         if (accepted)
         {
-            slot.LoopTimer = 0;
+            slot.ProjectileHit = null;
             slot.WakeAtLink();
             return;
         }
         QueueDudSound();
-        slot.LoopTimer = 0;
+        slot.ProjectileHit = null;
     }
 
     /// <summary>Queues the library-two dud sound a rejected or premature shot makes.</summary>
@@ -232,7 +231,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         RoomLevelData level,
         int blockIndex,
         RoomBlockBehavior behavior,
-        SamusProjectileTypeWord projectileType)
+        SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
         if (!behavior.TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation))
@@ -243,8 +242,7 @@ internal sealed class DoorPlms : IPlmFamilySource
                 "The shootable block's behaviour is not a blue-door facing.");
         }
 
-        // Setup_BlueDoor masks the native projectile word with $0F00. A power-bomb
-        // collision therefore deletes the just-allocated PLM without touching the cap.
+        // A power-bomb collision deletes the just-allocated PLM without touching the cap.
         if (projectileType.Family == SamusProjectileFamily.PowerBomb)
             return false;
 

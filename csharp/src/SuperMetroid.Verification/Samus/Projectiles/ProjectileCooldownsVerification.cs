@@ -88,8 +88,8 @@ internal static class ProjectileCooldownsVerification
                 EquippedBeams = (SamusBeamFlags)beam, SelectedHudItem = HudItem.PowerBomb, PowerBombs = 10 };
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
-            AssertEqual(retail.ReadCartridgeByte(0x90c254 + (projectiles.Slots[0].Type & 0x3f)),
-                shared.CooldownTimer.RawValue, "Combo retains six-bit index into padding/non-beam neighbors");
+            AssertEqual(retail.ReadCartridgeByte(0x90c254 + projectiles.Slots[0].Type.BeamTableRow),
+                shared.CooldownTimer.RawValue, "Combo reads the cooldown at its beam-table row, into padding/non-beam neighbors");
         }
         Console.WriteLine("Projectile cooldowns: 59 native bytes, bounded SpaceTime observation, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
     }

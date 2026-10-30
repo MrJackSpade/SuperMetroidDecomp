@@ -34,7 +34,7 @@ internal static class ShutterNativeArc
             {
                 bombInputs.Write(bomb.Position.X.Whole); bombInputs.Write(bomb.Position.Y.Whole);
                 bombInputs.Write(bomb.Radius.X); bombInputs.Write(bomb.Radius.Y);
-                bombInputs.Write(bomb.Direction); bombInputs.Write(bomb.Type);
+                bombInputs.Write(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.EncodeDirection(bomb.Direction, bomb.IsSpent)); bombInputs.Write(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.EncodeBombType(bomb.Type, bomb.IsBombSpread, bomb.HasReactedToTerrain));
                 bombInputs.Write(bomb.Damage); bombInputs.Write(bomb.BombTimer.RawValue);
             }
             arc.Add(scenario.ArcRow(frame));

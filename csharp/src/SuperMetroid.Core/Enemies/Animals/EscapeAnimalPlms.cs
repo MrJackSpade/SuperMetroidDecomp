@@ -63,11 +63,10 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
 
     /// <summary>Runs $84:B978 and schedules its ROM animation/event list in native slot order.</summary>
     public bool TrySpawnCrittersEscapeReaction(RoomLevelData level, int blockIndex,
-        SamusProjectileTypeWord projectileType)
+        SamusProjectileType projectileType)
     {
-        // The native branch tests the complete projectile word, not its family. A zero
-        // grapple word is rejected; ordinary nonzero beams and bombs are accepted.
-        if (projectileType == (SamusProjectileTypeWord)0)
+        // The grapple beam's touch is rejected; every projectile, beams and bombs alike, is accepted.
+        if (projectileType.IsNone)
             return false;
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;

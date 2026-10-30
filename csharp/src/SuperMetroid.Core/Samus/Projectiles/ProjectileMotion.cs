@@ -34,7 +34,7 @@ internal sealed class ProjectileMotion
         ISamusRoomPlms? roomPlms,
         SamusPowerBombExplosionState powerBomb)
     {
-        if (slot.PackedDirection.HasLowByteLifecycleState)
+        if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
             return false;
@@ -50,7 +50,7 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(slot);
         }
 
-        int directionOffset = slot.PackedDirection.DirectionIndex * 2;
+        int directionOffset = slot.Direction.ToAimIndex() * 2;
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamXAccelerations + directionOffset))))));
@@ -58,7 +58,7 @@ internal sealed class ProjectileMotion
             unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + directionOffset))))));
 
-        SamusProjectileDirection? direction = slot.PackedDirection.Direction;
+        SamusProjectileDirection direction = slot.Direction;
         bool collided = direction switch
         {
             SamusProjectileDirection.UpFacingRight or
@@ -74,7 +74,7 @@ internal sealed class ProjectileMotion
                 ProjectileTerrainCollision.MoveHorizontally(level, slot, roomPlms) ||
                 ProjectileTerrainCollision.MoveVertically(level, slot, roomPlms),
             _ => throw new InvalidDataException(
-                $"Beam slot contains invalid direction ${slot.PackedDirection.DirectionIndex:X2}."),
+                $"Beam slot contains undefined direction {direction}."),
         };
 
         if (collided)
@@ -96,7 +96,7 @@ internal sealed class ProjectileMotion
         Position16<RoomPixels> layer1,
         ISamusRoomPlms? roomPlms)
     {
-        if (slot.PackedDirection.HasLowByteLifecycleState)
+        if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
             return;
@@ -126,7 +126,7 @@ internal sealed class ProjectileMotion
         Position16<RoomPixels> layer1,
         ISamusRoomPlms? roomPlms)
     {
-        if (slot.PackedDirection.HasLowByteLifecycleState)
+        if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
             return;
@@ -145,7 +145,7 @@ internal sealed class ProjectileMotion
         Position16<RoomPixels> layer1,
         ISamusRoomPlms? roomPlms)
     {
-        int direction = slot.PackedDirection.DirectionIndex;
+        int direction = slot.Direction.ToAimIndex();
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
             unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamXAccelerations + direction * 2))))));
@@ -181,7 +181,7 @@ internal sealed class ProjectileMotion
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomPlms? roomPlms)
     {
-        if (slot.PackedDirection.HasLowByteLifecycleState)
+        if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
             return false;
@@ -194,7 +194,7 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(slot);
         }
 
-        int direction = slot.PackedDirection.DirectionIndex;
+        int direction = slot.Direction.ToAimIndex();
 
         // Missile pre-instruction `$90:AF8F-$AFA0` first applies the same small directional
         // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
@@ -206,14 +206,11 @@ internal sealed class ProjectileMotion
             unchecked((short)SamusProjectileAccelerations.ReadWord(
                 SamusFiringTableDefinitions.BeamYAccelerations + direction * 2))))));
 
-        if (slot.MissileIgnitionPixels == 0)
+        if (slot.MissileIgnition != SamusMissileIgnition.Ignited)
         {
-            // `$90:C301` is the literal `$0100` ignition increment. Crossing into a nonzero
-            // high byte re-runs `$90:B1F3` with that word as base 8.8 speed. A normal missile
-            // crosses on its first alpha pass: one pixel/frame plus native inheritance.
-            slot.Variable = unchecked((ushort)(slot.Variable + 256));
-            if (UnsignedEightEight.Whole(slot.Variable) != 0)
-                BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, unchecked((short)slot.Variable));
+            // A missile ignites on its first alpha pass: its velocity is rebuilt from its
+            // ignition speed plus Samus's inherited motion.
+            IgniteMissile(samus, slot);
         }
         else
         {
@@ -253,7 +250,7 @@ internal sealed class ProjectileMotion
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomPlms? roomPlms)
     {
-        if (slot.PackedDirection.HasLowByteLifecycleState)
+        if (slot.IsSpent)
         {
             _animation.ClearProjectile(slot);
             ClearAllSuperMissileLinks();
@@ -270,18 +267,13 @@ internal sealed class ProjectileMotion
             _trails.SpawnTrail(slot);
         }
 
-        int direction = slot.PackedDirection.DirectionIndex;
-        if (slot.MissileIgnitionPixels == 0)
+        int direction = slot.Direction.ToAimIndex();
+        if (slot.MissileIgnition != SamusMissileIgnition.Ignited)
         {
-            // The shared missile accelerator crosses `$0100` on its first alpha pass. Only
-            // the Super family immediately allocates `$90:BF46`'s invisible collision link;
-            // the link's native byte index is retained in the variable's low byte.
-            slot.Variable = unchecked((ushort)(slot.Variable + 256));
-            if (UnsignedEightEight.Whole(slot.Variable) != 0)
-            {
-                BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, unchecked((short)slot.Variable));
-                SpawnSuperMissileLink(samus, slot);
-            }
+            // A Super Missile ignites as a missile does on its first alpha pass, and then
+            // immediately allocates its invisible collision link.
+            IgniteMissile(samus, slot);
+            SpawnSuperMissileLink(samus, slot);
         }
         else
         {
@@ -346,7 +338,20 @@ internal sealed class ProjectileMotion
         return true;
     }
 
-    /// <summary>Allocates the invisible collision link at ignition and records its native byte index in the owner.</summary>
+    /// <summary>
+    /// Ignites a missile: its velocity is rebuilt from its ignition speed, one pixel per update, or more after a
+    /// reflection's head start, combined with Samus's inherited motion.
+    /// </summary>
+    private static void IgniteMissile(SamusState samus, SamusProjectileSlot slot)
+    {
+        int ignitionSpeed = slot.MissileIgnition == SamusMissileIgnition.PendingAfterReflection
+            ? SamusProjectileMotionDefinitions.ReflectedMissileIgnitionSpeed
+            : SamusProjectileMotionDefinitions.MissileIgnitionSpeed;
+        slot.MissileIgnition = SamusMissileIgnition.Ignited;
+        BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, ignitionSpeed);
+    }
+
+    /// <summary>Allocates the invisible collision link at ignition and records its slot in the owner; with no free slot the owner keeps the link it named.</summary>
     internal void SpawnSuperMissileLink(
         SamusState samus,
         SamusProjectileSlot owner)
@@ -356,8 +361,9 @@ internal sealed class ProjectileMotion
             return;
 
         link.ClearFields();
-        link.Type = SamusProjectileTypeWord.Live(SamusProjectileFamily.SuperMissile);
+        link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
         link.Direction = owner.Direction;
+        link.IsSpent = owner.IsSpent;
         link.Position = link.Position.WithWhole(owner.Position.Whole);
 
         // `$90:BF78` deliberately calls the ordinary muzzle initializer again after copying
@@ -370,16 +376,16 @@ internal sealed class ProjectileMotion
         link.InstructionTimer = WrappingCountdown.Start(1);
         link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 
-        owner.SetMissileLinkSlotOffset(link.SlotTableOffset);
+        owner.SuperMissileLinkSlot = link.SlotIndex;
         _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
     }
 
     /// <summary>Keeps an ordinary link stationary or clears the whole Super Missile family on its deletion signal.</summary>
     internal void RunSuperMissileLinkPreInstruction(SamusProjectileSlot link)
     {
-        // `$90:B075` leaves an ordinary link completely stationary. A high direction nibble
-        // is a deletion signal and clears every `$x200` family slot, including its owner.
-        if (!link.PackedDirection.HasLowByteLifecycleState)
+        // `$90:B075` leaves an ordinary link completely stationary. A spent link clears every
+        // Super Missile slot, including its owner.
+        if (!link.IsSpent)
             return;
         _animation.ClearProjectile(link);
         ClearAllSuperMissileLinks();
@@ -393,11 +399,7 @@ internal sealed class ProjectileMotion
         SamusBombProjectileSystem sharedProjectiles,
         ISamusRoomPlms? roomPlms)
     {
-        if (owner.MissileIgnitionPixels == 0)
-            return;
-
-        int linkIndex = owner.MissileLinkSlotOffset >> 1;
-        if ((uint)linkIndex >= (uint)_slotTable.Slots.Count)
+        if (owner.MissileIgnition != SamusMissileIgnition.Ignited || owner.SuperMissileLinkSlot is not { } linkIndex)
             return;
         SamusProjectileSlot link = _slotTable.Slots[linkIndex];
         if (!link.IsActive)
@@ -405,7 +407,7 @@ internal sealed class ProjectileMotion
 
         int velocity = axis == Axis.Vertical ? owner.Velocity.Y.SignedRawValue : owner.Velocity.X.SignedRawValue;
         int wholeMagnitude = EightEight.WholeOf(Math.Abs(velocity));
-        bool ownerExploded = owner.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion);
+        bool ownerExploded = owner.Type.IsFamily(SamusProjectileFamily.MissileExplosion);
         if (wholeMagnitude < 11)
         {
             // `$90:B494`: a slow link clears at once if the owner has already exploded,
@@ -443,13 +445,13 @@ internal sealed class ProjectileMotion
             _animation.ClearProjectile(link);
     }
 
-    /// <summary>Clears every active plain Super Missile family slot after owner or link termination.</summary>
+    /// <summary>Clears every Super Missile slot after owner or link termination.</summary>
     private void ClearAllSuperMissileLinks()
     {
         for (int slotIndex = SamusProjectileSystem.SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileSlot candidate = _slotTable.Slots[slotIndex];
-            if (candidate.PackedType.HasPlainFamilyPayload(SamusProjectileFamily.SuperMissile))
+            if (candidate.Type.IsFamily(SamusProjectileFamily.SuperMissile))
                 _animation.ClearProjectile(candidate);
         }
     }

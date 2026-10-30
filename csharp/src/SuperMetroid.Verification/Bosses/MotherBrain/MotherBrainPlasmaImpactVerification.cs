@@ -10,6 +10,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Mother Brain head damage and shot removal after a charged Plasma impact.</summary>
 internal static class MotherBrainPlasmaImpactVerification
@@ -37,7 +38,7 @@ internal static class MotherBrainPlasmaImpactVerification
         AssertEqual(1, Hit(), "Charged Plasma produces one accepted head impact");
         AssertEqual(17550, head.Health, "Native charged vulnerability applies exactly one 450-damage hit");
         // The bank-$A0 walker only marks the shot; the next projectile pass removes it (#1269).
-        AssertTrue(shot.PackedDirection.HasLowByteLifecycleState,
+        AssertTrue(shot.IsSpent,
             "Mother Brain plasma-blocking property marks the shot for removal");
         AssertEqual(MotherBrainWalkCredit.Of(4096 - MotherBrainWalkCredit.StepCredit), state.WalkCounter,
             "Accepted beam spends one step of walk credit");
@@ -65,7 +66,7 @@ internal static class MotherBrainPlasmaImpactVerification
         // The sequence shares the encounter's walk credit (#1388); recoil needs less than the Hyper Beam's cost.
         state.WalkCounter = MotherBrainWalkCredit.Empty;
         SeedChargedPlasma();
-        shot.Type = 0x9018; shot.Damage = 1000; shot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
+        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 1000; shot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the
         // timer expires, so this case starts once that immunity has run out.
         head.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -73,14 +74,14 @@ internal static class MotherBrainPlasmaImpactVerification
         AssertEqual(16550, head.Health, "Hyper Beam retains its native charged damage selection");
         AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, state.RainbowBeamSequence.ThirdPhaseFight.Phase3NeckPhase,
             "Hyper Beam retains its phase-three recoil transition");
-        AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "Hyper Beam also obeys the head collision property");
+        AssertTrue(shot.IsSpent, "Hyper Beam also obeys the head collision property");
         Console.WriteLine("Mother Brain Plasma: one charged impact/damage event, no later-frame repeats, recoil and first-form restriction passed.");
         return 0;
 
         int Hit() => enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus);
         void SeedChargedPlasma()
         {
-            shot.Type = 0x8018; shot.Damage = 450; shot.Direction = 2;
+            shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 450; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
             shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
             shot.PreInstruction = SamusProjectilePreInstruction.NoWaveBeam;

@@ -254,7 +254,7 @@ internal sealed class TorizoCombat
             if (c.Family == SamusProjectileFamily.Missile)
             {
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-                c.Projectile.Direction = c.Projectile.PackedDirection.WithoutCollisionLifecycleState();
+                c.Projectile.IsSpent = false;
                 torizoState.Function = TorizoFunction.Idle;
                 enemy.InstructionTimer = WrappingCountdown.Start(1);
                 _access.RequireBombTorizoState(enemy).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(enemy)
@@ -270,7 +270,7 @@ internal sealed class TorizoCombat
                     c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                     SetBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile);
                     torizoState.Function = TorizoFunction.Idle;
-                    c.Projectile.Direction = c.Projectile.PackedDirection.WithCollisionLifecycleState();
+                    c.Projectile.IsSpent = true;
                     enemy.InstructionTimer = WrappingCountdown.Start(1);
                     _access.RequireBombTorizoState(enemy).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(_access.Posture(enemy).HasFlag(TorizoPostureFlags.OppositeLegForward)
                         ? _access.FacesRight(enemy)

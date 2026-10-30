@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -25,10 +26,10 @@ internal sealed class ShinesparkEchoProjectile
         if (index is not (3 or 4)) throw new ArgumentOutOfRangeException(nameof(index));
         var slot = _slotTable.Slots[index];
         _slotTable.ProjectileCounter = WrappingCounter.IncrementWord(_slotTable.ProjectileCounter);
-        slot.Type = ShinesparkEchoDefinitions.EchoType;
+        slot.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
         BeamCombos.InitializeComboData(slot, BeamComboData.Echo);
         slot.PreInstruction = SamusProjectilePreInstruction.ShinesparkEcho;
-        slot.Variable = angle.TableIndex;
+        slot.EchoAngle = angle.ToByteAngle();
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(0));
     }
 

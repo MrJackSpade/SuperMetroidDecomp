@@ -140,8 +140,7 @@ internal sealed class SamusFramePhases
             // reload the equipped beam palette before returning to inactive.
             (_artwork.BeamPalettes ?? throw new InvalidOperationException(
                 "Grapple cleanup requires installed beam artwork."))
-                .LoadTo(_player.Colours.Beam, new SamusBeamLoadoutWord(_player.Samus.EquippedBeams).Combination ?? throw new InvalidOperationException(
-                    "Equipped-beam index is outside the beam-combination tables."));
+                .LoadTo(_player.Colours.Beam, SamusBeamCombinations.Of(_player.Samus.EquippedBeams));
         }
 
         // `$9B:C4B1-$C4EA` runs after every grapple function, including inactive.

@@ -9,4 +9,11 @@ internal static class SamusProjectileMotionDefinitions
     internal const ushort DiagonalSpeed = 0x02ab;
     /// <summary>$90:C301 MissileInitializedBitset: adjacent word reached by invalid beam combinations.</summary>
     internal const ushort MissileInitialized = 0x0100;
+    /// <summary>The 8.8 base speed a fired missile ignites at: one pixel per update.</summary>
+    internal const int MissileIgnitionSpeed = 256;
+    /// <summary>
+    /// The 8.8 base speed a reflected missile re-ignites at: one pixel per update plus the 240/256 head start the
+    /// reflection leaves.
+    /// </summary>
+    internal const int ReflectedMissileIgnitionSpeed = 496;
 }

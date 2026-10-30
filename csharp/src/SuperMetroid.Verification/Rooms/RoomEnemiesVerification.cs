@@ -48,6 +48,7 @@ using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped
@@ -369,9 +370,9 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
 
     var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
     SamusProjectileSlot owner = shots.Slots[0];
-    owner.Type = 0x8200;
+    owner.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
     owner.Damage = 0x012c;
-    owner.Direction = (ushort)SamusProjectileDirection.Right;
+    owner.Direction = SamusProjectileDirection.Right;
     owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
     owner.Cursor = SamusProjectileProgramAddresses.CursorAt(0x9f3b);
     owner.InstructionTimer = WrappingCountdown.Start(15);
@@ -379,9 +380,9 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     owner.PreInstruction = SamusProjectilePreInstruction.SuperMissile;
 
     SamusProjectileSlot link = shots.Slots[1];
-    link.Type = 0x8200;
+    link.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
     link.Damage = 0x012c;
-    link.Direction = (ushort)SamusProjectileDirection.Right;
+    link.Direction = SamusProjectileDirection.Right;
     link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
     link.Cursor = SamusProjectileProgramAddresses.CursorAt(0x9f7b);
     link.InstructionTimer = WrappingCountdown.Start(1);
@@ -394,17 +395,17 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
 
     AssertEqual(2, hits,
         "blocking enemy projectile visits Super Missile owner and linked slot");
-    AssertEqual(0x8200, owner.Type,
+    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), owner.Type,
         "enemy-projectile collision preserves fresh Super Missile family");
     AssertEqual(0x9f3b, owner.InstructionPointer,
         "enemy-projectile collision preserves fresh Super Missile animation program");
-    AssertTrue(owner.PackedDirection.HasLowByteLifecycleState,
+    AssertTrue(owner.IsSpent,
         "enemy-projectile collision marks Super Missile owner lifecycle");
-    AssertEqual(0x8200, link.Type,
+    AssertEqual(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), link.Type,
         "enemy-projectile collision does not turn invisible link into an explosion");
     AssertEqual(0, link.SpritemapPointer,
         "enemy-projectile collision leaves Super Missile link invisible");
-    AssertTrue(link.PackedDirection.HasLowByteLifecycleState,
+    AssertTrue(link.IsSpent,
         "enemy-projectile collision marks Super Missile link lifecycle");
     AssertEqual(0, shots.Earthquakes.EarthquakeTimer,
         "enemy-projectile collision does not invent ordinary Super impact quake");
@@ -614,9 +615,9 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ushort damage)
     {
         projectile.ClearFields();
-        projectile.Type = type;
+        projectile.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type);
         projectile.Damage = damage;
-        projectile.Direction = 2;
+        projectile.Direction = SamusProjectileDirection.Right;
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
         projectile.Radius = new(4, 4);
         projectile.Cursor = ProjectileFixtureCursors.Active;

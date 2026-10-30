@@ -161,7 +161,7 @@ internal static class LookupStream3Verification
         {
             for (int frame = 0; frame < expected.Length; frame++)
                 AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(frame))), $"eye rectangle {frame}");
-            var objects = new IntroCinematicObjectSystem(new IntroTilemaps(), new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false));
+            var objects = new IntroCinematicObjectSystem(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false));
             IntroEyeFrame[] eyeFrames = [IntroEyeFrame.Open, IntroEyeFrame.HalfOpen, IntroEyeFrame.Closed, IntroEyeFrame.Deadpan];
             for (int frame = 0; frame < expected.Length; frame++)
             {
@@ -460,7 +460,7 @@ internal static class LookupStream3Verification
                 ushort position = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
                 ushort glyph = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8c0000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4) + 4)));
                 BackgroundTile glyphTile = BackgroundTileWordBytes.Tile(glyph);
-                expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), glyphTile, glyphTile == IntroNarrationGlyphs.CompileGlyph(' ')));
+                expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), IntroNarrationGlyphTiles.DecodeGlyph(glyphTile)));
                 cursor += 6;
             }
             AssertTrue(stock.Compile(source.Id).SequenceEqual(expected), "calculated narration matches every native glyph/column/row record");

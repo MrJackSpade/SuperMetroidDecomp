@@ -42,12 +42,7 @@ public sealed class IntroNarrationPresentation
         {
             for (int index = 0; index < line.Text.Length; index++)
             {
-                char glyph = line.Text[index];
-                result.Add(new(
-                    IntroNarrationDefinitions.FirstColumn + index,
-                    line.Row,
-                    IntroNarrationGlyphs.CompileGlyph(glyph),
-                    glyph == ' '));
+                result.Add(new(IntroNarrationDefinitions.FirstColumn + index, line.Row, line.Text[index]));
             }
         }
         return result.ToArray();

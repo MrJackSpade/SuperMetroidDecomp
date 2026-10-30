@@ -29,17 +29,16 @@ internal static class TileSmokeTests
         foreach (ushort scroll in new ushort[] { 0, 7, 255, 511, ushort.MaxValue })
             Check(new DisplayLayer[] { new ScreenTilesLayer(Cells(0x7ffe, width, height, upper), new Position16<TilePlanePixels>(scroll, scroll), priority) }, "4bpp geometry/priority/scroll");
         ScreenLayerPictures font = VramTileFixtures.Tiles(bytes, palette, 0x7ff8, TileInkDepth.FourColours);
-        foreach (bool transparent in new[] { false, true })
         foreach (bool? priority in new bool?[] { null, false, true })
         foreach (ushort scroll in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
-            Check(new DisplayLayer[] { new ScreenTilesViewportLayer(Cells(0x7fff, 32, 32, font), scroll, transparent, priority) }, "2bpp viewport/priority/key");
+            Check(new DisplayLayer[] { new ScreenTilesLayer(Cells(0x7fff, 32, 32, font), new Position16<TilePlanePixels>(0, scroll), priority) }, "2bpp vertical scroll/priority");
         ScreenLayerPictures lower = VramTileFixtures.Tiles(bytes, palette, 0, TileInkDepth.SixteenColours);
         ScreenLayerPictures text = VramTileFixtures.Tiles(bytes, palette, 0x4000, TileInkDepth.FourColours);
         for (byte brightness = 0; brightness <= 15; brightness++)
             Check(new DisplayLayer[] {
                 new ScreenTilesLayer(Cells(0x4000, 64, 32, lower), new Position16<TilePlanePixels>(3, 11), false),
                 new ScreenTilesLayer(Cells(0x4800, 32, 64, upper), new Position16<TilePlanePixels>(65535, 255), true),
-                new ScreenTilesViewportLayer(Cells(0x5800, 32, 32, text), 13, true, null),
+                new ScreenTilesLayer(Cells(0x5800, 32, 32, text), new Position16<TilePlanePixels>(0, 13), null),
                 new ScreenTintLayer(3, 17, 31) }, "ordered planes/fixed-color/fades", brightness);
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} tile/color-math GPU comparisons passed.");
 

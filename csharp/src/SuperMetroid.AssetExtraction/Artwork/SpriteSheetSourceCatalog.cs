@@ -65,6 +65,7 @@ internal sealed class SpriteSheetSourceCatalog
         : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
         : sheet == SpriteSheetId.CeresCinematicPictures ? CeresCinematicPictureSheetComposer.Compose(intro.Value)
         : sheet == SpriteSheetId.IntroScenePictures ? IntroScenePictureSheetComposer.Compose(intro.Value)
+        : sheet == SpriteSheetId.IntroNarrationPictures ? IntroNarrationPictureSheetComposer.Compose(intro.Value, maps.Value.IntroFont)
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
     /// <summary>The stock artwork the screen tile sheets compose from.</summary>
@@ -113,7 +114,7 @@ internal sealed class SpriteSheetSourceCatalog
             SpriteSheetId.AreaMapBackgroundWreckedShip or SpriteSheetId.AreaMapBackgroundMaridia or
             SpriteSheetId.AreaMapBackgroundTourian or SpriteSheetId.PauseMapTiles or
             SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.IntroScenePictures or
-            SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresCinematicPictures or
+            SpriteSheetId.IntroNarrationPictures or SpriteSheetId.CeresCinematicPictures or
             SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or
             SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or

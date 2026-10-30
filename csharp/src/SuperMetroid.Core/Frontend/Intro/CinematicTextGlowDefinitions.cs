@@ -9,6 +9,4 @@ internal static class CinematicTextGlowDefinitions
     internal const ushort PaletteDuration = 5;
     /// <summary>The fourth and final palette phase, after which the rectangle stops glowing.</summary>
     internal const int FinalPalette = 3;
-    /// <summary>Cells in one row of the narration text tilemap.</summary>
-    internal const int RowWidth = 32;
 }

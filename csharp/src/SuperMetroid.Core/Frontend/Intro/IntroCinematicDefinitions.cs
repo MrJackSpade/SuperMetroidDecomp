@@ -40,28 +40,18 @@ public static class IntroCinematicDefinitions
     /// <summary>Blank text cells, the Japanese blank glyph and the final line's placement.</summary>
     public static class Text
     {
-        /// <summary>The blank cell written over the gameplay text region.</summary>
-        public static BackgroundTile Blank { get; } = new(0x02f, 0, highPriority: false);
         /// <summary>The blank cell of the Japanese narration layout: the blank glyph in front, colour variant seven.</summary>
         public static BackgroundTile JapaneseBlank { get; } = new(0x029, 7, highPriority: true);
-        /// <summary>The blank cell around the final text line: the blank glyph, colour variant seven.</summary>
-        public static BackgroundTile FinalBlank { get; } = new(0x029, 7, highPriority: false);
         /// <summary>The first gameplay text cell cleared.</summary>
         public const int GameplayBlankStartIndex = 128;
         /// <summary>Gameplay text cells cleared.</summary>
         public const int GameplayBlankWordCount = 640;
         /// <summary>Where the Japanese blank glyph starts in the font: its 41st character.</summary>
         public const int JapaneseBlankSourceOffset = 41 * 16;
-        /// <summary>Cells from the upper to the lower Japanese blank region.</summary>
-        public const int JapaneseBlankBottomDelta = 896;
         /// <summary>The first cell the final text line replaces.</summary>
         public const int FinalLineFirstCell = 768;
         /// <summary>Cells copied for the final text line.</summary>
         public const int FinalLineWordCount = 128;
-        /// <summary>The cell blanked immediately left of the final text.</summary>
-        public const int FinalBlankLeftIndex = 911;
-        /// <summary>The cell blanked immediately right of the final text.</summary>
-        public const int FinalBlankRightIndex = 912;
     }
 
     /// <summary>The colour runs the repeating flashback and narration crossfades fade.</summary>

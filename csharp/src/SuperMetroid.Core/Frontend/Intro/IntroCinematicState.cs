@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -56,17 +55,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         projectileSheets = sheets is null ? null : ProjectileSheets.IntroFlashbacks(sheets);
         CurrentFlashbackSamus?.Presentation.BodyFrames.BindSheets(spriteSheets);
         CurrentCeresFlight?.BindSheets(sheets);
-        NarrationTiles = null;
-    }
-
-    /// <summary>What the narration plane shows (#1392), until the Japanese glyphs are blanked.</summary>
-    [field: NonSerialized]
-    [AllowNull]
-    private ScreenLayerPictures NarrationTiles
-    {
-        get => field ??= IntroScreenTiles.Narration(spriteSheets ?? throw new InvalidOperationException("Opening cinematic rendering requires the installed sprite sheets."),
-            JapaneseGlyphsBlanked);
-        set;
     }
 
     /// <summary>The installed sheets the flashbacks' Samus draws from.</summary>
@@ -139,19 +127,8 @@ public sealed class IntroCinematicState : IFrontendScreen
             introColours = value.Palette.Colours;
             if (Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(palette);
-            if (IntroCinematicPhaseGroups.NarrationPages.Contains(Phase))
-            {
-                // The divider occupies only rows 24-27. Preserve live typewriter
-                // tiles and caret state in every other row on debugger rebind.
-                value.FinalLine.Tiles.Span.CopyTo(textTilemap.AsSpan(
-                    IntroCinematicDefinitions.Text.FinalLineFirstCell,
-                    IntroCinematicDefinitions.Text.FinalLineWordCount));
-                value.FinalLine.Tiles.Span.CopyTo(tilemaps.Narration[IntroCinematicDefinitions.Text.FinalLineFirstCell..]);
-            }
-            // $8B:A66F replaces the initial BG3 card with live typewriter words
-            // when page one begins. Never overwrite that current state on restore.
-            if (InitialNarrationCardResident)
-                tilemaps.LoadNarration(value.InitialNarrationTilemap.Span);
+            // The first card and the final line are installed pictures the narration plane places (#1467), so a
+            // rebind keeps the live letters and caret state as they are.
         }
     }
 
@@ -163,23 +140,18 @@ public sealed class IntroCinematicState : IFrontendScreen
 
     /// <summary>Owns queued cinematic music and sound effects when installed.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>The portrait and narration tilemaps the intro shows across narration and flashback scenes (#1358).</summary>
-    internal readonly IntroTilemaps tilemaps = new();
+    /// <summary>The narration text the intro shows across narration and flashback scenes (#1467).</summary>
+    internal readonly IntroNarrationText narrationText = new();
     /// <summary>The intro's colors, including the palette ranges changed by scene crossfades (#1358).</summary>
     internal readonly ScreenPalette palette = new();
     /// <summary>The cinematic actors' sprite entries over the intro OBJ page (#1358).</summary>
     internal readonly ScreenSprites objectSprites;
-    /// <summary>Whether <c>BlankOut_JapanText_Tiles</c> has blanked the optional Japanese glyph characters.</summary>
-    internal bool JapaneseGlyphsBlanked { get; private set; }
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Runs ordinary beam projectiles during gameplay-style flashbacks.</summary>
     internal readonly SamusProjectileSystem flashbackProjectiles = new(new BeamChargeState(), SamusProjectileResidue.None);
     /// <summary>Runs the shared bomb owner, including projectile cooldown, in flashbacks.</summary>
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
-    /// <summary>Staging tiles for progressively written BG3 narration pages.</summary>
-    private readonly BackgroundTile[] textTilemap =
-        new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
     /// <summary>The installed intro colours, by owner, that transitions back from gameplay flashbacks restore.</summary>
     private ScreenColours introColours;
     /// <summary>Persistent bank-$8C actor and caret walker for illustrated pages.</summary>
@@ -282,14 +254,11 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         RequireMinimum(introFont.CharacterCount * (IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount),
             IntroCinematicDefinitions.Artwork.FontOneBytes, "intro font one");
-        RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicDefinitions.Artwork.NarrationTilemapCells,
-            "first narration BG3 tilemap");
         RequireFont(introFont);
 
-        // `$8B:A469-$A529` upload the font and OBJ sheets the intro binds and the first narration card it keeps as its
-        // own tilemap; the scene pages and the portrait are installed pictures (#1467).
+        // `$8B:A469-$A529` upload the font and OBJ sheets the intro binds; the first narration card, the scene pages and
+        // the portrait are installed pictures (#1467).
         objectSprites = new ScreenSprites();
-        tilemaps.LoadNarration(characterArtwork.InitialNarrationTilemap.Span);
 
         // $8B:A3AC performs the ordinary beam palette load before copying the full intro palette, which
         // replaces it; the flashback projectile pages bind the beam's characters.
@@ -300,17 +269,6 @@ public sealed class IntroCinematicState : IFrontendScreen
         // $8B:A395 itself runs as the next dispatch's cinematic function.
         Phase = IntroCinematicPhase.Initial;
     }
-
-    /// <summary>
-    /// True until $8B:A66F replaces the initial BG3 card: through the setup phases and the first narration, until
-    /// page one's music is queued.
-    /// </summary>
-    private bool InitialNarrationCardResident =>
-        Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.SetupPageOne or
-            IntroCinematicPhase.WaitForInitialMusicQueue or IntroCinematicPhase.FadeInFirstNarration or
-            IntroCinematicPhase.LastMetroidIsInCaptivity or IntroCinematicPhase.GalaxyIsAtPeace or
-            IntroCinematicPhase.WaitForSecondMusicQueue or IntroCinematicPhase.FourSecondHold or
-            IntroCinematicPhase.FadeOutFirstNarration;
 
     /// <summary>Gets the current opening-cinematic state-machine phase.</summary>
     public IntroCinematicPhase Phase { get; private set; }
@@ -1275,43 +1233,12 @@ level, samus, FrameCounterWord(elapsedUpdates));
     /// <summary>Builds the portrait page, clears optional Japanese glyphs, and seeds progressive narration and caret state.</summary>
     internal void SetupFirstIllustratedPage()
     {
-        // BlankOut_JapanText_Tiles writes the same 16-byte 2-bpp character 96 times to
-        // $7E:4000, then DMA copies the resulting $600 bytes to VMADD $4180 (byte $8300).
-        // English still performs this clear; omitting it exposes stale font glyphs in the
-        // otherwise empty lower margin.
-        JapaneseGlyphsBlanked = true;
-        NarrationTiles = null;
-
-        // ClearCinematicBgObjects($2F) fills the complete $7E:3000 staging tilemap. The
-        // native border then replaces four 32-tile rows at the top and bottom.
-        Array.Fill(textTilemap, IntroCinematicDefinitions.Text.Blank);
-        for (int index = 0;
-             index < IntroCinematicDefinitions.Text.GameplayBlankStartIndex;
-             index++)
-        {
-            textTilemap[index] = IntroCinematicDefinitions.Text.JapaneseBlank;
-            textTilemap[index + IntroCinematicDefinitions.Text.JapaneseBlankBottomDelta] =
-                IntroCinematicDefinitions.Text.JapaneseBlank;
-        }
-
-        // $8B:A72B maps Japanese subtitle glyph staging into BG3 rows 24-27.
-        (CharacterArtwork ?? throw new InvalidOperationException(
-            "Opening cinematic requires installed artwork."))
-            .FinalLine.Tiles.Span.CopyTo(textTilemap.AsSpan(
-                IntroCinematicDefinitions.Text.FinalLineFirstCell,
-                IntroCinematicDefinitions.Text.FinalLineWordCount));
-
-        // `menu.menu_tilemap` begins $600 bytes into the same WRAM union. Its byte offset
-        // $11E therefore aliases words 911/912 of the staging map; both receive $1C29.
-        textTilemap[IntroCinematicDefinitions.Text.FinalBlankLeftIndex] =
-            IntroCinematicDefinitions.Text.FinalBlank;
-        textTilemap[IntroCinematicDefinitions.Text.FinalBlankRightIndex] =
-            IntroCinematicDefinitions.Text.FinalBlank;
-
-        textTilemap.CopyTo(tilemaps.Narration);
+        // BlankOut_JapanText_Tiles blanks the Japanese glyphs and ClearCinematicBgObjects($2F) clears the staging map
+        // under its border; $8B:A72B then maps the final line into rows 24-27. The pages' plane shows the blank text rows
+        // over the installed final line, drawn with the Japanese glyphs blanked (#1467).
+        narrationText.ShowPages();
         CurrentObjects = new IntroCinematicObjectSystem(
-            tilemaps,
-            textTilemap,
+            narrationText,
             subtitles,
             audio,
             NarrationPresentation);
@@ -1332,15 +1259,11 @@ level, samus, FrameCounterWord(elapsedUpdates));
     /// </summary>
     private bool MusicQueueFinished() => audio is null ? --timer <= 0 : !audio.HasQueuedMusic;
 
-    /// <summary>Clears the gameplay rows of BG3 and publishes the same native DMA range.</summary>
+    /// <summary>Clears the narration's text rows and shows them cleared, as the native clear uploads the visible rows.</summary>
     private void ClearVisibleNarrationText()
     {
-        Array.Fill(
-            textTilemap,
-            IntroCinematicDefinitions.Text.Blank,
-            startIndex: IntroCinematicDefinitions.Text.GameplayBlankStartIndex,
-            count: IntroCinematicDefinitions.Text.GameplayBlankWordCount);
-        textTilemap.AsSpan(0, IntroCinematicDefinitions.Tilemaps.VisibleTextCellCount).CopyTo(tilemaps.Narration);
+        narrationText.ClearText();
+        narrationText.Publish();
     }
 
     /// <summary>Clears the selected screen colours before an incoming scene palette begins crossfading.</summary>
@@ -1409,7 +1332,8 @@ level, samus, FrameCounterWord(elapsedUpdates));
             // The first card is opaque and unscrolled; later text is transparent
             // and cropped one tile down. Do not conflate those two PPU setups.
             return new(new FramePaint(palette.Shown(), sprites.Draws),
-                new DisplayLayer[] { new ScreenTilesViewportLayer(NarrationCells(), 0, false, null) }, Brightness.Level);
+                new DisplayLayer[] { new PicturedPlaneLayer(IntroNarrationPictures.FirstCardPlane(SceneSheets), default, null) { ShowsColourZero = true } },
+                Brightness.Level);
         }
         else
         {
@@ -1417,7 +1341,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame), new(0, GameplayFlashbackBg1VerticalScroll));
         }
 
-        var text = new ScreenTilesViewportLayer(NarrationCells(), GameplayFlashbackBg1VerticalScroll, true, false);
+        PicturedPlaneLayer text = Plane(IntroNarrationPictures.PagesPlane(SceneSheets, narrationText), new(0, GameplayFlashbackBg1VerticalScroll));
         // Mode 1 with high-priority BG3: preserve both the OBJ winner and the
         // insertion points of text/room priority planes during palette crossfades.
         return new(new FramePaint(palette.Shown(), sprites.Draws), new DisplayLayer[]
@@ -1448,6 +1372,4 @@ level, samus, FrameCounterWord(elapsedUpdates));
     private InstalledSpriteSheets SceneSheets =>
         spriteSheets ?? throw new InvalidOperationException("Opening cinematic rendering requires the installed sprite sheets.");
 
-    /// <summary>The narration's cells, showing its font characters (#1392).</summary>
-    private ScreenTileMap NarrationCells() => ScreenTileMap.Of(tilemaps.Narration, ScreenTilesViewportLayer.MapSize, NarrationTiles);
 }

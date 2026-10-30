@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -13,10 +12,8 @@ internal sealed class IntroCinematicObjectSystem
 {
     /// <summary>Queues alternating non-space typewriter sounds when audio is present.</summary>
     private readonly AudioQueues? audio;
-    /// <summary>The shown narration tilemap: narration uploads land here.</summary>
-    private readonly IntroTilemaps tilemaps;
-    /// <summary>Receives narration glyph words at their authored row and column.</summary>
-    private readonly BackgroundTile[] textTilemap;
+    /// <summary>The narration text the typewriter types into and its glows recolour (#1467).</summary>
+    private readonly IntroNarrationText text;
     /// <summary>Where the persistent portrait eye's program resumes when its frame expires.</summary>
     private AnimationProgramCursor<IntroEyeProgram> eyeProgram =
         AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.Blinking);
@@ -52,20 +49,17 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Tracks subtitle page transitions and the Japanese input wait.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
 
-    /// <summary>Binds caret, narration, shown tilemaps, subtitle, and optional audio owners.</summary>
+    /// <summary>Binds caret, narration, narration text, subtitle, and optional audio owners.</summary>
     public IntroCinematicObjectSystem(
-        IntroTilemaps tilemaps,
-        BackgroundTile[] textTilemap,
+        IntroNarrationText text,
         IntroJapaneseSubtitles subtitles,
         AudioQueues? audio = null,
         IntroNarrationPresentation? narrationPresentation = null)
     {
         this.subtitles = Ensure.NotNull(subtitles);
-        this.tilemaps = Ensure.NotNull(tilemaps);
-        this.textTilemap = Ensure.NotNull(textTilemap);
+        this.text = Ensure.NotNull(text);
         this.audio = audio;
         this.narrationPresentation = narrationPresentation;
-        Ensure.LengthEqual(textTilemap, IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount);
     }
 
     /// <summary>Set when opcode $8B:AE5B reaches the English page-one input marker.</summary>
@@ -156,11 +150,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Clears pages one-through-five and starts final text definition $8C:D511.</summary>
     public void StartEnglishPageSix()
     {
-        Array.Fill(
-            textTilemap,
-            IntroCinematicDefinitions.Text.Blank,
-            startIndex: IntroCinematicDefinitions.Text.GameplayBlankStartIndex,
-            count: IntroCinematicDefinitions.Text.GameplayBlankWordCount);
+        text.ClearText();
         StartNarration(
             IntroNarrationPageId.Page6);
         IntroFinishRequested = false;
@@ -186,11 +176,11 @@ internal sealed class IntroCinematicObjectSystem
         StepEye();
         if (narrationProgram is not null)
             StepInstalledNarration();
-        textGlow?.Step(textTilemap);
+        textGlow?.Step(text);
 
-        // UpdateCinematicBgTilemap queues $780 bytes from $7E:3000 to VMADD $4C00.
-        // Applying it immediately is the desktop equivalent of observing the following NMI.
-        textTilemap.AsSpan(0, IntroCinematicDefinitions.Tilemaps.VisibleTextCellCount).CopyTo(tilemaps.Narration);
+        // UpdateCinematicBgTilemap uploads the staging map's visible rows to the narration plane each update; showing
+        // them now is the desktop equivalent of observing the following NMI.
+        text.Publish();
     }
 
     /// <summary>Rebinds host-owned narration content after override reload or state restore.</summary>
@@ -270,8 +260,7 @@ internal sealed class IntroCinematicObjectSystem
                     IntroCinematicDefinitions.Objects.Typewriter,
                     maximumQueued: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
             }
-            textTilemap[character.Row * IntroCinematicDefinitions.Tilemaps.TilemapWidth +
-                character.Column] = character.Tile;
+            text.Type(character);
             narrationCharacterIndex++;
             textInstructionTimer = WrappingCountdown.Start(IntroNarrationDefinitions.CharacterDelayFrames);
             return;

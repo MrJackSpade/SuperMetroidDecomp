@@ -50,7 +50,42 @@ internal static class IntroScreenMemory
             "Opening cinematic rendering requires installed artwork.");
         IntroFontAtlas font = intro.IntroFont ?? throw new InvalidOperationException(
             "Opening cinematic rendering requires the installed font atlas.");
-        return Compose(Characters(artwork, font, intro.JapaneseGlyphsBlanked), PortraitTiles(artwork, intro.CurrentObjects?.EyeFrame), intro.tilemaps);
+        return Compose(Characters(artwork, font, !intro.narrationText.FirstCardShown), PortraitTiles(artwork, intro.CurrentObjects?.EyeFrame),
+            NarrationTiles(intro.narrationText, artwork));
+    }
+
+    /// <summary>
+    /// The narration tilemap the cartridge holds for <paramref name="text"/> (#1467): the installed first card while it is
+    /// shown; otherwise the cleared staging map's border and blank text rows, the installed final line and its blanked
+    /// neighbours, with each shown text cell's letter, or the blank cell, in its colour variant.
+    /// </summary>
+    internal static BackgroundTile[] NarrationTiles(IntroNarrationText text, IntroCinematicArtwork artwork)
+    {
+        var tiles = new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
+        if (text.FirstCardShown)
+        {
+            artwork.InitialNarrationTilemap.Span[..IntroCinematicDefinitions.Artwork.NarrationTilemapCells].CopyTo(tiles);
+            return tiles;
+        }
+        Array.Fill(tiles, IntroNarrationTilemapConstants.Blank);
+        for (int index = 0; index < IntroCinematicDefinitions.Text.GameplayBlankStartIndex; index++)
+        {
+            tiles[index] = IntroCinematicDefinitions.Text.JapaneseBlank;
+            tiles[index + IntroNarrationTilemapConstants.JapaneseBlankBottomDelta] = IntroCinematicDefinitions.Text.JapaneseBlank;
+        }
+        artwork.FinalLine.Tiles.Span[..IntroCinematicDefinitions.Text.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroCinematicDefinitions.Text.FinalLineFirstCell));
+        tiles[IntroNarrationTilemapConstants.FinalBlankLeftIndex] = IntroNarrationTilemapConstants.FinalBlank;
+        tiles[IntroNarrationTilemapConstants.FinalBlankRightIndex] = IntroNarrationTilemapConstants.FinalBlank;
+        for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
+        {
+            for (int column = 0; column < IntroNarrationText.RowCells; column++)
+            {
+                IntroTextCell cell = text.ShownAt(column, row);
+                BackgroundTile shown = cell.Letter is { } letter ? IntroNarrationGlyphTiles.CompileGlyph(letter) : IntroNarrationTilemapConstants.Blank;
+                tiles[row * IntroNarrationText.RowCells + column] = shown with { ColourVariant = cell.ColourVariant };
+            }
+        }
+        return tiles;
     }
 
     /// <summary>
@@ -70,16 +105,15 @@ internal static class IntroScreenMemory
         return portrait;
     }
 
-    /// <summary>The memory image of <paramref name="characters"/> with <paramref name="portrait"/>, if any, and <paramref name="tilemaps"/> over them.</summary>
+    /// <summary>The memory image of <paramref name="characters"/> with <paramref name="portrait"/> and <paramref name="narration"/> over them.</summary>
     [WholeImageFixture("the intro's memory image")]
-    internal static byte[] Compose(ReadOnlySpan<byte> characters, BackgroundTile[]? portrait, IntroTilemaps tilemaps)
+    internal static byte[] Compose(ReadOnlySpan<byte> characters, BackgroundTile[] portrait, BackgroundTile[] narration)
     {
         var vram = new SnesVram();
         vram.LoadBytes(0, characters);
         var view = new IntroVram(vram);
-        if (portrait is not null)
-            view.PortraitTilemap.Write(BackgroundTileWordBytes.Words(portrait));
-        view.NarrationTilemap.Write(BackgroundTileWordBytes.Words(tilemaps.Narration));
+        view.PortraitTilemap.Write(BackgroundTileWordBytes.Words(portrait));
+        view.NarrationTilemap.Write(BackgroundTileWordBytes.Words(narration));
         return vram.CaptureImage();
     }
 }

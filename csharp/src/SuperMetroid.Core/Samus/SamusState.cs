@@ -347,17 +347,11 @@ public sealed class SamusState
     public SamusEquipmentFlags CollectedItems { get; set; }
 
     /// <summary>
-    /// The Metroid-attachment palette phase, 0 through 65535 (native <c>samus_special_super_palette_flags</c>). Zero
-    /// is inactive. Ordinary Metroid command $12 writes one while attached; bank-$91 palette handling then advances
-    /// the phase every frame, alternating the speed-boost and normal suit palettes until command $13 clears it. A
-    /// phase of 32768 or more is the separate drained/rainbow branch modeled by <see cref="Drained"/>: Metroid AI
-    /// never produces it and the alternation never advances it. The setter rejects values outside the range.
+    /// The suit palette a draining Metroid or the Baby Metroid makes Samus flash through next, or inactive. Attachment
+    /// starts on the Speed Booster palette; the palette handling then alternates it with the normal suit every update
+    /// until the attacker lets go.
     /// </summary>
-    public int SpecialSuperPaletteFlags
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public SamusMetroidAttachmentPalette MetroidAttachmentPalette { get; internal set; }
 
     /// <summary>How far a landing Morph Ball or Spring Ball has bounced; see <see cref="SamusBallBounceState"/>.</summary>
     public SamusBallBounceState MorphBallBounceState { get; set; }

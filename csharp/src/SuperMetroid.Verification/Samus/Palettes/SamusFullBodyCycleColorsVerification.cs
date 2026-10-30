@@ -491,7 +491,7 @@ internal static class SamusFullBodyCycleColorsVerification
             var attached = new SamusState
             {
                 EquippedItems = items,
-                SpecialSuperPaletteFlags = 1,
+                MetroidAttachmentPalette = SamusMetroidAttachmentPalette.SpeedBoostNext,
                 Presentation = { FullBodyCycleColors = edited.SamusFullBodyCycleColors },
             };
             var attachmentColors = new SamusColourRig();

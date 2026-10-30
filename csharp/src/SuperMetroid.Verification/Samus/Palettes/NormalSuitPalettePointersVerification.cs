@@ -41,7 +41,7 @@ internal static class NormalSuitPalettePointersVerification
             var samus = new SamusState
             {
                 EquippedItems = equipment[selection],
-                SpecialSuperPaletteFlags = 2,
+                MetroidAttachmentPalette = SamusMetroidAttachmentPalette.NormalSuitNext,
                 Presentation = { SuitColors = suitColors },
             };
             var installedColors = new SamusColourRig();
@@ -52,8 +52,8 @@ internal static class NormalSuitPalettePointersVerification
                         SamusSourceDefinitions.PaletteBank.Value | (nativePointer + color * sizeof(ushort))) & 0x7fff),
                     installedColors.Samus.Suit[color],
                     $"normal suit CGRAM selection {selection}, color {color} matches ROM");
-            AssertEqual(3, samus.SpecialSuperPaletteFlags,
-                "special palette counter increments");
+            AssertEqual(SamusMetroidAttachmentPalette.SpeedBoostNext, samus.MetroidAttachmentPalette,
+                "the normal suit alternates back to the Speed Booster palette");
         }
         Console.WriteLine("Normal suit palettes: four equipment cases match ROM and live CGRAM with no CPU bus.");
     }

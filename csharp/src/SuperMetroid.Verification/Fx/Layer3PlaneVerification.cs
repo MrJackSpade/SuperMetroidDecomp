@@ -116,12 +116,13 @@ internal static class Layer3PlaneVerification
         }
         AssertEqual(4, typed.Count, "the space types no glyph");
         int[] cells = [0x105, 0x106, 0x108, 0x109];
-        ushort zebesBase = EscapeTypewriterDefinitions.ZebesTileBase.PackedWord;
-        ushort[] tiles = [zebesBase, (ushort)(zebesBase + 1), (ushort)(zebesBase + 2), (ushort)(zebesBase + 26)];
+        // Each glyph names the picture of its character (#1466); the import composes that picture from the character's tile.
+        char[] characters = ['A', 'B', 'C', '!'];
         for (int index = 0; index < typed.Count; index++)
         {
             AssertEqual(cells[index], typed[index].Cell, $"glyph {index} lands at its program's cell");
-            AssertEqual(tiles[index], typed[index].Tile.PackedWord, $"glyph {index} tile");
+            AssertEqual(EscapeTypewriterGlyph.PictureOf(EscapeTypewriterProgramId.Ceres, characters[index]), typed[index].Picture,
+                $"glyph {index} names its character's picture");
         }
         Console.WriteLine($"  BG3 plane: the typewriter typed {typed.Count} glyphs over {steps} steps at their destinations.");
     }

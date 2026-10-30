@@ -75,5 +75,5 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <param name="sheet">The room's message box images.</param>
     /// <exception cref="InvalidDataException">The sheet pictures no such form.</exception>
     public static MessageBoxLayer Of(ShownMessage shown, int radiusPixels, MessageBoxSheet sheet) =>
-        new(Ensure.NotNull(sheet).Picture(shown), radiusPixels);
+        new(Ensure.NotNull(sheet).Picture(shown.FrameName), radiusPixels);
 }

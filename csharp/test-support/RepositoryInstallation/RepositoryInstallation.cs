@@ -60,24 +60,6 @@ internal static class RepositoryInstallation
     /// <summary>The installation's presentation catalogs, shared by every fixture in the process.</summary>
     internal static GameArtwork Artwork => artwork.Value;
 
-    /// <summary>
-    /// A writable copy of the installation in <paramref name="root"/>, for checks that edit, delete and repair installed
-    /// files: the shared installation never changes, and a copy costs far less than extracting the ROM again.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The copy holds no ROM.</exception>
-    internal static GameInstallation CopyTo(string root)
-    {
-        string source = Installation.ContentDirectory;
-        string destination = Path.Combine(root, GameInstallationLayout.ContentDirectoryName);
-        Directory.CreateDirectory(destination);
-        foreach (string directory in Directory.EnumerateDirectories(source, "*", SearchOption.AllDirectories))
-            Directory.CreateDirectory(Path.Combine(destination, Path.GetRelativePath(source, directory)));
-        foreach (string file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
-            File.Copy(file, Path.Combine(destination, Path.GetRelativePath(source, file)));
-        return GameAssetInstaller.EnsureInstalled(root)
-            ?? throw new InvalidDataException($"The installation copied to {root} holds no ROM.");
-    }
-
     /// <summary>A gameplay runtime bound to the installation's presentation catalogs.</summary>
     internal static SuperMetroidRuntime CreateRuntime(
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,

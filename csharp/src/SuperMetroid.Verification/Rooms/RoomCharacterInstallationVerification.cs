@@ -303,7 +303,7 @@ internal static class RoomCharacterInstallationVerification
     {
         string roomArtworkRom = RepositoryRomPath;
         using var rootScratch = new TestScratchDirectory("room-artwork-installation");
-        GameInstallation installed = RepositoryInstallation.CopyTo(rootScratch.Root);
+        GameInstallation installed = InstallationCopyVerification.CopyRepositoryInstallation(rootScratch.Root);
         CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(roomArtworkRom);
         SelectedRoom landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
         Suite(nameof(VerifyRoomArtworkRenderParity), () => VerifyRoomArtworkRenderParity(installed, roomArtworkRom));

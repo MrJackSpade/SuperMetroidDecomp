@@ -125,9 +125,9 @@ public sealed class EscapeTypewriterState
     private EscapeTypewriterGlyph? TypeCharacter(int character)
     {
         EscapeTypewriterGlyph? glyph = null;
-        if (GlyphOf(character, tileBase) is { } tile)
+        if (GlyphOf(character, tileBase) is not null)
         {
-            glyph = new(Cell, tile, EscapeTypewriterGlyph.PictureOf(ProgramId, (char)character));
+            glyph = new(Cell, EscapeTypewriterGlyph.PictureOf(ProgramId, (char)character));
             GlyphsWritten++;
             ClickRequested = GlyphsWritten % 2 == 0;
         }

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Fx;
@@ -205,7 +206,7 @@ internal static class RoomBlockPicturesVerification
             if (glyph is { } typed)
             {
                 overlay = overlay.With(new WrittenPicture(typed.Picture, typed.Cell));
-                typedWords[typed.Cell] = typed.Tile.PackedWord;
+                typedWords[typed.Cell] = typed.TileOver(EscapeTypewriterDefinitions.ZebesTileBase).PackedWord;
             }
         }
         ImmutableArray<BgTilePicture?> pictures = new WrittenPictureResolver(sheet).Resolve(overlay, AppearanceOf(runtime, RoomScopeOf(runtime).ArtworkFrames));

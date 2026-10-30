@@ -50,17 +50,35 @@ internal static class IntroScreenMemory
             "Opening cinematic rendering requires installed artwork.");
         IntroFontAtlas font = intro.IntroFont ?? throw new InvalidOperationException(
             "Opening cinematic rendering requires the installed font atlas.");
-        return Compose(Characters(artwork, font, intro.JapaneseGlyphsBlanked), intro.tilemaps);
+        return Compose(Characters(artwork, font, intro.JapaneseGlyphsBlanked), PortraitTiles(artwork, intro.CurrentObjects?.EyeFrame), intro.tilemaps);
     }
 
-    /// <summary>The memory image of <paramref name="characters"/> with <paramref name="tilemaps"/> over them.</summary>
+    /// <summary>
+    /// The portrait tilemap the cartridge holds for the eye frame <paramref name="eye"/> the portrait shows (#1467): the
+    /// installed portrait with the frame's rectangle over its eye, or the portrait alone before the eye's first frame.
+    /// </summary>
+    internal static BackgroundTile[] PortraitTiles(IntroCinematicArtwork artwork, IntroEyeFrame? eye)
+    {
+        BackgroundTile[] portrait = artwork.PortraitTilemap.Span[..IntroCinematicDefinitions.Artwork.SamusHeadTilemapCells].ToArray();
+        if (eye is not { } frame)
+            return portrait;
+        ReadOnlySpan<BackgroundTile> rectangle = artwork.EyeFrames.FrameTiles((int)frame);
+        Position16<TilemapCells> corner = IntroEyeAnimationDefinitions.PortraitCell;
+        Extent16<TilemapCells> size = IntroEyeAnimationDefinitions.FrameSize;
+        for (int cell = 0; cell < rectangle.Length; cell++)
+            portrait[(corner.Y + cell / size.X) * IntroCinematicDefinitions.Tilemaps.TilemapWidth + corner.X + cell % size.X] = rectangle[cell];
+        return portrait;
+    }
+
+    /// <summary>The memory image of <paramref name="characters"/> with <paramref name="portrait"/>, if any, and <paramref name="tilemaps"/> over them.</summary>
     [WholeImageFixture("the intro's memory image")]
-    internal static byte[] Compose(ReadOnlySpan<byte> characters, IntroTilemaps tilemaps)
+    internal static byte[] Compose(ReadOnlySpan<byte> characters, BackgroundTile[]? portrait, IntroTilemaps tilemaps)
     {
         var vram = new SnesVram();
         vram.LoadBytes(0, characters);
         var view = new IntroVram(vram);
-        view.PortraitTilemap.Write(BackgroundTileWordBytes.Words(tilemaps.Portrait));
+        if (portrait is not null)
+            view.PortraitTilemap.Write(BackgroundTileWordBytes.Words(portrait));
         view.NarrationTilemap.Write(BackgroundTileWordBytes.Words(tilemaps.Narration));
         return vram.CaptureImage();
     }

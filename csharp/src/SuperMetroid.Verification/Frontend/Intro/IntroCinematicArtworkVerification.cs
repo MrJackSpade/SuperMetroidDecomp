@@ -110,7 +110,7 @@ internal static class IntroCinematicArtworkVerification
                         $"opening eye frame {frame} cell {cell} matches cartridge");
                 }
             }
-            Suite(nameof(VerifyIntroEyeArtwork), () => VerifyIntroEyeArtwork(bus, stock, installation));
+            Suite(nameof(VerifyIntroEyeArtwork), () => VerifyIntroEyeArtwork(bus));
             Suite(nameof(VerifyIntroCaretSpriteArtwork), () => VerifyIntroCaretSpriteArtwork(bus, stock, installation));
             Suite(nameof(VerifyIntroMotherBrainCollision), () => VerifyIntroMotherBrainCollision(bus, stock));
             Suite(nameof(VerifyIntroMotherBrainSpriteArtwork), () => VerifyIntroMotherBrainSpriteArtwork(bus, stock, installation));
@@ -599,61 +599,27 @@ internal static class IntroCinematicArtworkVerification
         }
     }
 
-    /// <summary>Compares installed eye tilemap frames and instruction timing with native VRAM output.</summary>
-    private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
-        IntroCinematicArtwork stock, GameInstallation installation)
+    /// <summary>Runs the installed eye program and confirms each update shows the frame the native program shows, without native reads.</summary>
+    private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var nativeVram = new IntroTilemaps();
-        var installedVram = new IntroTilemaps();
-        var native = new IntroCinematicObjectSystem(nativeVram, new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
-        var installed = new IntroCinematicObjectSystem(installedVram,
-            new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+        var nativeTilemaps = new IntroTilemaps();
+        var installedTilemaps = new IntroTilemaps();
+        var native = new IntroCinematicObjectSystem(nativeTilemaps, new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration);
+        var installed = new IntroCinematicObjectSystem(installedTilemaps,
+            new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration);
         native.Step(0);
         installed.Step(0);
-        AssertTrue(IntroTilemapsFixtures.Vram(installedVram).ImageEquals(IntroTilemapsFixtures.Vram(nativeVram)),
-            "installed opening eye frame draws the exact native portrait rectangle");
+        AssertEqual(native.EyeFrame, installed.EyeFrame, "installed opening eye shows the native frame");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed opening eye script and frame do not reread ROM");
-
-        string eyePath = Path.Combine(installation.IntroCinematicDirectory,
-            IntroEyeTilemapFormat.FileName);
-        IntroEyeTilemapDocument document = RequiredJson.Deserialize<IntroEyeTilemapDocument>(
-            File.ReadAllBytes(eyePath), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        var firstFrame = document.Frames[0];
-        var firstCell = firstFrame.Cells[0];
-        firstFrame.Cells[0] = firstCell with
-        {
-            TileColumn = (firstCell.TileColumn + 1) % RoomBackgroundTilemapFormat.TileColumns,
-        };
-        using var editedJson = new MemoryStream();
-        IntroEyeTilemapPresentation.Write(editedJson, document);
-        editedJson.Position = 0;
-        IntroEyeTilemapPresentation edited = IntroEyeTilemapPresentation.Load(editedJson);
-        WrappingCountdown timer = installed.EyeInstructionTimer;
-        var program = installed.EyeProgram;
-        installed.BindEyeArtwork(edited);
-        AssertEqual(timer, installed.EyeInstructionTimer,
-            "eye art rebind preserves blink timer");
-        AssertEqual(program, installed.EyeProgram,
-            "eye art rebind preserves blink program position");
-        var eyeCell = IntroEyeAnimationDefinitions.PortraitCell;
-        int destination = IntroVramWords.PortraitTilemapWord +
-            eyeCell.Y * IntroCinematicDefinitions.Tilemaps.TilemapWidth + eyeCell.X;
-        AssertEqual(edited.FrameTiles(0)[0].PackedWord, IntroTilemapsFixtures.Vram(installedVram).ReadWord(destination),
-            "eye JSON edit reaches the active portrait tile");
-        installed.BindEyeArtwork(stock.EyeFrames);
-        AssertTrue(IntroTilemapsFixtures.Vram(installedVram).ImageEquals(IntroTilemapsFixtures.Vram(nativeVram)),
-            "restoring stock eye art restores exact native VRAM without restarting script");
 
         for (int frame = 0; frame < 160; frame++)
         {
             native.Step(0);
             installed.Step(0);
-            var shownInstalledVram = IntroTilemapsFixtures.Vram(installedVram);
-            var shownNativeVram = IntroTilemapsFixtures.Vram(nativeVram);
-            AssertTrue(shownInstalledVram.ImageEquals(shownNativeVram),
-                $"installed normal eye blink preserves native VRAM at frame {frame}");
+            AssertEqual(native.EyeFrame, installed.EyeFrame,
+                $"installed normal eye blink shows the native frame at frame {frame}");
         }
         native.StartEnglishPageSix();
         installed.StartEnglishPageSix();
@@ -661,10 +627,8 @@ internal static class IntroCinematicArtworkVerification
         {
             native.Step(0);
             installed.Step(0);
-            var shownInstalledVram2 = IntroTilemapsFixtures.Vram(installedVram);
-            var shownNativeVram2 = IntroTilemapsFixtures.Vram(nativeVram);
-            AssertTrue(shownInstalledVram2.ImageEquals(shownNativeVram2),
-                $"installed page-six eye blink preserves native VRAM at frame {frame}");
+            AssertEqual(native.EyeFrame, installed.EyeFrame,
+                $"installed page-six eye blink shows the native frame at frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed eye lists and all four frames avoid native source reads");
@@ -767,9 +731,9 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
 
-        var nativeBlink = new IntroCinematicObjectSystem(new IntroTilemaps(), new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+        var nativeBlink = new IntroCinematicObjectSystem(new IntroTilemaps(), new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration);
         var installedBlink = new IntroCinematicObjectSystem(new IntroTilemaps(),
-            new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+            new BackgroundTile[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration);
         nativeBlink.SetCaretBlinking();
         installedBlink.SetCaretBlinking();
         for (int frame = 0; frame < 20; frame++)

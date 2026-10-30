@@ -57,10 +57,10 @@ internal static class CinematicSheetFixtures
         }
     }
 
-    /// <summary>Installed sheets with the Ceres flight's sprites and caption tiles composed, by flight artwork.</summary>
+    /// <summary>Installed sheets with the Ceres flight's sprites, caption pictures and floor composed, by flight artwork.</summary>
     private static readonly ConditionalWeakTable<CeresFlightArtwork, InstalledSpriteSheets> flightSheets = new();
 
-    /// <summary>The installed sheets with the Ceres flight sheet and caption tiles <paramref name="flight"/> composes.</summary>
+    /// <summary>The installed sheets with the Ceres flight sheet, caption pictures and floor <paramref name="flight"/> composes.</summary>
     internal static InstalledSpriteSheets WithFlight(CeresFlightArtwork flight)
     {
         ArgumentNullException.ThrowIfNull(flight);
@@ -69,6 +69,9 @@ internal static class CinematicSheetFixtures
             {
                 var sheets = SpriteSheetDefinitions.Sheets.ToDictionary(id => id, InstalledFixtures.SpriteSheets.Get);
                 sheets[SpriteSheetId.CeresFlightSprites] = CeresFlight(key);
+                // The caption is painted from the flight's characters and palette, so edited flight art recomposes it.
+                sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,
+                    CeresCinematicPictureSheetComposer.Compose(key, InstalledFixtures.IntroArtwork), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
                     FrontendFloorSheetComposer.Ceres(key, InstalledFixtures.IntroArtwork.CeresDestruction), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
@@ -96,8 +99,10 @@ internal static class CinematicSheetFixtures
                 var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => key,
                     RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes,
                     RepositoryInstallation.Installation.LoadEndingMode7Art);
-                foreach (SpriteSheetId id in new[] { SpriteSheetId.IntroSceneTiles, SpriteSheetId.IntroFontTiles })
-                    sheets[id] = LoadTiles(id, ScreenTileSheetComposer.Compose(id, tileSources), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.IntroFontTiles] = LoadTiles(SpriteSheetId.IntroFontTiles,
+                    ScreenTileSheetComposer.Compose(SpriteSheetId.IntroFontTiles, tileSources), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.IntroScenePictures] = LoadTiles(SpriteSheetId.IntroScenePictures,
+                    IntroScenePictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,
                     CeresCinematicPictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,

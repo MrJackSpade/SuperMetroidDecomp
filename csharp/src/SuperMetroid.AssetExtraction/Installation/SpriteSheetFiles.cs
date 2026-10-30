@@ -25,6 +25,7 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Installation;
 
@@ -110,8 +111,9 @@ public static class SpriteSheetFiles
         Lazy<AreaMapPresentation> maps, Lazy<IntroCinematicArtwork> intro, Lazy<EndingObjectArtwork> ending) => sheet switch
     {
         SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or
-            SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles =>
+            SpriteSheetId.IntroFontTiles =>
             [ScreenTileSheet.FrameName],
+        SpriteSheetId.IntroScenePictures => IntroScenePictures.FrameNames,
         SpriteSheetId.CeresCinematicPictures => CeresCinematicPictures.FrameNames,
         SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures =>

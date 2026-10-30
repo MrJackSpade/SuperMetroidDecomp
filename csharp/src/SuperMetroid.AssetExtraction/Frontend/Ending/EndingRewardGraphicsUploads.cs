@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Ending;
 using static SuperMetroid.AssetExtraction.Frontend.Ending.EndingRewardGraphicsUploadDefinitions;
 

@@ -51,7 +51,7 @@ public static class CeresRidleyFloorUpdateFiles
 
     /// <summary>The floor updates <paramref name="frames"/>' runs describe, by frame then run.</summary>
     /// <exception cref="InvalidDataException">A frame or run is missing.</exception>
-    private static IReadOnlyList<IReadOnlyList<FloorUpdate>> Updates(CeresRidleyFloorUpdateRunDocument[][]? frames)
+    private static List<IReadOnlyList<FloorUpdate>> Updates(CeresRidleyFloorUpdateRunDocument[][]? frames)
     {
         var updates = new List<IReadOnlyList<FloorUpdate>>();
         foreach (CeresRidleyFloorUpdateRunDocument[]? runs in frames ?? throw new InvalidDataException("Ceres Ridley floor updates name no frames."))

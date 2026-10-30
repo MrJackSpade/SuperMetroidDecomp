@@ -26,11 +26,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort KzanNtscRiseWaitFrames = 64;
     /// <summary>Fractional pixels subtracted each rising actor update.</summary>
     private const ushort KzanNtscRisingSubspeed = unchecked((ushort)-32768);
-    /// <summary>Last speed-table offset permitted during falling acceleration.</summary>
-    private const int KzanMaximumFallingSpeedTableOffset = 512;
-
-    /// <summary>Speed-table bytes per falling step: one logical speed's positive and negative pair.</summary>
-    private const int KzanFallingSpeedTableStride = 8;
+    /// <summary>The fastest linear-speed row falling acceleration reaches.</summary>
+    private const int KzanMaximumFallingSpeedRow = 64;
 
     /// <summary>The library-two landing sound published when the falling top reaches its target.</summary>
     private static readonly SoundEffectId KzanLandingSound =
@@ -54,12 +51,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
         state.Function = KzanEnemyFunction.WaitingToFall;
 
-        // init0's low byte is a logical speed-table index; the cartridge multiplies it by
-        // eight (its byte offset, at most 2040) before reading the table. Retail values
-        // include 64, selecting its final NTSC entry.
-        int speedTableOffset = slot.Spawn.Population.Parameter1Settings.First * KzanFallingSpeedTableStride;
-        state.FallingYSpeedTableIndex = speedTableOffset;
-        state.InitialFallingSpeed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableOffset));
+        // init0's low byte names the linear-speed row the fall starts at. Retail values
+        // include 64, the table's final NTSC row.
+        state.FallingSpeedRow = slot.Spawn.Population.Parameter1Settings.First;
+        state.InitialFallingSpeed = EnemyLinearSpeeds.Row(state.FallingSpeedRow).Positive;
 
         // init1 packs two unrelated bytes: the high byte is fall distance in pixels and the
         // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
@@ -129,7 +124,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
-        state.FallingYSpeedTableIndex = slot.Spawn.Population.Parameter1Settings.First * KzanFallingSpeedTableStride;
+        state.FallingSpeedRow = slot.Spawn.Population.Parameter1Settings.First;
         state.Function = KzanEnemyFunction.Falling;
     }
 
@@ -140,7 +135,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus)
     {
         state.PreviousPosition = slot.Position.Whole;
-        slot.Position = slot.Position.AdvanceY(EnemyMath.ReadLinearEnemySpeed(checked((ushort)state.FallingYSpeedTableIndex)));
+        slot.Position = slot.Position.AdvanceY(EnemyLinearSpeeds.Row(state.FallingSpeedRow).Positive);
 
         // CMP/BMI tests only the sign of the wrapped subtraction, which the spatial difference
         // keeps: coordinates near the room's edge retain the same cartridge behavior.
@@ -154,11 +149,9 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
 
-        // The cartridge caps the offset by the sign of its word difference from the cap; both
-        // stay far below the word's sign bit, so that is the ordinary minimum.
-        state.FallingYSpeedTableIndex = Math.Min(
-            state.FallingYSpeedTableIndex + KzanFallingSpeedTableStride,
-            KzanMaximumFallingSpeedTableOffset);
+        // The cartridge caps the row by the sign of its difference from the cap; both stay far
+        // below the sign bit, so that is the ordinary minimum.
+        state.FallingSpeedRow = Math.Min(state.FallingSpeedRow + 1, KzanMaximumFallingSpeedRow);
     }
 
     /// <summary>Counts down the 64-frame NTSC landing hold before switching to ascent.</summary>

@@ -61,11 +61,18 @@ public sealed class FirefleaEnemyState
         internal set => _words.MaximumYExtent = value;
     }
 
-    /// <summary>Byte offset of the current speed entry in the linear speed table, 0 through 2044: eight per speed selector, plus four for the negative half, which reversal toggles.</summary>
-    public int SpeedTableIndex
+    /// <summary>The row of the shared linear speed table the Fireflea moves at, from parameter two's low byte.</summary>
+    public int SpeedRow
     {
-        get => _words.SpeedTableIndex;
-        internal set => _words.SpeedTableIndex = value;
+        get => _words.SpeedRow;
+        internal set => _words.SpeedRow = value;
+    }
+
+    /// <summary>Which of the row's speeds the Fireflea moves at; vertical movement reverses it at each extent.</summary>
+    internal EnemySpeedSign SpeedSign
+    {
+        get => _words.SpeedSign;
+        set => _words.SpeedSign = value;
     }
 
     /// <summary>Native init0/parameter-one bit $0002 selects circular motion; otherwise the actor moves vertically between its saved extrema.</summary>

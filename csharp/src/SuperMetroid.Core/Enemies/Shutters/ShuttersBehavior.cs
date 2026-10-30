@@ -250,9 +250,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection ^ 1;
 
-        int speedRecordOffset = state.SpeedTableIndex * 8;
-        state.RightVelocity = ReadShutterLinearSpeed(speedRecordOffset);
-        state.LeftVelocity = ReadShutterLinearSpeed(speedRecordOffset + 4);
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(state.SpeedTableIndex);
+        state.RightVelocity = speeds.Positive;
+        state.LeftVelocity = speeds.Negative;
 
         PopulationParameterSettings restParameters = PopulationParameterSettings.Of(slot.ExtraProperties.ToWord());
         state.MovedLeftRestParameter = restParameters.First;
@@ -530,13 +530,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable or
         EnemyDefinitionId.Kamer;
 
-    /// <summary>Reads one signed 16.16 velocity from the common linear-speed table at <paramref name="byteOffset"/>.</summary>
-    private static SignedSixteenSixteen ReadShutterLinearSpeed(int byteOffset)
-    {
-        SignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)byteOffset));
-        return speed;
-    }
-
     /// <summary>
     /// The shared idle-shutter contact test: Samus's solid-enemy contacts this update name this shutter, as
     /// <see cref="SolidContactSlotCombination"/> combines them, and her contact-damage index is nonzero.
@@ -748,9 +741,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection;
 
-        int speedRecordOffset = state.SpeedTableIndex * 8;
-        state.DownVelocity = ReadShutterLinearSpeed(speedRecordOffset);
-        state.UpVelocity = ReadShutterLinearSpeed(speedRecordOffset + 4);
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(state.SpeedTableIndex);
+        state.DownVelocity = speeds.Positive;
+        state.UpVelocity = speeds.Negative;
 
         PopulationParameterSettings restParameters = PopulationParameterSettings.Of(slot.ExtraProperties.ToWord());
         state.MovedUpRestParameter = restParameters.First;

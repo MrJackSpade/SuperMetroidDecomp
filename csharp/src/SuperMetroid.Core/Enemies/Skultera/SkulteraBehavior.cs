@@ -69,11 +69,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
 
-        int speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter1Settings.First * 8));
-        SignedSixteenSixteen right = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
-        state.RightVelocity = right;
-        SignedSixteenSixteen left = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
-        state.LeftVelocity = left;
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter1Settings.First);
+        state.RightVelocity = speeds.Positive;
+        state.LeftVelocity = speeds.Negative;
 
         // Parameter two packs radius in its low byte and unsigned initial angle delta in
         // its high byte. The delta becomes negative only when a turn negates it.

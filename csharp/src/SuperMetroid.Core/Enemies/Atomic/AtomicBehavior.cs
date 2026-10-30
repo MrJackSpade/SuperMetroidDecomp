@@ -25,17 +25,10 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicSpins.InitialProgram(checked((ushort)slot.Spawn.Population.Parameter1)));
 
-        // Parameter two is an index into the shared eight-byte linear-speed record:
-        // positive whole/fraction followed by its ROM-generated negative whole/fraction.
-        // Keeping all four words exactly avoids the one-subpixel errors caused by rebuilding
-        // the negative pair from a C# integer after the fact.
-        int speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
-        SignedSixteenSixteen positive =
-            EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
-        SignedSixteenSixteen negative =
-            EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
-        state.Speed = positive;
-        state.NegativeSpeed = negative;
+        // Parameter two names the row of the shared linear speed table the atomic moves at.
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter2);
+        state.Speed = speeds.Positive;
+        state.NegativeSpeed = speeds.Negative;
     }
 
     /// <summary>

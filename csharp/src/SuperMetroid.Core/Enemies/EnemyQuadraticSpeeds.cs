@@ -1,39 +1,28 @@
-using System.Buffers.Binary;
 using static SuperMetroid.Core.Enemies.EnemyQuadraticSpeedDefinitions;
 
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Reads the shared enemy quadratic-speed records as the native table presents them, byte window by byte window.</summary>
-[EncodingOwner("enemy quadratic-speed table bytes")]
+/// <summary>The shared quadratic enemy speed table, whose speeds grow with the triangle numbers.</summary>
 public static class EnemyQuadraticSpeeds
 {
-    /// <summary>Reads a native word, including odd-byte windows used by initial hop estimates.</summary>
-    public static ushort ReadWord(int byteOffset)
-    {
-        if (byteOffset is < 0 or > (RecordCount * RecordSize - 2))
-            throw new InvalidDataException($"Enemy quadratic-speed word offset ${byteOffset:X} is outside the authored NTSC records.");
-        return BinaryPrimitives.ReadUInt16LittleEndian([ReadByte(byteOffset), ReadByte(byteOffset + 1)]);
-    }
+    /// <summary>Every row, by row number.</summary>
+    private static readonly EnemyQuadraticSpeedRow[] Rows = [.. Enumerable.Range(0, RowCount).Select(Build)];
 
-    /// <summary>Reads a fraction-first signed 16.16 displacement without rounding or aligned-index coercion.</summary>
-    public static int ReadDisplacement(int byteOffset)
-    {
-        int fraction = ReadWord(byteOffset);
-        int whole = unchecked((short)ReadWord(byteOffset + 2));
-        return (SixteenSixteen.FromWhole(whole)) | fraction;
-    }
+    /// <summary>The speeds of row <paramref name="row"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="row"/> is not one of the authored rows.</exception>
+    public static EnemyQuadraticSpeedRow Row(int row) => (uint)row < (uint)Rows.Length
+        ? Rows[row]
+        : throw new InvalidDataException($"Enemy quadratic-speed row {row} is outside the {RowCount} authored rows.");
 
-    /// <summary>Reconstructs a byte of the shared positive/negative 16.16 record, preserving the native discarded fractional carry.</summary>
-    private static byte ReadByte(int offset)
+    /// <summary>
+    /// Row <paramref name="row"/>: the triangle number in 256ths of a pixel, its fraction widened by
+    /// <see cref="FractionMultiplier"/> with the carry past the fraction dropped, and that speed negated.
+    /// </summary>
+    private static EnemyQuadraticSpeedRow Build(int row)
     {
-        int record = offset / RecordSize;
-        int triangle = record * (record + 1) / 2;
-        // The original values match discarded fractional carry. Preserve that
-        // observed discontinuity without claiming provenance for its generator.
-        int velocity = (triangle >> 8 << 16) | ((triangle & 255) * FractionMultiplier & 65535);
-        int component = offset % RecordSize;
-        if (component >= 4)
-            velocity = -velocity;
-        return unchecked((byte)(velocity >> ((component & 3) * 8)));
+        int triangle = row * (row + 1) / 2;
+        int speed = SixteenSixteen.FromWhole(EightEight.WholeOf(triangle)) |
+            SixteenSixteen.FractionOf(EightEight.FractionOf(triangle) * FractionMultiplier);
+        return new EnemyQuadraticSpeedRow(speed, -speed);
     }
 }

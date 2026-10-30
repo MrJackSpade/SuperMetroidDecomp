@@ -13,14 +13,11 @@ public sealed class RipperEnemyState
     /// <summary>Binds a variant to its slot's GRipper patrol-bound storage.</summary>
     internal RipperEnemyState(RipperExtensionWords words) => _words = words;
 
-    /// <summary>Signed 16.16 horizontal velocity per update, one half of the selected linear-speed record.</summary>
+    /// <summary>Signed 16.16 horizontal velocity per update, one of the selected linear-speed row's speeds.</summary>
     public SignedSixteenSixteen XVelocity { get; internal set; }
 
-    /// <summary>
-    /// The selected linear-speed record's byte offset in the shared speed table, eight bytes per record, set by
-    /// initialization (wrapping at the word boundary there, 0 through 65535) and read back when the velocity is loaded.
-    /// </summary>
-    public int SpeedTableByteOffset { get; internal set; }
+    /// <summary>The selected row of the shared linear speed table, set by initialization and read back when the velocity is loaded.</summary>
+    public EnemyLinearSpeedRow Speeds { get; internal set; }
 
     /// <summary>
     /// GRipper extra word $00: exclusive left patrol reversal threshold, a room X coordinate in pixels
@@ -42,10 +39,10 @@ public sealed class RipperEnemyState
         internal set => _words.MaximumXPosition = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Empties the velocity and speed record, when a kill empties the enemy's common record.</summary>
+    /// <summary>Empties the velocity and speed row, when a kill empties the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         XVelocity = SignedSixteenSixteen.Zero;
-        SpeedTableByteOffset = 0;
+        Speeds = default;
     }
 }

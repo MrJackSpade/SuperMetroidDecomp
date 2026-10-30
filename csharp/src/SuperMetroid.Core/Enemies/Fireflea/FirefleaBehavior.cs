@@ -47,11 +47,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Parameter one is native `init0`: bit one selects circle versus vertical motion,
         // bit zero selects the sign half of the speed table, and its high byte is the initial
         // circle angle. Parameter two (`init1`) packs speed index low and radius index high.
-        int speedTableIndex = slot.Spawn.Population.Parameter2Settings.First * 8;
-        if ((slot.Spawn.Population.Parameter1 & 1) == 0)
-            speedTableIndex += 4;
-        state.SpeedTableIndex = speedTableIndex;
-        state.AngularSpeed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableIndex));
+        state.SpeedRow = slot.Spawn.Population.Parameter2Settings.First;
+        state.SpeedSign = (slot.Spawn.Population.Parameter1 & 1) == 0 ? EnemySpeedSign.Negative : EnemySpeedSign.Positive;
+        state.AngularSpeed = EnemyLinearSpeeds.Row(state.SpeedRow).Toward(state.SpeedSign);
 
         int radiusIndex = slot.Spawn.Population.Parameter2Settings.Second;
         state.Radius = FirefleaOrbit.Radius(radiusIndex);
@@ -81,24 +79,31 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToByteAngle(), checked((ushort)state.Radius)));
 
-            // `$A3:8E2D` performs an unaligned word read at var0+1: the speed's middle sixteen
-            // bits, the high byte of its fraction under the low byte of its whole part. That
-            // reproduces the exact signed 8.8 delta, including negative half-speeds.
+            // The angle advances by the speed at 256ths of a pixel: the high byte of its fraction under the low byte
+            // of its whole part, the exact signed 8.8 step including negative speeds.
             SignedSixteenSixteen speed = state.AngularSpeed;
             state.Angle = state.Angle.AddRaw(EightEight.FromSixteenSixteen(speed.WholePixels, speed.Fraction));
             return;
         }
 
-        slot.Position = slot.Position.AdvanceY(EnemyMath.ReadLinearEnemySpeed(checked((ushort)state.SpeedTableIndex)));
+        slot.Position = slot.Position.AdvanceY(EnemyLinearSpeeds.Row(state.SpeedRow).Toward(state.SpeedSign));
 
         // Native CMP/BMI and CMP/BPL consume wrapped signed subtraction, not ordinary host
-        // bounds comparisons. The actor is intentionally allowed to overshoot before XOR
-        // bit two switches between the adjacent positive/negative table entries.
+        // bounds comparisons. The actor is intentionally allowed to overshoot before its
+        // speed reverses to the row's other sign.
         bool crossedMinimum = (slot.Position.Whole - state.MinimumYExtent).Y < 0;
         bool reachedMaximum = (slot.Position.Whole - state.MaximumYExtent).Y >= 0;
         if (crossedMinimum || reachedMaximum)
-            state.SpeedTableIndex ^= 4;
+            state.SpeedSign = Reversed(state.SpeedSign);
     }
+
+    /// <summary>The sign opposite <paramref name="sign"/>.</summary>
+    private static EnemySpeedSign Reversed(EnemySpeedSign sign) => sign switch
+    {
+        EnemySpeedSign.Positive => EnemySpeedSign.Negative,
+        EnemySpeedSign.Negative => EnemySpeedSign.Positive,
+        _ => throw new ArgumentOutOfRangeException(nameof(sign), sign, "Undefined enemy speed sign."),
+    };
 
     /// <summary>
     /// Ports Fireflea touch AI at $A3:8E6B, including its retail double-death bug. The

@@ -73,11 +73,8 @@ public sealed class PipeBugEnemyState
     /// when a decrement reaches zero.
     /// </summary>
     public WrappingCountdown RespawnDelay { get; internal set; }
-    /// <summary>
-    /// Byte offset, 0 through 2040, of this Norfair bug's positive record in the common linear speed table: eight
-    /// bytes per record, with the negative half four bytes later.
-    /// </summary>
-    public int LinearSpeedTableOffset { get; internal set; }
+    /// <summary>The row of the shared linear speed table this Norfair bug flies at.</summary>
+    public EnemyLinearSpeedRow FlightSpeeds { get; internal set; }
     /// <summary>The point at which a Norfair member's initial rise ended; only Y is meaningful. Its stagger moves are measured from it.</summary>
     public Position16<RoomPixels> RiseEnd { get; internal set; }
     /// <summary>The formation count, 72 through 136, at which this Norfair member departs.</summary>

@@ -60,7 +60,7 @@ internal static class KzanBehaviorVerification
         enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);
         AssertEqual(KzanEnemyFunction.Falling, state.Function, "above the wrapped falling target the top keeps falling");
         AssertEqual((ushort)65520, slot.Position.Y.Whole, "the first falling step uses the zero speed entry");
-        AssertEqual(8, state.FallingYSpeedTableIndex, "each falling step advances the speed offset by one entry");
+        AssertEqual(1, state.FallingSpeedRow, "each falling step advances the speed by one row");
 
         slot.Position = slot.Position.WithWholeY(16);
         enemies.KzanBehavior.RunKzanTopMainAi(slot, frame);

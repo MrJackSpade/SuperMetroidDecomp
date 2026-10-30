@@ -94,12 +94,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // table, whose positive half is the downward velocity and negative half the upward
             // one. The high byte is the steady-state number of frames between direction changes.
             int speedRecord = slot.Spawn.Population.Parameter2Settings.First;
-            int speedOffset = checked((ushort)(speedRecord * EnemyLinearSpeedDefinitions.RecordSize));
-            SignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedOffset);
-            state.DownVelocity = down;
-            SignedSixteenSixteen up = EnemyMath.ReadLinearEnemySpeed(
-                checked((ushort)(speedOffset + EnemyLinearSpeedDefinitions.RecordSize / 2)));
-            state.UpVelocity = up;
+            EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedRecord);
+            state.DownVelocity = speeds.Positive;
+            state.UpVelocity = speeds.Negative;
             state.MovementTimer = ReadFirstHalfCycle(speedRecord);
         }
 

@@ -41,7 +41,7 @@ internal static class FirefleaBehaviorVerification
         var frame = new ClockedEnemyAiFrame(
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
             new FrameCounters(0));
-        foreach ((ushort y, int expectedSpeedTableIndex) in new VerifyFirefleaVerticalExtentsWrapCase[] { new VerifyFirefleaVerticalExtentsWrapCase(4, 4), new VerifyFirefleaVerticalExtentsWrapCase(65531, 0), new VerifyFirefleaVerticalExtentsWrapCase(12, 0) })
+        foreach ((ushort y, EnemySpeedSign expectedSpeedSign) in new VerifyFirefleaVerticalExtentsWrapCase[] { new VerifyFirefleaVerticalExtentsWrapCase(4, EnemySpeedSign.Negative), new VerifyFirefleaVerticalExtentsWrapCase(65531, EnemySpeedSign.Positive), new VerifyFirefleaVerticalExtentsWrapCase(12, EnemySpeedSign.Positive) })
         {
             var enemies = new RoomEnemySystem(new EnemySession());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -57,7 +57,7 @@ internal static class FirefleaBehaviorVerification
 
             FirefleaBehavior.RunFirefleaMainAi(slot, frame);
 
-            AssertEqual(expectedSpeedTableIndex, state.SpeedTableIndex, $"Fireflea at Y {y} keeps or reverses its speed entry");
+            AssertEqual(expectedSpeedSign, state.SpeedSign, $"Fireflea at Y {y} keeps or reverses its speed");
         }
         Console.WriteLine("  Fireflea vertical extents: positions compare with wrapped extents by the wrapped spatial difference.");
     }

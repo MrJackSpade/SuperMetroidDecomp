@@ -58,7 +58,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Owtch parameter one ${slot.Spawn.Population.Parameter1:X4} selects state {initialState}, " +
                 "outside its five-entry main-AI table.");
         }
-        if (speedIndex >= EnemyLinearSpeedDefinitions.RecordCount)
+        if (speedIndex >= EnemyLinearSpeedDefinitions.RowCount)
         {
             throw new InvalidDataException(
                 $"Owtch parameter two ${slot.Spawn.Population.Parameter2:X4} selects linear-speed " +
@@ -73,13 +73,11 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         // states two and four begin with the left list, while state three begins right.
         OwtchProgram initialProgram = (initialState & 1) == 0 ? OwtchProgram.MovingLeft : OwtchProgram.MovingRight;
 
-        int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
-        var right = EnemyLinearSpeeds.Read(speedRecord);
-        var left = EnemyLinearSpeeds.Read(speedRecord + 4);
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedIndex);
         var state = new OwtchEnemyState
         {
-            RightVelocity = right,
-            LeftVelocity = left,
+            RightVelocity = speeds.Positive,
+            LeftVelocity = speeds.Negative,
             Behavior = InitialStates.At(initialState),
             BurialDepth = 0,
             UndergroundTimer = WrappingCountdown.FromRaw(undergroundTimer),

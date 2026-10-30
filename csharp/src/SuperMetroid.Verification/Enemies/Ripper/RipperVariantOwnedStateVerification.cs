@@ -23,15 +23,16 @@ internal static class RipperVariantOwnedStateVerification
         RipperEnemyState state = slot.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 
-        SignedSixteenSixteen negative = EnemyLinearSpeeds.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize + 4);
-        SignedSixteenSixteen positive = EnemyLinearSpeeds.Read(speedRecord * EnemyLinearSpeedDefinitions.RecordSize);
-        AssertEqual(speedRecord * EnemyLinearSpeedDefinitions.RecordSize, state.SpeedTableByteOffset, "the speed record's byte offset");
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedRecord);
+        SignedSixteenSixteen negative = speeds.Negative;
+        SignedSixteenSixteen positive = speeds.Positive;
+        AssertEqual(speeds, state.Speeds, "the speed row");
         AssertEqual(negative, state.XVelocity, "the negative half is loaded");
         enemies.RipperBehavior.ReverseRipperVariant(slot, RipperProgram.Ripper2MovingLeft, RipperProgram.Ripper2MovingRight);
         AssertEqual(positive, state.XVelocity, "a reversal loads the positive half");
 
         slot.Clear();
-        AssertEqual(new VerifyRipperVariantOwnedStateCase(SignedSixteenSixteen.Zero, 0), new VerifyRipperVariantOwnedStateCase(state.XVelocity, state.SpeedTableByteOffset), "a kill empties the velocity and record");
+        AssertEqual(new VerifyRipperVariantOwnedStateCase(SignedSixteenSixteen.Zero, default), new VerifyRipperVariantOwnedStateCase(state.XVelocity, state.Speeds), "a kill empties the velocity and speed row");
         Console.WriteLine("Ripper variant owned state: the record's velocity halves, the reversal and the cleared record match.");
     }
 

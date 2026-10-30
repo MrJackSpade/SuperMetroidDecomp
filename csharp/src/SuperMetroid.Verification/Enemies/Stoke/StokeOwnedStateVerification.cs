@@ -16,15 +16,15 @@ internal static class StokeOwnedStateVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         StokeEnemyState? state = null;
-        for (int record = 0; record < EnemyLinearSpeedDefinitions.RecordCount; record++)
+        for (int record = 0; record < EnemyLinearSpeedDefinitions.RowCount; record++)
         {
             slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
             slot.SetSpawnParameter1((ushort)StokeDirection.Right);
             slot.SetSpawnParameter2((ushort)record);
             StokeBehavior.InitializeStoke(slot);
             state = enemies.StokeStates[0] ?? throw new InvalidOperationException("The initialized Stoke has no state.");
-            SignedSixteenSixteen right = EnemyLinearSpeeds.Read(record * EnemyLinearSpeedDefinitions.RecordSize);
-            SignedSixteenSixteen left = EnemyLinearSpeeds.Read(record * EnemyLinearSpeedDefinitions.RecordSize + 4);
+            SignedSixteenSixteen right = EnemyLinearSpeeds.Row(record).Positive;
+            SignedSixteenSixteen left = EnemyLinearSpeeds.Row(record).Negative;
             AssertEqual(right, state.RightVelocity, $"record {record} rightward speed");
             AssertEqual(left, state.LeftVelocity, $"record {record} leftward speed");
             AssertEqual(StokeAiFunction.Moving, state.Function, $"record {record} walks");

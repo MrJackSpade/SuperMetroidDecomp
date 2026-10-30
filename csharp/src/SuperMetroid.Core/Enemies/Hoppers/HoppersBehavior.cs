@@ -245,9 +245,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Inequality expresses that table exactly. Equality reverses both phases, making
         // each actor collide with its starting surface and then migrate to the opposite one.
         bool useNegativeSpeed = (surface == HopperSurface.Ceiling) != movingAwayFromSurface;
-        int verticalDisplacement = EnemyMath.ReadQuadraticEnemySpeed(
-            checked((ushort)state.YSpeedTableIndex),
-            negative: useNegativeSpeed);
+        int verticalDisplacement = EnemyQuadraticSpeeds.Row(checked((ushort)state.YSpeedTableIndex)).Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
         // Every native movement entry resolves Y first. A collision while rising reverses
         // X and changes to the falling half without performing horizontal motion that frame.
@@ -304,7 +302,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             MaximumHopperYSpeedTableIndex);
     }
 
-    /// <summary>Accumulates the native unaligned quadratic-speed words until the authored jump height is reached.</summary>
+    /// <summary>Sums the quadratic table's coarse speeds until the authored jump height is reached.</summary>
     internal static int CalculateInitialHopperYSpeedTableIndex(
         int jumpHeight,
         int tableIndexDelta)
@@ -315,10 +313,9 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             tableIndex = unchecked((ushort)(tableIndex + tableIndexDelta));
 
-            // $A3:ABAF deliberately reads at table+1: the word consists of the subspeed's
-            // high byte and speed's low byte. A naturally aligned 16-bit read changes every
-            // initial jump index, so retain this odd unaligned cartridge access literally.
-            int heightIncrement = EnemyQuadraticSpeeds.ReadWord(tableIndex * 8 + 1);
+            // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every
+            // initial jump row.
+            int heightIncrement = EnemyQuadraticSpeeds.Row(tableIndex).CoarseToward(EnemySpeedSign.Positive);
             accumulatedHeight = unchecked((ushort)(accumulatedHeight + heightIncrement));
             if (unchecked((short)(accumulatedHeight - jumpHeight)) >= 0)
                 return tableIndex;

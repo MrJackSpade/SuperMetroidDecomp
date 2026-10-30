@@ -246,8 +246,8 @@ internal static class ShutterBehaviorVerification
             string context = $"primary direction {primaryDirection} at Y {spawnY}";
             AssertEqual(new Position16<RoomPixels>(spawnX, expectedUpperY), state.UpperEndpoint, $"{context}: upper endpoint");
             AssertEqual(new Position16<RoomPixels>(spawnX, expectedLowerY), state.LowerEndpoint, $"{context}: lower endpoint");
-            SignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8);
-            SignedSixteenSixteen up = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8 + 4);
+            SignedSixteenSixteen down = EnemyLinearSpeeds.Row(speedIndex).Positive;
+            SignedSixteenSixteen up = EnemyLinearSpeeds.Row(speedIndex).Negative;
             AssertEqual(down, state.DownVelocity,
                 $"{context}: downward velocity is the speed record's first entry");
             AssertEqual(up, state.UpVelocity,

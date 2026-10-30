@@ -61,11 +61,9 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SecondTurnThreshold = sweep.SecondTurnThreshold;
         state.FirstTurnThreshold = sweep.FirstTurnThreshold;
 
-        // Speed parameter N selects the N-pixel positive 16.16 record. Reverse direction
-        // adds four bytes to select its ROM-stored negative half rather than host-negating.
-        int speedByteOffset = angularSpeedIndex * EnemyLinearSpeedDefinitions.RecordSize + (state.SweepsForward ? 0 : 4);
-        SignedSixteenSixteen speed = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedByteOffset));
-        state.AngularSpeed = speed;
+        // Speed parameter N names the linear-speed row; a reverse sweep takes the row's negative speed.
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(angularSpeedIndex);
+        state.AngularSpeed = state.SweepsForward ? speeds.Positive : speeds.Negative;
 
         state.Origin = slot.Position.Whole;
         PositionNuclearWaffleHead(slot, state, state.SweepStartAngle);

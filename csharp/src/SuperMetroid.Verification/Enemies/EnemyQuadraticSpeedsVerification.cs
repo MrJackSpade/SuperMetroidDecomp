@@ -5,48 +5,43 @@ using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies;
 
-/// <summary>Checks compiled quadratic speed words and their Polyp, Beetom, Hopper, KiHunter, and Maw consumers.</summary>
+/// <summary>Checks the quadratic speed rows and their Polyp, Beetom, Hopper, KiHunter, and Maw consumers.</summary>
 internal static class EnemyQuadraticSpeedsVerification
 {
-    /// <summary>Compares native word windows and focused production integrations, including odd offsets and wrap.</summary>
+    /// <summary>Compares every row and its coarse speeds with the cartridge, then focused production integrations.</summary>
     internal static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        for (int offset = 0; offset <= 758; offset++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset), EnemyQuadraticSpeeds.ReadWord(offset), "quadratic projectile table mirror");
-        for (int offset = 0; offset <= 758; offset++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset), EnemyQuadraticSpeeds.ReadWord(offset), "quadratic native word window");
-        for (int offset = 0; offset <= 756; offset++)
-            AssertEqual(unchecked((int)SixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))),
-                EnemyQuadraticSpeeds.ReadDisplacement(offset), "quadratic native displacement window");
-        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.ReadWord(-1), "quadratic negative offset");
-        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.ReadWord(759), "quadratic partial word");
-        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.ReadDisplacement(757), "quadratic partial displacement");
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        EnemySpeedSign[] signs = [EnemySpeedSign.Positive, EnemySpeedSign.Negative];
+        for (int row = 0; row < EnemyQuadraticSpeedDefinitions.RowCount; row++)
+        {
+            EnemyQuadraticSpeedRow speeds = EnemyQuadraticSpeeds.Row(row);
+            AssertEqual(EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, row), speeds, "quadratic speed row");
+            AssertEqual(EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, row), speeds, "quadratic projectile copy row");
+            foreach (EnemySpeedSign sign in signs)
+                AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, sign), speeds.CoarseToward(sign), "quadratic coarse speed");
+        }
+        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.Row(-1), "negative quadratic row");
+        AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeeds.Row(EnemyQuadraticSpeedDefinitions.RowCount), "quadratic row past the table");
         if (definitionsOnly) return;
-        var shared = new Func<int, bool, int>(EnemyMath.ReadQuadraticEnemySpeed);
-        var addRock = new Action<RoomEnemyProjectileSlot, int, QuadraticSpeedHalf>(PolypBehavior.AddPolypRockQuadraticStep);
+        var addRock = new Action<RoomEnemyProjectileSlot, int, EnemySpeedSign>(PolypBehavior.AddPolypRockQuadraticStep);
         var rock = new RoomEnemyProjectileSlot(0);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
-        for (ushort index = 0; index < 95; index++)
-        foreach (bool negative in new[] { false, true })
+        for (int index = 0; index < EnemyQuadraticSpeedDefinitions.RowCount; index++)
+        foreach (EnemySpeedSign sign in signs)
         {
-            int offset = index * 8 + (negative ? 4 : 0);
-            uint expected = unchecked(origin + (SixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset))));
+            int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticProjectileCopy, index).Toward(sign);
+            uint expected = unchecked(origin + (uint)speed);
             rock.Position = rock.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)origin)), unchecked((ushort)origin)));
-            addRock(rock, index, negative ? QuadraticSpeedHalf.Negative : QuadraticSpeedHalf.Positive);
+            addRock(rock, index, sign);
             AssertEqual(expected, rock.Position.Y.RawValue, "Polyp real split-word carry/wrap");
         }
-        AssertThrows<InvalidDataException>(() => addRock(rock, 95, QuadraticSpeedHalf.Positive), "Polyp invalid speed remains loud");
-        for (ushort index = 0; index < 95; index++)
-        foreach (bool negative in new[] { false, true })
-        {
-            int offset = index * 8 + (negative ? 4 : 0);
-            AssertEqual(unchecked((int)SixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))), shared(index, negative),
-                "quadratic shared production reader");
-        }
+        AssertThrows<InvalidDataException>(() => addRock(rock, EnemyQuadraticSpeedDefinitions.RowCount, EnemySpeedSign.Positive), "Polyp invalid speed remains loud");
         var beetom = new Func<int, int, int>(BeetomBehavior.CalculateInitialBeetomYSpeedIndex);
         var hopper = new Func<int, int, int>(HoppersBehavior.CalculateInitialHopperYSpeedTableIndex);
         int initialIndexCases = 0;
@@ -54,13 +49,13 @@ internal static class EnemyQuadraticSpeedsVerification
         for (int height = 0; height <= ushort.MaxValue; height++)
         {
             ushort accumulated = 0;
-            for (int index = delta; index < 95; index += delta)
+            for (int index = delta; index < EnemyQuadraticSpeedDefinitions.RowCount; index += delta)
             {
-                accumulated = unchecked((ushort)(accumulated + CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (index * 8 + 1))));
+                accumulated = unchecked((ushort)(accumulated + EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, EnemySpeedSign.Positive)));
                 if (unchecked((short)(accumulated - height)) < 0)
                     continue;
-                AssertEqual(index, beetom((ushort)height, delta), "Beetom native odd-word hop integration");
-                AssertEqual(index, hopper((ushort)height, delta), "Hopper native odd-word hop integration");
+                AssertEqual(index, beetom((ushort)height, delta), "Beetom coarse-speed hop integration");
+                AssertEqual(index, hopper((ushort)height, delta), "Hopper coarse-speed hop integration");
                 initialIndexCases++;
                 break;
             }
@@ -69,32 +64,33 @@ internal static class EnemyQuadraticSpeedsVerification
         // table. Out-of-table instruction-byte reads are not a fabricated math API.
         AssertTrue(initialIndexCases > 100000, "wide signed-height hop corpus is exercised");
 
-        var wings = new Func<int, QuadraticSpeedHalf, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
-        for (int index = 0; index < 95; index++)
+        var wings = new Func<int, EnemySpeedSign, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
+        for (int index = 0; index < EnemyQuadraticSpeedDefinitions.RowCount; index++)
         for (int low = 0; low < 256; low++)
-        foreach (bool negative in new[] { false, true })
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (index * 8 + (negative ? 5 : 1))), wings((ushort)(index * 256 + low), negative ? QuadraticSpeedHalf.Negative : QuadraticSpeedHalf.Positive),
-                "KiHunter high-byte index and odd-word angle delta");
+        foreach (EnemySpeedSign sign in signs)
+            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), (int)wings((ushort)(index * 256 + low), sign),
+                "KiHunter high-byte index and coarse angle delta");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);
         var maw = new YappingMawEnemyState(new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0]);
         int mawAdditions = 0;
         foreach (uint start in new uint[] { 0, 0x0080ff37, 0xffffff37 })
-        for (int record = 0; record < EnemyQuadraticSpeedDefinitions.RecordCount; record++)
+        for (int record = 0; record < EnemyQuadraticSpeedDefinitions.RowCount; record++)
         foreach (bool negative in new[] { false, true })
         {
-            int offset = record * EnemyQuadraticSpeedDefinitions.RecordSize + (negative ? 4 : 0);
+            int speed = EnemySpeedTableCodec.QuadraticRow(cartridge, EnemySpeedTableCodec.QuadraticTable, record)
+                .Toward(negative ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
             maw.Extension = SignedSixteenSixteen.FromRaw(unchecked((int)start));
             maw.QuadraticSpeedRecord = record;
             maw.QuadraticSpeedNegative = negative;
             mawAdditions++;
-            uint expected = unchecked(start + (SixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))));
+            uint expected = unchecked(start + (uint)speed);
             addMaw(maw);
             AssertEqual(expected, unchecked((uint)maw.Extension.RawValue), "Yapping Maw real split-word integration");
             AssertEqual(new VerifyCompiledQuadraticEnemySpeedsCase(record + 1, negative), new VerifyCompiledQuadraticEnemySpeedsCase(maw.QuadraticSpeedRecord, maw.QuadraticSpeedNegative), "Yapping Maw record advance");
         }
-        Console.WriteLine("Compiled quadratic speeds: all 759 word windows and 757 displacement windows match the authored NTSC bytes, including odd offsets and native discontinuities.");
-        Console.WriteLine("Projectile quadratic mirror: all 759 word windows and 570 real Polyp integrations match, including scratch writes and subpixel carry/wrap, without a loaded bus.");
+        Console.WriteLine("Compiled quadratic speeds: all 95 rows and their coarse speeds match both cartridge copies.");
+        Console.WriteLine("Projectile quadratic copy: 570 real Polyp integrations match, including subpixel carry/wrap, without a loaded bus.");
         Console.WriteLine($"Quadratic production paths: {initialIndexCases} hop inputs per Beetom/Hopper, 48640 KiHunter angle inputs, and {mawAdditions} Yapping Maw additions match cartridge bytes without a loaded bus.");
     }
 }

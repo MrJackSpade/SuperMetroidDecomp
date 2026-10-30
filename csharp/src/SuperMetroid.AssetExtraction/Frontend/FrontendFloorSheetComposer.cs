@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -32,7 +33,7 @@ internal static class FrontendFloorSheetComposer
     }
 
     /// <summary>How each frontend floor sheet composes from the stock artwork.</summary>
-    private static readonly IReadOnlyDictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>> Composers =
+    private static readonly FrozenDictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>> Composers =
         new Dictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>>
         {
             [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
@@ -42,7 +43,7 @@ internal static class FrontendFloorSheetComposer
             [SpriteSheetId.EndingPlanetExplosionFloor] = sources => EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion),
             [SpriteSheetId.EndingFlyawayFloor] = sources => Flyaway(sources.Intro.CeresFlight, sources.EndingPalettes),
             [SpriteSheetId.EndingRewardIconFloor] = sources => RewardIcon(sources.EndingMode7, sources.EndingPalettes),
-        };
+        }.ToFrozenDictionary();
 
     /// <summary>
     /// The title's floor with each Baby Metroid page shown: the title's map over the start of a floor whose other cells

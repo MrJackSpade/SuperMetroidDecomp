@@ -53,13 +53,13 @@ internal static class CeresCinematicPictureSheetComposer
         ImageColourGroups japanese = ImageColourGroups.None;
         ReadOnlySpan<BackgroundTile> japaneseTiles = SpaceColonyCaptionTileDefinitions.JapaneseTiles;
         for (int cell = 0; cell < japaneseTiles.Length; cell++)
-            japanese = japanese.With(Paint(canvas, (letters + cell % SpaceColonyCaptionDefinitions.JapaneseWidth) * CharacterPixels,
+            japanese = japanese.Union(Paint(canvas, (letters + cell % SpaceColonyCaptionDefinitions.JapaneseWidth) * CharacterPixels,
                 cell / SpaceColonyCaptionDefinitions.JapaneseWidth * CharacterPixels, japaneseTiles[cell], flight, colours));
         frames.Add(CeresCinematicPictures.JapaneseCaption, Frame(letters * CharacterPixels, 0, SpaceColonyCaptionDefinitions.JapaneseWidth, japaneseRows, japanese));
         ReadOnlySpan<BackgroundTile> planet = intro.CeresDestruction.ZebesMap.Tiles.Span[..(CeresDestructionArtworkFormat.ZebesMapByteCount / sizeof(ushort))];
         ImageColourGroups planetGroups = ImageColourGroups.None;
         for (int cell = 0; cell < planet.Length; cell++)
-            planetGroups = planetGroups.With(Paint(canvas, cell % PlanetCells * CharacterPixels, captionHeight + cell / PlanetCells * CharacterPixels,
+            planetGroups = planetGroups.Union(Paint(canvas, cell % PlanetCells * CharacterPixels, captionHeight + cell / PlanetCells * CharacterPixels,
                 planet[cell], zebes, colours));
         frames.Add(CeresCinematicPictures.ZebesPlanet, Frame(0, captionHeight, PlanetCells, planet.Length / PlanetCells, planetGroups));
         return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.SixteenColours));

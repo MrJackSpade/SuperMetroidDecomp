@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Assets;
 
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Video;

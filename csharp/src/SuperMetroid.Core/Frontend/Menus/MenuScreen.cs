@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -55,7 +54,7 @@ internal sealed class MenuScreen
     /// (#1467): a field's picture lands where the cartridge writes that field.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed menu pictures hold no such frame.</exception>
-    internal PicturedPlane CellPictures(IEnumerable<(string Frame, Position16<TilemapCells> Cell)> pictures)
+    internal PicturedPlane CellPictures(IEnumerable<PlacedFrame> pictures)
     {
         SpriteSheet sheet = Sheets.Get(SpriteSheetId.MenuPictures);
         return new PicturedPlane(PageSize, [.. Ensure.NotNull(pictures).Select(placed => Place(sheet.Frame(placed.Frame), placed.Cell))]);

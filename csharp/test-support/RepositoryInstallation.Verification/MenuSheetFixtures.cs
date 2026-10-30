@@ -156,10 +156,10 @@ internal static class MenuSheetFixtures
         sheets[SpriteSheetId.MenuPictures] = LoadTiles(SpriteSheetId.MenuPictures, MenuPictureSheet.Compose(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         // The room maps' cells and frames, and each area's world-map pages, are pictured from the maps' presentation (#1467).
         sheets[SpriteSheetId.RoomMapPictures] = LoadTiles(SpriteSheetId.RoomMapPictures, MapPictureSheets.ComposeRoomMap(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
-        foreach ((AreaId area, SpriteSheetId id) in ScreenTileSheetDefinitions.AreaMapForegrounds)
-            sheets[id] = LoadTiles(id, MapPictureSheets.ComposeWorldForeground(maps, area), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
-        foreach ((AreaId area, SpriteSheetId id) in ScreenTileSheetDefinitions.AreaMapBackgrounds)
-            sheets[id] = LoadTiles(id, MapPictureSheets.ComposeWorldBackground(maps, area), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
+        foreach (KeyValuePair<AreaId, SpriteSheetId> foreground in ScreenTileSheetDefinitions.AreaMapForegrounds)
+            sheets[foreground.Value] = LoadTiles(foreground.Value, MapPictureSheets.ComposeWorldForeground(maps, foreground.Key), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
+        foreach (KeyValuePair<AreaId, SpriteSheetId> background in ScreenTileSheetDefinitions.AreaMapBackgrounds)
+            sheets[background.Value] = LoadTiles(background.Value, MapPictureSheets.ComposeWorldBackground(maps, background.Key), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         return new InstalledSpriteSheets(sheets);
     }
 

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 /// <summary>Schema names and fixed dimensions for <c>file-select.json</c>.</summary>

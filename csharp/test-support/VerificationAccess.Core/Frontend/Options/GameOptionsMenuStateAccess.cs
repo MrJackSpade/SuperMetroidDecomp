@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Options;
@@ -12,13 +13,13 @@ internal static class GameOptionsMenuStateAccess
     {
         /// <summary>
         /// The page the menu shows, laid out as the cartridge's little-endian tilemap words from the import's sources of the
-        /// pictures it places (#1467): the page with its language rows, controller labels or toggle choices as shown.
+        /// pictures it places (#1467): the page with its language rows, controller labels or toggle choices as shown, read
+        /// from <paramref name="maps"/>, the presentation the menu was built with.
         /// </summary>
-        internal byte[] ShownPageBytes()
+        internal byte[] ShownPageBytes(AreaMapPresentation maps)
         {
-            GameOptionsSourcePresentation presentation = GameOptionsSourcePresentation.Of(
-                (self.mapPresentation ?? throw new InvalidOperationException("The options menu's presentation is not bound.")).GameOptions);
-            ShownOptionsPage shown = self.shownPage;
+            GameOptionsSourcePresentation presentation = GameOptionsSourcePresentation.Of(Ensure.NotNull(maps).GameOptions);
+            ShownOptionsPage shown = self.ShownPage;
             BackgroundTile[] tiles = presentation.CreatePage(shown.Page);
             switch (shown.Page)
             {

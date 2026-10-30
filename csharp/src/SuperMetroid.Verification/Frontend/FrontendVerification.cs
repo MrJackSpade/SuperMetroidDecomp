@@ -142,7 +142,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         RepositoryInstallation.Installation.MapDirectory, overrideRoot);
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     var menu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
-    ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap;
+    ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap(fixturePresentation);
 
     // Native empty-slot origins are energy-field X plus one $40-byte row: rows 6, 11,
     // and 16 at column 14. Consequently every visible N begins at column 15 and the whole
@@ -200,7 +200,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(0x04, saved.ExploredMapBytes[0x84], "unpacked explored-map sparse byte");
 
     var savedMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
-    ReadOnlySpan<ushort> savedTilemap = savedMenu.BackgroundTilemap;
+    ReadOnlySpan<ushort> savedTilemap = savedMenu.BackgroundTilemap(fixturePresentation);
     AssertEqual(0x209d, savedTilemap[0x15c / 2], "saved slot ENERGY first tile");
     AssertEqual(0x2069, savedTilemap[(0x15c + 0x42) / 2], "saved slot energy tens");
     AssertEqual(0x2069, savedTilemap[(0x15c + 0x44) / 2], "saved slot energy ones");

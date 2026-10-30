@@ -46,14 +46,16 @@ public sealed class PictureGrid : IEquatable<PictureGrid>
             return false;
         for (int index = 0; index < Cells.Length; index++)
         {
-            GridPicture? mine = Cells[index], theirs = other.Cells[index];
-            if (mine.HasValue != theirs.HasValue)
-                return false;
-            if (mine is { } shown && (!ReferenceEquals(shown.Picture, theirs!.Value.Picture) || shown.Mirroring != theirs.Value.Mirroring))
+            if (!Same(Cells[index], other.Cells[index]))
                 return false;
         }
         return true;
     }
+
+    /// <summary>Whether two cells show the same picture the same way, or both show nothing.</summary>
+    private static bool Same(GridPicture? mine, GridPicture? theirs) => mine is { } shown
+        ? theirs is { } other && ReferenceEquals(shown.Picture, other.Picture) && shown.Mirroring == other.Mirroring
+        : theirs is null;
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => Equals(obj as PictureGrid);

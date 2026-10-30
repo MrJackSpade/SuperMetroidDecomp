@@ -107,6 +107,13 @@ internal static class PauseEquipmentPageLayout
         Ensure.NotNull(maps);
         PageFootprints parts = PageFootprints.Of(maps);
         var dynamic = new HashSet<int>(parts.Dynamic);
+        // The cells each part's pictures may cover with the template: those only parts placed after it write, whose own
+        // pictures, always placed, cover those cells again.
+        HashSet<int> afterReserve = [.. parts.Arrow];
+        HashSet<int> afterWireframe = [.. afterReserve, .. parts.Reserve];
+        HashSet<int> afterTail = [.. afterWireframe, .. parts.Wireframe];
+        HashSet<int> afterLabels = [.. afterTail, .. parts.ShownTail];
+        HashSet<int> afterHyper = [.. afterLabels, .. PauseEquipmentLabelTiles.Labels().SelectMany(key => maps.PauseEquipmentLabels.PageCells(key.Label))];
         yield return ScreenPictureSubject.Page(PauseEquipmentPictures.BaseFrame, maps.PauseEquipmentBase.CreateTilemap(), Columns, parts.Dynamic);
         PauseEquipmentLabelState[] states = Enum.GetValues<PauseEquipmentLabelState>();
         foreach (PauseEquipmentLabelKey key in PauseEquipmentLabelTiles.Labels())
@@ -116,28 +123,28 @@ internal static class PauseEquipmentPageLayout
             {
                 BackgroundTile[] page = LayOut(maps, Reference with { Labels = Reference.Labels.Replace(Reference.Label(key.Label), ShownEquipmentLabel.Whole(key.Label, state)) });
                 yield return Part(PauseEquipmentPictures.LabelFrame(key.Label, PauseEquipmentLabelSegment.Head, state), page,
-                    cells[..Math.Min(cells.Length, PauseEquipmentLabelDefinitions.BeamWords)]);
+                    cells[..Math.Min(cells.Length, PauseEquipmentLabelDefinitions.BeamWords)], afterLabels);
                 if (PauseEquipmentPictures.HasRest(key.Label))
                     yield return Part(PauseEquipmentPictures.LabelFrame(key.Label, PauseEquipmentLabelSegment.Rest, state), page,
-                        cells[PauseEquipmentLabelDefinitions.BeamWords..]);
+                        cells[PauseEquipmentLabelDefinitions.BeamWords..], afterLabels);
             }
         }
-        yield return Part(PauseEquipmentPictures.HyperBeamsFrame, LayOut(maps, Reference with { HyperBeam = true }), parts.HyperColumn);
+        yield return Part(PauseEquipmentPictures.HyperBeamsFrame, LayOut(maps, Reference with { HyperBeam = true }), parts.HyperColumn, afterHyper);
         foreach (PauseEquipmentLabelState? tail in new PauseEquipmentLabelState?[] { null, PauseEquipmentLabelState.Enabled, PauseEquipmentLabelState.Disabled })
         {
             ShownEquipmentPage page = tail is { } state
                 ? Reference.WithLabelWritten(PauseEquipmentLabelId.Plasma, PauseEquipmentLabelDefinitions.EquipmentWords, state) : Reference;
-            yield return Part(PauseEquipmentPictures.PlasmaTailFrame(tail), LayOut(maps, page), parts.ShownTail);
+            yield return Part(PauseEquipmentPictures.PlasmaTailFrame(tail), LayOut(maps, page), parts.ShownTail, afterTail);
         }
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
-            yield return Part(PauseEquipmentPictures.WireframeFrame(kind), LayOut(maps, Reference.WithWireframe(kind)), parts.Wireframe);
-        yield return Part(PauseEquipmentPictures.ReserveAbsentFrame, LayOut(maps, Reference), parts.Reserve);
+            yield return Part(PauseEquipmentPictures.WireframeFrame(kind), LayOut(maps, Reference.WithWireframe(kind)), parts.Wireframe, afterWireframe);
+        yield return Part(PauseEquipmentPictures.ReserveAbsentFrame, LayOut(maps, Reference), parts.Reserve, afterReserve);
         foreach (ReserveTankMode mode in Enum.GetValues<ReserveTankMode>())
         {
             BackgroundTile[] page = LayOut(maps, Reference with { Reserve = new ShownReserveDisplay(mode, 0) });
-            yield return Part(PauseEquipmentPictures.ReserveModeFrame(mode), page, parts.Mode);
+            yield return Part(PauseEquipmentPictures.ReserveModeFrame(mode), page, parts.Mode, afterReserve);
             if (mode == ReserveTankMode.None)
-                yield return Part(PauseEquipmentPictures.ReserveTankFrame, page, parts.Tank);
+                yield return Part(PauseEquipmentPictures.ReserveTankFrame, page, parts.Tank, afterReserve);
         }
         int placeValue = PauseReserveEnergyDefinitions.Hundred;
         for (int place = 0; place < PauseReserveUiDefinitions.SupplyDigitPlaces; place++, placeValue /= PauseReserveEnergyDefinitions.DecimalBase)
@@ -145,24 +152,25 @@ internal static class PauseEquipmentPageLayout
             for (int digit = 0; digit < PauseReserveUiDefinitions.DigitCount; digit++)
             {
                 BackgroundTile[] page = LayOut(maps, Reference with { Reserve = new ShownReserveDisplay(ReserveTankMode.None, digit * placeValue) });
-                yield return Part(PauseEquipmentPictures.ReserveDigitFrame(place, digit), page, [maps.PauseReserveUi.DigitCell(place)]);
+                yield return Part(PauseEquipmentPictures.ReserveDigitFrame(place, digit), page, [maps.PauseReserveUi.DigitCell(place)], afterReserve);
             }
         }
         foreach (ShownReserveArrow arrow in Enum.GetValues<ShownReserveArrow>())
-            yield return Part(PauseEquipmentPictures.ReserveArrowFrame(arrow), LayOut(maps, Reference.WithArrow(arrow)), parts.Arrow);
+            yield return Part(PauseEquipmentPictures.ReserveArrowFrame(arrow), LayOut(maps, Reference.WithArrow(arrow)), parts.Arrow, new HashSet<int>());
 
         // The renderer shows, at each pixel, the last placed picture whose bounds cover it, so a part's picture paints its
-        // whole bounding rectangle: its own cells as the part shows them and the template's cells around them, which no
-        // other part may write.
-        ScreenPictureSubject Part(string name, BackgroundTile[] page, IReadOnlyCollection<int> cells)
+        // whole bounding rectangle: its own cells as the part shows them and the template's cells around them. Only a part
+        // placed after it, in `later`, may write a cell there: that part's picture covers the cell again, as the cartridge's
+        // later write does.
+        ScreenPictureSubject Part(string name, BackgroundTile[] page, IReadOnlyCollection<int> cells, IReadOnlySet<int> later)
         {
             int left = cells.Min(cell => cell % Columns), right = cells.Max(cell => cell % Columns);
             int top = cells.Min(cell => cell / Columns), bottom = cells.Max(cell => cell / Columns);
             int[] bounds = [.. Enumerable.Range(top, bottom - top + 1).SelectMany(row => Enumerable.Range(row * Columns + left, right - left + 1))];
             foreach (int cell in bounds.Except(cells))
             {
-                if (dynamic.Contains(cell))
-                    throw new InvalidDataException($"Picture {name}'s bounds cover cell {cell}, which another part of the equipment page writes.");
+                if (dynamic.Contains(cell) && !later.Contains(cell))
+                    throw new InvalidDataException($"Picture {name}'s bounds cover cell {cell}, which a part of the equipment page placed before it writes.");
             }
             return ScreenPictureSubject.Cells(name, page, Columns, bounds);
         }

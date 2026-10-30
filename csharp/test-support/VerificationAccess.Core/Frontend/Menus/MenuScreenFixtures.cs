@@ -35,7 +35,7 @@ internal static class MenuScreenFixtures
     {
         Ensure.NotNull(graphics);
         var tiles = new BackgroundTile[4 * ScreenCells];
-        ShownAreaMapTiles.Of(graphics.areaMap).CopyTo(tiles, 0);
+        ShownAreaMapTiles.Of(graphics.AreaMap).CopyTo(tiles, 0);
         InstalledAreaMapPresentation.ScreensOf(maps).Page(MapScreenDefinitions.RoomFrame(graphics.icons.MapArea)).CopyTo(tiles.AsSpan(2 * ScreenCells));
         return Load(MenuScreenMemory.Compose(graphics.screen, tiles));
     }

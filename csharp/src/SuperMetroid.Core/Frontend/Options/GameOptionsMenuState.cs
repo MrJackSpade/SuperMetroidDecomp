@@ -31,9 +31,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Derives newly pressed buttons from the raw held controller word.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Provides editable menu art after construction or debugger restoration.</summary>
-    [NonSerialized] internal AreaMapPresentation? mapPresentation;
+    [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
-    internal ShownOptionsPage shownPage;
+    internal ShownOptionsPage ShownPage { get; private set; }
     /// <summary>Page whose input and cursor policy currently apply.</summary>
     private GameOptionsPage page = GameOptionsPage.Primary;
     /// <summary>Page to load when the current page has dissolved to black.</summary>
@@ -230,7 +230,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         PrepareRenderSprites();
         // The backdrop, the page and its labels, language rows and toggle choices are the menus' pictures (#1467).
         return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(GameOptionsNames.BackgroundFrame),
-            screen.PagePictures(shownPage.Frames()), unchecked((ushort)bg1VerticalScroll), checked((byte)brightness));
+            screen.PagePictures(ShownPage.Frames()), unchecked((ushort)bg1VerticalScroll), checked((byte)brightness));
     }
 
     /// <summary>Draws the current page heading and animated cursor as sprite entries.</summary>
@@ -431,6 +431,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// Selects the language-specific page and shows it with the current language highlight, controller labels and toggle
     /// choices, as the cartridge reapplies them whenever it loads the page.
     /// </summary>
+    [MemberNotNull(nameof(ShownPage))]
     private void LoadVisiblePage()
     {
         GameOptionsTilemap shown = page switch
@@ -440,7 +441,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             GameOptionsPage.Special => JapaneseText ? GameOptionsTilemap.SpecialJapanese : GameOptionsTilemap.SpecialEnglish,
             _ => throw new InvalidOperationException($"Unknown options page {page}."),
         };
-        shownPage = new ShownOptionsPage(shown, JapaneseText, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
+        ShownPage = new ShownOptionsPage(shown, JapaneseText, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
     }
 
     /// <summary>Uses the page cursor layout or the hidden anchor during transitions.</summary>

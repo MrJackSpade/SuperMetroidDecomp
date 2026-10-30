@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -10,11 +11,12 @@ internal static class FileSelectMenuStateAccess
     extension(FileSelectMenuState self)
     {
         /// <summary>
-        /// The page the menu shows, laid out as the cartridge's tilemap words from the import's sources of the pictures it
-        /// places (#1467), for cartridge-layout verification.
+        /// The page the menu shows, laid out as the cartridge's tilemap words from <paramref name="maps"/>' sources of the
+        /// pictures it places (#1467), for cartridge-layout verification; <paramref name="maps"/> is the presentation the menu
+        /// was built with.
         /// </summary>
-        internal ReadOnlySpan<ushort> BackgroundTilemap => BackgroundTileWordBytes.Words(FileSelectSourcePresentation.Of(
-            (self.mapPresentation ?? throw new InvalidOperationException("File select's presentation is not bound.")).FileSelect).LayOut(self.ShownPage));
+        internal ushort[] BackgroundTilemap(AreaMapPresentation maps) =>
+            BackgroundTileWordBytes.Words(FileSelectSourcePresentation.Of(Ensure.NotNull(maps).FileSelect).LayOut(self.ShownPage));
 
         /// <summary>Selected helmet frame retained through the fade into loading/options.</summary>
         internal int SelectedHelmetFrame => self.HelmetAnimationFrame;

@@ -5,6 +5,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Spatial;
@@ -109,9 +110,10 @@ public sealed class FileSelectSourcePresentation : FileSelectPresentation
         Ensure.NotNull(shown);
         var tiles = new BackgroundTile[FileSelectPresentationDefinitions.CellCount];
         CopyPage(shown.Page, tiles);
-        foreach ((string frame, Position16<TilemapCells> cell) in shown.Pictures(this).Skip(1))
+        foreach (PlacedFrame placed in shown.Pictures(this).Skip(1))
         {
-            ScreenPictureSubject glyph = FieldSubjects().First(subject => subject.Name == frame);
+            ScreenPictureSubject glyph = FieldSubjects().First(subject => subject.Name == placed.Frame);
+            Position16<TilemapCells> cell = placed.Cell;
             for (int index = 0; index < glyph.Tiles.Length; index++)
             {
                 if (glyph.Tiles[index] is not { } tile)

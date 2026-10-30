@@ -95,17 +95,18 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             throw new ArgumentOutOfRangeException(nameof(action));
         ControllerButton label = GameOptionsNames.ControllerLabelButton(button);
         controllerLabels.TryGetValue(label, out BackgroundTile[]? cells);
-        foreach ((int destination, int cell) in ControllerLabelCells(action))
-            page[destination] = cells is not null ? cells[cell] : GameOptionsPageCells.ControllerLabelTile(label, cell);
+        foreach (GameOptionsLabelCell cell in ControllerLabelCells(action))
+            page[cell.PageCell] = cells is not null ? cells[cell.GlyphCell] : GameOptionsPageCells.ControllerLabelTile(label, cell.GlyphCell);
     }
 
     /// <summary>Each page cell of controller action <paramref name="action"/>'s label, with its place in the label's glyph.</summary>
-    private IEnumerable<(int PageCell, int GlyphCell)> ControllerLabelCells(int action)
+    private IEnumerable<GameOptionsLabelCell> ControllerLabelCells(int action)
     {
         Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPageCells.ControllerAnchor(action);
         for (int row = 0; row < GameOptionsPageDefinitions.ControllerLabelHeight; row++)
         for (int column = 0; column < GameOptionsPageDefinitions.ControllerLabelWidth; column++)
-            yield return ((anchor.Y + row) * GameOptionsDefinitions.MenuTilemapWidth + anchor.X + column, row * GameOptionsPageDefinitions.ControllerLabelWidth + column);
+            yield return new GameOptionsLabelCell((anchor.Y + row) * GameOptionsDefinitions.MenuTilemapWidth + anchor.X + column,
+                row * GameOptionsPageDefinitions.ControllerLabelWidth + column);
     }
 
     /// <summary>Recolors the enabled and disabled labels for one special setting.</summary>

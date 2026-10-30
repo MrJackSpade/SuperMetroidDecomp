@@ -42,7 +42,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     /// <summary>Tracks button edges used by native menu navigation and confirmation.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Host-owned file-select artwork rebound after debugger-state restoration.</summary>
-    [NonSerialized] internal AreaMapPresentation? mapPresentation;
+    [NonSerialized] private AreaMapPresentation? mapPresentation;
     /// <summary>Decoded slots whose null entries failed or lacked native SRAM checksums.</summary>
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
     /// <summary>The selection missile's frame cycle.</summary>

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// <param name="IconCancelEnabled">Whether the special page selects Icon Cancel's enabled choice.</param>
 /// <param name="MoonwalkEnabled">Whether the special page selects Moonwalk's enabled choice.</param>
 [IndependentFlag("Japanese text, Icon Cancel and Moonwalk are three independent saved options the page shows.")]
-internal readonly record struct ShownOptionsPage(GameOptionsTilemap Page, bool JapaneseText, ControllerBindings Bindings,
+internal sealed record ShownOptionsPage(GameOptionsTilemap Page, bool JapaneseText, ControllerBindings Bindings,
     bool IconCancelEnabled, bool MoonwalkEnabled)
 {
     /// <summary>The menus' pictures the page shows, in drawing order: the page, then what is drawn over it.</summary>

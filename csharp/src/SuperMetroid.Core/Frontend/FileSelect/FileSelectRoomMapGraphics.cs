@@ -22,7 +22,7 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>The installed room-map pictures the map's cells and the frame draw from (#1467).</summary>
     [NonSerialized] private SpriteSheet? roomPictures;
     /// <summary>How the room map shows the area's cells (#1466, #1467).</summary>
-    internal ShownAreaMap areaMap;
+    internal ShownAreaMap AreaMap { get; private set; }
     /// <summary>The room map's palette, initialized from file-select presentation colors and subsequently updated by the menu's palette-animation owner.</summary>
     public ScreenPalette Palette => screen.Palette;
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
@@ -53,7 +53,7 @@ public sealed class FileSelectRoomMapGraphics
             throw new ArgumentOutOfRangeException(nameof(area));
         screen = new MenuScreen(mapPresentation.Palettes,
             mapPresentation.WorldArtwork, installed);
-        areaMap = AreaMapProjection.Project(mapPresentation.Get(area), system,
+        AreaMap = AreaMapProjection.Project(mapPresentation.Get(area), system,
             mapPresentation.HiddenCells.RoomSelect(system.HasAreaMap(area)), revealMode);
     }
 
@@ -79,7 +79,7 @@ public sealed class FileSelectRoomMapGraphics
         var system = icons.MapSystem;
         var area = icons.MapArea;
         screen.BindWorldArtwork(catalog.WorldArtwork);
-        areaMap = AreaMapProjection.Project(catalog.Get(area), system, catalog.HiddenCells.RoomSelect(system.HasAreaMap(area)));
+        AreaMap = AreaMapProjection.Project(catalog.Get(area), system, catalog.HiddenCells.RoomSelect(system.HasAreaMap(area)));
     }
 
     /// <summary>Composes landmarks, the saved-station marker, and arrows in native order without advancing animations.</summary>
@@ -108,7 +108,7 @@ public sealed class FileSelectRoomMapGraphics
             layers.Add(new PicturedPlaneLayer(frame, frameScroll, null));
         else
         {
-            PictureGrid map = AreaMapPictures.Grid(areaMap, pictures);
+            PictureGrid map = AreaMapPictures.Grid(AreaMap, pictures);
             foreach (bool priority in new[] { false, true })
             {
                 layers.Add(new PicturedPlaneLayer(frame, frameScroll, priority));

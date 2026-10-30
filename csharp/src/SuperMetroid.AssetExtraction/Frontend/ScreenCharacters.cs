@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 internal sealed class ScreenCharacters
 {
     /// <summary>Each placed run, earliest first.</summary>
-    private readonly List<(int FirstTile, ReadOnlyMemory<byte> Characters)> runs = [];
+    private readonly List<ScreenCharacterRun> runs = [];
 
     /// <summary>Starts with no characters placed.</summary>
     /// <param name="depth">The depth of every character placed.</param>
@@ -30,7 +30,7 @@ internal sealed class ScreenCharacters
         Ensure.AtLeastZero(firstTile);
         if (characters.IsEmpty || characters.Length % CharacterBytes != 0)
             throw new InvalidDataException($"{characters.Length} bytes are not whole {Depth} characters.");
-        runs.Add((firstTile, characters));
+        runs.Add(new ScreenCharacterRun(firstTile, characters));
         return this;
     }
 
@@ -39,11 +39,11 @@ internal sealed class ScreenCharacters
     {
         for (int run = runs.Count - 1; run >= 0; run--)
         {
-            (int first, ReadOnlyMemory<byte> characters) = runs[run];
-            int index = tile - first;
-            if (index >= 0 && index < characters.Length / CharacterBytes)
+            ScreenCharacterRun placed = runs[run];
+            int index = tile - placed.FirstTile;
+            if (index >= 0 && index < placed.Characters.Length / CharacterBytes)
             {
-                character = characters.Span.Slice(index * CharacterBytes, CharacterBytes);
+                character = placed.Characters.Span.Slice(index * CharacterBytes, CharacterBytes);
                 return true;
             }
         }

@@ -46,7 +46,7 @@ internal static class RetailCrocomireCaptureTests
             if (previousScroll != runtime.Enemies.CrocomireBehavior.BodyLayer.Placement) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);
             var baseLayer = (GameplaySceneLayer)scene.Layers[0];
-            if (baseLayer.BackgroundLineScrolls.VerticalShown || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive)
+            if (baseLayer.BackgroundLineScrolls.VerticalStretch is not null || baseLayer.BackgroundLineScrolls.VerticalShown || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive)
                 throw new InvalidOperationException("Crocomire fight incorrectly enabled melting HDMA.");
             var packet = new DisplayPacket(new(tick + 1, 1, (ushort)tick), scene);
             PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
@@ -67,7 +67,9 @@ internal static class RetailCrocomireCaptureTests
             if ((death ?? throw new InvalidOperationException("Verification requires death.")).MeltingScrollActive != shouldMelt)
                 throw new InvalidOperationException($"Crocomire HDMA lifecycle disagrees in phase {(int)boss.DeathSequenceIndex:X2}.");
             bool changed = phases.Add(boss.DeathSequenceIndex);
-            bool nonuniform = death.Bg2ScrollByScanline.Any(y => y != death.Bg2ScrollByScanline[0]);
+            // The melt shows its stretch once some gameplay line of his body layer scrolls differently from the first (#1468).
+            bool nonuniform = shouldMelt && Enumerable.Range(ScreenGeometry.GameplayHudHeightPixels, BackgroundLineScrolls.GameplayLines)
+                .Select(line => ScrollShapeLines.StretchScroll(death.MeltDistortion, line)).Distinct().Count() > 1;
             bool firstDistortion = nonuniform && !distorted;
             distorted |= nonuniform;
             complete = boss.DeathSequenceIndex == CrocomireDeathPhase.InertCorpse;

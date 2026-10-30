@@ -17,7 +17,9 @@ cbuffer TileParameters : register(b0)
     int CenterX, CenterY, OffsetX, OffsetY;
     uint FloorOutside, FirstScanline, EndScanline;
     uint Reserved27;
-    uint Reserved28, Reserved29, Reserved30, Reserved31;
+    // A described line displacement (#1468, D3D11LineDisplacement): its kind, its band of lines (first, then the line
+    // after its last in the high half), its scale and its shape word.
+    uint DisplacementKind, DisplacementBand, DisplacementScale, DisplacementShape;
     uint4 ScanlineParameters[224];
 };
 // The scene's colours (D3D11SceneColourBuffer): the backdrop, then each colour slot's table's word, then the tables:
@@ -323,6 +325,46 @@ uint PicturePixel(uint picture, uint2 pixel, out uint index, out bool high)
     return TexelColour(texel, RoomLevels[picture + PictureColoursWord], index, high);
 }
 
+// These kinds match D3D11LineDisplacementKind.cs (#1468).
+static const uint DisplacementWave = 1, DisplacementStretch = 2;
+// The game's signed sine samples over a quarter turn of its 256-step angle (Trigonometry.SignedSine): 256 times the
+// sine, rounded down, with the quarter turn itself at 256. A wave reads these, not the device's sine, so every device
+// draws the same lines.
+static const int QuarterSine[65] =
+{
+    0, 6, 12, 18, 25, 31, 37, 43, 49, 56, 62, 68, 74, 80, 86, 92, 97, 103, 109, 115, 120, 126, 131, 136, 142, 147, 152,
+    157, 162, 167, 171, 176, 181, 185, 189, 193, 197, 201, 205, 209, 212, 216, 219, 222, 225, 228, 231, 234, 236, 238,
+    241, 243, 244, 246, 248, 249, 251, 252, 253, 254, 254, 255, 255, 255, 256
+};
+// The described shape's displacement of screen line `screenY` (#1468), in pixels. A wave (ScrollWave) pushes each line of
+// its band sideways by its amplitude (1/256ths of a pixel) times the sine at the line's angle: the angle at line zero
+// advanced by the line's share of the period's whole turn, rounded toward zero. A stretch (ScrollStretch) sags each line
+// of its band upward through the plane by its slope (1/65536ths of a row) for each line below the band's first, and
+// moves the lines above its band by its shape word.
+int2 LineDisplacement(uint screenY)
+{
+    uint bandFirst = DisplacementBand & 65535, bandEnd = DisplacementBand >> 16;
+    if (DisplacementKind == DisplacementWave)
+    {
+        if (screenY < bandFirst || screenY >= bandEnd) return int2(0, 0);
+        uint period = DisplacementShape >> 16;
+        uint angle = ((DisplacementShape & 255) + screenY * 256 / period) & 255;
+        uint quarter = angle & 127;
+        if (quarter > 64) quarter = 128 - quarter;
+        int magnitude = (int)(((uint)QuarterSine[quarter] * DisplacementScale) >> 16);
+        return int2(angle >= 128 ? -magnitude : magnitude, 0);
+    }
+    if (DisplacementKind == DisplacementStretch)
+    {
+        if (screenY < bandFirst) return int2(0, (int)DisplacementShape);
+        if (screenY >= bandEnd) return int2(0, 0);
+        return int2(0, -(int)(((screenY - bandFirst) * DisplacementScale) >> 16));
+    }
+    return int2(0, 0);
+}
+// A screen line's scroll displaced by the pass's described shape, wrapped as a sixteen-bit scroll.
+uint2 DisplacedScroll(uint2 scroll, uint screenY) { return (uint2)((int2)scroll + LineDisplacement(screenY)) & 65535; }
+
 #include "SpriteLayer.hlsli"
 #include "Xray.hlsli"
 
@@ -469,7 +511,7 @@ void Main(uint3 id : SV_DispatchThreadID)
         Output[id.xy] = Pack((c << 3) | (c >> 2), 255); return;
     }
     bool backgroundMath = Operation == OpAddLayer || Operation == OpSubtractLayer;
-    uint2 scroll = (backgroundMath || Reserved3 != 0) ? ScanlineParameters[id.y].xy : uint2(HorizontalScroll, VerticalScroll);
+    uint2 scroll = DisplacedScroll((backgroundMath || Reserved3 != 0) ? ScanlineParameters[id.y].xy : uint2(HorizontalScroll, VerticalScroll), id.y);
     // The mosaic groups screen pixels before the line's own scroll.
     uint2 sampleScreen = id.xy;
     if (Operation == OpLayer && Reserved27 > 1) sampleScreen -= sampleScreen % Reserved27;

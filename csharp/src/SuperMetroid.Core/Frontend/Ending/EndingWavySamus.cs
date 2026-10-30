@@ -1,33 +1,24 @@
+using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Core.Frontend.Ending.EndingWavySamusDefinitions;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// Ripples Samus in the ending (<see cref="EndingWavySamusDefinitions"/>): the per-line scrolls the wave shows at each age.
+/// Ripples Samus in the ending (<see cref="EndingWavySamusDefinitions"/>): the sine wave her plane shows at each age of
+/// the backdrop's wait, and the plane's vertical scroll (#1468: the wave is described, and the backend draws each line).
 /// </summary>
 internal static class EndingWavySamus
 {
-    /// <summary>Reconstructs all 224 BG3 scanline offsets from cinematic age, retaining the setup-only first pass and native sine phase.</summary>
-    internal static Position16<TilePlanePixels>[] ScrollsAtAge(int age)
-    {
-        var result = new Position16<TilePlanePixels>[224];
-        // Global HDMA precedes the cinematic dispatcher. Age one executes setup only;
-        // age two is the first pre-instruction. Derive this deterministic owner from
-        // the existing cinematic countdown so debugger restores retain exact phase.
-        int phase = InitialPhase + PhaseByteStep * (age - 1);
-        for (int line = 0; line < result.Length; line++)
-        {
-            int displacement = 0;
-            if (age >= 2)
-            {
-                int sample = line % HalfCycle;
-                int sine = Trigonometry.SignedSine(unchecked(new ByteAngle((byte)((phase + sample * SampleByteStep) >> 1))));
-                int magnitude = SixteenSixteen.Multiply(Math.Abs(sine), Amplitude);
-                displacement = sine < 0 ? -magnitude : magnitude;
-                if ((line / HalfCycle & 1) != 0) displacement = -displacement;
-            }
-            result[line] = new(unchecked((ushort)displacement), unchecked((ushort)(age * VerticalStep)));
-        }
-        return result;
-    }
+    /// <summary>
+    /// The wave the plane shows at cinematic age <paramref name="age"/>, or null before it first shows. The age counts
+    /// the wait's frames from one, derived from the cinematic countdown, so a restored state keeps the wave's phase.
+    /// </summary>
+    /// <param name="age">The frames the wait has run, from one.</param>
+    internal static ScrollWave? WaveAtAge(int age) => age < FirstWaveAge ? null
+        : new ScrollWave(0, Amplitude, new ByteAngle(unchecked((byte)(InitialAngle + AngleStepPerFrame * (age - 1)))),
+            Period, 0, ScreenGeometry.ScreenHeightPixels);
+
+    /// <summary>The plane's vertical scroll at cinematic age <paramref name="age"/>: it climbs from zero as the wait runs.</summary>
+    /// <param name="age">The frames the wait has run.</param>
+    internal static int VerticalScrollAtAge(int age) => age * VerticalStep;
 }

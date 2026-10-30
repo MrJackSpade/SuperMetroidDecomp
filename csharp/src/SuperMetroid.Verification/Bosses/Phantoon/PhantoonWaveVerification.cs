@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.SaveStates;
+using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Harness;
@@ -28,29 +29,35 @@ internal static class PhantoonWaveVerification
         wave.Step(boss);
         AssertEqual(2, boss.Parts[boss.Eye.SlotIndex].WaveMode, "the wave's setup copies the pending mode to the eye");
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "the setup update only seeds the phase");
-        AssertTrue(wave.ScrollCycle.All(word => word == 0), "setup does not run the scroll pre-instruction");
-        // Original CPU lifecycle capture: zero base, amplitude $C00, phase delta 8.
+        // The setup does not run the scroll pre-instruction: the wave is flat at the scroll it was last built from.
+        AssertEqual(new ScrollWave(0, 0, new ByteAngle(0), PhantoonWaveDefinitions.ShortPeriod, 0, ScreenGeometry.ScreenHeightPixels),
+            wave.CurrentWave, "setup does not run the scroll pre-instruction");
+        // Original CPU lifecycle capture: zero base, amplitude $C00, phase delta 8. The described wave's first line gives
+        // the cartridge's first scroll word.
         foreach (var (phase, first) in new[] { new VerifyPhantoonWaveLifecycleCase(14, 2), new VerifyPhantoonWaveLifecycleCase(30, 4), new VerifyPhantoonWaveLifecycleCase(46, 6), new VerifyPhantoonWaveLifecycleCase(62, 8) })
         {
             wave.Step(boss);
             AssertEqual(phase, wave.Phase, "original-CPU phase progression");
-            AssertEqual(first, wave.ScrollCycle[0], "original-CPU first scroll word");
+            ScrollWave current = wave.CurrentWave ?? throw new InvalidOperationException("Verification requires a set-up Phantoon wave.");
+            AssertEqual(new ScrollWave(0, 3072, new ByteAngle((byte)(phase / 2)), PhantoonWaveDefinitions.ShortPeriod, 0, ScreenGeometry.ScreenHeightPixels),
+                current, "the wave is described by its base scroll, amplitude, phase's angle, period and band");
+            AssertEqual(first, ScrollShapeLines.WaveScroll(current, 0), "original-CPU first scroll word");
         }
         wave.LatchDisplay();
-        ushort[] savedDisplay = (wave.DisplayedWave?.GameplayScrolls().ToArray() ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.")).ToArray();
+        ScrollWave savedDisplay = wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.");
         wave.Step(boss);
-        AssertTrue(savedDisplay.SequenceEqual(wave.DisplayedWave?.GameplayScrolls().ToArray()), "a live wave update leaves the latched display unchanged");
+        AssertEqual(savedDisplay, wave.DisplayedWave, "a live wave update leaves the latched display unchanged");
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, wave);
         stream.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonWaveEffect>(stream);
         AssertEqual(wave.Phase, restored.Phase, "wave phase survives exact debugger state");
-        AssertTrue(wave.ScrollCycle.SequenceEqual(restored.ScrollCycle), "wave data survives exact debugger state");
-        AssertTrue(savedDisplay.SequenceEqual(restored.DisplayedWave?.GameplayScrolls().ToArray()), "latched wave survives debugger state");
+        AssertEqual(wave.CurrentWave, restored.CurrentWave, "wave data survives exact debugger state");
+        AssertEqual(savedDisplay, restored.DisplayedWave, "latched wave survives debugger state");
         boss.Parts[boss.Eye.SlotIndex].WaveMode = 0;
-        var retained = wave.ScrollCycle.ToArray();
+        ScrollWave? retained = wave.CurrentWave;
         wave.Step(boss);
-        AssertTrue(!wave.Active && retained.SequenceEqual(wave.ScrollCycle), "native deletion retains data");
+        AssertTrue(!wave.Active && retained == wave.CurrentWave, "native deletion retains data");
         wave.LatchDisplay();
         AssertTrue(wave.DisplayedWave is null, "deleted wave stops on next display latch");
         Suite(nameof(VerifyPhantoonBlendingLifecycle), () => VerifyPhantoonBlendingLifecycle(boss));

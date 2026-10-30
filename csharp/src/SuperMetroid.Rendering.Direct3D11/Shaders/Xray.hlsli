@@ -60,12 +60,14 @@ uint XrayGameplay(uint2 screen)
     uint mainScreen = scan.z >> 16;
     uint2 bg2Screen = screen;
     if (Reserved27 > 1) bg2Screen -= bg2Screen % Reserved27;
+    // Layer 2's line scroll, displaced by its described wave or stretch (#1468).
+    uint2 bg2Scroll = DisplacedScroll(scan.xy, screen.y);
     bool inside = screen.x >= (scan.z & 255) && screen.x <= ((scan.z >> 8) & 255);
     uint source = 32;
     int rank = -1;
     if ((TransparentZero == 0 || inside) && (mainScreen & 2) != 0)
     {
-        uint2 bg = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + scan.xy);
+        uint2 bg = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + bg2Scroll);
         XrayInsert(bg, bg.y != 0 ? 5 : 2, 2, winner, rank, source);
     }
     if ((TransparentZero == 0 || !inside) && (mainScreen & 1) != 0)
@@ -84,7 +86,7 @@ uint XrayGameplay(uint2 screen)
     {
         uint sub = 0;
         if (OffsetX != 0 && (Reserved3 == BehindLayer2 || Reserved3 == BehindLayer2AndLayer3))
-            sub = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + scan.xy).x;
+            sub = XrayBackground(RoomSource, (uint)MatrixA, uint2(MapWidth,MapHeight), bg2Screen + bg2Scroll).x;
         if (OffsetX != 0 && (Reserved3 == BehindLayer3 || Reserved3 == BehindLayer2AndLayer3) && screen.y >= (uint)CenterY)
         {
             uint2 bg3 = XrayBackground(SourceLayer3, (uint)MatrixC, uint2(32,(uint)CenterX),

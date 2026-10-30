@@ -14,8 +14,6 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
-using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
@@ -34,8 +32,6 @@ internal static class ScreenTileSheetComposer
         AreaMapPresentation maps = sources.Maps;
         return sheet switch
         {
-            SpriteSheetId.IntroSceneTiles => Compose(IntroCinematicSourceArtwork.Of(sources.Intro).BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes],
-                TileInkDepth.SixteenColours, IntroColours(sources.Intro)),
             SpriteSheetId.IntroFontTiles => Compose(IntroFontCharacters.Of(maps.IntroFont).Characters.Span, TileInkDepth.FourColours, IntroColours(sources.Intro)),
             SpriteSheetId.MenuForegroundTiles => Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
             SpriteSheetId.MenuMapTiles => Compose(MapCharacterArtwork.Of(maps).Map.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
@@ -71,7 +67,7 @@ internal static class ScreenTileSheetComposer
                 SpriteSheetId.EndingEscapeBFloor or SpriteSheetId.EndingPlanetExplosionFloor or
                 SpriteSheetId.EndingFlyawayFloor or SpriteSheetId.EndingRewardIconFloor or SpriteSheetId.EndingCreditsRows or
                 SpriteSheetId.EndingPostCreditsPictures or SpriteSheetId.EndingWavySamusPicture or
-                SpriteSheetId.EndingExplosionPictures or SpriteSheetId.CeresCinematicPictures =>
+                SpriteSheetId.EndingExplosionPictures or SpriteSheetId.CeresCinematicPictures or SpriteSheetId.IntroScenePictures =>
                 throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no screen tiles."),
             _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
         };

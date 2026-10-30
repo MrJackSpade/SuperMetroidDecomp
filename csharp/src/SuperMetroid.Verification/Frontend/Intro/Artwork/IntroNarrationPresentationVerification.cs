@@ -12,7 +12,6 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.Verification.Frontend.Intro.Artwork;
 using SuperMetroid.Verification.Harness;
@@ -47,7 +46,6 @@ internal static class IntroNarrationPresentationVerification
             IntroFontAtlasFormat.ByteCount).SequenceEqual(font.Characters.Span),
             "opening cinematic uploads the installed font without reading its ROM stream");
 
-        IntroEyeTilemapPresentation eyeArtwork = InstalledFixtures.IntroArtwork.EyeFrames;
         int comparedFrames = 0;
         foreach (IntroNarrationPageId page in Enum.GetValues<IntroNarrationPageId>())
         {
@@ -56,7 +54,7 @@ internal static class IntroNarrationPresentationVerification
             BackgroundTile[] installedTilemap = CreateBlankIntroTilemap();
             var installed = new IntroCinematicObjectSystem(
                 new IntroTilemaps(), installedTilemap, new IntroJapaneseSubtitles(enabled: false),
-                narrationPresentation: presentation, eyeArtwork: eyeArtwork);
+                narrationPresentation: presentation);
             StartPage(installed, page);
             for (int frame = 0; !IsPageComplete(installed, page); frame++)
             {
@@ -79,7 +77,7 @@ internal static class IntroNarrationPresentationVerification
         BackgroundTile[] editedTilemap = CreateBlankIntroTilemap();
         var editedState = new IntroCinematicObjectSystem(
             new IntroTilemaps(), editedTilemap, new IntroJapaneseSubtitles(enabled: false),
-            narrationPresentation: edited, eyeArtwork: eyeArtwork);
+            narrationPresentation: edited);
         editedState.StartEnglishPageSix();
         editedState.Step(0);
         editedState.Step(0);
@@ -90,7 +88,7 @@ internal static class IntroNarrationPresentationVerification
         BackgroundTile[] reboundTilemap = CreateBlankIntroTilemap();
         var rebound = new IntroCinematicObjectSystem(
             new IntroTilemaps(), reboundTilemap, new IntroJapaneseSubtitles(enabled: false),
-            narrationPresentation: presentation, eyeArtwork: eyeArtwork);
+            narrationPresentation: presentation);
         rebound.StartEnglishPageSix();
         rebound.Step(0);
         rebound.BindNarration(edited);
@@ -101,7 +99,7 @@ internal static class IntroNarrationPresentationVerification
 
         var saved = new IntroCinematicObjectSystem(
             new IntroTilemaps(), CreateBlankIntroTilemap(), new IntroJapaneseSubtitles(enabled: false),
-            narrationPresentation: presentation, eyeArtwork: eyeArtwork);
+            narrationPresentation: presentation);
         saved.StartEnglishPageSix();
         saved.Step(0);
         using var snapshot = new MemoryStream();

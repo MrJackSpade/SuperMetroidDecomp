@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -24,69 +23,35 @@ internal static class IntroEyeInstructionsVerification
     /// <summary>Plays both eye programs through the production objects beside a reader of the native lists.</summary>
     internal static void VerifyIntroEyeInstructions(ISnesAddressSpace rom)
     {
-        IntroEyeTilemapPresentation artwork = DistinctFrames();
         var narration = IntroNarrationPresentation.Load(
             new MemoryStream(IntroNarrationExtractor.Extract(rom), writable: false));
-        var vram = new IntroTilemaps();
-        var objects = new IntroCinematicObjectSystem(vram, new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount],
-            new IntroJapaneseSubtitles(enabled: false), narrationPresentation: narration, eyeArtwork: artwork);
+        var objects = new IntroCinematicObjectSystem(new IntroTilemaps(), new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount],
+            new IntroJapaneseSubtitles(enabled: false), narrationPresentation: narration);
 
         var native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.StartPointer);
-        Compare(objects, vram, artwork, native, BlinkingUpdates, "blinking");
+        Compare(objects, native, BlinkingUpdates, "blinking");
 
         objects.StartEnglishPageSix();
         native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.FinalPagePointer);
-        Compare(objects, vram, artwork, native, FinalPageUpdates, "final page");
+        Compare(objects, native, FinalPageUpdates, "final page");
     }
 
-    /// <summary>Steps the objects and the native reader together, comparing the drawn eye frame and the eye countdown.</summary>
-    private static void Compare(IntroCinematicObjectSystem objects, IntroTilemaps vram, IntroEyeTilemapPresentation artwork,
-        NativeEyeReader native, int updates, string phase)
+    /// <summary>
+    /// Steps the objects and the native reader together, comparing the eye frame the portrait shows (#1467: the frame's
+    /// installed picture, in the cartridge's draw-record order) and the eye countdown.
+    /// </summary>
+    private static void Compare(IntroCinematicObjectSystem objects, NativeEyeReader native, int updates, string phase)
     {
-        Position16<TilemapCells> cell = IntroEyeAnimationDefinitions.PortraitCell;
-        Extent16<TilemapCells> size = IntroEyeAnimationDefinitions.FrameSize;
+        IntroEyeFrame[] frames = Enum.GetValues<IntroEyeFrame>();
         for (int update = 0; update < updates; update++)
         {
             objects.Step(0);
             native.Step();
             string at = $"intro eye {phase} update {update}";
             AssertEqual(native.Timer, objects.EyeInstructionTimer.RawValue, $"{at}: countdown");
-            ushort[] expected = BackgroundTileWordBytes.Words(artwork.FrameTiles(native.Frame));
-            var shownTilemaps = IntroTilemapsFixtures.Vram(vram);
-            for (int row = 0; row < size.Y; row++)
-            for (int column = 0; column < size.X; column++)
-            {
-                int word = IntroVramWords.PortraitTilemapWord +
-                    (cell.Y + row) * IntroCinematicDefinitions.Tilemaps.TilemapWidth + cell.X + column;
-                AssertEqual(expected[row * size.X + column], shownTilemaps.ReadWord(word), $"{at}: portrait eye frame");
-            }
+            AssertEqual<IntroEyeFrame?>(frames[native.Frame], objects.EyeFrame, $"{at}: portrait eye frame");
         }
     }
-
-    /// <summary>Eye artwork whose four frames use distinct characters, so the drawn rectangle names its frame.</summary>
-    private static IntroEyeTilemapPresentation DistinctFrames()
-    {
-        int cells = IntroEyeAnimationDefinitions.FrameSize.Area;
-        var document = new IntroEyeTilemapDocument
-        {
-            Version = IntroEyeTilemapFormat.Version,
-            Frames = Enumerable.Range(0, IntroEyeAnimationDefinitionsConstants.FrameCount).Select(frame => new IntroEyeTilemapFrame
-            {
-                Id = IntroEyeTilemapFormat.FrameId(frame),
-                Cells = Enumerable.Range(1 + frame * cells, cells).Select(character => new RoomBackgroundTilemapCell
-                {
-                    TileColumn = character % RoomBackgroundTilemapFormat.TileColumns,
-                    TileRow = character / RoomBackgroundTilemapFormat.TileColumns,
-                    Palette = 0, Priority = false, FlipX = false, FlipY = false,
-                }).ToArray(),
-            }).ToArray(),
-        };
-        using var json = new MemoryStream();
-        IntroEyeTilemapPresentation.Write(json, document);
-        json.Position = 0;
-        return IntroEyeTilemapPresentation.Load(json);
-    }
-
     /// <summary>
     /// An independent reader of one native bank-$8C eye list with the background-object timer gate: the countdown
     /// starts at one, and when it reaches zero the next record's duration and draw record are taken, following any

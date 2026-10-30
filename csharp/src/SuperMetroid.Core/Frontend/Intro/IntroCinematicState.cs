@@ -56,17 +56,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         projectileSheets = sheets is null ? null : ProjectileSheets.IntroFlashbacks(sheets);
         CurrentFlashbackSamus?.Presentation.BodyFrames.BindSheets(spriteSheets);
         CurrentCeresFlight?.BindSheets(sheets);
-        SceneTiles = null;
         NarrationTiles = null;
-    }
-
-    /// <summary>What the scene planes show (#1392).</summary>
-    [field: NonSerialized]
-    [AllowNull]
-    private ScreenLayerPictures SceneTiles
-    {
-        get => field ??= IntroScreenTiles.Scene(spriteSheets ?? throw new InvalidOperationException("Opening cinematic rendering requires the installed sprite sheets."));
-        set;
     }
 
     /// <summary>What the narration plane shows (#1392), until the Japanese glyphs are blanked.</summary>
@@ -158,17 +148,11 @@ public sealed class IntroCinematicState : IFrontendScreen
                     IntroCinematicDefinitions.Text.FinalLineWordCount));
                 value.FinalLine.Tiles.Span.CopyTo(tilemaps.Narration[IntroCinematicDefinitions.Text.FinalLineFirstCell..]);
             }
-            tilemaps.LoadScenePages(value.BackgroundPages.Span);
-            tilemaps.LoadPortrait(value.PortraitTilemap.Span);
-            // The active eye rectangle overlays the base portrait after its VRAM upload.
-            CurrentObjects?.BindEyeArtwork(value.EyeFrames);
             // $8B:A66F replaces the initial BG3 card with live typewriter words
             // when page one begins. Never overwrite that current state on restore.
             if (InitialNarrationCardResident)
                 tilemaps.LoadNarration(value.InitialNarrationTilemap.Span);
         }
-        else
-            CurrentObjects?.BindEyeArtwork(null);
     }
 
     /// <summary>
@@ -298,19 +282,13 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         RequireMinimum(introFont.CharacterCount * (IntroFontAtlasFormat.ByteCount / IntroFontAtlasFormat.TileCount),
             IntroCinematicDefinitions.Artwork.FontOneBytes, "intro font one");
-        RequireMinimum(characterArtwork.PortraitTilemap.Length, IntroCinematicDefinitions.Artwork.SamusHeadTilemapCells,
-            "Samus-head BG2 tilemap");
-        RequireMinimum(characterArtwork.BackgroundPages.Length, IntroCinematicDefinitions.Artwork.BackgroundPageTilemapCells,
-            "intro BG1 page tilemaps");
         RequireMinimum(characterArtwork.InitialNarrationTilemap.Length, IntroCinematicDefinitions.Artwork.NarrationTilemapCells,
             "first narration BG3 tilemap");
         RequireFont(introFont);
 
-        // `$8B:A469-$A529` upload the characters, font, background pages and OBJ sheets the intro binds,
-        // and the portrait and first narration card it keeps as its own tilemaps.
+        // `$8B:A469-$A529` upload the font and OBJ sheets the intro binds and the first narration card it keeps as its
+        // own tilemap; the scene pages and the portrait are installed pictures (#1467).
         objectSprites = new ScreenSprites();
-        tilemaps.LoadScenePages(characterArtwork.BackgroundPages.Span);
-        tilemaps.LoadPortrait(characterArtwork.PortraitTilemap.Span);
         tilemaps.LoadNarration(characterArtwork.InitialNarrationTilemap.Span);
 
         // $8B:A3AC performs the ordinary beam palette load before copying the full intro palette, which
@@ -1336,8 +1314,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             textTilemap,
             subtitles,
             audio,
-            NarrationPresentation,
-            CharacterArtwork.EyeFrames);
+            NarrationPresentation);
         audio?.QueueMusicDelayed8(MusicRequest.Stop);
         audio?.QueueMusicDelayed8(
             MusicRequest.LoadDataSet(MusicDataSet.Intro));
@@ -1401,12 +1378,12 @@ level, samus, FrameCounterWord(elapsedUpdates));
             return CurrentCeresFlight.CaptureRenderSnapshot();
 
         SpriteFrameBuffer sprites;
-        ScreenTilesLayer room;
+        PicturedPlaneLayer room;
         if (Phase is IntroCinematicPhase.MotherBrainCrossfade or
             IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
         {
             sprites = PrepareMotherBrainSprites();
-            room = Plane(tilemaps.ScenePage(IntroScenePage.MotherBrainRoom),
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.MotherBrainRoom),
                 (CurrentFlashbackMotherBrain?.Background ??
                     new Position16<RoomPixels>(0, GameplayFlashbackBg1VerticalScroll)).AsBgPlaneScroll());
         }
@@ -1414,7 +1391,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
         {
             sprites = PrepareBabyDiscoverySprites();
-            room = Plane(tilemaps.ScenePage(IntroScenePage.BabyDiscoveryRoom), new(0, GameplayFlashbackBg1VerticalScroll));
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePage.BabyDiscoveryRoom), new(0, GameplayFlashbackBg1VerticalScroll));
         }
         else if (Phase is IntroCinematicPhase.BabyMetroidDeliveryCrossfade or
             IntroCinematicPhase.BabyMetroidDelivery or IntroCinematicPhase.PageFourCrossfade or
@@ -1422,7 +1399,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             sprites = PrepareScientistSprites();
-            room = Plane(tilemaps.ScenePage(IntroScenePages.Laboratory(ScientistCutscene.Scene)), ScientistCutscene.Background.AsBgPlaneScroll());
+            room = Plane(IntroScenePictures.PagePlane(SceneSheets, IntroScenePages.Laboratory(ScientistCutscene.Scene)), ScientistCutscene.Background.AsBgPlaneScroll());
         }
         else if (CurrentObjects is null)
         {
@@ -1437,7 +1414,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
         else
         {
             sprites = PrepareIllustratedPageSprites();
-            room = Plane(tilemaps.Portrait, new(0, GameplayFlashbackBg1VerticalScroll));
+            room = Plane(IntroScenePictures.PortraitPlane(SceneSheets, CurrentObjects.EyeFrame), new(0, GameplayFlashbackBg1VerticalScroll));
         }
 
         var text = new ScreenTilesViewportLayer(NarrationCells(), GameplayFlashbackBg1VerticalScroll, true, false);
@@ -1464,9 +1441,12 @@ level, samus, FrameCounterWord(elapsedUpdates));
     /// </summary>
     internal static ushort FrameCounterWord(int elapsedUpdates) => unchecked((ushort)elapsedUpdates);
 
-    /// <summary>Defines a four-bit background plane at the selected tilemap and source scroll, drawn from the scene's tiles (#1392).</summary>
-    private ScreenTilesLayer Plane(ReadOnlySpan<BackgroundTile> tilemap, Position16<TilePlanePixels> scroll) =>
-        new(ScreenTileMap.Of(tilemap, new Extent16<TilemapCells>(32, 32), SceneTiles), scroll, false);
+    /// <summary>The scene plane showing <paramref name="pictures"/> at the selected scroll, its back pixels only (#1467).</summary>
+    private static PicturedPlaneLayer Plane(PicturedPlane pictures, Position16<TilePlanePixels> scroll) => new(pictures, scroll, false);
+
+    /// <summary>The installed sheets the scene pictures are drawn from.</summary>
+    private InstalledSpriteSheets SceneSheets =>
+        spriteSheets ?? throw new InvalidOperationException("Opening cinematic rendering requires the installed sprite sheets.");
 
     /// <summary>The narration's cells, showing its font characters (#1392).</summary>
     private ScreenTileMap NarrationCells() => ScreenTileMap.Of(tilemaps.Narration, ScreenTilesViewportLayer.MapSize, NarrationTiles);

@@ -96,8 +96,10 @@ internal static class CinematicSheetFixtures
                 var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => key,
                     RepositoryInstallation.Installation.LoadEndingObjectArt, RepositoryInstallation.Installation.LoadEndingPalettes,
                     RepositoryInstallation.Installation.LoadEndingMode7Art);
-                foreach (SpriteSheetId id in new[] { SpriteSheetId.IntroSceneTiles, SpriteSheetId.IntroFontTiles })
-                    sheets[id] = LoadTiles(id, ScreenTileSheetComposer.Compose(id, tileSources), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.IntroFontTiles] = LoadTiles(SpriteSheetId.IntroFontTiles,
+                    ScreenTileSheetComposer.Compose(SpriteSheetId.IntroFontTiles, tileSources), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
+                sheets[SpriteSheetId.IntroScenePictures] = LoadTiles(SpriteSheetId.IntroScenePictures,
+                    IntroScenePictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,
                     CeresCinematicPictureSheetComposer.Compose(key), $"intro-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,

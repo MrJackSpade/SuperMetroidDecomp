@@ -67,7 +67,7 @@ public static class SpriteSheetDefinitions
         [SpriteSheetId.PauseMapTiles] = "pause-map-tiles",
         [SpriteSheetId.PauseInterfaceTiles] = "pause-interface-tiles",
         [SpriteSheetId.PauseHud] = "pause-hud",
-        [SpriteSheetId.IntroSceneTiles] = "intro-scene-tiles",
+        [SpriteSheetId.IntroScenePictures] = "intro-scene-pictures",
         [SpriteSheetId.IntroFontTiles] = "intro-font-tiles",
         [SpriteSheetId.CeresCinematicPictures] = "ceres-cinematic-pictures",
         [SpriteSheetId.EndingCreditsRows] = "ending-credits-rows",

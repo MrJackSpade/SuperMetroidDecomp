@@ -12,11 +12,4 @@ namespace SuperMetroid.Core.Map;
 /// <param name="ExploredColourVariant">The colour variant a map screen shows the cell in once it is explored.</param>
 /// <param name="Mirroring">How the shape is mirrored.</param>
 /// <param name="InFront">Whether the cell sits in the map layer's upper tier.</param>
-public readonly record struct MapCell(MapCellShape Shape, int ColourVariant, int ExploredColourVariant, TileFlip Mirroring, bool InFront)
-{
-    /// <summary>The tile a map screen places for this cell before Samus explores it.</summary>
-    public BackgroundTile UnexploredTile => new(Shape.Picture, ColourVariant, InFront, Mirroring);
-
-    /// <summary>The tile a map screen places for this cell once Samus has explored it.</summary>
-    public BackgroundTile ExploredTile => new(Shape.Picture, ExploredColourVariant, InFront, Mirroring);
-}
+public readonly record struct MapCell(MapCellShape Shape, int ColourVariant, int ExploredColourVariant, TileFlip Mirroring, bool InFront);

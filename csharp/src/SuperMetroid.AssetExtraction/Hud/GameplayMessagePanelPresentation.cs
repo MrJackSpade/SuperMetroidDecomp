@@ -1,9 +1,11 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>
 /// Editable UTF-8 titles and visual tile templates for the seven large item-instruction

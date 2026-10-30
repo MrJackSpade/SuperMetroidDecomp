@@ -1,7 +1,4 @@
-using System.Collections.Immutable;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Hud;
@@ -12,9 +9,10 @@ namespace SuperMetroid.Core.Hud;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <c>$85:8080-$85:8619</c> temporarily maps a ROM-authored tilemap onto BG3, opens a
-/// scanline window around Y=124, blocks gameplay for a fixed interval, waits for input,
-/// and closes the same window. Keeping the wait as explicit state lets the desktop host
+/// <c>$85:8080-$85:8619</c> shows a message over gameplay, opens a scanline window
+/// around Y=124, blocks gameplay for a fixed interval, waits for input, and closes the
+/// same window. What it shows is a <see cref="ShownMessage"/>: the message, the button its
+/// panel names and the highlighted save choice, whose installed image the backend draws. Keeping the wait as explicit state lets the desktop host
 /// remain responsive and debuggable without pretending the synchronous 65816 routine
 /// returned while its lag-frame loops were running.
 /// </para>
@@ -25,14 +23,6 @@ namespace SuperMetroid.Core.Hud;
 /// </remarks>
 public sealed class GameplayMessageBoxState
 {
-    /// <summary>The active message's tiles, including its current confirmation cursor.</summary>
-    internal BackgroundTile[] Tiles { get; set; } = [];
-    /// <summary>Editable item-title artwork rebound after asset reload or state restoration.</summary>
-    [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
-    /// <summary>Editable item-panel artwork, including remappable button glyphs.</summary>
-    [NonSerialized] private GameplayMessagePanelPresentation? panelPresentation;
-    /// <summary>Editable completion and confirmation artwork used to draw the save cursor.</summary>
-    [NonSerialized] private GameplayMessageNoticePresentation? noticePresentation;
     /// <summary>Preserves controller edges across the message routine's own input polls.</summary>
     private readonly ControllerInputState _controller = new();
     /// <summary>Radius to publish on the next opening frame, after the current frame's window is drawn.</summary>
@@ -94,8 +84,12 @@ public sealed class GameplayMessageBoxState
     /// <summary>Unelapsed mandatory frames before controller input is inspected.</summary>
     public int MinimumDisplayFramesRemaining { get; private set; }
 
-    /// <summary>Read-only final tilemap after border and configured-button substitution.</summary>
-    public ReadOnlySpan<BackgroundTile> Tilemap => Tiles;
+    /// <summary>
+    /// What the box shows while a message has begun (#1466): the message, the button its panel names for the configured
+    /// shoot or run binding, and the save choice a confirmation highlights; null while no message has begun.
+    /// </summary>
+    public ShownMessage? Shown => MessageId == GameplayMessageId.None ? null
+        : new ShownMessage(MessageId, PanelButton(MessageId), IsSaveConfirmation ? ConfirmationSelectionYes : null);
 
     /// <summary>Current yes/no choice for save confirmation message $17.</summary>
     public bool ConfirmationSelectionYes { get; private set; } = true;
@@ -114,44 +108,17 @@ public sealed class GameplayMessageBoxState
     public bool ConfirmationSelectionChangedThisFrame { get; private set; }
 
     /// <summary>
-    /// Rebinds host-owned editable content after installation reload or debugger-state restore.
-    /// An active supported title is rebuilt without resetting its coroutine phase.
-    /// </summary>
-    public void BindPresentation(
-        GameplayMessageTitlePresentation? presentation,
-        GameplayMessagePanelPresentation? panels = null,
-        GameplayMessageNoticePresentation? notices = null)
-    {
-        titlePresentation = presentation;
-        panelPresentation = panels;
-        noticePresentation = notices;
-        if (notices?.Contains(MessageId) == true)
-        {
-            Tiles = notices.Build(MessageId);
-            if (IsSaveConfirmation)
-                notices.ApplySelection(MessageId, Tiles, ConfirmationSelectionYes);
-        }
-        else if (panels?.Contains(MessageId) == true)
-        {
-            Tiles = panels.Build(MessageId);
-            PatchInstalledPanelButton(MessageId);
-        }
-        else if (presentation?.Contains(MessageId) == true)
-            Tiles = presentation.Build(MessageId);
-    }
-
-    /// <summary>
-    /// Starts one ordinary gameplay message using its native config and tilemap records.
+    /// Starts one ordinary gameplay message using its native config record.
     /// Bindings are parameters because the options menu may remap them; their defaults are
     /// the words installed by <c>NewSaveFile</c>.
     /// </summary>
-    /// <param name="messageId">One-based native message identity 1..26 or gunship save confirmation 28; requires installed title, panel, or notice artwork.</param>
+    /// <param name="messageId">One-based native message identity 1..26 or gunship save confirmation 28.</param>
     /// <param name="controllerRead">
     /// The controller held at the dispatch's last ReadControllerInput. During the box the
     /// NMI handler runs in lag mode, so the save selector's presses are relative to this.
     /// </param>
-    /// <param name="shootBinding">Current native controller-bit binding for Shoot, used to substitute the corresponding button glyph in applicable item panels.</param>
-    /// <param name="runBinding">Current native controller-bit binding for Run, used to substitute the corresponding button glyph in applicable item panels.</param>
+    /// <param name="shootBinding">Current binding for Shoot, whose button the applicable item panels name.</param>
+    /// <param name="runBinding">Current binding for Run, whose button the applicable item panels name.</param>
     /// <param name="sourceContext">Caller identity included in unsupported-message diagnostics; does not affect message timing or presentation.</param>
     public void Begin(
         GameplayMessageId messageId,
@@ -172,19 +139,6 @@ public sealed class GameplayMessageBoxState
 
         _shootBinding = shootBinding;
         _runBinding = runBinding;
-        if (noticePresentation?.Contains(messageId) == true)
-            Tiles = noticePresentation.Build(messageId);
-        else if (panelPresentation?.Contains(messageId) == true)
-        {
-            Tiles = panelPresentation.Build(messageId);
-            PatchInstalledPanelButton(messageId);
-        }
-        else if (titlePresentation?.Contains(messageId) == true)
-            Tiles = titlePresentation.Build(messageId);
-        else
-            throw new InvalidOperationException(
-                $"Gameplay message {messageId} requires installed presentation assets.");
-
         MessageId = messageId;
         RadiusPixels = 0;
         MinimumDisplayFramesRemaining = 0;
@@ -195,7 +149,6 @@ public sealed class GameplayMessageBoxState
         CompletedConfirmationResult = null;
         ConfirmationSelectionYes = true;
         _selectionRedrawWaitPending = false;
-        DrawSaveConfirmationSelection();
         _controller.Latch(controllerRead);
         // The routine's first lag wait belongs to the dispatch that opened the box.
         BeginPreparing(GameplayMessageBoxDefinitions.Timing.PreOpenLagFrames - 1);
@@ -331,8 +284,8 @@ public sealed class GameplayMessageBoxState
                     ControllerButton horizontal = newlyPressed & (ControllerButton.Left | ControllerButton.Right | ControllerButton.Select);
                     if (horizontal != ControllerButton.None)
                     {
+                        // The redrawn row shows the other choice from this frame on.
                         ConfirmationSelectionYes = !ConfirmationSelectionYes;
-                        DrawSaveConfirmationSelection();
                         _selectionRedrawWaitPending = true;
                     }
                     return;
@@ -407,59 +360,19 @@ public sealed class GameplayMessageBoxState
         MessageId = GameplayMessageId.None;
         MinimumDisplayFramesRemaining = 0;
         RadiusPixels = 0;
-        Tiles = [];
     }
 
     /// <summary>
-    /// Copies the native selected YES/NO row into the already-built message tilemap.
-    /// `$85:8507` uses byte offsets $40/$80 into the three-row table at $85:9581 and
-    /// writes 32 words at native message-buffer word $180 (local word $80).
+    /// The button <paramref name="messageId"/>'s panel names: the configured Shoot or Run binding's, as the glyph shows it;
+    /// null for a message whose panel names no button.
     /// </summary>
-    private void DrawSaveConfirmationSelection()
+    private ControllerButton? PanelButton(GameplayMessageId messageId) => GameplayMessageButtons.PanelBinding(messageId) switch
     {
-        if (!IsSaveConfirmation && MessageId != GameplayMessageId.None)
-            return;
-        if (noticePresentation?.Contains(MessageId) == true)
-        {
-            noticePresentation.ApplySelection(
-                MessageId, Tiles, ConfirmationSelectionYes);
-            return;
-        }
-        throw new InvalidOperationException("Save confirmation requires installed notice artwork.");
-    }
-
-    /// <summary>Replaces a panel's cartridge-defined glyph cell with the player's configured button.</summary>
-    internal void PatchConfiguredButton(GameplayMessageId messageId, ControllerButton binding)
-    {
-        int byteOffset = GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(messageId);
-        if ((byteOffset & 1) != 0 || byteOffset + 1 >= Tiles.Length * 2)
-        {
-            throw new InvalidDataException(
-                $"Message {messageId} configurable-button offset ${byteOffset:X4} is outside its tilemap.");
-        }
-
-        Tiles[byteOffset / 2] = ResolveButtonTile(binding);
-    }
-
-    /// <summary>Selects the Shoot or Run binding required by the installed panel before drawing it.</summary>
-    private void PatchInstalledPanelButton(GameplayMessageId messageId)
-    {
-        switch (GameplayMessagePanelDefinitions.ButtonBindings[messageId])
-        {
-            case GameplayMessagePanelButtonBinding.Shoot:
-                PatchConfiguredButton(messageId, _shootBinding);
-                break;
-            case GameplayMessagePanelButtonBinding.Run:
-                PatchConfiguredButton(messageId, _runBinding);
-                break;
-            case GameplayMessagePanelButtonBinding.None:
-                throw new InvalidDataException(
-                    $"Installed gameplay-message panel {messageId} has no compiled button binding.");
-            default:
-                throw new InvalidDataException(
-                    $"Unknown gameplay-message panel binding for {messageId}.");
-        }
-    }
+        GameplayMessagePanelButtonBinding.Shoot => GameplayMessageButtons.Shown(_shootBinding),
+        GameplayMessagePanelButtonBinding.Run => GameplayMessageButtons.Shown(_runBinding),
+        GameplayMessagePanelButtonBinding.None => null,
+        _ => throw new InvalidDataException($"Unknown gameplay-message panel binding for {messageId}."),
+    };
 
     /// <summary>Whether the ordinary message coroutine shows <paramref name="messageId"/>.</summary>
     internal static bool IsOrdinary(GameplayMessageId messageId) =>
@@ -467,29 +380,4 @@ public sealed class GameplayMessageBoxState
 
     /// <summary>The messages the ordinary message coroutine shows.</summary>
     internal static IEnumerable<GameplayMessageId> OrdinaryMessages => Enum.GetValues<GameplayMessageId>().Where(IsOrdinary);
-
-    /// <summary>The tiles the begun message shows in each form it takes: a save confirmation's for each choice.</summary>
-    /// <exception cref="InvalidOperationException">No message has begun.</exception>
-    internal IEnumerable<ImmutableArray<BackgroundTile>> Forms()
-    {
-        if (!IsActive)
-            throw new InvalidOperationException("No message has begun.");
-        if (!IsSaveConfirmation)
-        {
-            yield return [.. Tiles];
-            yield break;
-        }
-        foreach (bool yes in new[] { true, false })
-        {
-            BackgroundTile[] tiles = [.. Tiles];
-            (noticePresentation ?? throw new InvalidOperationException("A save confirmation has no installed notice."))
-                .ApplySelection(MessageId, tiles, yes);
-            yield return [.. tiles];
-        }
-    }
-
-    /// <summary>Maps a controller binding to the message's button glyph tile.</summary>
-    internal static BackgroundTile ResolveButtonTile(ControllerButton binding) =>
-        GameplayMessageButtonGlyphs.ResolveGlyph(binding);
-
 }

@@ -2,6 +2,7 @@ using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
@@ -10,11 +11,11 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Verification.Hud;
 
-/// <summary>Builds a persistent message fixture with altered title, panel, and notice artwork.</summary>
+/// <summary>Builds message artwork with altered title, panel, and notice documents.</summary>
 internal static class PermanentMessageFixtureVerification
 {
-    /// <summary>Loads installed message documents, changes their border and sample content, and binds all three presentations.</summary>
-    internal static GameplayMessageBoxState CreatePermanentMessageFixture()
+    /// <summary>Loads installed message documents, changes their border and sample content, and compiles all three presentations.</summary>
+    internal static GameplayMessageArtwork CreatePermanentMessageFixture()
     {
         string directory = RepositoryInstallation.Installation.MapDirectory;
         JsonNode Read(string name) => RequiredJson.Parse(File.ReadAllText(Path.Combine(directory, name)));
@@ -52,10 +53,8 @@ internal static class PermanentMessageFixtureVerification
         for (int cell = 0; cell < 96; cell++) noticeTemplate.Add(Cell(0x3820 + cell / 32));
         notices.Required("notices").Required(GameplayMessageIds.MapDataAccessCompleted.ToString())["template"] = noticeTemplate;
 
-        var message = new GameplayMessageBoxState();
-        message.BindPresentation(GameplayMessageTitlePresentation.Load(Stream(titles)),
+        return new GameplayMessageArtwork(GameplayMessageTitlePresentation.Load(Stream(titles)),
             GameplayMessagePanelPresentation.Load(Stream(panels)),
             GameplayMessageNoticePresentation.Load(Stream(notices)));
-        return message;
     }
 }

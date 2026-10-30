@@ -1,6 +1,7 @@
+using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Map.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Presentation-only schema: no reveal masks, callbacks, save indexes or exploration commands.</summary>
 public sealed record MapPresentationDocument

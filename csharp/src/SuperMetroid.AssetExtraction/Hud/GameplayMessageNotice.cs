@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Defines one gameplay message's tilemap template and editable text regions.</summary>
 public sealed record GameplayMessageNotice

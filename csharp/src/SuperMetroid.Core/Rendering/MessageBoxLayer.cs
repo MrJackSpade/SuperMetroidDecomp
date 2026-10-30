@@ -54,25 +54,26 @@ public sealed record MessageBoxLayer : DisplayLayer
         .WithBackgroundColour(GameplayMessageBoxDefinitions.Palette.TextSet, GameplayMessageBoxDefinitions.Palette.TemporaryDarkColour,
             GameplayMessageBoxDefinitions.Palette.TemporaryDarkColor);
 
-    /// <summary>Publishes the image of the currently exposed message (#1392); inactive or zero-radius messages emit none.</summary>
+    /// <summary>Publishes the image of the currently exposed message (#1392, #1466); inactive or zero-radius messages emit none.</summary>
     /// <param name="messageBox">The message box state.</param>
     /// <param name="messages">The room's message box images; required while a message is exposed.</param>
     /// <exception cref="InvalidOperationException">A message is exposed with no room's message box images.</exception>
-    /// <exception cref="InvalidDataException">The images picture no message of the tiles shown.</exception>
+    /// <exception cref="InvalidDataException">The images picture no such form of the message shown.</exception>
     public static MessageBoxLayer? Capture(GameplayMessageBoxState messageBox, MessageBoxSheet? messages)
     {
         Ensure.NotNull(messageBox);
         if (!messageBox.IsActive || messageBox.RadiusPixels == 0)
             return null;
-        return FromTilemap(messageBox.Tilemap, messageBox.RadiusPixels, messages
+        ShownMessage shown = messageBox.Shown ?? throw new InvalidOperationException("An exposed message box shows a message.");
+        return Of(shown, messageBox.RadiusPixels, messages
             ?? throw new InvalidOperationException("An exposed message box requires the room's message box images."));
     }
 
-    /// <summary>The layer showing the image <paramref name="sheet"/> pictures <paramref name="tilemap"/> with.</summary>
-    /// <param name="tilemap">The message's tiles, 32 per row.</param>
+    /// <summary>The layer showing <paramref name="sheet"/>'s image of <paramref name="shown"/>.</summary>
+    /// <param name="shown">The message form shown.</param>
     /// <param name="radiusPixels">The reveal half-height in pixels.</param>
     /// <param name="sheet">The room's message box images.</param>
-    /// <exception cref="InvalidDataException">The sheet pictures no message of these tiles.</exception>
-    public static MessageBoxLayer FromTilemap(ReadOnlySpan<BackgroundTile> tilemap, int radiusPixels, MessageBoxSheet sheet) =>
-        new(Ensure.NotNull(sheet).Picture(tilemap), radiusPixels);
+    /// <exception cref="InvalidDataException">The sheet pictures no such form.</exception>
+    public static MessageBoxLayer Of(ShownMessage shown, int radiusPixels, MessageBoxSheet sheet) =>
+        new(Ensure.NotNull(sheet).Picture(shown), radiusPixels);
 }

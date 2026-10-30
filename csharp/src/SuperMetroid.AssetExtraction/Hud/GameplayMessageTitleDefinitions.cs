@@ -1,8 +1,9 @@
 using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Schema and cartridge glyph identities for editable one-row gameplay messages.</summary>
 public static class GameplayMessageTitleDefinitions

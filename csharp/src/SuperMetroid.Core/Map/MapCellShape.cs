@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Map;
 
 /// <summary>
@@ -10,12 +8,9 @@ namespace SuperMetroid.Core.Map;
 /// </summary>
 public readonly record struct MapCellShape
 {
-    /// <summary>The pictures a cell can name: as many as a background layer's tile set holds.</summary>
-    public const int Count = BackgroundTile.TileCount;
-
     /// <summary>Names map picture <paramref name="picture"/>.</summary>
-    /// <param name="picture">The picture's place among the map's pictures, 0 through one less than <see cref="Count"/>.</param>
-    public MapCellShape(int picture) => Picture = Ensure.BetweenInclusive(0, Count - 1, picture);
+    /// <param name="picture">The picture's place among the map's pictures; the installed map artwork pictures each one a map names.</param>
+    public MapCellShape(int picture) => Picture = Ensure.AtLeastZero(picture);
 
     /// <summary>The picture's place among the map's pictures.</summary>
     public int Picture { get; }

@@ -1,6 +1,6 @@
-using static SuperMetroid.Core.Hud.Artwork.GameplayMessageTitleDefinitions;
+using static SuperMetroid.AssetExtraction.Hud.GameplayMessageTitleDefinitions;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Which characters and tiles the message boxes' text alphabet holds.</summary>
 public static class GameplayMessageGlyphs

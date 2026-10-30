@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 
@@ -9,10 +10,16 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </summary>
 public sealed class InstalledAreaMapPresentation : AreaMapPresentation
 {
-    /// <summary>Takes the presentation's parts and the characters it was read with.</summary>
-    internal InstalledAreaMapPresentation(AreaMapPresentationParts parts, MapCharacterArtwork characters) : base(parts) =>
+    /// <summary>Takes the presentation's parts, the characters it was read with and the editable gameplay messages.</summary>
+    internal InstalledAreaMapPresentation(AreaMapPresentationParts parts, MapCharacterArtwork characters, GameplayMessageArtwork messages) : base(parts)
+    {
         Characters = Ensure.NotNull(characters);
+        Messages = Ensure.NotNull(messages);
+    }
 
     /// <summary>The characters the map screens, the pause interface and the HUD are pictured from.</summary>
     public MapCharacterArtwork Characters { get; }
+
+    /// <summary>The editable gameplay messages, whose words the import composes each message box image from (#1466).</summary>
+    public GameplayMessageArtwork Messages { get; }
 }

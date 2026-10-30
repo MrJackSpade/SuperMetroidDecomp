@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>One stock text rectangle inside a gameplay notice's content rows.</summary>
 /// <param name="Row">Zero-based content tile row, excluding the upper border.</param>

@@ -33,12 +33,6 @@ public static class RoomBlockSheetFiles
     /// <summary>The tile word manifest's schema revision: revision 2 names each picture by its words' appearance inputs (#1466).</summary>
     private const int WordManifestVersion = 2;
 
-    /// <summary>The manifest naming each message box image and the words it pictures.</summary>
-    public const string MessageManifestFileName = "message-boxes.json";
-
-    /// <summary>The message box manifest's schema revision.</summary>
-    private const int MessageManifestVersion = 1;
-
     /// <summary>The manifest naming each Ceres tileset's Mode 7 tiles, what each was pictured over and the tileset's floor map.</summary>
     public const string Mode7ManifestFileName = "mode7-tiles.json";
 
@@ -71,9 +65,6 @@ public static class RoomBlockSheetFiles
                     tiles.Map),
                 StringComparer.Ordinal)),
             JsonOptions));
-        File.WriteAllBytes(Path.Combine(directory, MessageManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
-            new MessageManifest(MessageManifestVersion, composition.Messages.ToDictionary(entry => entry.Key, entry => BackgroundTileWords.ToWords(entry.Value.AsSpan()),
-                StringComparer.Ordinal)), JsonOptions));
         var sheets = new WordManifest(WordManifestVersion, [.. wordSheets.Select(words => new WordSheetDocument(words.Layer,
             RoomBlockSheet.NameOf(words.Tileset), [.. words.Tiles.Select(tile => new WordTileDocument(BackgroundTileWords.ToWord(tile.Tile.Tile), tile.Tile.Appearance,
                 tile.Frame, tile.Corner.X, tile.Corner.Y))],
@@ -105,13 +96,6 @@ public static class RoomBlockSheetFiles
             ?? throw new InvalidDataException($"Tile word manifest {wordPath} is empty.");
         if (words.Version != WordManifestVersion || words.Sheets is null)
             throw new InvalidDataException($"Tile word manifest {wordPath} is not revision {WordManifestVersion}.");
-        string messagePath = Path.Combine(stockDirectory, MessageManifestFileName);
-        MessageManifest messages = JsonSerializer.Deserialize<MessageManifest>(File.ReadAllBytes(messagePath), JsonOptions)
-            ?? throw new InvalidDataException($"Message box manifest {messagePath} is empty.");
-        if (messages.Version != MessageManifestVersion || messages.Words is null)
-            throw new InvalidDataException($"Message box manifest {messagePath} is not revision {MessageManifestVersion}.");
-        Dictionary<string, ImmutableArray<BackgroundTile>> messageTiles = messages.Words.ToDictionary(entry => entry.Key,
-            entry => ImmutableArray.Create(BackgroundTileWords.ToTiles(entry.Value)), StringComparer.Ordinal);
         string mode7Path = Path.Combine(stockDirectory, Mode7ManifestFileName);
         Mode7Manifest mode7 = JsonSerializer.Deserialize<Mode7Manifest>(File.ReadAllBytes(mode7Path), JsonOptions)
             ?? throw new InvalidDataException($"Mode 7 manifest {mode7Path} is empty.");
@@ -133,7 +117,7 @@ public static class RoomBlockSheetFiles
                         Inputs(cell.Inputs)))),
                 StringComparer.Ordinal),
             Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3),
-            tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageTiles)),
+            tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)))),
             mode7.Tiles.Select(entry => byName.TryGetValue(entry.Key, out TilesetDefinition tileset) ? new FloorTileSheet(tileset,
                     store.Read(FloorTileSheet.NameOf(tileset)), [.. entry.Value.Pictured ?? throw new InvalidDataException(
                         $"Mode 7 manifest {mode7Path} records no tiles for {entry.Key}.")],
@@ -190,7 +174,6 @@ public static class RoomBlockSheetFiles
     /// <summary>The message box manifest: the words each message box image pictures, the same in every tileset's sheet.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Words">Each image's words, by image name.</param>
-    private sealed record MessageManifest(int Version, Dictionary<string, ushort[]> Words);
 
     /// <summary>The tile word manifest: each tile word sheet and where it pictures each tile word.</summary>
     /// <param name="Version">The schema revision.</param>

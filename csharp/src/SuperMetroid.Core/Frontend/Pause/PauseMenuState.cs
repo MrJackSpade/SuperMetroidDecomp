@@ -471,9 +471,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         AreaMapPresentation maps = mapPresentation ?? throw new InvalidOperationException(
             "Pause map requires installed map presentation assets.");
-        BackgroundTile[] mapTilemap = AreaMapTilemapBuilder.Build(
-            maps.Get(area), system, maps.HiddenCells.Unrevealed, mapRevealMode);
-        MenuTilemaps.Load(screen.Tilemaps.Bg1, mapTilemap);
+        MenuTilemaps.LoadAreaMap(screen.Tilemaps.Bg1,
+            AreaMapProjection.Project(maps.Get(area), system, maps.HiddenCells.Unrevealed, mapRevealMode));
 
         // Installed backdrops already contain their authored area lettering.
     }

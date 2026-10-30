@@ -20,6 +20,7 @@ using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Hud;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

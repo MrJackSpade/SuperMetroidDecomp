@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Where a gameplay notice's text sits within its region, stored in documents by its name.</summary>
 public enum GameplayMessageTextAlignment

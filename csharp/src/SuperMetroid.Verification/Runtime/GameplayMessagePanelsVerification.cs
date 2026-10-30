@@ -12,6 +12,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Checks editable gameplay message panels and live title/diagram binding.</summary>
 internal static class GameplayMessagePanelsVerification
@@ -24,17 +25,18 @@ internal static class GameplayMessagePanelsVerification
         GameplayMessagePanelPresentation stock = GameplayMessagePanelPresentation.Load(
             new MemoryStream(extracted, writable: false));
 
+        var stockMessages = new GameplayMessageArtwork(null, stock);
         int comparedWords = 0;
         foreach (GameplayMessageId id in GameplayMessagePanelDefinitions.MessageIds)
         {
             var installed = new GameplayMessageBoxState();
-            installed.BindPresentation(null, stock);
             installed.Begin(id, 0,
                 shootBinding: ControllerButton.B,
                 runBinding: ControllerButton.Y);
-            AssertEqual(GameplayMessagePanelDefinitions.TilemapWords, installed.Tilemap.Length,
+            BackgroundTile[] words = installed.Tilemap(stockMessages);
+            AssertEqual(GameplayMessagePanelDefinitions.TilemapWords, words.Length,
                 $"installed gameplay-message panel {id} builds its complete tilemap with remapped controls");
-            comparedWords += installed.Tilemap.Length;
+            comparedWords += words.Length;
         }
 
         JsonObject document = RequiredJson.Parse(extracted).AsObject();
@@ -45,25 +47,16 @@ internal static class GameplayMessagePanelsVerification
         GameplayMessagePanelPresentation edited = GameplayMessagePanelPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
 
+        // The game names the form it shows; an edited panel changes the words the import lays that form out with.
         var active = new GameplayMessageBoxState();
-        active.BindPresentation(null, stock);
         active.Begin(GameplayMessageId.MissileTank, 0,
             shootBinding: ControllerButton.B);
         active.Step(0);
-        GameplayMessageBoxPhase phase = active.Phase;
-        int radius = active.RadiusPixels;
-        BackgroundTile[] before = active.Tilemap.ToArray();
-        active.BindPresentation(null, edited);
-        AssertEqual(phase, active.Phase,
-            "message-panel content rebind preserves coroutine phase");
-        AssertEqual(radius, active.RadiusPixels,
-            "message-panel content rebind preserves window radius");
-        AssertTrue(!before.SequenceEqual(active.Tilemap),
-            "UTF-8 panel-title edit reaches an active message without a ROM patch");
-
-        active.BindPresentation(null, stock);
-        AssertTrue(before.SequenceEqual(active.Tilemap),
-            "restoring stock panel restores exact live tilemap and configured button");
+        BackgroundTile[] before = active.Tilemap(stockMessages);
+        AssertTrue(!before.SequenceEqual(active.Tilemap(new GameplayMessageArtwork(null, edited))),
+            "UTF-8 panel-title edit changes the words of the shown message without a ROM patch");
+        AssertTrue(before.SequenceEqual(active.Tilemap(stockMessages)),
+            "stock panel lays the shown message out with its exact words and configured button");
 
         byte[] malformed = System.Text.Encoding.UTF8.GetBytes(document.ToJsonString(
             ArtworkJson.Options).Replace("MISSILE TEST", "missile test"));
@@ -72,7 +65,7 @@ internal static class GameplayMessagePanelsVerification
             "gameplay-message panel rejects glyphs absent from its documented font mapping");
 
         Console.WriteLine(
-            $"Gameplay-message panels: {GameplayMessagePanelDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; diagrams, remapped controls, live edit/rebind and invalid glyph rejection pass.");
+            $"Gameplay-message panels: {GameplayMessagePanelDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; diagrams, remapped controls, edited layout and invalid glyph rejection pass.");
     }
 
     /// <summary>Checks deterministic stock extraction, override identity, and corrupt replacement failure.</summary>
@@ -98,10 +91,9 @@ internal static class GameplayMessagePanelsVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
         var state = new GameplayMessageBoxState();
-        state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels);
         state.Begin(GameplayMessageId.GrappleBeam, 0);
-        AssertTrue(!stockCatalog.GameplayMessagePanels.Build(GameplayMessageId.GrappleBeam)
-                .SequenceEqual(state.Tilemap),
+        AssertTrue(!(GameplayMessageArtwork.Of(stockCatalog).Panels ?? throw new InvalidOperationException("Stock installs the message panels."))
+                .Build(GameplayMessageId.GrappleBeam).SequenceEqual(state.Tilemap(GameplayMessageArtwork.Of(edited))),
             "catalog override changes installed large-message title");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "gameplay-message panel override changes catalog content identity");

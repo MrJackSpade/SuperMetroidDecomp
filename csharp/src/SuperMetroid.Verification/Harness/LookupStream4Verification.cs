@@ -1896,12 +1896,12 @@ internal static class LookupStream4Verification
                 expected[column] = expected[expected.Length - 32 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858040 + column * 2));
             for (int cell = 0; cell < notice.RowCount * 32; cell++) expected[32 + cell] = CartridgeImportSource.Require(rom).ReadCartridgeWord((source + cell * 2));
             AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(stock.Build(id))), "Derived notice export reproduces every native border/content word encoded through the codec");
+            var stockMessages = new GameplayMessageArtwork(null, null, stock);
             var state = new GameplayMessageBoxState();
-            state.BindPresentation(null, null, stock);
             state.Begin(id, 0);
             if (GameplayMessageNotices.IsSaveConfirmation(id))
                 for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8595c1 + column * 2));
-            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(state.Tilemap)), "Actual notice initial tilemap preserves native YES row and all content");
+            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(state.Tilemap(stockMessages))), "Actual notice initial tilemap preserves native YES row and all content");
             if (!GameplayMessageNotices.IsSaveConfirmation(id)) continue;
             for (int frame = 0; frame < 100 && state.Phase != GameplayMessageBoxPhase.AwaitingInput; frame++) state.Step(0);
             AssertEqual(GameplayMessageBoxPhase.AwaitingInput, state.Phase, "Save notice reaches existing input phase");
@@ -1910,7 +1910,7 @@ internal static class LookupStream4Verification
                 state.Step(ControllerButton.Right);
             AssertTrue(!state.ConfirmationSelectionYes, "Right moves the save selection to NO");
             for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x859601 + column * 2));
-            ushort[] shown = BackgroundTileWordBytes.Words(state.Tilemap);
+            ushort[] shown = BackgroundTileWordBytes.Words(state.Tilemap(stockMessages));
             AssertTrue(expected.SequenceEqual(shown), "Actual notice NO selection retains native row and neighboring content; differing cells " +
                 string.Join(", ", Enumerable.Range(0, expected.Length).Where(cell => expected[cell] != shown[cell])
                     .Select(cell => $"{cell}: expected {expected[cell]:X4}, got {shown[cell]:X4}")));
@@ -1919,14 +1919,10 @@ internal static class LookupStream4Verification
         editedJson.Required("notices").Required(GameplayMessageId.MapDataAccessCompleted.ToString()).Required("text").Required(0)["text"] = "MAP TEST";
         var edited = GameplayMessageNoticePresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(editedJson.ToJsonString())));
         var active = new GameplayMessageBoxState();
-        active.BindPresentation(null, null, stock);
         active.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
         active.Step(0);
-        var phase = active.Phase; int radius = active.RadiusPixels;
-        ushort[] original = BackgroundTileWordBytes.Words(active.Tilemap);
-        active.BindPresentation(null, null, edited);
-        AssertEqual(phase, active.Phase, "Derived notice region edit preserves live phase");
-        AssertEqual(radius, active.RadiusPixels, "Derived notice region edit preserves window radius");
+        ushort[] original = BackgroundTileWordBytes.Words(active.Tilemap(new GameplayMessageArtwork(null, null, stock)));
+        BackgroundTile[] editedWords = active.Tilemap(new GameplayMessageArtwork(null, null, edited));
         for (int cell = 0; cell < original.Length; cell++)
         {
             ushort expected = original[cell];
@@ -1936,25 +1932,26 @@ internal static class LookupStream4Verification
                 char character = textIndex < 8 ? "MAP TEST"[textIndex] : ' ';
                 expected = (ushort)((original[40] & 0xfc00) | (character == ' ' ? 0x4e : 0xe0 + character - 'A'));
             }
-            AssertEqual(expected, active.Tilemap[cell].PackedWord, "Independent notice text edit remains within its original calculated rectangle");
+            AssertEqual(expected, editedWords[cell].PackedWord, "Independent notice text edit remains within its original calculated rectangle");
         }
-        active.BindPresentation(null, null, stock);
-        AssertTrue(original.SequenceEqual(BackgroundTileWordBytes.Words(active.Tilemap)), "Restoring supplied stock notice restores every live word");
+        AssertTrue(original.SequenceEqual(BackgroundTileWordBytes.Words(active.Tilemap(new GameplayMessageArtwork(null, null, stock)))),
+            "Supplied stock notice lays the shown message out with every original word");
     }
 
     /// <summary>Checks message dispatch IDs and their cartridge table positions.</summary>
     private static void VerifyLookupStream4MessageDispatch(ISnesAddressSpace rom)
     {
-        var resolve = new Func<ControllerButton, BackgroundTile>(GameplayMessageBoxState.ResolveButtonTile);
         for (int bits = 0; bits <= ushort.MaxValue; bits++)
         {
             int winner = 0;
             while (winner < 7 && (bits & CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8583d5 + winner * 8))) == 0) winner++;
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858426 + 2 * winner));
             AssertEqual(expected, GameplayMessageButtonGlyphs.ResolveGlyph((ControllerButton)bits).PackedWord, "Native BIT order and all button glyph attributes, encoded through the codec");
-            AssertEqual(expected, resolve((ControllerButton)bits).PackedWord, "Actual message button resolver retains first-match precedence");
+            AssertEqual(expected, GameplayMessageTilemapDefinitions.Glyphs[GameplayMessageButtons.Shown((ControllerButton)bits)].PackedWord,
+                "The button the game names for a binding retains first-match precedence");
         }
-        Action<GameplayMessageBoxState, GameplayMessageId, ControllerButton> patch = (state, message, raw) => state.PatchConfiguredButton(message, raw);
+        GameplayMessagePanelPresentation panels = GameplayMessagePanelPresentation.Load(new MemoryStream(GameplayMessagePanelExtractor.Extract(rom)));
+        var panelMessages = new GameplayMessageArtwork(null, panels);
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
             var id = (GameplayMessageId)raw;
@@ -1967,13 +1964,14 @@ internal static class LookupStream4Verification
             }
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858749 + (raw - 1) * 2));
             AssertEqual(expected, GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Native message button placement case");
-            var state = new GameplayMessageBoxState();
-            BackgroundTile[] cells = [.. Enumerable.Range(0, 192).Select(index => BackgroundTileWordBytes.Tile(0x4000 + index))];
-            state.Tiles = cells;
-            patch(state, id, (ControllerButton)ushort.MaxValue);
+            if (!panels.Contains(id))
+                continue;
+            // The panel names the button its binding's glyph shows; every other cell is the panel's own.
+            BackgroundTile[] template = panels.Build(id);
+            BackgroundTile[] cells = panelMessages.Tiles(new ShownMessage(id, GameplayMessageButtons.Shown((ControllerButton)ushort.MaxValue), null));
             for (int index = 0; index < cells.Length; index++)
-                AssertEqual(index == expected / 2 ? CartridgeImportSource.Require(rom).ReadCartridgeWord(0x858426) : (ushort)(0x4000 + index), cells[index].PackedWord,
-                    "Actual button patch preserves every independently supplied neighboring cell");
+                AssertEqual(index == expected / 2 ? CartridgeImportSource.Require(rom).ReadCartridgeWord(0x858426) : template[index].PackedWord, cells[index].PackedWord,
+                    "Actual button patch preserves every neighboring cell of the panel");
         }
     }
     /// <summary>Runs the stream-four table checks over installed presentation and behavior definitions.</summary>

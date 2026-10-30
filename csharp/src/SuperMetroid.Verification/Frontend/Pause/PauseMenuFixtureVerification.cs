@@ -96,9 +96,6 @@ internal static class PauseMenuFixtureVerification
             GameOver = stock.GameOver,
             GameOptions = stock.GameOptions,
             FileSelect = stock.FileSelect,
-            GameplayMessageTitles = stock.GameplayMessageTitles,
-            GameplayMessagePanels = stock.GameplayMessagePanels,
-            GameplayMessageNotices = stock.GameplayMessageNotices,
             EscapeTypewriter = stock.EscapeTypewriter,
             IntroNarration = stock.IntroNarration,
             IntroFont = stock.IntroFont,
@@ -130,6 +127,7 @@ internal static class PauseMenuFixtureVerification
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
         return new InstalledAreaMapPresentation(parts, new MapCharacterArtwork(
             new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
-            new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))));
+            new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
+            GameplayMessageArtwork.Of(stock));
     }
 }

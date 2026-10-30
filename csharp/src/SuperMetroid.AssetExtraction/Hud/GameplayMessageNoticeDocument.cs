@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Defines the editable collection of gameplay-message notices.</summary>
 public sealed record GameplayMessageNoticeDocument

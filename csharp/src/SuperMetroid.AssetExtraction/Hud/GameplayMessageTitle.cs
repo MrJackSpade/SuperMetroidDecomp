@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>One selected title string and BG palette; its placement is centered by the builder rather than supplied as gameplay state.</summary>
 public sealed record GameplayMessageTitle

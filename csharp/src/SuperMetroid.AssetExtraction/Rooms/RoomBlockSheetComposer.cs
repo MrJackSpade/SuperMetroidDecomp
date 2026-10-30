@@ -46,10 +46,9 @@ internal static class RoomBlockSheetComposer
             if (uploads.WordContent is { } content)
                 words.Add(tileset, TileWordSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content));
         }
-        IReadOnlyDictionary<string, ImmutableArray<BackgroundTile>> messages = MessageBoxSheetComposer.Messages(inputs);
         return new RoomSheetComposition(sheets, appearances, backgrounds, words,
             tilesets.ToDictionary(entry => entry.Key, entry => TileWordSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value)),
-            messages, tilesets.Keys.ToDictionary(tileset => tileset, tileset => MessageBoxSheetComposer.Compose(inputs, tileset, messages)),
+            tilesets.Keys.ToDictionary(tileset => tileset, tileset => MessageBoxSheetComposer.Compose(inputs, tileset)),
             tilesets.Where(entry => entry.Value.Ceres).ToDictionary(entry => entry.Key,
                 entry => Mode7TileSheetComposer.Compose(inputs, entry.Key, RoomBlockUploads.Loaded(inputs, entry.Key))));
     }

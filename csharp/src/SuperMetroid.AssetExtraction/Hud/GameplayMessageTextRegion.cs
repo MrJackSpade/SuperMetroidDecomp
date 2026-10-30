@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace SuperMetroid.Core.Hud.Artwork;
+namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Defines one bounded text field in a gameplay-message notice.</summary>
 public sealed record GameplayMessageTextRegion

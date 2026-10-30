@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core;
@@ -1331,8 +1332,8 @@ internal static class RoomPlmPopulationVerification
         GameplayMessageNoticePresentation presentation = GameplayMessageNoticePresentation.Load(noticeJson);
         SeedSaveConfirmationMessageCartridge(bus);
 
+        var messages = new GameplayMessageArtwork(null, notices: presentation);
         var message = new GameplayMessageBoxState();
-        message.BindPresentation(null, notices: presentation);
         message.Begin(GameplayMessageIds.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
@@ -1342,7 +1343,7 @@ internal static class RoomPlmPopulationVerification
         }
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
             "save message enters shared yes/no selection phase");
-        AssertEqual(0x5100, message.Tilemap[128].PackedWord,
+        AssertEqual(0x5100, message.Tilemap(messages)[128].PackedWord,
             "save message begins with native selected-YES row");
         // $85:84BA waits two lag frames before its first ReadControllerInput.
         message.Step(0);
@@ -1351,7 +1352,7 @@ internal static class RoomPlmPopulationVerification
         message.Step(ControllerButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "save cursor changes the shared confirmation selection");
-        AssertEqual(0x5200, message.Tilemap[128].PackedWord,
+        AssertEqual(0x5200, message.Tilemap(messages)[128].PackedWord,
             "save cursor redraws the native selected-NO row");
         // Later reads come every second frame: the read's frame holds the next first wait.
         // A toggle's redraw wait precedes that cycle once (#1269), so the first read after

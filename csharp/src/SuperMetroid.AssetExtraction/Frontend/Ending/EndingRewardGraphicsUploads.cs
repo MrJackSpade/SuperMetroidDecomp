@@ -1,6 +1,8 @@
-using static SuperMetroid.Core.Frontend.Ending.EndingRewardGraphicsUploadDefinitions;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.Ending;
+using static SuperMetroid.AssetExtraction.Frontend.Ending.EndingRewardGraphicsUploadDefinitions;
 
-namespace SuperMetroid.Core.Frontend.Ending;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
 /// Locates each chunk of the ending reward graphics transfer (<see cref="EndingRewardGraphicsUploadDefinitions"/>).

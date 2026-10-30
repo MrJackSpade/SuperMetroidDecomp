@@ -23,4 +23,6 @@ internal enum D3D11RoomSource : uint
     ScreenCells = 9,
     /// <summary>The HUD's placed pictures, at the HUD's place at the top of the screen (#1466).</summary>
     Hud = 10,
+    /// <summary>A pictured plane's placed pictures, scrolled and repeating at the plane's edges (#1467).</summary>
+    PicturedPlane = 11,
 }

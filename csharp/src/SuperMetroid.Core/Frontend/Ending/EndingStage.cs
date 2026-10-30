@@ -76,7 +76,7 @@ internal sealed class EndingStage
         _ = FloorArtwork ?? throw new InvalidOperationException(
             "Ending Mode-7 scene requires installed artwork.");
         screen.Clear();
-        screen.Record(scene);
+        screen.LoadFloor(scene);
     }
 
     /// <summary>Allocates or replaces a native cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>
@@ -131,12 +131,6 @@ internal sealed class EndingStage
     {
         if (length < minimum)
             throw new InvalidDataException($"{name} expanded to ${length:X}, expected at least ${minimum:X}.");
-    }
-
-    /// <summary>Rejects an installed font whose characters do not reach a native VRAM transfer span of <paramref name="minimum"/> bytes.</summary>
-    internal static void RequireMinimum(EndingFontAtlas font, int minimum, string name)
-    {
-        RequireMinimum(Ensure.NotNull(font).CharacterCount * (EndingFontAtlasFormat.ByteCount / EndingFontAtlasFormat.TileCount), minimum, name);
     }
 
     /// <summary>Native scene boundaries clear slots but retain installed color ownership.</summary>
@@ -330,7 +324,6 @@ internal sealed class EndingStage
     internal void BindEndingFont(EndingFontAtlas? value)
     {
         EndingFont = value;
-        screen.Invalidate();
     }
 
     /// <summary>
@@ -341,7 +334,6 @@ internal sealed class EndingStage
     internal void BindFloorArtwork(EndingFloorArtwork? value)
     {
         FloorArtwork = value;
-        screen.Invalidate();
     }
 
     /// <summary>Selects the palettes later native palette transfers and target-color reads use.</summary>

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
 /// Compiled six-transfer schedule for Func142's post-credits Super Metroid logo.
@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 internal static class EndingPostShotUploadDefinitions
 {
+
+    /// <summary>The bytes into the ending font's characters the subtitle's characters start at.</summary>
+    public const int SubtitleFontOffset = 0x1000;
 
     /// <summary>Func142 uploads the subtitle, four logo-tile chunks, then the logo map.</summary>
     public const int Count = 6;

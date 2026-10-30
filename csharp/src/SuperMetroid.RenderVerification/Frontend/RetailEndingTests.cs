@@ -23,10 +23,6 @@ internal static class RetailEndingTests
             var leftAudio = new AudioQueues(); var rightAudio = new AudioQueues();
             var legacy = InstalledFixtures.CreateEnding(leftAudio, hours, 59);
             var captured = InstalledFixtures.CreateEnding(rightAudio, hours, 59);
-            var credits = CreditsPresentation.Load(new MemoryStream(
-                SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(leftBus)));
-            legacy.InstalledArtwork.BindStaffCredits(credits);
-            captured.InstalledArtwork.BindStaffCredits(credits);
             var phases = new HashSet<EndingCreditsPhase>();
             for (int tick = 0; tick < 60000; tick++)
             {

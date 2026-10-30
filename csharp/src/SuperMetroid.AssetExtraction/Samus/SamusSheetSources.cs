@@ -42,9 +42,8 @@ internal static class SamusSheetSources
             SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or
             SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
             SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
-            SpriteSheetId.EndingCreditsFontTiles or SpriteSheetId.EndingTextFontTiles or
-            SpriteSheetId.EndingSubtitleTiles or SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
-            SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles or
+            SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
+            SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or
             SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or
             SpriteSheetId.EndingEscapeAFloor or SpriteSheetId.EndingEscapeBFloor or
             SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or

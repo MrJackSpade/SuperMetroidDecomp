@@ -14,21 +14,21 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 internal static class EndingScreenPublicationVerification
 {
     /// <summary>
-    /// A transfer covering an earlier one's words replaces it and a full clear forgets every transfer, so the record
-    /// stays bounded; and a running ending survives a debugger round trip at the credits and at the post-credits logo,
-    /// showing the same image, palette and sprite entries once its artwork is rebound.
+    /// A floor load covering an earlier one replaces it and a full clear forgets every load and every shown picture, so the
+    /// record stays bounded (#1467); and a running ending survives a debugger round trip at the credits and at the
+    /// post-credits logo, showing the same image, palette and sprite entries once its artwork is rebound.
     /// </summary>
     internal static void VerifyEndingScreenPublication()
     {
         var screen = new EndingScreen();
-        screen.Record(EndingUploadKind.CreditsTilemap, BackgroundTileWordBytes.Tiles(new ushort[] { 1, 2 }));
-        screen.Record(EndingTextTilemap.FinalText, BackgroundTileWordBytes.Tiles(new ushort[] { 3 }));
-        screen.Record(EndingUploadKind.CreditsTilemap, BackgroundTileWordBytes.Tiles(new ushort[] { 4, 5 }));
-        AssertEqual(2, screen.Uploads.Count, "a transfer covering an earlier one's words replaces it");
-        AssertEqual(EndingUploadKind.CreditsTilemap, screen.Uploads[^1].Kind, "the replacing transfer is replayed last");
-        AssertTrue(BackgroundTileWordBytes.Words(screen.Uploads[^1].As<EndingTilemapUpload>().Tiles).SequenceEqual(new ushort[] { 4, 5 }), "the replacing transfer keeps the tiles it wrote");
+        screen.LoadFlyawayChunk(0);
+        screen.ShowText(EndingTextTilemap.FinalText, [new ShownEndingText(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell)]);
+        screen.LoadExplosionMaps();
+        AssertThrows<InvalidOperationException>(() => screen.LoadFlyawayChunk(0), "the flyaway floor's loads are made once each, in order");
+        AssertEqual(EndingFloorShot.None, screen.FloorShot, "a floor shows only once all its loads are made");
         screen.Clear();
-        AssertEqual(0, screen.Uploads.Count, "a full clear forgets every transfer");
+        AssertTrue(screen.FlyawayChunksLoaded == 0 && !screen.ExplosionMapsLoaded && screen.FinalPageText is null,
+            "a full clear forgets every load and every shown picture");
 
         var audio = new AudioQueues();
         EndingCreditsState ending = InstalledFixtures.CreateEnding(audio, 3, 0);
@@ -40,7 +40,6 @@ internal static class EndingScreenPublicationVerification
                 audio.AdvanceFrame(default);
             }
             AssertEqual(target, ending.Stage.Phase, $"the ending reaches {target}");
-            AssertTrue(ending.screen.Uploads.Count < 64, $"the ending's transfer record stays bounded at {target}");
             FramePaint shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Paint;
             byte[] shownVram = ending.ShownVram();
             EndingCreditsState restored = RoundTrip(ending);
@@ -50,7 +49,6 @@ internal static class EndingScreenPublicationVerification
             restored.InstalledArtwork.BindPaletteArtwork(RepositoryInstallation.Installation.LoadEndingPalettes());
             restored.InstalledArtwork.BindPaletteFxColors(InstalledFixtures.Maps.RoomPaletteFx);
             restored.Stage.BindEndingFont(InstalledFixtures.Maps.EndingFont);
-            restored.InstalledArtwork.BindStaffCredits(InstalledFixtures.Maps.StaffCredits);
             restored.InstalledArtwork.BindEndingText(InstalledFixtures.Maps.EndingText);
             FramePaint restoredShown = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Paint;
             var shownRestored = restored.ShownVram();

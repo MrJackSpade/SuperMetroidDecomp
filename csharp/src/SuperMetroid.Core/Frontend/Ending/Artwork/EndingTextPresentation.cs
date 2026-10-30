@@ -94,7 +94,7 @@ public sealed class EndingTextPresentation
     }
     /// <summary>Gets the precompiled glyph placements for the item-percentage labels ($8C:DFDB) or final message ($8C:E0AF); dynamic percentage digits and cinematic timing are supplied by the frontend.</summary>
     /// <param name="sequence">The bounded ending typewriter program whose configured characters are requested.</param>
-    /// <returns>Characters in drawing order, with tilemap coordinates and one- or two-row glyph tiles.</returns>
+    /// <returns>Characters in drawing order, with their cells, styles and characters.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The selector is not a supported ending text sequence.</exception>
     public ReadOnlySpan<EndingTextCharacter> Compile(EndingTextSequence sequence) => sequence switch
     {
@@ -176,11 +176,14 @@ public sealed class EndingTextPresentation
             int index = character.Row * EndingTextDefinitions.TilemapWidth + character.Column;
             if ((uint)index >= target.Length || character.Row >= rows)
                 throw new InvalidDataException($"Ending {identity} exceeds its bounded tilemap.");
-            target[index] = character.Top;
-            if (character.Bottom is { } bottom)
-                target[index + EndingTextDefinitions.TilemapWidth] = bottom;
+            target[index] = EndingTextGlyphs.CompileGlyph(character.Character, character.Style);
+            if (IsLarge(character.Style))
+                target[index + EndingTextDefinitions.TilemapWidth] = EndingTextGlyphs.CompileGlyph(character.Character, character.Style, bottom: true);
         }
     }
+
+    /// <summary>Whether <paramref name="style"/>'s glyphs are two rows tall.</summary>
+    public static bool IsLarge(EndingTextStyle style) => style is EndingTextStyle.CopyrightLarge or EndingTextStyle.FinalLarge;
 
     /// <summary>Validates label length and glyph support, then places each glyph within the specified region.</summary>
     private static EndingTextCharacter[] Compile(string text,
@@ -194,11 +197,10 @@ public sealed class EndingTextPresentation
             char glyph = text[index];
             try
             {
-                BackgroundTile top = EndingTextGlyphs.CompileGlyph(glyph, region.Style);
-                BackgroundTile? bottom = region.Style is EndingTextStyle.CopyrightLarge or EndingTextStyle.FinalLarge
-                    ? EndingTextGlyphs.CompileGlyph(glyph, region.Style, bottom: true)
-                    : null;
-                result[index] = new(region.Row, region.Column + index, top, bottom);
+                _ = EndingTextGlyphs.CompileGlyph(glyph, region.Style);
+                if (IsLarge(region.Style))
+                    _ = EndingTextGlyphs.CompileGlyph(glyph, region.Style, bottom: true);
+                result[index] = new(region.Row, region.Column + index, region.Style, glyph);
             }
             catch (ArgumentOutOfRangeException error)
             {

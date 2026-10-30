@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingArtwork
 {
-    /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
+    /// <summary>The ending's screen: its palette, the pictures its scenes have loaded and its text pages (#1358, #1467).</summary>
     private readonly EndingScreen screen ;
     /// <summary>What every ending scene draws on: brightness, the phase timer, the Mode 7 view, palettes, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;
@@ -25,7 +25,7 @@ internal sealed class EndingArtwork
     /// <summary>Scrolling staff-list owner active during the credits phase.</summary>
     internal CreditsObjectState? CurrentCredits { get; set; }
 
-    /// <summary>Whether the credits and reward art have been transferred to VRAM.</summary>
+    /// <summary>Whether the credits and reward art have been loaded.</summary>
     private bool creditsAssetsLoaded;
 
     /// <summary>Whether the reward landing has started queuing its icon chunks on the actor's native instruction boundary.</summary>
@@ -54,68 +54,39 @@ internal sealed class EndingArtwork
     }
 
 
-    /// <summary>Rebinds host-owned staff credits after catalog reload or restoration.</summary>
-    public void BindStaffCredits(CreditsPresentation? value)
-    {
-        StaffCredits = value;
-        CurrentCredits?.BindPresentation(value);
-    }
-
-
-    /// <summary>Reapplies the current ending OBJ uploads after a state restore.</summary>
+    /// <summary>Rebinds the ending's installed object artwork after a state restore.</summary>
     internal void BindObjectArtwork(EndingObjectArtwork? value)
     {
         _stage.ObjectArtwork = value;
-        screen.Invalidate();
     }
 
     /// <summary>
-    /// Transfers the cloud object's character sheet into the ending OBJ lane; the installed sheet the clouds draw from
-    /// holds those characters, whose length the import pipeline enforces (#1463).
+    /// Loads the cloud objects; the installed sheet the clouds draw from holds their characters, which the import
+    /// composes once (#1463, #1467).
     /// </summary>
-    internal void LoadEscapeCloudCharacters()
-    {
+    internal void LoadEscapeCloudCharacters() =>
         _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Escape clouds require installed object artwork.");
-        screen.Record(EndingUploadKind.EscapeClouds);
-    }
 
-    /// <summary>Uploads explosion OBJ art, four fragments and the ending font at their native VRAM destinations.</summary>
+    /// <summary>Loads the explosion's objects, its four maps and the ending font, which the explosion's pictures and sheet show.</summary>
     internal void LoadEndingObjectCharacters()
     {
-        // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000; the installed sheet holds it.
         _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Ending objects require installed artwork.");
-        screen.Record(EndingUploadKind.ExplosionObjects);
-        LoadObjectFragment(EndingObjectFragmentId.Segment70);
-        LoadObjectFragment(EndingObjectFragmentId.Segment74);
-        LoadObjectFragment(EndingObjectFragmentId.Segment78);
-        LoadObjectFragment(EndingObjectFragmentId.Segment7C);
-        EndingStage.RequireMinimum(_stage.ResolveEndingFont(), EndingArtworkExtentDefinitions.ObjectFragmentLimit,
-            "ending font characters");
-        screen.Record(EndingUploadKind.EndingFont);
+        _ = _stage.ResolveEndingFont();
+        screen.LoadExplosionMaps();
     }
 
-    /// <summary>Copies one authored ending OBJ fragment into its named VRAM lane.</summary>
-    private void LoadObjectFragment(EndingObjectFragmentId fragmentId)
-    {
-        int fragmentCells = (_stage.ObjectArtwork ?? throw new InvalidOperationException(
-            "Ending object fragments require installed artwork.")).Fragment(fragmentId).Tiles.Length;
-        EndingStage.RequireMinimum(fragmentCells, EndingScreenPlanes.Cells, "ending explosion map");
-        screen.Record(fragmentId);
-    }
-
-    /// <summary>Performs the one-time palette, font and post-credits art transfers at the staff handoff.</summary>
+    /// <summary>Performs the one-time palette and post-credits art loads at the staff handoff, after a full clear.</summary>
     internal void LoadCreditsAndPostCreditsAssets()
     {
         if (creditsAssetsLoaded)
             return;
 
         _stage.StaticScreen(EndingPaletteId.Credits).LoadBackgroundsTo(screen.Palette);
-        EndingStage.RequireMinimum(_stage.ResolveEndingFont(), EndingArtworkExtentDefinitions.FontCharacterBytes,
-            "credits font");
-
+        _ = _stage.ResolveEndingFont();
+        _ = _stage.ObjectArtwork ?? throw new InvalidOperationException("Post-credits scenes require installed object artwork.");
         screen.Clear();
-        screen.Record(EndingUploadKind.CreditsFont);
-        LoadCreditsCharacterArt();
+        // Function 126 selects suitless (<3h) or suited (>=3h) reward art; the installed reward sheets hold both.
+        screen.LoadPostCreditsArt();
 
         creditsAssetsLoaded = true;
     }
@@ -127,22 +98,7 @@ internal sealed class EndingArtwork
             throw new InvalidOperationException("Reward landing has no active graphics upload.");
         if ((uint)index >= EndingRewardJumpDefinitions.IconChunkCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        screen.Record(EndingUploadKind.RewardChunk, index);
-    }
-
-    /// <summary>Transfers waiting, shooting and selected reward art plus their post-credits map fragments.</summary>
-    private void LoadCreditsCharacterArt()
-    {
-        EndingObjectArtwork artwork = _stage.ObjectArtwork ?? throw new InvalidOperationException(
-            "Post-credits scenes require installed object artwork.");
-        int waitingMapCells = artwork.WaitingTilemap.Tiles.Length;
-        int fragmentBCells = artwork.PostCreditsFragmentB.Tiles.Length;
-        EndingStage.RequireMinimum(waitingMapCells, EndingScreenPlanes.Cells, "waiting-Samus tilemap");
-        EndingStage.RequireMinimum(fragmentBCells, EndingScreenPlanes.Cells, "post-credits transformation map");
-        // Function 126 selects suitless (<3h) or suited (>=3h) art; the
-        // latter deliberately reuses the waiting-scene sheet, not Mode-7 art. The installed sheets hold the characters,
-        // whose lengths the import pipeline enforces (#1463).
-        screen.Record(EndingUploadKind.CreditsCharacterArt);
+        screen.LoadRewardChunk(index);
     }
 
     /// <summary>
@@ -173,10 +129,6 @@ internal sealed class EndingArtwork
     /// <summary>The palette effects' installed colors.</summary>
     [field: NonSerialized]
     internal RoomPaletteFxPresentation? PaletteFxArtwork { get; private set; }
-
-    /// <summary>The staff credits' installed content.</summary>
-    [field: NonSerialized]
-    internal CreditsPresentation? StaffCredits { get; private set; }
 
     /// <summary>The ending text's installed content.</summary>
     [field: NonSerialized]

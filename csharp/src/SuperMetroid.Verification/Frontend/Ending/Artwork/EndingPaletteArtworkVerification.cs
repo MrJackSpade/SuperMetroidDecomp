@@ -254,9 +254,6 @@ internal static class EndingPaletteArtworkVerification
         installedState.Flyaway.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);
         installedState.Stage.BindFloorArtwork(installation.LoadEndingMode7Art());
         installedState.InstalledArtwork.BindFixtureObjectArtwork(installation.LoadEndingObjectArt());
-        CreditsPresentation credits = maps.StaffCredits;
-        nativeState.InstalledArtwork.BindStaffCredits(credits);
-        installedState.InstalledArtwork.BindStaffCredits(credits);
         // This matches the playable host's installed ending bindings. The fallback
         // bus remains available in narrower native-reference tests below, but the
         // production-shaped scene must complete without *any* cartridge read.
@@ -455,9 +452,6 @@ internal static class EndingPaletteArtworkVerification
         editedScene.InstalledArtwork.BindPaletteArtwork(installation.LoadEndingPalettes());
         AreaMapPresentation maps = installation.LoadMaps();
         editedScene.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
-        CreditsPresentation credits = maps.StaffCredits;
-        editedScene.InstalledArtwork.BindStaffCredits(credits);
-        stockScene.InstalledArtwork.BindStaffCredits(credits);
         bool visibleDifference = false;
         bool reboundDuringScene = false;
         for (int frame = 0; frame < 60_000 &&
@@ -555,9 +549,6 @@ internal static class EndingPaletteArtworkVerification
         editedState.InstalledArtwork.BindPaletteArtwork(edited);
         AreaMapPresentation maps = installation.LoadMaps();
         editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
-        CreditsPresentation credits = maps.StaffCredits;
-        editedState.InstalledArtwork.BindStaffCredits(credits);
-        stockState.InstalledArtwork.BindStaffCredits(credits);
         bool visibleDifference = false;
         for (int frame = 0; frame < 60_000 &&
             stockState.Stage.Phase != EndingCreditsPhase.PostCreditsBlank; frame++)
@@ -607,9 +598,6 @@ internal static class EndingPaletteArtworkVerification
         editedState.InstalledArtwork.BindPaletteArtwork(edited);
         AreaMapPresentation maps = installation.LoadMaps();
         editedState.InstalledArtwork.BindPaletteFxColors(maps.RoomPaletteFx);
-        CreditsPresentation credits = maps.StaffCredits;
-        editedState.InstalledArtwork.BindStaffCredits(credits);
-        stockState.InstalledArtwork.BindStaffCredits(credits);
         bool visibleDifference = false;
         for (int frame = 0; frame < 60_000 &&
             stockState.Stage.Phase != EndingCreditsPhase.ItemPercentage; frame++)

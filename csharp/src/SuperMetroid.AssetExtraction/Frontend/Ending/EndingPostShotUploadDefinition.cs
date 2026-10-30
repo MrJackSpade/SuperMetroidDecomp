@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>One part the post-shot transition shows: which artwork, from where in it, and how many bytes of it.</summary>
 /// <param name="Length">The bytes the part shows.</param>

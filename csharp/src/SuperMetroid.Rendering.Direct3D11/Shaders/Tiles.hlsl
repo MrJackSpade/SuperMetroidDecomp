@@ -39,6 +39,9 @@ static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackgro
 static const uint SourceScreenCells = 9;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
 static const uint SourceHud = 10;
+// A pictured plane (PicturedPlane, #1467), its table's word in TilemapWord: its size in cells, x below y, the count of its
+// pictures, then two words each in drawing order, the picture's offset and its upper-left plane pixel, x below y.
+static const uint SourcePicturedPlane = 11;
 // A frontend layer's cell (D3D11RoomLevelBuffer.PackScreenMap): its tile in the low half, its colour variant above it,
 // then its priority and its mirroring.
 static const uint CellHigh = 1048576, CellFlipX = 2097152, CellFlipY = 4194304;
@@ -131,6 +134,29 @@ bool HudPicture(uint2 screen, out uint2 within, out uint picture)
         uint extent = RoomLevels[shown + PictureSizeWord];
         if (screen.x < origin.x || screen.y < origin.y) continue;
         uint2 offset = screen - origin;
+        if (offset.x >= (extent & 65535) || offset.y >= (extent >> 16)) continue;
+        picture = shown;
+        within = offset;
+        return true;
+    }
+    return false;
+}
+// A pictured plane's picture at a scrolled position (#1467): the last placed picture covering it, the plane repeating at
+// its edges and each picture continuing across them, as `picture`, with `within` its pixel there; false where none does.
+bool PlanePicture(uint table, uint2 scrolled, out uint2 within, out uint picture)
+{
+    picture = 0;
+    within = uint2(0, 0);
+    uint cells = RoomLevels[table];
+    uint2 size = uint2(cells & 65535, cells >> 16) * 8;
+    uint2 position = scrolled % size;
+    for (uint placed = RoomLevels[table + 1]; placed > 0; placed--)
+    {
+        uint record = table + 2 + (placed - 1) * 2;
+        uint shown = RoomLevels[record];
+        uint corner = RoomLevels[record + 1];
+        uint2 offset = (position + size - uint2(corner & 65535, corner >> 16)) % size;
+        uint extent = RoomLevels[shown + PictureSizeWord];
         if (offset.x >= (extent & 65535) || offset.y >= (extent >> 16)) continue;
         picture = shown;
         within = offset;
@@ -312,6 +338,26 @@ bool MainCoverage(uint2 screen)
     uint4 geometry = uint4(CenterX, CenterY, OffsetX, OffsetY);
     if (geometry.w == 0) return true;
     uint4 map = uint4(MatrixA, MatrixB, MatrixC, MatrixD);
+    if (Reserved1 != 0)
+    {
+        // A covering pictured plane (#1467): an opaque pixel of its picture covers, in its picture's priority tier; where
+        // no picture lies, nothing covers and the tier is the back one.
+        uint2 coverWithin;
+        uint coverPicture;
+        uint coverIndex = 0;
+        bool coverHigh = false;
+        bool coverShown = PlanePicture(map.x, (screen + map.zw) & 65535, coverWithin, coverPicture);
+        bool coverCovered = coverShown && PicturePixel(coverPicture, coverWithin, coverIndex, coverHigh) != 0 && coverIndex != 0;
+        if (geometry.z != 0 && (coverHigh ? 1u : 0u) != geometry.z - 1) return false;
+        if (AddG != 0)
+        {
+            bool coverBlends;
+            uint2 coverObj = SpriteAt(screen, coverBlends);
+            if (coverObj.y != NoSprite && (!coverCovered || coverObj.y >= (coverHigh ? 3 : 2)))
+                return coverBlends;
+        }
+        return coverCovered;
+    }
     uint2 position = (screen + map.zw) & (geometry.xy * 8 - 1);
     uint2 tile = position >> 3;
     // The coverage layer's cells, packed row by row from room level word map.x (#1403).
@@ -483,6 +529,10 @@ void Main(uint3 id : SV_DispatchThreadID)
         else if (source == SourceHud)
         {
             if (!HudPicture(id.xy, within, picture)) return;
+        }
+        else if (source == SourcePicturedPlane)
+        {
+            if (!PlanePicture(TilemapWord, scrolled, within, picture)) return;
         }
         else if (source == SourceScreenCells)
         {

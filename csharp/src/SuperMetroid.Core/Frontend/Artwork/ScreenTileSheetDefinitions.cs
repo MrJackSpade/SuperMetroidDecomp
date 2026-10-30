@@ -35,13 +35,6 @@ public static class ScreenTileSheetDefinitions
         [SpriteSheetId.CeresFlightObjectTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.CeresIntroObjectTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.ZebesRevealTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.EndingCreditsFontTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.EndingTextFontTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.EndingSubtitleTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.EndingLogoTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.EndingWaitingTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.EndingWavySamusTiles] = TileInkDepth.FourColours,
-        [SpriteSheetId.EndingExplosionTiles] = TileInkDepth.SixteenColours,
     };
 
     /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>

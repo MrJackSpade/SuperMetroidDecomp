@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -18,8 +19,8 @@ internal static class EndingCreditsPresentation
         if (ending.InstalledArtwork.CurrentEndingLogo is not null)
         {
             if (ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted)
-                layers.Add(new ScreenTilesLayer(ending.Cells(EndingPlane.Logo, new Extent16<TilemapCells>(32, 32),
-                    EndingTileLayer.Logo, TileInkDepth.SixteenColours), new Position16<TilePlanePixels>(0, 0), null));
+                layers.Add(new PicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingPostCreditsPictures, EndingPictureNames.Logo,
+                    ending.screen.LogoShown), Position16<TilePlanePixels>.Zero, null));
             layers.Add(new SpritesLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer(ending));
             // The logo assembles over the shooting scene's page.
@@ -38,8 +39,7 @@ internal static class EndingCreditsPresentation
         }
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
-            layers.Add(new ScreenTilesLayer(ending.Cells(EndingPlane.Credits, new Extent16<TilemapCells>(32, 32),
-                EndingTileLayer.Credits, TileInkDepth.SixteenColours), ending.Credits.ScrollPosition, null));
+            layers.Add(new PicturedPlaneLayer(ending.CreditsPlane(), ending.Credits.ScrollPosition, null));
             // Credits intentionally do not run the sprite draw routine.
             memory = new FramePaint(ending.screen.Palette.Shown(), []);
         }
@@ -53,8 +53,8 @@ internal static class EndingCreditsPresentation
                 if (PostCreditsBackgroundEnabled(ending))
                     layers.Add(PostCreditsLayer(ending));
                 if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
-                    layers.Add(new AddedScreenTilesLayer(ending.Cells(EndingPlane.WavySamus, ScreenTilesViewportLayer.MapSize,
-                            EndingTileLayer.WavySamus, TileInkDepth.FourColours),
+                    layers.Add(new AddedPicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus,
+                            ending.screen.PostCreditsArtLoaded),
                         PostCreditsLayer(ending))
                         .WithScrolls(EndingWavySamus.ScrollsAtAge(
                             EndingSequenceDefinitions.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer)));
@@ -142,14 +142,13 @@ internal static class EndingCreditsPresentation
         || ending.Stage.Phase == EndingCreditsPhase.PostCreditsShootingStars
         || (ending.Stage.Phase == EndingCreditsPhase.PostCreditsReward && ending.Stage.EndingReward != EndingReward.Armored);
 
-    /// <summary>The post-credits background plane: the waiting backdrop, or the uploaded text map at its current scroll and height.</summary>
-    private static ScreenTilesLayer PostCreditsLayer(EndingCreditsState ending)
+    /// <summary>The post-credits background plane: the waiting backdrop, or the shown text page at its current scroll and height.</summary>
+    private static PicturedPlaneLayer PostCreditsLayer(EndingCreditsState ending)
     {
-        var size = new Extent16<TilemapCells>(32, checked((ushort)ending.CreditsRoll.PostCreditsMapHeight));
+        var size = new Extent16<TilemapCells>(EndingScreenDefinitions.TilemapWidth, checked((ushort)ending.CreditsRoll.PostCreditsMapHeight));
         return UsesWaitingBackground(ending)
-            ? new(ending.Cells(EndingPlane.Text, size, EndingTileLayer.Waiting, TileInkDepth.SixteenColours), ending.Stage.PostCreditsScroll, null)
-            : new(ending.Cells(ending.CreditsRoll.PostCreditsTextTilemap == EndingTextTilemap.ResultPanel ? EndingPlane.Credits : EndingPlane.Text, size,
-                EndingTileLayer.PostCreditsText, TileInkDepth.SixteenColours), ending.Stage.PostCreditsScroll, null);
+            ? new(ending.WaitingPlane(size), ending.Stage.PostCreditsScroll, null)
+            : new(ending.TextPagePlane(ending.CreditsRoll.PostCreditsTextTilemap, size), ending.Stage.PostCreditsScroll, null);
     }
 
     /// <summary>The scene's colours with this frame's sprite entries over the OBJ page of <paramref name="objectSheet"/>.</summary>

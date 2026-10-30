@@ -1226,23 +1226,18 @@ internal static class LookupStream4Verification
             presentation.JapaneseSubtitle.CopyTo(copied);
             AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(copied.AsSpan(0, expected.Length))), "Subtitle direct copy preserves every cell");
             AssertEqual((ushort)0x5678, copied[^1].PackedWord, "Subtitle copy leaves the destination suffix untouched");
-            BackgroundTile[] tilemap = Enumerable.Repeat(BackgroundTileWordBytes.Tile(0x2222), EndingScreenDefinitions.TilemapWords).ToArray();
-            var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = tilemap, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
+            // The game shows the subtitle as its installed picture at its cell (#1467); the import pictures these words.
+            var page = new EndingTextPage();
+            var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = page, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
             state.InstalledInitialMarkerPending = false;
             state.InstalledCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
             var screen = new EndingScreen();
             state.Step(screen);
-            SnesVram vram = EndingScreenFixtures.Vram(screen);
-            int destination = EndingResultTextLayout.JapaneseSubtitleFirstCell;
-            AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(tilemap.AsSpan(destination, expected.Length))), "Actual ending state draws the calculated/edited subtitle");
-            for (int cell = 0; cell < expected.Length; cell++)
-            {
-                int address = (EndingVramLayout.ResultPanelTilemapWord + destination + cell) * 2;
-                AssertEqual(expected[cell], LittleEndianBytes.Word(vram.Bytes[address], vram.Bytes[address + 1]), "Actual subtitle reaches VRAM unchanged");
-            }
+            var subtitle = new ShownEndingText(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
+            AssertTrue(screen.ResultPageText.Contains(subtitle), "Actual ending state shows the subtitle picture at its cell");
             state.InstructionTimer = WrappingCountdown.Start(1);
             state.Step(screen);
-            AssertTrue(tilemap.AsSpan(destination, expected.Length).All(tile => tile == EndingScreenDefinitions.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
+            AssertTrue(!screen.ResultPageText.Contains(subtitle), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
         }
     }

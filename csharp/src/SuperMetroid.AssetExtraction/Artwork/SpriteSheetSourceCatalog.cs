@@ -56,6 +56,7 @@ internal sealed class SpriteSheetSourceCatalog
     internal ComposedSpriteSheet Compose(SpriteSheetId sheet) => sheet == SpriteSheetId.PauseHud ? HudImageSheet.ComposePause(maps.Value)
         : ScreenTileSheetDefinitions.Depths.ContainsKey(sheet) ? ScreenTileSheetComposer.Compose(sheet, ScreenTiles())
         : ScreenTileSheetDefinitions.FloorSheets.Contains(sheet) ? FrontendFloorSheetComposer.Compose(sheet, ScreenTiles())
+        : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
     /// <summary>The stock artwork the screen tile sheets compose from.</summary>
@@ -105,9 +106,8 @@ internal sealed class SpriteSheetSourceCatalog
             SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.IntroSceneTiles or
             SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
             SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
-            SpriteSheetId.EndingCreditsFontTiles or SpriteSheetId.EndingTextFontTiles or
-            SpriteSheetId.EndingSubtitleTiles or SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
-            SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles or
+            SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
+            SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or
             SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or
             SpriteSheetId.EndingEscapeAFloor or SpriteSheetId.EndingEscapeBFloor or
             SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or

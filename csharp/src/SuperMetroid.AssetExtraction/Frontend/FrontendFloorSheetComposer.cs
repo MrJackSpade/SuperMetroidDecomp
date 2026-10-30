@@ -76,18 +76,23 @@ internal static class FrontendFloorSheetComposer
     /// the blank tile, as the flight and the destruction load them, showing the flight's characters.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(IntroCinematicArtwork intro)
+    internal static ComposedSpriteSheet Ceres(IntroCinematicArtwork intro) => Ceres(Ensure.NotNull(intro).CeresFlight, intro.CeresDestruction);
+
+    /// <summary>The Ceres cinematics' floor in each shot from the flight's and the destruction's installed artwork.</summary>
+    /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
+    internal static ComposedSpriteSheet Ceres(CeresFlightArtwork flight, CeresDestructionArtwork destruction)
     {
-        Ensure.NotNull(intro);
-        ReadOnlySpan<byte> characters = CeresFlightCharacters.Of(intro.CeresFlight).FloorCharacters.Span;
+        Ensure.NotNull(flight);
+        Ensure.NotNull(destruction);
+        ReadOnlySpan<byte> characters = CeresFlightCharacters.Of(flight).FloorCharacters.Span;
         if (characters.Length < CeresFlightArtworkFormat.FloorByteCount)
             throw new InvalidDataException("The Ceres flight's Mode 7 characters are shorter than the scenes load.");
-        if (intro.CeresFlight.FloorMaps.Length + intro.CeresDestruction.CeresMaps.Length < CeresFloorShotDefinitions.MapCells)
+        if (flight.FloorMaps.Length + destruction.CeresMaps.Length < CeresFloorShotDefinitions.MapCells)
             throw new InvalidDataException("The Ceres cinematics' floor views are shorter than the scenes load.");
         var views = new byte[CeresFloorShotDefinitions.MapCells];
-        intro.CeresFlight.FloorMaps.Span.CopyTo(views);
-        intro.CeresDestruction.CeresMaps.Span[..(CeresFloorShotDefinitions.MapCells - intro.CeresFlight.FloorMaps.Length)]
-            .CopyTo(views.AsSpan(intro.CeresFlight.FloorMaps.Length));
+        flight.FloorMaps.Span.CopyTo(views);
+        destruction.CeresMaps.Span[..(CeresFloorShotDefinitions.MapCells - flight.FloorMaps.Length)]
+            .CopyTo(views.AsSpan(flight.FloorMaps.Length));
         byte[] pixels = characters[..CeresFlightArtworkFormat.FloorByteCount].ToArray();
         byte[] station = Blank();
         views.AsSpan(CeresFloorShotDefinitions.StationStart, CeresFloorShotDefinitions.StationCells).CopyTo(station);
@@ -105,7 +110,7 @@ internal static class FrontendFloorSheetComposer
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.Explosion), explosion, pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.ExplosionWithoutGunship), explosionWithoutGunship, pixels),
             FloorSheetComposer.Whole(CeresFloors.FrameName(CeresFloorShot.ZebesApproach), zebes, pixels),
-        ], ScreenTileSheetComposer.FlightColours(intro.CeresFlight));
+        ], ScreenTileSheetComposer.FlightColours(flight));
 
         // A floor of the blank tile.
         static byte[] Blank()

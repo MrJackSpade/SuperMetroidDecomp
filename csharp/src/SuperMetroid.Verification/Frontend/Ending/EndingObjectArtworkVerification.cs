@@ -142,7 +142,7 @@ internal static class EndingObjectArtworkVerification
             EndingObjectArtworkFormat.RewardByteCount, "suitless Samus");
         byte[] nativeWaitingMap = RomDataReader.Decompress(bus,
             EndingSourceDefinitions.Artwork.WaitingForCreditsTilemap,
-            EndingArtworkExtentDefinitions.ObjectFragmentLimit);
+            SuperMetroid.AssetExtraction.Frontend.Ending.EndingTransferExtentDefinitions.ObjectFragmentLimit);
         AssertTrue(BackgroundTileWordBytes.Of(stock.WaitingTilemap.Tiles.Span).AsSpan().SequenceEqual(
                 nativeWaitingMap.AsSpan(0, EndingObjectArtworkFormat.WaitingTilemapByteCount)),
             "installed waiting-Samus map preserves all native BG2 tile words");

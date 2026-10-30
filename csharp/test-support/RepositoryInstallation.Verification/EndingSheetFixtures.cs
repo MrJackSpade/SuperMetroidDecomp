@@ -21,9 +21,9 @@ internal static class EndingSheetFixtures
     /// <summary>The installed ending palettes the composed sheets are coloured with.</summary>
     private static readonly Lazy<EndingPaletteSet> palettes = new(() => RepositoryInstallation.Installation.LoadEndingPalettes());
 
-    /// <summary>The ending's background tile sheets its object artwork composes (#1392).</summary>
-    private static readonly SpriteSheetId[] EndingTileSheets = [SpriteSheetId.EndingLogoTiles, SpriteSheetId.EndingWaitingTiles,
-        SpriteSheetId.EndingWavySamusTiles, SpriteSheetId.EndingExplosionTiles];
+    /// <summary>The ending's background picture sheets its object artwork composes (#1392, #1467).</summary>
+    private static readonly SpriteSheetId[] EndingPictureSheets = [SpriteSheetId.EndingPostCreditsPictures,
+        SpriteSheetId.EndingWavySamusPicture, SpriteSheetId.EndingExplosionPictures];
 
     /// <summary>Installed sheets with the ending sheets already composed, by ending artwork identity.</summary>
     private static readonly ConcurrentDictionary<string, InstalledSpriteSheets> composed = new();
@@ -39,12 +39,12 @@ internal static class EndingSheetFixtures
             foreach (SpriteSheetId sheet in EndingSpriteSheetsConstants.Sheets)
                 sheets[sheet] = CinematicSheetFixtures.Load(EndingSpriteSheetComposer.Sources(sheet, objects, palettes.Value, InstalledFixtures.Maps.EndingFont),
                     $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{key[..8]}");
-            // The ending's background tiles are pre-coloured from these objects (#1392).
+            // The ending's background pictures are pre-coloured from these objects (#1392, #1467).
             var tileSources = new ScreenTileSources(() => InstalledFixtures.Maps, () => InstalledFixtures.IntroArtwork, () => objects, () => palettes.Value,
                 RepositoryInstallation.Installation.LoadEndingMode7Art);
-            foreach (SpriteSheetId sheet in EndingTileSheets)
+            foreach (SpriteSheetId sheet in EndingPictureSheets)
             {
-                ComposedSpriteSheet tiles = ScreenTileSheetComposer.Compose(sheet, tileSources);
+                ComposedSpriteSheet tiles = EndingPictureSheetComposer.Compose(sheet, tileSources);
                 sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
                     $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture-{key[..8]}", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartGroups);
             }
@@ -62,7 +62,7 @@ internal static class EndingSheetFixtures
         foreach (SpriteSheetId sheet in new[] { SpriteSheetId.EndingEscapeAFloor, SpriteSheetId.EndingEscapeBFloor,
                      SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingRewardIconFloor })
         {
-            ComposedSpriteSheet tiles = ScreenTileSheetComposer.ComposeMode7(sheet, tileSources);
+            ComposedSpriteSheet tiles = FrontendFloorSheetComposer.Compose(sheet, tileSources);
             sheets[sheet] = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(tiles.Manifest), writable: false),
                 $"{SpriteSheetDefinitions.FileNames[sheet]}-fixture", tiles.Size, tiles.Pixels, tiles.PaletteIndices, tiles.Priorities, tiles.PartGroups);
         }

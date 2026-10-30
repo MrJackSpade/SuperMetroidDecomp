@@ -70,7 +70,7 @@ internal static class ShutterBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(definition, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.CurrentInstruction = 0;
+        slot.SetSpawnSettings(new ShutterSpawnSettings(SpeedIndex: 0, PrimaryDirection: 0));
         slot.SetSpawnParameter1(2);
         return slot;
     }
@@ -193,7 +193,7 @@ internal static class ShutterBehaviorVerification
         {
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
-            slot.CurrentInstruction = LittleEndianBytes.Word(0, primaryDirection);
+            slot.SetSpawnSettings(new ShutterSpawnSettings(SpeedIndex: 0, primaryDirection));
             slot.SetSpawnParameter1(LittleEndianBytes.Word(0, travelDistance));
             ShuttersBehavior.InitializeHorizontalShutter(slot);
             HorizontalShutterEnemyState state = slot.SpeciesState<HorizontalShutterEnemyState>()
@@ -238,7 +238,7 @@ internal static class ShutterBehaviorVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.ShutterShootable);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
-            slot.CurrentInstruction = LittleEndianBytes.Word(speedIndex, primaryDirection);
+            slot.SetSpawnSettings(new ShutterSpawnSettings(speedIndex, primaryDirection));
             slot.SetSpawnParameter1(LittleEndianBytes.Word(0, travelDistance));
             ShuttersBehavior.InitializeVerticalShutter(slot);
             VerticalShutterEnemyState state = slot.SpeciesState<VerticalShutterEnemyState>()

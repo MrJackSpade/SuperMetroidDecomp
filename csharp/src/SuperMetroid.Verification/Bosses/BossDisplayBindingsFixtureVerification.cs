@@ -122,9 +122,7 @@ internal static class BossDisplayBindingsFixtureVerification
             return result;
         }
 
-        /// <summary>Starts an instruction list with a one-tick countdown.</summary>
-        internal void SetProgram(ushort pointer)
-        { Actor.CurrentInstruction = pointer; Actor.InstructionTimer = WrappingCountdown.Start(1); Actor.Timer = WrappingCountdown.Start(0); }
+
         /// <summary>Advances the selected actor's production instruction interpreter once.</summary>
         internal void Step() => instructions(Actor, null, null, Position16<RoomPixels>.Zero, 0);
         /// <summary>Probes the actor's extended hitbox at a two-pixel radius.</summary>

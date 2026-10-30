@@ -54,11 +54,14 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.BrainCursor = unchecked((short)brain) >= 0 ? null : MotherBrainNativeListAddresses.CompareHead(cartridge)[brain];
         state.BrainFrameTimer = W(MotherBrainMemory.BrainInstructionTimer);
         Dictionary<ushort, AnimationProgramCursor<MotherBrainBodyProgram>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
-        state.BodyCursor = body[checked((ushort)state.Body.CurrentInstruction)];
-        state.HeadSlotCursor = body[checked((ushort)state.Head.CurrentInstruction)];
+        // Each record's instruction-list word is read from the snapshot; the port keeps the typed cursor it names.
+        ushort InstructionList(RoomEnemySlot slot) => W(NativeSnapshotMemory.EnemyBase +
+            SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(slot.SlotIndex) + MovieDesyncMemory.EnemyInstructionListOffset);
+        state.BodyCursor = body[InstructionList(state.Body)];
+        state.HeadSlotCursor = body[InstructionList(state.Head)];
         Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
-            runtime.Enemies.MotherBrainBehavior.Extensions[tube.SlotIndex].FallingTubeCursor = tubes[checked((ushort)tube.CurrentInstruction)];
+            runtime.Enemies.MotherBrainBehavior.Extensions[tube.SlotIndex].FallingTubeCursor = tubes[InstructionList(tube)];
         state.BrainMainShakeTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.RainbowPaletteCursor = W(MotherBrainMemory.RainbowPaletteIndex);

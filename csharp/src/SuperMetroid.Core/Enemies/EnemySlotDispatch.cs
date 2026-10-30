@@ -46,7 +46,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.Health = definition.Health;
         slot.Layer = definition.Layer;
         slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
-        slot.CurrentInstruction = population.InitializationParameter;
+
         slot.Properties = population.Properties;
         slot.ExtraProperties = population.ExtraProperties;
         slot.AiStates = EnemyAiStates.None;

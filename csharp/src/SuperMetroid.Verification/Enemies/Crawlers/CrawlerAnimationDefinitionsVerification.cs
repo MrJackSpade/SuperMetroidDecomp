@@ -53,11 +53,15 @@ internal static class CrawlerAnimationDefinitionsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
-            slot.CurrentInstruction = orientation;
+            // The import decodes the population word into the surface the crawler starts on.
+            AssertEqual(new CrawlerSpawnSettings(orientations[orientation]),
+                SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Zoomer, orientation),
+                $"crawler population word {orientation} decodes to its surface");
+            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation]));
             if (family == CrawlerAnimationFamily.Viola)
             {
-                // InitAI_Viola ($A3:B678) selects with the property bits, not the parameter.
-                slot.CurrentInstruction = (ushort)(orientation ^ 1);
+                // InitAI_Viola ($A3:B678) selects with the property bits, not the spawn settings.
+                slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation ^ 1]));
                 slot.Properties = EnemyPropertyWord.FromWord(orientation);
             }
             slot.SetSpawnParameter1(0);

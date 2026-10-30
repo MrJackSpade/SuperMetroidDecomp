@@ -120,16 +120,7 @@ public sealed class RoomEnemySlot
     public EnemyFrameId? Frame { get; internal set; }
     /// <summary>A loop or delay count the occupant's behaviour and animation keep; not an elapsed-frame counter.</summary>
     public WrappingCountdown Timer { get; internal set; }
-    /// <summary>
-    /// Enemy.instList at +$1A, 0 through 65535: populated from the population's actor-specific initialization
-    /// parameter, which several families read as packed selectors; an imported state carries the native instruction
-    /// pointer here.
-    /// </summary>
-    public int CurrentInstruction
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+
     /// <summary>Updates left before the enemy's animation takes its next step; a new occupant starts at one.</summary>
     public WrappingCountdown InstructionTimer { get; internal set; }
     /// <summary>
@@ -206,7 +197,7 @@ public sealed class RoomEnemySlot
         Health = 0;
         AiStates = EnemyAiStates.None;
         InstructionTimer = WrappingCountdown.Start(0);
-        CurrentInstruction = 0;
+
         Timer = WrappingCountdown.Start(0);
         Frame = null;
         FrozenTimer = WrappingCountdown.Start(0);

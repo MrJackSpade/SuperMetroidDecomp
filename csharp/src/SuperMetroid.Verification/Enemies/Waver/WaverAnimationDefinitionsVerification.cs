@@ -26,7 +26,6 @@ internal static class WaverAnimationDefinitionsVerification
             var selector = (WaverAnimationSelector)index;
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
-                CurrentInstruction = 0x7777,
                 InstructionTimer = WrappingCountdown.Start(0x2222),
                 Timer = WrappingCountdown.Start(0x3333),
             };

@@ -611,7 +611,7 @@ internal sealed class CeresRidleyFlight
         RoomEnemyPopulationRecord population = new(
             EnemyDefinitionId.CeresDoor,
             Position: position,
-            InitializationParameter: 0,
+            SpawnSettings: EnemySpawnSettings.None,
             Properties: new EnemyPropertyWord(
                 EnemyProperties.ProcessInstructions |
                 EnemyProperties.ProcessOffScreen),

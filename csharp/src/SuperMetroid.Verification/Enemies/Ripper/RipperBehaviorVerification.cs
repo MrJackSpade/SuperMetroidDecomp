@@ -49,7 +49,7 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GRipper);
-            slot.CurrentInstruction = 1;
+            slot.SetSpawnSettings(new GRipperSpawnSettings(SpeedIndex: 1, MovesRight: true));
             slot.SetSpawnParameter1(0);
             slot.SetSpawnParameter2(ushort.MaxValue);
             enemies.RipperBehavior.InitializeGRipper(slot);
@@ -60,7 +60,7 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GRipper);
-            slot.CurrentInstruction = 1;
+            slot.SetSpawnSettings(new GRipperSpawnSettings(SpeedIndex: 1, MovesRight: true));
             slot.SetSpawnParameter1(0);
             slot.SetSpawnParameter2(ushort.MaxValue);
             enemies.RipperBehavior.InitializeGRipper(slot);

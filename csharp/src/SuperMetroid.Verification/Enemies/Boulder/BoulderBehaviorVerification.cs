@@ -20,7 +20,7 @@ internal static class BoulderBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.CurrentInstruction = 8;
+        slot.SetSpawnSettings(new BoulderSpawnSettings(TriggerHeight: 8));
         slot.SetSpawnParameter1(256);
         slot.SetSpawnParameter2(264);
         slot.Position = slot.Position.WithWhole(new(256, 512));

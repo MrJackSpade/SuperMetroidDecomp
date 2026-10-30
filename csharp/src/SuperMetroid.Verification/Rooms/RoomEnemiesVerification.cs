@@ -116,7 +116,7 @@ internal static void VerifyRoomEnemyLoading()
         new(specialDefinitionPointer, ColourStore: new(2), StagingBlock: 1));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
-        new RoomEnemyPopulationRecord(primaryDefinitionPointer, new(0x0456, 0x0789), 0xabcd, EnemyPropertyWord.FromWord(0x2000), EnemyExtraPropertyWord.FromWord(0x0004), 0x1357, 0x2468));
+        new RoomEnemyPopulationRecord(primaryDefinitionPointer, new(0x0456, 0x0789), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x2000), EnemyExtraPropertyWord.FromWord(0x0004), 0x1357, 0x2468));
 
     // Import the explicitly seeded fixture art before exercising the installed-only loader.
     var stockSheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
@@ -458,7 +458,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetHeader(definitionPointer, new(0)));
 
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
-        new RoomEnemyPopulationRecord(definitionPointer, new(80, 64), 0, EnemyPropertyWord.FromWord(0x2800), default, 16, 1));
+        new RoomEnemyPopulationRecord(definitionPointer, new(80, 64), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x2800), default, 16, 1));
 
     const int roomWidth = 16;
     const int roomHeight = 8;
@@ -496,9 +496,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
                 for (int frame = 1; frame <= 12; frame++)
                 {
                     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
+                    // The trace's last column is the native instruction-list word, which the port keeps as the
+                    // Ripper's typed animation; the timers and position are compared.
                     string actual = $"{(intangible ? 1 : 0)},{initial},{frame},{ripper.InvincibilityTimer.RawValue}," +
-                        $"{ripper.FlashTimer.RawValue},{ripper.FrozenTimer.RawValue},{ripper.Position.X.Whole},{ripper.CurrentInstruction}";
-                    AssertEqual(lines[index++], actual, "original CPU versus production frozen EnemyMain");
+                        $"{ripper.FlashTimer.RawValue},{ripper.FrozenTimer.RawValue},{ripper.Position.X.Whole}";
+                    string expected = lines[index++];
+                    AssertEqual(expected[..expected.LastIndexOf(',')], actual, "original CPU versus production frozen EnemyMain");
                 }
             }
             Console.WriteLine("X-Plasma: 120 original-CPU EnemyMain frame records match production exactly.");
@@ -508,7 +511,8 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ripper.FlashTimer = WrappingCountdown.Start(16);
         ripper.FrozenTimer = WrappingCountdown.Start(400);
         ushort initialX = ripper.Position.X.Whole;
-        int initialInstruction = ripper.CurrentInstruction;
+        EnemyFrameId? initialFrame = ripper.Frame;
+        WrappingCountdown initialInstructionTimer = ripper.InstructionTimer;
         for (int frame = 1; frame <= 12; frame++)
         {
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
@@ -517,7 +521,8 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             AssertEqual(16, ripper.FlashTimer.RawValue, "X-ray holds flash timer independently");
             AssertEqual(400, ripper.FrozenTimer.RawValue, "X-ray holds Ice freeze timer independently");
             AssertEqual(initialX, ripper.Position.X.Whole, "X-ray holds enemy movement");
-            AssertEqual(initialInstruction, ripper.CurrentInstruction, "X-ray holds enemy instruction pointer");
+            AssertEqual(initialFrame, ripper.Frame, "X-ray holds the enemy's animation frame");
+            AssertEqual(initialInstructionTimer, ripper.InstructionTimer, "X-ray holds the enemy's animation timer");
         }
         ripper.Properties = ripper.Properties.With(EnemyProperties.IgnoreSamusCollision);
         ripper.InvincibilityTimer = WrappingCountdown.Start(10);
@@ -704,7 +709,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     // omits ProcessInstructions because only the independently executing main AI owns the
     // persistent platform transfer.
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0,
-        new RoomEnemyPopulationRecord(definitionPointer, new(0x0080, 0x0080), 0, EnemyPropertyWord.FromWord(0x0800), default, 2, 0));
+        new RoomEnemyPopulationRecord(definitionPointer, new(0x0080, 0x0080), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x0800), default, 2, 0));
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer);
     byte[] light = [0x68, 0x69, 0x69, 0x78];
     byte[] dark = [0x8d, 0x8e, 0x8e, 0x79];
@@ -748,7 +753,7 @@ internal static void VerifyCeresDoorBossBranch()
     // Property $8000 makes the focused actor solid, $2000 runs its instruction list,
     // and $0800 keeps that list processing even when the synthetic actor is offscreen.
     SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0,
-        new RoomEnemyPopulationRecord(definitionPointer, new(0x0008, 0x007f), 0, EnemyPropertyWord.FromWord(0xA800), default, 3, 0));
+        new RoomEnemyPopulationRecord(definitionPointer, new(0x0008, 0x007f), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0xA800), default, 3, 0));
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer);
 
     // Start directly at the retail Ridley-room closed-door loop. Its mechanics deliberately
@@ -768,7 +773,6 @@ internal static void VerifyCeresDoorBossBranch()
         } } }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay) { Samus = samus });
     RoomEnemySlot door = enemies.SlotTable.Slots[0];
-    door.CurrentInstruction = 0xf55e;
     door.InstructionTimer = WrappingCountdown.Start(1);
 
     for (int frame = 0; frame < 4; frame++)
@@ -788,7 +792,7 @@ internal static void VerifyCeresDoorBossBranch()
     }
     AssertTrue(door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         $"defeated Ceres boss advances door bytecode to intangible setup " +
-        $"(PC=${door.CurrentInstruction:X4}, timer=${door.InstructionTimer.RawValue:X4}, " +
+        $"(timer=${door.InstructionTimer.RawValue:X4}, " +
         $"properties=${door.Properties.ToWord():X4}, bossReads={areaBossReads})");
     Console.WriteLine("  Ceres door: area-boss branch opens the physical Ridley-room actor.");
 }

@@ -32,10 +32,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // The initializer consumes init0 and the low extra-property word as a two-bit table
-        // selector before clearing the latter. Keep native dispatch ordering independent
+        // The initializer selects its wait from the low extra-property word and the population
+        // entry's wait before clearing the former. Keep native dispatch ordering independent
         // of the origin direction encoded below.
-        int initialFunctionIndex = slot.ExtraProperties.ToWord() * 2 + slot.CurrentInstruction;
+        int initialFunctionIndex = slot.ExtraProperties.ToWord() * 2 +
+            (slot.Spawn.Population.SpawnSettingsOf<GrowingShutterSpawnSettings>().WaitsForSamus ? 1 : 0);
         state.Function = GrowingShutters.InitialFunction(initialFunctionIndex);
 
         bool growsUp = slot.ExtraProperties.ToWord() != 0;
@@ -239,9 +240,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new HorizontalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        int packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
-        state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
-        state.PrimaryDirection = unchecked((byte)(EightEight.WholeOf(packedSpeedAndDirection)));
+        ShutterSpawnSettings settings = slot.Spawn.Population.SpawnSettingsOf<ShutterSpawnSettings>();
+        state.SpeedTableIndex = settings.SpeedIndex;
+        state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection ^ 1;
 
         int speedRecordOffset = state.SpeedTableIndex * 8;
@@ -737,9 +738,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new VerticalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        int packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
-        state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
-        state.PrimaryDirection = unchecked((byte)(EightEight.WholeOf(packedSpeedAndDirection)));
+        ShutterSpawnSettings settings = slot.Spawn.Population.SpawnSettingsOf<ShutterSpawnSettings>();
+        state.SpeedTableIndex = settings.SpeedIndex;
+        state.PrimaryDirection = settings.PrimaryDirection;
         state.ReactionDirection = state.PrimaryDirection;
 
         int speedRecordOffset = state.SpeedTableIndex * 8;

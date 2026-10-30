@@ -201,7 +201,7 @@ internal sealed class NorfairRidleyDeath
             RoomEnemyPopulationRecord population = new(
                 EnemyDefinitionId.RidleyExplosion,
                 Position: Position16<RoomPixels>.Zero,
-                InitializationParameter: 0,
+                SpawnSettings: EnemySpawnSettings.None,
                 Properties: new EnemyPropertyWord(
                     EnemyProperties.ProcessInstructions |
                     EnemyProperties.ProcessOffScreen |

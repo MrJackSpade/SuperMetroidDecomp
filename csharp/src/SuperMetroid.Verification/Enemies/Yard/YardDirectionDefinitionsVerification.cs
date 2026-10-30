@@ -68,7 +68,7 @@ internal static class YardDirectionDefinitionsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.CurrentInstruction = direction;
+            slot.SetSpawnSettings(new YardSpawnSettings(direction));
             slot.SetSpawnParameter1(0);
             slot.Properties = EnemyPropertyWord.FromWord(0x4000);
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
@@ -104,7 +104,7 @@ internal static class YardDirectionDefinitionsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.CurrentInstruction = direction;
+            slot.SetSpawnSettings(new YardSpawnSettings(direction));
             slot.SetSpawnParameter1(0);
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);

@@ -99,7 +99,6 @@ internal static class ZoaAnimationDefinitionsVerification
     /// <summary>Seeds nondefault list and timer values so animation handoff writes are visible.</summary>
     private static RoomEnemySlot NewZoaAnimationSlot() => new(0, EnemySlotFixtures.Registry)
     {
-        CurrentInstruction = 0x7777,
         InstructionTimer = WrappingCountdown.Start(0x2222),
         Timer = WrappingCountdown.Start(0x3333),
     };

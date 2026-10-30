@@ -1,5 +1,3 @@
-using SuperMetroid.AssetExtraction.Frontend;
-
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 
 /// <summary>Verification's view of the import pipeline's game-over text pointers (<see cref="GameOverTextSources"/>).</summary>

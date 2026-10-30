@@ -108,24 +108,23 @@ internal static class CompiledProjectileMathVerification
         }
 
         // Native $86:D843/$D89F OR bit seven into an even byte offset; this is not
-        // equivalent to adding a quarter-turn. Check every stored phase word,
-        // both step sizes, carry/borrow, low subpixel preservation and word wrap.
+        // equivalent to adding a quarter-turn. Check every sway phase, both step
+        // sizes, carry/borrow, low subpixel preservation and the swing's wrap.
         var projectile = new RoomEnemyProjectileSlot(0);
         foreach (ushort step in new ushort[] { 2, 4 })
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xfffffff1 })
-        for (int phase = 0; phase <= ushort.MaxValue; phase++)
+        for (int phase = 0; phase < 512; phase++)
         {
             int sampleIndex = (((phase & 510) | 128) / 2) + 64;
             short velocity = (short)(native[sampleIndex] >> 2);
             uint expected = unchecked(initial + (uint)(velocity * 256));
-            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight((ushort)phase));
-            projectile.Variable1 = FixedCoordinate.WholeOf(unchecked((int)initial));
-            projectile.Variable0 = unchecked((ushort)initial);
+            var debris = new NoobTubeDebrisState(column: 0) { X = FixedCoordinate.FromRaw(initial), SwayPhase = phase };
+            projectile.State = debris;
             arc(projectile, step);
-            if (projectile.Variable1 != SixteenSixteen.WholeOf(expected) || projectile.Variable0 != SixteenSixteen.FractionOf(expected) ||
-                projectile.Velocity.X.RawValue != unchecked((ushort)(phase + step)))
+            if (debris.X.Whole != SixteenSixteen.WholeOf(expected) || debris.X.Fraction != SixteenSixteen.FractionOf(expected) ||
+                debris.SwayPhase != (phase + step) % 512)
                 throw new InvalidDataException($"N00b tube arc differs: phase={phase}, step={step}, initial={initial:X8}.");
         }
-        Console.WriteLine("Compiled projectile math: every signed sample times every speed-word boundary class across five production readers, all sample/index variants, 65,536 Phantoon vectors, 256 Crocomire vectors, every Shinespark angle byte and radius, and 393,216 N00b-tube arc steps match without a production bus.");
+        Console.WriteLine("Compiled projectile math: every signed sample times every speed-word boundary class across five production readers, all sample/index variants, 65,536 Phantoon vectors, 256 Crocomire vectors, every Shinespark angle byte and radius, and 3,072 N00b-tube sway steps match without a production bus.");
     }
 }

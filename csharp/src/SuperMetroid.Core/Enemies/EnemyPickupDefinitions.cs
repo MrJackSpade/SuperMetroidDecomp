@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Deaths;
 
 namespace SuperMetroid.Core.Enemies;
@@ -6,25 +5,18 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>Compiled fixed program selectors for enemy drops.</summary>
 internal static class EnemyPickupDefinitions
 {
-    /// <summary>The kinds the pickup table holds, in table order.</summary>
-    internal static ImmutableArray<EnemyPickupKind> TableKinds { get; } =
-    [
-        EnemyPickupKind.None, EnemyPickupKind.SmallEnergy, EnemyPickupKind.BigEnergy, EnemyPickupKind.PowerBomb,
-        EnemyPickupKind.Missile, EnemyPickupKind.SuperMissile,
-    ];
-
     /// <summary>
     /// The none, small energy, big energy, Power Bomb, missile and Super Missile entries of the pickup table at
-    /// <c>$86:EF04-$86:EF0F</c>: each kind's table offset and drop program. <see cref="EnemyPickupKind.None"/> has no
+    /// <c>$86:EF04-$86:EF0F</c>: each kind's drop program. <see cref="EnemyPickupKind.None"/> has no
     /// program, and <see cref="EnemyPickupKind.NoDrop"/> is not part of the table; the dormant pickup path handles both.
     /// </summary>
     internal static readonly Dictionary<EnemyPickupKind, EnemyPickupAnimationDefinition> Animations = new()
     {
-        [EnemyPickupKind.None] = new(0, null),
-        [EnemyPickupKind.SmallEnergy] = new(2, EnemyDeathProjectileProgram.SmallEnergy),
-        [EnemyPickupKind.BigEnergy] = new(4, EnemyDeathProjectileProgram.BigEnergy),
-        [EnemyPickupKind.PowerBomb] = new(6, EnemyDeathProjectileProgram.PowerBombs),
-        [EnemyPickupKind.Missile] = new(8, EnemyDeathProjectileProgram.Missiles),
-        [EnemyPickupKind.SuperMissile] = new(10, EnemyDeathProjectileProgram.SuperMissiles),
+        [EnemyPickupKind.None] = new(null),
+        [EnemyPickupKind.SmallEnergy] = new(EnemyDeathProjectileProgram.SmallEnergy),
+        [EnemyPickupKind.BigEnergy] = new(EnemyDeathProjectileProgram.BigEnergy),
+        [EnemyPickupKind.PowerBomb] = new(EnemyDeathProjectileProgram.PowerBombs),
+        [EnemyPickupKind.Missile] = new(EnemyDeathProjectileProgram.Missiles),
+        [EnemyPickupKind.SuperMissile] = new(EnemyDeathProjectileProgram.SuperMissiles),
     };
 }

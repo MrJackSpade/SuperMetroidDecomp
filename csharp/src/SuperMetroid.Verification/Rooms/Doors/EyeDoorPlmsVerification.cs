@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.SyntheticRoomCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
@@ -69,8 +70,8 @@ internal static class EyeDoorPlmsVerification
             "eye-door attack initializer applies cartridge PLM Y offset");
         for (int frame = 0; frame < 10; frame++)
             enemies.StepEnemyProjectiles(level, samus);
-        AssertEqual(0x0080, attack.Variable0,
-            "direction opcode stores twice the rightward byte angle");
+        AssertEqual(new ByteAngle(64), attack.StateOf<EyeDoorShotState>().Heading,
+            "direction opcode keeps the rightward heading");
         AssertEqual((ushort)0x0100, attack.Velocity.X.RawValue,
             "direction opcode seeds rightward signed 8.8 X velocity");
         AssertEqual((ushort)0, attack.Velocity.Y.RawValue,

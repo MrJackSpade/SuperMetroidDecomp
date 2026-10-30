@@ -728,6 +728,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerClosed));
         spawner.Position = spawner.Position.WithWholeX(SporeSpawnProjectiles.SpawnerX(spawnArgument));
         spawner.Position = spawner.Position.WithWholeY(520);
+        spawner.State = new SporeSpawnEmitterState();
     }
 
     /// <summary>Ports projectile definition $86:DE7A and initializer $86:DC8D.</summary>
@@ -744,19 +745,19 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spore.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Spore));
         spore.Position = spore.Position.WithWhole(position);
 
-        // Var1 retains the original X coordinate. Bit seven alone mirrors horizontal motion,
-        // so emitters at $20/$A0 move one way and $60/$E0 move the other.
-        spore.Variable1 = position.X;
+        // A spore from the right half of a screen drifts mirrored, so emitters at $20/$A0 move one way and $60/$E0
+        // the other.
+        spore.State = new SporeSpawnSporeState(mirrored: RoomGridConversions.OffsetWithinScreen(position.X) >= 128);
     }
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_Spores</c> at $86:DCEE.</summary>
     internal static void RunSporeSpawnSporePreInstruction(RoomEnemyProjectileSlot spore)
     {
-        int movementOffset = unchecked((byte)spore.Variable0);
+        SporeSpawnSporeState drift = spore.StateOf<SporeSpawnSporeState>();
         Offset16<RoomPixels> movement =
-            SporeSpawnProjectiles.MovementAt(movementOffset);
+            SporeSpawnProjectiles.MovementAt(drift.PathStep * 2);
         int xDelta = movement.X;
-        if (RoomGridConversions.OffsetWithinScreen(spore.Variable1) >= 128)
+        if (drift.Mirrored)
             xDelta = -xDelta;
         spore.Position = spore.Position.WithWholeX(unchecked((ushort)(spore.Position.X.Whole + xDelta)));
 
@@ -765,8 +766,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(spore.Position.Y.Whole - 768)) >= 0)
             spore.Clear();
 
-        // The native word keeps only the wrapped low byte after each two-byte vector pair.
-        spore.Variable0 = unchecked((byte)(movementOffset + 2));
+        drift.AdvancePath();
     }
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_SporeSpawner</c> at $86:DD46.</summary>
@@ -777,12 +777,13 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.SporeGenerationSuppressed)
             return;
 
-        if (spawner.Variable1 == 0)
+        SporeSpawnEmitterState emitter = spawner.StateOf<SporeSpawnEmitterState>();
+        if (emitter.ReleaseWait.IsZero)
         {
             spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerRelease));
-            spawner.Variable1 = unchecked((ushort)(_room.Random.Generate() % 512));
+            emitter.ReleaseWait = WrappingCountdown.Start(_room.Random.Generate() % 512);
         }
-        spawner.Variable1 = WrappingCounter.Decrement(checked((ushort)spawner.Variable1)).Value;
+        emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;
     }
 
     /// <summary>Ports projectile instruction $86:DC5A's complete property-word replace.</summary>

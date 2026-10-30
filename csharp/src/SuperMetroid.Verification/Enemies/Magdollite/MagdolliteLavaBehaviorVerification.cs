@@ -50,7 +50,8 @@ internal static class MagdolliteLavaBehaviorVerification
         Console.WriteLine("  Magdollite lava behavior: both facings hold their frames and the shot program drops and deletes as natively.");
 
         RoomEnemyProjectileSlot Find(ushort direction) => enemies.Projectiles.EnemyProjectiles.Single(
-            projectile => projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite && projectile.DirectionParameter == direction);
+            projectile => projectile.Kind == RoomEnemyProjectileKind.LavaThrownByMagdollite &&
+                (projectile.Velocity.X.SignedRawValue > 0) == (direction != 0));
     }
 
     /// <summary>Runs the Magdollite lava's program oracle and behavior suite.</summary>

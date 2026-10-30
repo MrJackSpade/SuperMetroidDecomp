@@ -5,6 +5,10 @@ internal static class PhantoonFlameMotionDefinitions
 {
     /// <summary>$86:9885/$988D, enraged initializer: signed clockwise/counterclockwise angle step magnitude.</summary>
     internal const int RageAngleStep = 2;
+    /// <summary>Updates an intro flame circles at its full radius before the circle starts closing.</summary>
+    internal const int IntroCircleDelay = 180;
+    /// <summary>The radius, in pixels, an intro flame starts circling at; it closes by one every other update.</summary>
+    internal const int IntroCircleRadius = 48;
     /// <summary>$86:9A49, enraged pre-instruction: radius increase per frame.</summary>
     internal const ushort RageRadiusStep = 4;
     /// <summary>$86:9ADE, spiral pre-instruction: radius increase per frame.</summary>

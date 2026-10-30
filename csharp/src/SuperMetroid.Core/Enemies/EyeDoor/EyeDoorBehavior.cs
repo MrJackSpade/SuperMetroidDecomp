@@ -220,8 +220,8 @@ internal sealed class EyeDoorBehavior
             EyeDoorOrientation.Right => EyeDoorEffectDefinitions.RightShotOrigin,
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {request.Facing}."),
         };
-        projectile.Variable1 = request.DoorBit ?? throw new InvalidOperationException(
-            $"The eye-door attack at block {request.PlmBlockIndex} was spawned without its door bit.");
+        projectile.State = new EyeDoorShotState(request.DoorBit ?? throw new InvalidOperationException(
+            $"The eye-door attack at block {request.PlmBlockIndex} was spawned without its door bit."));
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + origin);
     }
 
@@ -277,7 +277,8 @@ internal sealed class EyeDoorBehavior
             return;
         }
 
-        int angle = projectile.Variable0 >> 1;
+        EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
+        int angle = shot.Heading.RawValue;
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
             ReadEyeDoorAcceleration(angle)))));
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue +
@@ -285,7 +286,7 @@ internal sealed class EyeDoorBehavior
 
         SharedGameState system = _eyeDoorProjectileSystem ??
             throw new InvalidOperationException("A live eye-door projectile has no door-bit owner.");
-        if (system.HasOpenedDoorBit(projectile.Variable1))
+        if (system.HasOpenedDoorBit(shot.DoorBit))
             StartEyeDoorProjectileImpact(projectile);
     }
 
@@ -345,14 +346,15 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>
-    /// Ports <c>Instruction_EnemyProjectile_CalculateDirectionTowardsSamus</c> ($86:82A5): stores the doubled angle to
+    /// Ports <c>Instruction_EnemyProjectile_CalculateDirectionTowardsSamus</c> ($86:82A5): keeps the angle to
     /// Samus and launches the shot along it at unit speed.
     /// </summary>
     private static void AimEyeDoorProjectileAtSamus(RoomEnemyProjectileSlot projectile, IRoomSamus samus)
     {
-        projectile.Variable0 = unchecked((ushort)(2 * EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).RawValue));
-        int angle = projectile.Variable0 >> 1;
+        EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
+        shot.Heading = new ByteAngle(EnemyMath.CalculateBearing(
+            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).RawValue);
+        int angle = shot.Heading.RawValue;
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)angle)))));
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)(angle - 64))))));
     }

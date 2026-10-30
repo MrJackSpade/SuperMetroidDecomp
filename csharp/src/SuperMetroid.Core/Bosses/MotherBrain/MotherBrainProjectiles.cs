@@ -188,7 +188,7 @@ internal sealed class MotherBrainProjectiles
             switch (cue)
             {
                 case MotherBrainHandBeamCue.SpawnNextBeam:
-                    SpawnMotherBrainHandBeamFired(projectile.Variable0);
+                    SpawnMotherBrainHandBeamFired();
                     return;
                 case MotherBrainHandBeamCue.Delete:
                     projectile.Clear();
@@ -209,8 +209,9 @@ internal sealed class MotherBrainProjectiles
         if (TryDestroyMotherBrainBombWithSamusBomb(bomb, state, samusBombs))
             return;
 
+        MotherBrainBombState bombState = bomb.StateOf<MotherBrainBombState>();
         int acceleration;
-        if (bomb.Variable1 == 0)
+        if (bombState.Bounces == 0)
         {
             // Only the initial fall applies two units of horizontal drag: the speed loses two
             // units, stopping at zero, and keeps its direction. The speed is at most 32768
@@ -222,12 +223,11 @@ internal sealed class MotherBrainProjectiles
         }
         else
         {
-            int accelerationIndex = bomb.Variable1 >> 1;
-            if ((uint)accelerationIndex >= MotherBrainBombBounceDefinitions.StageCount)
+            int accelerationIndex = bombState.Bounces;
+            if (accelerationIndex >= MotherBrainBombBounceDefinitions.StageCount)
             {
                 throw new InvalidDataException(
-                    $"Mother Brain bomb bounce-table offset ${bomb.Variable1:X4} is outside " +
-                    "$86:C550-C563.");
+                    $"Mother Brain bomb bounce {accelerationIndex} is past its {MotherBrainBombBounceDefinitions.StageCount} authored bounces.");
             }
 
             acceleration = MotherBrainBombBounces.YAcceleration(accelerationIndex);
@@ -239,7 +239,7 @@ internal sealed class MotherBrainProjectiles
         }
 
         if (MoveMotherBrainBomb(bomb, acceleration))
-            bomb.Variable1 += 2;
+            bombState.Bounces++;
     }
 
     /// <summary>Consumes an overlapping Samus bomb and resolves the Mother Brain bomb explosion.</summary>
@@ -292,9 +292,10 @@ internal sealed class MotherBrainProjectiles
             return false;
 
         bomb.Position = bomb.Position.WithWholeY(208);
-        bomb.Velocity = new(new SignedEightEight(unchecked((short)bomb.Velocity.X.RawValue) < 0
-            ? unchecked((ushort)-bomb.Variable0)
-            : checked((ushort)bomb.Variable0)), SignedEightEight.FromSignedRaw(-512));
+        int bounceSpeed = bomb.StateOf<MotherBrainBombState>().BounceSpeed;
+        bomb.Velocity = new(SignedEightEight.FromSignedRaw(unchecked((short)bomb.Velocity.X.RawValue) < 0
+            ? -bounceSpeed
+            : bounceSpeed), SignedEightEight.FromSignedRaw(-512));
         return true;
     }
 
@@ -356,9 +357,10 @@ internal sealed class MotherBrainProjectiles
         fragment.Velocity = fragment.Velocity.WithX(SignedEightEight.FromSignedRaw((short)(velocity < 0 ? -speed : speed)));
         fragment.Velocity = fragment.Velocity.WithY(new SignedEightEight(unchecked((ushort)(fragment.Velocity.Y.RawValue + MotherBrainDeathDefinitions.DoorFragmentGravity))));
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
-        // The fragment's lifetime counts down in variable zero and expires when it passes zero.
-        CountdownStep lifetime = WrappingCountdown.FromRaw(checked((ushort)fragment.Variable0)).Decrement();
-        fragment.Variable0 = lifetime.Remaining.RawValue;
+        // The fragment's lifetime expires when it passes zero.
+        MotherBrainDoorFragmentState fragmentState = fragment.StateOf<MotherBrainDoorFragmentState>();
+        CountdownStep lifetime = fragmentState.Lifetime.Decrement();
+        fragmentState.Lifetime = lifetime.Remaining;
         if (lifetime.IsNonNegative) return;
         Position16<RoomPixels> dust = fragment.Position.Whole - new Offset16<RoomPixels>(0, MotherBrainDeathDefinitions.DoorDustYOffset);
         fragment.Clear();
@@ -372,26 +374,16 @@ internal sealed class MotherBrainProjectiles
         subtitle.Position = subtitle.Position.WithWhole(new(MotherBrainDeathDefinitions.SubtitleX, MotherBrainDeathDefinitions.SubtitleY));
     }
 
-    /// <summary>A ceiling tube's phase in its variable zero while it has yet to puff its dust.</summary>
-    internal const int TopTubeDustPending = 1;
-
-    /// <summary>A ceiling tube's phase in its variable zero once it falls.</summary>
-    private const int TopTubeFalling = 2;
-
     /// <summary>Runs pre-instruction $86:CBE7 for the four falling ceiling-tube actors.</summary>
     internal void RunMotherBrainTopTubePreInstruction(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.Variable0 == TopTubeDustPending)
+        MotherBrainTopTubeState tube = projectile.StateOf<MotherBrainTopTubeState>();
+        if (tube.DustPending)
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 new(projectile.Position.X.Whole, unchecked((ushort)(projectile.Position.Y.Whole + 8))),
                 MiscDustAnimation.SmallDustCloud);
-            projectile.Variable0 = TopTubeFalling;
-        }
-        else if (projectile.Variable0 != TopTubeFalling)
-        {
-            throw new InvalidDataException(
-                $"Mother Brain ceiling tube function {projectile.Variable0} is not translated.");
+            tube.DustPending = false;
         }
 
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 6))));
@@ -438,7 +430,6 @@ internal sealed class MotherBrainProjectiles
         // one of sixteen ROM-authored shard animation lists.
         int angleOffset = (_room.Random.Generate() * 2) & 510;
         int angle = angleOffset >> 1;
-        shard.Variable0 = angleOffset;
         shard.Velocity = shard.Velocity.WithX(new SignedEightEight(ReadSignedSineSample(angle + 64)));
         shard.Velocity = shard.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
             unchecked((short)ReadSignedSineSample(angle)) * 4))));
@@ -508,7 +499,7 @@ internal sealed class MotherBrainProjectiles
     /// its spawn frame. Surviving actors become stationary animated emitters; out-of-bounds
     /// children turn into the cartridge's large impact dust and earthquake.
     /// </summary>
-    internal void SpawnMotherBrainHandBeamFired(int parentParameter)
+    internal void SpawnMotherBrainHandBeamFired()
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain hand-beam bytecode ran without its encounter state.");
@@ -550,8 +541,6 @@ internal sealed class MotherBrainProjectiles
             return;
         }
 
-        beam.Variable0 = (parentParameter + 1) & 3;
-        beam.Variable1 = 0;
         beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }
@@ -571,12 +560,7 @@ internal sealed class MotherBrainProjectiles
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain drool ran without its multipart encounter state.");
         RoomEnemySlot head = state.Head;
-        int parameter = drool.Variable0;
-        if ((uint)parameter >= 6)
-        {
-            throw new InvalidDataException(
-                $"Mother Brain drool offset parameter {parameter} is outside 0..5.");
-        }
+        int parameter = drool.StateOf<MotherBrainDroolState>().MouthPoint;
 
         drool.Position = drool.Position.WithWhole(head.Position.Whole + MotherBrainBehavior.MotherBrainDroolOffsets[parameter]);
         drool.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
@@ -610,11 +594,11 @@ internal sealed class MotherBrainProjectiles
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain onion ring ran without its multipart encounter state.");
 
-        // The ring stays pinned to the mouth while its attach delay in variable zero runs out.
-        WrappingCountdown attachDelay = WrappingCountdown.FromRaw(checked((ushort)ring.Variable0));
-        if (!attachDelay.IsZero)
+        // The ring stays pinned to the mouth while its attach delay runs out.
+        MotherBrainOnionRingState ringState = ring.StateOf<MotherBrainOnionRingState>();
+        if (ringState.AttachDelay != 0)
         {
-            ring.Variable0 = attachDelay.DecrementToZero().RawValue;
+            ringState.AttachDelay--;
             PinMotherBrainOnionRingToMouth(ring, state);
             return;
         }
@@ -747,21 +731,21 @@ internal sealed class MotherBrainProjectiles
             return;
         }
 
-        // The turret keeps its rotation wait in its X velocity word and its firing wait in its Y velocity word; each is a
-        // DEC, BEQ countdown that is reloaded when it reaches zero.
-        CountdownStep rotationWait = WrappingCountdown.FromRaw(turret.Velocity.X.RawValue).Decrement();
-        turret.Velocity = turret.Velocity.WithX(new SignedEightEight(rotationWait.Value));
+        // Each wait is a DEC, BEQ countdown that is reloaded when it reaches zero.
+        MotherBrainTurretState turretState = turret.StateOf<MotherBrainTurretState>();
+        CountdownStep rotationWait = turretState.RotationWait.Decrement();
+        turretState.RotationWait = rotationWait.Remaining;
         if (rotationWait.IsZero)
         {
             ResetMotherBrainTurretRotationTimer(turret);
             SelectNextMotherBrainTurretDirection(turret);
             MotherBrainTurretDirection direction =
-                MotherBrainTurretDefinitions.Ring.At(unchecked((byte)turret.Position.Y.Fraction));
+                MotherBrainTurretDefinitions.Ring.At(turretState.RingPosition);
             turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
         }
 
-        CountdownStep firingWait = WrappingCountdown.FromRaw(turret.Velocity.Y.RawValue).Decrement();
-        turret.Velocity = turret.Velocity.WithY(new SignedEightEight(firingWait.Value));
+        CountdownStep firingWait = turretState.FiringWait.Decrement();
+        turretState.FiringWait = firingWait.Remaining;
         if (firingWait.IsZero)
         {
             ResetMotherBrainTurretCooldown(turret);
@@ -769,32 +753,20 @@ internal sealed class MotherBrainProjectiles
         }
     }
 
-    /// <summary>
-    /// The bits of the stationary turret's ring position, below its signed rotation step: the turret repurposes its
-    /// Y-subposition word as its rotation state, and each of the two keeps its own eight-bit wrap.
-    /// </summary>
-    private const int TurretDirectionBits = 8;
-
-    /// <summary>The turret rotation state facing ring position <paramref name="direction"/> and turning by <paramref name="rotationDelta"/>.</summary>
-    internal static ushort TurretRotationState(int direction, int rotationDelta) =>
-        (ushort)(unchecked((byte)direction) | unchecked((byte)rotationDelta) << TurretDirectionBits);
-
-    /// <summary>The signed ring step a turret rotation state turns by.</summary>
-    private static int TurretRotationDelta(int state) => unchecked((sbyte)(state >> TurretDirectionBits));
-
     /// <summary>Ports the signed direction-delta and allowed-rotation test at $86:C050.</summary>
     internal static void SelectNextMotherBrainTurretDirection(RoomEnemyProjectileSlot turret)
     {
-        int currentDirection = unchecked((byte)turret.Position.Y.Fraction);
-        int rotationDelta = TurretRotationDelta(turret.Position.Y.Fraction);
+        MotherBrainTurretState state = turret.StateOf<MotherBrainTurretState>();
+        int currentDirection = state.RingPosition;
+        int rotationDelta = state.RotationStep;
         int candidate = (currentDirection + rotationDelta) & 7;
         bool allowed = MotherBrainTurrets.IsRotationAllowed(
-            turret.DirectionParameter,
+            state.Turret,
             MotherBrainTurretDefinitions.Ring.At(candidate));
 
         if (allowed)
         {
-            turret.Position = turret.Position.WithFractionY(TurretRotationState(candidate, rotationDelta));
+            state.RingPosition = candidate;
             return;
         }
 
@@ -802,22 +774,22 @@ internal sealed class MotherBrainProjectiles
         // one step in the new direction. The cartridge does not perform a second mask test.
         // The direction and the delta each keep eight bits, so the reversed step wraps the
         // way the stored bytes do.
-        rotationDelta = -rotationDelta;
-        turret.Position = turret.Position.WithFractionY(TurretRotationState(currentDirection + rotationDelta, rotationDelta));
+        state.RotationStep = -rotationDelta;
+        state.RingPosition = currentDirection + state.RotationStep;
     }
 
     /// <summary>Restarts the turret's wait before it chooses another firing direction.</summary>
     internal void ResetMotherBrainTurretRotationTimer(RoomEnemyProjectileSlot turret)
     {
         int sample = unchecked((byte)_room.Random.Generate());
-        turret.Velocity = turret.Velocity.WithX(new SignedEightEight((ushort)Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay)));
+        turret.StateOf<MotherBrainTurretState>().RotationWait = WrappingCountdown.Start(Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay));
     }
 
     /// <summary>Restarts the turret's pause between fired bullets.</summary>
     internal void ResetMotherBrainTurretCooldown(RoomEnemyProjectileSlot turret)
     {
         int sample = unchecked((byte)_room.Random.Generate());
-        turret.Velocity = turret.Velocity.WithY(new SignedEightEight((ushort)Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown)));
+        turret.StateOf<MotherBrainTurretState>().FiringWait = WrappingCountdown.Start(Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown));
     }
 
     /// <summary>Ports the asymmetric viewport bounds at $86:C0B4.</summary>
@@ -849,13 +821,9 @@ internal sealed class MotherBrainProjectiles
             RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
             MotherBrainTurretDefinitions.Graphics);
         MotherBrainTurretDirection direction =
-            MotherBrainTurretDefinitions.Ring.At(unchecked((byte)turret.Position.Y.Fraction));
+            MotherBrainTurretDefinitions.Ring.At(turret.StateOf<MotherBrainTurretState>().RingPosition);
         MotherBrainTurretDirectionDefinition definition =
             MotherBrainTurrets.ForDirection(direction);
-        int ringPosition = MotherBrainTurretDefinitions.Ring.PositionOf(direction);
-        bullet.DirectionParameter = ringPosition;
-        bullet.Variable0 = ringPosition * 2;
-        bullet.Variable1 = 0;
         bullet.Velocity = definition.BulletVelocity;
         bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
         // The bullet list's first instruction (`$86:C173`) jumps to the pose for this direction.

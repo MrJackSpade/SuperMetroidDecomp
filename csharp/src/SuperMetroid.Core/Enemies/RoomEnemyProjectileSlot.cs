@@ -25,7 +25,7 @@ public sealed class RoomEnemyProjectileSlot
     /// pre-instructions that deliberately keep screen-relative words here.
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
-    /// <summary>Gets the unchanged native velocity words, interpreted as signed 8.8 by the shared movement helpers or reused by family-specific logic.</summary>
+    /// <summary>Gets the signed 8.8 velocity the shared movement helpers and the families that move by it apply.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>The typed program the projectile plays (#641), or null for a free slot.</summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
@@ -74,25 +74,16 @@ public sealed class RoomEnemyProjectileSlot
     }
     /// <summary>The kind of the next directional afterburn the chain spawns.</summary>
     internal RoomEnemyProjectileKind NextAfterburnKind { get; set; }
-    /// <summary>Gets the family-specific direction or initializer parameter, retaining its native word representation rather than imposing a shared angle format.</summary>
-    public int DirectionParameter
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-    /// <summary>Native generic enemy-projectile variable E at WRAM <c>$1AFF,x</c>.</summary>
-    [PackedFields("eproj variable word whose meaning each projectile family decodes")]
-    public int Variable0
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
-    /// <summary>Native generic enemy-projectile variable F at WRAM <c>$1B23,x</c>.</summary>
-    public int Variable1
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>What the projectile's family keeps on it (#1470), given by its spawner; none until then.</summary>
+    internal EnemyProjectileState? State { get; set; }
+
+    /// <summary>The state the projectile's family gave it, read as that family's own type.</summary>
+    /// <typeparam name="TState">The family's state type.</typeparam>
+    /// <exception cref="InvalidOperationException">The projectile holds no state, or another family's.</exception>
+    internal TState StateOf<TState>() where TState : EnemyProjectileState =>
+        State as TState ?? throw new InvalidOperationException(
+            $"Enemy projectile slot {SlotIndex} ({Kind}) holds {State?.GetType().Name ?? "no state"}, not {typeof(TState).Name}.");
+
     /// <summary>Gets whether this actor participates in damaging Samus-contact checks, independently of persistence and shot-blocking properties.</summary>
     public bool CanDamageSamus { get; internal set; }
     /// <summary>Native projectile property $4000: contact does not delete this actor.</summary>
@@ -105,17 +96,6 @@ public sealed class RoomEnemyProjectileSlot
     /// after its bug has moved far enough from the source shell, while still running its shot list.
     /// </summary>
     public EnemyProjectileCollisionOption CollisionOption { get; internal set; }
-    /// <summary>
-    /// Native <c>eproj_G</c> collision word after a destructible projectile is shot. Kago
-    /// reuses the same word as its idle timer before collision, so the typed bug wrapper is
-    /// the authority on which meaning is currently active.
-    /// </summary>
-    [PackedFields("eproj_G word: the colliding Samus projectile type word, or Kago's idle timer before collision; the typed bug wrapper reads which")]
-    public int CollidedProjectileType
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
     /// <summary>The enemy a death explosion or its drop came from, and whether the explosion rebuilds it when it ends.</summary>
     public KilledEnemy KilledEnemy { get; internal set; }
     /// <summary>
@@ -163,9 +143,8 @@ public sealed class RoomEnemyProjectileSlot
         Depth = EnemyProjectileDepth.BehindSamus;
         RemainingAfterburns = 0;
         NextAfterburnKind = RoomEnemyProjectileKind.None;
-        DirectionParameter = Variable0 = Variable1 = 0;
+        State = null;
         CollisionOption = EnemyProjectileCollisionOption.RunShotList;
-        CollidedProjectileType = 0;
         KilledEnemy = default;
         DropDefinitionId = EnemyDefinitionId.None;
         DropChancesOverride = null;

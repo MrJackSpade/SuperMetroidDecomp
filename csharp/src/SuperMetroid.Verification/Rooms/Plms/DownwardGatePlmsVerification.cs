@@ -143,8 +143,8 @@ internal static class DownwardGatePlmsVerification
         RoomEnemyProjectileSlot actor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,
             "bank-$86 pool owns the closed gate actor");
-        AssertEqual((ushort)(gateBlockIndex * 2), actor.Variable0,
-            "gate actor variable E retains native PLM byte index");
+        AssertEqual(gateBlockIndex, actor.StateOf<DownwardGateState>().PlmBlockIndex,
+            "gate actor is tied to its gate's PLM block");
         AssertEqual((ushort)96, actor.Position.Y.Whole,
             "closed gate actor begins four tiles beneath a row-two PLM origin");
         enemies.StepEnemyProjectiles(level, samus: null);

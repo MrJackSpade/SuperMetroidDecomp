@@ -87,7 +87,7 @@ internal sealed class EnemyProjectileEngine
                 Scatter(projectile, scatter.Spread);
                 break;
             case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.ReturnToOrigin }:
-                projectile.Position = projectile.Position.WithWhole(new(checked((ushort)projectile.Variable0), checked((ushort)projectile.Variable1)));
+                projectile.Position = projectile.Position.WithWhole(projectile.StateOf<AnchoredProjectileState>().Anchor);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue}.");
@@ -150,7 +150,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Ports <c>EprojProjCollDet</c> and <c>HandleEprojCollWithProj</c> at
     /// $A0:996C-$9A30. Flag-one Nuclear Waffle links create duds and remain alive; flag-zero
-    /// Kago bugs remember the incoming projectile type and switch to their ROM shot list.
+    /// projectiles such as Kago's bugs switch to their shot list.
     /// </summary>
     public int ResolveEnemyProjectileSamusProjectileHits(
         SamusProjectileSystem projectiles,
@@ -206,7 +206,6 @@ internal sealed class EnemyProjectileEngine
                 }
                 else
                 {
-                    enemyProjectile.CollidedProjectileType = collidedProjectileType;
                     // Every shot list without a typed reaction of its own is the shared delete list.
                     enemyProjectile.StartAnimation(Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation)
                         ? shotAnimation()
@@ -461,7 +460,6 @@ internal sealed class EnemyProjectileEngine
         projectile.PersistsOnSamusContact = definition.PersistsOnSamusContact;
         projectile.BlocksSamusProjectiles = definition.BlocksSamusProjectiles;
         projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
-        projectile.CollidedProjectileType = 0;
         projectile.Graphics = graphics;
     }
 
@@ -863,8 +861,6 @@ internal sealed class EnemyProjectileEngine
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
         projectile.Position = projectile.Position.WithWhole(new(checked((ushort)xPosition), 42));
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(16));
-        projectile.Variable0 = 0;
-        projectile.Variable1 = 0;
         projectile.StartAnimation(animation);
     }
 
@@ -930,7 +926,6 @@ internal sealed class EnemyProjectileEngine
             graphics: default);
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + definition.XOffset)), unchecked((ushort)(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset))));
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
-        projectile.Variable0 = parameter;
         projectile.StartAnimation(new GunshipDustAnimation(definition.Program));
     }
 

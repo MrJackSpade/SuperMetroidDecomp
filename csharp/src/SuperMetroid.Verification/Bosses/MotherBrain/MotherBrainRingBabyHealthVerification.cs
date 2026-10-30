@@ -36,7 +36,7 @@ internal static class MotherBrainRingBabyHealthVerification
         ring.Position = ring.Position.WithWhole(new(0x00ae, 0x008c));
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
-        ring.Variable0 = 0;
+        ring.State = new MotherBrainOnionRingState(attachDelay: 0);
         (state.BabyMetroid ?? throw new InvalidOperationException("Verification requires state.BabyMetroid.")).Position = state.BabyMetroid.Position.WithWhole(new(0x00ce, 0x00b0));
 
         runtime.Enemies.MotherBrainBehavior.Projectiles.RunMotherBrainOnionRingPreInstruction(ring, runtime.Player.Samus, 0);

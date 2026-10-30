@@ -220,7 +220,7 @@ internal sealed class MotherBrainRainbowAndDeath
         MotherBrainProjectileStarts.Initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, graphics: default);
         fragment.Position = fragment.Position.WithWhole(new Position16<RoomPixels>(MotherBrainDeathDefinitions.DoorX, MotherBrainDeathDefinitions.DoorY) + definition.Offset);
         fragment.Velocity = definition.Velocity;
-        fragment.Variable0 = MotherBrainDeathDefinitions.DoorFragmentLifetime;
+        fragment.State = new MotherBrainDoorFragmentState();
     }
 
     /// <summary>Writes a glyph the Zebes escape typewriter typed over Mother Brain's room BG2 (#1348).</summary>

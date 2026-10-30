@@ -614,6 +614,6 @@ internal sealed class CrocomireFight
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole - 32)), unchecked((ushort)(body.Position.Y.Whole - 16))));
         projectile.GeneralTimer = 0;
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
-        projectile.DirectionParameter = checked((ushort)spawnParameter);
+        projectile.State = new CrocomireProjectileState(spawnParameter);
     }
 }

@@ -798,13 +798,16 @@ internal sealed class RoomLoader
         var wreckedShipTreadmill = new WreckedShipTreadmillAnimatedTilesState();
         scope.WreckedShipTreadmill = wreckedShipTreadmill;
         var maridiaElevatube = new MaridiaElevatubeRoomMainState(
-            active: room.State.MainCallback == RoomMainCallback.MaridiaElevatube);
+            active: room.State.MainCallback == RoomMainCallback.MaridiaElevatube,
+            _room.RoomMainCarryover);
         scope.MaridiaElevatube = maridiaElevatube;
         var ceresElevatorShaft = new CeresElevatorShaftRoomMainState(
             active: room.State.MainCallback == RoomMainCallback.CeresElevatorShaft &&
                 door.EntersCeresElevatorShaft,
-            _room.RoomMainScratch);
+            _room.RoomMainCarryover);
         scope.CeresElevatorShaft = ceresElevatorShaft;
+        scope.CeresFallingDebris = new CeresFallingDebrisRoomMainState(_room.RoomMainCarryover);
+        scope.EscapeDiagonalQuake = new EscapeDiagonalQuakeState(_room.RoomMainCarryover);
         // Door setup `$8F:E4E0` writes these exact five registers before the fresh Ceres
         // elevator room becomes visible. Publishing the immutable transform here gives
         // Samus, her projectiles, and parameter-four/five steam a single authoritative
@@ -1020,7 +1023,7 @@ internal sealed class RoomLoader
                 for (int row = 0; row < RidleyMapDefinitions.ArenaScreenRows; row++)
                     _system.MarkExploredMapTile(room.AreaIndex, room.MapPosition + new Offset16<MapTiles>(0, checked((short)(row + 1))));
         }
-        _escapeEffects.SetupEscapeRoomEffects(room.State.SetupCallback, enemies);
+        _escapeEffects.SetupEscapeRoomEffects(room.State.SetupCallback, enemies, scope.EscapeDiagonalQuake);
         // Gate setup runs while the room PLM population is constructed, but Enemies.Load
         // subsequently clears the shared bank-$86 projectile pool. Consume those setup
         // requests here—the first point matching the cartridge's completed room teardown—

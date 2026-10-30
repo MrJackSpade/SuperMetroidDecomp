@@ -11,13 +11,6 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 [RoomLifetime]
 internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The movement a fireball keeps in its variable zero.</summary>
-    private static readonly ParameterVariants<NamiFuneFireballFunction> FireballFunctions = new(new Dictionary<int, NamiFuneFireballFunction>
-    {
-        [1] = NamiFuneFireballFunction.MovingLeft,
-        [2] = NamiFuneFireballFunction.MovingRight,
-    });
-
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
 
@@ -215,9 +208,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Ports the shared projectile initializer at $86:DED6. The source population's low
-    /// parameter-two byte selects one four-byte {left,right} velocity pair. Left velocity
-    /// is stored in the field normally named Y velocity—a cartridge quirk that the left
-    /// movement function knowingly reads back as horizontal speed.
+    /// parameter-two byte selects one {left,right} speed pair; the fireball flies at the
+    /// speed for its direction.
     /// </summary>
     internal void SpawnFuneNamiheFireball(
         RoomEnemySlot source,
@@ -234,10 +226,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             source.Graphics);
         projectile.InstallAnimation(new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left));
         projectile.PreInstruction = NamiFuneFireballPreInstruction;
-        projectile.Variable0 = FireballFunctions.Parameter(direction == HorizontalDirection.Right
-            ? NamiFuneFireballFunction.MovingRight
-            : NamiFuneFireballFunction.MovingLeft);
-        projectile.DirectionParameter = direction == HorizontalDirection.Right ? (ushort)1 : (ushort)0;
 
         projectile.Position = source.Position;
 
@@ -247,30 +235,17 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
 
         var velocities = EnemyFireballLaunches.NamiFuneVelocities(checked((ushort)source.Spawn.Population.Parameter2));
-        projectile.Velocity = new(new SignedEightEight(checked((ushort)velocities.Right)), new SignedEightEight(checked((ushort)velocities.Left)));
+        projectile.Velocity = new(
+            new SignedEightEight(checked((ushort)(direction == HorizontalDirection.Right ? velocities.Right : velocities.Left))),
+            new SignedEightEight(0));
     }
 
-    /// <summary>Ports pre-instruction $86:DF39 and both directional movers.</summary>
+    /// <summary>Ports pre-instruction $86:DF39: the fireball flies sideways at its speed until it leaves the view.</summary>
     internal static void RunFuneNamiheFireballPreInstruction(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        switch (FireballFunctions.Decode(projectile.Variable0))
-        {
-            case NamiFuneFireballFunction.MovingLeft:
-                // Yes, this is YVelocity. The retail initializer and mover agree on this
-                // unconventional storage, so normalizing it would make debugger state lie.
-                projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.Y.ToSixteenSixteenDelta());
-                break;
-
-            case NamiFuneFireballFunction.MovingRight:
-                projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
-                break;
-
-            default:
-                throw new InvalidDataException(
-                    $"Fune/Namihe fireball function {projectile.Variable0} is not translated.");
-        }
+        projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
 
         // The shared native cull treats both camera edges as inclusive: an origin exactly
         // at camera+256 survives this frame and is deleted only after crossing beyond it.

@@ -384,18 +384,10 @@ internal sealed class DraygonParts
         state.GoopProjectilesSpawned++;
     }
 
-    /// <summary>Splits sine-derived projectile velocity into native 8.8 and fraction words.</summary>
+    /// <summary>Launches a Draygon projectile along <paramref name="angle"/> at <paramref name="speed"/>.</summary>
     internal static void SetDraygonProjectileVelocity(
         RoomEnemyProjectileSlot projectile,
         ByteAngle angle,
-        int speed)
-    {
-        projectile.DirectionParameter = angle.RawValue;
-        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, checked((ushort)speed));
-        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, checked((ushort)speed));
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(FixedCoordinate.WholeOf(xMagnitude)));
-        projectile.Variable0 = unchecked((ushort)xMagnitude);
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(FixedCoordinate.WholeOf(yMagnitude)));
-        projectile.Variable1 = unchecked((ushort)yMagnitude);
-    }
+        int speed) =>
+        projectile.State = AngledFlightState.Launch(angle, speed);
 }

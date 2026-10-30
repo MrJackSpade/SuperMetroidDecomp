@@ -39,7 +39,7 @@ internal static class StokeBehaviorVerification
                 EnemyInstructionRunner.ShownFrames(slot, 32), $"Stoke {attack} poses");
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.Kind == RoomEnemyProjectileKind.StokeProjectile);
-            AssertEqual(fireball, projectile.DirectionParameter, $"Stoke {attack} fireball direction");
+            AssertEqual(fireball != 0, projectile.Velocity.X.SignedRawValue > 0, $"Stoke {attack} fireball flies in its direction");
             EnemyInstructionRunner.ShownFrames(slot, 1);
             AssertEqual(function, state.Function, $"Stoke {attack} walks again");
         }

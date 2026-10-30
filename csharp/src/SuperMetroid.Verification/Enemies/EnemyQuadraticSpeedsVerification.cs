@@ -36,10 +36,8 @@ internal static class EnemyQuadraticSpeedsVerification
             int offset = index * 8 + (negative ? 4 : 0);
             uint expected = unchecked(origin + (SixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset))));
             rock.Position = rock.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)origin)), unchecked((ushort)origin)));
-            rock.Variable1 = 0xdead;
             addRock(rock, index, negative ? QuadraticSpeedHalf.Negative : QuadraticSpeedHalf.Positive);
             AssertEqual(expected, rock.Position.Y.RawValue, "Polyp real split-word carry/wrap");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)), rock.Variable1, "Polyp final native scratch whole word");
         }
         AssertThrows<InvalidDataException>(() => addRock(rock, 95, QuadraticSpeedHalf.Positive), "Polyp invalid speed remains loud");
         for (ushort index = 0; index < 95; index++)

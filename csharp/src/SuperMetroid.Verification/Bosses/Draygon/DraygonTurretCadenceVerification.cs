@@ -2,6 +2,7 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Bosses.Draygon;
@@ -48,7 +49,8 @@ internal static class DraygonTurretCadenceVerification
             runtime.Enemies.DraygonBehavior.Parts.SpawnDraygonGoop(boss, false);
             RoomEnemyProjectileSlot goop = runtime.Enemies.Projectiles.EnemyProjectiles.Last(p =>
                 p.Kind == RoomEnemyProjectileKind.DraygonGoop);
-            var velocity = new SpawnGoopResult(goop.Velocity.X.RawValue, checked((ushort)goop.Variable0), goop.Velocity.Y.RawValue, checked((ushort)goop.Variable1), checked((ushort)goop.DirectionParameter));
+            AngledFlightState flight = goop.StateOf<AngledFlightState>();
+            var velocity = new SpawnGoopResult(flight.Heading, flight.HorizontalSpeed, flight.VerticalSpeed);
             goop.Clear();
             return velocity;
         }
@@ -56,8 +58,8 @@ internal static class DraygonTurretCadenceVerification
         runtime.Enemies.DraygonBehavior.Turrets.SpawnDraygonWallTurret(boss, runtime.Player.IntroducedSamus, 0);
         var afterTurret = SpawnGoop();
         AssertEqual(beforeTurret, afterTurret, "goop speed does not inherit a turret's parameter");
-        int expectedX = EnemyMath.ReadUnsignedSineMagnitudeProduct(new ByteAngle(unchecked((byte)afterTurret.Angle)), DraygonProjectileSpeeds.Goop, 0x40);
-        AssertEqual(expectedX, unchecked((int)SixteenSixteen.Compose(afterTurret.X, afterTurret.XSub)), "goop X velocity is speed two");
+        int expectedX = EnemyMath.ReadUnsignedSineMagnitudeProduct(afterTurret.Heading, DraygonProjectileSpeeds.Goop, 0x40);
+        AssertEqual(expectedX, unchecked((int)afterTurret.HorizontalSpeed.RawValue), "goop horizontal speed is speed two");
 
         // #1269: $86:8E0F starts with $86:8D5C. Inside the power-bomb ellipse the goop loses
         // its ID and Samus's XSpeedDivisor clears, but the routine still moves the slot.

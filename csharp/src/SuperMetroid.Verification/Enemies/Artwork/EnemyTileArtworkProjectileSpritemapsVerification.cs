@@ -1074,7 +1074,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
-            slot.Variable1 = 128;
+            slot.State = new NoobTubeDebrisState(column: 128);
             slot.Position = slot.Position.WithWhole(new(128, 96));
             slot.Graphics = SpawnedGraphics;
             // The first shard's flying loop opens with its reflecting flicker.

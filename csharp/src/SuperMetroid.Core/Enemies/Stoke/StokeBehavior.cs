@@ -12,19 +12,15 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 [RoomLifetime]
 internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The facing each authored population parameter-one value selects, also the value its projectile keeps.</summary>
+    /// <summary>The facing each authored population parameter-one value selects.</summary>
     private static readonly ParameterVariants<StokeDirection> Directions = new(new Dictionary<int, StokeDirection>
     {
         [0] = StokeDirection.Left,
         [1] = StokeDirection.Right,
     });
 
-    /// <summary>The movement a Stoke projectile keeps in its variable zero.</summary>
-    private static readonly ParameterVariants<StokeProjectileFunction> ProjectileFunctions = new(new Dictionary<int, StokeProjectileFunction>
-    {
-        [1] = StokeProjectileFunction.MoveLeft,
-        [2] = StokeProjectileFunction.MoveRight,
-    });
+    /// <summary>A Stoke projectile's sideways speed, one pixel per update, in signed 8.8.</summary>
+    private const int StokeProjectileSpeed = 256;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Stoke];
@@ -231,8 +227,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> followed by Stoke projectile
-    /// initializer <c>$86:DB18</c>. Direction zero selects the intentionally odd left branch,
-    /// which reads the signed speed from Y velocity while still moving on the X axis.
+    /// initializer <c>$86:DB18</c>: the projectile flies one pixel per update in Stoke's facing.
     /// </summary>
     internal void SpawnStokeProjectile(RoomEnemySlot stoke, StokeDirection direction)
     {
@@ -244,29 +239,18 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.StokeProjectile,
             stoke.Graphics);
-        projectile.DirectionParameter = Directions.Parameter(direction);
-        projectile.Variable0 = ProjectileFunctions.Parameter(direction == StokeDirection.Left
-            ? StokeProjectileFunction.MoveLeft
-            : StokeProjectileFunction.MoveRight);
         projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(unchecked((ushort)(stoke.Position.Y.Whole + 2)), stoke.Position.Y.Fraction));
-        projectile.Velocity = new(SignedEightEight.FromSignedRaw(256), SignedEightEight.FromSignedRaw(-256));
+        projectile.Velocity = new(
+            SignedEightEight.FromSignedRaw(direction == StokeDirection.Left ? -StokeProjectileSpeed : StokeProjectileSpeed),
+            new SignedEightEight(0));
     }
 
-    /// <summary>Ports pre-instruction <c>$86:DB5B</c> and its two indirect movers.</summary>
+    /// <summary>Ports pre-instruction <c>$86:DB5B</c>: the projectile flies sideways at its speed until it leaves the view.</summary>
     internal static void RunStokeProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        int horizontalVelocity = ProjectileFunctions.Decode(projectile.Variable0) switch
-        {
-            // This is not a typo: $DB62 reads EnemyProjectile_YVelocity, producing -1 px.
-            StokeProjectileFunction.MoveLeft => projectile.Velocity.Y.RawValue,
-            StokeProjectileFunction.MoveRight => projectile.Velocity.X.RawValue,
-            _ => throw new InvalidDataException(
-                $"Stoke projectile movement function {projectile.Variable0} is not translated."),
-        };
-
-        projectile.Position = projectile.Position.AdvanceX(new SignedEightEight(checked((ushort)horizontalVelocity)).ToSixteenSixteenDelta());
+        projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
 
         // Stoke's $DBB6 helper is another byte-for-byte clone of Cacatac's $DAC2 cull.
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);

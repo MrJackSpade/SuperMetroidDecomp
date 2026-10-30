@@ -2144,7 +2144,6 @@ internal static class LookupStream3Verification
         for (int kind = 0; kind < 6; kind++)
         {
             EnemyPickupAnimationDefinition animation = EnemyPickups.Animation((EnemyPickupKind)kind);
-            AssertEqual((ushort)(2 * kind), animation.TableOffset, "stream 3 pickup kind table offset");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + 2 * kind)),
                 animation.Program is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0, "stream 3 pickup kind dispatch");
         }

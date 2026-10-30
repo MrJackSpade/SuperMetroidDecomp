@@ -400,7 +400,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
         // stationary until list opcode A050 installs and immediately executes movement.
         projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86A05B;
-        projectile.Variable0 = checked((ushort)source.Spawn.Population.Parameter1);
+        projectile.State = new PirateLaserState((SpacePirateParameters.Walking(checked((ushort)source.Spawn.Population.Parameter1)) &
+            WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != WalkingSpacePirateParameterFlags.None);
 
         // A009 replaces the projectile definition's property word with enemy damage OR
         // $1000. The source palette/VRAM are *not* copied: SpawnEprojWithRoomGfx passes a
@@ -409,7 +410,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         projectile.CanDamageSamus = true;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
-        projectile.DirectionParameter = movingRight ? (ushort)1 : (ushort)0;
         return projectile;
     }
 
@@ -418,10 +418,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        int pixels = ((SpacePirateParameters.Walking(projectile.Variable0) &
-                WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) == WalkingSpacePirateParameterFlags.None)
-            ? WalkingPirateFastLaserPixelsPerFrame
-            : WalkingPirateSlowLaserPixelsPerFrame;
+        int pixels = projectile.StateOf<PirateLaserState>().Slow
+            ? WalkingPirateSlowLaserPixelsPerFrame
+            : WalkingPirateFastLaserPixelsPerFrame;
         projectile.Position = projectile.Position.WithWholeX(projectile.PreInstruction switch
         {
             EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left => unchecked((ushort)(projectile.Position.X.Whole - pixels)),

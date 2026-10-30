@@ -11,13 +11,6 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 [RoomLifetime]
 internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The phase a rock keeps in its variable zero.</summary>
-    private static readonly ParameterVariants<PolypRockFunction> RockFunctions = new(new Dictionary<int, PolypRockFunction>
-    {
-        [1] = PolypRockFunction.Rising,
-        [2] = PolypRockFunction.Falling,
-    });
-
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.LavaRocks];
 
@@ -154,9 +147,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     private const EnemyProjectilePreInstruction PolypRockPreInstruction =
         EnemyProjectilePreInstruction.PolypRock;
     /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>
-    private const ushort PolypRockGravityStep = 2;
+    private const int PolypRockGravityStep = 2;
     /// <summary>Falling rocks stop accelerating at the native $0040 speed index.</summary>
-    private const ushort PolypRockTerminalSpeedIndex = 64;
+    private const int PolypRockTerminalSpeedIndex = 64;
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> plus initializer $86:BBDB.
@@ -177,8 +170,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             source.Graphics);
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.PreInstruction = PolypRockPreInstruction;
-        projectile.Variable0 = RockFunctions.Parameter(PolypRockFunction.Rising);
-        projectile.Velocity = new(new SignedEightEight(checked((ushort)xVelocity)), new SignedEightEight(checked((ushort)initialYSpeed)));
+        projectile.State = new PolypRockState(initialYSpeed);
+        projectile.Velocity = new(new SignedEightEight(checked((ushort)xVelocity)), new SignedEightEight(0));
         projectile.Position = source.Position;
     }
 
@@ -187,7 +180,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        switch (RockFunctions.Decode(projectile.Variable0))
+        PolypRockFunction phase = projectile.StateOf<PolypRockState>().Phase;
+        switch (phase)
         {
             case PolypRockFunction.Rising:
                 StepRisingPolypRock(projectile);
@@ -197,7 +191,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Polyp rock function {projectile.Variable0} is not translated.");
+                    $"Undefined {nameof(PolypRockFunction)} {phase}.");
         }
 
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
@@ -206,48 +200,40 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Integrates two upward quadratic samples unless the apex consumes this frame.</summary>
     private static void StepRisingPolypRock(RoomEnemyProjectileSlot projectile)
     {
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
-            projectile.Velocity.Y.RawValue - PolypRockGravityStep))));
-        if (unchecked((short)projectile.Velocity.Y.RawValue) < 0)
+        PolypRockState rock = projectile.StateOf<PolypRockState>();
+        rock.SpeedIndex -= PolypRockGravityStep;
+        if (rock.SpeedIndex < 0)
         {
             // Crossing below zero consumes an entire apex frame: retail installs falling
             // state and returns before either vertical or horizontal movement.
-            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
-            projectile.Variable0 = RockFunctions.Parameter(PolypRockFunction.Falling);
+            rock.SpeedIndex = 0;
+            rock.Phase = PolypRockFunction.Falling;
             return;
         }
 
         // The native routine integrates two adjacent quadratic samples per frame, first
         // index velocity+1 and then velocity. This is why the table index changes by two
         // while the visual arc still advances at gameplay-frame rate.
-        AddPolypRockQuadraticStep(
-            projectile,
-            unchecked((ushort)(projectile.Velocity.Y.RawValue + 1)),
-            half: QuadraticSpeedHalf.Negative);
-        AddPolypRockQuadraticStep(projectile, projectile.Velocity.Y.RawValue, half: QuadraticSpeedHalf.Negative);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + 1, half: QuadraticSpeedHalf.Negative);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, half: QuadraticSpeedHalf.Negative);
         MovePolypRockHorizontally(projectile);
     }
 
     /// <summary>Clamps downward speed and integrates two positive quadratic samples per frame.</summary>
     private static void StepFallingPolypRock(RoomEnemyProjectileSlot projectile)
     {
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
-            projectile.Velocity.Y.RawValue + PolypRockGravityStep))));
-        if (unchecked((short)(projectile.Velocity.Y.RawValue - PolypRockTerminalSpeedIndex)) >= 0)
-            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(PolypRockTerminalSpeedIndex));
+        PolypRockState rock = projectile.StateOf<PolypRockState>();
+        rock.SpeedIndex += PolypRockGravityStep;
+        if (rock.SpeedIndex >= PolypRockTerminalSpeedIndex)
+            rock.SpeedIndex = PolypRockTerminalSpeedIndex;
 
-        AddPolypRockQuadraticStep(
-            projectile,
-            unchecked((ushort)(projectile.Velocity.Y.RawValue - 1)),
-            half: QuadraticSpeedHalf.Positive);
-        AddPolypRockQuadraticStep(projectile, projectile.Velocity.Y.RawValue, half: QuadraticSpeedHalf.Positive);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex - 1, half: QuadraticSpeedHalf.Positive);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, half: QuadraticSpeedHalf.Positive);
         MovePolypRockHorizontally(projectile);
     }
 
     /// <summary>
-    /// Adds one positive or cartridge-stored negative 16.16 record from $A0:CBC7. Variable
-    /// one is real scratch WRAM: after each sample it contains the whole word because the
-    /// assembly overwrites its earlier fractional copy before returning.
+    /// Adds one positive or cartridge-stored negative 16.16 record from $A0:CBC7.
     /// </summary>
     internal static void AddPolypRockQuadraticStep(
         RoomEnemyProjectileSlot projectile,
@@ -263,7 +249,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         int record = tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize +
             (half == QuadraticSpeedHalf.Negative ? 4 : 0);
         int fraction = EnemyQuadraticSpeeds.ReadWord(record);
-        projectile.Variable1 = fraction;
         // Both fractions are words, so their sum fits an int; a sum past the word carries into the whole pixel.
         int fractionalSum = projectile.Position.Y.Fraction + fraction;
         projectile.Position = projectile.Position.WithFractionY(unchecked((ushort)fractionalSum));
@@ -271,7 +256,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
 
         int whole = EnemyQuadraticSpeeds.ReadWord(record + 2);
-        projectile.Variable1 = whole;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + whole)));
     }
 

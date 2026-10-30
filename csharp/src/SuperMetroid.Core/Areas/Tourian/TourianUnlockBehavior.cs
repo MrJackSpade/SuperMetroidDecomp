@@ -39,6 +39,9 @@ internal sealed class TourianUnlockBehavior
 
     /// <summary>The water surface the unlocking particles cross and their splashes ride; only its Y axis is meaningful.</summary>
     internal Position16<RoomPixels> TourianStatueWaterSurface { get; set; }
+    /// <summary>The point the descending statue's dust puffs return to whenever they restart.</summary>
+    private static readonly Position16<RoomPixels> TourianDescentDustAnchor = new(128, 188);
+
     /// <summary>Creates four fixed-position dust actors for the descending Tourian statue sequence.</summary>
     internal void SpawnTourianDescentDust()
     {
@@ -50,8 +53,7 @@ internal sealed class TourianUnlockBehavior
                 projectile,
                 RoomEnemyProjectileKind.TourianStatueDescentDust,
                 default);
-            projectile.Variable0 = 128;
-            projectile.Variable1 = 188;
+            projectile.State = new AnchoredProjectileState(TourianDescentDustAnchor);
         }
     }
 
@@ -96,7 +98,6 @@ internal sealed class TourianUnlockBehavior
             projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
         int angle = unchecked((byte)((_room.Random.Generate() & 63) - 32));
-        projectile.Variable0 = (ushort)(angle * 2);
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)Trigonometry.SignedNegativeCosineWord(angle + 64))));
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(4 * Trigonometry.SignedNegativeCosineWord(angle)))));
     }

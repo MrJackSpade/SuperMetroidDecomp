@@ -83,7 +83,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
                 velocityIsReplaced: false);
             VerifyTorizoRandomizedSpawn(
                 nameof(TorizoAttacks.SpawnGoldenTorizoEyeBeam),
-                (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo, 0),
+                (enemies, torizo) => enemies.BombTorizoBehavior.Attacks.SpawnGoldenTorizoEyeBeam(torizo),
                 facingRight,
                 TorizoRandomizedProjectiles.GoldenEyeBeam(facingRight),
                 velocityIsReplaced: true);

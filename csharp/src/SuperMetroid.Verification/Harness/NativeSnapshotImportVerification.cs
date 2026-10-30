@@ -394,9 +394,7 @@ internal static class NativeSnapshotImportVerification
             projectile.Position = projectile.Position
                 .WithFractionX(W(NativeSnapshotMemory.EnemyProjectileXFraction + index))
                 .WithFractionY(W(NativeSnapshotMemory.EnemyProjectileYFraction + index));
-            projectile.Variable0 = W(NativeSnapshotMemory.EnemyProjectileVariableE + index);
-            projectile.Variable1 = W(NativeSnapshotMemory.EnemyProjectileVariableF + index);
-            projectile.CollidedProjectileType = W(NativeSnapshotMemory.EnemyProjectileVariableG + index);
+            // The slot-only kinds keep no family state (#1470), so their native E, F and G words are not imported.
             // The current frame record is [timer][operand]; the list pointer already follows it.
             EnemyProjectileNativeImportAccess.ShowNativeOperand(
                 projectile, unchecked((ushort)(instruction - 2)));

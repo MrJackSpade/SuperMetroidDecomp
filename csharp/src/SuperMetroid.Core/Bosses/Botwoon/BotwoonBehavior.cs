@@ -489,7 +489,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             // The bearing word plus at most 768 keeps the selector's sixteen-bit wrap; the
             // selector itself is at most 4094.
             int angle = unchecked((ushort)(extraAngle + EnemyMath.CalculateBearing(toLeader).RawValue));
-            segment.DirectionParameter = 2 * (angle >> 5);
+            segment.StateOf<BotwoonSegmentState>().Pose = BotwoonSegmentProgram.FromSelector(2 * (angle >> 5));
         }
     }
 
@@ -944,8 +944,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // ai_var_A is the live spawn argument. Every nonzero segment begins with orientation
         // $10; argument zero is the tail cap and begins at $30.
         int orientation = spawnArgument != 0 ? 16 : 48;
-        segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentProgram.FromSelector(orientation)));
-        segment.DirectionParameter = orientation;
+        BotwoonSegmentProgram pose = BotwoonSegmentProgram.FromSelector(orientation);
+        segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(pose));
+        segment.State = new BotwoonSegmentState(pose);
 
         int segmentIndex = spawnArgument >> 1;
         state.BodySegments[segmentIndex] = segment;
@@ -981,19 +982,21 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case BotwoonBodyFunction.BeginDying:
                 // The delay is based on native projectile index, not body order. Botwoon
                 // normally owns indexes $0A..$22 because allocation descended from $22.
-                segment.DirectionParameter = unchecked((ushort)(
-                    4 * (segment.SlotIndex * 2) + 96));
+                segment.StateOf<BotwoonSegmentState>().DeathDelay = 4 * (segment.SlotIndex * 2) + 96;
                 state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.DyingDelay;
                 goto case BotwoonBodyFunction.DyingDelay;
 
             case BotwoonBodyFunction.DyingDelay:
-                // The delay starts below 256 and ends on reaching it, so the count never nears the word's wrap.
-                segment.DirectionParameter++;
-                if (unchecked((short)(segment.DirectionParameter - 256)) >= 0)
+            {
+                // The delay starts below the fall count and ends on reaching it.
+                BotwoonSegmentState dying = segment.StateOf<BotwoonSegmentState>();
+                dying.DeathDelay++;
+                if (dying.DeathDelay >= BotwoonSegmentState.FallAt)
                     state.SegmentFunctions[segmentIndex] = BotwoonBodyFunction.Falling;
                 segment.InstructionTimer = WrappingCountdown.Start(0);
                 ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
                 return;
+            }
 
             case BotwoonBodyFunction.Falling:
                 RunBotwoonBodyFall(segment, segmentIndex, state, randomEnemyCounter);
@@ -1014,7 +1017,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         BotwoonProjectileAnimation animation = segment.Animation as BotwoonProjectileAnimation
             ?? throw new InvalidOperationException($"Botwoon body segment {segment.SlotIndex} has no segment animation.");
-        if (animation.Install(BotwoonSegmentProgram.FromSelector(segment.DirectionParameter)))
+        if (animation.Install(segment.StateOf<BotwoonSegmentState>().Pose))
             segment.InstructionTimer = WrappingCountdown.Start(1);
         ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
     }
@@ -1081,17 +1084,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             head.Graphics);
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
         spit.StartAnimation(BotwoonProjectileAnimation.Spit());
-        spit.DirectionParameter = angle.RawValue;
 
-        // ConvertAngleToXy stores unsigned quarter-circle magnitudes; E73E applies signs
-        // from the retained angle every frame. Keep both halves so shallow trajectories do
-        // not lose their subpixel motion.
-        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, checked((ushort)speed));
-        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, checked((ushort)speed));
-        spit.Velocity = spit.Velocity.WithX(new SignedEightEight(FixedCoordinate.WholeOf(xMagnitude)));
-        spit.Variable0 = unchecked((ushort)xMagnitude);
-        spit.Velocity = spit.Velocity.WithY(new SignedEightEight(FixedCoordinate.WholeOf(yMagnitude)));
-        spit.Variable1 = unchecked((ushort)yMagnitude);
+        // The spit keeps unsigned quarter-circle speeds, signed by its heading every update, with their fractions so
+        // shallow trajectories do not lose their subpixel motion.
+        spit.State = AngledFlightState.Launch(angle, speed);
     }
 
     /// <summary>Ports <c>EprojPreInstr_BotwoonsSpit</c> at <c>$86:EC05</c>.</summary>
@@ -1099,12 +1095,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot spit,
         Position16<RoomPixels> camera)
     {
-        int xMagnitude = unchecked(unchecked((int)SixteenSixteen.Compose(spit.Velocity.X.RawValue, checked((ushort)spit.Variable0))));
-        int yMagnitude = unchecked(unchecked((int)SixteenSixteen.Compose(spit.Velocity.Y.RawValue, checked((ushort)spit.Variable1))));
-        int xDisplacement = EnemyMath.CosineIsNegative(new ByteAngle(unchecked((byte)(spit.DirectionParameter)))) ? -xMagnitude : xMagnitude;
-        int yDisplacement = EnemyMath.SineIsNegative(new ByteAngle(unchecked((byte)(spit.DirectionParameter)))) ? -yMagnitude : yMagnitude;
-        spit.Position = spit.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
-        spit.Position = spit.Position.AdvanceY(SignedSixteenSixteen.FromRaw(yDisplacement));
+        spit.StateOf<AngledFlightState>().Advance(spit);
 
         if (unchecked((short)(spit.Position.X.Whole - camera.X)) < 0 ||
             unchecked((short)(camera.X + 256 - spit.Position.X.Whole)) < 0 ||

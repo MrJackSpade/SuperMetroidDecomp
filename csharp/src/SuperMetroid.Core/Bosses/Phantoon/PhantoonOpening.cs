@@ -117,8 +117,9 @@ internal sealed class PhantoonOpening
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.StartingFlame));
         flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
         flame.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
-        flame.Variable0 = unchecked((byte)(directionIndex * 32));
-        PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, checked(new ByteAngle(unchecked((byte)((ushort)flame.Variable0)))), radius: 48);
+        var orbit = new PhantoonOrbitingFlameState(new ByteAngle(unchecked((byte)(directionIndex * 32))));
+        flame.State = orbit;
+        PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: 48);
         flame.PreInstruction = PhantoonBehavior.PhantoonStartingFlameWaitingPreInstruction;
         return true;
     }

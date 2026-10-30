@@ -48,12 +48,13 @@ internal sealed class FallingSparksBehavior
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         Func<int> nextRandom = _room.Random.Generate;
         SignedSixteenSixteen launch = FallingSparkLaunches.FromRandom(nextRandom());
-        projectile.Variable1 = launch.WholeWord;
-        projectile.Variable0 = launch.Fraction;
-
+        projectile.State = new FallingSparkState(launch);
     }
 
-    /// <summary>Ports pre-instruction <c>$86:F3F0</c> without renaming its aliased fields.</summary>
+    /// <summary>How many times faster a spark drifts sideways once it has hit the floor.</summary>
+    private const int FallingSparkImpactDriftScale = 4;
+
+    /// <summary>Ports pre-instruction <c>$86:F3F0</c>.</summary>
     internal void RunFallingSparkPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
@@ -101,15 +102,10 @@ internal sealed class FallingSparksBehavior
             projectile.Position.Y.Whole + projectile.Velocity.Y.RawValue + WordCarry.OutOfWord(fraction))));
     }
 
-    /// <summary>Adds the spark's Variable1:Variable0 horizontal delta with fractional carry.</summary>
+    /// <summary>Adds the spark's horizontal drift with fractional carry.</summary>
     internal static void AddFallingSparkHorizontalVelocity(
-        RoomEnemyProjectileSlot projectile)
-    {
-        uint fraction = (uint)projectile.Position.X.Fraction + checked((ushort)projectile.Variable0);
-        projectile.Position = projectile.Position.WithFractionX(unchecked((ushort)fraction));
-        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
-            projectile.Position.X.Whole + projectile.Variable1 + WordCarry.OutOfWord(fraction))));
-    }
+        RoomEnemyProjectileSlot projectile) =>
+        projectile.Position = projectile.Position.AdvanceX(projectile.StateOf<FallingSparkState>().HorizontalStep);
 
     /// <summary>
     /// Switches a falling spark to its floor-impact program and scales its stored
@@ -119,15 +115,9 @@ internal sealed class FallingSparksBehavior
     {
         projectile.StartAnimation(new FallingSparkAnimation(FallingSparkProgram.HitFloor));
 
-        // Two paired ASL/ROL operations multiply the signed 16.16 horizontal delta by
-        // four without losing carry between its fraction and whole words.
-        for (int shift = 0; shift < 2; shift++)
-        {
-            uint doubledFraction = (uint)projectile.Variable0 << 1;
-            projectile.Variable0 = unchecked((ushort)doubledFraction);
-            projectile.Variable1 = unchecked((ushort)(
-                ((uint)projectile.Variable1 << 1) | WordCarry.OutOfWord(doubledFraction)));
-        }
+        // The impact quadruples the sideways drift, wrapping as the 32-bit doubling does.
+        FallingSparkState spark = projectile.StateOf<FallingSparkState>();
+        spark.HorizontalStep = SignedSixteenSixteen.FromRaw(unchecked(spark.HorizontalStep.RawValue * FallingSparkImpactDriftScale));
 
         // The same aliased pair now represents vertical -0.5 in 16.16. Because the whole
         // word is negative, later frames skip collision and gravity while the impact spark

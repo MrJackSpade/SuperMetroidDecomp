@@ -320,9 +320,8 @@ internal sealed class CrocomireSkeleton
             }
 
             projectile.Position = projectile.Position.WithWhole(new(528, unchecked((ushort)(56 + yTableIndex * 16))));
-            projectile.Velocity = new(new SignedEightEight(0), SignedEightEight.FromSignedRaw(-5));
-            projectile.Variable0 = 0;
-            projectile.Variable1 = 34816;
+            projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
+            projectile.State = new CrocomireSpikeWallPieceState();
             projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         }
     }

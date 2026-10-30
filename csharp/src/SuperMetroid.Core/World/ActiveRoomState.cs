@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The loaded room's live state: room, door and assets, level data, camera, background streamer and scrolling
-/// sky, landing-site entry, inherited layer-1 position, load station, Ceres elevator arrival, room-main scratch and
+/// sky, landing-site entry, inherited layer-1 position, load station, Ceres elevator arrival, the value one room main leaves the next, and
 /// the door transition's main-screen layers.
 /// </summary>
 [RoomScopeBoundary("Holds the loaded room and the room under construction.")]
@@ -76,8 +76,8 @@ internal sealed class ActiveRoomState
     /// <summary>The loaded room's Ceres elevator arrival; null while a load builds the next room's scope.</summary>
     public CeresElevatorArrivalState? CeresElevatorArrival => _construction is null ? Scope?.CeresElevatorArrival : null;
 
-    /// <summary>Room-main scratch word <c>$07E1</c>, which room loading never clears.</summary>
-    public RoomMainScratchState RoomMainScratch { get; } = new();
+    /// <summary>The value one room's main leaves for the next, which room loading never clears.</summary>
+    public RoomMainCarryover RoomMainCarryover { get; } = new();
 
     /// <summary>
     /// Active layer-1 scroll-boundary state. It remains null until a room-specific scroll

@@ -39,9 +39,9 @@ internal sealed class EnemyDeathsAndDrops
     private const EnemyProjectilePreInstruction EnemyPickupPreInstruction =
         EnemyProjectilePreInstruction.Pickup;
     /// <summary>Frames a newly spawned enemy pickup remains collectible.</summary>
-    private const ushort EnemyPickupLifetime = 400;
+    private const int EnemyPickupLifetime = 400;
     /// <summary>Initial pickup frames during which a Grapple endpoint cannot collect it.</summary>
-    private const ushort EnemyPickupGrappleDelay = 16;
+    private const int EnemyPickupGrappleDelay = 16;
 
     /// <summary>Live Samus owner needed when a dying grappled enemy drops the beam.</summary>
     internal SamusState? SamusForEnemyDrops { get; private set; }
@@ -289,8 +289,7 @@ internal sealed class EnemyDeathsAndDrops
     internal static EnemyDeathProjectileProgram ConfigurePickup(RoomEnemyProjectileSlot projectile, EnemyPickupKind kind)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(kind);
-        projectile.Variable0 = animation.TableOffset;
-        projectile.Variable1 = EnemyPickupLifetime;
+        projectile.State = new EnemyPickupState(kind, EnemyPickupLifetime);
         projectile.PreInstruction = EnemyPickupPreInstruction;
 
         // $86:EEAF clears property $4000 but retains the other definition bits. The typed
@@ -450,9 +449,9 @@ internal sealed class EnemyDeathsAndDrops
         SamusState? samus)
     {
         // The lifetime is decremented first; the pickup expires on the update it reaches zero.
-        CountdownStep lifetime = WrappingCountdown.FromRaw(checked((ushort)projectile.Variable1)).Decrement();
-        projectile.Variable1 = lifetime.Value;
-        if (lifetime.IsZero)
+        EnemyPickupState pickup = projectile.StateOf<EnemyPickupState>();
+        pickup.Lifetime--;
+        if (pickup.Lifetime == 0)
         {
             MakeEnemyPickupDormant(projectile);
             return;
@@ -464,7 +463,7 @@ internal sealed class EnemyDeathsAndDrops
         // Command $0D reports any non-inactive grapple function. A pickup is immune to its
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
-            projectile.Variable1 < EnemyPickupLifetime - EnemyPickupGrappleDelay &&
+            pickup.Lifetime < EnemyPickupLifetime - EnemyPickupGrappleDelay &&
             AbsoluteWrappedDelta(projectile.Position.X.Whole, samus.Grapple.Anchor.X) < 16 &&
             AbsoluteWrappedDelta(projectile.Position.Y.Whole, samus.Grapple.Anchor.Y) < 16)
         {
@@ -485,23 +484,12 @@ internal sealed class EnemyDeathsAndDrops
         CollectEnemyPickup(projectile, samus);
     }
 
-    /// <summary>The pickup kind whose table offset <paramref name="projectile"/> keeps in variable 0.</summary>
-    /// <exception cref="InvalidDataException">No pickup table entry has that offset.</exception>
-    private static EnemyPickupKind PickupKindAt(RoomEnemyProjectileSlot projectile)
-    {
-        foreach (EnemyPickupKind kind in EnemyPickupDefinitions.TableKinds)
-            if (EnemyPickups.Animation(kind).TableOffset == projectile.Variable0)
-                return kind;
-        throw new InvalidDataException(
-            $"Enemy pickup slot {projectile.SlotIndex} contains invalid type ${projectile.Variable0:X4}.");
-    }
-
     /// <summary>Applies health or ammo from a touched pickup, publishes its sound, and makes it dormant.</summary>
     private void CollectEnemyPickup(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
     {
-        EnemyPickupKind kind = PickupKindAt(projectile);
+        EnemyPickupKind kind = projectile.StateOf<EnemyPickupState>().Kind;
         switch (kind)
         {
             case EnemyPickupKind.SmallEnergy:
@@ -528,7 +516,7 @@ internal sealed class EnemyDeathsAndDrops
             case EnemyPickupKind.NoDrop:
             default:
                 throw new InvalidDataException(
-                    $"Enemy pickup slot {projectile.SlotIndex} contains invalid type ${projectile.Variable0:X4}.");
+                    $"Enemy pickup slot {projectile.SlotIndex} holds no restorable pickup ({kind}).");
         }
 
         MakeEnemyPickupDormant(projectile);

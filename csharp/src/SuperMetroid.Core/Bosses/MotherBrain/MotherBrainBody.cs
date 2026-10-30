@@ -400,8 +400,6 @@ internal sealed class MotherBrainBody
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
             graphics: new SpriteGraphics(EnemyTileBaseDefinitions.MotherBrainObjectCharacters, SharedSpriteColouring.Common));
-        beam.Variable0 = 0;
-        beam.Variable1 = 0;
         beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
         beam.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack));
@@ -501,16 +499,12 @@ internal sealed class MotherBrainBody
         MotherBrainTurretDefinition definition =
             MotherBrainTurrets.ForTurret(parameter);
         MotherBrainTurretDirection direction = definition.InitialDirection;
-        turret.DirectionParameter = parameter;
         turret.Position = turret.Position.WithWhole(definition.Position);
-
-        // The turret is stationary, so the initializer repurposes its Y-subposition word: direction in the low byte
-        // and signed rotation delta (+1 initially) in the high byte.
-        turret.Position = turret.Position.WithFractionY(MotherBrainProjectiles.TurretRotationState(checked((byte)MotherBrainTurretDefinitions.Ring.PositionOf(direction)), 1));
+        turret.State = new MotherBrainTurretState(parameter, MotherBrainTurretDefinitions.Ring.PositionOf(direction));
         turret.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.TurretPose, direction));
 
-        // X/Y velocity are likewise timers for a stationary turret. Each initializer makes
-        // two independent calls to the cartridge RNG and clamps their low bytes upward.
+        // The initializer makes two independent calls to the cartridge RNG for the turret's waits and clamps their low
+        // bytes upward.
         _projectileAttacks.ResetMotherBrainTurretRotationTimer(turret);
         _projectileAttacks.ResetMotherBrainTurretCooldown(turret);
     }

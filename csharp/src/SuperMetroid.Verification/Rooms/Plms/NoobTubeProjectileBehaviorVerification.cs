@@ -248,13 +248,14 @@ internal static class NoobTubeProjectileBehaviorVerification
                 if (command == NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + (oddFrame ? 2 : 4)));
-                    AssertEqual(oddFrame ? projectile.Variable1 : unchecked((ushort)(256 - projectile.Variable1)), projectile.Position.X.Whole,
+                    ushort column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
+                    AssertEqual(oddFrame ? column : unchecked((ushort)(256 - column)), projectile.Position.X.Whole,
                         $"reflected flicker at $86:{entry:X4} column");
                 }
                 else if (command == NativeEnemyProjectileInstruction.NoobTubeShardFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + 2));
-                    AssertEqual(oddFrame ? projectile.Variable1 : NoobTubeDebrisDefinitions.HiddenXPosition, projectile.Position.X.Whole,
+                    AssertEqual(oddFrame ? projectile.StateOf<NoobTubeDebrisState>().X.Whole : NoobTubeDebrisDefinitions.HiddenXPosition, projectile.Position.X.Whole,
                         $"hiding flicker at $86:{entry:X4} column");
                 }
             }

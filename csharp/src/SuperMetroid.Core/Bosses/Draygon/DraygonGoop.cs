@@ -241,15 +241,8 @@ internal sealed class DraygonGoop
     }
 
     /// <summary>Moves a Draygon projectile in 16.16 space by its angle and speed.</summary>
-    internal static void MoveDraygonProjectile(RoomEnemyProjectileSlot projectile)
-    {
-        int xMagnitude = unchecked(unchecked((int)SixteenSixteen.Compose(projectile.Velocity.X.RawValue, checked((ushort)projectile.Variable0))));
-        int yMagnitude = unchecked(unchecked((int)SixteenSixteen.Compose(projectile.Velocity.Y.RawValue, checked((ushort)projectile.Variable1))));
-        int xDisplacement = EnemyMath.CosineIsNegative(new ByteAngle(unchecked((byte)(projectile.DirectionParameter)))) ? -xMagnitude : xMagnitude;
-        int yDisplacement = EnemyMath.SineIsNegative(new ByteAngle(unchecked((byte)(projectile.DirectionParameter)))) ? -yMagnitude : yMagnitude;
-        projectile.Position = projectile.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
-        projectile.Position = projectile.Position.AdvanceY(SignedSixteenSixteen.FromRaw(yDisplacement));
-    }
+    internal static void MoveDraygonProjectile(RoomEnemyProjectileSlot projectile) =>
+        projectile.StateOf<AngledFlightState>().Advance(projectile);
 
     /// <summary>Deletes a projectile that has left Draygon's room (<c>$86:E722</c>).</summary>
     private static void DeleteDraygonProjectileOutsideRoom(RoomEnemyProjectileSlot projectile)
@@ -298,8 +291,7 @@ internal sealed class DraygonGoop
             return;
 
         samus.XSpeedDivisor = nextDivisor;
-        goop.Variable1 = nextDivisor;
-        goop.Variable0 = 256;
+        goop.State = new DraygonGoopAttachedState(nextDivisor);
         goop.PreInstruction =
             EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus;
         goop.BlocksSamusProjectiles = false;
@@ -324,10 +316,11 @@ internal sealed class DraygonGoop
             return;
         }
 
-        goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + goop.Variable1 * 4 - 12))));
-        // The attachment lifetime counts down in variable zero (DEC then BNE): the goop falls off when it reaches zero.
-        CountdownStep lifetime = WrappingCountdown.FromRaw(checked((ushort)goop.Variable0)).Decrement();
-        goop.Variable0 = lifetime.Remaining.RawValue;
+        DraygonGoopAttachedState attached = goop.StateOf<DraygonGoopAttachedState>();
+        goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + attached.StackPosition * 4 - 12))));
+        // The attachment lifetime counts down (DEC then BNE): the goop falls off when it reaches zero.
+        CountdownStep lifetime = attached.Lifetime.Decrement();
+        attached.Lifetime = lifetime.Remaining;
         if (lifetime.IsZero)
             RemoveAttachedDraygonGoop(goop, samus);
     }

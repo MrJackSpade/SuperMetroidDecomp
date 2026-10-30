@@ -411,6 +411,12 @@ internal sealed class MotherBrainHead
         };
     }
 
+    /// <summary>The sideways speed a Mother Brain bomb's floor bounce restores, in 1/256 pixel per update.</summary>
+    private const int MotherBrainBombBounceSpeed = 112;
+
+    /// <summary>Updates an onion ring stays at Mother Brain's mouth before it flies.</summary>
+    private const int MotherBrainOnionRingAttachDelay = 8;
+
     /// <summary>Ports initializer <c>$86:C482-C4C7</c>.</summary>
     private void SpawnMotherBrainBomb(
         MotherBrainEnemyState state,
@@ -432,9 +438,7 @@ internal sealed class MotherBrainHead
         // survives fractional motion and becomes the terminal Ridley-afterburn count.
         bomb.Position = bomb.Position.WithFractionX(unchecked((byte)afterburnCount)).WithFractionY(0);
         bomb.Velocity = new(new SignedEightEight(224), new SignedEightEight(256));
-        bomb.Variable0 = 112; // Horizontal speed restored after each floor bounce.
-        bomb.Variable1 = 0;      // Byte offset into the ten-word acceleration table.
-        bomb.DirectionParameter = afterburnCount;
+        bomb.State = new MotherBrainBombState(MotherBrainBombBounceSpeed);
         state.RecordBombSpawned();
     }
 
@@ -455,9 +459,7 @@ internal sealed class MotherBrainHead
             ring,
             RoomEnemyProjectileKind.MotherBrainOnionRing,
             graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack)));
-        ring.Variable0 = 8;
-        ring.Variable1 = 0;
-        ring.DirectionParameter = angle.RawValue;
+        ring.State = new MotherBrainOnionRingState(MotherBrainOnionRingAttachDelay);
         ring.Velocity = ring.Velocity.WithX(new SignedEightEight(EnemyMath.MultiplySineSample(1104, angle)));
         ring.Velocity = ring.Velocity.WithY(new SignedEightEight(EnemyMath.MultiplySineSample(
             1104,
@@ -487,7 +489,7 @@ internal sealed class MotherBrainHead
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
         MotherBrainProjectileStarts.Initialize(drool, kind, graphics: default);
-        drool.Variable0 = (ushort)parameter;
+        drool.State = new MotherBrainDroolState(parameter);
 
         // SpawnEnemyProjectile runs initializer C843 immediately. It falls through into
         // the attached pre-instruction, so debugger-visible coordinates are valid before

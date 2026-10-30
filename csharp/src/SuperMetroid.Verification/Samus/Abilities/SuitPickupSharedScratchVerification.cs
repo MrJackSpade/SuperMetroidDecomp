@@ -93,7 +93,7 @@ internal static class SuitPickupSharedScratchVerification
 
     /// <summary>An authored edge pair as the word the carryover leaves, left column in the low byte (#1468).</summary>
     private static ushort EdgeWord(SuitPickupBeamEdges edges) =>
-        LittleEndianBytes.Word(checked((byte)edges.Left), checked((byte)edges.Right));
+        LittleEndianBytes.Word(checked((byte)edges.Left.X), checked((byte)edges.Right.X));
 
     /// <summary>Checks that the spark acceleration and Crystal Flash ammunition timer hold the expected scratch words.</summary>
     private static void AssertScratch(SamusState samus, ushort stageNumber, ushort lightBeamWord, string context)

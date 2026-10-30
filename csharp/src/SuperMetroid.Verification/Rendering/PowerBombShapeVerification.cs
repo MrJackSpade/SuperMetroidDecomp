@@ -79,7 +79,7 @@ internal static class PowerBombShapeVerification
                     ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
                 int tall = radius * 3 / 4;
                 ScreenWindow expected = tall == 0 ? ScreenWindow.Closed
-                    : ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(100, 120), radius, tall), DisplayScreen.HudHeight);
+                    : ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(100, 120), new Extent16<ScreenPixels>(checked((ushort)radius), checked((ushort)tall))), DisplayScreen.HudHeight);
                 AssertEqual(expected, layer.Window, $"Power Bomb {phase} oval of whole radius {radius}");
                 cases++;
             }

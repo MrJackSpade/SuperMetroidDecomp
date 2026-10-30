@@ -832,10 +832,10 @@ internal static class CollectiblesVerification
         SamusSuitPickupBeam[] curved = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.CurvedColumn)];
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.CurvedColumn, 0, 255, 0), curved[^1],
             "stage two ends at the full-screen column");
-        AssertEqual(ScreenWindow.Of(new WindowOval(Offset16<ScreenPixels>.Of(0, 128), 255, 24, 128)), SuitWindow(curved[^1]),
+        AssertEqual(ScreenWindow.Of(new WindowOval(Offset16<ScreenPixels>.Of(0, 128), 255, new Extent16<ScreenPixels>(24, 128))), SuitWindow(curved[^1]),
             "the final curved column is the whole screen line rounded by the beam's curve");
         AssertEqual(ScreenWindow.Of(new WindowOval(Offset16<ScreenPixels>.Of(curved[0].Left.X, 128), curved[0].Right.X - curved[0].Left.X,
-                SuitPickupBeamDefinitions.CurveWidth, 128)), SuitWindow(curved[0]),
+                new Extent16<ScreenPixels>(SuitPickupBeamDefinitions.CurveWidth, 128))), SuitWindow(curved[0]),
             "the curved column is its column widened by the curve, widest at the middle line");
 
         SamusSuitPickupBeam[] closing = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.ClosingCurvedColumn)];
@@ -849,7 +849,7 @@ internal static class CollectiblesVerification
         int top = closing[0].Progress;
         AssertEqual(top, wiped.FirstLine, "closing wipes the top progress lines");
         AssertEqual(Math.Min(DisplayScreen.Height, 256 - (top - 1)), wiped.EndLine, "closing wipes one fewer bottom line");
-        AssertEqual(new WindowOval(Offset16<ScreenPixels>.Of(0, 128), 255, 24, 128), wiped.Shapes[0], "closing keeps the final curved column between its wipes");
+        AssertEqual(new WindowOval(Offset16<ScreenPixels>.Of(0, 128), 255, new Extent16<ScreenPixels>(24, 128)), wiped.Shapes[0], "closing keeps the final curved column between its wipes");
 
         SamusSuitPickupBeam[] line = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.CenterLine)];
         AssertEqual(SuitBeam(SamusSuitPickupBeamShape.CenterLine, 7, 240, 0), line[0],

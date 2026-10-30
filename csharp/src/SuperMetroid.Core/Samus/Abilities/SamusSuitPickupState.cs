@@ -245,8 +245,8 @@ public sealed class SamusSuitPickupState
         // comparison with 128 is this ordinary one.
         _lightBeamScanlines += 8;
         Beam = new(SamusSuitPickupBeamShape.GrowingFromEdges,
-            ScreenColumn(SuitPickupBeamDefinitions.NarrowBeamEdges.Left),
-            ScreenColumn(SuitPickupBeamDefinitions.NarrowBeamEdges.Right),
+            SuitPickupBeamDefinitions.NarrowBeamEdges.Left,
+            SuitPickupBeamDefinitions.NarrowBeamEdges.Right,
             _lightBeamScanlines);
 
         if (_lightBeamScanlines >= 128)
@@ -301,7 +301,7 @@ public sealed class SamusSuitPickupState
         Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
         LightBeamWideningVelocity += WideningVelocity(SuitPickupBeamDefinitions.WideningAcceleration);
-        if (new SuitPickupBeamEdges(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
+        if (SuitPickupBeamEdges.Columns(left, right) == SuitPickupBeamDefinitions.FullScreenWindow)
         {
             Stage = SamusSuitPickupStage.RevealSuit;
             // The unsigned speed halves, truncating its lowest fraction bit.
@@ -386,8 +386,8 @@ public sealed class SamusSuitPickupState
     /// <summary>Starts a column stage at the authored edge pair.</summary>
     private void SetLightBeamEdges(SuitPickupBeamEdges edges)
     {
-        _lightBeamLeft = ScreenColumn(edges.Left);
-        _lightBeamRight = ScreenColumn(edges.Right);
+        _lightBeamLeft = edges.Left;
+        _lightBeamRight = edges.Right;
     }
 
     /// <summary>The screen position of window column <paramref name="column"/>; only X is meaningful.</summary>

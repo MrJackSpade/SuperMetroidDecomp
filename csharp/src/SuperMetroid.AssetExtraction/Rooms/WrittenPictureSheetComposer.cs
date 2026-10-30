@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
@@ -257,9 +258,9 @@ internal static class WrittenPictureSheetComposer
     /// <exception cref="InvalidDataException">The writer's installed artwork is missing.</exception>
     private static IEnumerable<WrittenSubject> Subjects(RoomBlockSheetInputs inputs, TileWordWriter writer) => writer switch
     {
-        TileWordWriter.ZebesEscapeText => Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase),
+        TileWordWriter.ZebesEscapeText => Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes)),
         TileWordWriter.CeresEscapeText => [.. CeresWarningPages(inputs),
-            .. Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase)],
+            .. Typed(inputs.EscapeTypewriter.Get(EscapeTypewriterProgramId.Ceres))],
         _ => throw new InvalidDataException($"Undefined tile word writer {writer}."),
     };
 
@@ -282,16 +283,17 @@ internal static class WrittenPictureSheetComposer
         }
     }
 
-    /// <summary>Each glyph <paramref name="program"/> types from <paramref name="tileBase"/>, once, named as the typewriter names it.</summary>
-    private static IEnumerable<WrittenSubject> Typed(EscapeTypewriterProgram program, BackgroundTile tileBase)
+    /// <summary>Each glyph <paramref name="program"/> types, once, named as the typewriter names it, from its program's tile base.</summary>
+    private static IEnumerable<WrittenSubject> Typed(EscapeTypewriterProgram program)
     {
+        BackgroundTile tileBase = EscapeTypewriterGlyphTiles.TileBaseOf(program.Id);
         var typed = new HashSet<char>();
         foreach (EscapeTypewriterLine line in program.Lines)
         {
             // The typewriter types each character's low byte, and names its picture by that.
             foreach (char character in line.Text.Select(text => (char)(byte)text))
             {
-                if (typed.Add(character) && EscapeTypewriterState.GlyphOf(character, tileBase) is { } glyph)
+                if (typed.Add(character) && EscapeTypewriterGlyphTiles.GlyphOf(character, tileBase) is { } glyph)
                     yield return new WrittenSubject(EscapeTypewriterGlyph.PictureOf(program.Id, character), [new SubjectWord(default, new SnesBgTilemapWord(BackgroundTileWords.ToWord(glyph)))]);
             }
         }

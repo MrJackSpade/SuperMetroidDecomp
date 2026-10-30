@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -85,9 +86,9 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0x87839c, EnemySourceDefinitions.TourianStatueGreyColors, "grey colour source");
 
         // EscapeTypewriterRomData, ZebesEscapeRomData and the escape timer's cleared origin.
-        AssertEqual(0x2610, EscapeTypewriterDefinitions.ZebesTileBase.PackedWord, "Zebes glyph base");
-        AssertEqual(65, EscapeTypewriterDefinitions.FirstLetter, "first letter");
-        AssertEqual(91, EscapeTypewriterDefinitions.ExclamationGlyph, "exclamation glyph");
+        AssertEqual(0x2610, EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord, "Zebes glyph base");
+        AssertEqual(65, EscapeTypewriterTileDefinitions.FirstLetter, "first letter");
+        AssertEqual(91, EscapeTypewriterTileDefinitions.ExclamationGlyph, "exclamation glyph");
         AssertEqual<SoundEffectId>(Library3Sound.IntroTypewriter, EscapeTypewriterDefinitions.ZebesClick, "Zebes click");
         AssertEqual<SoundEffectId>(Library2Sound.CeresTypewriter, EscapeTypewriterDefinitions.CeresClick, "Ceres click");
         AssertEqual(42, ZebesEscapeDefinitions.DiagonalFrames, "diagonal shake frames");

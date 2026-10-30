@@ -289,7 +289,7 @@ internal sealed class CeresRidleyGetaway
                     return;
 
                 state.CeresEscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
-                    ? new(presentation.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase)
+                    ? new(presentation.Get(EscapeTypewriterProgramId.Ceres))
                     : null;
 
                 // `$A6:C0E3-$A6:C0F1` advances the even-byte dispatch index twice for

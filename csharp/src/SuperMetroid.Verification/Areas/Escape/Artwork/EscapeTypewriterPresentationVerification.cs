@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text;
 using System.Text.Json.Nodes;
+using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -30,11 +31,9 @@ internal static class EscapeTypewriterPresentationVerification
             { EscapeTypewriterProgramId.Ceres, EscapeTypewriterProgramId.Zebes })
         {
             EscapeTypewriterProgram program = presentation.Get(id);
-            ushort tileBase = id == EscapeTypewriterProgramId.Ceres ? (ushort)0x3582 :
-                EscapeTypewriterDefinitions.ZebesTileBase.PackedWord;
             // The installed program runs to completion without any cartridge text read;
             // extraction copied its stream from the ROM at program.SourceAddress.
-            var installed = new EscapeTypewriterState(program, BackgroundTileWordBytes.Tile(tileBase));
+            var installed = new EscapeTypewriterState(program);
             var installedVram = new SnesVram();
             for (int frame = 0; ; frame++)
             {
@@ -52,24 +51,24 @@ internal static class EscapeTypewriterPresentationVerification
         EscapeTypewriterPresentation edited = EscapeTypewriterPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
         var editedState = new EscapeTypewriterState(
-            edited.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase);
+            edited.Get(EscapeTypewriterProgramId.Zebes));
         var editedVram = new SnesVram();
         editedState.StepInto(editedVram);
         editedState.StepInto(editedVram);
-        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase.PackedWord + 'E' - 'A'),
+        AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 'E' - 'A'),
             editedVram.ReadWord(0x106), "edited UTF-8 escape text reaches live VRAM");
 
         var rebound = new EscapeTypewriterState(
-            presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase);
+            presentation.Get(EscapeTypewriterProgramId.Zebes));
         var reboundVram = new SnesVram();
         rebound.StepInto(reboundVram);
         rebound.BindProgram(edited.Get(EscapeTypewriterProgramId.Zebes));
         rebound.StepInto(reboundVram);
-        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase.PackedWord + 'E' - 'A'),
+        AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 'E' - 'A'),
             reboundVram.ReadWord(0x106), "active escape typewriter accepts current replacement content");
 
         var saved = new EscapeTypewriterState(
-            presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase);
+            presentation.Get(EscapeTypewriterProgramId.Zebes));
         var savedVram = new SnesVram();
         saved.StepInto(savedVram);
         using var snapshot = new MemoryStream();
@@ -84,7 +83,7 @@ internal static class EscapeTypewriterPresentationVerification
             "restored escape text fails loudly until host content is rebound");
         restored.BindProgram(presentation.Get(EscapeTypewriterProgramId.Zebes));
         restored.StepInto(savedVram);
-        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase.PackedWord + 'I' - 'A'),
+        AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 'I' - 'A'),
             savedVram.ReadWord(0x106), "restored escape text resumes at its saved character");
 
         byte[] malformed = Encoding.UTF8.GetBytes(
@@ -117,12 +116,11 @@ internal static class EscapeTypewriterPresentationVerification
         File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentation edited = MapPresentationFiles.Load(stockDirectory, overrideDirectory);
         var state = new EscapeTypewriterState(
-            edited.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes),
-            EscapeTypewriterDefinitions.ZebesTileBase);
+            edited.EscapeTypewriter.Get(EscapeTypewriterProgramId.Zebes));
         var vram = new SnesVram();
         state.StepInto(vram);
         state.StepInto(vram);
-        AssertEqual((ushort)(EscapeTypewriterDefinitions.ZebesTileBase.PackedWord + 'E' - 'A'),
+        AssertEqual((ushort)(EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord + 'E' - 'A'),
             vram.ReadWord(0x106), "catalog override changes installed escape text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "escape text override changes catalog content identity");

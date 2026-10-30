@@ -27,7 +27,7 @@ internal static class CeresEscapeOverlayTilemapFiles
         byte[] json = CeresEscapeOverlays.Write(
             new CeresEscapeOverlayTilemapDocument
             {
-                Version = CeresEscapeOverlayTilemapDefinitions.Version,
+                Version = CeresWarningGlyphDefinitions.Version,
                 Pages = pages,
             });
         CeresEscapeOverlays roundtrip =

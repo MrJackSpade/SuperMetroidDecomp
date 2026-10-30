@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -53,7 +54,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, _ => palette);
         var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(page => Sheet(page.ByteCount)).ToArray());
         using var overlayJson = new MemoryStream(CeresEscapeOverlays.Write(new CeresEscapeOverlayTilemapDocument {
-            Version = CeresEscapeOverlayTilemapDefinitions.Version,
+            Version = CeresWarningGlyphDefinitions.Version,
             Pages = CeresEscapeOverlayTilemapDefinitions.All.ToDictionary(page => page.Name, page => new BackgroundTile[page.WordCount]) }));
         CeresEscapeOverlays overlays = CeresEscapeOverlays.Load(overlayJson);
         var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All

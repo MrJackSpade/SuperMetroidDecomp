@@ -30,9 +30,6 @@ internal sealed record CeresRidleyGetawayDependencies
     /// <summary>Publishes Ceres escape and self-destruct room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
-    /// <summary>The session's installed area artwork.</summary>
-    public required AreaArtworkBinding AreaArtwork { get; init; }
-
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
 }

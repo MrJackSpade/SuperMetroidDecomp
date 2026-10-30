@@ -40,14 +40,14 @@ internal static class RoomBlockSheetComposer
             foreach (RoomBlockUploads.RoomBackgroundMap background in uploads.Backgrounds)
                 backgrounds.Add(background.Name, ComposeBackground(inputs, tileset, background, composed.Cells[background.Name]));
         }
-        var words = new Dictionary<TilesetDefinition, ComposedTileWordSheet>();
+        var written = new Dictionary<TilesetDefinition, ComposedWrittenPictureSheet>();
         foreach ((TilesetDefinition tileset, RoomBlockUploads.TilesetUploads uploads) in tilesets)
         {
             if (uploads.WordContent is { } content)
-                words.Add(tileset, TileWordSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content));
+                written.Add(tileset, WrittenPictureSheetComposer.Compose(inputs, tileset, uploads, uploads.Writers, content));
         }
-        return new RoomSheetComposition(sheets, appearances, backgrounds, words,
-            tilesets.ToDictionary(entry => entry.Key, entry => TileWordSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value)),
+        return new RoomSheetComposition(sheets, appearances, backgrounds, written,
+            tilesets.ToDictionary(entry => entry.Key, entry => WrittenPictureSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value)),
             tilesets.Keys.ToDictionary(tileset => tileset, tileset => MessageBoxSheetComposer.Compose(inputs, tileset)),
             tilesets.Where(entry => entry.Value.Ceres).ToDictionary(entry => entry.Key,
                 entry => Mode7TileSheetComposer.Compose(inputs, entry.Key, RoomBlockUploads.Loaded(inputs, entry.Key))));

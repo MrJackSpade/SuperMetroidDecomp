@@ -135,8 +135,6 @@ public sealed record GameInstallation(string Root)
     /// <summary>Loads validated ending color palettes and compatible color replacements from the persistent override tree.</summary>
     public EndingPaletteSet LoadEndingPalettes() =>
         EndingPaletteArtworkFiles.Load(EndingPaletteDirectory, EndingPaletteOverrideDirectory);
-    /// <summary>Editable room character art stays outside the replaceable stock game directory.</summary>
-    public string RoomCharacterOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.RoomCharacterDirectoryName);
     /// <summary>Stock RGB5 room palettes and their source-hash manifest.</summary>
     public string RoomPaletteDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomPaletteDirectoryName);
     /// <summary>Persistent RGB5 room palette replacements, preserved when stock content is rebuilt.</summary>

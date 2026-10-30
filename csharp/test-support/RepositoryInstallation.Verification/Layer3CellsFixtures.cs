@@ -70,7 +70,7 @@ internal static class Layer3CellsFixtures
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            ["tiles"] = TileWordSheetComposer.Frame(canvas, 0, rows, TileWordLayer.Bg3),
+            ["tiles"] = WrittenPictureSheetComposer.Frame(canvas, 0, rows, WrittenPictureLayer.Bg3),
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false), "bg3-fixture",

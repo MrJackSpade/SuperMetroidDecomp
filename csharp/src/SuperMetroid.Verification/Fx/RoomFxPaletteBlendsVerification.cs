@@ -208,7 +208,6 @@ internal static class RoomFxPaletteBlendsVerification
         cgram.AsPaletteColors().SetColor(27, RgbColor.FromWord(0x3456));
         var stateSession = new RoomFxSession{
             PaletteBlendColors = catalog,
-            Layer3Tilemaps = tilemaps,
         };
         var state = RoomLayer3FxState.ForDefinition(stateSession, cgram, record, randomNumber: 0);
         return new ConstructBlendLoadResult(state, bus, cgram);

@@ -123,14 +123,14 @@ public static class RoomCharacterArtworkFiles
     {
         var sources = new Dictionary<string, RoomCharacterSource>
         {
-            [RoomCharacterAtlasFormat.CreFileName] = new(null),
+            [RoomCharacterSheetFiles.CreFileName] = new(null),
         };
         for (int graphicsSet = 0; graphicsSet < RoomTilesetDefinitions.Count; graphicsSet++)
         {
             RoomCharacterSet set = RoomTilesets.Get(graphicsSet).Characters;
-            sources[RoomCharacterAtlasFormat.FileName(set)] = new(set);
+            sources[RoomCharacterSheetFiles.FileName(set)] = new(set);
         }
-        sources[RoomCharacterAtlasFormat.FileName(RoomCharacterSet.TourianStatueGhost)] =
+        sources[RoomCharacterSheetFiles.FileName(RoomCharacterSet.TourianStatueGhost)] =
             new(RoomCharacterSet.TourianStatueGhost);
         return sources;
     }

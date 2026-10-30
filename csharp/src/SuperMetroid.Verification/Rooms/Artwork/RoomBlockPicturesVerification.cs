@@ -192,24 +192,33 @@ internal static class RoomBlockPicturesVerification
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
         runtime.StepFrame(0);
-        TileWordSheet sheet = (runtime.Room.Scope?.Bg2OverlayPictures ?? throw new InvalidOperationException($"{room.Name} has no tile words.")).Sheet;
+        WrittenPictureSheet sheet = (runtime.Room.Scope?.Bg2OverlayPictures ?? throw new InvalidOperationException($"{room.Name} has no written pictures.")).Sheet;
         ReadOnlySpan<byte> vram = runtime.ComposedVram();
         var typewriter = new EscapeTypewriterState((runtime.BossArtwork.EscapeTypewriterPresentation
             ?? throw new InvalidOperationException("No escape typewriter.")).Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase);
-        RoomTilemapOverlay overlay = RoomTilemapOverlay.Empty;
+        // The typewriter types each glyph's picture by name (#1466); the overlay is checked against the tiles it typed.
+        RoomWrittenOverlay overlay = RoomWrittenOverlay.Empty;
+        var typedWords = new int[RoomWrittenOverlay.CellCount];
+        Array.Fill(typedWords, RoomWrittenOverlay.Unwritten);
         while (!typewriter.Step(out EscapeTypewriterGlyph? glyph))
         {
             if (glyph is { } typed)
-                overlay = overlay.With(typed.Cell, [typed.Tile]);
+            {
+                overlay = overlay.With(new WrittenPicture(typed.Picture, typed.Cell));
+                typedWords[typed.Cell] = typed.Tile.PackedWord;
+            }
         }
-        ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver(sheet).Resolve(overlay, AppearanceOf(runtime, RoomScopeOf(runtime).ArtworkFrames));
+        ImmutableArray<BgTilePicture?> pictures = new WrittenPictureResolver(sheet).Resolve(overlay, AppearanceOf(runtime, RoomScopeOf(runtime).ArtworkFrames));
         int glyphs = 0;
-        for (int index = 0; index < RoomTilemapOverlay.WordCount; index++)
+        for (int index = 0; index < RoomWrittenOverlay.CellCount; index++)
         {
-            if (overlay.Words[index] == RoomTilemapOverlay.Unwritten)
+            if (typedWords[index] == RoomWrittenOverlay.Unwritten)
+            {
+                AssertTrue(pictures[index] is null, $"{sheet.Name}: nothing typed at word {index} shows nothing");
                 continue;
+            }
             BgTilePicture picture = pictures[index] ?? throw new InvalidOperationException($"{sheet.Name}: typed word {index} draws from its character.");
-            var word = new SnesBgTilemapWord((ushort)overlay.Words[index]);
+            var word = new SnesBgTilemapWord((ushort)typedWords[index]);
             for (int y = 0; y < CharacterPixels; y++)
             for (int x = 0; x < CharacterPixels; x++)
             {
@@ -281,6 +290,8 @@ internal static class RoomBlockPicturesVerification
             runtime.StepFrame(0);
             GameplayDisplayLatch latched = runtime.Display.Latched;
             Layer3Plane plane = latched.Layer3 ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
+            // The plane names its pictures (#1466); the installed pages spell the words the cartridge writes for them.
+            ushort[] planeWords = plane.WordsIn(InstalledFixtures.Maps.RoomFxLayer3Tilemaps);
             AssertTrue(latched.Rooms?.Bg3 is not null, $"{room.Name}: BG3 draws from its pictures");
             ReadOnlySpan<byte> vram = runtime.ComposedVram();
             BgCharacterSet layer3 = BgCharacterSet.Layer3;
@@ -289,12 +300,12 @@ internal static class RoomBlockPicturesVerification
             IReadOnlyList<AppearanceOption> effects = UploadsOf(runtime).Bg3Options;
             RoomFxAnimatedTileAtlas animatedTiles = runtime.Artwork.MapPresentation?.RoomFxAnimatedTiles
                 ?? throw new InvalidOperationException($"{room.Name}: the runtime has no installed animated tiles.");
-            ImmutableArray<BgTilePicture?> pictures = new TileWordPictureResolver((runtime.Room.Scope
+            ImmutableArray<BgTilePicture?> pictures = new WrittenPictureResolver((runtime.Room.Scope
                 ?? throw new InvalidOperationException($"{room.Name} has no room scope.")).Bg3Pictures.Sheet).Resolve(plane, AppearanceOf(runtime, frames));
             for (int index = 0; index < Layer3Plane.Columns * Layer3Plane.Rows; index++)
             {
                 BgTilePicture picture = pictures[index] ?? throw new InvalidOperationException($"{room.Name}: BG3 word {index} draws from its character.");
-                var word = new SnesBgTilemapWord(plane.Words[index]);
+                var word = new SnesBgTilemapWord(planeWords[index]);
                 SpriteImage sheet = picture.Picture.Sheet;
                 for (int y = 0; y < CharacterPixels; y++)
                 for (int x = 0; x < CharacterPixels; x++)

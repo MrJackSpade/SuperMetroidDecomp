@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Areas.Ceres.Artwork;
 using static SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions;
+using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresWarningGlyphDefinitions;
 
-namespace SuperMetroid.Core.Areas.Ceres.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>
-/// Spells the Ceres escape warnings in their glyph tiles (<see cref="CeresEscapeOverlayTilemapDefinitions"/>): the English title in the
+/// Spells the Ceres escape warnings in their glyph tiles (<see cref="CeresWarningGlyphDefinitions"/>): the English title in the
 /// alarm colour variant, and each Japanese row half from its glyph order and tile half.
 /// </summary>
 internal static class CeresEscapeWarningGlyphs

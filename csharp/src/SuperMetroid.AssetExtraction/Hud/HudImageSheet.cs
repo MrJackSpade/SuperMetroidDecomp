@@ -130,11 +130,11 @@ internal static class HudImageSheet
             for (int y = 0; y < image.Size.Y; y++)
             for (int x = 0; x < image.Size.X; x++)
                 Paint(new Position16<TilemapCells>((ushort)(corner.X + x), (ushort)(corner.Y + y)), image.Tiles[y * image.Size.X + x]);
-            frames.Add(image.Image.FrameName, TileWordSheetComposer.Frame(canvas, Pixels(corner), Pixels(image.Size), TileWordLayer.Bg3));
+            frames.Add(image.Image.FrameName, WrittenPictureSheetComposer.Frame(canvas, Pixels(corner), Pixels(image.Size), WrittenPictureLayer.Bg3));
         }
         var cleared = new Position16<TilemapCells>(0, checked((ushort)layout.Rows));
         Paint(cleared, PauseHudPlaneDefinitions.ClearedCell);
-        frames.Add(PauseHudDefinitions.ClearedCellFrame, TileWordSheetComposer.Frame(canvas, Pixels(cleared), Pixels(new Extent16<TilemapCells>(1, 1)), TileWordLayer.Bg3));
+        frames.Add(PauseHudDefinitions.ClearedCellFrame, WrittenPictureSheetComposer.Frame(canvas, Pixels(cleared), Pixels(new Extent16<TilemapCells>(1, 1)), WrittenPictureLayer.Bg3));
         return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.FourColours));
 
         void Paint(Position16<TilemapCells> at, BackgroundTile tile)

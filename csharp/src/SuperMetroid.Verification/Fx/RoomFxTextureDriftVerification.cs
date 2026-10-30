@@ -66,7 +66,6 @@ internal static class RoomFxTextureDriftVerification
     {
         var presentation = RetailPresentationFixture();
         var stateSession = new RoomFxSession{
-            Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps,
             PaletteBlendColors = presentation.RoomFxPaletteBlends,
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };

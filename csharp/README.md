@@ -501,18 +501,16 @@ selected by both Windows and Android after restart. Initialization refuses to ov
 existing override directory. Instrument, sample and sequence edits are not overrides: they are
 stock-content diagnostics in `game/audio` and are replaced by repair.
 
-Room tileset artwork is modded the same way: place an edited copy of a stock file in
-`overrides/room-characters` or `overrides/room-palettes` under the same name
-as the stock file. Files are named for the artwork, not its cartridge location: a character sheet
-is `room-characters-{set}.png` (for example `room-characters-upper-crateria.png`) and a palette
-`room-palette-{set}.json` (for example `room-palette-heated-norfair.json`); the common room elements stay
-`room-characters-cre.png`. A room's 16x16 blocks are changed only through their pictures in the block sheets
-(below); the stock block compositions in `game/room-blocks` are what those sheets are composed from and have no
+Room tileset palettes are modded the same way: place an edited copy of a stock file in `overrides/room-palettes`
+under the same name as the stock file. Files are named for the artwork, not its cartridge location: a palette is
+`room-palette-{set}.json` (for example `room-palette-heated-norfair.json`). Room characters take no overrides: the
+stock character sheets in `game/room-characters` are what the room pictures are composed from, and a room's blocks,
+backgrounds and written pictures are changed only through those pictures in the block sheets (below); the stock block compositions in `game/room-blocks` are what those sheets are composed from and have no
 override. Library-background tilemaps and scrolling-sky pages go in
 `overrides/room-backgrounds`: a tilemap is named for the background it pictures,
 `room-background-{background}.json` (for example `room-background-brinstar-kraid-upper.json`), and a sky page
 for its place among the seven, `scrolling-sky-page-{0-6}.json`. Overrides saved under the older names, which
-carried the cartridge address (`room-characters-BAC629.png`, `room-background-B9FA38.json`,
+carried the cartridge address (`room-palette-C2BC9C.json`, `room-background-B9FA38.json`,
 `scrolling-sky-8AB180.json`), are renamed when the installation is rebuilt; an override present
 under both names stops the rebuild, leaving the previous installation in place, until one of them is removed.
 
@@ -568,12 +566,12 @@ A room's library background is a full image in the same directory, one for each 
 (`{background}[.{door}].{tileset}`): both BG2 pages it loads, the first above the second, with their tilemap words listed
 in `room-backgrounds.json`. A 16x16 cell whose characters the room rebinds, as the Tourian statues' are, draws that
 cell's block picture while they show something else. The scrolling sky is an image of all its rows the same way, one for each
-sky (`SkyLand`, `SkyOcean`) and tileset. Words written over a room's BG2 after it loads (the bodies of Kraid, Phantoon,
-Draygon, Crocomire and Mother Brain, and the Zebes escape warning) are pictured on one sheet per tileset,
-`Words.<tileset>`, with an image of each part each writer writes; `tile-words.json` records where each tile word is
-pictured over each artwork that can show at its character. BG3 has a sheet per tileset too, `Bg3Words.<tileset>`: the
-HUD fully stocked, every other word the HUD writes, the minimap's map tiles and each room effect's page, in BG3's
-four-colour rows with every pixel keeping its palette index, colour zero included. Each tileset's gameplay message boxes
+sky (`SkyLand`, `SkyOcean`) and tileset. Pictures written over a room's BG1 or BG2 after it loads (the Ceres warning's
+pages and typed glyphs, and the Zebes escape warning's glyphs) are pictured on one sheet per tileset,
+`Written.<tileset>`, one frame per picture and per value of the appearance inputs it depends on;
+`written-pictures.json` records the inputs each picture depends on. BG3 has a sheet per tileset too,
+`Bg3Pictures.<tileset>`: each of the HUD's images, the cleared cell and each room effect's page, in BG3's four-colour
+rows with every pixel keeping its palette index, colour zero included. Each tileset's gameplay message boxes
 are `Messages.<tileset>`: one image of each message in each form it takes (each button a panel can name, each save
 choice), in its BG3 colours with the two colours a message box installs; `message-boxes.json` records the words each
 image pictures. Each Ceres tileset's Mode 7 tiles are one picture, `Mode7.<tileset>`, sixteen tiles to a row;

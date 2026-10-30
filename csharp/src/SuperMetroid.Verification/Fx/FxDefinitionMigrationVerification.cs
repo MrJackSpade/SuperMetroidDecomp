@@ -95,7 +95,7 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(RoomHeaderDefinitions.BombTorizo, RoomEarthquakeDefinitions.SoundSuppressedRooms[0], "first silent quake room");
 
         // RoomFxRomData's layer-three values, and the import's pages and blends.
-        AssertEqual(0x184e, Layer3Plane.ClearedCell.PackedWord, "cleared effect cell");
+        AssertEqual(0x184e, Layer3PlaneConstants.ClearedCell.PackedWord, "cleared effect cell");
         AssertEqual(3, RoomFxPaletteBlendDefinitions.ColorCount, "palette blend colours");
         AssertEqual(0x8a8000 + 5 * 0x840, RoomFxLayer3TilemapSources.Page(RoomFxType.Fog).Value, "fog page source");
         AssertEqual(RoomFxLayer3TilemapSources.Page(RoomFxType.Water), RoomFxLayer3TilemapSources.Page(RoomFxType.TourianEntranceStatue),

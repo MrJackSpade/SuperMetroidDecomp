@@ -490,14 +490,16 @@ checks real disk overrides, complete effect lifetimes, state restoration and
 software/Direct3D output without importing a cartridge or touching player data.
 See the source-access audit for exact coverage and remaining environmental gates.
 
-## Room-character PNG overrides
+## Room-character PNGs
 
 Setup extracts the shared CRE characters, each distinct graphics-set character
 stream, and the Tourian statue-ghost characters to `game/room-characters/*.png`.
 The ghost sheet is `room-characters-87AD64.png`. These are indexed 8x8 tile sheets, not
 screenshots: pixel indexes must remain 0 through 15, dimensions must remain fixed,
 and the neutral PNG palette is only a preview. The room palette and metatile map
-still supply the on-screen colors and arrangement.
+still supply the on-screen colors and arrangement. These sheets are what the room pictures
+are composed from; they take no overrides. Edit a room's look through its pictures in
+`overrides/room-block-sheets` instead.
 
 To find a room's files, open `game/room-art-index.json` and search for its
 `roomId`, such as `00/00` for Landing Site. Each room lists a `default` state and,
@@ -516,13 +518,8 @@ sheets, plus the installed visual block definitions. Its BG1/BTS/BG2 level
 allocation comes from the installed stock-only room-level streams because those
 words also drive collision and placement; artwork overrides do not edit room geometry.
 
-Copy a sheet to the matching filename under `overrides/room-characters/`, edit it,
-and restart. The selected sheet is loaded on desktop and Android; debugger-state
-loads rebind it for subsequent room loads, though an already-captured VRAM frame
-may retain its saved pixels until the next room load. Do not edit stock
-files or `room-characters.json`: stock hashes are validated and repaired from the
-installed ROM, while overrides survive repair and updates. Invalid override PNGs
-produce a path-specific load error rather than silently falling back to stock.
+Do not edit stock files or `room-characters.json`: stock hashes are validated and repaired
+from the installed ROM.
 
 Ordinary room-enemy tile uploads and OBJ colors have their own files in
 `game/enemy-tiles/`. Each `enemy-XXXX-tiles.png` and matching

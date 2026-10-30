@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
@@ -81,11 +82,11 @@ internal sealed class RoomEnemyRuntimeServices(
     public void SetLayerBlendingDefault(LayerBlendingConfiguration configuration) =>
         display.LayerBlendingDefaultConfig = configuration;
 
-    /// <summary>Writes tilemap words over the loaded room's BG1.</summary>
-    public void DrawBg1Overlay(int first, ReadOnlySpan<BackgroundTile> tiles) => room.LoadedScope.DrawBg1Overlay(first, tiles);
+    /// <inheritdoc />
+    public void WriteBg1Picture(WrittenPicture picture) => room.LoadedScope.WriteBg1Picture(picture);
 
     /// <inheritdoc />
-    public void DrawBg2Overlay(int first, ReadOnlySpan<BackgroundTile> tiles) => room.LoadedScope.DrawBg2Overlay(first, tiles);
+    public void WriteBg2Picture(WrittenPicture picture) => room.LoadedScope.WriteBg2Picture(picture);
 
     /// <inheritdoc />
     public void DrawFloorMap(int firstCell, ReadOnlySpan<byte> tiles) =>

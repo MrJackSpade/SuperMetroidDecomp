@@ -7,18 +7,18 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <summary>
 /// The installed pre-coloured room artwork (#1392, #1466): the block sheet of each tileset a room can load with the
 /// appearance inputs its blocks depend on, the image of each library background a room state loads, and the sheets of the
-/// words written over the rooms' backgrounds.
+/// pictures written over the rooms' backgrounds.
 /// </summary>
 public sealed class InstalledRoomArtwork
 {
     /// <summary>
-    /// Keeps the sheets, each under its own tileset, the background images, each under its own name, and the tile word
-    /// sheets, each under its own tileset.
+    /// Keeps the sheets, each under its own tileset, the background images, each under its own name, and the written
+    /// picture sheets, each under its own tileset.
     /// </summary>
     /// <exception cref="ArgumentException">A sheet is filed under another tileset, or an image under another name.</exception>
     public InstalledRoomArtwork(IReadOnlyDictionary<TilesetDefinition, RoomBlockSheet> sheets,
-        IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, TileWordSheet> tileWords,
-        IReadOnlyDictionary<TilesetDefinition, TileWordSheet> bg3Words, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes,
+        IReadOnlyDictionary<string, RoomBackgroundImage> backgrounds, IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> written,
+        IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> bg3Pictures, IReadOnlyDictionary<TilesetDefinition, MessageBoxSheet> messageBoxes,
         IReadOnlyDictionary<TilesetDefinition, FloorTileSheet> floorTiles)
     {
         FloorTiles = Ensure.NotNull(floorTiles);
@@ -35,15 +35,15 @@ public sealed class InstalledRoomArtwork
         }
         Sheets = Ensure.NotNull(sheets);
         Backgrounds = Ensure.NotNull(backgrounds);
-        TileWords = Ensure.NotNull(tileWords);
-        Bg3Words = Ensure.NotNull(bg3Words);
-        foreach ((TilesetDefinition tileset, TileWordSheet words) in tileWords.Concat(bg3Words))
+        Written = Ensure.NotNull(written);
+        Bg3Pictures = Ensure.NotNull(bg3Pictures);
+        foreach ((TilesetDefinition tileset, WrittenPictureSheet pictures) in written.Concat(bg3Pictures))
         {
-            if (words.Tileset != tileset)
-                throw new ArgumentException($"{words.Name} is filed under {tileset}.", nameof(tileWords));
+            if (pictures.Tileset != tileset)
+                throw new ArgumentException($"{pictures.Name} is filed under {tileset}.", nameof(written));
         }
-        if (tileWords.Values.Any(words => words.Layer != TileWordLayer.Bg12) || bg3Words.Values.Any(words => words.Layer != TileWordLayer.Bg3))
-            throw new ArgumentException("A tile word sheet is filed under another layer's sheets.", nameof(tileWords));
+        if (written.Values.Any(pictures => pictures.Layer != WrittenPictureLayer.Bg12) || bg3Pictures.Values.Any(pictures => pictures.Layer != WrittenPictureLayer.Bg3))
+            throw new ArgumentException("A written picture sheet is filed under another layer's sheets.", nameof(written));
         foreach ((string name, RoomBackgroundImage background) in backgrounds)
         {
             if (background.Name != name)
@@ -62,11 +62,11 @@ public sealed class InstalledRoomArtwork
     /// <summary>The library background images by name.</summary>
     public IReadOnlyDictionary<string, RoomBackgroundImage> Backgrounds { get; }
 
-    /// <summary>The sheets of words written over BG1 and BG2, by the tileset whose rooms the words are written in.</summary>
-    public IReadOnlyDictionary<TilesetDefinition, TileWordSheet> TileWords { get; }
+    /// <summary>The sheets of pictures written over BG1 and BG2, by the tileset whose rooms the pictures are written in.</summary>
+    public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> Written { get; }
 
-    /// <summary>The sheets of the HUD's and room effects' BG3 words, by the tileset whose colours they show in.</summary>
-    public IReadOnlyDictionary<TilesetDefinition, TileWordSheet> Bg3Words { get; }
+    /// <summary>The sheets of the HUD's and room effects' BG3 pictures, by the tileset whose colours they show in.</summary>
+    public IReadOnlyDictionary<TilesetDefinition, WrittenPictureSheet> Bg3Pictures { get; }
 
     /// <summary>The floor tiles of each Ceres tileset.</summary>
     public IReadOnlyDictionary<TilesetDefinition, FloorTileSheet> FloorTiles { get; }
@@ -85,10 +85,10 @@ public sealed class InstalledRoomArtwork
         MessageBoxes.TryGetValue(tileset, out MessageBoxSheet? messages) ? messages
             : throw new InvalidDataException($"No message box images are installed for {tileset}.");
 
-    /// <summary>The BG3 word sheet of <paramref name="tileset"/>.</summary>
+    /// <summary>The BG3 picture sheet of <paramref name="tileset"/>.</summary>
     /// <exception cref="InvalidDataException">No sheet is installed for the tileset.</exception>
-    public TileWordSheet Bg3(TilesetDefinition tileset) =>
-        Bg3Words.TryGetValue(tileset, out TileWordSheet? words) ? words : throw new InvalidDataException($"No BG3 word sheet is installed for {tileset}.");
+    public WrittenPictureSheet Bg3(TilesetDefinition tileset) =>
+        Bg3Pictures.TryGetValue(tileset, out WrittenPictureSheet? pictures) ? pictures : throw new InvalidDataException($"No BG3 picture sheet is installed for {tileset}.");
 
     /// <summary>A content identity of every sheet, in tileset order.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomArtwork), content =>
@@ -122,23 +122,13 @@ public sealed class InstalledRoomArtwork
             content.AppendName("messages", messages.Name);
             messages.Sheet.AppendIdentity(content);
         }
-        foreach (TileWordSheet words in TileWords.Values.Concat(Bg3Words.Values).OrderBy(words => words.Name, StringComparer.Ordinal))
+        foreach (WrittenPictureSheet pictures in Written.Values.Concat(Bg3Pictures.Values).OrderBy(pictures => pictures.Name, StringComparer.Ordinal))
         {
-            content.AppendName("words", words.Name);
-            words.Sheet.AppendIdentity(content);
-            foreach (TileWordSheetTile tile in words.Tiles)
+            content.AppendName("written", pictures.Name);
+            pictures.Sheet.AppendIdentity(content);
+            foreach ((string picture, ImmutableArray<AppearanceInput> inputs) in pictures.Inputs.OrderBy(entry => entry.Key, StringComparer.Ordinal))
             {
-                content.AppendTiles("tile", [tile.Tile.Tile]);
-                content.AppendName("appearance", tile.Tile.Appearance);
-                content.AppendName("frame", tile.Frame);
-                content.Append("x", tile.Corner.X);
-                content.Append("y", tile.Corner.Y);
-            }
-            foreach ((BackgroundTile tile, ImmutableArray<AppearanceInput> inputs) in words.Inputs.OrderBy(entry => entry.Key.Tile)
-                .ThenBy(entry => entry.Key.ColourVariant).ThenBy(entry => entry.Key.FlipHorizontally).ThenBy(entry => entry.Key.FlipVertically)
-                .ThenBy(entry => entry.Key.HighPriority))
-            {
-                content.AppendTiles("depends", [tile]);
+                content.AppendName("picture", picture);
                 AppendInputs(content, inputs);
             }
         }

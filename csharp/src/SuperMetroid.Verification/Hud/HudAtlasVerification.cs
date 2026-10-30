@@ -130,7 +130,7 @@ internal static class HudAtlasVerification
         // composes them.
         static RgbaPixel[] Render(SuperMetroidRuntime runtime)
         {
-            Layer3Cells hud = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().Words, runtime.ComposedVram(),
+            Layer3Cells hud = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().WordsIn(InstalledFixtures.Maps.RoomFxLayer3Tilemaps), runtime.ComposedVram(),
                 runtime.Colours.Colors);
             var layer = new GameplaySceneLayer(new GameplaySceneView(new Position16<RoomPixels>(0, 0), new Position16<BackgroundPixels>(0, 0),
                 new Extent16<TilemapCells>(32, 32), ScreenLayers.Overlay), RoomBackgroundsFixtures.Blank() with { Bg3 = hud });

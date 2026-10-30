@@ -3,31 +3,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
-/// <summary>The names room character and palette overrides had before #1363, which carried their cartridge source.</summary>
+/// <summary>The names room palette overrides had before #1363, which carried their cartridge source.</summary>
 internal static class RoomTilesetLegacyFileNameDefinitions
 {
-    /// <summary>Each character sheet's old file name.</summary>
-    internal static readonly FrozenDictionary<RoomCharacterSet, string> Characters = new Dictionary<RoomCharacterSet, string>
-    {
-        [RoomCharacterSet.UpperCrateria] = "room-characters-BAC629.png",
-        [RoomCharacterSet.LowerCrateria] = "room-characters-BAF911.png",
-        [RoomCharacterSet.WreckedShip] = "room-characters-BBAE9E.png",
-        [RoomCharacterSet.GreenBlueBrinstar] = "room-characters-BBE6B0.png",
-        [RoomCharacterSet.RedBrinstarKraidStatuesHall] = "room-characters-BCA5AA.png",
-        [RoomCharacterSet.Norfair] = "room-characters-BDC3F9.png",
-        [RoomCharacterSet.SandlessMaridia] = "room-characters-BEB130.png",
-        [RoomCharacterSet.SandyMaridia] = "room-characters-BEE78D.png",
-        [RoomCharacterSet.Tourian] = "room-characters-BFD414.png",
-        [RoomCharacterSet.Ceres] = "room-characters-C0B004.png",
-        [RoomCharacterSet.CeresElevator] = "room-characters-C0E22A.png",
-        [RoomCharacterSet.CeresRidley] = "room-characters-C18DA9.png",
-        [RoomCharacterSet.UtilityRoomStatues] = "room-characters-C0860B.png",
-        [RoomCharacterSet.Kraid] = "room-characters-BCDFF0.png",
-        [RoomCharacterSet.Crocomire] = "room-characters-BDFE2A.png",
-        [RoomCharacterSet.Draygon] = "room-characters-BF9DEA.png",
-        [RoomCharacterSet.TourianStatueGhost] = "room-characters-87AD64.png",
-    }.ToFrozenDictionary();
-
     /// <summary>Each palette's old file name.</summary>
     internal static readonly FrozenDictionary<RoomPaletteSet, string> Palettes = new Dictionary<RoomPaletteSet, string>
     {

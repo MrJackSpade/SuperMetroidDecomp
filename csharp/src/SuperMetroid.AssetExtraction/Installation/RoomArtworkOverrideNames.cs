@@ -5,8 +5,8 @@ namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>
 /// Renames room artwork overrides from the names the installation used before #1363 and #1414, which carried the
-/// cartridge source address, to the names of their character sheets, palettes, background tilemaps,
-/// sky pages and room levels.
+/// cartridge source address, to the names of their palettes, background tilemaps, sky pages and room levels. Room
+/// characters take no overrides (#1466): rooms show pre-composed pictures, which take theirs as composed sheets.
 /// </summary>
 internal static class RoomArtworkOverrideNames
 {
@@ -15,8 +15,6 @@ internal static class RoomArtworkOverrideNames
     internal static void Migrate(GameInstallation installation)
     {
         Ensure.NotNull(installation);
-        foreach (KeyValuePair<string, string> name in RoomTilesetFileNames.LegacyCharacterNames())
-            Move(installation.RoomCharacterOverrideDirectory, name);
         foreach (KeyValuePair<string, string> name in RoomTilesetFileNames.LegacyPaletteNames())
             Move(installation.RoomPaletteOverrideDirectory, name);
         foreach (KeyValuePair<string, string> name in RoomBackgroundTilemapArtworkFiles.LegacyNames())

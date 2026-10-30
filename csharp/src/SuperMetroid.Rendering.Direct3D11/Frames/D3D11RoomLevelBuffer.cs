@@ -215,9 +215,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (bossBody is not null)
             words += 1 + bossBody.Parts.Length * BossBodyPartWords + bossBody.Parts.Sum(part => part.Shows.Rows.Length);
         ImmutableArray<BgTilePicture?> bg2OverlayPictures = bg2Overlay?.Pictures ?? default;
-        int bg2OverlayOffset = ReserveTilePictures(bg2OverlayPictures, RoomTilemapOverlay.WordCount);
+        int bg2OverlayOffset = ReserveTilePictures(bg2OverlayPictures, RoomWrittenOverlay.CellCount);
         ImmutableArray<BgTilePicture?> overlayPictures = overlay?.Pictures ?? default;
-        int overlayOffset = ReserveTilePictures(overlayPictures, RoomTilemapOverlay.WordCount);
+        int overlayOffset = ReserveTilePictures(overlayPictures, RoomWrittenOverlay.CellCount);
         ImmutableArray<BgTilePicture?> bg3Pictures = bg3 is null ? default : [.. bg3.Pictures.Select(picture => (BgTilePicture?)picture)];
         int bg3PicturesOffset = ReserveTilePictures(bg3Pictures, Layer3Plane.Rows * Layer3Plane.Columns);
         // Reserves two words for each of `count` tile pictures; zero without pictures.
@@ -307,13 +307,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         if (door is not null)
             upload[DoorWindowWord] = D3D11ConstantPacking.Halves(door.WindowOrigin.X, door.WindowOrigin.Y);
         upload[OverlayWord] = (uint)overlayOffset;
-        PackTilePictures(upload, overlayPictures, overlayOffset, RoomTilemapOverlay.WordCount, pictureWords);
+        PackTilePictures(upload, overlayPictures, overlayOffset, RoomWrittenOverlay.CellCount, pictureWords);
         upload[SkyWord] = (uint)skyOffset;
         if (sky is not null)
             for (int row = 0; row < SkyPictures.Rows; row++)
                 upload[skyOffset + row] = sky.RowsShown[row] ? 1u : 0u;
         upload[Bg2OverlayWord] = (uint)bg2OverlayOffset;
-        PackTilePictures(upload, bg2OverlayPictures, bg2OverlayOffset, RoomTilemapOverlay.WordCount, pictureWords);
+        PackTilePictures(upload, bg2OverlayPictures, bg2OverlayOffset, RoomWrittenOverlay.CellCount, pictureWords);
         upload[FloorSheetsWord] = (uint)floorOffset;
         if (mode7 is not null)
         {

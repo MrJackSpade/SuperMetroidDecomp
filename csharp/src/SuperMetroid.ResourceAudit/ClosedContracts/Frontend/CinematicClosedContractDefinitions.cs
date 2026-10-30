@@ -48,11 +48,5 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTimerTileAtlas.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphDefinitions.cs"),
              new("csharp/src/SuperMetroid.AssetExtraction/Areas/Escape/EscapeTimerGlyphs.cs")]),
-        new("SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlays", "ceres-overlay-complete-owned-membership-query", ["TryResolve"],
-            [new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeOverlays.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeWarningGlyphs.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresEscapeOverlayTilemapDefinition.cs"),
-             new("csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyPaletteDefinitions.cs")]),
     ];
 }

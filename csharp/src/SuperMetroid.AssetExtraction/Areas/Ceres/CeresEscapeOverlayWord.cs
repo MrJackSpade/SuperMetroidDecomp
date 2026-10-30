@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Areas.Ceres.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>One word of one Ceres escape overlay page.</summary>
 /// <param name="Page">The page's installed name.</param>

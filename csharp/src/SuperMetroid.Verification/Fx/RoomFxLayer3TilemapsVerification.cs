@@ -47,11 +47,11 @@ internal static class RoomFxLayer3TilemapsVerification
             byte[] native = RomDataReader.ReadFixedBank(rom, source,
                 RoomFxLayer3TilemapFormat.PageByteCount);
             if (type == RoomFxType.Spores) continue;
-            Layer3Plane plane = LoadConstructedRoomFxTilemap(type, catalog, paletteColors,
+            ushort[] plane = LoadConstructedRoomFxTilemap(type, catalog, paletteColors,
                 out CartridgeReadGuard guarded);
             int first = Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns;
             for (int index = 0; index < native.Length / sizeof(ushort); index++)
-                AssertEqual(LittleEndianBytes.Word(native[index * 2], native[index * 2 + 1]), plane.Words[first + index],
+                AssertEqual(LittleEndianBytes.Word(native[index * 2], native[index * 2 + 1]), plane[first + index],
                     $"room-FX {type} installed page word {index} is shown on the BG3 plane");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"room-FX {type} installed load reads no tilemap ROM or pointer table");
@@ -82,12 +82,12 @@ internal static class RoomFxLayer3TilemapsVerification
         AssertTrue(!edited.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span.SequenceEqual(
             baseline.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span),
             "room-FX BG3 edit changes the selected tilemap words");
-        Layer3Plane plane = LoadConstructedRoomFxTilemap(RoomFxType.Lava,
+        ushort[] plane = LoadConstructedRoomFxTilemap(RoomFxType.Lava,
             edited.RoomFxLayer3Tilemaps, edited.RoomFxPaletteBlends,
             out CartridgeReadGuard guarded);
         ushort editedWord = BitConverter.ToUInt16(
             edited.RoomFxLayer3Tilemaps.ResolveBytes(RoomFxType.Lava).AsSpan(0, sizeof(ushort)));
-        AssertEqual(editedWord, plane.Words[Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns],
+        AssertEqual(editedWord, plane[Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns],
             "edited lava tile cell reaches the room's BG3 plane");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "edited lava page loads without native art or pointer reads");
@@ -104,8 +104,11 @@ internal static class RoomFxLayer3TilemapsVerification
         Console.WriteLine("Room-FX BG3 override: edited lava tile reaches the BG3 plane and removal restores stock.");
     }
 
-    /// <summary>Loads one compiled default FX record with native tilemap reads forbidden; returns the BG3 plane it shows under a blank HUD.</summary>
-    private static Layer3Plane LoadConstructedRoomFxTilemap(RoomFxType type,
+    /// <summary>
+    /// Loads one compiled default FX record with native tilemap reads forbidden; returns the tile words <paramref name="catalog"/>
+    /// spells for the BG3 plane it shows under a blank HUD (#1466): the plane names its page, the catalog gives its words.
+    /// </summary>
+    private static ushort[] LoadConstructedRoomFxTilemap(RoomFxType type,
         RoomFxLayer3Pages catalog, RoomFxBlendInks paletteColors,
         out CartridgeReadGuard guarded)
     {
@@ -115,12 +118,12 @@ internal static class RoomFxLayer3TilemapsVerification
         var memory = new TestAddressSpace();
         guarded = NewForbiddenRoomFxTilemapBus(memory);
         var stateSession = new RoomFxSession{
-            Layer3Tilemaps = catalog,
             PaletteBlendColors = paletteColors,
         };
         RoomLayer3FxState state = RoomLayer3FxState.ForDefinition(stateSession, new GameplayColours(new SpriteColourSets()), record, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
-        return Layer3Plane.Compose(state.EffectPageTiles());
+        AssertEqual<RoomFxType?>(type, state.EffectPlane.EffectPage, "the room's BG3 plane shows the selected FX type's page");
+        return state.EffectPlane.WordsIn(catalog);
     }
 
     /// <summary>Forbids bank-$8A tilemap payloads and the FX tilemap pointer table.</summary>

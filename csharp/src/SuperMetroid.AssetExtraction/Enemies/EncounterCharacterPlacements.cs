@@ -48,7 +48,7 @@ internal static class EncounterCharacterPlacements
             Characters(EncounterCharacterPlacementDefinitions.EvirByteCount)),
         CeresDoorCharacters => new(source, EncounterCharacterPlacementDefinitions.CeresDoorFirstCharacter, Characters(SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorVisualDefinitions.CharacterBytes)),
         CeresWarningTextPage warning => new(source,
-            SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions.WarningFirstCharacter + Characters(CeresWarningTextPages.ByteOffset(warning)),
+            SuperMetroid.AssetExtraction.Areas.Ceres.CeresWarningGlyphDefinitions.WarningFirstCharacter + Characters(CeresWarningTextPages.ByteOffset(warning)),
             Characters(CeresWarningTextPages.ByteCount(warning))),
         MotherBrainSpecialSpriteCharacters special => new(source,
             MotherBrainSpecialSprites.PageFirstCharacter(MotherBrainSpecialSpriteArtworkDefinitions.All[special.Sheet], special.Page), Characters(MotherBrainSpecialSpriteSheetDefinition.PageByteCount)),

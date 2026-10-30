@@ -65,27 +65,31 @@ internal static class Layer3PlaneVerification
         var presentation = runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("The retail fixture installs the FX artwork.");
         RoomFxRecordDefinition record = RoomFxDefinitions.AllRecords.First(candidate =>
             candidate.Type == RoomFxType.Water && candidate.DoorPointer == 0) with { BaseYPosition = 0x0080 };
-        var session = new RoomFxSession { Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps, PaletteBlendColors = presentation.RoomFxPaletteBlends };
+        var session = new RoomFxSession { PaletteBlendColors = presentation.RoomFxPaletteBlends };
         RoomLayer3FxState water = RoomLayer3FxState.ForDefinition(session, new GameplayColours(new SpriteColourSets()), record, 0);
         AssertEqual<RoomFxType?>(RoomFxType.Water, water.EffectPageType, "the water room shows the water page");
 
-        Layer3Plane plane = Layer3Plane.Compose(water.EffectPageTiles());
-        ReadOnlySpan<byte> page = presentation.RoomFxLayer3Tilemaps.ResolveBytes(RoomFxType.Water);
+        // The plane names the water page (#1466); the installed pages spell the words the cartridge writes for it.
+        Layer3Plane shownPlane = water.EffectPlane;
+        AssertEqual<RoomFxType?>(RoomFxType.Water, shownPlane.EffectPage, "the room's BG3 plane shows the water page");
+        RoomFxLayer3Pages pages = InstalledFixtures.Maps.RoomFxLayer3Tilemaps;
+        ushort[] plane = shownPlane.WordsIn(pages);
+        ReadOnlySpan<byte> page = pages.ResolveBytes(RoomFxType.Water);
         for (int row = Layer3PlaneConstants.HudRows; row < Layer3Plane.Rows; row++)
         for (int column = 0; column < Layer3Plane.Columns; column++)
         {
             int pageWord = (row - Layer3Plane.EffectPageFirstRow) * Layer3Plane.Columns + column;
             ushort expected = pageWord >= 0 && pageWord * 2 < page.Length
                 ? LittleEndianBytes.Word(page[pageWord * 2], page[pageWord * 2 + 1])
-                : Layer3Plane.ClearedCell.PackedWord;
-            AssertEqual(expected, plane.Words[row * Layer3Plane.Columns + column], $"BG3 row {row} column {column}: cleared, with the water page from row 31");
+                : Layer3PlaneConstants.ClearedCell.PackedWord;
+            AssertEqual(expected, plane[row * Layer3Plane.Columns + column], $"BG3 row {row} column {column}: cleared, with the water page from row 31");
         }
-        AssertTrue(plane.Words[..(Layer3PlaneConstants.HudRows * Layer3Plane.Columns)].All(word => word == Layer3Plane.ClearedCell.PackedWord),
+        AssertTrue(plane[..(Layer3PlaneConstants.HudRows * Layer3Plane.Columns)].All(word => word == Layer3PlaneConstants.ClearedCell.PackedWord),
             "the rows the HUD's images cover stay cleared above the effect");
 
         RoomLayer3FxRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");
         AssertEqual((ushort)0x0080, shown.Surface.Y, "the published effect carries the constructed liquid level");
-        Layer3Cells cells = Layer3CellsFixtures.FromWords(plane.Words, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
+        Layer3Cells cells = Layer3CellsFixtures.FromWords(plane, new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]);
         OverlayBlendLayer layer = GameplayEffectCapture.CaptureRoomLayer3Fx(shown, cells)
             ?? throw new InvalidOperationException("Water at a visible level captures a BG3 layer.");
         AssertTrue(ReferenceEquals(cells, layer.Plane) && layer.FirstRow == 0 && layer.MapHeightTiles == Layer3Plane.Rows,

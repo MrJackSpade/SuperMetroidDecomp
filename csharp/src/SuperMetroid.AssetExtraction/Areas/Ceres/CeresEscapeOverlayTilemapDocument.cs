@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Areas.Ceres.Artwork;
+namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Human-readable visual tile words; DMA timing and destinations are not editable.</summary>
 internal sealed record CeresEscapeOverlayTilemapDocument

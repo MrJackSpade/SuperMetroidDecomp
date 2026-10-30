@@ -58,14 +58,14 @@ internal sealed record RoomScope
     /// <summary>Resolves what the room's scrolling sky shows on BG2, or null for a room without one (#1392).</summary>
     public required RoomBackgroundImageResolver? SkyImage { get; init; }
 
-    /// <summary>Resolves what words written over BG2 show, or null in a tileset nothing writes words over (#1392).</summary>
-    public required TileWordPictureResolver? Bg2OverlayPictures { get; init; }
+    /// <summary>Resolves what pictures written over BG2 show, or null in a tileset nothing writes pictures over (#1392, #1466).</summary>
+    public required WrittenPictureResolver? Bg2OverlayPictures { get; init; }
 
-    /// <summary>Resolves what words written over BG1 show, or null in a tileset nothing writes words over (#1392).</summary>
-    public required TileWordPictureResolver? Bg1OverlayPictures { get; init; }
+    /// <summary>Resolves what pictures written over BG1 show, or null in a tileset nothing writes pictures over (#1392, #1466).</summary>
+    public required WrittenPictureResolver? Bg1OverlayPictures { get; init; }
 
-    /// <summary>Resolves what the HUD and the room effect's page show on BG3 (#1392).</summary>
-    public required TileWordPictureResolver Bg3Pictures { get; init; }
+    /// <summary>Resolves what the HUD and the room effect's page show on BG3 (#1392, #1466).</summary>
+    public required WrittenPictureResolver Bg3Pictures { get; init; }
 
     /// <summary>The images of the message boxes the room shows (#1392).</summary>
     public required MessageBoxSheet MessageBoxes { get; init; }
@@ -79,11 +79,11 @@ internal sealed record RoomScope
             ? RoomBlockArtwork.Sprites
             : RoomBlockArtwork.Tileset;
 
-    /// <summary>Words the room's actors wrote over its BG1 tilemap (the Ceres escape warning), or null (#1346).</summary>
-    public RoomTilemapOverlay? Bg1Overlay { get; private set; }
+    /// <summary>Pictures the room's actors wrote over its BG1 (the Ceres escape warning), or null (#1346, #1466).</summary>
+    public RoomWrittenOverlay? Bg1Overlay { get; private set; }
 
-    /// <summary>Words the room's actors wrote over BG2, or null (#1348).</summary>
-    public RoomTilemapOverlay? Bg2Overlay { get; private set; }
+    /// <summary>Pictures the room's actors wrote over BG2 (the Zebes escape warning), or null (#1348, #1466).</summary>
+    public RoomWrittenOverlay? Bg2Overlay { get; private set; }
 
     /// <summary>The bank-$88 scrolling-sky updater of a scrolling-sky room, or null.</summary>
     public required ScrollingSkyState? ScrollingSky { get; init; }
@@ -148,15 +148,13 @@ internal sealed record RoomScope
     /// </summary>
     public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }
 
-    /// <summary>Writes tiles over this room's BG1 from tilemap position <paramref name="first"/> onward.</summary>
-    /// <param name="first">The first BG1 tilemap position written.</param>
-    /// <param name="tiles">The tiles, in tilemap order.</param>
-    internal void DrawBg1Overlay(int first, ReadOnlySpan<BackgroundTile> tiles) =>
-        Bg1Overlay = (Bg1Overlay ?? RoomTilemapOverlay.Empty).With(first, tiles);
+    /// <summary>Writes <paramref name="picture"/> over this room's BG1 at its tilemap cell (#1346, #1466).</summary>
+    internal void WriteBg1Picture(WrittenPicture picture) =>
+        Bg1Overlay = (Bg1Overlay ?? RoomWrittenOverlay.Empty).With(picture);
 
-    /// <summary>Writes <paramref name="tiles"/> over BG2 from tilemap position <paramref name="first"/> (#1348).</summary>
-    internal void DrawBg2Overlay(int first, ReadOnlySpan<BackgroundTile> tiles) =>
-        Bg2Overlay = (Bg2Overlay ?? RoomTilemapOverlay.Empty).With(first, tiles);
+    /// <summary>Writes <paramref name="picture"/> over this room's BG2 at its tilemap cell (#1348, #1466).</summary>
+    internal void WriteBg2Picture(WrittenPicture picture) =>
+        Bg2Overlay = (Bg2Overlay ?? RoomWrittenOverlay.Empty).With(picture);
 
     /// <summary>Begins the Ceres elevator arrival in this room.</summary>
     /// <exception cref="InvalidOperationException">This room's arrival has already begun.</exception>

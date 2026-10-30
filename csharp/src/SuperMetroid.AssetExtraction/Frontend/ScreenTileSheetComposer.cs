@@ -130,8 +130,8 @@ internal static class ScreenTileSheetComposer
         }
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
-            [ScreenTileSheet.FrameName] = TileWordSheetComposer.Frame(canvas, 0, ScreenTileSheet.ColourVariants * blockRows,
-                depth == TileInkDepth.SixteenColours ? TileWordLayer.Bg12 : TileWordLayer.Bg3),
+            [ScreenTileSheet.FrameName] = WrittenPictureSheetComposer.Frame(canvas, 0, ScreenTileSheet.ColourVariants * blockRows,
+                depth == TileInkDepth.SixteenColours ? WrittenPictureLayer.Bg12 : WrittenPictureLayer.Bg3),
         };
         return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(depth));
     }

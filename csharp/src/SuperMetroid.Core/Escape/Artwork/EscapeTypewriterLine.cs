@@ -10,5 +10,5 @@ namespace SuperMetroid.Core.Escape.Artwork;
 public sealed record EscapeTypewriterLine(int Cell, string Text)
 {
     /// <summary>The overlay cell the line's first character is typed over.</summary>
-    public int Cell { get; init; } = Ensure.BetweenInclusive(0, RoomTilemapOverlay.WordCount - 1, Cell);
+    public int Cell { get; init; } = Ensure.BetweenInclusive(0, RoomWrittenOverlay.CellCount - 1, Cell);
 }

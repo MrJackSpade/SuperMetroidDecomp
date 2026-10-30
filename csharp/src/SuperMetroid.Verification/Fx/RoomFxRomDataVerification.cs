@@ -144,7 +144,6 @@ internal static class RoomFxRomDataVerification
         var cgram = new GameplayColours(new SpriteColourSets());
         var presentation = RetailPresentationFixture();
         var stateSession = new RoomFxSession{
-            Layer3Tilemaps = presentation.RoomFxLayer3Tilemaps,
             PaletteBlendColors = presentation.RoomFxPaletteBlends,
             AnimatedTileArtwork = presentation.RoomFxAnimatedTiles,
         };
@@ -213,9 +212,8 @@ internal static class RoomFxRomDataVerification
 
         RoomLayer3FxState state = LoadSyntheticRoomFx(session, bus, cgram, record);
         Suite(nameof(VerifyRoomFxSharedRandomState), () => state = VerifyRoomFxSharedRandomState(bus, cgram, session, state, record, type));
-        AssertEqual(Layer3Plane.ClearedCell.PackedWord,
-            Layer3Plane.Compose(state.EffectPageTiles())
-                .Words[Layer3PlaneConstants.HudRows * Layer3Plane.Columns],
+        AssertEqual(Layer3PlaneConstants.ClearedCell.PackedWord,
+            state.EffectPlane.WordsIn(RetailPresentationFixture().RoomFxLayer3Tilemaps)[Layer3PlaneConstants.HudRows * Layer3Plane.Columns],
             $"{type} room shows the cleared word in the first gameplay BG3 FX word");
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {

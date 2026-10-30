@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 
@@ -224,7 +225,7 @@ internal sealed class MotherBrainRainbowAndDeath
 
     /// <summary>Writes a glyph the Zebes escape typewriter typed over Mother Brain's room BG2 (#1348).</summary>
     private void WriteZebesTypewriterGlyph(EscapeTypewriterGlyph glyph) =>
-        _room.Services.DrawBg2Overlay(glyph.Cell, [glyph.Tile]);
+        _room.Services.WriteBg2Picture(new WrittenPicture(glyph.Picture, glyph.Cell));
 
     /// <summary>Runs one native body-function call through the shared verified sequence.</summary>
     internal void RunLiveMotherBrainRainbowBeam(

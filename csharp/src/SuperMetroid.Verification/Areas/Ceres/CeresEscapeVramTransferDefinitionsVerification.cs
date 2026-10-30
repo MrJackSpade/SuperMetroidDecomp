@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
@@ -99,7 +100,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
 
         // The Japanese subtitle rows are written over BG1 at exactly the four compiled records' destinations.
         system.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay();
-        var written = new bool[RoomTilemapOverlay.WordCount];
+        var written = new bool[RoomWrittenOverlay.CellCount];
         for (int index = 0; index < 4; index++)
         {
             TileTransferDefinition expected = records[index];
@@ -107,8 +108,9 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             for (int word = 0; word < expected.ByteCount / sizeof(ushort); word++)
                 written[first + word] = true;
         }
+        ImmutableArray<int> shownWords = japaneseOverlay.Overlay.WordsIn(overlay);
         for (int word = 0; word < written.Length; word++)
-            AssertEqual(written[word], japaneseOverlay.Overlay.Words[word] != RoomTilemapOverlay.Unwritten,
+            AssertEqual(written[word], shownWords[word] != RoomWrittenOverlay.Unwritten,
                 $"Ceres Japanese overlay writes BG1 word {word} only inside its compiled records");
         Console.WriteLine(
             "Ceres escape transfers: 19 native records and three terminators match; " +

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using System.Text.Json;
@@ -48,12 +49,13 @@ internal static class CeresEscapeOverlayTilemapsVerification
         installed.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         installed.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay();
 
-        // The cartridge's own transfers, read from its descriptors and source bytes, written over BG1.
-        RoomTilemapOverlay native = RoomTilemapOverlay.Empty;
+        // The cartridge's own transfers, read from its descriptors and source bytes, written over BG1. The getaway writes
+        // each page's picture by name (#1466); its words are the installed page's.
+        int[] native = [.. Enumerable.Repeat(RoomWrittenOverlay.Unwritten, RoomWrittenOverlay.CellCount)];
         CeresEscapeOverlayTilemapDefinition title =
             CeresEscapeOverlayTilemapDefinitions.Emergency;
         // $A6:C136 writes the title at BG1 tilemap word $50CB.
-        native = WithNativeWords(native, CeresEscapeNativeSources.OverlaySource(title), title.WordCount * sizeof(ushort), 0x50cb);
+        WriteNativeWords(CeresEscapeNativeSources.OverlaySource(title), title.WordCount * sizeof(ushort), 0x50cb);
         int nativeTransfers = 1;
         foreach (TileTransferDefinition transfer in
                  CeresEscapeVramTransferDefinitions.All)
@@ -61,27 +63,26 @@ internal static class CeresEscapeOverlayTilemapsVerification
             if (transfer.Pointer >= CeresEscapeVramTransferDefinitions.TimerSprites)
                 break;
             int descriptor = 0xa60000 | transfer.Pointer;
-            native = WithNativeWords(native, CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2),
+            WriteNativeWords(CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor + 5));
             nativeTransfers++;
         }
         AssertEqual(5, nativeTransfers, "the cartridge writes the English title and four Japanese subtitle rows");
-        AssertTrue(native.Words.SequenceEqual(installedOverlay.Overlay.Words),
+        AssertTrue(native.SequenceEqual(installedOverlay.Overlay.WordsIn(stockOverlay)),
             "Ceres English/Japanese BG1 overlay matches cartridge without source reads");
 
-        RoomTilemapOverlay WithNativeWords(RoomTilemapOverlay overlay, int source, int byteCount, int destinationWord)
+        void WriteNativeWords(int source, int byteCount, int destinationWord)
         {
-            var words = new ushort[byteCount / sizeof(ushort)];
-            for (int index = 0; index < words.Length; index++)
-                words[index] = CartridgeImportSource.Require(rom).ReadCartridgeWord(source + index * sizeof(ushort));
-            return overlay.With(destinationWord - GameplayVramLayout.Bg1TilemapWord, BackgroundTileWordBytes.Tiles(words));
+            int first = destinationWord - GameplayVramLayout.Bg1TilemapWord;
+            for (int index = 0; index < byteCount / sizeof(ushort); index++)
+                native[first + index] = CartridgeImportSource.Require(rom).ReadCartridgeWord(source + index * sizeof(ushort));
         }
 
         string overrideDirectory = Path.Combine(stockDirectory,
             "ceres-escape-overlay-overrides");
         Directory.CreateDirectory(overrideDirectory);
-        string fileName = CeresEscapeOverlayTilemapDefinitions.FileName;
+        string fileName = CeresWarningGlyphDefinitions.FileName;
         CeresEscapeOverlayTilemapDocument document =
             JsonSerializer.Deserialize<CeresEscapeOverlayTilemapDocument>(
                 File.ReadAllBytes(Path.Combine(stockDirectory, fileName)),

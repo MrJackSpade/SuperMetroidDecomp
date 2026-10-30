@@ -35,7 +35,7 @@ public sealed class RoomBlockSheet
     public RoomBlockAppearances Inputs { get; }
 
     /// <summary>The installed name of tileset <paramref name="tileset"/>'s block sheet.</summary>
-    public static string NameOf(TilesetDefinition tileset) => $"{tileset.Blocks}.{tileset.Characters}.{tileset.Palette}";
+    public static string NameOf(TilesetDefinition tileset) => tileset.GraphicsSet.ToString();
 
     /// <summary>The picture named <paramref name="name"/>.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such picture, or it is not one block.</exception>

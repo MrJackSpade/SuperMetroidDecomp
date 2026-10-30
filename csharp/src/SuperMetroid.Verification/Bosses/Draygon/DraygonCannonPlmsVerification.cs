@@ -28,7 +28,7 @@ internal static class DraygonCannonPlmsVerification
         var bus = new TestAddressSpace();
         SeedDraygonCannonFixture(bus);
         RoomLevelData level = CreateEmptyRoom(new(roomWidth, roomHeight));
-        var disabledWords = new List<DraygonCannonControlWord>();
+        var disabledWords = new List<DraygonWallCannon>();
         var plms = PlmFixtures.Unbound();
 
         AssertEqual(4, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(bus, pointer: 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixturePlmEnemyEffects { DraygonCannonDisabled = disabledWords.Add } }),
@@ -58,7 +58,7 @@ internal static class DraygonCannonPlmsVerification
 
         StepDraygonCannonPlms(plms, level);
         AssertSequenceEqual(
-            new[] { DraygonCannonControlWord.UpperLeft },
+            new[] { DraygonWallCannon.UpperLeft },
             disabledWords,
             "pre-destroyed cannon immediately writes its bank-$A5 control word");
         AssertDestroyedCannon(level, preDestroyedBlock, roomWidth, "pre-destroyed cannon");
@@ -74,17 +74,17 @@ internal static class DraygonCannonPlmsVerification
                 $"missile hit {hit + 1} reaches right cannon");
             SettleDraygonCannonHit(plms, level);
         }
-        AssertTrue(disabledWords.Contains(DraygonCannonControlWord.LowerLeft),
+        AssertTrue(disabledWords.Contains(DraygonWallCannon.LowerLeft),
             "third missile disables the lower-left firing word");
         AssertDestroyedCannon(level, rightBlock, roomWidth, "right cannon");
 
         AssertTrue(plms.ProjectileTriggers.TryNotifyResidentProjectileHit(upperLeftBlock, 0x0200),
             "Super Missile collision reaches left cannon");
         SettleDraygonCannonHit(plms, level);
-        AssertTrue(disabledWords.Contains(DraygonCannonControlWord.UpperRight),
+        AssertTrue(disabledWords.Contains(DraygonWallCannon.UpperRight),
             "one Super Missile disables the upper-right firing word");
         AssertDestroyedCannon(level, upperLeftBlock, roomWidth, "upper-left cannon");
-        AssertTrue(!disabledWords.Contains(DraygonCannonControlWord.LowerRight),
+        AssertTrue(!disabledWords.Contains(DraygonWallCannon.LowerRight),
             "untouched lower-right cannon remains enabled");
         AssertEqual(RoomCollisionType.ShootableBlock,
             level.GetCollisionBlockByIndex(lowerLeftBlock).CollisionType,

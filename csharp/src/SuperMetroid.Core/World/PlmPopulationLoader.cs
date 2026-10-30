@@ -62,7 +62,7 @@ internal sealed class PlmPopulationLoader
         {
             RoomPlmPlacement placement = population.Placements.Span[recordIndex];
             PlmHeaderId header = placement.Header.Header;
-            if (DraygonCannonPlms.IsDraygonCannonHeader(header) != placement.CannonControl.HasValue)
+            if (DraygonCannonPlms.IsDraygonCannonHeader(header) != placement.Cannon.HasValue)
                 throw new InvalidDataException(
                     $"Room PLM population {population.Name} record {recordIndex} ({header}) must carry a cannon-control word exactly when it is a Draygon cannon.");
             var record = new RoomPlmPopulationRecord(
@@ -237,7 +237,7 @@ internal sealed class PlmPopulationLoader
 
         if (DraygonCannonPlms.IsDraygonCannonHeader(header))
         {
-            DraygonCannonPlms.SetupDraygonCannonSlot(level, slot, placement.CannonControl
+            DraygonCannonPlms.SetupDraygonCannonSlot(level, slot, placement.Cannon
                 ?? throw new InvalidDataException($"Draygon cannon placement {header} carries no cannon-control word."));
             return true;
         }

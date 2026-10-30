@@ -80,7 +80,7 @@ internal sealed class DraygonParts
         };
         body.SetSpeciesState(Draygon, Draygon.ClearWithRecord);
         Draygon.SetCursor(body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingLeftIdle));
-        Draygon.DisabledCannonWords.Add(DraygonCannonControlWord.UnusedBottom);
+        Draygon.DisabledCannons.Add(DraygonWallCannon.UnusedBottom);
     }
 
     /// <summary>Ports the independent initializers at <c>$A5:C46B/C599/C5AD</c>.</summary>

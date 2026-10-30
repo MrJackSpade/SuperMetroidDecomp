@@ -31,8 +31,8 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         PlmHeaderId.DraygonCannonFacingRightDestroyed or
         PlmHeaderId.DraygonCannonFacingLeft;
 
-    /// <summary>Captures cannon orientation and its enemy control word, installing shootable terrain unless the cannon starts destroyed.</summary>
-    internal static void SetupDraygonCannonSlot(RoomLevelData level, PlmSlot slot, DraygonCannonControlWord controlWord)
+    /// <summary>Captures cannon orientation and the wall cannon it controls, installing shootable terrain unless the cannon starts destroyed.</summary>
+    internal static void SetupDraygonCannonSlot(RoomLevelData level, PlmSlot slot, DraygonWallCannon cannon)
     {
         DraygonCannonOrientation orientation = slot.Header switch
         {
@@ -322,7 +322,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
                 nameof(slot), slot.Header, "Not a retail Draygon cannon header."),
         };
 
-        slot.Family = new DraygonCannonPlmState(controlWord);
+        slot.Family = new DraygonCannonPlmState(cannon);
         if (slot.Header == PlmHeaderId.DraygonCannonFacingRightDestroyed)
         {
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
@@ -391,8 +391,8 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         DraygonCannonPlmState state = (slot.Family as DraygonCannonPlmState)
             ?? throw new InvalidOperationException("Draygon cannon damage reached a slot without cannon state.");
         (_enemies ?? throw new InvalidOperationException(
-            "Draygon cannon bytecode has no enemy-control-word writer.")).DisableDraygonCannon(
-                state.ControlWord);
+            "Draygon cannon bytecode has no wall-cannon disabler.")).DisableDraygonCannon(
+                state.Cannon);
         WriteDraygonCannonTerrain(
             level,
             slot.BlockIndex,
@@ -417,15 +417,15 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         level.SetPlmBehavior(blockIndex, terrain.Behavior);
     }
 
-    /// <summary>Per-slot cannon enemy control-word identity, destruction state, and queued hit flag.</summary>
+    /// <summary>Per-slot wall cannon identity, destruction state, and queued hit flag.</summary>
     internal sealed class DraygonCannonPlmState(
-        DraygonCannonControlWord controlWord) : PlmFamilyState, IShotTriggeredPlm
+        DraygonWallCannon cannon) : PlmFamilyState, IShotTriggeredPlm
     {
         /// <inheritdoc/>
         internal override PlmFamily Family => PlmFamily.DraygonCannon;
 
         /// <summary>The cannon whose firing Draygon stops when this physical cannon is destroyed, decoded from the room's PLM argument at setup.</summary>
-        public DraygonCannonControlWord ControlWord { get; } = controlWord;
+        public DraygonWallCannon Cannon { get; } = cannon;
         /// <summary>Marks that this cannon's terrain and firing control have been disabled.</summary>
         public bool Destroyed { get; set; }
         /// <summary>Indicates a projectile collision awaiting missile-family filtering.</summary>

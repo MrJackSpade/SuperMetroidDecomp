@@ -37,7 +37,7 @@ internal static class RoomPlmPopulationImporter
             byte[] scroll = header == PlmHeaderId.ScrollTrigger ? Scroll(argument) : [];
             records.Add(new RoomPlmPlacement(metadata,
                 new(blockX, blockY), PlmRoomArgumentWords.Decode(header, argument), scroll,
-                DraygonCannonPlms.IsDraygonCannonHeader(header) ? DraygonCannonControlWordAddresses.Decode(argument) : null));
+                DraygonCannonPlms.IsDraygonCannonHeader(header) ? DraygonWallCannonAddresses.Decode(argument) : null));
             cursor = unchecked((ushort)(cursor + RoomPlmPopulationFormatConstants.RecordByteCount));
         }
         // Preserve the loader's bounded parser: a terminator beyond record 256

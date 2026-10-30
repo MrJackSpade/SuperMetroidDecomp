@@ -193,7 +193,7 @@ public sealed class DraygonEnemyState
     /// Exact extra-enemy WRAM words disabled by Draygon setup or a destroyed room PLM.
     /// This is the shared storage observed by bank $A5's firing selector.
     /// </summary>
-    internal HashSet<DraygonCannonControlWord> DisabledCannonWords { get; } = [];
+    internal HashSet<DraygonWallCannon> DisabledCannons { get; } = [];
 
     /// <summary>The word holding the function timer or the swoop path cursor, according to <see cref="Function"/>.</summary>
     private int _timerOrSwoopOffsetWord;

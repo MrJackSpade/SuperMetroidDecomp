@@ -16,7 +16,7 @@ internal sealed class FixturePlmEnemyEffects : IRoomPlmEnemyEffects
     public Action? OldTourianEscapeShaftWallExplosion { get; init; }
 
     /// <summary>Observes Draygon cannon disables.</summary>
-    public Action<DraygonCannonControlWord>? DraygonCannonDisabled { get; init; }
+    public Action<DraygonWallCannon>? DraygonCannonDisabled { get; init; }
 
     /// <summary>Invokes the installed N00b tube projectile observer or fails at the missing dependency.</summary>
     public void SpawnNoobTubeProjectile(NoobTubeProjectileRequest request) =>
@@ -31,8 +31,8 @@ internal sealed class FixturePlmEnemyEffects : IRoomPlmEnemyEffects
         (OldTourianEscapeShaftWallExplosion ?? throw Missing("old Tourian wall explosion"))();
 
     /// <summary>Invokes the installed Draygon cannon observer or fails at the missing dependency.</summary>
-    public void DisableDraygonCannon(DraygonCannonControlWord word) =>
-        (DraygonCannonDisabled ?? throw Missing("Draygon cannon disable"))(word);
+    public void DisableDraygonCannon(DraygonWallCannon cannon) =>
+        (DraygonCannonDisabled ?? throw Missing("Draygon cannon disable"))(cannon);
 
     /// <summary>Identifies the enemy-side effect the PLM fixture failed to install.</summary>
     private static InvalidOperationException Missing(string what) =>

@@ -47,7 +47,7 @@ internal sealed class DraygonTurrets
     {
         DraygonCannonTarget target = DraygonCannonData.FiringTarget(
             DraygonCannonData.FiringOrder[random & 3]);
-        if (state.DisabledCannonWords.Contains(target.DisabledWord))
+        if (state.DisabledCannons.Contains(target.Cannon))
             return;
 
         RoomEnemyProjectileSlot? turret = _projectiles.AllocateEnemyProjectile();

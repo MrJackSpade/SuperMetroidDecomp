@@ -25,7 +25,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     internal readonly SpriteComposition[] cursorSprites;
 
     /// <summary>Compiled tiles of each named options page.</summary>
-    private readonly Dictionary<GameOptionsTilemap, BackgroundTile[]> pages;
+    private readonly Dictionary<GameOptionsScreen, BackgroundTile[]> pages;
     /// <summary>The common backdrop page.</summary>
     private readonly BackgroundTile[] background;
     /// <summary>Edited controller-button glyphs, keyed by button; a button absent here draws its native glyph.</summary>
@@ -71,7 +71,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     public int UnselectedPalette { get; }
 
     /// <summary>Returns an independent mutable copy of one compiled foreground page.</summary>
-    internal BackgroundTile[] CreatePage(GameOptionsTilemap tilemap) => (BackgroundTile[])pages[tilemap].Clone();
+    internal BackgroundTile[] CreatePage(GameOptionsScreen tilemap) => (BackgroundTile[])pages[tilemap].Clone();
 
     /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
     internal void ApplyLanguage(Span<BackgroundTile> primaryPage, bool japanese)
@@ -137,11 +137,11 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     {
         int width = GameOptionsDefinitions.MenuTilemapWidth;
         yield return ScreenPictureSubject.Page(GameOptionsNames.BackgroundFrame, background, width);
-        foreach (GameOptionsTilemap tilemap in GameOptionsPresentationDefinitions.Tilemaps)
+        foreach (GameOptionsScreen tilemap in GameOptionsPresentationDefinitions.Tilemaps)
             yield return ScreenPictureSubject.Page(GameOptionsNames.PageFrame(tilemap), pages[tilemap], width, DynamicCells(tilemap));
         foreach (bool japanese in new[] { false, true })
         {
-            BackgroundTile[] primary = CreatePage(GameOptionsTilemap.Primary);
+            BackgroundTile[] primary = CreatePage(GameOptionsScreen.Primary);
             ApplyLanguage(primary, japanese);
             for (int region = 0; region < GameOptionsDefinitions.LanguagePaletteRegionCount; region++)
                 yield return ScreenPictureSubject.Cells(GameOptionsNames.LanguageFrame(region, japanese), primary, width, LanguageRegionCells(region));
@@ -151,13 +151,13 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
             int[] cells = [.. ControllerLabelCells(action).Select(cell => cell.PageCell)];
             for (int button = 0; button < GameOptionsPresentationDefinitions.ControllerLabelButtons.Count; button++)
             {
-                BackgroundTile[] controller = CreatePage(GameOptionsTilemap.ControllerEnglish);
+                BackgroundTile[] controller = CreatePage(GameOptionsScreen.ControllerEnglish);
                 ApplyControllerLabel(controller, action, button);
                 yield return ScreenPictureSubject.Cells(GameOptionsNames.ControllerLabelFrame(action, GameOptionsNames.ControllerLabelButton(button)),
                     controller, width, cells);
             }
         }
-        foreach (GameOptionsTilemap special in new[] { GameOptionsTilemap.SpecialEnglish, GameOptionsTilemap.SpecialJapanese })
+        foreach (GameOptionsScreen special in new[] { GameOptionsScreen.SpecialEnglish, GameOptionsScreen.SpecialJapanese })
         foreach (GameOptionsToggle toggle in GameOptionsPresentationDefinitions.Toggles)
         foreach (bool enabled in new[] { false, true })
         {
@@ -169,12 +169,12 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     }
 
     /// <summary>The cells of <paramref name="tilemap"/> its pictures over it show instead of the page's own picture.</summary>
-    private IEnumerable<int> DynamicCells(GameOptionsTilemap tilemap) => tilemap switch
+    private IEnumerable<int> DynamicCells(GameOptionsScreen tilemap) => tilemap switch
     {
-        GameOptionsTilemap.Primary => Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).SelectMany(LanguageRegionCells),
-        GameOptionsTilemap.ControllerEnglish or GameOptionsTilemap.ControllerJapanese =>
+        GameOptionsScreen.Primary => Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).SelectMany(LanguageRegionCells),
+        GameOptionsScreen.ControllerEnglish or GameOptionsScreen.ControllerJapanese =>
             Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount).SelectMany(action => ControllerLabelCells(action).Select(cell => cell.PageCell)),
-        GameOptionsTilemap.SpecialEnglish or GameOptionsTilemap.SpecialJapanese => GameOptionsPresentationDefinitions.Toggles.SelectMany(toggle =>
+        GameOptionsScreen.SpecialEnglish or GameOptionsScreen.SpecialJapanese => GameOptionsPresentationDefinitions.Toggles.SelectMany(toggle =>
             ToggleChoiceCells(toggle, GameOptionsToggleState.Enabled).Concat(ToggleChoiceCells(toggle, GameOptionsToggleState.Disabled))),
         _ => throw new ArgumentOutOfRangeException(nameof(tilemap), tilemap, "Undefined options page."),
     };
@@ -390,7 +390,7 @@ public sealed class GameOptionsSourcePresentation : GameOptionsPresentation
     /// <param name="Pages">Each named page's tiles.</param>
     /// <param name="Background">The common BG2 background's tiles.</param>
     /// <param name="ControllerLabels">Each assignable button's glyph.</param>
-    private sealed record GameOptionsPages(Dictionary<GameOptionsTilemap, BackgroundTile[]> Pages, BackgroundTile[] Background,
+    private sealed record GameOptionsPages(Dictionary<GameOptionsScreen, BackgroundTile[]> Pages, BackgroundTile[] Background,
         Dictionary<ControllerButton, BackgroundTile[]> ControllerLabels);
 
     /// <summary>The compiled heading and cursor compositions.</summary>

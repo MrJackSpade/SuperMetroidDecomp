@@ -51607,7 +51607,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTextTilemap.cs",
+      "path": "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTextScreen.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
       "namespace": "SuperMetroid.Core.Frontend.Ending",
@@ -55062,7 +55062,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsSpecialRow.cs",
+      "path": "csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsScreen.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
       "namespace": "SuperMetroid.Core.Frontend.Options",
@@ -55072,7 +55072,7 @@
       ]
     },
     {
-      "path": "csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsTilemap.cs",
+      "path": "csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsSpecialRow.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
       "namespace": "SuperMetroid.Core.Frontend.Options",
@@ -132835,7 +132835,7 @@
       ]
     },
     {
-      "path": "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicDefinitionsTilemapsConstants.cs",
+      "path": "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicDefinitionsPlanesConstants.cs",
       "module": "csharp/test-support/VerificationAccess.Core",
       "role": "verification-support",
       "namespace": "SuperMetroid.Core.Frontend.Intro",

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 public static class IntroScenePictures
 {
     /// <summary>The cells along each side of the scene plane.</summary>
-    internal const int PlaneCells = IntroCinematicDefinitions.Tilemaps.TilemapWidth;
+    internal const int PlaneCells = IntroCinematicDefinitions.Planes.Width;
 
     /// <summary>The name of the portrait's picture.</summary>
     public const string Portrait = "portrait";

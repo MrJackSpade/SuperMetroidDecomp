@@ -14,14 +14,14 @@ internal static class GameOptionsSourceDefinitions
     internal const int MenuBank = 0x820000;
 
     /// <summary>The bank-$97 compressed tilemap of each options page and language, as $82:EC66..ECB8 loads them.</summary>
-    internal static readonly FrozenDictionary<GameOptionsTilemap, GameOptionsPageResource> Pages =
-        new Dictionary<GameOptionsTilemap, GameOptionsPageResource>
+    internal static readonly FrozenDictionary<GameOptionsScreen, GameOptionsPageResource> Pages =
+        new Dictionary<GameOptionsScreen, GameOptionsPageResource>
         {
-            [GameOptionsTilemap.Primary] = new(0x978df4, "primary"),
-            [GameOptionsTilemap.ControllerEnglish] = new(0x978fcd, "English controller"),
-            [GameOptionsTilemap.ControllerJapanese] = new(0x9791c4, "Japanese controller"),
-            [GameOptionsTilemap.SpecialEnglish] = new(0x97938d, "English special-settings"),
-            [GameOptionsTilemap.SpecialJapanese] = new(0x97953a, "Japanese special-settings"),
+            [GameOptionsScreen.Primary] = new(0x978df4, "primary"),
+            [GameOptionsScreen.ControllerEnglish] = new(0x978fcd, "English controller"),
+            [GameOptionsScreen.ControllerJapanese] = new(0x9791c4, "Japanese controller"),
+            [GameOptionsScreen.SpecialEnglish] = new(0x97938d, "English special-settings"),
+            [GameOptionsScreen.SpecialJapanese] = new(0x97953a, "Japanese special-settings"),
         }.ToFrozenDictionary();
 
     /// <summary>

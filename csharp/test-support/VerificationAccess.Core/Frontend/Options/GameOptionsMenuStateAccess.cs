@@ -23,16 +23,16 @@ internal static class GameOptionsMenuStateAccess
             BackgroundTile[] tiles = presentation.CreatePage(shown.Page);
             switch (shown.Page)
             {
-                case GameOptionsTilemap.Primary:
+                case GameOptionsScreen.Primary:
                     presentation.ApplyLanguage(tiles, shown.JapaneseText);
                     break;
-                case GameOptionsTilemap.ControllerEnglish:
-                case GameOptionsTilemap.ControllerJapanese:
+                case GameOptionsScreen.ControllerEnglish:
+                case GameOptionsScreen.ControllerJapanese:
                     for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
                         presentation.ApplyControllerLabel(tiles, action, Input.ControllerBindings.AssignableButtonIndex(shown.Bindings[action]) ?? 0);
                     break;
-                case GameOptionsTilemap.SpecialEnglish:
-                case GameOptionsTilemap.SpecialJapanese:
+                case GameOptionsScreen.SpecialEnglish:
+                case GameOptionsScreen.SpecialJapanese:
                     presentation.ApplySpecialToggle(tiles, GameOptionsToggle.IconCancel, shown.IconCancelEnabled);
                     presentation.ApplySpecialToggle(tiles, GameOptionsToggle.Moonwalk, shown.MoonwalkEnabled);
                     break;

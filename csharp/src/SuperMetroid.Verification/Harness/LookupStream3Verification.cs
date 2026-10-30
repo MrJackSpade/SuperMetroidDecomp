@@ -826,7 +826,7 @@ internal static class LookupStream3Verification
         {
             foreach (bool japanese in new[] { false, true })
             {
-                byte[] actual = presentation.CreatePageBytes(GameOptionsTilemap.Primary);
+                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.Primary);
                 byte[] expected = (byte[])actual.Clone();
                 foreach (var region in document.LanguageRegions)
                     Paint(expected, region.Cells, japanese == region.HighlightWhenJapanese ? document.SelectedPalette : document.UnselectedPalette);
@@ -837,7 +837,7 @@ internal static class LookupStream3Verification
             foreach (bool enabled in new[] { false, true })
             {
                 GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsNames.ToggleName(toggle)];
-                byte[] actual = presentation.CreatePageBytes(GameOptionsTilemap.SpecialEnglish);
+                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.SpecialEnglish);
                 byte[] expected = (byte[])actual.Clone();
                 Paint(expected, visual.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
                 Paint(expected, visual.DisabledCells, enabled ? document.UnselectedPalette : document.SelectedPalette);
@@ -847,7 +847,7 @@ internal static class LookupStream3Verification
             for (int action = 0; action < 7; action++)
             for (int button = 0; button < 7; button++)
             {
-                byte[] actual = presentation.CreatePageBytes(GameOptionsTilemap.ControllerEnglish);
+                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.ControllerEnglish);
                 byte[] expected = (byte[])actual.Clone();
                 Position16<TilemapCells> point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)

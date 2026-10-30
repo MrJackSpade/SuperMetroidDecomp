@@ -23,11 +23,11 @@ internal static class GameOptionsPageCasesVerification
             new MemoryStream(GameOptionsPresentationExtractor.Extract(rom)));
         OriginalOrder[] originalOrder =
         [
-            new OriginalOrder(GameOptionsTilemap.Primary, "primary"),
-            new OriginalOrder(GameOptionsTilemap.ControllerEnglish, "English controller"),
-            new OriginalOrder(GameOptionsTilemap.ControllerJapanese, "Japanese controller"),
-            new OriginalOrder(GameOptionsTilemap.SpecialEnglish, "English special-settings"),
-            new OriginalOrder(GameOptionsTilemap.SpecialJapanese, "Japanese special-settings"),
+            new OriginalOrder(GameOptionsScreen.Primary, "primary"),
+            new OriginalOrder(GameOptionsScreen.ControllerEnglish, "English controller"),
+            new OriginalOrder(GameOptionsScreen.ControllerJapanese, "Japanese controller"),
+            new OriginalOrder(GameOptionsScreen.SpecialEnglish, "English special-settings"),
+            new OriginalOrder(GameOptionsScreen.SpecialJapanese, "Japanese special-settings"),
         ];
         for (int index = 0; index < originalOrder.Length; index++)
         {
@@ -45,7 +45,7 @@ internal static class GameOptionsPageCasesVerification
                 "named installed page matches independently selected native resource");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, 65536, int.MaxValue })
-            AssertThrows<KeyNotFoundException>(() => _ = GameOptionsSourceDefinitions.Pages[(GameOptionsTilemap)invalid],
+            AssertThrows<KeyNotFoundException>(() => _ = GameOptionsSourceDefinitions.Pages[(GameOptionsScreen)invalid],
                 "unsupported options tilemap selector");
     }
 

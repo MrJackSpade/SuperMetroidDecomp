@@ -517,12 +517,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// picture at its cell. A two-screen final page shows its lower screen's text below its upper screen's.
     /// </summary>
     /// <exception cref="ArgumentException">The result page is asked for two screens.</exception>
-    internal PicturedPlane TextPagePlane(EndingTextTilemap page, Extent16<TilemapCells> size)
+    internal PicturedPlane TextPagePlane(EndingTextScreen page, Extent16<TilemapCells> size)
     {
         SpriteSheet sheet = InstalledArtwork.SpriteSheet(SpriteSheetId.EndingPostCreditsPictures);
         var placed = ImmutableArray.CreateBuilder<PlacedPlanePicture>();
         bool twoScreens = size.Y > EndingScreenDefinitions.TilemapHeight;
-        if (page == EndingTextTilemap.ResultPanel)
+        if (page == EndingTextScreen.ResultPanel)
         {
             if (twoScreens)
                 throw new ArgumentException("The result page has one screen.", nameof(size));

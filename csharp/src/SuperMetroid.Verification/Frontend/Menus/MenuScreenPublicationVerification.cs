@@ -92,7 +92,7 @@ internal static class MenuScreenPublicationVerification
             ReferenceEquals(backdrop.Picture, menuPictures.Frame(GameOptionsNames.BackgroundFrame)) && optionsScene.Layers[2] is SpritesLayer,
             "options shows its backdrop's picture under its page and sprites");
         AssertTrue(optionsScene.Layers[1] is PicturedPlaneLayer { Plane.Pictures: { } page } && page.Length == 1 + GameOptionsDefinitions.LanguagePaletteRegionCount &&
-            ReferenceEquals(page[0].Picture, menuPictures.Frame(GameOptionsNames.PageFrame(GameOptionsTilemap.Primary))) &&
+            ReferenceEquals(page[0].Picture, menuPictures.Frame(GameOptionsNames.PageFrame(GameOptionsScreen.Primary))) &&
             Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).All(region =>
                 ReferenceEquals(page[1 + region].Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(region, japanese: false)))),
             "options shows the primary page with its language rows highlighting English");

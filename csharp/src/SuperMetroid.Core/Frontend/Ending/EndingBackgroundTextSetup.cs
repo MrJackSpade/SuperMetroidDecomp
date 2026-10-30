@@ -15,7 +15,7 @@ internal sealed record EndingBackgroundTextSetup
     public required bool JapaneseText { get; init; }
 
     /// <summary>The text page the staging page is shown on after each revealed glyph.</summary>
-    public EndingTextTilemap DestinationTilemap { get; init; } = EndingTextTilemap.ResultPanel;
+    public EndingTextScreen DestinationTilemap { get; init; } = EndingTextScreen.ResultPanel;
 
     /// <summary>Presentation.</summary>
     public EndingTypewriterText? Presentation { get; init; } = null;

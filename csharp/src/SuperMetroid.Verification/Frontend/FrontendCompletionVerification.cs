@@ -75,27 +75,27 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     // production-ROM capture audits rather than embedding copyrighted menu data here.
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.Primary].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Primary].Address,
         GameOptionsDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.ControllerEnglish].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerEnglish].Address,
         GameOptionsDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.ControllerJapanese].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerJapanese].Address,
         GameOptionsDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.SpecialEnglish].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialEnglish].Address,
         GameOptionsDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.SpecialJapanese].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialJapanese].Address,
         GameOptionsDefinitions.TilemapByteCount,
         0);
     var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));

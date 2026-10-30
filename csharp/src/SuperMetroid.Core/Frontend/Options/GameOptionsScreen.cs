@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Options;
 
-/// <summary>Mutually exclusive options tilemaps imported by native initialization.</summary>
-public enum GameOptionsTilemap
+/// <summary>The options menu's screens, one shown at a time: the primary page and each settings page in each language.</summary>
+public enum GameOptionsScreen
 {
     /// <summary>$82:EC66 selects $97:8DF4, the primary options page.</summary>
     Primary,

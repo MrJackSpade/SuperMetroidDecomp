@@ -22,10 +22,10 @@ public static class IntroNarrationPictures
     public const int LetterColourVariants = CinematicTextGlowDefinitions.FinalPalette + 1;
 
     /// <summary>The cells along each side of the narration plane.</summary>
-    internal const int PlaneCells = IntroCinematicDefinitions.Tilemaps.TilemapWidth;
+    internal const int PlaneCells = IntroCinematicDefinitions.Planes.Width;
 
     /// <summary>The plane row the final line's picture starts at.</summary>
-    internal const int FinalLineRow = IntroCinematicDefinitions.Text.FinalLineFirstCell / IntroCinematicDefinitions.Tilemaps.TilemapWidth;
+    internal const int FinalLineRow = IntroCinematicDefinitions.Text.FinalLineFirstCell / IntroCinematicDefinitions.Planes.Width;
 
     /// <summary>The name of <paramref name="letter"/>'s picture in colour variant <paramref name="colourVariant"/>.</summary>
     internal static string Letter(char letter, int colourVariant) => $"letter-{(int)letter:x2}-{colourVariant}";

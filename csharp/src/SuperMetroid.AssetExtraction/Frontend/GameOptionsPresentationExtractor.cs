@@ -34,11 +34,11 @@ public static class GameOptionsPresentationExtractor
             [GameOptionsPresentationDefinitions.BackgroundPageName] = Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
                     GameOptionsDefinitions.TilemapByteCount)),
-            [GameOptionsNames.TilemapName(GameOptionsTilemap.Primary)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.Primary]),
-            [GameOptionsNames.TilemapName(GameOptionsTilemap.ControllerEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.ControllerEnglish]),
-            [GameOptionsNames.TilemapName(GameOptionsTilemap.ControllerJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.ControllerJapanese]),
-            [GameOptionsNames.TilemapName(GameOptionsTilemap.SpecialEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.SpecialEnglish]),
-            [GameOptionsNames.TilemapName(GameOptionsTilemap.SpecialJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsTilemap.SpecialJapanese]),
+            [GameOptionsNames.TilemapName(GameOptionsScreen.Primary)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Primary]),
+            [GameOptionsNames.TilemapName(GameOptionsScreen.ControllerEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerEnglish]),
+            [GameOptionsNames.TilemapName(GameOptionsScreen.ControllerJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerJapanese]),
+            [GameOptionsNames.TilemapName(GameOptionsScreen.SpecialEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialEnglish]),
+            [GameOptionsNames.TilemapName(GameOptionsScreen.SpecialJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialJapanese]),
         };
 
         var labels = new Dictionary<string, MapPresentationCell[]>(StringComparer.Ordinal);

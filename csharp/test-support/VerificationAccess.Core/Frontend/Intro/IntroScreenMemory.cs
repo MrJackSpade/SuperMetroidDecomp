@@ -62,7 +62,7 @@ internal static class IntroScreenMemory
     /// </summary>
     internal static BackgroundTile[] NarrationTiles(IntroNarrationText text, IntroCinematicArtwork artwork)
     {
-        var tiles = new BackgroundTile[IntroCinematicDefinitionsTilemapsConstants.TextTilemapWordCount];
+        var tiles = new BackgroundTile[IntroCinematicDefinitionsPlanesConstants.TextTilemapWordCount];
         if (text.FirstCardShown)
         {
             IntroCinematicSourceArtwork.Of(artwork).InitialNarrationTilemap.Span[..IntroCinematicDefinitions.Artwork.NarrationTilemapCells].CopyTo(tiles);
@@ -103,7 +103,7 @@ internal static class IntroScreenMemory
         Position16<TilemapCells> corner = IntroEyeAnimationDefinitions.PortraitCell;
         Extent16<TilemapCells> size = IntroEyeAnimationDefinitions.FrameSize;
         for (int cell = 0; cell < rectangle.Length; cell++)
-            portrait[(corner.Y + cell / size.X) * IntroCinematicDefinitions.Tilemaps.TilemapWidth + corner.X + cell % size.X] = rectangle[cell];
+            portrait[(corner.Y + cell / size.X) * IntroCinematicDefinitions.Planes.Width + corner.X + cell % size.X] = rectangle[cell];
         return portrait;
     }
 

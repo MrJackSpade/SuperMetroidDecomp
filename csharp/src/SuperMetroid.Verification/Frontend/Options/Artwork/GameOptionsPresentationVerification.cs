@@ -82,8 +82,8 @@ internal static class GameOptionsPresentationVerification
             document.CursorAnchors[GameOptionsNames.MenuName(GameOptionsPage.Primary)][0] with
             { X = (ushort)(document.CursorAnchors[GameOptionsNames.MenuName(GameOptionsPage.Primary)][0].X + 8) };
         MapPresentationCell pageCell = document.Pages[
-            GameOptionsNames.TilemapName(GameOptionsTilemap.Primary)][0x144];
-        document.Pages[GameOptionsNames.TilemapName(GameOptionsTilemap.Primary)][0x144] =
+            GameOptionsNames.TilemapName(GameOptionsScreen.Primary)][0x144];
+        document.Pages[GameOptionsNames.TilemapName(GameOptionsScreen.Primary)][0x144] =
             pageCell with { FlipX = !pageCell.FlipX };
         SpriteVisualPart cursorPart = document.Sprites[
             GameOptionsNames.CursorSpriteName(0)][0];
@@ -142,7 +142,7 @@ internal static class GameOptionsPresentationVerification
             }), "options reject incomplete controller-label anchors");
         var missingPage = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             extracted, ArtworkJson.Options);
-        missingPage.Pages.Remove(GameOptionsNames.TilemapName(GameOptionsTilemap.SpecialJapanese));
+        missingPage.Pages.Remove(GameOptionsNames.TilemapName(GameOptionsScreen.SpecialJapanese));
         AssertThrows<InvalidDataException>(() => GameOptionsSourcePresentation.Write(Stream.Null, missingPage),
             "options reject a missing named page");
         var overlappingToggle = RequiredJson.Deserialize<GameOptionsPresentationDocument>(

@@ -123,7 +123,7 @@ internal sealed class EndingCreditsRoll
     }
 
     /// <summary>Background map the post-credits staging tilemap is uploaded into, switched by the white flash.</summary>
-    internal EndingTextTilemap PostCreditsTextTilemap { get; private set; } = EndingTextTilemap.ResultPanel;
+    internal EndingTextScreen PostCreditsTextTilemap { get; private set; } = EndingTextScreen.ResultPanel;
 
     /// <summary>Visible text page height in cells, enlarged to two screens for the final shot scene.</summary>
     internal int PostCreditsMapHeight { get; private set; } = 32;
@@ -142,7 +142,7 @@ internal sealed class EndingCreditsRoll
         // E48A restores the shooting palette and selects BG1SC=$4E: the final
         // text map is two screens tall, not the credits' single-screen map.
         _stage.StaticScreen(EndingPaletteId.PostCredits).LoadTo(screen.Palette, ScreenColourGroup.EndingShot);
-        PostCreditsTextTilemap = EndingTextTilemap.FinalText;
+        PostCreditsTextTilemap = EndingTextScreen.FinalText;
         PostCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
         _stage.PostCreditsScroll = Position16<TilePlanePixels>.Zero;
         // E48A clears the copyright's two rows.
@@ -172,7 +172,7 @@ internal sealed class EndingCreditsRoll
     {
         EndingLogo.Step(screen.Palette);
         if (!EndingLogo.Completed) return;
-        _artwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = EndingTextTilemap.FinalText, Presentation = _artwork.EndingText, InstalledSequence = _artwork.EndingText is null ? null : SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextSequence.ItemPercentage }));
+        _artwork.StartPostCreditsText(new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = postCreditsPage, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = EndingTextScreen.FinalText, Presentation = _artwork.EndingText, InstalledSequence = _artwork.EndingText is null ? null : SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextSequence.ItemPercentage }));
         _stage.Phase = EndingCreditsPhase.ItemPercentage;
     }
 

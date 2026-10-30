@@ -22,7 +22,7 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Remaining calls until the next installed character or hold transition.</summary>
     internal WrappingCountdown InstructionTimer { get; set; } = WrappingCountdown.Start(1);
     /// <summary>Scene-selected text page the staging page is shown on.</summary>
-    private readonly EndingTextTilemap destinationTilemap;
+    private readonly EndingTextScreen destinationTilemap;
     /// <summary>Compiled installed typewriter characters, omitted from serialized debugger state.</summary>
     [NonSerialized] private EndingTextCharacter[]? installedProgram;
     /// <summary>The installed text sequence's characters.</summary>

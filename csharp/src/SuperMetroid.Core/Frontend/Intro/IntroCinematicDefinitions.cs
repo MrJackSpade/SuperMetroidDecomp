@@ -20,11 +20,11 @@ public static class IntroCinematicDefinitions
         public const int JapaneseBlankCharactersByteCount = 96 * 16;
     }
 
-    /// <summary>The opening's text tilemaps.</summary>
-    public static class Tilemaps
+    /// <summary>The planes the opening's scene and text are drawn on.</summary>
+    public static class Planes
     {
-        /// <summary>Width of an opening tilemap in cells.</summary>
-        public const int TilemapWidth = 32;
+        /// <summary>Width of an opening plane in cells.</summary>
+        public const int Width = 32;
     }
 
     /// <summary>Blank text cells, the Japanese blank glyph and the final line's placement.</summary>

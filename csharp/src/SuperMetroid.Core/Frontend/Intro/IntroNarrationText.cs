@@ -21,7 +21,7 @@ internal sealed class IntroNarrationText
     private const int TextCells = IntroCinematicDefinitions.Text.GameplayBlankWordCount;
 
     /// <summary>The cells along a text row.</summary>
-    internal const int RowCells = IntroCinematicDefinitions.Tilemaps.TilemapWidth;
+    internal const int RowCells = IntroCinematicDefinitions.Planes.Width;
 
     /// <summary>The text rows' staged cells, which the narration types into and its glows recolour.</summary>
     private readonly IntroTextCell[] staging = new IntroTextCell[TextCells];

@@ -78193,14 +78193,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Ending.EndingTextTilemap",
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingTextScreen",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTextTilemap.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Ending/EndingTextScreen.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -80857,7 +80857,7 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitions.Text",
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitions.Planes",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
@@ -80870,7 +80870,7 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitions.Tilemaps",
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitions.Text",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
@@ -80899,7 +80899,7 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitionsTilemapsConstants",
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicDefinitionsPlanesConstants",
       "kind": "static class",
       "scope": "test",
       "assemblies": [
@@ -80909,7 +80909,7 @@
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicDefinitionsTilemapsConstants.cs"
+        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicDefinitionsPlanesConstants.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -84072,6 +84072,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Options.GameOptionsScreen",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsScreen.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Options.GameOptionsSpecialRow",
       "kind": "enum",
       "scope": "product",
@@ -84080,19 +84093,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsSpecialRow.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Options.GameOptionsTilemap",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Options/GameOptionsTilemap.cs"
       ],
       "partial": "none",
       "disposition": "value"

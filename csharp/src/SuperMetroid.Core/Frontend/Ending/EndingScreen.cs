@@ -76,14 +76,14 @@ internal sealed class EndingScreen
     internal int LogoChunksShown => Math.Clamp(PostShotPartsShown - EndingPostShotParts.FirstLogoPart, 0, EndingPostShotParts.LogoParts);
 
     /// <summary>Shows <paramref name="text"/> on the text page <paramref name="page"/>.</summary>
-    internal void ShowText(EndingTextTilemap page, ImmutableArray<ShownEndingText> text)
+    internal void ShowText(EndingTextScreen page, ImmutableArray<ShownEndingText> text)
     {
         switch (page)
         {
-            case EndingTextTilemap.ResultPanel:
+            case EndingTextScreen.ResultPanel:
                 ResultPageText = text;
                 break;
-            case EndingTextTilemap.FinalText:
+            case EndingTextScreen.FinalText:
                 FinalPageText = text;
                 break;
             default:

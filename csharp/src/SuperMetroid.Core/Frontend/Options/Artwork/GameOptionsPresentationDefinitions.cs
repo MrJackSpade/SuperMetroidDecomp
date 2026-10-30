@@ -12,7 +12,7 @@ public static class GameOptionsPresentationDefinitions
     public const string BackgroundPageName = "Background";
 
     /// <summary>The foreground option pages in document order: primary, then English and Japanese controller and special pages.</summary>
-    public static IReadOnlyList<GameOptionsTilemap> Tilemaps { get; } = Enum.GetValues<GameOptionsTilemap>();
+    public static IReadOnlyList<GameOptionsScreen> Tilemaps { get; } = Enum.GetValues<GameOptionsScreen>();
     /// <summary>The three menu layouts headings and cursors are anchored by, in primary, controller and special order.</summary>
     internal static IReadOnlyList<GameOptionsPage> MenuPages { get; } = Enum.GetValues<GameOptionsPage>();
     /// <summary>The assignable buttons whose glyphs the controller page shows, in native selector order: X, A, B, Select, Y, L, R.</summary>
@@ -26,14 +26,14 @@ public static class GameOptionsPresentationDefinitions
     internal static readonly string[] CursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
 
     /// <summary>The JSON name of a foreground page.</summary>
-    internal static readonly IReadOnlyDictionary<GameOptionsTilemap, string> TilemapNames =
-        new Dictionary<GameOptionsTilemap, string>
+    internal static readonly IReadOnlyDictionary<GameOptionsScreen, string> TilemapNames =
+        new Dictionary<GameOptionsScreen, string>
         {
-            [GameOptionsTilemap.Primary] = "Primary",
-            [GameOptionsTilemap.ControllerEnglish] = "Controller.English",
-            [GameOptionsTilemap.ControllerJapanese] = "Controller.Japanese",
-            [GameOptionsTilemap.SpecialEnglish] = "Special.English",
-            [GameOptionsTilemap.SpecialJapanese] = "Special.Japanese",
+            [GameOptionsScreen.Primary] = "Primary",
+            [GameOptionsScreen.ControllerEnglish] = "Controller.English",
+            [GameOptionsScreen.ControllerJapanese] = "Controller.Japanese",
+            [GameOptionsScreen.SpecialEnglish] = "Special.English",
+            [GameOptionsScreen.SpecialJapanese] = "Special.Japanese",
         };
 
     /// <summary>The JSON name of a menu layout, which keys its heading and cursor anchors.</summary>

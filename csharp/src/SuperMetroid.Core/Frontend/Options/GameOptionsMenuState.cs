@@ -434,11 +434,11 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     [MemberNotNull(nameof(ShownPage))]
     private void LoadVisiblePage()
     {
-        GameOptionsTilemap shown = page switch
+        GameOptionsScreen shown = page switch
         {
-            GameOptionsPage.Primary => GameOptionsTilemap.Primary,
-            GameOptionsPage.Controller => JapaneseText ? GameOptionsTilemap.ControllerJapanese : GameOptionsTilemap.ControllerEnglish,
-            GameOptionsPage.Special => JapaneseText ? GameOptionsTilemap.SpecialJapanese : GameOptionsTilemap.SpecialEnglish,
+            GameOptionsPage.Primary => GameOptionsScreen.Primary,
+            GameOptionsPage.Controller => JapaneseText ? GameOptionsScreen.ControllerJapanese : GameOptionsScreen.ControllerEnglish,
+            GameOptionsPage.Special => JapaneseText ? GameOptionsScreen.SpecialJapanese : GameOptionsScreen.SpecialEnglish,
             _ => throw new InvalidOperationException($"Unknown options page {page}."),
         };
         ShownPage = new ShownOptionsPage(shown, JapaneseText, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);

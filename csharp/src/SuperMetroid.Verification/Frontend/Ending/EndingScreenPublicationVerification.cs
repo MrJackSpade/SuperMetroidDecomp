@@ -23,7 +23,7 @@ internal static class EndingScreenPublicationVerification
     {
         var screen = new EndingScreen();
         screen.LoadFlyawayChunk(0);
-        screen.ShowText(EndingTextTilemap.FinalText, [new ShownEndingText(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell)]);
+        screen.ShowText(EndingTextScreen.FinalText, [new ShownEndingText(EndingPictureNames.CopyrightPanel, EndingResultTextLayout.CopyrightPanelCell)]);
         screen.LoadExplosionMaps();
         AssertThrows<InvalidOperationException>(() => screen.LoadFlyawayChunk(0), "the flyaway floor's loads are made once each, in order");
         AssertEqual(EndingFloorShot.None, screen.FloorShot, "a floor shows only once all its loads are made");

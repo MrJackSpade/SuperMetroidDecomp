@@ -14,7 +14,7 @@ internal static class GameOptionsPresentationWordPages
     extension(GameOptionsPresentation presentation)
     {
         /// <summary>An independent copy of one compiled page, as tilemap word bytes.</summary>
-        internal byte[] CreatePageBytes(GameOptionsTilemap tilemap) => BackgroundTileWordBytes.Of(GameOptionsSourcePresentation.Of(presentation).CreatePage(tilemap));
+        internal byte[] CreatePageBytes(GameOptionsScreen tilemap) => BackgroundTileWordBytes.Of(GameOptionsSourcePresentation.Of(presentation).CreatePage(tilemap));
 
         /// <summary>Recolours the language regions of a page held as tilemap word bytes.</summary>
         internal void ApplyLanguage(byte[] primaryPage, bool japanese) => Change(primaryPage, tiles => GameOptionsSourcePresentation.Of(presentation).ApplyLanguage(tiles, japanese));

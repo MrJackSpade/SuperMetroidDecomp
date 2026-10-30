@@ -79,11 +79,11 @@ internal static class IntroCinematicArtworkVerification
                 "installed compressed cinematic OBJ PNG preserves every native tile byte");
             AssertTrue(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span).AsSpan().SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundPageTilemaps,
-                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.BackgroundPageTilemapCells * sizeof(ushort))),
+                        maximumOutputBytes: IntroCinematicDefinitionsArtworkConstants.BackgroundPageTilemapCells * sizeof(ushort))),
                 "four installed BG page JSON files, encoded through the codec, preserve every native tilemap word");
             AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.SamusHeadTilemap,
-                        maximumOutputBytes: IntroCinematicDefinitions.Artwork.SamusHeadTilemapCells * sizeof(ushort))),
+                        maximumOutputBytes: IntroCinematicDefinitionsArtworkConstants.SamusHeadTilemapCells * sizeof(ushort))),
                 "installed portrait JSON, encoded through the codec, preserves every native tilemap word");
             AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.FirstNarrationTilemap,

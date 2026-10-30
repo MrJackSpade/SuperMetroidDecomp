@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.Ending;
+﻿using SuperMetroid.Core.Frontend.Ending;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 

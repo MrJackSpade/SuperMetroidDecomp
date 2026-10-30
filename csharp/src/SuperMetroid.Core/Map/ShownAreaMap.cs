@@ -21,15 +21,4 @@ public sealed class ShownAreaMap
 
     /// <summary>Each cell, row by row.</summary>
     public ImmutableArray<ShownMapCell> Cells { get; }
-
-    /// <summary>How the screen shows <paramref name="cell"/>.</summary>
-    public ShownMapCell this[Position16<MapTiles> cell]
-    {
-        get
-        {
-            if (cell.X >= AreaMapLayout.WidthInTiles || cell.Y >= AreaMapLayout.HeightInTiles)
-                throw new ArgumentOutOfRangeException(nameof(cell), "The cell lies outside the area map.");
-            return Cells[cell.Y * AreaMapLayout.WidthInTiles + cell.X];
-        }
-    }
 }

@@ -67,9 +67,6 @@ public sealed class ScreenTileSheet
     public static Position16<ImagePixels> CornerOf(int character, int row, int blockRows) => new(
         (ushort)(character % Columns * TilePixels), (ushort)((row * blockRows + character / Columns) * TilePixels));
 
-    /// <summary>Rows of tiles in each palette row's block of a sheet of <paramref name="characters"/> characters.</summary>
-    public static int BlockRowsOf(int characters) => (Ensure.BetweenInclusive(1, int.MaxValue, characters) + Columns - 1) / Columns;
-
     /// <summary>The two-byte words of artwork one character of <paramref name="depth"/> occupies.</summary>
     public static int CharacterWordsOf(TileInkDepth depth) => depth == TileInkDepth.SixteenColours ? 16 : 8;
 

@@ -6,9 +6,6 @@ public static class EndingArtworkExtentDefinitions
     /// <summary>The bytes of one complete Mode 7 floor lane, also the full reward character sheet.</summary>
     public const int FloorBytes = 0x4000;
 
-    /// <summary>The bytes of each of the flyaway's sixteen floor chunks.</summary>
-    public const int FlyawayChunkBytes = 0x0800;
-
     /// <summary>The flyaway map bytes kept before the rest of the map is filled with the blank tile.</summary>
     public const int FlyawayMapDataBytes = 0x0300;
 

@@ -119,20 +119,6 @@ internal sealed class EndingStage
             definition.Program,
             role);
 
-    /// <summary>Rejects decoded artwork too short for its native VRAM transfer span.</summary>
-    internal static void RequireMinimum(ReadOnlyMemory<byte> data, int minimum, string name)
-    {
-        if (data.Length < minimum)
-            throw new InvalidDataException($"{name} expanded to ${data.Length:X}, expected at least ${minimum:X}.");
-    }
-
-    /// <summary>Rejects installed characters whose <paramref name="length"/> bytes do not reach a native VRAM transfer span.</summary>
-    internal static void RequireMinimum(int length, int minimum, string name)
-    {
-        if (length < minimum)
-            throw new InvalidDataException($"{name} expanded to ${length:X}, expected at least ${minimum:X}.");
-    }
-
     /// <summary>Native scene boundaries clear slots but retain installed color ownership.</summary>
     internal void ResetPaletteFx()
     {

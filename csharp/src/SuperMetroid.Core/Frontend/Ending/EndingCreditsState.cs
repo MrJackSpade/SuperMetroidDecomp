@@ -263,8 +263,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.Credits:
-                CreditsObjectStepResult creditsStep = Credits.Step();
-                if (creditsStep.Finished)
+                Credits.Step();
+                if (Credits.Finished)
                     CreditsRoll.SetupPostCreditsBlank();
                 break;
 

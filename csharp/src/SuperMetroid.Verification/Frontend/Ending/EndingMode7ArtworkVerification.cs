@@ -171,17 +171,17 @@ internal static class EndingMode7ArtworkVerification
                 partial.Stage.BindFloorArtwork(editedMap);
                 var shownPartial2 = partial.ShownVram();
                 byte[] rebound = shownPartial2.ToArray();
-                for (int word = 0; word < EndingArtworkExtentDefinitions.FlyawayChunkBytes; word++)
+                for (int word = 0; word < EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes; word++)
                     AssertEqual(partiallyUploaded[word * 2], rebound[word * 2],
                         $"edited explosion retains already-transferred map word {word}");
                 AssertTrue(!partiallyUploaded.AsSpan(
-                        EndingArtworkExtentDefinitions.FlyawayChunkBytes * 2,
+                        EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes * 2,
                         EndingArtworkExtentDefinitions.FloorBytes * 2 -
-                            EndingArtworkExtentDefinitions.FlyawayChunkBytes * 2)
+                            EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes * 2)
                     .SequenceEqual(rebound.AsSpan(
-                        EndingArtworkExtentDefinitions.FlyawayChunkBytes * 2,
+                        EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes * 2,
                         EndingArtworkExtentDefinitions.FloorBytes * 2 -
-                            EndingArtworkExtentDefinitions.FlyawayChunkBytes * 2)),
+                            EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes * 2)),
                     "edited explosion updates only the not-yet-transferred Mode-7 map region");
                 AssertEqual(0, partialBus.ForbiddenReadAttempts,
                     "partial explosion rebind never reads authored cartridge sources");

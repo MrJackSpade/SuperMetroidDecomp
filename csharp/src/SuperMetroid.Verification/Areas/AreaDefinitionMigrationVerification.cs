@@ -45,7 +45,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0xb0c400, CeresSourceDefinitions.Door.Characters, "door character source");
         AssertEqual(0xa6f4ee, CeresSourceDefinitions.Door.NormalColors, "door normal colour source");
         AssertEqual(0x10, CeresSourceDefinitions.Door.AnimationRowBytes, "door glow row stride");
-        AssertEqual(0xa6f918, CeresSourceDefinitions.Door.PlatformFrames, "platform strip source");
+        AssertEqual(0xa6f918, CeresSourceDefinitionsDoorConstants.PlatformFrames, "platform strip source");
         AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Common), CeresElevatorArrivalDefinitions.StartingGraphics,
             "arrival graphics: tile base zero, in the common sprite colours");
 

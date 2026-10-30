@@ -1,5 +1,4 @@
-
-namespace SuperMetroid.AssetExtraction.Video;
+﻿namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// Mode 7's fixed VRAM planes (#630). Mode 7 interleaves its 128x128 tile map and its 256 8-bpp

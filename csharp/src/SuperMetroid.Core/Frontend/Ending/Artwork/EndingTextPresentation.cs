@@ -16,9 +16,9 @@ public sealed class EndingTextPresentation
     /// <summary>Japanese subtitle cells whose tiles override the stock calculated layout.</summary>
     internal readonly Dictionary<int, BackgroundTile> subtitleOverrides = new();
     /// <summary>Glyph placements for the item-percentage typewriter sequence.</summary>
-    private readonly EndingTextCharacter[] percentage;
+    internal readonly EndingTextCharacter[] percentage;
     /// <summary>Glyph placements for the final message typewriter sequence.</summary>
-    private readonly EndingTextCharacter[] finalMessage;
+    internal readonly EndingTextCharacter[] finalMessage;
 
     /// <summary>Separates editable panel cells from calculated stock tiles and retains compiled ending glyphs.</summary>
     private EndingTextPresentation(
@@ -75,15 +75,6 @@ public sealed class EndingTextPresentation
                 return owner.subtitleOverrides.GetValueOrDefault(index, EndingTextPanels.SubtitleTile(index));
             }
         }
-        /// <summary>Copies all 64 subtitle tiles in row-major order, leaving any additional destination cells unchanged.</summary>
-        /// <param name="destination">Storage for at least two 32-cell tilemap rows.</param>
-        /// <exception cref="ArgumentException">The destination has fewer than 64 cells.</exception>
-        public void CopyTo(Span<BackgroundTile> destination)
-        {
-            if (destination.Length < Count)
-                throw new ArgumentException("Destination is too short.", nameof(destination));
-            for (int cell = 0; cell < Count; cell++) destination[cell] = this[cell];
-        }
         /// <summary>Enumerates the resolved tiles from the first row's left edge through the second row's right edge.</summary>
         public IEnumerator<BackgroundTile> GetEnumerator()
         {
@@ -92,16 +83,6 @@ public sealed class EndingTextPresentation
         /// <summary>Enumerates resolved subtitle tiles through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>Gets the precompiled glyph placements for the item-percentage labels ($8C:DFDB) or final message ($8C:E0AF); dynamic percentage digits and cinematic timing are supplied by the frontend.</summary>
-    /// <param name="sequence">The bounded ending typewriter program whose configured characters are requested.</param>
-    /// <returns>Characters in drawing order, with their cells, styles and characters.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The selector is not a supported ending text sequence.</exception>
-    public ReadOnlySpan<EndingTextCharacter> Compile(EndingTextSequence sequence) => sequence switch
-    {
-        EndingTextSequence.ItemPercentage => percentage,
-        EndingTextSequence.FinalMessage => finalMessage,
-        _ => throw new ArgumentOutOfRangeException(nameof(sequence), sequence, null),
-    };
 
     /// <summary>The characters the ending's typewriter types, which the game reads instead of this presentation (#1467).</summary>
     public EndingTypewriterText Typewriter() => new([.. percentage], [.. finalMessage]);

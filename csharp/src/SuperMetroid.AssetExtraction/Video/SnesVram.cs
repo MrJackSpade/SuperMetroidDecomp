@@ -52,28 +52,6 @@ public sealed class SnesVram
     }
 
     /// <summary>
-    /// Executes a word-oriented DMA staging slice with the VMAIN increment already decoded.
-    /// </summary>
-    /// <param name="words">Complete source-word slice, in DMA order.</param>
-    /// <param name="destinationWord">Initial 15-bit VMADD word address.</param>
-    /// <param name="wordIncrement">One for a row (VMAIN=$80), 32 for a column (VMAIN=$81).</param>
-    public void ExecuteWordTransfer(ReadOnlySpan<ushort> words, int destinationWord, int wordIncrement)
-    {
-        writeGeneration++;
-        if (wordIncrement is not (1 or 32))
-            throw new ArgumentOutOfRangeException(nameof(wordIncrement), "Known tilemap DMA increments are one or 32 words.");
-
-        int destination = destinationWord & WordAddressMask;
-        foreach (int word in words)
-        {
-            int byteOffset = destination * 2;
-            _bytes[byteOffset] = LittleEndianBytes.LowByte(word);
-            _bytes[byteOffset + 1] = LittleEndianBytes.HighByte(word);
-            destination = (destination + wordIncrement) & WordAddressMask;
-        }
-    }
-
-    /// <summary>
     /// Loads a consecutive decompressed byte range as the VRAM-targeting decompressor does.
     /// This is used for room character graphics, whose command stream is expanded directly
     /// to the PPU rather than represented by the ordinary seven-byte write queue.
@@ -84,34 +62,6 @@ public sealed class SnesVram
         if (destinationByteOffset < 0 || destinationByteOffset + bytes.Length > ByteCount)
             throw new ArgumentOutOfRangeException(nameof(destinationByteOffset));
         bytes.CopyTo(_bytes.AsSpan(destinationByteOffset));
-    }
-
-    /// <summary>Loads bytes through Mode 7's high-byte-only $2119 DMA port.</summary>
-    public void LoadFloorCharacterBytes(ReadOnlySpan<byte> bytes, int destinationWord = 0)
-    {
-        writeGeneration++;
-        if (bytes.Length > WordCount)
-            throw new ArgumentOutOfRangeException(nameof(bytes));
-        int destination = destinationWord & WordAddressMask;
-        for (int index = 0; index < bytes.Length; index++)
-        {
-            _bytes[destination * 2 + 1] = bytes[index];
-            destination = (destination + 1) & WordAddressMask;
-        }
-    }
-
-    /// <summary>Loads bytes through Mode 7's low-byte-only $2118 DMA port.</summary>
-    public void LoadFloorMapBytes(ReadOnlySpan<byte> bytes, int destinationWord = 0)
-    {
-        writeGeneration++;
-        if (bytes.Length > WordCount)
-            throw new ArgumentOutOfRangeException(nameof(bytes));
-        int destination = destinationWord & WordAddressMask;
-        for (int index = 0; index < bytes.Length; index++)
-        {
-            _bytes[destination * 2] = bytes[index];
-            destination = (destination + 1) & WordAddressMask;
-        }
     }
 
     /// <summary>

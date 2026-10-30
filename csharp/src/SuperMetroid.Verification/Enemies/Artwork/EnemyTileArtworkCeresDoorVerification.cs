@@ -70,8 +70,8 @@ internal static class EnemyTileArtworkCeresDoorVerification
             AssertEqual((byte)0x80, CpuBusRegionRead.Read(bus, record),
                 $"Ceres-door Mode-7 transfer {frame} uses the native low-byte DMA");
             int source = (int)new SnesAddress(CpuBusRegionRead.Read(bus, record + 3), LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, record + 1), CpuBusRegionRead.Read(bus, record + 2)));
-            AssertEqual(frame == 0 ? CeresSourceDefinitions.Door.PlatformFrames :
-                    CeresSourceDefinitions.Door.PlatformFrames + CeresSourceDefinitions.Door.PlatformFrameBytes,
+            AssertEqual(frame == 0 ? CeresSourceDefinitionsDoorConstants.PlatformFrames :
+                    CeresSourceDefinitionsDoorConstants.PlatformFrames + CeresSourceDefinitionsDoorConstants.PlatformFrameBytes,
                 source, $"Ceres-door Mode-7 transfer {frame} source");
             AssertEqual(stripCells,
                 RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 4),

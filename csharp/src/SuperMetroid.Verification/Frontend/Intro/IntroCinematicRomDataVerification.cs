@@ -40,7 +40,7 @@ internal static class IntroCinematicRomDataVerification
             AssertTrue(address is >= 0x808000 and <= 0xffffff,
                 $"intro resource ${address:X6} is mapped ROM");
 
-        AssertEqual(IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount,
+        AssertEqual(IntroCinematicDefinitionsTilemapsConstants.TextTilemapWordCount,
             IntroCinematicDefinitions.Tilemaps.TilemapWidth * IntroCinematicDefinitions.Tilemaps.TilemapWidth,
             "intro text tilemap is 32x32 words");
         AssertTrue(

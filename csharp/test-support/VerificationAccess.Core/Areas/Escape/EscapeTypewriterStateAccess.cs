@@ -19,7 +19,7 @@ internal static class EscapeTypewriterStateAccess
         {
             bool completed = state.Step(out EscapeTypewriterGlyph? glyph);
             if (glyph is { } typed)
-                vram.ExecuteWordTransfer([EscapeTypewriterGlyphTiles.Of(state.ProgramId, typed).PackedWord], checked((ushort)typed.Cell), 1);
+                vram.ExecuteWordTransfer([EscapeTypewriterGlyphTilesConstants.Of(state.ProgramId, typed).PackedWord], checked((ushort)typed.Cell), 1);
             return completed;
         }
     }

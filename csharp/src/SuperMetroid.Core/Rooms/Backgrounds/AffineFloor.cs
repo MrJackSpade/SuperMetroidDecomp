@@ -47,10 +47,6 @@ public sealed class AffineFloor : IEquatable<AffineFloor>
     /// <summary>The image and every picture drawn over it, each once, the image first.</summary>
     public ImmutableArray<SpriteSheetFrame> Pictures { get; }
 
-    /// <summary>The floor point the top-left pixel of <paramref name="picture"/>, drawn over the floor, lands at.</summary>
-    public static Offset16<FloorPixels> PlacementOf(SpriteSheetFrame picture) =>
-        Offset16<FloorPixels>.Of(-Ensure.NotNull(picture).Origin.X, -picture.Origin.Y);
-
     /// <inheritdoc />
     public bool Equals(AffineFloor? other) =>
         other is not null && ReferenceEquals(Image, other.Image) && DrawnOver.AsSpan().SequenceEqual(other.DrawnOver.AsSpan(), ReferenceEqualityComparer.Instance);

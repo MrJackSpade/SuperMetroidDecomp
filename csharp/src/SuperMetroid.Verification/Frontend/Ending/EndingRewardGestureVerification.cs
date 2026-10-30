@@ -43,7 +43,7 @@ internal static class EndingRewardGestureVerification
                 $"reward graphics chunk {chunk}'s offset is its native source word's offset from the staging buffer");
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     EndingRewardGraphicsUploadDefinitions.DestinationTable + chunk * sizeof(ushort)),
-                SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.RewardChunkWordOf(chunk),
+                SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinationsConstants.RewardChunkWordOf(chunk),
                 $"reward graphics destination address {chunk} matches pinned cartridge");
             graphicsScreen.LoadRewardChunk(chunk);
             byte[] graphicsVram = EndingScreenMemory.Compose(graphicsScreen, rewardArtwork, null, null, null, EndingReward.Armored);
@@ -59,7 +59,7 @@ internal static class EndingRewardGestureVerification
             () => EndingRewardGraphicsUploads.ChunkOffset(16),
             "reward icon source rejects the seventeenth transfer");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinations.RewardChunkWordOf(-1),
+            () => SuperMetroid.AssetExtraction.Frontend.Ending.EndingVramDestinationsConstants.RewardChunkWordOf(-1),
             "reward icon destination rejects a negative transfer");
         var rewardBus = NewEndingRewardDefinitionReadGuard(bus);
         var rewardSprites = CinematicSheetFixtures.Drawer(RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites);

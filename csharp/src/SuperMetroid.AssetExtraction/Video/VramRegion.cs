@@ -45,26 +45,6 @@ internal readonly struct VramRegion
         vram.LoadBytes(first * sizeof(ushort) + byteOffset, bytes);
     }
 
-    /// <summary>
-    /// Writes a word stream starting <paramref name="wordOffset"/> words in, advancing <paramref name="wordStep"/> words
-    /// after each word: one along a row, a row's width down a column.
-    /// </summary>
-    public void Write(ReadOnlySpan<ushort> words, int wordOffset = 0, int wordStep = 1)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(wordStep);
-        if (words.Length > 0)
-            CheckWords(wordOffset, (words.Length - 1) * wordStep + 1);
-        vram.ExecuteWordTransfer(words, (ushort)(first + wordOffset), wordStep);
-    }
-
-    /// <summary>Rejects a word span that crosses this region's physical allocation.</summary>
-    internal void CheckWords(int wordOffset, int wordCount)
-    {
-        if (wordOffset < 0 || wordCount < 0 || wordOffset + wordCount > WordCount)
-            throw new ArgumentOutOfRangeException(nameof(wordOffset), wordOffset,
-                $"Words {wordOffset}+{wordCount} exceed the {WordCount}-word VRAM region at ${first:X4}.");
-    }
-
     /// <summary>Rejects a byte span that crosses this region's physical allocation.</summary>
     private void CheckBytes(int byteOffset, int byteCount)
     {

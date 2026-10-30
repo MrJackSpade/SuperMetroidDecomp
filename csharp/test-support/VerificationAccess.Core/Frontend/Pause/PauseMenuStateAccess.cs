@@ -58,7 +58,7 @@ internal static class PauseMenuStateAccess
             int index = AreaMapPages.GetTilemapWordIndex(cell);
             if (self.ScreenMode != PauseScreenMode.Map && index < PauseEquipmentBaseDefinitions.Cells)
                 return self.ShownEquipmentTiles[index];
-            ShownMapCell shown = self.ShownMap[cell];
+            ShownMapCell shown = self.ShownMap.Cells[cell.Y * AreaMapLayout.WidthInTiles + cell.X];
             return new BackgroundTile(shown.Cell.Shape.Picture, shown.ColourVariant, shown.Cell.InFront, shown.Cell.Mirroring);
         }
 
@@ -66,7 +66,7 @@ internal static class PauseMenuStateAccess
         /// The BG2 tiles the cartridge would show (#1467): the area's backdrop with the button rows over it, each label in
         /// the shade the highlight shows it in, laid out from the import's sources of the frame's pictures.
         /// </summary>
-        internal BackgroundTile[] ShownBg2Tiles => PausePictureSheet.Frame(self.screen.Artwork, self.area, self.ButtonHighlight);
+        internal BackgroundTile[] ShownBg2Tiles => PausePictureSheetConstants.Frame(self.screen.Artwork, self.area, self.ButtonHighlight);
 
         /// <summary>
         /// Reads one native $7E:3000-relative button-label word as the shown BG2 rows hold it, proving the bottom pause

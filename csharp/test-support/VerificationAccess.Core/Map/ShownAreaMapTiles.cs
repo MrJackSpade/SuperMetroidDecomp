@@ -18,7 +18,7 @@ internal static class ShownAreaMapTiles
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
             var cell = new Position16<MapTiles>(unchecked((ushort)x), unchecked((ushort)y));
-            ShownMapCell shown = map[cell];
+            ShownMapCell shown = map.Cells[y * AreaMapLayout.WidthInTiles + x];
             tiles[AreaMapPages.GetTilemapWordIndex(cell)] =
                 new BackgroundTile(shown.Cell.Shape.Picture, shown.ColourVariant, shown.Cell.InFront, shown.Cell.Mirroring);
         }

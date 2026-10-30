@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public sealed class RoomFloor
 {
     /// <summary>The names of the pictures drawn over the floor, in drawing order, each over a part no other covers.</summary>
-    private readonly List<string> drawn = [];
+    internal readonly List<string> drawn = [];
 
     /// <summary>The floor as drawn, until the next drawing.</summary>
     [NonSerialized] private AffineFloor? published;
@@ -22,9 +22,6 @@ public sealed class RoomFloor
 
     /// <summary>The tileset's installed floor and the pictures drawn over it.</summary>
     public RoomFloorSheet Sheet { get; }
-
-    /// <summary>The names of the pictures drawn over the floor, in drawing order.</summary>
-    public IReadOnlyList<string> Drawn => drawn;
 
     /// <summary>Draws the picture named <paramref name="picture"/> over the part of the floor it covers, replacing what was drawn there.</summary>
     /// <exception cref="InvalidDataException">The floor's sheet holds no such picture.</exception>

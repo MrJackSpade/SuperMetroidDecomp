@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using static SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverPageDefinitions;
 
@@ -29,16 +29,16 @@ internal static class GameOverText
                     if (column < stream.Description.Length) return LargeLetter(stream.Description[column], row);
                     break;
                 case GameOverTextElement.Objective:
-                    if (row == 0 && column < ObjectiveText.Length) return SmallLetter(ObjectiveText[column]);
+                    if (row == 0 && column < GameOverPageDefinitionsConstants.ObjectiveText.Length) return SmallLetter(GameOverPageDefinitionsConstants.ObjectiveText[column]);
                     break;
                 case GameOverTextElement.Prompt:
-                    if (row == 0 && column < PromptText.Length) return SmallLetter(PromptText[column]);
+                    if (row == 0 && column < GameOverPageDefinitionsConstants.PromptText.Length) return SmallLetter(GameOverPageDefinitionsConstants.PromptText[column]);
                     break;
                 case GameOverTextElement.ReturnToGame:
                 case GameOverTextElement.ReturnToTitle:
                     string answer = element == GameOverTextElement.ReturnToGame ? "YES" : "N O";
                     if (column < answer.Length) return LargeLetter(answer[column], row);
-                    string explanation = element == GameOverTextElement.ReturnToGame ? ReturnToGameText : ReturnToTitleText;
+                    string explanation = element == GameOverTextElement.ReturnToGame ? GameOverPageDefinitionsConstants.ReturnToGameText : GameOverPageDefinitionsConstants.ReturnToTitleText;
                     if (row == 1 && column - answer.Length < explanation.Length)
                         return SmallLetter(explanation[column - answer.Length]);
                     break;
@@ -52,19 +52,19 @@ internal static class GameOverText
     /// <summary>Maps a character in the native small-font text lines to its menu atlas cell.</summary>
     private static ushort SmallLetter(char letter) => letter switch
     {
-        >= 'A' and <= 'Z' => (ushort)(SmallLetterA + letter - 'A'),
+        >= 'A' and <= 'Z' => (ushort)(GameOverPageDefinitionsConstants.SmallLetterA + letter - 'A'),
         ' ' => BlankTile,
-        '!' => ExclamationTile,
-        '?' => QuestionTile,
-        '(' => OpeningParenthesisTile,
-        ')' => OpeningParenthesisTile + 1,
+        '!' => GameOverPageDefinitionsConstants.ExclamationTile,
+        '?' => GameOverPageDefinitionsConstants.QuestionTile,
+        '(' => GameOverPageDefinitionsConstants.OpeningParenthesisTile,
+        ')' => GameOverPageDefinitionsConstants.OpeningParenthesisTile + 1,
         _ => throw new ArgumentOutOfRangeException(nameof(letter)),
     };
 
     /// <summary>The menu atlas cell of the upper (row zero) or lower half of a large letter.</summary>
     private static ushort LargeLetter(char letter, int row)
     {
-        GameOverLargeGlyph glyph = Ensure.Listed(LargeLetters, letter);
+        GameOverLargeGlyph glyph = Ensure.Listed(GameOverPageDefinitionsConstants.LargeLetters, letter);
         return checked((ushort)(row == 0 ? glyph.Top : glyph.Bottom));
     }
 }

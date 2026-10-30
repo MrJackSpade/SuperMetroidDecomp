@@ -1,5 +1,4 @@
-
-namespace SuperMetroid.AssetExtraction.Video;
+﻿namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
 /// Typed view of Mode 7's interleaved map and character planes (#630): map cells and character

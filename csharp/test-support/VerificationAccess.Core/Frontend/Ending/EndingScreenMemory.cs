@@ -35,7 +35,7 @@ internal static class EndingScreenMemory
         if (screen.PostCreditsArtLoaded)
             EndingScreenImage.Execute(vram, new EndingTransfer(EndingTransferKind.CreditsCharacterArt), artwork);
         for (int chunk = 0; chunk < screen.RewardChunksLoaded; chunk++)
-            vram.LoadBytes(EndingVramDestinations.RewardChunkWordOf(chunk) * sizeof(ushort),
+            vram.LoadBytes(EndingVramDestinationsConstants.RewardChunkWordOf(chunk) * sizeof(ushort),
                 EndingRewardIconCharacters.Of(Required(floor).RewardIcon).Bytes.Span.Slice(EndingRewardGraphicsUploads.ChunkOffset(chunk),
                     EndingRewardGraphicsUploadDefinitions.ChunkBytes));
         if (screen.ExplosionMapsLoaded)
@@ -54,7 +54,7 @@ internal static class EndingScreenMemory
     private static void Flyaway(SnesVram vram, int index, CeresFlightArtwork? flight)
     {
         CeresFlightArtwork content = flight ?? throw new InvalidOperationException("Ending flyaway requires installed flight artwork.");
-        int chunkBytes = EndingArtworkExtentDefinitions.FlyawayChunkBytes;
+        int chunkBytes = EndingArtworkExtentDefinitionsConstants.FlyawayChunkBytes;
         int chunksPerLane = EndingArtworkExtentDefinitions.FloorBytes / chunkBytes;
         int offset = index % chunksPerLane * chunkBytes;
         var mode7 = new Mode7Vram(vram);

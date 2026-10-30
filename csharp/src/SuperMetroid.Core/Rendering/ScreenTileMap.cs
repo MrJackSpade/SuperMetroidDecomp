@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public sealed class ScreenTileMap : IEquatable<ScreenTileMap>
 {
-    /// <summary>Cells along each side of one screen of a tilemap; a larger map keeps whole screens one after another.</summary>
-    private const int ScreenCells = 32;
 
     /// <summary>Holds a map's cells.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The map has no cells along an axis.</exception>
@@ -33,30 +31,6 @@ public sealed class ScreenTileMap : IEquatable<ScreenTileMap>
 
     /// <summary>The cells, row by row from the top-left corner.</summary>
     public ImmutableArray<BackgroundTile> Cells { get; }
-
-    /// <summary>
-    /// Reads a <paramref name="size"/> map of cells from a screen's own tilemap <paramref name="tilemap"/>, each showing one
-    /// of <paramref name="tiles"/>. A map wider or taller than one 32-cell screen keeps its screens one after another,
-    /// left to right, then top to bottom.
-    /// </summary>
-    /// <exception cref="ArgumentException">The tilemap does not hold every cell of the map.</exception>
-    public static ScreenTileMap Of(ReadOnlySpan<BackgroundTile> tilemap, Extent16<TilemapCells> size, ScreenLayerPictures tiles)
-    {
-        Ensure.LengthEqual(tilemap, size.X * size.Y);
-        if (size.X % ScreenCells != 0 || size.Y % ScreenCells != 0)
-            throw new ArgumentException($"A {size.X}x{size.Y} map is not whole {ScreenCells}-cell screens.", nameof(size));
-        int screensAcross = size.X / ScreenCells;
-        var cells = ImmutableArray.CreateBuilder<BackgroundTile>(size.X * size.Y);
-        for (int y = 0; y < size.Y; y++)
-        {
-            for (int x = 0; x < size.X; x++)
-            {
-                int screen = y / ScreenCells * screensAcross + x / ScreenCells;
-                cells.Add(tilemap[screen * ScreenCells * ScreenCells + y % ScreenCells * ScreenCells + x % ScreenCells]);
-            }
-        }
-        return new ScreenTileMap(tiles, size, cells.MoveToImmutable());
-    }
 
     /// <inheritdoc />
     public bool Equals(ScreenTileMap? other) =>

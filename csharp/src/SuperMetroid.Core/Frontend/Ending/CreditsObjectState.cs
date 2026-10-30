@@ -41,11 +41,11 @@ internal sealed class CreditsObjectState
     /// <summary>Whole-pixel credits scroll position the roll's plane is drawn at.</summary>
     public Position16<TilePlanePixels> ScrollPosition => scroll.Whole;
 
-    /// <summary>Runs one <c>CreditsObject_Process</c> call.</summary>
-    public CreditsObjectStepResult Step()
+    /// <summary>Runs one <c>CreditsObject_Process</c> call: scrolls, and takes the next row or finishes on each row boundary.</summary>
+    public void Step()
     {
         if (!Enabled)
-            return new CreditsObjectStepResult(false, Finished);
+            return;
 
         // Half a pixel per accepted frame, carrying into the whole word and wrapping at 32 bits.
         scroll = scroll.AdvanceY(EndingMotionDefinitions.CreditsScrollVelocity);
@@ -53,22 +53,16 @@ internal sealed class CreditsObjectState
         // A new row is taken whenever the scroll advances eight whole pixels, i.e. every sixteen NTSC frames. The
         // wrapped signed distance is the cartridge's test.
         if ((ScrollPosition - (previousCopiedScroll + RowAdvance)).Y < 0)
-            return new CreditsObjectStepResult(false, Finished);
+            return;
 
         previousCopiedScroll = ScrollPosition;
-        bool copied;
         if (NextSourceRow >= rowCount)
         {
             Finished = true;
             Enabled = false;
-            copied = false;
         }
         else
-        {
             NextSourceRow++;
-            copied = true;
-        }
-        return new CreditsObjectStepResult(copied, Finished);
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Frontend.Ending;
+﻿using SuperMetroid.Core.Frontend.Ending;
 using static SuperMetroid.AssetExtraction.Frontend.Ending.EndingRewardGraphicsUploadDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;

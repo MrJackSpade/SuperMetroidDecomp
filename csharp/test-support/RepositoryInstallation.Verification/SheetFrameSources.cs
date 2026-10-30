@@ -124,7 +124,7 @@ internal static class SheetFrameSources
         var result = new System.Collections.Concurrent.ConcurrentDictionary<FrameKey, FrameSource>();
         var catalog = new SpriteSheetSourceCatalog(RepositoryInstallation.Installation.ContentDirectory);
         // Only sheets composed from sprite parts have frames to pair; the picture, page and floor sheets are painted directly.
-        foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(SpriteSheetSourceCatalog.ComposesFromSpriteParts))
+        foreach (SpriteSheetId id in SpriteSheetDefinitions.Sheets.Where(SpriteSheetSourceCatalogConstants.ComposesFromSpriteParts))
         {
             // Every empty frame shows nothing, so the first of those that share a key stands for all of them.
             Add(result, InstalledFixtures.SpriteSheets.Get(id), catalog.For(id));

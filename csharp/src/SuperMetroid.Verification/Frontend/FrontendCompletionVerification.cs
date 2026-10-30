@@ -342,10 +342,12 @@ internal static void VerifyCreditsObjectInterpreter()
     const int rows = 33;
     var credits = new CreditsObjectState(rows);
     for (int frame = 0; frame < 15; frame++)
-        AssertTrue(!credits.Step().CopiedRow, "credits waits sixteen half-pixel frames");
-    CreditsObjectStepResult first = credits.Step();
-    AssertTrue(first.CopiedRow, "credits takes its first row at the eight-pixel boundary");
-    AssertEqual(1, credits.NextSourceRow, "credits advances to its next row");
+    {
+        credits.Step();
+        AssertEqual(0, credits.NextSourceRow, "credits waits sixteen half-pixel frames");
+    }
+    credits.Step();
+    AssertEqual(1, credits.NextSourceRow, "credits takes its first row at the eight-pixel boundary");
     AssertEqual(8, (int)credits.ScrollPosition.Y, "the first row is taken as the roll reaches eight pixels");
 
     for (int row = 1; row < rows; row++)
@@ -353,10 +355,9 @@ internal static void VerifyCreditsObjectInterpreter()
             credits.Step();
     AssertEqual(rows, credits.NextSourceRow, "credits takes one row per eight pixels");
 
-    CreditsObjectStepResult ending = default;
     for (int frame = 0; frame < 16; frame++)
-        ending = credits.Step();
-    AssertTrue(ending.Finished && !credits.Enabled,
+        credits.Step();
+    AssertTrue(credits.Finished && !credits.Enabled,
         "compiled credits disable the row object one boundary after the final row");
 
     Console.WriteLine(

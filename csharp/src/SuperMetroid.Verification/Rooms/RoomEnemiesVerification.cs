@@ -37,11 +37,11 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Verification.Rooms;
 
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;

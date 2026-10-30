@@ -206,7 +206,7 @@ internal static class RoomBlockPicturesVerification
             if (glyph is { } typed)
             {
                 overlay = overlay.With(new WrittenPicture(typed.Picture, typed.Cell));
-                typedWords[typed.Cell] = EscapeTypewriterGlyphTiles.Of(EscapeTypewriterProgramId.Zebes, typed).PackedWord;
+                typedWords[typed.Cell] = EscapeTypewriterGlyphTilesConstants.Of(EscapeTypewriterProgramId.Zebes, typed).PackedWord;
             }
         }
         ImmutableArray<BgTilePicture?> pictures = new WrittenPictureResolver(sheet).Resolve(overlay, AppearanceOf(runtime, RoomScopeOf(runtime).ArtworkFrames));

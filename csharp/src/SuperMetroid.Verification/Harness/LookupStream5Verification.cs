@@ -345,7 +345,7 @@ internal static class LookupStream5Verification
         {
             IReadOnlyDictionary<int, int> cells = CeresFloorDrawings.Cells(strips[frame]);
             for (int cell = 0; cell < 4; cell++)
-                AssertEqual<int>(rom.ReadCartridgeByte(CeresSourceDefinitions.Door.PlatformFrames + frame * 4 + cell), cells[12 * 128 + 14 + cell],
+                AssertEqual<int>(rom.ReadCartridgeByte(CeresSourceDefinitionsDoorConstants.PlatformFrames + frame * 4 + cell), cells[12 * 128 + 14 + cell],
                     "The import pictures the platform strip's native cells");
         }
         RoomFloor floor = RoomBackgroundsFixtures.CeresFloor();

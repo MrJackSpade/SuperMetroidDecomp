@@ -52,38 +52,17 @@ internal static class PausePictureSheet
             yield return equipment;
     }
 
-    /// <summary>
-    /// The pause frame <paramref name="area"/> shows under <paramref name="highlight"/>, as the cartridge's tiles: the backdrop
-    /// with the button page's two shown rows over its button rows, each label in its shade, for verification.
-    /// </summary>
-    internal static BackgroundTile[] Frame(AreaMapPresentation maps, AreaId area, PauseButtonHighlight highlight)
-    {
-        Ensure.NotNull(maps);
-        var frame = new BackgroundTile[PauseBackdropDefinitions.Cells];
-        maps.PauseBackdrops.LoadTo(frame, area);
-        BackgroundTile[] buttons = ButtonRows(maps);
-        foreach (int cell in ButtonRowCells())
-            frame[cell] = buttons[cell];
-        foreach (PauseButtonLabel label in Enum.GetValues<PauseButtonLabel>())
-        {
-            int palette = PaletteOf(PauseFramePictures.ShadeOf(highlight, label));
-            foreach (int cell in LabelCells(label))
-                frame[cell] = frame[cell] with { ColourVariant = palette };
-        }
-        return frame;
-    }
-
     /// <summary>The frame's cells the button rows replace.</summary>
-    private static IEnumerable<int> ButtonRowCells() =>
+    internal static IEnumerable<int> ButtonRowCells() =>
         Enumerable.Range(PauseFrameDefinitions.ButtonRowsFirstRow * Columns, PauseFrameDefinitions.ButtonRowCount * Columns);
 
     /// <summary>The frame's cells <paramref name="label"/> covers.</summary>
-    private static IEnumerable<int> LabelCells(PauseButtonLabel label) =>
+    internal static IEnumerable<int> LabelCells(PauseButtonLabel label) =>
         Enumerable.Range(0, PauseFrameDefinitions.ButtonRowCount).Select(row => PauseMenuButtonLabels.ButtonLabelSpan(label, row))
             .SelectMany(span => Enumerable.Range(span.Word, span.Count));
 
     /// <summary>The button page's two shown rows laid where the frame shows them, on an otherwise empty frame.</summary>
-    private static BackgroundTile[] ButtonRows(AreaMapPresentation maps)
+    internal static BackgroundTile[] ButtonRows(AreaMapPresentation maps)
     {
         BackgroundTile[] page = maps.PauseBackdrops.CreateButtonTilemap();
         var rows = new BackgroundTile[PauseBackdropDefinitions.Cells];
@@ -93,7 +72,7 @@ internal static class PausePictureSheet
     }
 
     /// <summary>The colour variant of <paramref name="shade"/>.</summary>
-    private static int PaletteOf(PauseButtonLabelShade shade) => shade switch
+    internal static int PaletteOf(PauseButtonLabelShade shade) => shade switch
     {
         PauseButtonLabelShade.Lit => PauseFrameDefinitions.LitPalette,
         PauseButtonLabelShade.Dim => PauseFrameDefinitions.DimPalette,

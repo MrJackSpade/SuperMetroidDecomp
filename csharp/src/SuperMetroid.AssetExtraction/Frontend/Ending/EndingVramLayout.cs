@@ -11,12 +11,6 @@ internal static class EndingVramLayout
     /// <summary>VMADD $4000-$6FFF: the escape/explosion OBJ sheet <c>$8B:D8C1</c> uploads from <c>$7F:8000</c>.</summary>
     public static readonly PpuLayoutCell ExplosionObjects = Vram(nameof(ExplosionObjects), 0x4000, 0x3000, "4-bpp OBJ characters");
 
-    /// <summary>VMADD $4000-$47FF: the credits BG1 font characters (BG12NBA base $4000), uploaded after the full clear.</summary>
-    public static readonly PpuLayoutCell CreditsFont = Vram(nameof(CreditsFont), 0x4000, 0x0800, "2-bpp BG characters");
-
-    /// <summary>VMADD $4800-$4BFF: the credits BG1 32x32 tilemap, rewritten from the circular staging map.</summary>
-    public static readonly PpuLayoutCell CreditsTilemap = Vram(nameof(CreditsTilemap), 0x4800, 0x0400, "BG tilemap words (32x32)");
-
     /// <summary>VMADD $5000-$57FF: the ending font OBJ characters loaded after the explosion sheet.</summary>
     public static readonly PpuLayoutCell EndingFont = Vram(nameof(EndingFont), 0x5000, 0x0800, "4-bpp OBJ characters");
 
@@ -49,16 +43,6 @@ internal static class EndingVramLayout
 
     /// <summary>VMADD $2400-$27FF: post-credits tile fragment B.</summary>
     public static readonly PpuLayoutCell PostCreditsFragmentB = Vram(nameof(PostCreditsFragmentB), 0x2400, 0x0400, "4-bpp characters");
-
-    /// <summary>VMADD $5000-$53FF: the lower post-shot screen <c>$8B:E504</c> copies the staging map into before the logo.</summary>
-    public static readonly PpuLayoutCell PostShotLowerTilemap = Vram(nameof(PostShotLowerTilemap), 0x5000,
-        0x0400, "BG tilemap words (32x32)");
-
-    /// <summary>VRAM word $4C00: the upper screen of the 32x64 final-text map <c>$8B:E48A</c> shows, which <c>$8B:E504</c> continues at $5000.</summary>
-    public const ushort FinalTextTilemapWord = 0x4c00;
-
-    /// <summary>VRAM word $4800: the result text's map, which <c>$8B:E190</c> selects for the first background (#1416: moved from Core).</summary>
-    public const ushort ResultPanelTilemapWord = 0x4800;
 
     /// <summary>Declares a native VRAM word interval against the full store for ending-scene overlap checks.</summary>
     private static PpuLayoutCell Vram(string name, int word, int count, string encoding) =>

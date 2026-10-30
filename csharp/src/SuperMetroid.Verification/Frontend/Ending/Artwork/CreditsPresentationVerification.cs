@@ -42,18 +42,20 @@ internal static class CreditsPresentationVerification
         for (int row = 0; row < CreditsPresentationDefinitions.ExpectedCompiledRows; row++)
         {
             for (int frame = 0; frame < 15; frame++)
-                AssertTrue(!runtime.Step().CopiedRow,
-                    $"credits row {row} waits for its sixteenth half-pixel frame");
-            CreditsObjectStepResult result = runtime.Step();
-            AssertTrue(result.CopiedRow && !result.Finished,
+            {
+                runtime.Step();
+                AssertEqual(row, runtime.NextSourceRow, $"credits row {row} waits for its sixteenth half-pixel frame");
+            }
+            runtime.Step();
+            AssertTrue(runtime.NextSourceRow == row + 1 && !runtime.Finished,
                 $"credits row {row} is taken at the native eight-pixel boundary");
             // Every row the installed document gives text is a row the roll lays a line picture on.
             AssertTrue(CreditsRollRows.Pictures[row] is not null
                 || presentation.GetRow(row).ToArray().All(tile => tile == CreditsPresentationDefinitions.BlankTile),
                 $"credits row {row} with text is a pictured line row");
         }
-        for (int frame = 0; frame < 15; frame++) runtime.Step();
-        AssertTrue(runtime.Step().Finished && !runtime.Enabled,
+        for (int frame = 0; frame < 16; frame++) runtime.Step();
+        AssertTrue(runtime.Finished && !runtime.Enabled,
             "credits finish on the boundary after the final installed row");
 
         JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();

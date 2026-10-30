@@ -38,19 +38,7 @@ public sealed record AddedScreenTilesLayer(ScreenTileMap Cells,
         : throw new ArgumentException($"The layer adds a {MapSize.X}x{MapSize.Y} map, not {cells.Size.X}x{cells.Size.Y}.", nameof(cells));
 
     /// <summary>Copied per-line scrolls; an empty array selects the uniform scroll.</summary>
-    private Position16<TilePlanePixels>[] scrolls = [];
+    private readonly Position16<TilePlanePixels>[] scrolls = [];
     /// <summary>Owned physical-line scrolls; empty means the uniform scroll.</summary>
     public ReadOnlySpan<Position16<TilePlanePixels>> Scrolls => scrolls;
-
-    /// <summary>Returns a copied layer with independently owned per-line scrolls, leaving this descriptor and the caller's input untouched; these scrolls replace the uniform scroll and do not move the sprites.</summary>
-    /// <param name="value">Exactly 224 scrolls, one per screen line from the top; the layer wraps within its 256-by-256 map.</param>
-    /// <returns>A record copy retaining the other layer settings and a new scroll array.</returns>
-    /// <exception cref="ArgumentException">The scroll count differs from the visible screen height.</exception>
-    public AddedScreenTilesLayer WithScrolls(ReadOnlySpan<Position16<TilePlanePixels>> value)
-    {
-        Ensure.LengthEqual(value, ScreenGeometry.ScreenHeightPixels);
-        var copy = this with { };
-        copy.scrolls = value.ToArray();
-        return copy;
-    }
 }

@@ -41,7 +41,7 @@ internal static class VramTileFixtures
                 bytes[(place * words + word) * sizeof(ushort) + 1] = image[offset + 1];
             }
         }
-        ComposedSpriteSheet composed = ScreenTileSheetComposer.Compose(bytes, depth, palette);
+        ComposedSpriteSheet composed = ScreenTileSheetComposerConstants.Compose(bytes, depth, palette);
         SpriteSheet sheet = SpriteSheet.Load(new MemoryStream(SpriteSheet.Write(composed.Manifest), writable: false),
             $"vram-fixture-{characterWord:X4}-{depth}", composed.Size, composed.Pixels, composed.PaletteIndices, composed.Priorities, composed.PartGroups);
         var tiles = new ScreenTileSheet($"vram-fixture-{characterWord:X4}-{depth}", sheet, depth);

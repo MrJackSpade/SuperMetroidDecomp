@@ -28,12 +28,6 @@ internal static class CeresSourceDefinitions
 
         /// <summary>The bytes between consecutive glow rows: eight stored colours, of which the first six are copied.</summary>
         internal const int AnimationRowBytes = 8 * ColorWordBytes;
-
-        /// <summary>$A6:F918, the light platform strip; the two $A6:F900 transfer records name it and the dark strip after it.</summary>
-        internal const int PlatformFrames = 0xa6f918;
-
-        /// <summary>The bytes between the light and dark platform strips: one byte per floor cell.</summary>
-        internal const int PlatformFrameBytes = 4;
     }
 
     /// <summary>The bank-$A6 words of the Ceres escape warning's overlay pages.</summary>

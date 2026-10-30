@@ -263,8 +263,8 @@ internal static class ScreenTilePicturesVerification
         BackgroundTile[] frame = pause.ShownBg2Tiles;
         ScreenLayerPictures tiles = VramTileFixtures.Tiles(vram, scene.Paint.Colors, PauseVramLayout.MapCharacters.Offset, TileInkDepth.SixteenColours,
             [.. page.Concat(frame).Select(tile => tile.Tile).Distinct()]);
-        ScreenTileMap pageCells = ScreenTileMap.Of(page, new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles), tiles);
-        ScreenTileMap frameCells = ScreenTileMap.Of(frame, MenuScreen.PageSize, tiles);
+        ScreenTileMap pageCells = ScreenTileMapConstants.Of(page, new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles), tiles);
+        ScreenTileMap frameCells = ScreenTileMapConstants.Of(frame, MenuScreen.PageSize, tiles);
         PicturedPlane shownFrame = pause.screen.Frame(pause.area, pause.ButtonHighlight);
         int layers = 0;
         DisplayLayer FromVram(DisplayLayer layer)

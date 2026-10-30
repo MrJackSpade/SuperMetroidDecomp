@@ -12,6 +12,7 @@ using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Harness;
 

@@ -36,7 +36,7 @@ internal static class IntroScreenMemory
                 blank.CopyTo(blanked.AsSpan(offset));
             intro.JapaneseBlankCharacters.Load(blanked);
         }
-        intro.BackgroundPages.Load(BackgroundTileWordBytes.Of(artwork.BackgroundPages.Span[..IntroCinematicDefinitions.Artwork.BackgroundPageTilemapCells]));
+        intro.BackgroundPages.Load(BackgroundTileWordBytes.Of(artwork.BackgroundPages.Span[..IntroCinematicDefinitionsArtworkConstants.BackgroundPageTilemapCells]));
         intro.IntroObjectCharacters.Load(sources.IntroObjectCharacters.Characters.Span);
         intro.CinematicObjectCharacters.Load(sources.CinematicObjectCharacters.Characters.Span[..IntroCinematicArtworkConstants.ObjectCharacterBytes]);
         return vram.CaptureImage();
@@ -61,7 +61,7 @@ internal static class IntroScreenMemory
     /// </summary>
     internal static BackgroundTile[] NarrationTiles(IntroNarrationText text, IntroCinematicArtwork artwork)
     {
-        var tiles = new BackgroundTile[IntroCinematicDefinitions.Tilemaps.TextTilemapWordCount];
+        var tiles = new BackgroundTile[IntroCinematicDefinitionsTilemapsConstants.TextTilemapWordCount];
         if (text.FirstCardShown)
         {
             artwork.InitialNarrationTilemap.Span[..IntroCinematicDefinitions.Artwork.NarrationTilemapCells].CopyTo(tiles);
@@ -94,7 +94,7 @@ internal static class IntroScreenMemory
     /// </summary>
     internal static BackgroundTile[] PortraitTiles(IntroCinematicArtwork artwork, IntroEyeFrame? eye)
     {
-        BackgroundTile[] portrait = artwork.PortraitTilemap.Span[..IntroCinematicDefinitions.Artwork.SamusHeadTilemapCells].ToArray();
+        BackgroundTile[] portrait = artwork.PortraitTilemap.Span[..IntroCinematicDefinitionsArtworkConstants.SamusHeadTilemapCells].ToArray();
         if (eye is not { } frame)
             return portrait;
         ReadOnlySpan<BackgroundTile> rectangle = artwork.EyeFrames.FrameTiles((int)frame);

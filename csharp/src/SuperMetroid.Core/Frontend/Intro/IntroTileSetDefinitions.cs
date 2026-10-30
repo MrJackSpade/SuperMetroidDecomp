@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Where the opening cinematic's artwork sits among each of its layers' tile numbers (#1404).</summary>
 internal static class IntroTileSetDefinitions
 {
-    /// <summary>The tile number of the first scene character on the scene planes.</summary>
-    internal const int SceneFirstTile = 0;
 
     /// <summary>The tile number of the narration font's first character on the narration plane.</summary>
     internal const int FontFirstTile = 0;

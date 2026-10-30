@@ -16,10 +16,6 @@ public static class IntroCinematicDefinitions
         public const int BackgroundCharacterBytes = BackgroundCharacterCount * FourBitCharacterBytes;
         /// <summary>The narration font's 144 two-bit characters.</summary>
         public const int FontOneBytes = 144 * 16;
-        /// <summary>The cells of the Samus portrait's 32-by-32 tilemap.</summary>
-        public const int SamusHeadTilemapCells = 32 * 32;
-        /// <summary>The cells of the scenes' four 32-by-32 background tilemap pages.</summary>
-        public const int BackgroundPageTilemapCells = 4 * 32 * 32;
         /// <summary>The cells of one 32-by-32 narration tilemap.</summary>
         public const int NarrationTilemapCells = 32 * 32;
         /// <summary>The 96 two-bit characters the Japanese narration blanks with its blank glyph.</summary>
@@ -29,10 +25,6 @@ public static class IntroCinematicDefinitions
     /// <summary>The opening's text tilemaps.</summary>
     public static class Tilemaps
     {
-        /// <summary>Cells of a complete 32-by-32 text tilemap.</summary>
-        public const int TextTilemapWordCount = TilemapWidth * TilemapWidth;
-        /// <summary>The cells of a text tilemap the narration shows: its first thirty rows.</summary>
-        public const int VisibleTextCellCount = 30 * TilemapWidth;
         /// <summary>Width of an opening tilemap in cells.</summary>
         public const int TilemapWidth = 32;
     }

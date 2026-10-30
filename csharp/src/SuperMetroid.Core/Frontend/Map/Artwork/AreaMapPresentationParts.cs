@@ -139,9 +139,6 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
     public required RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; init; }
 
-    /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
-    public required RoomFxLayer3Pages RoomFxLayer3Tilemaps { get; init; }
-
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
     public required RoomFxBlendInks RoomFxPaletteBlends { get; init; }
 

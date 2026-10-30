@@ -131,7 +131,7 @@ internal static class HudAtlasVerification
         // the plane's own rows on the plane's layer.
         static RgbaPixel[] Render(SuperMetroidRuntime runtime)
         {
-            Layer3Cells plane = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().WordsIn(InstalledFixtures.Maps.RoomFxLayer3Tilemaps), runtime.ComposedVram(),
+            Layer3Cells plane = Layer3CellsFixtures.FromWords(runtime.FrameBoundary.CaptureLayer3Plane().WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps)), runtime.ComposedVram(),
                 runtime.Colours.Colors);
             var layer = new OverlayBlendLayer(plane, 0, Layer3Plane.Rows, 0, BlendOperation.Add,
                 new Position16<TilePlanePixels>[ScreenGeometry.ScreenHeightPixels]);

@@ -10,9 +10,10 @@ internal static class BackgroundTransferClosedContractDefinitions
     /// </summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Fx.Artwork.RoomFxLayer3Pages", "room-fx-complete-six-pages", ["Resolve"],
-            [new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxLayer3Pages.cs"),
-             new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxLayer3TilemapFormat.cs")]),
+        new("SuperMetroid.AssetExtraction.Fx.RoomFxLayer3Pages", "room-fx-complete-six-pages", ["Resolve"],
+            [new("csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxLayer3Pages.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxLayer3TilemapDocument.cs"),
+             new("csharp/src/SuperMetroid.AssetExtraction/Fx/RoomFxLayer3TilemapFormat.cs")]),
         new("SuperMetroid.Core.Fx.Artwork.RoomFxBlendInks", "room-fx-complete-eight-blends-and-zero-clear", ["Apply"],
             [new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxBlendInks.cs"),
              new("csharp/src/SuperMetroid.Core/Fx/Artwork/RoomFxPaletteBlendDefinitions.cs"),

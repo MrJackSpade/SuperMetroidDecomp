@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.Artwork;
 
-namespace SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Editable JSON definition of the six room-FX BG3 transfers, storing character selectors and BG attributes instead of packed SNES tilemap words.</summary>
 public sealed record RoomFxLayer3TilemapDocument

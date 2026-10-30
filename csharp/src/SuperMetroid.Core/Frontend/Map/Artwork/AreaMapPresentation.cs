@@ -69,7 +69,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         MotherBrainRainbowPalette = parts.MotherBrainRainbowPalette;
         MotherBrainRoomColors = parts.MotherBrainRoomColors;
         RoomFxAnimatedTiles = parts.RoomFxAnimatedTiles;
-        RoomFxLayer3Tilemaps = parts.RoomFxLayer3Tilemaps;
         RoomFxPaletteBlends = parts.RoomFxPaletteBlends;
         PowerBombFixedColors = parts.PowerBombFixedColors;
         SamusVisorColors = parts.SamusVisorColors;
@@ -163,7 +162,6 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     /// <summary>Selected animated room-FX character artwork, separate from layer-3 tilemaps and palette blending.</summary>
     public RoomFxAnimatedTileAtlas RoomFxAnimatedTiles { get; }
     /// <summary>Selected layer-3 room-FX tilemaps, separate from animated characters and palette-blend colors.</summary>
-    public RoomFxLayer3Pages RoomFxLayer3Tilemaps { get; }
     /// <summary>Selected room-FX palette-blend presentation, separate from layer-3 tilemap geometry and animated character bytes.</summary>
     public RoomFxBlendInks RoomFxPaletteBlends { get; }
     /// <summary>Fixed RGB5 colors for Power Bomb, Crystal Flash, and Ceres explosion effects, separate from Samus palette colors.</summary>

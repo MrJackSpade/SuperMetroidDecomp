@@ -292,7 +292,7 @@ internal static class RoomBlockPicturesVerification
             GameplayDisplayLatch latched = runtime.Display.Latched;
             Layer3Plane plane = latched.Layer3 ?? throw new InvalidOperationException($"{room.Name} latches no BG3 plane.");
             // The plane names its pictures (#1466); the installed pages spell the words the cartridge writes for them.
-            ushort[] planeWords = plane.WordsIn(InstalledFixtures.Maps.RoomFxLayer3Tilemaps);
+            ushort[] planeWords = plane.WordsIn(SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(InstalledFixtures.Maps));
             AssertTrue(latched.Rooms?.Bg3 is not null, $"{room.Name}: BG3 draws from its pictures");
             ReadOnlySpan<byte> vram = runtime.ComposedVram();
             BgCharacterSet layer3 = BgCharacterSet.Layer3;

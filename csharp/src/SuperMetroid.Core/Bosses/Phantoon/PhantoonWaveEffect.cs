@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rendering;
-
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
@@ -31,13 +29,13 @@ public sealed class PhantoonWaveEffect
     /// </summary>
     public int Phase { get; private set; }
     /// <summary>The wave the last display latch observed (#1353, #1468); null when it observed no active wave.</summary>
-    public ScrollWave? DisplayedWave { get; private set; }
+    public PhantoonWave? DisplayedWave { get; private set; }
 
     /// <summary>
     /// The wave as it now stands (#1468), or null before any setup: the second background layer at the base scroll the
     /// wave last held, rippled down the whole screen by its amplitude at its phase's angle, over the period its mode selects.
     /// </summary>
-    internal ScrollWave? CurrentWave => _setupMode == 0 ? null : Describe(_setupMode, _built);
+    internal PhantoonWave? CurrentWave => _setupMode == 0 ? null : Describe(_setupMode, _built);
 
     /// <summary>
     /// The wave <paramref name="shape"/> shows under <paramref name="mode"/> (#1468): BG2 at the shape's base scroll,
@@ -47,9 +45,9 @@ public sealed class PhantoonWaveEffect
     /// </summary>
     /// <param name="mode">The wave channel's nonzero mode.</param>
     /// <param name="shape">The phase, 0 through 511, amplitude and base scroll the wave was built from.</param>
-    internal static ScrollWave Describe(int mode, PhantoonWaveShape shape) => new(shape.BaseScroll, shape.Amplitude,
+    internal static PhantoonWave Describe(int mode, PhantoonWaveShape shape) => new(shape.BaseScroll, shape.Amplitude,
         new ByteAngle(unchecked((byte)(PhaseInCycle(shape.Phase) / PhantoonWaveDefinitions.PhasesPerAngleStep))),
-        PhantoonWaveModeWord.Period(mode), 0, ScreenGeometry.ScreenHeightPixels);
+        PhantoonWaveModeWord.Period(mode));
 
     /// <summary>
     /// $A7:D446-D451 flattens the wave on a fatal hit: every line shows the base scroll, a wave of

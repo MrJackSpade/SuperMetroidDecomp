@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpriteObjects;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -58,7 +57,7 @@ internal sealed class CrocomireBodyLayer
     /// <summary>Levels the melt's stretch: every line of his body layer shows <paramref name="verticalScroll"/> (#1468).</summary>
     /// <param name="verticalScroll">The vertical scroll every line shows, 0 through 65535.</param>
     internal void LevelCrocomireMeltDistortion(int verticalScroll) =>
-        _access.RequireCrocomireDeath().MeltDistortion = ScrollStretch.Level(verticalScroll);
+        _access.RequireCrocomireDeath().MeltDistortion = CrocomireMeltDistortion.Level(verticalScroll);
 
     /// <summary>Ports $A4:8B5B: places his body layer vertically at the body, then falls through into $A4:8BA4.</summary>
     internal void PlaceCrocomireBodyLayer(CrocomireEnemyState state)

@@ -78,7 +78,7 @@ internal static class EnemyEffectIsolationVerification
             // The cartridge's BG2 vertical-scroll table, from the first gameplay line, levelled as the melt starts.
             var nativeScrolls = new ushort[256];
             Array.Fill(nativeScrolls, baseline.Enemies.CrocomireBehavior.BodyLayer.Placement.Y);
-            AssertEqual(ScrollStretch.Level(baseline.Enemies.CrocomireBehavior.BodyLayer.Placement.Y), baseline.Effect.MeltDistortion,
+            AssertEqual(CrocomireMeltDistortion.Level(baseline.Enemies.CrocomireBehavior.BodyLayer.Placement.Y), baseline.Effect.MeltDistortion,
                 "the melt starts levelled at his body layer's placement");
             // The compiled slope starts at 256, grows by 384 to 20480, then completes on
             // the following call. This explicit bound comes from the source, not a probe.
@@ -94,7 +94,7 @@ internal static class EnemyEffectIsolationVerification
                     // The described stretch gives every gameplay line the scroll the cartridge's table gives it (#1468).
                     BuildNativeMeltScrolls(nativeScrolls, baseline);
                     for (int line = 0; line < BackgroundLineScrolls.GameplayLines; line++)
-                        AssertEqual(nativeScrolls[line], ScrollShapeLines.StretchScroll(baseline.Effect.MeltDistortion, line + ScreenGeometry.GameplayHudHeightPixels),
+                        AssertEqual(nativeScrolls[line], ScrollShapeLines.StretchScroll(BossLineScrolls.Of(baseline.Effect.MeltDistortion), line + ScreenGeometry.GameplayHudHeightPixels),
                             $"melt dissolve call {call} stretch at gameplay line {line}");
                 }
                 AssertEqual(call == calls ? phase.Next() : phase, baseline.Actor.DeathSequenceIndex, "exact dissolve phase handoff");

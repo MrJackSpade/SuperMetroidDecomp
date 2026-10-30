@@ -46,7 +46,7 @@ internal static class PhantoonWaveMathVerification
         for (int phase = 0; phase < 512; phase += 2)
         foreach (int amplitude in WordBoundarySamples())
         {
-            ScrollWave wave = PhantoonWaveEffect.Describe(2, new PhantoonWaveShape(phase, amplitude, 0));
+            ScrollWave wave = BossLineScrolls.Of(PhantoonWaveEffect.Describe(2, new PhantoonWaveShape(phase, amplitude, 0)));
             if (ScrollShapeLines.WaveDisplacement(wave, 0) != NativeDisplacement(samples[phase], (ushort)amplitude))
                 throw new InvalidDataException($"Phantoon byte product differs: phase={phase}, amplitude={amplitude}.");
         }
@@ -62,7 +62,7 @@ internal static class PhantoonWaveMathVerification
             // The cartridge builds one cycle, its second half the first's mirror, and repeats it from the top line.
             int half = mode == 1 ? 64 : 32;
             int step = 512 / (half * 2);
-            ScrollWave wave = PhantoonWaveEffect.Describe(mode, new PhantoonWaveShape(phase, amplitude, scroll));
+            ScrollWave wave = BossLineScrolls.Of(PhantoonWaveEffect.Describe(mode, new PhantoonWaveShape(phase, amplitude, scroll)));
             for (int line = 0; line < ScreenGeometry.ScreenHeightPixels; line++)
             {
                 int index = line % (half * 2);

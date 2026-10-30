@@ -69,7 +69,7 @@ internal static class RetailCrocomireCaptureTests
             bool changed = phases.Add(boss.DeathSequenceIndex);
             // The melt shows its stretch once some gameplay line of his body layer scrolls differently from the first (#1468).
             bool nonuniform = shouldMelt && Enumerable.Range(ScreenGeometry.GameplayHudHeightPixels, BackgroundLineScrolls.GameplayLines)
-                .Select(line => ScrollShapeLines.StretchScroll(death.MeltDistortion, line)).Distinct().Count() > 1;
+                .Select(line => ScrollShapeLines.StretchScroll(BossLineScrolls.Of(death.MeltDistortion), line)).Distinct().Count() > 1;
             bool firstDistortion = nonuniform && !distorted;
             distorted |= nonuniform;
             complete = boss.DeathSequenceIndex == CrocomireDeathPhase.InertCorpse;

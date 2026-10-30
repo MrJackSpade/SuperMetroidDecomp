@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -12,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="Configuration">Latched blend configuration: room default, BG2 hidden, or BG2 semitransparent.</param>
 /// <param name="MosaicBlockSize">BG2 mosaic block size in screen pixels accepted by the NMI, 1..16; one means no quantization.</param>
 public sealed record PhantoonDisplaySnapshot(
-    ScrollWave? Wave,
+    PhantoonWave? Wave,
     LayerBlendingConfiguration Configuration,
     int MosaicBlockSize)
 {

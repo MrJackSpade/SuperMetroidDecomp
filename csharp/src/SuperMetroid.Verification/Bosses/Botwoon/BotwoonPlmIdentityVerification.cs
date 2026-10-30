@@ -24,8 +24,8 @@ internal static class BotwoonPlmIdentityVerification
         for (int i = 0; i < 40; i++)
         {
             PlmHeaderId header = (i & 1) == 0 ? PlmHeaderId.ClearBotwoonWall : PlmHeaderId.CrumbleBotwoonWall;
-            AssertTrue(plms.BossRoomMutations.TrySpawnBotwoonWall(assets.LevelData, header), "Botwoon native slot allocation succeeds until full");
-            var slot = plms.PopulationSlots.Single(slot => slot.NativeSlotIndex == 39 - i);
+            AssertTrue(plms.BossRoomMutations.TrySpawnBotwoonWall(assets.LevelData, header), "Botwoon slot allocation succeeds until full");
+            var slot = plms.PopulationSlots.Single(slot => slot.ProcessingPosition == i);
             AssertEqual(header, slot.HeaderPointer, "hardcoded Botwoon header identity survives allocation");
             AssertEqual(assets.LevelData.GetBlockIndex(new(15, 4)), slot.BlockIndex, "hardcoded Botwoon placement");
             AssertEqual((ushort)((i & 1) == 0 ? 1 : 64), slot.InstructionTimer, "header-specific Botwoon delay");

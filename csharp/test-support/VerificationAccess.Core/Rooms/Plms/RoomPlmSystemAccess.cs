@@ -196,39 +196,28 @@ internal static class RoomPlmSystemAccess
             return false;
         }
 
-        /// <summary>Every live elevator-platform PLM in native physical-slot order.</summary>
+        /// <summary>Every live elevator-platform PLM, in processing order.</summary>
         internal IReadOnlyList<RoomPlmSlotSnapshot> ElevatorPlatforms => self.PopulationSlots
-            .Where(snapshot => self.SlotTable.Slots[snapshot.NativeSlotIndex].Header == PlmHeaderId.ElevatorPlatform)
+            .Where(snapshot => snapshot.HeaderPointer == PlmHeaderId.ElevatorPlatform)
             .ToArray();
 
-        /// <summary>Physical-slot views in cartridge handler order, highest ID first.</summary>
-        internal IReadOnlyList<RoomPlmSlotSnapshot> PopulationSlots
-        {
-            get
-            {
-                var snapshots = new RoomPlmSlotSnapshot[self.SlotTable.ActiveCount];
-                int next = 0;
-                for (int index = self.SlotTable.Slots.Count - 1; index >= 0; index--)
-                    if (self.SlotTable.Slots[index].Active) snapshots[next++] = self.Snapshot(index);
-                return snapshots;
-            }
-        }
-
-        /// <summary>Reads one physical PLM slot's header, block, argument, and active state.</summary>
-        internal RoomPlmSlotSnapshot Snapshot(int index)
-        {
-            PlmSlot slot = self.SlotTable.Slots[index];
-            return new RoomPlmSlotSnapshot(
-                NativeSlotIndex: index,
-                HeaderPointer: slot.Header,
-                BlockIndex: slot.BlockIndex,
-                RoomArgument: slot.NativeRoomArgument,
-                PreInstruction: PlmPreInstructionNativeRoutines.Of(slot.PreInstruction),
-                InstructionTimer: slot.InstructionTimer.RawValue,
-                LoopTimer: checked((ushort)slot.LoopTimer),
-                ProjectileHit: slot.ProjectileHit,
-                Animation: slot.Animation);
-        }
+        /// <summary>Views of the occupied slots, in the table's processing order.</summary>
+        internal IReadOnlyList<RoomPlmSlotSnapshot> PopulationSlots =>
+        [
+            .. self.SlotTable.InProcessingOrder
+                .Select((slot, position) => new IndexedPlmSlot(slot, position))
+                .Where(entry => entry.Slot.Active)
+                .Select(entry => new RoomPlmSlotSnapshot(
+                    ProcessingPosition: entry.Index,
+                    HeaderPointer: entry.Slot.Header,
+                    BlockIndex: entry.Slot.BlockIndex,
+                    RoomArgument: entry.Slot.NativeRoomArgument,
+                    PreInstruction: PlmPreInstructionNativeRoutines.Of(entry.Slot.PreInstruction),
+                    InstructionTimer: entry.Slot.InstructionTimer.RawValue,
+                    LoopTimer: checked((ushort)entry.Slot.LoopTimer),
+                    ProjectileHit: entry.Slot.ProjectileHit,
+                    Animation: entry.Slot.Animation)),
+        ];
 
         /// <summary>
         /// Publishes contact with BTS $47-$4D to its resident station. This is the same generic
@@ -244,7 +233,7 @@ internal static class RoomPlmSystemAccess
         /// <summary>
         /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.
         /// </summary>
-        /// <returns>False only when all 40 native slots are occupied.</returns>
+        /// <returns>False only when every PLM slot is occupied.</returns>
         internal bool TrySpawnBreakableGrappleBlock(
             RoomLevelData level,
             int blockIndex,
@@ -265,7 +254,7 @@ internal static class RoomPlmSystemAccess
         /// 384-frame hold; BTS 4..7 delete after their four-frame break animation.
         /// </remarks>
         /// <returns>
-        /// True when a native slot was allocated. False preserves <c>Spawn_PLM</c>'s full-pool
+        /// True when a slot was claimed. False preserves <c>Spawn_PLM</c>'s full-pool
         /// behavior: setup never ran, so the level word remains untouched even though bank $94
         /// inherited carry clear and lets the current movement scan continue.
         /// </returns>
@@ -293,7 +282,7 @@ internal static class RoomPlmSystemAccess
         /// invisible resource/timing effect. A negative BTS is filtered by bank $94 before this
         /// method is called because it denotes an area-dependent/duplicate path.
         /// </remarks>
-        /// <returns>False only when all 40 native slots are occupied.</returns>
+        /// <returns>False only when every PLM slot is occupied.</returns>
         internal bool TrySpawnBombReactionBlock(
             RoomLevelData level,
             int blockIndex,
@@ -486,7 +475,7 @@ internal static class RoomPlmSystemAccess
             => self.Step(level, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
     }
 
-    /// <summary>Filters the physical PLM pool to slots whose active bit is set.</summary>
+    /// <summary>Filters the PLM table to its occupied slots.</summary>
     private static IEnumerable<PlmSlot> ActiveSlots(RoomPlmSystem plms) =>
         plms.SlotTable.Slots.Where(slot => slot.Active);
 

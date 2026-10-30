@@ -185,9 +185,8 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
         BombTorizoHand.BeginBombTorizoHandFrame();
 
         var context = new PlmStepContext(this, level, frame);
-        for (int slotIndex = SlotTable.Slots.Count - 1; slotIndex >= 0; slotIndex--)
+        foreach (PlmSlot slot in SlotTable.InProcessingOrder)
         {
-            PlmSlot slot = SlotTable.Slots[slotIndex];
             if (!slot.Active)
                 continue;
 
@@ -205,7 +204,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
                 continue;
 
             (slot.Animation ?? throw new InvalidOperationException(
-                $"PLM slot {slotIndex} ({slot.Header}) runs neither a typed program nor a family step.")).Advance(slot, context);
+                $"PLM {slot.Header} runs neither a typed program nor a family step.")).Advance(slot, context);
         }
 
     }
@@ -219,11 +218,8 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
         BombTorizoHandPlms.MarkBombTorizoHandDeleted(slot);
         MotherBrainGlass.OnPlmDeleted(slot);
         // Semantic family references are discriminators, not retained debug
-        // history. A later allocation can reuse this physical native slot and
-        // must never inherit door-only pre-handler behavior.
-        slot.Family = null;
-        slot.Family = null;
-        slot.Family = null;
+        // history. A later spawn can reuse this slot and must never inherit
+        // door-only pre-handler behavior.
         slot.Family = null;
     }
 

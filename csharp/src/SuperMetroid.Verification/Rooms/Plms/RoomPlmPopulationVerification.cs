@@ -284,11 +284,11 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(4, parsed, "single parser consumes every six-byte record once");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
         AssertEqual(3, slots.Length, "extension setup deletes its preallocated actor");
-        AssertEqual(39, slots[0].NativeSlotIndex, "first ROM record receives highest native slot");
+        AssertEqual(0, slots[0].ProcessingPosition, "first record is processed first");
         AssertEqual(0xb703, PlmNativeWords.Word(slots[0].HeaderPointer), "first resident preserves record identity");
-        AssertEqual(38, slots[1].NativeSlotIndex, "post-delete record reuses next native slot");
+        AssertEqual(1, slots[1].ProcessingPosition, "post-delete record reuses the next slot in processing order");
         AssertEqual(0xb70b, PlmNativeWords.Word(slots[1].HeaderPointer), "elevator follows ROM order, not family order");
-        AssertEqual(37, slots[2].NativeSlotIndex, "later station receives descending slot");
+        AssertEqual(2, slots[2].ProcessingPosition, "later station is processed after them");
         AssertEqual(0xb6df, PlmNativeWords.Word(slots[2].HeaderPointer), "station header remains observable");
         AssertEqual(1, plms.ElevatorPlatforms.Count, "elevator platform family is resident");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlock(new(12, 8)).Terrain,
@@ -552,8 +552,8 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.WreckedShip), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Wrecked Ship attic record is accepted by sequential loader");
         RoomPlmSlotSnapshot loaded = plms.PopulationSlots.Single();
-        AssertEqual(39, loaded.NativeSlotIndex,
-            "Wrecked Ship attic actor receives the native highest free slot");
+        AssertEqual(0, loaded.ProcessingPosition,
+            "Wrecked Ship attic actor takes the first free slot in processing order");
         AssertTrue(loaded.Animation is WreckedShipAtticPlmAnimation, "Wrecked Ship attic actor starts its typed program");
         AssertEqual(PlmPreInstructionDefinitions.SpawnDefault, loaded.PreInstruction,
             "Wrecked Ship attic callback is not installed before its first handler pass");
@@ -758,12 +758,12 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(2, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room colored door and following record both run setup");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
-        AssertEqual(39, slots[0].NativeSlotIndex,
+        AssertEqual(0, slots[0].ProcessingPosition,
             "off-room record is allocated before its setup callback");
         AssertEqual(offRoomY * width + offRoomX, slots[0].BlockIndex,
             "off-room record retains native unchecked row-major block index");
-        AssertEqual(38, slots[1].NativeSlotIndex,
-            "following record retains descending native slot order");
+        AssertEqual(1, slots[1].ProcessingPosition,
+            "following record is processed after it");
         AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(width * height - 1).Terrain,
             "off-room setup cannot corrupt the final authored host block");
 
@@ -837,8 +837,8 @@ internal static class RoomPlmPopulationVerification
             "escape gate population record is accepted by the sequential loader");
         AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).Terrain,
             "C8CA setup clears collision class bits without deleting its resident slot");
-        AssertEqual(39, ordinary.PopulationSlots.Single().NativeSlotIndex,
-            "escape gate retains the highest native population slot");
+        AssertEqual(0, ordinary.PopulationSlots.Single().ProcessingPosition,
+            "escape gate takes the first slot in processing order");
         AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.MotherBrainEscapeGate), ordinary.PopulationSlots.Single()),
             "ordinary entry runs C8CA's first closed-gate program");
         ordinary.Step(ordinaryLevel);
@@ -868,8 +868,8 @@ internal static class RoomPlmPopulationVerification
             "direction-nine Mother Brain exit redirects the resident gate");
         AssertEqual(1, escape.SlotTable.ActiveCount,
             "resident escape gate is redirected in place rather than duplicated");
-        AssertEqual(39, escape.PopulationSlots.Single().NativeSlotIndex,
-            "redirect preserves native room-population slot ordering");
+        AssertEqual(0, escape.PopulationSlots.Single().ProcessingPosition,
+            "redirect preserves the room-population slot order");
         AssertTrue(PlmProgramStartOracle.IsRunning(PlmProgramStart.Typed(ScriptedRoomPlmProgram.MotherBrainEscapeGateClosing), escape.PopulationSlots.Single()),
             "door transition selects C8CA's second program");
 

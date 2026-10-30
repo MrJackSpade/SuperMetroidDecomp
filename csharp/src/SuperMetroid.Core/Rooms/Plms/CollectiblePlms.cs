@@ -110,7 +110,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         return requested;
     }
 
-    /// <summary>Every currently allocated permanent-item PLM in native slot order.</summary>
+    /// <summary>Every currently allocated permanent-item PLM, by slot ordinal.</summary>
     public IReadOnlyList<CollectiblePlmSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Family is CollectiblePlmState { } item

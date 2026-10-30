@@ -24,14 +24,14 @@ namespace SuperMetroid.Core.Gameplay;
 /// </param>
 /// <param name="Bg2Overlay">Words a room actor wrote over BG2, or null (#1348).</param>
 /// <param name="Floor">The turning floor map a Ceres room shows, or null outside Ceres (#1349).</param>
-/// <param name="BossBg2">The boss body BG2 shows while a boss owns it, as its parts' pictures, or null (#1352, #1466).</param>
+/// <param name="BossBody">The boss body layer shown while a boss shows one, as its parts' pictures, or null (#1352, #1466).</param>
 /// <param name="BlockArtwork">Which artwork BG1's and BG2's blocks show (#1357, #1466).</param>
 /// <param name="XrayReveal">The X-ray reveal BG2 shows in place of the room's own BG2, or null (#1392).</param>
 /// <param name="Bg2Image">The room's library background drawn from its image, where BG2 shows the tilemap it loaded (#1392).</param>
 [ArchitectureReview("context-bag", "The background layers one gameplay frame shows, published to the display; every member is a layer's picture data, not a service.")]
 public sealed record RoomBackgrounds(RoomBackgroundLayer Bg1, RoomBackgroundLayer? Bg2, Layer3Cells? Bg3,
     RoomDoorBackground? DoorSource = null, RoomOverlayPictures? Bg1Overlay = null, SkyPictures? Sky = null,
-    RoomOverlayPictures? Bg2Overlay = null, AffineFloor? Floor = null, ShownBossBody? BossBg2 = null,
+    RoomOverlayPictures? Bg2Overlay = null, AffineFloor? Floor = null, ShownBossBody? BossBody = null,
     RoomBlockArtwork BlockArtwork = RoomBlockArtwork.Tileset, XrayRevealPlane? XrayReveal = null,
     RoomBackgroundImagePlane? Bg2Image = null)
 {

@@ -149,7 +149,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         SkyPictures? sky = frame.Sky;
         Layer3Cells? bg3 = frame.Bg3;
         AffineFloor? mode7 = frame.Floor;
-        ShownBossBody? bossBody = frame.BossBg2;
+        ShownBossBody? bossBody = frame.BossBody;
         XrayRevealPlane? reveal = frame.XrayReveal;
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = sky?.Image;
         SpriteSheetFrame? message = frame.MessagePicture;
@@ -409,7 +409,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             foreach (ScreenTileSheet sheet in screen.Sheets)
                 yield return (sheet.Picture, D3D11PictureColouring.Frame);
         }
-        foreach (ShownBossBodyPart part in frame.BossBg2?.Parts ?? [])
+        foreach (ShownBossBodyPart part in frame.BossBody?.Parts ?? [])
             yield return (part.Picture, D3D11PictureColouring.Frame);
         IEnumerable<BgTilePicture?>[] tilePictures =
         [

@@ -14,9 +14,9 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// <param name="Bg3">The layer-3 plane: the HUD and the room effect, or null.</param>
 /// <param name="Bg2Overlay">What room actors wrote over layer 2, or null (#1403).</param>
 /// <param name="Floor">The turning floor map, or null.</param>
-/// <param name="BossBg2">The boss body layer 2 shows, or null.</param>
+/// <param name="BossBody">The boss body layer shown, or null.</param>
 /// <param name="XrayReveal">The X-ray reveal layer 2 shows, or null (#1392).</param>
 /// <param name="Bg2Image">The room's library background drawn from its image, or null (#1392).</param>
 /// <param name="MessagePicture">The image of the message box the frame shows, or null (#1392).</param>
 /// <param name="Screens">The frontend layers' cells and tiles the frame draws, or null (#1392).</param>
-internal readonly record struct RoomLevelLayers(RoomBackgroundLayer? Bg1, RoomBackgroundLayer? Bg2, RoomDoorBackground? Door, RoomOverlayPictures? Overlay, SkyPictures? Sky, Layer3Cells? Bg3, RoomOverlayPictures? Bg2Overlay, AffineFloor? Floor, ShownBossBody? BossBg2, XrayRevealPlane? XrayReveal, RoomBackgroundImagePlane? Bg2Image, SuperMetroid.Core.Assets.SpriteSheetFrame? MessagePicture, ScreenPictureTables? Screens);
+internal readonly record struct RoomLevelLayers(RoomBackgroundLayer? Bg1, RoomBackgroundLayer? Bg2, RoomDoorBackground? Door, RoomOverlayPictures? Overlay, SkyPictures? Sky, Layer3Cells? Bg3, RoomOverlayPictures? Bg2Overlay, AffineFloor? Floor, ShownBossBody? BossBody, XrayRevealPlane? XrayReveal, RoomBackgroundImagePlane? Bg2Image, SuperMetroid.Core.Assets.SpriteSheetFrame? MessagePicture, ScreenPictureTables? Screens);

@@ -24,7 +24,7 @@ public static class SlopeSpeedDefinitions
     /// $94:8588 + 4*shape, adjustedDistanceMultiplier in the non-square horizontal
     /// collision consumer, by slope shape 0..31: one entry per shape, in shape order, each
     /// naming the family whose constant documents its profiles. Selects geometric families with eight fractional bits.
-    /// BTS orientation, airborne admission and native signed multiplication stay in callers.
+    /// behaviour orientation, airborne admission and native signed multiplication stay in callers.
     /// Interleaved speedModifiers participate only in discarded native calculations.
     /// </summary>
     internal static IReadOnlyList<ushort> HorizontalMultipliers { get; } =

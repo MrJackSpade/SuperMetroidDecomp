@@ -740,18 +740,18 @@ public sealed class SamusBombProjectileSystem
                 RoomCollisionType.BombableAir);
         }
 
-        if (!block.Bts.IsNonSquareSlope)
+        if (!block.Behavior.IsNonSquareSlope)
             return true;
 
         // `$94:A58F` mirrors X before indexing the slope-height row, then compares the
         // resulting height with Y within the block. Equality counts as collision.
-        int xWithinBlock = (block.Bts.SlopeFlipsHorizontally
+        int xWithinBlock = (block.Behavior.SlopeFlipsHorizontally
             ? slot.Position.X.Whole ^ 15
             : slot.Position.X.Whole) & 15;
         int yWithinBlock = slot.Position.Y.Whole & 15;
-        if (block.Bts.SlopeFlipsVertically)
+        if (block.Behavior.SlopeFlipsVertically)
             yWithinBlock ^= 15;
-        int height = SlopeHeights.Read(block.Bts.SlopeShape, xWithinBlock);
+        int height = SlopeHeights.Read(block.Behavior.SlopeShape, xWithinBlock);
         return height <= yWithinBlock;
     }
 
@@ -846,17 +846,17 @@ public sealed class SamusBombProjectileSystem
         reactions.Add(new BombBlockReaction());
 
         // `$94:9411/$9447` do not react to an extension block directly. A nonzero signed
-        // BTS redirects CurrentBlockIndex horizontally (type $5) or by whole room rows
+        // behaviour redirects CurrentBlockIndex horizontally (type $5) or by whole room rows
         // (type $D), then rewinds the dispatcher return address so the resolved parent
-        // is dispatched again. A zero-BTS extension is simply air for this reaction.
+        // is dispatched again. A zero-behaviour extension is simply air for this reaction.
         RoomCollisionBlock block = visitedBlock;
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
 
-        // Item collision BTS $45 routes to the already-loaded item object rather than
+        // Item collision behaviour $45 routes to the already-loaded item object rather than
         // indexing the ordinary bomb/special-block tables. Visible type-$B frames need no
         // additional response; concealed type-$C/orb frames publish the generic trigger.
-        if (block.Bts == RoomBlockBehaviorValues.CollectibleTrigger &&
+        if (block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger &&
             block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
         {
             _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
@@ -864,12 +864,12 @@ public sealed class SamusBombProjectileSystem
         }
 
         // `$94:9F2E` selects temporary PLM $C83E for both type-$8 special collision and
-        // type-$C shootable collision with BTS $44. Setup $84:C7E2 deletes that temporary
+        // type-$C shootable collision with behaviour $44. Setup $84:C7E2 deletes that temporary
         // slot, finds the resident actor at the same block, and publishes this projectile
         // word. The n00b tube begins as type $8 but its intact draw changes the live origin
         // to type $C, so narrowing this seam to colored doors strands the progression PLM.
         if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
-            block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
+            block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
             if (roomPlms is null ||
                 !roomPlms.ProjectileTriggers.TryNotifyResidentProjectileHit(block.Index, typeWord))
@@ -884,10 +884,10 @@ public sealed class SamusBombProjectileSystem
         // Setup_BlueDoor regardless of whether the collision came from the shot or bomb
         // dispatcher. Normal bombs use projectile family `$0500` and are accepted; Power
         // Bomb family `$0300` is rejected inside the shared bank-$84 setup. Treating these
-        // private door BTS bytes as ordinary table indices both crashed on `$41` and lost
+        // private door behaviours as ordinary table indices both crashed on `$41` and lost
         // the cartridge behavior that allows a bomb placed beside a blue door to open it.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Bts.TryGetBlueDoorOrientation(out _))
+            block.Behavior.TryGetBlueDoorOrientation(out _))
         {
             if (roomPlms is null)
             {
@@ -897,13 +897,13 @@ public sealed class SamusBombProjectileSystem
             roomPlms.DoorPlms.TrySpawnBlueDoorOpening(
                 level,
                 block.Index,
-                block.Bts,
+                block.Behavior,
                 typeWord);
             return;
         }
 
         // $94:A052 dispatches these types to immediate clear/set-carry routines. They
-        // spawn no PLM and do not alter the level/BTS arrays, so recording the visit is
+        // spawn no PLM and do not alter the room's terrain or behaviours, so recording the visit is
         // the complete observable effect for this runtime.
         if (block.CollisionType is
             RoomCollisionType.Air or
@@ -920,17 +920,17 @@ public sealed class SamusBombProjectileSystem
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
             // Both bombable-air and bombable-solid handlers use `$94:A012`. Negative
-            // BTS takes the native duplicate/area-dependent early return and therefore
+            // behaviour takes the native duplicate/area-dependent early return and therefore
             // neither allocates a PLM nor mutates terrain.
-            if (block.Bts.UsesAreaReactionTable)
+            if (block.Behavior.UsesAreaReactionTable)
                 return;
-            if (!block.Bts.IsNormalReactionIndex(16))
+            if (!block.Behavior.IsNormalReactionIndex(16))
             {
                 // $94:A012 is a literal sixteen-word table. Retail room data must keep a
-                // nonnegative bombable BTS within that table; a larger value would make
+                // nonnegative bombable behaviour within that table; a larger value would make
                 // the 65C816 read unrelated following ROM as a PLM header.
                 throw new InvalidDataException(
-                    $"Bombable block {block.Index} has BTS ${block.Bts.Value:X2} outside " +
+                    $"Bombable block {block.Index} has behaviour ${block.Behavior.Value:X2} outside " +
                     "the native $94:A012 reaction table.");
             }
             if (roomPlms is null)
@@ -939,26 +939,26 @@ public sealed class SamusBombProjectileSystem
                 // nonreactive synthetic fixtures, so reaching a producer without it is a
                 // caller-composition error rather than untranslated cartridge behavior.
                 throw new InvalidOperationException(
-                    $"Bombed block reaction type {block.CollisionType}/BTS ${block.Bts.Value:X2} " +
+                    $"Bombed block reaction type {block.CollisionType}/behaviour ${block.Behavior.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
-            // Spawn is synchronous: accepted BTS 0..7 applies CEDA's temporary type-$8
+            // Spawn is synchronous: accepted behaviour 0..7 applies CEDA's temporary type-$8
             // or type-$0 word before the caller proceeds to its next border/cross member.
             roomPlms.BlockReactions.TrySpawnBombReactionBlock(
                 level,
                 block.Index,
-                block.Bts,
+                block.Behavior,
                 typeWord);
             return;
         }
 
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
-            // Gate shot blocks reuse shootable collision with private BTS $46-$4D. They
+            // Gate shot blocks reuse shootable collision with private behaviour $46-$4D. They
             // select temporary trigger PLMs rather than the ordinary 0..F bomb table.
             if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-                block.Bts.TryGetDownwardGateTrigger(out _))
+                block.Behavior.TryGetDownwardGateTrigger(out _))
             {
                 if (roomPlms is null)
                 {
@@ -968,44 +968,44 @@ public sealed class SamusBombProjectileSystem
                 roomPlms.Gates.TrySpawnDownwardGateTrigger(
                     level,
                     block.Index,
-                    block.Bts,
+                    block.Behavior,
                     typeWord);
                 return;
             }
 
-            // Type-$4 shootable air treats negative BTS as a duplicate and returns.
+            // Type-$4 shootable air treats negative behaviour as a duplicate and returns.
             // Type-$C instead indexes one of eight area tables; every retail entry is
             // PLMEntries_nothing, but Spawn_PLM still consumes a slot for one pass.
             if (block.CollisionType == RoomCollisionType.ShootableAir &&
-                block.Bts.UsesAreaReactionTable)
+                block.Behavior.UsesAreaReactionTable)
                 return;
-            if (!block.Bts.UsesAreaReactionTable &&
-                block.Bts.Value != EscapeAnimalWallDefinitions.ReactionBts &&
-                !block.Bts.IsNormalReactionIndex(16) &&
-                !block.Bts.IsShootableCollisionProbe)
+            if (!block.Behavior.UsesAreaReactionTable &&
+                block.Behavior.Value != EscapeAnimalWallDefinitions.ReactionBts &&
+                !block.Behavior.IsNormalReactionIndex(16) &&
+                !block.Behavior.IsShootableCollisionProbe)
             {
                 throw new InvalidDataException(
-                    $"Shootable block {block.Index} has BTS ${block.Bts.Value:X2} outside " +
+                    $"Shootable block {block.Index} has behaviour ${block.Behavior.Value:X2} outside " +
                     "the translated native bomb-reaction table range.");
             }
-            if (block.Bts.UsesAreaReactionTable &&
-                !block.Bts.IsAreaReactionIndex(8))
+            if (block.Behavior.UsesAreaReactionTable &&
+                !block.Behavior.IsAreaReactionIndex(8))
             {
                 throw new InvalidDataException(
-                    $"Area-dependent shootable block {block.Index} has BTS " +
-                    $"${block.Bts.Value:X2} outside its eight-entry native table.");
+                    $"Area-dependent shootable block {block.Index} has behaviour " +
+                    $"${block.Behavior.Value:X2} outside its eight-entry native table.");
             }
             if (roomPlms is null)
             {
                 throw new InvalidOperationException(
-                    $"Bombed shootable type {block.CollisionType}/BTS ${block.Bts.Value:X2} " +
+                    $"Bombed shootable type {block.CollisionType}/behaviour ${block.Behavior.Value:X2} " +
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
             roomPlms.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 block.Index,
-                block.Bts,
+                block.Behavior,
                 typeWord,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
             return;
@@ -1016,14 +1016,14 @@ public sealed class SamusBombProjectileSystem
             if (roomPlms is null)
             {
                 throw new InvalidOperationException(
-                    $"Bombed special block BTS ${block.Bts.Value:X2} at ({x},{y}) " +
+                    $"Bombed special block behaviour ${block.Behavior.Value:X2} at ({x},{y}) " +
                     "requires a room PLM owner.");
             }
 
             roomPlms.BlockReactions.TrySpawnBombedSpecialBlock(
                 level,
                 block.Index,
-                block.Bts,
+                block.Behavior,
                 areaIndex,
                 typeWord);
             return;
@@ -1034,7 +1034,7 @@ public sealed class SamusBombProjectileSystem
         // the guard for corrupted packed words, but do not label it missing behavior.
         throw new InvalidDataException(
             $"Bombed block reaction reached impossible type {block.CollisionType}/" +
-            $"BTS ${block.Bts.Value:X2} at ({x},{y}).");
+            $"behaviour ${block.Behavior.Value:X2} at ({x},{y}).");
     }
 
     /// <summary>Ticks the bank-$93 bomb instruction list, including timed maps, delete and goto opcodes.</summary>

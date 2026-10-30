@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Cartridge-derived primitives used by Samus's non-square slope collision path in bank $94.
 /// </summary>
 /// <remarks>
-/// Super Metroid does not reduce slopes to a line equation. BTS bits select one of 32
+/// Super Metroid does not reduce slopes to a line equation. behaviour bits select one of 32
 /// sixteen-sample height profiles, while a separate table scales grounded horizontal
 /// displacement. Compiled profiles and multipliers preserve the exact discrete geometry
 /// and integer movement calculations without reading cartridge tables at runtime.
@@ -17,7 +17,7 @@ public static class SamusSlopePhysics
     /// Ports <c>BlockColl_Horiz_Slope_NonSquare</c> at <c>$94:84D6</c>.
     /// </summary>
     /// <param name="behavior">
-    /// Native BTS byte. Bits 0–4 choose the profile; bit 7 marks a ceiling slope.
+    /// The slope block's behaviour. Bits 0–4 choose the profile; bit 7 marks a ceiling slope.
     /// </param>
     /// <param name="displacement">Signed 16.16 horizontal displacement.</param>
     /// <param name="verticalSpeed">
@@ -33,19 +33,19 @@ public static class SamusSlopePhysics
             displacement,
             verticalSpeed);
 
-    /// <summary>Typed BTS overload used by live room collision.</summary>
+    /// <summary>Typed behaviour overload used by live room collision.</summary>
     public static int ScaleGroundedHorizontalDisplacement(
-        RoomBlockBehavior bts,
+        RoomBlockBehavior behavior,
         int displacement,
         uint verticalSpeed)
     {
 
         // Ceiling slopes and airborne Samus leave the incoming amount untouched. This is
         // the routine's complete early-return condition, not a host-side policy choice.
-        if (bts.SlopeFlipsVertically || verticalSpeed != 0)
+        if (behavior.SlopeFlipsVertically || verticalSpeed != 0)
             return displacement;
 
-        int multiplier = SlopeSpeeds.HorizontalMultiplier(bts.SlopeShape);
+        int multiplier = SlopeSpeeds.HorizontalMultiplier(behavior.SlopeShape);
 
         // The 65816 discards the displacement's lowest eight fractional bits before the
         // unsigned 16×16 multiply. For negative values it negates that truncated 16-bit
@@ -63,18 +63,18 @@ public static class SamusSlopePhysics
         }
     }
 
-    /// <summary>Typed BTS overload used by live room collision.</summary>
+    /// <summary>Typed behaviour overload used by live room collision.</summary>
     public static byte ReadAlignmentHeight(
-        RoomBlockBehavior bts,
+        RoomBlockBehavior behavior,
         int xPosition)
     {
 
-        // BTS bit $40 mirrors the profile horizontally. XORing the complete coordinate by
+        // behaviour bit $40 mirrors the profile horizontally. XORing the complete coordinate by
         // $000F is equivalent to flipping its low nibble while retaining native word math.
-        int sampledX = bts.SlopeFlipsHorizontally
+        int sampledX = behavior.SlopeFlipsHorizontally
             ? unchecked((ushort)(xPosition ^ 15))
             : xPosition;
-        return SlopeHeights.Read(bts.SlopeShape, sampledX & 15);
+        return SlopeHeights.Read(behavior.SlopeShape, sampledX & 15);
     }
 
     /// <summary>
@@ -102,15 +102,15 @@ public static class SamusSlopePhysics
         bool adjusted = false;
 
         // $94:87F4 first probes the center-X block containing Samus's bottom pixel. Only
-        // type 1, shapes >=5, and BTS bit $80 clear participate as floor slopes.
+        // type 1, shapes >=5, and behaviour bit $80 clear participate as floor slopes.
         int bottomPosition = unchecked((ushort)(yPosition + yRadius - 1));
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
             bottom.CollisionType == RoomCollisionType.Slope &&
-            bottom.Bts.IsNonSquareSlope)
+            bottom.Behavior.IsNonSquareSlope)
         {
-            if (!bottom.Bts.SlopeFlipsVertically)
+            if (!bottom.Behavior.SlopeFlipsVertically)
             {
-                int height = ReadAlignmentHeight(bottom.Bts, xPosition);
+                int height = ReadAlignmentHeight(bottom.Behavior, xPosition);
                 int bottomNibble = bottomPosition & 15;
                 int correction = unchecked((short)(height - bottomNibble - 1));
                 if (correction < 0)
@@ -121,16 +121,16 @@ public static class SamusSlopePhysics
             }
         }
 
-        // Recompute the top probe after any floor correction. Ceiling slopes use BTS bit
+        // Recompute the top probe after any floor correction. Ceiling slopes use behaviour bit
         // $80 set and reverse the same signed correction, matching $94:887A-$94:88F3.
         int topPosition = unchecked((ushort)(yPosition - yRadius));
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, topPosition), out RoomCollisionBlock top) &&
             top.CollisionType == RoomCollisionType.Slope &&
-            top.Bts.IsNonSquareSlope)
+            top.Behavior.IsNonSquareSlope)
         {
-            if (top.Bts.SlopeFlipsVertically)
+            if (top.Behavior.SlopeFlipsVertically)
             {
-                int height = ReadAlignmentHeight(top.Bts, xPosition);
+                int height = ReadAlignmentHeight(top.Behavior, xPosition);
                 int invertedTopNibble = (topPosition & 15) ^ 15;
                 int correction = unchecked((short)(height - invertedTopNibble - 1));
                 if (correction <= 0)

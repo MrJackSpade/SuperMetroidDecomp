@@ -19,28 +19,28 @@ public static class SamusInsideBlockReactions
 
         void Visit(int y, bool bottomPoint, bool centerPoint)
         {
-            var block = level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)(body.Position.X.Whole >> 4)), unchecked((ushort)(y >> 4))));
+            var block = level.GetCollisionBlockOrEdgeSolid(new(unchecked((ushort)(body.Position.X.Whole >> 4)), unchecked((ushort)(y >> 4))));
             if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
-            if (!block.Bts.UsesAreaReactionTable)
+            if (!block.Behavior.UsesAreaReactionTable)
             {
                 // $94:9956 admits only inside-block sample one (the center).
                 // Feet/head contacts belong to the separate movement scans. Keeping
                 // this center wake-up lets a lower trigger win after the torso clears
                 // an upper trigger, without changing native PLM slot priority.
-                if (centerPoint && block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
+                if (centerPoint && block.Behavior == RoomBlockBehaviorValues.ScrollTrigger &&
                     (plms is null || !plms.Scrolls.TryNotifyScrollTouch(block.Index)))
                     throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active PLM owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
-                ApplyConveyor(block.Bts.Value);
+                ApplyConveyor(block.Behavior.Value);
                 return;
             }
             SpecialAirReactionDefinition areaReaction =
                 SpecialAirReactions.ResolveInside(
                     area,
-                    block.Bts.AreaReactionIndex);
+                    block.Behavior.AreaReactionIndex);
             PlmHeaderId header = areaReaction.Header;
             if (header == PlmHeaderId.None) return;
             bool hasCompiledReaction = QuicksandReactions.TryGetReaction(
@@ -127,10 +127,10 @@ public static class SamusInsideBlockReactions
                     throw new InvalidOperationException($"Undefined special-air setup {setup}.");
             }
         }
-        void ApplyConveyor(int bts)
+        void ApplyConveyor(int behavior)
         {
-            // The normal special-air table shares its BTS space; only conveyor entries react here.
-            ConveyorBlockBts? carrier = bts switch
+            // The normal special-air table shares its behaviour space; only conveyor entries react here.
+            ConveyorBlockBts? carrier = behavior switch
             {
                 8 => ConveyorBlockBts.GroundedRight,
                 9 => ConveyorBlockBts.GroundedLeft,
@@ -167,11 +167,11 @@ public static class SamusInsideBlockReactions
     {
         SamusKinematicsState body = contact.Body;
         surfaceContact = false;
-        if (!block.Bts.UsesAreaReactionTable) return false;
+        if (!block.Behavior.UsesAreaReactionTable) return false;
         SpecialAirReactionDefinition areaReaction =
             SpecialAirReactions.ResolveCollision(
                 body.SandCollisionArea,
-                block.Bts.AreaReactionIndex);
+                block.Behavior.AreaReactionIndex);
         PlmHeaderId header = areaReaction.Header;
         if (header == PlmHeaderId.None) return false;
         bool hasCompiledReaction = QuicksandReactions.TryGetReaction(

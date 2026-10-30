@@ -6,7 +6,7 @@ public static class RoomTilesetDefinitions
     /// <summary>$8F:E7A7..E7DF: graphics themes $00..$1C precede unrelated data.</summary>
     public const int Count = 0x1d;
 
-    /// <summary>The compressed block table each room theme's level words use.</summary>
+    /// <summary>The compressed block table each room theme's blocks use.</summary>
     private static readonly Dictionary<RoomGraphicsSet, RoomBlockSet> BlockSources = new()
     {
         [RoomGraphicsSet.UpperCrateria] = RoomBlockSet.UpperCrateria,

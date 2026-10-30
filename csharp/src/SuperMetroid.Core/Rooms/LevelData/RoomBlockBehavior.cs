@@ -80,7 +80,7 @@ public readonly record struct RoomBlockBehavior(int Value)
     public bool RejectsGrappleReaction => (Value & HighBit) != 0;
 
     /// <summary>Low-seven-bit grapple reaction-table index.</summary>
-    [PackedFields("low seven bits of the BTS byte, an index into the grapple reaction table")]
+    [PackedFields("low seven bits of the behaviour, an index into the grapple reaction table")]
     public int GrappleReactionIndex => Value & LowSevenBits;
 
     /// <summary>Persistent grapple anchors are table entries zero and three.</summary>
@@ -92,7 +92,7 @@ public readonly record struct RoomBlockBehavior(int Value)
         !RejectsGrappleReaction && GrappleReactionIndex is 1 or 2;
 
     /// <summary>Validated direct index for a non-area projectile/bomb reaction table.</summary>
-    [PackedFields("the BTS byte as an index into the block reaction table")]
+    [PackedFields("the behaviour as an index into the block reaction table")]
     public int NormalReactionIndex => Value;
 
     /// <summary>Entries zero through three restore after their break animation.</summary>

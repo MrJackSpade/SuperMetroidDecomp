@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
 /// The artwork a graphics set draws its rooms with (#1466): the graphics set, which names the tileset's pictures, the
-/// block table its level words use and the palette its rooms load. Which characters the set's pictures are composed from
+/// block table its blocks use and the palette its rooms load. Which characters the set's pictures are composed from
 /// is the import's knowledge.
 /// </summary>
 /// <param name="GraphicsSet">The graphics set: the tileset's identity, which names its pictures.</param>

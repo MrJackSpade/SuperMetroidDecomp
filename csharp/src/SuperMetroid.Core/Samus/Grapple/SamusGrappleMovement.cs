@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// those responsibilities separate from ordinary aerial movement. Firing, persistent grapple
 /// blocks, per-pixel rope adjustment, and the six-point angular terrain sweep are translated
 /// here; solid/frozen-enemy wall-jump probing is shared with ordinary movement and retains
-/// the enemy slot to shake. The firing-only Draygon-turret damage and both BTS-indexed swing
+/// the enemy slot to shake. The firing-only Draygon-turret damage and both behaviour-indexed swing
 /// spike-damage tables are translated through the shared periodic-damage words. Breakable
 /// block acquisition now installs the independent bank-$84 PLM lifecycle; enemy acquisition
 /// and the live enemy/shake loop remain explicit later routes rather than being approximated.
@@ -539,7 +539,7 @@ public static class SamusGrappleMovement
 
         // `$90:9CAC` probes solid/frozen enemies first, then 16 pixels of room blocks toward
         // the wall named by the contact pose's direction byte. The shared probe preserves
-        // square slopes, BTS dispatch, available distance, and enemy identity.
+        // square slopes, behaviour dispatch, available distance, and enemy identity.
         int signedProbe = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? -(16 << 16)
             : 16 << 16;
@@ -729,10 +729,10 @@ public static class SamusGrappleMovement
         int blockX = endpoint.X >> 4;
         int blockY = endpoint.Y >> 4;
         RoomCollisionBlock initialBlock =
-            level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+            level.GetCollisionBlockOrEdgeSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
         if (initialBlock.Index < 0)
         {
-            // The prefilled `$8000` word dispatches as an ordinary solid endpoint: carry
+            // The edge-solid block outside the room dispatches as an ordinary solid endpoint: carry
             // set, overflow clear, which queues grapple cancellation rather than connecting.
             return GrappleBlockReaction.Solid;
         }
@@ -741,7 +741,7 @@ public static class SamusGrappleMovement
         for (int extensionDepth = 0; extensionDepth <= 16; extensionDepth++)
         {
             RoomCollisionBlock block =
-                level.GetCollisionBlockByIndexOrPrefilledSolid(index);
+                level.GetCollisionBlockByIndexOrEdgeSolid(index);
             int resolvedX = block.Index < 0 ? -1 : block.Index % level.Size.X;
             int resolvedY = block.Index < 0 ? -1 : block.Index / level.Size.X;
             switch (block.CollisionType)
@@ -763,13 +763,13 @@ public static class SamusGrappleMovement
 
                 case RoomCollisionType.SpikeBlock:
                     // `$94:A7FD` selects a bank-$84 grapple-reaction PLM by the low seven
-                    // BTS bits. A negative BTS rejects the beam. Every ordinary entry uses
-                    // `$84:CFD1` (carry set, overflow clear) and immediately deletes; BTS
+                    // behaviour bits. A negative behaviour rejects the beam. Every ordinary entry uses
+                    // `$84:CFD1` (carry set, overflow clear) and immediately deletes; behaviour
                     // three alone uses Draygon's broken-turret setup `$84:CFD5`, which adds
                     // one whole periodic-damage unit and returns carry+overflow to connect.
-                    if (block.Bts.RejectsGrappleReaction)
+                    if (block.Behavior.RejectsGrappleReaction)
                         return GrappleBlockReaction.Passes;
-                    if (block.Bts.GrappleReactionIndex == 3)
+                    if (block.Behavior.GrappleReactionIndex == 3)
                     {
                         samus.LiquidPhysics.AccumulatePeriodicDamage(
                             subDamage: 0,
@@ -780,42 +780,42 @@ public static class SamusGrappleMovement
                     return GrappleBlockReaction.Solid;
 
                 case RoomCollisionType.HorizontalExtension:
-                    // Horizontal extensions interpret BTS as a signed block-index delta.
-                    // BTS zero is the native terminator and behaves as air.
-                    if (block.Bts == RoomBlockBehaviorValues.None)
+                    // Horizontal extensions interpret behaviour as a signed block-index delta.
+                    // behaviour zero is the native terminator and behaves as air.
+                    if (block.Behavior == RoomBlockBehaviorValues.None)
                         return GrappleBlockReaction.Passes;
-                    index += block.Bts.ExtensionOffset;
+                    index += block.Behavior.ExtensionOffset;
                     continue;
 
                 case RoomCollisionType.VerticalExtension:
-                    // Vertical extension uses the same signed BTS but scales by room width.
-                    if (block.Bts == RoomBlockBehaviorValues.None)
+                    // Vertical extension uses the same signed behaviour but scales by room width.
+                    if (block.Behavior == RoomBlockBehaviorValues.None)
                         return GrappleBlockReaction.Passes;
-                    index += block.Bts.ExtensionOffset * level.Size.X;
+                    index += block.Behavior.ExtensionOffset * level.Size.X;
                     continue;
 
                 case RoomCollisionType.GrappleBlock:
-                    // $94:A7D1 rejects bit-seven BTS. Values zero and three spawn persistent
+                    // $94:A7D1 rejects bit-seven behaviour. Values zero and three spawn persistent
                     // grapple PLM $D0D8, whose setup returns processor flags $41 (C=1,V=1).
                     // The persistent PLM has no level mutation, so this result is complete.
-                    if (block.Bts.RejectsGrappleReaction)
+                    if (block.Behavior.RejectsGrappleReaction)
                         return GrappleBlockReaction.Passes;
-                    if (block.Bts.IsPersistentGrappleReaction)
+                    if (block.Behavior.IsPersistentGrappleReaction)
                         return GrappleBlockReaction.Connects;
 
-                    // BTS one/two spawn $D0DC/$D0E0. Setup_CFB5 synchronously saves the
-                    // complete level word and clears BTS before returning C+V; the new PLM
+                    // behaviour one/two spawn $D0DC/$D0E0. Setup_CFB5 synchronously saves the
+                    // complete terrain block and clears the behaviour before returning C+V; the new PLM
                     // executes its first timer/draw record later in this same gameplay frame.
                     // A caller which omitted the independent room owner cannot honestly
                     // preserve that lifecycle, so keep the missing integration seam explicit.
-                    if (block.Bts.IsBreakableGrappleReaction)
+                    if (block.Behavior.IsBreakableGrappleReaction)
                     {
                         if (plms is null)
                         {
                             throw new InvalidOperationException(
                                 "Breakable grapple acquisition requires a ISamusRoomPlms.");
                         }
-                        if (!plms.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.Index, block.Bts))
+                        if (!plms.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.Index, block.Behavior))
                         {
                             throw new InvalidOperationException(
                                 "All 40 native PLM slots are occupied during grapple acquisition.");
@@ -824,16 +824,16 @@ public static class SamusGrappleMovement
                         return GrappleBlockReaction.Connects;
                     }
 
-                    // Nonnegative BTS values beyond the four authored grapple reactions
+                    // Nonnegative behaviour values beyond the four authored grapple reactions
                     // would index outside $D0D8-$D0E0 in the native selection table.
                     throw new InvalidDataException(
-                        $"Invalid grapple block BTS ${block.Bts.Value:X2} at ({resolvedX},{resolvedY}).");
+                        $"Invalid grapple block behaviour ${block.Behavior.Value:X2} at ({resolvedX},{resolvedY}).");
 
                 case RoomCollisionType.ShootableAir:
                 case RoomCollisionType.ShootableBlock:
                     // `$94:9E55/$9E73` use the same shootable reaction table as ordinary
                     // projectiles. Grapple owns no projectile family, so weapon-gated
-                    // entries reject it while BTS 0..7 retain their unconditional block
+                    // entries reject it while behaviour 0..7 retain their unconditional block
                     // animation. The collision nibble—not PLM setup—owns carry: type 4 is
                     // air and type C is solid.
                     if (plms is null)
@@ -845,11 +845,11 @@ public static class SamusGrappleMovement
                     // select door PLMs. Grapple's negative projectile index bypasses the
                     // power-bomb rejection in Setup_BlueDoor; the ordinary opening owner
                     // supplies all four cap tiles, timing, collision changes, and sound.
-                    if (block.Bts.TryGetDownwardGateTrigger(out _))
-                        plms.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Bts, projectileType: 0);
-                    else if (block.Bts.TryGetBlueDoorOrientation(out _))
-                        plms.DoorPlms.TrySpawnBlueDoorOpening(level, block.Index, block.Bts, projectileType: 0);
-                    else if (block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
+                    if (block.Behavior.TryGetDownwardGateTrigger(out _))
+                        plms.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, projectileType: 0);
+                    else if (block.Behavior.TryGetBlueDoorOrientation(out _))
+                        plms.DoorPlms.TrySpawnBlueDoorOpening(level, block.Index, block.Behavior, projectileType: 0);
+                    else if (block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
                     {
                         // Generic shot-trigger setup also belongs to the grapple table.
                         // Notify the resident actor with no weapon family; its own native
@@ -858,7 +858,7 @@ public static class SamusGrappleMovement
                             throw new InvalidOperationException(
                                 $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident PLM owner.");
                     }
-                    else if (block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
+                    else if (block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger)
                         plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
                     else
                     {
@@ -867,15 +867,15 @@ public static class SamusGrappleMovement
                             plms.BlockReactions.TrySpawnProjectileShotBlock(
                                 level,
                                 block.Index,
-                                block.Bts,
+                                block.Behavior,
                                 projectileType: 0,
                                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
                         }
                         catch (UnsupportedShotBlockReactionException error)
                         {
                             throw new UnmodeledBehaviorException(
-                                $"grapple-shootable/type-{block.CollisionType}/bts-{block.Bts.Value:X2}",
-                                $"Grapple shootable dispatch type {block.CollisionType}/BTS ${block.Bts.Value:X2} " +
+                                $"grapple-shootable/type-{block.CollisionType}/behaviour-{block.Behavior.Value:X2}",
+                                $"Grapple shootable dispatch type {block.CollisionType}/behaviour ${block.Behavior.Value:X2} " +
                                 $"at block {block.Index} ({resolvedX},{resolvedY}) has no translated table entry.",
                                 error);
                         }

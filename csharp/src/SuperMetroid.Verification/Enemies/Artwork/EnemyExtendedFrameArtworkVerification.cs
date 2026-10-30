@@ -1356,6 +1356,8 @@ internal static class EnemyExtendedFrameArtworkVerification
         Action<RoomEnemySlot, RoomEnemySystem>? inspect = null)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses, AreaArtwork = art?.Areas };
+        // A boss frame names its body frame through the installed body sheets (#1466), as a room loading the boss binds them.
+        enemies.BossArtworkBinding.BodySheets = BossBodySheetFixtures.Stock.Sheets;
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         EnemyFrameId? frame = RoomEnemySlotFrameAccess.TryFrameAt(bank, pointer);

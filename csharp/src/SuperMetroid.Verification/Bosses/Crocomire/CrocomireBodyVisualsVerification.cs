@@ -231,9 +231,11 @@ internal static class CrocomireBodyVisualsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             var vram = new SnesVram();
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-            // His fight attaches the body layer his body frames draw on.
-            BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, RepositoryInstallation.Artwork.BossBodySheets
-                ?? throw new InvalidOperationException("The repository installation has no boss body sheets."), BossBodyOwner.Crocomire);
+            // His fight binds the installed body sheets and attaches the body layer his body frames draw on.
+            BossBodySheets bodySheets = RepositoryInstallation.Artwork.BossBodySheets
+                ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
+            enemies.BossArtworkBinding.BodySheets = bodySheets;
+            BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, bodySheets, BossBodyOwner.Crocomire);
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);

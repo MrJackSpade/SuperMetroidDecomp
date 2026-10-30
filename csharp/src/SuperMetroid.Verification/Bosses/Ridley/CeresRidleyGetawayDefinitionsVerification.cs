@@ -6,7 +6,6 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Bosses.Ridley;
-using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 

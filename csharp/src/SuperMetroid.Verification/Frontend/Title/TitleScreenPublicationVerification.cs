@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Title;
@@ -26,7 +27,7 @@ internal static class TitleScreenPublicationVerification
             titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics, spriteSheets: MenuSheetFixtures.WithTitle(maps.TitleGraphics));
         SpriteSheet titleSheet = MenuSheetFixtures.WithTitle(maps.TitleGraphics).Get(SpriteSheetId.Title);
         byte[] baby = maps.TitleGraphics.BabyCharacters.ToArray();
-        int pageBytes = TitleSequenceDefinitions.Graphics.BabyCharacterPageByteCount;
+        int pageBytes = TitleFloorTileDefinitions.BabyCharacterPageByteCount;
         var shownPages = new List<int>();
         bool drewSprites = false;
         for (int frame = 0; frame < 9 * TitleSequenceDefinitions.Timing.BabyFrameDuration; frame++)

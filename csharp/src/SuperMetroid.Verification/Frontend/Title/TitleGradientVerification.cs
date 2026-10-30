@@ -73,22 +73,22 @@ internal static class TitleGradientVerification
         var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         IReadOnlyDictionary<string, byte[]> files =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleGraphicsExtractor.Extract(tracingBus);
-        TitleGraphicsPresentation presentation = TitleGraphicsCharacters.Read(
+        TitleGraphicsCharacters presentation = TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.FloorMapFile]),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
         AssertSource(TitleSourceDefinitions.FloorCharacters,
-            TitleSequenceDefinitions.Graphics.FloorCharacterByteCount, presentation.FloorCharacters,
+            TitleFloorTileDefinitions.FloorCharacterByteCount, presentation.FloorCharacters,
             "title Mode 7 characters");
         AssertSource(TitleSourceDefinitions.FloorMap,
-            TitleSequenceDefinitions.Graphics.FloorMapByteCount, presentation.FloorMap,
+            TitleFloorTileDefinitions.FloorMapByteCount, presentation.FloorMap,
             "title Mode 7 map");
         AssertSource(TitleSourceDefinitions.ObjectCharacters,
             TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount, presentation.ObjectCharacters,
             "title OBJ characters");
         AssertSource(TitleSourceDefinitions.BabyMetroidCharacters,
-            TitleSequenceDefinitions.Graphics.BabyCharacterByteCount, presentation.BabyCharacters,
+            TitleFloorTileDefinitions.BabyCharacterByteCount, presentation.BabyCharacters,
             "title Baby characters");
 
         // The installed title uses compiled card timing and sprite selectors alongside

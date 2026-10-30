@@ -124,12 +124,12 @@ internal static class TitleSequenceRomDataVerification
         WriteRepeatedCompressedStream(
             rom,
             TitleSourceDefinitions.FloorCharacters,
-            TitleSequenceDefinitions.Graphics.FloorCharacterByteCount,
+            TitleFloorTileDefinitions.FloorCharacterByteCount,
             0);
         WriteRepeatedCompressedStream(
             rom,
             TitleSourceDefinitions.FloorMap,
-            TitleSequenceDefinitions.Graphics.FloorMapByteCount,
+            TitleFloorTileDefinitions.FloorMapByteCount,
             0);
         WriteRepeatedCompressedStream(
             rom,
@@ -139,7 +139,7 @@ internal static class TitleSequenceRomDataVerification
         WriteRepeatedCompressedStream(
             rom,
             TitleSourceDefinitions.BabyMetroidCharacters,
-            TitleSequenceDefinitions.Graphics.BabyCharacterByteCount,
+            TitleFloorTileDefinitions.BabyCharacterByteCount,
             0);
 
         WriteConstructedTitleTextList(

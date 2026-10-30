@@ -46,7 +46,7 @@ internal interface IGameplayArtwork
     /// <summary>Initial room foreground and background layouts.</summary>
     RoomLevelArtworks? RoomVisualLayouts { get; }
 
-    /// <summary>Stock native room-level allocations; not overridable.</summary>
+    /// <summary>The installed terrain of every room level; not overridable.</summary>
     InstalledRoomLevelStreams? RoomLevelStreams { get; }
 
     /// <summary>Room PLM shot block visuals.</summary>

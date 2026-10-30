@@ -16,14 +16,13 @@ public static class LevelBlockTilemapExpander
 {
     /// <summary>
     /// Reads the indexed four-tile definition from the combined CRE/area block table and
-    /// applies the parent level entry's horizontal and vertical flips.
+    /// applies the block's horizontal and vertical mirroring.
     /// </summary>
-    /// <param name="levelEntry">The level word naming the block definition and its mirroring.</param>
+    /// <param name="appearance">The block shown and its mirroring.</param>
     /// <param name="blockDefinitions">The block compositions, <see cref="RoomMetatileFormat.TilesPerBlock"/> tiles each.</param>
-    public static ExpandedBlockTiles Expand(RoomLevelWord levelEntry, ReadOnlySpan<BackgroundTile> blockDefinitions)
+    public static ExpandedBlockTiles Expand(RoomBlockAppearance appearance, ReadOnlySpan<BackgroundTile> blockDefinitions)
     {
-        // The typed word keeps the collision nibble explicitly out of visual expansion.
-        int blockIndex = levelEntry.VisualBlockIndex;
+        int blockIndex = appearance.Block;
         int first = blockIndex * RoomMetatileFormat.TilesPerBlock;
         if (first + RoomMetatileFormat.TilesPerBlock > blockDefinitions.Length)
         {
@@ -39,21 +38,21 @@ public static class LevelBlockTilemapExpander
         // Mirroring does two jobs at once: the four children move to their mirrored quadrants,
         // and each 8x8 child's own mirroring toggles so pixels mirror inside that child.
         // The case order mirrors the native horizontal/vertical flag comparisons.
-        return levelEntry.VisualFlipFlags switch
+        return appearance.Mirroring switch
         {
-            LevelBlockFlipFlags.None =>
+            BlockMirroring.None =>
                 new ExpandedBlockTiles(topLeft, topRight, bottomLeft, bottomRight),
-            LevelBlockFlipFlags.Horizontal => new ExpandedBlockTiles(
+            BlockMirroring.Horizontal => new ExpandedBlockTiles(
                 topRight.WithFlipsToggled(TileFlip.Horizontal),
                 topLeft.WithFlipsToggled(TileFlip.Horizontal),
                 bottomRight.WithFlipsToggled(TileFlip.Horizontal),
                 bottomLeft.WithFlipsToggled(TileFlip.Horizontal)),
-            LevelBlockFlipFlags.Vertical => new ExpandedBlockTiles(
+            BlockMirroring.Vertical => new ExpandedBlockTiles(
                 bottomLeft.WithFlipsToggled(TileFlip.Vertical),
                 bottomRight.WithFlipsToggled(TileFlip.Vertical),
                 topLeft.WithFlipsToggled(TileFlip.Vertical),
                 topRight.WithFlipsToggled(TileFlip.Vertical)),
-            LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical => new ExpandedBlockTiles(
+            BlockMirroring.Horizontal | BlockMirroring.Vertical => new ExpandedBlockTiles(
                 bottomRight.WithFlipsToggled(TileFlip.Horizontal | TileFlip.Vertical),
                 bottomLeft.WithFlipsToggled(TileFlip.Horizontal | TileFlip.Vertical),
                 topRight.WithFlipsToggled(TileFlip.Horizontal | TileFlip.Vertical),

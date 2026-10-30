@@ -161,7 +161,7 @@ public sealed record GameInstallation(string Root)
     /// <summary>Visual room-block references independent of native collision and BTS.</summary>
     public RoomLevelArtworks LoadRoomVisualLayouts() =>
         RoomVisualLayoutFiles.Load(RoomVisualLayoutDirectory, RoomVisualLayoutOverrideDirectory);
-    /// <summary>Stock native room-level allocations under the replaceable content tree; this family has no override directory.</summary>
+    /// <summary>Stock typed terrain of every room level under the replaceable content tree; this family has no override directory.</summary>
     public string RoomLevelStreamDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomLevelStreamDirectoryName);
     /// <summary>Validated stock collision/BTS and streaming allocations, independent of editable visual layouts.</summary>
     public InstalledRoomLevelStreams LoadRoomLevelStreams() => RoomLevelStreamFiles.Load(RoomLevelStreamDirectory);

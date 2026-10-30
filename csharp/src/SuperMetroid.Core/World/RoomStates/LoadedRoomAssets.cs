@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using System.Buffers.Binary;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -12,14 +11,13 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// The level, scroll grid and installed graphics a selected room state loads.
 /// </summary>
 /// <remarks>
-/// This is the reusable, data-only portion of <c>LoadCRETilesTilesetTilesAndPalette</c> and
-/// <c>LoadLevelDataAndOtherThings</c>. It deliberately does not execute arbitrary room ASM;
-/// those bank-$8F setup/main functions remain separate behavior to translate per room.
+/// This is the data-only portion of a room load. It deliberately runs no room-specific setup; that behaviour belongs to
+/// each room's own code.
 /// </remarks>
 [RoomLifetime]
 public sealed class LoadedRoomAssets
 {
-    /// <summary>Retains the selected header, physical level allocation, scroll grid, and installed graphics.</summary>
+    /// <summary>Retains the selected header, the room's grid, scroll grid, and installed graphics.</summary>
     private LoadedRoomAssets(
         SelectedRoom header,
         RoomLevelData levelData,
@@ -36,7 +34,7 @@ public sealed class LoadedRoomAssets
 
     /// <summary>Selected room header and room-state metadata used to choose level source, graphics set, dimensions, scrolls, and door table; loading these assets does not execute its room ASM.</summary>
     public SelectedRoom Header { get; }
-    /// <summary>Runtime level allocation with compiled BG1/BG2 physical words, BTS, and separately installed visual references; retained allocation rows and streaming tails may exceed the visible header dimensions.</summary>
+    /// <summary>The room's grid: terrain, behaviours and appearances, with the terrain beyond the room; its rows may exceed the visible screens.</summary>
     public RoomLevelData LevelData { get; }
     /// <summary>Room's screen-indexed scroll-control grid used to initialize the boundary camera, separate from current camera position or editable map-marker artwork.</summary>
     public RoomScrollGrid Scrolls { get; }
@@ -61,11 +59,10 @@ public sealed class LoadedRoomAssets
         RoomLevelArtworks visualLayouts = catalogs.VisualLayouts;
         TilesetDefinition tileset = RoomTilesets.Get(header.State.GraphicsSet);
 
-        // Installed visual layouts imply a retail room source. Its collision/BTS and
-        // native overread allocation come from the stock-only installed level streams;
-        // only the low visual tile bits come from the separately replaceable layout catalog.
-        byte[] levelStream = catalogs.LevelStreams.Get(header.State.Level).ToArray();
-        RoomLevelData levelData = ParseLevelData(header, levelStream, visualLayouts.Get(header.State.Level));
+        // The terrain, behaviours and terrain beyond the room come from the stock-only installed level; only what the
+        // blocks initially show comes from the separately replaceable layout catalog.
+        RoomLevelData levelData = LoadLevelData(header, catalogs.LevelStreams.Get(header.State.Level),
+            visualLayouts.Get(header.State.Level));
         RoomScrollGrid scrolls = LoadScrolls(scrollStorage, header);
         return new LoadedRoomAssets(
             header,
@@ -87,89 +84,24 @@ public sealed class LoadedRoomAssets
     /// </summary>
     public void LoadGraphics(BackgroundColourSets colours) => TilesetColours.CopyTo(Ensure.NotNull(colours));
 
-    /// <summary>Parses BG1, BTS, and BG2 while retaining native allocation tails beyond visible room screens.</summary>
-    private static RoomLevelData ParseLevelData(
-        SelectedRoom header,
-        byte[] levelStream,
-        RoomLevelArtwork? visualLayout)
+    /// <summary>
+    /// Builds the room's grid from its installed level, with its own terrain beyond the room for this room's lifetime.
+    /// </summary>
+    /// <remarks>
+    /// The room header sizes the camera's screens; the installed level sizes the grid. Most rooms make them equal, but
+    /// a shipped Wrecked Ship room is a counterexample: its 6x3 camera owns a 6x4-screen level. Room objects and enemy
+    /// collision may reach those extra rows, so the grid keeps them.
+    /// </remarks>
+    private static RoomLevelData LoadLevelData(SelectedRoom header, InstalledRoomLevel level, RoomLevelArtwork visualLayout)
     {
         Extent16<RoomBlocks> visibleSize = header.Size.ToRoomBlocks();
-        int widthInBlocks = visibleSize.X;
-        int visibleBlockCount = visibleSize.Area;
-        if (levelStream.Length < 2)
-            throw new InvalidDataException("Compressed room level stream has no size word.");
-
-        int declaredLayerBytes = BinaryPrimitives.ReadUInt16LittleEndian(levelStream);
-        if ((declaredLayerBytes & 1) != 0)
+        if (level.Size.X != visibleSize.X || level.Size.Y < visibleSize.Y)
         {
             throw new InvalidDataException(
-                $"Room {header.Definition.Name} declares an odd ${declaredLayerBytes:X} BG1 byte count.");
+                $"Room {header.Definition.Name}'s installed {level.Size.X}x{level.Size.Y}-block level cannot contain its " +
+                $"{header.Size.X}x{header.Size.Y} visible screens.");
         }
-
-        // The room header constrains camera screens; the stream's leading word constrains
-        // the physical level_data/BTS allocations. Most rooms make them equal, but Wrecked
-        // Ship room $C98E is a shipped counterexample: its 6x3 camera owns a 6x4-screen
-        // allocation. Bank $84 scripts and enemy collision may address those extra rows, so
-        // retain them instead of truncating valid cartridge data or adding a room exception.
-        int blockCount = declaredLayerBytes / 2;
-        if (blockCount < visibleBlockCount || blockCount % widthInBlocks != 0)
-        {
-            throw new InvalidDataException(
-                $"Room {header.Definition.Name} declares ${declaredLayerBytes:X} BG1 bytes " +
-                $"({blockCount} blocks), which cannot contain its {header.Size.X}x" +
-                $"{header.Size.Y} visible screens in complete {widthInBlocks}-block rows.");
-        }
-        int allocationHeightInBlocks = blockCount / widthInBlocks;
-        int layerByteCount = declaredLayerBytes;
-
-        int foregroundOffset = 2;
-        int behaviorOffset = foregroundOffset + layerByteCount;
-        int backgroundOffset = behaviorOffset + blockCount;
-        if (levelStream.Length < backgroundOffset)
-        {
-            throw new InvalidDataException(
-                $"Room {header.Definition.Name} level stream is missing its complete BG1/BTS allocation.");
-        }
-
-        // `$82:E7D3` clears the complete $6400-byte level_data allocation before the
-        // decompressor writes this room's shorter BG1/BTS/BG2 payload over its beginning.
-        // Door scrolling legally reads a complete 16-block column beyond a short room's
-        // authored bottom edge. Preserve the allocation, including the $8000 tail, rather
-        // than sizing this source to however many compressed bytes happened to follow BG1.
-        ushort[] streamingAllocation = BuildPrefilledStreamingAllocation(
-            levelStream.AsSpan(foregroundOffset));
-        ushort[] foreground = ReadWords(levelStream.AsSpan(foregroundOffset, layerByteCount));
-        byte[] behavior = levelStream.AsSpan(behaviorOffset, blockCount).ToArray();
-
-        // `LoadLevelDataAndOtherThings` first fills the entire WRAM level allocation with
-        // word `$8000`, then decompresses the room stream over its beginning. Several Ceres
-        // rooms stop after BG1+BTS because they have no authored BG2 plane; the subsequent
-        // native memcpy still copies a full layer from the untouched `$8000` tail. Requiring
-        // compressed bytes for that tail rejected valid retail room $DF8D. Preserve any
-        // partial authored words, but materialize every omitted word from the real fill.
-        ushort[] background = new ushort[blockCount];
-        Array.Fill(background, RoomLevelMemoryLayout.PrefilledLevelWord);
-        int availableBackgroundBytes = Math.Min(
-            layerByteCount,
-            levelStream.Length - backgroundOffset);
-        if ((availableBackgroundBytes & 1) != 0)
-        {
-            throw new InvalidDataException(
-                $"Room {header.Definition.Name} ends midway through a BG2 level word.");
-        }
-        ushort[] authoredBackground = ReadWords(
-            levelStream.AsSpan(backgroundOffset, availableBackgroundBytes));
-        authoredBackground.CopyTo(background, 0);
-
-        // The bank-$80 column producer performs the same full-height native overread from
-        // custom_background. A 17-word suffix covers a row request but not a bottom-aligned
-        // column: Ceres door $83:AB7C, for example, reaches index 556 in a 512-word plane.
-        // Give the copied BG2 plane the same maximum room allocation so those defined WRAM
-        // reads remain visible while genuinely impossible indices still fail loudly.
-        ushort[] streamingBackground = new ushort[RoomLevelMemoryLayout.PrefilledStreamingWordCount];
-        Array.Fill(streamingBackground, RoomLevelMemoryLayout.PrefilledLevelWord);
-        background.CopyTo(streamingBackground, 0);
-        return new RoomLevelData(new Extent16<RoomBlocks>(unchecked((ushort)widthInBlocks), unchecked((ushort)allocationHeightInBlocks)), new RoomLevelPlanes(foreground, behavior, background), new RoomLevelStreaming(streamingAllocation, streamingBackground), doors: header.Doors, visualLayout: visualLayout);
+        return level.Load(header.Doors, visualLayout);
     }
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>
@@ -178,33 +110,4 @@ public sealed class LoadedRoomAssets
             scrollStorage,
             header.State.Scroll,
             header.Size);
-
-    /// <summary>Decodes little-endian level words from a byte-aligned room stream span.</summary>
-    private static ushort[] ReadWords(ReadOnlySpan<byte> bytes)
-    {
-        var words = new ushort[bytes.Length / 2];
-        for (int index = 0; index < words.Length; index++)
-            words[index] = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(index * 2)..]);
-        return words;
-    }
-
-    /// <summary>
-    /// Reconstructs the word-addressable $7F level_data allocation after its native $8000
-    /// clear and the room decompressor's byte-exact overwrite.
-    /// </summary>
-    private static ushort[] BuildPrefilledStreamingAllocation(ReadOnlySpan<byte> payload)
-    {
-        // Large rooms legitimately decompress BG1+BTS+BG2 beyond the region cleared by the
-        // $6400-byte loop: `level_data` is merely the first view into the remainder of bank
-        // $7F. Retain every decompressed byte and add a filled tail only when the payload is
-        // shorter than the cleared region.
-        int prefilledBytes = checked(RoomLevelMemoryLayout.PrefilledStreamingWordCount * 2);
-        int allocationBytes = Math.Max(prefilledBytes, checked((payload.Length + 1) & ~1));
-
-        var bytes = new byte[allocationBytes];
-        for (int index = 0; index < bytes.Length; index += 2)
-            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index), RoomLevelMemoryLayout.PrefilledLevelWord);
-        payload.CopyTo(bytes);
-        return ReadWords(bytes);
-    }
 }

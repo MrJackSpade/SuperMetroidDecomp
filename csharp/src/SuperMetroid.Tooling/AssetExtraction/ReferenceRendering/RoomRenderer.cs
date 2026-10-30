@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Compression;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.AssetExtraction.ReferenceRendering;
 
@@ -122,13 +123,10 @@ public static class RoomRenderer
             for (int blockX = 0; blockX < size.X; blockX++)
             {
                 int levelOffset = size.RowMajorIndex(new(checked((ushort)blockX), checked((ushort)blockY))) * 2;
-                // Level entry layout:
-                //   bits  0-9  index into the combined 16x16 block-definition table
-                //   bit     10 horizontal block flip
-                //   bit     11 vertical block flip
-                //   bits 12-15 collision/block type (rendering does not consume these)
-                ushort levelEntry = BinaryPrimitives.ReadUInt16LittleEndian(blocks[levelOffset..]);
-                ExpandedBlockTiles expanded = LevelBlockTilemapExpander.Expand(levelEntry, definitionTiles);
+                // The level word's appearance names the block and its mirroring; rendering ignores its collision kind.
+                RoomBlockAppearance appearance = RoomLevelWordCodec.DecodeAppearance(
+                    BinaryPrimitives.ReadUInt16LittleEndian(blocks[levelOffset..]));
+                ExpandedBlockTiles expanded = LevelBlockTilemapExpander.Expand(appearance, definitionTiles);
 
                 for (int outputTileY = 0; outputTileY < 2; outputTileY++)
                 {

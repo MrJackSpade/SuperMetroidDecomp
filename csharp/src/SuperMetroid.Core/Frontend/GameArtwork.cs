@@ -73,7 +73,7 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>Initial room foreground and background layouts.</summary>
     public RoomLevelArtworks? RoomVisualLayouts { get; init; }
 
-    /// <summary>Stock native room-level allocations; not overridable.</summary>
+    /// <summary>The installed terrain of every room level; not overridable.</summary>
     public InstalledRoomLevelStreams? RoomLevelStreams { get; init; }
 
     /// <summary>Room PLM shot block visuals.</summary>

@@ -154,9 +154,8 @@ internal sealed class ProjectileEnemyImpacts
     {
         Ensure.NotNull(sharedProjectiles);
 
-        for (int slotIndex = SamusProjectileSystem.SlotCount - 1; slotIndex >= 0; slotIndex--)
+        foreach (SamusProjectileSlot slot in _slotTable.InUpdateOrder)
         {
-            SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
             if (!slot.Type.IsFamily(SamusProjectileFamily.Missile))
                 continue;
 

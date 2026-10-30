@@ -448,9 +448,8 @@ internal sealed class ProjectileMotion
     /// <summary>Clears every Super Missile slot after owner or link termination.</summary>
     private void ClearAllSuperMissileLinks()
     {
-        for (int slotIndex = SamusProjectileSystem.SlotCount - 1; slotIndex >= 0; slotIndex--)
+        foreach (SamusProjectileSlot candidate in _slotTable.InUpdateOrder)
         {
-            SamusProjectileSlot candidate = _slotTable.Slots[slotIndex];
             if (candidate.Type.IsFamily(SamusProjectileFamily.SuperMissile))
                 _animation.ClearProjectile(candidate);
         }

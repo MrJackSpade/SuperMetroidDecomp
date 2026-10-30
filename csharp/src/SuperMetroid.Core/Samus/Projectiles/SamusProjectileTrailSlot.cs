@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// One of the eighteen independent projectile-trail allocations. The left timer is the
-/// native free-slot sentinel even though both sides otherwise animate independently.
+/// One of the projectile-trail slots. The left timer marks the slot free even though both sides otherwise animate
+/// independently.
 /// </summary>
 public sealed class SamusProjectileTrailSlot
 {
-    /// <summary>Creates independent left and right trail streams for one native allocation slot.</summary>
+    /// <summary>Creates independent left and right trail streams for one trail slot.</summary>
     internal SamusProjectileTrailSlot(int slotIndex)
     {
         SlotIndex = slotIndex;
@@ -14,7 +14,7 @@ public sealed class SamusProjectileTrailSlot
         Right = new SamusProjectileTrailSide();
     }
 
-    /// <summary>Zero-based host trail-slot index.</summary>
+    /// <summary>The slot's ordinal among the trail slots, zero first.</summary>
     public int SlotIndex { get; }
     /// <summary>Left-side trail animation state and free-slot timer.</summary>
     public SamusProjectileTrailSide Left { get; }

@@ -9,15 +9,9 @@ public sealed class SamusProjectileSlot
     /// <summary>Creates the slot at its position in the projectile table.</summary>
     internal SamusProjectileSlot(int slotIndex) => SlotIndex = slotIndex;
 
-    /// <summary>The slot's position in the projectile table, 0 through 4.</summary>
-    [IntegerQuantity("position of the slot in the projectile table")]
+    /// <summary>The slot's ordinal in the projectile table, 0 through 4.</summary>
+    [IntegerQuantity("ordinal of the slot in the projectile table")]
     public int SlotIndex { get; }
-
-    /// <summary>
-    /// The slot's position in the bytes the per-slot tables are read at: twice <see cref="SlotIndex"/>. The SpaceTime
-    /// beam's palette copy starts from it.
-    /// </summary>
-    public int SlotTableOffset => SlotIndex * 2;
 
     /// <summary>Damage doubles as the producer's free-slot sentinel.</summary>
     public int Damage

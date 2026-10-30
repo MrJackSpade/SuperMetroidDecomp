@@ -41,7 +41,7 @@ internal static class SharedSlopeHeightsVerification
         for (int raw = 0; raw < 256; raw++)
         {
             var bts = new RoomBlockBehavior((byte)raw);
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([0x1000], [(byte)raw], [0]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope)], [bts], [RoomBlockAppearance.Of(0)]));
             var block = level.GetCollisionBlock(new(0, 0));
             for (ushort x = 0; x < 16; x++)
             {

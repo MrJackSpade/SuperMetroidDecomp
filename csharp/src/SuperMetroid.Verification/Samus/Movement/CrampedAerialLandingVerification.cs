@@ -48,7 +48,7 @@ internal static class CrampedAerialLandingVerification
         foreground[4 * roomWidth + 8] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableBlock);
         RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             foreground,
-            new byte[foreground.Length]);
+            new RoomBlockBehavior[foreground.Length]);
         var samus = new SamusState
         {
             Pose = SamusPoseId.SpinJumpRightPose,

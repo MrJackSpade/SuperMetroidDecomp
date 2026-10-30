@@ -339,7 +339,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((ushort)(statue.Position.X.Whole + footstepOffset.X)), unchecked((ushort)(statue.Position.Y.Whole + 28)));
         RoomCollisionBlock current = level.GetCollisionBlockAtPixel(probe);
         int belowIndex = current.Index + level.Size.X;
-        if ((uint)belowIndex >= (uint)level.ForegroundEntries.Length ||
+        if (!level.IsLogicalBlockIndex(belowIndex) ||
             level.GetCollisionBlockByIndex(belowIndex).CollisionType != RoomCollisionType.SpikeBlock)
         {
             return;

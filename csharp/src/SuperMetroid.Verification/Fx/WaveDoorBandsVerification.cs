@@ -33,7 +33,7 @@ internal static class WaveDoorBandsVerification
             if (inside && (y & 15) == 0 && y > 0)
             {
                 words[target - 16] = words[target];
-                behaviors[target - 16] = new RoomBlockBehavior(behaviors[target]);
+                behaviors[target - 16] = behaviors[target];
                 level = CreateRoom(new(16, 32), words, behaviors);
             }
             ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, plms);

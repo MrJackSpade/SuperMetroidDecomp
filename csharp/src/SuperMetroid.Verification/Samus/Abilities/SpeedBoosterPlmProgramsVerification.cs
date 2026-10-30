@@ -1,5 +1,6 @@
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterCollisionBlocksVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -42,8 +43,8 @@ internal static class SpeedBoosterPlmProgramsVerification
             AssertTrue(!SpeedBoosterBlockPlmDraws.TryGetByVisualId(id,out var missing),"speed reveal ordinal ID rejection");
             AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),missing,"speed reveal missing ID clears output");
         }
-        ushort nativeWord = ReadRomWord(rom,0x840000 | (pointer + 2));
-        AssertEqual(nativeWord,SpeedBoosterBlockPlmDrawDefinitions.BombRevealTerrain,"speed reveal calculated physical word");
+        RoomTerrainBlock nativeTerrain = RoomLevelWordCodec.Decode(ReadRomWord(rom,0x840000 | (pointer + 2)));
+        AssertEqual(nativeTerrain,SpeedBoosterBlockPlmDrawDefinitions.BombRevealTerrain,"speed reveal calculated physical terrain");
         foreach (var draw in new[] {exported[0],byId,SpeedBoosterBlockPlmDrawDefinitions.BombReveal})
         {
             AssertEqual(pointer,PlmDrawAddressCodec.Of(draw.Draw),"speed reveal DTO identity");
@@ -51,7 +52,7 @@ internal static class SpeedBoosterPlmProgramsVerification
             var run = draw.Runs.Span[0];
             AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),run,"speed reveal native direction/count");
             AssertEqual(1,run.Count,"speed reveal single word");
-            AssertEqual(nativeWord,run.Blocks.Span[0],"speed reveal exported native word");
+            AssertEqual(nativeTerrain,run.Blocks.Span[0],"speed reveal exported native terrain");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),run.Next.X,"speed reveal native terminal X");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),run.Next.Y,"speed reveal native terminal Y");
         }
@@ -77,7 +78,7 @@ internal static class SpeedBoosterPlmProgramsVerification
         {
             int tableAddress = 0;
             foreach (var entry in entries)
-                if (entry.Behavior == bts && (entry.Area < 0 || entry.Area == area))
+                if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))
                     tableAddress = entry.Address;
             bool found = SpeedBoosterBlocks.TryResolve(new RoomBlockBehavior((byte)bts),
                 (AreaId)(byte)area,out var definition);

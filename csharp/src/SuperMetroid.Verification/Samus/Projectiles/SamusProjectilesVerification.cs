@@ -1256,7 +1256,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"colored-door setup installs shootable collision for header {index}");
         AssertEqual(0x44, block.Behavior.Value,
             $"colored-door setup installs shared BTS for header {index}");
-        AssertEqual(RoomTerrainBlock.Of(0x120, BlockMirroring.None, RoomCollisionType.Air) + index, block.Terrain & 0x0fff,
+        AssertEqual(RoomBlockAppearance.Of(0x120 + index), block.Terrain.Appearance,
             $"colored-door setup preserves tile payload for header {index}");
     }
 
@@ -1403,7 +1403,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         blueDoorWords[blueDoorOrigin + rowOffset * width] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.VerticalExtension);
         blueDoorBehaviors[blueDoorOrigin + rowOffset * width] =
-            unchecked((byte)-rowOffset);
+            new RoomBlockBehavior(unchecked((byte)-rowOffset));
     }
     RoomLevelData blueDoor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(blueDoorWords, blueDoorBehaviors, new RoomBlockAppearance[blueDoorWords.Length]));
 

@@ -110,7 +110,7 @@ internal static class TourianAccessVisualsVerification
         var native = new Dictionary<ushort, RoomBlockAppearance[]>();
         foreach (var frame in frames)
         {
-            var words = new RoomTerrainBlock[frame.Pointer == 0x92c7 ? 24 : 4];
+            var words = new RoomBlockAppearance[frame.Pointer == 0x92c7 ? 24 : 4];
             for (int index = 0; index < words.Length; index++)
                 words[index] = RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterPlmWord(rom,
                     0x840000 | (frame.Pointer + index / 4 * 12 + index % 4 * 2 + 2)));

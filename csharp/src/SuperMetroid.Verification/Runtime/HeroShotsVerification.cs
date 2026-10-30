@@ -15,6 +15,9 @@ using SuperMetroid.Core.Progression;
 /// <summary>Checks beam lifetime under controlled camera movement against native deletion bounds.</summary>
 internal static class HeroShotsVerification
 {
+    /// <summary>A plain solid block: the wall each shot hits.</summary>
+    private static readonly RoomTerrainBlock Solid = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+
     /// <summary>Checks horizontal and vertical shots at, inside, and beyond camera edges, optionally against a native trace.</summary>
     /// <remarks>The controlled camera is an independent input to the real projectile owner; the check isolates shot lifetime and collision from Samus camera tracking.</remarks>
     internal static void VerifyHeroShotCameraLifetime(string? nativeTrace = null)
@@ -29,8 +32,8 @@ internal static class HeroShotsVerification
         {
             bool followShot = cameraMode != 0;
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            var blocks = new ushort[64 * 16];
-            for (int row = 0; row < 16; row++) blocks[vertical ? 16 * 16 + row : row * 64 + 32] = 0x8000;
+            var blocks = new RoomTerrainBlock[64 * 16];
+            for (int row = 0; row < 16; row++) blocks[vertical ? 16 * 16 + row : row * 64 + 32] = Solid;
             var room = CreateRoom(vertical ? new(16, 64) : new(64, 16), blocks, new RoomBlockBehavior[blocks.Length]);
             var samus = new SamusState { Pose = vertical ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, (ushort)(vertical ? 640 : 128))) };
             var projectiles = CreateProjectileFixture();

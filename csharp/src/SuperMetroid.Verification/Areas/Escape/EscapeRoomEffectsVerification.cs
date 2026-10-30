@@ -80,7 +80,7 @@ internal static class EscapeRoomEffectsVerification
             {
                 var level = runtime.Room.LoadedLevelData;
                 int origin = level.GetBlockIndex(new(15, 10));
-                AssertEqual(0x4f, level.GetCollisionBlock(new(15, 10)).Bts.Value, "retail room loader installs rescue wall");
+                AssertEqual(0x4f, level.GetCollisionBlock(new(15, 10)).Behavior.Value, "retail room loader installs rescue wall");
                 runtime.Plms.TrySpawnProjectileShotBlock(level, origin, 0x4f, 1, true);
                 for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
                 AssertTrue(runtime.System.HasEvent(EventNumber.CrittersEscaped), "live rescue room publishes escaped event");

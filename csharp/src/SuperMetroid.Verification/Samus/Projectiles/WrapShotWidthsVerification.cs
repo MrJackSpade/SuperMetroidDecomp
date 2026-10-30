@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -15,6 +16,21 @@ using SuperMetroid.Core.Progression;
 /// <summary>Compares wrapped beam collision widths and trajectories against 1,080 native boundary records.</summary>
 internal static class WrapShotWidthsVerification
 {
+    /// <summary>A plain solid block: the room's far wall.</summary>
+    private static readonly RoomTerrainBlock Solid = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+
+    /// <summary>The blue door's cap: block $00C mirrored left to right, shootable.</summary>
+    private static readonly RoomTerrainBlock DoorCap = RoomTerrainBlock.Of(0x00c, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock);
+
+    /// <summary>The cap's three lower blocks: the same picture, extending to the block above.</summary>
+    private static readonly RoomTerrainBlock DoorCapExtension = RoomTerrainBlock.Of(0x00c, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension);
+
+    /// <summary>The cap once a shot opens it: the same picture, plain solid.</summary>
+    private static readonly RoomTerrainBlock OpenedDoorCap = RoomTerrainBlock.Of(0x00c, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock);
+
+    /// <summary>A vertical extension's behaviour reaching one block up (signed -1).</summary>
+    private static readonly RoomBlockBehavior OneBlockUp = new(0xff);
+
     /// <summary>Checks shot positions, radii, lifetime, and remote door writes at adjacent one-pixel offsets.</summary>
     internal static void VerifyWrapShotWidths(string tracePath)
     {
@@ -29,11 +45,11 @@ internal static class WrapShotWidthsVerification
         {
             int width = widths[room], height = heights[room], target = targets[room];
             bool left = room == 2;
-            var words = new ushort[width * height];
-            var bts = new byte[words.Length];
-            for (int row = 0; row < height; row++) words[row * width + (left ? 0 : width - 1)] = 0x8000;
-            words[target] = 0xc40c; bts[target] = 0x41;
-            for (int row = 1; row < 4; row++) { words[target + row * width] = 0xd40c; bts[target + row * width] = 0xff; }
+            var words = new RoomTerrainBlock[width * height];
+            var bts = new RoomBlockBehavior[words.Length];
+            for (int row = 0; row < height; row++) words[row * width + (left ? 0 : width - 1)] = Solid;
+            words[target] = DoorCap; bts[target] = RoomBlockBehaviorValues.BlueDoorFacingRight;
+            for (int row = 1; row < 4; row++) { words[target + row * width] = DoorCapExtension; bts[target + row * width] = OneBlockUp; }
             var level = CreateRoom(new(checked((ushort)width), checked((ushort)height)), words, bts);
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
@@ -49,8 +65,8 @@ internal static class WrapShotWidthsVerification
                 shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs);
                 var shot = shots.Slots[0];
                 RoomTerrainBlock targetWord = level.GetCollisionBlockByIndex(target).Terrain;
-                if (hit < 0 && targetWord == 0x840c) hit = frame;
-                string actual = $"{room},{beam},{offset},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},{shot.Radius.X:X4},{shot.Radius.Y:X4},{targetWord:X4}";
+                if (hit < 0 && targetWord == OpenedDoorCap) hit = frame;
+                string actual = $"{room},{beam},{offset},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},{shot.Radius.X:X4},{shot.Radius.Y:X4},{RoomLevelWordCodec.Encode(targetWord):X4}";
                 string expected = native[cursor++];
                 if (actual != expected && mismatches++ < 8) Console.WriteLine($"Width mismatch:\n{actual}\n{expected}");
             }

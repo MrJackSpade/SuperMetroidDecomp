@@ -336,6 +336,8 @@ public sealed class D3D11FrameRenderer : IDisposable
             if (layer.BlendPlane is { } bg3)
                 data[offset + 3] = D3D11ConstantPacking.Halves(bg3.Scrolls[y].X, bg3.Scrolls[y].Y);
         }
+        // Layer 2's described wave or stretch displaces each line from the base scroll packed above (#1468).
+        D3D11LineDisplacement.Pack(data, layer.Gameplay.BackgroundLineScrolls.HorizontalWave, layer.Gameplay.BackgroundLineScrolls.VerticalStretch);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -439,11 +441,16 @@ public sealed class D3D11FrameRenderer : IDisposable
             data[offset] = scroll.X;
             data[offset + 1] = unchecked((ushort)(scroll.Y + D3D11Screen.LayerLineOffset));
         }
+        // The described wave or stretch displaces each line from the base scroll packed above (#1468).
+        D3D11LineDisplacement.Pack(data, layer.BackgroundLineScrolls.HorizontalWave, layer.BackgroundLineScrolls.VerticalStretch);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>Adds a pictured plane's colours where the plane covering it shows, each line at its own scroll (#1467).</summary>
+    /// <summary>
+    /// Adds a pictured plane's colours where the plane covering it shows (#1467), each line pushed sideways by the plane's
+    /// wave, which the shader evaluates (#1468).
+    /// </summary>
     private unsafe void DispatchAddPlaneBehind(AddedPicturedPlaneLayer layer)
     {
         var data = ClearUploadConstants();
@@ -456,23 +463,18 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[11] = layer.MainObjects ? 1u : 0u;
         if (layer.MainCoverage is { } coverage)
         {
-            // This pass reads no floor transform, so the covering plane's table, scroll, size and priority go there,
-            // leaving every line's parameters for the scrolls.
+            // This pass reads no floor transform, so the covering plane's table, scroll, size and priority go there.
             int offset = 16;
             data[offset] = roomLevels.PlaneTable(coverage.Plane);
             data[offset + 2] = coverage.Scroll.X; data[offset + 3] = coverage.Scroll.Y;
             data[offset + 4] = coverage.Plane.Size.X; data[offset + 5] = coverage.Plane.Size.Y;
             data[offset + 6] = Priority(coverage.Priority); data[offset + 7] = 1;
         }
-        if (!layer.Scrolls.IsEmpty)
+        if (layer.HorizontalWave is { } wave)
         {
-            data[15] = 1;
-            for (int line = 0; line < layer.Scrolls.Length; line++)
-            {
-                int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + line * 4;
-                data[offset] = layer.Scrolls[line].X;
-                data[offset + 1] = layer.Scrolls[line].Y;
-            }
+            // Every line starts at the wave's base scroll; the shader adds the wave's displacement at the line.
+            data[3] = (uint)wave.BaseScroll;
+            D3D11LineDisplacement.Pack(data, wave, null);
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);

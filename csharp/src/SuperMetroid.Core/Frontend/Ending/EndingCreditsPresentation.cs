@@ -52,11 +52,15 @@ internal static class EndingCreditsPresentation
                 if (PostCreditsBackgroundEnabled(ending))
                     layers.Add(PostCreditsLayer(ending));
                 if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
+                {
+                    int age = EndingSequenceDefinitions.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer;
                     layers.Add(new AddedPicturedPlaneLayer(ending.ScreenPicture(SpriteSheetId.EndingWavySamusPicture, EndingPictureNames.WavySamus,
                             ending.screen.PostCreditsArtLoaded),
-                        PostCreditsLayer(ending))
-                        .WithScrolls(EndingWavySamus.ScrollsAtAge(
-                            EndingSequenceDefinitions.Timing.WaitingBackdropFrames - ending.Stage.PhaseTimer)));
+                        PostCreditsLayer(ending), VerticalScroll: EndingWavySamus.VerticalScrollAtAge(age))
+                    {
+                        HorizontalWave = EndingWavySamus.WaveAtAge(age),
+                    });
+                }
             }
             else if (ending.EscapeBackgroundEnabled)
             {

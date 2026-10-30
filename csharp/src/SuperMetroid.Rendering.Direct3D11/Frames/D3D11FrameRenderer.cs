@@ -56,7 +56,6 @@ public sealed class D3D11FrameRenderer : IDisposable
     private readonly D3D11SpriteDrawBuffer spriteDraws;
     /// <summary>The scene's room planes at t3, repacked only when they change (#1346).</summary>
     private readonly D3D11RoomLevelBuffer roomLevels;
-    /// <summary>Each packed background layer's shader index, for the dispatch that draws it.</summary>
     /// <summary>
     /// The sprite layer (#1408): per pixel, the frontmost sprite pixel's colour and its priority, drawn from the draws'
     /// quads and read by every composition pass that inserts or blends sprites.
@@ -83,8 +82,6 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Reusable constant-buffer source cleared before each compute pass.</summary>
     private readonly uint[] constantUpload = new uint[D3D11ShaderLayout.ConstantWords];
 
-    /// <summary>The frontend tile layers' cells a frame draws, each once; reused across frames.</summary>
-    private readonly List<ScreenTileMap> frameScreens = [];
     /// <summary>The pictured planes the frame being drawn shows, each once (#1467).</summary>
     private readonly List<PicturedPlane> framePlanes = [];
 
@@ -446,42 +443,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>Adds a frontend layer's colours where the layer covering it shows, each line at its own scroll.</summary>
-    private unsafe void DispatchAddLayerBehind(AddedScreenTilesLayer layer)
-    {
-        var data = ClearUploadConstants();
-        data[0] = (uint)D3D11TileOperation.AddLayerBehind;
-        data[1] = roomLevels.ScreenMap(layer.Cells);
-        data[4] = (uint)layer.VerticalScroll;
-        data[5] = 32; data[6] = 32; data[8] = 1; data[26] = 224;
-        data[14] = (uint)D3D11RoomSource.ScreenCells | roomLevels.ScreenTable(layer.Cells.Tiles) << 16;
-        data[D3D11ShaderLayout.CoverageTableWord] = layer.MainCoverage is { } covering ? roomLevels.ScreenTable(covering.Cells.Tiles) : 0;
-        data[10] = layer.IncludeObjects ? 1u : 0u;
-        data[11] = layer.MainObjects ? 1u : 0u;
-        if (layer.MainCoverage is { } coverage)
-        {
-            // This pass reads no floor transform, so the covering layer's words go there, leaving every line's
-            // parameters for the scrolls.
-            int offset = 16;
-            data[offset] = roomLevels.ScreenMap(coverage.Cells);
-            data[offset + 2] = coverage.Scroll.X; data[offset + 3] = coverage.Scroll.Y;
-            data[offset + 4] = coverage.MapSize.X; data[offset + 5] = coverage.MapSize.Y;
-            data[offset + 6] = Priority(coverage.Priority); data[offset + 7] = 1;
-        }
-        if (!layer.Scrolls.IsEmpty)
-        {
-            data[15] = 1;
-            for (int line = 0; line < layer.Scrolls.Length; line++)
-            {
-                int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + line * 4;
-                data[offset] = layer.Scrolls[line].X;
-                data[offset + 1] = layer.Scrolls[line].Y;
-            }
-        }
-        fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
-        owner.Context.Dispatch(32, 28, 1);
-    }
-
     /// <summary>Adds a pictured plane's colours where the plane covering it shows, each line at its own scroll (#1467).</summary>
     private unsafe void DispatchAddPlaneBehind(AddedPicturedPlaneLayer layer)
     {
@@ -495,9 +456,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[11] = layer.MainObjects ? 1u : 0u;
         if (layer.MainCoverage is { } coverage)
         {
-            // Header word two marks the covering layer as a pictured plane, whose table goes where the floor transform
-            // would, as a tile layer's cells do.
-            data[2] = 1;
+            // This pass reads no floor transform, so the covering plane's table, scroll, size and priority go there,
+            // leaving every line's parameters for the scrolls.
             int offset = 16;
             data[offset] = roomLevels.PlaneTable(coverage.Plane);
             data[offset + 2] = coverage.Scroll.X; data[offset + 3] = coverage.Scroll.Y;
@@ -527,34 +487,13 @@ public sealed class D3D11FrameRenderer : IDisposable
         _ => [],
     };
 
-    /// <summary>The cells a frontend layer draws (#1403): its own and, for a layer added behind, its covering layer's.</summary>
-    private static IEnumerable<ScreenTileMap> ScreenMaps(DisplayLayer layer) => layer switch
-    {
-        ScreenTilesLayer bg => [bg.Cells],
-        AddedScreenTilesLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
-        AddedScreenTilesLayer sub => [sub.Cells],
-        _ => [],
-    };
-
-    /// <summary>
-    /// Dispatches a frontend tile layer's cells (#1403), each drawn from its tile's pre-coloured picture, colour zero
-    /// transparent unless <paramref name="transparentZero"/> is false.
-    /// </summary>
-    private void DispatchScreenTiles(D3D11TileOperation operation, ScreenTileMap cells, Position16<TilePlanePixels> scroll, bool? priority,
-        bool transparentZero = true) =>
-        DispatchTile(operation, new D3D11TileDispatch
-        {
-            Map = roomLevels.ScreenMap(cells), Scroll = scroll, MapSize = cells.Size, Priority = Priority(priority),
-            TransparentZero = transparentZero ? 1u : 0u, RoomSource = D3D11RoomSource.ScreenCells, ScreenTable = roomLevels.ScreenTable(cells.Tiles),
-        });
-
     /// <summary>Rejects unsupported layers, uploads the scene's images, colours and layers, then dispatches passes in scene order.</summary>
     private unsafe void DrawLayers(DisplayPacket packet, LayeredScene scene,
         ReadOnlySpan<SuperMetroid.Core.Rendering.TitleGradientLine> gradient = default)
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (DisplayLayer layer in scene.Layers)
-            if (layer is not (ScreenTilesLayer or PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or AddedScreenTilesLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
+            if (layer is not (PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer or HudLayer or ScreenTintLayer or SpritesLayer or SpriteDepthLayer or TurningFloorLayer or TurningRoomLayer or ColourAddBandsLayer or OverlayBlendLayer or MessageBoxLayer or GameplaySceneLayer or InsetSceneLayer or GameplayBlendLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         SuperMetroid.Core.Assets.SpriteSheetFrame? messagePicture = null;
         PicturedHud? hud = null;
@@ -581,8 +520,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         // A frame shows one Mode 7 floor, which every Mode 7 dispatch draws from the room buffer (#1403).
         AffineFloor? SameFloor(AffineFloor? shown, AffineFloor floor) => shown is null || shown.Equals(floor) ? floor
             : throw new InvalidOperationException("A frame shows two different Mode 7 floors.");
-        List<ScreenTileMap> screens = frameScreens;
-        screens.Clear();
         List<PicturedPlane> planes = framePlanes;
         planes.Clear();
         List<PictureGrid> grids = frameGrids;
@@ -591,12 +528,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         {
             if (layer is TurningFloorLayer frontendMode7)
                 floorMap = SameFloor(floorMap, frontendMode7.Floor);
-            // The frontend layers' cells (#1403), each once.
-            foreach (ScreenTileMap cells in ScreenMaps(layer))
-            {
-                if (!screens.Contains(cells))
-                    screens.Add(cells);
-            }
             if (layer is PictureGridLayer { Grid: { } grid } && !grids.Contains(grid))
                 grids.Add(grid);
             // The pictured planes (#1467), each once.
@@ -617,7 +548,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         }
         var levels = new RoomLevelLayers(rooms?.Bg1, rooms?.Bg2 ?? floor, rooms?.DoorSource, rooms?.Bg1Overlay, rooms?.Sky, bg3,
             rooms?.Bg2Overlay, floorMap, rooms?.BossBody, rooms?.XrayReveal, rooms?.Bg2Image,
-            messagePicture, screens.Count == 0 ? null : new ScreenPictureTables([.. screens]), hud,
+            messagePicture, hud,
             planes.Count == 0 ? null : new PicturedPlaneTables([.. planes]), grids.Count == 0 ? null : new PictureGridTables([.. grids]));
         // The image texture holds every image the scene shows before either buffer names a place in it (#1408).
         images.Needed.Clear();
@@ -661,9 +592,6 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case MessageBoxLayer message:
                     DispatchMessage(message);
                     break;
-                case AddedScreenTilesLayer sub:
-                    DispatchAddLayerBehind(sub);
-                    break;
                 case AddedPicturedPlaneLayer added:
                     DispatchAddPlaneBehind(added);
                     break;
@@ -684,9 +612,6 @@ public sealed class D3D11FrameRenderer : IDisposable
                     break;
                 case SpriteDepthLayer obj:
                     DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { Priority = (uint)obj.Depth + 1, Green = obj.FixedColor is not null ? 1u : 0u, Blue = obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0 });
-                    break;
-                case ScreenTilesLayer bg:
-                    DispatchScreenTiles(D3D11TileOperation.Layer, bg.Cells, bg.Scroll, bg.Priority);
                     break;
                 case PictureGridLayer grid:
                     // The grid's cell pictures, scrolled and wrapping at its edges (#1467).
@@ -768,7 +693,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[0] = (uint)operation; data[1] = tile.Map; data[3] = tile.Scroll.X;
         data[4] = tile.Scroll.Y; data[5] = size.X; data[6] = size.Y; data[7] = tile.Priority;
         data[8] = tile.TransparentZero; data[9] = tile.Level; data[10] = tile.Red; data[11] = tile.Green; data[12] = tile.Blue;
-        data[14] = (uint)tile.RoomSource | tile.ScreenTable << 16;
+        data[14] = (uint)tile.RoomSource;
         data[25] = tile.FirstScanline; data[26] = tile.EndScanline;
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);

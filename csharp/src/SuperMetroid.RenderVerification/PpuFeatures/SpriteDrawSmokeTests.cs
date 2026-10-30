@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
@@ -129,14 +130,14 @@ internal static class SpriteDrawSmokeTests
                     (SpriteMirror)random.Next(4), random.Next(3) == 0 ? DrawnColouring.InFixtureSet(random.Next(8)) : null));
             }
             var memory = FramePaint.FromNative(palette, draws.ToImmutable());
-            ScreenTileMap cells = VramTileFixtures.Cells(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, TileInkDepth.SixteenColours,
+            PicturedPlane plane = VramPictureFixtures.Plane(vram, palette, GameplayVramLayout.Bg2TilemapWord, GameplayVramLayout.HudCharacterWord, TileInkDepth.SixteenColours,
                 new Extent16<TilemapCells>(32, 32));
             Check(memory, [new SpritesLayer()], $"seeded scene {cases}");
             Check(memory, [
                 new SpriteDepthLayer(0),
-                new ScreenTilesLayer(cells, new Position16<TilePlanePixels>(3, 11), false),
+                new PicturedPlaneLayer(plane, new Position16<TilePlanePixels>(3, 11), false),
                 new SpriteDepthLayer(1), new SpriteDepthLayer(2),
-                new ScreenTilesLayer(cells, new Position16<TilePlanePixels>(3, 11), true),
+                new PicturedPlaneLayer(plane, new Position16<TilePlanePixels>(3, 11), true),
                 new SpriteDepthLayer(3)], $"seeded priority ladder {cases}");
         }
 

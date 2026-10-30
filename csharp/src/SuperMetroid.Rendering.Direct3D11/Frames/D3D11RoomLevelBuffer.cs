@@ -98,8 +98,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int PlanePictureWords = 2;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
     private const int ArrangementShift = 28;
-    /// <summary>Words of a frontend layer's tile table: three for each tile its cells name (#1392).</summary>
-    private const int ScreenTableWords = 3 * ScreenLayerPictures.CharacterIndices;
     /// <summary>Initial buffer size; it grows to fit larger rooms.</summary>
     private const int InitialWords = 4096;
 
@@ -113,12 +111,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private RoomLevelLayers? collected;
     /// <summary>The pictures the last <see cref="Collect"/> enumerated, so an unchanged frame names them without a walk.</summary>
     private readonly List<SpriteSheetFrame> collectedPictures = [];
-    /// <summary>Where the last <see cref="Pack"/> put each frontend layer's tile table.</summary>
-    private readonly Dictionary<ScreenLayerPictures, int> screenTables = [];
     /// <summary>The colour slot of each image and how it is coloured, in slot order, as the last <see cref="Pack"/> numbered them.</summary>
     private readonly List<D3D11ColourSlot> colourSlots = [];
-    /// <summary>Where the last <see cref="Pack"/> put each frontend layer's cells (#1403).</summary>
-    private readonly Dictionary<ScreenTileMap, int> screenMaps = [];
     /// <summary>Where the last <see cref="Pack"/> put each pictured plane's table (#1467).</summary>
     private readonly Dictionary<PicturedPlane, int> planeTables = [];
     /// <summary>
@@ -182,8 +176,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         RoomBackgroundImagePlane? image = frame.Bg2Image, skyImage = sky?.Image;
         SpriteSheetFrame? message = frame.MessagePicture;
         PicturedHud? hud = frame.Hud;
-        ImmutableArray<ScreenLayerPictures> screens = frame.Screens?.Layers ?? [];
-        ImmutableArray<ScreenTileMap> screenCells = frame.Screens?.Maps ?? [];
         ImmutableArray<PicturedPlane> pictured = frame.Planes?.Planes ?? [];
         ImmutableArray<PictureGrid> grids = frame.Grids?.Grids ?? [];
         if (packed == frame && packedGeneration == images.Generation)
@@ -192,7 +184,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         // picture either, so the last room's colour slots go: the scene's colours are packed for none of its images, and a
         // later frame showing that room again packs it afresh.
         if (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
-            && message is null && screens.IsEmpty && hud is null && pictured.IsEmpty && grids.IsEmpty)
+            && message is null && hud is null && pictured.IsEmpty && grids.IsEmpty)
         {
             colourSlots.Clear();
             packed = null;
@@ -200,21 +192,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         RoomBackgroundLayer?[] planes = [bg1, bg2, door?.SourceRoom];
         int words = HeaderWords;
-        // Each frontend layer's tile table comes first, so its word fits the half a dispatch names it in (#1392).
-        screenTables.Clear();
-        foreach (ScreenLayerPictures screen in screens)
-        {
-            if (screenTables.TryAdd(screen, words))
-                words += ScreenTableWords;
-        }
-        if (words > ushort.MaxValue)
-            throw new InvalidOperationException($"A frame's {screenTables.Count} frontend layer tile tables do not fit the half word a dispatch names them in.");
-        screenMaps.Clear();
-        foreach (ScreenTileMap map in screenCells)
-        {
-            if (screenMaps.TryAdd(map, words))
-                words += map.Cells.Length;
-        }
         planeTables.Clear();
         foreach (PicturedPlane plane in pictured)
         {
@@ -336,10 +313,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             upload[offset + 1] = images.Place(picture);
             upload[offset + 2] = D3D11ConstantPacking.Halves(picture.Size.X, picture.Size.Y);
         }
-        foreach ((ScreenLayerPictures screen, int offset) in screenTables)
-            PackScreenTable(upload.Slice(offset, ScreenTableWords), screen, pictureWords);
-        foreach ((ScreenTileMap map, int offset) in screenMaps)
-            PackScreenMap(upload.Slice(offset, map.Cells.Length), map);
         foreach ((PicturedPlane plane, int offset) in planeTables)
             PackPlane(upload, plane, offset, pictureWords);
         foreach ((PictureGrid grid, int offset) in gridTables)
@@ -491,8 +464,9 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
 
     /// <summary>
     /// Every picture <paramref name="frame"/> draws and how it is coloured, in packing order: the planes' and the reveal's
-    /// block pictures, the background images, the message, the frontend tile sheets, the boss body's parts, the HUD's
-    /// pictures, the pictured planes' pictures, then the overlays' and the layer-3 plane's tile pictures. A picture may appear more than once.
+    /// block pictures, the background images, the message, the boss body's parts, the HUD's pictures, the pictured planes'
+    /// and the picture grids' pictures, then the overlays' and the layer-3 plane's tile pictures. A picture may appear more
+    /// than once.
     /// </summary>
     private static IEnumerable<(SpriteSheetFrame Picture, D3D11PictureColouring Colouring)> Pictures(RoomLevelLayers frame)
     {
@@ -521,11 +495,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
         if (frame.MessagePicture is { } message)
             yield return (message, D3D11PictureColouring.MessageText);
-        foreach (ScreenLayerPictures screen in frame.Screens?.Layers ?? [])
-        {
-            foreach (ScreenTileSheet sheet in screen.Sheets)
-                yield return (sheet.Picture, D3D11PictureColouring.Frame);
-        }
         foreach (ShownBossBodyPart part in frame.BossBody?.Parts ?? [])
             yield return (part.Picture, D3D11PictureColouring.Frame);
         foreach (PlacedHudPicture placed in frame.Hud?.Pictures ?? [])
@@ -574,49 +543,6 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
                 continue;
             upload[offset + 2 * word] = (uint)pictureWords[tile.Picture];
             upload[offset + 2 * word + 1] = D3D11ConstantPacking.Halves(tile.Corner.X, tile.Corner.Y);
-        }
-    }
-
-    /// <summary>The room level buffer word of <paramref name="map"/>'s first cell in the last packing (#1403).</summary>
-    /// <exception cref="InvalidOperationException">The last packing held no such map.</exception>
-    internal uint ScreenMap(ScreenTileMap map) => screenMaps.TryGetValue(map, out int offset) ? (uint)offset
-        : throw new InvalidOperationException("A frontend layer's cells were not packed with its frame.");
-
-    /// <summary>
-    /// Packs a frontend layer's cells (#1403), one word each, row by row: the cell's tile in the low half, then its colour
-    /// variant, its priority and its horizontal and vertical mirroring, as Tiles.hlsl decodes a cell.
-    /// </summary>
-    private static void PackScreenMap(Span<uint> words, ScreenTileMap map)
-    {
-        const int variantShift = 16;
-        const uint highPriority = 1u << 20, flipHorizontally = 1u << 21, flipVertically = 1u << 22;
-        for (int index = 0; index < map.Cells.Length; index++)
-        {
-            BackgroundTile cell = map.Cells[index];
-            words[index] = (uint)cell.Tile | (uint)cell.ColourVariant << variantShift | (cell.HighPriority ? highPriority : 0)
-                | (cell.FlipHorizontally ? flipHorizontally : 0) | (cell.FlipVertically ? flipVertically : 0);
-        }
-    }
-
-    /// <summary>The room level buffer word of <paramref name="pictures"/>' tile table in the last packing (#1392).</summary>
-    /// <exception cref="InvalidOperationException">The last packing held no such layer.</exception>
-    internal uint ScreenTable(ScreenLayerPictures pictures) => screenTables.TryGetValue(pictures, out int offset) ? (uint)offset
-        : throw new InvalidOperationException("A frontend layer's tiles were not packed with its frame.");
-
-    /// <summary>
-    /// Packs a frontend layer's tile table (#1392): for each tile its cells name, the tile's picture, zero where no artwork
-    /// shows it, the corner of its first colour variant, x below y, and the pixels from one variant's block to the next.
-    /// </summary>
-    private static void PackScreenTable(Span<uint> table, ScreenLayerPictures screen, Dictionary<SpriteSheetFrame, int> pictureWords)
-    {
-        for (int index = 0; index < ScreenLayerPictures.CharacterIndices; index++)
-        {
-            if (screen.Tiles[index] is not { } tile)
-                continue;
-            Position16<ImagePixels> corner = tile.Sheet.Corner(tile.SheetTile, 0);
-            table[3 * index] = (uint)pictureWords[tile.Sheet.Picture];
-            table[3 * index + 1] = D3D11ConstantPacking.Halves(corner.X, corner.Y);
-            table[3 * index + 2] = (uint)tile.Sheet.RowStride;
         }
     }
 

@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Rooms;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -30,7 +30,7 @@ internal static class MenuPictureSheet
     internal static ScreenCharacters Characters(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        int mapBytes = MapScreenDefinitions.MapTileCount * ScreenTileSheet.CharacterWordsOf(TileInkDepth.SixteenColours) * sizeof(ushort);
+        int mapBytes = MapScreenDefinitions.MapTileCount * RoomTileCanvas.CharacterBytes;
         return new ScreenCharacters(TileInkDepth.SixteenColours)
             .Place(MenuTileSetDefinitions.WorldForegroundFirstTile, WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters())
             .Place(MenuTileSetDefinitions.MenuMapFirstTile, MapCharacterArtwork.Of(maps).Map.Characters[..mapBytes].ToArray());

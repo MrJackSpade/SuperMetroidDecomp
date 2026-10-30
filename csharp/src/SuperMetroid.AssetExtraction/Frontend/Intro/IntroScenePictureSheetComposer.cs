@@ -5,7 +5,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.AssetExtraction.Video;
 
@@ -45,7 +44,7 @@ internal static class IntroScenePictureSheetComposer
         for (int frame = 0; frame < eyes.Length; frame++)
             frames.Add(IntroScenePictures.Eye(eyes[frame]),
                 PaintRect(canvas, frame * eye.X, (pages.Length + 1) * cells, eye.X, intro.EyeFrames.FrameTiles(frame), characters, colours));
-        return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.SixteenColours));
+        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
     }
 
     /// <summary>

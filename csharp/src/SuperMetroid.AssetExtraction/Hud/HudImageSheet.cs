@@ -10,7 +10,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
 
@@ -131,7 +130,7 @@ internal static class HudImageSheet
                 Paint(new Position16<TilemapCells>((ushort)(corner.X + x), (ushort)(corner.Y + y)), image.Tiles[y * image.Size.X + x]);
             frames.Add(image.Image.FrameName, WrittenPictureSheetComposer.Frame(canvas, Pixels(corner), Pixels(image.Size), WrittenPictureLayer.Bg3));
         }
-        return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.FourColours));
+        return canvas.ToSheet(colours, frames, SpriteImageColours.TwoBppBackground);
 
         void Paint(Position16<TilemapCells> at, BackgroundTile tile)
         {

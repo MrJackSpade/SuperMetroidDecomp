@@ -6,7 +6,6 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
 
@@ -30,7 +29,7 @@ internal static class EndingPictureSheetComposer
     private static readonly Extent16<ImagePixels> ScreenSize = new(ScreenCells * CharacterPixels, ScreenCells * CharacterPixels);
 
     /// <summary>The character numbers a background's map words name.</summary>
-    private const int CharacterNumbers = ScreenLayerPictures.CharacterIndices;
+    private const int CharacterNumbers = SnesBgTilemapWord.CharacterIndices;
 
     /// <summary>The shelves of two-row glyphs: the large letters, then the digits and the percent sign where the letters leave no room.</summary>
     private const int LargeGlyphShelves = 2;
@@ -109,7 +108,7 @@ internal static class EndingPictureSheetComposer
                 characters.Paint(canvas, column * CharacterPixels, index * CharacterPixels, row[column], colours);
             frames.Add(rows[index].Name, WrittenPictureSheetComposer.Frame(canvas, index, EndingTextDefinitions.SmallGlyphHeight, WrittenPictureLayer.Bg12));
         }
-        return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.SixteenColours));
+        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
     }
 
     /// <summary>
@@ -167,7 +166,7 @@ internal static class EndingPictureSheetComposer
                 new Extent16<ImagePixels>(CharacterPixels, checked((ushort)(glyph.Words.Length * CharacterPixels))), WrittenPictureLayer.Bg12));
             left += CharacterPixels;
         }
-        return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.SixteenColours));
+        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
 
         // Paints the `rows`-row picture `name` from `words` over `characters` at the next free row of the sheet.
         void Paint(string name, ReadOnlySpan<BackgroundTile> words, int rows, Characters characters)
@@ -193,7 +192,7 @@ internal static class EndingPictureSheetComposer
         {
             [EndingPictureNames.WavySamus] = WrittenPictureSheetComposer.Frame(canvas, 0, ScreenCells, WrittenPictureLayer.Bg3),
         };
-        return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.FourColours));
+        return canvas.ToSheet(colours, frames, SpriteImageColours.TwoBppBackground);
     }
 
     /// <summary>The explosion's four maps over the explosion characters under the explosion palette.</summary>
@@ -211,7 +210,7 @@ internal static class EndingPictureSheetComposer
             PaintMap(canvas, index * ScreenSize.Y, objects.Fragment(maps[index]).Tiles.Span, characters, colours);
             frames.Add(EndingPictureNames.ExplosionMap(maps[index]), WrittenPictureSheetComposer.Frame(canvas, index * ScreenCells, ScreenCells, WrittenPictureLayer.Bg12));
         }
-        return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.SixteenColours));
+        return canvas.ToSheet(colours, frames, SpriteImageColours.Background);
     }
 
     /// <summary>Paints <paramref name="words"/>, rows of a screen's width, from pixel row <paramref name="top"/>.</summary>
@@ -223,7 +222,7 @@ internal static class EndingPictureSheetComposer
 
     /// <summary>The ending palette <paramref name="palette"/>'s background colours, as the screen tile sheets are coloured.</summary>
     private static RgbColor[] Colours(ScreenTileSources sources, EndingPaletteId palette) =>
-        ScreenTileSheetComposer.EndingColours(sources.EndingPalettes, palette)[..SpriteImage.SpriteColourCount].ToArray();
+        ScreenPaletteColours.EndingColours(sources.EndingPalettes, palette)[..SpriteImage.SpriteColourCount].ToArray();
 
     /// <summary>Requires the font's blank glyph to show nothing, as the pages leave its cells without a picture.</summary>
     /// <exception cref="InvalidDataException">The blank glyph has a pixel of another colour than colour zero.</exception>

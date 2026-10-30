@@ -1,5 +1,6 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
@@ -21,7 +22,10 @@ internal sealed class ScreenCharacters
     internal TileInkDepth Depth { get; }
 
     /// <summary>The bytes of one character.</summary>
-    internal int CharacterBytes => ScreenTileSheet.CharacterWordsOf(Depth) * sizeof(ushort);
+    internal int CharacterBytes => Depth == TileInkDepth.SixteenColours ? RoomTileCanvas.CharacterBytes : RoomTileCanvas.TwoBppCharacterBytes;
+
+    /// <summary>How a sheet of pictures painted from these characters is coloured.</summary>
+    internal SpriteImageColours Colours => Depth == TileInkDepth.SixteenColours ? SpriteImageColours.Background : SpriteImageColours.TwoBppBackground;
 
     /// <summary>Places <paramref name="characters"/>, whole characters, at consecutive tile numbers from <paramref name="firstTile"/>.</summary>
     /// <exception cref="InvalidDataException">The bytes are not whole characters of the depth.</exception>

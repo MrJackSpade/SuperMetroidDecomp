@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rendering;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
@@ -55,7 +55,7 @@ internal static class MapPictureSheets
     /// <summary>The map characters, from tile zero, as the room maps and the pause map name them.</summary>
     internal static ScreenCharacters MapCharacters(AreaMapPresentation maps)
     {
-        int bytes = MapScreenDefinitions.MapTileCount * ScreenTileSheet.CharacterWordsOf(TileInkDepth.SixteenColours) * sizeof(ushort);
+        int bytes = MapScreenDefinitions.MapTileCount * RoomTileCanvas.CharacterBytes;
         return new ScreenCharacters(TileInkDepth.SixteenColours).Place(0, MapCharacterArtwork.Of(Ensure.NotNull(maps)).Map.Characters[..bytes].ToArray());
     }
 

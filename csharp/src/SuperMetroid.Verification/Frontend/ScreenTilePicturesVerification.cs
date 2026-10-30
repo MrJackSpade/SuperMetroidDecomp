@@ -11,7 +11,6 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Title;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
@@ -22,14 +21,14 @@ using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Frontend;
 
 namespace SuperMetroid.Verification.Frontend;
 
 /// <summary>
-/// Checks the menu screens draw their backgrounds from pre-coloured screen tiles (#1392): every background layer of each
-/// menu screen carries its cells and its characters' tiles (#1403), and the screen drawn from them matches it drawn from
-/// VRAM's characters and CGRAM, pixel for pixel.
+/// Checks the frontend screens draw their backgrounds from installed pictures (#1392, #1467): the menu screens show their
+/// pictures, the pause pages' pictured layers draw exactly what the cartridge's tilemaps draw over VRAM's characters, and
+/// every turning floor draws exactly what its characters draw, pixel for pixel.
 /// </summary>
 internal static class ScreenTilePicturesVerification
 {
@@ -72,9 +71,8 @@ internal static class ScreenTilePicturesVerification
     }
 
     /// <summary>
-    /// Each phase of the opening cinematic that shows a background (its text card, illustrated pages and flashbacks, and the
-    /// Ceres flight's caption) and the destruction's Zebes reveal draw every background from their tiles, exactly as their
-    /// characters draw them.
+    /// Each phase of the opening cinematic and of the Ceres destruction that shows a turning floor draws it from its
+    /// pictures exactly as its characters draw it, and the Ceres flight's caption draws its installed pictures.
     /// </summary>
     internal static void VerifyCinematicScreenTilePictures()
     {
@@ -82,9 +80,8 @@ internal static class ScreenTilePicturesVerification
         int layers = 0;
         void Check(LayeredScene scene, byte[] vram, string name)
         {
-            if (scene.Layers.ToArray().Any(layer => layer is ScreenTilesLayer or AddedScreenTilesLayer or TurningFloorLayer)
-                && sampled.Add(name))
-                layers += AssertDrawnFromTiles(scene, vram, name);
+            if (scene.Layers.ToArray().Any(layer => layer is TurningFloorLayer) && sampled.Add(name))
+                layers += AssertFloorsDrawnFromCharacters(scene, vram, name);
         }
         var audio = new AudioQueues();
         IntroCinematicState intro = CreateRetailIntroFixture(audio);
@@ -110,8 +107,8 @@ internal static class ScreenTilePicturesVerification
         }
         AssertTrue(destruction.Finished, $"the Ceres destruction finishes within 5000 updates (stopped in {destruction.Phase})");
         AssertTrue(captionPictured, "the Ceres flight's caption draws its pictures");
-        AssertTrue(sampled.Any(name => name.StartsWith("Ceres destruction", StringComparison.Ordinal)), "the Zebes reveal is checked");
-        Console.WriteLine($"Screen tile pictures: {sampled.Count} cinematic phases draw all {layers} of their background layers from their tiles, as their characters do.");
+        AssertTrue(sampled.Any(name => name.StartsWith("Ceres destruction", StringComparison.Ordinal)), "the Ceres destruction's floor is checked");
+        Console.WriteLine($"Screen tile pictures: {sampled.Count} cinematic phases draw all {layers} of their floor layers from their pictures, as their characters do.");
     }
 
     /// <summary>
@@ -134,7 +131,7 @@ internal static class ScreenTilePicturesVerification
                     && sampled.Add($"{hours} hours, {ending.Stage.Phase}"))
                 {
                     var shownEnding = ending.ShownVram();
-                    layers += AssertDrawnFromTiles(scene, shownEnding, $"ending at {hours} hours, {ending.Stage.Phase}");
+                    layers += AssertFloorsDrawnFromCharacters(scene, shownEnding, $"ending at {hours} hours, {ending.Stage.Phase}");
                 }
                 ending.Step();
                 audio.AdvanceFrame(default);
@@ -194,163 +191,81 @@ internal static class ScreenTilePicturesVerification
     }
 
     /// <summary>
-    /// Asserts each background layer of <paramref name="scene"/> draws from its characters' tiles: the scene drawn from them
-    /// matches it drawn with each tile layer's cells showing tiles decoded from the scene's own VRAM characters and CGRAM,
-    /// and each Mode 7 map drawn from its characters; returns the layers checked.
+    /// Asserts each turning floor of <paramref name="scene"/> draws from its pictures what its characters draw: the scene
+    /// matches it drawn with each floor composed instead from the scene's own floor map and tile characters in
+    /// <paramref name="vram"/> under the scene's colours, naming the first differing pixel; returns the floors checked.
     /// </summary>
-    private static int AssertDrawnFromTiles(LayeredScene scene, byte[] vram, string name)
+    private static int AssertFloorsDrawnFromCharacters(LayeredScene scene, byte[] vram, string name)
     {
         int layers = 0;
-        var decoded = new Dictionary<ScreenLayerPictures, ScreenLayerPictures>();
-        ScreenTileMap FromCharacters(ScreenTileMap cells)
-        {
-            if (!decoded.TryGetValue(cells.Tiles, out ScreenLayerPictures? tiles))
-            {
-                // Only the characters the scene's layers show from this tile set need decoding.
-                int[] shown = [.. scene.Layers.ToArray().SelectMany(TileMaps).Where(map => map.Tiles == cells.Tiles).SelectMany(map => map.Cells).Select(cell => cell.Tile)];
-                tiles = VramTileFixtures.Tiles(vram, scene.Paint.Colors, CharacterBase(vram, cells, name), cells.Tiles.Depth, shown);
-                decoded.Add(cells.Tiles, tiles);
-            }
-            return new ScreenTileMap(tiles, cells.Size, cells.Cells);
-        }
         var fromCharacters = new List<DisplayLayer>();
         foreach (DisplayLayer layer in scene.Layers)
         {
-            DisplayLayer stripped = layer switch
-            {
-                ScreenTilesLayer bg => bg with { Cells = FromCharacters(bg.Cells) },
-                TurningFloorLayer mode7 => mode7 with { Floor = AffineFloorFixtures.Floor(vram, scene.Paint.Colors) },
-                AddedScreenTilesLayer sub => sub with
-                {
-                    Cells = FromCharacters(sub.Cells),
-                    MainCoverage = sub.MainCoverage is { } coverage ? coverage with { Cells = FromCharacters(coverage.Cells) } : null,
-                },
-                _ => layer,
-            };
-            if (!ReferenceEquals(stripped, layer))
+            if (layer is TurningFloorLayer floor)
             {
                 layers++;
+                fromCharacters.Add(floor with { Floor = AffineFloorFixtures.Floor(vram, scene.Paint.Colors) });
             }
-            fromCharacters.Add(stripped);
+            else
+                fromCharacters.Add(layer);
         }
-        AssertTrue(layers > 0, $"{name} draws backgrounds");
+        AssertTrue(layers > 0, $"{name} draws a floor");
         RgbaPixel[] pictured = RenderNamed(scene, name);
         RgbaPixel[] characters = DisplayRendering.Render(new LayeredScene(scene.Paint, [.. fromCharacters], scene.Brightness)).ToArray();
-        int mismatch = -1;
-        for (int pixel = 0; pixel < pictured.Length; pixel++)
-        {
-            if (pictured[pixel] != characters[pixel])
-            {
-                mismatch = pixel;
-                break;
-            }
-        }
-        AssertTrue(mismatch < 0, $"{name}: drawn from its tiles it matches its characters, but pixel ({mismatch % 256}, {mismatch / 256}) is " +
-            $"{(mismatch < 0 ? default : pictured[mismatch])} where its characters draw {(mismatch < 0 ? default : characters[mismatch])}");
+        AssertSamePixels(pictured, characters, $"{name}: drawn from its pictures, its floor matches its characters");
         return layers;
     }
 
     /// <summary>
-    /// Asserts <paramref name="pause"/>'s scene draws what its VRAM draws (#1467): its map grid, equipment page and frame,
-    /// drawn instead from the BG1 and BG2 tilemaps the cartridge lays out for them over tiles decoded from the scene's own
-    /// VRAM characters and CGRAM, give the same image; returns the pictured layers checked.
+    /// Asserts <paramref name="pause"/>'s scene draws what its VRAM draws (#1467): each of its map grid, equipment page and
+    /// frame layers, drawn alone, shows exactly what the BG1 or BG2 tilemap the cartridge lays out for it shows over the
+    /// scene's own VRAM characters in its colours, at the layer's scroll and in its priority tier, decoded on the CPU;
+    /// returns the pictured layers checked.
     /// </summary>
     private static int AssertPauseDrawnFromVram(PauseMenuState pause, string name)
     {
         LayeredScene scene = pause.CaptureRenderSnapshot();
         byte[] vram = pause.ShownVram();
-        BackgroundTile[] page = pause.ShownBg1Tiles;
-        BackgroundTile[] frame = pause.ShownBg2Tiles;
-        ScreenLayerPictures tiles = VramTileFixtures.Tiles(vram, scene.Paint.Colors, PauseVramLayout.MapCharacters.Offset, TileInkDepth.SixteenColours,
-            [.. page.Concat(frame).Select(tile => tile.Tile).Distinct()]);
-        ScreenTileMap pageCells = ScreenTileMapConstants.Of(page, new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles), tiles);
-        ScreenTileMap frameCells = ScreenTileMapConstants.Of(frame, MenuScreen.PageSize, tiles);
+        var pageSize = new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles);
+        BackgroundTile[] page = VramTilemapImage.Rows(pause.ShownBg1Tiles, pageSize);
+        BackgroundTile[] frame = VramTilemapImage.Rows(pause.ShownBg2Tiles, MenuScreen.PageSize);
         PicturedPlane shownFrame = pause.screen.Frame(pause.area, pause.ButtonHighlight);
         int layers = 0;
-        DisplayLayer FromVram(DisplayLayer layer)
+        foreach (DisplayLayer layer in scene.Layers)
         {
-            DisplayLayer? tiled = layer switch
+            ShownTilemap? tilemap = layer switch
             {
-                PictureGridLayer grid => new ScreenTilesLayer(pageCells, grid.Scroll, grid.Priority),
-                PicturedPlaneLayer plane => new ScreenTilesLayer(plane.Plane.Equals(shownFrame) ? frameCells : pageCells, plane.Scroll, plane.Priority),
+                PictureGridLayer grid => new ShownTilemap(page, pageSize, grid.Scroll, grid.Priority),
+                PicturedPlaneLayer plane when plane.Plane.Equals(shownFrame) => new ShownTilemap(frame, MenuScreen.PageSize, plane.Scroll, plane.Priority),
+                PicturedPlaneLayer plane => new ShownTilemap(page, pageSize, plane.Scroll, plane.Priority),
                 _ => null,
             };
-            if (tiled is null)
-                return layer;
+            if (tilemap is null)
+                continue;
             layers++;
-            return tiled;
+            string named = $"{name} layer {layers} ({layer.GetType().Name}, priority {tilemap.Priority?.ToString() ?? "both"})";
+            RgbaPixel[] pictured = RenderNamed(new LayeredScene(scene.Paint, [layer], DisplayBrightness.Full), named);
+            RgbaPixel[] characters = VramTilemapImage.Draw(tilemap.Rows, tilemap.Size, vram, PauseVramLayout.MapCharacters.Offset,
+                TileInkDepth.SixteenColours, scene.Paint.Colors, tilemap.Scroll, tilemap.Priority, scene.Paint.Backgrounds.Backdrop);
+            AssertSamePixels(pictured, characters, $"{named}: its pictures draw what VRAM's characters draw of the cartridge's tilemap");
         }
-        var fromVram = new LayeredScene(scene.Paint, [.. scene.Layers.ToArray().Select(FromVram)], scene.Brightness);
         AssertTrue(layers > 0, $"{name} draws pictured backgrounds");
-        RgbaPixel[] pictured = RenderNamed(scene, name);
-        RgbaPixel[] characters = RenderNamed(fromVram, name);
-        int mismatch = Enumerable.Range(0, pictured.Length).FirstOrDefault(pixel => pictured[pixel] != characters[pixel], -1);
-        AssertTrue(mismatch < 0, $"{name}: its pictures draw what VRAM's characters draw of the cartridge's tilemaps, but pixel " +
-            $"({mismatch % 256}, {mismatch / 256}) is {(mismatch < 0 ? default : pictured[mismatch])} where its characters draw " +
-            $"{(mismatch < 0 ? default : characters[mismatch])}");
         return layers;
     }
 
-    /// <summary>
-    /// The character base <paramref name="cells"/>' tiles picture: of the bases a background can select, one every
-    /// <see cref="CharacterBaseStep"/> words, the one whose characters match the most of the tiles the cells show.
-    /// </summary>
-    private static int CharacterBase(ReadOnlySpan<byte> vram, ScreenTileMap cells, string name)
-    {
-        ScreenLayerPictures tiles = cells.Tiles;
-        int[] shown = [.. cells.Cells.Select(cell => cell.Tile).Distinct().Where(tile => tiles.Tiles[tile] is not null)];
-        int best = -1, bestMatches = 0;
-        for (int characterBase = 0; characterBase < SnesVram.WordCount; characterBase += CharacterBaseStep)
-        {
-            int matches = 0;
-            foreach (int tile in shown)
-            {
-                if (ShowsCharacter(vram, characterBase, tile, tiles))
-                    matches++;
-            }
-            if (matches > bestMatches)
-                (best, bestMatches) = (characterBase, matches);
-        }
-        AssertTrue(best >= 0, $"{name}: a layer's tiles picture the characters at one of its selectable character bases");
-        return best;
-    }
+    /// <summary>A tilemap the cartridge lays out for a pictured layer, as that layer shows it.</summary>
+    /// <param name="Rows">The tilemap's cells, row by row from the top-left cell.</param>
+    /// <param name="Size">The tilemap's size in cells.</param>
+    /// <param name="Scroll">The layer's scroll.</param>
+    /// <param name="Priority">The priority tier the layer draws, or null for both.</param>
+    private sealed record ShownTilemap(BackgroundTile[] Rows, Extent16<TilemapCells> Size, Position16<TilePlanePixels> Scroll, bool? Priority);
 
-    /// <summary>The cells a layer draws: its own and, for a subscreen, its coverage's.</summary>
-    private static IEnumerable<ScreenTileMap> TileMaps(DisplayLayer layer) => layer switch
+    /// <summary>Asserts <paramref name="pictured"/> and <paramref name="characters"/> are the same screen, naming the first pixel where they differ.</summary>
+    private static void AssertSamePixels(RgbaPixel[] pictured, RgbaPixel[] characters, string property)
     {
-        ScreenTilesLayer bg => [bg.Cells],
-        AddedScreenTilesLayer { MainCoverage: { } coverage } sub => [sub.Cells, coverage.Cells],
-        AddedScreenTilesLayer sub => [sub.Cells],
-        _ => [],
-    };
-
-    /// <summary>The words between the character bases a background can select.</summary>
-    private const int CharacterBaseStep = 0x1000;
-
-    /// <summary>Whether <paramref name="tiles"/>' tile <paramref name="tile"/> pictures, under its first palette row, the VRAM character it names from <paramref name="characterBase"/>.</summary>
-    private static bool ShowsCharacter(ReadOnlySpan<byte> vram, int characterBase, int tile, ScreenLayerPictures tiles)
-    {
-        ScreenTilePicture picture = tiles.Tiles[tile] ?? throw new ArgumentException($"Tile {tile} shows nothing.", nameof(tile));
-        bool fourBpp = tiles.Depth == TileInkDepth.SixteenColours;
-        int words = ScreenTileSheet.CharacterWordsOf(tiles.Depth);
-        SpriteImage image = picture.Sheet.Picture.Sheet;
-        Position16<ImagePixels> corner = picture.Sheet.Corner(picture.SheetTile, 0);
-        for (int y = 0; y < ScreenTileSheet.TilePixels; y++)
-        {
-            int row = SnesVramAddressingConstants.ByteOffsetOfWord(characterBase + tile * words + y);
-            int upper = SnesVramAddressingConstants.ByteOffsetOfWord(characterBase + tile * words + y + 8);
-            for (int x = 0; x < ScreenTileSheet.TilePixels; x++)
-            {
-                int shift = 7 - x;
-                int colour = (vram[row] >> shift & 1) | (vram[row + 1] >> shift & 1) << 1;
-                if (fourBpp)
-                    colour |= (vram[upper] >> shift & 1) << 2 | (vram[upper + 1] >> shift & 1) << 3;
-                int pixel = (picture.Sheet.Picture.Corner.Y + corner.Y + y) * image.Size.X + picture.Sheet.Picture.Corner.X + corner.X + x;
-                if (image.Inks[pixel].PaletteIndex % (fourBpp ? 16 : 4) != colour)
-                    return false;
-            }
-        }
-        return true;
+        int mismatch = Enumerable.Range(0, pictured.Length).FirstOrDefault(pixel => pictured[pixel] != characters[pixel], -1);
+        AssertTrue(mismatch < 0, $"{property}, but pixel ({mismatch % ScreenGeometry.ScreenWidthPixels}, {mismatch / ScreenGeometry.ScreenWidthPixels}) is " +
+            $"{(mismatch < 0 ? default : pictured[mismatch])} where its characters draw {(mismatch < 0 ? default : characters[mismatch])}");
     }
 
     /// <summary>Renders <paramref name="scene"/>, naming the screen in any failure to draw it.</summary>

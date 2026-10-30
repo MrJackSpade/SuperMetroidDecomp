@@ -37,9 +37,6 @@ internal sealed record D3D11TileDispatch
     /// <summary>What a layer pass draws.</summary>
     public D3D11RoomSource RoomSource { get; init; } = D3D11RoomSource.None;
 
-    /// <summary>The room level buffer word of a <see cref="D3D11RoomSource.ScreenCells"/> layer's character tile table (#1392).</summary>
-    public uint ScreenTable { get; init; } = 0;
-
     /// <summary>First scanline.</summary>
     public uint FirstScanline { get; init; } = 0;
 

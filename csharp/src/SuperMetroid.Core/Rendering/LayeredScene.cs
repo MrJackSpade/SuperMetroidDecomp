@@ -30,18 +30,12 @@ public sealed class LayeredScene
         // cannot rearrange a queued frame's layer order after publication.
         foreach (DisplayLayer layer in layers)
         {
-            if (layer is not (SpriteDepthLayer or SpritesLayer or ScreenTilesLayer or HudLayer or TurningFloorLayer or ScreenTintLayer or GameplaySceneLayer or ColourAddBandsLayer or MessageBoxLayer or OverlayBlendLayer or TurningRoomLayer or AddedScreenTilesLayer or InsetSceneLayer or GameplayBlendLayer or PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer))
+            if (layer is not (SpriteDepthLayer or SpritesLayer or HudLayer or TurningFloorLayer or ScreenTintLayer or GameplaySceneLayer or ColourAddBandsLayer or MessageBoxLayer or OverlayBlendLayer or TurningRoomLayer or InsetSceneLayer or GameplayBlendLayer or PicturedPlaneLayer or AddedPicturedPlaneLayer or PictureGridLayer))
                 throw new ArgumentException("Unrecognized or null display layer.", nameof(layers));
             if (layer is TurningFloorLayer { SubtractsSprites: true, AddsForeground: true })
                 throw new ArgumentException("A turning floor cannot both subtract the sprites and add itself.", nameof(layers));
             if (layer is SpritesLayer { FixedColor: not null, AddToScreen: true })
                 throw new ArgumentException("A sprite tint requires drawing the sprites, not adding them.", nameof(layers));
-            if (layer is ScreenTilesLayer bg4 &&
-                (bg4.MapSize.X is not (32 or 64) || bg4.MapSize.Y is not (32 or 64)))
-                throw new ArgumentException("A tile layer's map must be 32 or 64 tiles on each axis.", nameof(layers));
-            if (layer is AddedScreenTilesLayer { MainCoverage: { } coverage } &&
-                (coverage.MapSize.X is not (32 or 64) || coverage.MapSize.Y is not (32 or 64)))
-                throw new ArgumentException("A covering layer's map must be 32 or 64 tiles on each axis.", nameof(layers));
         }
         for (int i = 1; i < layers.Length; i++)
             if (layers[i] is GameplaySceneLayer or TurningRoomLayer or GameplayBlendLayer)

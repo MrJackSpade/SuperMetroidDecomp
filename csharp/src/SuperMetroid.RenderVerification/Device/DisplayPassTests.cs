@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;
@@ -24,7 +25,7 @@ internal static class DisplayPassTests
         RgbColor[] palette = Enumerable.Range(0, SnesCgram.ColorCount)
             .Select(_ => RgbColor.FromWord((ushort)random.Next(32768))).ToArray();
         var packet = new DisplayPacket(new(1, 1, 0), new LayeredScene(FramePaint.FromNative(palette, []),
-            [new ScreenTilesLayer(VramTileFixtures.Cells(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
+            [new PicturedPlaneLayer(VramPictureFixtures.Plane(vram, palette, 0x4000, 0x6000, TileInkDepth.SixteenColours, new Extent16<TilemapCells>(32, 32)),
                 new Position16<TilePlanePixels>(3, 11), null)], 15));
         var native = DisplayRendering.Render(packet);
         int count = 0;

@@ -22,12 +22,18 @@ public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane,
         init => field = RequireScreen(value);
     } = RequireScreen(Plane);
 
-    /// <summary>Uniform vertical scroll in pixels, 0 through <see cref="AddedScreenTilesLayer.MaximumScroll"/>.</summary>
+    /// <summary>The largest scroll.</summary>
+    public const int MaximumScroll = ushort.MaxValue;
+
+    /// <summary>The one-screen plane, in cells, an added layer reads.</summary>
+    public static readonly Extent16<TilemapCells> MapSize = new(32, 32);
+
+    /// <summary>Uniform vertical scroll in pixels, 0 through <see cref="MaximumScroll"/>.</summary>
     public int VerticalScroll
     {
         get;
-        init => field = Ensure.BetweenInclusive(0, AddedScreenTilesLayer.MaximumScroll, value);
-    } = Ensure.BetweenInclusive(0, AddedScreenTilesLayer.MaximumScroll, VerticalScroll);
+        init => field = Ensure.BetweenInclusive(0, MaximumScroll, value);
+    } = Ensure.BetweenInclusive(0, MaximumScroll, VerticalScroll);
 
     /// <summary>Copied per-line scrolls; an empty array selects the uniform scroll.</summary>
     private Position16<TilePlanePixels>[] scrolls = [];
@@ -47,7 +53,7 @@ public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane,
     }
 
     /// <summary>Requires a one-screen plane, the plane the addition reads.</summary>
-    /// <exception cref="ArgumentException">The plane is not <see cref="AddedScreenTilesLayer.MapSize"/>.</exception>
-    private static PicturedPlane RequireScreen(PicturedPlane plane) => Ensure.NotNull(plane).Size == AddedScreenTilesLayer.MapSize ? plane
-        : throw new ArgumentException($"The layer adds a {AddedScreenTilesLayer.MapSize.X}x{AddedScreenTilesLayer.MapSize.Y}-cell plane, not {plane.Size.X}x{plane.Size.Y}.", nameof(plane));
+    /// <exception cref="ArgumentException">The plane is not <see cref="MapSize"/>.</exception>
+    private static PicturedPlane RequireScreen(PicturedPlane plane) => Ensure.NotNull(plane).Size == MapSize ? plane
+        : throw new ArgumentException($"The layer adds a {MapSize.X}x{MapSize.Y}-cell plane, not {plane.Size.X}x{plane.Size.Y}.", nameof(plane));
 }

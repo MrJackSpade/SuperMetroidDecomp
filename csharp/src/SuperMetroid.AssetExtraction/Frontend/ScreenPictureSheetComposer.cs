@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Spatial;
 
@@ -25,6 +24,20 @@ internal static class ScreenPictureSheetComposer
     /// <summary>Composes the sheet picturing <paramref name="subjects"/> over <paramref name="characters"/> under <paramref name="palette"/>.</summary>
     /// <exception cref="InvalidDataException">Two subjects share a name, or the pictures need more than one sheet.</exception>
     internal static ComposedSpriteSheet Compose(IReadOnlyList<ScreenPictureSubject> subjects, ScreenCharacters characters, ReadOnlySpan<RgbColor> palette)
+    {
+        PaintedScreen painted = Paint(subjects, characters, palette);
+        return painted.Canvas.ToSheet(painted.Colours, painted.Frames, characters.Colours);
+    }
+
+    /// <summary>A screen's painted pictures: the canvas they are painted on, the colours its pixels name and each picture's frame.</summary>
+    /// <param name="Canvas">The canvas every picture is painted on.</param>
+    /// <param name="Colours">The colours the pixels name.</param>
+    /// <param name="Frames">Each picture's frame by its name.</param>
+    internal sealed record PaintedScreen(RoomTileCanvas Canvas, RgbColor[] Colours, Dictionary<string, SpriteSheetFrameDocument> Frames);
+
+    /// <summary>Paints <paramref name="subjects"/> over <paramref name="characters"/> in <paramref name="palette"/>'s colours, packed onto shelves.</summary>
+    /// <exception cref="InvalidDataException">Two subjects share a name, or the pictures need more than one sheet.</exception>
+    internal static PaintedScreen Paint(IReadOnlyList<ScreenPictureSubject> subjects, ScreenCharacters characters, ReadOnlySpan<RgbColor> palette)
     {
         Ensure.NotNull(subjects);
         Ensure.NotNull(characters);
@@ -76,6 +89,6 @@ internal static class ScreenPictureSheetComposer
             if (!frames.TryAdd(subject.Name, frame))
                 throw new InvalidDataException($"A frontend screen pictures {subject.Name} twice.");
         }
-        return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(characters.Depth));
+        return new PaintedScreen(canvas, colours, frames);
     }
 }

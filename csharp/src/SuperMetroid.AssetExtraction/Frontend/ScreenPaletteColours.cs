@@ -9,10 +9,10 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
-/// Composes the frontend's screen tile sheets (#1392): each background artwork's characters under each palette row, laid
-/// out as <see cref="ScreenTileSheet"/> reads them, coloured with the standard palette of the screen that shows them.
+/// The standard palettes frontend screens' pictures are composed under (#1392, #1467): the title's, an ending scene's and
+/// the Ceres flight's, in the cartridge's colour order.
 /// </summary>
-internal static class ScreenTileSheetComposer
+internal static class ScreenPaletteColours
 {
 
     /// <summary>The title's palette.</summary>

@@ -13,6 +13,8 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
 {
     /// <summary>Bits 0 through 9 address one of 1024 background characters.</summary>
     private const ushort CharacterMask = 0x03ff;
+    /// <summary>The character numbers an entry can name, each relative to the background's character base.</summary>
+    internal const int CharacterIndices = CharacterMask + 1;
     /// <summary>The background palette field begins immediately after the character number.</summary>
     private const int PaletteShift = 10;
     /// <summary>Each background tile selects one of eight palette groups.</summary>

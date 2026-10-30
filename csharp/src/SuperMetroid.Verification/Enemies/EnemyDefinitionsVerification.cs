@@ -28,7 +28,7 @@ internal static class EnemyDefinitionsVerification
         {
             int populationAddress = RoomEnemyRomLayout.PopulationBank |
                 RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation);
-            for (int slot = 0; slot < EnemySlotTable.MaximumEnemyCount; slot++)
+            for (int slot = 0; slot < EnemySlotOrder.Capacity; slot++)
             {
                 ushort pointerWord = ReadVerificationWord(bus, populationAddress);
                 if (pointerWord == 0xffff) break;

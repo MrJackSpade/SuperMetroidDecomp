@@ -46,7 +46,7 @@ internal static class WrapShotEnemiesVerification
             // Populate the real interactive list while freezing AI movement. The
             // remote enemy must be eligible, not silently excluded as offscreen.
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = runtime.Room.LevelData });
-            AssertTrue(runtime.Enemies.InteractiveEnemyIndexes.Contains(enemy.EnemyIndex), "Remote control enemy is collision-eligible");
+            AssertTrue(runtime.Enemies.InteractiveEnemies.Contains(enemy), "Remote control enemy is collision-eligible");
 
             var words = new RoomTerrainBlock[64 * 128];
             for (int row = 0; row < 128; row++)

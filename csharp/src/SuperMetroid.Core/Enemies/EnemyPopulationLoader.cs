@@ -12,7 +12,7 @@ internal sealed class EnemyPopulationLoader
     private readonly EnemyRoomBinding _room;
     /// <summary>Receives the boss identity declared by an initialized population entry.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-    /// <summary>Holds the 32 native enemy slots and their published occupied range.</summary>
+    /// <summary>Holds the room's enemy slots and the extent the population fills.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Applies enemy definitions and runs each slot's initialization AI.</summary>
     private readonly IEnemyDispatch _dispatch;
@@ -43,10 +43,10 @@ internal sealed class EnemyPopulationLoader
         {
             RoomEnemyPopulationRecord population = records[slotIndex];
             EnemyDefinitionId enemy = population.DefinitionId;
-            if (slotIndex == EnemySlotTable.MaximumEnemyCount)
+            if (slotIndex == EnemySlotOrder.Capacity)
             {
                 throw new InvalidDataException(
-                    $"Enemy population {populationDefinition.Name} has more than 32 records.");
+                    $"Enemy population {populationDefinition.Name} has more records than a room holds enemies.");
             }
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
@@ -67,14 +67,11 @@ internal sealed class EnemyPopulationLoader
 
         }
 
-        // InitializeEnemies returns early for an initially empty population. It has
-        // already zeroed both enemy counters, but does not rewrite the previous
-        // first-free index or death quota. Nonempty populations publish these after
-        // all initialization callbacks, exactly as the native terminator path does.
+        // An empty population leaves the enemy count at zero and keeps the previous room's
+        // death quota. A nonempty one publishes both after every initialization has run.
         if (records.IsEmpty)
             return;
         DeathQuota = populationDefinition.DeathQuota;
-        _slotTable.EnemyCount = unchecked((ushort)records.Length);
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)(records.Length * EnemySlotTable.EnemyIndexStride));
+        _slotTable.EnemyCount = records.Length;
     }
 }

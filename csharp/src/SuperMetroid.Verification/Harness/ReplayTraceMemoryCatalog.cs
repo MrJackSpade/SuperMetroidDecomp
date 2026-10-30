@@ -161,7 +161,7 @@ internal static class ReplayTraceMemoryCatalog
         WorkRamRange.Between(SamusHorizontalSpeedsStart, SamusHorizontalSpeedsEnd),
         WorkRamRange.Between(SamusProjectileArraysStart, SamusProjectileArraysEnd),
         WorkRamRange.Between(SamusSlopeAndTotalSpeedStart, SamusSlopeAndTotalSpeedEnd),
-        .. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(slot =>
+        .. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(slot =>
             new WorkRamRange(MovieDesyncMemory.EnemyBase + slot * MovieDesyncMemory.EnemyStride, MovieEnemySlotPrefix)),
         WorkRamRange.Between(RidleySlotWordsStart, RidleySlotWordsEnd),
         WorkRamRange.Between(BabyMetroidVelocityStart, BabyMetroidVelocityEnd),
@@ -212,7 +212,7 @@ internal static class ReplayTraceMemoryCatalog
         WorkRamRange.Words(NativeSnapshotMemory.PowerBombArmedFlag),
         WorkRamRange.Between(NativeSnapshotMemory.CameraSpeedX, CameraSpeedToChargeEnd),
         WorkRamRange.Words(NativeSnapshotMemory.SamusFilteredHeld, 2),
-        new(NativeSnapshotMemory.EnemyBase, EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride),
+        new(NativeSnapshotMemory.EnemyBase, SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.TableSize),
         WorkRamRange.Words(NativeSnapshotMemory.SamusSolidEnemyIndices, 4),
         WorkRamRange.Between(SamusTimersStart, SamusTimersEnd),
         WorkRamRange.Words(NativeSnapshotMemory.AcidSurface),

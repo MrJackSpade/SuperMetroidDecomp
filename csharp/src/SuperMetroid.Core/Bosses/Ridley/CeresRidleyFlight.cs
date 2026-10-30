@@ -593,7 +593,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Allocates two real enemy records for the OBJ wall strips shown during Mode 7.</summary>
     private void SpawnCeresRidleyGetawayWalls()
     {
-        // SpawnEnemy consumes the first two free native slots and initializes the literal
+        // SpawnEnemy consumes the first two free slots and initializes the literal
         // population records embedded at $A6:AA2F/$AA3F. Keeping these as real slots makes
         // their layer-two OAM order, off-screen processing, and $F7A5 visibility dispatcher
         // flow through the same scheduler as the cartridge instead of painting host panels.
@@ -604,8 +604,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Initializes one native wall actor at its authored position and variant parameter.</summary>
     private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, int parameter1)
     {
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
+        RoomEnemySlot wall = _slotTable.FindFreeSlot() ??
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a Mode-7 wall.");
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.CeresDoor);
@@ -619,10 +618,8 @@ internal sealed class CeresRidleyFlight
             ExtraProperties: new EnemyExtraPropertyWord(EnemyExtraProperties.None),
             Parameter1: parameter1,
             Parameter2: 0);
-        RoomEnemySlot wall = _slotTable.Slots[slotIndex];
         _dispatch.InitializeSlotFromDefinition(wall, population, definition);
         _dispatch.RunInitializationAi(wall, EnemySpawnSurroundings.None);
-        _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * EnemySlotTable.EnemyIndexStride));
+        _slotTable.CoverSpawn(wall);
     }
 }

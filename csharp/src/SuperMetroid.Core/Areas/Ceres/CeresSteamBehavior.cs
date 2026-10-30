@@ -138,7 +138,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 }
 
                 Position16<RoomPixels> transformed = transform.Transform(slot.Position.Whole);
-                slot.SpawnOffset = transformed - slot.Position.Whole;
+                slot.DrawOffset = transformed - slot.Position.Whole;
                 return;
 
             default:

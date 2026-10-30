@@ -60,12 +60,12 @@ internal sealed class EnemyCollision
     /// <param name="samus">Live player state receiving the native touch callback.</param>
     /// <param name="controllerInput">Current held input used by touch handlers.</param>
     /// <param name="level">Room terrain required by collision-aware touch handlers.</param>
-    /// <param name="onlyEnemyIndex">EnemyMain's current physical index, or null for a standalone whole-list audit.</param>
+    /// <param name="onlyEnemy">The enemy EnemyMain is processing, or null for a standalone whole-list audit.</param>
     public bool ResolveOrdinarySamusContact(
         SamusState samus,
         ControllerButton controllerInput,
         RoomLevelData? level = null,
-        int? onlyEnemyIndex = null)
+        RoomEnemySlot? onlyEnemy = null)
     {
         Ensure.NotNull(samus);
         _room.EnsureLoaded();
@@ -73,11 +73,10 @@ internal sealed class EnemyCollision
         if (contactDamageIndex == SamusContactDamageIndex.None && !samus.InvincibilityTimer.IsZero)
             return false;
 
-        foreach (int enemyIndex in _dispatch.InteractiveEnemyIndexes)
+        foreach (RoomEnemySlot slot in _dispatch.InteractiveEnemies)
         {
-            if (onlyEnemyIndex.HasValue && enemyIndex != onlyEnemyIndex.Value)
+            if (onlyEnemy is not null && slot != onlyEnemy)
                 continue;
-            RoomEnemySlot slot = _slotTable.SlotAtEnemyIndex(enemyIndex);
             // Native collision entry rejects a zero sprite map before resetting Samus's
             // invulnerability. Keep this per enemy: an empty interactive list or an actor
             // not yet publishing its map must not erase the timer. The reset still precedes
@@ -158,23 +157,22 @@ internal sealed class EnemyCollision
     /// <param name="projectiles">Live Samus beam and missile slots whose enemy collisions may consume, reflect, or transition their projectiles.</param>
     /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
     /// <param name="samus">Live player state for enemy-specific shot reactions; may be null only for paths that do not require it, while player-dependent reactions such as Yard beam launch reject its absence.</param>
-    /// <param name="onlyEnemyIndex">Current EnemyMain slot, or null for a standalone whole-population audit.</param>
+    /// <param name="onlyEnemy">The enemy EnemyMain is processing, or null for a standalone whole-population audit.</param>
     public int ResolveOrdinaryProjectileHits(
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles,
         SamusState? samus = null,
-        int? onlyEnemyIndex = null)
+        RoomEnemySlot? onlyEnemy = null)
     {
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
         _room.EnsureLoaded();
 
         int hitCount = 0;
-        foreach (int enemyIndex in _dispatch.InteractiveEnemyIndexes)
+        foreach (RoomEnemySlot enemy in _dispatch.InteractiveEnemies)
         {
-            if (onlyEnemyIndex.HasValue && enemyIndex != onlyEnemyIndex.Value)
+            if (onlyEnemy is not null && enemy != onlyEnemy)
                 continue;
-            RoomEnemySlot enemy = _slotTable.SlotAtEnemyIndex(enemyIndex);
 
             // The shot pass likewise admits visually invisible actors, but rejects the
             // engine's explicit empty spritemap sentinel $804D and property $0400. Keeping
@@ -430,17 +428,16 @@ internal sealed class EnemyCollision
         SamusBombProjectileSystem bombs,
         SamusProjectileSystem ordinaryProjectiles,
         SamusState? samus = null,
-        int? onlyEnemyIndex = null)
+        RoomEnemySlot? onlyEnemy = null)
     {
         Ensure.NotNull(bombs);
         Ensure.NotNull(ordinaryProjectiles);
         _room.EnsureLoaded();
 
         int hitCount = 0;
-        for (int ordinal = 0; ordinal < (onlyEnemyIndex.HasValue ? 1 : _dispatch.InteractiveEnemyIndexes.Count); ordinal++)
+        for (int ordinal = 0; ordinal < (onlyEnemy is not null ? 1 : _dispatch.InteractiveEnemies.Count); ordinal++)
         {
-            int enemyIndex = onlyEnemyIndex ?? _dispatch.InteractiveEnemyIndexes[ordinal];
-            RoomEnemySlot enemy = _slotTable.SlotAtEnemyIndex(enemyIndex);
+            RoomEnemySlot enemy = onlyEnemy ?? _dispatch.InteractiveEnemies[ordinal];
             bool usesCommonShotAi = ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot;
             bool usesLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition, ShotAi(enemy));
             bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(enemy, ShotAi(enemy));
@@ -635,17 +632,16 @@ internal sealed class EnemyCollision
         int reactionCount = 0;
         _deathsAndDrops.ClearRespawnScratch();
 
-        // The native pass walks all 32 physical slots from $07C0 down to zero, independent
-        // of the ordinary active list. That matters while a power bomb reaches off-screen
-        // actors and then sets their process-off-screen property below.
-        for (int slotIndex = EnemySlotTable.MaximumEnemyCount - 1; slotIndex >= 0; slotIndex--)
+        // The blast reaches every slot in its own order, independent of the ordinary
+        // active list. That matters while a power bomb reaches off-screen actors and then
+        // sets their process-off-screen property below.
+        foreach (RoomEnemySlot enemy in EnemySlotOrder.InBlastOrder(_slotTable.Slots))
         {
             // A death inside the previous reaction overwrote `$12`, the horizontal radius
             // this walker never reloads: zero for an ordinary kill and $4000 for a
             // respawning one. The vertical radius in `$14` survives unchanged.
             if (_deathsAndDrops.TakeRespawnScratch() is { } deathScratch)
                 horizontalRadius = deathScratch;
-            RoomEnemySlot enemy = _slotTable.Slots[slotIndex];
             if (enemy.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted))

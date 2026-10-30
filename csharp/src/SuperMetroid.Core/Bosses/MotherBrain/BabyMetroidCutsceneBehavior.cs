@@ -65,11 +65,9 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
                 "Mother Brain attempted to allocate the cutscene Baby more than once.");
         }
 
-        // `$A0:9275` searches from native slot zero for the first consecutive free run.
-        // The Baby header declares one part, so the first zero ID is the exact result.
-        int slotIndex = _slotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
-            return; // Generic SpawnEnemy returns $FFFF and X=$0800 when the pool is full.
+        // The spawn takes the first free slot; the Baby is a single part. A full room spawns nothing.
+        if (_slotTable.FindFreeSlot() is not { } babySlot)
+            return;
 
         RoomEnemyPopulationRecord population =
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
@@ -80,7 +78,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
                 $"names enemy {population.DefinitionId}, not BabyMetroidCutscene.");
         }
 
-        RoomEnemySlot babySlot = _slotTable.Slots[slotIndex];
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId);
         _dispatch.InitializeSlotFromDefinition(babySlot, population, definition);
         _dispatch.RunInitializationAi(babySlot, EnemySpawnSurroundings.None);
@@ -91,8 +88,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         babySlot.Frame = babySlot.Properties.HasAny(EnemyProperties.ProcessInstructions)
             ? EnemyFrameId.Empty
             : null;
-        _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
-        _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * EnemySlotTable.EnemyIndexStride));
+        _slotTable.CoverSpawn(babySlot);
     }
 
     /// <summary>Creates the physical Baby only after the rainbow sequence exists and installs its first list and fifteen nontransparent palette colors.</summary>

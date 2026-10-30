@@ -87,7 +87,7 @@ internal static class EnemyDropsVerification
         AssertEqual(EnemyAiRoutine.CommonNoOp, enemy.Definition.MainAi,
             "cached header follows replacement identity into native no-op AI");
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, SamusColours = colours.Samus, ResolveSamusContactBeforeAi = true });
-        AssertEqual(0, fixture.System.ActiveEnemyIndexes.Count, "placeholder remains excluded next frame");
+        AssertEqual(0, fixture.System.ActiveEnemies.Count, "placeholder remains excluded next frame");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "placeholder cannot be killed twice");
     }
 

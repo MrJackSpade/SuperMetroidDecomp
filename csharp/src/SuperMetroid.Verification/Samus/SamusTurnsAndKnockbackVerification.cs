@@ -337,7 +337,6 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
     [
         new SolidEnemyCollisionBody(
             Slot: 9,
-            Index: 0x0240,
             Position: new(69, 48),
             Radius: new(5, 5),
             Solid: true),

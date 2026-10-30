@@ -147,7 +147,7 @@ internal static class NativeSnapshotImportVerification
         samus.Kinematics.PositionAdjustedBySlope = W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0;
         for (int direction = 0; direction < 4; direction++)
             samus.Kinematics.RecordSolidEnemyCollision((SamusCollisionDirection)direction,
-                W(NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2));
+                SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOrNoneOf(W(NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2)));
         samus.HorizontalSpeed.ActiveSpeedTableBaseAddress = W(NativeSnapshotMemory.HorizontalSpeedTable);
         samus.HorizontalSpeed.DecelerationMultiplier = memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier];
         samus.HorizontalSpeed.EchoSoundFlag = W(NativeSnapshotMemory.SpeedEchoSoundLatch);
@@ -289,7 +289,7 @@ internal static class NativeSnapshotImportVerification
         for (int index = 0; index < runtime.Enemies.SlotTable.Slots.Count; index++)
         {
             var slot = runtime.Enemies.SlotTable.Slots[index];
-            int address = NativeSnapshotMemory.EnemyBase + index * 64;
+            int address = NativeSnapshotMemory.EnemyBase + SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.OffsetOf(index);
             if (W(address) != 0)
                 AssertTrue(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(slot.DefinitionId) == W(address), "initial enemy species agrees with room population");
             slot.Bind(SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionSlotWords.FromSlotWord(W(address)), slot.Definition);

@@ -16,17 +16,14 @@ internal sealed class GrappleBehavior : IGrappleTargets
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Guards endpoint checks until a room is loaded.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Resolves native enemy indexes to physical slots.</summary>
-    private readonly EnemySlotTable _slotTable;
     /// <summary>Starts the full generic death and drop sequence for grapple-killed enemies.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
-    /// <summary>Binds enemy ordering, room state, physical slots, and death handling.</summary>
-    internal GrappleBehavior(IEnemyDispatch dispatch, EnemyRoomBinding room, EnemySlotTable slotTable, EnemyDeathsAndDrops deathsAndDrops)
+    /// <summary>Binds enemy ordering, room state and death handling.</summary>
+    internal GrappleBehavior(IEnemyDispatch dispatch, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops)
     {
         _dispatch = dispatch;
         _room = room;
-        _slotTable = slotTable;
         _deathsAndDrops = deathsAndDrops;
     }
 
@@ -38,9 +35,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
     public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
         _room.EnsureLoaded();
-        foreach (int enemyIndex in _dispatch.InteractiveEnemyIndexes)
+        foreach (RoomEnemySlot enemy in _dispatch.InteractiveEnemies)
         {
-            RoomEnemySlot enemy = _slotTable.SlotAtEnemyIndex(enemyIndex);
             if (!enemy.InvincibilityTimer.IsZero)
                 continue;
 

@@ -229,12 +229,12 @@ internal sealed class KraidDeath
         state.HeadProgram = KraidHeadAnimations.DeathAfterEntryFrame;
         state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.DeathEntryDuration;
         // $A7:C3A8-$C3E8 clear the fingernails' respawn bit, then run EnemyDeath for the
-        // nails, then the three lints. A still holds each slot's native index, which
-        // EnemyDeath treats as explosion type zero; every part leaves a death explosion.
+        // nails, then the three lints. The death runs without choosing an explosion, so each
+        // part leaves the first death explosion.
         foreach (int slot in new[] { 6, 7 })
             _slotTable.Slots[slot].Properties = _slotTable.Slots[slot].Properties.Without(EnemyProperties.RespawnIfKilled);
         foreach (int slot in new[] { 6, 7, 2, 3, 4 })
-            _deathsAndDrops.StartGenericEnemyDeath(_slotTable.Slots[slot], deathAnimation: _slotTable.Slots[slot].EnemyIndex);
+            _deathsAndDrops.StartGenericEnemyDeath(_slotTable.Slots[slot], deathAnimation: 0);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
         _frameResults.KraidPlms.Add(KraidPlmDefinitions.LiveDeathSpikes);

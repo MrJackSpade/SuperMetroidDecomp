@@ -173,7 +173,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private RoomEnemySlot GetFollowingHibashiPart(RoomEnemySlot graphics)
     {
-        if (graphics.SlotIndex >= EnemySlotTable.MaximumEnemyCount - 1)
+        if (graphics.SlotIndex >= EnemySlotOrder.Capacity - 1)
             throw new InvalidDataException("Hibashi graphics part has no following enemy slot.");
         return _slotTable.Slots[graphics.SlotIndex + 1];
     }

@@ -22,7 +22,7 @@ internal static class OverlappingEnemyShotsVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
-        var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
+        var interactive = (List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies;
         Action<RoomEnemySlot, SamusState, ControllerButton> initialize = enemies.BeetomBehavior.InitializeBeetom;
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
         for (int index = 0; index < 3; index++)
@@ -37,7 +37,7 @@ internal static class OverlappingEnemyShotsVerification
             enemy.Health = 180;
             initialize(enemy, samus, 0);
             enemy.SpritemapPointer = 1;
-            interactive.Add(enemy.EnemyIndex);
+            interactive.Add(enemy);
         }
         var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var bombs = new SamusBombProjectileSystem();

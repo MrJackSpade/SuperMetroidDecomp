@@ -54,8 +54,8 @@ internal static class MotherBrainLaterContactVerification
         body.Radius = new(16, 16);
         body.Frame = EnemyFrameId.MotherBrainBodyStanding;
         body.Health = 1000;
-        var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
-        interactive.Add(body.EnemyIndex);
+        var interactive = (List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies;
+        interactive.Add(body);
         foreach (SamusProjectileType type in new[] { SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), SamusProjectileType.Of(SamusProjectileFamily.Missile) })
         {
             var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);

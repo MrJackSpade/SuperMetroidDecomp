@@ -67,7 +67,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Colouring = new GraphicsSetMemberColouring(pirate.DefinitionId);
         extended.InstructionTimer = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
-        enemies.Drawing.Enqueue(1, EnemySlotTable.EnemyIndexStride);
+        enemies.Drawing.Enqueue(1, extended);
 
         // Enemy projectile in front of Samus, drawn from the set's spawned-object sheet.
         EnemyProjectileFrameId projectileFrame = SpawnedObjectFrameDefinitions.Anywhere.Projectiles

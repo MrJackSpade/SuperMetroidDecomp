@@ -22,15 +22,12 @@ internal static class EnemyRoomCountersVerification
         AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.FirefleaDarknessLevel = -1,
             "darkness rejects a negative level");
 
-        enemies.SlotTable.EnemyCount = EnemySlotTable.MaximumEnemyCount;
+        enemies.SlotTable.EnemyCount = EnemySlotOrder.Capacity;
         AssertEqual(32, enemies.SlotTable.EnemyCount, "a full population fills every slot");
-        AssertThrows<ArgumentOutOfRangeException>(() => enemies.SlotTable.EnemyCount = EnemySlotTable.MaximumEnemyCount + 1,
+        AssertThrows<ArgumentOutOfRangeException>(() => enemies.SlotTable.EnemyCount = EnemySlotOrder.Capacity + 1,
             "the population count cannot exceed the slot table");
-        enemies.SlotTable.FirstFreeEnemyIndex = EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride;
-        AssertEqual(2048, enemies.SlotTable.FirstFreeEnemyIndex, "a full population puts the frontier past the last slot");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => enemies.SlotTable.FirstFreeEnemyIndex = EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride + 1,
-            "the allocation frontier cannot pass the slot table");
+        AssertThrows<ArgumentOutOfRangeException>(() => enemies.SlotTable.EnemyCount = -1,
+            "the population count cannot be negative");
 
         enemies.RoomStatus.EnemiesKilled = ushort.MaxValue;
         enemies.RoomStatus.RecordKill();

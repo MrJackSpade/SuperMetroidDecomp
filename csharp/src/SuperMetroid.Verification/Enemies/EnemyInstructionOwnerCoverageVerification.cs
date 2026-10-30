@@ -214,7 +214,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         {
             int cursor = RoomEnemyRomLayout.PopulationBank | populationPointer;
             for (int recordIndex = 0;
-                 recordIndex < EnemySlotTable.MaximumEnemyCount;
+                 recordIndex < EnemySlotOrder.Capacity;
                  recordIndex++, cursor += 16)
             {
                 ushort definitionPointerWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);

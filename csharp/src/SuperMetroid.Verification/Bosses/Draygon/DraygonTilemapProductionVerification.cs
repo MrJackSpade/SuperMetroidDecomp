@@ -71,9 +71,8 @@ internal static class DraygonTilemapProductionVerification
             functions.Add(boss.Function);
             bool queuedTransfer = false;
             foreach (var queue in enemies.Drawing.QueuesForVerification)
-            foreach (ushort nativeIndex in queue)
+            foreach (RoomEnemySlot slot in queue)
             {
-                var slot = enemies.SlotTable.Slots[nativeIndex / 64];
                 if ((slot.ExtraProperties.ToWord() & 0x8004) != 0x8004) continue;
                 int bank = (int)new SnesAddress(slot.NativeHeader.Bank, 0);
                 int count = bus.ReadCartridgeByte(bank | slot.SpritemapPointer);

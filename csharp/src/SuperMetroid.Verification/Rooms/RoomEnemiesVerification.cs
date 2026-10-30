@@ -155,8 +155,7 @@ internal static void VerifyRoomEnemyLoading()
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
 
     AssertEqual(1, enemies.SlotTable.EnemyCount, "enemy population count");
-    AssertEqual(EnemySlotTable.EnemyIndexStride, enemies.SlotTable.FirstFreeEnemyIndex,
-        "first free enemy keeps native byte offset");
+    AssertEqual(enemies.SlotTable.Slots[1], enemies.SlotTable.FindFreeSlot(), "a spawn takes the slot after the population");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "population terminator death quota");
     AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "room load clears killed-enemy count");
     AssertEqual(0x1234, enemies.RoomStatus.BossId, "nonzero definition publishes room boss ID");
@@ -245,7 +244,7 @@ internal static void VerifyRoomEnemyLoading()
 
     // Load the next room's enemies, over the same session, with an empty population and a deliberately invalid
     // tileset. Native $A0:8A6D skips graphics processing, and InitializeEnemies' early return leaves
-    // first-free/death-quota words untouched even though current enemy counts are cleared.
+    // the death quota untouched even though current enemy counts are cleared.
     AssertTrue(ReferenceEquals(RoomEnemyGraphicsSetDefinitions.SessionStart,
             new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0)).GraphicsSet.LoadedSet),
         "a session's first room draws under no loaded graphics set until it loads one");
@@ -259,8 +258,7 @@ internal static void VerifyRoomEnemyLoading()
 
     AssertEqual(0, enemies.SlotTable.EnemyCount, "empty population clears enemy count");
     AssertEqual(0, enemies.GraphicsSet.Entries.Count, "empty population skips graphics set");
-    AssertEqual(EnemySlotTable.EnemyIndexStride, enemies.SlotTable.FirstFreeEnemyIndex,
-        "empty population preserves native first-free quirk");
+    AssertEqual(enemies.SlotTable.Slots[0], enemies.SlotTable.FindFreeSlot(), "an empty population leaves the first slot free");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
     AssertEqual(0, enemies.RoomStatus.BossId, "room load clears boss ID before empty population");
     AssertEqual(0x4567, cgram.Colors[128], "empty population leaves CGRAM untouched");

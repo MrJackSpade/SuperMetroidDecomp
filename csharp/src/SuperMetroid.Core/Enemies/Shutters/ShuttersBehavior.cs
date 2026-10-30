@@ -532,18 +532,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The shared idle-shutter contact test at $A2:EEE9 and $A2:F1F6: the bitwise AND of
-    /// Samus's four solid-enemy collision words equals this enemy (one or more directions
-    /// hit it and the rest hold $FFFF), and her contact-damage index is nonzero.
+    /// The shared idle-shutter contact test: Samus's solid-enemy contacts this update name this shutter, as
+    /// <see cref="SolidContactSlotCombination"/> combines them, and her contact-damage index is nonzero.
     /// </summary>
-    private static bool SamusContactsIdleShutter(RoomEnemySlot slot, SamusState samus)
-    {
-        IReadOnlyList<ushort> collisions = samus.Kinematics.SolidEnemyCollisionIndexes;
-        int combined = unchecked((ushort)(collisions[0] & collisions[1] & collisions[2] & collisions[3]));
-        return combined != ShutterContactDefinitions.NoSolidEnemy &&
-            combined == slot.EnemyIndex &&
-            samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
-    }
+    private static bool SamusContactsIdleShutter(RoomEnemySlot slot, SamusState samus) =>
+        SolidContactSlotCombination.Combine(samus.Kinematics.SolidEnemyCollisions, EnemySlotOrder.Capacity) == slot.SlotIndex &&
+        samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
 
     /// <summary>Tests the native strict, wrapped absolute-X proximity threshold.</summary>
     private static bool IsSamusWithinShutterHorizontalDistance(

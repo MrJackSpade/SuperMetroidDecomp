@@ -1,60 +1,39 @@
 ﻿namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The 32 physical enemy slots and their enemy indexes, with the population counts installed at room load.
+/// The room's enemy places, in <see cref="EnemySlotOrder"/>, with the extent of the places the population and later
+/// spawns have filled.
 /// </summary>
 internal sealed class EnemySlotTable
 {
-    /// <summary>Thirty-two fixed physical enemy records in the native bank-$A0 scheduler, including unused and multipart slots.</summary>
-    public const int MaximumEnemyCount = 32;
-    /// <summary>The step between consecutive slots' enemy indexes, which run $0000..$07C0 as the game numbers its enemies.</summary>
-    public const int EnemyIndexStride = 64;
+    /// <summary>The places, each created once with its ordinal.</summary>
+    private readonly RoomEnemySlot[] _slots = new RoomEnemySlot[EnemySlotOrder.Capacity];
 
-
-    /// <summary>Fixed physical slot storage; native indexes address $40-byte records within this array.</summary>
-    private readonly RoomEnemySlot[] _slots = new RoomEnemySlot[EnemySlotTable.MaximumEnemyCount];
-
-    /// <summary>All 32 physical enemy slots, including unused zero-pointer slots.</summary>
+    /// <summary>Every place, empty ones included, in slot order.</summary>
     public IReadOnlyList<RoomEnemySlot> Slots => _slots;
 
-    /// <summary>The lowest physical slot with no enemy definition, or -1 when every slot is taken.</summary>
-    internal int FindFreeSlotIndex() => Array.FindIndex(_slots, slot => slot.DefinitionId == EnemyDefinitionId.None);
+    /// <summary>The empty place a newly spawned enemy takes, or null when every place is taken.</summary>
+    internal RoomEnemySlot? FindFreeSlot() => EnemySlotOrder.FirstFree(_slots);
 
-
-    /// <summary>Creates the 32 slots once, each bound to the species registry that dispatches its entity.</summary>
-    /// <exception cref="InvalidOperationException">The slots already exist.</exception>
+    /// <summary>Creates the places once, each bound to the species registry that dispatches its entity.</summary>
+    /// <exception cref="InvalidOperationException">The places already exist.</exception>
     internal void InstallSlots(EnemySpeciesRegistry species)
     {
         Ensure.NotNull(species);
         if (_slots[0] is not null)
             throw new InvalidOperationException("The enemy slots are installed once, when the room enemy system is built.");
-        for (int slotIndex = 0; slotIndex < _slots.Length; slotIndex++)
-            _slots[slotIndex] = new RoomEnemySlot(slotIndex, species);
-    }
-
-    /// <summary>The slot with enemy index <paramref name="enemyIndex"/>, rejecting an out-of-range or unaligned index.</summary>
-    internal RoomEnemySlot SlotAtEnemyIndex(int enemyIndex)
-    {
-        if ((enemyIndex & (EnemySlotTable.EnemyIndexStride - 1)) != 0 || enemyIndex >= EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride)
-            throw new ArgumentOutOfRangeException(nameof(enemyIndex));
-        return _slots[enemyIndex / EnemySlotTable.EnemyIndexStride];
-    }
-    /// <summary>
-    /// Native byte offset marking the allocation frontier, not a zero-based slot number; nonempty population load sets it
-    /// to record count times the slot size and an empty load retains its previous value. It never exceeds every slot's
-    /// size together, since no producer installs more than <see cref="EnemySlotTable.MaximumEnemyCount"/> slots, and the
-    /// setter rejects any value outside that range.
-    /// </summary>
-    public int FirstFreeEnemyIndex
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, EnemySlotTable.MaximumEnemyCount * EnemySlotTable.EnemyIndexStride, value);
+        for (int ordinal = 0; ordinal < _slots.Length; ordinal++)
+            _slots[ordinal] = new RoomEnemySlot(ordinal, species);
     }
 
     /// <summary>
-    /// Number of population records installed at room load, including multipart records; zero for an empty population,
-    /// not a live count of surviving actors. It never exceeds <see cref="EnemySlotTable.MaximumEnemyCount"/>, and the
-    /// setter rejects any value outside that range.
+    /// How many places, from the first, the room's enemies have filled: the population's size at room load, extended to
+    /// cover a later spawn's place. It is not a live count of surviving enemies; an empty population leaves it at zero.
+    /// It never exceeds <see cref="EnemySlotOrder.Capacity"/>, and the setter rejects any value outside that range.
     /// </summary>
-    public int EnemyCount { get; internal set => field = Ensure.BetweenInclusive(0, EnemySlotTable.MaximumEnemyCount, value); }
+    public int EnemyCount { get; internal set => field = Ensure.BetweenInclusive(0, EnemySlotOrder.Capacity, value); }
+
+    /// <summary>Extends <see cref="EnemyCount"/> to cover <paramref name="spawned"/>'s place.</summary>
+    internal void CoverSpawn(RoomEnemySlot spawned) =>
+        EnemyCount = Math.Max(EnemyCount, Ensure.NotNull(spawned).SlotIndex + 1);
 }

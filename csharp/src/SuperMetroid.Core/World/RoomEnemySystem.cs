@@ -671,7 +671,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         KagoBehavior = new KagoBehavior(Room, Projectiles, Earthquake, DeathsAndDrops, RoomStatus);
         HoppersBehavior = new HoppersBehavior(Room, Terrain);
         HibashiBehavior = new HibashiBehavior(SlotTable, Audio);
-        GrappleBehavior = new GrappleBehavior(Dispatch, Room, SlotTable, DeathsAndDrops);
+        GrappleBehavior = new GrappleBehavior(Dispatch, Room, DeathsAndDrops);
         FuneNamiheBehavior = new FuneNamiheBehavior(Projectiles);
         FliesBehavior = new FliesBehavior(Room);
         FirefleaBehavior = new FirefleaBehavior(Collision, DeathsAndDrops, RoomStatus);
@@ -699,7 +699,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles);
         BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
         Instructions = new EnemyInstructionInterpreter(new BossBodyCopies(CrocomireBehavior, MotherBrainEncounter), Presentation);
-        Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, SlotTable = SlotTable });
+        Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(Room, Presentation, ElevatorBehavior);
         BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision);
@@ -893,9 +893,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             ProcessingWindow.PrepareEnemyProcessingList(frame.Camera);
         Drawing.Clear();
 
-        foreach (int enemyIndex in ProcessingWindow.ActiveEnemyIndexes)
+        foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
         {
-            RoomEnemySlot slot = SlotTable.SlotAtEnemyIndex(enemyIndex);
             // EnemyMain $A0:9021-$902E decrements tangible actors' invincibility
             // before checking time freeze. X-ray therefore stops their movement but
             // not this clock. Remember the entry value: the call that reaches zero
@@ -915,14 +914,14 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     hooks.ResolveBeforeOrdinaryHits(frame);
                 if (frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
                     Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles,
-                        frame.Samus, enemyIndex);
+                        frame.Samus, slot);
                 // Alpha already updated the bomb slots. Native EnemyMain checks
                 // them before this actor's touch and AI, so escape starts now.
                 if (frame.SharedProjectiles is not null && frame.SamusProjectiles is not null)
-                    Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, enemyIndex);
+                    Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, slot);
                 if (slot.DefinitionId == EnemyDefinitionId.None)
                     continue;
-                Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, enemyIndex);
+                Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, slot);
                 if (slot.Entity is IEnemyContactHooks contact)
                     contact.ResolveAfterSamusContact(frame.Samus);
                 if (slot.DefinitionId == EnemyDefinitionId.None)
@@ -1008,7 +1007,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             bool visible = slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) ||
                 !EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, frame.Camera);
             if (visible && !slot.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
-                Drawing.Enqueue(slot.Layer & 7, enemyIndex);
+                Drawing.Enqueue(slot.Layer & 7, slot);
 
             // $A0:9128 performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw palettes describe the
@@ -1024,23 +1023,21 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             }
         }
 
-        // DetermineWhichEnemiesToProcess freezes only the index list. Later bank-$94
-        // collision routines dereference the live slot words, so publish bodies after AI
-        // has had its chance to move multi-part enemies.
+        // The processing window fixes only which enemies interact this frame. Samus's
+        // collision reads their live position and size, so publish bodies after AI has
+        // had its chance to move multi-part enemies.
         _interactiveCollisionBodies.Clear();
-        foreach (int enemyIndex in ProcessingWindow.InteractiveEnemyIndexes)
+        foreach (RoomEnemySlot slot in ProcessingWindow.InteractiveEnemies)
         {
-            RoomEnemySlot slot = SlotTable.SlotAtEnemyIndex(enemyIndex);
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
                 slot.SlotIndex,
-                enemyIndex,
                 slot.Position.Whole,
                 new(slot.Radius.X, slot.Radius.Y),
                 // `$A0:A9D2-$A0:A9E8`: a frozen enemy blocks Samus whatever its properties say.
                 !slot.FrozenTimer.IsZero || slot.Properties.HasAny(EnemyProperties.SolidToSamus)));
         }
         FrameContext.AdvanceRandomEnemyCounter();
-        frame.Samus?.Kinematics.ClearSolidEnemyCollisionIndexes();
+        frame.Samus?.Kinematics.ClearSolidEnemyCollisions();
         WorkRobotBehavior.StepWorkRobotPaletteAnimation();
         MagdolliteBehavior.StepMagdollitePaletteAnimation();
         BlueBrinstarFaceBlockBehavior.StepBlueBrinstarFaceBlockPaletteAnimation();
@@ -1058,8 +1055,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // on the following frame rather than retroactively changing already-emitted OAM.
         if (Earthquake.Advance(timeIsFrozen))
         {
-            foreach (int enemyIndex in ProcessingWindow.ActiveEnemyIndexes)
-                SlotTable.SlotAtEnemyIndex(enemyIndex).ShakeTimer = WrappingCountdown.Start(RoomEarthquakeDefinitions.EnemyShakeDuration);
+            foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
+                slot.ShakeTimer = WrappingCountdown.Start(RoomEarthquakeDefinitions.EnemyShakeDuration);
         }
         return Earthquake.LastRoomShake;
     }

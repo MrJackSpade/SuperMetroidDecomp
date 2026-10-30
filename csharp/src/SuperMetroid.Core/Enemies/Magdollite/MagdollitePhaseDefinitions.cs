@@ -9,8 +9,8 @@ internal static class MagdollitePhaseDefinitions
     /// <summary>
     /// Whether an arm in each enemy slot grows one final phase on reaching <see cref="MaximumRise"/>. The cartridge's
     /// <c>.doneGrowing</c> at $A8:B259 is reached from the maximum-rise test before Y is loaded from the growth
-    /// index, so it compares the rise with the word at <c>MagdolliteArmHeightThreshold + EnemyIndex</c>
-    /// ($A8:AF55 + 64*slot), using the Y the enemy main loop left (<c>LDY EnemyIndex</c> at $A0:9073). The
+    /// index, so it compares the rise with the word the slot's offset selects past the threshold table
+    /// ($A8:AF55 + 64*slot), using the Y the enemy main loop left at $A0:9073. The
     /// threshold table holds nine words, so every slot but zero reads the bank-$A8 bytes that follow it. The rise is
     /// then 108 to 112 pixels, and each of those words gives the same answer for every such rise.
     /// </summary>

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Selects the enemies EnemyMain processes this frame: the processing window, on-screen tests, and the active and
-/// interactive native index lists.
+/// interactive enemies, each in <see cref="EnemySlotOrder"/>.
 /// </summary>
 [RoomLifetime]
 internal sealed class EnemyProcessingWindow
@@ -16,7 +16,7 @@ internal sealed class EnemyProcessingWindow
     private readonly MorphBallEyeBehavior _morphBallEyeBehavior;
     /// <summary>Room load guard for selection against a valid enemy population.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Physical slots traversed in native order while choosing active enemies.</summary>
+    /// <summary>The slots traversed, in slot order, while choosing active enemies.</summary>
     private readonly EnemySlotTable _slotTable;
 
     /// <summary>Binds processing-window decisions to one room's frame policy and enemy pool.</summary>
@@ -27,16 +27,16 @@ internal sealed class EnemyProcessingWindow
         _room = room;
         _slotTable = slotTable;
     }
-    /// <summary>Native indexes scheduled for AI this frame, including forced off-screen actors.</summary>
-    private readonly List<int> _activeEnemyIndexes = new();
-    /// <summary>Active native indexes still eligible for Samus interaction and grapple endpoint scans.</summary>
-    private readonly List<int> _interactiveEnemyIndexes = new();
+    /// <summary>The enemies scheduled for AI this frame, including forced off-screen actors, in slot order.</summary>
+    private readonly List<RoomEnemySlot> _activeEnemies = new();
+    /// <summary>The active enemies still eligible for Samus interaction and grapple endpoint scans, in slot order.</summary>
+    private readonly List<RoomEnemySlot> _interactiveEnemies = new();
 
-    /// <summary>Native indexes scheduled for AI this frame.</summary>
-    internal IReadOnlyList<int> ActiveEnemyIndexes => _activeEnemyIndexes;
+    /// <summary>The enemies scheduled for AI this frame, in slot order.</summary>
+    internal IReadOnlyList<RoomEnemySlot> ActiveEnemies => _activeEnemies;
 
-    /// <summary>Active native indexes still eligible for Samus interaction.</summary>
-    internal IReadOnlyList<int> InteractiveEnemyIndexes => _interactiveEnemyIndexes;
+    /// <summary>The active enemies still eligible for Samus interaction, in slot order.</summary>
+    internal IReadOnlyList<RoomEnemySlot> InteractiveEnemies => _interactiveEnemies;
 
     /// <summary>
     /// Runs the bank-$88 morph-ball eye beam HDMA object, then
@@ -61,8 +61,8 @@ internal sealed class EnemyProcessingWindow
     /// <summary>Rebuilds active and interactive lists after clearing deleted slots and applying off-screen policy.</summary>
     internal void DetermineWhichEnemiesToProcess(Position16<RoomPixels> camera)
     {
-        _activeEnemyIndexes.Clear();
-        _interactiveEnemyIndexes.Clear();
+        _activeEnemies.Clear();
+        _interactiveEnemies.Clear();
         foreach (RoomEnemySlot slot in _slotTable.Slots)
         {
             if (slot.DefinitionId is 0 or EnemyDefinitionId.Respawn)
@@ -80,9 +80,9 @@ internal sealed class EnemyProcessingWindow
             if (!active)
                 continue;
 
-            _activeEnemyIndexes.Add(slot.EnemyIndex);
+            _activeEnemies.Add(slot);
             if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
-                _interactiveEnemyIndexes.Add(slot.EnemyIndex);
+                _interactiveEnemies.Add(slot);
         }
     }
 

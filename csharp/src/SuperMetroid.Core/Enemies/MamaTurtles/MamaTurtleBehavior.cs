@@ -208,7 +208,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the first-frame parent/child setup at <c>$A2:8DD8</c>.</summary>
     private void LinkMamaTurtleChildren(RoomEnemySlot mama, MamaTurtleEnemyState state)
     {
-        if (mama.SlotIndex + 4 >= EnemySlotTable.MaximumEnemyCount)
+        if (mama.SlotIndex + 4 >= EnemySlotOrder.Capacity)
             throw new InvalidDataException("Mama Turtle does not have four following physical slots.");
 
         for (int childOffset = 1; childOffset <= 4; childOffset++)

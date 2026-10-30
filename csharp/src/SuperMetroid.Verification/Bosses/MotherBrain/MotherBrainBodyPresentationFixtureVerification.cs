@@ -46,7 +46,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             bodies = BossBodySheetFixtures.For(artwork.Bosses, BossBodyOwner.MotherBrain);
             Inner.Enemies.BossArtworkBinding.BodySheets = Sheets;
             ClearBg2();
-            Inner.Enemies.Drawing.Enqueue(0, Body.EnemyIndex);
+            Inner.Enemies.Drawing.Enqueue(0, Body);
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ControllerButton>(EnemyInstructionInterpreter.ProcessInstructions);
         }
 

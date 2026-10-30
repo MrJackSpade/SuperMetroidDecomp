@@ -26,7 +26,4 @@ internal sealed record EnemyDrawListDependencies
 
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }
-
-    /// <summary>Slot table.</summary>
-    public required EnemySlotTable SlotTable { get; init; }
 }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </summary>
 /// <remarks>
 /// This is intentionally a probe, not an enemy simulation. The caller supplies the current
-/// interactive-enemy list in the same order as native WRAM <c>$18A6</c>. That order matters:
+/// interactive-enemy list in slot order. That order matters:
 /// the original routine returns the first colliding entry, not the geometrically nearest one.
 /// All positions and arithmetic remain 16-bit so wraparound, signed branch tests, and pixel
 /// rounding agree with the 65C816 rather than with host-language geometry conventions.
@@ -20,13 +20,13 @@ public static class SamusSolidEnemyCollision
     /// </summary>
     /// <param name="state">Samus's current whole/subpixel position and collision radii.</param>
     /// <param name="interactiveEnemies">
-    /// Active interactive enemies in native list order. Non-solid, unfrozen entries remain in
+    /// Active interactive enemies in slot order. Non-solid, unfrozen entries remain in
     /// the list because the native loop encounters and rejects them individually.
     /// </param>
     /// <param name="direction">Low two bits of native collision movement direction.</param>
     /// <param name="distance">Whole-pixel half of native scratch pair <c>$12.$14</c>.</param>
     /// <param name="distanceSubposition">Fractional half of native scratch pair <c>$12.$14</c>.</param>
-    /// <returns>The first qualifying body's current leading-edge gap, or the requested whole distance with no enemy index when no collision is found.</returns>
+    /// <returns>The first qualifying body's current leading-edge gap, or the requested whole distance with no enemy when no collision is found.</returns>
     /// <remarks>No whole position or enemy body is changed. Exact current-edge contact clears <paramref name="state"/>'s Y subposition even for horizontal probes. The distance pair is an unsigned 16.16 magnitude; direction supplies its sign.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="state"/> or <paramref name="interactiveEnemies"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not one of the four directional values 0..3; NonDirectionalProbe is not accepted here.</exception>
@@ -99,23 +99,19 @@ public static class SamusSolidEnemyCollision
                 state.Position = state.Position.WithFractionY(0);
             }
 
-            // Native success returns A=$FFFF, publishes the whole gap in $12, clears $14,
-            // and stores the enemy index in $16 plus a direction-specific diagnostic slot.
+            // Success publishes the whole gap and the enemy met; the caller records it for its direction.
             return new SolidEnemyCollisionResult(
                 Collided: true,
                 Distance: gap,
                 EnemySlot: enemy.Slot,
-                EnemyIndex: enemy.Index,
                 WasTouching: wasTouching);
         }
 
-        // The target is retained in the managed result solely to make probes inspectable in
-        // the debugger. The native no-collision return is simply A=0 and has no enemy index.
+        // No collision names no enemy and returns the requested whole distance.
         return new SolidEnemyCollisionResult(
             Collided: false,
             Distance: distance,
             EnemySlot: null,
-            EnemyIndex: null,
             WasTouching: false);
     }
 

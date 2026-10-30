@@ -72,8 +72,8 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             "Mother Brain Baby initialization created cutscene state");
         AssertEqual(2, enemies.SlotTable.EnemyCount,
             "Mother Brain Baby extended physical enemy high-water mark");
-        AssertEqual(2 * 0x40, enemies.SlotTable.FirstFreeEnemyIndex,
-            "Mother Brain Baby published next native enemy index");
+        AssertEqual(enemies.SlotTable.Slots[2], enemies.SlotTable.FindFreeSlot(),
+            "Mother Brain Baby's spawn leaves the following slot free");
 
         try
         {

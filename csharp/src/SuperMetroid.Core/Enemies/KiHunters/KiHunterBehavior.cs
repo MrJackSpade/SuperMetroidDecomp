@@ -749,7 +749,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // converts the ordinary fatal-shot path into a host exception.
         bool initializedBody = body.SpeciesState<KiHunterEnemyState>() is { IsWing: false };
         if ((!IsKiHunterBodyDefinition(body.DefinitionId) && !initializedBody) ||
-            body.SlotIndex >= EnemySlotTable.MaximumEnemyCount - 1)
+            body.SlotIndex >= EnemySlotOrder.Capacity - 1)
         {
             throw new InvalidDataException(
                 $"Enemy slot {body.SlotIndex} is not a Ki-Hunter body with a following slot.");

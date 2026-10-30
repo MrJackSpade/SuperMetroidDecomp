@@ -32,72 +32,59 @@ internal static class EndingPictureSheetComposer
     /// <summary>The character numbers a background's map words name.</summary>
     private const int CharacterNumbers = ScreenLayerPictures.CharacterIndices;
 
-    /// <summary>The font's character every page clears to: its blank glyph, which must show nothing.</summary>
-    private const int BlankGlyph = 0x07f;
+    /// <summary>The shelves of two-row glyphs: the large letters, then the digits and the percent sign where the letters leave no room.</summary>
+    private const int LargeGlyphShelves = 2;
+
+    /// <summary>Each ending picture sheet: how it is composed and the frames it holds.</summary>
+    private static readonly IReadOnlyDictionary<SpriteSheetId, PictureSheet> PictureSheets = new Dictionary<SpriteSheetId, PictureSheet>
+    {
+        [SpriteSheetId.EndingCreditsRows] = new(ComposeCredits, () => CreditsRows().Select(row => row.Name)),
+        [SpriteSheetId.EndingPostCreditsPictures] = new(ComposePostCredits, () =>
+            [EndingPictureNames.WaitingBackdrop, EndingPictureNames.Logo, EndingPictureNames.ResultPanel, EndingPictureNames.CopyrightPanel,
+                EndingPictureNames.JapaneseSubtitle, .. Glyphs().Select(glyph => glyph.Name)]),
+        [SpriteSheetId.EndingWavySamusPicture] = new(ComposeWavySamus, () => [EndingPictureNames.WavySamus]),
+        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => Enum.GetValues<EndingObjectFragmentId>().Select(EndingPictureNames.ExplosionMap)),
+    };
 
     /// <summary>The ending's picture sheets.</summary>
-    internal static IReadOnlyList<SpriteSheetId> Sheets { get; } =
-        [SpriteSheetId.EndingCreditsRows, SpriteSheetId.EndingPostCreditsPictures, SpriteSheetId.EndingWavySamusPicture, SpriteSheetId.EndingExplosionPictures];
+    internal static IEnumerable<SpriteSheetId> Sheets => PictureSheets.Keys;
 
     /// <summary>Composes ending picture sheet <paramref name="sheet"/> from the installed artwork <paramref name="sources"/> read.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet is not an ending picture sheet.</exception>
-    internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)
-    {
-        Ensure.NotNull(sources);
-        return sheet switch
-        {
-            SpriteSheetId.EndingCreditsRows => ComposeCredits(sources),
-            SpriteSheetId.EndingPostCreditsPictures => ComposePostCredits(sources),
-            SpriteSheetId.EndingWavySamusPicture => ComposeWavySamus(sources),
-            SpriteSheetId.EndingExplosionPictures => ComposeExplosion(sources),
-            _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Not an ending picture sheet."),
-        };
-    }
+    internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources) =>
+        Ensure.Listed(PictureSheets, sheet).Compose(Ensure.NotNull(sources));
 
     /// <summary>The frames ending picture sheet <paramref name="sheet"/> holds.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The sheet is not an ending picture sheet.</exception>
-    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet) => sheet switch
+    internal static IEnumerable<string> FrameNames(SpriteSheetId sheet) => Ensure.Listed(PictureSheets, sheet).Frames();
+
+    /// <summary>The credits roll's pictured rows: each line row's picture name and its row on the roll.</summary>
+    private static IEnumerable<CreditsRow> CreditsRows()
     {
-        SpriteSheetId.EndingCreditsRows => CreditsRollRows.Pictures.OfType<string>(),
-        SpriteSheetId.EndingPostCreditsPictures => [.. PostCreditsScreens.Select(screen => screen.Name), .. PostCreditsPanels.Select(panel => panel.Name),
-            .. Glyphs().Select(glyph => glyph.Name)],
-        SpriteSheetId.EndingWavySamusPicture => [EndingPictureNames.WavySamus],
-        SpriteSheetId.EndingExplosionPictures => Enum.GetValues<EndingObjectFragmentId>().Select(EndingPictureNames.ExplosionMap),
-        _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Not an ending picture sheet."),
-    };
-
-    /// <summary>The post-credits sheet's whole-screen pictures, in sheet order.</summary>
-    private static readonly IReadOnlyList<(string Name, Func<EndingObjectSourceArtwork, RoomBackgroundTilemapAtlas> Map, bool Logo)> PostCreditsScreens =
-    [
-        (EndingPictureNames.WaitingBackdrop, objects => objects.WaitingTilemap, false),
-        (EndingPictureNames.Logo, objects => objects.PostShotLogoMap, true),
-    ];
-
-    /// <summary>The post-credits sheet's panels: their rows, and whether they show after the post-shot's loads, in sheet order.</summary>
-    private static readonly IReadOnlyList<(string Name, int Rows, bool AfterPostShot)> PostCreditsPanels =
-    [
-        (EndingPictureNames.ResultPanel, EndingTextDefinitions.ResultPanelRows, false),
-        (EndingPictureNames.CopyrightPanel, EndingTextDefinitions.CopyrightRows, false),
-        (EndingPictureNames.JapaneseSubtitle, EndingTextDefinitions.JapaneseSubtitleRows, true),
-    ];
+        for (int row = 0; row < CreditsRollRows.Pictures.Length; row++)
+        {
+            if (CreditsRollRows.Pictures[row] is { } name)
+                yield return new CreditsRow(name, row);
+        }
+    }
 
     /// <summary>
     /// The typed glyphs and the item percentage's digits and percent sign: each glyph's name and its one or two map words,
     /// top first.
     /// </summary>
-    private static IEnumerable<(string Name, BackgroundTile[] Words)> Glyphs()
+    private static IEnumerable<Glyph> Glyphs()
     {
         foreach (EndingTextStyle style in (EndingTextStyle[])[EndingTextStyle.PercentageSmall, EndingTextStyle.FinalLarge])
         {
             for (char letter = 'A'; letter <= 'Z'; letter++)
-                yield return (EndingPictureNames.Glyph(style, letter), EndingTextPresentation.IsLarge(style)
+                yield return new Glyph(EndingPictureNames.Glyph(style, letter), EndingTextPresentation.IsLarge(style)
                     ? [EndingTextGlyphs.CompileGlyph(letter, style), EndingTextGlyphs.CompileGlyph(letter, style, bottom: true)]
                     : [EndingTextGlyphs.CompileGlyph(letter, style)]);
         }
         for (int digit = 0; digit < EndingPercentageGlyphDefinitions.Digits; digit++)
-            yield return (EndingPictureNames.PercentDigit(digit), [Offset(EndingPercentageGlyphDefinitions.DigitTop, digit),
+            yield return new Glyph(EndingPictureNames.PercentDigit(digit), [Offset(EndingPercentageGlyphDefinitions.DigitTop, digit),
                 Offset(EndingPercentageGlyphDefinitions.DigitBottom, digit)]);
-        yield return (EndingPictureNames.PercentSign, [EndingPercentageGlyphDefinitions.PercentTop, EndingPercentageGlyphDefinitions.PercentBottom]);
+        yield return new Glyph(EndingPictureNames.PercentSign, [EndingPercentageGlyphDefinitions.PercentTop, EndingPercentageGlyphDefinitions.PercentBottom]);
 
         static BackgroundTile Offset(BackgroundTile zero, int digit) => zero with { Tile = zero.Tile + digit };
     }
@@ -110,8 +97,8 @@ internal static class EndingPictureSheetComposer
         ReadOnlySpan<byte> font = EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingTransferExtentDefinitions.FontCharacterBytes];
         RequireBlank(font);
         var characters = new Characters(RoomTileCanvas.CharacterBytes);
-        characters.Load(0, font);
-        var rows = CreditsRollRows.Pictures.Select((name, row) => (Name: name, Row: row)).Where(row => row.Name is not null).ToArray();
+        characters.Load(EndingTextLayerDefinitions.FontFirstCharacter, font);
+        CreditsRow[] rows = [.. CreditsRows()];
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenSize.X, checked((ushort)(rows.Length * CharacterPixels))));
         RgbColor[] colours = Colours(sources, EndingPaletteId.Credits);
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
@@ -120,7 +107,7 @@ internal static class EndingPictureSheetComposer
             ReadOnlySpan<BackgroundTile> row = credits.GetRow(rows[index].Row);
             for (int column = 0; column < row.Length; column++)
                 characters.Paint(canvas, column * CharacterPixels, index * CharacterPixels, row[column], colours);
-            frames.Add(rows[index].Name!, WrittenPictureSheetComposer.Frame(canvas, index, 1, WrittenPictureLayer.Bg12));
+            frames.Add(rows[index].Name, WrittenPictureSheetComposer.Frame(canvas, index, EndingTextDefinitions.SmallGlyphHeight, WrittenPictureLayer.Bg12));
         }
         return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.SixteenColours));
     }
@@ -149,48 +136,48 @@ internal static class EndingPictureSheetComposer
             font.Slice(EndingPostShotUploadDefinitions.SubtitleFontOffset, EndingPostShotUploadDefinitions.SubtitleLength));
         textAfter.Load(EndingTextLayerDefinitions.TextLogoFirstCharacter, objects.PostShotLogoTiles.Characters.Span);
 
-        BackgroundTile[][] panels = [text.BuildResultPanel(), text.BuildCopyrightPanel(), [.. text.JapaneseSubtitle]];
-        (string Name, BackgroundTile[] Words)[] glyphs = [.. Glyphs()];
-        int panelRows = PostCreditsPanels.Sum(panel => panel.Rows);
-        int glyphRows = EndingTextDefinitions.SmallGlyphHeight + 2 * EndingTextDefinitions.LargeGlyphHeight;
-        int height = (PostCreditsScreens.Count * ScreenCells + panelRows + glyphRows) * CharacterPixels;
+        Glyph[] glyphs = [.. Glyphs()];
+        int panelRows = EndingTextDefinitions.ResultPanelRows + EndingTextDefinitions.CopyrightRows + EndingTextDefinitions.JapaneseSubtitleRows;
+        int glyphRows = EndingTextDefinitions.SmallGlyphHeight + LargeGlyphShelves * EndingTextDefinitions.LargeGlyphHeight;
+        int height = (EndingTextLayerDefinitions.PostCreditsScreens * ScreenCells + panelRows + glyphRows) * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(ScreenSize.X, checked((ushort)height)));
         RgbColor[] colours = Colours(sources, EndingPaletteId.PostCredits);
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
         int top = 0;
-        foreach ((string name, Func<EndingObjectSourceArtwork, RoomBackgroundTilemapAtlas> map, bool isLogo) in PostCreditsScreens)
-        {
-            PaintMap(canvas, top, map(objects).Tiles.Span, isLogo ? logo : waiting, colours);
-            frames.Add(name, WrittenPictureSheetComposer.Frame(canvas, top / CharacterPixels, ScreenCells, WrittenPictureLayer.Bg12));
-            top += ScreenSize.Y;
-        }
-        for (int panel = 0; panel < PostCreditsPanels.Count; panel++)
-        {
-            (string name, int rows, bool afterPostShot) = PostCreditsPanels[panel];
-            if (panels[panel].Length != rows * EndingTextDefinitions.TilemapWidth)
-                throw new InvalidDataException($"The ending's {name} is not {rows} whole rows.");
-            PaintMap(canvas, top, panels[panel], afterPostShot ? textAfter : textBefore, colours);
-            frames.Add(name, WrittenPictureSheetComposer.Frame(canvas, top / CharacterPixels, rows, WrittenPictureLayer.Bg12));
-            top += rows * CharacterPixels;
-        }
+        Paint(EndingPictureNames.WaitingBackdrop, objects.WaitingTilemap.Tiles.Span, ScreenCells, waiting);
+        Paint(EndingPictureNames.Logo, objects.PostShotLogoMap.Tiles.Span, ScreenCells, logo);
+        // The result and copyright panels show before the post-shot's loads; the subtitle, after them.
+        Paint(EndingPictureNames.ResultPanel, text.BuildResultPanel(), EndingTextDefinitions.ResultPanelRows, textBefore);
+        Paint(EndingPictureNames.CopyrightPanel, text.BuildCopyrightPanel(), EndingTextDefinitions.CopyrightRows, textBefore);
+        Paint(EndingPictureNames.JapaneseSubtitle, [.. text.JapaneseSubtitle], EndingTextDefinitions.JapaneseSubtitleRows, textAfter);
         // The glyphs sit side by side, the small letters on one row, then the large letters, then the digits.
         int left = 0;
         int glyphHeight = EndingTextDefinitions.SmallGlyphHeight;
-        foreach ((string name, BackgroundTile[] words) in glyphs)
+        foreach (Glyph glyph in glyphs)
         {
-            if (words.Length != glyphHeight || left + CharacterPixels > ScreenSize.X)
+            if (glyph.Words.Length != glyphHeight || left + CharacterPixels > ScreenSize.X)
             {
                 top += glyphHeight * CharacterPixels;
-                glyphHeight = words.Length;
+                glyphHeight = glyph.Words.Length;
                 left = 0;
             }
-            for (int row = 0; row < words.Length; row++)
-                textAfter.Paint(canvas, left, top + row * CharacterPixels, words[row], colours);
-            frames.Add(name, WrittenPictureSheetComposer.Frame(canvas, new Position16<ImagePixels>(checked((ushort)left), checked((ushort)top)),
-                new Extent16<ImagePixels>(CharacterPixels, checked((ushort)(words.Length * CharacterPixels))), WrittenPictureLayer.Bg12));
+            for (int row = 0; row < glyph.Words.Length; row++)
+                textAfter.Paint(canvas, left, top + row * CharacterPixels, glyph.Words[row], colours);
+            frames.Add(glyph.Name, WrittenPictureSheetComposer.Frame(canvas, new Position16<ImagePixels>(checked((ushort)left), checked((ushort)top)),
+                new Extent16<ImagePixels>(CharacterPixels, checked((ushort)(glyph.Words.Length * CharacterPixels))), WrittenPictureLayer.Bg12));
             left += CharacterPixels;
         }
         return canvas.ToSheet(colours, frames, ScreenTileSheet.ColoursOf(TileInkDepth.SixteenColours));
+
+        // Paints the `rows`-row picture `name` from `words` over `characters` at the next free row of the sheet.
+        void Paint(string name, ReadOnlySpan<BackgroundTile> words, int rows, Characters characters)
+        {
+            if (words.Length != rows * EndingTextDefinitions.TilemapWidth)
+                throw new InvalidDataException($"The ending's {name} is not {rows} whole rows.");
+            PaintMap(canvas, top, words, characters, colours);
+            frames.Add(name, WrittenPictureSheetComposer.Frame(canvas, top / CharacterPixels, rows, WrittenPictureLayer.Bg12));
+            top += rows * CharacterPixels;
+        }
     }
 
     /// <summary>The wavy Samus transformation's map over its four-colour characters under the post-credits palette.</summary>
@@ -242,7 +229,7 @@ internal static class EndingPictureSheetComposer
     /// <exception cref="InvalidDataException">The blank glyph has a pixel of another colour than colour zero.</exception>
     private static void RequireBlank(ReadOnlySpan<byte> font)
     {
-        if (font.Slice(BlankGlyph * RoomTileCanvas.CharacterBytes, RoomTileCanvas.CharacterBytes).ContainsAnyExcept((byte)0))
+        if (font.Slice(EndingTextLayerDefinitions.BlankGlyphCharacter * RoomTileCanvas.CharacterBytes, RoomTileCanvas.CharacterBytes).ContainsAnyExcept((byte)0))
             throw new InvalidDataException("The ending font's blank glyph shows pixels; the ending's pages leave it unpictured.");
     }
 
@@ -288,4 +275,19 @@ internal static class EndingPictureSheetComposer
                 canvas.PaintTile(left, top, word, character, colours);
         }
     }
+
+    /// <summary>An ending picture sheet: how it is composed from the installed artwork, and the frames it holds.</summary>
+    /// <param name="Compose">Composes the sheet.</param>
+    /// <param name="Frames">The sheet's frame names.</param>
+    private sealed record PictureSheet(Func<ScreenTileSources, ComposedSpriteSheet> Compose, Func<IEnumerable<string>> Frames);
+
+    /// <summary>A pictured row of the credits roll.</summary>
+    /// <param name="Name">The row's picture name.</param>
+    /// <param name="Row">The row on the roll.</param>
+    private sealed record CreditsRow(string Name, int Row);
+
+    /// <summary>A typed glyph's picture.</summary>
+    /// <param name="Name">The glyph's picture name.</param>
+    /// <param name="Words">Its one or two map words, top first.</param>
+    private sealed record Glyph(string Name, BackgroundTile[] Words);
 }

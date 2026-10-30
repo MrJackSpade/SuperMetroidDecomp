@@ -21,9 +21,9 @@ public static class CreditsRollRows
         {
             for (int blank = 0; blank < lines[line].BlankRowsBefore; blank++)
                 rows.Add(null);
-            rows.Add(EndingPictureNames.CreditsLine(line, bottom: false));
+            rows.Add(EndingPictureNames.CreditsLine(line));
             if (lines[line].Style == CreditsLineStyle.Large)
-                rows.Add(EndingPictureNames.CreditsLine(line, bottom: true));
+                rows.Add(EndingPictureNames.CreditsLineBottom(line));
         }
         for (int blank = 0; blank < CreditsPresentationDefinitions.TrailingBlankRows; blank++)
             rows.Add(null);

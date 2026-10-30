@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
@@ -61,8 +62,9 @@ internal sealed class SpriteSheetSourceCatalog
         : ScreenTileSheetDefinitions.AreaMapBackgrounds.Values.Contains(sheet)
             ? MapPictureSheets.ComposeWorldBackground(maps.Value, ScreenTileSheetDefinitions.AreaMapBackgrounds.Single(entry => entry.Value == sheet).Key)
         : ScreenTileSheetDefinitions.Depths.ContainsKey(sheet) ? ScreenTileSheetComposer.Compose(sheet, ScreenTiles())
-        : ScreenTileSheetDefinitions.FloorSheets.Contains(sheet) ? ScreenTileSheetComposer.ComposeMode7(sheet, ScreenTiles())
+        : ScreenTileSheetDefinitions.FloorSheets.Contains(sheet) ? FrontendFloorSheetComposer.Compose(sheet, ScreenTiles())
         : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
+        : sheet == SpriteSheetId.CeresCinematicPictures ? CeresCinematicPictureSheetComposer.Compose(intro.Value)
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
     /// <summary>The stock artwork the screen tile sheets compose from.</summary>
@@ -86,10 +88,8 @@ internal sealed class SpriteSheetSourceCatalog
         SpriteSheetId.Title => TitleSheetComposer.Sources(maps.Value),
         SpriteSheetId.IntroSprites => IntroSpriteSheetComposer.Sources(intro.Value),
         SpriteSheetId.CeresFlightSprites => IntroSpriteSheetComposer.CeresFlightSources(intro.Value.CeresFlight),
-        SpriteSheetId.CeresDestructionSprites => IntroSpriteSheetComposer.CeresDestructionSources(intro.Value,
-            [CeresDestructionUpload.CeresScene]),
-        SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.CeresDestructionSources(intro.Value,
-            [CeresDestructionUpload.CeresScene, CeresDestructionUpload.ZebesReveal]),
+        SpriteSheetId.CeresDestructionSprites => IntroSpriteSheetComposer.CeresDestructionSources(intro.Value),
+        SpriteSheetId.ZebesRevealSprites => IntroSpriteSheetComposer.ZebesRevealSources(intro.Value),
         SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
             SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
             SpriteSheetId.EndingShootingSprites or SpriteSheetId.EndingShootingLogoQuarterSprites or
@@ -113,14 +113,13 @@ internal sealed class SpriteSheetSourceCatalog
             SpriteSheetId.AreaMapBackgroundWreckedShip or SpriteSheetId.AreaMapBackgroundMaridia or
             SpriteSheetId.AreaMapBackgroundTourian or SpriteSheetId.PauseMapTiles or
             SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.IntroSceneTiles or
-            SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
-            SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
+            SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresCinematicPictures or
             SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or
-            SpriteSheetId.TitleFloorTiles or SpriteSheetId.TitleBabyTiles or SpriteSheetId.CeresFlightFloorTiles or
-            SpriteSheetId.EndingEscapeAFloorTiles or SpriteSheetId.EndingEscapeBFloorTiles or
-            SpriteSheetId.EndingPlanetExplosionFloorTiles or SpriteSheetId.EndingFlyawayFloorTiles or
-            SpriteSheetId.EndingRewardIconFloorTiles =>
+            SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or
+            SpriteSheetId.EndingEscapeAFloor or SpriteSheetId.EndingEscapeBFloor or
+            SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or
+            SpriteSheetId.EndingRewardIconFloor =>
             SamusSheetSources.For(samus.Value, sheet),
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };

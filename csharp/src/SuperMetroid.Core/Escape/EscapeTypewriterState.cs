@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
@@ -7,28 +6,19 @@ namespace SuperMetroid.Core.Escape;
 /// <summary>Byte-oriented $A6:C2A7 text interpreter; each accepted call writes at most one glyph.</summary>
 public sealed class EscapeTypewriterState
 {
-    /// <summary>The tile of the letter A, whose colour variant, mirroring and priority every written glyph takes.</summary>
-    private readonly BackgroundTile tileBase;
     /// <summary>Rebound host text excluded from serialized interpreter state.</summary>
     [NonSerialized] private EscapeTypewriterProgram? installedProgram;
 
     /// <summary>Creates an unbound warning-text state for <paramref name="programId"/>; attach host text with <see cref="BindProgram"/> before interpreting it.</summary>
     /// <param name="programId">The warning program the state will show.</param>
-    /// <param name="tileBase">The tile of the letter A, including its colour variant, mirroring and priority.</param>
-    public EscapeTypewriterState(EscapeTypewriterProgramId programId, BackgroundTile tileBase)
-    {
-        this.tileBase = tileBase;
-        ProgramId = programId;
-    }
+    public EscapeTypewriterState(EscapeTypewriterProgramId programId) => ProgramId = programId;
 
     /// <summary>Creates a warning-text state with its host program bound and its saved identity initialized from that program.</summary>
     /// <param name="program">Installed Ceres or Zebes warning lines and their native source identity.</param>
-    /// <param name="tileBase">The tile of the letter A, including its colour variant, mirroring and priority.</param>
     /// <exception cref="ArgumentNullException"><paramref name="program"/> is null.</exception>
-    public EscapeTypewriterState(EscapeTypewriterProgram program, BackgroundTile tileBase)
+    public EscapeTypewriterState(EscapeTypewriterProgram program)
     {
         Ensure.NotNull(program);
-        this.tileBase = tileBase;
         ProgramId = program.Id;
         BindProgram(program);
     }
@@ -125,7 +115,7 @@ public sealed class EscapeTypewriterState
     private EscapeTypewriterGlyph? TypeCharacter(int character)
     {
         EscapeTypewriterGlyph? glyph = null;
-        if (GlyphOf(character, tileBase) is not null)
+        if (EscapeTypewriterGlyph.Types((char)character))
         {
             glyph = new(Cell, EscapeTypewriterGlyph.PictureOf(ProgramId, (char)character));
             GlyphsWritten++;
@@ -133,14 +123,5 @@ public sealed class EscapeTypewriterState
         }
         Cell++;
         return glyph;
-    }
-
-    /// <summary>The tile <paramref name="character"/> types from <paramref name="tileBase"/>, or null for a space.</summary>
-    internal static BackgroundTile? GlyphOf(int character, BackgroundTile tileBase)
-    {
-        if (character == (byte)' ')
-            return null;
-        if (character == (byte)'!') character = EscapeTypewriterDefinitions.ExclamationGlyph;
-        return tileBase with { Tile = tileBase.Tile + character - EscapeTypewriterDefinitions.FirstLetter };
     }
 }

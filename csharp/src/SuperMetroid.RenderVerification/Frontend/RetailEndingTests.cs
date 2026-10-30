@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Frontend;

@@ -349,7 +349,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 if (RewardGesture.JumpRequested)
                 {
                     CurrentRewardGesture = null;
-                    RequireRewardIcon(Stage.FloorArtwork?.RewardIcon);
                     InstalledArtwork.BeginRewardIconUpload();
                     CreditsRoll.CurrentRewardJump = new EndingRewardJump(Stage.EndingReward, InstalledArtwork.UploadRewardGraphic);
                     Stage.Phase = EndingCreditsPhase.PostCreditsJump;
@@ -439,15 +438,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
         Flyaway.CinematicFrame++;
     }
 
-    /// <summary>Requires installed reward-icon artwork that fills the native WRAM upload range.</summary>
-    private static void RequireRewardIcon(EndingRewardIconArtwork? artwork)
-    {
-        EndingRewardIconArtwork icon = artwork ?? throw new InvalidOperationException(
-            "Ending reward requires installed icon artwork.");
-        if (icon.Map.Length + icon.CharacterCount * EndingFloorArtworkFormat.CharacterBytes < EndingRewardGraphicsUploadDefinitions.ArtworkBytes)
-            throw new InvalidDataException("Post-credits icon graphics do not cover the sixteen icon chunks.");
-    }
-
     /// <summary>Rotates Mode 7 every other cinematic call while applying the current zoom delta.</summary>
     private void StepAtmosphericTransform(int scaleDelta)
     {
@@ -470,11 +460,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal bool UsesExplosionFinaleDisplay => (EscapeScenes.ExplosionFinaleDisplay || EscapeScenes.ExplosionBurstDisplay) && !EndingCreditsPresentation.ExplosionWhiteout(this)
         && EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(Stage.Phase);
 
-    /// <summary>The floor's cells: what the floor scene, flyaway and reward uploads lay out.</summary>
-    internal byte[] FloorCells() => screen.FloorCells(Stage.FloorArtwork, Flyaway.FlightArtwork);
-
-    /// <summary>What the Mode 7 map shows: the pre-coloured characters the uploads leave (#1392).</summary>
-    internal FloorTilePictures FloorTiles() => screen.FloorTiles(InstalledArtwork.Sheets);
+    /// <summary>The turning floor the scenes have loaded: its shot's installed picture (#1467).</summary>
+    internal AffineFloor Floor() => EndingScreenFloor.Of(InstalledArtwork.Sheets, screen.FloorShot);
 
     /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
     internal LayeredScene CaptureExplosionFinale()

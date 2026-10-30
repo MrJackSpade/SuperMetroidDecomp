@@ -9,12 +9,10 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 
 /// <summary>Checks installed and edited reward-icon artwork through native partial VRAM uploads and the ending shot.</summary>
@@ -113,7 +111,7 @@ internal static class EndingRewardIconArtworkVerification
                 var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var partial = new EndingScreen();
                 for (int chunk = 0; chunk < 8; chunk++)
-                    partial.Record(EndingUploadKind.RewardChunk, chunk);
+                    partial.LoadRewardChunk(chunk);
                 byte[] partialVram = EndingScreenMemory.Compose(partial, edited, null, null, null, EndingReward.Armored);
                 AssertTrue(partialVram[..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)].AsSpan()
                         .SequenceEqual(edited.RewardIcon.Bytes.Span

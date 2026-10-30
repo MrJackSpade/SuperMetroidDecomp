@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Progression;
-using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
@@ -24,10 +23,6 @@ internal sealed class EndingBackgroundTextState
     internal WrappingCountdown InstructionTimer { get; set; } = WrappingCountdown.Start(1);
     /// <summary>Scene-selected text page the staging page is shown on.</summary>
     private readonly EndingTextTilemap destinationTilemap;
-    /// <summary>The installed ending text presentation; it is rebound after state restoration.</summary>
-    [field: NonSerialized]
-    [AllowNull]
-    private EndingTypewriterText Presentation { get => field ?? throw new InvalidOperationException("No ending text presentation is installed."); set; }
     /// <summary>Compiled installed typewriter characters, omitted from serialized debugger state.</summary>
     [NonSerialized] private EndingTextCharacter[]? installedProgram;
     /// <summary>The installed text sequence's characters.</summary>
@@ -49,7 +44,6 @@ internal sealed class EndingBackgroundTextState
         this.inventory = setup.Inventory;
         this.japaneseText = setup.JapaneseText;
         this.destinationTilemap = setup.DestinationTilemap;
-        Presentation = setup.Presentation;
         this.installedSequence = setup.InstalledSequence;
         if (setup.Presentation is null || setup.InstalledSequence is null)
             throw new InvalidOperationException("Ending text requires installed presentation and sequence definitions.");
@@ -76,7 +70,6 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Rebinds current host content after debugger-state restoration.</summary>
     public void BindPresentation(EndingTypewriterText? value)
     {
-        Presentation = value;
         installedProgram = installedSequence is { } sequence && value is not null
             ? value.Compile(sequence).ToArray()
             : null;

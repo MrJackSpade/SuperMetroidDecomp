@@ -20,15 +20,13 @@ public sealed class CreditsPresentation
     /// <summary>Gets the uppercase SHA-256 identity of the exact loaded JSON bytes.</summary>
     public string ContentIdentity { get; }
 
-    /// <summary>Gets the fixed number of 32-tile rows in the compiled staff roll.</summary>
-    public int RowCount => CreditsPresentationDefinitions.ExpectedCompiledRows;
 
     /// <summary>Compiles one staff-roll tilemap row, including authored blank-row cadence.</summary>
     /// <param name="index">Zero-based compiled row index.</param>
     /// <returns>Thirty-two tiles.</returns>
     public ReadOnlySpan<BackgroundTile> GetRow(int index)
     {
-        if ((uint)index >= RowCount)
+        if ((uint)index >= CreditsPresentationDefinitions.ExpectedCompiledRows)
             throw new ArgumentOutOfRangeException(nameof(index));
         int row = 0;
         CreditsLineDocument[] authored = lines;

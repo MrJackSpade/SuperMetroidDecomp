@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -42,19 +41,6 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal void BindSpriteSheets(InstalledSpriteSheets? sheets)
     {
         spriteSheets = sheets ?? throw new InvalidOperationException("Title sequence requires the installed sprite sheets.");
-        floorTiles = null;
-    }
-
-    /// <summary>What the Mode 7 map shows with each Baby Metroid page loaded (#1392), once read; artwork, never saved.</summary>
-    [NonSerialized] private Dictionary<int, FloorTilePictures>? floorTiles;
-
-    /// <summary>What the Mode 7 map shows with Baby Metroid page <paramref name="page"/> loaded.</summary>
-    private FloorTilePictures FloorTiles(int page)
-    {
-        floorTiles ??= [];
-        if (!floorTiles.TryGetValue(page, out FloorTilePictures? tiles))
-            floorTiles.Add(page, tiles = TitleScreenTiles.Of(spriteSheets, page));
-        return tiles;
     }
 
     /// <summary>The installed sprite sheets the title's compositions draw from; artwork, never saved.</summary>
@@ -64,8 +50,6 @@ public sealed class TitleSequenceState : IFrontendScreen
     private readonly AudioQueues? audio;
     /// <summary>The title's colors: the installed palette and live console palette-FX changes (#1358).</summary>
     internal readonly ScreenPalette palette = new();
-    /// <summary>The floor's cells as the bound artwork lays them out, until it is rebound.</summary>
-    [NonSerialized] private byte[]? floorMap;
     /// <summary>Runs the two console-light palette-FX programs during the title sequence.</summary>
     private RoomPaletteFxSystem consolePaletteFx = new(new PaletteFxSessionState());
     /// <summary>The title and copyright sprite entries in native drawing order, over the title OBJ page (#1358).</summary>
@@ -201,7 +185,6 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal void BindTitleGraphics(TitleGraphicsPresentation? presentation)
     {
         TitleGraphics = presentation;
-        floorMap = null;
     }
 
     /// <summary>Rebinds installed title colors after debugger-state restoration.</summary>
@@ -387,26 +370,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     0, unchecked((short)Zoom), new Offset16<FloorPixels>(128, 128), panPosition.Whole.AsSignedWord())
                 : null,
             checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default,
-            floorBackgroundEnabled ? AffineFloor.Of(FloorMap(), FloorTiles(TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[BabyFrame])) : null);
-    }
-
-    /// <summary>
-    /// The floor's cells: the installed map over the initial tile every other cell keeps, as the title's setup fills the
-    /// map and loads the installed map over its start.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">No title artwork is installed.</exception>
-    /// <exception cref="InvalidDataException">The installed map is shorter than the map the title loads.</exception>
-    private byte[] FloorMap()
-    {
-        if (floorMap is not null)
-            return floorMap;
-        ReadOnlySpan<byte> map = (TitleGraphics ?? throw new InvalidOperationException("Title rendering requires installed title artwork.")).FloorMap;
-        if (map.Length < TitleSequenceDefinitions.Graphics.FloorMapByteCount)
-            throw new InvalidDataException("Title Mode 7 map stream is shorter than its $1000-byte DMA.");
-        var cells = new byte[AffineFloor.CellCount];
-        cells.AsSpan().Fill(TitleSequenceDefinitions.Graphics.FloorInitialMapByte);
-        map[..TitleSequenceDefinitions.Graphics.FloorMapByteCount].CopyTo(cells);
-        return floorMap = cells;
+            floorBackgroundEnabled ? TitleFloors.Of(spriteSheets, TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[BabyFrame]) : null);
     }
 
     /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>

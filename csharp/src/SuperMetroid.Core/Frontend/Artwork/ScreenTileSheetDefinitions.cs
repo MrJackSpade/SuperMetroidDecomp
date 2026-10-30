@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 
@@ -18,26 +17,15 @@ public static class ScreenTileSheetDefinitions
         [SpriteSheetId.PauseInterfaceTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.IntroSceneTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.IntroFontTiles] = TileInkDepth.FourColours,
-        [SpriteSheetId.CeresFlightObjectTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.CeresIntroObjectTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.ZebesRevealTiles] = TileInkDepth.SixteenColours,
     };
 
-    /// <summary>The installed sheets of frontend Mode 7 characters (#1392).</summary>
+    /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>
     public static IReadOnlyList<SpriteSheetId> FloorSheets { get; } =
     [
-        SpriteSheetId.TitleFloorTiles, SpriteSheetId.TitleBabyTiles, SpriteSheetId.CeresFlightFloorTiles, SpriteSheetId.EndingEscapeAFloorTiles,
-        SpriteSheetId.EndingEscapeBFloorTiles, SpriteSheetId.EndingPlanetExplosionFloorTiles, SpriteSheetId.EndingFlyawayFloorTiles,
-        SpriteSheetId.EndingRewardIconFloorTiles,
+        SpriteSheetId.TitleFloor, SpriteSheetId.CeresFloor, SpriteSheetId.EndingEscapeAFloor,
+        SpriteSheetId.EndingEscapeBFloor, SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingFlyawayFloor,
+        SpriteSheetId.EndingRewardIconFloor,
     ];
-
-    /// <summary>Each ending Mode 7 scene's characters' sheet.</summary>
-    public static IReadOnlyDictionary<EndingFloorSceneId, SpriteSheetId> EndingFloorScenes { get; } = new Dictionary<EndingFloorSceneId, SpriteSheetId>
-    {
-        [EndingFloorSceneId.EscapeA] = SpriteSheetId.EndingEscapeAFloorTiles,
-        [EndingFloorSceneId.EscapeB] = SpriteSheetId.EndingEscapeBFloorTiles,
-        [EndingFloorSceneId.PlanetExplosion] = SpriteSheetId.EndingPlanetExplosionFloorTiles,
-    };
 
     /// <summary>The menu's world foreground characters under each Zebes area's world-map palette, which its area map shows.</summary>
     public static IReadOnlyDictionary<AreaId, SpriteSheetId> AreaMapForegrounds { get; } = new Dictionary<AreaId, SpriteSheetId>

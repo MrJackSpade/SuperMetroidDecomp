@@ -18,8 +18,8 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
     /// <summary>Compiled OAM compositions keyed by title composition.</summary>
     private readonly Dictionary<TitleSprite, SpriteComposition> sprites;
 
-    /// <summary>Owned Mode 7 floor characters, OBJ characters, and Baby Metroid characters.</summary>
-    private readonly byte[] floorCharacters, objectCharacters, babyCharacters;
+    /// <summary>Owned Mode 7 floor map, floor characters, OBJ characters, and Baby Metroid characters.</summary>
+    private readonly byte[] floorMap, floorCharacters, objectCharacters, babyCharacters;
 
     /// <summary>Retains the compiled characters beside the validated map and compositions.</summary>
     /// <param name="map">The validated Mode 7 map and OBJ compositions.</param>
@@ -27,13 +27,16 @@ public sealed class TitleGraphicsCharacters : TitleGraphicsPresentation
     /// <param name="objectCharacters">The planar 4-bpp OBJ characters.</param>
     /// <param name="babyCharacters">The chunky Baby Metroid Mode 7 characters.</param>
     private TitleGraphicsCharacters(TitleFloorMapDocument map, byte[] floorCharacters, byte[] objectCharacters, byte[] babyCharacters)
-        : base(map.Tiles.Select(tile => checked((byte)tile)).ToArray())
     {
+        floorMap = map.Tiles.Select(tile => checked((byte)tile)).ToArray();
         sprites = CompileSprites(map.Sprites);
         this.floorCharacters = floorCharacters;
         this.objectCharacters = objectCharacters;
         this.babyCharacters = babyCharacters;
     }
+
+    /// <summary>64-by-64 title map of Mode-7 character indexes.</summary>
+    public ReadOnlySpan<byte> FloorMap => floorMap;
 
     /// <summary>Eight-bit Mode-7 character lane uploaded for the title backdrop.</summary>
     public ReadOnlySpan<byte> FloorCharacters => floorCharacters;

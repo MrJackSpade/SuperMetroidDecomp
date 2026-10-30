@@ -28,8 +28,8 @@ internal static class CreditsPresentationVerification
             new MemoryStream(extracted, writable: false));
         ushort[][] nativeRows =
             SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.ReadNativeRows(bus);
-        AssertEqual(CreditsPresentationDefinitions.ExpectedCompiledRows,
-            presentation.RowCount, "installed credits retain the fixed native schedule");
+        AssertEqual(nativeRows.Length,
+            CreditsPresentationDefinitions.ExpectedCompiledRows, "installed credits retain the fixed native schedule");
         for (int row = 0; row < nativeRows.Length; row++)
         {
             AssertTrue(BackgroundTileWordBytes.Words(presentation.GetRow(row)).SequenceEqual(nativeRows[row]),
@@ -38,8 +38,8 @@ internal static class CreditsPresentationVerification
 
         // Exercise actual runtime cadence through completion. CreditsObjectState has no bus
         // dependency, so this also proves installed playback cannot fall back to ROM text.
-        var runtime = new CreditsObjectState(presentation.RowCount);
-        for (int row = 0; row < presentation.RowCount; row++)
+        var runtime = new CreditsObjectState(CreditsPresentationDefinitions.ExpectedCompiledRows);
+        for (int row = 0; row < CreditsPresentationDefinitions.ExpectedCompiledRows; row++)
         {
             for (int frame = 0; frame < 15; frame++)
                 AssertTrue(!runtime.Step().CopiedRow,

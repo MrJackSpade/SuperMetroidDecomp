@@ -104,7 +104,7 @@ internal static class Layer3PlaneVerification
     {
         var program = new EscapeTypewriterProgram(EscapeTypewriterProgramId.Ceres,
             [new EscapeTypewriterLine(0x105, "AB C!")]);
-        var text = new EscapeTypewriterState(program, EscapeTypewriterDefinitions.ZebesTileBase);
+        var text = new EscapeTypewriterState(program);
         var typed = new List<EscapeTypewriterGlyph>();
         bool completed = false;
         int steps = 0;

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Frontend.Ending.EndingLogoTablesVerification;

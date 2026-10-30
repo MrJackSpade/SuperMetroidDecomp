@@ -121,8 +121,8 @@ internal sealed class MotherBrainRainbowAndDeath
         {
             state.EnableUnpauseHook = sequence.ThirdPhaseDeath.MotherBrainUnpauseHookEnabled;
             state.EscapeTypewriter = _bossArtwork.EscapeTypewriterPresentation is { } presentation
-                ? new(presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterDefinitions.ZebesTileBase)
-                : new(EscapeTypewriterProgramId.Zebes, EscapeTypewriterDefinitions.ZebesTileBase);
+                ? new(presentation.Get(EscapeTypewriterProgramId.Zebes))
+                : new(EscapeTypewriterProgramId.Zebes);
             _presentation.ColoursOf(EscapeTypewriterColourDefinitions.Text)
                 .CopyFrom(EscapeTypewriterColourDefinitions.Source.In(_presentation.BackgroundSets).Colors);
             state.BodyLayerPlacement = Position16<BackgroundPixels>.Zero;

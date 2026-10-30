@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>The byte extents of the installed artwork the ending's floor loads (#1416).</summary>
 public static class EndingArtworkExtentDefinitions

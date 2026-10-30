@@ -865,8 +865,8 @@ internal sealed class RoomLoader
             : null;
 
         assets.LoadGraphics(_colours.BackgroundSets);
-        // Ceres rooms draw Mode 7 from their own map, which the door and Ridley then patch (#1349).
-        scope.FloorMap = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloorMap() : null;
+        // Ceres rooms show their tileset's turning floor, which the door and Ridley then draw over (#1349, #1467).
+        scope.Floor = room.Definition.AreaIndex == AreaId.Ceres ? assets.CreateFloor() : null;
 
         // `$82:E139` is part of every retail room-load/door-transition pipeline. It
         // replaces OBJ palette zero with `kCommonSpritesPalette1` before enemy setup;

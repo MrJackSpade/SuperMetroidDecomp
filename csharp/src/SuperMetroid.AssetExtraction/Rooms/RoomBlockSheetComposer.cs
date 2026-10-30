@@ -50,7 +50,7 @@ internal static class RoomBlockSheetComposer
             tilesets.ToDictionary(entry => entry.Key, entry => WrittenPictureSheetComposer.ComposeBg3(inputs, entry.Key, entry.Value)),
             tilesets.Keys.ToDictionary(tileset => tileset, tileset => MessageBoxSheetComposer.Compose(inputs, tileset)),
             tilesets.Where(entry => entry.Value.Ceres).ToDictionary(entry => entry.Key,
-                entry => Mode7TileSheetComposer.Compose(inputs, entry.Key, RoomBlockUploads.Loaded(inputs, entry.Key))));
+                entry => RoomFloorSheetComposer.Compose(inputs, entry.Key)));
     }
 
     /// <summary>

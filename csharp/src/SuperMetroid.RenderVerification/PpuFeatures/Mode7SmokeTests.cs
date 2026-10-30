@@ -9,6 +9,7 @@ using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.TestSupport.FrameRendering;
 
 /// <summary>Checks D3D11 Mode 7 rendering against the WARP reference over native PPU geometry.</summary>
@@ -54,21 +55,25 @@ internal static class Mode7SmokeTests
                 ? new TurningRoomLowerBand(start, new Position16<BackgroundPixels>(17, 65535), new Extent16<TilemapCells>(64, 32), floorRoom)
                 : (TurningRoomLowerBand?)null;
             var layer = new TurningRoomLayer(
-                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), FloorOverflowMode.CharacterZero),
+                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), FloorOverflowMode.Wrap),
                 map, hud, band);
             Check(new DisplayPacket(new(++count, 1, 0),
                 new LayeredScene(memory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));
         }
-        // A Ceres room's map drawn from seeded tile pictures (#1392), some rows recoloured by the scene, and from the
-        // fixture's characters, with outside pixels transparent, as Ceres rooms show them, or character zero.
-        var pictured = new AffineFloor(map.Cells, FloorTilePictures.Of(RoomBackgroundsFixtures.SeededMode7Tiles(random, palette)));
-        foreach (AffineFloor shown in new[] { map, pictured })
+        // A Ceres room's floor with its floor animation frames drawn over it (#1467), and the fixture's floor, with outside
+        // pixels transparent, as Ceres rooms show them, or repeating.
+        FloorMemory floorMemory = AffineFloorConstants.Split(vram);
+        var ceres = new RoomFloor(AffineFloorConstants.CeresRoom(floorMemory.Map, floorMemory.Pixels, palette));
+        ceres.Draw(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.ElevatorDark));
+        ceres.Draw(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.WingFrame1));
+        ceres.Draw(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.BabyFrame2));
+        foreach (AffineFloor shown in new[] { map, ceres.Publish() })
         foreach (int hud in new[] { 0, 32 })
         foreach (short scale in new short[] { 256, -113, 511 })
         foreach (bool fill in new[] { false, true })
         {
             var layer = new TurningRoomLayer(
-                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.CharacterZero : FloorOverflowMode.Transparent),
+                new(scale, 71, -71, scale, new(128, 112), new(-17, 211), fill ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                 shown, hud, null);
             Check(new DisplayPacket(new(++count, 1, 0),
                 new LayeredScene(memory, hud == 0 ? new DisplayLayer[] { layer } : new DisplayLayer[] { layer, hudLayer }, 13)));

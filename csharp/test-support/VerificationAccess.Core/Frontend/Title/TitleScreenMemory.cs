@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 
@@ -15,28 +16,28 @@ internal static class TitleScreenMemory
     internal static byte[] Compose(TitleGraphicsPresentation artwork, int babySourcePage)
     {
         ReadOnlySpan<byte> characters = artwork.FloorCharacters;
-        ReadOnlySpan<byte> map = artwork.FloorMap;
+        ReadOnlySpan<byte> map = TitleGraphicsCharacters.Of(artwork).FloorMap;
         ReadOnlySpan<byte> objects = artwork.ObjectCharacters;
         ReadOnlySpan<byte> baby = artwork.BabyCharacters;
-        if (characters.Length < TitleSequenceDefinitions.Graphics.FloorCharacterByteCount)
+        if (characters.Length < TitleFloorTileDefinitions.FloorCharacterByteCount)
             throw new InvalidDataException("Title Mode 7 character stream is shorter than its $4000-byte DMA.");
-        if (map.Length < TitleSequenceDefinitions.Graphics.FloorMapByteCount)
+        if (map.Length < TitleFloorTileDefinitions.FloorMapByteCount)
             throw new InvalidDataException("Title Mode 7 map stream is shorter than its $1000-byte DMA.");
-        int page = babySourcePage * TitleSequenceDefinitions.Graphics.BabyCharacterPageByteCount;
-        if (baby.Length < page + TitleSequenceDefinitions.Graphics.BabyCharacterPageByteCount)
+        int page = babySourcePage * TitleFloorTileDefinitions.BabyCharacterPageByteCount;
+        if (baby.Length < page + TitleFloorTileDefinitions.BabyCharacterPageByteCount)
             throw new InvalidDataException("Title baby-Metroid stream is missing an animation page.");
 
         var vram = new SnesVram();
         // DMA mode zero to $2119 writes only high bytes and increments VMADD afterward.
         // The following $2118 fill and map DMA populate the corresponding low bytes.
         var mode7 = new Mode7Vram(vram);
-        mode7.FillMap(TitleSequenceDefinitions.Graphics.FloorInitialMapByte, TitleSequenceDefinitions.Graphics.FloorCharacterByteCount);
-        mode7.LoadCharacters(characters[..TitleSequenceDefinitions.Graphics.FloorCharacterByteCount]);
-        mode7.LoadMap(map[..TitleSequenceDefinitions.Graphics.FloorMapByteCount]);
+        mode7.FillMap(TitleFloorTileDefinitions.FloorInitialMapByte, TitleFloorTileDefinitions.FloorCharacterByteCount);
+        mode7.LoadCharacters(characters[..TitleFloorTileDefinitions.FloorCharacterByteCount]);
+        mode7.LoadMap(map[..TitleFloorTileDefinitions.FloorMapByteCount]);
         var title = new TitleVram(vram);
         title.ObjectCharacters.Load(objects[..Math.Min(TitleSequenceDefinitions.Graphics.ObjectCharacterByteCount, objects.Length)]);
         // The instruction list cycles source pages 0,1,2,1 into Mode 7 destination word $3800, high byte only.
-        title.LoadBabyMetroidPage(baby.Slice(page, TitleSequenceDefinitions.Graphics.BabyCharacterPageByteCount));
+        title.LoadBabyMetroidPage(baby.Slice(page, TitleFloorTileDefinitions.BabyCharacterPageByteCount));
         return vram.CaptureImage();
     }
 

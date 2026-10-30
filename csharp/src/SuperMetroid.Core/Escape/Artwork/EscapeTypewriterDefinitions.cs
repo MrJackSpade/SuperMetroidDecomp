@@ -1,22 +1,8 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Schema and native identities for the two escape-warning text programs.</summary>
 public static class EscapeTypewriterDefinitions
 {
-    /// <summary>The base character word Ceres's warning typewriter draws with.</summary>
-    internal static BackgroundTile CeresTileBase { get; } = new(0x182, 5, highPriority: true);
-
-    /// <summary>The base character word the Zebes warning typewriter draws with.</summary>
-    public static BackgroundTile ZebesTileBase { get; } = new(0x210, 1, highPriority: true);
-
-    /// <summary>The letter the base character word draws; later letters draw the characters after it, in alphabet order.</summary>
-    public const byte FirstLetter = (byte)'A';
-
-    /// <summary>The exclamation mark draws the glyph after Z.</summary>
-    public const byte ExclamationGlyph = (byte)'Z' + 1;
-
     /// <summary>The key click the Zebes typewriter plays.</summary>
     public static readonly SoundEffectId ZebesClick = Library3Sound.IntroTypewriter;
 

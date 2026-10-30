@@ -1,52 +1,63 @@
 using System.Collections.Immutable;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// A Mode 7 floor (#1403): its 128 by 128 map of tiles and the tiles' pre-coloured pictures. A frontend scene's floor is
-/// read from its memory image when the frame is captured; a Ceres room's is its map as the frame shows it.
+/// A turning floor's picture (#1403, #1467): the whole floor's pre-coloured image, which the import composes once, and
+/// the pictures of the floor's named states drawn over it, in order. A published affine transform turns and scales it
+/// onto the screen. Each picture drawn over the floor is placed by its frame's origin: drawn at the floor's top-left
+/// corner, so its own top-left lands at the floor point its origin names.
 /// </summary>
 public sealed class AffineFloor : IEquatable<AffineFloor>
 {
-    /// <summary>Tiles along each side of the map.</summary>
-    public const int Side = 128;
+    /// <summary>Pixels along each side of the floor.</summary>
+    public const int SidePixels = 1024;
 
-    /// <summary>Tiles in the map.</summary>
-    public const int CellCount = Side * Side;
-
-    /// <summary>Holds a floor's map and tiles.</summary>
-    /// <exception cref="ArgumentException">The cells do not fill the map.</exception>
-    public AffineFloor(ImmutableArray<AffineFloorCell> cells, FloorTilePictures tiles)
+    /// <summary>Holds a floor's image and the pictures drawn over it.</summary>
+    /// <param name="image">The whole floor, <see cref="SidePixels"/> square, coloured from the full palette.</param>
+    /// <param name="drawnOver">The pictures of the floor's states drawn over it, in drawing order; each lies on the floor.</param>
+    /// <exception cref="InvalidDataException">The image is not the whole floor or not coloured from the full palette, or a picture leaves the floor.</exception>
+    public AffineFloor(SpriteSheetFrame image, ImmutableArray<SpriteSheetFrame> drawnOver = default)
     {
-        Ensure.LengthEqual(cells.AsSpan(), CellCount);
-        Cells = cells;
-        Tiles = Ensure.NotNull(tiles);
+        Image = Ensure.NotNull(image);
+        if (image.Size.X != SidePixels || image.Size.Y != SidePixels)
+            throw new InvalidDataException($"A floor image is {image.Size.X}x{image.Size.Y}, not {SidePixels} square.");
+        DrawnOver = drawnOver.IsDefault ? [] : drawnOver;
+        foreach (SpriteSheetFrame picture in DrawnOver)
+        {
+            if (-picture.Origin.X < 0 || -picture.Origin.Y < 0 || -picture.Origin.X + picture.Size.X > SidePixels ||
+                -picture.Origin.Y + picture.Size.Y > SidePixels)
+                throw new InvalidDataException($"A {picture.Size.X}x{picture.Size.Y} picture placed at ({-picture.Origin.X}, {-picture.Origin.Y}) leaves the floor.");
+        }
+        Pictures = [.. new[] { image }.Concat(DrawnOver).Distinct()];
+        foreach (SpriteSheetFrame picture in Pictures)
+        {
+            if (picture.Sheet.Colours != SpriteImageColours.FullPalette)
+                throw new InvalidDataException("A floor's pictures are coloured from the full palette.");
+        }
     }
 
-    /// <summary>The map's cells, row by row from the top-left corner.</summary>
-    public ImmutableArray<AffineFloorCell> Cells { get; }
+    /// <summary>The whole floor's image.</summary>
+    public SpriteSheetFrame Image { get; }
 
-    /// <summary>What each tile the cells name shows.</summary>
-    public FloorTilePictures Tiles { get; }
+    /// <summary>The pictures of the floor's states drawn over the image, in drawing order.</summary>
+    public ImmutableArray<SpriteSheetFrame> DrawnOver { get; }
 
-    /// <summary>The floor whose map is <paramref name="tiles"/>' row-major tile numbers.</summary>
-    /// <exception cref="ArgumentException">The tile numbers do not fill the map.</exception>
-    public static AffineFloor Of(ReadOnlySpan<byte> map, FloorTilePictures tiles)
-    {
-        Ensure.LengthEqual(map, CellCount);
-        var cells = ImmutableArray.CreateBuilder<AffineFloorCell>(CellCount);
-        foreach (int tile in map)
-            cells.Add(new AffineFloorCell(tile));
-        return new AffineFloor(cells.MoveToImmutable(), tiles);
-    }
+    /// <summary>The image and every picture drawn over it, each once, the image first.</summary>
+    public ImmutableArray<SpriteSheetFrame> Pictures { get; }
+
+    /// <summary>The floor point the top-left pixel of <paramref name="picture"/>, drawn over the floor, lands at.</summary>
+    public static Offset16<FloorPixels> PlacementOf(SpriteSheetFrame picture) =>
+        Offset16<FloorPixels>.Of(-Ensure.NotNull(picture).Origin.X, -picture.Origin.Y);
 
     /// <inheritdoc />
     public bool Equals(AffineFloor? other) =>
-        other is not null && ReferenceEquals(Tiles, other.Tiles) && Cells.AsSpan().SequenceEqual(other.Cells.AsSpan());
+        other is not null && ReferenceEquals(Image, other.Image) && DrawnOver.AsSpan().SequenceEqual(other.DrawnOver.AsSpan(), ReferenceEqualityComparer.Instance);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => Equals(obj as AffineFloor);
 
     /// <inheritdoc />
-    public override int GetHashCode() => HashCode.Combine(Tiles, Cells.Length);
+    public override int GetHashCode() => HashCode.Combine(Image, DrawnOver.Length);
 }

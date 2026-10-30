@@ -40,14 +40,13 @@ internal static class SamusSheetSources
             SpriteSheetId.AreaMapBackgroundNorfair or SpriteSheetId.AreaMapBackgroundWreckedShip or
             SpriteSheetId.AreaMapBackgroundMaridia or SpriteSheetId.AreaMapBackgroundTourian or
             SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or
-            SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
-            SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
+            SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresCinematicPictures or
             SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or
-            SpriteSheetId.TitleFloorTiles or SpriteSheetId.TitleBabyTiles or SpriteSheetId.CeresFlightFloorTiles or
-            SpriteSheetId.EndingEscapeAFloorTiles or SpriteSheetId.EndingEscapeBFloorTiles or
-            SpriteSheetId.EndingPlanetExplosionFloorTiles or SpriteSheetId.EndingFlyawayFloorTiles or
-            SpriteSheetId.EndingRewardIconFloorTiles =>
+            SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or
+            SpriteSheetId.EndingEscapeAFloor or SpriteSheetId.EndingEscapeBFloor or
+            SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or
+            SpriteSheetId.EndingRewardIconFloor =>
             ProjectileSheetComposer.Sources(inputs, sheet),
         _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
     };

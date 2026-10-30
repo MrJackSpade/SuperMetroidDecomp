@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Areas.Ceres;
+namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>
 /// Consecutive floor cells showing characters of the floor's atlas: each cell shows the character

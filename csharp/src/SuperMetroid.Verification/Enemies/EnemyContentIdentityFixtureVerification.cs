@@ -245,8 +245,6 @@ internal static class EnemyContentIdentityFixtureVerification
                 Version = 1, Normal = Colors("ceres-door-normal", CeresDoorVisualDefinitions.SetupColorCount),
                 Escape = Colors("ceres-door-escape", CeresDoorVisualDefinitions.SetupColorCount),
                 Animation = ColorRows("ceres-door-animation", CeresDoorVisualDefinitions.AnimationRowCount, CeresDoorVisualDefinitions.AnimationColorCount),
-                Mode7DoorFrames = Enumerable.Range(0, CeresDoorVisualDefinitions.PlatformFrameCount)
-                    .Select(index => Words("ceres-door-mode7-" + index, CeresDoorVisualDefinitions.PlatformCellCount).Select(word => (int)word).ToArray()).ToArray(),
             }));
             var special = new MotherBrainSpecialSpriteArtworkCatalog(Ordered(MotherBrainSpecialSpriteArtworkDefinitions.All.Select(definition =>
                 KeyValuePair.Create(definition.Sheet, Characters(definition.FileName, definition.ByteCount)))));

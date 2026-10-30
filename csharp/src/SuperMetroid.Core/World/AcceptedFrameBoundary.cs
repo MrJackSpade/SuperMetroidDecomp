@@ -232,7 +232,7 @@ internal sealed class AcceptedFrameBoundary
             _room.DoorSourceBackground,
             // What actors wrote over BG1 and BG2 is drawn once this NMI's uploads have bound (WithBlockPictures).
             null,
-            Floor: scope.FloorMap?.Publish(),
+            Floor: scope.Floor?.Publish(),
             BlockArtwork: RoomScope.BlockArtworkOf(_room.ActiveRoom));
     }
 
@@ -244,11 +244,9 @@ internal sealed class AcceptedFrameBoundary
     /// <exception cref="InvalidOperationException">X-ray reveals a room whose blocks show the sprites' artwork.</exception>
     private GameplayDisplayLatch WithBlockPictures(GameplayDisplayLatch latched, RoomBackgrounds rooms, ImmutableArray<RevealedBlock?>? reveal)
     {
-        // While a Ceres room shows its Mode 7 map, the map draws its tiles' pictures (#1392); Ceres Ridley's getaway writes
-        // its warning and doors over the arena once his Mode 7 ends.
+        // While a Ceres room shows its turning floor, the floor draws its installed pictures (#1467); Ceres Ridley's getaway
+        // writes its warning and doors over the arena once his floor ends.
         RoomScope scope = _room.Scope ?? throw new InvalidOperationException("Room backgrounds were captured with no room loaded.");
-        if (latched.ShowsPerspectiveFloor && scope.FloorMap is { } floorMap)
-            floorMap.Tiles.AssertPictured(floorMap.NamedTiles);
         if (rooms.BlockArtwork != RoomBlockArtwork.Tileset && reveal is not null)
             throw new InvalidOperationException("X-ray reveals a room whose blocks show the sprites' artwork.");
         // The room's pictures are named by what gameplay showed over its load, the frames its animations selected and, in

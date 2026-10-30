@@ -14,9 +14,9 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Written">The sheets of pictures written over BG1 and BG2, by tileset.</param>
 /// <param name="Bg3Pictures">The sheets of BG3 pictures, by tileset.</param>
 /// <param name="MessageBoxes">The message box images, by tileset.</param>
-/// <param name="FloorTiles">The Mode 7 tiles, by Ceres tileset.</param>
+/// <param name="Floors">The turning floors and the pictures drawn over them, by Ceres tileset (#1467).</param>
 internal sealed record RoomSheetComposition(IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> BlockSheets,
     IReadOnlyDictionary<TilesetDefinition, RoomBlockAppearances> BlockAppearances,
     IReadOnlyDictionary<string, ComposedRoomBackground> Backgrounds, IReadOnlyDictionary<TilesetDefinition, ComposedWrittenPictureSheet> Written,
     IReadOnlyDictionary<TilesetDefinition, ComposedWrittenPictureSheet> Bg3Pictures,
-    IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> MessageBoxes, IReadOnlyDictionary<TilesetDefinition, ComposedMode7Tiles> FloorTiles);
+    IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> MessageBoxes, IReadOnlyDictionary<TilesetDefinition, ComposedSpriteSheet> Floors);

@@ -5,8 +5,6 @@ public enum FloorOverflowMode
 {
     /// <summary>Nothing shows beyond the floor.</summary>
     Transparent = 0,
-    /// <summary>Tile zero shows beyond the floor, at the pixel the low three bits of each coordinate name.</summary>
-    CharacterZero = 1,
     /// <summary>The floor repeats beyond its edges.</summary>
     Wrap = 2,
 }

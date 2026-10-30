@@ -711,20 +711,18 @@ internal static void VerifyCeresElevatorPlatformAnimation()
     byte[] dark = [0x8d, 0x8e, 0x8e, 0x79];
     SeedCeresElevatorPlatformTransfers(bus, light, dark);
 
-    // The platform frames are written into the room's Mode 7 map (#1349).
-    var map = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles());
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { FloorMap = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
+    // The platform frames are drawn over the room's turning floor as its installed pictures (#1349, #1467).
+    RoomFloor map = RoomBackgroundsFixtures.CeresFloor();
+    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Floor = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram.Gameplay));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
-    for (int index = 0; index < 4; index++)
-        AssertEqual(light[index], map.Publish().Cells[0x060e + index].Tile,
-            "Ceres elevator landed platform light map frame");
+    AssertEqual(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.ElevatorLight), map.Drawn.Single(),
+        "Ceres elevator landed platform light floor frame");
 
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
-    for (int index = 0; index < 4; index++)
-        AssertEqual(dark[index], map.Publish().Cells[0x060e + index].Tile,
-            "Ceres elevator landed platform dark map frame");
+    AssertEqual(CeresFloorAnimation.PictureOf(CeresFloorAnimationFrame.ElevatorDark), map.Drawn.Single(),
+        "Ceres elevator landed platform dark floor frame, drawn over the light one");
 
     Console.WriteLine("  Ceres elevator: landed Mode-7 platform continues its ROM transfer animation.");
 }
@@ -870,7 +868,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     int generatedRandomCalls = 0;
     // The escape writes its warning text over BG1 (#1346).
     RoomWrittenOverlay ceresOverlay = RoomWrittenOverlay.Empty;
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, WriteBg1Pictures = picture => ceresOverlay = ceresOverlay.With(picture), FloorMap = new FloorMap(new byte[FloorMap.Cells], default, RoomBackgroundsFixtures.FloorTiles()) })
+    var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => { generatedRandomCalls++; return generatedRandom; }) { ReadRandom = () => currentRandom, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => ceresBossDefeated, SetBossDefeated = () => ceresBossDefeated = true }, WriteBg1Pictures = picture => ceresOverlay = ceresOverlay.With(picture), Floor = RoomBackgroundsFixtures.CeresFloor() })
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {

@@ -479,7 +479,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Fire preserves fractional vertical speed");
     AssertEqual(SamusAccelerationMode.Decelerating, spinFire.HorizontalSpeed.AccelerationMode,
         "spin Fire retains extra-run aerial acceleration");
-    AssertEqual(0x8002, spinFire.PoseTransitionShotDirection,
+    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(2), spinFire.PendingTransitionShot,
         "spin Fire publishes target shot direction");
     AssertTrue(spinFire.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
         "leaving Screw Attack requests normal suit palette");
@@ -515,7 +515,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "wall-jump Shot preserves whole vertical speed");
     AssertEqual(0x2345, wallFire.Kinematics.YSpeed.Fraction,
         "wall-jump Shot preserves fractional vertical speed");
-    AssertEqual(0x8002, wallFire.PoseTransitionShotDirection,
+    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(2), wallFire.PendingTransitionShot,
         "wall-jump Shot publishes target shot direction");
     AssertTrue(wallFire.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
         "leaving Screw wall-jump requests normal suit palette");
@@ -554,7 +554,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Down preserves whole vertical speed");
     AssertEqual(0x3456, spinAimDown.Kinematics.YSpeed.Fraction,
         "spin Down preserves fractional vertical speed");
-    AssertEqual(0, spinAimDown.PoseTransitionShotDirection,
+    AssertEqual<SamusTransitionShot?>(null, spinAimDown.PendingTransitionShot,
         "spin Down without Shoot does not publish a projectile bridge");
 
     static SamusState CreateFallingSpin(SamusPoseId pose, ushort items, ushort speed, ushort subspeed) => new()

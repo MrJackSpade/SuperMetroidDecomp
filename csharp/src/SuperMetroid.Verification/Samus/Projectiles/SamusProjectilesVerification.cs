@@ -564,8 +564,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(bridgeSamus, 
         SamusPoseId.NeutralJumpTransitionRightPose,
         controllerNewInput: ControllerButton.X);
-    AssertEqual(0x8002, bridgeSamus.PoseTransitionShotDirection,
-        "normal-jump initializer publishes tagged shot direction");
+    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(2), bridgeSamus.PendingTransitionShot,
+        "normal-jump initializer hands over the new pose's shot direction");
     bridgeBombs.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, 0, 0);
     SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();
     bridgeProjectiles.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = ControllerButton.X, ControllerNewInput = 0 }, layer1: new(0, 0), sharedProjectiles: bridgeBombs);
@@ -577,8 +577,8 @@ internal static void VerifySamusPowerBeamProjectiles()
         "pose-direction bridge supplies stored low-byte direction");
     AssertEqual(0, bridgeProjectiles.Charge.FlareCounter,
         "pose-direction bridge consumes charge counter");
-    SamusAerialPoseTransitions.ClearPoseTransitionShotDirection(bridgeSamus);
-    AssertEqual(0, bridgeSamus.PoseTransitionShotDirection,
+    SamusAerialPoseTransitions.DropPendingTransitionShot(bridgeSamus);
+    AssertEqual<SamusTransitionShot?>(null, bridgeSamus.PendingTransitionShot,
         "current-state epilogue clears pose-direction bridge");
 
     // Charged combinations index the parallel pointer/sound range and cooldown bytes

@@ -322,22 +322,12 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// WRAM <c>$0B5E</c>, <c>PoseTransitionShotDirection</c>. A pose initializer can
-    /// publish one shot direction after the current frame's projectile handler has already
-    /// run. The following frame's bank-$90 producer consumes the low byte, then the normal
-    /// current-state epilogue clears the complete word whether or not allocation succeeded.
+    /// The shot a pose transition handed to the next update's weapon handler, or null. A pose initializer can hand one
+    /// after the current update's weapon handler has already run: a normal jump started on a fresh Shoot press hands
+    /// the new pose's direction, and a turn out of a moonwalk hands the moonwalk's. The next update's weapon handler
+    /// fires it, and that update then drops it whether or not a shot was fired.
     /// </summary>
-    /// <remarks>
-    /// The high byte is meaningful provenance, not part of the direction: `$8000` marks a
-    /// fresh-shot normal-jump transition and `$0100` marks a moonwalk turn. Keeping the raw
-    /// word visible makes both native producers and the single consumer debugger-auditable.
-    /// </remarks>
-    [PackedFields("packed transition word: the low byte is the shot direction and the high byte records which native producer wrote it")]
-    public int PoseTransitionShotDirection
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public SamusTransitionShot? PendingTransitionShot { get; internal set; }
 
     /// <summary>WRAM `$0A76`: whether Mother Brain's hyper beam is enabled (native `$8000`).</summary>
     public bool HyperBeamEnabled { get; set; }

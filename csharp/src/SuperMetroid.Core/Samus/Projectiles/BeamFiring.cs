@@ -115,7 +115,7 @@ internal sealed class BeamFiring
             return new(slot, sound, sound is null ? null : SoundQueueLimit.Max15);
         }
 
-        if (samus.PoseTransitionShotDirection != 0)
+        if (samus.PendingTransitionShot is not null)
         {
             // `$90:B82D-$B83A` forces release before testing held Shoot. This is why a
             // charged beam can leave the OLD gun direction while a normal-jump or moonwalk
@@ -257,9 +257,7 @@ internal sealed class BeamFiring
         // muzzle check's -1 speed ($90:BDA7) can carry back into the same whole pixel.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
 
-        int direction = samus.PoseTransitionShotDirection != 0
-            ? unchecked((byte)samus.PoseTransitionShotDirection)
-            : SamusPoseMetadata.ReadShotDirection(samus);
+        int direction = samus.PendingTransitionShot?.Direction ?? SamusPoseMetadata.ReadShotDirection(samus);
 
         if (!new SamusProjectileDirectionWord(checked((ushort)direction)).IsValidInitialDirection)
         {

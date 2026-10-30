@@ -352,11 +352,11 @@ internal static class SamusGroundedPoseTransitions
         }
 
         // Preserve the old muzzle direction before installing turn art. The next alpha
-        // uses the tag to admit the turning HUD producer and forcibly release charge.
+        // uses the handed shot to admit the turning HUD producer and forcibly release charge.
         int sourceShotDirection = SamusPoseMetadata.ReadShotDirection(samus);
         FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         ApplySimpleGroundedPoseChange(samus, samus.Pose, expectedTarget, "Moonwalk turn/jump");
-        samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.MoonwalkTag | sourceShotDirection));
+        samus.PendingTransitionShot = new SamusTransitionShot(sourceShotDirection);
     }
 
 
@@ -591,10 +591,10 @@ internal static class SamusGroundedPoseTransitions
 
         if (wasMoonwalking)
         {
-            // The `$0100` tag makes HUD handler `$90:DD74` treat the one-frame turning
-            // state as shooting. `$90:BA5F` later masks it away and consumes only this
-            // source pose's direction byte when a beam slot can actually be initialized.
-            samus.PoseTransitionShotDirection = unchecked((ushort)(SamusShotDirectionHandoff.MoonwalkTag | moonwalkSourceShotDirection));
+            // The handed shot makes HUD handler `$90:DD74` treat the one-frame turning
+            // state as shooting. `$90:BA5F` later fires it in this source pose's
+            // direction when a beam slot can actually be initialized.
+            samus.PendingTransitionShot = new SamusTransitionShot(moonwalkSourceShotDirection);
         }
     }
 

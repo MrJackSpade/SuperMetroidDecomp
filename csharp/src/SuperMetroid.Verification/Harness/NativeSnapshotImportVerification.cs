@@ -160,7 +160,7 @@ internal static class NativeSnapshotImportVerification
             : throw new InvalidDataException($"Native charge palette byte offset {chargePaletteByteOffset} names no step.");
         runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
         samus.BombSpreadChargeTimeoutCounter = W(NativeSnapshotMemory.BombSpreadChargeTimeout);
-        samus.PoseTransitionShotDirection = W(NativeSnapshotMemory.PoseShotDirection);
+        samus.PendingTransitionShot = SamusSnapshotWords.DecodeTransitionShot(W(NativeSnapshotMemory.PoseShotDirection));
         samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
         samus.ResumeChargingBeamSound = SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound));
         samus.InputSnapshot.PreviousDrawHeldInput = (ControllerButton)W(NativeSnapshotMemory.SamusFilteredHeld);

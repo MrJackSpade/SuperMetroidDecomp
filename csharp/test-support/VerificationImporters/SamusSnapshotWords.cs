@@ -22,6 +22,26 @@ internal static class SamusSnapshotWords
     /// <summary>Encodes the hyper beam state as the word native code writes.</summary>
     internal static ushort EncodeHyperBeam(bool enabled) => enabled ? HyperBeamEnabledWord : (ushort)0;
 
+    /// <summary>The high byte the normal-jump initializer puts on <c>$0B5E</c> above the shot direction.</summary>
+    internal const ushort NormalJumpShotTag = 1 << 15;
+
+    /// <summary>The high byte the turn out of a moonwalk puts on <c>$0B5E</c> above the shot direction.</summary>
+    internal const ushort MoonwalkTurnShotTag = 1 << 8;
+
+    /// <summary>
+    /// Decodes <c>$0B5E</c>: zero hands over no shot; a tagged word hands over the shot in its low byte's direction.
+    /// The tag only marked the word as set; which pose initializer set it is not kept.
+    /// </summary>
+    internal static SamusTransitionShot? DecodeTransitionShot(ushort word)
+    {
+        if (word == 0)
+            return null;
+        int tag = word & ~byte.MaxValue;
+        return tag is NormalJumpShotTag or MoonwalkTurnShotTag
+            ? new SamusTransitionShot(word & byte.MaxValue)
+            : throw new InvalidDataException($"Transition shot word ${word:X4} carries no native initializer's tag.");
+    }
+
     /// <summary>Decodes <c>$0DC0</c>: zero, one, or any word with bit 15 set.</summary>
     internal static ResumeChargingBeamSoundLatch DecodeResumeChargingBeamSound(ushort word) => word switch
     {

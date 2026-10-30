@@ -398,7 +398,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // immediately clears `$0B5E`. Pose initialization occurs later in the
             // new-state handler, so a bridge published below survives precisely
             // until this point in the following gameplay frame.
-            SamusAerialPoseTransitions.ClearPoseTransitionShotDirection(samus);
+            SamusAerialPoseTransitions.DropPendingTransitionShot(samus);
             samus.ProjectileInheritance.ClearMovement();
 
             // `$0CD0` is one shared WRAM word, not independent projectile/movement

@@ -951,7 +951,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // $90:E70D/$90:E71C: both the demo and locked handlers end with
         // ResetMovementAndPoseChangeVariables, so a later missile inherits only the
         // movement recorded in its own dispatch.
-        SamusAerialPoseTransitions.ClearPoseTransitionShotDirection(FlashbackSamus);
+        SamusAerialPoseTransitions.DropPendingTransitionShot(FlashbackSamus);
         FlashbackSamus.ProjectileInheritance.ClearMovement();
     }
 

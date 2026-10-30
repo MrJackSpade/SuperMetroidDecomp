@@ -359,7 +359,7 @@ public sealed class SamusProjectileSystem
         // Turning HUD dispatch waits for an explicit pose-initializer muzzle handoff.
         // With no handoff it neither increments charge nor releases it on a Shoot edge.
         bool preservesTurnCharge = hudHandler == SamusHudHandler.Turning &&
-            samus.PoseTransitionShotDirection == 0;
+            samus.PendingTransitionShot is null;
         // Posture-transition dispatch preserves the carried charge during morph art;
         // ordinary crouch/stand transitions still run their native beam producer.
         bool preservesPostureCharge = hudHandler == SamusHudHandler.Transition &&

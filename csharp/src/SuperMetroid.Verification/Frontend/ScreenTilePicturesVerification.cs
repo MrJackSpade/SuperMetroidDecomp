@@ -8,6 +8,7 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Hardware;
@@ -178,9 +179,9 @@ internal static class ScreenTilePicturesVerification
             Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = maps,
             SpriteSheets = InstalledFixtures.SpriteSheets,
         });
-        int layers = AssertDrawnFromTiles(pause.CaptureRenderSnapshot(), pause.ShownVram(), "pause map");
+        int layers = AssertDrawnFromTiles(PauseTilemapScene(pause, "pause map"), pause.ShownVram(), "pause map");
         PauseEquipmentRulesVerification.EnterPauseEquipment(pause);
-        layers += AssertDrawnFromTiles(pause.CaptureRenderSnapshot(), pause.ShownVram(), "pause equipment");
+        layers += AssertDrawnFromTiles(PauseTilemapScene(pause, "pause equipment"), pause.ShownVram(), "pause equipment");
         Console.WriteLine($"Screen tile pictures: the pause map and equipment pages draw all {layers} of their background layers from their tiles, as their characters do.");
     }
 
@@ -240,6 +241,28 @@ internal static class ScreenTilePicturesVerification
         AssertTrue(mismatch < 0, $"{name}: drawn from its tiles it matches its characters, but pixel ({mismatch % 256}, {mismatch / 256}) is " +
             $"{(mismatch < 0 ? default : pictured[mismatch])} where its characters draw {(mismatch < 0 ? default : characters[mismatch])}");
         return layers;
+    }
+
+    /// <summary>
+    /// <paramref name="pause"/>'s scene with its pictured map grid and frame drawn instead from the cartridge's tilemaps over
+    /// the screen's tiles (#1467), once asserted to draw the same image: so the tiles' check against the characters covers
+    /// the pictures too.
+    /// </summary>
+    private static LayeredScene PauseTilemapScene(PauseMenuState pause, string name)
+    {
+        LayeredScene scene = pause.CaptureRenderSnapshot();
+        ScreenLayerPictures tiles = pause.screen.PlaneTiles;
+        ScreenTileMap map = ScreenTileMap.Of(pause.ShownBg1Tiles, new Extent16<TilemapCells>(AreaMapLayout.WidthInTiles, AreaMapLayout.HeightInTiles), tiles);
+        ScreenTileMap frame = ScreenTileMap.Of(pause.ShownBg2Tiles, MenuScreen.PageSize, tiles);
+        DisplayLayer[] layers = [.. scene.Layers.ToArray().Select(layer => layer switch
+        {
+            PictureGridLayer grid => new ScreenTilesLayer(map, grid.Scroll, grid.Priority),
+            PicturedPlaneLayer plane => new ScreenTilesLayer(frame, plane.Scroll, plane.Priority),
+            _ => layer,
+        })];
+        var tiled = new LayeredScene(scene.Paint, layers, scene.Brightness);
+        AssertTrue(RenderNamed(scene, name).SequenceEqual(RenderNamed(tiled, name)), $"{name}: its pictures draw what the cartridge's tilemaps draw");
+        return tiled;
     }
 
     /// <summary>

@@ -18,7 +18,7 @@ internal sealed record EndingBackgroundTextSetup
     public EndingTextTilemap DestinationTilemap { get; init; } = EndingTextTilemap.ResultPanel;
 
     /// <summary>Presentation.</summary>
-    public EndingTextPresentation? Presentation { get; init; } = null;
+    public EndingTypewriterText? Presentation { get; init; } = null;
 
     /// <summary>Installed sequence.</summary>
     public EndingTextSequence? InstalledSequence { get; init; } = null;

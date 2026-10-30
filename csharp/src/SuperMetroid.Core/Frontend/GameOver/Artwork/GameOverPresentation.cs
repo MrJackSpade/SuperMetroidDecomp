@@ -1,36 +1,26 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 /// <summary>
-/// Immutable game-over artwork, static text layout, palettes and screen anchors the game binds. The actors are drawn
-/// from the installed game-over sheet, whose compositions belong to the import pipeline that reads the installed
-/// presentation (#1463). Menu control, answer semantics, music and Baby sequence dispatch stay compiled in the
+/// Immutable game-over palettes and screen anchors the game binds. The page is a picture the import composes once
+/// (#1467); the actors are drawn from the installed game-over sheet, whose compositions belong to the import pipeline that
+/// reads the installed presentation (#1463). Menu control, answer semantics, music and Baby sequence dispatch stay compiled in the
 /// application.
 /// </summary>
 public abstract class GameOverPresentation
 {
-    /// <summary>Stores an authored tilemap only when it differs from the calculated stock game-over text page.</summary>
-    internal readonly BackgroundTile[]? tilemap;
     /// <summary>Installed idle and crying color sets for the Baby's fixed CGRAM row.</summary>
     private readonly GameOverBabyPaint babyPalettes;
 
-    /// <summary>Retains compiled artwork and screen anchors, eliding an unchanged stock tilemap.</summary>
+    /// <summary>Retains compiled artwork and screen anchors; the page's tiles are the import's, which pictures the page (#1467).</summary>
     /// <param name="document">The validated layout.</param>
-    /// <param name="tilemap">The compiled game-over tilemap.</param>
     /// <param name="babyPalettes">The Baby's idle and crying colours.</param>
     /// <param name="contentIdentity">The identity of the selected presentation's bytes.</param>
-    internal GameOverPresentation(GameOverLayoutDocument document, BackgroundTile[] tilemap, GameOverBabyPaint babyPalettes,
+    internal GameOverPresentation(GameOverLayoutDocument document, GameOverBabyPaint babyPalettes,
         string contentIdentity)
     {
-        for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
-            if (tilemap[cell] != GameOverText.TilemapTile(cell))
-            {
-                this.tilemap = tilemap;
-                break;
-            }
         this.babyPalettes = babyPalettes;
         BabyAnchor = document.BabyAnchor;
         CursorX = document.CursorX;
@@ -61,20 +51,6 @@ public abstract class GameOverPresentation
     public int CursorPaletteIndex { get; }
     /// <summary>Menu updates per frame of the looping missile cursor, in the range 1-65535.</summary>
     public int CursorFrameDuration { get; }
-
-    /// <summary>Copies the complete game-over tilemap into the menu's BG1, calculating the stock text tiles when the loaded page has no edits.</summary>
-    /// <param name="destination">The menu BG1 tilemap.</param>
-    internal void LoadTilemapTo(Span<BackgroundTile> destination)
-    {
-        if (tilemap is not null)
-        {
-            MenuTilemaps.Load(destination, tilemap);
-            return;
-        }
-        Ensure.LengthEqual(destination, GameOverPresentationDefinitions.TilemapCellCount);
-        for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
-            destination[cell] = GameOverText.TilemapTile(cell);
-    }
 
     /// <summary>Appends the chosen Baby sprite composition at the installed anchor using its OBJ palette selector.</summary>
     /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>

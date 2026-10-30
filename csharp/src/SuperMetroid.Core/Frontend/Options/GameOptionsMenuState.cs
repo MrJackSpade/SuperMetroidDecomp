@@ -31,19 +31,9 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>Derives newly pressed buttons from the raw held controller word.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Provides editable menu art after construction or debugger restoration.</summary>
-    [NonSerialized] private AreaMapPresentation? mapPresentation;
-    /// <summary>Mutable primary page whose language palette bits can change in place.</summary>
-    private readonly BackgroundTile[] primaryTilemap;
-    /// <summary>English controller page updated with current button labels.</summary>
-    private readonly BackgroundTile[] controllerEnglishTilemap;
-    /// <summary>Japanese controller page updated with current button labels.</summary>
-    private readonly BackgroundTile[] controllerJapaneseTilemap;
-    /// <summary>English special page updated with toggle palette bits.</summary>
-    private readonly BackgroundTile[] specialEnglishTilemap;
-    /// <summary>Japanese special page updated with toggle palette bits.</summary>
-    private readonly BackgroundTile[] specialJapaneseTilemap;
-    /// <summary>Page currently loaded into BG1.</summary>
-    private BackgroundTile[] visibleTilemap;
+    [NonSerialized] internal AreaMapPresentation? mapPresentation;
+    /// <summary>The page last loaded and the state its labels, language rows and toggle choices were drawn from (#1467).</summary>
+    internal ShownOptionsPage shownPage;
     /// <summary>Page whose input and cursor policy currently apply.</summary>
     private GameOptionsPage page = GameOptionsPage.Primary;
     /// <summary>Page to load when the current page has dissolved to black.</summary>
@@ -79,23 +69,12 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         screen = new MenuScreen(mapPresentation.Palettes,
             mapPresentation.WorldArtwork, spriteSheets);
         BindSpriteSheets(spriteSheets);
-        mapPresentation.GameOptions.LoadBackground(screen.Tilemaps);
-
-        // Separate installed page copies prevent a language toggle from mutating
-        // the other language's source page.
-        primaryTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsTilemap.Primary);
-        controllerEnglishTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsTilemap.ControllerEnglish);
-        controllerJapaneseTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsTilemap.ControllerJapanese);
-        specialEnglishTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsTilemap.SpecialEnglish);
-        specialJapaneseTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsTilemap.SpecialJapanese);
 
         ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
             .RequireRetailPermutation();
         IconCancelEnabled = iconCancelEnabled;
         MoonwalkEnabled = moonwalkEnabled;
         JapaneseText = japaneseText;
-        visibleTilemap = primaryTilemap;
-        ApplyLanguagePaletteBits();
         LoadVisiblePage();
         Phase = GameOptionsPhase.FinishFadingOut;
     }
@@ -108,21 +87,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         screen.BindWorldArtwork(catalog.WorldArtwork);
 
         screen.BindMapPalettes(catalog.Palettes);
-        catalog.GameOptions.LoadBackground(screen.Tilemaps);
-        Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.Primary), primaryTilemap);
-        Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.ControllerEnglish), controllerEnglishTilemap);
-        Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.ControllerJapanese), controllerJapaneseTilemap);
-        Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.SpecialEnglish), specialEnglishTilemap);
-        Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.SpecialJapanese), specialJapaneseTilemap);
-        ApplyLanguagePaletteBits();
         LoadVisiblePage();
-
-        static void Copy(BackgroundTile[] source, BackgroundTile[] destination)
-        {
-            if (source.Length != destination.Length)
-                throw new InvalidDataException("Rebound options page size changed.");
-            source.CopyTo(destination, 0);
-        }
     }
 
     /// <summary>Current menu row within the active page.</summary>
@@ -259,12 +224,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Captures the scrolled options page and selector without composing pixels.</summary>
+    /// <summary>Captures the backdrop, the scrolled page with what is drawn over it, and the selector without composing pixels.</summary>
     public LayeredScene CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        return MenuRenderSnapshotCapture.Capture(screen,
-            unchecked((ushort)bg1VerticalScroll), checked((byte)brightness));
+        // The backdrop, the page and its labels, language rows and toggle choices are the menus' pictures (#1467).
+        return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(GameOptionsNames.BackgroundFrame),
+            screen.PagePictures(shownPage.Frames()), unchecked((ushort)bg1VerticalScroll), checked((byte)brightness));
     }
 
     /// <summary>Draws the current page heading and animated cursor as sprite entries.</summary>
@@ -322,7 +288,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             case GameOptionsPrimaryRow.JapaneseText:
                 JapaneseText = !JapaneseText;
                 SelectedItem = 0;
-                ApplyLanguagePaletteBits();
                 LoadVisiblePage();
                 break;
             case GameOptionsPrimaryRow.ControllerSettings:
@@ -384,7 +349,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 if ((pressed & physicalButton) == ControllerButton.None)
                     continue;
                 ControllerBindings = ControllerBindings.AssignAndSwap(SelectedItem, physicalButton);
-                ApplyControllerLabels();
                 LoadVisiblePage();
                 break;
             }
@@ -400,7 +364,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
             case GameOptionsControllerRowKind.Reset:
                 ControllerBindings = Input.ControllerBindings.Default;
-                ApplyControllerLabels();
                 LoadVisiblePage();
                 break;
             case GameOptionsControllerRowKind.Action:
@@ -454,7 +417,6 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
             default:
                 throw new InvalidOperationException($"Undefined {nameof(GameOptionsSpecialRow)} {row}.");
         }
-        ApplySpecialPaletteBits();
         LoadVisiblePage();
     }
 
@@ -465,57 +427,20 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         Phase = GameOptionsPhase.DissolveOut;
     }
 
-    /// <summary>Selects the language-specific page, reapplies live labels or toggles, and loads BG1.</summary>
+    /// <summary>
+    /// Selects the language-specific page and shows it with the current language highlight, controller labels and toggle
+    /// choices, as the cartridge reapplies them whenever it loads the page.
+    /// </summary>
     private void LoadVisiblePage()
     {
-        visibleTilemap = page switch
+        GameOptionsTilemap shown = page switch
         {
-            GameOptionsPage.Primary => primaryTilemap,
-            GameOptionsPage.Controller => JapaneseText
-                ? controllerJapaneseTilemap
-                : controllerEnglishTilemap,
-            GameOptionsPage.Special => JapaneseText
-                ? specialJapaneseTilemap
-                : specialEnglishTilemap,
+            GameOptionsPage.Primary => GameOptionsTilemap.Primary,
+            GameOptionsPage.Controller => JapaneseText ? GameOptionsTilemap.ControllerJapanese : GameOptionsTilemap.ControllerEnglish,
+            GameOptionsPage.Special => JapaneseText ? GameOptionsTilemap.SpecialJapanese : GameOptionsTilemap.SpecialEnglish,
             _ => throw new InvalidOperationException($"Unknown options page {page}."),
         };
-
-        if (page == GameOptionsPage.Controller)
-            ApplyControllerLabels();
-        else if (page == GameOptionsPage.Special)
-            ApplySpecialPaletteBits();
-        MenuTilemaps.Load(screen.Tilemaps.Bg1, visibleTilemap);
-    }
-
-    /// <summary>Updates primary-page palette bits for the selected text language.</summary>
-    private void ApplyLanguagePaletteBits()
-    {
-        (mapPresentation ?? throw new InvalidOperationException(
-            "Options language requires installed presentation assets."))
-            .GameOptions.ApplyLanguage(primaryTilemap, JapaneseText);
-    }
-
-    /// <summary>Marks the two special-setting toggle rows using installed presentation art.</summary>
-    private void ApplySpecialPaletteBits()
-    {
-        var content = mapPresentation ?? throw new InvalidOperationException(
-            "Options toggles require installed presentation assets.");
-        content.GameOptions.ApplySpecialToggle(visibleTilemap,
-            GameOptionsToggle.IconCancel, IconCancelEnabled);
-        content.GameOptions.ApplySpecialToggle(visibleTilemap,
-            GameOptionsToggle.Moonwalk, MoonwalkEnabled);
-    }
-
-    /// <summary>Writes current physical-button labels to every controller action row.</summary>
-    private void ApplyControllerLabels()
-    {
-        var content = mapPresentation ?? throw new InvalidOperationException(
-            "Controller labels require installed presentation assets.");
-        for (int action = 0; action < GameOptionsDefinitions.Rows.ControllerActionCount; action++)
-        {
-            content.GameOptions.ApplyControllerLabel(visibleTilemap, action,
-                Input.ControllerBindings.AssignableButtonIndex(ControllerBindings[action]) ?? 0);
-        }
+        shownPage = new ShownOptionsPage(shown, JapaneseText, ControllerBindings, IconCancelEnabled, MoonwalkEnabled);
     }
 
     /// <summary>Uses the page cursor layout or the hidden anchor during transitions.</summary>

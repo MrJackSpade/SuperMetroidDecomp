@@ -36,9 +36,9 @@ internal static class MapScreensVerification
         {
             var native = World(bus, original, index);
             var installed = World(guard, original, index);
-            var shownScreen = MenuScreenFixtures.Vram(native.screen);
+            var shownScreen = MenuScreenFixtures.Vram(native, original);
             byte[] usedNativeVram = shownScreen.Bytes.ToArray();
-            var shownScreen2 = MenuScreenFixtures.Vram(installed.screen);
+            var shownScreen2 = MenuScreenFixtures.Vram(installed, original);
             AssertTrue(usedNativeVram.SequenceEqual(shownScreen2.Bytes),
                 "stock world resources reproduce native VRAM");
             foreach (bool backdropMath in new[] { false, true })
@@ -50,8 +50,8 @@ internal static class MapScreensVerification
             var nativeRoom = new FileSelectRoomMapGraphics(system, area,
                 mapPresentation: original, sheets: MenuSheetFixtures.For(original));
             var installedRoom = new FileSelectRoomMapGraphics(system, area, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
-            var shownScreen3 = MenuScreenFixtures.Vram(nativeRoom.screen);
-            var shownScreen4 = MenuScreenFixtures.Vram(installedRoom.screen);
+            var shownScreen3 = MenuScreenFixtures.Vram(nativeRoom, original);
+            var shownScreen4 = MenuScreenFixtures.Vram(installedRoom, original);
             AssertTrue(shownScreen3.ImageEquals(shownScreen4), "stock resolved frame/footer/area label matches full native VRAM");
             AssertTrue(nativeRoom.RenderFrameOnly().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
@@ -157,7 +157,7 @@ internal static class MapScreensVerification
         Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons, guarded full menu, independent JSON/PNG edits, restored content and strict failures pass.");
 
         static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentation catalog, int area) =>
-            new(area, catalog.Palettes, catalog.Screens,
+            new(area, catalog.Palettes,
                 catalog.WorldArtwork, MenuSheetFixtures.For(catalog));
     }
 

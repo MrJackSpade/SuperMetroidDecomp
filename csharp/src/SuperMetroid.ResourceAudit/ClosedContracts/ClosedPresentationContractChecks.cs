@@ -57,10 +57,6 @@ internal static class ClosedPresentationContractChecks
                     menu.DynamicAnchor(FileSelectAnchor.CopyConfirmSource);
                     colors.ApplyRecoveryLights(cgram, dynamicIndex);
                     colors.ApplyFlash(cgram, 14);
-                    options.CreatePage(GameOptionsTilemap.Primary);
-                    options.ApplySpecialToggle(cells, dynamicIndex > 0
-                        ? GameOptionsToggle.IconCancel
-                        : GameOptionsToggle.Moonwalk, false);
                     gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);
                     gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99);
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
@@ -113,16 +109,16 @@ internal static class ClosedPresentationContractChecks
         var before = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
-        Require(before.UnresolvedCount == 44, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
+        Require(before.UnresolvedCount == 42, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
         var report = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
-        Require(report.Classifications.Count == 26 && report.MissingCount == 0 && report.UnresolvedCount == 18,
+        Require(report.Classifications.Count == 24 && report.MissingCount == 0 && report.UnresolvedCount == 18,
             $"only reviewed valid-domain operations qualify; invalid selections must fail " +
-            $"(classified {report.Classifications.Count}/26, missing {report.MissingCount}/0, unresolved {report.UnresolvedCount}/18; " +
+            $"(classified {report.Classifications.Count}/24, missing {report.MissingCount}/0, unresolved {report.UnresolvedCount}/18; " +
             $"revoked: {string.Join(", ", adapter.InvalidContracts)}; unresolved: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Code != AuditReport.Missing).Select(finding => finding.Owner + " " + finding.Message)) + ")" + " (" + report.Describe() + ")");
-        Require(report.Consumers.Count == 44, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/44; unbound: " +
+        Require(report.Consumers.Count == 42, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/42; unbound: " +
             string.Join(" | ", report.Findings.Where(finding => finding.Message.Contains("could not be bound", StringComparison.Ordinal)).Select(finding => finding.Message)) + ")" + " (" + report.Describe() + ")");
 
         InvocationExpressionSyntax hudCall = calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>().First();

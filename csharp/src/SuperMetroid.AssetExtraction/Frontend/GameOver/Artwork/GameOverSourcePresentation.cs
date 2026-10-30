@@ -12,11 +12,14 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>
-/// The installed game-over presentation as the import pipeline reads it (#1463): beside the tilemap, palettes and
-/// anchors the game binds, the Baby, egg and cursor compositions the game-over sheet is composed from.
+/// The installed game-over presentation as the import pipeline reads it (#1463): beside the palettes and anchors the game
+/// binds, the page's tiles the menus' picture of the page is composed from (#1467) and the Baby, egg and cursor
+/// compositions the game-over sheet is composed from.
 /// </summary>
 public sealed class GameOverSourcePresentation : GameOverPresentation
 {
+    /// <summary>The page's tiles, row by row, which the menus' picture of the page is composed from (#1467).</summary>
+    internal readonly BackgroundTile[] page;
     /// <summary>Each Baby frame's composition.</summary>
     internal readonly Dictionary<GameOverBabyFrame, SpriteComposition> babySprites;
     /// <summary>The egg's composition.</summary>
@@ -26,8 +29,9 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
 
     /// <summary>Retains the compiled presentation and its compositions.</summary>
     private GameOverSourcePresentation(GameOverPresentationDocument document, BackgroundTile[] tilemap, GameOverBabyPaint babyPalettes,
-        GameOverSprites sprites, string contentIdentity) : base(document, tilemap, babyPalettes, contentIdentity)
+        GameOverSprites sprites, string contentIdentity) : base(document, babyPalettes, contentIdentity)
     {
+        page = tilemap;
         babySprites = sprites.Baby;
         eggSprite = sprites.Egg;
         cursorSprites = sprites.Cursors;
@@ -68,7 +72,7 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
             throw new InvalidDataException(
                 $"Game-over presentation version must be {GameOverPresentationDefinitions.Version}.");
         if (document.Tilemap is null ||
-            document.Tilemap.Length != GameOverPresentationDefinitions.TilemapCellCount)
+            document.Tilemap.Length != GameOverPageDefinitions.TilemapCellCount)
             throw new InvalidDataException("Game-over presentation requires a complete 32x32 tilemap.");
         if (document.Sprites is null ||
             document.Sprites.Count != GameOverPresentationDefinitions.SpriteNames.Length)
@@ -86,7 +90,7 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
         if (document.CursorFrameDuration is < 1 or > ushort.MaxValue)
             throw new InvalidDataException("Game-over cursor frame duration must be 1..65535.");
 
-        var tilemap = new BackgroundTile[GameOverPresentationDefinitions.TilemapCellCount];
+        var tilemap = new BackgroundTile[GameOverPageDefinitions.TilemapCellCount];
         for (int index = 0; index < document.Tilemap.Length; index++)
         {
             MapPresentationCell? cell = document.Tilemap[index];
@@ -132,6 +136,10 @@ public sealed class GameOverSourcePresentation : GameOverPresentation
         _ = Load(new MemoryStream(bytes, writable: false));
         output.Write(bytes);
     }
+
+    /// <summary>The menus' picture of the page: every cell of the page, named for the game to place (#1467).</summary>
+    internal ScreenPictureSubject PageSubject() =>
+        ScreenPictureSubject.Page(GameOverPresentationDefinitions.PageFrame, page, GameOverPageDefinitions.TilemapWidth);
 
     /// <summary>The import-side presentation <paramref name="gameOver"/> was read with.</summary>
     /// <exception cref="InvalidDataException">The game-over presentation was not read from installed artwork.</exception>

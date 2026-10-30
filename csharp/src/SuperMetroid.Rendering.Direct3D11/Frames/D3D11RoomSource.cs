@@ -25,4 +25,6 @@ internal enum D3D11RoomSource : uint
     Hud = 10,
     /// <summary>A pictured plane's placed pictures, scrolled and repeating at the plane's edges (#1467).</summary>
     PicturedPlane = 11,
+    /// <summary>A frontend picture grid's cells, its table's word in the pass's map word (#1467).</summary>
+    PictureGrid = 12,
 }

@@ -70,6 +70,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.GameOver;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -653,7 +654,7 @@ internal static class LookupStream3Verification
     }
 
     /// <summary>Checks file-select patch cells and terminators against ROM, then verifies edited placement and order.</summary>
-    internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
+    internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectSourcePresentation stock)
     {
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         FileSelectSourcePresentation Load(FileSelectPresentationDocument document) => FileSelectSourcePresentation.Load(new MemoryStream(
@@ -666,13 +667,13 @@ internal static class LookupStream3Verification
         })
         {
             string name = FileSelectParts.PatchName(patch);
-            FileSelectCompiledPatch Compiled(FileSelectPresentation value) => value.patches[patch];
+            FileSelectCompiledPatch Compiled(FileSelectSourcePresentation value) => value.patches[patch];
             AssertTrue(Compiled(stock).suppliedCells is null,
                 "file-select stock patch retains no cells " + name);
             for (int index = 0; index < count; index++)
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectParts.PatchCell(patch, index),
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), FileSelectFieldTiles.PatchCell(patch, index),
                     "file-select calculated patch exact native cell");
                 foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
                 {
@@ -702,7 +703,7 @@ internal static class LookupStream3Verification
             Array.Reverse(reversed.Patches[name].Cells);
             Confirm(Load(reversed), reversed.Patches[name].Cells);
 
-            void Confirm(FileSelectPresentation presentation, FileSelectPatchCellDocument[] cells)
+            void Confirm(FileSelectSourcePresentation presentation, FileSelectPatchCellDocument[] cells)
             {
                 var expected = new ushort[1024];
                 var actual = new BackgroundTile[1024];
@@ -733,11 +734,12 @@ internal static class LookupStream3Verification
         GameOverSourcePresentation Load() => GameOverSourcePresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = Load();
-        AssertTrue(stock.tilemap is null, "game-over stock text retains no tilemap row");
+        AssertTrue(stock.page.SequenceEqual(Enumerable.Range(0, GameOverPageDefinitions.TilemapCellCount).Select(GameOverText.TilemapTile)),
+            "the stock game-over page is the spelled game-over text");
         Confirm(stock);
         foreach (GameOverTextStream stream in GameOverTexts.All)
         {
-            int cell = stream.Origin.Y * GameOverPresentationDefinitions.TilemapWidth + stream.Origin.X;
+            int cell = stream.Origin.Y * GameOverPageDefinitions.TilemapWidth + stream.Origin.X;
             document.Tilemap[cell] = document.Tilemap[cell] with { Palette = 1, FlipY = true };
         }
         document.Tilemap[0] = document.Tilemap[0] with { TileColumn = 1 };
@@ -745,11 +747,9 @@ internal static class LookupStream3Verification
         AssertThrows<ArgumentOutOfRangeException>(() => GameOverText.TilemapTile(-1), "game-over text negative cell");
         AssertThrows<ArgumentOutOfRangeException>(() => GameOverText.TilemapTile(1024), "game-over text final cell boundary");
 
-        void Confirm(GameOverPresentation presentation)
+        void Confirm(GameOverSourcePresentation presentation)
         {
-            var tiles = new BackgroundTile[GameOverPresentationDefinitions.TilemapCellCount];
-            presentation.LoadTilemapTo(tiles);
-            ushort[] words = BackgroundTileWordBytes.Words(tiles);
+            ushort[] words = BackgroundTileWordBytes.Words(presentation.page);
             for (int cell = 0; cell < document.Tilemap.Length; cell++)
             {
                 MapPresentationCell source = document.Tilemap[cell];
@@ -767,7 +767,7 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom);
         GameOptionsPresentationDocument ReadDocument() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             imported, ArtworkJson.Options);
-        GameOptionsPresentation Load(GameOptionsPresentationDocument document) => GameOptionsSourcePresentation.Load(new MemoryStream(
+        GameOptionsSourcePresentation Load(GameOptionsPresentationDocument document) => GameOptionsSourcePresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = ReadDocument();
         var loaded = Load(stock);
@@ -781,7 +781,7 @@ internal static class LookupStream3Verification
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<TilemapCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
-                GameOptionsArtworkCells.ControllerAnchor(action), "native options label anchor");
+                GameOptionsPageCells.ControllerAnchor(action), "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
@@ -797,7 +797,7 @@ internal static class LookupStream3Verification
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
-                BackgroundTileWords.ToWord(GameOptionsArtworkCells.ControllerLabelTile(GameOptionsNames.ControllerLabelButton(button), cell)),
+                BackgroundTileWords.ToWord(GameOptionsPageCells.ControllerLabelTile(GameOptionsNames.ControllerLabelButton(button), cell)),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
         var edited = ReadDocument();

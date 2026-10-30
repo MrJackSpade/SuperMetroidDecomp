@@ -42,6 +42,11 @@ static const uint SourceHud = 10;
 // A pictured plane (PicturedPlane, #1467), its table's word in TilemapWord: its size in cells, x below y, the count of its
 // pictures, then two words each in drawing order, the picture's offset and its upper-left plane pixel, x below y.
 static const uint SourcePicturedPlane = 11;
+// A frontend picture grid (PictureGridLayer, #1467), its table at room level word `TilemapWord`: its width and height in
+// cells, x below y, then a word per cell row by row, its one-cell picture's offset (zero for none) with its horizontal and
+// vertical mirroring in bits 30 and 31. The grid wraps at its edges.
+static const uint SourcePictureGrid = 12;
+static const uint GridFlipX = 1073741824, GridFlipY = 2147483648, GridPictureMask = 1073741823;
 // A frontend layer's cell (D3D11RoomLevelBuffer.PackScreenMap): its tile in the low half, its colour variant above it,
 // then its priority and its mirroring.
 static const uint CellHigh = 1048576, CellFlipX = 2097152, CellFlipY = 4194304;
@@ -163,6 +168,20 @@ bool PlanePicture(uint table, uint2 scrolled, out uint2 within, out uint picture
         return true;
     }
     return false;
+}
+// The cell picture of a picture grid (#1467) at a scrolled position, wrapping at the grid's edges, as `picture`, with
+// `within` its pixel there, mirrored as the cell mirrors it; false where the cell shows nothing.
+bool GridPicture(uint table, uint2 scrolled, out uint2 within, out uint picture)
+{
+    uint size = RoomLevels[table];
+    uint2 cells = uint2(size & 65535, size >> 16);
+    uint2 position = scrolled % (cells * 8);
+    uint2 cell = position >> 3;
+    uint entry = RoomLevels[table + 1 + cell.y * cells.x + cell.x];
+    picture = entry & GridPictureMask;
+    within = uint2((entry & GridFlipX) != 0 ? 7 - (position.x & 7) : position.x & 7,
+        (entry & GridFlipY) != 0 ? 7 - (position.y & 7) : position.y & 7);
+    return picture != 0;
 }
 // The picture of a word written over layer 2 (RoomOverlayPictures, #1403) at the cell a `size` layout places the
 // scrolled position, laid out as a boss body's pictures with none where nothing was written; `within` its pixel in it.
@@ -533,6 +552,10 @@ void Main(uint3 id : SV_DispatchThreadID)
         else if (source == SourcePicturedPlane)
         {
             if (!PlanePicture(TilemapWord, scrolled, within, picture)) return;
+        }
+        else if (source == SourcePictureGrid)
+        {
+            if (!GridPicture(TilemapWord, scrolled, within, picture)) return;
         }
         else if (source == SourceScreenCells)
         {

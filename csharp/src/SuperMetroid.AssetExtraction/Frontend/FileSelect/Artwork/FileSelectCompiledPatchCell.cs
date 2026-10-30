@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.FileSelect.Artwork;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>A tilemap cell positioned relative to a dynamic file-select field.</summary>
 /// <param name="Offset">Cell position relative to the field's anchor.</param>

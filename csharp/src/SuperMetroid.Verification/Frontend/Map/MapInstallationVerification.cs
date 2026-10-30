@@ -285,8 +285,8 @@ internal static class MapInstallationVerification
                 out ReadOnlyMemory<byte> editedRoomFx) &&
             !stockRoomFx.Span.SequenceEqual(editedRoomFx.Span),
             "full installation consumes room-FX animation artwork override");
-        AssertTrue(!stock.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Fx.RoomFxType.Lava).Span.SequenceEqual(
-            edited.RoomFxLayer3Tilemaps.Resolve(SuperMetroid.Core.Fx.RoomFxType.Lava).Span),
+        AssertTrue(!SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(stock).Resolve(SuperMetroid.Core.Fx.RoomFxType.Lava).Span.SequenceEqual(
+            SuperMetroid.AssetExtraction.Frontend.Map.InstalledAreaMapPresentation.RoomFxPagesOf(edited).Resolve(SuperMetroid.Core.Fx.RoomFxType.Lava).Span),
             "full installation consumes room-FX BG3 tilemap override");
         AssertTrue(!stock.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava).SequenceEqual(
             edited.RoomFxPaletteBlends.Resolve(RoomFxPaletteBlend.Lava)),

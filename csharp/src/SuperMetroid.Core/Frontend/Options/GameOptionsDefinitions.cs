@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>
-/// The options screen's fixed layout and timing: page geometry, fades and scrolling, row counts, cursor anchors, label
-/// and toggle boxes, language highlight regions and heading anchors. <see cref="GameOptionsLayout"/> derives each row's
+/// The options screen's fixed layout and timing: page geometry, fades and scrolling, row counts, cursor anchors and
+/// heading anchors. <see cref="GameOptionsLayout"/> derives each row's
 /// position from them.
 /// </summary>
 public static class GameOptionsDefinitions
@@ -70,56 +70,6 @@ public static class GameOptionsDefinitions
         public const int SpecialFirstY = 64;
         /// <summary>Pixels between special rows.</summary>
         public const int SpecialRowSpacing = 48;
-    }
-
-    /// <summary>The controller page's button-label boxes.</summary>
-    public static class ControllerLabels
-    {
-        /// <summary>Columns of one button label.</summary>
-        public const int WidthInTiles = 3;
-        /// <summary>Rows of one button label.</summary>
-        public const int HeightInTiles = 2;
-        /// <summary>The column every label's upper-left cell is in.</summary>
-        public const int AnchorColumn = 23;
-        /// <summary>The row of the first action's label.</summary>
-        public const int FirstAnchorRow = 5;
-        /// <summary>Rows between consecutive actions' labels.</summary>
-        public const int AnchorRowSpacing = 3;
-    }
-
-    /// <summary>The primary page's language-label rows, whose palette shows the active language.</summary>
-    public static class LanguageRegions
-    {
-        /// <summary>The page byte the English label's first row starts at.</summary>
-        public const int FirstByteOffset = 648;
-        /// <summary>Bytes of each English label row.</summary>
-        public const int EnglishByteCount = 24;
-        /// <summary>Bytes of each Japanese label row.</summary>
-        public const int JapaneseByteCount = 50;
-        /// <summary>Rows between the English and Japanese labels.</summary>
-        public const int LanguageRowSpacing = 3;
-    }
-
-    /// <summary>The Icon Cancel and Moonwalk toggles' choice boxes.</summary>
-    public static class SpecialToggles
-    {
-        /// <summary>Bytes recoloured in each choice row: six cells, palette bits only.</summary>
-        public const int PaletteRegionByteCount = 12;
-        /// <summary>The page byte Icon Cancel's enabled choice starts at.</summary>
-        public const int FirstByteOffset = 480;
-        /// <summary>Tilemap rows between the two toggles.</summary>
-        public const int SettingRowSpacing = 6;
-        /// <summary>Cells between a toggle's enabled and disabled choices.</summary>
-        public const int ChoiceCellSpacing = 7;
-    }
-
-    /// <summary>The background palettes that select and dim menu text.</summary>
-    public static class TilePalettes
-    {
-        /// <summary>The palette of the active language or the selected on/off choice.</summary>
-        public const int Selected = 0;
-        /// <summary>The palette of the inactive language or the unselected on/off choice.</summary>
-        public const int Unselected = 1;
     }
 
     /// <summary>The page headings' anchors, in screen pixels.</summary>

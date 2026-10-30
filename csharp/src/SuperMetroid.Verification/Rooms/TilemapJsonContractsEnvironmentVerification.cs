@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Areas.Ceres;
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;

@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Artwork;
@@ -9,6 +10,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
@@ -150,6 +152,14 @@ internal static class MenuSheetFixtures
         }
         // Pause's HUD plane draws the HUD's images, pictured from the maps' HUD artwork and characters (#1466).
         sheets[SpriteSheetId.PauseHud] = LoadTiles(SpriteSheetId.PauseHud, HudImageSheet.ComposePause(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
+        // The menus' pages and the pictures placed over them are pictured from the maps' presentation (#1467).
+        sheets[SpriteSheetId.MenuPictures] = LoadTiles(SpriteSheetId.MenuPictures, MenuPictureSheet.Compose(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
+        // The room maps' cells and frames, and each area's world-map pages, are pictured from the maps' presentation (#1467).
+        sheets[SpriteSheetId.RoomMapPictures] = LoadTiles(SpriteSheetId.RoomMapPictures, MapPictureSheets.ComposeRoomMap(maps), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
+        foreach ((AreaId area, SpriteSheetId id) in ScreenTileSheetDefinitions.AreaMapForegrounds)
+            sheets[id] = LoadTiles(id, MapPictureSheets.ComposeWorldForeground(maps, area), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
+        foreach ((AreaId area, SpriteSheetId id) in ScreenTileSheetDefinitions.AreaMapBackgrounds)
+            sheets[id] = LoadTiles(id, MapPictureSheets.ComposeWorldBackground(maps, area), $"maps-{RuntimeHelpers.GetHashCode(maps):X8}");
         return new InstalledSpriteSheets(sheets);
     }
 

@@ -18,7 +18,7 @@ internal sealed record EndingCreditsSetup
     public bool JapaneseText { get; init; } = false;
 
     /// <summary>Ending text.</summary>
-    public EndingTextPresentation? EndingText { get; init; } = null;
+    public EndingTypewriterText? EndingText { get; init; } = null;
 
     /// <summary>Critters escaped.</summary>
     public bool CrittersEscaped { get; init; } = false;

@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Artwork;
 
-namespace SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
 /// Reads the room effects' BG3 pages as the cartridge's little-endian tilemap words, and builds catalogs whose documents

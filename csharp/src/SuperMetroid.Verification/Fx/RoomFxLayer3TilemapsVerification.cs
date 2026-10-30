@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
@@ -79,14 +80,14 @@ internal static class RoomFxLayer3TilemapsVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "room-FX BG3 edit changes installed content identity");
-        AssertTrue(!edited.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span.SequenceEqual(
-            baseline.RoomFxLayer3Tilemaps.Resolve(RoomFxType.Lava).Span),
+        AssertTrue(!InstalledAreaMapPresentation.RoomFxPagesOf(edited).Resolve(RoomFxType.Lava).Span.SequenceEqual(
+            InstalledAreaMapPresentation.RoomFxPagesOf(baseline).Resolve(RoomFxType.Lava).Span),
             "room-FX BG3 edit changes the selected tilemap words");
         ushort[] plane = LoadConstructedRoomFxTilemap(RoomFxType.Lava,
-            edited.RoomFxLayer3Tilemaps, edited.RoomFxPaletteBlends,
+            InstalledAreaMapPresentation.RoomFxPagesOf(edited), edited.RoomFxPaletteBlends,
             out CartridgeReadGuard guarded);
         ushort editedWord = BitConverter.ToUInt16(
-            edited.RoomFxLayer3Tilemaps.ResolveBytes(RoomFxType.Lava).AsSpan(0, sizeof(ushort)));
+            InstalledAreaMapPresentation.RoomFxPagesOf(edited).ResolveBytes(RoomFxType.Lava).AsSpan(0, sizeof(ushort)));
         AssertEqual(editedWord, plane[Layer3Plane.EffectPageFirstRow * Layer3Plane.Columns],
             "edited lava tile cell reaches the room's BG3 plane");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

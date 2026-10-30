@@ -47,7 +47,7 @@ internal sealed class EndingArtwork
     }
 
     /// <summary>Rebinds host-owned ending text after catalog reload or graph restoration.</summary>
-    public void BindEndingText(EndingTextPresentation? value)
+    public void BindEndingText(EndingTypewriterText? value)
     {
         EndingText = value;
         ActivePostCreditsText?.BindPresentation(value);
@@ -132,7 +132,7 @@ internal sealed class EndingArtwork
 
     /// <summary>The ending text's installed content.</summary>
     [field: NonSerialized]
-    internal EndingTextPresentation? EndingText { get; private set; }
+    internal EndingTypewriterText? EndingText { get; private set; }
 
     /// <summary>The post-credits text, once it starts.</summary>
     internal EndingBackgroundTextState? ActivePostCreditsText { get; private set; }

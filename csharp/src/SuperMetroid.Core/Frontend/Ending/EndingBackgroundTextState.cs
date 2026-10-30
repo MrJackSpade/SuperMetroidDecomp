@@ -68,7 +68,7 @@ internal sealed class EndingBackgroundTextState
     }
 
     /// <summary>Rebinds current host content after debugger-state restoration.</summary>
-    public void BindPresentation(EndingTextPresentation? value)
+    public void BindPresentation(EndingTypewriterText? value)
     {
         installedProgram = installedSequence is { } sequence && value is not null
             ? value.Compile(sequence).ToArray()

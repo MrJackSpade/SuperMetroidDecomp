@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentationDefinitions;
+using SuperMetroid.Core;
+using static SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverPageDefinitions;
 
-namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>
-/// Spells the game-over page (<see cref="GameOverPresentationDefinitions"/>): each cell of the title, objective, prompt and the two
+/// Spells the game-over page (<see cref="GameOverPageDefinitions"/>): each cell of the title, objective, prompt and the two
 /// answers with their explanations, in the small and large menu fonts.
 /// </summary>
 internal static class GameOverText

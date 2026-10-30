@@ -1,11 +1,16 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Artwork;
 
-namespace SuperMetroid.Core.Fx.Artwork;
+namespace SuperMetroid.AssetExtraction.Fx;
 
-/// <summary>Editable BG3 tiles for the six room-FX pages, as their installed document places them.</summary>
+/// <summary>
+/// Editable BG3 tiles for the six room-FX pages, as their installed document places them. Only the import reads them: it
+/// pictures each page once into the BG3 sheets (#1466), and the game names the page an effect shows (#1467).
+/// </summary>
 public sealed class RoomFxLayer3Pages
 {
     /// <summary>Each authored page's tiles, row-major, by the effect that shows it.</summary>

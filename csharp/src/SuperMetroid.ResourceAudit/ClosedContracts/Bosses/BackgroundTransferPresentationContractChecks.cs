@@ -20,6 +20,7 @@ internal static class BackgroundTransferPresentationContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Assets;
             using SuperMetroid.AssetExtraction.Enemies;
+            using SuperMetroid.AssetExtraction.Fx;
             using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Frontend.Ending.Artwork;
             using SuperMetroid.Core.Fx;

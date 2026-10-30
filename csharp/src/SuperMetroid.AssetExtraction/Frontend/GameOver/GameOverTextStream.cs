@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Frontend.GameOver;
 
 /// <summary>One game-over text element and the page cell it starts on.</summary>
 /// <param name="Element">The screen element the stream draws.</param>

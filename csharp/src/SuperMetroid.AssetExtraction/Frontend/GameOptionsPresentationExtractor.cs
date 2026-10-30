@@ -47,15 +47,15 @@ public static class GameOptionsPresentationExtractor
             labels.Add(GameOptionsNames.ControllerLabelName(GameOptionsNames.ControllerLabelButton(index)), Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
                     GameOptionsSourceDefinitions.MenuBank | GameOptionsSourceDefinitions.ControllerLabelSources[index],
-                    GameOptionsPresentationDefinitions.ControllerLabelCellCount * sizeof(ushort))));
+                    GameOptionsPageDefinitions.ControllerLabelCellCount * sizeof(ushort))));
         }
 
         Position16<TilemapCells>[] controllerAnchors = Enumerable.Range(0, GameOptionsDefinitions.Rows.ControllerActionCount)
-            .Select(GameOptionsPositions.ControllerLabelAnchor)
+            .Select(GameOptionsPageCells.ControllerLabelAnchor)
             .ToArray();
         GameOptionsLanguageRegionDocument[] languageRegions =
             Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount)
-                .Select(GameOptionsPositions.LanguagePaletteRegion)
+                .Select(GameOptionsPageCells.LanguagePaletteRegion)
                 .Select(region => new GameOptionsLanguageRegionDocument
                 {
                     Cells = CellRange(region.ByteOffset, region.ByteCount),
@@ -64,8 +64,8 @@ public static class GameOptionsPresentationExtractor
                 .ToArray();
         var toggles = new Dictionary<string, GameOptionsToggleVisualDocument>(StringComparer.Ordinal)
         {
-            [GameOptionsNames.ToggleName(GameOptionsToggle.IconCancel)] = Toggle(GameOptionsPositions.IconCancel),
-            [GameOptionsNames.ToggleName(GameOptionsToggle.Moonwalk)] = Toggle(GameOptionsPositions.Moonwalk),
+            [GameOptionsNames.ToggleName(GameOptionsToggle.IconCancel)] = Toggle(GameOptionsPageCells.IconCancel),
+            [GameOptionsNames.ToggleName(GameOptionsToggle.Moonwalk)] = Toggle(GameOptionsPageCells.Moonwalk),
         };
 
         var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
@@ -118,8 +118,8 @@ public static class GameOptionsPresentationExtractor
             HeadingAnchors = headings,
             CursorAnchors = cursors,
             HiddenCursor = new(GameOptionsDefinitions.Cursors.HiddenX, GameOptionsDefinitions.Cursors.HiddenY),
-            SelectedPalette = GameOptionsDefinitions.TilePalettes.Selected,
-            UnselectedPalette = GameOptionsDefinitions.TilePalettes.Unselected,
+            SelectedPalette = GameOptionsPageDefinitions.TilePalettes.Selected,
+            UnselectedPalette = GameOptionsPageDefinitions.TilePalettes.Unselected,
             CursorPalette = MenuRenderDefinitions.ObjectPalette,
             CursorFrameDuration = MenuMissileAnimationDefinitions.FrameDuration,
         });
@@ -179,12 +179,12 @@ public static class GameOptionsPresentationExtractor
     private static GameOptionsToggleVisualDocument Toggle(GameOptionsToggleLayout layout) => new()
     {
         EnabledCells = CellRange(layout.EnabledTop,
-            GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount)
+            GameOptionsPageDefinitions.SpecialToggles.PaletteRegionByteCount)
             .Concat(CellRange(layout.EnabledBottom,
-                GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount)).ToArray(),
+                GameOptionsPageDefinitions.SpecialToggles.PaletteRegionByteCount)).ToArray(),
         DisabledCells = CellRange(layout.DisabledTop,
-            GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount)
+            GameOptionsPageDefinitions.SpecialToggles.PaletteRegionByteCount)
             .Concat(CellRange(layout.DisabledBottom,
-                GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount)).ToArray(),
+                GameOptionsPageDefinitions.SpecialToggles.PaletteRegionByteCount)).ToArray(),
     };
 }

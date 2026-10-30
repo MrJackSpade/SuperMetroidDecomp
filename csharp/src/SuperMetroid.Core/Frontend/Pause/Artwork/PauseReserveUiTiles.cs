@@ -51,7 +51,7 @@ public static class PauseReserveUiTiles
     }
 
     /// <summary>Places a reserve UI glyph in <paramref name="palette"/> with priority.</summary>
-    private static BackgroundTile Glyph(int glyph, int palette) => new(glyph, palette, highPriority: true);
+    private static BackgroundTile Glyph(int glyph, int palette) => new(glyph, palette, FlipHorizontally: false, FlipVertically: false, HighPriority: true);
 
     /// <summary>The tile of decimal digit <paramref name="digit"/>.</summary>
     public static BackgroundTile DigitTile(int digit) => DigitZeroTile with { Tile = DigitZeroTile.Tile + digit };

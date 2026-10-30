@@ -118,12 +118,12 @@ internal static class PauseMenuFixtureVerification
             SamusHyperBeamColors = stock.SamusHyperBeamColors,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
-        return new InstalledAreaMapPresentation(parts, new MapCharacterArtwork(
+        return new InstalledAreaMapPresentation(parts, new InstalledPresentationSources(new MapCharacterArtwork(
             new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
             new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
             GameplayMessageArtwork.Of(stock), InstalledAreaMapPresentation.RoomFxPagesOf(stock), InstalledAreaMapPresentation.StaffCreditsOf(stock),
             InstalledAreaMapPresentation.EndingTextOf(stock), InstalledAreaMapPresentation.ScreensOf(stock),
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
-                InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels));
+                InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels)));
     }
 }

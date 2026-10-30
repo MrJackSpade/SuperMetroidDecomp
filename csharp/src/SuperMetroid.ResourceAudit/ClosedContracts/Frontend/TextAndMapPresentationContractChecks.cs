@@ -43,8 +43,6 @@ internal static class TextAndMapPresentationContractChecks
                     intro.GetLines(IntroNarrationPageId.Page1);
                     intro.Compile(IntroNarrationPageId.Page6);
                     intro.Compile((IntroNarrationPageId)0);
-                    ending.Compile(EndingTextSequence.FinalMessage);
-                    ending.Compile((EndingTextSequence)99);
                     ending.BuildResultPanel();
                     ending.BuildCopyrightPanel();
                     credits.GetRow(CreditsRollDefinitions.ExpectedCompiledRows - 1);
@@ -78,16 +76,17 @@ internal static class TextAndMapPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "TextAndMapPresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 20, "all twenty calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
-        // Eleven calls name a member of their provider's domain: two escape programs, a narration page's lines and its
-        // compiled page, the ending's final message and both panels, the last credits row, the world title and two scroll
-        // directions. The nine others name no member: None and 99 for the escape programs and arrows, narration page zero,
-        // ending sequence 99, credits rows past either end and map sprite zero. The map screens' three LoadTo calls, all
-        // classified, left the fixture with their contract (#1467), taking it from 14/9/0/23 to 11/9/0/20.
-        Require(after.Classifications.Count == 11 && after.UnresolvedCount == 9 && after.MissingCount == 0 &&
-            after.Consumers.Count == 20, "supported domains qualify; invalid enums, sparse IDs and rows must remain failing " +
-            "(expected 11/9/0/20; " + after.Describe() + ")");
-        Require(after.ReferenceCount == 11, "each classified call requires its reviewed provider contract" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 18, "all eighteen calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
+        // Ten calls name a member of their provider's domain: two escape programs, a narration page's lines and its
+        // compiled page, the ending's two panels, the last credits row, the world title and two scroll directions. The eight
+        // others name no member: None and 99 for the escape programs and arrows, narration page zero, credits rows past
+        // either end and map sprite zero. The map screens' three LoadTo calls, all classified, left the fixture with their
+        // contract, and the ending's sequence compile (one classified, one unresolved) left production for verification
+        // (#1467), taking it from 14/9/0/23 to 10/8/0/18.
+        Require(after.Classifications.Count == 10 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
+            after.Consumers.Count == 18, "supported domains qualify; invalid enums, sparse IDs and rows must remain failing " +
+            "(expected 10/8/0/18; " + after.Describe() + ")");
+        Require(after.ReferenceCount == 10, "each classified call requires its reviewed provider contract" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Reports a specific text or map provider contract failure.</summary>

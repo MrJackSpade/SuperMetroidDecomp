@@ -13,21 +13,17 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </summary>
 public sealed class InstalledAreaMapPresentation : AreaMapPresentation
 {
-    /// <summary>
-    /// Takes the presentation's parts, the characters it was read with, the editable gameplay messages and the room
-    /// effects' BG3 pages.
-    /// </summary>
-    internal InstalledAreaMapPresentation(AreaMapPresentationParts parts, MapCharacterArtwork characters, GameplayMessageArtwork messages,
-        RoomFxLayer3Pages roomFxPages, CreditsPresentation staffCredits, EndingTextPresentation endingText, MapScreenPresentation screens,
-        PauseScreenArtwork pause) : base(parts)
+    /// <summary>Takes the presentation's parts and the source artwork it was read with, which only the import composes from.</summary>
+    internal InstalledAreaMapPresentation(AreaMapPresentationParts parts, InstalledPresentationSources sources) : base(parts)
     {
-        Screens = Ensure.NotNull(screens);
-        Pause = Ensure.NotNull(pause);
-        StaffCredits = Ensure.NotNull(staffCredits);
-        EndingTextPresentation = Ensure.NotNull(endingText);
-        Characters = Ensure.NotNull(characters);
-        Messages = Ensure.NotNull(messages);
-        RoomFxPages = Ensure.NotNull(roomFxPages);
+        Ensure.NotNull(sources);
+        Screens = Ensure.NotNull(sources.Screens);
+        Pause = Ensure.NotNull(sources.Pause);
+        StaffCredits = Ensure.NotNull(sources.StaffCredits);
+        EndingTextPresentation = Ensure.NotNull(sources.EndingText);
+        Characters = Ensure.NotNull(sources.Characters);
+        Messages = Ensure.NotNull(sources.Messages);
+        RoomFxPages = Ensure.NotNull(sources.RoomFxPages);
     }
 
     /// <summary>The characters the map screens, the pause interface and the HUD are pictured from.</summary>

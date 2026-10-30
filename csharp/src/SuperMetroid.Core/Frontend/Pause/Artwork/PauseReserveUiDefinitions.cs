@@ -20,7 +20,7 @@ public static class PauseReserveUiDefinitions
     /// <summary>$82:8FCE destination for the three reserve-supply digits.</summary>
     public const int DigitCell = 392;
     /// <summary>$82:8F70: the zero digit's tile, glyph 4 in palette two; digits zero through nine are consecutive.</summary>
-    public static BackgroundTile DigitZeroTile { get; } = new(0x04, 2, highPriority: false);
+    public static BackgroundTile DigitZeroTile { get; } = new(0x04, 2, FlipHorizontally: false, FlipVertically: false, HighPriority: false);
     /// <summary>$82:ADE4/$ADF6 solid-arrow color six.</summary>
     public const ushort SolidColor6 = 0x0156;
     /// <summary>$82:ADDD/$ADEF solid-arrow color eleven.</summary>

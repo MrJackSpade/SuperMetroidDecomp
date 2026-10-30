@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -58,9 +60,9 @@ internal static class LookupTubeDrawsVerification
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Tube reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Tube run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Tube run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Tube offset bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Tube word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Tube word run bounds");
                 }
             }
             int cursor = 0x840000 | pointer;
@@ -73,26 +75,25 @@ internal static class LookupTubeDrawsVerification
                 if (field == 0)
                 {
                     AssertEqual((ushort)count, header, "Tube native horizontal run");
-                    AssertEqual(count, shape.WordCount(run), "Tube native calculated count");
+                    AssertEqual(count, shape.BlockCount(run), "Tube native calculated count");
                     AssertEqual(LittleEndianBytes.Word(0, unchecked((byte)shape.NextY(run))), offset, "Tube native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Tube native DTO geometry");
-                        AssertEqual(count, part.LevelWords.Length, "Tube native DTO count");
+                        AssertEqual(count, part.Count, "Tube native DTO count");
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Tube native DTO offset");
                     }
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Tube cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "Tube cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
-                {
-                    int mask = field == 1 ? 0xf000 : 0xfff;
-                    int expected = ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2) & mask;
-                    AssertEqual(expected, shape.WordAt(run, cell) & mask, "Tube original calculated field");
+                {
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2));
+                    AssertEqual(expected, shape.BlockAt(run, cell), "Tube original calculated field");
                     foreach (var frame in new[] {dto,exported[index],byId})
-                        AssertEqual(expected, frame.Runs.Span[run].LevelWords.Span[cell] & mask, "Tube original DTO field");
+                        AssertEqual(expected, frame.Runs.Span[run].Blocks.Span[cell], "Tube original DTO field");
                 }
                 cells += count;
                 run++;

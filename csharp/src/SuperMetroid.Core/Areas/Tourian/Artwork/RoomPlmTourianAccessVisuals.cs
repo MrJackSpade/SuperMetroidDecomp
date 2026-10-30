@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 
 /// <summary>
 /// Visual-only block selections for the four crumble frames and six-row clear.
-/// The compiled draw lists retain every physical level word and run offset.
+/// The compiled draws retain every block's collision and run offset.
 /// </summary>
 public sealed class RoomPlmTourianAccessVisuals
 {
@@ -16,31 +16,31 @@ public sealed class RoomPlmTourianAccessVisuals
     /// </summary>
     public string ContentIdentity => SelectedPresentationHash.Create("RoomPlmTourianAccessVisualCatalog", content =>
     {
-        Span<ushort> words = stackalloc ushort[24];
+        Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[24];
         foreach (TourianAccessDraw draw in Enum.GetValues<TourianAccessDraw>().OrderBy(TourianAccessDraws.VisualId, StringComparer.Ordinal))
         {
             TourianAccessDraws.Describe(draw, out int rows, out _);
             for (int index = 0; index < rows * 4; index++)
-                words[index] = GetWord(PlmDraw.Of(draw), index / 4, index % 4);
+                appearances[index] = GetAppearance(PlmDraw.Of(draw), index / 4, index % 4);
             content.AppendName("frame", TourianAccessDraws.VisualId(draw));
             // Preserve the original flattened-frame hash, including the six-row clear.
             content.Append("runs", 1);
-            content.AppendWords("words", words[..(rows * 4)]);
+            content.AppendAppearances("blocks", appearances[..(rows * 4)]);
         }
     });
 
-    /// <summary>Copied visual-only words for Tourian access layouts that differ from compiled stock.</summary>
-    private readonly PlmVisualOverrides customWords;
+    /// <summary>Copied visual-only appearances for Tourian access layouts that differ from compiled stock.</summary>
+    private readonly PlmVisualOverrides customBlocks;
 
-    /// <summary>Validates all five Tourian access-floor layouts and captures their selected appearance independently of compiled physical words and row offsets.</summary>
-    /// <param name="entries">The empty row, three visible crumble rows, and six-row clear exactly once, each with its compiled block count and valid visual-only words.</param>
-    /// <remarks>Edited arrays are copied; stock-identical layouts use compiled visual bits, so caller-array edits after construction cannot alter the catalog.</remarks>
+    /// <summary>Validates all five Tourian access-floor layouts and captures their selected appearance independently of compiled physical appearances and row offsets.</summary>
+    /// <param name="entries">The empty row, three visible crumble rows, and six-row clear exactly once, each with its compiled block count and appearances.</param>
+    /// <remarks>Edited arrays are copied; stock-identical layouts use compiled appearance, so caller-array edits after construction cannot alter the catalog.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
-    /// <exception cref="InvalidDataException">Coverage, uniqueness, layout identity, block-array dimensions, or presentation-only word bits are invalid.</exception>
+    /// <exception cref="InvalidDataException">Coverage, uniqueness, layout identity, or block-array dimensions are invalid.</exception>
     public RoomPlmTourianAccessVisuals(
         IEnumerable<RoomPlmVisualEntry> entries)
     {
-        customWords = new PlmVisualOverrides(entries, "Tourian access", TourianAccessDraws.TryGetByVisualId,
+        customBlocks = new PlmVisualOverrides(entries, "Tourian access", TourianAccessDraws.TryGetByVisualId,
             TourianAccessDraws.All.Count());
     }
 
@@ -48,16 +48,16 @@ public sealed class RoomPlmTourianAccessVisuals
     /// <param name="draw">The empty row, a visible crumble row, or the six-row clear.</param>
     /// <param name="runIndex">Top-to-bottom row index, zero for single-row frames or zero through five for the six-row clear.</param>
     /// <param name="blockIndex">Zero-based left-to-right column within the four-cell row.</param>
-    /// <returns>The twelve-bit metatile index/parent-flip word, with no collision nibble or physical level mutation.</returns>
+    /// <returns>The block's appearance, with no collision or terrain change.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The row or column is outside that layout's dimensions; the reported parameter is <paramref name="blockIndex"/>.</exception>
     /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Tourian access draw.</exception>
-    internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
+    internal RoomBlockAppearance GetAppearance(PlmDraw draw, int runIndex, int blockIndex)
     {
-        TourianAccessDraws.Describe(PlmDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"), out int rows, out int stockWord);
+        TourianAccessDraws.Describe(PlmDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"), out int rows, out RoomTerrainBlock stock);
         if ((uint)runIndex >= (uint)rows ||
             (uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customWords.TryGet(draw, out var words)
-            ? words[runIndex * 4 + blockIndex] : new RoomLevelWord(checked((ushort)stockWord)).VisualWord;
+        return customBlocks.TryGet(draw, out var appearances)
+            ? appearances[runIndex * 4 + blockIndex] : stock.Appearance;
     }
 }

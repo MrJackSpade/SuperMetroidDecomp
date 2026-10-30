@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -27,9 +28,10 @@ public static class RoomPlmDownwardGateVisualFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() },
     };
 
-    /// <summary>Checks bank-$84 downward-gate draw shapes, physical words, and continuation offsets before exporting metatile/flip words in native run order.</summary>
+    /// <summary>Checks bank-$84 downward-gate draw shapes, terrain, and continuation offsets before exporting appearance in native run order.</summary>
     /// <param name="bus">Cartridge source for column draws $84:A517–A56A and trigger draws $84:A5D7–A626; upward gates are not included.</param>
     /// <param name="directory">Family directory, created before native validation; receives new visual JSON and manifest files.</param>
     /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation; stock loading requires the supported cartridge identity.</param>
@@ -62,9 +64,9 @@ public static class RoomPlmDownwardGateVisualFiles
     /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required manifest.</param>
     /// <param name="overrideDirectory">Optional family directory; null or an absent visual JSON selects validated stock.</param>
     /// <returns>A ROM-independent catalog with copied authored words and compiled collision, draw placement, and gate timing unchanged.</returns>
-    /// <remarks>Stock provenance, file hash, and compiled visual equality are checked before overrides. Overrides require every published identity and original run shape with twelve-bit visual words, but no manifest; legacy trigger color labels remain unchanged.</remarks>
+    /// <remarks>Stock provenance, file hash, and compiled visual equality are checked before overrides. Overrides require every published identity and original run shape with twelve-bit appearance, but no manifest; legacy trigger color labels remain unchanged.</remarks>
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, frame coverage, shapes, or visual bits are invalid.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, frame coverage, shapes, or appearance are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static InstalledRoomPlmDownwardGateVisuals Load(
         string stockDirectory, string? overrideDirectory)
@@ -97,7 +99,7 @@ public static class RoomPlmDownwardGateVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    /// <summary>Reads each downward-gate draw list, verifying native shape and level words before retaining only visual bits.</summary>
+    /// <summary>Reads each downward-gate draw list, verifying native shape and block before retaining only appearance.</summary>
     private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmVisualRunEntry>();
@@ -105,21 +107,21 @@ public static class RoomPlmDownwardGateVisualFiles
                  DownwardGatePlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
-            var visuals = new List<ushort[]>();
+            var visuals = new List<RoomBlockAppearance[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)) != PlmRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"Downward gate draw list {list.Draw} differs in source cartridge shape.");
                 cursor = unchecked((ushort)(cursor + 2));
-                var visualWords = new ushort[run.LevelWords.Length];
-                for (int index = 0; index < visualWords.Length; index++)
+                var appearances = new RoomBlockAppearance[run.Count];
+                for (int index = 0; index < appearances.Length; index++)
                 {
-                    int source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor));
-                    if (source != run.LevelWords.Span[index])
+                    RoomTerrainBlock source = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)));
+                    if (source != run.Blocks.Span[index])
                         throw new InvalidDataException(
                             $"Downward gate draw list {list.Draw} differs at ${cursor:X4}.");
-                    visualWords[index] = new RoomLevelWord(checked((ushort)source)).VisualWord;
+                    appearances[index] = source.Appearance;
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
@@ -129,7 +131,7 @@ public static class RoomPlmDownwardGateVisualFiles
                     throw new InvalidDataException(
                         $"Downward gate draw list {list.Draw} differs in next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));
-                visuals.Add(visualWords);
+                visuals.Add(appearances);
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
@@ -139,18 +141,17 @@ public static class RoomPlmDownwardGateVisualFiles
         return entries.ToArray();
     }
 
-    /// <summary>Rejects stock artwork whose selected visual words differ from the compiled cartridge definitions.</summary>
+    /// <summary>Rejects stock artwork whose selected appearance differ from the compiled cartridge definitions.</summary>
     private static void VerifyStockMatchesCompiled(InstalledRoomPlmDownwardGateVisuals catalog,
         string path)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
                  DownwardGatePlmDraws.All)
         for (int run = 0; run < list.Runs.Length; run++)
-        for (int word = 0; word < list.Runs.Span[run].LevelWords.Length; word++)
+        for (int word = 0; word < list.Runs.Span[run].Count; word++)
         {
-            int expected = new RoomLevelWord(
-                list.Runs.Span[run].LevelWords.Span[word]).VisualWord;
-            if (catalog.GetWord(list.Draw, run, word) != expected)
+            RoomBlockAppearance expected = list.Runs.Span[run].Blocks.Span[word].Appearance;
+            if (catalog.GetAppearance(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
                     $"Stock downward gate visuals {path} differ from compiled frame " +
                     DownwardGatePlmDraws.VisualId(list.Draw) + ".");

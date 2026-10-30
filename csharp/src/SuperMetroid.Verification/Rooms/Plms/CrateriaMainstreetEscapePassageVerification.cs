@@ -30,12 +30,12 @@ internal static class CrateriaMainstreetEscapePassageVerification
             return runtime.Room.LoadedLevelData;
         }
 
-        ushort Word(RoomLevelData level, int x) =>
-            level.GetCollisionBlockByIndex(level.GetBlockIndex(new(checked((ushort)x), 0x0b))).PackedWord.Raw;
+        RoomTerrainBlock Word(RoomLevelData level, int x) =>
+            level.GetCollisionBlockByIndex(level.GetBlockIndex(new(checked((ushort)x), 0x0b))).Terrain;
 
         RoomLevelData opened = Load(crittersEscaped: true);
         foreach (int x in new[] { 0x3d, 0x3e, 0x41, 0x42 })
-            AssertEqual((ushort)0x00ff, Word(opened, x), $"block (${x:X2},$0B) opens when the critters escaped");
+            AssertEqual(RoomTerrainBlocks.BlankAir, Word(opened, x), $"block (${x:X2},$0B) opens when the critters escaped");
 
         RoomLevelData shut = Load(crittersEscaped: false);
         AssertTrue(Word(shut, 0x3d) != 0x00ff, "the passage stays shut when the critters were left behind");

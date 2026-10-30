@@ -9,7 +9,7 @@ internal sealed class BlockReactionPlms
 {
     /// <summary>The room's area.</summary>
     private readonly AreaId _area;
-    /// <summary>Handles the animal-escape reaction reserved by the shot-block BTS table.</summary>
+    /// <summary>Handles the animal-escape reaction reserved among the shot-block behaviours.</summary>
     private readonly ICrittersEscapeReaction _escapeAnimals;
     /// <summary>Allocates reaction PLMs in descending native slot order.</summary>
     private readonly PlmSlotTable _slotTable;
@@ -22,15 +22,15 @@ internal sealed class BlockReactionPlms
         _slotTable = slotTable;
     }
 
-    /// <summary>Starts a respawning or permanent grapple-block program while preserving its original level word for restoration.</summary>
+    /// <summary>Starts a respawning or permanent grapple-block program while preserving its original terrain for restoration.</summary>
     public bool TrySpawnBreakableGrappleBlock(
         RoomLevelData level,
         int blockIndex,
-        RoomBlockBehavior bts)
+        RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
-        if (!bts.IsBreakableGrappleReaction)
-            throw new ArgumentOutOfRangeException(nameof(bts), "Breakable grapple BTS must be one or two.");
+        if (!behavior.IsBreakableGrappleReaction)
+            throw new ArgumentOutOfRangeException(nameof(behavior), "Breakable grapple behaviour must be one or two.");
 
         // Spawn_PLM at $84:84E7 probes $4E,$4C,...,$00. Matching it matters if multiple
         // PLMs mutate the same room on one frame because the handler uses the same order.
@@ -39,31 +39,31 @@ internal sealed class BlockReactionPlms
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.BlockIndex = blockIndex;
-        slot.RestoreLevelWord = block.PackedWord.Raw;
-        slot.StartAnimation(new BlockReactionPlmAnimation(bts.GrappleReactionIndex == 1
+        slot.RestoreTerrain = block.Terrain;
+        slot.StartAnimation(new BlockReactionPlmAnimation(behavior.GrappleReactionIndex == 1
             ? BlockReactionPlmProgram.RespawningBreakableGrappleBlock
             : BlockReactionPlmProgram.PermanentBreakableGrappleBlock));
         slot.InstructionTimer = WrappingCountdown.Start(1);
 
-        // Setup_CFB5 saves the complete original level word but clears only the low BTS
-        // byte. It deliberately leaves collision type E intact until the first PLM pass
-        // later in this same gameplay frame draws $E0B7.
+        // The setup saves the complete original block but clears only its behaviour. It deliberately leaves the
+        // Grapple-block collision intact until the first PLM pass later in this same gameplay frame draws the intact
+        // Grapple block.
         level.SetBehavior(blockIndex, RoomBlockBehaviorValues.None);
         return true;
     }
 
-    /// <summary>Starts a timed collision bomb block and substitutes its native visual parent before the first PLM pass.</summary>
+    /// <summary>Starts a timed collision bomb block and substitutes its parent appearance before the first PLM pass.</summary>
     public bool TrySpawnCollisionBombBlock(
         RoomLevelData level,
         int blockIndex,
-        RoomBlockBehavior bts)
+        RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
-        if (!bts.IsNormalReactionIndex(8))
+        if (!behavior.IsNormalReactionIndex(8))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(bts),
-                "Collision bomb-block BTS must be in the native table range zero through seven.");
+                nameof(behavior),
+                "Collision bomb-block behaviour must be in the native table range zero through seven.");
         }
 
         // `$84:84ED-$84F7` searches the same descending slot order used by every other
@@ -75,40 +75,37 @@ internal sealed class BlockReactionPlms
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.BlockIndex = blockIndex;
 
-        // This is not the original visual word. Setup_CE83 deliberately replaces all
-        // low twelve bits with visual block `$058`; multi-block restoration lists then
-        // add type-$5/$D extension words around this type-$F parent.
-        slot.RestoreLevelWord = new RoomLevelWord(RoomPlmVisualBlockDefinitions.CollisionBombParent)
-            .WithCollisionType(block.CollisionType).Raw;
-        slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.CollisionBomb(bts.NormalReactionIndex)));
+        // This is not the original appearance. The setup deliberately replaces the block and its mirroring with the
+        // bomb-block parent; multi-block restorations then add extension blocks around this parent.
+        slot.RestoreTerrain = new RoomTerrainBlock(RoomPlmVisualBlockDefinitions.CollisionBombParent, block.CollisionType);
+        slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.CollisionBomb(behavior.NormalReactionIndex)));
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockDefinitions.CollisionBombParent);
+        level.SetTerrain(blockIndex, new RoomTerrainBlock(RoomPlmVisualBlockDefinitions.CollisionBombParent, RoomCollisionType.Air));
         return true;
     }
 
     /// <summary>
-    /// Spawns the bank-$84 crumble actor selected when downward Samus collision reaches a
-    /// type-$B special block with BTS `$00-$07`.
+    /// Spawns the crumble actor selected when downward Samus collision reaches a special block with a crumble behaviour,
+    /// zero through seven.
     /// </summary>
     /// <remarks>
-    /// This is setup <c>$84:CE37</c>. Bank $94 only permits activation for collision
-    /// direction three (down): setup synthesizes <c>(levelWord &amp; $F000) | $00BC</c>,
-    /// replaces the live collision nibble with type-eight solid, and delays list execution for four PLM handler
-    /// passes. BTS `$00-$03` reverse their animation and restore the synthesized parent;
-    /// `$04-$07` end on air. The collision dispatcher independently returns solid for the
-    /// triggering frame, so allocation success is not a collision-result substitute.
+    /// Only downward collision activates it: the setup keeps the block's collision kind and mirroring with the crumble
+    /// parent's block as the restore block, makes the live block solid, and delays the program for four PLM handler
+    /// passes. Behaviours zero through three reverse their animation and restore the parent; four through seven end on
+    /// air. The collision dispatcher independently returns solid for the triggering frame, so allocation success is not
+    /// a collision-result substitute.
     /// </remarks>
     public bool TrySpawnSamusContactCrumbleBlock(
         RoomLevelData level,
         int blockIndex,
-        RoomBlockBehavior bts)
+        RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
-        if (!bts.IsNormalReactionIndex(8))
+        if (!behavior.IsNormalReactionIndex(8))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(bts),
-                "Samus-contact crumble BTS must be in the native table range zero through seven.");
+                nameof(behavior),
+                "Samus-contact crumble behaviour must be in the native table range zero through seven.");
         }
 
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
@@ -116,27 +113,24 @@ internal sealed class BlockReactionPlms
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.Header =
-            RoomPlmHeaders.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
+            RoomPlmHeaders.ContactCrumbleByReactionIndex(behavior.NormalReactionIndex);
         slot.BlockIndex = blockIndex;
-        RoomLevelWord restoreWord = block.PackedWord
-            .WithVisualBlockIndex(RoomPlmVisualBlockDefinitions.ContactCrumbleParent);
-        slot.RestoreLevelWord = restoreWord.Raw;
-        slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.ContactCrumble(bts.NormalReactionIndex)));
+        RoomTerrainBlock restore = block.Terrain.WithBlock(RoomPlmVisualBlockDefinitions.ContactCrumbleParent.Block);
+        slot.RestoreTerrain = restore;
+        slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.ContactCrumble(behavior.NormalReactionIndex)));
         slot.InstructionTimer = WrappingCountdown.Start(4);
-        level.SetForegroundEntry(
-            blockIndex,
-            restoreWord.WithCollisionType(RoomCollisionType.SolidBlock).Raw);
+        level.SetTerrain(blockIndex, restore.WithCollision(RoomCollisionType.SolidBlock));
         return true;
     }
 
     /// <summary>
-    /// Runs setup <c>$84:CDEA</c> for a type-$B special block selected by either the
-    /// area-independent BTS <c>$0E/$0F</c> entries or Brinstar's BTS <c>$82-$85</c> table.
+    /// Runs the Speed Booster block setup for a special block selected by either the area-independent Speed Booster
+    /// behaviours or Brinstar's area-specific ones.
     /// </summary>
     /// <remarks>
-    /// Native setup accepts boost-counter stage four and all six directional shinespark
-    /// poses. On acceptance it preserves the collision nibble in the eventual restore word,
-    /// substitutes visual block <c>$0B6</c>, and clears the live collision nibble before the
+    /// The setup accepts boost-counter stage four and all six directional shinespark poses. On acceptance it preserves
+    /// the collision kind in the eventual restore block, substitutes the Speed Booster parent's block, and makes the
+    /// live block air before the
     /// PLM handler draws the first crumble frame. Rejected contact deletes the temporary
     /// slot synchronously and remains solid in the caller.
     /// </remarks>
@@ -144,23 +138,22 @@ internal sealed class BlockReactionPlms
     public bool TrySpawnSamusSpeedBoosterBlock(
         RoomLevelData level,
         int blockIndex,
-        RoomBlockBehavior bts,
+        RoomBlockBehavior behavior,
         IRoomSamus samus)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!SpeedBoosterBlocks.TryResolve(
-                bts,
+                behavior,
                 _area,
                 out SpeedBoosterBlockPlmDefinition definition))
         {
             return false;
         }
 
-        // Bank $94's special-block dispatcher clears carry while indexing BTS.
-        // Spawn_PLM returns that carry unchanged when every slot is occupied:
-        // setup never runs, so its no-Speed-Booster rejection cannot make this
-        // contact solid. Preserve the block word; this is not a break animation.
+        // The special-block dispatcher reports a pass-through contact before spawning. When every slot is occupied the
+        // spawn returns that result unchanged: setup never runs, so its no-Speed-Booster rejection cannot make this
+        // contact solid. Preserve the block; this is not a break animation.
         if (_slotTable.IsFull)
             return true;
 
@@ -175,16 +168,10 @@ internal sealed class BlockReactionPlms
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.Header = definition.Header;
         slot.BlockIndex = blockIndex;
-        slot.RestoreLevelWord = block.PackedWord
-            .WithVisualBlockIndex(RoomPlmVisualBlockDefinitions.SpeedBoosterParent)
-            .Raw;
+        slot.RestoreTerrain = block.Terrain.WithBlock(RoomPlmVisualBlockDefinitions.SpeedBoosterParent.Block);
         slot.StartAnimation(new SpeedBoosterBlockPlmAnimation(definition.Program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        level.SetForegroundEntry(
-            blockIndex,
-            slot.RestoreLevelWord
-                .WithCollisionType(RoomCollisionType.Air)
-                .Raw);
+        level.SetTerrain(blockIndex, slot.RestoreTerrain.WithCollision(RoomCollisionType.Air));
         return true;
     }
 
@@ -192,15 +179,15 @@ internal sealed class BlockReactionPlms
     public bool TrySpawnBombReactionBlock(
         RoomLevelData level,
         int blockIndex,
-        RoomBlockBehavior bts,
+        RoomBlockBehavior behavior,
         SamusProjectileTypeWord projectileType)
     {
         Ensure.NotNull(level);
-        if (!bts.IsNormalReactionIndex(16))
+        if (!behavior.IsNormalReactionIndex(16))
         {
             throw new ArgumentOutOfRangeException(
-                nameof(bts),
-                "Bomb-reaction BTS must be in the native table range zero through fifteen.");
+                nameof(behavior),
+                "Bomb-reaction behaviour must be in the native table range zero through fifteen.");
         }
 
         SamusProjectileFamily projectileFamily = projectileType.Family;
@@ -211,8 +198,8 @@ internal sealed class BlockReactionPlms
                 "Bomb-reaction setup accepts only normal-bomb or power-bomb projectile families.");
         }
 
-        // `$84:84ED-$84F7` searches from native slot `$4E` toward `$00`. Importantly, the
-        // full-pool path never calls setup and therefore must not mutate live level data.
+        // The spawn searches from the highest slot down. Importantly, the full-pool path never calls setup and
+        // therefore must not change the live terrain.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
@@ -220,94 +207,90 @@ internal sealed class BlockReactionPlms
         slot.BlockIndex = blockIndex;
         slot.InstructionTimer = WrappingCountdown.Start(1);
 
-        if (!bts.IsNormalReactionIndex(8))
+        if (!behavior.IsNormalReactionIndex(8))
         {
-            // Table entries 8..15 are all `$84:B62F`, whose setup is a bare RTS and
-            // whose instruction list is the one-word delete stream at `$84:AAE3`.
-            slot.RestoreLevelWord = 0;
+            // Table entries 8..15 are all the empty reaction, whose setup does nothing and whose program deletes.
+            slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
             PlmProgramStart.Delete.StartOn(slot);
             return true;
         }
 
-        // Setup_CEDA discards the original low twelve bits rather than preserving the
-        // visible tile number. Dimension-specific final draw lists reconstruct linked
-        // extension words; the 1x1 respawn tail uses this exact PLM_Vars value.
-        slot.RestoreLevelWord = block.PackedWord.WithVisualWord(RoomPlmVisualBlockDefinitions.CollisionBombParent).Raw;
-        // `$84:CF0C-$CF13` adds three only for normal bombs, skipping the reaction sound
-        // `{Instruction_PLM_QueueSound_Y_Lib2_Max3, $0A}`: a normal bomb starts the shared break tail.
+        // The setup discards the original appearance rather than preserving the visible block. Dimension-specific final
+        // draws reconstruct linked extension blocks; the 1x1 respawn tail uses this exact restore block.
+        slot.RestoreTerrain = block.Terrain.WithAppearance(RoomPlmVisualBlockDefinitions.CollisionBombParent);
+        // Only normal bombs skip the reaction sound: a normal bomb starts the shared break tail.
         slot.StartAnimation(new BlockReactionPlmAnimation(projectileFamily == SamusProjectileFamily.Bomb
-            ? BlockReactionPlmPrograms.BombBreak(bts.NormalReactionIndex)
-            : BlockReactionPlmPrograms.ReactionBomb(bts.NormalReactionIndex)));
+            ? BlockReactionPlmPrograms.BombBreak(behavior.NormalReactionIndex)
+            : BlockReactionPlmPrograms.ReactionBomb(behavior.NormalReactionIndex)));
 
-        level.SetForegroundEntry(blockIndex, slot.RestoreLevelWord.WithPlmDeactivation().Raw);
+        level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
         return true;
     }
 
-    /// <summary>Selects a shot-block PLM by BTS, weapon family, area table, and air-versus-solid collision semantics.</summary>
+    /// <summary>Selects a shot-block PLM by behaviour, weapon family, area table, and air-versus-solid collision semantics.</summary>
     public bool TrySpawnProjectileShotBlock(
         RoomLevelData level,
         int blockIndex,
-        RoomBlockBehavior bts,
+        RoomBlockBehavior behavior,
         SamusProjectileTypeWord projectileType,
         bool solidBlock)
     {
         Ensure.NotNull(level);
-        if (bts.Value == EscapeAnimalWallDefinitions.ReactionBts)
+        if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
             return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, blockIndex, projectileType);
-        bool areaDependent = bts.UsesAreaReactionTable;
-        if (areaDependent && !bts.IsAreaReactionIndex(8))
+        bool areaDependent = behavior.UsesAreaReactionTable;
+        if (areaDependent && !behavior.IsAreaReactionIndex(8))
         {
             throw new UnsupportedShotBlockReactionException(
-                nameof(bts),
-                "Area-dependent shootable BTS must address one of its eight native entries.");
+                nameof(behavior),
+                "Area-dependent shootable behaviour must address one of its eight native entries.");
         }
         if (!areaDependent &&
-            !bts.IsNormalReactionIndex(16) &&
-            !bts.IsShootableCollisionProbe && !bts.IsUnusedShootableReaction)
+            !behavior.IsNormalReactionIndex(16) &&
+            !behavior.IsShootableCollisionProbe && !behavior.IsUnusedShootableReaction)
         {
             throw new UnsupportedShotBlockReactionException(
-                nameof(bts),
-                $"Shootable BTS ${bts.Value:X2} requires a specialized reaction outside the breakable/nothing PLM dispatcher.");
+                nameof(behavior),
+                $"Shootable behaviour {behavior} requires a specialized reaction outside the breakable/nothing PLM dispatcher.");
         }
 
-        // `$94:9E55` checks the sign bit before Spawn_PLM for shootable air. Its solid-block
-        // sibling `$94:9E73` instead performs the area-table lookup and allocates the retail
-        // no-op entry. This early return is therefore collision-nibble-specific.
+        // Shootable air checks the area-table selector before spawning. Its solid-block sibling instead performs the
+        // area-table lookup and allocates the retail no-op entry. This early return is therefore collision-kind-specific.
         if (areaDependent && !solidBlock)
             return false;
 
         SamusProjectileFamily projectileFamily = projectileType.Family;
 
-        // `$84:CF2E/$CF67` clear the newly allocated PLM header when the weapon family is
-        // wrong. Observably that is identical to returning with no active slot: setup never
-        // changes the live word, and the next handler has nothing to process. Perform this
+        // The power-bomb and Super Missile setups clear the newly allocated PLM when the weapon family is wrong.
+        // Observably that is identical to returning with no active slot: setup never changes the live block, and the
+        // next handler has nothing to process. Perform this
         // gate before the host allocation loop while preserving every accepted native path.
-        if (bts.RequiresPowerBombReaction && projectileFamily is not (
+        if (behavior.RequiresPowerBombReaction && projectileFamily is not (
             SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
             return false;
-        if (bts.RequiresSuperMissileReaction && projectileFamily is not (
+        if (behavior.RequiresSuperMissileReaction && projectileFamily is not (
             SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Bomb))
             return false;
 
-        // Spawn_PLM scans from native slot `$4E` down and performs no setup mutation when
-        // full. The projectile still receives the collision nibble's normal carry result.
+        // The spawn scans from the highest slot down and changes nothing when full. The projectile still receives the
+        // collision kind's normal result.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.BlockIndex = blockIndex;
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        slot.RestoreLevelWord = 0;
+        slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
 
         if (areaDependent)
         {
-            // Every retail area-table target at `$94:9FC6-$9FD4` is the nothing entry.
-            // Spawn_PLM still consumes a slot until its delete instruction runs.
+            // Every retail area-table target is the nothing entry. The spawn still consumes a slot until its delete
+            // instruction runs.
             PlmProgramStart.Delete.StartOn(slot);
             return true;
         }
 
-        if (bts.IsShootableCollisionProbe)
+        if (behavior.IsShootableCollisionProbe)
         {
             // Setup ends the projectile scan and forces its collision counter;
             // the caller publishes those scratch effects only after successful
@@ -316,77 +299,68 @@ internal sealed class BlockReactionPlms
             return true;
         }
 
-        if (bts.IsRespawningReaction)
+        if (behavior.IsRespawningReaction)
         {
-            // `$84:CE6B` synthesizes `$x052`, stores it for the 384-frame restoration,
-            // and clears type bits `$4000/$2000/$1000` through `AND $8FFF` immediately.
-            slot.RestoreLevelWord = block.PackedWord.WithVisualWord(RoomPlmVisualBlockDefinitions.ShotBlockParent).Raw;
-            slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.RespawningShot(bts.NormalReactionIndex)));
-            level.SetForegroundEntry(
-                blockIndex,
-                slot.RestoreLevelWord.WithPlmDeactivation().Raw);
+            // The setup keeps the collision kind with the shot-block parent's appearance for the 384-frame restoration,
+            // and deactivates the live block immediately.
+            slot.RestoreTerrain = block.Terrain.WithAppearance(RoomPlmVisualBlockDefinitions.ShotBlockParent);
+            slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.RespawningShot(behavior.NormalReactionIndex)));
+            level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
             return true;
         }
 
-        if (bts.IsPermanentReaction)
+        if (behavior.IsPermanentReaction)
         {
-            // `$84:B3C1` keeps no restoration word: BTS four through seven are
-            // permanent. The current word loses the shootable collision bits before
-            // the first animated breaking frame runs later in this gameplay pass.
-            slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.PermanentShot(bts.NormalReactionIndex - 4)));
-            level.SetForegroundEntry(
-                blockIndex,
-                block.PackedWord.WithPlmDeactivation().Raw);
+            // The deactivating setup keeps no restore block: behaviours four through seven are permanent. The current
+            // block loses its shootable collision before the first animated breaking frame runs later in this pass.
+            slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.PermanentShot(behavior.NormalReactionIndex - 4)));
+            level.SetTerrain(blockIndex, block.Terrain.Deactivated());
             return true;
         }
 
-        if (bts.RequiresPowerBombReaction)
+        if (behavior.RequiresPowerBombReaction)
         {
             if (projectileFamily == SamusProjectileFamily.Bomb)
             {
-                // A normal bomb does not break this block. `$84:CF2E` redirects to the
-                // one-frame visible power-bomb diagnostic without touching collision.
+                // A normal bomb does not break this block. The setup redirects to the one-frame visible power-bomb
+                // reveal without touching collision.
                 slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmProgram.BombedPowerBombBlockUnused));
                 return true;
             }
 
-            // A power bomb synthesizes `$x057`, applies `AND $8FFF`, and retains the
-            // exact list selected by header `$D084/$D088`. BTS eight uses the ordinary
-            // four-frame breakup; BTS nine uses its shorter 3/2/1-frame counterpart.
-            slot.RestoreLevelWord = block.PackedWord.WithVisualWord(RoomPlmVisualBlockDefinitions.PowerBombBlockParent).Raw;
-            slot.StartAnimation(new BlockReactionPlmAnimation(bts.NormalReactionIndex == 8
+            // A power bomb keeps the collision kind with the power-bomb parent's appearance, deactivates the live block,
+            // and runs its header's program. Behaviour eight uses the ordinary four-frame breakup; nine uses its shorter
+            // 3/2/1-frame counterpart.
+            slot.RestoreTerrain = block.Terrain.WithAppearance(RoomPlmVisualBlockDefinitions.PowerBombBlockParent);
+            slot.StartAnimation(new BlockReactionPlmAnimation(behavior.NormalReactionIndex == 8
                 ? BlockReactionPlmProgram.RespawningPowerBombBlock
                 : BlockReactionPlmProgram.PermanentPowerBombBlock));
-            level.SetForegroundEntry(
-                blockIndex,
-                slot.RestoreLevelWord.WithPlmDeactivation().Raw);
+            level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
             return true;
         }
 
-        if (bts.RequiresSuperMissileReaction)
+        if (behavior.RequiresSuperMissileReaction)
         {
             if (projectileFamily == SamusProjectileFamily.Bomb)
             {
-                // `$84:CF67` gives ordinary bombs the analogous one-frame Super Missile
-                // reveal. It deliberately leaves the live collision word untouched.
+                // Ordinary bombs get the analogous one-frame Super Missile reveal. It deliberately leaves the live block
+                // untouched.
                 slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmProgram.BombedSuperMissileBlockUnused));
                 return true;
             }
 
-            // Super Missiles synthesize `$x09F`. Header `$D08C` owns the respawning
-            // `$CB71` list and `$D090` owns the permanent `$CC0B` list.
-            slot.RestoreLevelWord = block.PackedWord.WithVisualWord(RoomPlmVisualBlockDefinitions.SuperMissileBlockParent).Raw;
-            slot.StartAnimation(new BlockReactionPlmAnimation(bts.NormalReactionIndex == 10
+            // Super Missiles keep the collision kind with the Super Missile parent's appearance; one header owns the
+            // respawning program and the other the permanent one.
+            slot.RestoreTerrain = block.Terrain.WithAppearance(RoomPlmVisualBlockDefinitions.SuperMissileBlockParent);
+            slot.StartAnimation(new BlockReactionPlmAnimation(behavior.NormalReactionIndex == 10
                 ? BlockReactionPlmProgram.RespawningSuperMissileBlock
                 : BlockReactionPlmProgram.PermanentSuperMissileBlock));
-            level.SetForegroundEntry(
-                blockIndex,
-                slot.RestoreLevelWord.WithPlmDeactivation().Raw);
+            level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
             return true;
         }
 
-        // `$94:9EA6` entries C..F all point to `$84:B62F`. Its empty setup leaves the
-        // block alone and its one-word `$AAE3` list deletes on the next handler pass.
+        // Entries C..F are all the empty reaction. Its setup leaves the block alone and its program deletes on the next
+        // handler pass.
         PlmProgramStart.Delete.StartOn(slot);
         return true;
     }
@@ -395,7 +369,7 @@ internal sealed class BlockReactionPlms
     public bool TrySpawnBombedSpecialBlock(
         RoomLevelData level,
         int blockIndex,
-        RoomBlockBehavior bts,
+        RoomBlockBehavior behavior,
         AreaId areaIndex,
         SamusProjectileTypeWord projectileType)
     {
@@ -411,22 +385,22 @@ internal sealed class BlockReactionPlms
         }
 
         PlmProgramStart program;
-        if (!bts.UsesAreaReactionTable)
+        if (!behavior.UsesAreaReactionTable)
         {
-            if (!bts.IsNormalReactionIndex(BombSpecialBlockReactions.Count))
-                throw new ArgumentOutOfRangeException(nameof(bts),
-                    "Area-independent special-block BTS is outside the cartridge reaction table.");
+            if (!behavior.IsNormalReactionIndex(BombSpecialBlockReactions.Count))
+                throw new ArgumentOutOfRangeException(nameof(behavior),
+                    "Area-independent special-block behaviour is outside the cartridge reaction table.");
 
-            program = BombSpecialBlockReactions.ProgramAt(bts.NormalReactionIndex);
+            program = BombSpecialBlockReactions.ProgramAt(behavior.NormalReactionIndex);
         }
         else
         {
-            int areaBehavior = bts.AreaReactionIndex;
-            if (!bts.IsAreaReactionIndex(8))
+            int areaBehavior = behavior.AreaReactionIndex;
+            if (!behavior.IsAreaReactionIndex(8))
             {
                 throw new ArgumentOutOfRangeException(
-                    nameof(bts),
-                    "Area-dependent bomb-special BTS must address one of its eight native entries.");
+                    nameof(behavior),
+                    "Area-dependent bomb-special behaviour must address one of its eight native entries.");
             }
 
             program = areaIndex == AreaId.Brinstar && areaBehavior is >= 2 and <= 5
@@ -438,7 +412,7 @@ internal sealed class BlockReactionPlms
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.RestoreLevelWord = 0;
+        slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
         program.StartOn(slot);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         return true;

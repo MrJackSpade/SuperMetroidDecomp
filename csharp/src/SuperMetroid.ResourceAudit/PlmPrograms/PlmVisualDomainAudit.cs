@@ -36,7 +36,7 @@ internal static class PlmVisualDomainAudit
         int? word = Constant("wordIndex") ?? Constant("blockIndex");
         if (word is int wordIndex && !frames.Any(frame => frame.Runs.Span
             .WhereToArray((_, index) => run is null || index == run.Value)
-            .Any(row => (uint)wordIndex < row.LevelWords.Length)))
+            .Any(row => (uint)wordIndex < row.Count)))
             return $"Constant word/block index={wordIndex} is outside the selected compiled PLM run shape.";
         return null;
     }

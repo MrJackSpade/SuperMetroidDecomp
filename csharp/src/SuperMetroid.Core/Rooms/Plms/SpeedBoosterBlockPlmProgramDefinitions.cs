@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// The Speed Booster blocks' PLM programs (#1296), in place of their bank-$84 instruction lists. A block crumbles through
-/// four images; a respawning block holds the last, plays them back and restores its saved level word.
+/// four images; a respawning block holds the last, plays them back and restores its saved block.
 /// </summary>
 internal static class SpeedBoosterBlockPlmProgramDefinitions
 {

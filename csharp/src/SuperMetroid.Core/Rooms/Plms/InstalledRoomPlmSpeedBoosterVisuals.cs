@@ -4,25 +4,25 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Editable bomb-reveal appearance. The type-B collision word and PLM timing
+/// Editable bomb-reveal appearance. The type-B collision and PLM timing
 /// remain in compiled cartridge definitions.
 /// </summary>
 public sealed class InstalledRoomPlmSpeedBoosterVisuals
 {
     /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmSpeedBoosterVisuals),
-        content => content.Append("visual word", visualWord.Raw));
+        content => content.AppendAppearances("block", [appearance]));
 
     /// <summary>
     /// Captured bomb-reveal metatile and flip bits; collision type and PLM timing
     /// continue to come from the compiled Speed Booster definition.
     /// </summary>
-    private readonly RoomLevelWord visualWord;
+    private readonly RoomBlockAppearance appearance;
 
     /// <summary>Validates and captures the single bomb-reveal appearance while preserving compiled Speed Booster collision and timing.</summary>
-    /// <param name="entries">Exactly one <c>bomb-reveal</c> entry containing one valid visual word; its value is captured, so later input-array edits do not affect the catalog.</param>
+    /// <param name="entries">Exactly one <c>bomb-reveal</c> entry containing one valid appearance; its value is captured, so later input-array edits do not affect the catalog.</param>
     /// <exception cref="ArgumentNullException"><paramref name="entries"/> is null.</exception>
-    /// <exception cref="InvalidDataException">Entry count, identity, block count, or presentation-only word bits do not match the compiled reveal.</exception>
+    /// <exception cref="InvalidDataException">Entry count, identity, block count, or appearances do not match the compiled reveal.</exception>
     public InstalledRoomPlmSpeedBoosterVisuals(
         IEnumerable<RoomPlmVisualEntry> entries)
     {
@@ -31,25 +31,24 @@ public sealed class InstalledRoomPlmSpeedBoosterVisuals
         if (selected.Length != 1 || selected[0] is null ||
             !SpeedBoosterBlockPlmDraws.TryGetByVisualId(
                 selected[0].Id, out _) ||
-            selected[0].Blocks is not { Length: 1 } blocks ||
-            !RoomLevelWord.IsValidVisualWord(blocks[0]))
+            selected[0].Blocks is not { Length: 1 } blocks)
             throw new InvalidDataException(
                 "Speed Booster visuals require exactly one bomb-reveal visual block.");
-        visualWord = new RoomLevelWord(blocks[0]);
+        appearance = blocks[0];
     }
 
-    /// <summary>Resolves the installed visual-only word for the sole Speed Booster bomb-reveal cell.</summary>
-    /// <param name="draw">The draw whose visual word is resolved.</param>
+    /// <summary>Resolves the installed appearance for the sole Speed Booster bomb-reveal cell.</summary>
+    /// <param name="draw">The draw whose appearance is resolved.</param>
     /// <param name="runIndex">Zero, the reveal's only draw run.</param>
     /// <param name="blockIndex">Zero, the run's only 16-by-16 block.</param>
-    /// <returns>The ten-bit metatile index and two parent flip bits; the compiled physical word supplies collision separately.</returns>
+    /// <returns>The block and its mirroring; the compiled terrain supplies collision separately.</returns>
     /// <exception cref="InvalidDataException">Any selector does not name the sole compiled reveal cell.</exception>
-    internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
+    internal RoomBlockAppearance GetAppearance(PlmDraw draw, int runIndex, int blockIndex)
     {
         if (draw != SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw ||
             runIndex != 0 || blockIndex != 0)
             throw new InvalidDataException(
                 $"Speed Booster visuals lack draw {draw} run {runIndex} block {blockIndex}.");
-        return visualWord.VisualWord;
+        return appearance;
     }
 }

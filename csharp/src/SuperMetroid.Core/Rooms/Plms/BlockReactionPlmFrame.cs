@@ -70,6 +70,6 @@ internal enum BlockReactionPlmFrame
     GrappleBreak2,
     /// <summary>The GrappleBlank image.</summary>
     GrappleBlank,
-    /// <summary>The slot's saved level word, redrawn as a respawning block returns.</summary>
+    /// <summary>The slot's saved block, redrawn as a respawning block returns.</summary>
     RestoredBlock,
 }

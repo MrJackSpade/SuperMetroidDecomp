@@ -27,7 +27,7 @@ internal static class TourianAccessPlmDefinitionsVerification
             const int width = 16;
             const int height = 16;
             int blockCount = width * height;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[blockCount], new byte[blockCount], new ushort[blockCount]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[blockCount], new RoomBlockBehavior[blockCount], new RoomBlockAppearance[blockCount]));
             var plms = PlmFixtures.Unbound();
 
             AssertTrue(

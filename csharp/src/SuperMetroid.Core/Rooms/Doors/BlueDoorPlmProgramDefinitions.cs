@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// The blue door caps' PLM programs (#1296), in place of their bank-$84 instruction lists: a shot cap opens and
-/// deletes; a cap closing behind Samus closes, restores its BTS and deletes.
+/// deletes; a cap closing behind Samus closes, restores its behaviour and deletes.
 /// </summary>
 internal static class BlueDoorPlmProgramDefinitions
 {
@@ -110,10 +110,10 @@ internal static class BlueDoorPlmProgramDefinitions
         Step.FallInto(closed),
     ];
 
-    /// <summary>A closed cap restores its blue BTS and shows its closed image.</summary>
+    /// <summary>A closed cap restores its blue-door behaviour and shows its closed image.</summary>
     private static Step[] ClosedSteps() =>
     [
-        Step.Publish(BlueDoorCue.RestoreBlueBts),
+        Step.Publish(BlueDoorCue.RestoreBlueBehavior),
         Step.Show(BlueDoorFrame.Blue0, 1),
         Step.Stop,
     ];

@@ -437,7 +437,7 @@ internal static class BlockReactionPlmProgramDefinitions
                 Step.Show(F.GrappleBreak2, 4),
                 Step.Show(F.GrappleBreak1, 4),
                 Step.Show(F.GrappleBreak0, 4),
-                Step.Publish(new(K.SetBtsToOne, null)),
+                Step.Publish(new(K.RestoreRespawningGrappleBehavior, null)),
                 Step.Show(F.RestoredBlock, 1),
                 Step.Stop,
             ],

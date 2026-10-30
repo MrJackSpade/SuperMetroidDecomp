@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -10,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// Extracts the visual block references of ordinary shot-block PLM draw lists.
-/// The native draw shapes and complete collision-changing level words stay compiled.
+/// The native draw shapes and complete collision-changing block stay compiled.
 /// </summary>
 public static class RoomPlmShotBlockVisualFiles
 {
@@ -27,9 +28,10 @@ public static class RoomPlmShotBlockVisualFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = true,
+        Converters = { new JsonStringEnumConverter() },
     };
 
-    /// <summary>Verifies ordinary shot-block bank-$84 draw geometry, complete physical words, and continuation offsets before exporting visual-only run arrays.</summary>
+    /// <summary>Verifies ordinary shot-block bank-$84 draw geometry, complete terrain, and continuation offsets before exporting visual-only run arrays.</summary>
     /// <param name="bus">Cartridge source for all nineteen compiled draws; stored identities are draw-list pointers, not PLM headers or instruction pointers.</param>
     /// <param name="directory">Family directory, created before native validation; receives new visual JSON and manifest files.</param>
     /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputing it; stock load requires the supported cartridge identity.</param>
@@ -61,10 +63,10 @@ public static class RoomPlmShotBlockVisualFiles
     /// <summary>Validates all stock shot-block draws before selecting an optional complete visual replacement.</summary>
     /// <param name="stockDirectory">Family directory containing version-one stock JSON and its required provenance/hash manifest.</param>
     /// <param name="overrideDirectory">Optional family directory; null or absent visual JSON uses validated stock.</param>
-    /// <returns>A ROM-independent catalog that copies edited run arrays and preserves native collision words, draw placement, timing, and slot effects.</returns>
-    /// <remarks>Stock provenance, byte hash, and compiled visual equality are checked first. Override JSON needs all nineteen draw pointers exactly once, original run counts/lengths, and twelve-bit visual words, but no manifest.</remarks>
+    /// <returns>A ROM-independent catalog that copies edited run arrays and preserves native collision, draw placement, timing, and slot effects.</returns>
+    /// <remarks>Stock provenance, byte hash, and compiled visual equality are checked first. Override JSON needs all nineteen draw pointers exactly once, original run counts/lengths, and twelve-bit appearance, but no manifest.</remarks>
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, run shape, or visual bits are invalid.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, schema, identities, coverage, run shape, or appearance are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static InstalledRoomPlmShotBlockVisuals Load(
         string stockDirectory, string? overrideDirectory)
@@ -100,7 +102,7 @@ public static class RoomPlmShotBlockVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    /// <summary>Checks all bank 84 run headers, physical words, and offsets before exporting editable visual bits.</summary>
+    /// <summary>Checks all bank 84 run headers, terrain, and offsets before exporting editable appearance.</summary>
     private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var result = new List<RoomPlmVisualRunEntry>();
@@ -108,21 +110,21 @@ public static class RoomPlmShotBlockVisualFiles
                  ShotBlockPlmDraws.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
             int cursor = PlmDrawAddressCodec.Of(list.Draw);
-            var visuals = new List<ushort[]>();
+            var visuals = new List<RoomBlockAppearance[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)) != PlmRunHeaderCodec.Encode(run))
                     throw new InvalidDataException(
                         $"Shot-block draw list {list.Draw} has a different shape in the source cartridge.");
                 cursor = unchecked((ushort)(cursor + 2));
-                var visualWords = new ushort[run.LevelWords.Length];
-                for (int index = 0; index < visualWords.Length; index++)
+                var appearances = new RoomBlockAppearance[run.Count];
+                for (int index = 0; index < appearances.Length; index++)
                 {
-                    int source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor));
-                    if (source != run.LevelWords.Span[index])
+                    RoomTerrainBlock source = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmSourceDefinitions.PlmBank, cursor)));
+                    if (source != run.Blocks.Span[index])
                         throw new InvalidDataException(
                             $"Shot-block draw list {list.Draw} differs at ${cursor:X4}.");
-                    visualWords[index] = new RoomLevelWord(checked((ushort)source)).VisualWord;
+                    appearances[index] = source.Appearance;
                     cursor = unchecked((ushort)(cursor + 2));
                 }
 
@@ -132,7 +134,7 @@ public static class RoomPlmShotBlockVisualFiles
                     throw new InvalidDataException(
                         $"Shot-block draw list {list.Draw} has a different next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));
-                visuals.Add(visualWords);
+                visuals.Add(appearances);
             }
 
             result.Add(new RoomPlmVisualRunEntry(ShotBlockPlmDraws.VisualId(list.Draw), visuals.ToArray()));
@@ -141,17 +143,16 @@ public static class RoomPlmShotBlockVisualFiles
         return result.ToArray();
     }
 
-    /// <summary>Rejects stock visual words that differ from the nineteen compiled draw lists.</summary>
+    /// <summary>Rejects stock appearance that differ from the nineteen compiled draw lists.</summary>
     private static void VerifyStockMatchesCompiled(
         InstalledRoomPlmShotBlockVisuals catalog, string path)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in ShotBlockPlmDraws.All)
         for (int run = 0; run < list.Runs.Length; run++)
-        for (int word = 0; word < list.Runs.Span[run].LevelWords.Length; word++)
+        for (int word = 0; word < list.Runs.Span[run].Count; word++)
         {
-            int expected = new RoomLevelWord(
-                list.Runs.Span[run].LevelWords.Span[word]).VisualWord;
-            if (catalog.GetWord(list.Draw, run, word) != expected)
+            RoomBlockAppearance expected = list.Runs.Span[run].Blocks.Span[word].Appearance;
+            if (catalog.GetAppearance(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
                     $"Stock shot-block visuals {path} differ from compiled list {list.Draw}.");
         }

@@ -356,14 +356,14 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
 
         if (component == EyeDoorComponent.Eye)
         {
-            PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorDefinitions.EyeCollision,
-                EyeDoorDefinitions.EyeBehavior.Value);
+            PlmLevelWrites.WritePlmCollisionAndBehavior(level, slot.BlockIndex, EyeDoorDefinitions.EyeCollision,
+                EyeDoorDefinitions.EyeBehavior);
             WriteExtensionRows(level, slot.BlockIndex, EyeDoorDefinitions.EyeExtensionRows);
             return;
         }
 
-        PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorDefinitions.ClosedComponentCollision,
-            EyeDoorDefinitions.ClosedComponentBehavior.Value);
+        PlmLevelWrites.WritePlmCollisionAndBehavior(level, slot.BlockIndex, EyeDoorDefinitions.ClosedComponentCollision,
+            EyeDoorDefinitions.ClosedComponentBehavior);
     }
 
     /// <summary>Wakes opened components or consumes a pending missile hit before instruction dispatch.</summary>
@@ -473,11 +473,11 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
         };
         slot.BlockIndex = checked(slot.BlockIndex - level.Size.X);
-        PlmLevelWrites.WritePlmCollisionTypeAndBts(
+        PlmLevelWrites.WritePlmCollisionAndBehavior(
             level,
             slot.BlockIndex,
             RoomCollisionType.ShootableBlock,
-            facing.Value);
+            facing);
         WriteExtensionRows(level, slot.BlockIndex, EyeDoorDefinitions.BlueDoorExtensionCount);
     }
 
@@ -489,11 +489,11 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     {
         for (int row = 1; row <= rows; row++)
         {
-            PlmLevelWrites.WritePlmCollisionTypeAndBts(
+            PlmLevelWrites.WritePlmCollisionAndBehavior(
                 level,
                 checked(originIndex + row * level.Size.X),
                 RoomCollisionType.VerticalExtension,
-                unchecked((byte)-row));
+                RoomBlockBehavior.OfExtensionOffset(-row));
         }
     }
 

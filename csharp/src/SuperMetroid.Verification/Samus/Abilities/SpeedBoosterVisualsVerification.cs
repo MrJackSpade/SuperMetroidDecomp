@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -22,32 +24,31 @@ internal static class SpeedBoosterVisualsVerification
     private static void VerifySpeedBoosterStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;
-        ushort native = (ushort)(ReadRomWord(rom,0x84a4f5) & 0xfff);
+        RoomBlockAppearance native = RoomLevelWordCodec.DecodeAppearance(ReadRomWord(rom,0x84a4f5));
         var stock = InstalledRoomPlmSpeedBoosterVisuals.Stock();
         var imported = new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[native])]);
-        string Hash(ushort word) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
-            nameof(InstalledRoomPlmSpeedBoosterVisuals), content => content.Append("visual word",word));
-        AssertEqual(native,stock.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed stock visual matches original native draw");
-        AssertEqual(native,imported.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed imported visual matches original native draw");
+        string Hash(RoomBlockAppearance appearance) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
+            nameof(InstalledRoomPlmSpeedBoosterVisuals), content => content.AppendAppearances("block",[appearance]));
+        AssertEqual(native,stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed stock visual matches original native draw");
+        AssertEqual(native,imported.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed imported visual matches original native draw");
         AssertEqual(Hash(native),stock.ContentIdentity,"speed stock scalar identity");
         AssertEqual(Hash(native),imported.ContentIdentity,"speed imported scalar identity");
         for (int address = 0; address <= ushort.MaxValue; address++)
             if (address != pointer)
-                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>((ushort)address),0,0),"speed visual full pointer rejection");
+                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>((ushort)address),0,0),"speed visual full pointer rejection");
         foreach (int invalid in new[] {int.MinValue,-1,1,2,int.MaxValue})
         {
-            AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),invalid,0),"speed visual run bounds");
-            AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,invalid),"speed visual block bounds");
+            AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),invalid,0),"speed visual run bounds");
+            AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,invalid),"speed visual block bounds");
         }
-        ushort[] custom = [0x0453];
+        RoomBlockAppearance[] custom = [RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal)];
         var edited = new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",custom)]);
-        custom[0] = 0x0054;
-        AssertEqual((ushort)0x0453,edited.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed visual scalar isolates source-array edits");
-        AssertEqual(Hash(0x0453),edited.ContentIdentity,"speed custom scalar identity including flip bits");
+        custom[0] = RoomBlockAppearance.Of(0x054);
+        AssertEqual(RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal),edited.GetAppearance(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed visual scalar isolates source-array edits");
+        AssertEqual(Hash(RoomBlockAppearance.Of(0x053, BlockMirroring.Horizontal)),edited.ContentIdentity,"speed custom scalar identity including mirroring");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([]),"speed visual requires entry");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[native]),new("bomb-reveal",[native])]),"speed visual rejects duplicate entry");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("Bomb-reveal",[native])]),"speed visual ID is ordinal");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[0xb0b6])]),"speed visual rejects collision bits");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmSpeedBoosterVisuals([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
     }
 
@@ -68,9 +69,9 @@ internal static class SpeedBoosterVisualsVerification
             RoomPlmSpeedBoosterVisualFiles.ValidateStock(
                 installation.RoomPlmSpeedBoosterVisualDirectory);
             PlmDraw drawPointer = SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw;
-            AssertEqual((ushort)0x00b6,
+            AssertEqual(RoomBlockAppearance.Of(0x0b6),
                 installation.LoadRoomPlmSpeedBoosterVisuals()
-                    .GetWord(drawPointer, 0, 0),
+                    .GetAppearance(drawPointer, 0, 0),
                 "stock bomb-reveal visual matches the cartridge");
 
             string stockPath = Path.Combine(
@@ -78,7 +79,7 @@ internal static class SpeedBoosterVisualsVerification
                 RoomPlmSpeedBoosterVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted Speed Booster JSON is empty.");
-            document.Required("entries").Required(0).Required("blocks")[0] = 0x0058;
+            document.Required("entries").Required(0).Required("blocks")[0] = PlmVisualJson.Appearance(0x058);
             Directory.CreateDirectory(
                 installation.RoomPlmSpeedBoosterVisualOverrideDirectory);
             string overridePath = Path.Combine(
@@ -87,7 +88,7 @@ internal static class SpeedBoosterVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             InstalledRoomPlmSpeedBoosterVisuals edited =
                 installation.LoadRoomPlmSpeedBoosterVisuals();
-            AssertEqual((ushort)0x0058, edited.GetWord(drawPointer, 0, 0),
+            AssertEqual(RoomBlockAppearance.Of(0x058), edited.GetAppearance(drawPointer, 0, 0),
                 "Speed Booster visual override is loaded");
 
             (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms,
@@ -99,14 +100,14 @@ internal static class SpeedBoosterVisualsVerification
                     new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
                 "bomb triggers the production Speed Booster reveal PLM");
             plms.Step(level);
-            AssertEqual((ushort)0xb0b6,
-                level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+            AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+                level.GetCollisionBlockByIndex(blockIndex).Terrain,
                 "edited reveal retains compiled type-B physical level word");
             // A PLM redraw identifies its block by the BG1 ring destination of that block.
-            AssertEqual((ushort)0x0058, level.DisplayedVisualWord(blockIndex),
+            AssertEqual(RoomBlockAppearance.Of(0x058), level.DisplayedAppearance(blockIndex),
                 "edited reveal reaches the immediate tilemap update");
-            AssertEqual((ushort)0x0058,
-                level.DisplayedVisualWord(blockIndex),
+            AssertEqual(RoomBlockAppearance.Of(0x058),
+                level.DisplayedAppearance(blockIndex),
                 "edited reveal survives later camera streaming");
             plms.Step(level);
             AssertEqual(0, plms.SlotTable.ActiveCount,
@@ -117,10 +118,10 @@ internal static class SpeedBoosterVisualsVerification
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmSpeedBoosterVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0058,
+            AssertEqual(RoomBlockAppearance.Of(0x058),
                 RoomPlmSpeedBoosterVisualFiles.Load(refreshed,
                     installation.RoomPlmSpeedBoosterVisualOverrideDirectory)
-                    .GetWord(drawPointer, 0, 0),
+                    .GetAppearance(drawPointer, 0, 0),
                 "override survives stock replacement");
             document.Required("entries").Required(0).Required("blocks")[0] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());

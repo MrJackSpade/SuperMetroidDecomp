@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Rooms.Plms.RoomPlmShotBlockDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>How each shot-block draw compiles into level-word runs, and how its runs and artwork are found and named.</summary>
+/// <summary>How each shot-block draw compiles into terrain runs, and how its runs and artwork are found and named.</summary>
 internal static class ShotBlockPlmDraws
 {
     /// <summary>Resolves a published visual resource identity to its compiled draw list.</summary>
@@ -56,19 +56,19 @@ internal static class ShotBlockPlmDraws
         var runs = new Run[shape.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
-            var words = new ushort[shape.WordCount(run)];
-            for (int cell = 0; cell < words.Length; cell++) words[cell] = shape.WordAt(run, cell);
-            runs[run] = new(PlmRunDirection.Horizontal, words, new(shape.NextX(run), shape.NextY(run)));
+            var blocks = new RoomTerrainBlock[shape.BlockCount(run)];
+            for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = shape.BlockAt(run, cell);
+            runs[run] = new(PlmRunDirection.Horizontal, blocks, new(shape.NextX(run), shape.NextY(run)));
         }
         return new(draw, runs);
     }
 
-    /// <summary>Builds the one four-word run of a door cap draw.</summary>
+    /// <summary>Builds the one four-block run of a door cap draw.</summary>
     private static DrawList CompileCap<TShape>(PlmDraw draw, TShape shape) where TShape : IPlmCapDrawShape
     {
-        var words = new ushort[4];
-        for (int cell = 0; cell < 4; cell++) words[cell] = shape.WordAt(cell);
-        return new(draw, new Run[] { new(shape.Direction, words, new(0, 0)) });
+        var blocks = new RoomTerrainBlock[4];
+        for (int cell = 0; cell < 4; cell++) blocks[cell] = shape.BlockAt(cell);
+        return new(draw, new Run[] { new(shape.Direction, blocks, new(0, 0)) });
     }
 
     /// <summary>Breakup frame <paramref name="frame"/>, 0 through 3, of a shot block of <paramref name="shape"/>.</summary>
@@ -106,22 +106,21 @@ internal static class ShotBlockPlmDraws
     /// <summary>Materializes draw-list DTOs for asset tooling; runtime uses calculated draws directly.</summary>
     internal static IEnumerable<DrawList> All => Calculated.Select(Export);
 
-    /// <summary>Expands a calculated shot-block draw into ordered level-word runs and offsets.</summary>
+    /// <summary>Expands a calculated shot-block draw into ordered terrain runs and offsets.</summary>
     private static DrawList Export(Draw draw)
     {
         var runs = new Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
-            var words = new ushort[draw.WordsPerRun];
-            for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(run, block);
-            runs[run] = new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, words,
+            var blocks = new RoomTerrainBlock[draw.BlocksPerRun];
+            for (int block = 0; block < blocks.Length; block++) blocks[block] = draw.BlockAt(run, block);
+            runs[run] = new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal, blocks,
                 new(0, (sbyte)(run + 1 < runs.Length ? 1 : 0)));
         }
         return new(PlmDraw.Of(draw), runs);
     }
 
-    /// <summary>Bounded native draw: four breakup stages per shape at $84:A345-$A3DC,
-    /// or parent/child restoration at $84:A47B-$A49A. Breakup uses consecutive
+    /// <summary>A shot-block draw: four breakup stages per shape, or parent/child restoration. Breakup uses consecutive
     /// visual blocks $53-$55 then air; restoration uses the shape's base tile,
     /// consecutive columns and a 32-index row stride, with native collision links.</summary>
     [IndependentFlag("whether a shot-block draw is the restoring variant, a fact of the decoded draw list")]
@@ -129,21 +128,21 @@ internal static class ShotBlockPlmDraws
     {
         /// <summary>Gets two runs for a square or one for the other block arrangements.</summary>
         internal int RunCount => Layout == Shape.Square ? 2 : 1;
-        /// <summary>Gets the number of level words in each run for this shape.</summary>
-        internal int WordsPerRun => Layout == Shape.Single ? 1 : 2;
-        /// <summary>Whether the native draw writes its words down a column.</summary>
+        /// <summary>Gets the number of blocks in each run for this shape.</summary>
+        internal int BlocksPerRun => Layout == Shape.Single ? 1 : 2;
+        /// <summary>Whether the draw writes its blocks down a column.</summary>
         internal bool Vertical => Layout == Shape.Vertical;
 
-        /// <summary>Calculates breakup air or a restored parent/child collision word at a block position.</summary>
-        internal ushort WordAt(int run, int block)
+        /// <summary>Calculates breakup air or a restored parent/child block at a block position.</summary>
+        internal RoomTerrainBlock BlockAt(int run, int block)
         {
             if ((uint)run >= RunCount)
                 throw new ArgumentOutOfRangeException(nameof(run));
-            if ((uint)block >= WordsPerRun)
+            if ((uint)block >= BlocksPerRun)
                 throw new ArgumentOutOfRangeException(nameof(block));
             if (!Restore)
-                return Frame == 3 ? PlmLevelWordDefinitions.BlankAir
-                    : RoomLevelWord.Create(BreakupFirstBlock + Frame, BlockMirroring.None, RoomCollisionType.Air).Raw;
+                return Frame == 3 ? RoomTerrainBlocks.BlankAir
+                    : RoomTerrainBlock.Of(BreakupFirstBlock + Frame, BlockMirroring.None, RoomCollisionType.Air);
             int row = Vertical ? block : run;
             int column = Vertical ? 0 : block;
             int tile = RestoreBlocks.TryGetValue(Layout, out int restored)
@@ -152,7 +151,7 @@ internal static class ShotBlockPlmDraws
             // Parent is shootable; children link left on the first row and up below.
             RoomCollisionType collision = row == 0 && column == 0 ? RoomCollisionType.ShootableBlock
                 : row == 0 ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
-            return RoomLevelWord.Create(tile + RestoreRowStride * row + column, BlockMirroring.None, collision).Raw;
+            return RoomTerrainBlock.Of(tile + RestoreRowStride * row + column, BlockMirroring.None, collision);
         }
     }
 

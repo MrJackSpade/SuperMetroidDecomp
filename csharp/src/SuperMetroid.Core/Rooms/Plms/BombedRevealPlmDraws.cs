@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class BombedRevealPlmDraws
 {
     /// <summary>
-    /// Describes a draw pointer handed over by the shared PLM draw interpreter; pointers
-    /// outside the three reveals belong to other families.
+    /// Describes a draw handed over by the shared PLM draw interpreter; draws outside the three reveals belong to
+    /// other families.
     /// </summary>
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
@@ -18,10 +18,10 @@ internal static class BombedRevealPlmDraws
             return false;
         }
         RoomPlmBombedRevealDraw frame = PlmDraw.FrameOf<RoomPlmBombedRevealDraw>(request, "RoomPlmBombedRevealDraw");
-        RoomLevelWord word = Words.TryGetValue(frame, out RoomLevelWord found)
+        RoomTerrainBlock block = Blocks.TryGetValue(frame, out RoomTerrainBlock found)
             ? found
             : throw new InvalidOperationException($"Undefined bombed-reveal draw {request}.");
-        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, new ushort[] { word.Raw }, new(0, 0)) });
+        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, new[] { block }, new(0, 0)) });
         return true;
     }
 }

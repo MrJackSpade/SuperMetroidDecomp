@@ -101,34 +101,34 @@ internal static class GameplayContentIdentityVerification
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
-            if (XrayRevealTable.Find(type, (byte)bts) is not { } native ||
+            if (XrayRevealTable.Find(type, new RoomBlockBehavior(bts)) is not { } native ||
                 !InstalledXrayReveals.IsDrawable(native.Command)) continue;
-            var visual = new XrayRevealVisualWords(native.TopLeft, native.TopRight, native.BottomLeft, native.BottomRight);
+            var visual = new XrayRevealVisualBlocks(native.TopLeft, native.TopRight, native.BottomLeft, native.BottomRight);
             if (!editedOperands && native.Command == XrayRevealCommand.CopySquare && edit?.StartsWith("xray-", StringComparison.Ordinal) == true)
             {
                 visual = visual with
                 {
-                    TopLeft = (ushort)(visual.TopLeft ^ (edit == "xray-top-left" ? 1 : 0)),
-                    TopRight = (ushort)(visual.TopRight ^ (edit == "xray-top-right" ? 1 : 0)),
-                    BottomLeft = (ushort)(visual.BottomLeft ^ (edit == "xray-bottom-left" ? 1 : 0)),
-                    BottomRight = (ushort)(visual.BottomRight ^ (edit == "xray-bottom-right" ? 1 : 0)),
+                    TopLeft = visual.TopLeft ^ (edit == "xray-top-left" ? 1 : 0),
+                    TopRight = visual.TopRight ^ (edit == "xray-top-right" ? 1 : 0),
+                    BottomLeft = visual.BottomLeft ^ (edit == "xray-bottom-left" ? 1 : 0),
+                    BottomRight = visual.BottomRight ^ (edit == "xray-bottom-right" ? 1 : 0),
                 };
                 editedOperands = true;
             }
-            entries.Add(new(type, (byte)bts, visual));
+            entries.Add(new(type, new RoomBlockBehavior(bts), visual));
         }
         AssertEqual(305, entries.Count, "complete compiled drawable rule fixture");
-        var items = new ushort[InstalledXrayOverlays.DynamicGraphicsSlots * 2];
-        if (edit == "xray-item") items[^1] = 1;
+        var items = new RoomBlockAppearance[InstalledXrayOverlays.DynamicGraphicsSlots * 2];
+        if (edit == "xray-item") items[^1] = RoomBlockAppearance.Of(1);
         XrayRoomOverlayVisual[] tiles =
         [
-            new(new(1, 2), new RoomLevelWord(3)),
+            new(new(1, 2), RoomBlockAppearance.Of(3)),
             new(new((byte)(edit == "overlay-x" ? 5 : 4), (byte)(edit == "overlay-y" ? 6 : 5)),
-                new RoomLevelWord((ushort)(edit == "overlay-word" ? 7 : 6))),
+                RoomBlockAppearance.Of(edit == "overlay-word" ? 7 : 6)),
         ];
         if (edit == "overlay-order") Array.Reverse(tiles);
         XrayRoomOverlayTiles[] rooms =
-            [new(FirstFixtureOverlay, tiles), new(SecondFixtureOverlay, new XrayRoomOverlayVisual[] { new(new(8, 9), new RoomLevelWord(10)) })];
+            [new(FirstFixtureOverlay, tiles), new(SecondFixtureOverlay, new XrayRoomOverlayVisual[] { new(new(8, 9), RoomBlockAppearance.Of(10)) })];
         var overlays = InstalledXrayOverlays.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
         var xray = new InstalledXrayReveals(reverse ? entries.AsEnumerable().Reverse() : entries, overlays);
         return GameplayPresentationIdentity.Create(palettes, sprites, xray);

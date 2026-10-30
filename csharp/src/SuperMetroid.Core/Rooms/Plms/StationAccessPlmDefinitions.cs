@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Named station/side dispatch for BTS $47..$4C, matching $94:91C7..91D2.
+/// Named station/side dispatch for behaviour $47..$4C, matching $94:91C7..91D2.
 /// Each case selects its retracted/extended arm draws.
-/// Energy and missile stations share access artwork on each side. Other BTS
+/// Energy and missile stations share access artwork on each side. Other behaviour
 /// values, including the save-floor trigger, are outside this extending domain.
 /// </summary>
 internal static class StationAccessPlmDefinitions

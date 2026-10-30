@@ -1,8 +1,9 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Rooms.Plms.KraidRoomPlmDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The level words and artwork names of Kraid's room's crumble and clear draws.</summary>
+/// <summary>The block and artwork names of Kraid's room's crumble and clear draws.</summary>
 internal static class KraidRoomPlmDraws
 {
     /// <summary>Recognizes a Kraid room draw and returns its calculated descriptor.</summary>
@@ -24,23 +25,23 @@ internal static class KraidRoomPlmDraws
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}."),
     };
 
-    /// <summary>Calculates a named crumble, background, or alternating clear block word.</summary>
+    /// <summary>Calculates a named crumble, background, or alternating clear block.</summary>
     /// <remarks>The ceiling clear starts with its unique left edge, then repeats
     /// background two/three. The spike clear repeats first/second columns eleven times.
-    /// Full words retain collision nibbles; editable visual overrides are applied later.</remarks>
-    private static ushort LevelWord(KraidRoomDraw draw, int index) => draw switch
+    /// Blocks keep their collision kinds; editable visual overrides are applied later.</remarks>
+    private static RoomTerrainBlock Terrain(KraidRoomDraw draw, int index) => draw switch
     {
-        KraidRoomDraw.ClearCeiling => FixedWord(index == 0 ? KraidRoomDraw.CeilingBackground1
+        KraidRoomDraw.ClearCeiling => FixedBlock(index == 0 ? KraidRoomDraw.CeilingBackground1
             : (index & 1) != 0 ? KraidRoomDraw.CeilingBackground2 : KraidRoomDraw.CeilingBackground3),
-        KraidRoomDraw.ClearSpikes => FixedWord((index & 1) == 0 ? KraidRoomDraw.SpikeFirst : KraidRoomDraw.SpikeSecond),
+        KraidRoomDraw.ClearSpikes => FixedBlock((index & 1) == 0 ? KraidRoomDraw.SpikeFirst : KraidRoomDraw.SpikeSecond),
         KraidRoomDraw.CrumbleFirst or KraidRoomDraw.CrumbleSecond or KraidRoomDraw.CrumbleThird or
         KraidRoomDraw.CeilingBackground1 or KraidRoomDraw.CeilingBackground2 or KraidRoomDraw.CeilingBackground3 or
-        KraidRoomDraw.SpikeFirst or KraidRoomDraw.SpikeSecond => FixedWord(draw),
+        KraidRoomDraw.SpikeFirst or KraidRoomDraw.SpikeSecond => FixedBlock(draw),
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}."),
     };
 
-    /// <summary>The level word of a single named crumble, background or spike block.</summary>
-    private static ushort FixedWord(KraidRoomDraw draw) => FixedWords[draw].Raw;
+    /// <summary>The terrain of a single named crumble, background or spike block.</summary>
+    private static RoomTerrainBlock FixedBlock(KraidRoomDraw draw) => FixedBlocks[draw];
 
     /// <summary>Resolves an ordinal artwork identifier to its calculated Kraid draw.</summary>
     internal static bool TryGetByVisualId(string id, out Draw draw)
@@ -72,18 +73,18 @@ internal static class KraidRoomPlmDraws
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {draw}."),
     };
 
-    /// <summary>A horizontal, single-run Kraid draw evaluated without stored words.</summary>
+    /// <summary>A horizontal, single-run Kraid draw evaluated without stored blocks.</summary>
     internal readonly record struct Draw(KraidRoomDraw Frame)
     {
         /// <summary>Gets the number of blocks in this single horizontal native run.</summary>
         internal int BlockCount => CountFor(Frame);
-        /// <summary>Calculates the full collision and tile word for a block in this draw.</summary>
-        internal ushort WordAt(int index) =>
-            (uint)index < (uint)BlockCount ? LevelWord(Frame, index) : throw new ArgumentOutOfRangeException(nameof(index));
+        /// <summary>Calculates the terrain of a block in this draw.</summary>
+        internal RoomTerrainBlock BlockAt(int index) =>
+            (uint)index < (uint)BlockCount ? Terrain(Frame, index) : throw new ArgumentOutOfRangeException(nameof(index));
     }
 
-    /// <summary>Materializes temporary native-shaped records for asset import/export and
-    /// inspection. Gameplay reads Draw.WordAt directly; no generated draw cache exists.</summary>
+    /// <summary>Materializes temporary run records for asset import/export and inspection. Gameplay reads
+    /// Draw.BlockAt directly; no generated draw cache exists.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -91,10 +92,10 @@ internal static class KraidRoomPlmDraws
             foreach (KraidRoomDraw frame in Enum.GetValues<KraidRoomDraw>())
             {
                 var draw = new Draw(frame);
-                ushort[] words = new ushort[draw.BlockCount];
-                for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(block);
+                var blocks = new RoomTerrainBlock[draw.BlockCount];
+                for (int block = 0; block < blocks.Length; block++) blocks[block] = draw.BlockAt(block);
                 yield return new(PlmDraw.Of(frame),
-                    new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, words, new(0, 0)) });
+                    new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, blocks, new(0, 0)) });
             }
         }
     }

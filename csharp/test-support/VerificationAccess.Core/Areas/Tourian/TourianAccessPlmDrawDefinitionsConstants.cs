@@ -1,4 +1,5 @@
-﻿using SuperMetroid.AssetExtraction.Rooms;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -15,14 +16,14 @@ internal static class TourianAccessPlmDrawDefinitionsConstants
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
-    /// <summary>The rows and air word of <paramref name="request"/> when it is a Tourian access draw.</summary>
-    internal static bool TryDescribe(PlmDraw request, out int rows, out int word)
+    /// <summary>The rows and air block of <paramref name="request"/> when it is a Tourian access draw.</summary>
+    internal static bool TryDescribe(PlmDraw request, out int rows, out RoomTerrainBlock block)
     {
         bool found = PlmDraw.TryFrame(request, out TourianAccessDraw frame);
         rows = 0;
-        word = 0;
+        block = default;
         if (found)
-            TourianAccessDraws.Describe(frame, out rows, out word);
+            TourianAccessDraws.Describe(frame, out rows, out block);
         return found;
     }
 

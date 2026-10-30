@@ -43,15 +43,15 @@ internal static class SpeedBoosterPlmProgramsVerification
             AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),missing,"speed reveal missing ID clears output");
         }
         ushort nativeWord = ReadRomWord(rom,0x840000 | (pointer + 2));
-        AssertEqual(nativeWord,SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord,"speed reveal calculated physical word");
+        AssertEqual(nativeWord,SpeedBoosterBlockPlmDrawDefinitions.BombRevealTerrain,"speed reveal calculated physical word");
         foreach (var draw in new[] {exported[0],byId,SpeedBoosterBlockPlmDrawDefinitions.BombReveal})
         {
             AssertEqual(pointer,PlmDrawAddressCodec.Of(draw.Draw),"speed reveal DTO identity");
             AssertEqual(1,draw.Runs.Length,"speed reveal single run");
             var run = draw.Runs.Span[0];
             AssertRunHeader(ReadRomWord(rom,0x840000 | pointer),run,"speed reveal native direction/count");
-            AssertEqual(1,run.LevelWords.Length,"speed reveal single word");
-            AssertEqual(nativeWord,run.LevelWords.Span[0],"speed reveal exported native word");
+            AssertEqual(1,run.Count,"speed reveal single word");
+            AssertEqual(nativeWord,run.Blocks.Span[0],"speed reveal exported native word");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),run.Next.X,"speed reveal native terminal X");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),run.Next.Y,"speed reveal native terminal Y");
         }
@@ -77,7 +77,7 @@ internal static class SpeedBoosterPlmProgramsVerification
         {
             int tableAddress = 0;
             foreach (var entry in entries)
-                if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))
+                if (entry.Behavior == bts && (entry.Area < 0 || entry.Area == area))
                     tableAddress = entry.Address;
             bool found = SpeedBoosterBlocks.TryResolve(new RoomBlockBehavior((byte)bts),
                 (AreaId)(byte)area,out var definition);
@@ -149,8 +149,8 @@ internal static class SpeedBoosterPlmProgramsVerification
                 new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
             "normal bomb allocates the Speed Booster reveal PLM");
         bombPlms.Step(bombLevel);
-        AssertEqual((ushort)0xb0b6,
-            bombLevel.GetCollisionBlockByIndex(bombBlock).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+            bombLevel.GetCollisionBlockByIndex(bombBlock).Terrain,
             "bombed speed block draws the native physical reveal word");
         bombPlms.Step(bombLevel);
         AssertEqual(0, bombPlms.SlotTable.ActiveCount,

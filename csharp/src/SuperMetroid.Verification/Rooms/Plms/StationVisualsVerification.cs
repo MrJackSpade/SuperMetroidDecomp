@@ -30,8 +30,8 @@ internal static class StationVisualsVerification
             .Select(list => new RoomPlmVisualRunEntry(
                 StationPlmDraws.VisualId(NativePlmDraws.At<StationDraw>(PlmDrawAddressCodec.Of(list.Draw))),
                 list.Runs.Span
-                    .SelectToArray(run => run.LevelWords.Span
-                        .SelectToArray(word => new RoomLevelWord(word).VisualWord))
+                    .SelectToArray(run => run.Blocks.Span
+                        .SelectToArray(block => block.Appearance))
                     ))
             .ToArray();
         RoomPlmVisualRunEntry first = entries.Single(entry => entry.Id == "map-frame-0");
@@ -40,7 +40,7 @@ internal static class StationVisualsVerification
         first.Runs[0][0] = 0x0054;
         ushort pointer = PlmDrawAddressCodec.Of(StationAnimationPrograms.Resolve(
             StationAnimationList.MapIdle, 0).Draw);
-        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
+        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
             "station visual catalog copies author data");
         StationVisualsRenderResult Render(
             InstalledRoomPlmStationVisuals visuals)
@@ -51,26 +51,26 @@ internal static class StationVisualsVerification
             WriteStationVisualMapPopulation(bus, population);
             const int width = 16;
             const int block = 6 + 6 * width;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmStationVisuals = visuals });
             PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             plms.Step(level);
-            return new StationVisualsRenderResult(level.GetCollisionBlockByIndex(block).PackedWord.Raw,
-                level.DisplayedVisualWord(block),
-                level.DisplayedVisualWord(block));
+            return new StationVisualsRenderResult(level.GetCollisionBlockByIndex(block).Terrain,
+                level.DisplayedAppearance(block),
+                level.DisplayedAppearance(block));
         }
 
         var native = Render(stock);
         var changed = Render(edited);
-        AssertEqual((ushort)0x810c, native.Physical,
+        AssertEqual(RoomTerrainBlock.Of(0x10c, BlockMirroring.None, RoomCollisionType.SolidBlock), native.Physical,
             "stock map-station frame keeps its native physical level word");
         AssertEqual(native.Physical, changed.Physical,
             "station art cannot change collision or physical level data");
-        AssertEqual((ushort)0x010c, native.Immediate,
+        AssertEqual(RoomBlockAppearance.Of(0x10c), native.Immediate,
             "stock station block reaches the immediate redraw");
-        AssertEqual((ushort)0x0053, changed.Immediate,
+        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Immediate,
             "edited station visual reaches the immediate redraw");
-        AssertEqual((ushort)0x0053, changed.Streamed,
+        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Streamed,
             "edited station visual survives later camera streaming");
 
         var gameplayBus = new TestAddressSpace();
@@ -101,21 +101,21 @@ internal static class StationVisualsVerification
                 ?? throw new InvalidDataException("Extracted station JSON is empty.");
             JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "map-frame-0");
-            frame.Required("runs").Required(0)[0] = 0x0053;
+            frame.Required("runs").Required(0)[0] = PlmVisualJson.Appearance(0x053);
             Directory.CreateDirectory(installation.RoomPlmStationVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmStationVisualOverrideDirectory,
                 RoomPlmStationVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmStationVisuals().GetWord(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
+            AssertEqual(RoomBlockAppearance.Of(0x053),
+                installation.LoadRoomPlmStationVisuals().GetAppearance(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
                 "station visual override selects edited map frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmStationVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x053),
                 RoomPlmStationVisualFiles.Load(refreshed,
-                    installation.RoomPlmStationVisualOverrideDirectory).GetWord(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
+                    installation.RoomPlmStationVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
                 "station visual override survives stock replacement");
 
             frame.Required("runs").Required(0)[0] = 0xf053;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Direct load-station placement selection for native LoadFromLoadStation ($80:C437).</summary>
 /// <remarks>Area lists are consecutive fourteen-byte records starting at $80:C4C5.
-/// Named area/station cases select active room, door, BTS and placement settings;
+/// Named area/station cases select active room, door, behaviour and placement settings;
 /// valid unused slots select the native inert placeholder. Ceres repeats one
 /// placement with Y offset72 for station0 and64 for stations1..16. Debug-area data
 /// beginning atCC19 is outside the accepted domain. No record or pointer array is stored.</remarks>

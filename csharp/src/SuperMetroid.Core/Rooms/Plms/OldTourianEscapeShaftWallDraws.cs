@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Rooms.Plms.OldTourianEscapeShaftWallPlmDefinitions;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -16,7 +17,7 @@ internal static class OldTourianEscapeShaftWallDraws
             draw = default;
             return false;
         }
-        ushort[] column = [PlmLevelWordDefinitions.BlankAir, PlmLevelWordDefinitions.BlankAir, PlmLevelWordDefinitions.BlankAir];
+        RoomTerrainBlock[] column = [RoomTerrainBlocks.BlankAir, RoomTerrainBlocks.BlankAir, RoomTerrainBlocks.BlankAir];
         draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
             new(PlmRunDirection.Vertical, column, new(1, 0)),

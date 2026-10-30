@@ -1,26 +1,27 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Immutable bank-$84 level-word mutations drawn by the ordinary shot-block PLMs.
-/// Each word contains both collision type and a visual block reference; keeping the
-/// entire native word here prevents artwork replacement from changing terrain rules.
+/// The terrain the ordinary shot-block PLMs draw. Each block carries both its collision kind and its appearance;
+/// keeping the whole terrain here prevents artwork replacement from changing terrain rules.
 /// </summary>
 internal static class RoomPlmShotBlockDrawDefinitions
 {
-    /// <summary>One run: its direction, the complete level words it writes, then the signed offset to the next run.</summary>
+    /// <summary>One run: its direction, the terrain it writes, then the signed offset to the next run.</summary>
     /// <param name="Direction">The direction the run writes its blocks in.</param>
-    /// <param name="LevelWords">The level words the run writes, one per block.</param>
+    /// <param name="Blocks">The terrain the run writes, one per block.</param>
     /// <param name="Next">The signed offset to the next run.</param>
     internal readonly record struct Run(
         PlmRunDirection Direction,
-        ReadOnlyMemory<ushort> LevelWords,
+        ReadOnlyMemory<RoomTerrainBlock> Blocks,
         Offset16<RoomBlocks> Next)
     {
-        /// <summary>The number of blocks the run writes: one per level word.</summary>
-        internal int Count => LevelWords.Length;
+        /// <summary>The number of blocks the run writes.</summary>
+        internal int Count => Blocks.Length;
     }
 
-    /// <summary>One PLM draw with its ordered, immutable level-word runs.</summary>
+    /// <summary>One PLM draw with its ordered, immutable terrain runs.</summary>
     internal readonly record struct DrawList(PlmDraw Draw, ReadOnlyMemory<Run> Runs)
     {
     }

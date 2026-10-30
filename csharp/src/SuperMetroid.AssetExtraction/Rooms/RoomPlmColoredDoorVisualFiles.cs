@@ -10,8 +10,8 @@ public static class RoomPlmColoredDoorVisualFiles
     /// <summary>JSON filename for yellow, green, and red door-cap visual frames.</summary>
     public const string VisualFileName = "colored-doors.json";
 
-    /// <summary>Verifies all forty-eight native colored-door frames and creates four-word visual entries plus their provenance and digest manifest.</summary>
-    /// <param name="bus">Cartridge source for bank-$84 comparisons of door-cap level words and horizontal or vertical run geometry.</param>
+    /// <summary>Verifies all forty-eight native colored-door frames and creates four-block visual entries plus their provenance and digest manifest.</summary>
+    /// <param name="bus">Cartridge source for bank-$84 comparisons of door-cap block and horizontal or vertical run geometry.</param>
     /// <param name="directory">Destination directory, created if absent; the visual JSON and manifest must not already exist.</param>
     /// <param name="sourceCartridgeSha256">Source identity recorded in the manifest; subsequent loading requires the supported cartridge identity.</param>
     /// <exception cref="InvalidDataException">Native draw contents or geometry differ from the compiled colored-door definitions.</exception>
@@ -30,9 +30,9 @@ public static class RoomPlmColoredDoorVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<InstalledRoomPlmColoredDoorVisuals>(VisualFileName, "Colored-door", ColoredDoorCaps.All, ColoredDoorCaps.VisualId, entries => new InstalledRoomPlmColoredDoorVisuals(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetAppearance(draw, block)));
 
-    /// <summary>Checks stock colored-door provenance, digest, schema, forty-eight-frame coverage, and equality with compiled visual words; ignores overrides.</summary>
+    /// <summary>Checks stock colored-door provenance, digest, schema, forty-eight-frame coverage, and equality with compiled appearance; ignores overrides.</summary>
     /// <param name="directory">Installed stock colored-door directory.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 }

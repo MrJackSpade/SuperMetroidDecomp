@@ -183,11 +183,11 @@ internal sealed class StationPlms : IPlmFamilySource
         {
             case PlmHeaderId.ElevatorPlatform:
                 {
-                    // Setup_DeactivatePLM clears collision bits 12..14 but deliberately retains
-                    // bit 15 and the visual payload; the platform then runs its idle loop.
+                    // The deactivating setup leaves a solid block solid and any other block air, keeping its
+                    // appearance; the platform then runs its idle loop.
                     slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ElevatorPlatform));
-                    level.SetForegroundEntry(slot.BlockIndex,
-                        level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.WithPlmDeactivation().Raw);
+                    level.SetTerrain(slot.BlockIndex,
+                        level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.Deactivated());
                     return true;
                 }
 
@@ -483,7 +483,7 @@ internal sealed class StationPlms : IPlmFamilySource
         }
     }
 
-    /// <summary>Installs station and access BTS blocks and selects the current animation for saved map state.</summary>
+    /// <summary>Installs station and access blocks and selects the current animation for saved map state.</summary>
     private static void SetupStation(
         RoomLevelData level,
         SharedGameState system,
@@ -491,7 +491,7 @@ internal sealed class StationPlms : IPlmFamilySource
         PlmSlot slot,
         StationKind kind)
     {
-        RoomLevelWord original = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord;
+        RoomTerrainBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain;
         switch (kind)
         {
             case StationKind.Save:
@@ -512,7 +512,7 @@ internal sealed class StationPlms : IPlmFamilySource
     }
 
     /// <summary>A save station: its trigger floor and its one save animation.</summary>
-    private static void SetupSaveStation(RoomLevelData level, AreaId area, PlmSlot slot, RoomLevelWord original)
+    private static void SetupSaveStation(RoomLevelData level, AreaId area, PlmSlot slot, RoomTerrainBlock original)
     {
         WriteStationBlock(
             level,
@@ -537,7 +537,7 @@ internal sealed class StationPlms : IPlmFamilySource
         SharedGameState system,
         AreaId area,
         PlmSlot slot,
-        RoomLevelWord original,
+        RoomTerrainBlock original,
         StationAccessLayout layout)
     {
         WriteStationBlock(level, slot.BlockIndex, original, RoomCollisionType.SolidBlock, behavior: null);
@@ -557,13 +557,13 @@ internal sealed class StationPlms : IPlmFamilySource
             animationFrameCount: 3);
     }
 
-    /// <summary>Marks an in-room access block with station-trigger collision and its directional BTS.</summary>
+    /// <summary>Marks an in-room access block with station-trigger collision and its directional behaviour.</summary>
     private static void WriteAccessBlock(
         RoomLevelData level,
         int blockIndex,
         StationAccessBehavior behavior)
     {
-        if ((uint)blockIndex >= (uint)level.ForegroundEntries.Length)
+        if (!level.IsLogicalBlockIndex(blockIndex))
         {
             throw new InvalidDataException(
                 $"Station access setup targets out-of-room block index {blockIndex}.");
@@ -571,25 +571,25 @@ internal sealed class StationPlms : IPlmFamilySource
         WriteStationBlock(
             level,
             blockIndex,
-            level.GetCollisionBlockByIndex(blockIndex).PackedWord,
+            level.GetCollisionBlockByIndex(blockIndex).Terrain,
             RoomCollisionType.SpecialBlock,
             RoomBlockBehaviorCodec.StationAccess(behavior));
     }
 
-    /// <summary>Changes a station block's collision nibble while preserving its visual word and optional BTS.</summary>
+    /// <summary>Changes a station block's collision kind while preserving its appearance, and sets its optional behaviour.</summary>
     private static void WriteStationBlock(
         RoomLevelData level,
         int blockIndex,
-        RoomLevelWord original,
+        RoomTerrainBlock original,
         RoomCollisionType collisionType,
         RoomBlockBehavior? behavior)
     {
-        level.SetForegroundEntry(blockIndex, original.WithCollisionType(collisionType).Raw);
-        if (behavior is { } bts)
-            level.SetBehavior(blockIndex, bts);
+        level.SetTerrain(blockIndex, original.WithCollision(collisionType));
+        if (behavior is { } written)
+            level.SetBehavior(blockIndex, written);
     }
 
-    /// <summary>Typed BTS overload used by room collision dispatch.</summary>
+    /// <summary>The station collision notice room collision dispatch sends with the block's behaviour.</summary>
     public bool TryNotifyStationCollision(
         int accessBlockIndex,
         RoomBlockBehavior behavior,
@@ -818,7 +818,7 @@ internal sealed class StationPlms : IPlmFamilySource
             }
         }
 
-        // Save station $AFE8 draws once and then sleeps until its BTS-$4D trigger advances
+        // Save station $AFE8 draws once and then sleeps until its behaviour-$4D trigger advances
         // it. Its confirmation/save coroutine is published above for the frontend owner.
         if (station.Kind == StationKind.Save && station.InitialDrawCompleted)
             return true;
@@ -958,7 +958,7 @@ internal sealed class StationPlms : IPlmFamilySource
     private void DrawStationAccess(RoomLevelData level, StationPlmState station, StationAccessPose pose)
     {
         StationAccessBehavior accessBehavior = station.AccessBehavior
-            ?? throw new InvalidDataException("Station access has no BTS owner.");
+            ?? throw new InvalidDataException("Station access has no behaviour owner.");
         StationAccessPlmDefinition definition =
             StationAccessPlms.Resolve(accessBehavior);
         _drawing.Draw(level, station.AccessBlockIndex, PlmDraw.Of(pose == StationAccessPose.Extended ? definition.Extended : definition.Retracted));
@@ -991,7 +991,7 @@ internal sealed class StationPlms : IPlmFamilySource
         public WrappingCountdown AnimationTimer { get; set; } = WrappingCountdown.Start(1);
         /// <summary>Keeps the save trigger asleep after its one initial draw.</summary>
         public bool InitialDrawCompleted { get; set; }
-        /// <summary>Records accepted BTS collision for the next PLM handler pass.</summary>
+        /// <summary>Records accepted behaviour collision for the next PLM handler pass.</summary>
         public bool Triggered { get; set; }
         /// <summary>Current extension, hold, retraction, or map-unpause phase.</summary>
         public StationOperationPhase OperationPhase { get; set; }
@@ -999,7 +999,7 @@ internal sealed class StationPlms : IPlmFamilySource
         public WrappingCountdown OperationTimer { get; set; }
         /// <summary>Room block index where the activated access arm must be drawn.</summary>
         public int AccessBlockIndex { get; set; } = -1;
-        /// <summary>Directional BTS type identifying the selected access draw list.</summary>
+        /// <summary>Directional behaviour type identifying the selected access draw list.</summary>
         public StationAccessBehavior? AccessBehavior { get; set; }
         /// <summary>Tracks frontend confirmation and save animation separately from arm motion.</summary>
         public SaveStationPhase SavePhase { get; set; }

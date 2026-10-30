@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>
 /// The header word the cartridge stores before each PLM block run (#1452): the run's direction in the top bit above
-/// its block count. Core runs hold a <see cref="PlmRunDirection"/> and their level words; this codec is the one place
+/// its block count. Core runs hold a <see cref="PlmRunDirection"/> and their terrain blocks; this codec is the one place
 /// the two become or leave that word, for import checks against the cartridge's draw lists.
 /// </summary>
 [EncodingOwner("PLM block-run header word")]

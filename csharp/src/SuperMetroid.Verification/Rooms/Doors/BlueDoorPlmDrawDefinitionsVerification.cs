@@ -30,19 +30,19 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             BlueDoorPlmDrawDefinitionsTooling.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = BlueDoorCaps.Editable.Select(draw =>
             new RoomPlmVisualEntry(BlueDoorCaps.VisualId(draw.Draw),
-                draw.Runs.Span[0].LevelWords.Span
-                    .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
+                draw.Runs.Span[0].Blocks.Span
+                    .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomPlmBlueDoorVisuals stock = InstalledRoomPlmBlueDoorVisuals.Stock();
         RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "left-frame-1");
-        ushort originalVisual = editedFrame.Blocks[0];
-        editedFrame.Blocks[0] = 0x0053;
+        RoomBlockAppearance originalVisual = editedFrame.Blocks[0];
+        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x053);
         var edited = new InstalledRoomPlmBlueDoorVisuals(entries);
-        editedFrame.Blocks[0] = 0x0054;
+        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x054);
         ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (BlueEntry(BlueDoorPlmProgramDefinitions.OpeningPrograms[ColoredDoorOrientation.Left]) + 5)));
-        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
+        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
             "blue-door visual catalog copies author data");
-        AssertEqual(originalVisual, stock.GetWord(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
+        AssertEqual(originalVisual, stock.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(leftFirstDraw), 0),
             "stock blue-door visual retains native tile choice");
         Suite(nameof(VerifyBlueCapGeometry), () => VerifyBlueCapGeometry(rom));
         Suite(nameof(VerifyBlueCapCollision), () => VerifyBlueCapCollision(rom));
@@ -57,7 +57,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
 
             const int width = 16;
             const int origin = 4 + 4 * width;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmBlueDoorVisuals = orientation == ColoredDoorOrientation.Left ? edited : stock });
             RoomBlockBehavior behavior = new(unchecked((byte)(
                 RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (byte)orientation)));
@@ -69,15 +69,15 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             int stride = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right
                 ? width : 1;
             for (int block = 0; block < 4; block++)
-                AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],
-                    level.GetCollisionBlockByIndex(origin + block * stride).PackedWord.Raw,
+                AssertEqual(selected.Runs.Span[0].Blocks.Span[block],
+                    level.GetCollisionBlockByIndex(origin + block * stride).Terrain,
                     $"{orientation} native draw writes physical block {block} without ROM payload reads");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{orientation} opening avoids compiled program and draw ROM bytes");
             if (orientation == ColoredDoorOrientation.Left)
             {
-                AssertEqual((ushort)0x0053,
-                    level.DisplayedVisualWord(origin),
+                AssertEqual(RoomBlockAppearance.Of(0x053),
+                    level.DisplayedAppearance(origin),
                     "edited blue-door tile survives later camera streaming");
             }
 
@@ -98,7 +98,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 AssertEqual(0, plms.SlotTable.ActiveCount,
                     $"{orientation} {program} reaches its deletion");
                 AssertEqual(behavior.Value,
-                    level.GetCollisionBlockByIndex(origin).Bts.Value,
+                    level.GetCollisionBlockByIndex(origin).Behavior.Value,
                     $"{orientation} {program} restores the blue-door BTS");
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -134,7 +134,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 installation.RoomPlmBlueDoorVisualDirectory);
             var installed = installation.LoadRoomPlmBlueDoorVisuals();
             VerifyBlueDoorStockMapping(rom, installed);
-            ushort stock = installed.GetWord(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0);
+            RoomBlockAppearance stock = installed.GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0);
 
             string stockPath = Path.Combine(installation.RoomPlmBlueDoorVisualDirectory,
                 RoomPlmBlueDoorVisualFiles.VisualFileName);
@@ -142,21 +142,21 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 ?? throw new InvalidDataException("Extracted blue-door JSON is empty.");
             JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "left-frame-1");
-            frame.Required("blocks")[0] = 0x0053;
+            frame.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
             Directory.CreateDirectory(installation.RoomPlmBlueDoorVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmBlueDoorVisualOverrideDirectory,
                 RoomPlmBlueDoorVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmBlueDoorVisuals().GetWord(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0),
+            AssertEqual(RoomBlockAppearance.Of(0x053),
+                installation.LoadRoomPlmBlueDoorVisuals().GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0),
                 "installed blue-door override changes the selected frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmBlueDoorVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x053),
                 RoomPlmBlueDoorVisualFiles.Load(refreshed,
-                    installation.RoomPlmBlueDoorVisualOverrideDirectory).GetWord(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0),
+                    installation.RoomPlmBlueDoorVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<BlueDoorCaps.Draw>(firstDraw), 0),
                 "blue-door override survives stock replacement");
 
             frame.Required("blocks")[0] = 0xf053;
@@ -164,7 +164,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmBlueDoorVisuals(),
                 "invalid blue-door override fails loudly");
-            frame.Required("blocks")[0] = stock;
+            frame.Required("blocks")[0] = PlmVisualJson.Appearance(stock);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmBlueDoorVisuals(),

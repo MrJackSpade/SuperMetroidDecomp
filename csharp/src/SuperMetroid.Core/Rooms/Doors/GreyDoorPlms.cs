@@ -122,13 +122,13 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         };
     }
 
-    /// <summary>Installs the resident projectile-trigger collision type while preserving the block's visual bits.</summary>
+    /// <summary>Installs the resident projectile-trigger collision type while preserving the block's appearance.</summary>
     private static void ApplyGreyDoorSetup(RoomLevelData level, int blockIndex)
     {
         // Setup_GreyDoor and Setup_ColoredDoor share the exact `$C044` collision write.
-        // Preserve the authored visual payload while replacing only type and BTS.
-        level.SetForegroundEntry(blockIndex,
-            level.GetCollisionBlockByIndex(blockIndex).PackedWord.WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
+        // Preserve the authored appearance while replacing only collision and behaviour.
+        level.SetTerrain(blockIndex,
+            level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
         level.SetBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }
 

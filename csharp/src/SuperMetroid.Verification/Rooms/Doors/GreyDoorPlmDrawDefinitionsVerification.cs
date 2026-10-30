@@ -39,18 +39,18 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
                 GreyDoorCaps.VisualId(draw.Draw),
-                draw.Runs.Span[0].LevelWords.Span
-                    .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
+                draw.Runs.Span[0].Blocks.Span
+                    .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomPlmGreyDoorVisuals stock = InstalledRoomPlmGreyDoorVisuals.Stock();
         RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "grey-right-frame-0");
-        ushort originalVisual = editedFrame.Blocks[0];
-        editedFrame.Blocks[0] = 0x0053;
+        RoomBlockAppearance originalVisual = editedFrame.Blocks[0];
+        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x053);
         var edited = new InstalledRoomPlmGreyDoorVisuals(entries);
-        editedFrame.Blocks[0] = 0x0054;
-        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
+        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x054);
+        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
             "grey-door visual catalog copies author data");
-        AssertEqual(originalVisual, stock.GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
+        AssertEqual(originalVisual, stock.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
             "stock grey-door visual retains native tile choice");
         Suite(nameof(VerifyGreyCapGeometry), () => VerifyGreyCapGeometry(rom));
         Suite(nameof(VerifyGreyCapCollision), () => VerifyGreyCapCollision(rom));
@@ -81,7 +81,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             ]);
             const int width = 16;
             const int origin = 4 + 4 * width;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = header == PlmHeaderId.BombTorizoGreyDoor
                     ? edited : stock });
             var system = new SharedGameState();
@@ -96,15 +96,15 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             bool vertical = selected.Runs.Span[0].Direction == PlmRunDirection.Vertical;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
-                AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],
-                    level.GetCollisionBlockByIndex(origin + block * stride).PackedWord.Raw,
+                AssertEqual(selected.Runs.Span[0].Blocks.Span[block],
+                    level.GetCollisionBlockByIndex(origin + block * stride).Terrain,
                     $"resident grey-door {header} draws physical block {block}");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident grey-door {header} avoids draw payload ROM reads");
             if (header == PlmHeaderId.BombTorizoGreyDoor)
             {
-                AssertEqual((ushort)0x0053,
-                    level.DisplayedVisualWord(origin),
+                AssertEqual(RoomBlockAppearance.Of(0x053),
+                    level.DisplayedAppearance(origin),
                     "edited grey cap is shown");
                 VerifyBombTorizoGreyDoorLifecycle(guarded, new TorizoGreyDoorRoom { Level = level, Plms = plms, System = system }, population, origin);
             }
@@ -148,7 +148,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 AssertEqual(0, guarded.ForbiddenReadAttempts,
                     $"resident grey door {header} never rereads program or draw data");
 
-                var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
+                var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
                 var reopened = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = stock });
                 AssertEqual(1, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                     $"opened grey door {header} reloads");
@@ -228,7 +228,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             "Bomb Torizo grey door avoids both compiled program and draw sources");
 
         const int width = 16;
-        var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
+        var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
         var reopened = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), room.System, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "opened Bomb Torizo grey door reloads");
@@ -256,14 +256,14 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     {
         RoomPlmVisualEntry clear = entries.Single(entry =>
             entry.Id == "clear-right");
-        ushort original = clear.Blocks[0];
-        clear.Blocks[0] = 0x0054;
+        RoomBlockAppearance original = clear.Blocks[0];
+        clear.Blocks[0] = RoomBlockAppearance.Of(0x054);
         var edited = new InstalledRoomPlmGreyDoorVisuals(entries);
         clear.Blocks[0] = original;
 
         const int width = 16;
         const int origin = 4 + 4 * width;
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmGreyDoorVisuals = edited });
         AssertTrue(plms.DoorPlms.TrySpawnBlueDoorOpening(level, origin,
                 RoomBlockBehaviorValues.BlueDoorFacingRight,
@@ -272,15 +272,15 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
         var guarded = NewGreyDoorDrawGuard(rom, lists);
         int frame = 0;
         while (frame++ < 200 &&
-            level.GetCollisionBlockByIndex(origin).PackedWord.Raw != 0x0482)
+            level.GetCollisionBlockByIndex(origin).Terrain != RoomTerrainBlock.Of(0x082, BlockMirroring.Horizontal, RoomCollisionType.Air))
             plms.Step(level);
         AssertTrue(frame <= 200,
             "blue-door opening reaches the shared right-facing clear draw");
-        AssertEqual((ushort)0x0482,
-            level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x082, BlockMirroring.Horizontal, RoomCollisionType.Air),
+            level.GetCollisionBlockByIndex(origin).Terrain,
             "shared clear art leaves the native physical air word intact");
-        AssertEqual((ushort)0x0054,
-            level.DisplayedVisualWord(origin),
+        AssertEqual(RoomBlockAppearance.Of(0x054),
+            level.DisplayedAppearance(origin),
             "edited shared clear tile reaches blue-door camera streaming");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "blue-door shared clear draw does not reread bank-$84 payload bytes");
@@ -300,31 +300,31 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                 installation.RoomPlmGreyDoorVisualDirectory);
             var installed = installation.LoadRoomPlmGreyDoorVisuals();
             VerifyGreyDoorStockMapping(rom, installed);
-            ushort stock = installed.GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0);
+            RoomBlockAppearance stock = installed.GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0);
             string stockPath = Path.Combine(installation.RoomPlmGreyDoorVisualDirectory,
                 RoomPlmGreyDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted grey-door JSON is empty.");
             JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "grey-right-frame-0");
-            frame.Required("blocks")[0] = 0x0053;
+            frame.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
             Directory.CreateDirectory(
                 installation.RoomPlmGreyDoorVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmGreyDoorVisualOverrideDirectory,
                 RoomPlmGreyDoorVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmGreyDoorVisuals().GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
+            AssertEqual(RoomBlockAppearance.Of(0x053),
+                installation.LoadRoomPlmGreyDoorVisuals().GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
                 "installed grey-door override changes selected frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmGreyDoorVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x053),
                 RoomPlmGreyDoorVisualFiles.Load(refreshed,
                     installation.RoomPlmGreyDoorVisualOverrideDirectory)
-                    .GetWord(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
+                    .GetAppearance(NativePlmDraws.At<GreyDoorCaps.Draw>(0xa6d7), 0),
                 "grey-door override survives stock replacement");
 
             frame.Required("blocks")[0] = 0xf053;
@@ -332,7 +332,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmGreyDoorVisuals(),
                 "invalid grey-door override fails loudly");
-            frame.Required("blocks")[0] = stock;
+            frame.Required("blocks")[0] = PlmVisualJson.Appearance(stock);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmGreyDoorVisuals(),

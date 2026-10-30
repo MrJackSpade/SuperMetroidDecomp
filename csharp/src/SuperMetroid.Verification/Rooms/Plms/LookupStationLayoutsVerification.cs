@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
@@ -65,13 +67,13 @@ internal static class LookupStationLayoutsVerification
                 AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Station layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Station layout run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Station layout run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Station layout X bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextY(invalid), "Station layout offset bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Station layout word run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Station layout word run bounds");
                 }
             }
-            var level = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
+            var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
             var plms = PlmFixtures.Unbound();
             var bus = new TestAddressSpace();
             if (field == 0)
@@ -91,32 +93,31 @@ internal static class LookupStationLayoutsVerification
                 if (field == 0)
                 {
                     AssertEqual((ushort)count, header, "Station layout native direction");
-                    AssertEqual(count, shape.WordCount(run), "Station layout native calculated count");
+                    AssertEqual(count, shape.BlockCount(run), "Station layout native calculated count");
                     AssertEqual(LittleEndianBytes.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Station layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertRunHeader(header, part, "Station layout native DTO geometry");
-                        AssertEqual(count, part.LevelWords.Length, "Station layout native DTO count");
+                        AssertEqual(count, part.Count, "Station layout native DTO count");
                         AssertEqual(offset, LittleEndianBytes.Word((byte)part.Next.X, (byte)part.Next.Y), "Station layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
-                        AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),
-                            level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).PackedWord.Raw,
+                        AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2)),
+                            level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).Terrain,
                             "Station native physical word at original absolute run position");
                     drawX = 8 + unchecked((sbyte)offset);
                     drawY = 8 + unchecked((sbyte)(LittleEndianBytes.HighByte(offset)));
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Station layout cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(selectedRun, invalid), "Station layout cell bounds");
                 }
                 else for (int cell = 0; cell < count; cell++)
-                {
-                    int mask = field == 1 ? 0xf000 : 0xfff;
-                    int expected = ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2) & mask;
-                    AssertEqual(expected, shape.WordAt(run, cell) & mask, "Station layout original calculated field");
+                {
+                    RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2));
+                    AssertEqual(expected, shape.BlockAt(run, cell), "Station layout original calculated field");
                     foreach (var frame in new[] {dto,exported[index],byId})
-                        AssertEqual(expected, frame.Runs.Span[run].LevelWords.Span[cell] & mask, "Station layout original DTO field");
+                        AssertEqual(expected, frame.Runs.Span[run].Blocks.Span[cell], "Station layout original DTO field");
                 }
                 cells += count;
                 run++;

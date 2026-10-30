@@ -35,18 +35,18 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
                 ColoredDoorCaps.VisualId(draw.Draw),
-                draw.Runs.Span[0].LevelWords.Span
-                    .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
+                draw.Runs.Span[0].Blocks.Span
+                    .SelectToArray(block => block.Appearance))).ToArray();
         InstalledRoomPlmColoredDoorVisuals stock = InstalledRoomPlmColoredDoorVisuals.Stock();
         RoomPlmVisualEntry editedFrame = entries.Single(entry =>
             entry.Id == "green-left-frame-0");
-        ushort originalVisual = editedFrame.Blocks[0];
-        editedFrame.Blocks[0] = 0x0053;
+        RoomBlockAppearance originalVisual = editedFrame.Blocks[0];
+        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x053);
         var edited = new InstalledRoomPlmColoredDoorVisuals(entries);
-        editedFrame.Blocks[0] = 0x0054;
-        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
+        editedFrame.Blocks[0] = RoomBlockAppearance.Of(0x054);
+        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
             "colored-door visual catalog copies author data");
-        AssertEqual(originalVisual, stock.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
+        AssertEqual(originalVisual, stock.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
             "stock colored-door visual retains native tile choice");
         Suite(nameof(VerifyColoredCapGeometry), () => VerifyColoredCapGeometry(rom));
         Suite(nameof(VerifyColoredCapCollision), () => VerifyColoredCapCollision(rom));
@@ -87,7 +87,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             ]);
             const int width = 16;
             const int origin = 4 + 4 * width;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
             var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmColoredDoorVisuals = header == PlmHeaderId.GreenDoorFacingLeft
                     ? edited : stock });
             var system = new SharedGameState();
@@ -102,15 +102,15 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             bool vertical = selected.Runs.Span[0].Direction == PlmRunDirection.Vertical;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
-                AssertEqual(selected.Runs.Span[0].LevelWords.Span[block],
-                    level.GetCollisionBlockByIndex(origin + block * stride).PackedWord.Raw,
+                AssertEqual(selected.Runs.Span[0].Blocks.Span[block],
+                    level.GetCollisionBlockByIndex(origin + block * stride).Terrain,
                     $"resident colored-door {header} draws physical block {block}");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident colored-door {header} avoids program and draw ROM reads");
             if (header == PlmHeaderId.GreenDoorFacingLeft)
             {
-                AssertEqual((ushort)0x0053,
-                    level.DisplayedVisualWord(origin),
+                AssertEqual(RoomBlockAppearance.Of(0x053),
+                    level.DisplayedAppearance(origin),
                     "edited colored cap survives later camera streaming");
             }
 
@@ -432,7 +432,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"resident colored door {header} completes without program/draw ROM reads");
 
-            var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new ushort[width * width], new byte[width * width], new ushort[width * width]));
+            var reopenedLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(new RoomTerrainBlock[width * width], new RoomBlockBehavior[width * width], new RoomBlockAppearance[width * width]));
             var reopened = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmColoredDoorVisuals = stock });
             AssertEqual(1, PlmFixtures.LoadPopulation(ref reopened, new PlmRoom(reopenedLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 $"opened colored door {header} reloads");
@@ -471,31 +471,31 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 installation.RoomPlmColoredDoorVisualDirectory);
             var installed = installation.LoadRoomPlmColoredDoorVisuals();
             VerifyColoredDoorStockMapping(rom, installed);
-            ushort stock = installed.GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0);
+            RoomBlockAppearance stock = installed.GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0);
             string stockPath = Path.Combine(installation.RoomPlmColoredDoorVisualDirectory,
                 RoomPlmColoredDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
                 ?? throw new InvalidDataException("Extracted colored-door JSON is empty.");
             JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "green-left-frame-0");
-            frame.Required("blocks")[0] = 0x0053;
+            frame.Required("blocks")[0] = PlmVisualJson.Appearance(0x053);
             Directory.CreateDirectory(
                 installation.RoomPlmColoredDoorVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmColoredDoorVisualOverrideDirectory,
                 RoomPlmColoredDoorVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmColoredDoorVisuals().GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
+            AssertEqual(RoomBlockAppearance.Of(0x053),
+                installation.LoadRoomPlmColoredDoorVisuals().GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
                 "installed colored-door override changes selected frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmColoredDoorVisualFiles.Extract(rom, refreshed,
                 SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x053),
                 RoomPlmColoredDoorVisualFiles.Load(refreshed,
                     installation.RoomPlmColoredDoorVisualOverrideDirectory)
-                    .GetWord(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
+                    .GetAppearance(NativePlmDraws.At<ColoredDoorCaps.Draw>(0xa827), 0),
                 "colored-door override survives stock replacement");
 
             frame.Required("blocks")[0] = 0xf053;
@@ -503,7 +503,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmColoredDoorVisuals(),
                 "invalid colored-door override fails loudly");
-            frame.Required("blocks")[0] = stock;
+            frame.Required("blocks")[0] = PlmVisualJson.Appearance(stock);
             File.WriteAllText(stockPath, "{}");
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmColoredDoorVisuals(),

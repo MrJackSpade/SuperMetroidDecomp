@@ -34,17 +34,17 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleTankSelector), () => VerifyCollectibleTankSelector(rom));
         Suite(nameof(VerifyCollectibleDynamicSelector), () => VerifyCollectibleDynamicSelector(rom));
 
-        RoomPlmVisualWordEntry[] entries =
+        RoomPlmVisualBlockEntry[] entries =
             CollectiblePlmDraws.All
-                .Select(frame => new RoomPlmVisualWordEntry(frame.Id,
-                    frame.LevelWord.VisualWord))
+                .Select(frame => new RoomPlmVisualBlockEntry(frame.Id,
+                    frame.Terrain.Appearance))
                 .ToArray();
         int energyIndex = Array.FindIndex(entries, entry => entry.Id == "energy-tank-0");
-        entries[energyIndex] = entries[energyIndex] with { VisualWord = 0x0053 };
+        entries[energyIndex] = entries[energyIndex] with { Appearance = RoomBlockAppearance.Of(0x053) };
         var edited = new InstalledRoomPlmCollectibleVisuals(entries);
-        entries[energyIndex] = entries[energyIndex] with { VisualWord = 0x0054 };
-        AssertEqual((ushort)0x0053,
-            edited.GetWord(CollectiblePlmDraws.VisibleFrame(InWorldCollectibleKind.EnergyTank, 0, 0)),
+        entries[energyIndex] = entries[energyIndex] with { Appearance = RoomBlockAppearance.Of(0x054) };
+        AssertEqual(RoomBlockAppearance.Of(0x053),
+            edited.GetAppearance(CollectiblePlmDraws.VisibleFrame(InWorldCollectibleKind.EnergyTank, 0, 0)),
             "collectible catalog copies the edited visual word");
 
         CollectibleVisualsRenderResult Render(
@@ -55,9 +55,9 @@ internal static class CollectibleVisualsVerification
             CollectibleFixture fixture = LoadCollectible(bus, 0xeed7, roomArgument: 0, precollected: false);
             PlmFixtures.VisualsOf(fixture.Plms).RoomPlmCollectibleVisuals = visuals;
             fixture.Plms.Step(fixture.Level);
-            var result = new CollectibleVisualsRenderResult(fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).PackedWord.Raw,
-                fixture.Level.DisplayedVisualWord(fixture.BlockIndex),
-                fixture.Level.DisplayedVisualWord(fixture.BlockIndex));
+            var result = new CollectibleVisualsRenderResult(fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain,
+                fixture.Level.DisplayedAppearance(fixture.BlockIndex),
+                fixture.Level.DisplayedAppearance(fixture.BlockIndex));
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 "edited item art leaves the native touch trigger active");
             fixture.Plms.Step(fixture.Level);
@@ -70,16 +70,16 @@ internal static class CollectibleVisualsVerification
 
         var original = Render(stock);
         var changed = Render(edited);
-        AssertEqual((ushort)0xb04a, original.Physical,
+        AssertEqual(RoomTerrainBlock.Of(0x04a, BlockMirroring.None, RoomCollisionType.SpecialBlock), original.Physical,
             "stock energy tank retains the cartridge physical level word");
         AssertEqual(original.Physical, changed.Physical,
             "collectible art does not change physical collision or pickup state");
         // The block BG1 shows names its picture (#1431): the stock frame's block, or the edited frame's.
-        AssertEqual((ushort)0x004a, original.Immediate,
+        AssertEqual(RoomBlockAppearance.Of(0x04a), original.Immediate,
             "stock collectible block reaches the immediate redraw");
-        AssertEqual((ushort)0x0053, changed.Immediate,
+        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Immediate,
             "edited collectible block reaches the immediate redraw");
-        AssertEqual((ushort)0x0053, changed.Streamed,
+        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Streamed,
             "edited collectible block survives later camera streaming");
 
         for (int kind = 0; kind < 21; kind++)
@@ -136,24 +136,24 @@ internal static class CollectibleVisualsVerification
                 ?? throw new InvalidDataException("Extracted collectible JSON is empty.");
             JsonNode frame = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "energy-tank-0");
-            frame["visualWord"] = 0x0053;
+            frame["appearance"] = PlmVisualJson.Appearance(0x053);
             Directory.CreateDirectory(installation.RoomPlmCollectibleVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmCollectibleVisualOverrideDirectory,
                 RoomPlmCollectibleVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmCollectibleVisuals().GetWord(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
+            AssertEqual(RoomBlockAppearance.Of(0x053),
+                installation.LoadRoomPlmCollectibleVisuals().GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
                 "collectible visual override selects edited tank frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmCollectibleVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x053),
                 RoomPlmCollectibleVisualFiles.Load(refreshed,
-                    installation.RoomPlmCollectibleVisualOverrideDirectory).GetWord(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
+                    installation.RoomPlmCollectibleVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
                 "collectible override survives stock replacement");
 
-            frame["visualWord"] = 0xf053;
+            frame["appearance"] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertThrows<InvalidDataException>(
                 () => installation.LoadRoomPlmCollectibleVisuals(),
@@ -171,7 +171,7 @@ internal static class CollectibleVisualsVerification
     }
 
     /// <summary>Reads one collectible draw word from bank 84 for the native comparison.</summary>
-    internal static ushort ReadCollectibleVisualWord(ISnesAddressSpace bus,
+    internal static ushort ReadCollectibleDrawWord(ISnesAddressSpace bus,
         ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | pointer);
 
     /// <summary>Runs collectible visual and pickup isolation checks.</summary>

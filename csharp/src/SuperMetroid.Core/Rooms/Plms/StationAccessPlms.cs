@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>Which station an access PLM resolves to.</summary>
 internal static class StationAccessPlms
 {
-    /// <summary>Resolves the access actor selected by one station-special-block BTS.</summary>
+    /// <summary>Resolves the access actor selected by one station-special-block behaviour.</summary>
     public static StationAccessPlmDefinition Resolve(StationAccessBehavior behavior) => behavior switch
     {
         StationAccessBehavior.MapRight => MapRight,

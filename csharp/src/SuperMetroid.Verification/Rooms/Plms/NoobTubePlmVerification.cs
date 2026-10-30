@@ -55,8 +55,8 @@ internal static class NoobTubePlmVerification
         ]);
 
         RoomLevelData level = CreateRoom(new(roomWidth, 16),
-            new ushort[roomWidth * 16],
-            new byte[roomWidth * 16]);
+            new RoomTerrainBlock[roomWidth * 16],
+            new RoomBlockBehavior[roomWidth * 16]);
         var samus = new SamusState();
         samus.Position = samus.Position.WithWholeY(0x0100);
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
@@ -75,11 +75,11 @@ internal static class NoobTubePlmVerification
             } }, RoomFx = new RoomPlmFx(roomFx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = earthquakes.Add, WriteType = earthquakes.Add }, Enemies = new FixturePlmEnemyEffects { NoobTubeProjectile = projectiles.Add } });
 
         AssertEqual(1, parsed, "n00b-tube population record loads");
-        AssertEqual(NoobTubePlmDefinitions.SolidProjectileTriggerLevelWord.Raw,
-            level.GetCollisionBlock(new(blockX, blockY)).PackedWord.Raw,
+        AssertEqual(NoobTubePlmDefinitions.SolidProjectileTrigger,
+            level.GetCollisionBlock(new(blockX, blockY)).Terrain,
             "n00b-tube setup installs the complete type-$8 collision word");
         AssertEqual(RoomBlockBehaviorValues.ResidentPlmProjectileTrigger.Value,
-            level.GetCollisionBlock(new(blockX, blockY)).Bts.Value,
+            level.GetCollisionBlock(new(blockX, blockY)).Behavior.Value,
             "n00b-tube setup installs BTS $44");
 
         // First pass follows the event-not-set branch, publishes intact art, and sleeps
@@ -143,7 +143,7 @@ internal static class NoobTubePlmVerification
         AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "Power Bomb observes the intact tube's type-$C collision");
         AssertEqual(RoomBlockBehaviorValues.ResidentPlmProjectileTrigger,
-            level.GetCollisionBlockByIndex(blockIndex).Bts,
+            level.GetCollisionBlockByIndex(blockIndex).Behavior,
             "Power Bomb observes the intact tube's BTS-$44 trigger");
         AssertEqual((ushort)0x8300, plms.PopulationSlots.Single().LoopTimer,
             "generic trigger publishes the native marked Power Bomb word");

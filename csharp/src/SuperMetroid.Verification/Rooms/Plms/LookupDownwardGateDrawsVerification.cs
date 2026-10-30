@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -70,25 +72,24 @@ internal static class LookupDownwardGateDrawsVerification
                 int length = count & 0x7fff;
                 if (field == 0)
                 {
-                    AssertRunHeader(count, shape.Direction, shape.WordCount(run), "Gate native count/direction");
-                    AssertEqual(length, shape.WordCount(run), "Gate native run width");
+                    AssertRunHeader(count, shape.Direction, shape.BlockCount(run), "Gate native count/direction");
+                    AssertEqual(length, shape.BlockCount(run), "Gate native run width");
                     AssertEqual((count & 0x8000) != 0, shape.Column, "Gate runtime direction");
                     AssertRunHeader(count, dto.Runs.Span[run], "Gate DTO count/direction");
                     AssertRunHeader(count, exported[index].Runs.Span[run], "Gate export count/direction");
-                    AssertEqual(length, dto.Runs.Span[run].LevelWords.Length, "Gate DTO width");
-                    AssertEqual(length, exported[index].Runs.Span[run].LevelWords.Length, "Gate export width");
+                    AssertEqual(length, dto.Runs.Span[run].Count, "Gate DTO width");
+                    AssertEqual(length, exported[index].Runs.Span[run].Count, "Gate export width");
                     foreach (int invalid in new[] { int.MinValue, -1, length, int.MaxValue })
-                        AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(run, invalid), "Gate cell bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(run, invalid), "Gate cell bounds");
                 }
                 for (int word = 0; word < length; word++, cursor += 2)
                 {
                     if (field != 0)
-                    {
-                        int mask = field == 1 ? 0xf000 : 0xfff;
-                        int expected = ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & mask;
-                        AssertEqual(expected, shape.WordAt(run, word) & mask, "Gate original calculated field");
-                        AssertEqual(expected, dto.Runs.Span[run].LevelWords.Span[word] & mask, "Gate original DTO field");
-                        AssertEqual(expected, exported[index].Runs.Span[run].LevelWords.Span[word] & mask, "Gate original export field");
+                    {
+                        RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | cursor));
+                        AssertEqual(expected, shape.BlockAt(run, word), "Gate original calculated field");
+                        AssertEqual(expected, dto.Runs.Span[run].Blocks.Span[word], "Gate original DTO field");
+                        AssertEqual(expected, exported[index].Runs.Span[run].Blocks.Span[word], "Gate original export field");
                     }
                     cells++;
                 }
@@ -115,9 +116,9 @@ internal static class LookupDownwardGateDrawsVerification
                 AssertEqual(end, cursor, "Gate original record end");
                 foreach (int invalid in new[] { int.MinValue, -1, run, int.MaxValue })
                 {
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid, 0), "Gate run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid, 0), "Gate run bounds");
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.NextX(invalid), "Gate offset bounds");
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Gate run-width bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockCount(invalid), "Gate run-width bounds");
                 }
             }
         }

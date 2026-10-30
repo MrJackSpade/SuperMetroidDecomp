@@ -44,8 +44,8 @@ internal static class EyeDoorPlmsVerification
         var bus = new TestAddressSpace();
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         RoomLevelData level = CreateRoom(new(16, 16),
-            new ushort[16 * 16],
-            new byte[16 * 16]);
+            new RoomTerrainBlock[16 * 16],
+            new RoomBlockBehavior[16 * 16]);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 80)) };
         int randomAdvances = 0;
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => { randomAdvances++; return 0x7777; }) { ReadRandom = () => 0x3412 });
@@ -132,8 +132,8 @@ internal static class EyeDoorPlmsVerification
         var bus = new TestAddressSpace();
         SeedEyeDoorFixtureRom(bus, orientation);
         RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
-            new ushort[roomWidth * roomHeight],
-            new byte[roomWidth * roomHeight]);
+            new RoomTerrainBlock[roomWidth * roomHeight],
+            new RoomBlockBehavior[roomWidth * roomHeight]);
         var system = new SharedGameState();
         var samus = new SamusState
         {
@@ -155,7 +155,7 @@ internal static class EyeDoorPlmsVerification
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(eyeBlock).CollisionType,
             $"{orientation} eye setup installs collision type C");
-        AssertEqual(0x44, level.GetCollisionBlockByIndex(eyeBlock).Bts.Value,
+        AssertEqual(0x44, level.GetCollisionBlockByIndex(eyeBlock).Behavior.Value,
             $"{orientation} eye setup installs BTS 44");
         AssertEqual((int)RoomCollisionType.SpikeBlock,
             (int)level.GetCollisionBlockByIndex(eyeBlock + roomWidth * 2).CollisionType,
@@ -221,7 +221,7 @@ internal static class EyeDoorPlmsVerification
             orientation == EyeDoorOrientation.Right
                 ? RoomBlockBehaviorValues.BlueDoorFacingRight.Value
                 : RoomBlockBehaviorValues.BlueDoorFacingLeft.Value,
-            cap.Bts.Value,
+            cap.Behavior.Value,
             $"{orientation} opening produces correct blue-door BTS");
         for (int row = 1; row <= EyeDoorDefinitions.BlueDoorExtensionCount; row++)
         {
@@ -230,7 +230,7 @@ internal static class EyeDoorPlmsVerification
             AssertEqual((int)RoomCollisionType.VerticalExtension,
                 (int)extension.CollisionType,
                 $"{orientation} blue-door extension row {row} type");
-            AssertEqual(unchecked((byte)-row), extension.Bts.Value,
+            AssertEqual(unchecked((byte)-row), extension.Behavior.Value,
                 $"{orientation} blue-door extension row {row} BTS");
         }
     }

@@ -18,10 +18,10 @@ internal static class EyeDoorSweatSpanUnderflowVerification
     internal static void VerifyEyeDoorSweatSpanUnderflow()
     {
         const int width = 8, height = 8;
-        var blocks = new ushort[width * height];
+        var blocks = new RoomTerrainBlock[width * height];
         for (int x = 0; x < width; x++)
-            blocks[6 * width + x] = 0x8000; // floor at row 6; rows 0-5 are air
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(blocks, new byte[blocks.Length], new ushort[blocks.Length]));
+            blocks[6 * width + x] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock); // floor at row 6; rows 0-5 are air
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(blocks, new RoomBlockBehavior[blocks.Length], new RoomBlockAppearance[blocks.Length]));
 
         var drop = new RoomEnemyProjectileSlot(0)
         {

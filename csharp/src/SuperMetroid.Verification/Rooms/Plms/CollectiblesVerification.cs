@@ -56,12 +56,12 @@ internal static class CollectiblesVerification
         for (int bts = 0x11; bts <= 0x4e; bts++)
         {
             if (bts is > 0x3f and not 0x4e) continue;
-            var emptyLevel = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
+            var emptyLevel = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
             var unusedPlms = PlmFixtures.Unbound();
             AssertTrue(unusedPlms.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, 0, true),
                 "unused shootable entry allocates native nothing PLM");
             AssertEqual(1, unusedPlms.SlotTable.ActiveCount, "nothing PLM retains its provisional slot");
-            AssertEqual((ushort)0, emptyLevel.ForegroundEntries.Span[0], "nothing PLM leaves terrain unchanged");
+            AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), emptyLevel.GetCollisionBlockByIndex(0).Terrain, "nothing PLM leaves terrain unchanged");
         }
 
         for (int kindIndex = 0; kindIndex < 21; kindIndex++)
@@ -85,14 +85,14 @@ internal static class CollectiblesVerification
                 // first-frame block, whose picture the collectible shown in the slot names (#1431, #1466).
                 AssertEqual(
                     (ushort)(0x008e + loaded.GraphicsSlot * 2),
-                    fixture.Level.DisplayedVisualWord(fixture.BlockIndex),
+                    fixture.Level.DisplayedAppearance(fixture.BlockIndex),
                     $"{kind} shown block is its slot's first-frame block");
                 AssertEqual<InWorldCollectibleKind?>(
                     kind,
                     fixture.Appearance.CollectibleIn(loaded.GraphicsSlot),
                     $"{kind} shows in its graphics slot");
             }
-            ushort visibleItemWord = fixture.Level.ForegroundEntries.Span[fixture.BlockIndex];
+            RoomTerrainBlock visibleItemWord = fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain;
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 $"{kind} visible block accepts Samus contact");
             fixture.Plms.Step(fixture.Level);
@@ -111,7 +111,7 @@ internal static class CollectiblesVerification
                 $"{kind} fanfare edge cannot repeat during its synchronous message");
             AssertPermanentCollectibleEffect(kind, fixture.Samus);
 
-            AssertEqual(visibleItemWord, fixture.Level.ForegroundEntries.Span[fixture.BlockIndex],
+            AssertEqual(visibleItemWord, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain,
                 $"{kind} retains pickup artwork during its message");
             fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level);
             fixture.Plms.Step(fixture.Level);
@@ -169,7 +169,7 @@ internal static class CollectiblesVerification
         StepFrames(9, _ => orb.Plms.Step(orb.Level));
         AssertEqual(CollectiblePhase.Visible, orb.Plms.CollectiblePhases[0],
             "Chozo burst exposes the item");
-        ushort orbItemWord = orb.Level.ForegroundEntries.Span[orb.BlockIndex];
+        RoomTerrainBlock orbItemWord = orb.Level.GetCollisionBlockByIndex(orb.BlockIndex).Terrain;
         AssertTrue(orb.Plms.CollectiblePlms.TryNotifyCollectibleTouch(orb.BlockIndex),
             "exposed Chozo item accepts touch");
         orb.Plms.Step(orb.Level);
@@ -178,7 +178,7 @@ internal static class CollectiblesVerification
         AssertTrue((orb.Samus.CollectedItems & SamusEquipmentFlags.MorphBall) != 0,
             "Chozo Morph Ball grants equipment");
 
-        AssertEqual(orbItemWord, orb.Level.ForegroundEntries.Span[orb.BlockIndex],
+        AssertEqual(orbItemWord, orb.Level.GetCollisionBlockByIndex(orb.BlockIndex).Terrain,
             "Chozo pickup remains visible throughout message");
         orb.Plms.CollectiblePlms.CompleteCollectibleMessage(orb.Level);
         orb.Plms.Step(orb.Level);
@@ -194,7 +194,7 @@ internal static class CollectiblesVerification
         // visible for their native timed window, and after pickup restore as an empty
         // shootable block rather than deleting the location owner.
         CollectibleFixture shot = LoadCollectible(bus, header: unchecked(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4), roomArgument: 123, precollected: false);
-        AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.ShootableBlock), shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain,
             "shot-item setup installs type-C concealed block");
         AssertTrue(shot.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(shot.BlockIndex),
             "concealed shot item accepts projectile reaction");
@@ -203,13 +203,13 @@ internal static class CollectiblesVerification
             _ => shot.Plms.Step(shot.Level),
             maximumFrames: 20,
             context: "shot item reveal");
-        ushort shotItemWord = shot.Level.ForegroundEntries.Span[shot.BlockIndex];
+        RoomTerrainBlock shotItemWord = shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain;
         AssertTrue(shot.Plms.CollectiblePlms.TryNotifyCollectibleTouch(shot.BlockIndex),
             "revealed shot item accepts Samus contact");
         shot.Plms.Step(shot.Level);
         AssertEqual(5, shot.Samus.MaxMissiles, "shot item grants missile capacity");
         StepFrames(180, _ => shot.Plms.Step(shot.Level));
-        AssertEqual(shotItemWord, shot.Level.ForegroundEntries.Span[shot.BlockIndex],
+        AssertEqual(shotItemWord, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain,
             "shot pickup cannot clear or begin respawn countdown during message");
         shot.Plms.CollectiblePlms.CompleteCollectibleMessage(shot.Level);
         shot.Plms.Step(shot.Level);
@@ -221,7 +221,7 @@ internal static class CollectiblesVerification
             _ => shot.Plms.Step(shot.Level),
             maximumFrames: 220,
             context: "collected shot block restoration");
-        AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.ShootableBlock), shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain,
             "collected shot block restores concealed collision word");
 
         Suite(nameof(VerifyCollectedItemSaveRoundTrip), () => VerifyCollectedItemSaveRoundTrip());
@@ -253,7 +253,7 @@ internal static class CollectiblesVerification
         // The message returns into the item's list, which draws empty for one frame
         // within that same PLM_Handler call and deletes the PLM on the next pass.
         fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level);
-        AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain,
             "Morph Ball pickup draws native empty level word on message return");
         var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, null, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         AssertEqual((ushort)1122, movement.Position.X.Whole, "message-return horizontal movement advances");
@@ -283,11 +283,11 @@ internal static class CollectiblesVerification
             0x00, 0x00,
         ]);
 
-        var foreground = new ushort[size.Area];
-        foreground[blockIndex] = 0x0123;
+        var foreground = new RoomTerrainBlock[size.Area];
+        foreground[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.Air);
         RoomLevelData level = CreateRoom(size,
             foreground,
-            new byte[foreground.Length]);
+            new RoomBlockBehavior[foreground.Length]);
         var system = new SharedGameState();
         if (precollected)
             system.SetCollectedItemBit(roomArgument);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Core.Rooms.Plms.CrateriaMainstreetEscapePassagePlmDefinitions;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -15,7 +16,7 @@ internal static class CrateriaMainstreetEscapePassageDraws
         }
         draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
-            new(PlmRunDirection.Horizontal, new ushort[] { PlmLevelWordDefinitions.BlankAir, PlmLevelWordDefinitions.BlankAir }, new(0, 0)),
+            new(PlmRunDirection.Horizontal, new[] { RoomTerrainBlocks.BlankAir, RoomTerrainBlocks.BlankAir }, new(0, 0)),
         });
         return true;
     }

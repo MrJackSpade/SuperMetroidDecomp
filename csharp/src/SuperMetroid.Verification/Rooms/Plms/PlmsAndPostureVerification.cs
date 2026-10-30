@@ -28,10 +28,10 @@ internal static void VerifyBreakableGrapplePlms()
     const int blockIndex = 3 * width + 3;
     static RoomLevelData CreateLevel(byte behavior)
     {
-        var foreground = new ushort[width * height];
-        var bts = new byte[foreground.Length];
-        foreground[blockIndex] = 0xe123;
-        bts[blockIndex] = behavior;
+        var foreground = new RoomTerrainBlock[width * height];
+        var bts = new RoomBlockBehavior[foreground.Length];
+        foreground[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock);
+        bts[blockIndex] = new RoomBlockBehavior(behavior);
         return CreateRoom(new(width, height), foreground, bts);
     }
 
@@ -51,22 +51,22 @@ internal static void VerifyBreakableGrapplePlms()
     var respawningPlms = PlmFixtures.Unbound();
     AssertTrue(respawningPlms.TrySpawnBreakableGrappleBlock(respawning, blockIndex, 1),
         "respawning grapple PLM occupies a native slot");
-    AssertEqual(0, respawning.GetCollisionBlockByIndex(blockIndex).Bts.Value,
+    AssertEqual(0, respawning.GetCollisionBlockByIndex(blockIndex).Behavior.Value,
         "CFB5 clears breakable grapple BTS immediately");
-    AssertEqual(0xe123, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "CFB5 retains original level word until handler");
 
     respawningPlms.Step(respawning);
-    AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0b7, BlockMirroring.None, RoomCollisionType.GrappleBlock), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "connection-frame PLM pass draws grapple frame zero");
-    AssertEqual(0x00b7, respawning.DisplayedVisualWord(blockIndex),
+    AssertEqual(RoomBlockAppearance.Of(0x0b7), respawning.DisplayedAppearance(blockIndex),
         "the drawn block shows its ROM-selected block, unmirrored");
 
     StepMany(respawningPlms,respawning, 239);
-    AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0b7, BlockMirroring.None, RoomCollisionType.GrappleBlock), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "respawning block remains grapple terrain through timer 240 minus one");
     respawningPlms.Step(respawning);
-    AssertEqual(0x0053, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "timer 240 expiry draws first air frame");
     AssertEqual(1, respawningPlms.Sounds.SoundRequests.Count,
         "break transition queues one sound request");
@@ -74,18 +74,18 @@ internal static void VerifyBreakableGrapplePlms()
         "break transition uses library two sound $0A with maximum six");
 
     StepMany(respawningPlms,respawning, 4);
-    AssertEqual(0x0054, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x054, BlockMirroring.None, RoomCollisionType.Air), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "respawning break frame one advances after four");
     StepMany(respawningPlms,respawning, 4);
-    AssertEqual(0x0055, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x055, BlockMirroring.None, RoomCollisionType.Air), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "respawning break frame two advances after four");
     StepMany(respawningPlms,respawning, 6);
-    AssertEqual(0x00ff, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "respawning break reaches blank frame after six");
     StepMany(respawningPlms,respawning, 4 + 4 + 4 + 4);
-    AssertEqual(0xe123, respawning.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.GrappleBlock), respawning.GetCollisionBlockByIndex(blockIndex).Terrain,
         "DrawPLMBlock restores the complete saved grapple word");
-    AssertEqual(1, respawning.GetCollisionBlockByIndex(blockIndex).Bts.Value,
+    AssertEqual(1, respawning.GetCollisionBlockByIndex(blockIndex).Behavior.Value,
         "respawning instruction restores BTS one before terrain");
     AssertEqual(1, respawningPlms.SlotTable.ActiveCount,
         "restoration pass retains PLM for timer-one delete delay");
@@ -100,28 +100,28 @@ internal static void VerifyBreakableGrapplePlms()
         "nonrespawning grapple PLM occupies a native slot");
     permanentPlms.Step(permanent);
     StepMany(permanentPlms,permanent, 119);
-    AssertEqual(0xe0b7, permanent.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0b7, BlockMirroring.None, RoomCollisionType.GrappleBlock), permanent.GetCollisionBlockByIndex(blockIndex).Terrain,
         "nonrespawning block retains grapple terrain through timer 120 minus one");
     permanentPlms.Step(permanent);
-    AssertEqual(0x0053, permanent.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), permanent.GetCollisionBlockByIndex(blockIndex).Terrain,
         "nonrespawning timer 120 begins break sequence");
     StepMany(permanentPlms,permanent, 4 + 4 + 4);
-    AssertEqual(0x00ff, permanent.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), permanent.GetCollisionBlockByIndex(blockIndex).Terrain,
         "nonrespawning sequence ends on blank-air visual word");
     permanentPlms.Step(permanent);
     AssertEqual(0, permanentPlms.SlotTable.ActiveCount,
         "nonrespawning sequence deletes one frame after timer-one blank draw");
-    AssertEqual(0, permanent.GetCollisionBlockByIndex(blockIndex).Bts.Value,
+    AssertEqual(0, permanent.GetCollisionBlockByIndex(blockIndex).Behavior.Value,
         "nonrespawning sequence leaves cleared BTS");
 
     SeedBombBlockPlmPrograms(bus);
 
     static RoomLevelData CreateBombLevel(byte behavior)
     {
-        var foreground = new ushort[width * height];
-        var bts = new byte[foreground.Length];
-        foreground[blockIndex] = 0xf321;
-        bts[blockIndex] = behavior;
+        var foreground = new RoomTerrainBlock[width * height];
+        var bts = new RoomBlockBehavior[foreground.Length];
+        foreground[blockIndex] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.BombableBlock);
+        bts[blockIndex] = new RoomBlockBehavior(behavior);
         return CreateRoom(new(width, height), foreground, bts);
     }
 
@@ -130,27 +130,27 @@ internal static void VerifyBreakableGrapplePlms()
     AssertTrue(respawning2x2Plms.TrySpawnCollisionBombBlock(
         respawning2x2, blockIndex, behavior: 3),
         "BTS-3 collision setup occupies a native PLM slot");
-    AssertEqual(0x0058, respawning2x2.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.Air), respawning2x2.GetCollisionBlockByIndex(blockIndex).Terrain,
         "CE83 synchronously installs the native air-type bomb-parent visual");
     respawning2x2Plms.Step(respawning2x2);
     AssertEqual(new SoundRequest(Library2Sound.ContactBlockBreak, SoundQueueLimit.Max3), respawning2x2Plms.Sounds.SoundRequests[0],
         "collision break queues library-two sound six with native maximum three");
-    AssertEqual(0x0053,
-        respawning2x2.GetCollisionBlock(new(3, 3)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+        respawning2x2.GetCollisionBlock(new(3, 3)).Terrain,
         "2x2 first row begins at PLM origin");
-    AssertEqual(0x0053,
-        respawning2x2.GetCollisionBlock(new(4, 4)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
+        respawning2x2.GetCollisionBlock(new(4, 4)).Terrain,
         "signed {0,+1} record draws the 2x2 lower-right block");
 
     StepMany(respawning2x2Plms,respawning2x2, 12);
-    AssertEqual(0x00ff, respawning2x2.GetCollisionBlock(new(4, 4)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), respawning2x2.GetCollisionBlock(new(4, 4)).Terrain,
         "BTS-3 reaches its four-block blank frame after three four-frame transitions");
     StepMany(respawning2x2Plms,respawning2x2, 384 + 12);
-    AssertEqual(0xf058, respawning2x2.GetCollisionBlock(new(3, 3)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.BombableBlock), respawning2x2.GetCollisionBlock(new(3, 3)).Terrain,
         "BTS-3 restores the type-F parent after the exact 384-frame blank hold");
-    AssertEqual(0x5058, respawning2x2.GetCollisionBlock(new(4, 3)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.HorizontalExtension), respawning2x2.GetCollisionBlock(new(4, 3)).Terrain,
         "BTS-3 restores the type-5 horizontal extension");
-    AssertEqual(0xd058, respawning2x2.GetCollisionBlock(new(3, 4)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x058, BlockMirroring.None, RoomCollisionType.VerticalExtension), respawning2x2.GetCollisionBlock(new(3, 4)).Terrain,
         "BTS-3 restores the type-D vertical extension row");
     AssertEqual(1, respawning2x2Plms.SlotTable.ActiveCount,
         "timer-one restored frame keeps BTS-3 PLM alive through this handler pass");
@@ -164,14 +164,14 @@ internal static void VerifyBreakableGrapplePlms()
         permanent1x2, blockIndex, behavior: 6),
         "BTS-6 collision setup occupies a native PLM slot");
     permanent1x2Plms.Step(permanent1x2);
-    AssertEqual(0x0053, permanent1x2.GetCollisionBlock(new(3, 3)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), permanent1x2.GetCollisionBlock(new(3, 3)).Terrain,
         "vertical draw writes BTS-6 origin");
-    AssertEqual(0x0053, permanent1x2.GetCollisionBlock(new(3, 4)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air), permanent1x2.GetCollisionBlock(new(3, 4)).Terrain,
         "vertical draw advances its second word by one room row");
-    AssertEqual(0, permanent1x2.GetCollisionBlock(new(4, 3)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), permanent1x2.GetCollisionBlock(new(4, 3)).Terrain,
         "vertical draw does not accidentally advance into the neighboring column");
     StepMany(permanent1x2Plms,permanent1x2, 12);
-    AssertEqual(0x00ff, permanent1x2.GetCollisionBlock(new(3, 4)).PackedWord.Raw,
+    AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air), permanent1x2.GetCollisionBlock(new(3, 4)).Terrain,
         "permanent BTS-6 finishes on two vertical blank-air words");
     permanent1x2Plms.Step(permanent1x2);
     AssertEqual(0, permanent1x2Plms.SlotTable.ActiveCount,
@@ -222,10 +222,10 @@ internal static void VerifySamusPostureMovement()
 
     const int width = 8;
     const int height = 8;
-    var floor = new ushort[width * height];
+    var floor = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
-        floor[4 * width + x] = 0x8000;
-    RoomLevelData level = CreateRoom(new(width, height), floor, new byte[floor.Length]);
+        floor[4 * width + x] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData level = CreateRoom(new(width, height), floor, new RoomBlockBehavior[floor.Length]);
 
     var samus = new SamusState
     {
@@ -455,8 +455,8 @@ level, SamusPoseId.NeutralJumpTransitionRightPose, frameCounter: 1),
     // collision rejects the larger pose and retains crouch.
     var tunnelBlocks = (ushort[])floor.Clone();
     for (int x = 0; x < width; x++)
-        tunnelBlocks[1 * width + x] = 0x8000;
-    RoomLevelData tunnel = CreateRoom(new(width, height), tunnelBlocks, new byte[tunnelBlocks.Length]);
+        tunnelBlocks[1 * width + x] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData tunnel = CreateRoom(new(width, height), tunnelBlocks, new RoomBlockBehavior[tunnelBlocks.Length]);
     var tunnelSamus = new SamusState
     {
         Pose = SamusPoseId.CrouchingRightPose,

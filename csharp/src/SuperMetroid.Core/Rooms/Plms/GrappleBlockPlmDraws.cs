@@ -3,14 +3,14 @@ using static SuperMetroid.Core.Rooms.Plms.RoomPlmGrappleBlockDrawDefinitions;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The level word and artwork name of each Grapple-block draw.</summary>
+/// <summary>The terrain and artwork name of each Grapple-block draw.</summary>
 internal static class GrappleBlockPlmDraws
 {
     /// <summary>
-    /// The level word a draw installs: the Grapple block, the three consecutive breakup tiles as air, and blank air.
+    /// The terrain a draw installs: the Grapple block, the three consecutive breakup blocks as air, and blank air.
     /// </summary>
-    private static RoomLevelWord LevelWord(GrappleBlockDraw frame) =>
-        LevelWords.TryGetValue(frame, out RoomLevelWord value) ? value : throw new InvalidOperationException($"Undefined {nameof(GrappleBlockDraw)} {frame}.");
+    private static RoomTerrainBlock Terrain(GrappleBlockDraw frame) =>
+        Blocks.TryGetValue(frame, out RoomTerrainBlock value) ? value : throw new InvalidOperationException($"Undefined {nameof(GrappleBlockDraw)} {frame}.");
 
     /// <summary>The published artwork identity of a Grapple-block draw.</summary>
     internal static string VisualId(GrappleBlockDraw frame) => frame switch
@@ -35,7 +35,7 @@ internal static class GrappleBlockPlmDraws
             definition = default;
             return false;
         }
-        definition = new(frame, LevelWord(frame).Raw);
+        definition = new(frame, Terrain(frame));
         return true;
     }
 
@@ -45,7 +45,7 @@ internal static class GrappleBlockPlmDraws
         get
         {
             foreach (GrappleBlockDraw frame in Enum.GetValues<GrappleBlockDraw>())
-                yield return new(frame, LevelWord(frame));
+                yield return new(frame, Terrain(frame));
         }
     }
 }

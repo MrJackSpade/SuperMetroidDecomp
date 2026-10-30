@@ -11,9 +11,9 @@ public static class NoobTubePlmDefinitions
     public const ControllerButton AcceptedWakeInputMask =
         ControllerButton.B | ControllerButton.Y | ControllerButton.Left | ControllerButton.Right | ControllerButton.A | ControllerButton.X;
 
-    /// <summary>The tube's origin block: a solid block showing visual block $44.</summary>
-    public static RoomLevelWord SolidProjectileTriggerLevelWord { get; } =
-        RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    /// <summary>The tube's origin block: a solid block showing block $44.</summary>
+    public static RoomTerrainBlock SolidProjectileTrigger { get; } =
+        RoomTerrainBlock.Of(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock);
 
     /// <summary>The story event set after the tube has finished breaking.</summary>
     public const EventNumber BrokenEvent = EventNumber.MaridiaNoobTubeBroken;

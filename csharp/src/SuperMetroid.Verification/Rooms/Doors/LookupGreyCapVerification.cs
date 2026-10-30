@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -62,20 +64,19 @@ internal static class LookupGreyCapVerification
                 {
                     AssertEqual(1, frame.Runs.Length, "Grey cap one run");
                     AssertRunHeader(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), frame.Runs.Span[0], "Grey cap DTO geometry");
-                    AssertEqual(4, frame.Runs.Span[0].LevelWords.Length, "Grey cap DTO width");
+                    AssertEqual(4, frame.Runs.Span[0].Count, "Grey cap DTO width");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Grey cap DTO final X");
                     AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Grey cap DTO final Y");
                 }
                 foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(invalid), "Grey cap calculated row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(invalid), "Grey cap calculated row bounds");
             }
             else for (int row = 0; row < 4; row++)
-            {
-                int mask = field == 1 ? 0xf000 : 0xfff;
-                int expected = ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 2 + row * 2)) & mask;
-                AssertEqual(expected, shape.WordAt(row) & mask, "Grey cap original calculated field");
-                AssertEqual(expected, dto.Runs.Span[0].LevelWords.Span[row] & mask, "Grey cap original DTO field");
-                AssertEqual(expected, exported[index].Runs.Span[0].LevelWords.Span[row] & mask, "Grey cap original export field");
+            {
+                RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 2 + row * 2)));
+                AssertEqual(expected, shape.BlockAt(row), "Grey cap original calculated field");
+                AssertEqual(expected, dto.Runs.Span[0].Blocks.Span[row], "Grey cap original DTO field");
+                AssertEqual(expected, exported[index].Runs.Span[0].Blocks.Span[row], "Grey cap original export field");
             }
         }
     }

@@ -19,16 +19,16 @@ internal static class XrayRoomOverlayPresentationContractChecks
     internal static void Run()
     {
         bool rejected = false;
-        try { _ = new InstalledXrayOverlays(new ushort[8], []); }
+        try { _ = new InstalledXrayOverlays(new RoomBlockAppearance[8], []); }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "production construction must reject missing required room overlays");
         XrayRoomOverlayDefinition first = XrayRoomOverlayDefinitions.All[0];
-        XrayRoomOverlayVisual[] tiles = [new(new(1, 2), new RoomLevelWord(3))];
+        XrayRoomOverlayVisual[] tiles = [new(new(1, 2), RoomBlockAppearance.Of(3))];
         var rooms = XrayRoomOverlayDefinitions.All.Select(overlay =>
             new XrayRoomOverlayTiles(overlay, tiles)).ToArray();
-        var catalog = new InstalledXrayOverlays(new ushort[8], rooms);
-        tiles[0] = new(new(0, 0), new RoomLevelWord(0));
-        Require(catalog.RoomTiles(first).Single() == new XrayRoomOverlayVisual(new(1, 2), new RoomLevelWord(3)),
+        var catalog = new InstalledXrayOverlays(new RoomBlockAppearance[8], rooms);
+        tiles[0] = new(new(0, 0), RoomBlockAppearance.Of(0));
+        Require(catalog.RoomTiles(first).Single() == new XrayRoomOverlayVisual(new(1, 2), RoomBlockAppearance.Of(3)),
             "installed overlays must be independent of caller tile arrays");
 
         ClosedPresentationContract contract = RoomRevealClosedContractDefinitions.All.Single(item =>

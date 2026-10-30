@@ -114,8 +114,8 @@ internal static class RoomPlmPopulationVerification
                 : CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(expectedHeader + 2))));
             var plms = PlmFixtures.Unbound();
             RoomLevelData level = CreateRoom(new(4, 4),
-                new ushort[16],
-                new byte[16]);
+                new RoomTerrainBlock[16],
+                new RoomBlockBehavior[16]);
             var door = new DoorDefinition(
                 Name: "fixture door",
                 DestinationRoom: FixtureRoomHeaders.UnloadedDestination,
@@ -195,8 +195,8 @@ internal static class RoomPlmPopulationVerification
             ]);
 
             RoomLevelData level = CreateRoom(new(8, 8),
-                new ushort[64],
-                new byte[64]);
+                new RoomTerrainBlock[64],
+                new RoomBlockBehavior[64]);
             var system = new SharedGameState();
             var plms = PlmFixtures.Unbound();
             AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -268,8 +268,8 @@ internal static class RoomPlmPopulationVerification
         const int width = 32;
         const int height = 16;
         RoomLevelData level = CreateRoom(new(width, height),
-            new ushort[width * height],
-            new byte[width * height]);
+            new RoomTerrainBlock[width * height],
+            new RoomBlockBehavior[width * height]);
         var system = new SharedGameState();
         var samus = new SamusState
         {
@@ -291,15 +291,15 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(37, slots[2].NativeSlotIndex, "later station receives descending slot");
         AssertEqual(0xb6df, PlmNativeWords.Word(slots[2].HeaderPointer), "station header remains observable");
         AssertEqual(1, plms.ElevatorPlatforms.Count, "elevator platform family is resident");
-        AssertEqual(0x0000, level.GetCollisionBlock(new(12, 8)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlock(new(12, 8)).Terrain,
             "elevator setup clears collision bits through shared setup dispatcher");
 
         // Energy right access is parent+1 and retains solid type B while publishing the
         // parent trigger. The next PLM pass refills through live Samus state and emits the
         // cartridge message ID; it does not require a room-name callback.
-        AssertEqual(0xb000, level.GetCollisionBlock(new(21, 8)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialBlock), level.GetCollisionBlock(new(21, 8)).Terrain,
             "energy setup installs type-B right access");
-        AssertEqual(0x49, level.GetCollisionBlock(new(21, 8)).Bts.Value,
+        AssertEqual(0x49, level.GetCollisionBlock(new(21, 8)).Behavior.Value,
             "energy setup installs BTS $49");
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(21, 8)), 0x49),
             "generic BTS dispatcher locates energy-station parent");
@@ -371,8 +371,8 @@ internal static class RoomPlmPopulationVerification
             0x00, 0x00,
         ]);
         RoomLevelData level = CreateRoom(new(width, height),
-            new ushort[width * height],
-            new byte[width * height]);
+            new RoomTerrainBlock[width * height],
+            new RoomBlockBehavior[width * height]);
         var system = new SharedGameState();
         var samus = new SamusState
         {
@@ -396,7 +396,7 @@ internal static class RoomPlmPopulationVerification
             "redirected actor retains explicit grey-door ownership while closing");
 
         plms.Step(level, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = samus.CollectedItems });
-        AssertEqual(0x0482, level.GetCollisionBlock(new(doorX, doorY)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x082, BlockMirroring.Horizontal, RoomCollisionType.Air), level.GetCollisionBlock(new(doorX, doorY)).Terrain,
             "collected Bombs admit the secondary list's closing draw");
 
         for (int frame = 0; frame < 80 &&
@@ -407,7 +407,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(initialList, RoomPlmProgramsVerification.GreyDoorNativeEntry(new GreyDoorVariant(ColoredDoorOrientation.Right, BombTorizo: true),
                 GreyDoorProgram.Waiting),
             "rejoined actor's waiting program stands for the cartridge first list");
-        AssertEqual(0xc4ae, level.GetCollisionBlock(new(doorX, doorY)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x0ae, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock), level.GetCollisionBlock(new(doorX, doorY)).Terrain,
             "re-entry draws the locked grey-door frame in the same handler pass");
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "rejoined Bomb Torizo door remains resident for the battle condition");
@@ -481,8 +481,8 @@ internal static class RoomPlmPopulationVerification
             0x00, 0x00,
         ]);
         RoomLevelData level = CreateRoom(new(width, height),
-            new ushort[width * height],
-            new byte[width * height]);
+            new RoomTerrainBlock[width * height],
+            new RoomBlockBehavior[width * height]);
         var system = new SharedGameState();
         var plms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Brinstar), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -543,11 +543,11 @@ internal static class RoomPlmPopulationVerification
             0x00, 0x00,
         ]);
 
-        ushort[] levelWords = new ushort[width * height];
-        levelWords[blockY * width + blockX] = 0x9123;
+        var levelWords = new RoomTerrainBlock[width * height];
+        levelWords[blockY * width + blockX] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.DoorBlock);
         RoomLevelData level = CreateRoom(new(width, height),
             levelWords,
-            new byte[width * height]);
+            new RoomBlockBehavior[width * height]);
         var plms = PlmFixtures.Unbound();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.WreckedShip), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Wrecked Ship attic record is accepted by sequential loader");
@@ -567,7 +567,7 @@ internal static class RoomPlmPopulationVerification
         plms.Step(level);
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "inert attic callback leaves its resident actor alive");
-        AssertEqual(0x9123, level.GetCollisionBlock(new(blockX, blockY)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.DoorBlock), level.GetCollisionBlock(new(blockX, blockY)).Terrain,
             "inert attic callback leaves authored terrain unchanged");
     }
 
@@ -596,8 +596,8 @@ internal static class RoomPlmPopulationVerification
             0x00, 0x00,
         ]);
         RoomLevelData CreateLevel() => CreateRoom(new(width, height),
-            new ushort[width * height],
-            new byte[width * height]);
+            new RoomTerrainBlock[width * height],
+            new RoomBlockBehavior[width * height]);
 
         RoomLayer3FxState CreateFx(ushort baseY, ushort targetY, ushort velocity, byte timer)
         {
@@ -752,8 +752,8 @@ internal static class RoomPlmPopulationVerification
         ]);
 
         RoomLevelData level = CreateRoom(new(width, height),
-            new ushort[width * height],
-            new byte[width * height]);
+            new RoomTerrainBlock[width * height],
+            new RoomBlockBehavior[width * height]);
         var plms = PlmFixtures.Unbound();
         AssertEqual(2, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Brinstar), decoded, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "off-room colored door and following record both run setup");
@@ -764,13 +764,13 @@ internal static class RoomPlmPopulationVerification
             "off-room record retains native unchecked row-major block index");
         AssertEqual(38, slots[1].NativeSlotIndex,
             "following record retains descending native slot order");
-        AssertEqual(0, level.GetCollisionBlockByIndex(width * height - 1).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlockByIndex(width * height - 1).Terrain,
             "off-room setup cannot corrupt the final authored host block");
 
         // Both resident actors execute their first draw. The off-room write remains in the
         // bounded native tail while the ordinary record updates logical terrain normally.
         plms.Step(level);
-        AssertEqual(0xc004, level.GetCollisionBlock(new(inRoomX, inRoomY)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x004, BlockMirroring.None, RoomCollisionType.ShootableBlock), level.GetCollisionBlock(new(inRoomX, inRoomY)).Terrain,
             "in-room record following the harmless tail actor still draws normally");
 
         var malformed = new RoomPlmPopulation($"$8F:{malformedPopulation:X4}",
@@ -795,11 +795,11 @@ internal static class RoomPlmPopulationVerification
         const int height = 16;
         const int gateX = 7;
         const int gateY = 2;
-        const ushort originalGateWord = 0xf123;
-        const ushort deactivatedGateWord = 0x8123;
-        const ushort openGateWord = 0x80ff;
-        const ushort halfClosedGateTopWord = 0x830f;
-        const ushort closedGateMiddleWord = 0x8ae8;
+        RoomTerrainBlock originalGateWord = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.BombableBlock);
+        RoomTerrainBlock deactivatedGateWord = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        RoomTerrainBlock openGateWord = RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        RoomTerrainBlock halfClosedGateTopWord = RoomTerrainBlock.Of(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        RoomTerrainBlock closedGateMiddleWord = RoomTerrainBlock.Of(0x2e8, BlockMirroring.Vertical, RoomCollisionType.SolidBlock);
 
         SeedPlmProgramWords(bus, 0xc8ca, 0xb3c1);
         SeedPlmProgramWords(bus, 0xc8cc, RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed);
@@ -827,15 +827,15 @@ internal static class RoomPlmPopulationVerification
         var guarded = NewMotherBrainEscapeGateGuard(bus);
 
         RoomLevelData ordinaryLevel = CreateRoom(new(width, height),
-            new ushort[width * height],
-            new byte[width * height]);
+            new RoomTerrainBlock[width * height],
+            new RoomBlockBehavior[width * height]);
         int gateBlock = ordinaryLevel.GetBlockIndex(new(gateX, gateY));
-        ordinaryLevel.SetForegroundEntry(gateBlock, originalGateWord);
+        ordinaryLevel.SetTerrain(gateBlock, originalGateWord);
         var ordinary = PlmFixtures.Unbound();
         var system = new SharedGameState();
         AssertEqual(1, PlmFixtures.LoadPopulation(ref ordinary, new PlmRoom(ordinaryLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "escape gate population record is accepted by the sequential loader");
-        AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).PackedWord.Raw,
+        AssertEqual(deactivatedGateWord, ordinaryLevel.GetCollisionBlockByIndex(gateBlock).Terrain,
             "C8CA setup clears collision class bits without deleting its resident slot");
         AssertEqual(39, ordinary.PopulationSlots.Single().NativeSlotIndex,
             "escape gate retains the highest native population slot");
@@ -843,7 +843,7 @@ internal static class RoomPlmPopulationVerification
             "ordinary entry runs C8CA's first closed-gate program");
         ordinary.Step(ordinaryLevel);
         AssertEqual(closedGateMiddleWord,
-            ordinaryLevel.GetCollisionBlock(new(gateX, gateY + 1)).PackedWord.Raw,
+            ordinaryLevel.GetCollisionBlock(new(gateX, gateY + 1)).Terrain,
             "non-escape entry draws the cartridge's already-closed gate");
         for (int frame = 0; frame < 6; frame++)
             ordinary.Step(ordinaryLevel);
@@ -851,9 +851,9 @@ internal static class RoomPlmPopulationVerification
             "non-escape closed-gate actor releases its slot after six authored frames");
 
         RoomLevelData escapeLevel = CreateRoom(new(width, height),
-            new ushort[width * height],
-            new byte[width * height]);
-        escapeLevel.SetForegroundEntry(gateBlock, originalGateWord);
+            new RoomTerrainBlock[width * height],
+            new RoomBlockBehavior[width * height]);
+        escapeLevel.SetTerrain(gateBlock, originalGateWord);
         var escape = PlmFixtures.Unbound();
         PlmFixtures.LoadPopulation(ref escape, new PlmRoom(escapeLevel, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         var motherBrainExit = new DoorDefinition(
@@ -874,17 +874,17 @@ internal static class RoomPlmPopulationVerification
             "door transition selects C8CA's second program");
 
         escape.Step(escapeLevel);
-        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).PackedWord.Raw,
+        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).Terrain,
             "closing frame one draws the fully open gate");
         escape.Step(escapeLevel);
-        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).PackedWord.Raw,
+        AssertEqual(openGateWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).Terrain,
             "two-frame gate timer retains the open image on its countdown frame");
         escape.Step(escapeLevel);
-        AssertEqual(halfClosedGateTopWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).PackedWord.Raw,
+        AssertEqual(halfClosedGateTopWord, escapeLevel.GetCollisionBlock(new(gateX, gateY)).Terrain,
             "closing frame two draws the half-closed gate");
         escape.Step(escapeLevel);
         escape.Step(escapeLevel);
-        AssertEqual(closedGateMiddleWord, escapeLevel.GetCollisionBlock(new(gateX, gateY + 1)).PackedWord.Raw,
+        AssertEqual(closedGateMiddleWord, escapeLevel.GetCollisionBlock(new(gateX, gateY + 1)).Terrain,
             "closing frame three installs the final solid gate collision");
         escape.Step(escapeLevel);
         escape.Step(escapeLevel);
@@ -892,16 +892,16 @@ internal static class RoomPlmPopulationVerification
             "escape gate releases its slot after the final two-frame hold");
 
         RoomLevelData fallbackLevel = CreateRoom(new(width, height),
-            new ushort[width * height],
-            new byte[width * height]);
-        fallbackLevel.SetForegroundEntry(gateBlock, originalGateWord);
+            new RoomTerrainBlock[width * height],
+            new RoomBlockBehavior[width * height]);
+        fallbackLevel.SetTerrain(gateBlock, originalGateWord);
         var fallback = PlmFixtures.Unbound();
         AssertTrue(fallback.DoorPlms.TrySpawnDoorClosingPlm(fallbackLevel, motherBrainExit, system),
             "special door without a resident cap spawns C8D0 fallback");
         AssertEqual(PlmHeaderId.MotherBrainEscapeRoomGateClosing,
             fallback.PopulationSlots.Single().HeaderPointer,
             "fallback actor uses the cartridge's dedicated C8D0 header");
-        AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).PackedWord.Raw,
+        AssertEqual(deactivatedGateWord, fallbackLevel.GetCollisionBlockByIndex(gateBlock).Terrain,
             "fallback C8D0 executes the shared deactivate setup");
 
         var nonClosingDoor = motherBrainExit with { Orientation = new(DoorDirection.Right, DoorClosingBehavior.None) };
@@ -960,8 +960,8 @@ internal static class RoomPlmPopulationVerification
         ]);
 
         RoomLevelData level = CreateRoom(new(8, 8),
-            new ushort[64],
-            new byte[64]);
+            new RoomTerrainBlock[64],
+            new RoomBlockBehavior[64]);
         var system = new SharedGameState();
         var plms = PlmFixtures.Unbound();
         AssertEqual(5, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } }),
@@ -1039,8 +1039,8 @@ internal static class RoomPlmPopulationVerification
 
         const ushort emptyPopulation = 0x9780;
         SeedRoomPlmPopulation(bus, emptyPopulation, [0x00, 0x00]);
-        RoomLevelData level = CreateRoom(new(32, 32), new ushort[32 * 32],
-            new byte[32 * 32]);
+        RoomLevelData level = CreateRoom(new(32, 32), new RoomTerrainBlock[32 * 32],
+            new RoomBlockBehavior[32 * 32]);
         RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(),
             new byte[RoomScrollGrid.StorageByteCount], new Extent16<RoomScreens>(2, 2));
         var samus = new SamusState();
@@ -1090,23 +1090,23 @@ internal static class RoomPlmPopulationVerification
         ]);
         const int width = 32;
         RoomLevelData level = CreateRoom(new(width, 16),
-            new ushort[width * 16],
-            new byte[width * 16]);
+            new RoomTerrainBlock[width * 16],
+            new RoomBlockBehavior[width * 16]);
         var system = new SharedGameState();
         var samus = new SamusState { Health = 99, MaxHealth = 99, Missiles = 0, MaxMissiles = 10 };
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmStationVisuals = visuals });
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
         AssertEqual(3, plms.StationSnapshots.Count, "map, missile, and save parents share one pool");
-        AssertEqual(0x47, level.GetCollisionBlock(new(7, 6)).Bts.Value,
+        AssertEqual(0x47, level.GetCollisionBlock(new(7, 6)).Behavior.Value,
             "map right access setup uses BTS $47");
-        AssertEqual(0x48, level.GetCollisionBlock(new(4, 6)).Bts.Value,
+        AssertEqual(0x48, level.GetCollisionBlock(new(4, 6)).Behavior.Value,
             "map left access setup uses native two-block offset");
-        AssertEqual(0x4b, level.GetCollisionBlock(new(13, 6)).Bts.Value,
+        AssertEqual(0x4b, level.GetCollisionBlock(new(13, 6)).Behavior.Value,
             "missile right access setup uses BTS $4B");
-        AssertEqual(0x4c, level.GetCollisionBlock(new(11, 6)).Bts.Value,
+        AssertEqual(0x4c, level.GetCollisionBlock(new(11, 6)).Behavior.Value,
             "missile left access setup uses BTS $4C");
-        AssertEqual(0x4d, level.GetCollisionBlock(new(18, 6)).Bts.Value,
+        AssertEqual(0x4d, level.GetCollisionBlock(new(18, 6)).Behavior.Value,
             "save station setup installs trigger BTS $4D");
 
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(7, 6)), 0x47),
@@ -1120,11 +1120,11 @@ internal static class RoomPlmPopulationVerification
             plms.Step(level);
         AssertTrue(!system.HasAreaMap(2), "map station has not activated before its 103rd pass");
         plms.Step(level);
-        AssertEqual(0xb859, level.GetCollisionBlock(new(18, 6)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x059, BlockMirroring.Vertical, RoomCollisionType.SpecialBlock), level.GetCollisionBlock(new(18, 6)).Terrain,
             "compiled save-pod idle draw installs its physical floor word");
-        AssertEqual(0x005b, level.GetCollisionBlock(new(18, 2)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x05b, BlockMirroring.None, RoomCollisionType.Air), level.GetCollisionBlock(new(18, 2)).Terrain,
             "compiled save-pod draw extends its shaft above the trigger");
-        AssertEqual(0x8059, level.GetCollisionBlock(new(18, 1)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x059, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(18, 1)).Terrain,
             "compiled save-pod draw installs its upper cap");
         AssertTrue(system.HasAreaMap(2), "map station marks current area acquired");
         AssertEqual(10, samus.Missiles, "missile station restores missiles");
@@ -1140,11 +1140,11 @@ internal static class RoomPlmPopulationVerification
         // hold, retract, and final hold, without looping the access sound.
         for (int frame = 0; frame < 18; frame++)
             plms.Step(level);
-        AssertEqual(0x8128, level.GetCollisionBlock(new(7, 6)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x128, BlockMirroring.None, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(7, 6)).Terrain,
             "map access retracts to its compiled right-side parent word");
-        AssertEqual(0x8528, level.GetCollisionBlock(new(4, 6)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x128, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock), level.GetCollisionBlock(new(4, 6)).Terrain,
             "map access retracts its linked left-side block");
-        AssertEqual(0xb4c3, level.GetCollisionBlock(new(13, 6)).PackedWord.Raw,
+        AssertEqual(RoomTerrainBlock.Of(0x0c3, BlockMirroring.Horizontal, RoomCollisionType.SpecialBlock), level.GetCollisionBlock(new(13, 6)).Terrain,
             "missile access retracts to its compiled resource word");
         AssertTrue(!samus.Control.AlphaLocked,
             "Samus stays released through the post-message retraction");
@@ -1160,7 +1160,7 @@ internal static class RoomPlmPopulationVerification
         StationActivationEvent saveRequest = plms.Stations.StationActivationEvents.Single();
         samus.Position = samus.Position.WithWholeX(0x0127);
         ushort[] levelBeforeSave = Enumerable.Range(0, level.Size.X * level.Size.Y)
-            .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).PackedWord.Raw)
+            .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).Terrain)
             .ToArray();
         bool saving = plms.Stations.ResolveSaveStationConfirmation(saveRequest, accepted: true, level: level);
         AssertTrue(saving, "accepted save resumes the sleeping cartridge PLM");
@@ -1169,7 +1169,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(new SoundRequest(Library1Sound.Saving, SoundQueueLimit.Max6),
             plms.Stations.ConsumeSavingSoundRequest(), "the confirming pass queues cartridge library-one sound $2E");
         AssertTrue(Enumerable.Range(0, levelBeforeSave.Length).Any(block => levelBeforeSave[block] !=
-                level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).PackedWord.Raw),
+                level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).Terrain),
             "the confirming pass draws the first electricity frame");
         AssertEqual(0x0120, samus.Position.X.Whole,
             "save animation centers Samus on the station's 16-pixel boundary");
@@ -1342,7 +1342,7 @@ internal static class RoomPlmPopulationVerification
         }
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, message.Phase,
             "save message enters shared yes/no selection phase");
-        AssertEqual(0x5100, message.Tilemap(messages)[128].PackedWord,
+        AssertEqual(RoomTerrainBlock.Of(0x100, BlockMirroring.None, RoomCollisionType.HorizontalExtension), message.Tilemap(messages)[128].Terrain,
             "save message begins with native selected-YES row");
         // $85:84BA waits two lag frames before its first ReadControllerInput.
         message.Step(0);
@@ -1351,7 +1351,7 @@ internal static class RoomPlmPopulationVerification
         message.Step(ControllerButton.Left);
         AssertTrue(!message.ConfirmationSelectionYes,
             "save cursor changes the shared confirmation selection");
-        AssertEqual(0x5200, message.Tilemap(messages)[128].PackedWord,
+        AssertEqual(RoomTerrainBlock.Of(0x200, BlockMirroring.None, RoomCollisionType.HorizontalExtension), message.Tilemap(messages)[128].Terrain,
             "save cursor redraws the native selected-NO row");
         // Later reads come every second frame: the read's frame holds the next first wait.
         // A toggle's redraw wait precedes that cycle once (#1269), so the first read after

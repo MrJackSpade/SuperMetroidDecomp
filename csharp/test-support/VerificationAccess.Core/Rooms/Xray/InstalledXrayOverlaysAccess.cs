@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Samus.Abilities;
 
@@ -10,7 +11,7 @@ internal static class InstalledXrayOverlaysAccess
     extension(InstalledXrayOverlays)
     {
         /// <summary>Explicitly partial room overlays for focused fixtures; never an installed catalog.</summary>
-        internal static InstalledXrayOverlays FromOverlaysForVerification(IEnumerable<ushort> itemMetatiles,
+        internal static InstalledXrayOverlays FromOverlaysForVerification(IEnumerable<RoomBlockAppearance> itemMetatiles,
             IEnumerable<XrayRoomOverlayTiles> rooms) =>
             new InstalledXrayOverlays(itemMetatiles, rooms, requiredOverlays: []);
     }

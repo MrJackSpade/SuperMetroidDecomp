@@ -12,7 +12,7 @@ public static class EscapeAnimalWallDefinitions
     public const byte WallY = 10;
 
     /// <summary>The block behaviour of the rescue wall's shootable origin block, which selects the critters-escape reaction.</summary>
-    public const byte ReactionBts = 0x4f;
+    public static readonly RoomBlockBehavior ReactionBehavior = new(0x4f);
 
     /// <summary>The collision type the setup gives the wall's origin block, keeping its artwork.</summary>
     public const RoomCollisionType OriginCollisionType = RoomCollisionType.ShootableBlock;
@@ -21,8 +21,8 @@ public static class EscapeAnimalWallDefinitions
     public const RoomCollisionType ExtensionCollisionType = RoomCollisionType.VerticalExtension;
 
     /// <summary>The extension blocks' behaviour: a displacement of one block up, onto the block above.</summary>
-    public const byte ExtensionBts = 0xff;
+    public static readonly RoomBlockBehavior ExtensionBehavior = RoomBlockBehavior.OfExtensionOffset(-1);
 
     /// <summary>The block the reaction shows in place of the wall's artwork, unmirrored.</summary>
-    public static readonly RoomBlockAppearance ReactionAppearance = RoomBlockAppearance.Of(0x9f);
+    public static readonly RoomBlockAppearance ReactionAppearance = RoomBlockAppearance.Of(0x09f);
 }

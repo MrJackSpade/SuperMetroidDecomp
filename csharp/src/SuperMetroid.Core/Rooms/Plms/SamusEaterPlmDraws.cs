@@ -65,9 +65,9 @@ internal static class SamusEaterPlmDraws
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[3];
         for (int run = 0; run < runs.Length; run++)
         {
-            var words = new ushort[Draw.Count(run)];
-            for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(run, block);
-            runs[run] = new(PlmRunDirection.Horizontal, words, new(Draw.NextX(run), draw.NextY(run)));
+            var blocks = new RoomTerrainBlock[Draw.Count(run)];
+            for (int block = 0; block < blocks.Length; block++) blocks[block] = draw.BlockAt(run, block);
+            runs[run] = new(PlmRunDirection.Horizontal, blocks, new(Draw.NextX(run), draw.NextY(run)));
         }
         list = new(request, runs);
         return true;
@@ -111,8 +111,8 @@ internal static class SamusEaterPlmDraws
             1 => Ceiling ? (sbyte)1 : (sbyte)-1,
             _ => throw new ArgumentOutOfRangeException(nameof(run)),
         };
-        /// <summary>Encodes the phase tile, collision type, and orientation flips for a single mouth or foliage block.</summary>
-        internal ushort WordAt(int run, int block)
+        /// <summary>The phase block, collision kind, and orientation mirroring of a single mouth or foliage block.</summary>
+        internal RoomTerrainBlock BlockAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new ArgumentOutOfRangeException(nameof(block));
             int tile;
@@ -138,7 +138,7 @@ internal static class SamusEaterPlmDraws
                     _ => RoomCollisionType.Air,
                 };
             }
-            return RoomLevelWord.Create(tile, flips | (Ceiling ? BlockMirroring.Vertical : BlockMirroring.None), collision).Raw;
+            return RoomTerrainBlock.Of(tile, flips | (Ceiling ? BlockMirroring.Vertical : BlockMirroring.None), collision);
         }
     }
 }

@@ -460,32 +460,32 @@ public enum PlmHeaderId
     BombReactionSpeedBoostBlock,
 
     /// <summary>
-    /// The <c>Collision_BTS82</c> PLM: Brinstar BTS <c>$82</c>, a
+    /// The <c>Collision_BTS82</c> PLM: Brinstar behaviour <c>$82</c>, a
     /// respawning Speed Booster block with the slower crumble animation.
     /// </summary>
     SpeedBlockBrinstarSlowRespawning,
 
     /// <summary>
-    /// The <c>Collision_BTS83</c> PLM: Brinstar BTS <c>$83</c>, a
+    /// The <c>Collision_BTS83</c> PLM: Brinstar behaviour <c>$83</c>, a
     /// permanent Speed Booster block with the slower crumble animation.
     /// </summary>
     SpeedBlockBrinstarSlowPermanent,
 
     /// <summary>
     /// The <c>Collision_RespawningSpeedBoostBlock</c> PLM: the
-    /// area-independent BTS <c>$0E</c> respawning Speed Booster block.
+    /// area-independent behaviour <c>$0E</c> respawning Speed Booster block.
     /// </summary>
     SpeedBlockRespawning,
 
     /// <summary>
     /// The <c>Collision_DachoraRespawningSpeedBoostBlock</c> PLM:
-    /// Brinstar BTS <c>$84</c>, the Dachora-room respawning Speed Booster block.
+    /// Brinstar behaviour <c>$84</c>, the Dachora-room respawning Speed Booster block.
     /// </summary>
     SpeedBlockDachoraRespawning,
 
     /// <summary>
     /// The <c>Collision_SpeedBoostBlock</c> PLM: area-independent
-    /// BTS <c>$0F</c> and Brinstar BTS <c>$85</c>, a permanent Speed Booster block.
+    /// Behaviour <c>$0F</c> and Brinstar behaviour <c>$85</c>, a permanent Speed Booster block.
     /// </summary>
     SpeedBlockPermanent,
 

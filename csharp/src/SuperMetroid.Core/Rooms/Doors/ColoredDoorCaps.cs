@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -16,11 +17,11 @@ internal static class ColoredDoorCaps
         /// <summary>The direction the cap's four-block run writes in.</summary>
         public PlmRunDirection Direction => Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
 
-        /// <summary>The level word of <paramref name="cell"/>, one of the cap's four cells in native run order.</summary>
-        public ushort WordAt(int cell)
+        /// <summary>The terrain of <paramref name="cell"/>, one of the cap's four cells in run order.</summary>
+        public RoomTerrainBlock BlockAt(int cell)
         {
             if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
-            return ColoredDoorPlmDrawDefinitions.Cells[this][cell].Raw;
+            return ColoredDoorPlmDrawDefinitions.Cells[this][cell];
         }
     }
 

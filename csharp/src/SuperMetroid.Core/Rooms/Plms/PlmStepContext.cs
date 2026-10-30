@@ -17,11 +17,11 @@ internal readonly record struct PlmStepContext(
     internal void Draw(PlmSlot slot, PlmDraw draw) => Plms.Drawing.Draw(Level, slot.BlockIndex, draw);
 
     /// <summary>
-    /// Redraws the slot's saved level word at its block, as <c>$84:8B17 Instruction_PLM_DrawPLMBlock</c> restores a
+    /// Redraws the slot's saved terrain at its block, as <c>$84:8B17 Instruction_PLM_DrawPLMBlock</c> restores a
     /// respawning block.
     /// </summary>
     internal void DrawRestoredBlock(PlmSlot slot) =>
-        PlmLevelWrites.DrawLevelWord(Level, slot.BlockIndex, slot.RestoreLevelWord.Raw);
+        PlmLevelWrites.DrawTerrain(Level, slot.BlockIndex, slot.RestoreTerrain);
 
     /// <summary>Queues <paramref name="sound"/> under the native queue cap <paramref name="maximumQueued"/>.</summary>
     internal void QueueSound(SoundEffectId sound, SoundQueueLimit maximumQueued) =>

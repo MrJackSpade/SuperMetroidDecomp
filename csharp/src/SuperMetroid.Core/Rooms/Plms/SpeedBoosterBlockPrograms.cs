@@ -19,7 +19,7 @@ internal static class SpeedBoosterBlockPrograms
             [SpeedBoosterBlockProgram.BombReveal] = [Step.Show(SpeedBoosterBlockFrame.BombReveal, 1), Step.Stop],
         });
 
-    /// <summary>The break sound and the crumble; a respawning block grows back and restores its level word.</summary>
+    /// <summary>The break sound and the crumble; a respawning block grows back and restores its block.</summary>
     private static Step[] Crumble(int crumbleDuration, SpeedBoosterBlockRespawn respawn)
     {
         List<Step> steps =

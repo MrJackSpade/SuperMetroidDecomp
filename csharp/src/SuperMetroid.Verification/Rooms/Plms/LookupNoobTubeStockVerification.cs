@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Verification.Areas.Escape;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -14,18 +16,18 @@ internal static class LookupNoobTubeStockVerification
         InstalledRoomPlmNoobTubeVisuals installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x98d1,"intact"),new LookupEscapeGateStockFrame(0x98d7,"damaged"),new LookupEscapeGateStockFrame(0x98dd,"opened"),new LookupEscapeGateStockFrame(0x98e3,"cleared"),new LookupEscapeGateStockFrame(0x9953,"broken-late"),new LookupEscapeGateStockFrame(0x9991,"opened-rows"),new LookupEscapeGateStockFrame(0x99e5,"broken-full")];
-        var native = new Dictionary<ushort, ushort[][]>();
+        var native = new Dictionary<ushort, RoomBlockAppearance[][]>();
         foreach (var frame in frames)
         {
-            var runs = new List<ushort[]>();
+            var runs = new List<RoomBlockAppearance[]>();
             int cursor = frame.Pointer;
             while (true)
             {
                 int count = ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0x7fff;
                 cursor += 2;
-                var words = new ushort[count];
+                var words = new RoomBlockAppearance[count];
                 for (int word = 0; word < count; word++, cursor += 2)
-                    words[word] = (ushort)(ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0xfff);
+                    words[word] = RoomLevelWordCodec.DecodeAppearance(ReadSamusEaterPlmWord(rom, 0x840000 | cursor));
                 runs.Add(words);
                 byte x = NoobTubeStockMappingRomByte(rom, 0x840000 | cursor++), y = NoobTubeStockMappingRomByte(rom, 0x840000 | cursor++);
                 if (x == 0 && y == 0) break;
@@ -37,7 +39,7 @@ internal static class LookupNoobTubeStockVerification
         var flat = frames.ToDictionary(frame => frame.Pointer, frame => native[frame.Pointer].SelectMany(run => run).ToArray());
         var stock = InstalledRoomPlmNoobTubeVisuals.Stock();
         var imported = new InstalledRoomPlmNoobTubeVisuals(entries.Reverse());
-        string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
+        string Hash(Dictionary<ushort, RoomBlockAppearance[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromAppearanceFrames(
             nameof(InstalledRoomPlmNoobTubeVisuals), words.ToDictionary(pair => NoobTubePlmDraws.VisualId(NativePlmDraws.At<NoobTubeDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
@@ -48,39 +50,37 @@ internal static class LookupNoobTubeStockVerification
                 for (int run = 0; run < runs.Length; run++)
                 {
                     for (int word = 0; word < runs[run].Length; word++)
-                        AssertEqual(runs[run][word], catalog.GetWord(NativePlmDraws.At<NoobTubeDraw>(frame.Pointer),run,word), "Tube original stock word");
+                        AssertEqual(runs[run][word], catalog.GetAppearance(NativePlmDraws.At<NoobTubeDraw>(frame.Pointer),run,word), "Tube original stock word");
                     foreach (int bad in new[] {int.MinValue,-1,runs[run].Length,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<NoobTubeDraw>(frame.Pointer),run,bad), "Tube stock word bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<NoobTubeDraw>(frame.Pointer),run,bad), "Tube stock word bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,runs.Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<NoobTubeDraw>(frame.Pointer),bad,0), "Tube stock run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<NoobTubeDraw>(frame.Pointer),bad,0), "Tube stock run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<NoobTubeDraw>((ushort)pointer),0,0), "Tube stock unknown pointer");
-        entries[3].Blocks[24] = 0xc58;
+                AssertThrows<InvalidDataException>(() => stock.GetAppearance(NativePlmDraws.At<NoobTubeDraw>((ushort)pointer),0,0), "Tube stock unknown pointer");
+        entries[3].Blocks[24] = RoomBlockAppearance.Of(0x058, BlockMirroring.Horizontal | BlockMirroring.Vertical);
         var mixed = new InstalledRoomPlmNoobTubeVisuals(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
         AssertEqual(Hash(expected), mixed.ContentIdentity, "Tube mixed custom/stock identity");
-        entries[3].Blocks[24] = 0x5a;
-        entries[6].Blocks[36] = 0x5b;
+        entries[3].Blocks[24] = RoomBlockAppearance.Of(0x05a);
+        entries[6].Blocks[36] = RoomBlockAppearance.Of(0x05b);
         foreach (var frame in frames)
         {
             int index = 0;
             for (int run = 0; run < native[frame.Pointer].Length; run++)
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(NativePlmDraws.At<NoobTubeDraw>(frame.Pointer),run,word), "Tube cloned custom and unchanged stock isolation");
+                AssertEqual(expected[frame.Pointer][index++], mixed.GetAppearance(NativePlmDraws.At<NoobTubeDraw>(frame.Pointer),run,word), "Tube cloned custom and unchanged stock isolation");
         }
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmNoobTubeVisuals(entries[..1]), "Tube missing frame");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmNoobTubeVisuals(entries.Append(entries[0])), "Tube duplicate frame");
         var invalid = entries.ToArray();
         invalid[0] = new("INTACT", entries[0].Blocks);
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmNoobTubeVisuals(invalid), "Tube ordinal identity");
-        invalid[0] = new(entries[0].Id, new ushort[7]);
+        invalid[0] = new(entries[0].Id, new RoomBlockAppearance[7]);
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmNoobTubeVisuals(invalid), "Tube exact flattened shape");
-        entries[0].Blocks[0] = 0xf058;
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmNoobTubeVisuals(entries), "Tube visual bits only");
     }
 
     /// <summary>Reads native PLM run displacement bytes for the stock visual comparison.</summary>

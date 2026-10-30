@@ -16,7 +16,7 @@ public static class RoomPlmLinkedRestoreVisualFiles
     /// <remarks>Visual words are flattened in native run/cell order. Files use create-new semantics, and a partial JSON/manifest write is not rolled back.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Native run shapes, physical words, or offsets do not match compiled definitions.</exception>
+    /// <exception cref="InvalidDataException">Native run shapes, terrain, or offsets do not match compiled definitions.</exception>
     /// <exception cref="IOException">An output exists or filesystem access fails.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256) =>
@@ -28,14 +28,14 @@ public static class RoomPlmLinkedRestoreVisualFiles
     /// <param name="stockDirectory">Family directory with required stock JSON and version-one manifest.</param>
     /// <param name="overrideDirectory">Optional family directory; an absent override JSON or null uses validated stock.</param>
     /// <returns>A ROM-independent appearance catalog; distinct bomb/contact collision classes and restoration programs remain unchanged.</returns>
-    /// <remarks>Stock provenance, byte hash, and compiled visual equality are mandatory before any override is read. Overrides need complete identities/shapes and twelve-bit visual words, not a manifest or physical level words.</remarks>
-    /// <exception cref="InvalidDataException">Stock integrity/provenance, JSON version, coverage, identity, shape, or visual-only words are invalid.</exception>
+    /// <remarks>Stock provenance, byte hash, and compiled visual equality are mandatory before any override is read. Overrides need complete identities/shapes and twelve-bit appearance, not a manifest or terrain.</remarks>
+    /// <exception cref="InvalidDataException">Stock integrity/provenance, JSON version, coverage, identity, shape, or appearance are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static InstalledRoomPlmLinkedRestoreVisuals Load(
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<InstalledRoomPlmLinkedRestoreVisuals>(VisualFileName, "Linked restore", RoomPlmLinkedRestoreDrawDefinitions.All, LinkedRestorePlmDraws.VisualId, entries => new InstalledRoomPlmLinkedRestoreVisuals(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetAppearance(draw, run, block)));
 
     /// <summary>Checks only installed stock restoration visuals through <see cref="Load"/>, without overrides, cartridge access, or writes.</summary>
     /// <param name="directory">Linked-restoration family directory with stock JSON and manifest.</param>

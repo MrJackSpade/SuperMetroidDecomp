@@ -34,7 +34,7 @@ internal static class ScrollPlmsVerification
 
         SeedRoomScrollPlmCartridge(bus, population, scrollProgram);
 
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]));
         var plms = PlmFixtures.Unbound();
         AssertEqual(5, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "single loader parses the trigger and four synchronous extensions");
@@ -42,25 +42,25 @@ internal static class ScrollPlmsVerification
             "extension setup consumes no persistent PLM slot");
 
         int origin = level.GetBlockIndex(new(3, 3));
-        AssertEqual(0x3000, level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
-            "B703 setup installs type-three special air");
-        AssertEqual(0x46, level.GetCollisionBlockByIndex(origin).Bts.Value,
-            "B703 setup installs BTS $46");
-        AssertEqual(0x5000, level.GetCollisionBlock(new(4, 3)).PackedWord.Raw,
-            "right extension setup installs type five");
-        AssertEqual(0xff, level.GetCollisionBlock(new(4, 3)).Bts.Value,
+        AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), level.GetCollisionBlockByIndex(origin).Terrain,
+            "scroll trigger setup installs special air");
+        AssertEqual(RoomBlockBehaviorValues.ScrollTrigger, level.GetCollisionBlockByIndex(origin).Behavior,
+            "scroll trigger setup installs the scroll-trigger behaviour");
+        AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.HorizontalExtension), level.GetCollisionBlock(new(4, 3)).Terrain,
+            "right extension setup installs a horizontal extension");
+        AssertEqual(-1, level.GetCollisionBlock(new(4, 3)).Behavior.ExtensionOffset,
             "right extension points one block left");
-        AssertEqual(0x5000, level.GetCollisionBlock(new(2, 3)).PackedWord.Raw,
-            "left extension setup installs type five");
-        AssertEqual(0x01, level.GetCollisionBlock(new(2, 3)).Bts.Value,
+        AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.HorizontalExtension), level.GetCollisionBlock(new(2, 3)).Terrain,
+            "left extension setup installs a horizontal extension");
+        AssertEqual(1, level.GetCollisionBlock(new(2, 3)).Behavior.ExtensionOffset,
             "left extension points one block right");
-        AssertEqual(0xd000, level.GetCollisionBlock(new(3, 4)).PackedWord.Raw,
-            "down extension setup installs type D");
-        AssertEqual(0xff, level.GetCollisionBlock(new(3, 4)).Bts.Value,
+        AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.VerticalExtension), level.GetCollisionBlock(new(3, 4)).Terrain,
+            "down extension setup installs a vertical extension");
+        AssertEqual(-1, level.GetCollisionBlock(new(3, 4)).Behavior.ExtensionOffset,
             "down extension points one row up");
-        AssertEqual(0xd000, level.GetCollisionBlock(new(3, 2)).PackedWord.Raw,
-            "up extension setup installs type D");
-        AssertEqual(0x01, level.GetCollisionBlock(new(3, 2)).Bts.Value,
+        AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.VerticalExtension), level.GetCollisionBlock(new(3, 2)).Terrain,
+            "up extension setup installs a vertical extension");
+        AssertEqual(0x01, level.GetCollisionBlock(new(3, 2)).Behavior.Value,
             "up extension points one row down");
 
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(

@@ -119,7 +119,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         .ToArray();
 
     /// <summary>
-    /// Publishes Samus contact with a visible type-$B/BTS-$45 item. Native setup
+    /// Publishes Samus contact with a visible type-$B/behaviour-$45 item. Native setup
     /// <c>$84:EEAB</c> finds the item PLM sharing this block and writes <c>$00FF</c> to its
     /// trigger timer; acquisition remains owned by the following PLM handler pass.
     /// </summary>
@@ -193,11 +193,11 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             ? ShowInNextGraphicsSlot(room.Appearance, kind)
             : -1;
 
-        RoomLevelWord setupWord = original.PackedWord.WithCollisionType(
+        RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-        level.SetForegroundEntry(slot.BlockIndex, setupWord.Raw);
+        level.SetTerrain(slot.BlockIndex, setup);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.CollectibleTrigger);
-        slot.RestoreLevelWord = setupWord;
+        slot.RestoreTerrain = setup;
 
         CollectiblePhase phase = collected
             ? presentation == CollectiblePresentation.ShotBlock
@@ -406,7 +406,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                     item.Timer = 4;
                     return true;
                 }
-                PlmLevelWrites.DrawLevelWord(level, slot.BlockIndex, slot.RestoreLevelWord.Raw);
+                PlmLevelWrites.DrawTerrain(level, slot.BlockIndex, slot.RestoreTerrain);
                 item.Phase = CollectiblePhase.ShotBlock;
                 return true;
 
@@ -425,7 +425,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                     item.Timer = 4;
                     return true;
                 }
-                PlmLevelWrites.DrawLevelWord(level, slot.BlockIndex, slot.RestoreLevelWord.Raw);
+                PlmLevelWrites.DrawTerrain(level, slot.BlockIndex, slot.RestoreTerrain);
                 item.Phase = CollectiblePhase.CollectedShotBlock;
                 return true;
 

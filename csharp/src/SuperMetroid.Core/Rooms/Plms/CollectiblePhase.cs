@@ -23,7 +23,7 @@ public enum CollectiblePhase
     CollectedShotBlock,
     /// <summary>The collected shot block remains empty for twenty-two eight-frame intervals before respawning.</summary>
     CollectedShotBlockEmpty,
-    /// <summary>The collected shot block runs three four-frame respawn draws before restoring its saved level word.</summary>
+    /// <summary>The collected shot block runs three four-frame respawn draws before restoring its saved block.</summary>
     CollectedShotBlockRespawn,
     /// <summary>Inventory and persistence have been granted; the physical slot and drawn tile remain while the synchronous pickup message runs.</summary>
     AwaitingMessage,

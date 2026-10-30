@@ -50,9 +50,9 @@ internal static class DownwardGatePlmDraws
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
-            var words = new ushort[draw.WordCount(run)];
-            for (int word = 0; word < words.Length; word++) words[word] = draw.WordAt(run, word);
-            runs[run] = new(draw.Direction, words, new(draw.NextX(run), 0));
+            var blocks = new RoomTerrainBlock[draw.BlockCount(run)];
+            for (int block = 0; block < blocks.Length; block++) blocks[block] = draw.BlockAt(run, block);
+            runs[run] = new(draw.Direction, blocks, new(draw.NextX(run), 0));
         }
         list = new(request, runs);
         return true;
@@ -98,7 +98,7 @@ internal static class DownwardGatePlmDraws
         /// <summary>Columns and right triggers occupy one run; left triggers include a separate neighboring block.</summary>
         internal int RunCount => Column || Right ? 1 : 2;
         /// <summary>Columns write five vertical cells; right triggers write two cells; each left-trigger run writes one.</summary>
-        internal int WordCount(int run)
+        internal int BlockCount(int run)
         {
             if ((uint)run >= RunCount) throw new ArgumentOutOfRangeException(nameof(run));
             return Column ? 5 : Right ? 2 : 1;
@@ -112,20 +112,16 @@ internal static class DownwardGatePlmDraws
             return !Column && !Right && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
         /// <summary>Calculates the stationary/moving top tile, filled shootable rows, or color-specific trigger tile.</summary>
-        internal ushort WordAt(int run, int word)
+        internal RoomTerrainBlock BlockAt(int run, int cell)
         {
-            if ((uint)word >= WordCount(run)) throw new ArgumentOutOfRangeException(nameof(word));
+            if ((uint)cell >= BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
             if (Column)
-                return word == 0
-                    ? Word(Frame is 0 or 5 ? StationaryTopBlock : MovingTopBlock, BlockMirroring.None, RoomCollisionType.ShootableBlock)
-                    : Word(BodyBlock, BlockMirroring.None, word <= Frame ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-            if (run == 0 && word == 0) return Word(NeighbourBlock, BlockMirroring.None, RoomCollisionType.SolidBlock);
-            return Word(TriggerFirstBlock - Frame, Right ? BlockMirroring.Horizontal : BlockMirroring.None,
+                return cell == 0
+                    ? RoomTerrainBlock.Of(Frame is 0 or 5 ? StationaryTopBlock : MovingTopBlock, BlockMirroring.None, RoomCollisionType.ShootableBlock)
+                    : RoomTerrainBlock.Of(BodyBlock, BlockMirroring.None, cell <= Frame ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
+            if (run == 0 && cell == 0) return RoomTerrainBlock.Of(NeighbourBlock, BlockMirroring.None, RoomCollisionType.SolidBlock);
+            return RoomTerrainBlock.Of(TriggerFirstBlock - Frame, Right ? BlockMirroring.Horizontal : BlockMirroring.None,
                 RoomCollisionType.ShootableBlock);
         }
-
-        /// <summary>The level word of one cell.</summary>
-        private static ushort Word(int block, BlockMirroring flips, RoomCollisionType collision) =>
-            RoomLevelWord.Create(block, flips, collision).Raw;
     }
 }

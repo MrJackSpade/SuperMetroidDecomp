@@ -3,8 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Bounded bank-$84 instruction and physical draw data for the hardcoded
-/// elevatube PLM spawned by Maridia's door setup.
+/// The draw of the hardcoded elevatube PLM spawned by Maridia's door setup.
 /// </summary>
 internal static class MaridiaElevatubePlmDefinitions
 {
@@ -18,15 +17,15 @@ internal static class MaridiaElevatubePlmDefinitions
     /// <summary>The draw that places the elevatube's solid block.</summary>
     internal static PlmFrameDraw<Draw> BlockDraw { get; } = PlmDraw.Of(Draw.Block);
 
-    /// <summary>The elevatube's level entry: a solid block showing visual block $180, the block Kraid's physical draw also shows.</summary>
-    internal static RoomLevelWord PhysicalWord { get; } = RoomLevelWord.Create(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    /// <summary>The elevatube's block: a solid block showing block $180, the block Kraid's crumble draw also shows.</summary>
+    internal static RoomTerrainBlock Terrain { get; } = RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock);
 
-    /// <summary>Temporary artwork description for export; gameplay draws the single physical word directly.</summary>
+    /// <summary>Temporary artwork description for export; gameplay draws the single block directly.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList BlockDrawList =>
         new(BlockDraw,
             new RoomPlmShotBlockDrawDefinitions.Run[]
             {
-                new(PlmRunDirection.Horizontal, new ushort[] { PhysicalWord.Raw }, new(0, 0)),
+                new(PlmRunDirection.Horizontal, new[] { Terrain }, new(0, 0)),
             });
 
     /// <summary>Stable asset identity assigned to the elevatube's one-block artwork.</summary>

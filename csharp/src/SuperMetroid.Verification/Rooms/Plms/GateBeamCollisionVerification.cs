@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -58,12 +59,12 @@ internal static class GateBeamCollisionVerification
         foreach (bool wave in new[] { false, true })
         foreach (bool full in new[] { false, true })
         {
-            var words = new ushort[256];
-            var bts = new byte[256];
+            var words = new RoomTerrainBlock[256];
+            var bts = new RoomBlockBehavior[256];
             int first = horizontal ? 33 : 18;
             int second = horizontal ? 49 : 19;
-            words[first] = words[second] = 0xc000;
-            bts[first] = bts[second] = 0x10;
+            words[first] = words[second] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+            bts[first] = bts[second] = new RoomBlockBehavior(0x10);
             var level = CreateRoom(new(16, 16), words, bts);
             var plms = PlmFixtures.Unbound();
             if (full)
@@ -79,7 +80,7 @@ internal static class GateBeamCollisionVerification
                 : ProjectileTerrainCollision.ScanVerticalShotReactions(level, shot, plms);
             AssertEqual(full ? 40 : 1, plms.SlotTable.ActiveCount, "Gate setup terminates span after first allocation");
             if (!wave) AssertEqual(!full, result, "Only executed gate setup overrides earlier air reaction");
-            AssertEqual((ushort)0xc000, level.GetCollisionBlockByIndex(first).PackedWord.Raw, "Gate scan does not mutate terrain");
+            AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableBlock), level.GetCollisionBlockByIndex(first).Terrain, "Gate scan does not mutate terrain");
         }
     }
 

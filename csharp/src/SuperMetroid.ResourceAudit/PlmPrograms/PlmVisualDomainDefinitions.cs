@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -44,13 +45,13 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmEyeDoorVisuals" => EyeDoorDraws.All.ToArray(),
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmEscapeGateVisualCatalog" => MotherBrainEscapeGateDraws.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmCollectibleVisuals" => CollectiblePlmDraws.All
-            .Select(frame => SingleWord(PlmDraw.Of(frame.Draw), frame.LevelWord.Raw)).ToArray(),
+            .Select(frame => SingleBlock(PlmDraw.Of(frame.Draw), frame.Terrain)).ToArray(),
         "SuperMetroid.Core.Rooms.Plms.InstalledRoomPlmGrappleBlockVisuals" => GrappleBlockPlmDraws.All
-            .Select(frame => SingleWord(PlmDraw.Of(frame.Frame), frame.LevelWord.Raw)).ToArray(),
+            .Select(frame => SingleBlock(PlmDraw.Of(frame.Frame), frame.Terrain)).ToArray(),
         _ => null,
     };
 
-    /// <summary>Wraps a collectible or grapple-block level word as a one-cell draw run for domain comparison.</summary>
-    private static RoomPlmShotBlockDrawDefinitions.DrawList SingleWord(PlmDraw draw, ushort levelWord) =>
-        new(draw, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, new ushort[] { levelWord }, new(0, 0)) });
+    /// <summary>Wraps a collectible or grapple-block draw's block as a one-cell draw run for domain comparison.</summary>
+    private static RoomPlmShotBlockDrawDefinitions.DrawList SingleBlock(PlmDraw draw, RoomTerrainBlock terrain) =>
+        new(draw, new RoomPlmShotBlockDrawDefinitions.Run[] { new(PlmRunDirection.Horizontal, new[] { terrain }, new(0, 0)) });
 }

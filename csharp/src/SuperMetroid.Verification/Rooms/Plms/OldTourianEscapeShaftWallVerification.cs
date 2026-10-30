@@ -53,8 +53,8 @@ internal static class OldTourianEscapeShaftWallVerification
         for (int column = 0; column < 2; column++)
         for (int row = 0; row < 3; row++)
         {
-            ushort word = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(checked((ushort)(0x10 + column)), checked((ushort)(0x87 + row))))).PackedWord.Raw;
-            AssertEqual((ushort)0x00ff, word, $"wall block ({column},{row}) opens to $00FF");
+            RoomTerrainBlock word = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(checked((ushort)(0x10 + column)), checked((ushort)(0x87 + row))))).Terrain;
+            AssertEqual(RoomTerrainBlocks.BlankAir, word, $"wall block ({column},{row}) opens to blank air");
         }
         Console.WriteLine("Old Tourian escape shaft wall: setup spawns the PLM; Samus past the target blows the wall.");
     }

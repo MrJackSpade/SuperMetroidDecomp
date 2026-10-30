@@ -54,12 +54,12 @@ internal static class TourianElevatorDoorsVerification
 
         static void CheckCollision(ushort list, byte bts, SamusPoseId pose, bool horizontal, bool elevator)
         {
-            ushort[] blocks = new ushort[16];
-            byte[] behaviors = new byte[16];
+            var blocks = new RoomTerrainBlock[16];
+            var behaviors = new RoomBlockBehavior[16];
             int target = horizontal ? 6 : 9;
-            blocks[target] = 0x9000;
+            blocks[target] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.DoorBlock);
             behaviors[target] = bts;
-            var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(blocks, behaviors, new ushort[16]), doors: RoomDoorListDefinitions.ForListPointer(list));
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(blocks, behaviors, new RoomBlockAppearance[16]), doors: RoomDoorListDefinitions.ForListPointer(list));
             var state = new SamusKinematicsState
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)), Radius = new(7, 7), CollisionPose = pose,

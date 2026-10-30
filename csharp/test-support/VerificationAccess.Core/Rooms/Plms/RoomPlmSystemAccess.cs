@@ -365,7 +365,7 @@ internal static class RoomPlmSystemAccess
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             slot.BlockIndex = blockIndex;
             slot.InstructionTimer = WrappingCountdown.Start(1);
-            slot.RestoreLevelWord = 0;
+            slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
 
             if (areaDependent)
             {
@@ -377,26 +377,21 @@ internal static class RoomPlmSystemAccess
 
             if (bts.IsRespawningReaction)
             {
-                // CE6B throws away the original visual/BTS low twelve bits. The generated
-                // `$x052` word is both PLM_Vars and the source of the temporary collision
-                // word, exactly like the retail setup's two consecutive stores.
-                slot.RestoreLevelWord = unchecked((ushort)((block.PackedWord.Raw & 0xf000) | 0x0052));
+                // The setup throws away the original appearance. The shot-block parent with the block's collision kind
+                // is both the restore block and the source of the deactivated live block.
+                slot.RestoreTerrain = block.Terrain.WithAppearance(RoomPlmVisualBlockDefinitions.ShotBlockParent);
                 slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.RespawningShot(bts.NormalReactionIndex)));
-                level.SetForegroundEntry(
-                    blockIndex,
-                    unchecked((ushort)(slot.RestoreLevelWord.Raw & 0x8fff)));
+                level.SetTerrain(blockIndex, slot.RestoreTerrain.Deactivated());
                 return true;
             }
 
             if (bts.IsPermanentReaction)
             {
-                // Setup_DeactivatePLM does not synthesize a restore word. Clearing bits
-                // `$7000` turns type-$4 air into ordinary air and type-$C solid into type-$8
-                // solid until the same-frame list draws its first breaking frame.
+                // The deactivating setup does not synthesize a restore block. Deactivation turns shootable air into
+                // ordinary air and a shootable block into a solid block until the same-frame program draws its first
+                // breaking frame.
                 slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.PermanentShot(bts.NormalReactionIndex - 4)));
-                level.SetForegroundEntry(
-                    blockIndex,
-                    unchecked((ushort)(block.PackedWord.Raw & 0x8fff)));
+                level.SetTerrain(blockIndex, block.Terrain.Deactivated());
                 return true;
             }
 

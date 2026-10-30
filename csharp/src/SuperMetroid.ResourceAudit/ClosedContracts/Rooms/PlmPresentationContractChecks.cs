@@ -85,43 +85,43 @@ internal static class PlmPresentationContractChecks
                     InstalledRoomPlmKraidVisuals kraid, RoomPlmCrocomireVisualCatalog crocomire,
                     RoomPlmMotherBrainFakeDeathVisualCatalog motherBrain,
                     PlmDraw dynamicDraw, int dynamicWord) {
-                    shot.GetWord(ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0);
-                    shot.GetWord(ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 1);
-                    shot.GetWord(ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 1, 0);
-                    shot.GetWord(PlmDraw.Of(StationDraw.MapFrame0), 0, 0);
-                    station.GetWord(dynamicDraw, 0, 0);
-                    station.GetWord(dynamicDraw, 0, int.MaxValue);
+                    shot.GetAppearance(ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 0);
+                    shot.GetAppearance(ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 0, 1);
+                    shot.GetAppearance(ShotBlockPlmDraws.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0), 1, 0);
+                    shot.GetAppearance(PlmDraw.Of(StationDraw.MapFrame0), 0, 0);
+                    station.GetAppearance(dynamicDraw, 0, 0);
+                    station.GetAppearance(dynamicDraw, 0, int.MaxValue);
                     hand.GetAppearance(PlmDraw.Of(BombTorizoHandDraw.Intact), 0, 0);
                     hand.GetAppearance(PlmDraw.Of(BombTorizoHandDraw.Intact), 0, int.MaxValue);
                     glass.GetAppearance(dynamicDraw, 0, 0);
                     glass.GetAppearance(dynamicDraw, int.MaxValue, 0);
-                    tube.GetWord(dynamicDraw, 0, 0);
-                    tube.GetWord(dynamicDraw, 0, int.MaxValue);
-                    shot.GetWord(dynamicDraw, 0, dynamicWord);
-                    gate.GetWord(dynamicDraw, 0, 0);
-                    gate.GetWord(dynamicDraw, 0, int.MaxValue);
+                    tube.GetAppearance(dynamicDraw, 0, 0);
+                    tube.GetAppearance(dynamicDraw, 0, int.MaxValue);
+                    shot.GetAppearance(dynamicDraw, 0, dynamicWord);
+                    gate.GetAppearance(dynamicDraw, 0, 0);
+                    gate.GetAppearance(dynamicDraw, 0, int.MaxValue);
                     elevator.GetAppearance(PlmDraw.Of(ElevatorPlatformDraw.First), 2, 3);
                     elevator.GetAppearance(PlmDraw.Of(ElevatorPlatformDraw.First), 0, 1);
                     cannon.GetAppearance(PlmDraw.Of(DraygonCannonDraw.LeftShieldA), 2, 1);
                     cannon.GetAppearance(PlmDraw.Of(DraygonCannonDraw.LeftShieldA), 0, 1);
                     chozo.GetAppearance(PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess), 0, 13);
                     chozo.GetAppearance(PlmDraw.Of(ChozoStatueDraw.LowerNorfairClearedHand), 0, 1);
-                    restore.GetWord(PlmDraw.Of(BombBlockRestoreDraw.Square), 1, 1);
-                    restore.GetWord(PlmDraw.Of(BombBlockRestoreDraw.Square), 1, 2);
-                    tourian.GetWord(PlmDraw.Of(TourianAccessDraw.Clear), 5, 3);
-                    tourian.GetWord(PlmDraw.Of(TourianAccessDraw.EmptyRow), 1, 0);
-                    speed.GetWord(SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw, 0, 0);
-                    speed.GetWord(SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw, 0, 1);
-                    elevatube.GetWord(MaridiaElevatubePlmDefinitions.BlockDraw, 0, 0);
-                    elevatube.GetWord(MaridiaElevatubePlmDefinitions.BlockDraw, 1, 0);
+                    restore.GetAppearance(PlmDraw.Of(BombBlockRestoreDraw.Square), 1, 1);
+                    restore.GetAppearance(PlmDraw.Of(BombBlockRestoreDraw.Square), 1, 2);
+                    tourian.GetAppearance(PlmDraw.Of(TourianAccessDraw.Clear), 5, 3);
+                    tourian.GetAppearance(PlmDraw.Of(TourianAccessDraw.EmptyRow), 1, 0);
+                    speed.GetAppearance(SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw, 0, 0);
+                    speed.GetAppearance(SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw, 0, 1);
+                    elevatube.GetAppearance(MaridiaElevatubePlmDefinitions.BlockDraw, 0, 0);
+                    elevatube.GetAppearance(MaridiaElevatubePlmDefinitions.BlockDraw, 1, 0);
                     spore.GetAppearance(PlmDraw.Of(SporeSpawnCeilingDraw.Clear), 1, 1);
                     spore.GetAppearance(PlmDraw.Of(SporeSpawnCeilingDraw.Clear), 1, 2);
-                    eater.GetWord(PlmDraw.Of(SamusEaterDraw.FloorIdle), 2, 3);
-                    eater.GetWord(PlmDraw.Of(SamusEaterDraw.FloorIdle), 0, 2);
-                    botwoon.GetWord(BotwoonWallPlmDrawDefinitions.Clear, 0, 8);
-                    botwoon.GetWord(BotwoonWallPlmDrawDefinitions.Clear, 0, 9);
-                    kraid.GetWord(PlmDraw.Of(KraidRoomDraw.ClearSpikes), 0, 21);
-                    kraid.GetWord(PlmDraw.Of(KraidRoomDraw.CrumbleFirst), 0, 1);
+                    eater.GetAppearance(PlmDraw.Of(SamusEaterDraw.FloorIdle), 2, 3);
+                    eater.GetAppearance(PlmDraw.Of(SamusEaterDraw.FloorIdle), 0, 2);
+                    botwoon.GetAppearance(BotwoonWallPlmDrawDefinitions.Clear, 0, 8);
+                    botwoon.GetAppearance(BotwoonWallPlmDrawDefinitions.Clear, 0, 9);
+                    kraid.GetAppearance(PlmDraw.Of(KraidRoomDraw.ClearSpikes), 0, 21);
+                    kraid.GetAppearance(PlmDraw.Of(KraidRoomDraw.CrumbleFirst), 0, 1);
                     crocomire.GetAppearance(PlmDraw.Of(CrocomireArenaDraw.ClearBridge), 0, 9);
                     crocomire.GetAppearance(PlmDraw.Of(CrocomireArenaDraw.CrumbleBridgeBlock), 0, 1);
                     motherBrain.GetAppearance(PlmDraw.Of(MotherBrainFakeDeathDraw.ClearBottomLeftTube), 0, 4);
@@ -160,9 +160,9 @@ internal static class PlmPresentationContractChecks
     }
 
     /// <summary>Strips collision bits from each physical draw run while preserving its run and word shape.</summary>
-    internal static ushort[][] VisualRuns(RoomPlmShotBlockDrawDefinitions.DrawList frame) =>
-        frame.Runs.Span.SelectToArray(run => run.LevelWords.Span
-            .SelectToArray(word => new RoomLevelWord(word).VisualWord));
+    internal static RoomBlockAppearance[][] VisualRuns(RoomPlmShotBlockDrawDefinitions.DrawList frame) =>
+        frame.Runs.Span.SelectToArray(run => run.Blocks.Span
+            .SelectToArray(block => block.Appearance));
 
     /// <summary>Exercises every identified PLM visual catalog with complete native draw identities.</summary>
     private static void ConfirmConstructorCoverage()

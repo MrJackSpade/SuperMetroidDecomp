@@ -3,14 +3,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// One family of linked block restorations: bomb blocks or Samus-contact crumble blocks. Each family has three native
-/// level-word restoration lists, horizontal, vertical and square, that rebuild a parent block and its linked children
-/// with one visual tile. The families differ only in the parent's collision type and that tile; the type-5 and type-D
-/// children and their links are the same. The shape shares the compiled PLM row/column representation with shot blocks.
+/// One family of linked block restorations: bomb blocks or Samus-contact crumble blocks. Each family has three
+/// restoration draws, horizontal, vertical and square, that rebuild a parent block and its linked children with one
+/// appearance. The families differ only in the parent's collision kind and that appearance; the horizontal- and
+/// vertical-extension children and their links are the same. The shape shares the compiled PLM row/column representation with shot blocks.
 /// </summary>
 internal sealed class LinkedRestorePlmFamily
 {
-    /// <summary>Linked bomb blocks: a type-F parent.</summary>
+    /// <summary>Linked bomb blocks: a bombable parent.</summary>
     internal static LinkedRestorePlmFamily BombBlock { get; } = new(
         RoomCollisionType.BombableBlock, RoomPlmVisualBlockDefinitions.CollisionBombParent, new Dictionary<PlmRestoreShape, PlmDraw>
         {
@@ -19,7 +19,7 @@ internal sealed class LinkedRestorePlmFamily
             [PlmRestoreShape.Square] = PlmDraw.Of(BombBlockRestoreDraw.Square),
         });
 
-    /// <summary>Linked Samus-contact crumble blocks: a type-B parent. Artwork replacement may only alter their visual composition.</summary>
+    /// <summary>Linked Samus-contact crumble blocks: a special-block parent. Artwork replacement may only alter their visual composition.</summary>
     internal static LinkedRestorePlmFamily ContactCrumble { get; } = new(
         RoomCollisionType.SpecialBlock, RoomPlmVisualBlockDefinitions.ContactCrumbleParent, new Dictionary<PlmRestoreShape, PlmDraw>
         {
@@ -34,24 +34,24 @@ internal sealed class LinkedRestorePlmFamily
     /// <summary>The parent block's collision type.</summary>
     private readonly RoomCollisionType _parentCollision;
 
-    /// <summary>The visual block every restored cell shows, as a level word holding only its visual bits.</summary>
-    private readonly RoomLevelWord _visualBlock;
+    /// <summary>The appearance every restored cell shows.</summary>
+    private readonly RoomBlockAppearance _appearance;
 
     /// <summary>The restoration draw of each shape.</summary>
     private readonly IReadOnlyDictionary<PlmRestoreShape, PlmDraw> _draws;
 
-    /// <summary>Defines a family by its parent collision type, visual tile and the restoration draw of each shape.</summary>
-    private LinkedRestorePlmFamily(RoomCollisionType parentCollision, RoomLevelWord visualBlock, IReadOnlyDictionary<PlmRestoreShape, PlmDraw> draws)
+    /// <summary>Defines a family by its parent collision kind, appearance and the restoration draw of each shape.</summary>
+    private LinkedRestorePlmFamily(RoomCollisionType parentCollision, RoomBlockAppearance appearance, IReadOnlyDictionary<PlmRestoreShape, PlmDraw> draws)
     {
         _parentCollision = parentCollision;
-        _visualBlock = visualBlock;
+        _appearance = appearance;
         _draws = draws;
     }
 
     /// <summary>One restoration draw with the geometry needed to reconstruct its parent and linked children.</summary>
     /// <param name="Id">The restoration draw.</param>
     /// <param name="Shape">Whether the blocks lie in a row, a column or a two-by-two square.</param>
-    /// <param name="Family">The family whose parent collision type and tile the words carry.</param>
+    /// <param name="Family">The family whose parent collision kind and appearance the blocks carry.</param>
     internal readonly record struct Draw(PlmDraw Id, PlmRestoreShape Shape, LinkedRestorePlmFamily Family)
     {
         /// <summary>Whether the restored blocks stack in one column.</summary>
@@ -63,8 +63,8 @@ internal sealed class LinkedRestorePlmFamily
         /// <summary>Square restoration has two rows; horizontal and vertical shapes use one run.</summary>
         internal int RunCount => Square ? 2 : 1;
 
-        /// <summary>Builds the parent or linked-child level word at a position within the draw shape.</summary>
-        internal ushort WordAt(int run, int block)
+        /// <summary>Builds the parent or linked-child block at a position within the draw shape.</summary>
+        internal RoomTerrainBlock BlockAt(int run, int block)
         {
             if ((uint)run >= RunCount)
                 throw new ArgumentOutOfRangeException(nameof(run));
@@ -72,11 +72,11 @@ internal sealed class LinkedRestorePlmFamily
                 throw new ArgumentOutOfRangeException(nameof(block));
             int row = Vertical ? block : run;
             int column = Vertical ? 0 : block;
-            // Every cell shows the family's tile. Children link left on the parent's row and up on later rows; only
-            // the top-left cell carries the parent's collision type.
+            // Every cell shows the family's appearance. Children link left on the parent's row and up on later rows;
+            // only the top-left cell carries the parent's collision kind.
             RoomCollisionType collision = row == 0 && column == 0 ? Family._parentCollision
                 : row == 0 ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
-            return RoomLevelWord.Create(0, BlockMirroring.None, collision).WithVisualWord(Family._visualBlock.Raw).Raw;
+            return new RoomTerrainBlock(Family._appearance, collision);
         }
     }
 
@@ -123,7 +123,7 @@ internal sealed class LinkedRestorePlmFamily
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)
             runs[run] = new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal,
-                new ushort[] { draw.WordAt(run, 0), draw.WordAt(run, 1) },
+                new[] { draw.BlockAt(run, 0), draw.BlockAt(run, 1) },
                 new(0, run + 1 < runs.Length ? (sbyte)1 : (sbyte)0));
         return new(draw.Id, runs);
     }

@@ -34,9 +34,9 @@ internal static class NoobTubePlmDraws
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
-            var words = new ushort[draw.WordCount(run)];
-            for (int cell = 0; cell < words.Length; cell++) words[cell] = draw.WordAt(run, cell);
-            runs[run] = new(PlmRunDirection.Horizontal, words, new(0, draw.NextY(run)));
+            var blocks = new RoomTerrainBlock[draw.BlockCount(run)];
+            for (int cell = 0; cell < blocks.Length; cell++) blocks[cell] = draw.BlockAt(run, cell);
+            runs[run] = new(PlmRunDirection.Horizontal, blocks, new(0, draw.NextY(run)));
         }
         list = new(request, runs);
         return true;
@@ -105,7 +105,7 @@ internal static class NoobTubePlmDraws
         }
 
         /// <summary>Counts one origin block or a twelve-cell horizontal panel row for the selected run.</summary>
-        internal int WordCount(int run)
+        internal int BlockCount(int run)
         {
             CheckRun(run);
             return Frame is NoobTubeDraw.Intact or NoobTubeDraw.Damaged or NoobTubeDraw.Opened ||
@@ -129,24 +129,24 @@ internal static class NoobTubePlmDraws
             return run == RunCount - 1 ? (sbyte)0 : (sbyte)Row(run + 1);
         }
 
-        /// <summary>Encodes glass, rim, pipe-edge, or air blocks with collision and mirror bits for one tube cell.</summary>
-        internal ushort WordAt(int run, int cell)
+        /// <summary>The glass, rim, pipe-edge, or air block, with its collision and mirroring, of one tube cell.</summary>
+        internal RoomTerrainBlock BlockAt(int run, int cell)
         {
-            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            if (WordCount(run) == 1)
+            if ((uint)cell >= (uint)BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
+            if (BlockCount(run) == 1)
                 return Frame switch
                 {
-                    NoobTubeDraw.Intact => Word(GlassBlock, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock), // Projectile trigger, mirrored intact glass tile.
-                    NoobTubeDraw.Damaged => Word(GlassBlock, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock), // Same glass tile, solid collision after activation.
-                    NoobTubeDraw.Opened => Word(RimBlock, BlockMirroring.None, RoomCollisionType.SolidBlock), // Solid upper rim at the origin.
-                    NoobTubeDraw.BrokenLate or NoobTubeDraw.BrokenFull => Word(RimBlock, BlockMirroring.None, RoomCollisionType.Air), // Broken frames clear collision at the origin.
+                    NoobTubeDraw.Intact => RoomTerrainBlock.Of(GlassBlock, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock), // Projectile trigger, mirrored intact glass tile.
+                    NoobTubeDraw.Damaged => RoomTerrainBlock.Of(GlassBlock, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock), // Same glass tile, solid collision after activation.
+                    NoobTubeDraw.Opened => RoomTerrainBlock.Of(RimBlock, BlockMirroring.None, RoomCollisionType.SolidBlock), // Solid upper rim at the origin.
+                    NoobTubeDraw.BrokenLate or NoobTubeDraw.BrokenFull => RoomTerrainBlock.Of(RimBlock, BlockMirroring.None, RoomCollisionType.Air), // Broken frames clear collision at the origin.
                     NoobTubeDraw.Cleared or NoobTubeDraw.OpenedRows =>
-                        throw new InvalidOperationException($"NoobTubeDraw {Frame} has no single-word run."),
+                        throw new InvalidOperationException($"NoobTubeDraw {Frame} has no single-block run."),
                     _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {Frame}."),
                 };
             int row = Row(run);
             int edgeDistance = Math.Min(cell, 11 - cell);
-            if (edgeDistance > (row == 5 ? 1 : 0)) return PlmLevelWordDefinitions.BlankAir;
+            if (edgeDistance > (row == 5 ? 1 : 0)) return RoomTerrainBlocks.BlankAir;
             int tile = row switch
             {
                 0 => RimBlock,
@@ -155,11 +155,7 @@ internal static class NoobTubePlmDraws
             };
             BlockMirroring flips = (cell >= 6 ? BlockMirroring.Horizontal : BlockMirroring.None) |
                 (row is 3 or 4 ? BlockMirroring.Vertical : BlockMirroring.None);
-            return Word(tile, flips, row is 0 or 5 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air);
+            return RoomTerrainBlock.Of(tile, flips, row is 0 or 5 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air);
         }
-
-        /// <summary>The level word of one tube cell.</summary>
-        private static ushort Word(int block, BlockMirroring flips, RoomCollisionType collision) =>
-            RoomLevelWord.Create(block, flips, collision).Raw;
     }
 }

@@ -25,23 +25,23 @@ internal static class DownwardGateVisualsVerification
             .Select(list => new RoomPlmVisualRunEntry(
                 DownwardGatePlmDraws.VisualId(list.Draw),
                 list.Runs.Span
-                    .SelectToArray(run => run.LevelWords.Span
-                        .SelectToArray(word => new RoomLevelWord(word).VisualWord))
+                    .SelectToArray(run => run.Blocks.Span
+                        .SelectToArray(block => block.Appearance))
                     ))
             .ToArray();
         // The synthetic population's header begins at the opening list, which
         // selects the sixth resident column frame before its gate pre-instruction.
         RoomPlmVisualRunEntry column = entries.Single(entry =>
             entry.Id == "column-frame-5");
-        column.Runs[0][1] = 0x0053;
+        column.Runs[0][1] = RoomBlockAppearance.Of(0x053);
         RoomPlmVisualRunEntry trigger = entries.Single(entry =>
             entry.Id == "blue-left-trigger");
-        trigger.Runs[1][0] = 0x0053;
+        trigger.Runs[1][0] = RoomBlockAppearance.Of(0x053);
         var edited = new InstalledRoomPlmDownwardGateVisuals(entries);
-        column.Runs[0][1] = 0x0054;
-        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
+        column.Runs[0][1] = RoomBlockAppearance.Of(0x054);
+        AssertEqual(RoomBlockAppearance.Of(0x053), edited.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
             "gate visual catalog copies author data");
-        AssertEqual((ushort)0x00ff, stock.GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
+        AssertEqual(RoomBlockAppearance.Of(0x0ff), stock.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
             "stock gate visual retains the physical column art");
 
         DownwardGateVisualsRenderResult
@@ -50,44 +50,40 @@ internal static class DownwardGateVisualsVerification
             (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int gateBlockIndex) = CreateDownwardGateFixture(
                     DownwardGateTriggerBehavior.BlueLeft, visuals);
             StepDownwardGatePlm(plms, level);
-            AssertEqual(visuals.GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1) == 0x0053
-                    ? (ushort)0x0053 : (ushort)0x00ff,
-                level.DisplayedVisualWord(gateBlockIndex + level.Size.X),
+            AssertEqual(visuals.GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1) == RoomBlockAppearance.Of(0x053)
+                    ? RoomBlockAppearance.Of(0x053) : RoomBlockAppearance.Of(0x0ff),
+                level.DisplayedAppearance(gateBlockIndex + level.Size.X),
                 "first gate PLM step draws its selected second-column visual word");
             StepDownwardGatePlm(plms, level);
             int columnIndex = gateBlockIndex + level.Size.X;
             int triggerIndex = gateBlockIndex - 1;
-            ushort streamed = level.DisplayedVisualWord(columnIndex);
-            ushort triggerStreamed = level.DisplayedVisualWord(triggerIndex);
-            return new DownwardGateVisualsRenderResult(level.GetCollisionBlockByIndex(columnIndex).PackedWord.Raw,
+            RoomBlockAppearance streamed = level.DisplayedAppearance(columnIndex);
+            RoomBlockAppearance triggerStreamed = level.DisplayedAppearance(triggerIndex);
+            return new DownwardGateVisualsRenderResult(level.GetCollisionBlockByIndex(columnIndex).Terrain,
                 streamed,
-                level.GetCollisionBlockByIndex(triggerIndex).PackedWord.Raw,
+                level.GetCollisionBlockByIndex(triggerIndex).Terrain,
                 triggerStreamed);
         }
 
         var native = Render(stock);
         var changed = Render(edited);
-        AssertEqual((ushort)0xc0ff, native.Physical,
+        AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.ShootableBlock), native.Physical,
             "stock gate draw retains its physical second-column word");
         AssertEqual(native.Physical, changed.Physical,
             "gate block art cannot change column collision");
         AssertEqual(native.TriggerPhysical, changed.TriggerPhysical,
             "gate trigger art cannot change shot-block collision");
-        AssertEqual((ushort)0x00ff, native.Streamed,
+        AssertEqual(RoomBlockAppearance.Of(0x0ff), native.Streamed,
             "stock gate block streams its native block");
-        AssertEqual((ushort)0x0053, changed.Streamed,
+        AssertEqual(RoomBlockAppearance.Of(0x053), changed.Streamed,
             "edited gate block art survives camera streaming");
-        AssertEqual((ushort)0x0053, changed.TriggerStreamed,
+        AssertEqual(RoomBlockAppearance.Of(0x053), changed.TriggerStreamed,
             "edited trigger art survives camera streaming");
 
         AssertThrows<InvalidDataException>(
             () => new InstalledRoomPlmDownwardGateVisuals(entries.Skip(1)),
             "gate visual catalog rejects missing frames");
-        column.Runs[0][1] = 0xf053;
-        AssertThrows<InvalidDataException>(
-            () => new InstalledRoomPlmDownwardGateVisuals(entries),
-            "gate visual catalog rejects collision bits");
-        column.Runs[0][1] = 0x0053;
+        column.Runs[0][1] = RoomBlockAppearance.Of(0x053);
         AssertThrows<InvalidDataException>(
             () => new InstalledRoomPlmDownwardGateVisuals(entries.Select(entry =>
                 entry.Id == "column-frame-5" ? entry with { Id = "unknown-frame" } : entry)),
@@ -120,21 +116,21 @@ internal static class DownwardGateVisualsVerification
                 ?? throw new InvalidDataException("Extracted gate JSON is empty.");
             JsonNode column = document.Required("entries").AsArray().RequiredElements().Single(entry =>
                 entry.Required("id").GetValue<string>() == "column-frame-5");
-            column.Required("runs").Required(0)[1] = 0x0053;
+            column.Required("runs").Required(0)[1] = PlmVisualJson.Appearance(0x053);
             Directory.CreateDirectory(installation.RoomPlmDownwardGateVisualOverrideDirectory);
             string overridePath = Path.Combine(
                 installation.RoomPlmDownwardGateVisualOverrideDirectory,
                 RoomPlmDownwardGateVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
-            AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmDownwardGateVisuals().GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
+            AssertEqual(RoomBlockAppearance.Of(0x053),
+                installation.LoadRoomPlmDownwardGateVisuals().GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
                 "gate visual override selects edited column art");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmDownwardGateVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
-            AssertEqual((ushort)0x0053,
+            AssertEqual(RoomBlockAppearance.Of(0x053),
                 RoomPlmDownwardGateVisualFiles.Load(refreshed,
-                    installation.RoomPlmDownwardGateVisualOverrideDirectory).GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
+                    installation.RoomPlmDownwardGateVisualOverrideDirectory).GetAppearance(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
                 "gate visual override survives stock replacement");
 
             column.Required("runs").Required(0)[1] = 0xf053;

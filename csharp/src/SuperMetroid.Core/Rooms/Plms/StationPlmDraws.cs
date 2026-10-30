@@ -55,7 +55,7 @@ internal static class StationPlmDraws
     /// <summary>
     /// Published ordinal artwork IDs: three numbered frames per map/resource
     /// station, and named save/access states. These are identity selections,
-    /// independent of the physical words. Only complete native lists have IDs.
+    /// independent of the terrain. Only complete native lists have IDs.
     /// </summary>
     internal static string VisualId(PlmDraw request) =>
         PlmDraw.FrameOf<StationDraw>(request, "station draw list") switch
@@ -124,10 +124,10 @@ internal static class StationPlmDraws
         public abstract int RunCount { get; }
 
         /// <inheritdoc/>
-        public int WordCount(int run)
+        public int BlockCount(int run)
         {
             CheckRun(run);
-            return WordsPerRun;
+            return BlocksPerRun;
         }
 
         /// <inheritdoc/>
@@ -145,14 +145,14 @@ internal static class StationPlmDraws
         }
 
         /// <inheritdoc/>
-        public ushort WordAt(int run, int cell)
+        public RoomTerrainBlock BlockAt(int run, int cell)
         {
-            if ((uint)cell >= (uint)WordCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
-            return Word(run, cell);
+            if ((uint)cell >= (uint)BlockCount(run)) throw new ArgumentOutOfRangeException(nameof(cell));
+            return Block(run, cell);
         }
 
-        /// <summary>The level words each run writes.</summary>
-        private protected virtual int WordsPerRun => 1;
+        /// <summary>The blocks each run writes.</summary>
+        private protected virtual int BlocksPerRun => 1;
 
         /// <summary>The horizontal offset after the first run; every later run adds none.</summary>
         private protected virtual int FirstRunX => 0;
@@ -160,12 +160,12 @@ internal static class StationPlmDraws
         /// <summary>The vertical offset after <paramref name="run"/>.</summary>
         private protected virtual sbyte RunY(int run) => 0;
 
-        /// <summary>The level word at <paramref name="cell"/> of <paramref name="run"/>, both in range.</summary>
-        private protected abstract ushort Word(int run, int cell);
+        /// <summary>The terrain at <paramref name="cell"/> of <paramref name="run"/>, both in range.</summary>
+        private protected abstract RoomTerrainBlock Block(int run, int cell);
 
-        /// <summary>Builds one native level word from its collision type, flip bits and tile.</summary>
-        private protected static ushort LevelWord(RoomCollisionType collision, BlockMirroring flips, int block) =>
-            RoomLevelWord.Create(block, flips, collision).Raw;
+        /// <summary>Builds one block from its collision kind, mirroring and block number.</summary>
+        private protected static RoomTerrainBlock Terrain(RoomCollisionType collision, BlockMirroring flips, int block) =>
+            RoomTerrainBlock.Of(block, flips, collision);
 
         /// <summary>Rejects a run outside this layout's native command count.</summary>
         private void CheckRun(int run)
@@ -186,8 +186,8 @@ internal static class StationPlmDraws
         private protected override int FirstRunX => -1;
 
         /// <inheritdoc/>
-        private protected override ushort Word(int run, int cell) =>
-            LevelWord(RoomCollisionType.SolidBlock, BlockMirroring.None, MapFirstBlock + Frame * 32 - run);
+        private protected override RoomTerrainBlock Block(int run, int cell) =>
+            Terrain(RoomCollisionType.SolidBlock, BlockMirroring.None, MapFirstBlock + Frame * 32 - run);
     }
 
     /// <summary>
@@ -208,8 +208,8 @@ internal static class StationPlmDraws
         private protected override sbyte RunY(int run) => run == 0 ? (sbyte)-1 : (sbyte)0;
 
         /// <inheritdoc/>
-        private protected override ushort Word(int run, int cell) =>
-            LevelWord(run == 0 ? RoomCollisionType.SolidBlock : RoomCollisionType.Slope, BlockMirroring.None, FirstTile + Frame - run * 32);
+        private protected override RoomTerrainBlock Block(int run, int cell) =>
+            Terrain(run == 0 ? RoomCollisionType.SolidBlock : RoomCollisionType.Slope, BlockMirroring.None, FirstTile + Frame - run * 32);
     }
 
     /// <summary>
@@ -223,13 +223,13 @@ internal static class StationPlmDraws
         public override int RunCount => 6;
 
         /// <inheritdoc/>
-        private protected override int WordsPerRun => 2;
+        private protected override int BlocksPerRun => 2;
 
         /// <inheritdoc/>
         private protected override sbyte RunY(int run) => run < 5 ? (sbyte)(-run - 1) : (sbyte)0;
 
         /// <inheritdoc/>
-        private protected override ushort Word(int run, int cell)
+        private protected override RoomTerrainBlock Block(int run, int cell)
         {
             bool shaft = run is > 0 and < 5;
             int tile = (shaft ? SaveShaftBlock : SavePodBlock) + (Id == StationDraw.SaveActive ? 1 : 0);
@@ -237,7 +237,7 @@ internal static class StationPlmDraws
                 (run == 0 ? BlockMirroring.Vertical : BlockMirroring.None);
             RoomCollisionType collision = shaft ? RoomCollisionType.Air
                 : Id == StationDraw.SaveIdle && run == 0 && cell == 0 ? RoomCollisionType.SpecialBlock : RoomCollisionType.SolidBlock;
-            return LevelWord(collision, flips, tile);
+            return Terrain(collision, flips, tile);
         }
     }
 
@@ -255,8 +255,8 @@ internal static class StationPlmDraws
             : Side == HorizontalDirection.Left ? 3 : -3;
 
         /// <inheritdoc/>
-        private protected override ushort Word(int run, int cell) =>
-            LevelWord(RoomCollisionType.SolidBlock,
+        private protected override RoomTerrainBlock Block(int run, int cell) =>
+            Terrain(RoomCollisionType.SolidBlock,
                 (Side == HorizontalDirection.Left ^ run != 0) ? BlockMirroring.Horizontal : BlockMirroring.None,
                 Pose == StationAccessPose.Extended ? MapAccessExtendedBlock : MapAccessRetractedBlock);
     }
@@ -272,11 +272,11 @@ internal static class StationPlmDraws
 
         /// <inheritdoc/>
         [SuppressMessage("Design", "SME6426",
-            Justification = "Every other station layout reads the run and cell it is asked for; a resource access arm is one cell, so its word needs neither coordinate.")]
-        private protected override ushort Word(int run, int cell)
+            Justification = "Every other station layout reads the run and cell it is asked for; a resource access arm is one cell, so its block needs neither coordinate.")]
+        private protected override RoomTerrainBlock Block(int run, int cell)
         {
             bool extended = Pose == StationAccessPose.Extended;
-            return LevelWord(extended ? RoomCollisionType.SolidBlock : RoomCollisionType.SpecialBlock,
+            return Terrain(extended ? RoomCollisionType.SolidBlock : RoomCollisionType.SpecialBlock,
                 Side == HorizontalDirection.Left ? BlockMirroring.None : BlockMirroring.Horizontal,
                 extended ? ResourceAccessExtendedBlock : ResourceAccessRetractedBlock);
         }

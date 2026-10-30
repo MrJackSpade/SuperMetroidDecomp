@@ -37,8 +37,8 @@ internal sealed class BlueDoorPlmAnimation(BlueDoorProgram program)
             case BlueDoorCue.QueueCloseSound:
                 context.QueueSound(BlueDoorPlmProgramDefinitions.CloseSound, BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
                 break;
-            case BlueDoorCue.RestoreBlueBts:
-                context.Level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorCodec.BlueDoor(Orientation).ToBtsByte());
+            case BlueDoorCue.RestoreBlueBehavior:
+                context.Level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorCodec.BlueDoor(Orientation));
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(BlueDoorCue)} {cue}.");

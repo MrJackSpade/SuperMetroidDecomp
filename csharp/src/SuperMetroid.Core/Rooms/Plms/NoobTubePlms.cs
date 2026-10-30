@@ -32,12 +32,12 @@ internal sealed class NoobTubePlms
         _sounds = sounds;
     }
 
-    /// <summary>Runs setup $84:D6CC by replacing the complete origin level word.</summary>
+    /// <summary>Runs the tube's setup by replacing its whole origin block.</summary>
     internal static void SetupNoobTubeSlot(RoomLevelData level, PlmSlot slot)
     {
-        level.SetForegroundEntry(
+        level.SetTerrain(
             slot.BlockIndex,
-            NoobTubePlmDefinitions.SolidProjectileTriggerLevelWord.Raw);
+            NoobTubePlmDefinitions.SolidProjectileTrigger);
         level.SetBehavior(
             slot.BlockIndex,
             RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);

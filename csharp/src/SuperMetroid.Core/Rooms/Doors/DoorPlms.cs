@@ -95,30 +95,20 @@ internal sealed class DoorPlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// Translates <c>$84:B3C1 Setup_DeactivatePLM</c>: clear collision bits 12-14 while
-    /// retaining the block's solid bit and visual index. Despite its historical name, the
-    /// routine does not delete or deactivate the PLM slot.
+    /// The deactivating setup: a solid block stays solid and any other block becomes air, keeping its appearance.
+    /// Despite its historical name, the routine does not delete or deactivate the PLM slot.
     /// </summary>
-    internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, PlmSlot slot)
-    {
-        var levelWord = new RoomLevelWord(
-            level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw);
-        RoomCollisionType deactivatedType = levelWord.HasSolidProbeBit
-            ? RoomCollisionType.SolidBlock
-            : RoomCollisionType.Air;
-        level.SetForegroundEntry(
-            slot.BlockIndex,
-            (ushort)levelWord.WithCollisionType(deactivatedType));
-    }
+    internal static void SetupDoorTransitionDeactivatedSlot(RoomLevelData level, PlmSlot slot) =>
+        level.SetTerrain(slot.BlockIndex, level.GetCollisionBlockByIndex(slot.BlockIndex).Terrain.Deactivated());
 
-    /// <summary>Installs shootable-solid collision and resident-PLM projectile BTS at a colored cap.</summary>
+    /// <summary>Installs shootable-solid collision and the resident-PLM projectile behaviour at a colored cap.</summary>
     private static void ApplyColoredDoorSetup(RoomLevelData level, int blockIndex)
     {
-        // Setup `$84:C7B1` preserves the visual twelve bits, installs shootable-solid
-        // collision, and selects BTS $44 so subsequent projectiles find this resident PLM.
-        level.SetPlmForegroundEntry(
+        // The colored-door setup keeps the block's appearance, installs shootable-solid collision, and selects the
+        // resident-PLM projectile trigger so subsequent projectiles find this resident PLM.
+        level.SetPlmTerrain(
             blockIndex,
-            level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord.WithCollisionType(RoomCollisionType.ShootableBlock).Raw);
+            level.GetPlmCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.ShootableBlock));
         level.SetPlmBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }
 
@@ -229,13 +219,12 @@ internal sealed class DoorPlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// Spawns the blue-door entry selected by shootable BTS <c>$40..$43</c> at
-    /// <c>$94:9F26-$9F2C</c> and applies setup <c>$84:C7BB</c>.
+    /// Spawns the blue-door opening selected by a shootable block's blue-door behaviour and applies its setup.
     /// </summary>
     /// <remarks>
-    /// The cap's top/left origin begins as a type-$C shootable solid. Setup changes only
-    /// that origin to type $8, preserving its twelve-bit tile index; the ROM instruction
-    /// list then animates all four cap blocks and ends on the ordinary air-door frame.
+    /// The cap's top/left origin begins as a shootable solid. Setup changes only that origin to a plain solid,
+    /// preserving its appearance; the opening program then animates all four cap blocks and ends on the ordinary
+    /// air-door frame.
     /// A power bomb is the one rejected projectile family. Exhausting all forty PLM slots
     /// silently loses the request, matching <c>Spawn_PLM_to_CurrentBlockIndex</c>.
     /// </remarks>
@@ -251,7 +240,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
                 behavior,
-                "Blue-door shootable BTS must be $40 through $43.");
+                "The shootable block's behaviour is not a blue-door facing.");
         }
 
         // Setup_BlueDoor masks the native projectile word with $0F00. A power-bomb
@@ -266,7 +255,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             ColoredDoorOrientation.Up => PlmHeaderId.BlueDoorFacingUp,
             ColoredDoorOrientation.Down => PlmHeaderId.BlueDoorFacingDown,
             _ => throw new InvalidOperationException(
-                "Validated blue-door BTS escaped its four-way header table."),
+                "A validated blue-door facing escaped its four-way header table."),
         };
 
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
@@ -274,7 +263,7 @@ internal sealed class DoorPlms : IPlmFamilySource
 
         slot.Header = blueDoorHeader;
         slot.BlockIndex = blockIndex;
-        slot.RestoreLevelWord = 0;
+        slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
         slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.OpeningPrograms[orientation]));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.PreInstruction = PlmPreInstructions.Inert;
@@ -283,11 +272,10 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.LoopTimer = 0;
         slot.Family = null;
 
-        // `$84:C7D3-$C7DD` is a direct LevelData write, not a PLM draw. The first
-        // animated draw occurs on this actor's next handler pass and owns the VRAM
-        // update, while collision observes the type-$8 origin immediately.
-        level.SetForegroundEntry(blockIndex,
-            level.GetCollisionBlockByIndex(blockIndex).PackedWord.WithCollisionType(RoomCollisionType.SolidBlock).Raw);
+        // This is a direct terrain write, not a PLM draw. The first animated draw occurs on this actor's next handler
+        // pass and owns the screen update, while collision observes the solid origin immediately.
+        level.SetTerrain(blockIndex,
+            level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(RoomCollisionType.SolidBlock));
         return true;
     }
 }

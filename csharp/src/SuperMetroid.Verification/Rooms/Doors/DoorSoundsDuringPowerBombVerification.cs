@@ -45,7 +45,7 @@ internal static class DoorSoundsDuringPowerBombVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), true);
+            level.ResolveDoorCollision(block.Behavior.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), true);
             selected = true;
         }
         AssertTrue(selected, "Landing Site has an exit");

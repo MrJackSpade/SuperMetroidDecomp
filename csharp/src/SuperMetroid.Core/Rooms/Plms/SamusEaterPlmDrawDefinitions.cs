@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Eight native floor/ceiling plant block layouts at $84:9E0D..9F24. Their
-/// level words use consecutive tile pairs, horizontal mouth/foliage mirroring, and
+/// block use consecutive tile pairs, horizontal mouth/foliage mirroring, and
 /// a ceiling vertical flip. Three signed runs draw the right mouth, left mouth and
 /// foliage. Idle alone restores the special-air parent and horizontal extension.
 /// Native unused records after each idle are excluded. No stored draw cache remains;

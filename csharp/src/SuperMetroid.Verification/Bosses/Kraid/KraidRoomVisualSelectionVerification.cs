@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Plms;
@@ -19,42 +20,42 @@ internal static class KraidRoomVisualSelectionVerification
             new KraidRoomVisualSelectionDefinition(0x9391, "spike-first", 1), new KraidRoomVisualSelectionDefinition(0x9397, "spike-second", 1),
             new KraidRoomVisualSelectionDefinition(0x939d, "clear-ceiling", 15), new KraidRoomVisualSelectionDefinition(0x93bf, "clear-spikes", 22),
         ];
-        var expected = new Dictionary<ushort, ushort[]>();
+        var expected = new Dictionary<ushort, RoomBlockAppearance[]>();
         var entries = new List<RoomPlmVisualEntry>();
         for (int frame = 0; frame < definitions.Length; frame++)
         {
             var definition = definitions[frame];
-            ushort[] words = Enumerable.Range(0, definition.Count)
-                .Select(block => (ushort)(0x100 + 32 * frame + block)).ToArray();
+            RoomBlockAppearance[] words = Enumerable.Range(0, definition.Count)
+                .Select(block => RoomBlockAppearance.Of(0x100 + 32 * frame + block)).ToArray();
             expected.Add(definition.Pointer, words);
             entries.Add(new(definition.Id, words.ToArray()));
         }
         var catalog = new InstalledRoomPlmKraidVisuals(entries.AsEnumerable().Reverse());
-        string expectedHash = SelectedPresentationHash.FromWordFrames(nameof(InstalledRoomPlmKraidVisuals), expected.ToDictionary(pair => KraidRoomPlmDraws.VisualId(NativePlmDraws.At<KraidRoomDraw>(pair.Key)), pair => pair.Value));
+        string expectedHash = SelectedPresentationHash.FromAppearanceFrames(nameof(InstalledRoomPlmKraidVisuals), expected.ToDictionary(pair => KraidRoomPlmDraws.VisualId(NativePlmDraws.At<KraidRoomDraw>(pair.Key)), pair => pair.Value));
         AssertEqual(expectedHash, catalog.ContentIdentity, "Kraid visual selection preserves sorted legacy identity");
         AssertEqual(expectedHash, new InstalledRoomPlmKraidVisuals(entries).ContentIdentity,
             "Kraid visual selection ignores input ordering");
         foreach (RoomPlmVisualEntry entry in entries)
-            Array.Fill(entry.Blocks, (ushort)0);
+            Array.Fill(entry.Blocks, RoomBlockAppearance.Of(0));
         foreach (var definition in definitions)
         {
             for (int block = 0; block < definition.Count; block++)
-                AssertEqual(expected[definition.Pointer][block], catalog.GetWord(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), 0, block),
+                AssertEqual(expected[definition.Pointer][block], catalog.GetAppearance(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), 0, block),
                     "Kraid named frame preserves every independently supplied block and defensive copy");
             foreach (int block in new[] { int.MinValue, -1, definition.Count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), 0, block),
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), 0, block),
                     "Kraid visual block bounds");
             foreach (int run in new[] { int.MinValue, -1, 1, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), run, 0),
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetAppearance(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), run, 0),
                     "Kraid visual run bounds");
         }
         AssertEqual(expectedHash, catalog.ContentIdentity, "Kraid copied frames preserve identity after input mutation");
         for (int pointer = 0x9365; pointer <= 0x93ef; pointer++)
             if (!expected.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => catalog.GetWord(NativePlmDraws.At<KraidRoomDraw>((ushort)pointer), 0, 0),
+                AssertThrows<InvalidDataException>(() => catalog.GetAppearance(NativePlmDraws.At<KraidRoomDraw>((ushort)pointer), 0, 0),
                     "Kraid visual selector rejects holes and neighboring draws");
         foreach (ushort pointer in new ushort[] { 0, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => catalog.GetWord(NativePlmDraws.At<KraidRoomDraw>(pointer), 0, 0),
+            AssertThrows<InvalidDataException>(() => catalog.GetAppearance(NativePlmDraws.At<KraidRoomDraw>(pointer), 0, 0),
                 "Kraid visual selector rejects distant pointers");
         for (int index = 0; index < entries.Count; index++)
         {
@@ -69,8 +70,6 @@ internal static class KraidRoomVisualSelectionVerification
             entries.Append(new("unknown", [0]))), "Kraid visual selection rejects unknown ID");
         AssertThrows<InvalidDataException>(() => new InstalledRoomPlmKraidVisuals(
             entries.Skip(1).Append(new("crumble-first", []))), "Kraid visual selection rejects empty frame");
-        AssertThrows<InvalidDataException>(() => new InstalledRoomPlmKraidVisuals(
-            entries.Skip(1).Append(new("crumble-first", [0xf000]))), "Kraid visual selection rejects physical bits");
         Console.WriteLine("Kraid room visual selection: ten roles, all 45 blocks, legacy identity, copied data and validation pass.");
     }
 

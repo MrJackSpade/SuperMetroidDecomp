@@ -35,7 +35,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
             0, ref animation, out _, () => queue.QueueSound(Library3Sound.SpeedBooster, SoundQueueLimit.Max6));
         var words = new RoomTerrainBlock[256];
-        for (int index = 160; index < 176; index++) words[index] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+        for (int index = 160; index < 176; index++) words[index] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
         int starts = 0, stops = 0, stopRequests = 0, finalPeak = 0;
         // The queue rewrites a request every frame until the SPC echoes it ($82:8A55), so a request counts once,

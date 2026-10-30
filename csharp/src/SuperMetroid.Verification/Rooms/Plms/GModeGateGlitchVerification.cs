@@ -89,7 +89,7 @@ internal static class GModeGateGlitchVerification
             AssertTrue(plms.TrySpawnProjectileShotBlock(
                     level,
                     gate.BlockIndex,
-                    DownwardGateDefinitions.ClosedGateBts,
+                    DownwardGateDefinitions.ClosedGateBehavior,
                     SamusProjectileTypeWord.CreateBeam(SamusBeamFlags.Wave, charged: false),
                     solidBlock: true),
                 "direct G-Mode fixture fills the native forty-slot PLM pool");
@@ -181,8 +181,8 @@ internal static class GModeGateGlitchVerification
         samus.Kinematics.Radius = new(5, 8);
         EnterDirectGMode(samus);
 
-        ushort[] words = Enumerable.Repeat((ushort)0x3000, 16).ToArray();
-        byte[] behavior = Enumerable.Repeat((byte)0x80, 16).ToArray();
+        RoomTerrainBlock[] words = Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray();
+        RoomBlockBehavior[] behavior = Enumerable.Repeat(new RoomBlockBehavior(0x80), 16).ToArray();
         RoomLevelData level = CreateRoom(new(4, 4), words, behavior);
         var plms = PlmFixtures.Unbound();
 
@@ -242,10 +242,10 @@ internal static class GModeGateGlitchVerification
 
         RoomLevelData DoorRoom()
         {
-            ushort[] words = new ushort[width * height];
-            byte[] behavior = new byte[words.Length];
-            words[doorIndex] = 0xc123;
-            behavior[doorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.ToBtsByte();
+            var words = new RoomTerrainBlock[width * height];
+            var behavior = new RoomBlockBehavior[words.Length];
+            words[doorIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.ShootableBlock);
+            behavior[doorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight;
             return CreateRoom(new(width, height), words, behavior);
         }
 
@@ -314,9 +314,9 @@ internal static class GModeGateGlitchVerification
             const int blockIndex = 4 * width + 2;
             RoomLevelData CreateLevel()
             {
-                ushort[] words = new ushort[width * height];
-                byte[] behaviors = new byte[words.Length];
-                words[blockIndex] = unchecked((ushort)(((int)collisionType << 12) | 0x0123));
+                var words = new RoomTerrainBlock[width * height];
+                var behaviors = new RoomBlockBehavior[words.Length];
+                words[blockIndex] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, collisionType);
                 behaviors[blockIndex] = bts;
                 return CreateRoom(new(width, height), words, behaviors);
             }
@@ -369,8 +369,8 @@ internal static class GModeGateGlitchVerification
         ]);
 
         RoomLevelData level = CreateRoom(new(width, 16),
-            new ushort[width * 16],
-            new byte[width * 16]);
+            new RoomTerrainBlock[width * 16],
+            new RoomBlockBehavior[width * 16]);
         var samus = new SamusState { Health = 1, MaxHealth = 99 };
         var plms = PlmFixtures.Unbound();
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
@@ -438,8 +438,8 @@ internal static class GModeGateGlitchVerification
             0x00, 0x00,
         ]);
         RoomLevelData level = CreateRoom(new(width, 16),
-            new ushort[width * 16],
-            new byte[width * 16]);
+            new RoomTerrainBlock[width * 16],
+            new RoomBlockBehavior[width * 16]);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0100)) };
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         bool brokenEvent = false;

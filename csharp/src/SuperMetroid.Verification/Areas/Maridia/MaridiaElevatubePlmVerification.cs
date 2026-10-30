@@ -26,7 +26,7 @@ internal static class MaridiaElevatubePlmVerification
         Suite(nameof(VerifyElevatubeProgramDraw), () => VerifyElevatubeProgramDraw(rom));
         Suite(nameof(VerifyElevatubeProgramSound), () => VerifyElevatubeProgramSound(rom));
 
-        RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16]);
+        RoomLevelData level = CreateRoom(new(4, 4), new RoomTerrainBlock[16], new RoomBlockBehavior[16]);
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(level),
             "native door setup allocates the elevatube PLM");
@@ -37,8 +37,8 @@ internal static class MaridiaElevatubePlmVerification
         {
             plms.Step(level);
             if (frame == 0)
-                AssertEqual((ushort)0x8180,
-                    level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
+                AssertEqual(RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                    level.GetCollisionBlockByIndex(blockIndex).Terrain,
                     "first elevatube handler pass draws its physical block");
             if (plms.Sounds.SoundRequests.Any(request =>
                     request.SoundEffect == MaridiaElevatubePlmDefinitionsConstants.SoundId))

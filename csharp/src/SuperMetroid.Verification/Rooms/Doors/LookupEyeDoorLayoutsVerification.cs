@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Rooms.Plms.PlmRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
@@ -61,11 +63,11 @@ internal static class LookupEyeDoorLayoutsVerification
             if (field == 0)
             {
                 AssertEqual(pointer,PlmDrawAddressCodec.Of(exported[index].Draw),"Eye door original layout order");
-                AssertEqual(count,shape.WordCount,"Eye door original cell count");
+                AssertEqual(count,shape.BlockCount,"Eye door original cell count");
                 AssertEqual(vertical,shape.Vertical,"Eye door original direction");
                 AssertEqual((ushort)0,ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + count * 2)),"Eye door native terminator");
                 foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => shape.WordAt(bad),"Eye door cell bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => shape.BlockAt(bad),"Eye door cell bounds");
             }
             foreach (var view in views)
             {
@@ -75,30 +77,29 @@ internal static class LookupEyeDoorLayoutsVerification
                 if (field == 0)
                 {
                     AssertRunHeader(header,run,"Eye door DTO direction/count");
-                    AssertEqual(count,run.LevelWords.Length,"Eye door DTO length");
+                    AssertEqual(count,run.Count,"Eye door DTO length");
                     AssertEqual(0,(int)run.Next.X,"Eye door terminal X");
                     AssertEqual(0,(int)run.Next.Y,"Eye door terminal Y");
                 }
                 else
                     for (int cell = 0; cell < count; cell++)
-                    {
-                        int mask = field == 1 ? 0xf000 : 0xfff;
-                        int expected = ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + cell * 2)) & mask;
-                        AssertEqual(expected,shape.WordAt(cell) & mask,"Eye door native calculated field");
-                        AssertEqual(expected,run.LevelWords.Span[cell] & mask,"Eye door native DTO field");
+                    {
+                        RoomTerrainBlock expected = RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + cell * 2)));
+                        AssertEqual(expected,shape.BlockAt(cell),"Eye door native calculated field");
+                        AssertEqual(expected,run.Blocks.Span[cell],"Eye door native DTO field");
                     }
             }
             if (field == 0)
             {
-                var level = CreateRoom(new(32, 16),new ushort[512],new byte[512]);
+                var level = CreateRoom(new(32, 16),new RoomTerrainBlock[512],new RoomBlockBehavior[512]);
                 var plms = PlmFixtures.Unbound();
                 var bus = new TestAddressSpace();
                 SeedSoleElevatorPlatformPlm(bus, 0x9400, new(3, 4), 0xafb6);
                 AssertEqual(1,PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus,0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),"Eye door draw dispatcher fixture");
                 plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<EyeDoorDraws.Draw>(pointer));
                 for (int cell = 0; cell < count; cell++)
-                    AssertEqual(ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + cell * 2)),
-                        level.GetCollisionBlock(new(checked((ushort)(3 + (vertical ? 0 : cell))), checked((ushort)(4 + (vertical ? cell : 0))))).PackedWord.Raw,
+                    AssertEqual(RoomLevelWordCodec.Decode(ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + cell * 2))),
+                        level.GetCollisionBlock(new(checked((ushort)(3 + (vertical ? 0 : cell))), checked((ushort)(4 + (vertical ? cell : 0))))).Terrain,
                         "Eye door production draw native word and position");
             }
             cells += count;

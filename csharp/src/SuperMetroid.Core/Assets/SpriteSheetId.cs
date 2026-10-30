@@ -132,12 +132,8 @@ public enum SpriteSheetId
     IntroSceneTiles,
     /// <summary>The opening cinematic's narration font under its palette (#1392).</summary>
     IntroFontTiles,
-    /// <summary>The Ceres flight's object characters under its palette, which its caption and the Ceres scene show (#1392).</summary>
-    CeresFlightObjectTiles,
-    /// <summary>The shared cinematic object characters under the Ceres flight palette, which the Ceres scene loads (#1392).</summary>
-    CeresIntroObjectTiles,
-    /// <summary>The Zebes reveal's characters under the Ceres flight palette (#1392).</summary>
-    ZebesRevealTiles,
+    /// <summary>The Ceres cinematics' background pictures: the caption's letters, the katakana caption and the Zebes planet (#1467).</summary>
+    CeresCinematicPictures,
     /// <summary>The credits roll's staff line pictures under the credits palette (#1467).</summary>
     EndingCreditsRows,
     /// <summary>The post-credits pictures under the post-credits palette: the waiting backdrop, the logo, the panels and the typed glyphs (#1467).</summary>

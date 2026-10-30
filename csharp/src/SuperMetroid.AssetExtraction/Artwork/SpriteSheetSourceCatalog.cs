@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
@@ -57,6 +58,7 @@ internal sealed class SpriteSheetSourceCatalog
         : ScreenTileSheetDefinitions.Depths.ContainsKey(sheet) ? ScreenTileSheetComposer.Compose(sheet, ScreenTiles())
         : ScreenTileSheetDefinitions.FloorSheets.Contains(sheet) ? FrontendFloorSheetComposer.Compose(sheet, ScreenTiles())
         : EndingPictureSheetComposer.Sheets.Contains(sheet) ? EndingPictureSheetComposer.Compose(sheet, ScreenTiles())
+        : sheet == SpriteSheetId.CeresCinematicPictures ? CeresCinematicPictureSheetComposer.Compose(intro.Value)
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
     /// <summary>The stock artwork the screen tile sheets compose from.</summary>
@@ -104,8 +106,7 @@ internal sealed class SpriteSheetSourceCatalog
             SpriteSheetId.AreaMapBackgroundTilesWreckedShip or SpriteSheetId.AreaMapBackgroundTilesMaridia or
             SpriteSheetId.AreaMapBackgroundTilesTourian or SpriteSheetId.PauseMapTiles or
             SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.IntroSceneTiles or
-            SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
-            SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
+            SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresCinematicPictures or
             SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or
             SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or

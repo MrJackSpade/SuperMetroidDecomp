@@ -22,8 +22,6 @@ internal sealed class IntroCeresFlightState
     [NonSerialized] private CinematicSpriteSheet? spriteArtwork;
     /// <summary>Optional edited rear-view actor positions.</summary>
     [NonSerialized] private CeresFlightActorPlacements? actorLayout;
-    /// <summary>Mode 1 caption tiles progressively written during the SPACE COLONY title.</summary>
-    internal BackgroundTile[] SpaceColonyTilemap { get; } = new BackgroundTile[32 * 32];
     /// <summary>Front-view star actor whose timer also drives the diagonal background rush.</summary>
     private readonly IntroDiscoverySprite stars =
         CreateActor(CeresFlightActorDefinitions.FrontStars);
@@ -49,14 +47,14 @@ internal sealed class IntroCeresFlightState
     /// by one per update, stopping at zero. The flash is grey: red, green and blue always share this intensity.
     /// </summary>
     private int flashIntensity;
-    /// <summary>Next caption glyph to add to the title tilemap.</summary>
-    private int spaceColonyLetterIndex;
+    /// <summary>How many of the caption's letters are shown, in order; the next letter typed is this one.</summary>
+    internal int CaptionLettersShown { get; private set; }
     /// <summary>Sixteen-frame glyph cadence and final $80-frame caption hold.</summary>
     private int spaceColonyTimer;
     /// <summary>Distinguishes the completed caption's final hold from its glyph-writing phase.</summary>
     private bool spaceColonyHoldStarted;
-    /// <summary>Tracks the optional one-frame katakana caption record.</summary>
-    private bool spaceColonyJapaneseCaptionDrawn;
+    /// <summary>Whether the optional one-frame katakana caption record has drawn the katakana caption.</summary>
+    internal bool JapaneseCaptionShown { get; private set; }
     /// <summary>Selects the cartridge's alternate Japanese caption record.</summary>
     private readonly bool japaneseText;
     /// <summary>Gates one brightness decrement every other frame in the closing fade.</summary>
@@ -93,15 +91,11 @@ internal sealed class IntroCeresFlightState
     public void BindSheets(InstalledSpriteSheets? sheets)
     {
         spriteArtwork = sheets is null ? null : new CinematicSpriteSheet(sheets.Get(SpriteSheetId.CeresFlightSprites), CinematicSpriteFamily.CeresFlight);
-        captionTiles = sheets is null ? null : CeresScreenTiles.Flight(sheets);
         floorSheets = sheets;
     }
 
-    /// <summary>The installed sheets the floor's views are pictured in (#1467); artwork, never saved.</summary>
+    /// <summary>The installed sheets the floor's views and the caption are pictured in (#1467); artwork, never saved.</summary>
     [NonSerialized] private InstalledSpriteSheets? floorSheets;
-
-    /// <summary>What the caption's characters show (#1392); artwork, never saved.</summary>
-    [NonSerialized] private ScreenLayerPictures? captionTiles;
 
     /// <summary>Reapplies current external art and palette without resetting the live flight phase.</summary>
     public void BindArtwork(CeresFlightArtwork? artwork)
@@ -197,10 +191,10 @@ internal sealed class IntroCeresFlightState
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
             IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
         {
-            // The caption draws from the flight's object characters' pre-coloured tiles (#1392).
-            var caption = new ScreenTilesLayer(ScreenTileMap.Of(SpaceColonyTilemap, new Extent16<TilemapCells>(32, 32),
-                captionTiles ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets.")),
-                new Position16<TilePlanePixels>(0, 0), false);
+            // The caption shows the pictures of the letters typed so far and, once drawn, the katakana caption (#1467).
+            var caption = new PicturedPlaneLayer(CeresCinematicPictures.Caption(
+                floorSheets ?? throw new InvalidOperationException("The Ceres flight's caption requires the installed sprite sheets."),
+                CaptionLettersShown, JapaneseCaptionShown), new Position16<TilePlanePixels>(0, 0), false);
             layers.Add(caption);
             layers.Add(new SpriteDepthLayer(1));
             layers.Add(caption with { Priority = true });
@@ -305,11 +299,10 @@ internal sealed class IntroCeresFlightState
         // `$8B:C03E` switches from Mode 7 to Mode 1, assigns BG1SC=$5C/BG1NBA=$06,
         // and starts BG object list `$8C:D629`. The rear-view cinematic actors are not
         // deleted, so Ceres and both asteroid layers remain behind the title text.
-        Array.Clear(SpaceColonyTilemap);
-        spaceColonyLetterIndex = 0;
+        CaptionLettersShown = 0;
         spaceColonyHoldStarted = false;
-        spaceColonyJapaneseCaptionDrawn = false;
-        WriteNextSpaceColonyLetter();
+        JapaneseCaptionShown = false;
+        CaptionLettersShown++;
         spaceColonyTimer = 16;
         Phase = IntroCeresFlightPhase.SpaceColonyTitle;
     }
@@ -320,19 +313,18 @@ internal sealed class IntroCeresFlightState
         if (--spaceColonyTimer > 0)
             return;
 
-        if (spaceColonyLetterIndex < SpaceColonyCaptionDefinitions.LetterCount)
+        if (CaptionLettersShown < SpaceColonyCaptionDefinitions.LetterCount)
         {
-            WriteNextSpaceColonyLetter();
+            CaptionLettersShown++;
             spaceColonyTimer = 16;
             return;
         }
 
         // $8B:C096 skips the Japanese caption record for English text. Japanese text draws
         // it on a one-frame record before the hold.
-        if (japaneseText && !spaceColonyJapaneseCaptionDrawn)
+        if (japaneseText && !JapaneseCaptionShown)
         {
-            spaceColonyJapaneseCaptionDrawn = true;
-            WriteSpaceColonyJapaneseCaption();
+            JapaneseCaptionShown = true;
             spaceColonyTimer = 1;
             return;
         }
@@ -348,23 +340,6 @@ internal sealed class IntroCeresFlightState
 
         fadeDelay = 1;
         Phase = IntroCeresFlightPhase.FadeOut;
-    }
-
-    /// <summary>Writes one authored title glyph to the caption tilemap.</summary>
-    private void WriteNextSpaceColonyLetter()
-    {
-        (int column, BackgroundTile tile) = SpaceColonyCaption.Letter(spaceColonyLetterIndex++);
-        const int CaptionRow = 24;
-        SpaceColonyTilemap[CaptionRow * 32 + column] = tile;
-    }
-
-    /// <summary>Writes the alternate Japanese caption below the English title.</summary>
-    private void WriteSpaceColonyJapaneseCaption()
-    {
-        ReadOnlySpan<BackgroundTile> tiles = SpaceColonyCaptionDefinitions.JapaneseTiles;
-        for (int index = 0; index < tiles.Length; index++)
-            SpaceColonyTilemap[(SpaceColonyCaptionDefinitions.JapaneseRow + index / SpaceColonyCaptionDefinitions.JapaneseWidth) * 32 +
-                SpaceColonyCaptionDefinitions.JapaneseColumn + index % SpaceColonyCaptionDefinitions.JapaneseWidth] = tiles[index];
     }
 
     /// <summary>Lowers brightness every other dispatch until forced blank permits the Ceres handoff.</summary>

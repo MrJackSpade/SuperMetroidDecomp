@@ -49,24 +49,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     internal void BindSpriteSheets(InstalledSpriteSheets? sheets)
     {
         spriteSheets = sheets ?? throw new InvalidOperationException("Ceres destruction requires the installed sprite sheets.");
-        shownTiles = null;
-    }
-
-    /// <summary>What the scene's loaded characters show (#1392), read when <see cref="tilesShowZebes"/> was last set; artwork, never saved.</summary>
-    [NonSerialized] private ScreenLayerPictures? shownTiles;
-
-    /// <summary>Whether <see cref="shownTiles"/> was read with the Zebes reveal's characters loaded.</summary>
-    [NonSerialized] private bool tilesShowZebes;
-
-    /// <summary>What the scene's loaded characters show, read again only once the Zebes reveal loads its own, so the frame's tiles keep their packing.</summary>
-    private ScreenLayerPictures ShownTiles()
-    {
-        if (shownTiles is null || tilesShowZebes != ZebesRevealed)
-        {
-            shownTiles = CeresScreenTiles.Destruction(spriteSheets, ZebesRevealed);
-            tilesShowZebes = ZebesRevealed;
-        }
-        return shownTiles;
     }
 
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
@@ -664,10 +646,6 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private void LoadFinalExplosionMaps() =>
         FloorShot = WithSamus ? CeresFloorShot.ExplosionWithoutGunship : CeresFloorShot.Explosion;
 
-    /// <summary>The Zebes reveal's tilemap, once it is loaded.</summary>
-    private BackgroundTile[] ZebesTilemap() => CeresDestructionScenery.ZebesTilemap(Artwork ?? throw new InvalidOperationException(
-        "Ceres destruction rendering requires installed cinematic artwork."), ZebesRevealed);
-
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
     private void SpawnFinalCeresExplosion()
     {
@@ -899,8 +877,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
             // is a cartridge-correctness change, not an implicit part of this extraction.
-            // The Zebes reveal draws from the pre-coloured tiles of the characters the scene has loaded (#1392).
-            layers = [new ScreenTilesLayer(ScreenTileMap.Of(ZebesTilemap(), new Extent16<TilemapCells>(32, 32), ShownTiles()),
+            // The Zebes reveal shows the planet's installed picture once it is loaded (#1467).
+            layers = [new PicturedPlaneLayer(CeresCinematicPictures.Zebes(spriteSheets, ZebesRevealed),
                 new Position16<TilePlanePixels>(0, 0), null)];
         }
         if (CaptureStationExplosion() is { } blast)

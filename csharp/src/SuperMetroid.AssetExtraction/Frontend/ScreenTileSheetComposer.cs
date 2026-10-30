@@ -43,11 +43,6 @@ internal static class ScreenTileSheetComposer
             SpriteSheetId.IntroSceneTiles => Compose(IntroCinematicSourceArtwork.Of(sources.Intro).BackgroundCharacters.Characters.Span[..IntroCinematicDefinitions.Artwork.BackgroundCharacterBytes],
                 TileInkDepth.SixteenColours, IntroColours(sources.Intro)),
             SpriteSheetId.IntroFontTiles => Compose(IntroFontCharacters.Of(maps.IntroFont).Characters.Span, TileInkDepth.FourColours, IntroColours(sources.Intro)),
-            SpriteSheetId.CeresFlightObjectTiles => ComposeFlightObjects(sources.Intro.CeresFlight),
-            SpriteSheetId.CeresIntroObjectTiles => Compose(IntroCinematicSourceArtwork.Of(sources.Intro).IntroObjectCharacters.Characters.Span[..CeresDestructionSceneDefinitions.SharedObjectCharacterBytes],
-                TileInkDepth.SixteenColours, FlightColours(sources.Intro.CeresFlight)),
-            SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionArtworkFormat.ZebesCharacterByteCount],
-                TileInkDepth.SixteenColours, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.MenuForegroundTiles => Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
             SpriteSheetId.MenuMapTiles => Compose(MapCharacterArtwork.Of(maps).Map.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
             SpriteSheetId.PauseMapTiles => Compose(MapCharacterArtwork.Of(maps).Map.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
@@ -82,7 +77,7 @@ internal static class ScreenTileSheetComposer
                 SpriteSheetId.EndingEscapeBFloor or SpriteSheetId.EndingPlanetExplosionFloor or
                 SpriteSheetId.EndingFlyawayFloor or SpriteSheetId.EndingRewardIconFloor or SpriteSheetId.EndingCreditsRows or
                 SpriteSheetId.EndingPostCreditsPictures or SpriteSheetId.EndingWavySamusPicture or
-                SpriteSheetId.EndingExplosionPictures =>
+                SpriteSheetId.EndingExplosionPictures or SpriteSheetId.CeresCinematicPictures =>
                 throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no screen tiles."),
             _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
         };
@@ -130,10 +125,6 @@ internal static class ScreenTileSheetComposer
         Ensure.NotNull(palette).Apply(colours);
         return ScreenColourImage.Encode(colours);
     }
-
-    /// <summary>The Ceres flight's object characters under its palette, which its caption shows.</summary>
-    internal static ComposedSpriteSheet ComposeFlightObjects(CeresFlightArtwork flight) =>
-        Compose(CeresFlightCharacters.Of(Ensure.NotNull(flight)).ObjectCharacters.Span[..CeresFlightArtworkFormat.ObjectByteCount], TileInkDepth.SixteenColours, FlightColours(flight));
 
     /// <summary>The opening cinematic's palette.</summary>
     private static ReadOnlySpan<RgbColor> IntroColours(IntroCinematicArtwork intro)

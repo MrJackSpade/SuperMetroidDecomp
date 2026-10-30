@@ -117,9 +117,9 @@ public static class SpriteSheetFiles
             SpriteSheetId.AreaMapBackgroundTilesNorfair or SpriteSheetId.AreaMapBackgroundTilesWreckedShip or
             SpriteSheetId.AreaMapBackgroundTilesMaridia or SpriteSheetId.AreaMapBackgroundTilesTourian or
             SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or
-            SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
-            SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles =>
+            SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles =>
             [ScreenTileSheet.FrameName],
+        SpriteSheetId.CeresCinematicPictures => CeresCinematicPictures.FrameNames,
         SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
             SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures =>
             EndingPictureSheetComposer.FrameNames(sheet),

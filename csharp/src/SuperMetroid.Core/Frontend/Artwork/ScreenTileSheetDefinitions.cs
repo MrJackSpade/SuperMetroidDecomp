@@ -32,9 +32,6 @@ public static class ScreenTileSheetDefinitions
         [SpriteSheetId.PauseInterfaceTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.IntroSceneTiles] = TileInkDepth.SixteenColours,
         [SpriteSheetId.IntroFontTiles] = TileInkDepth.FourColours,
-        [SpriteSheetId.CeresFlightObjectTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.CeresIntroObjectTiles] = TileInkDepth.SixteenColours,
-        [SpriteSheetId.ZebesRevealTiles] = TileInkDepth.SixteenColours,
     };
 
     /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>

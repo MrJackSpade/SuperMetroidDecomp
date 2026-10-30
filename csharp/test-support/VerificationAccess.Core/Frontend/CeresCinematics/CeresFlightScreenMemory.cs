@@ -45,5 +45,25 @@ internal static class CeresFlightScreenMemory
     [WholeImageFixture("the Ceres flight's memory image")]
     internal static byte[] Compose(IntroCeresFlightState flight) =>
         WithCaption(View(flight.Artwork ?? throw new InvalidOperationException("Ceres approach rendering requires installed cinematic artwork."),
-            flight.ShowsRearView), BackgroundTileWordBytes.Words(flight.SpaceColonyTilemap));
+            flight.ShowsRearView), BackgroundTileWordBytes.Words(CaptionTiles(flight)));
+
+    /// <summary>
+    /// The caption tilemap the cartridge's caption list leaves for <paramref name="flight"/>'s state (#1467): the letters
+    /// typed so far on their row and, once drawn, the katakana caption below, each as the import pictures it.
+    /// </summary>
+    internal static BackgroundTile[] CaptionTiles(IntroCeresFlightState flight)
+    {
+        var tiles = new BackgroundTile[CeresCinematicPictures.PlaneCells * CeresCinematicPictures.PlaneCells];
+        for (int letter = 0; letter < flight.CaptionLettersShown; letter++)
+            tiles[SpaceColonyCaptionDefinitions.Row * CeresCinematicPictures.PlaneCells + SpaceColonyCaption.Column(letter)] =
+                SpaceColonyCaptionTileDefinitions.Glyphs[SpaceColonyCaption.Character(letter)];
+        if (flight.JapaneseCaptionShown)
+        {
+            ReadOnlySpan<BackgroundTile> japanese = SpaceColonyCaptionTileDefinitions.JapaneseTiles;
+            for (int index = 0; index < japanese.Length; index++)
+                tiles[(SpaceColonyCaptionDefinitions.JapaneseRow + index / SpaceColonyCaptionDefinitions.JapaneseWidth) * CeresCinematicPictures.PlaneCells +
+                    SpaceColonyCaptionDefinitions.JapaneseColumn + index % SpaceColonyCaptionDefinitions.JapaneseWidth] = japanese[index];
+        }
+        return tiles;
+    }
 }

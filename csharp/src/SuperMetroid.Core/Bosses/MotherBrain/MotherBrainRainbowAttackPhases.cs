@@ -19,6 +19,11 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state = state;
     }
 
+    /// <summary>The session's record of what the beam's push hides from the camera, which every push requires.</summary>
+    private static RainbowBeamCameraCheckpoint CameraCheckpointOf(RainbowBeamAttackFrame frame) =>
+        frame.CameraCheckpoint ?? throw new InvalidOperationException(
+            "Mother Brain's rainbow-beam push requires the session's camera checkpoint.");
+
     /// <summary>Rainbow-beam angular width in 8.8 table units, initialized and floored at <c>$0200</c> and capped at <c>$0C00</c>.</summary>
     public int AngularWidth { get; internal set; }
 
@@ -313,7 +318,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             frame.EnemyFrameCounter,
             growth: MotherBrainRainbowBeamGrowth.Widening,
             requests);
-        requests.Movement = _movement.MoveTowardWall(samus);
+        requests.Movement = _movement.MoveTowardWall(samus, CameraCheckpointOf(frame));
         if (requests.Movement.Value.ReachedVerticalBoundary)
         {
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay;
@@ -333,7 +338,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             frame.EnemyFrameCounter,
             growth: MotherBrainRainbowBeamGrowth.Widening,
             requests);
-        requests.Movement = _movement.MoveTowardWall(samus);
+        requests.Movement = _movement.MoveTowardWall(samus, CameraCheckpointOf(frame));
 
         // `$A9:BA0F` decrements zero to `$FFFF`; BPL fails on this very call.
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
@@ -374,7 +379,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             requests);
         DamageSamusDueToRainbowBeam(samus);
         DecrementAmmoDueToRainbowBeam(samus, frame.MainEnemyExecutionCounter);
-        requests.Movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
+        requests.Movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus, CameraCheckpointOf(frame));
 
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (_state.FunctionTimer.IsNegative)
@@ -428,9 +433,9 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// Runs the second phase rainbow wait for samus to land body function. True when it installs the next body function and the cartridge runs
     /// on into it within the same call.
     /// </summary>
-    internal bool RunSecondPhaseRainbowWaitForSamusToLand(SamusState samus, MotherBrainRainbowBeamStepRequests requests)
+    internal bool RunSecondPhaseRainbowWaitForSamusToLand(SamusState samus, RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        requests.Movement = _movement.StepFallingAfterRainbowBeam(samus);
+        requests.Movement = _movement.StepFallingAfterRainbowBeam(samus, CameraCheckpointOf(frame));
         if (requests.Movement.Value.ReachedVerticalBoundary)
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowLowerHead;
         return false;

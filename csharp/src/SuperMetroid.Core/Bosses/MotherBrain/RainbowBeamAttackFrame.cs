@@ -26,4 +26,10 @@ public sealed record RainbowBeamAttackFrame
 
     /// <summary>The global earthquake timer as this frame observes it, or null when the caller supplies none.</summary>
     public WrappingCountdown? GlobalEarthquakeTimer { get; init; } = null;
+
+    /// <summary>
+    /// The session's record of what the beam's push hides from the camera; null for a step that pushes nothing, and a
+    /// step that pushes Samus without it fails.
+    /// </summary>
+    public RainbowBeamCameraCheckpoint? CameraCheckpoint { get; init; } = null;
 }

@@ -20,12 +20,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </remarks>
 public sealed class MotherBrainRainbowBeamSamusMovement
 {
-    /// <summary>
-    /// The previous-subposition bits the routine's eight-bit fraction store replaces: the fraction's upper eight bits,
-    /// above the 1/65536ths it leaves as they were.
-    /// </summary>
-    private const int PreviousFractionUpperBits = ushort.MaxValue - byte.MaxValue;
-
     /// <summary>Mother Brain body extra words <c>$0FB2/$0FB4</c>: Samus's forced signed 8.8 velocity.</summary>
     public EightEightVector<RoomPixels> CustomVelocity { get; private set; }
 
@@ -39,19 +33,23 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// Ports <c>$A9:BBB5</c>: move right at <c>$10.00</c> pixels per call and, until the
     /// hardcoded wall is reached, derive the vertical component from the live beam angle.
     /// </summary>
+    /// <param name="samus">Samus, pinned by the beam.</param>
+    /// <param name="cameraCheckpoint">The session's record of what the push hides from the camera.</param>
     public MotherBrainForcedSamusMovementResult MoveTowardWall(
-        SamusState samus)
+        SamusState samus,
+        RainbowBeamCameraCheckpoint cameraCheckpoint)
     {
         Ensure.NotNull(samus);
+        Ensure.NotNull(cameraCheckpoint);
 
         FixedPosition<RoomPixels> before = Capture(samus);
-        bool reachedWall = MoveHorizontallyTowardWall(samus, SignedEightEight.FromSignedRaw(4096));
+        bool reachedWall = MoveHorizontallyTowardWall(samus, cameraCheckpoint, SignedEightEight.FromSignedRaw(4096));
 
         if (!reachedWall)
         {
             // `$86:C272` adds $40 before indexing the sine table. Its multiplication returns
             // product bits 8..23, i.e. a signed 8.8 component for the supplied 8.8 speed.
-            MoveVerticallyTowardCeilingOrFloor(samus, new SignedEightEight(CalculateYVelocity(speed: 4096, RainbowBeamAngle)));
+            MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, new SignedEightEight(CalculateYVelocity(speed: 4096, RainbowBeamAngle)));
 
             // `$A9:BBCD` unconditionally clears carry after the vertical helper. The caller
             // can therefore observe only the wall result; keep the clamp witness separately
@@ -67,9 +65,12 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// Ports <c>$A9:BBCF</c>: move down by <c>$00.40</c> below/equal to Y <c>$7C</c>, or
     /// up by <c>-$00.40</c> above it. Native does not snap to the target and can oscillate.
     /// </summary>
-    public static MotherBrainForcedSamusMovementResult MoveTowardMiddleOfWall(SamusState samus)
+    /// <param name="samus">Samus, pinned by the beam.</param>
+    /// <param name="cameraCheckpoint">The session's record of what the push hides from the camera.</param>
+    public static MotherBrainForcedSamusMovementResult MoveTowardMiddleOfWall(SamusState samus, RainbowBeamCameraCheckpoint cameraCheckpoint)
     {
         Ensure.NotNull(samus);
+        Ensure.NotNull(cameraCheckpoint);
 
         FixedPosition<RoomPixels> before = Capture(samus);
 
@@ -78,7 +79,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // semantics instead of introducing a host integer comparison with different wraps.
         int difference = unchecked((short)(124 - samus.Position.Y.Whole));
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
-            samus, SignedEightEight.FromSignedRaw((short)(difference >= 0 ? 64 : -64)));
+            samus, cameraCheckpoint, SignedEightEight.FromSignedRaw((short)(difference >= 0 ? 64 : -64)));
 
         return CreateResult(
             before,
@@ -98,9 +99,12 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// Ports <c>$A9:BBE1</c>: ease horizontal speed toward zero by <c>$00.02</c>, add
     /// <c>$00.18</c> vertical speed, then move through the two hardcoded arena clamps.
     /// </summary>
-    public MotherBrainForcedSamusMovementResult StepFallingAfterRainbowBeam(SamusState samus)
+    /// <param name="samus">Samus, falling from the beam.</param>
+    /// <param name="cameraCheckpoint">The session's record of what the push hides from the camera.</param>
+    public MotherBrainForcedSamusMovementResult StepFallingAfterRainbowBeam(SamusState samus, RainbowBeamCameraCheckpoint cameraCheckpoint)
     {
         Ensure.NotNull(samus);
+        Ensure.NotNull(cameraCheckpoint);
 
         FixedPosition<RoomPixels> before = Capture(samus);
 
@@ -108,11 +112,11 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // the negative speed crosses into $0000..$7FFF it is clamped to exact zero.
         int acceleratedX = unchecked((short)(CustomVelocity.X.SignedRawValue + 2));
         CustomVelocity = CustomVelocity.WithX(SignedEightEight.FromSignedRaw((short)Math.Min(acceleratedX, 0)));
-        MoveHorizontallyTowardWall(samus, CustomVelocity.X);
+        MoveHorizontallyTowardWall(samus, cameraCheckpoint, CustomVelocity.X);
 
         CustomVelocity += new EightEightVector<RoomPixels>(0, 24);
         bool reachedVerticalBoundary =
-            MoveVerticallyTowardCeilingOrFloor(samus, CustomVelocity.Y);
+            MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CustomVelocity.Y);
 
         // `$A9:BAD1` branches on the carry returned by the vertical helper. Horizontal wall
         // carry is intentionally discarded by the following LDA/ADC sequence.
@@ -137,15 +141,16 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <summary>Applies native 8.8 Y movement, mirrors previous-position words, and clamps to arena Y=$30..$C0.</summary>
     private static bool MoveVerticallyTowardCeilingOrFloor(
         SamusState samus,
+        RainbowBeamCameraCheckpoint cameraCheckpoint,
         SignedEightEight velocity)
     {
         FixedCoordinate moved = AddVelocityToHighSubpixel(
             new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction),
             velocity);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(moved.Fraction);
-        // `$A9:BC06` stores the same fraction byte into SamusPreviousYSubPosition+1, and every
-        // exit stores the new Y into SamusPreviousYPosition: the camera sees no movement.
-        samus.WritePreviousYSubposition(PreviousFractionUpperBits, moved.Fraction);
+        // `$A9:BC06` hides the push's coarse sub-pixel movement from the camera, and every
+        // exit records the new whole Y as where Samus was: the camera sees no whole-pixel movement.
+        cameraCheckpoint.HideCoarseVerticalMovement(moved.Fraction);
 
         // BMI/BPL are signed tests of the subtraction result, not unsigned C# comparisons.
         // This distinction is observable if a malformed/debug position wraps around zero.
@@ -155,7 +160,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             samus.Position = samus.Position.WithWholeY(aboveCeiling ? Ceiling : Floor);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
             samus.WritePreviousYPosition(aboveCeiling ? Ceiling : Floor);
-            samus.WritePreviousYSubposition(ushort.MaxValue, 0);
+            cameraCheckpoint.HideVerticalMovement(0);
             return true;
         }
 
@@ -165,21 +170,21 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     /// <summary>Applies native 8.8 X movement, mirrors previous-position words, and clamps at the right wall X=$EB.</summary>
-    private static bool MoveHorizontallyTowardWall(SamusState samus, SignedEightEight velocity)
+    private static bool MoveHorizontallyTowardWall(SamusState samus, RainbowBeamCameraCheckpoint cameraCheckpoint, SignedEightEight velocity)
     {
         FixedCoordinate moved = AddVelocityToHighSubpixel(
             new FixedCoordinate(samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction),
             velocity);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(moved.Fraction);
-        // `$A9:BC48/$BC61/$BC6B/$BC71` mirror every store into the previous-X words.
-        samus.WritePreviousXSubposition(PreviousFractionUpperBits, moved.Fraction);
+        // `$A9:BC48/$BC61/$BC6B/$BC71` hide every store from the camera's horizontal record.
+        cameraCheckpoint.HideCoarseHorizontalMovement(moved.Fraction);
 
         if (unchecked((short)(moved.Whole - 235)) >= 0)
         {
             samus.Position = samus.Position.WithWholeX(235);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
             samus.WritePreviousXPosition(235);
-            samus.WritePreviousXSubposition(ushort.MaxValue, 0);
+            cameraCheckpoint.HideHorizontalMovement(0);
             return true;
         }
 

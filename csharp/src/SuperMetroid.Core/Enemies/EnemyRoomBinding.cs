@@ -52,6 +52,9 @@ internal sealed class EnemyRoomBinding
     /// <summary>The session's floor update residue, which Ceres Ridley's getaway writes.</summary>
     internal SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue => Session.FloorQueueResidue;
 
+    /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera.</summary>
+    internal RainbowBeamCameraCheckpoint? RainbowBeamCameraCheckpoint => Session.RainbowBeamCameraCheckpoint;
+
     /// <summary>The bound enemy definition source; enemy work requires a loaded room population.</summary>
     internal IRoomEnemyDefinitionSource LoadedDefinitions =>
         Definitions ?? throw new InvalidOperationException("A room enemy population must be loaded first.");

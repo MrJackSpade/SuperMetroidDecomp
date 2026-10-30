@@ -101,6 +101,12 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The session's floor update residue, bound into the enemies and every Samus this runtime creates.</summary>
     internal SuperMetroid.Core.Compatibility.FloorUpdateResidue FloorQueueResidue { get; }
 
+    /// <summary>
+    /// What Mother Brain's rainbow-beam push hides from the camera this update, bound into the enemies and consumed by
+    /// the update's scrolling.
+    /// </summary>
+    internal RainbowBeamCameraCheckpoint RainbowBeamCameraCheckpoint { get; } = new();
+
     /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
     internal XrayReveal Xray { get; }
 
@@ -144,6 +150,7 @@ internal sealed class SuperMetroidRuntime
         Options = new GameplayOptions();
         FloorQueueResidue = Ensure.NotNull(floorQueueResidue);
         EnemySession.FloorQueueResidue = FloorQueueResidue;
+        EnemySession.RainbowBeamCameraCheckpoint = RainbowBeamCameraCheckpoint;
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
@@ -808,7 +815,7 @@ internal sealed class SuperMetroidRuntime
 
             ActiveRoomGeometry roomGeometry = RoomLoader.GetActiveRoomGeometry();
 
-            previousCameraPoint = samus.ApplyPreviousPositionWrites(previousCameraPoint);
+            previousCameraPoint = RainbowBeamCameraCheckpoint.Consume(samus.ApplyPreviousPositionWrites(previousCameraPoint));
             var currentCameraPoint = samus.Position;
 
             // GameState_8 calls MainScrollingRoutine after movement/PLMs and before

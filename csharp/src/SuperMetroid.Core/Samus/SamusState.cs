@@ -799,27 +799,15 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// wrote it. Only <see cref="WritePreviousXPosition"/> stores it.
     /// </summary>
     private int? _previousXPositionWrite;
-    /// <summary>Masked writes to previous X/Y fractions $0B12/$0B16; zero masks mean no write.</summary>
-    private PreviousFractionWrites _previousFractionWrites;
 
     /// <summary>
     /// Records a direct write of SamusPreviousXPosition ($0B10) by an owner that runs
     /// before MainScrollingRoutine, such as the landed gunship placing Samus at $A2:A925.
-    /// Only the whole word changes; the previous X fraction ($0B12) is untouched.
+    /// Only the whole word changes; the previous X fraction is untouched (Mother Brain's
+    /// rainbow-beam push records its fraction in <see cref="RainbowBeamCameraCheckpoint"/>).
     /// </summary>
     internal void WritePreviousXPosition(int xPosition) =>
         _previousXPositionWrite = xPosition;
-
-    /// <summary>
-    /// Records a write to bits of SamusPreviousXSubPosition ($0B12): a byte store sets mask
-    /// $FF00, a word store $FFFF. Later writes this frame replace the bits they cover.
-    /// </summary>
-    internal void WritePreviousXSubposition(int mask, int value) =>
-        _previousFractionWrites = _previousFractionWrites with { X = _previousFractionWrites.X.Write(mask, value) };
-
-    /// <summary>Records a write to bits of SamusPreviousYSubPosition ($0B16), as for X.</summary>
-    internal void WritePreviousYSubposition(int mask, int value) =>
-        _previousFractionWrites = _previousFractionWrites with { Y = _previousFractionWrites.Y.Write(mask, value) };
 
     /// <summary>
     /// Applies $90:EC7E Samus_AlignBottomWithPrevPose after installing a new pose:
@@ -853,43 +841,21 @@ level, probe, this, amount, scanLeftToRight, plms);
         unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta)));
 
     /// <summary>
-    /// Applies this frame's previous-position word writes before $90:94EC calculates
-    /// distance. Its normal tail subsequently replaces the complete checkpoint.
+    /// Applies this frame's whole previous-position writes before $90:94EC calculates
+    /// distance; the fractions are kept. Its normal tail subsequently replaces the complete checkpoint.
     /// </summary>
     internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
     {
         int correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
             + _poseAlignmentPreviousYDelta));
         int xPosition = checked((ushort)(_previousXPositionWrite ?? previous.X.Whole));
-        int xSubposition = _previousFractionWrites.X.ApplyTo(previous.X.Fraction);
-        int ySubposition = _previousFractionWrites.Y.ApplyTo(previous.Y.Fraction);
         _poseCollisionPreviousYPosition = null;
         _poseAlignmentPreviousYDelta = 0;
         _previousXPositionWrite = null;
-        _previousFractionWrites = default;
         return new FixedPosition<RoomPixels>(
-            FixedCoordinate.Of(xPosition, xSubposition),
-            FixedCoordinate.Of(correctedY, ySubposition));
+            FixedCoordinate.Of(xPosition, previous.X.Fraction),
+            FixedCoordinate.Of(correctedY, previous.Y.Fraction));
     }
-
-    /// <summary>
-    /// Bit-masked pending writes to one previous-fraction word: bits set in
-    /// <see cref="Mask"/> are replaced by the matching <see cref="Value"/> bits on apply. Both are sixteen-bit
-    /// patterns of the fraction word, 0 through 65535, because a store covers either its high byte or all of it.
-    /// </summary>
-    private readonly record struct MaskedWordWrite(int Mask, int Value)
-    {
-        /// <summary>Records a byte ($FF00) or word ($FFFF) store; later stores replace the bits they cover.</summary>
-        public MaskedWordWrite Write(int mask, int value) =>
-            new(Mask | mask, (Value & ~mask) | (value & mask));
-
-        /// <summary>Applies only the bits written this frame to an earlier fraction word.</summary>
-        public ushort ApplyTo(int word) => (ushort)((word & ~Mask) | Value);
-    }
-
-    /// <summary>The pending masked writes to both previous-fraction words as one value.</summary>
-    [SpatialComponents("Spatial value type: the pending masked writes to the previous X/Y fraction words $0B12/$0B16, one per axis.")]
-    private readonly record struct PreviousFractionWrites(MaskedWordWrite X, MaskedWordWrite Y);
 
     /// <summary>Persistent $0A6A warning state, shared by native beta and reserve recovery.</summary>
     public SamusHealthWarningState HealthWarning => field ??= new();

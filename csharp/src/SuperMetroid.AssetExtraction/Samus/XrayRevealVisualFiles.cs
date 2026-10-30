@@ -14,7 +14,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Extracts the visual metatile operands of the retail X-ray reveal table. Rule selection,
+/// Extracts the blocks the retail X-ray reveal table shows. Rule selection,
 /// copy shape, extensions, and area gating stay in the compiled collision dispatcher.
 /// </summary>
 public static class XrayRevealVisualFiles
@@ -37,11 +37,11 @@ public static class XrayRevealVisualFiles
         Converters = { new JsonStringEnumConverter() },
     };
 
-    /// <summary>Checks all 16-by-256 native collision/BTS reveal results, then exports drawable operands, item-slot metatiles, and room-specific X-ray overlays.</summary>
+    /// <summary>Checks all 16-by-256 cartridge collision-kind and behaviour reveal results, then exports drawable blocks, item-slot appearances, and room-specific X-ray overlays.</summary>
     /// <param name="bus">Cartridge source for bank-$91 reveal records, eight bank-$84 item draw pointers at $84:839D, and bank-$8F special-X-ray lists referenced by compiled room states.</param>
     /// <param name="directory">Family directory, created before native validation; receives new <see cref="VisualFileName"/> and <see cref="ManifestFileName"/> files.</param>
     /// <param name="sourceCartridgeSha256">Nonblank caller-supplied provenance hash, recorded without recomputation; stock load requires the supported cartridge identity.</param>
-    /// <remarks>Drawable rules are grouped by collision type and native definition. Item words are masked to twelve visual bits; room coordinates are unsigned 16-pixel block positions. Create-new writes refuse existing outputs and are not an atomic JSON/manifest transaction.</remarks>
+    /// <remarks>Drawable rules are grouped by collision kind and definition. Item and room-overlay level words are decoded to appearances by <see cref="RoomLevelWordCodec"/>; room coordinates are unsigned 16-pixel block positions. Create-new writes refuse existing outputs and are not an atomic JSON/manifest transaction.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="ArgumentException">The directory or source hash is null, empty, or whitespace.</exception>
     /// <exception cref="InvalidDataException">A native rule differs from compiled definitions, a pointer/command is invalid, or a room overlay is empty, unterminated, or contains nonvisual words.</exception>
@@ -57,18 +57,18 @@ public static class XrayRevealVisualFiles
         var groups = new Dictionary<XrayRevealGroupKey,
             List<int>>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        for (int bts = 0; bts <= byte.MaxValue; bts++)
+        for (int value = 0; value <= byte.MaxValue; value++)
         {
-            XrayRevealDefinition? native = ReadNative(bus, type, unchecked((byte)bts));
-            if (native != XrayRevealTable.Find(type, unchecked((byte)bts)))
+            XrayRevealDefinition? native = ReadNative(bus, type, value);
+            if (native != XrayRevealTable.Find(type, new RoomBlockBehavior(value)))
                 throw new InvalidDataException(
-                    $"Compiled X-ray rule {type}/BTS ${bts:X2} differs from the cartridge.");
+                    $"Compiled X-ray rule {type}/behaviour ${value:X2} differs from the cartridge.");
             if (native is not { } definition || !InstalledXrayReveals.IsDrawable(definition.Command))
                 continue;
             var key = new XrayRevealGroupKey(type, definition);
             if (!groups.TryGetValue(key, out List<int>? values))
                 groups.Add(key, values = []);
-            values.Add(bts);
+            values.Add(value);
         }
 
         XrayRevealVisualEntry[] entries = groups
@@ -77,15 +77,15 @@ public static class XrayRevealVisualFiles
                 pair.Key.Definition.TopLeft, pair.Key.Definition.TopRight,
                 pair.Key.Definition.BottomLeft, pair.Key.Definition.BottomRight))
             .OrderBy(entry => entry.CollisionType)
-            .ThenBy(entry => entry.BtsValues[0])
+            .ThenBy(entry => entry.BehaviorValues[0])
             .ToArray();
-        ushort[] itemMetatiles = Enumerable.Range(0, InstalledXrayOverlays.DynamicGraphicsSlots * 2)
+        RoomBlockAppearance[] itemMetatiles = Enumerable.Range(0, InstalledXrayOverlays.DynamicGraphicsSlots * 2)
             .Select(slot =>
             {
                 int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + slot * sizeof(ushort)));
                 if (pointer is < SnesBusLayout.RomWindowStart or > ushort.MaxValue - 3)
                     throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
-                return new RoomLevelWord(CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2)))).VisualWord;
+                return RoomLevelWordCodec.DecodeAppearance(CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))));
             }).ToArray();
         XrayRoomOverlayEntry[] rooms = XrayRoomOverlaySources.Pointers
             .Select(pointer => ReadRoomOverlay(bus, pointer)).ToArray();
@@ -106,9 +106,9 @@ public static class XrayRevealVisualFiles
     /// <param name="stockDirectory">Family directory containing the required stock reveal JSON and provenance/hash manifest.</param>
     /// <param name="overrideDirectory">Optional family directory; null or missing reveal JSON selects validated stock.</param>
     /// <returns>A ROM-independent catalog with copied rule operands, eight item slots, and ordered special-room tile lists.</returns>
-    /// <remarks>Stock provenance, byte hash, and structure are checked even with overrides; loading does not repeat cartridge reads or compare every stock operand with cartridge bytes. Strict JSON rejects unknown/missing constructor properties. Overrides need no manifest but must retain stock rule order, collision types, BTS groups, shapes, room identities, and record counts; twelve-bit words and byte-range room coordinates may change.</remarks>
+    /// <remarks>Stock provenance, byte hash, and structure are checked even with overrides; loading does not repeat cartridge reads or compare every stock block with the cartridge. Strict JSON rejects unknown/missing constructor properties. Overrides need no manifest but must retain stock rule order, collision kinds, behaviour groups, shapes, room identities, and record counts; blocks, appearances and byte-range room coordinates may change.</remarks>
     /// <exception cref="ArgumentException"><paramref name="stockDirectory"/> is null, empty, or whitespace.</exception>
-    /// <exception cref="InvalidDataException">Provenance, integrity, strict JSON schema, rule coverage/shape, unused operands, overlay identities/counts, or visual words are invalid.</exception>
+    /// <exception cref="InvalidDataException">Provenance, integrity, strict JSON schema, rule coverage/shape, unused operands, or overlay identities/counts are invalid.</exception>
     /// <exception cref="IOException">Required stock or selected override files cannot be read.</exception>
     public static InstalledXrayReveals Load(string stockDirectory,
         string? overrideDirectory)
@@ -149,13 +149,12 @@ public static class XrayRevealVisualFiles
             XrayRevealVisualEntry edited = selected.Entries[index];
             if (edited.CollisionType != original.CollisionType ||
                 edited.Shape != original.Shape ||
-                !edited.BtsValues.SequenceEqual(original.BtsValues))
+                !edited.BehaviorValues.SequenceEqual(original.BehaviorValues))
                 throw new InvalidDataException(
                     $"X-ray visuals {selectedPath} changed the compiled rule at entry {index}.");
-            var visual = new XrayRevealVisualWords(checked((ushort)edited.TopLeft), checked((ushort)edited.TopRight),
-                checked((ushort)edited.BottomLeft), checked((ushort)edited.BottomRight));
-            foreach (int bts in edited.BtsValues)
-                mappings.Add(new XrayRevealVisualDefinition(edited.CollisionType, unchecked((byte)bts), visual));
+            var visual = new XrayRevealVisualBlocks(edited.TopLeft, edited.TopRight, edited.BottomLeft, edited.BottomRight);
+            foreach (int value in edited.BehaviorValues)
+                mappings.Add(new XrayRevealVisualDefinition(edited.CollisionType, new RoomBlockBehavior(value), visual));
         }
         for (int index = 0; index < stock.Rooms.Length; index++)
         {
@@ -167,7 +166,7 @@ public static class XrayRevealVisualFiles
         var overlays = new InstalledXrayOverlays(selected.ItemMetatiles,
             selected.Rooms.Select(room => new XrayRoomOverlayTiles(XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
                 room.Tiles.Select(tile =>
-                    new XrayRoomOverlayVisual(tile.Block, new RoomLevelWord(checked((ushort)tile.Word)))).ToArray())));
+                    new XrayRoomOverlayVisual(tile.Block, RoomBlockAppearance.Of(tile.Appearance.Block, tile.Appearance.Mirroring))).ToArray())));
         return new InstalledXrayReveals(mappings, overlays);
     }
 
@@ -176,13 +175,12 @@ public static class XrayRevealVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
-    /// <summary>Checks exact room identities, drawable rule shapes, BTS groups, twelve-bit visual words, and unused operand zeros.</summary>
+    /// <summary>Checks exact room identities, drawable rule shapes, behaviour groups, and unused operand zeros.</summary>
     private static void ValidateStructure(XrayRevealVisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null ||
             document.ItemMetatiles is null || document.Rooms is null ||
             document.ItemMetatiles.Length != InstalledXrayOverlays.DynamicGraphicsSlots * 2 ||
-            document.ItemMetatiles.Any(word => !RoomLevelWord.IsValidVisualWord(word)) ||
             document.Rooms.Any(room => room is null))
             throw new InvalidDataException($"X-ray visuals {path} have an incompatible format.");
         ushort[] nativePointers = XrayRoomOverlaySources.Pointers.ToArray();
@@ -191,22 +189,19 @@ public static class XrayRevealVisualFiles
         foreach (XrayRoomOverlayEntry room in document.Rooms)
         {
             if (room.Tiles is null || room.Tiles.Length == 0 ||
-                room.Tiles.Any(tile => tile is null || !RoomLevelWord.IsValidVisualWord(checked((ushort)tile.Word))))
+                room.Tiles.Any(tile => tile is null))
                 throw new InvalidDataException(
                     $"X-ray visuals {path} contain an invalid room overlay ${room.Pointer:X4}.");
         }
         foreach (XrayRevealVisualEntry entry in document.Entries)
         {
-            if (entry is null || entry.BtsValues is null || entry.BtsValues.Length == 0 ||
-                entry.BtsValues.Any(value => value is < 0 or > byte.MaxValue))
-                throw new InvalidDataException($"X-ray visuals {path} contain an invalid BTS group.");
-            if (XrayRevealTable.Find(entry.CollisionType, unchecked((byte)entry.BtsValues[0])) is not { } rule ||
+            if (entry is null || entry.BehaviorValues is null || entry.BehaviorValues.Length == 0 ||
+                entry.BehaviorValues.Any(value => value is < 0 or > byte.MaxValue))
+                throw new InvalidDataException($"X-ray visuals {path} contain an invalid behaviour group.");
+            if (XrayRevealTable.Find(entry.CollisionType, new RoomBlockBehavior(entry.BehaviorValues[0])) is not { } rule ||
                 !InstalledXrayReveals.IsDrawable(rule.Command) || entry.Shape != NameOf(rule.Command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
             XrayRevealCommand command = rule.Command;
-            if (!RoomLevelWord.IsValidVisualWord(checked((ushort)entry.TopLeft)) || !RoomLevelWord.IsValidVisualWord(checked((ushort)entry.TopRight)) ||
-                !RoomLevelWord.IsValidVisualWord(checked((ushort)entry.BottomLeft)) || !RoomLevelWord.IsValidVisualWord(checked((ushort)entry.BottomRight)))
-                throw new InvalidDataException($"X-ray visuals {path} contain a nonvisual metatile index.");
             if ((command is XrayRevealCommand.CopyOne or XrayRevealCommand.CopyBrinstar &&
                     (entry.TopRight != 0 || entry.BottomLeft != 0 || entry.BottomRight != 0)) ||
                 (command == XrayRevealCommand.CopyWide &&
@@ -243,16 +238,16 @@ public static class XrayRevealVisualFiles
         _ => throw new InvalidOperationException($"Undefined {nameof(XrayRevealCommand)} {command}."),
     };
 
-    /// <summary>Walks the bank-$91 type/BTS dispatch tables and decodes only the operands owned by the selected copy shape.</summary>
+    /// <summary>Walks the bank-$91 collision-kind and behaviour dispatch tables and decodes only the operands owned by the selected copy shape.</summary>
+    /// <remarks>A collision-kind table key is a level word holding only the kind's collision bits, decoded by <see cref="RoomLevelWordCodec"/>.</remarks>
     private static XrayRevealDefinition? ReadNative(ISnesAddressSpace bus,
         RoomCollisionType type, int bts)
     {
-        int typeWord = (int)type << 12;
         for (int entry = SamusSourceDefinitions.XrayRevealBlockTypeTable; ; entry += 4)
         {
-            int key = ReadWord(bus, entry);
+            ushort key = ReadWord(bus, entry);
             if ((RevealTableMarker)key == RevealTableMarker.TableEnd) return null;
-            if (key != typeWord) continue;
+            if (RoomLevelWordCodec.Decode(key).Collision != type) continue;
             for (int match = ReadWord(bus, entry + 2); ; match += 4)
             {
                 int value = ReadWord(bus, match);
@@ -312,11 +307,12 @@ public static class XrayRevealVisualFiles
                 return new XrayRoomOverlayEntry(pointer, tiles.ToArray());
             }
             int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | (cursor + 2)));
-            if (!RoomLevelWord.IsValidVisualWord(word))
+            RoomTerrainBlock decoded = RoomLevelWordCodec.Decode(checked((ushort)word));
+            if (decoded.Collision != RoomCollisionType.Air)
                 throw new InvalidDataException(
-                    $"X-ray room overlay ${pointer:X4} has nonvisual bits ${word:X4}.");
+                    $"X-ray room overlay ${pointer:X4} carries collision {decoded.Collision} in ${word:X4}.");
             tiles.Add(new XrayRoomOverlayTileDocument((byte)coordinate,
-                LittleEndianBytes.HighByte(coordinate), word));
+                LittleEndianBytes.HighByte(coordinate), decoded.Appearance));
         }
         throw new InvalidDataException($"X-ray room overlay ${pointer:X4} has no terminator.");
     }
@@ -337,24 +333,18 @@ public static class XrayRevealVisualFiles
         string VisualSha256);
     /// <summary>Complete editable rule, item, and room-overlay families for the installed format.</summary>
     private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
-        ushort[] ItemMetatiles, XrayRoomOverlayEntry[] Rooms);
-    /// <summary>One compiled type/BTS rule's editable metatile operands with its fixed copy shape.</summary>
-    private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, int[] BtsValues,
-        string Shape, int TopLeft, int TopRight, int BottomLeft, int BottomRight)
-    {
-        /// <summary>The top-left metatile word, 0 through 65535.</summary>
-        public int TopLeft { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, TopLeft);
-
-        /// <summary>The top-right metatile word, 0 through 65535.</summary>
-        public int TopRight { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, TopRight);
-
-        /// <summary>The bottom-left metatile word, 0 through 65535.</summary>
-        public int BottomLeft { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, BottomLeft);
-
-        /// <summary>The bottom-right metatile word, 0 through 65535.</summary>
-        public int BottomRight { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, BottomRight);
-    }
-    /// <summary>One bank-$8F special-room list and its ordered editable metatile records.</summary>
+        RoomBlockAppearance[] ItemMetatiles, XrayRoomOverlayEntry[] Rooms);
+    /// <summary>One compiled collision-kind and behaviour rule's editable blocks with its fixed copy shape.</summary>
+    /// <param name="CollisionType">The rule's collision kind.</param>
+    /// <param name="BehaviorValues">The behaviour values the rule covers, 0 through 255.</param>
+    /// <param name="Shape">The rule's copy shape.</param>
+    /// <param name="TopLeft">The top-left block number.</param>
+    /// <param name="TopRight">The top-right block number, or zero when the shape has none.</param>
+    /// <param name="BottomLeft">The bottom-left block number, or zero when the shape has none.</param>
+    /// <param name="BottomRight">The bottom-right block number, or zero when the shape has none.</param>
+    private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, int[] BehaviorValues,
+        string Shape, int TopLeft, int TopRight, int BottomLeft, int BottomRight);
+    /// <summary>One bank-$8F special-room list and its ordered editable block records.</summary>
     private sealed record XrayRoomOverlayEntry(int Pointer, XrayRoomOverlayTileDocument[] Tiles)
     {
         /// <summary>The room overlay list's identity, 0 through 65535.</summary>
@@ -365,7 +355,7 @@ public static class XrayRevealVisualFiles
     /// <remarks>Keep file admission separate from the runtime value type. A missing coordinate must not become the
     /// struct's legal zero/default value during deserialization.</remarks>
     [SpatialComponents("External format: reveals.json stores each room-overlay tile's block coordinates as x/y bytes.")]
-    private sealed record XrayRoomOverlayTileDocument(int X, int Y, int Word)
+    private sealed record XrayRoomOverlayTileDocument(int X, int Y, RoomBlockAppearance Appearance)
     {
         /// <summary>The tile's block column, 0 through 255.</summary>
         public int X { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, X);
@@ -373,8 +363,6 @@ public static class XrayRevealVisualFiles
         /// <summary>The tile's block row, 0 through 255.</summary>
         public int Y { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Y);
 
-        /// <summary>The tile's level word, 0 through 65535.</summary>
-        public int Word { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, Word);
 
         /// <summary>Combines validated external coordinates into the runtime room-block position.</summary>
         [JsonIgnore]

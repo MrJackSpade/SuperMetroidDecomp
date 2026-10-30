@@ -78,8 +78,8 @@ public static class XrayRevealMap
         {
             RoomCollisionBlock block = level.GetPlmCollisionBlockByIndex(index);
             return visuals is not null
-                ? visuals.Apply(block.CollisionType, block.Bts.Value)
-                : XrayRevealTable.Find(block.CollisionType, block.Bts.Value);
+                ? visuals.Apply(block.CollisionType, block.Behavior)
+                : XrayRevealTable.Find(block.CollisionType, block.Behavior);
         }
         // The BG1 block shown at the cell's scrolled position, mirrored as the level mirrors it.
         RevealedBlock? Copied(int col, int row)
@@ -91,13 +91,9 @@ public static class XrayRevealMap
             RoomBlockCell cell = bg1.Cells[y / RoomLevelPlane.BlockPixels * bg1.Size.X + x / RoomLevelPlane.BlockPixels];
             return new RevealedBlock(cell.Definition, Mirrored(cell.Flips));
         }
-        // A reveal metatile is placed as its block is defined.
-        void CopyMetatile(int col, int row, int metatile)
-        {
-            if ((uint)metatile > ushort.MaxValue || new RoomLevelWord((ushort)metatile).VisualBlockIndex != metatile)
-                throw new InvalidDataException($"X-ray metatile ${metatile:X4} is not a room block.");
-            Place(col, row, new RevealedBlock(metatile, RevealedBlockArrangement.AsDefined));
-        }
+        // A reveal block is placed as it is defined; its number is validated as a room block.
+        void CopyMetatile(int col, int row, int metatile) =>
+            Place(col, row, new RevealedBlock(RoomBlockAppearance.Of(metatile).Block, RevealedBlockArrangement.AsDefined));
         void Place(int col, int row, RevealedBlock? block)
         {
             // Bottom-edge multi-block commands can write past the two transferred screens, into
@@ -107,13 +103,13 @@ public static class XrayRevealMap
         }
     }
 
-    /// <summary>How a copied block lays out its picture: mirrored as the level word's flips mirror it.</summary>
-    private static RevealedBlockArrangement Mirrored(LevelBlockFlipFlags flips) => flips switch
+    /// <summary>How a copied block lays out its picture: mirrored as the room mirrors it.</summary>
+    private static RevealedBlockArrangement Mirrored(BlockMirroring flips) => flips switch
     {
-        LevelBlockFlipFlags.None => RevealedBlockArrangement.AsDefined,
-        LevelBlockFlipFlags.Horizontal => RevealedBlockArrangement.MirroredHorizontally,
-        LevelBlockFlipFlags.Vertical => RevealedBlockArrangement.MirroredVertically,
-        LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical => RevealedBlockArrangement.MirroredBoth,
+        BlockMirroring.None => RevealedBlockArrangement.AsDefined,
+        BlockMirroring.Horizontal => RevealedBlockArrangement.MirroredHorizontally,
+        BlockMirroring.Vertical => RevealedBlockArrangement.MirroredVertically,
+        BlockMirroring.Horizontal | BlockMirroring.Vertical => RevealedBlockArrangement.MirroredBoth,
         _ => throw new InvalidDataException($"A BG1 block has undefined flips {flips}."),
     };
 }

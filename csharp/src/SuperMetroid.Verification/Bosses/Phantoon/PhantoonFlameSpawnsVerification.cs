@@ -48,7 +48,7 @@ internal static class PhantoonFlameSpawnsVerification
             ushort speed = type switch
             {
                 PhantoonFlameSpawnType.Enraged => unchecked((ushort)(index < 8 ? 2 : -2)),
-                PhantoonFlameSpawnType.Spiral => 128,
+                PhantoonFlameSpawnType.Spiral => 0,
                 PhantoonFlameSpawnType.Rain => (ushort)((index & 240) >> 1),
                 PhantoonFlameSpawnType.Casual => 0,
                 _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameSpawnType)} {(int)type}."),
@@ -56,8 +56,16 @@ internal static class PhantoonFlameSpawnsVerification
             AssertEqual(angle, flame.State is PhantoonOrbitingFlameState orbit ? orbit.Angle.RawValue : (ushort)0, "Actual flame initial angle; flames that do not orbit keep none");
             AssertEqual(x, flame.Position.X.Whole, "Actual flame initial X");
             AssertEqual(y, flame.Position.Y.Whole, "Actual flame initial wrapped Y");
-            AssertEqual(speed, flame.Velocity.X.RawValue, "Actual flame direction or packed delay");
-            AssertEqual((ushort)0, flame.Velocity.Y.RawValue, "Actual flame initial radius/vertical speed");
+            // The native word that kept a rage flame's turn step or a rain flame's fall delay: each is now a named field.
+            ushort typedSpeed = flame.State switch
+            {
+                PhantoonRainFlameState rain => checked((ushort)rain.FallDelay),
+                PhantoonOrbitingFlameState rage when type == PhantoonFlameSpawnType.Enraged => unchecked((ushort)rage.AngleStep),
+                _ => 0,
+            };
+            AssertEqual(speed, typedSpeed, "Actual flame turn step or fall delay");
+            AssertEqual(0, flame.State is PhantoonOrbitingFlameState start ? start.Radius : 0, "Actual flame initial radius");
+            AssertEqual((ushort)0, flame.Velocity.Y.RawValue, "Actual flame initial vertical speed");
             AssertEqual((ushort)0, flame.Position.X.Fraction, "Actual flame initial fractional X");
             AssertEqual((ushort)0, flame.Position.Y.Fraction, "Actual flame initial fractional Y");
         }

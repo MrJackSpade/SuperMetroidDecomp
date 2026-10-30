@@ -382,7 +382,9 @@ internal sealed class PhantoonCombat
         if (state is null || !state.Parts[state.Body.SlotIndex].StartingFlamesActive)
             return;
         flame.PreInstruction = PhantoonBehavior.PhantoonStartingFlameOrbitPreInstruction;
-        flame.Velocity = new(new SignedEightEight(180), new SignedEightEight(48));
+        PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+        orbit.StartDelay = PhantoonFlameMotionDefinitions.IntroCircleDelay;
+        orbit.Radius = PhantoonFlameMotionDefinitions.IntroCircleRadius;
     }
 
     /// <summary>Advances an intro flame around Phantoon's body.</summary>
@@ -394,15 +396,16 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        if (flame.Velocity.X.RawValue != 0)
+        PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+        if (orbit.StartDelay != 0)
         {
-            flame.Velocity = flame.Velocity.WithX(new SignedEightEight(unchecked((ushort)(flame.Velocity.X.RawValue - 1))));
+            orbit.StartDelay--;
         }
         // $86:9B4C reads the 16-bit NMI_FrameCounter.
         else if ((_projectiles.CurrentFrame16 & 1) != 0)
         {
-            flame.Velocity = flame.Velocity.WithY(new SignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue - 1))));
-            if (flame.Velocity.Y.RawValue == 0)
+            orbit.Radius--;
+            if (orbit.Radius == 0)
             {
                 flame.Position = flame.Position.WithWhole(new(state.Body.Position.X.Whole, unchecked((ushort)(state.Body.Position.Y.Whole + 16))));
                 flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.Delete));
@@ -411,13 +414,12 @@ internal sealed class PhantoonCombat
             }
         }
 
-        PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
         orbit.Angle = orbit.Angle.AddTableUnits(1);
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
             orbit.Angle,
-            unchecked((byte)flame.Velocity.Y.RawValue));
+            orbit.Radius);
     }
 
     /// <summary>Moves a casual flame downward before floor contact.</summary>
@@ -499,14 +501,14 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        flame.Velocity = flame.Velocity.WithY(new SignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionDefinitions.RageRadiusStep))));
         PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
-        orbit.Angle = orbit.Angle.AddTableUnits(unchecked((byte)flame.Velocity.X.RawValue));
+        orbit.Radius += PhantoonFlameMotionDefinitions.RageRadiusStep;
+        orbit.Angle = orbit.Angle.AddTableUnits(orbit.AngleStep);
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
             orbit.Angle,
-            unchecked((byte)flame.Velocity.Y.RawValue));
+            orbit.Radius);
         DeletePhantoonFlameOutsideRoom(flame);
     }
 
@@ -515,10 +517,11 @@ internal sealed class PhantoonCombat
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
-        if (flame.Velocity.X.RawValue != 0)
+        PhantoonRainFlameState rain = flame.StateOf<PhantoonRainFlameState>();
+        if (rain.FallDelay != 0)
         {
-            flame.Velocity = flame.Velocity.WithX(new SignedEightEight(unchecked((ushort)(flame.Velocity.X.RawValue - 1))));
-            if (flame.Velocity.X.RawValue != 0 && unchecked((short)flame.Velocity.X.RawValue) >= 0)
+            rain.FallDelay--;
+            if (rain.FallDelay != 0)
                 return;
             // Expiry falls through to movement on this call, including signed
             // underflow. Keep each actor's native queue call rather than a last-SFX latch.
@@ -544,14 +547,14 @@ internal sealed class PhantoonCombat
             return;
         }
 
-        flame.Velocity = flame.Velocity.WithY(new SignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + PhantoonFlameMotionDefinitions.SpiralRadiusStep))));
         PhantoonOrbitingFlameState orbit = flame.StateOf<PhantoonOrbitingFlameState>();
+        orbit.Radius += PhantoonFlameMotionDefinitions.SpiralRadiusStep;
         orbit.Angle = orbit.Angle.AddTableUnits(PhantoonFlameMotionDefinitions.SpiralAngleStep);
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,
             orbit.Angle,
-            unchecked((byte)flame.Velocity.Y.RawValue));
+            orbit.Radius);
         DeletePhantoonFlameOutsideRoom(flame);
     }
 

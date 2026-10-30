@@ -147,9 +147,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     private const EnemyProjectilePreInstruction PolypRockPreInstruction =
         EnemyProjectilePreInstruction.PolypRock;
     /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>
-    private const ushort PolypRockGravityStep = 2;
+    private const int PolypRockGravityStep = 2;
     /// <summary>Falling rocks stop accelerating at the native $0040 speed index.</summary>
-    private const ushort PolypRockTerminalSpeedIndex = 64;
+    private const int PolypRockTerminalSpeedIndex = 64;
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> plus initializer $86:BBDB.
@@ -170,8 +170,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             source.Graphics);
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.PreInstruction = PolypRockPreInstruction;
-        projectile.State = new PolypRockState();
-        projectile.Velocity = new(new SignedEightEight(checked((ushort)xVelocity)), new SignedEightEight(checked((ushort)initialYSpeed)));
+        projectile.State = new PolypRockState(initialYSpeed);
+        projectile.Velocity = new(new SignedEightEight(checked((ushort)xVelocity)), new SignedEightEight(0));
         projectile.Position = source.Position;
     }
 
@@ -200,41 +200,35 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Integrates two upward quadratic samples unless the apex consumes this frame.</summary>
     private static void StepRisingPolypRock(RoomEnemyProjectileSlot projectile)
     {
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
-            projectile.Velocity.Y.RawValue - PolypRockGravityStep))));
-        if (unchecked((short)projectile.Velocity.Y.RawValue) < 0)
+        PolypRockState rock = projectile.StateOf<PolypRockState>();
+        rock.SpeedIndex -= PolypRockGravityStep;
+        if (rock.SpeedIndex < 0)
         {
             // Crossing below zero consumes an entire apex frame: retail installs falling
             // state and returns before either vertical or horizontal movement.
-            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
-            projectile.StateOf<PolypRockState>().Phase = PolypRockFunction.Falling;
+            rock.SpeedIndex = 0;
+            rock.Phase = PolypRockFunction.Falling;
             return;
         }
 
         // The native routine integrates two adjacent quadratic samples per frame, first
         // index velocity+1 and then velocity. This is why the table index changes by two
         // while the visual arc still advances at gameplay-frame rate.
-        AddPolypRockQuadraticStep(
-            projectile,
-            unchecked((ushort)(projectile.Velocity.Y.RawValue + 1)),
-            half: QuadraticSpeedHalf.Negative);
-        AddPolypRockQuadraticStep(projectile, projectile.Velocity.Y.RawValue, half: QuadraticSpeedHalf.Negative);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + 1, half: QuadraticSpeedHalf.Negative);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, half: QuadraticSpeedHalf.Negative);
         MovePolypRockHorizontally(projectile);
     }
 
     /// <summary>Clamps downward speed and integrates two positive quadratic samples per frame.</summary>
     private static void StepFallingPolypRock(RoomEnemyProjectileSlot projectile)
     {
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
-            projectile.Velocity.Y.RawValue + PolypRockGravityStep))));
-        if (unchecked((short)(projectile.Velocity.Y.RawValue - PolypRockTerminalSpeedIndex)) >= 0)
-            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(PolypRockTerminalSpeedIndex));
+        PolypRockState rock = projectile.StateOf<PolypRockState>();
+        rock.SpeedIndex += PolypRockGravityStep;
+        if (rock.SpeedIndex >= PolypRockTerminalSpeedIndex)
+            rock.SpeedIndex = PolypRockTerminalSpeedIndex;
 
-        AddPolypRockQuadraticStep(
-            projectile,
-            unchecked((ushort)(projectile.Velocity.Y.RawValue - 1)),
-            half: QuadraticSpeedHalf.Positive);
-        AddPolypRockQuadraticStep(projectile, projectile.Velocity.Y.RawValue, half: QuadraticSpeedHalf.Positive);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex - 1, half: QuadraticSpeedHalf.Positive);
+        AddPolypRockQuadraticStep(projectile, rock.SpeedIndex, half: QuadraticSpeedHalf.Positive);
         MovePolypRockHorizontally(projectile);
     }
 

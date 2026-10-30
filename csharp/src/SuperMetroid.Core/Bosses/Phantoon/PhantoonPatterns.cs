@@ -784,9 +784,10 @@ internal sealed class PhantoonPatterns
                 break;
 
             case PhantoonFlameSpawnType.Enraged:
-                flame.Velocity = flame.Velocity.WithX(new SignedEightEight(unchecked((ushort)(index >= 8
-                    ? -PhantoonFlameMotionDefinitions.RageAngleStep : PhantoonFlameMotionDefinitions.RageAngleStep))));
-                flame.State = new PhantoonOrbitingFlameState(new ByteAngle(PhantoonFlameSpawns.RageAngle(index)));
+                flame.State = new PhantoonOrbitingFlameState(new ByteAngle(PhantoonFlameSpawns.RageAngle(index)))
+                {
+                    AngleStep = index >= 8 ? -PhantoonFlameMotionDefinitions.RageAngleStep : PhantoonFlameMotionDefinitions.RageAngleStep,
+                };
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
                 flame.PreInstruction =
                     EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged;
@@ -798,7 +799,7 @@ internal sealed class PhantoonPatterns
                 int column = index % 16;
                 if (column > 8)
                     throw new InvalidDataException($"Phantoon rain column {column} exceeds eight.");
-                flame.Velocity = flame.Velocity.WithX(new SignedEightEight((ushort)(index / 16 * 8)));
+                flame.State = new PhantoonRainFlameState(fallDelay: index / 16 * 8);
                 flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawns.RainX(column));
                 flame.Position = flame.Position.WithWholeY(40);
                 flame.PreInstruction =
@@ -808,7 +809,6 @@ internal sealed class PhantoonPatterns
             case PhantoonFlameSpawnType.Spiral:
                 if (index > 7)
                     throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
-                flame.Velocity = flame.Velocity.WithX(new SignedEightEight(128));
                 flame.State = new PhantoonOrbitingFlameState(new ByteAngle(PhantoonFlameSpawns.SpiralAngle(index)));
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 16))));
                 flame.PreInstruction =

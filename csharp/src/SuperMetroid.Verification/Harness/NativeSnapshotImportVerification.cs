@@ -36,6 +36,7 @@ using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Constructs a replay's initial production state from native WRAM and SRAM while

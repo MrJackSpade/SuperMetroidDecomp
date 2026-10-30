@@ -356,7 +356,7 @@ internal sealed class SamusPresentation
                 // and use this command to finish ordinary morph entry without guessing
                 // whether the transition walked off a ledge.
                 int itemMask = BinaryPrimitives.ReadUInt16LittleEndian([ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2)))]);
-                bool itemEquipped = (samus.EquippedItems.ToEquipmentWord() & itemMask) != 0;
+                bool itemEquipped = SamusAnimationItemOperand.HoldsAny(samus.EquippedItems, itemMask);
                 bool movingVertically = samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
                 int targetOffset = itemEquipped
                     ? movingVertically ? 6 : 5
@@ -394,7 +394,7 @@ internal sealed class SamusPresentation
                 // the only retail users (Spring Ball-aware Morph Ball selection), but the
                 // command still publishes through the ordinary transitional-pose seam.
                 int fcItemMask = BinaryPrimitives.ReadUInt16LittleEndian([ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2)))]);
-                bool fcItemEquipped = (samus.EquippedItems.ToEquipmentWord() & fcItemMask) != 0;
+                bool fcItemEquipped = SamusAnimationItemOperand.HoldsAny(samus.EquippedItems, fcItemMask);
                 samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
                     unchecked((ushort)(samus.AnimationFrame + (fcItemEquipped ? 4 : 3)))));
                 return;

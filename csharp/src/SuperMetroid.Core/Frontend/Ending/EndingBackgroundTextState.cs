@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Progression;
-using System.Numerics;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending;
@@ -127,10 +126,8 @@ internal sealed class EndingBackgroundTextState
                   + inventory.MaxMissiles / 5
                   + inventory.MaxSuperMissiles / 5
                   + inventory.MaxPowerBombs / 5;
-        count += BitOperations.PopCount(
-            (inventory.CollectedItems & EndingResultTextLayout.CollectibleItemMask).ToEquipmentWord());
-        count += BitOperations.PopCount(
-            (inventory.CollectedBeams & EndingResultTextLayout.CollectibleBeamMask).ToEquipmentWord());
+        count += (inventory.CollectedItems & EndingResultTextLayout.CollectibleItemMask).Count();
+        count += (inventory.CollectedBeams & EndingResultTextLayout.CollectibleBeamMask).Count();
         count = Math.Clamp(count, 0, 100);
 
         int hundreds = count / 100;

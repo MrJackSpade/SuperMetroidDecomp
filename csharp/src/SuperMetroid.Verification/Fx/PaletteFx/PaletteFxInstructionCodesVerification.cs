@@ -19,6 +19,7 @@ namespace SuperMetroid.Verification.Fx.PaletteFx;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks compiled palette-FX instruction vocabularies and program mechanics against retail bank $8D.</summary>
 internal static class PaletteFxInstructionCodesVerification

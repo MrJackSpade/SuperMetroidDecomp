@@ -48,6 +48,7 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.ScenarioFixtures;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Focused Ridley fight checks and the full recorded-movie gameplay comparison.</summary>
 internal static class RidleyFullMovieVerification

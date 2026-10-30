@@ -8,6 +8,7 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Checks the Golden Torizo inventory code's exact held chord and native reward values.</summary>
 internal static class GoldenTorizoCodeVerification

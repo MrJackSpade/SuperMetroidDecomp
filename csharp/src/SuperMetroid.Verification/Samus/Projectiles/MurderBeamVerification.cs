@@ -19,6 +19,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Bounded cartridge comparison for the left-facing Murder Beam setup and its explicitly unsupported unsafe variants.</summary>
 internal static class MurderBeamVerification

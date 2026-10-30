@@ -18,6 +18,7 @@ namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exercises semantic native-word views while checking that unnamed cartridge bits survive typed operations.</summary>
 internal static class TypedWordsVerification

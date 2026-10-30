@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.TestSupport.ScenarioFixtures;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Runs complete converted controller timelines against native checkpoints without importing later gameplay state.</summary>

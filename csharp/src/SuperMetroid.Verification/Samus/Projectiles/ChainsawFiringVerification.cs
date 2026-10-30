@@ -23,6 +23,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Focused cartridge-probe comparison for Chainsaw shot admission, collision, lifetime and door interference.</summary>
 internal static class ChainsawFiringVerification

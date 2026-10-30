@@ -1,9 +1,12 @@
-namespace SuperMetroid.Core.Progression;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Progression;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// The codec between Samus's typed equipment and beam flags and the sixteen-bit equipment words that save slots,
-/// Samus's animation item masks and the projectile type record store. The item flags' values are arbitrary; this type
-/// is the one place that knows each item's bit in the word, and the one place either flag set becomes that word.
+/// The codec between Samus's typed equipment and beam flags and the sixteen-bit equipment words save slots and the
+/// cartridge's work memory store. The flags' values are arbitrary; this type is the one place that knows each item's
+/// and beam's bit in its word, for the save import and export and for checks that compare with native state.
 /// </summary>
 [EncodingOwner("save slot equipment words")]
 public static class SamusEquipmentWordCodec
@@ -12,6 +15,11 @@ public static class SamusEquipmentWordCodec
     /// <param name="Item">The item.</param>
     /// <param name="Bit">Its bit in the equipment word.</param>
     private readonly record struct ItemBit(SamusEquipmentFlags Item, ushort Bit);
+
+    /// <summary>A beam and the word bit that records it.</summary>
+    /// <param name="Beam">The beam component or upgrade.</param>
+    /// <param name="Bit">Its bit in the beam word.</param>
+    private readonly record struct BeamBit(SamusBeamFlags Beam, ushort Bit);
 
     /// <summary>Each item and the word bit that records it.</summary>
     private static readonly ItemBit[] ItemBits =
@@ -28,6 +36,16 @@ public static class SamusEquipmentWordCodec
         new(SamusEquipmentFlags.SpeedBooster, 1 << 13),
         new(SamusEquipmentFlags.GrappleBeam, 1 << 14),
         new(SamusEquipmentFlags.XrayScope, 1 << 15),
+    ];
+
+    /// <summary>Each beam and the word bit that records it.</summary>
+    private static readonly BeamBit[] BeamBits =
+    [
+        new(SamusBeamFlags.Wave, 1 << 0),
+        new(SamusBeamFlags.Ice, 1 << 1),
+        new(SamusBeamFlags.Spazer, 1 << 2),
+        new(SamusBeamFlags.Plasma, 1 << 3),
+        new(SamusBeamFlags.Charge, 1 << 12),
     ];
 
     /// <summary>The item set as its sixteen-bit equipment word.</summary>
@@ -66,10 +84,6 @@ public static class SamusEquipmentWordCodec
     /// <summary>The bits of an equipment word that record an item.</summary>
     private static readonly ushort ItemWordBits = ItemBits.Aggregate((ushort)0, (bits, entry) => (ushort)(bits | entry.Bit));
 
-    /// <summary>The bits of a beam word that record a beam.</summary>
-    private static readonly ushort BeamWordBits =
-        Enum.GetValues<SamusBeamFlags>().Aggregate((ushort)0, (bits, beam) => (ushort)(bits | (ushort)beam));
-
     /// <summary>
     /// The items a save slot's stored equipment word records (#1456). The cartridge accepts a checksum-valid slot whatever
     /// else the word sets and never reads a bit that records no item, so those bits stand for nothing and are not carried:
@@ -85,10 +99,28 @@ public static class SamusEquipmentWordCodec
     /// </summary>
     /// <param name="word">A save slot's sixteen-bit beam word.</param>
     /// <returns>The beams whose bits are set.</returns>
-    public static SamusBeamFlags FromSavedBeamWord(ushort word) => (SamusBeamFlags)(word & BeamWordBits);
+    public static SamusBeamFlags FromSavedBeamWord(ushort word)
+    {
+        SamusBeamFlags beams = SamusBeamFlags.None;
+        foreach (BeamBit entry in BeamBits)
+        {
+            if ((word & entry.Bit) != 0)
+                beams |= entry.Beam;
+        }
+        return beams;
+    }
 
     /// <summary>The beam set as its sixteen-bit equipment word.</summary>
     /// <param name="beams">Collected or equipped beams.</param>
     /// <returns>The beams' bits as one word.</returns>
-    public static ushort ToEquipmentWord(this SamusBeamFlags beams) => (ushort)beams;
+    public static ushort ToEquipmentWord(this SamusBeamFlags beams)
+    {
+        ushort word = 0;
+        foreach (BeamBit entry in BeamBits)
+        {
+            if ((beams & entry.Beam) != 0)
+                word |= entry.Bit;
+        }
+        return word;
+    }
 }

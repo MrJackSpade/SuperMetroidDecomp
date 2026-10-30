@@ -12,6 +12,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>Checks installed gameplay HUD art, live tile updates, and editable layout overrides.</summary>

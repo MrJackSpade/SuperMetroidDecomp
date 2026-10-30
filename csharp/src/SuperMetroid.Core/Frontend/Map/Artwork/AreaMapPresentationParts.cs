@@ -62,8 +62,8 @@ internal sealed record AreaMapPresentationParts
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public required PauseReserveTankPresentation PauseReserveTanks { get; init; }
 
-    /// <summary>Reserve labels, digits, and arrow appearances, separate from the tank strip and compiled reserve-mode behavior.</summary>
-    public required PauseReserveUiPresentation PauseReserveUi { get; init; }
+    /// <summary>The reserve arrow's solid and pulse colours; its labels, digits and tiles are the pause sheet's pictures (#1467).</summary>
+    public required PauseReserveArrowColours PauseReserveArrow { get; init; }
 
     /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public required EscapeTimerPresentation EscapeTimer { get; init; }

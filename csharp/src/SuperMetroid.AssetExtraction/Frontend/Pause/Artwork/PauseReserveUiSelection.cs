@@ -1,6 +1,7 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>The selected pause reserve-tank labels, digits, arrow placements and arrow colours a presentation is compiled from.</summary>
 internal sealed record PauseReserveUiSelection
@@ -26,12 +27,6 @@ internal sealed record PauseReserveUiSelection
     /// <summary>Colour variant used when reserve control is unavailable.</summary>
     public required int DisabledPalette { get; init; }
 
-    /// <summary>Static arrow bevel colour for palette slot six.</summary>
-    public required RgbColor SolidColor6 { get; init; }
-
-    /// <summary>Static arrow bevel colour for palette slot eleven.</summary>
-    public required RgbColor SolidColor11 { get; init; }
-
-    /// <summary>The two bevel colours of each of the 32 pulse phases.</summary>
-    public required ReserveArrowColors[] ArrowFrames { get; init; }
+    /// <summary>The arrow's solid and pulse colours.</summary>
+    public required PauseReserveArrowColours ArrowColours { get; init; }
 }

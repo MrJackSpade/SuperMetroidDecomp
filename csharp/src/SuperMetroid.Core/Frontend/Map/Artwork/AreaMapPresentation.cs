@@ -43,7 +43,7 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         Sprites = parts.Sprites;
         PauseSelectors = parts.PauseSelectors;
         PauseReserveTanks = parts.PauseReserveTanks;
-        PauseReserveUi = parts.PauseReserveUi;
+        PauseReserveArrow = parts.PauseReserveArrow;
         EscapeTimer = parts.EscapeTimer;
         EscapeTimerTiles = parts.EscapeTimerTiles;
         GameplayHud = parts.GameplayHud;
@@ -103,8 +103,8 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public PauseSelectorPresentation PauseSelectors { get; }
     /// <summary>Reserve-strip artwork and drawing origins, independent of reserve energy and fill selection.</summary>
     public PauseReserveTankPresentation PauseReserveTanks { get; }
-    /// <summary>Reserve labels, digits, and arrow appearances, separate from the tank strip and compiled reserve-mode behavior.</summary>
-    public PauseReserveUiPresentation PauseReserveUi { get; }
+    /// <summary>The reserve arrow's solid and pulse colours; its labels, digits and tiles are the pause sheet's pictures (#1467).</summary>
+    public PauseReserveArrowColours PauseReserveArrow { get; }
     /// <summary>Escape countdown visual layout and digit presentation, separate from the character bytes in <see cref="EscapeTimerTiles"/>.</summary>
     public EscapeTimerPresentation EscapeTimer { get; }
     /// <summary>Selected character bytes for the two escape-timer VRAM transfers.</summary>

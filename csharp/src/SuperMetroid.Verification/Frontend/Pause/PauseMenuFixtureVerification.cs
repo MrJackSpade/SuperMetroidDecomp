@@ -84,7 +84,7 @@ internal static class PauseMenuFixtureVerification
             Sprites = MapSpriteArtwork.Read(spriteJson, spritePng),
             PauseSelectors = PauseSelectorSourcePresentation.Load(selectorJson),
             PauseReserveTanks = PauseReserveTankSourcePresentation.Load(reserveJson),
-            PauseReserveUi = stock.PauseReserveUi,
+            PauseReserveArrow = stock.PauseReserveArrow,
             EscapeTimer = stock.EscapeTimer,
             EscapeTimerTiles = stock.EscapeTimerTiles,
             GameplayHud = stock.GameplayHud,
@@ -124,6 +124,7 @@ internal static class PauseMenuFixtureVerification
             GameplayMessageArtwork.Of(stock), InstalledAreaMapPresentation.RoomFxPagesOf(stock), InstalledAreaMapPresentation.StaffCreditsOf(stock),
             InstalledAreaMapPresentation.EndingTextOf(stock), InstalledAreaMapPresentation.ScreensOf(stock),
             new PauseScreenArtwork(backdrops, InstalledAreaMapPresentation.PauseOf(stock).Wireframes,
-                InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels)));
+                InstalledAreaMapPresentation.PauseOf(stock).EquipmentBase, InstalledAreaMapPresentation.PauseOf(stock).EquipmentLabels,
+                InstalledAreaMapPresentation.PauseOf(stock).ReserveUi)));
     }
 }

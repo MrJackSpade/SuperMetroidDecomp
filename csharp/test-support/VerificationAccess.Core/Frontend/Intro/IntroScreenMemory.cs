@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>

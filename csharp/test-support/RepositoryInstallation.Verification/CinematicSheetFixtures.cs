@@ -73,7 +73,7 @@ internal static class CinematicSheetFixtures
                 sheets[SpriteSheetId.CeresCinematicPictures] = LoadTiles(SpriteSheetId.CeresCinematicPictures,
                     CeresCinematicPictureSheetComposer.Compose(key, InstalledFixtures.IntroArtwork), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 sheets[SpriteSheetId.CeresFloor] = LoadTiles(SpriteSheetId.CeresFloor,
-                    FrontendFloorSheetComposer.Ceres(key, InstalledFixtures.IntroArtwork.CeresDestruction), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
+                    FrontendFloorSheetComposer.Ceres(key, IntroCinematicSourceArtwork.Of(InstalledFixtures.IntroArtwork).CeresDestructionMaps), $"flight-{RuntimeHelpers.GetHashCode(key):X8}");
                 return new InstalledSpriteSheets(sheets);
             });
     }

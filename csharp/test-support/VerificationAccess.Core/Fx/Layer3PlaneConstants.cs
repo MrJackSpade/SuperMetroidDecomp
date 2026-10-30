@@ -8,5 +8,5 @@ internal static class Layer3PlaneConstants
     public const int HudRows = 4;
 
     /// <summary>The tile word the cartridge clears the effect area to, which the plane's cleared picture pictures (#1466).</summary>
-    public static SuperMetroid.Core.Assets.BackgroundTile ClearedCell => SuperMetroid.AssetExtraction.Fx.Layer3ClearedCellDefinitions.ClearedCell;
+    public static SuperMetroid.AssetExtraction.Artwork.BackgroundTile ClearedCell => SuperMetroid.AssetExtraction.Fx.Layer3ClearedCellDefinitions.ClearedCell;
 }

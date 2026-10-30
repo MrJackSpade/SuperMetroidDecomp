@@ -38,7 +38,7 @@ internal static class CeresEscapeNativeSources
             foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.All)
                 if (OverlaySource(page) == sourceAddress && page.WordCount * sizeof(ushort) == byteCount)
                 {
-                    bool resolved = self.TryResolve(page, out ReadOnlyMemory<SuperMetroid.Core.Assets.BackgroundTile> tiles);
+                    bool resolved = self.TryResolve(page, out ReadOnlyMemory<SuperMetroid.AssetExtraction.Artwork.BackgroundTile> tiles);
                     data = SuperMetroid.Core.Assets.BackgroundTileWordBytes.Of(tiles.Span);
                     return resolved;
                 }

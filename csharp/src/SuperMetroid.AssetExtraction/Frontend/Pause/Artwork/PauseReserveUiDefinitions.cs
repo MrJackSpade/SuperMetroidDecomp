@@ -1,8 +1,9 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Pause.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
-/// <summary>Editable reserve-label, digit and arrow presentation sources and dimensions.</summary>
+/// <summary>Editable reserve-label, digit and arrow presentation sources and dimensions; the arrow's pulse length is <see cref="PauseReserveArrowDefinitions"/>.</summary>
 public static class PauseReserveUiDefinitions
 {
     /// <summary>Supported reserve UI document schema revision.</summary>
@@ -11,8 +12,8 @@ public static class PauseReserveUiDefinitions
     public const string FileName = "pause-reserve-ui.json";
     /// <summary>Equipment-page tilemap dimensions in cells.</summary>
     public const int TilemapColumns = 32, TilemapRows = 32;
-    /// <summary>Fixed label lengths, digit glyph count, and arrow pulse-frame count.</summary>
-    public const int LabelWords = 7, ModeWords = 4, DigitCount = 10, ArrowFrames = 32;
+    /// <summary>Fixed label lengths and digit glyph count.</summary>
+    public const int LabelWords = 7, ModeWords = 4, DigitCount = 10;
     /// <summary>Number of decimal places in the reserve-supply display.</summary>
     public const int SupplyDigitPlaces = 3;
     /// <summary>$82:AB47 destination for MANUAL/AUTO replacement text.</summary>

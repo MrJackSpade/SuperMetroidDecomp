@@ -1,5 +1,5 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.Core.Areas.Ceres.Artwork.CeresEscapeOverlayTilemapDefinitions;
 using static SuperMetroid.AssetExtraction.Areas.Ceres.CeresWarningGlyphDefinitions;
 

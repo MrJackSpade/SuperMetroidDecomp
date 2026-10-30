@@ -1,7 +1,7 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectFieldTileDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;

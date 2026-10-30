@@ -11,6 +11,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend;
@@ -67,12 +68,12 @@ internal static void VerifyCeresDestructionCinematic()
             FrontTiles = maps.AsSpan(0, 0x300).SelectToArray(value => (int)value),
             RearTiles = maps.AsSpan(0x300, 0x300).SelectToArray(value => (int)value),
         });
-    using (var stream = File.Create(Path.Combine(overrideRoot, CeresDestructionArtworkFormat.CeresMapFileName)))
-        CeresDestructionArtwork.WriteMap(stream, new CeresDestructionMapDocument
+    using (var stream = File.Create(Path.Combine(overrideRoot, CeresDestructionMapFormat.FileName)))
+        CeresDestructionMaps.Write(stream, new CeresDestructionMapDocument
         {
-            Version = CeresDestructionArtworkFormat.Version,
-            Width = CeresDestructionArtworkFormat.MapWidth,
-            Height = CeresDestructionArtworkFormat.MapHeight,
+            Version = CeresDestructionMapFormat.Version,
+            Width = CeresDestructionMapFormat.MapWidth,
+            Height = CeresDestructionMapFormat.MapHeight,
             Views = Enumerable.Range(0, 3).Select(index => maps.AsSpan(0x600 + index * 0x300, 0x300)
                 .SelectToArray(value => (int)value)).ToArray(),
         });

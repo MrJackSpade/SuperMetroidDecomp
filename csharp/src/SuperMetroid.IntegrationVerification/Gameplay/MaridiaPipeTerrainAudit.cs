@@ -8,7 +8,6 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.IntegrationVerification.Gameplay;
 

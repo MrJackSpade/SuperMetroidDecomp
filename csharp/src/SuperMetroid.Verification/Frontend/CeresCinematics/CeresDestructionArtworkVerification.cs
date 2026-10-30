@@ -34,9 +34,9 @@ internal static class CeresDestructionArtworkVerification
         byte[] nativeMaps = RomDataReader.Decompress(bus,
             CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: CeresCinematicSourceDefinitions.CompressedTilemapLimit);
-        AssertTrue(stock.CeresDestruction.CeresMaps.Span.SequenceEqual(nativeMaps.AsSpan(
+        AssertTrue(IntroCinematicSourceArtwork.Of(stock).CeresDestructionMaps.Views.Span.SequenceEqual(nativeMaps.AsSpan(
                 2 * CeresFlightArtworkFormat.MapCellsPerView,
-                CeresDestructionArtworkFormat.MapByteCount)),
+                CeresDestructionMapFormat.MapByteCount)),
             "installed destruction JSON preserves the three remaining Ceres map slices");
         byte[] nativeZebesMap = RomDataReader.Decompress(bus,
             CeresCinematicSourceDefinitions.ZebesTilemap,
@@ -290,9 +290,9 @@ internal static class CeresDestructionArtworkVerification
         File.Delete(spritesOverride);
 
         string ceresPath = Path.Combine(installation.IntroCinematicDirectory,
-            CeresDestructionArtworkFormat.CeresMapFileName);
+            CeresDestructionMapFormat.FileName);
         string ceresOverride = Path.Combine(overrideRoot,
-            CeresDestructionArtworkFormat.CeresMapFileName);
+            CeresDestructionMapFormat.FileName);
         CeresDestructionMapDocument ceres;
         using (var input = File.OpenRead(ceresPath))
             ceres = JsonSerializer.Deserialize<CeresDestructionMapDocument>(input,
@@ -300,7 +300,7 @@ internal static class CeresDestructionArtworkVerification
                 ?? throw new InvalidDataException("Stock Ceres destruction JSON is empty.");
         foreach (int[] view in ceres.Views) Array.Fill(view, 0);
         using (var output = File.Create(ceresOverride))
-            CeresDestructionArtwork.WriteMap(output, ceres);
+            CeresDestructionMaps.Write(output, ceres);
         IntroCinematicArtwork editedCeres = installation.LoadIntroCinematicArt();
         var ceresState = CreateRetailDestructionFixture(artwork: stock);
         for (int frame = 0; frame < 36; frame++) ceresState.Step();

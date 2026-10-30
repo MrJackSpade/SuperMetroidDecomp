@@ -20,6 +20,7 @@ internal static class TextAndMapPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
+            using SuperMetroid.AssetExtraction.Artwork;
             using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
             using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Escape.Artwork;

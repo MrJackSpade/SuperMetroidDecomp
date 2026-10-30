@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.AssetExtraction.Frontend.Intro.IntroNarrationGlyphTileDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;

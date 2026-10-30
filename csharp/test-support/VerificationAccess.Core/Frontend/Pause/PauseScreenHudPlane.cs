@@ -1,5 +1,5 @@
 using SuperMetroid.AssetExtraction.Hud;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 

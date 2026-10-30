@@ -44,6 +44,7 @@ public sealed class IntroCinematicSourceArtwork : IntroCinematicArtwork
             suppliedInitialNarration = narration.ToArray();
         FinalLine = Ensure.NotNull(parts.FinalLine);
         EyeFrames = Ensure.NotNull(parts.EyeFrames);
+        CeresDestructionMaps = Ensure.NotNull(parts.CeresDestructionMaps);
         ZebesReveal = Ensure.NotNull(parts.ZebesReveal);
         BackgroundCharacters = Ensure.NotNull(parts.BackgroundCharacters);
         IntroObjectCharacters = Ensure.NotNull(parts.IntroObjectCharacters);
@@ -86,6 +87,8 @@ public sealed class IntroCinematicSourceArtwork : IntroCinematicArtwork
     public IntroFinalLineTilemap FinalLine { get; }
     /// <summary>Four editable Samus-portrait eye rectangles, without their blink timing.</summary>
     public IntroEyeTilemapPresentation EyeFrames { get; }
+    /// <summary>The destruction's Mode 7 maps, which the Ceres floor's shots are composed from.</summary>
+    public CeresDestructionMaps CeresDestructionMaps { get; }
     /// <summary>The Zebes reveal's tilemap and characters, which the planet's picture is composed from.</summary>
     public ZebesRevealArtwork ZebesReveal { get; }
     /// <summary>BG characters of the illustrated scenes.</summary>
@@ -136,12 +139,12 @@ public sealed class IntroCinematicSourceArtwork : IntroCinematicArtwork
     });
 
     /// <summary>
-    /// Identity of the selected destruction maps, Zebes reveal tilemap and characters, and actor placements: the Zebes
-    /// reveal's artwork is the import's (#1467), and the destruction's identity still covers it as one catalog.
+    /// Identity of the selected destruction maps, Zebes reveal tilemap and characters, and actor placements: the maps and
+    /// the Zebes reveal's artwork are the import's (#1467), and the destruction's identity still covers them as one catalog.
     /// </summary>
     private string CeresDestructionIdentity => SelectedPresentationHash.Create("CeresDestructionArtworkCatalog", content =>
     {
-        content.Append("ceres-maps", CeresDestruction.CeresMaps.Span);
+        content.Append("ceres-maps", CeresDestructionMaps.Views.Span);
         content.AppendTiles("zebes-map", ZebesReveal.Map.Tiles.Span);
         content.Append("zebes-characters", ZebesReveal.Characters.Characters.Span);
         content.Append("reveal-actors", Convert.FromHexString(CeresDestruction.RevealActors.ContentIdentity));

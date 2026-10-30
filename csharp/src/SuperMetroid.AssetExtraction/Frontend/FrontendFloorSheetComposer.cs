@@ -1,7 +1,9 @@
 using System.Collections.Frozen;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -81,22 +83,23 @@ internal static class FrontendFloorSheetComposer
     /// the blank tile, as the flight and the destruction load them, showing the flight's characters.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(IntroCinematicArtwork intro) => Ceres(Ensure.NotNull(intro).CeresFlight, intro.CeresDestruction);
+    internal static ComposedSpriteSheet Ceres(IntroCinematicArtwork intro) =>
+        Ceres(Ensure.NotNull(intro).CeresFlight, IntroCinematicSourceArtwork.Of(intro).CeresDestructionMaps);
 
-    /// <summary>The Ceres cinematics' floor in each shot from the flight's and the destruction's installed artwork.</summary>
+    /// <summary>The Ceres cinematics' floor in each shot from the flight's installed artwork and the destruction's maps.</summary>
     /// <exception cref="InvalidDataException">The installed views or characters are shorter than the scenes load.</exception>
-    internal static ComposedSpriteSheet Ceres(CeresFlightArtwork flight, CeresDestructionArtwork destruction)
+    internal static ComposedSpriteSheet Ceres(CeresFlightArtwork flight, CeresDestructionMaps destruction)
     {
         Ensure.NotNull(flight);
         Ensure.NotNull(destruction);
         ReadOnlySpan<byte> characters = CeresFlightCharacters.Of(flight).FloorCharacters.Span;
         if (characters.Length < CeresFlightArtworkFormat.FloorByteCount)
             throw new InvalidDataException("The Ceres flight's Mode 7 characters are shorter than the scenes load.");
-        if (flight.FloorMaps.Length + destruction.CeresMaps.Length < CeresFloorShotDefinitions.MapCells)
+        if (flight.FloorMaps.Length + destruction.Views.Length < CeresFloorShotDefinitions.MapCells)
             throw new InvalidDataException("The Ceres cinematics' floor views are shorter than the scenes load.");
         var views = new byte[CeresFloorShotDefinitions.MapCells];
         flight.FloorMaps.Span.CopyTo(views);
-        destruction.CeresMaps.Span[..(CeresFloorShotDefinitions.MapCells - flight.FloorMaps.Length)]
+        destruction.Views.Span[..(CeresFloorShotDefinitions.MapCells - flight.FloorMaps.Length)]
             .CopyTo(views.AsSpan(flight.FloorMaps.Length));
         byte[] pixels = characters[..CeresFlightArtworkFormat.FloorByteCount].ToArray();
         byte[] station = Blank();

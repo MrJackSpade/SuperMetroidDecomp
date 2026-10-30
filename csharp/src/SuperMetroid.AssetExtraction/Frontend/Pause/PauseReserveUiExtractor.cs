@@ -2,6 +2,7 @@ using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
@@ -34,7 +35,7 @@ public static class PauseReserveUiExtractor
             .. Enumerable.Range(0, PauseReserveUiDefinitions.HorizontalCount)
                 .Select(index => Point(PauseReserveUiDefinitions.HorizontalStartCell + index)),
         ];
-        var frames = new PauseReserveArrowFrame[PauseReserveUiDefinitions.ArrowFrames];
+        var frames = new PauseReserveArrowFrame[PauseReserveArrowDefinitions.ArrowFrames];
         for (int frame = 0; frame < frames.Length; frame++)
             frames[frame] = new()
             {

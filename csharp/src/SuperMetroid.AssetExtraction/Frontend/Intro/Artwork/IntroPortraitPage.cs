@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Artwork;
 using static SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroPortraitTilemapDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;

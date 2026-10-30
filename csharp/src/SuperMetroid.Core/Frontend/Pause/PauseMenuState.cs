@@ -883,8 +883,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Applies reserve-arrow tile colouring and palette state, then latches it for content rebinds.</summary>
     private void SetReserveArrow(ReserveArrowState state, int frameCounterByte = 0)
     {
-        PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
-            "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
+        PauseReserveArrowColours presentation = (mapPresentation ?? throw new InvalidOperationException(
+            "Reserve arrow requires installed presentation assets.")).PauseReserveArrow;
         presentation.ApplyArrowColors(screen.Palette,
             state == ReserveArrowState.Animated, frameCounterByte);
         Equipment = Equipment.WithArrow(state != ReserveArrowState.Hidden ? ShownReserveArrow.Lit : ShownReserveArrow.Dim);

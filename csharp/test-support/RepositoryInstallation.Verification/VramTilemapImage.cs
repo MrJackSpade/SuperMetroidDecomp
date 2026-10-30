@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

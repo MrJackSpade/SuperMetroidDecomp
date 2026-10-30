@@ -21,6 +21,7 @@ internal static class ClosedPresentationContractChecks
             .ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
+            using SuperMetroid.AssetExtraction.Artwork;
             using SuperMetroid.Core.Areas.Tourian.Artwork;
             using SuperMetroid.Core.Assets;
             using SuperMetroid.Core.Bosses.Crocomire.Artwork;
@@ -36,13 +37,14 @@ internal static class ClosedPresentationContractChecks
             using SuperMetroid.Core.Frontend.GameOver.Artwork;
             using SuperMetroid.Core.Frontend.Options;
             using SuperMetroid.Core.Frontend.Options.Artwork;
+            using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
             using SuperMetroid.Core.Frontend.Pause.Artwork;
             using SuperMetroid.Core.Hud.Artwork;
             using SuperMetroid.Core.Samus.Artwork;
             class Consumer {
                 void Inspect(GameplayHudPresentation hud, FileSelectPresentation menu,
                     MotherBrainRoomColorPresentation colors, GameOptionsPresentation options,
-                    GameOverPresentation gameOver, PauseReserveUiPresentation reserve,
+                    GameOverPresentation gameOver, PauseReserveUiPresentation reserve, PauseReserveArrowColours arrow,
                     InstalledBeamPalettes beam, CeresRidleyColorCatalog ridley, CrocomireColorCatalog crocomire,
                     SporeSpawnColorCatalog spores, DraygonColorCatalog draygon, PhantoonColorCatalog phantoon,
                     TourianStatuePalettes statues,
@@ -60,7 +62,7 @@ internal static class ClosedPresentationContractChecks
                     gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open);
                     gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99);
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
-                    reserve.ApplyArrowColors(screen, true, dynamicIndex);
+                    arrow.ApplyArrowColors(screen, true, dynamicIndex);
                     reserve.ApplyDigit(cells, 0, 10);
                     beam.LoadTo(screen.SpriteSets.Set(6), 0);
                     beam.LoadTo(screen.SpriteSets.Set(6), (SuperMetroid.Core.Progression.SamusBeamCombination)12);
@@ -100,7 +102,8 @@ internal static class ClosedPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("ClosedProviderFixture", trees,
-            platforms.Append(typeof(GameplayHudPresentation).Assembly.Location).Distinct()
+            platforms.Append(typeof(GameplayHudPresentation).Assembly.Location)
+                .Append(typeof(SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseReserveUiPresentation).Assembly.Location).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "ClosedPresentationContractChecks");

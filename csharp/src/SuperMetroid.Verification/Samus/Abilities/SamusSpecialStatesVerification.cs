@@ -379,12 +379,6 @@ static void SeedXrayCartridge(TestAddressSpace bus)
             unchecked((ushort)(0x0100 + index)));
     }
 
-    // Full right-facing width ten uses boundary angles `$36/$4A`. Both entries in the
-    // literal `$91:C9D4` absolute-tangent table are `$03FE`; seeding only those two words
-    // makes the window test fail if production code invents trigonometry or reads a nearby
-    // table entry. Ten scanlines from the origin, the 8.8 accumulator lands on X+39.
-    WriteTestWord(bus, XrayScopeDefinitions.Window.AbsoluteTangentTable + 0x36 * 2, 0x03fe);
-    WriteTestWord(bus, XrayScopeDefinitions.Window.AbsoluteTangentTable + 0x4a * 2, 0x03fe);
 }
 
 /// <summary>
@@ -473,24 +467,15 @@ internal static void VerifySamusXray()
     AssertEqual(SignedSixteenSixteen.FromParts(10, 0), standing.Xray.AngularHalfWidth,
         "full beam clears width fraction");
 
-    // `$88:88B8/$88DC` puts this standing-right fixture's origin at screen (103,184).
-    // `$91:C5FF` advances `$03FE` once per scanline and publishes the high byte, making
-    // X=142 the inclusive upper/lower boundary ten lines away. The cone stays bright and
-    // color math darkens everything outside it.
-    XrayWindowLine[] xrayWindow = GameplayEffectCapture.CaptureXrayWindowLines(
+    // The scope's cone (#1468): its apex three pixels ahead of this standing-right Samus at her standing eye height,
+    // screen (103,184), sweeping the full half-width of ten either side of straight right, below the HUD. The cone stays
+    // bright and colour math darkens everything outside it; the backend draws the cone per pixel.
+    ScreenWindow xrayWindow = GameplayEffectCapture.CaptureXrayWindow(
         SamusXrayDisplaySnapshot.Capture(standing, null) ?? throw new InvalidOperationException("Active X-ray has no display snapshot."),
         new Position16<RoomPixels>(0, 0));
-    bool InsideXray(int x, int y) => x >= xrayWindow[y].Left && x <= xrayWindow[y].Right;
-    AssertTrue(InsideXray(255, 184),
-        "X-ray horizontal center remains inside window");
-    AssertTrue(!InsideXray(0, 184),
-        "X-ray opposite half-plane is outside the window");
-    AssertTrue(InsideXray(142, 174),
-        "X-ray upper tangent boundary is inclusive after 8.8 truncation");
-    AssertTrue(!InsideXray(141, 174),
-        "X-ray pixel beyond upper tangent boundary is outside");
-    AssertTrue(InsideXray(142, 194),
-        "X-ray lower tangent boundary mirrors upper boundary");
+    AssertEqual(ScreenWindow.Of(new WindowCone(Offset16<ScreenPixels>.Of(103, 184),
+            RotationAngle.QuarterTurn.TableIndex - 10, RotationAngle.QuarterTurn.TableIndex + 10), DisplayScreen.HudHeight),
+        xrayWindow, "the full X-ray beam is a cone from Samus's eye, ten units either side of her aim");
 
     AssertTrue(standing.Xray.UpdatePalette(cgram.Samus, standing.EquippedItems, xraySuitColors),
         "full beam enters visor cycle");

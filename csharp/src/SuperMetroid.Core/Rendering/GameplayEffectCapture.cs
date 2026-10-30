@@ -2,7 +2,6 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
 
@@ -11,7 +10,7 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// Captures each gameplay effect as the display model describes it, at the frame boundary (#1409): per-line scrolls for
-/// the liquids' waves, colour windows for beams, the Power Bomb and the Ceres haze, the X-ray's window lines, and the
+/// the liquids' waves, colours added through window shapes for beams, the Power Bomb and the Ceres haze, the X-ray's cone, and the
 /// room effects' layer blends. The backend draws these descriptions; nothing here draws.
 /// </summary>
 public static class GameplayEffectCapture
@@ -116,156 +115,33 @@ public static class GameplayEffectCapture
         return result;
     }
 
-    /// <summary>Samples the active power-bomb window's half-width at a signed distance from its center, or minus one outside the flash.</summary>
-    internal static int ReadPowerBombHalfWidth(
-        PowerBombRenderSnapshot explosion,
-        int yFromCenter)
-    {
-        PowerBombExplosionPhase renderedPhase = explosion.RenderedPhase;
-        if (renderedPhase == PowerBombExplosionPhase.Inactive)
-        {
-            // Spawn occurs during projectile processing, after the frame's HDMA-object
-            // pass. Status is already active at that point, but no window table exists
-            // until the next frame; the cartridge therefore displays no flash yet.
-            return -1;
-        }
-
-        if ((renderedPhase is PowerBombExplosionPhase.PreExplosionYellow or
-             PowerBombExplosionPhase.ExplosionWhite or PowerBombExplosionPhase.Afterglow) &&
-            explosion.RenderedShape is { } shape)
-        {
-            // $88:8B98 only fades COLDATA: the final white window remains installed.
-            // It can still leave visible corners outside the oval near screen edges.
-            // Each 192-byte record is a half-profile, not a 192-line top-to-bottom
-            // bitmap. Byte zero is the widest center line; increasing indices travel
-            // away from the center until the first zero terminates the native copier.
-            int shapeLine = Math.Abs(yFromCenter);
-            if ((uint)shapeLine >= 192)
-                return -1;
-            int halfWidth = PowerBombShape.ReadPreScaledHalfWidth(
-                shape, shapeLine);
-            return halfWidth == 0 ? -1 : halfWidth;
-        }
-
-        int horizontalRadius = renderedPhase == PowerBombExplosionPhase.PreExplosionWhite
-            ? explosion.RenderedPreExplosionRadius.WholePixels
-            : explosion.RenderedExplosionRadius.WholePixels;
-        int scanlineDistance = Math.Abs(yFromCenter);
-        if (horizontalRadius == 0 || scanlineDistance >= 192)
-            return -1;
-
-        // `$88:8CC6/8D04/8D46` all build the same width profile and differ only in how
-        // they clip left/right endpoints for an off-screen origin. The desktop renderer
-        // performs that clipping after this method, so only the common profile builder
-        // is needed here. Widths increase while vertical boundaries decrease.
-        int currentOuterScanline =
-            EightEight.Multiply(horizontalRadius, PowerBombShape.TopOffset(0));
-        if (scanlineDistance > currentOuterScanline)
-            return -1;
-
-        int selectedHalfWidth = -1;
-        int finalHalfWidth = 0;
-        for (int curveIndex = 0; curveIndex < 32; curveIndex++)
-        {
-            // The 65816 routine uses the high byte of an unsigned 8x8 product. An
-            // ordinary integer multiply followed by `>> 8` is exactly that operation.
-            int innerScanline = EightEight.Multiply(horizontalRadius, PowerBombShape.TopOffset(curveIndex));
-            int halfWidth = EightEight.Multiply(horizontalRadius, PowerBombShape.Width(curveIndex));
-            finalHalfWidth = halfWidth;
-
-            // Native code fills both endpoints inclusively, then begins the next band
-            // on the same endpoint. Assigning again on a shared boundary intentionally
-            // lets the later, wider band win just as the original loop does.
-            if (scanlineDistance >= innerScanline && scanlineDistance <= currentOuterScanline)
-                selectedHalfWidth = halfWidth;
-
-            currentOuterScanline = innerScanline;
-        }
-
-        // After the 32 curve bands, `$88:8DE9/90DF` fills every remaining line through
-        // the center with the final (nearly full-radius) width.
-        if (scanlineDistance <= currentOuterScanline)
-            selectedHalfWidth = finalHalfWidth;
-
-        return selectedHalfWidth;
-    }
-
-    /// <summary>Replicates low color bits to expand one SNES five-bit channel to host eight-bit color.</summary>
-    internal static byte ExpandFiveBit(int value) =>
-        RgbColor.ExpandChannel(value);
-
-    /// <summary>One signed 8.8 screen-space direction vector reconstructed from `$91:C9D4`.</summary>
-    internal static Offset16<ScreenPixels> ReadXrayDirection(int angle)
-    {
-        int wrappedAngle = RotationAngle.NormalizeTableIndex(angle).TableIndex;
-
-        // The four cardinals are mathematically exact. At horizontal entries the ROM table
-        // contains `$3C00` as a screen-sized infinity substitute, but using (±1,0) here is
-        // the identical limiting ray and also preserves the dedicated zero-width line.
-        if (wrappedAngle == RotationAngle.Zero.TableIndex)
-            return Direction(0, -XrayScopeDefinitions.Window.UnitVector);
-        if (wrappedAngle == RotationAngle.QuarterTurn.TableIndex)
-            return Direction(XrayScopeDefinitions.Window.UnitVector, 0);
-        if (wrappedAngle == RotationAngle.HalfTurn.TableIndex)
-            return Direction(0, XrayScopeDefinitions.Window.UnitVector);
-        if (wrappedAngle == RotationAngle.ThreeQuarterTurn.TableIndex)
-            return Direction(-XrayScopeDefinitions.Window.UnitVector, 0);
-
-        int tangentIndex = wrappedAngle & (RotationAngle.HalfTurn.TableIndex - 1);
-        int tangent = AbsoluteTangents.Sample(tangentIndex);
-        if (wrappedAngle < RotationAngle.QuarterTurn.TableIndex)
-            return Direction(tangent, -XrayScopeDefinitions.Window.UnitVector);
-        if (wrappedAngle < RotationAngle.HalfTurn.TableIndex)
-            return Direction(tangent, XrayScopeDefinitions.Window.UnitVector);
-        if (wrappedAngle < RotationAngle.ThreeQuarterTurn.TableIndex)
-            return Direction(-tangent, XrayScopeDefinitions.Window.UnitVector);
-        return Direction(-tangent, -XrayScopeDefinitions.Window.UnitVector);
-
-        // One screen-space ray direction; the table's largest tangent ($3C00) fits a signed word.
-        static Offset16<ScreenPixels> Direction(int x, int y) => new(checked((short)x), checked((short)y));
-    }
-
-    /// <summary>Resolves the latched eye-beam cone into the inclusive colour window it adds on each line.</summary>
-    public static ColourAddBandsLayer? CaptureMorphBallEyeBeam(
+    /// <summary>Converts the eye's aim and half-width into the cone its beam lights.</summary>
+    /// <remarks>The cone's apex is one line above the eye's position.</remarks>
+    public static ColourAddWindowLayer? CaptureMorphBallEyeBeam(
         MorphBallEyeBeamCone beam, Position16<RoomPixels> layer1)
     {
         if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
             return null;
-        Offset16<ScreenPixels> origin = beam.Origin.RelativeToCamera(layer1);
+        Offset16<ScreenPixels> eye = beam.Origin.RelativeToCamera(layer1);
         int angle = beam.Angle.TableIndex;
-        int angularWidth = unchecked((byte)beam.AngularWidth);
-        ushort[] windowEdges = EyeBeamWindowBuilder.Build(origin, angle, angularWidth);
-        var windows = new ColorAddWindow[Height];
-        Array.Fill(windows, ColorAddWindow.Empty);
-        int red = ExpandFiveBit(beam.Color.Red), green = ExpandFiveBit(beam.Color.Green), blue = ExpandFiveBit(beam.Color.Blue);
-        for (int y = HudHeight; y < Height; y++)
-        {
-            int left = ScanlineSpanWord.Left(windowEdges[y]), right = ScanlineSpanWord.Right(windowEdges[y]);
-            if (left <= right) windows[y] = new(left, right, red, green, blue);
-        }
-        return new(windows);
+        var cone = new WindowCone(eye.WithY(eye.Y - EyeWindowRenderDefinitions.ApexYOffset),
+            angle - beam.AngularWidth, angle + beam.AngularWidth);
+        return new(ScreenWindow.Of(cone, HudHeight), beam.Color);
     }
 
     /// <summary>
-    /// Captures bank-$88 layer configuration $24's fixed-color addition through window 1,
-    /// rasterizing the published beam geometry. This shared layer is consumed by both the
-    /// software and Windows Direct3D backends.
+    /// The rainbow beam's cone from Mother Brain's mouth, below the HUD, in the colour the beam adds. The beam's edge
+    /// angles are measured clockwise from straight down, so each is reflected into the screen's angles, which swaps
+    /// which edge the cone sweeps from.
     /// </summary>
-    public static ColourAddBandsLayer? CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamRenderSnapshot beam)
+    public static ColourAddWindowLayer? CaptureMotherBrainRainbowBeam(MotherBrainRainbowBeamRenderSnapshot beam)
     {
         if (!beam.Active) return null;
-        MotherBrainBeamLine[] lines = RainbowBeamWindowBuilder.Build(beam.Geometry);
-        var windows = new ColorAddWindow[Height];
-        Array.Fill(windows, ColorAddWindow.Empty);
-        int red = ExpandFiveBit((byte)beam.Color.Red);
-        int green = ExpandFiveBit((byte)beam.Color.Green);
-        int blue = ExpandFiveBit((byte)beam.Color.Blue);
-        for (int y = HudHeight; y < Height; y++)
-        {
-            MotherBrainBeamLine line = lines[y];
-            if (line.Crosses) windows[y] = new(line.Left, line.Right, red, green, blue);
-        }
-        return new(windows);
+        if (beam.Geometry is not { } geometry) return new(ScreenWindow.Closed, beam.Color);
+        int down = WindowCone.AngleUnitsPerTurn / 2;
+        var cone = new WindowCone(Offset16<ScreenPixels>.Of(geometry.MouthScreenX, geometry.MouthY),
+            down - geometry.EdgeB, down - geometry.EdgeA);
+        return new(ScreenWindow.Of(cone, MotherBrainBeamDefinitions.FirstLine), beam.Color);
     }
 
     /// <summary>Composes native configuration $16 with both BG2 and BG3 on the subscreen.</summary>
@@ -274,9 +150,7 @@ public static class GameplayEffectCapture
     {
         if (fx.LayerBlendConfiguration != LayerBlendingConfiguration.WaterfallSubtractive)
             throw new ArgumentException("Waterfall capture requires configuration $16.", nameof(fx));
-        var windows = new XrayWindowLine[Height];
-        Array.Fill(windows, new XrayWindowLine(255, 0));
-        return new(gameplay, windows, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
+        return new(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = WaterfallRoomDisplayRules.Blend, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3), subscreenUsesBg2: true);
     }
 
     /// <summary>Resolves FX type, liquid visibility and wave phase into a backend-neutral BG equation.</summary>
@@ -333,111 +207,131 @@ public static class GameplayEffectCapture
     {
         if (fx.Type != RoomFxType.Spores)
             throw new ArgumentException("Spore blending requires a spores FX snapshot.", nameof(fx));
-        var emptyWindows = new XrayWindowLine[Height];
-        Array.Fill(emptyWindows, new XrayWindowLine(255, 0));
-        return new(gameplay, emptyWindows, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
-    }
-
-    /// <summary>Resolves the selected Ceres gradient into RGB window rows, with no boss-state reference.</summary>
-    public static ColourAddBandsLayer CaptureCeresHaze(bool ridleyIsDead,
-        int intensity = CeresHazeRenderDefinitions.MaximumComponent,
-        RoomFxBlendInks? colors = null)
-    {
-        var windows = new ColorAddWindow[Height];
-        Array.Fill(windows, ColorAddWindow.Empty);
-        for (int y = HudHeight; y < Height; y++)
-        {
-            RgbColor haze = CeresHazeShading.ResolveComponents(
-                y, intensity, ridleyIsDead, colors);
-            windows[y] = new(0, Width - 1, ExpandFiveBit(haze.Red),
-                ExpandFiveBit(haze.Green), ExpandFiveBit(haze.Blue));
-        }
-        return new(windows);
+        return new(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = AtmosphereDriftDefinitions.SporesBlendedLayers, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, CaptureRoomLayer3Fx(fx, gameplay.Rooms.ShownBg3));
     }
 
     /// <summary>
-    /// Resolves ROM curve data and the rendered explosion phase on the producer side.
-    /// The renderer receives only clipped endpoints/colors, not a bus or projectile owner.
+    /// The Ceres haze: its tint added across the gameplay area, strengthening in bands down the screen and dimmed by
+    /// how far the haze has faded, with no boss-state reference.
     /// </summary>
-    public static ColourAddBandsLayer? CapturePowerBombGlow(
+    public static ColourAddWindowLayer CaptureCeresHaze(bool ridleyIsDead,
+        int intensity = CeresHazeRenderDefinitions.MaximumComponent,
+        RoomFxBlendInks? colors = null)
+    {
+        RgbColor tint = colors is null
+            ? RoomFxPaletteBlendRules.StockCeresHazeTint(ridleyIsDead)
+            : ridleyIsDead ? colors.CeresHazeRed : colors.CeresHazeBlue;
+        // The fade's strength is relative to the whole haze: below it the bands dim, and the fade-out's first frame
+        // shows one step more than whole.
+        var steps = new LineColourSteps(CeresHazeRenderDefinitions.RampFirstLine, CeresHazeRenderDefinitions.BandHeight,
+            CeresHazeRenderDefinitions.MaximumComponent, intensity - CeresHazeRenderDefinitions.MaximumComponent);
+        return new(ScreenWindow.Of(WindowRectangle.Spanning(0, HudHeight, Width - 1, Height - 1), HudHeight), tint, steps);
+    }
+
+    /// <summary>
+    /// The Power Bomb's blast as an oval of added colour around its centre (#1468). While the blast walks its authored
+    /// yellow or white ovals, and through the afterglow that keeps the last of them, the oval is the walked one;
+    /// otherwise it is the blast's current radius. The oval is three quarters as tall as it is wide.
+    /// </summary>
+    /// <param name="explosion">The blast as the frame shows it.</param>
+    /// <param name="layer1">The camera, which places the blast on the screen.</param>
+    /// <param name="firstVisibleScanline">The first line the blast shows on: below the HUD in gameplay, the top of the screen in cinematics.</param>
+    public static ColourAddWindowLayer? CapturePowerBombGlow(
         PowerBombRenderSnapshot explosion, Position16<RoomPixels> layer1,
         int firstVisibleScanline = HudHeight)
     {
         if ((uint)firstVisibleScanline > Height)
             throw new ArgumentOutOfRangeException(nameof(firstVisibleScanline));
         if (!explosion.IsActive) return null;
-        var windows = new ColorAddWindow[Height];
-        Array.Fill(windows, ColorAddWindow.Empty);
-        Offset16<ScreenPixels> center = explosion.Position
-            .RelativeToCamera(layer1);
-        int centerX = center.X;
-        int centerY = center.Y;
-        int red = ExpandFiveBit(explosion.FixedColor.Red);
-        int green = ExpandFiveBit(explosion.FixedColor.Green);
-        int blue = ExpandFiveBit(explosion.FixedColor.Blue);
-        // Gameplay protects its HUD; full-screen cinematics use the same native
-        // window profile starting at scanline zero instead.
-        for (int y = firstVisibleScanline; y < Height; y++)
-        {
-            int halfWidth = ReadPowerBombHalfWidth(explosion, y - centerY);
-            if (halfWidth < 0) continue;
-            int left = Math.Max(0, centerX - halfWidth);
-            int right = Math.Min(Width - 1, centerX + halfWidth);
-            if (left <= right) windows[y] = new(left, right, red, green, blue);
-        }
-        return new(windows);
+        int radius = PowerBombHorizontalRadius(explosion);
+        int verticalRadius = radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts;
+        ScreenWindow window = verticalRadius == 0 ? ScreenWindow.Closed
+            : ScreenWindow.Of(WindowOval.Ellipse(explosion.Position.RelativeToCamera(layer1), radius, verticalRadius),
+                firstVisibleScanline);
+        return new(window, explosion.FixedColor);
     }
 
-    /// <summary>Resolves the same tangent inequalities as the reference X-ray raster into immutable line intervals.</summary>
-    public static XrayWindowLine[] CaptureXrayWindowLines(SamusXrayDisplaySnapshot xray,
-        Position16<RoomPixels> layer1)
+    /// <summary>The horizontal radius, in whole pixels, of the blast's oval this frame; zero shows nothing.</summary>
+    private static int PowerBombHorizontalRadius(PowerBombRenderSnapshot explosion)
     {
-        bool leftFacing = xray.FacingLeft;
-        Offset16<ScreenPixels> samusOnScreen = xray.SamusPosition.RelativeToCamera(layer1);
-        int originX = samusOnScreen.X +
-            (leftFacing ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
-        int originY = samusOnScreen.Y -
-            (xray.Crouching
-                ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
-        int angle = xray.Angle.TableIndex;
-        int width = xray.AngularWidth;
-        Offset16<ScreenPixels> a = ReadXrayDirection(angle - width), b = ReadXrayDirection(angle + width);
-        bool horizontal = width == 0 && (angle == RotationAngle.QuarterTurn.TableIndex || angle == RotationAngle.ThreeQuarterTurn.TableIndex);
-        var lines = new XrayWindowLine[Height];
-        Array.Fill(lines, new XrayWindowLine(1, 0));
-        for (int y = HudHeight; y < Height; y++)
-        {
-            long left = 0, right = Width - 1;
-            if (horizontal)
-            {
-                if (y != originY) continue;
-                if (angle == RotationAngle.QuarterTurn.TableIndex) left = Math.Max(left, originX);
-                else right = Math.Min(right, originX);
-            }
-            else
-            {
-                long dy = y - originY;
-                if (!IntegerWindowIntersection.IntersectGreaterEqual(-a.Y, a.X * dy + (long)a.Y * originX,
-                        -XrayWindowRenderDefinitions.SubpixelTolerance, ref left, ref right)) continue;
-                if (!IntegerWindowIntersection.IntersectGreaterEqual(b.Y, -(long)b.X * dy - (long)b.Y * originX,
-                        -XrayWindowRenderDefinitions.SubpixelTolerance, ref left, ref right)) continue;
-            }
-            if (left <= right) lines[y] = new((byte)left, (byte)right);
-        }
-        return lines;
+        PowerBombExplosionPhase phase = explosion.RenderedPhase;
+        // A blast spawns after this frame's oval was chosen, so it shows nothing until the next frame.
+        if (phase == PowerBombExplosionPhase.Inactive) return 0;
+        // The afterglow only fades the colour: the last white oval stays.
+        if (phase is PowerBombExplosionPhase.PreExplosionYellow or PowerBombExplosionPhase.ExplosionWhite
+                or PowerBombExplosionPhase.Afterglow && explosion.RenderedShape is { } shape)
+            return shape.HorizontalRadius();
+        return phase == PowerBombExplosionPhase.PreExplosionWhite
+            ? explosion.RenderedPreExplosionRadius.WholePixels
+            : explosion.RenderedExplosionRadius.WholePixels;
     }
 
-    /// <summary>The suit pickup's light beam as a colour added through its window, captured once; nothing later reads the pickup.</summary>
-    public static ColourAddBandsLayer? CaptureSuitPickup(SamusSuitPickupFlash? flash)
+    /// <summary>
+    /// The X-ray scope's cone from Samus's eye (#1468): three pixels ahead of her, at her standing or crouching eye
+    /// height, sweeping the scope's half-width either side of its aim, below the HUD.
+    /// </summary>
+    public static ScreenWindow CaptureXrayWindow(SamusXrayDisplaySnapshot xray, Position16<RoomPixels> layer1)
+    {
+        Offset16<ScreenPixels> samusOnScreen = xray.SamusPosition.RelativeToCamera(layer1);
+        int eyeX = samusOnScreen.X +
+            (xray.FacingLeft ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
+        int eyeY = samusOnScreen.Y -
+            (xray.Crouching ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
+        int angle = xray.Angle.TableIndex;
+        var cone = new WindowCone(Offset16<ScreenPixels>.Of(eyeX, eyeY), angle - xray.AngularWidth, angle + xray.AngularWidth);
+        return ScreenWindow.Of(cone, HudHeight);
+    }
+
+    /// <summary>
+    /// The suit pickup's light beam as a colour added through its window (#1468), captured once; nothing later reads
+    /// the pickup. The beam's lines run from the top of the screen.
+    /// </summary>
+    public static ColourAddWindowLayer? CaptureSuitPickup(SamusSuitPickupFlash? flash)
     {
         if (flash is not { } active) return null;
-        ushort[] endpoints = SuitPickupBeamWindowBuilder.Build(active.Beam);
-        var windows = new ColorAddWindow[Height];
-        int red = ExpandFiveBit(active.Color.Red);
-        int green = ExpandFiveBit(active.Color.Green);
-        int blue = ExpandFiveBit(active.Color.Blue);
-        for (int y = 0; y < Height; y++)
-            windows[y] = new(ScanlineSpanWord.Left(endpoints[y]), ScanlineSpanWord.Right(endpoints[y]), red, green, blue);
-        return new(windows);
+        return new(SuitPickupBeamWindow(active.Beam), active.Color);
     }
+
+    /// <summary>The window of each light-beam outline: columns, a rounded column, its wiped remainder or the centre line.</summary>
+    private static ScreenWindow SuitPickupBeamWindow(SamusSuitPickupBeam beam)
+    {
+        int left = beam.Left.X, right = beam.Right.X;
+        int lines = SuitPickupBeamDefinitions.BeamLines;
+        int centre = lines / 2;
+        if (left > right) return ScreenWindow.Closed;
+        switch (beam.Shape)
+        {
+            case SamusSuitPickupBeamShape.None:
+                return ScreenWindow.Closed;
+            case SamusSuitPickupBeamShape.GrowingFromEdges:
+            {
+                int grown = Math.Min(beam.Progress, lines);
+                if (grown <= 0) return ScreenWindow.Closed;
+                return new([WindowRectangle.Spanning(left, 0, right, grown - 1),
+                    WindowRectangle.Spanning(left, lines - grown, right, lines - 1)]);
+            }
+            case SamusSuitPickupBeamShape.Column:
+                return ScreenWindow.Of(WindowRectangle.Spanning(left, 0, right, lines - 1));
+            case SamusSuitPickupBeamShape.CurvedColumn:
+                return ScreenWindow.Of(CurvedColumn(left, right, centre));
+            case SamusSuitPickupBeamShape.ClosingCurvedColumn:
+            {
+                // The upper wipe always clears at least the first line; the lower wipe is one line shorter.
+                int topWiped = Math.Clamp(beam.Progress, 1, lines);
+                int bottomWiped = Math.Clamp(beam.Progress - 1, 1, lines);
+                int first = Math.Min(topWiped, Height);
+                int end = Math.Clamp(lines - bottomWiped, first, Height);
+                return ScreenWindow.Of(CurvedColumn(left, right, centre), first, end);
+            }
+            case SamusSuitPickupBeamShape.CenterLine:
+                return ScreenWindow.Of(WindowRectangle.Spanning(left, centre, right, centre));
+            default:
+                throw new ArgumentOutOfRangeException(nameof(beam), beam.Shape, "Unknown suit-pickup beam shape.");
+        }
+    }
+
+    /// <summary>The beam's column widened on each line by its rounded sides, widest at the middle line.</summary>
+    private static WindowOval CurvedColumn(int left, int right, int centre) =>
+        new(Offset16<ScreenPixels>.Of(left, centre), right - left,
+            SuitPickupBeamDefinitions.CurveWidth, SuitPickupBeamDefinitions.BeamLines / 2);
 }

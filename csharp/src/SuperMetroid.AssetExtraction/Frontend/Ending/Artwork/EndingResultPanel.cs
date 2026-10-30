@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable result-credit tilemap based on $8C:DC9B, with a bounded producer label layered over the first row.</summary>
 public sealed record EndingResultPanel

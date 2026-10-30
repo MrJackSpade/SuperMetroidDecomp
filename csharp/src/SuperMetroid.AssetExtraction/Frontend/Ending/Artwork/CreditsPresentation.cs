@@ -1,8 +1,10 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable staff-credit text compiled into the cartridge's fixed row cadence.</summary>
 public sealed class CreditsPresentation
@@ -26,7 +28,7 @@ public sealed class CreditsPresentation
     /// <returns>Thirty-two tiles.</returns>
     public ReadOnlySpan<BackgroundTile> GetRow(int index)
     {
-        if ((uint)index >= CreditsPresentationDefinitions.ExpectedCompiledRows)
+        if ((uint)index >= CreditsRollDefinitions.ExpectedCompiledRows)
             throw new ArgumentOutOfRangeException(nameof(index));
         int row = 0;
         CreditsLineDocument[] authored = lines;
@@ -102,12 +104,12 @@ public sealed class CreditsPresentation
             compiledRows += definition.BlankRowsBefore + (definition.Style == CreditsLineStyle.Large ? 2 : 1);
             ValidateLine(definition, line);
         }
-        compiledRows += CreditsPresentationDefinitions.TrailingBlankRows;
-        if (compiledRows != CreditsPresentationDefinitions.ExpectedCompiledRows)
+        compiledRows += CreditsRollDefinitions.TrailingBlankRows;
+        if (compiledRows != CreditsRollDefinitions.ExpectedCompiledRows)
         {
             throw new InvalidDataException(
                 $"Credits compiled to {compiledRows} rows; expected " +
-                $"{CreditsPresentationDefinitions.ExpectedCompiledRows}.");
+                $"{CreditsRollDefinitions.ExpectedCompiledRows}.");
         }
         return new(document.Lines, Convert.ToHexString(SHA256.HashData(source)));
     }

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Calculated post-credit text placement and ending-font atlas traversal.</summary>
 internal static class EndingTextLayoutDefinitions

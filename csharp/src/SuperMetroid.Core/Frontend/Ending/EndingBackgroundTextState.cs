@@ -85,7 +85,7 @@ internal sealed class EndingBackgroundTextState
         if (InstalledInitialMarkerPending)
         {
             InstalledInitialMarkerPending = false;
-            InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.InitialDelayFrames);
+            InstructionTimer = WrappingCountdown.Start(EndingTypewriterDefinitions.InitialDelayFrames);
             return;
         }
         if (InstalledCharacterIndex < InstalledProgram.Length)
@@ -95,7 +95,7 @@ internal sealed class EndingBackgroundTextState
             if (character.Character != ' ')
                 page.Write(EndingPictureNames.Glyph(character.Style, character.Character), new Position16<TilemapCells>(
                     checked((ushort)character.Column), checked((ushort)character.Row)));
-            InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.CharacterDelayFrames);
+            InstructionTimer = WrappingCountdown.Start(EndingTypewriterDefinitions.CharacterDelayFrames);
             Upload(screen);
             return;
         }
@@ -105,7 +105,7 @@ internal sealed class EndingBackgroundTextState
             if (japaneseText)
                 page.Write(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCell);
             installedHoldStarted = true;
-            InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.PercentageHoldFrames);
+            InstructionTimer = WrappingCountdown.Start(EndingTypewriterDefinitions.PercentageHoldFrames);
             Upload(screen);
             return;
         }

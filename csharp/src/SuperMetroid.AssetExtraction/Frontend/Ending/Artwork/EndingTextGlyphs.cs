@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextDefinitions;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>
 /// Encodes and decodes the ending text's glyphs (<see cref="EndingTextDefinitions"/>) in each text style.

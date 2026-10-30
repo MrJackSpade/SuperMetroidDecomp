@@ -35,6 +35,7 @@ using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

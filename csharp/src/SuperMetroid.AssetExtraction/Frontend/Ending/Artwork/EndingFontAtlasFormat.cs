@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>PNG and native transfer geometry for the 160-tile ending font resource.</summary>
 public static class EndingFontAtlasFormat

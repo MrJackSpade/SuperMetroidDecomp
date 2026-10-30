@@ -1,8 +1,10 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable, bounded post-credit labels with cinematic behavior kept in code.</summary>
 public sealed class EndingTextPresentation

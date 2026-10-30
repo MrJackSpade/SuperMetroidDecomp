@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 namespace SuperMetroid.Verification.Frontend.Ending;
 
 /// <summary>Checks ending text placement and glyph encoding against native tilemaps and text records.</summary>

@@ -1,5 +1,6 @@
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The style, character and half that select a credits glyph.</summary>
 /// <param name="Style">The style.</param>

@@ -4,6 +4,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
@@ -56,7 +57,7 @@ public static class EndingTextExtractor
         EndingTextSequence sequence, out EndingTextCharacter[] characters)
     {
         int cursor = pointer;
-        RequireMarker(bus, cursor, EndingTextDefinitions.InitialDelayFrames);
+        RequireMarker(bus, cursor, EndingTypewriterDefinitions.InitialDelayFrames);
         cursor = Add(cursor, 6);
         var text = new List<char>();
         var compiled = new List<EndingTextCharacter>();
@@ -74,7 +75,7 @@ public static class EndingTextExtractor
                     cursor = Add(cursor, 2);
                     RequireWord(ReadWord(bus, cursor), EndingSourceDefinitions.EndingDrawSubtitleOpcode, "percentage subtitle opcode");
                     cursor = Add(cursor, 2);
-                    RequireMarker(bus, cursor, EndingTextDefinitions.PercentageHoldFrames);
+                    RequireMarker(bus, cursor, EndingTypewriterDefinitions.PercentageHoldFrames);
                     cursor = Add(cursor, 6);
                     RequireWord(ReadWord(bus, cursor), EndingSourceDefinitions.EndingClearSubtitleOpcode, "percentage clear opcode");
                     cursor = Add(cursor, 2);
@@ -83,7 +84,7 @@ public static class EndingTextExtractor
                 characters = compiled.ToArray();
                 return new string(text.ToArray());
             }
-            RequireWord(word, EndingTextDefinitions.CharacterDelayFrames, "ending-text character delay");
+            RequireWord(word, EndingTypewriterDefinitions.CharacterDelayFrames, "ending-text character delay");
             int packed = ReadWord(bus, Add(cursor, 2));
             int column = packed & EndingSourceDefinitions.EndingPackedPositionXMask;
             int row = LittleEndianBytes.HighByte(packed);

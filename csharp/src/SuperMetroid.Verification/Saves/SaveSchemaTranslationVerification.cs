@@ -124,7 +124,7 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(2, ram.ReadSelectedSlot(), "twelve-byte completion signature preserves selected slot");
         ram.SetGameCompleted(false);
         var native = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var text = SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
+        var text = SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingTextExtractor.Extract(native), writable: false));
         var ending = new EndingCreditsState(new SuperMetroid.Core.Audio.AudioQueues(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text.Typewriter() });
         ending.InstalledArtwork.BindPaletteFxColors(RoomPaletteFxPresentationFile.Read(new MemoryStream(

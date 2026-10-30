@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Rectangular placement and font style of an ending-text field.</summary>
 /// <param name="Row">Zero-based destination tile row.</param>

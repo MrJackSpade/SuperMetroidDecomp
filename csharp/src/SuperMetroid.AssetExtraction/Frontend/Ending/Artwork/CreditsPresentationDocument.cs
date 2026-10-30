@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>JSON schema for the complete ordered staff-credit script.</summary>
 public sealed record CreditsPresentationDocument

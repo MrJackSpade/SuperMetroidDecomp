@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextLayoutDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingTextLayoutDefinitions;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>
 /// Lays out the ending's text panels (<see cref="EndingTextLayoutDefinitions"/>): the Japanese subtitle and the result panel's

@@ -60,6 +60,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Map.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Core.Progression;
@@ -1296,7 +1297,7 @@ internal static class LookupStream3Verification
         byte[] creditsJson = SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(rom);
         var credits = CreditsPresentation.Load(new MemoryStream(creditsJson));
         AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(creditsJson)), credits.ContentIdentity, "stream 3 credits source identity preserved");
-        foreach (int invalid in new[] { -1, CreditsPresentationDefinitions.ExpectedCompiledRows, int.MaxValue })
+        foreach (int invalid in new[] { -1, CreditsRollDefinitions.ExpectedCompiledRows, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = credits.GetRow(invalid).Length, "stream 3 calculated credits row bounds");
         var escapePrograms = CrateriaEscapeLightningPaletteFxColorDefinitions.All;
         AssertEqual(2, escapePrograms.Count, "stream 3 escape lightning owner count");

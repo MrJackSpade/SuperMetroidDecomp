@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable <c>ending-text.json</c> schema for post-credit panels and typewriter labels; sequence timing, actual item percentage, and subtitle visibility remain runtime behavior.</summary>
 public sealed record EndingTextDocument

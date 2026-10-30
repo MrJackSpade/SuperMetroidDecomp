@@ -121,7 +121,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("DachoraColorCatalog", "Resolve", "frame") => new(0, DachoraColorDefinitions.AnimatedFrameCount),
         ("DachoraColorCatalog", "Resolve", "color") => new(0, DachoraColorDefinitions.ColorsPerFrame),
         ("MotherBrainHealthPalettePresentation", "Apply", "damageState") => new(0, MotherBrainHealthPaletteFormat.StateCount),
-        ("CreditsPresentation", "GetRow", "index") => new(0, CreditsPresentationDefinitions.ExpectedCompiledRows),
+        ("CreditsPresentation", "GetRow", "index") => new(0, CreditsRollDefinitions.ExpectedCompiledRows),
         ("MapArrowPresentation", "Get", "direction") => new(1, MapArrowDefinitions.Count),
         ("PauseBackdropPresentation", "LoadTo", "area") => new(0, AreaIds.RetailCount),
         ("PauseWireframePresentation", "ApplyTo", "kind") => new(0, PauseWireframeDefinitions.Count),

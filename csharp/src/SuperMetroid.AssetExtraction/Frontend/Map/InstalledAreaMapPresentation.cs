@@ -1,8 +1,8 @@
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

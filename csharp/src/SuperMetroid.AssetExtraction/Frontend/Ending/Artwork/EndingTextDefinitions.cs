@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Ending.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Schema, layout, and native extraction identities for post-credit text.</summary>
 public static class EndingTextDefinitions
@@ -17,12 +18,6 @@ public static class EndingTextDefinitions
     public const int CopyrightRows = 2;
     /// <summary>Height of the alternate-language subtitle in rows.</summary>
     public const int JapaneseSubtitleRows = 2;
-    /// <summary>Updates held before a typewriter sequence begins.</summary>
-    public const ushort InitialDelayFrames = 64;
-    /// <summary>Updates between consecutive typewriter characters.</summary>
-    public const ushort CharacterDelayFrames = 4;
-    /// <summary>Updates that the completed item-percentage text remains visible.</summary>
-    public const ushort PercentageHoldFrames = 128;
     /// <summary>The blank tile of the small result panel.</summary>
     public static BackgroundTile ResultBlankTile { get; } = new(0x04f, 0, highPriority: false);
     /// <summary>The blank tile of large copyright glyphs, in colour variant zero and the lower priority tier.</summary>

@@ -7,6 +7,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 namespace SuperMetroid.Verification.Frontend.Ending.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
@@ -29,7 +30,7 @@ internal static class CreditsPresentationVerification
         ushort[][] nativeRows =
             SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.ReadNativeRows(bus);
         AssertEqual(nativeRows.Length,
-            CreditsPresentationDefinitions.ExpectedCompiledRows, "installed credits retain the fixed native schedule");
+            CreditsRollDefinitions.ExpectedCompiledRows, "installed credits retain the fixed native schedule");
         for (int row = 0; row < nativeRows.Length; row++)
         {
             AssertTrue(BackgroundTileWordBytes.Words(presentation.GetRow(row)).SequenceEqual(nativeRows[row]),
@@ -38,8 +39,8 @@ internal static class CreditsPresentationVerification
 
         // Exercise actual runtime cadence through completion. CreditsObjectState has no bus
         // dependency, so this also proves installed playback cannot fall back to ROM text.
-        var runtime = new CreditsObjectState(CreditsPresentationDefinitions.ExpectedCompiledRows);
-        for (int row = 0; row < CreditsPresentationDefinitions.ExpectedCompiledRows; row++)
+        var runtime = new CreditsObjectState(CreditsRollDefinitions.ExpectedCompiledRows);
+        for (int row = 0; row < CreditsRollDefinitions.ExpectedCompiledRows; row++)
         {
             for (int frame = 0; frame < 15; frame++)
             {
@@ -67,7 +68,7 @@ internal static class CreditsPresentationVerification
             editedDocument.ToJsonString(ArtworkJson.Options));
         CreditsPresentation edited = CreditsPresentation.Load(
             new MemoryStream(editedBytes, writable: false));
-        int firstTextRow = CreditsPresentationDefinitions.InitialBlankRows;
+        int firstTextRow = CreditsRollDefinitions.InitialBlankRows;
         AssertEqual(CreditsGlyphs.CompileGlyph('T', CreditsLineStyle.Small) with { ColourVariant = 6 },
             edited.GetRow(firstTextRow)[3],
             "edited text, column and palette compile into the live row");
@@ -125,7 +126,7 @@ internal static class CreditsPresentationVerification
 
         AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        int textRow = CreditsPresentationDefinitions.InitialBlankRows;
+        int textRow = CreditsRollDefinitions.InitialBlankRows;
         AssertTrue(!InstalledAreaMapPresentation.StaffCreditsOf(edited).GetRow(textRow).SequenceEqual(
             InstalledAreaMapPresentation.StaffCreditsOf(original).GetRow(textRow)),
             "staff-credit override reaches the installed catalog");

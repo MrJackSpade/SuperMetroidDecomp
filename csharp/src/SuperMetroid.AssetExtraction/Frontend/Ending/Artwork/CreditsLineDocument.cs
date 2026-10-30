@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Ending.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Defines the text and tilemap placement of one staff-credit line.</summary>
 public sealed record CreditsLineDocument

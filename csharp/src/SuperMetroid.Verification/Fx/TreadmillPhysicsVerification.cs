@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.WreckedShip;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;

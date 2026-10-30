@@ -460,8 +460,12 @@ internal sealed class EndingCreditsState : IFrontendScreen
     internal bool UsesExplosionFinaleDisplay => (EscapeScenes.ExplosionFinaleDisplay || EscapeScenes.ExplosionBurstDisplay) && !EndingCreditsPresentation.ExplosionWhiteout(this)
         && EndingCreditsPhaseGroups.BeforePlanetEscape.Contains(Stage.Phase);
 
-    /// <summary>The turning floor the scenes have loaded: its shot's installed picture (#1467).</summary>
-    internal AffineFloor Floor() => EndingScreenFloor.Of(InstalledArtwork.Sheets, screen.FloorShot);
+    /// <summary>
+    /// The turning floor the scenes have loaded: its shot's installed picture (#1467), or none before a floor has loaded
+    /// and once the post-credits art has replaced it, when the floor layer shows nothing.
+    /// </summary>
+    internal AffineFloor? Floor() =>
+        screen.FloorShot == EndingFloorShot.None ? null : EndingScreenFloor.Of(InstalledArtwork.Sheets, screen.FloorShot);
 
     /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
     internal LayeredScene CaptureExplosionFinale()

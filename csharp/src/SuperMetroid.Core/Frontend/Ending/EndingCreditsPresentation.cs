@@ -30,7 +30,7 @@ internal static class EndingCreditsPresentation
             // Mode 7 places OBJ priority zero below BG1; the other three priorities
             // are above it. BG1 subtracts the winning OBJ subscreen, without halving.
             layers.Add(new SpriteDepthLayer(0));
-            layers.Add(new TurningFloorLayer(PostShotTransform(ending), ending.Floor(), true));
+            if (ending.Floor() is { } floor) layers.Add(new TurningFloorLayer(PostShotTransform(ending), floor, true));
             layers.Add(new SpriteDepthLayer(1));
             layers.Add(new SpriteDepthLayer(2));
             layers.Add(new SpriteDepthLayer(3));
@@ -63,12 +63,15 @@ internal static class EndingCreditsPresentation
                 // Fixed addition belongs to backdrop and eligible OBJ, not BG1.
                 if (ending.Flyaway.FlyawayFixedColor is { } backdropWhite) layers.Add(backdropWhite);
                 if (UsesFlyawayFloorPriority(ending)) layers.Add(new SpriteDepthLayer(0, ending.Flyaway.FlyawayFixedColor));
-                int a = Scale(ReadSine(ending.Stage.FloorAngle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), ending.Stage.FloorZoom);
-                int b = Scale(ReadSine(ending.Stage.FloorAngle.ToByteAngle()), ending.Stage.FloorZoom);
-                layers.Add(new TurningFloorLayer(new((short)a, (short)b, unchecked((short)-b), (short)a,
-                    CurrentFloorCenter(ending),
-                    ending.Stage.FloorPosition.Whole.AsSignedWord(), AtmosphericMapWraps(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
-                    ending.Floor(), AddsForeground: AtmosphericMapWraps(ending)));
+                if (ending.Floor() is { } floor)
+                {
+                    int a = Scale(ReadSine(ending.Stage.FloorAngle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), ending.Stage.FloorZoom);
+                    int b = Scale(ReadSine(ending.Stage.FloorAngle.ToByteAngle()), ending.Stage.FloorZoom);
+                    layers.Add(new TurningFloorLayer(new((short)a, (short)b, unchecked((short)-b), (short)a,
+                        CurrentFloorCenter(ending),
+                        ending.Stage.FloorPosition.Whole.AsSignedWord(), AtmosphericMapWraps(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
+                        floor, AddsForeground: AtmosphericMapWraps(ending)));
+                }
             }
             memory = CaptureMemory(ending, objectSheet);
             if (EndingObjectsEnabled(ending) && !AtmosphericMapWraps(ending))

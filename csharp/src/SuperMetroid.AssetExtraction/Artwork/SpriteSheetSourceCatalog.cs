@@ -69,6 +69,19 @@ internal sealed class SpriteSheetSourceCatalog
         : sheet == SpriteSheetId.IntroNarrationPictures ? IntroNarrationPictureSheetComposer.Compose(intro.Value, maps.Value.IntroFont)
         : SpriteSheetComposer.Compose(For(sheet), DefaultPalette, DefaultPriority);
 
+    /// <summary>
+    /// Whether <paramref name="sheet"/> composes from sprite parts (<see cref="For"/>), rather than from the cartridge (the
+    /// escape timer) or from the pictures, pages and floors <see cref="Compose"/> paints directly.
+    /// </summary>
+    internal static bool ComposesFromSpriteParts(SpriteSheetId sheet) =>
+        sheet is not (SpriteSheetId.EscapeTimer or SpriteSheetId.PauseHud or SpriteSheetId.MenuPictures or SpriteSheetId.RoomMapPictures
+            or SpriteSheetId.PausePictures or SpriteSheetId.CeresCinematicPictures or SpriteSheetId.IntroScenePictures
+            or SpriteSheetId.IntroNarrationPictures)
+        && !ScreenTileSheetDefinitions.AreaMapForegrounds.Values.Contains(sheet)
+        && !ScreenTileSheetDefinitions.AreaMapBackgrounds.Values.Contains(sheet)
+        && !ScreenTileSheetDefinitions.FloorSheets.Contains(sheet)
+        && !EndingPictureSheetComposer.Sheets.Contains(sheet);
+
     /// <summary>The stock artwork the screen tile sheets compose from.</summary>
     private ScreenTileSources ScreenTiles() =>
         new(() => maps.Value, () => intro.Value, () => ending.Value, () => endingPalettes.Value, () => endingMode7.Value);

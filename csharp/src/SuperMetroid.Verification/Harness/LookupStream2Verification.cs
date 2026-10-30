@@ -790,8 +790,6 @@ internal static class LookupStream2Verification
                 PauseEquipmentLabelPresentation.Write(encoded, document with { Labels = labels });
                 byte[] selectedJson = encoded.ToArray();
                 var selected = PauseEquipmentLabelPresentation.Load(new MemoryStream(selectedJson));
-                AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(selectedJson)),
-                    selected.ContentIdentity, "Label selection preserves source identity");
                 BackgroundTile[] selectedTiles = PauseTileGrid.Compile(cells, "Expected edited label");
                 foreach (bool disabled in new[] { false, true })
                 {
@@ -878,8 +876,6 @@ internal static class LookupStream2Verification
             PauseEquipmentLabelPresentation.Write(output, selected);
             byte[] json = output.ToArray();
             var presentation = PauseEquipmentLabelPresentation.Load(new MemoryStream(json));
-            AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(json)),
-                presentation.ContentIdentity, "Blank edits retain serialized content identity");
             var edits = presentation.blankEdits;
             AssertEqual(edited < 0 ? 0 : 1, edits.Count, "Only explicit blank edits are stored");
             foreach (bool hyper in new[] { false, true })

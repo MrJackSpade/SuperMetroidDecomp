@@ -88,11 +88,16 @@ internal static class ScreenTilePicturesVerification
         }
         var audio = new AudioQueues();
         IntroCinematicState intro = CreateRetailIntroFixture(audio);
+        // The caption is installed pictures placed by scene state (#1467), not tiles, so its phase is checked for drawing them.
+        bool captionPictured = false;
         for (int tick = 0; !intro.CeresFlightFinished; tick++)
         {
             var shownIntro = intro.ShownVram();
-            Check(intro.CaptureTranslatedRenderSnapshot(), shownIntro, intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
+            LayeredScene introScene = intro.CaptureTranslatedRenderSnapshot();
+            Check(introScene, shownIntro, intro.CurrentCeresFlight is { } flight && intro.Phase == IntroCinematicPhase.CeresFlight
                 ? $"Ceres flight {flight.Phase}" : $"intro {intro.Phase}");
+            if (intro.Phase == IntroCinematicPhase.CeresFlight && intro.CurrentCeresFlight?.Phase == IntroCeresFlightPhase.SpaceColonyTitle)
+                captionPictured |= introScene.Layers.ToArray().Any(layer => layer is PicturedPlaneLayer);
             intro.Step(tick % 47 == 0 ? ControllerButton.A : 0);
             audio.AdvanceFrame(default);
         }
@@ -104,7 +109,7 @@ internal static class ScreenTilePicturesVerification
             destruction.Step();
         }
         AssertTrue(destruction.Finished, $"the Ceres destruction finishes within 5000 updates (stopped in {destruction.Phase})");
-        AssertTrue(sampled.Contains($"Ceres flight {IntroCeresFlightPhase.SpaceColonyTitle}"), "the Ceres flight's caption is checked");
+        AssertTrue(captionPictured, "the Ceres flight's caption draws its pictures");
         AssertTrue(sampled.Any(name => name.StartsWith("Ceres destruction", StringComparison.Ordinal)), "the Zebes reveal is checked");
         Console.WriteLine($"Screen tile pictures: {sampled.Count} cinematic phases draw all {layers} of their background layers from their tiles, as their characters do.");
     }
@@ -246,7 +251,6 @@ internal static class ScreenTilePicturesVerification
     }
 
     /// <summary>
-    /// <param    /// <summary>
     /// Asserts <paramref name="pause"/>'s scene draws what its VRAM draws (#1467): its map grid, equipment page and frame,
     /// drawn instead from the BG1 and BG2 tilemaps the cartridge lays out for them over tiles decoded from the scene's own
     /// VRAM characters and CGRAM, give the same image; returns the pictured layers checked.
@@ -281,7 +285,9 @@ internal static class ScreenTilePicturesVerification
         AssertTrue(RenderNamed(scene, name).SequenceEqual(RenderNamed(fromVram, name)), $"{name}: its pictures draw what VRAM's characters draw of the cartridge's tilemaps");
         return layers;
     }
-haracter base <paramref name="cells"/>' tiles picture: of the bases a background can select, one every
+
+    /// <summary>
+    /// The character base <paramref name="cells"/>' tiles picture: of the bases a background can select, one every
     /// <see cref="CharacterBaseStep"/> words, the one whose characters match the most of the tiles the cells show.
     /// </summary>
     private static int CharacterBase(ReadOnlySpan<byte> vram, ScreenTileMap cells, string name)

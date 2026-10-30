@@ -484,11 +484,22 @@ internal sealed class EnemyProjectileEngine
     internal static bool MoveProjectileAxis(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
-        Axis axis)
+        Axis axis) =>
+        MoveProjectileAxis(projectile, level, axis, axis == Axis.Horizontal ? projectile.Velocity.X : projectile.Velocity.Y);
+
+    /// <summary>
+    /// Moves one projectile axis by <paramref name="speed"/> instead of the projectile's own velocity on that axis, through
+    /// each crossed room block, clamping it flush at the first collision.
+    /// </summary>
+    internal static bool MoveProjectileAxis(
+        RoomEnemyProjectileSlot projectile,
+        RoomLevelData level,
+        Axis axis,
+        SignedEightEight speed)
     {
         int position = axis == Axis.Horizontal ? projectile.Position.X.Whole : projectile.Position.Y.Whole;
         int subposition = axis == Axis.Horizontal ? projectile.Position.X.Fraction : projectile.Position.Y.Fraction;
-        int velocity = axis == Axis.Horizontal ? projectile.Velocity.X.SignedRawValue : projectile.Velocity.Y.SignedRawValue;
+        int velocity = speed.SignedRawValue;
         int fixedPosition = unchecked((int)SixteenSixteen.Compose(position, subposition));
         fixedPosition = unchecked(fixedPosition + (SixteenSixteen.FromEightEight(velocity)));
         FixedCoordinate next = FixedCoordinate.FromRaw(unchecked((uint)fixedPosition));

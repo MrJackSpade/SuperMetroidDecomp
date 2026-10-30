@@ -107,7 +107,8 @@ internal static class ProjectileTrailCoordinatesVerification
         var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
         var spawn = new Action<SamusProjectileSlot>(system.Trails.SpawnTrail);
         int cases = 0;
-        foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 37, 0x100, 0x200 })
+        // 36 is the Spazer combo's trail echo; no projectile is an echo of Spazer+Wave (37), which the typed identity cannot name.
+        foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 36, 0x100, 0x200 })
         for (ushort direction = 0; direction < 10; direction++)
         for (ushort frame = 0; frame < 22; frame++)
         foreach (ushort origin in new ushort[] { 0, ushort.MaxValue })
@@ -117,8 +118,8 @@ internal static class ProjectileTrailCoordinatesVerification
             system.Reset();
             var shot = new SamusProjectileSlot(0)
             {
-                Type = type,
-                Direction = direction,
+                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type),
+                Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction),
                 Cursor = afterFrame[frame],
                 Position = new(new(origin, 0), new(origin, 0)),
             };
@@ -150,7 +151,7 @@ internal static class ProjectileTrailCoordinatesVerification
             system.Reset();
             var shot = new SamusProjectileSlot(0)
             {
-                Type = type, Direction = direction, Cursor = SamusProjectileProgramAddresses.CursorAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
+                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction), Cursor = SamusProjectileProgramAddresses.CursorAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
             };
             spawn(shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
@@ -212,8 +213,8 @@ internal static class ProjectileTrailCoordinatesVerification
         for (ushort combination = 0; combination < 12; combination++)
         {
             yield return new ReflectableTrailTypesResult(combination, 0x9383c1, combination);
+            // No projectile is both charged and an echo, so the typed identity names no charged-echo word (#1470).
             yield return new ReflectableTrailTypesResult((ushort)(combination | 0x10), 0x9383d9, combination);
-            yield return new ReflectableTrailTypesResult((ushort)(combination | 0x30), 0x9383d9, combination);
         }
         yield return new ReflectableTrailTypesResult(0x0100, 0x9383f1, 1);
         yield return new ReflectableTrailTypesResult(0x0200, 0x9383f1, 2);

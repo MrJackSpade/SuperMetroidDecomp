@@ -54,35 +54,44 @@ internal sealed class FallingSparksBehavior
     /// <summary>How many times faster a spark drifts sideways once it has hit the floor.</summary>
     private const int FallingSparkImpactDriftScale = 4;
 
+    /// <summary>The fraction of a pixel a falling spark's vertical speed gains each falling update: a quarter pixel.</summary>
+    private const int FallingSparkGravity = 16384;
+
+    /// <summary>The whole-pixel vertical speed a falling spark's speed stops rising at.</summary>
+    private const int FallingSparkTerminalWholeSpeed = 4;
+
+    /// <summary>The vertical speed a spark bounces up at when it hits the floor: half a pixel upward.</summary>
+    private static readonly SignedSixteenSixteen FallingSparkImpactBounce = SignedSixteenSixteen.FromParts(-1, 32768);
+
     /// <summary>Ports pre-instruction <c>$86:F3F0</c>.</summary>
     internal void RunFallingSparkPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
         int frameCounterByte)
     {
-        // A nonnegative vertical whole word first passes through the generic signed-8.8
-        // collision helper. The helper's accepted subpixel movement is *additional* to the
-        // manual 16.16 movement below; omitting it shifts the floor-contact frame.
-        if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
+        // A falling spark first moves through the generic collision helper. The helper's accepted movement is
+        // *additional* to the spark's own 16.16 movement below; omitting it shifts the floor-contact frame.
+        FallingSparkState spark = projectile.StateOf<FallingSparkState>();
+        if (spark.VerticalSpeed.WholePixels >= 0)
         {
-            // The spark's whole velocity word passes through the shared signed-8.8
-            // Move_EnemyProjectile_Vertically ($86:897B), including its slope reactions.
-            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
+            // Move_EnemyProjectile_Vertically ($86:897B), slope reactions included, reads the spark's whole speed in
+            // pixels as an 8.8 speed in 1/256ths of a pixel.
+            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, Axis.Vertical,
+                    new SignedEightEight(spark.VerticalSpeed.WholeWord)))
             {
                 BeginFallingSparkFloorImpact(projectile);
                 return;
             }
 
-            uint acceleratedFraction = (uint)projectile.Velocity.X.RawValue + 16384;
-            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)acceleratedFraction)));
-            int acceleratedWhole = unchecked((ushort)(
-                projectile.Velocity.Y.RawValue + WordCarry.OutOfWord(acceleratedFraction)));
+            int acceleratedFraction = spark.VerticalSpeed.Fraction + FallingSparkGravity;
+            int acceleratedWhole = spark.VerticalSpeed.WholePixels + WordCarry.OutOfWord(acceleratedFraction);
 
-            // CMP #$0004 / BCS deliberately stops storing the whole word once it reaches
-            // four. The fractional word still received its $4000 increment immediately
-            // before this test, reproducing the cartridge's slightly asymmetric cap.
-            if (acceleratedWhole < 4)
-                projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(checked((ushort)acceleratedWhole)));
+            // CMP #$0004 / BCS deliberately stops raising the whole part once it reaches four. The fraction still
+            // received its quarter-pixel increment immediately before this test, reproducing the cartridge's slightly
+            // asymmetric cap.
+            spark.VerticalSpeed = SignedSixteenSixteen.FromParts(
+                acceleratedWhole < FallingSparkTerminalWholeSpeed ? acceleratedWhole : spark.VerticalSpeed.WholePixels,
+                unchecked((ushort)acceleratedFraction));
         }
 
         AddFallingSparkVerticalVelocity(projectile);
@@ -92,15 +101,10 @@ internal sealed class FallingSparksBehavior
             SpawnFallingSparkTrail(projectile);
     }
 
-    /// <summary>Adds the aliased 16.16 vertical velocity to spark position with fractional carry.</summary>
+    /// <summary>Adds the spark's vertical speed to its position with fractional carry.</summary>
     private static void AddFallingSparkVerticalVelocity(
-        RoomEnemyProjectileSlot projectile)
-    {
-        uint fraction = (uint)projectile.Position.Y.Fraction + projectile.Velocity.X.RawValue;
-        projectile.Position = projectile.Position.WithFractionY(unchecked((ushort)fraction));
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-            projectile.Position.Y.Whole + projectile.Velocity.Y.RawValue + WordCarry.OutOfWord(fraction))));
-    }
+        RoomEnemyProjectileSlot projectile) =>
+        projectile.Position = projectile.Position.AdvanceY(projectile.StateOf<FallingSparkState>().VerticalSpeed);
 
     /// <summary>Adds the spark's horizontal drift with fractional carry.</summary>
     internal static void AddFallingSparkHorizontalVelocity(
@@ -119,10 +123,9 @@ internal sealed class FallingSparksBehavior
         FallingSparkState spark = projectile.StateOf<FallingSparkState>();
         spark.HorizontalStep = SignedSixteenSixteen.FromRaw(unchecked(spark.HorizontalStep.RawValue * FallingSparkImpactDriftScale));
 
-        // The same aliased pair now represents vertical -0.5 in 16.16. Because the whole
-        // word is negative, later frames skip collision and gravity while the impact spark
-        // arcs upward through its eleven-frame blinking animation.
-        projectile.Velocity = new(SignedEightEight.FromSignedRaw(short.MinValue), SignedEightEight.FromSignedRaw(-1));
+        // Half a pixel upward. Because the whole part is negative, later frames skip collision and gravity while the
+        // impact spark arcs upward through its eleven-frame blinking animation.
+        spark.VerticalSpeed = FallingSparkImpactBounce;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 2)));
     }
 

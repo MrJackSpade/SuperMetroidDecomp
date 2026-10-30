@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Compatibility;
+namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// The item an item-selected Samus animation transition tests, as two bytes of the animation delay stream. The
+/// The encoding of the items an item-selected Samus animation transition tests, as two bytes of the animation delay stream. The
 /// interpreter reads the stream by position, and where an animation frame runs past its program it reads the two
 /// bytes from whatever lies there; the items those bytes name decide which transitional pose Samus takes next, so the
 /// item bit each byte position stands for is gameplay-observable.
@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// command's operand; the Samus animation command checks and the morph-entry transitions confirm the item each bit
 /// selects.
 /// </remarks>
-[CompatibilityService("an animation item transition tests the items named by the two stream bytes it reads, even past its program")]
 [EncodingOwner("Samus animation item operand")]
 public static class SamusAnimationItemOperand
 {

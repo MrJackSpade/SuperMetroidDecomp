@@ -1472,7 +1472,11 @@ internal static class LookupStream2Verification
             {
                 SamusProjectileFamily.Missile => ProjectileTrailDefinitions.FirstSpecialSelection,
                 SamusProjectileFamily.SuperMissile => ProjectileTrailDefinitions.FirstSpecialSelection + 1,
-                _ => trailingType.BeamTableRow,
+                SamusProjectileFamily.Beam => trailingType.BeamTableRow,
+                SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb or SamusProjectileFamily.BeamExplosion or
+                    SamusProjectileFamily.MissileExplosion =>
+                    throw new InvalidOperationException($"{trailingType} leaves no trail."),
+                _ => throw new InvalidOperationException($"Undefined projectile family {trailingType.Family}."),
             };
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
             var projectile = new SamusProjectileSlot(0)
@@ -2112,7 +2116,7 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
-            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Type = 0x0500 };
+            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             _ = bombs.RunProjectileInstructionHandler(bomb);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");

@@ -248,7 +248,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Sets property $8000 once the bug is at least 23 pixels from its source Kago. That
     /// delay prevents the shot which opened the shell from immediately destroying the bug.
     /// </summary>
-    private void EnableKagoBugShotCollisionWhenSeparated(RoomEnemyProjectileSlot projectile)
+    private static void EnableKagoBugShotCollisionWhenSeparated(RoomEnemyProjectileSlot projectile)
     {
         RoomEnemySlot source = projectile.StateOf<KagoBugState>().Source;
         int distance = Math.Abs(unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole)));

@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus.Projectiles;
-
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -22,6 +19,24 @@ namespace SuperMetroid.Core.Compatibility;
 [EncodingOwner("Kraid mouth bound left by a projectile hit")]
 public static class KraidMouthHitBound
 {
+    /// <summary>How the projectile that hit the mouth was delivered.</summary>
+    public enum Hit
+    {
+        /// <summary>A placed bomb or Power Bomb.</summary>
+        PlacedBomb,
+        /// <summary>A fired or spread projectile that is neither charged nor an echo.</summary>
+        Fired,
+        /// <summary>A fired charged beam.</summary>
+        FiredChargedBeam,
+        /// <summary>A fired echo.</summary>
+        FiredEcho,
+        /// <summary>A fired charged echo.</summary>
+        FiredChargedEcho,
+    }
+
+    /// <summary>The last family row and beam-combination index.</summary>
+    private const int LastRow = 15;
+
     /// <summary>The bound's step per projectile-family table row.</summary>
     private const int FamilyRowStep = 1 << 8;
 
@@ -34,19 +49,23 @@ public static class KraidMouthHitBound
     /// <summary>The bound's step for every projectile except a placed bomb or Power Bomb.</summary>
     private const int FiredStep = 1 << 15;
 
-    /// <summary>The bound Kraid's mouth is left with after <paramref name="type"/> hits it.</summary>
-    /// <param name="type">The projectile that hit the mouth.</param>
-    /// <param name="isPlacedBomb">Whether the projectile is a placed bomb or Power Bomb rather than a fired or spread one.</param>
+    /// <summary>The bound Kraid's mouth is left with after a projectile hits it.</summary>
+    /// <param name="familyRow">The projectile family's row in the per-family tables, 0 through 15.</param>
+    /// <param name="beamCombination">The beam combination's index, 0 through 15.</param>
+    /// <param name="hit">How the projectile was delivered: placed, or fired and whether charged or an echo.</param>
     /// <returns>The bound, read as a wrapping signed pixel row.</returns>
-    public static int After(SamusProjectileType type, bool isPlacedBomb)
+    public static int After(int familyRow, int beamCombination, Hit hit)
     {
-        int bound = type.Family.TableRow * FamilyRowStep + type.BeamCombination.TableIndex;
-        if (type.IsChargedBeam)
-            bound += ChargedStep;
-        if (type.Echo is not null)
-            bound += EchoStep;
-        if (!isPlacedBomb)
-            bound += FiredStep;
+        int bound = Ensure.BetweenInclusive(0, LastRow, familyRow) * FamilyRowStep + Ensure.BetweenInclusive(0, LastRow, beamCombination);
+        bound += hit switch
+        {
+            Hit.PlacedBomb => 0,
+            Hit.Fired => FiredStep,
+            Hit.FiredChargedBeam => FiredStep + ChargedStep,
+            Hit.FiredEcho => FiredStep + EchoStep,
+            Hit.FiredChargedEcho => FiredStep + ChargedStep + EchoStep,
+            _ => throw new ArgumentOutOfRangeException(nameof(hit), hit, "Undefined mouth hit."),
+        };
         return bound;
     }
 }

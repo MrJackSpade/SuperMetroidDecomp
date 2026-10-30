@@ -1,6 +1,5 @@
-using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Ranking predicates over the game's projectile family order (<see cref="SamusProjectileFamilyDefinitions.Order"/>) and

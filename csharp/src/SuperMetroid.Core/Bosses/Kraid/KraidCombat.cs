@@ -162,7 +162,8 @@ internal sealed class KraidCombat
                 // The common shot callback leaves the mouth's bounds as the hit's leftovers.
                 // In particular, a Super Missile's leftover changes the next shot's signed
                 // compare; rebuilding a clean rectangle here doubles close-range damage.
-                scratch.Bottom = unchecked((ushort)KraidMouthHitBound.After(shot.Type, shot.IsPlacedBomb));
+                scratch.Bottom = unchecked((ushort)KraidMouthHitBound.After(shot.Type.Family.TableRow,
+                    shot.Type.BeamCombination.TableIndex, MouthHit(shot)));
                 scratch.Top = unchecked((ushort)KraidContactDefinitions.ShotUpperBoundAfterHit);
                 // A vulnerability entry's multiplier is its low nibble for charged beams and its low seven bits otherwise.
                 int multiplier = type.Family switch
@@ -375,4 +376,12 @@ internal sealed class KraidCombat
         return false;
     
     }
+
+    /// <summary>How <paramref name="shot"/> was delivered, for the bound it leaves the mouth.</summary>
+    private static KraidMouthHitBound.Hit MouthHit(KraidBehavior.KraidCollisionShot shot) =>
+        shot.IsPlacedBomb ? KraidMouthHitBound.Hit.PlacedBomb
+        : shot.Type.IsChargedBeam && shot.Type.Echo is not null ? KraidMouthHitBound.Hit.FiredChargedEcho
+        : shot.Type.IsChargedBeam ? KraidMouthHitBound.Hit.FiredChargedBeam
+        : shot.Type.Echo is not null ? KraidMouthHitBound.Hit.FiredEcho
+        : KraidMouthHitBound.Hit.Fired;
 }

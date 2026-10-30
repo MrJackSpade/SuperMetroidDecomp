@@ -51,12 +51,12 @@ internal static class ProjectileFrameBindingsVerification
                 InstructionTimer = nativeShot.InstructionTimer,
                 SpritemapPointer = nativeShot.SpritemapPointer,
                 Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y),
-                Type = 0x0500, Damage = 30,
+                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30,
             };
             var installedShot = new SamusProjectileSlot(0)
                 { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Damage = 30 };
             var installedBomb = new SamusBombProjectileSlot(0)
-                { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Type = 0x0500, Damage = 30 };
+                { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
             var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = stock } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             AssertTrue(nativeShot.InstructionTimer.RawValue is > 0 and < 0x8000,

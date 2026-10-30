@@ -93,20 +93,22 @@ internal static class ProjectileDamageVerification
         }
         foreach (ushort type in new ushort[] { 0x0300, 0x0500, 0x8500 })
         {
-            var slot = new SamusBombProjectileSlot(0) { Type = type };
+            var slot = new SamusBombProjectileSlot(0) { Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type) };
             SamusBombProjectileSystem.InitializeBomb(slot);
             AssertEqual((ushort)(type == 0x0300 ? 200 : 30), slot.Damage, "Power/ordinary/spread bomb damage");
         }
+        // The echo table's unused negative-damage entry sits at Spazer+Wave, a combination no echo is: the typed identity
+        // cannot name it, so the import refuses the word that would select it (#1470).
         bool rejectedMarker = false;
         try
         {
-            BeamCombos.InitializeComboData(new SamusProjectileSlot(0) { Type = 0x8025 }, BeamComboData.Echo);
+            _ = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x8025);
         }
-        catch (InvalidDataException invalid) when (invalid.Message == "Negative native combo projectile damage.")
+        catch (InvalidDataException invalid) when (invalid.Message.Contains("names no echo", StringComparison.Ordinal))
         {
             rejectedMarker = true;
         }
-        AssertTrue(rejectedMarker, "Compiled unused negative marker still reaches the existing loud rejection");
+        AssertTrue(rejectedMarker, "The unused negative echo entry is unreachable: no projectile is a Spazer+Wave echo");
         Console.WriteLine("Projectile initialization: 357 selection words, 40 damage headers, loud non-catalog rejection and all seven initializer paths pass with selection/damage reads forbidden.");
     }
 

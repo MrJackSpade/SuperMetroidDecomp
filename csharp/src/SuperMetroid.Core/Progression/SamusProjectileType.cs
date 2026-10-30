@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Progression;
 
@@ -13,12 +12,12 @@ public readonly record struct SamusProjectileType
     public static SamusProjectileType None => default;
 
     /// <summary>Whether this names a projectile; false for <see cref="None"/>.</summary>
-    private readonly bool _exists;
+    private bool Exists { get; }
 
     /// <summary>Creates a projectile identity.</summary>
     private SamusProjectileType(SamusProjectileFamily family, SamusBeamCombination beams, bool charged, SamusBeamEcho? echo)
     {
-        _exists = true;
+        Exists = true;
         Family = family;
         BeamCombination = beams;
         IsChargedBeam = charged;
@@ -41,7 +40,7 @@ public readonly record struct SamusProjectileType
     public SamusBeamEcho? Echo { get; }
 
     /// <summary>Whether this is <see cref="None"/>.</summary>
-    public bool IsNone => !_exists;
+    public bool IsNone => !Exists;
 
     /// <summary>A beam shot of <paramref name="beams"/>, charged or not.</summary>
     internal static SamusProjectileType Beam(SamusBeamCombination beams, bool charged) =>
@@ -75,13 +74,4 @@ public readonly record struct SamusProjectileType
 
     /// <summary>Whether the projectile carries any of the beam components in <paramref name="beams"/>.</summary>
     public bool HasAnyBeam(SamusBeamFlags beams) => (BeamCombination.Components & beams) != SamusBeamFlags.None;
-
-    /// <summary>
-    /// The row the beam firing tables (cooldowns, trail programs) are read at for this projectile: the beam combination,
-    /// in the charged block when charged, and in the echo block for an echo. Missile-family trails read their own rows.
-    /// </summary>
-    internal int BeamTableRow =>
-        BeamCombination.TableIndex +
-        (IsChargedBeam ? SamusFiringTableDefinitions.ChargedRowOffset : 0) +
-        (Echo is null ? 0 : SamusFiringTableDefinitions.EchoRowOffset);
 }

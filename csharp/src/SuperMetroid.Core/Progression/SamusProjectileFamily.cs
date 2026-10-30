@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The kinds of thing Samus's weapons put into the world. Member values are arbitrary; the order the game compares
-/// families in is <see cref="SuperMetroid.Core.Samus.Projectiles.SamusProjectileFamilies"/>'s, never a member's value.
+/// families in is <see cref="SamusProjectileFamilies"/>'s, never a member's value.
 /// </summary>
 public enum SamusProjectileFamily
 {

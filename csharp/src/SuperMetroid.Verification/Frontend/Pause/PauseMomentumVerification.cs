@@ -49,7 +49,7 @@ internal static class PauseMomentumVerification
                     speed.FirstSpeedEchoPosition.Y == 0 && speed.SecondSpeedEchoPosition.Y == 0 &&
                     speed.FirstSpeedEchoVelocity.X == 0 && speed.SecondSpeedEchoVelocity.X == 0, "unpause clears both echo positions and velocities");
             }
-            else if (momentum && counter == 0)
+            else if (momentum && counter == default)
             {
                 AssertEqual(0, speed.CyclePaletteStep, "newly enabled boost resets palette frame");
                 AssertEqual(0, speed.SpecialPaletteTimer.RawValue, "unpause arms boost with native zero palette timer");

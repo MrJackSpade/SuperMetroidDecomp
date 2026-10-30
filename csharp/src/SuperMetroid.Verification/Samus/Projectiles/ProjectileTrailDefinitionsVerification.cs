@@ -28,12 +28,18 @@ internal static class ProjectileTrailDefinitionsVerification
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start - 2), "Trail selector rejects the preceding word");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(start + 1), "Trail selector rejects unaligned reads");
         AssertThrows<InvalidDataException>(() => ProjectileTrailDefinitions.ReadSelector(end), "Trail selector rejects the following word");
+        int spawned = 0;
         for (int selection = 0; selection < 64; selection++)
         {
+            // Echo selections name a projectile only for the Spazer combo trail ($24) and the shinespark echo ($29); the
+            // typed identity names no other echo, so no projectile spawns the rest (#1470).
+            if ((selection & 0x20) != 0 && selection is not (0x24 or 0x29))
+                continue;
+            spawned++;
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
             var projectile = new SamusProjectileSlot(0)
             {
-                Type = (ushort)selection,
+                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(selection),
                 Cursor = SamusProjectileProgramAddresses.CursorAt(0x86e3),
                 Position = new(new(100, 0), new(200, 0)),
             };
@@ -47,6 +53,6 @@ internal static class ProjectileTrailDefinitionsVerification
             AssertEqual(1, trail.Left.InstructionTimer.RawValue, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }
-        Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
+        Console.WriteLine($"Trail selectors: 103 reachable native words and {spawned} real spawn selections pass with the complete selector window forbidden.");
     }
 }

@@ -25,7 +25,7 @@ public sealed class SamusBombProjectileSlot
     /// The direction the shared projectile reactions read for a bomb. Bombs are placed without an aim, so they read as
     /// fired upward facing right.
     /// </summary>
-    public SamusProjectileDirection Direction => SamusProjectileDirection.UpFacingRight;
+    public static SamusProjectileDirection Direction => SamusProjectileDirection.UpFacingRight;
 
     /// <summary>What the slot holds; <see cref="SamusProjectileType.None"/> marks an empty slot.</summary>
     public SamusProjectileType Type { get; internal set; }

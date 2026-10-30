@@ -1,6 +1,5 @@
-using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>The game's projectile family order and each family's row in the per-family projectile tables.</summary>
 internal static class SamusProjectileFamilyDefinitions

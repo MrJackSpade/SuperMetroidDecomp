@@ -696,7 +696,8 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     while (!bombs.Slots[0].IsExploding)
         explosion = bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, 0, 0);
     AssertTrue(bombs.Slots[0].IsExploding, "timer zero selects bomb explosion list");
-    AssertEqual(0x0501, bombs.Slots[0].Type, "first explosion pass marks block cross handled");
+    AssertEqual(SamusBombProjectileSystem.NormalBombType, bombs.Slots[0].Type, "the exploding bomb stays a bomb");
+    AssertTrue(bombs.Slots[0].HasReactedToTerrain, "first explosion pass marks block cross handled");
     AssertEqual(RoomTerrainBlocks.EdgeSolid, floor.GetCollisionBlockByIndex(4 * width + 3).Terrain,
         "bottom reaction leaves the fixture solid floor intact without inventing a PLM");
     AssertEqual(1, (explosion.SoundRequests ?? throw new InvalidOperationException("Verification requires explosion.SoundRequests.")).Count,
@@ -785,7 +786,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     {
         SamusBombProjectileSlot slot = spreadBombs.Slots[index];
         AssertTrue(slot.IsBombSpread, $"spread slot {index} selects spread pre-instruction");
-        AssertEqual(0x8500, slot.Type, $"spread slot {index} uses bomb family/type `$8500`");
+        AssertEqual(SamusBombProjectileSystem.NormalBombType, slot.Type, $"spread slot {index} holds a bomb");
         AssertEqual(expectedSpreadTimers[index], slot.BombTimer.RawValue,
             $"spread slot {index} consumes first ROM fuse tick");
         AssertEqual(expectedSpreadX[index], slot.Position.X.Whole,
@@ -873,8 +874,8 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "remaining power-bomb ammo retains HUD selection");
     AssertEqual(0x0028, powerBombs.CooldownTimer.RawValue,
         "power bomb loads non-beam cooldown table entry three");
-    AssertEqual(0x0300, powerBombs.Slots[0].Type,
-        "power-bomb projectile family is HUD index in high byte");
+    AssertEqual(SamusBombProjectileSystem.PowerBombType, powerBombs.Slots[0].Type,
+        "the placed projectile is a Power Bomb");
     AssertEqual(0x00c8, powerBombs.Slots[0].Damage,
         "power-bomb damage follows bank-$93 type-three data");
     AssertEqual(0xab97, powerBombs.Slots[0].SpritemapPointer,
@@ -1178,7 +1179,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     RoomLevelData shotLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(shotWords, new RoomBlockBehavior[shotWords.Length], new RoomBlockAppearance[shotWords.Length]));
     var shotPlms = PlmFixtures.Unbound();
     AssertTrue(
-        shotPlms.TrySpawnBombedShootableBlock(shotLevel, shotIndex, 0, 0x0500),
+        shotPlms.TrySpawnBombedShootableBlock(shotLevel, shotIndex, 0, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
         "normal bomb allocates respawning shot-block PLM");
     AssertEqual(RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.SolidBlock),
         shotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
@@ -1218,7 +1219,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             powerBombShotLevel,
             shotIndex,
             behavior: 8,
-            projectileType: 0x0300,
+            projectileType: SamusProjectileType.Of(SamusProjectileFamily.PowerBomb),
             solidBlock: true),
         "power bomb allocates BTS-eight respawning block PLM");
     AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.SolidBlock),
@@ -1314,7 +1315,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             superShotLevel,
             shotIndex,
             behavior: 10,
-            projectileType: 0x0100,
+            projectileType: SamusProjectileType.Of(SamusProjectileFamily.Missile),
             solidBlock: true),
         "ordinary missile is rejected by Super Missile block setup");
     AssertEqual(RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock),
@@ -1326,7 +1327,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             superShotLevel,
             shotIndex,
             behavior: 10,
-            projectileType: 0x0200,
+            projectileType: SamusProjectileType.Of(SamusProjectileFamily.SuperMissile),
             solidBlock: true),
         "Super Missile allocates BTS-A respawning block PLM");
     AssertEqual(RoomTerrainBlock.Of(0x09f, BlockMirroring.None, RoomCollisionType.SolidBlock),
@@ -1359,7 +1360,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
                 permanentWeaponLevel,
                 shotIndex,
                 behavior,
-                projectileType,
+                SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectileType),
                 solidBlock: true),
             $"{familyName} allocates permanent weapon-gated block PLM");
         for (int frame = 0; frame < 20; frame++)
@@ -1383,28 +1384,28 @@ empty, spring, controllerInput: 0, frameCounter: 0);
             noOpShotLevel,
             shotIndex,
             behavior: 12,
-            projectileType: 0,
+            projectileType: SamusProjectileType.None,
             solidBlock: true),
         "BTS-C allocates retail no-op shot PLM");
     AssertTrue(noOpShotPlms.TrySpawnProjectileShotBlock(
             noOpShotLevel,
             shotIndex,
             behavior: 0x80,
-            projectileType: 0,
+            projectileType: SamusProjectileType.None,
             solidBlock: true),
         "negative type-C BTS allocates area-table no-op shot PLM");
     AssertTrue(!noOpShotPlms.TrySpawnProjectileShotBlock(
             noOpShotLevel,
             shotIndex,
             behavior: 0x80,
-            projectileType: 0,
+            projectileType: SamusProjectileType.None,
             solidBlock: false),
         "negative type-four BTS exits before shot PLM allocation");
     AssertTrue(noOpShotPlms.TrySpawnProjectileShotBlock(
             noOpShotLevel,
             shotIndex,
             behavior: 0x10,
-            projectileType: 0x0300,
+            projectileType: SamusProjectileType.Of(SamusProjectileFamily.PowerBomb),
             solidBlock: true),
         "BTS-ten allocates the native B974 collision-probe PLM");
     AssertEqual(3, noOpShotPlms.SlotTable.ActiveCount,
@@ -1429,13 +1430,13 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     RoomLevelData revealLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(revealWords, new RoomBlockBehavior[revealWords.Length], new RoomBlockAppearance[revealWords.Length]));
     var revealPlms = PlmFixtures.Unbound();
     AssertTrue(
-        revealPlms.TrySpawnBombedShootableBlock(revealLevel, powerRevealIndex, 8, 0x0500),
+        revealPlms.TrySpawnBombedShootableBlock(revealLevel, powerRevealIndex, 8, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
         "normal bomb allocates power-bomb reveal PLM");
     AssertTrue(
-        revealPlms.TrySpawnBombedShootableBlock(revealLevel, superRevealIndex, 10, 0x0500),
+        revealPlms.TrySpawnBombedShootableBlock(revealLevel, superRevealIndex, 10, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
         "normal bomb allocates super-missile reveal PLM");
     AssertTrue(
-        revealPlms.TrySpawnBombedShootableBlock(revealLevel, areaNoOpIndex, 0x80, 0x0500),
+        revealPlms.TrySpawnBombedShootableBlock(revealLevel, areaNoOpIndex, 0x80, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
         "negative type-C BTS allocates area-table no-op PLM");
     revealPlms.Step(revealLevel);
     AssertEqual(RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.ShootableBlock),
@@ -1476,7 +1477,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         var tableLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, behaviors, new RoomBlockAppearance[words.Length]));
         var tablePlms = PlmFixtures.Unbound();
         SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,
-            new(2, 2), new(), tablePlms, AreaId.Crateria, 0x0500);
+            new(2, 2), new(), tablePlms, AreaId.Crateria, SamusProjectileType.Of(SamusProjectileFamily.Bomb));
         tablePlms.Step(tableLevel);
         AssertEqual(behavior is >= 0x1a and <= 0x1d ? RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock) : RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialBlock),
             tableLevel.GetCollisionBlockByIndex(crumbleIndex).Terrain,
@@ -1485,15 +1486,15 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         var specialPlms = PlmFixtures.Unbound();
     AssertTrue(
         specialPlms.TrySpawnBombedSpecialBlock(
-            specialLevel, crumbleIndex, 3, AreaId.Crateria, 0x0500),
+            specialLevel, crumbleIndex, 3, AreaId.Crateria, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
         "normal bomb allocates two-by-two crumble reveal");
     AssertTrue(
         specialPlms.TrySpawnBombedSpecialBlock(
-            specialLevel, speedIndex, 0x82, AreaId.Brinstar, 0x0500),
+            specialLevel, speedIndex, 0x82, AreaId.Brinstar, SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
         "Brinstar negative BTS two allocates speed-block reveal");
     AssertTrue(
         !specialPlms.TrySpawnBombedSpecialBlock(
-            specialLevel, crumbleIndex, 3, AreaId.Crateria, 0x0300),
+            specialLevel, crumbleIndex, 3, AreaId.Crateria, SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)),
         "Power Bomb visits special block but CFA0 synchronously clears its PLM header");
     AssertEqual(2, specialPlms.SlotTable.ActiveCount,
         "rejected Power Bomb special reveal leaves no active PLM slot");

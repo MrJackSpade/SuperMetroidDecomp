@@ -68,12 +68,11 @@ public static class SamusProjectileWordCodec
         SamusProjectileType beam;
         if ((word & EchoBit) != 0)
         {
-            SamusBeamEcho echo = SamusBeamCombinations.FromTableIndex(beamBits) switch
-            {
-                SamusBeamCombination.Spazer => SamusBeamEcho.SpazerComboTrail,
-                SamusBeamCombination.PlasmaWave => SamusBeamEcho.ShinesparkEcho,
-                var other => throw new InvalidDataException($"Projectile type word ${word:X4} names no echo ({other})."),
-            };
+            // Only two beam combinations name an echo; every other one is malformed data.
+            SamusBeamCombination echoCombination = SamusBeamCombinations.FromTableIndex(beamBits);
+            SamusBeamEcho echo = echoCombination == SamusBeamCombination.Spazer ? SamusBeamEcho.SpazerComboTrail
+                : echoCombination == SamusBeamCombination.PlasmaWave ? SamusBeamEcho.ShinesparkEcho
+                : throw new InvalidDataException($"Projectile type word ${word:X4} names no echo ({echoCombination}).");
             beam = SamusProjectileType.EchoOf(echo);
         }
         else

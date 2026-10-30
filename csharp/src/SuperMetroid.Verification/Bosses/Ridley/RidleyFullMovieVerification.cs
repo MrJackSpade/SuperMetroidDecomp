@@ -48,6 +48,7 @@ namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.ScenarioFixtures;
+using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Focused Ridley fight checks and the full recorded-movie gameplay comparison.</summary>
 internal static class RidleyFullMovieVerification
@@ -1062,10 +1063,16 @@ internal static class RidleyFullMovieVerification
                             SheetFrameSources.CharacterDraw((ImageSpriteDraw)covers[0]).Artwork.Id.Variant,
                             $"update {frame}: cannon draw binds the reference cover tile");
                 }
-                Check("Cannon flags", LittleEndianBytes.Word(checked((byte)samus.ArmCannon.OpenFlag), checked((byte)samus.ArmCannon.CloseFlag)), NativeSnapshotMemory.CannonFlags);
+                // The recorded cover flags are a byte each; the drawing mode is compared as the draw order it selects.
+                ushort recordedCannonFlags = W(NativeSnapshotMemory.CannonFlags);
+                if (samus.ArmCannon.IsOpen != (LittleEndianBytes.LowByte(recordedCannonFlags) != 0) ||
+                    samus.ArmCannon.IsTransitioning != (LittleEndianBytes.HighByte(recordedCannonFlags) != 0))
+                    mismatches.Add($"Cannon flags: native={recordedCannonFlags:X4} port open={samus.ArmCannon.IsOpen} transitioning={samus.ArmCannon.IsTransitioning}");
                 Check("Cannon frame", samus.ArmCannon.Frame, NativeSnapshotMemory.CannonFrame);
-                Check("Cannon toggle", samus.ArmCannon.ToggleFlag, NativeSnapshotMemory.CannonToggle);
-                Check("Cannon drawing mode", samus.ArmCannon.DrawingMode, NativeSnapshotMemory.CannonDrawingMode);
+                Check("Cannon toggle", samus.ArmCannon.StableSelectionUpdates, NativeSnapshotMemory.CannonToggle);
+                SamusArmCannonDrawOrder recordedDrawOrder = SamusArmCannonState.DrawOrderOf(W(NativeSnapshotMemory.CannonDrawingMode));
+                if (samus.ArmCannon.DrawOrder != recordedDrawOrder)
+                    mismatches.Add($"Cannon draw order: native={recordedDrawOrder} port={samus.ArmCannon.DrawOrder}");
                 Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.MinimapDisabled);
                 CheckBytes("Room scroll storage", RoomScrollGrid.StorageByteCount,
                     runtime.Room.LoadedCamera.Scrolls.ReadStorage, NativeSnapshotMemory.ScrollStorage);
@@ -1123,8 +1130,12 @@ internal static class RidleyFullMovieVerification
                 for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
                 {
                     var effect = samus.LiquidPhysics.AtmosphericEffects.Slots[index];
-                    Check($"Atmosphere {index} frame/type", effect.FrameAndType, NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
-                    if (effect.Type == 0) continue;
+                    // The recorded frame/type word is compared as the effect and frame the import codec decodes it to.
+                    ushort recordedEffect = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
+                    if (effect.Type != SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeType(recordedEffect) ||
+                        effect.AnimationFrame != SuperMetroid.AssetExtraction.Samus.SamusAtmosphericEffectWordCodec.DecodeFrame(recordedEffect))
+                        mismatches.Add($"Atmosphere {index} frame/type: native={recordedEffect:X4} port={effect.Type}/{effect.AnimationFrame}");
+                    if (effect.IsEmpty) continue;
                     Check($"Atmosphere {index} timer", effect.AnimationTimer.RawValue, NativeSnapshotMemory.AtmosphericTimer + index * 2);
                     Check($"Atmosphere {index} X", effect.Position.X, NativeSnapshotMemory.AtmosphericX + index * 2);
                     Check($"Atmosphere {index} Y", effect.Position.Y, NativeSnapshotMemory.AtmosphericY + index * 2);
@@ -1399,7 +1410,18 @@ internal static class RidleyFullMovieVerification
                     Check($"PLM {slotIndex} BlockIndex", unchecked((ushort)(slot.BlockIndex * 2)), NativeSnapshotMemory.PlmBlockIndex + offset);
                     Check($"PLM {slotIndex} PreInstruction", preInstruction, NativeSnapshotMemory.PlmPreInstruction + offset);
                     Check($"PLM {slotIndex} InstructionPointer", instruction, NativeSnapshotMemory.PlmInstructionPointer + offset);
-                    Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, NativeSnapshotMemory.PlmLoopTimer + offset);
+                    // The cartridge keeps a pending projectile hit in the loop counter's storage; a pending hit is
+                    // compared as the family the recorded word decodes to, otherwise the loop counter is compared.
+                    if (slot.ProjectileHit is { } pendingHit)
+                    {
+                        SamusProjectileFamily recordedHit = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.PlmLoopTimer + offset)).Family;
+                        if (recordedHit != pendingHit.Family)
+                            mismatches.Add($"PLM {slotIndex} projectile hit: native={recordedHit} port={pendingHit.Family}");
+                    }
+                    else
+                    {
+                        Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, NativeSnapshotMemory.PlmLoopTimer + offset);
+                    }
                     Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, NativeSnapshotMemory.PlmRoomArgument + offset);
                     // The native sleep leaves the countdown at zero and lets it run on from $FFFF; the typed hold re-arms
                     // one on each pass. Both wake with one, so only a sleeping door's countdown is left uncompared.
@@ -1455,7 +1477,7 @@ internal static class RidleyFullMovieVerification
                 foreach (var bomb in runtime.BombProjectiles.Slots)
                 {
                     int address = NativeSnapshotMemory.ProjectileType + (bomb.Index + 5) * 2;
-                    Check($"Bomb {bomb.Index} type", bomb.Type, address);
+                    AssertTrue(bomb.Type.IsNone, $"Bomb {bomb.Index} holds no bomb");
                     AssertTrue(W(address) == 0,
                         "Movie now activates a bomb slot; add its full live-state mapping");
                 }
@@ -1478,8 +1500,11 @@ internal static class RidleyFullMovieVerification
             {
                 int index = projectile.SlotTableOffset;
                 string owner = $"Projectile {projectile.SlotIndex}";
-                Check(owner + " type", projectile.Type, NativeSnapshotMemory.ProjectileType + index);
-                if (projectile.Type == 0 || W(NativeSnapshotMemory.ProjectileType + index) == 0) continue;
+                // The recorded type, direction and missile variable words are compared as the projectile state they decode to.
+                SamusProjectileType recordedType = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(W(NativeSnapshotMemory.ProjectileType + index));
+                if (projectile.Type != recordedType)
+                    mismatches.Add($"{owner} type: native={recordedType} port={projectile.Type}");
+                if (projectile.Type.IsNone || recordedType.IsNone) continue;
                 Check(owner + " X", projectile.Position.X.Whole, NativeSnapshotMemory.ProjectileX + index);
                 Check(owner + " Y", projectile.Position.Y.Whole, NativeSnapshotMemory.ProjectileY + index);
                 Check(owner + " X radius", projectile.Radius.X, NativeSnapshotMemory.ProjectileXRadius + index);
@@ -1489,7 +1514,10 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " YFraction", unchecked(projectile.Position.Y.Fraction), NativeSnapshotMemory.ProjectileYFraction + index);
                 Check(owner + " XVelocity", unchecked((ushort)projectile.Velocity.X.SignedRawValue), NativeSnapshotMemory.ProjectileXVelocity + index);
                 Check(owner + " YVelocity", unchecked((ushort)projectile.Velocity.Y.SignedRawValue), NativeSnapshotMemory.ProjectileYVelocity + index);
-                Check(owner + " Direction", unchecked((ushort)projectile.Direction), NativeSnapshotMemory.ProjectileDirection + index);
+                ushort recordedDirection = W(NativeSnapshotMemory.ProjectileDirection + index);
+                if (projectile.Direction != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(recordedDirection) ||
+                    projectile.IsSpent != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeSpent(recordedDirection))
+                    mismatches.Add($"{owner} Direction: native={recordedDirection:X4} port={projectile.Direction} spent={projectile.IsSpent}");
                 Check(owner + " Instruction", unchecked((ushort)projectile.InstructionPointer), NativeSnapshotMemory.ProjectileInstruction + index);
                 ushort callback = projectile.PreInstruction switch
                 {
@@ -1516,7 +1544,14 @@ internal static class RidleyFullMovieVerification
                 };
                 Check(owner + " PreInstruction", callback, NativeSnapshotMemory.ProjectilePreInstruction + index);
                 Check(owner + " InstructionTimer", unchecked(projectile.InstructionTimer.RawValue), NativeSnapshotMemory.ProjectileInstructionTimer + index);
-                Check(owner + " Variable", unchecked((ushort)projectile.Variable), NativeSnapshotMemory.ProjectileVariable + index);
+                // Only missiles keep state in the variable word that this movie reaches: their ignition and link.
+                if (projectile.Type.Family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
+                {
+                    ushort recordedVariable = W(NativeSnapshotMemory.ProjectileVariable + index);
+                    if (projectile.MissileIgnition != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileIgnition(recordedVariable) ||
+                        projectile.SuperMissileLinkSlot != SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeMissileLinkSlot(recordedVariable))
+                        mismatches.Add($"{owner} missile ignition: native={recordedVariable:X4} port={projectile.MissileIgnition}/{projectile.SuperMissileLinkSlot}");
+                }
                 Check(owner + " TrailTimer", unchecked(projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
                 Check(owner + " AuxiliaryPhase", unchecked((ushort)projectile.AuxiliaryPhase), NativeSnapshotMemory.ProjectileAuxiliaryPhase + index);
                 Check(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), NativeSnapshotMemory.ProjectileSpritemap + index);

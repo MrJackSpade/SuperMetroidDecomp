@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Assets;
@@ -201,7 +202,7 @@ internal sealed class RuntimeArtwork
     {
         if (pendingBeamPalette is not { } beamPalettes || _player.Samus is not { } samus) return;
         // Do not reinterpret invalid combination overreads as a legal replacement.
-        if (SuperMetroid.Core.Samus.Projectiles.SamusBeamCombinations.Of(samus.EquippedBeams) is var selection &&
+        if (SamusBeamCombinations.Of(samus.EquippedBeams) is var selection &&
             selection.IsRetail &&
             // An in-flight effect owns these colors across frames. Its own completion
             // restores the selected normal palette; host rebind must not erase its phase.

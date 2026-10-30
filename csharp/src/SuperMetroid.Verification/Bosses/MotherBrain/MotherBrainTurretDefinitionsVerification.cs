@@ -87,9 +87,9 @@ internal static class MotherBrainTurretDefinitionsVerification
 
                 MotherBrainProjectiles.SelectNextMotherBrainTurretDirection(rotation);
                 MotherBrainTurretState rotated = rotation.StateOf<MotherBrainTurretState>();
-                AssertEqual((int)expectedDirection, rotated.RingPosition,
+                AssertEqual(expectedDirection, rotated.RingPosition,
                     $"production Mother Brain turret rotation {parameter}/{current}/{delta}");
-                AssertEqual((int)expectedDelta, rotated.RotationStep,
+                AssertEqual(expectedDelta, rotated.RotationStep,
                     $"production Mother Brain turret turn step {parameter}/{current}/{delta}");
             }
         }

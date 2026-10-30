@@ -22,27 +22,27 @@ public sealed class RoomMainCarryover
     private const int BackwardBit = 1 << 15;
 
     /// <summary>The value left behind, 0 through 65535.</summary>
-    private int value;
+    private int Held { get; set; }
 
     /// <summary>The value read as a countdown.</summary>
-    public WrappingCountdown Countdown => WrappingCountdown.FromRaw(value);
+    public WrappingCountdown Countdown => WrappingCountdown.FromRaw(Held);
 
     /// <summary>The value read as the fraction of a position, 0 through 65535.</summary>
-    public int Fraction => value;
+    public int Fraction => Held;
 
     /// <summary>Leaves a countdown.</summary>
-    public void LeaveCountdown(WrappingCountdown countdown) => value = countdown.RawValue;
+    public void LeaveCountdown(WrappingCountdown countdown) => Held = countdown.RawValue;
 
     /// <summary>Leaves the fraction of a position.</summary>
     /// <param name="fraction">The fraction, 0 through 65535.</param>
-    public void LeaveFraction(int fraction) => value = Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
+    public void LeaveFraction(int fraction) => Held = Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
 
     /// <summary>Leaves a step of a turn that sweeps forward and back.</summary>
     /// <param name="step">The step, 0 through 32767.</param>
     /// <param name="backward">Whether the turn is sweeping backward; a later countdown reading sees it as already expired.</param>
     public void LeaveTurnStep(int step, bool backward) =>
-        value = Ensure.BetweenInclusive(0, BackwardBit - 1, step) | (backward ? BackwardBit : 0);
+        Held = Ensure.BetweenInclusive(0, BackwardBit - 1, step) | (backward ? BackwardBit : 0);
 
     /// <summary>Leaves nothing: the value is zero.</summary>
-    public void Clear() => value = 0;
+    public void Clear() => Held = 0;
 }

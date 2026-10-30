@@ -135,7 +135,7 @@ internal static class ProjectileRadiiVerification
                 // The bomb owner deliberately rejects zero-duration records. Keep that
                 // existing contract instead of treating arbitrary beam records as bombs.
                 if (duration == 0) continue;
-                var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Type = 0x0500 };
+                var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
                 AssertEqual(false, bombs.RunProjectileInstructionHandler(bomb), "Bomb timed record survives");
                 AssertEqual(duration, bomb.InstructionTimer.RawValue, "Bomb duration unchanged");
                 AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb artwork reference changes independently");

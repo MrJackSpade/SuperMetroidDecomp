@@ -1,7 +1,6 @@
 using System.Collections.Frozen;
-using SuperMetroid.Core.Progression;
 
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>Decoding and component predicates for <see cref="SamusBeamCombination"/>.</summary>
 public static class SamusBeamCombinations

@@ -25,6 +25,7 @@ public readonly record struct SamusSpeedBoostCounter
     public static SamusSpeedBoostCounter AtFullStage => new(FullStage, 0);
 
     /// <summary>The boost stage, zero through <see cref="FullStage"/>.</summary>
+    [IntegerQuantity("how many stages the boost has reached: it rises by one, borrows down by one and is compared with its range, not one of a set of categories")]
     public int Stage { get; }
 
     /// <summary>Animation commands left before the next stage, 0 through 255.</summary>

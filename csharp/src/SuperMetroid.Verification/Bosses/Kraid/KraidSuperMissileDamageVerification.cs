@@ -161,8 +161,10 @@ internal static class KraidSuperMissileDamageVerification
             shot.Damage = 60;
         }
         runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
-        AssertEqual(880, body.Health,
-            "Charged shots whose clobbered comparisons still pass both damage Kraid; no one-hit cap");
+        // A charged beam is only fired with Charge equipped, so its identity carries the Charge bit; the bound that leaves
+        // the mouth ($9010) turns the second shot's clobbered compare at this height positive (#1470).
+        AssertEqual(940, body.Health,
+            "The first charged shot's bound rejects a second charged shot at the same height");
 
         Prepare(5);
         var bomb = runtime.BombProjectiles.Slots[0];

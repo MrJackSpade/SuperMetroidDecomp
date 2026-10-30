@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BombChargeRejectionVerification;
@@ -36,13 +37,13 @@ internal static class WrapShotsVerification
         for (int left = 0; left < 2; left++)
         for (int beam = 0; beam < 3; beam++)
         {
-            var words = new ushort[64 * 128];
+            var words = new RoomTerrainBlock[64 * 128];
             for (int row = 0; row < 128; row++)
             {
-                words[row * 64 + (left != 0 ? 63 : 0)] = 0x4000;
-                words[row * 64 + (left != 0 ? 0 : 63)] = 0x8000;
+                words[row * 64 + (left != 0 ? 63 : 0)] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.ShootableAir);
+                words[row * 64 + (left != 0 ? 0 : 63)] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
             }
-            var level = CreateRoom(new(64, 128), words, new byte[words.Length]);
+            var level = CreateRoom(new(64, 128), words, new RoomBlockBehavior[words.Length]);
             var samus = new SamusState
             {
                 PoseId = left != 0 ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
@@ -63,10 +64,10 @@ internal static class WrapShotsVerification
                 for (int row = 0; row < 128; row++)
                 {
                     var block = level.GetCollisionBlock(new(checked((ushort)(left != 0 ? 63 : 0)), checked((ushort)row)));
-                    if (block.PackedWord.Raw != 0x4000) actual += $"{block.Index:X4}:{block.PackedWord.Raw:X4};";
+                    if (block.Terrain != RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.ShootableAir)) actual += $"{block.Index:X4}:{block.Terrain:X4};";
                 }
                 int target = left != 0 ? 0x123f : 0x0280;
-                if (firstRemoteHit < 0 && level.GetCollisionBlock(new(checked((ushort)(target % 64)), checked((ushort)(target / 64)))).PackedWord.Raw == 0x0052)
+                if (firstRemoteHit < 0 && level.GetCollisionBlock(new(checked((ushort)(target % 64)), checked((ushort)(target / 64)))).Terrain == RoomTerrainBlock.Of(0x052, BlockMirroring.None, RoomCollisionType.Air))
                 {
                     firstRemoteHit = frame;
                     AssertTrue(shot.IsActive, "Remote reaction occurs while the real projectile is retained");

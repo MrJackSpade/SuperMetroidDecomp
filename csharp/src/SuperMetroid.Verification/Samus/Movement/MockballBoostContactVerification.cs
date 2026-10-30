@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
@@ -28,9 +29,9 @@ internal static class MockballBoostContactVerification
             };
             var fixture = CreateEnemyDropFixture(samus, [1]);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            ushort[] blocks = new ushort[32 * 8];
-            for (int x = 0; x < 32; x++) blocks[4 * 32 + x] = 0x8000;
-            var floor = CreateRoom(new(32, 8), blocks, new byte[blocks.Length]);
+            RoomTerrainBlock[] blocks = new RoomTerrainBlock[32 * 8];
+            for (int x = 0; x < 32; x++) blocks[4 * 32 + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+            var floor = CreateRoom(new(32, 8), blocks, new RoomBlockBehavior[blocks.Length]);
             var speed = samus.HorizontalSpeed;
             speed.HasRunningMomentum = true;
             speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(7);

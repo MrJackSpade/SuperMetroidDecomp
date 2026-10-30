@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Tooling;
 using System.Buffers.Binary;
 using System.Text.Json.Nodes;
@@ -16,12 +17,13 @@ using SuperMetroid.Core.World.RoomStates;
 
 namespace SuperMetroid.Verification.Rooms;
 
-/// <summary>Checks compiled room visuals against native level streams while keeping collision and BTS authoritative.</summary>
+/// <summary>Checks the installed room terrain and appearances against the cartridge's level words, decoded by the import's codec.</summary>
 internal static class RoomVisualLayoutsVerification
 {
     /// <summary>
-    /// Checks every stock visual reference against its native source, then proves an
-    /// installed override changes both rendered planes without changing collision/BTS.
+    /// Checks every installed level's terrain, behaviours, background and terrain beyond the room, and every stock
+    /// appearance, against the cartridge's level words decoded by the import's codec; then proves an installed override
+    /// changes both rendered planes without changing terrain or behaviours.
     /// </summary>
     internal static void VerifyRoomVisualLayouts(GameInstallation installed,
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus, SelectedRoom landing)
@@ -49,12 +51,8 @@ internal static class RoomVisualLayoutsVerification
         foreach ((RoomLevelId level, int width) in RoomVisualLayoutFiles.RetailLevels)
         {
             RoomLevelArtwork layout = stock.Get(level);
+            InstalledRoomLevel terrain = levelStreams.Get(level);
             byte[] native = RomDataReader.Decompress(bus, RoomLevelSourceDefinitions.Addresses[level]);
-            AssertTrue(native.SequenceEqual(File.ReadAllBytes(Path.Combine(
-                    installed.RoomLevelStreamDirectory, RoomLevelStreamFiles.LevelFileName(level)))),
-                $"installed level file for {level} is the complete native decompressor output");
-            AssertTrue(native.SequenceEqual(levelStreams.Get(level).Span),
-                $"installed room level {level} matches every native allocation byte");
             int layerBytes = BinaryPrimitives.ReadUInt16LittleEndian(native);
             int count = layerBytes / 2;
             int backgroundOffset = 2 + layerBytes + count;
@@ -62,19 +60,43 @@ internal static class RoomVisualLayoutsVerification
             AssertEqual(width, layout.Size.X, $"room level {level} visual stride");
             AssertEqual(count / width, layout.Size.Y,
                 $"room level {level} visual allocation height");
+            AssertEqual(layout.Size, terrain.Size, $"room level {level} terrain grid size");
             for (int index = 0; index < count; index++)
             {
-                ushort foreground = unchecked((ushort)(
-                    BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(2 + index * 2)) & 0x0fff));
-                ushort background = index * 2 < backgroundBytes
-                    ? unchecked((ushort)(BinaryPrimitives.ReadUInt16LittleEndian(
-                        native.AsSpan(backgroundOffset + index * 2)) & 0x0fff))
-                    : (ushort)0;
-                AssertEqual(foreground, layout.ForegroundVisualWords.Span[index],
-                    $"room level {level} BG1 visual word {index}");
-                AssertEqual(background, layout.BackgroundVisualWords.Span[index],
-                    $"room level {level} BG2 visual word {index}");
+                ushort foreground = BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(2 + index * 2));
+                RoomBlockAppearance background = RoomLevelWordCodec.DecodeAppearance(index * 2 < backgroundBytes
+                    ? BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(backgroundOffset + index * 2))
+                    : (ushort)0);
+                AssertEqual(RoomLevelWordCodec.Decode(foreground), terrain.Foreground[index],
+                    $"room level {level} installed terrain {index}");
+                AssertEqual(new RoomBlockBehavior(native[2 + layerBytes + index]), terrain.Behaviors[index],
+                    $"room level {level} installed behaviour {index}");
+                AssertEqual(background, terrain.Background[index],
+                    $"room level {level} installed background {index}");
+                AssertEqual(RoomLevelWordCodec.DecodeAppearance(foreground), layout.Foreground.Span[index],
+                    $"room level {level} foreground appearance {index}");
+                AssertEqual(background, layout.Background.Span[index],
+                    $"room level {level} background appearance {index}");
             }
+
+            // Past the grid: every level word the decompressed level reaches, the last possibly half the fill,
+            // then the fill to the end of the cleared level space; the fill decodes to the game's edge-solid block.
+            int payloadWords = (native.Length - 2 + 1) / 2;
+            AssertEqual(Math.Max(0, payloadWords - count), terrain.Following.Length,
+                $"room level {level} data following the grid");
+            AssertEqual(Math.Max(LevelSpaceWords, payloadWords) - count, terrain.BeyondCount,
+                $"room level {level} terrain beyond the grid");
+            for (int index = 0; index < terrain.Following.Length; index++)
+            {
+                int offset = 2 + (count + index) * 2;
+                ushort word = offset + 1 < native.Length
+                    ? BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(offset))
+                    : (ushort)(native[offset] | (FillWord & 0xff00));
+                AssertEqual(RoomLevelWordCodec.Decode(word), terrain.Following[index],
+                    $"room level {level} block {count + index} past the grid");
+            }
+            AssertEqual(RoomTerrainBlocks.EdgeSolid, RoomLevelWordCodec.Decode(FillWord),
+                "the level-space fill is the game's edge-solid block");
         }
 
         // Exercise the real room loader for every selectable state, not merely
@@ -110,13 +132,13 @@ internal static class RoomVisualLayoutsVerification
                     ushort nativeBg2Word = blockIndex * 2 < availableBg2
                         ? BinaryPrimitives.ReadUInt16LittleEndian(
                             native.AsSpan(bg2Offset + blockIndex * 2))
-                        : RoomLevelMemoryLayout.PrefilledLevelWord;
-                    AssertEqual(nativeWord, block.PackedWord.Raw,
-                        $"room ${header.Pointer:X4} state ${statePointer:X4} collision word {blockIndex}");
-                    AssertEqual(nativeBts, block.Bts.Value,
-                        $"room ${header.Pointer:X4} state ${statePointer:X4} BTS {blockIndex}");
-                    AssertEqual(nativeBg2Word, loaded.BackgroundEntries.AsSpan()[blockIndex],
-                        $"room ${header.Pointer:X4} state ${statePointer:X4} BG2 word {blockIndex}");
+                        : FillWord;
+                    AssertEqual(RoomLevelWordCodec.Decode(nativeWord), block.Terrain,
+                        $"room ${header.Pointer:X4} state ${statePointer:X4} terrain {blockIndex}");
+                    AssertEqual(new RoomBlockBehavior(nativeBts), block.Behavior,
+                        $"room ${header.Pointer:X4} state ${statePointer:X4} behaviour {blockIndex}");
+                    AssertEqual(RoomLevelWordCodec.DecodeAppearance(nativeBg2Word), loaded.BackgroundPlane.Blocks[blockIndex],
+                        $"room ${header.Pointer:X4} state ${statePointer:X4} background {blockIndex}");
                     if (block.CollisionType == RoomCollisionType.Slope) slopeBlocks++;
                     if (block.CollisionType is RoomCollisionType.SpikeAir or
                         RoomCollisionType.SpikeBlock) spikeBlocks++;
@@ -134,10 +156,11 @@ internal static class RoomVisualLayoutsVerification
         string stockPath = Path.Combine(installed.RoomVisualLayoutDirectory, name);
         JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
             ?? throw new InvalidDataException("Installed Landing Site layout is empty.");
-        JsonArray foregroundWords = document.Required("foregroundVisualWords").AsArray();
-        JsonArray backgroundWords = document.Required("backgroundVisualWords").AsArray();
-        foregroundWords[0] = foregroundWords.Required(0).GetValue<int>() ^ 0x0400;
-        backgroundWords[0] = backgroundWords.Required(0).GetValue<int>() ^ 0x0400;
+        JsonObject foregroundPlane = document.Required("foreground").AsObject();
+        JsonObject backgroundPlane = document.Required("background").AsObject();
+        JsonArray foregroundBlocks = foregroundPlane.Required("blocks").AsArray();
+        foregroundPlane["mirroring"] = MirrorFirstHorizontally(foregroundPlane.Required("mirroring").GetValue<string>());
+        backgroundPlane["mirroring"] = MirrorFirstHorizontally(backgroundPlane.Required("mirroring").GetValue<string>());
         Directory.CreateDirectory(installed.RoomVisualLayoutOverrideDirectory);
         string overridePath = Path.Combine(installed.RoomVisualLayoutOverrideDirectory, name);
         File.WriteAllText(overridePath, document.ToJsonString());
@@ -147,13 +170,8 @@ internal static class RoomVisualLayoutsVerification
             visualLayouts: stock, levelStreams: levelStreams);
         LoadedRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
             visualLayouts: installed.LoadRoomVisualLayouts(), levelStreams: levelStreams);
-        AssertTrue(nativeRoom.LevelData.ForegroundEntries.Span.SequenceEqual(
-                editedRoom.LevelData.ForegroundEntries.Span) &&
-            nativeRoom.LevelData.BehaviorBytes.AsSpan().SequenceEqual(
-                editedRoom.LevelData.BehaviorBytes.AsSpan()) &&
-            nativeRoom.LevelData.BackgroundEntries.AsSpan().SequenceEqual(
-                editedRoom.LevelData.BackgroundEntries.AsSpan()),
-            "visual room-layout override leaves full native BG1/BTS/BG2 allocations unchanged");
+        AssertTrue(nativeRoom.LevelData.SameTerrainAs(editedRoom.LevelData),
+            "an appearance override leaves the room's terrain and behaviours unchanged");
 
         // The renderers resolve each block from the level planes (#1346), so the shown first blocks, each a whole block and
         // its mirroring (#1431), are the planes'.
@@ -177,43 +195,55 @@ internal static class RoomVisualLayoutsVerification
             LoadedRoomAssets nativeOther = LoadFixtureRoomAssets(room);
             LoadedRoomAssets installedOther = LoadFixtureRoomAssets(room,
                 visualLayouts: stock, levelStreams: levelStreams);
-            AssertTrue(nativeOther.LevelData.ForegroundEntries.Span.SequenceEqual(
-                    installedOther.LevelData.ForegroundEntries.Span) &&
-                nativeOther.LevelData.BehaviorBytes.AsSpan().SequenceEqual(
-                    installedOther.LevelData.BehaviorBytes.AsSpan()) &&
-                nativeOther.LevelData.BackgroundEntries.AsSpan().SequenceEqual(
-                    installedOther.LevelData.BackgroundEntries.AsSpan()) &&
-                nativeOther.LevelData.Size.Y == installedOther.LevelData.Size.Y,
-                $"installed room ${pointer:X4} retains native collision, BTS, BG2, and allocation height");
+            AssertTrue(nativeOther.LevelData.SameTerrainAs(installedOther.LevelData) &&
+                nativeOther.LevelData.BackgroundPlane.Blocks.SequenceEqual(installedOther.LevelData.BackgroundPlane.Blocks),
+                $"installed room ${pointer:X4} retains its terrain, behaviours, background and level height");
         }
 
         // Existing user content is outside the replaceable stock installation. Reimport
-        // must retain the selected visual word while native collision remains unchanged.
+        // must retain the selected appearance while the terrain remains unchanged.
+        RoomBlockAppearance editedFirst = editedRoom.LevelData.ForegroundPlane.Blocks[0];
         _ = GameAssetInstaller.EnsureInstalled(installed.Root)
             ?? throw new InvalidOperationException("Room-layout repair lost the installation.");
-        AssertEqual(foregroundWords.Required(0).GetValue<int>(),
-            installed.LoadRoomVisualLayouts().Get(landingLevel).ForegroundVisualWords.Span[0],
+        AssertEqual(editedFirst,
+            installed.LoadRoomVisualLayouts().Get(landingLevel).Foreground.Span[0],
             "room-layout override survives stock installation validation");
 
-        int editedForegroundWord = foregroundWords.Required(0).GetValue<int>();
-        foregroundWords[0] = 0x8000;
+        int editedForegroundBlock = foregroundBlocks.Required(0).GetValue<int>();
+        foregroundBlocks[0] = RoomBlockAppearance.LastBlock + 1;
         File.WriteAllText(overridePath, document.ToJsonString());
         try
         {
             _ = installed.LoadRoomVisualLayouts();
-            throw new InvalidOperationException("A collision bit was accepted as visual artwork.");
+            throw new InvalidOperationException("A block outside the tileset's set was accepted as an appearance.");
         }
         catch (InvalidDataException error)
         {
             AssertTrue(error.Message.Contains(name, StringComparison.Ordinal),
                 "invalid visual-layout override identifies its file");
         }
-        foregroundWords[0] = editedForegroundWord;
+        foregroundBlocks[0] = editedForegroundBlock;
         File.WriteAllText(overridePath, document.ToJsonString());
-        Console.WriteLine($"  Room layouts: {RoomVisualLayoutFiles.RetailLevels.Count} native levels and " +
-            $"{stateCount} guarded state loads retain collision/BTS (including slopes and spikes) while BG1/BG2 edits " +
-            "affect only rendering, survive repair, and reject collision bits.");
+        Console.WriteLine($"  Room layouts: {RoomVisualLayoutFiles.RetailLevels.Count} levels decode to the installed terrain and " +
+            $"{stateCount} guarded state loads keep it (including slopes and spikes) while appearance edits " +
+            "affect only rendering, survive repair, and reject blocks outside the tileset's set.");
     }
+
+    /// <summary>The cartridge's level-space fill word, which the import decodes as the game's edge-solid block.</summary>
+    private const ushort FillWord = 0x8000;
+
+    /// <summary>The level words the cartridge fills before decompressing a room.</summary>
+    private const int LevelSpaceWords = 0x3200;
+
+    /// <summary>A layout plane's mirroring codes with the first block's horizontal mirroring toggled.</summary>
+    private static string MirrorFirstHorizontally(string mirroring) => mirroring[0] switch
+    {
+        '-' => "H",
+        'H' => "-",
+        'V' => "B",
+        'B' => "V",
+        _ => throw new InvalidDataException($"Unknown mirroring code '{mirroring[0]}'."),
+    } + mirroring[1..];
 
     /// <summary>
     /// Confirms the stock-only level-stream loader rejects each corrupted installation with a

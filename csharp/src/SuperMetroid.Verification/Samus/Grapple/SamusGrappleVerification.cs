@@ -144,9 +144,9 @@ internal static void VerifySamusGrappleSwingAndRelease()
     // A type-$E/BTS-$00 block is persistent grapple PLM $D0D8 and returns flags $41.
     // Put it at (3,3): the first frame's four 16.16 substeps end at X=45, then frame two's
     // first substep reaches X=48 and must center the accepted endpoint at (56,56).
-    var firingBlocks = new ushort[8 * 8];
-    firingBlocks[3 * 8 + 3] = 0xe000;
-    RoomLevelData firingLevel = CreateRoom(new(8, 8), firingBlocks, new byte[firingBlocks.Length]);
+    var firingBlocks = new RoomTerrainBlock[8 * 8];
+    firingBlocks[3 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.GrappleBlock);
+    RoomLevelData firingLevel = CreateRoom(new(8, 8), firingBlocks, new RoomBlockBehavior[firingBlocks.Length]);
 
     // Samus at Y=56 puts the corrected firing endpoint at Y=50 inside the target.
     // Samus minus its centered anchor is (-24,0), exactly angle $C0.
@@ -255,10 +255,10 @@ firingLevel, firingSamus, ControllerButton.X);
     // independent bank-$84 object and clears BTS before returning flags $41. This direct
     // firing test guards the integration seam; the complete ROM instruction timeline is
     // verified separately below.
-    var breakableFiringBlocks = new ushort[8 * 8];
-    var breakableFiringBts = new byte[breakableFiringBlocks.Length];
-    breakableFiringBlocks[3 * 8 + 3] = 0xe000;
-    breakableFiringBts[3 * 8 + 3] = 1;
+    var breakableFiringBlocks = new RoomTerrainBlock[8 * 8];
+    var breakableFiringBts = new RoomBlockBehavior[breakableFiringBlocks.Length];
+    breakableFiringBlocks[3 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.GrappleBlock);
+    breakableFiringBts[3 * 8 + 3] = new RoomBlockBehavior(1);
     RoomLevelData breakableFiringLevel = CreateRoom(new(8, 8), breakableFiringBlocks, breakableFiringBts);
     SamusState breakableFiringSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     breakableFiringSamus.Kinematics.YSpeed = breakableFiringSamus.Kinematics.YSpeed.WithWhole(1);
@@ -280,7 +280,7 @@ firingLevel, firingSamus, ControllerButton.X);
         "BTS-one grapple firing connects through PLM setup");
     AssertEqual(1, breakableFiringPlms.SlotTable.ActiveCount,
         "BTS-one acquisition installs one independent room PLM");
-    AssertEqual(0, breakableFiringLevel.GetCollisionBlock(new(3, 3)).Bts.Value,
+    AssertEqual(0, breakableFiringLevel.GetCollisionBlock(new(3, 3)).Behavior.Value,
         "BTS-one acquisition synchronously clears low BTS byte");
 
     // Bank $94 does not treat extension blocks as collision results of their own. Instead,
@@ -289,11 +289,11 @@ firingLevel, firingSamus, ControllerButton.X);
     // a persistent type-$E target at (4,3). Connecting proves the indirection is followed;
     // ending in the physical (3,3) cell, rather than (4,3), proves the visible endpoint stays in the
     // extension cell exactly as GrappleCollision_XBlock/YBlock do in the original routine.
-    var horizontalExtensionBlocks = new ushort[8 * 8];
-    var horizontalExtensionBts = new byte[horizontalExtensionBlocks.Length];
-    horizontalExtensionBlocks[3 * 8 + 3] = 0x5000;
-    horizontalExtensionBts[3 * 8 + 3] = 1;
-    horizontalExtensionBlocks[3 * 8 + 4] = 0xe000;
+    var horizontalExtensionBlocks = new RoomTerrainBlock[8 * 8];
+    var horizontalExtensionBts = new RoomBlockBehavior[horizontalExtensionBlocks.Length];
+    horizontalExtensionBlocks[3 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.HorizontalExtension);
+    horizontalExtensionBts[3 * 8 + 3] = new RoomBlockBehavior(1);
+    horizontalExtensionBlocks[3 * 8 + 4] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.GrappleBlock);
     RoomLevelData horizontalExtensionLevel = CreateRoom(new(8, 8), horizontalExtensionBlocks, horizontalExtensionBts);
     SamusState horizontalExtensionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     horizontalExtensionSamus.Kinematics.YSpeed = horizontalExtensionSamus.Kinematics.YSpeed.WithWhole(1);
@@ -311,11 +311,11 @@ horizontalExtensionLevel, horizontalExtensionSamus, ControllerButton.X);
     // (3,3) therefore dispatches (3,4), while the accepted endpoint still centers in (3,3).
     // This test is intentionally separate from the horizontal case: confusing the two
     // formulas is easy and can appear correct in rooms whose nearby cells happen to be air.
-    var verticalExtensionBlocks = new ushort[8 * 8];
-    var verticalExtensionBts = new byte[verticalExtensionBlocks.Length];
-    verticalExtensionBlocks[3 * 8 + 3] = 0xd000;
-    verticalExtensionBts[3 * 8 + 3] = 1;
-    verticalExtensionBlocks[4 * 8 + 3] = 0xe000;
+    var verticalExtensionBlocks = new RoomTerrainBlock[8 * 8];
+    var verticalExtensionBts = new RoomBlockBehavior[verticalExtensionBlocks.Length];
+    verticalExtensionBlocks[3 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.VerticalExtension);
+    verticalExtensionBts[3 * 8 + 3] = new RoomBlockBehavior(1);
+    verticalExtensionBlocks[4 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.GrappleBlock);
     RoomLevelData verticalExtensionLevel = CreateRoom(new(8, 8), verticalExtensionBlocks, verticalExtensionBts);
     SamusState verticalExtensionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     verticalExtensionSamus.Kinematics.YSpeed = verticalExtensionSamus.Kinematics.YSpeed.WithWhole(1);
@@ -331,9 +331,9 @@ verticalExtensionLevel, verticalExtensionSamus, ControllerButton.X);
 
     // Ordinary solid-family blocks return carry with overflow clear. That is not a rope
     // connection: firing moves to the one-call cancellation function, matching $94:A8E5.
-    var solidBlocks = new ushort[8 * 8];
-    solidBlocks[3 * 8 + 3] = 0x8000;
-    RoomLevelData solidLevel = CreateRoom(new(8, 8), solidBlocks, new byte[solidBlocks.Length]);
+    var solidBlocks = new RoomTerrainBlock[8 * 8];
+    solidBlocks[3 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData solidLevel = CreateRoom(new(8, 8), solidBlocks, new RoomBlockBehavior[solidBlocks.Length]);
     SamusState solidCollisionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     SamusGrappleMovement.BeginFiring(solidCollisionSamus);
     SamusGrappleMovement.StepFiring(
@@ -354,10 +354,10 @@ solidLevel, solidCollisionSamus, ControllerButton.X);
         new VerifySamusGrappleSwingAndReleaseCase(0x83, false, false, 0),
     })
     {
-        var spikeBlocks = new ushort[8 * 8];
-        var spikeBts = new byte[spikeBlocks.Length];
-        spikeBlocks[3 * 8 + 3] = 0xa000;
-        spikeBts[3 * 8 + 3] = behavior;
+        var spikeBlocks = new RoomTerrainBlock[8 * 8];
+        var spikeBts = new RoomBlockBehavior[spikeBlocks.Length];
+        spikeBlocks[3 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock);
+        spikeBts[3 * 8 + 3] = new RoomBlockBehavior(behavior);
         RoomLevelData spikeLevel = CreateRoom(new(8, 8), spikeBlocks, spikeBts);
         SamusState spikeSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
         spikeSamus.Kinematics.YSpeed = spikeSamus.Kinematics.YSpeed.WithWhole(1);
@@ -380,21 +380,21 @@ spikeLevel, spikeSamus, ControllerButton.X);
     // and seven therefore remain air; their solid twins C and F cancel the live beam.
     // BTS C selects one of the retail no-op projectile-shot PLMs for types four/C, proving
     // that the shared reaction side effect is retained independently of collision carry.
-    foreach ((ushort collisionWord, bool expectedCancellation, int expectedPlms) in new[]
+    foreach ((RoomCollisionType collisionKind, bool expectedCancellation, int expectedPlms) in new[]
     {
         // `$94:A85B` runs all four fractional probes unless a carry+overflow connection
         // is accepted. Both air type four and solid type C therefore allocate four
         // one-handler native no-op slots; only the fourth reaction decides cancellation.
-        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(0x4000, false, 4),
-        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(0x7000, false, 0),
-        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(0xc000, true, 4),
-        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(0xf000, true, 0),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(RoomCollisionType.ShootableAir, false, 4),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(RoomCollisionType.BombableAir, false, 0),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(RoomCollisionType.ShootableBlock, true, 4),
+        new SamusGrappleVerifySamusGrappleSwingAndReleaseCase2(RoomCollisionType.BombableBlock, true, 0),
     })
     {
-        var endpointBlocks = new ushort[8 * 8];
-        var endpointBts = new byte[endpointBlocks.Length];
-        endpointBlocks[3 * 8 + 3] = collisionWord;
-        endpointBts[3 * 8 + 3] = 0x0c;
+        var endpointBlocks = new RoomTerrainBlock[8 * 8];
+        var endpointBts = new RoomBlockBehavior[endpointBlocks.Length];
+        endpointBlocks[3 * 8 + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, collisionKind);
+        endpointBts[3 * 8 + 3] = new RoomBlockBehavior(0x0c);
         RoomLevelData endpointLevel = CreateRoom(new(8, 8), endpointBlocks, endpointBts);
         var endpointPlms = PlmFixtures.Unbound();
         SamusState endpointSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
@@ -414,8 +414,8 @@ endpointLevel, endpointSamus, ControllerButton.X, endpointPlms);
 
     // Length grows before collision checks. Values 12..120 receive their four probes, but
     // the next addition produces 132 and queues cancellation without moving the endpoint.
-    var emptyWideBlocks = new ushort[16 * 8];
-    RoomLevelData emptyWideLevel = CreateRoom(new(16, 8), emptyWideBlocks, new byte[emptyWideBlocks.Length]);
+    var emptyWideBlocks = new RoomTerrainBlock[16 * 8];
+    RoomLevelData emptyWideLevel = CreateRoom(new(16, 8), emptyWideBlocks, new RoomBlockBehavior[emptyWideBlocks.Length]);
     SamusState rangeLimitedSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     SamusGrappleMovement.BeginFiring(rangeLimitedSamus);
     for (int firingFrame = 0; firingFrame < 10; firingFrame++)
@@ -456,8 +456,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // route. Filling this isolated room with persistent type-$E blocks makes every
     // endpoint connect on its first substep, while each authored direction still
     // selects its own four-byte {function, handler} record and pose.
-    var connectionBlocks = Enumerable.Repeat((ushort)0xe000, 8 * 8).ToArray();
-    RoomLevelData connectionLevel = CreateRoom(new(8, 8), connectionBlocks, new byte[connectionBlocks.Length]);
+    var connectionBlocks = Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.GrappleBlock), 8 * 8).ToArray();
+    RoomLevelData connectionLevel = CreateRoom(new(8, 8), connectionBlocks, new RoomBlockBehavior[connectionBlocks.Length]);
     byte[][] expectedConnectionPoses =
     [
         // Default stationary table `$C3C6`.
@@ -598,8 +598,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // The already-connected pendulum fixture uses an intentionally empty 32x16 room. Its
     // six-point sweep must stay in bounds while proving that no invented terrain response
     // disturbs the pre-existing unobstructed numbers.
-    var swingBlocks = new ushort[32 * 16];
-    RoomLevelData swingLevel = CreateRoom(new(32, 16), swingBlocks, new byte[swingBlocks.Length]);
+    var swingBlocks = new RoomTerrainBlock[32 * 16];
+    RoomLevelData swingLevel = CreateRoom(new(32, 16), swingBlocks, new RoomBlockBehavior[swingBlocks.Length]);
 
     var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(10, 20)) };
 
@@ -785,9 +785,9 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // nearest probe is 40 pixels from the anchor at (175,136), block (10,8). Gravity adds
     // $18 to initial velocity $100, so collision must preserve last-safe angle $40.80 and
     // transform velocity $118 into -($118 >> 1) = -$8C while opening a 16-frame kick gate.
-    var angularCollisionBlocks = new ushort[16 * 16];
-    angularCollisionBlocks[8 * 16 + 10] = 0x8000;
-    RoomLevelData angularCollisionLevel = CreateRoom(new(16, 16), angularCollisionBlocks, new byte[angularCollisionBlocks.Length]);
+    var angularCollisionBlocks = new RoomTerrainBlock[16 * 16];
+    angularCollisionBlocks[8 * 16 + 10] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData angularCollisionLevel = CreateRoom(new(16, 16), angularCollisionBlocks, new RoomBlockBehavior[angularCollisionBlocks.Length]);
     var angularCollisionSamus = new SamusState();
     BindGrapplePresentation(angularCollisionSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
@@ -821,10 +821,10 @@ firingLevel, cancelledSamus, controllerInput: 0);
         new SamusGrappleVerifySamusGrappleSwingAndReleaseCase(0x80, 0x0000),
     })
     {
-        var spikeBlockWords = new ushort[16 * 16];
-        var spikeBlockBts = new byte[spikeBlockWords.Length];
-        spikeBlockWords[8 * 16 + 10] = 0xa000;
-        spikeBlockBts[8 * 16 + 10] = behavior;
+        var spikeBlockWords = new RoomTerrainBlock[16 * 16];
+        var spikeBlockBts = new RoomBlockBehavior[spikeBlockWords.Length];
+        spikeBlockWords[8 * 16 + 10] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeBlock);
+        spikeBlockBts[8 * 16 + 10] = new RoomBlockBehavior(behavior);
         RoomLevelData spikeBlockLevel = CreateRoom(new(16, 16), spikeBlockWords, spikeBlockBts);
         var spikeBlockSamus = new SamusState();
         BindGrapplePresentation(spikeBlockSamus);
@@ -860,10 +860,10 @@ firingLevel, cancelledSamus, controllerInput: 0);
         new SamusGrappleVerifySamusGrappleSwingAndReleaseCase(0x82, 0x0000),
     })
     {
-        var spikeAirWords = new ushort[16 * 16];
-        var spikeAirBts = new byte[spikeAirWords.Length];
-        spikeAirWords[8 * 16 + 11] = 0x2000;
-        spikeAirBts[8 * 16 + 11] = behavior;
+        var spikeAirWords = new RoomTerrainBlock[16 * 16];
+        var spikeAirBts = new RoomBlockBehavior[spikeAirWords.Length];
+        spikeAirWords[8 * 16 + 11] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpikeAir);
+        spikeAirBts[8 * 16 + 11] = new RoomBlockBehavior(behavior);
         RoomLevelData spikeAirLevel = CreateRoom(new(16, 16), spikeAirWords, spikeAirBts);
         var spikeAirSamus = new SamusState();
         BindGrapplePresentation(spikeAirSamus);
@@ -918,11 +918,11 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // the probe at X=225, block 14. Make that cell a horizontal extension to solid block 15.
     // Correct per-pixel length handling must reject 33, retain 32, and leave +2 active to
     // retry next frame; treating the extension itself as air would incorrectly grow the rope.
-    var ropeCollisionBlocks = new ushort[16 * 16];
-    var ropeCollisionBts = new byte[ropeCollisionBlocks.Length];
-    ropeCollisionBlocks[8 * 16 + 14] = 0x5000;
-    ropeCollisionBts[8 * 16 + 14] = 1;
-    ropeCollisionBlocks[8 * 16 + 15] = 0x8000;
+    var ropeCollisionBlocks = new RoomTerrainBlock[16 * 16];
+    var ropeCollisionBts = new RoomBlockBehavior[ropeCollisionBlocks.Length];
+    ropeCollisionBlocks[8 * 16 + 14] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.HorizontalExtension);
+    ropeCollisionBts[8 * 16 + 14] = new RoomBlockBehavior(1);
+    ropeCollisionBlocks[8 * 16 + 15] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData ropeCollisionLevel = CreateRoom(new(16, 16), ropeCollisionBlocks, ropeCollisionBts);
     var ropeCollisionSamus = new SamusState();
     BindGrapplePresentation(ropeCollisionSamus);
@@ -969,11 +969,11 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // `$B9`, (+24,+16), `$C814` tuple rather than inventing a host-side angle range.
     WriteGrappleSwingFrame(bus, angle: 0x6a, frame: 0);
 
-    var specialBlocks = new ushort[16 * 16];
-    specialBlocks[8 * 16 + 8] = 0x8000; // `$B9`'s later 16-pixel left wall probe
-    specialBlocks[9 * 16 + 8] = 0x8000; // candidate `$6B`, nearest radial probe
-    specialBlocks[10 * 16 + 8] = 0x8000;
-    RoomLevelData specialLevel = CreateRoom(new(16, 16), specialBlocks, new byte[specialBlocks.Length]);
+    var specialBlocks = new RoomTerrainBlock[16 * 16];
+    specialBlocks[8 * 16 + 8] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock); // `$B9`'s later 16-pixel left wall probe
+    specialBlocks[9 * 16 + 8] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock); // candidate `$6B`, nearest radial probe
+    specialBlocks[10 * 16 + 8] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData specialLevel = CreateRoom(new(16, 16), specialBlocks, new RoomBlockBehavior[specialBlocks.Length]);
     var wallGrabSamus = new SamusState();
     BindGrapplePresentation(wallGrabSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(
@@ -1093,9 +1093,9 @@ firingLevel, cancelledSamus, controllerInput: 0);
     // quadrant gravity. Releasing Shoot queues `$C856`, whose movement-type-$16` fallback
     // byte in the literal `$B6` definition selects stable crouch `$27` one call later.
     WriteGrappleSwingFrame(bus, angle: 0xd6, frame: 0);
-    var lockedBlocks = new ushort[16 * 16];
-    lockedBlocks[7 * 16 + 7] = 0x8000;
-    RoomLevelData lockedLevel = CreateRoom(new(16, 16), lockedBlocks, new byte[lockedBlocks.Length]);
+    var lockedBlocks = new RoomTerrainBlock[16 * 16];
+    lockedBlocks[7 * 16 + 7] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData lockedLevel = CreateRoom(new(16, 16), lockedBlocks, new RoomBlockBehavior[lockedBlocks.Length]);
     var lockedSamus = new SamusState();
     BindGrapplePresentation(lockedSamus);
     SamusGrappleMovement.ConnectUnobstructedSwing(

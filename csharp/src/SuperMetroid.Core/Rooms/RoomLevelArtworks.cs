@@ -28,7 +28,7 @@ public sealed class RoomLevelArtworks
                     $"Installed room visual layouts lack required level {level}.");
     }
 
-    /// <summary>SHA-256 of selected room geometry and both ordered visual planes.</summary>
+    /// <summary>SHA-256 of selected room geometry and both ordered planes of appearances.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomLevelArtworks), content =>
     {
         foreach ((RoomLevelId level, RoomLevelArtwork layout) in this.layouts.OrderBy(pair => pair.Key.Name, StringComparer.Ordinal))
@@ -36,8 +36,8 @@ public sealed class RoomLevelArtworks
             content.AppendName("level", level.Name);
             content.Append("width", layout.Size.X);
             content.Append("height", layout.Size.Y);
-            content.AppendWords("foreground", layout.ForegroundVisualWords.Span);
-            content.AppendWords("background", layout.BackgroundVisualWords.Span);
+            content.AppendAppearances("foreground", layout.Foreground.Span);
+            content.AppendAppearances("background", layout.Background.Span);
         }
     });
 

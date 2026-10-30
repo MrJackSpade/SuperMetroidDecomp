@@ -56,6 +56,6 @@ public sealed class InstalledRoomPlmEyeDoorVisuals
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         int word = customBlocks.TryGet(visualSource, out var words)
             ? words[blockIndex] : new RoomLevelWord(shape.WordAt(blockIndex)).VisualWord;
-        return (ushort)(word ^ (draw != visualSource ? LevelBlockFlipFlags.Horizontal.ToLevelWordBits() : 0));
+        return (ushort)(word ^ (draw != visualSource ? BlockMirroring.Horizontal.ToLevelWordBits() : 0));
     }
 }

@@ -20,13 +20,13 @@ internal static class SlopeLandingPoseProbeVerification
     internal static void VerifySlopeLandingZeroDistanceProbe()
     {
         const int Width = 16, Height = 32;
-        var foreground = new ushort[Width * Height];
-        var behavior = new byte[Width * Height];
+        var foreground = new RoomTerrainBlock[Width * Height];
+        var behavior = new RoomBlockBehavior[Width * Height];
         foreach (var (x, y, bts) in new[] { new VerifySlopeLandingZeroDistanceProbeCase(5, 23, 0x55), new VerifySlopeLandingZeroDistanceProbeCase(6, 23, 0x54), new VerifySlopeLandingZeroDistanceProbeCase(5, 24, 0x53), new VerifySlopeLandingZeroDistanceProbeCase(6, 24, 0x55), new VerifySlopeLandingZeroDistanceProbeCase(7, 24, 0x54),
             new VerifySlopeLandingZeroDistanceProbeCase(6, 25, 0x53), new VerifySlopeLandingZeroDistanceProbeCase(7, 25, 0x55), new VerifySlopeLandingZeroDistanceProbeCase(8, 25, 0x54) })
         {
-            foreground[y * Width + x] = 0x1000;
-            behavior[y * Width + x] = (byte)bts;
+            foreground[y * Width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
+            behavior[y * Width + x] = new RoomBlockBehavior(bts);
         }
         RoomLevelData level = CreateRoom(new(Width, Height), foreground, behavior);
 

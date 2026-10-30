@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public static class BombSpecialBlockReactions
 {
     /// <summary>$94:9DA4..9E43: sixteen normal entries followed by eight area tables.
-    /// The bounded normal-BTS compatibility view includes all eighty entries.</summary>
+    /// The bounded normal-behaviour view includes all eighty entries.</summary>
     public const int Count = 80;
 
     /// <summary>Selects crumble reveal, speed reveal, or the $84:B62F no-op PLM's

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -26,7 +27,7 @@ internal static class ProjectileContactPhaseVerification
         var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y <= 16; y++)
         for (int x = 0; x < level.Size.X; x++)
-            level.SetForegroundEntry(y * level.Size.X + x, y == 16 ? (ushort)0x8000 : (ushort)0);
+            level.SetTerrain(y * level.Size.X + x, y == 16 ? RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock) : default);
         foreach (var actor in runtime.Enemies.SlotTable.Slots)
             actor.Properties = actor.Properties.With(EnemyProperties.Deleted);
         foreach (var actor in runtime.Enemies.Projectiles.EnemyProjectiles) actor.Clear();

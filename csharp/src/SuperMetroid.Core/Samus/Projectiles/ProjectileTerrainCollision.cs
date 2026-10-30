@@ -1,5 +1,4 @@
-﻿using System.Buffers.Binary;
-using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
@@ -203,16 +202,33 @@ internal sealed class ProjectileTerrainCollision
     private readonly record struct ShotSpan(int Span, int Remaining, int TargetBoundary);
 
     /// <summary>
-    /// The little-endian level word an odd byte offset reads: <paramref name="first"/>'s high byte, then
-    /// <paramref name="second"/>'s low byte.
+    /// The collision kinds in the game's family order, which a block read straddling two neighbours exposes as part of
+    /// its block number (<see cref="StraddledBlockRead"/>).
     /// </summary>
-    private static ushort StraddlingLevelWord(int first, int second)
+    private static readonly RoomCollisionType[] KindsByFamily =
+    [
+        RoomCollisionType.Air, RoomCollisionType.Slope, RoomCollisionType.SpikeAir, RoomCollisionType.SpecialAir,
+        RoomCollisionType.ShootableAir, RoomCollisionType.HorizontalExtension, RoomCollisionType.UnusedAir,
+        RoomCollisionType.BombableAir, RoomCollisionType.SolidBlock, RoomCollisionType.DoorBlock,
+        RoomCollisionType.SpikeBlock, RoomCollisionType.SpecialBlock, RoomCollisionType.ShootableBlock,
+        RoomCollisionType.VerticalExtension, RoomCollisionType.GrappleBlock, RoomCollisionType.BombableBlock,
+    ];
+
+    /// <summary>The terrain a Wave shot's scan reads straddling <paramref name="first"/> and the block after it.</summary>
+    private static RoomTerrainBlock Straddling(RoomTerrainBlock first, RoomTerrainBlock second)
     {
-        Span<byte> words = stackalloc byte[2 * sizeof(ushort)];
-        BinaryPrimitives.WriteUInt16LittleEndian(words, checked((ushort)first));
-        BinaryPrimitives.WriteUInt16LittleEndian(words[sizeof(ushort)..], checked((ushort)second));
-        return BinaryPrimitives.ReadUInt16LittleEndian(words[1..]);
+        StraddledBlock read = StraddledBlockRead.Of(ToStraddled(first), ToStraddled(second));
+        return RoomTerrainBlock.Of(read.Block,
+            (read.Horizontal ? BlockMirroring.Horizontal : BlockMirroring.None) |
+            (read.Vertical ? BlockMirroring.Vertical : BlockMirroring.None),
+            KindsByFamily[read.Family]);
     }
+
+    /// <summary>A terrain block as the straddled read takes it.</summary>
+    private static StraddledBlock ToStraddled(RoomTerrainBlock block) => new(block.Appearance.Block,
+        (block.Appearance.Mirroring & BlockMirroring.Horizontal) != 0,
+        (block.Appearance.Mirroring & BlockMirroring.Vertical) != 0,
+        Array.IndexOf(KindsByFamily, block.Collision));
 
     /// <summary>
     /// $94:A66A (horizontal) and $94:A71A (vertical) for a beam: the quarter cells of a
@@ -230,9 +246,9 @@ internal sealed class ProjectileTerrainCollision
             throw new InvalidOperationException("Missile reached the beam square-slope shot reaction.");
         }
 
-        // Cell index bits: 0 = right half, 1 = bottom half; BTS bit 6 / bit 7 flip them.
-        int flips = (block.Bts.SlopeFlipsHorizontally ? 1 : 0) | (block.Bts.SlopeFlipsVertically ? 2 : 0);
-        int baseIndex = block.Bts.SlopeShape * 4;
+        // Cell index bits: 0 = right half, 1 = bottom half; behaviour bit 6 / bit 7 flip them.
+        int flips = (block.Behavior.SlopeFlipsHorizontally ? 1 : 0) | (block.Behavior.SlopeFlipsVertically ? 2 : 0);
+        int baseIndex = block.Behavior.SlopeShape * 4;
         bool Solid(int cell) => SquareSlopes.ReadSamusQuadrant(baseIndex + cell) != 0;
 
         if (horizontalMovement)
@@ -276,16 +292,16 @@ internal sealed class ProjectileTerrainCollision
         endSpan = false;
         // `$94:9411/$9447` are shared by shot, bomb, grapple, collision, and inside
         // dispatch. Door caps deliberately put the shootable origin at one end and type-
-        // `$D` extension words across the other three cells. Resolve those signed BTS
+        // `$D` extension words across the other three cells. Resolve those signed behaviour
         // links before selecting a reaction; otherwise a centered horizontal beam merely
-        // explodes against the middle extension and can never reach BTS `$40..$43`.
+        // explodes against the middle extension and can never reach behaviour `$40..$43`.
         RoomCollisionBlock? resolvedBlock = ResolveShotReactionExtension(level, block);
         if (resolvedBlock is null)
             return false;
         block = resolvedBlock.Value;
-        if (block.CollisionType == RoomCollisionType.Slope && block.Bts.SlopeShape < 5)
+        if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.SlopeShape < 5)
             return SquareSlopeShotReaction(slot, block, span, axis == Axis.Horizontal);
-        if (block.CollisionType == RoomCollisionType.Slope && block.Bts.SlopeShape >= 5)
+        if (block.CollisionType == RoomCollisionType.Slope && block.Behavior.SlopeShape >= 5)
         {
             // $94:A147/A15E dispatch non-square slopes through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
@@ -295,29 +311,29 @@ internal sealed class ProjectileTerrainCollision
 
             int x = slot.Position.X.Whole & 15;
             int y = slot.Position.Y.Whole & 15;
-            if (block.Bts.SlopeFlipsHorizontally) x ^= 15;
-            if (block.Bts.SlopeFlipsVertically) y ^= 15;
-            bool hit = SlopeHeights.Read(block.Bts.SlopeShape, x) <= y;
+            if (block.Behavior.SlopeFlipsHorizontally) x ^= 15;
+            if (block.Behavior.SlopeFlipsVertically) y ^= 15;
+            bool hit = SlopeHeights.Read(block.Behavior.SlopeShape, x) <= y;
             // $94:A5DC/A5DE clears both scan counters on a surface hit. This overrides
             // earlier air rows and ends the span; Wave still discards collision carry.
             endSpan = hit;
             return hit;
         }
 
-        // Chozo orbs and concealed item blocks are type-$C/BTS-$45. Their special
-        // reaction does not use the ordinary BTS 0..F shot-block table: header $EED3
+        // Chozo orbs and concealed item blocks are type-$C/behaviour-$45. Their special
+        // reaction does not use the ordinary behaviour 0..F shot-block table: header $EED3
         // finds and triggers the already-loaded permanent-item PLM at this origin.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
+            block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger)
         {
             _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
             return true;
         }
 
-        // Both type-$8 and type-$C BTS-$44 collision routes allocate generic trigger $C83E,
+        // Both type-$8 and type-$C behaviour-$44 collision routes allocate generic trigger $C83E,
         // which publishes the live projectile word to the resident PLM at this block.
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
-            block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
+            block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
             NotifyResidentProjectileHit(roomPlms, block, slot.PackedType.Raw);
             return true;
@@ -325,12 +341,12 @@ internal sealed class ProjectileTerrainCollision
 
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
-            if (block.Bts.IsShootableCollisionProbe)
+            if (block.Behavior.IsShootableCollisionProbe)
             {
                 // Gate setup ends the caller's span and forces its collision counter.
                 // A full PLM pool skips setup entirely, so it must not end the scan.
                 endSpan = roomPlms?.BlockReactions.TrySpawnProjectileShotBlock(
-                    level, block.Index, block.Bts, slot.PackedType.Raw,
+                    level, block.Index, block.Behavior, slot.PackedType.Raw,
                     block.CollisionType == RoomCollisionType.ShootableBlock) == true;
                 return block.CollisionType == RoomCollisionType.ShootableBlock;
             }
@@ -340,10 +356,10 @@ internal sealed class ProjectileTerrainCollision
 
         // `$94:A175/$A195` return carry for 8/B/E directly. Door ($9), spike ($A), and
         // bombable ($F) also collide; their actor/weapon-gated setup remains a later slice.
-        return block.CollisionType.IsSolidBlockType();
+        return block.CollisionType.IsSolidKind();
     }
 
-    /// <summary>Follows signed horizontal or vertical BTS links to the actual reaction block, rejecting cycles and out-of-room targets.</summary>
+    /// <summary>Follows signed horizontal or vertical behaviour links to the actual reaction block, rejecting cycles and out-of-room targets.</summary>
     private static RoomCollisionBlock? ResolveShotReactionExtension(
         RoomLevelData level,
         RoomCollisionBlock initialBlock)
@@ -351,7 +367,7 @@ internal sealed class ProjectileTerrainCollision
         RoomCollisionBlock block = initialBlock;
         for (int linkCount = 0; linkCount < 16; linkCount++)
         {
-            int offset = block.Bts.ExtensionOffset;
+            int offset = block.Behavior.ExtensionOffset;
             int targetIndex;
             switch (block.CollisionType)
             {
@@ -386,11 +402,11 @@ internal sealed class ProjectileTerrainCollision
                     throw new InvalidOperationException($"Undefined RoomCollisionType {block.CollisionType}.");
             }
 
-            if ((uint)targetIndex >= (uint)level.ForegroundEntries.Length)
+            if (!level.IsLogicalBlockIndex(targetIndex))
             {
                 throw new InvalidDataException(
                     $"Projectile extension at block {block.Index} resolved outside the " +
-                    $"{level.ForegroundEntries.Length}-entry room layer.");
+                    $"{level.Size.Area}-block room grid.");
             }
             block = level.GetCollisionBlockByIndex(targetIndex);
         }
@@ -399,7 +415,7 @@ internal sealed class ProjectileTerrainCollision
             $"Projectile extension chain from block {initialBlock.Index} did not terminate.");
     }
 
-    /// <summary>Routes a shootable BTS to its downward gate, resident PLM, blue door, or ordinary shot-block owner.</summary>
+    /// <summary>Routes a shootable behaviour to its downward gate, resident PLM, blue door, or ordinary shot-block owner.</summary>
     internal static void TrySpawnShootableReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -409,20 +425,20 @@ internal sealed class ProjectileTerrainCollision
         if (roomPlms is null)
             return;
 
-        // Downward gate BTS $46-$4D bypasses the normal 16-entry shot-block table and
+        // Downward gate behaviour $46-$4D bypasses the normal 16-entry shot-block table and
         // allocates one of eight temporary trigger PLMs. Dispatch it before the table-range
-        // validation below; those BTS bytes are intentionally outside that ordinary domain.
+        // validation below; those behaviours are intentionally outside that ordinary domain.
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Bts.TryGetDownwardGateTrigger(out _))
+            block.Behavior.TryGetDownwardGateTrigger(out _))
         {
-            roomPlms.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Bts, slot.PackedType);
+            roomPlms.Gates.TrySpawnDownwardGateTrigger(level, block.Index, block.Behavior, slot.PackedType);
             return;
         }
 
         // The intact n00b tube, colored doors, eye doors, grey doors, and other resident
-        // actors all share type-$C/BTS-$44. The resident PLM determines the accepted family
+        // actors all share type-$C/behaviour-$44. The resident PLM determines the accepted family
         // after generic trigger $C83E publishes the projectile word.
-        if (block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
+        if (block.Behavior == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
             NotifyResidentProjectileHit(roomPlms, block, slot.PackedType.Raw);
             return;
@@ -433,32 +449,32 @@ internal sealed class ProjectileTerrainCollision
         // cartridge list opens all four blocks over eighteen frames. Keep this dispatch
         // beside the general table lookup so every beam/missile/bomb collision reaches the
         // same bank-$84 owner and power bombs retain Setup_BlueDoor's rejection behavior.
-        if (block.Bts.TryGetBlueDoorOrientation(out _))
+        if (block.Behavior.TryGetBlueDoorOrientation(out _))
         {
             roomPlms.DoorPlms.TrySpawnBlueDoorOpening(
                 level,
                 block.Index,
-                block.Bts,
+                block.Behavior,
                 slot.PackedType.Raw);
             return;
         }
 
-        // Nonnegative BTS 0..F indexes the ordinary retail `$94:9EA6` entries, and $10 is
-        // the table's deliberate `$84:B974` collision-probe/no-op PLM. Negative BTS
+        // Nonnegative behaviour 0..F indexes the ordinary retail `$94:9EA6` entries, and $10 is
+        // the table's deliberate `$84:B974` collision-probe/no-op PLM. Negative behaviour
         // 0..7 is also admitted so shootable-solid can preserve its native area-table no-op
         // slot; shootable-air's method exits without allocating. The RoomPlm owner performs
         // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
         // each bank-$84 setup sees the current native projectile type during Spawn_PLM.
-        bool translatedBehavior = block.Bts.IsAreaReactionIndex(8) ||
-            block.Bts.Value == EscapeAnimalWallDefinitions.ReactionBts ||
-            block.Bts.IsNormalReactionIndex(16) ||
-            block.Bts.IsShootableCollisionProbe;
+        bool translatedBehavior = block.Behavior.IsAreaReactionIndex(8) ||
+            block.Behavior == EscapeAnimalWallDefinitions.ReactionBehavior ||
+            block.Behavior.IsNormalReactionIndex(16) ||
+            block.Behavior.IsShootableCollisionProbe;
         if (translatedBehavior)
         {
             roomPlms.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 block.Index,
-                block.Bts,
+                block.Behavior,
                 slot.PackedType.Raw,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }
@@ -586,17 +602,17 @@ internal sealed class ProjectileTerrainCollision
         do
         {
             int index = byteOffset >> 1;
-            if (index < level.ForegroundEntries.Length)
+            if (level.IsLogicalBlockIndex(index))
             {
                 RoomCollisionBlock block = level.GetCollisionBlockByIndex(index);
                 if ((byteOffset & 1) != 0)
                 {
-                    if (index + 1 >= level.ForegroundEntries.Length)
-                        throw new NotSupportedException("Odd Wave collision read crosses the modeled level-data allocation.");
-                    int next = level.GetCollisionBlockByIndex(index + 1).PackedWord.Raw;
-                    // Dispatch consumes the unaligned word; BTS and PLM setup
+                    if (!level.IsLogicalBlockIndex(index + 1))
+                        throw new NotSupportedException("A straddled Wave collision read crosses the room's grid.");
+                    RoomTerrainBlock next = level.GetCollisionBlockByIndex(index + 1).Terrain;
+                    // Dispatch consumes the straddled block; the behaviour and room-object setup
                     // still use floor(byteOffset / 2), including aligned writes.
-                    block = block with { PackedWord = StraddlingLevelWord(block.PackedWord.Raw, next) };
+                    block = block with { Terrain = Straddling(block.Terrain, next) };
                 }
                 RunShotReaction(level, slot, block, roomPlms, new ShotSpan(span, remaining, targetX), out bool endSpan);
                 // Wave discards collision carry, but still honors PLM scan termination.

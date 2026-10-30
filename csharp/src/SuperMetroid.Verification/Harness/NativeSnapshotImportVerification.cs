@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Assets;
@@ -84,8 +85,8 @@ internal static class NativeSnapshotImportVerification
             "The native Ridley checkpoint did not load room collision data.");
         for (int index = 0; index < level.Size.X * level.Size.Y; index++)
         {
-            level.SetForegroundEntry(index, W(NativeSnapshotMemory.Level + index * sizeof(ushort)));
-            level.SetBehavior(index, memory[NativeSnapshotMemory.Bts + index]);
+            level.SetTerrain(index, RoomLevelWordCodec.Decode(W(NativeSnapshotMemory.Level + index * sizeof(ushort))));
+            level.SetBehavior(index, new RoomBlockBehavior(memory[NativeSnapshotMemory.Bts + index]));
         }
 
         runtime.Colours.AsPaletteColors().LoadBytes(memory.AsSpan(NativeSnapshotMemory.PaletteBuffer, CgramPalettes.ByteCount));

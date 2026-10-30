@@ -117,25 +117,25 @@ internal static void VerifySamusStoredShineAndShinespark()
 
     const int width = 24;
     const int height = 24;
-    var sparkForeground = new ushort[width * height];
-    var sparkBehavior = new byte[width * height];
+    var sparkForeground = new RoomTerrainBlock[width * height];
+    var sparkBehavior = new RoomBlockBehavior[width * height];
     // X=160, radius=19, and the first 8.2800 rightward move put the leading edge in
     // block column 10. BTS 7 is the cartridge's 2x2 non-respawning collision bomb block.
     // Pose `$C9` must make `$84:CE83` clear its dispatcher nibble without reporting a hit.
     int sparkBombBlockIndex = 9 * width + 10;
     int sparkExtensionBlockIndex = 8 * width + 10;
-    sparkForeground[sparkBombBlockIndex] = 0xf123;
-    sparkBehavior[sparkBombBlockIndex] = 7;
+    sparkForeground[sparkBombBlockIndex] = RoomTerrainBlock.Of(291, BlockMirroring.None, RoomCollisionType.BombableBlock);
+    sparkBehavior[sparkBombBlockIndex] = new RoomBlockBehavior(7);
     // Type `$D` adds signed BTS rows and asks the dispatcher to run again. Point the first
     // scanned row down one row to the bomb block; the native real-room case uses FF/up.
-    sparkForeground[sparkExtensionBlockIndex] = 0xd456;
-    sparkBehavior[sparkExtensionBlockIndex] = 1;
+    sparkForeground[sparkExtensionBlockIndex] = RoomTerrainBlock.Of(86, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension);
+    sparkBehavior[sparkExtensionBlockIndex] = new RoomBlockBehavior(1);
     RoomLevelData empty = CreateRoom(new(width, height), sparkForeground, sparkBehavior);
 
     // Exercise all six stable direction poses through the public install and movement
     // handlers. The pose definition's literal X-direction byte—not target-pose parity in
     // production—selects horizontal sign, while the phase selects which block axes run.
-    RoomLevelData directionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]));
+    RoomLevelData directionLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]));
     foreach ((SamusPoseId windupPose, SamusPoseId targetPose, ShinesparkPhase expectedPhase,
         bool expectsHorizontal, bool expectsVertical) in new[]
     {
@@ -290,12 +290,14 @@ internal static void VerifySamusStoredShineAndShinespark()
         "horizontal spark uses only block X movement without colliding");
     AssertSequenceEqual(new[] { sparkBombBlockIndex }, shineBombPlms.ActivePlmBlockIndices,
         "horizontal spark breaks the BTS-7 block");
-    AssertEqual(0x0058, empty.ForegroundEntries.Span[sparkBombBlockIndex],
-        "bomb-block setup replaces collision and visual words like CE83");
+    AssertEqual(RoomTerrainBlock.Of(0x58, BlockMirroring.None, RoomCollisionType.Air),
+        empty.GetCollisionBlockByIndex(sparkBombBlockIndex).Terrain,
+        "bomb-block setup replaces the block with the air bomb-block parent, like CE83");
     AssertEqual(1, shineBombPlms.SlotTable.ActiveCount,
         "shinespark collision installs the bank-$84 BTS-7 PLM in the active room owner");
-    AssertEqual(0xd456, empty.ForegroundEntries.Span[sparkExtensionBlockIndex],
-        "extension redispatch mutates its target rather than the extension word");
+    AssertEqual(RoomTerrainBlock.Of(0x56, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
+        empty.GetCollisionBlockByIndex(sparkExtensionBlockIndex).Terrain,
+        "extension redispatch mutates its target rather than the extension block");
     AssertEqual(168, horizontal.Position.X.Whole, "first horizontal spark moves 8 whole pixels");
     AssertEqual(0x2800, horizontal.Kinematics.Position.X.Fraction,
         "first horizontal spark preserves 16.16 fraction");
@@ -465,7 +467,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         const int width = 24;
         const int height = 24;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
-            new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]));
+            new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]));
         var samus = new SamusState
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,

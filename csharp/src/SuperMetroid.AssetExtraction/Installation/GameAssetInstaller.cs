@@ -275,7 +275,7 @@ public static class GameAssetInstaller
         new(GameInstallationLayout.RoomVisualLayoutDirectoryName,
             Step("Extracting room visual layouts...", (bus, d) => RoomVisualLayoutFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomVisualLayoutFiles.ValidateStock)),
         new(GameInstallationLayout.RoomLevelStreamDirectoryName,
-            Step("Extracting room level allocations...", (bus, d) => RoomLevelStreamFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomLevelStreamFiles.ValidateStock)),
+            Step("Extracting room terrain...", (bus, d) => RoomLevelStreamFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomLevelStreamFiles.ValidateStock)),
         new(GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName,
             Step("Extracting shot-block PLM visuals...", (bus, d) => RoomPlmShotBlockVisualFiles.Extract(bus, d, SupportedCartridge.Sha256), RoomPlmShotBlockVisualFiles.ValidateStock)),
         new(GameInstallationLayout.RoomPlmGrappleBlockVisualDirectoryName,

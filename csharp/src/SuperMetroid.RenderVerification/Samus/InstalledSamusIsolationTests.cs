@@ -132,14 +132,14 @@ internal sealed class InstalledSamusIsolationTests
             if (medium == SamusLiquidMedium.Water) Samus.LiquidPhysics.ConfigureWater(0);
             else if (medium == SamusLiquidMedium.LavaOrAcid) Samus.LiquidPhysics.ConfigureLavaAcid(0);
             Samus.Presentation.LoadSuitPalette(Samus, Colors.Samus);
-            var blocks = new ushort[RoomWidth * RoomHeight];
+            var blocks = new RoomTerrainBlock[RoomWidth * RoomHeight];
             for (int x = 0; x < RoomWidth; x++)
             {
-                blocks[FloorRow * RoomWidth + x] = (int)RoomCollisionType.SolidBlock << 12;
-                if (lowCeiling) blocks[(FloorRow - 3) * RoomWidth + x] = (int)RoomCollisionType.SolidBlock << 12;
+                blocks[FloorRow * RoomWidth + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+                if (lowCeiling) blocks[(FloorRow - 3) * RoomWidth + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
             }
             Level = new(new(RoomWidth, RoomHeight),
-                new RoomLevelPlanes(blocks, new byte[blocks.Length], new ushort[blocks.Length]));
+                new RoomLevelPlanes(blocks, new RoomBlockBehavior[blocks.Length], new RoomBlockAppearance[blocks.Length]));
         }
     }
 
@@ -185,7 +185,8 @@ internal sealed class InstalledSamusIsolationTests
         {
             new SamusMechanicsSnapshot(Stock.Samus).RequireSame(new(Edited.Samus), context);
             Require(Stock.Memory.WorkRam.SequenceEqual(Edited.Memory.WorkRam), context + ": mutable memory changed");
-            Require(Stock.Level.ForegroundEntries.Span.SequenceEqual(Edited.Level.ForegroundEntries.Span),
+            Require(Enumerable.Range(0, Stock.Level.Size.Area).All(index =>
+                    Stock.Level.GetCollisionBlockByIndex(index) == Edited.Level.GetCollisionBlockByIndex(index)),
                 context + ": collision room changed");
             tests.comparisons++;
             if (!new CgramPalettes(Stock.Colors).ImageEquals(new CgramPalettes(Edited.Colors))) tests.changedColors++;

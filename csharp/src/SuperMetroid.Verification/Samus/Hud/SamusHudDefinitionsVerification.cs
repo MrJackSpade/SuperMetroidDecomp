@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFiringDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -62,7 +63,7 @@ internal static class SamusHudDefinitionsVerification
         }
         // Exercise the other consumer, the real beam producer. Earn a partial charge
         // normally, then test whether the native HUD class holds it or advances it.
-        var level = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
+        var level = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         foreach (ushort turn in new ushort[] { 0, 1 })
         {

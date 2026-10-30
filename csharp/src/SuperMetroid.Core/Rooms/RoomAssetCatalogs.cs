@@ -3,13 +3,13 @@ using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Rooms;
 
-/// <summary>The installed catalogs one room's palette, block picture, layout and level-allocation graph is compiled from.</summary>
+/// <summary>The installed catalogs one room's palette, block pictures, layout and grid are compiled from.</summary>
 public sealed record RoomAssetCatalogs
 {
     /// <summary>Groups the complete installed catalogs required to compile a room state without cartridge reads.</summary>
     /// <param name="palettes">Static RGB5 palettes selected by the room graphics-set source.</param>
-    /// <param name="visualLayouts">Compiled room layouts selected by their 24-bit level-data source.</param>
-    /// <param name="levelStreams">Stock native level allocations selected by their 24-bit level-data source.</param>
+    /// <param name="visualLayouts">The rooms' replaceable initial block appearances, selected by level.</param>
+    /// <param name="levelStreams">The installed terrain of every room level, selected by level.</param>
     /// <param name="blockSheets">The pre-coloured block pictures of each tileset (#1392).</param>
     public RoomAssetCatalogs(RoomStaticPalettes palettes,
         RoomLevelArtworks visualLayouts, InstalledRoomLevelStreams levelStreams,
@@ -25,7 +25,7 @@ public sealed record RoomAssetCatalogs
     public RoomStaticPalettes Palettes { get; init; }
     /// <summary>Gets the complete source-keyed room visual-layout installation.</summary>
     public RoomLevelArtworks VisualLayouts { get; init; }
-    /// <summary>Gets the stock native collision/BTS and streaming allocations, which visual overrides never alter.</summary>
+    /// <summary>Gets the installed terrain of every room level, which appearance overrides never alter.</summary>
     public InstalledRoomLevelStreams LevelStreams { get; init; }
     /// <summary>Gets the pre-coloured block pictures of each tileset (#1392).</summary>
     public InstalledRoomArtwork BlockSheets { get; init; }

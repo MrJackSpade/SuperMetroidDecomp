@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// Verified singleton BTS meanings used by several collision-family dispatchers. These
-/// are typed values rather than a global enum because equal bytes can mean different
-/// things after a different collision nibble selects another native routine.
+/// Block behaviours several collision families name. These are typed values rather than a global enum because equal
+/// parameters mean different things to different collision kinds.
 /// </summary>
 public static class RoomBlockBehaviorValues
 {
@@ -25,6 +24,6 @@ public static class RoomBlockBehaviorValues
     /// <summary>Resident scroll-trigger PLM collision seam.</summary>
     public static readonly RoomBlockBehavior ScrollTrigger = new(0x46);
 
-    /// <summary>BTS $10 on a shootable block: the collision probe's no-op sentinel.</summary>
+    /// <summary>Entry 16 on a shootable block: the collision probe's no-op sentinel.</summary>
     public static readonly RoomBlockBehavior ShootableCollisionProbe = new(0x10);
 }

@@ -54,8 +54,8 @@ internal static class SquareSlopeBeamCollisionVerification
             RoomCollisionType type = y >= 32 || x == WallColumn ? RoomCollisionType.SolidBlock
                 : x == SlopeColumn && y == BeamRow ? RoomCollisionType.Slope
                 : RoomCollisionType.Air;
-            level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0, type).Raw);
-            level.SetBehavior(index, type == RoomCollisionType.Slope ? slopeBts : (byte)0);
+            level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, type));
+            level.SetBehavior(index, new RoomBlockBehavior(type == RoomCollisionType.Slope ? slopeBts : 0));
         }
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();

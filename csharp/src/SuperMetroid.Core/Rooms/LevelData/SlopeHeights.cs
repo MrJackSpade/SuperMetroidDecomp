@@ -13,7 +13,7 @@ public static class SlopeHeights
     /// encode heights above sixteen as twenty, not a saturation to twenty. Shape 17
     /// is an explicit authored overhang (twenty until column thirteen, then sixteen).
     /// Bounds are checked before arithmetic. Geometric clipping never clamps input;
-    /// BTS mirroring, collision comparison and world-coordinate wrapping stay in callers.
+    /// behaviour mirroring, collision comparison and world-coordinate wrapping stay in callers.
     /// </remarks>
     public static byte Read(int shape, int column)
     {

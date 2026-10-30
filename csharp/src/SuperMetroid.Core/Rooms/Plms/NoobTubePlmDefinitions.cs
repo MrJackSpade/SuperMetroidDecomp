@@ -13,7 +13,7 @@ public static class NoobTubePlmDefinitions
 
     /// <summary>The tube's origin block: a solid block showing visual block $44.</summary>
     public static RoomLevelWord SolidProjectileTriggerLevelWord { get; } =
-        RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock);
+        RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock);
 
     /// <summary>The story event set after the tube has finished breaking.</summary>
     public const EventNumber BrokenEvent = EventNumber.MaridiaNoobTubeBroken;

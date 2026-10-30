@@ -302,8 +302,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             ImmutableArray<RoomBlockCell> cells = blocks.Cells;
             for (int block = 0; block < cells.Length; block++)
                 upload[blockOffsets[slot] + block] = (uint)cells[block].Definition
-                    | ((cells[block].Flips & LevelBlockFlipFlags.Horizontal) != 0 ? 1u << 10 : 0)
-                    | ((cells[block].Flips & LevelBlockFlipFlags.Vertical) != 0 ? 1u << 11 : 0);
+                    | ((cells[block].Flips & BlockMirroring.Horizontal) != 0 ? 1u << 10 : 0)
+                    | ((cells[block].Flips & BlockMirroring.Vertical) != 0 ? 1u << 11 : 0);
         }
         colourSlots.Clear();
         colourSlots.AddRange(slots.OrderBy(slot => slot.Value).Select(slot => slot.Key));

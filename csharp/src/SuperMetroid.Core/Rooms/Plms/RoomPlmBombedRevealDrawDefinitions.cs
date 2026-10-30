@@ -8,8 +8,8 @@ internal static class RoomPlmBombedRevealDrawDefinitions
     /// <summary>The single level word each bombed reveal draws.</summary>
     internal static readonly IReadOnlyDictionary<RoomPlmBombedRevealDraw, RoomLevelWord> Words = new Dictionary<RoomPlmBombedRevealDraw, RoomLevelWord>
     {
-        [RoomPlmBombedRevealDraw.PowerBomb] = RoomLevelWord.Create(0x057, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-        [RoomPlmBombedRevealDraw.SuperMissile] = RoomLevelWord.Create(0x09f, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock),
-        [RoomPlmBombedRevealDraw.CrumbleSingle] = RoomLevelWord.Create(0x0bc, LevelBlockFlipFlags.None, RoomCollisionType.SpecialBlock),
+        [RoomPlmBombedRevealDraw.PowerBomb] = RoomLevelWord.Create(0x057, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        [RoomPlmBombedRevealDraw.SuperMissile] = RoomLevelWord.Create(0x09f, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        [RoomPlmBombedRevealDraw.CrumbleSingle] = RoomLevelWord.Create(0x0bc, BlockMirroring.None, RoomCollisionType.SpecialBlock),
     };
 }

@@ -221,7 +221,7 @@ internal sealed class RuntimeArtwork
     /// <summary>Host-selected visual room layouts, rebound after debugger-state restore.</summary>
     [field: NonSerialized]
     public RoomLevelArtworks? RoomVisualLayouts { get; set; }
-    /// <summary>Host-bound stock native level allocations, rebound after debugger-state restore.</summary>
+    /// <summary>Host-bound installed terrain of every room level, rebound after debugger-state restore.</summary>
     [field: NonSerialized]
     public InstalledRoomLevelStreams? RoomLevelStreams { get; set; }
     /// <summary>Host-owned Samus visual tiles; restored and future Samus states use the same edit.</summary>

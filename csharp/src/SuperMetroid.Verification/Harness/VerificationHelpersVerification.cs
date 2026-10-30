@@ -192,19 +192,19 @@ internal static class VerificationHelpersVerification
     }
 
     /// <summary>
-    /// Creates a synthetic room while supplying cleared planes that the individual test does
-    /// not care about. Foreground and BTS remain mandatory because silently inventing either
-    /// collision input would make physics fixtures ambiguous.
+    /// Creates a synthetic room while supplying a cleared background that the individual test does
+    /// not care about. Foreground terrain and behaviours remain mandatory because silently inventing
+    /// either collision input would make physics fixtures ambiguous.
     /// </summary>
     internal static RoomLevelData CreateRoom(
         Extent16<RoomBlocks> size,
-        ReadOnlySpan<ushort> foreground,
-        ReadOnlySpan<byte> behavior,
-        ReadOnlySpan<ushort> background = default)
+        ReadOnlySpan<RoomTerrainBlock> foreground,
+        ReadOnlySpan<RoomBlockBehavior> behavior,
+        ReadOnlySpan<RoomBlockAppearance> background = default)
     {
         int blockCount = checked(size.X * size.Y);
-        ushort[] clearedBackground = background.IsEmpty
-            ? new ushort[blockCount]
+        RoomBlockAppearance[] clearedBackground = background.IsEmpty
+            ? new RoomBlockAppearance[blockCount]
             : background.ToArray();
 
         return new RoomLevelData(size, new RoomLevelPlanes(foreground, behavior, clearedBackground));
@@ -219,8 +219,8 @@ internal static class VerificationHelpersVerification
         int blockCount = checked(size.X * size.Y);
         return CreateRoom(
             size,
-            new ushort[blockCount],
-            new byte[blockCount]);
+            new RoomTerrainBlock[blockCount],
+            new RoomBlockBehavior[blockCount]);
     }
 
     /// <summary>

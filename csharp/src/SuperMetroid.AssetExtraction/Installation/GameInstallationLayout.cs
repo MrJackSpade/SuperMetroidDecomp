@@ -49,7 +49,7 @@ public static class GameInstallationLayout
     public const string RoomBackgroundTilemapDirectoryName = "room-backgrounds";
     /// <summary>Content child directory for visual room-block references independent of native collision and BTS.</summary>
     public const string RoomVisualLayoutDirectoryName = "room-layouts";
-    /// <summary>Content child directory for stock-only native room-level allocations (collision, BTS, and streaming baseline).</summary>
+    /// <summary>Content child directory for the stock-only typed terrain of every room level (terrain blocks, behaviours, background appearances and the terrain beyond each room).</summary>
     public const string RoomLevelStreamDirectoryName = "room-level-streams";
     /// <summary>Content child directory for shootable block appearances.</summary>
     public const string RoomPlmShotBlockVisualDirectoryName = "room-plm-shot-blocks";
@@ -108,7 +108,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; incompatible stock content requires validation and repair before opening.</summary>
-    public const int FormatVersion = 182;
+    public const int FormatVersion = 183;
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";
     /// <summary>Prefix for a stock tree being prepared before publication.</summary>

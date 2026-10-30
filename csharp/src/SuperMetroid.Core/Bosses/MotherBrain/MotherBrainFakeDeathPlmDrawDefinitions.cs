@@ -60,130 +60,130 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         [MotherBrainFakeDeathDraw.FillWall] =
         [
             [
-                RoomLevelWord.Create(0x340, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x30f, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x340, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ],
-            [RoomLevelWord.Create(0x30f, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock)],
+            [RoomLevelWord.Create(0x30f, BlockMirroring.Vertical, RoomCollisionType.SolidBlock)],
         ],
         [MotherBrainFakeDeathDraw.EscapeDoor] =
         [
             [
-                RoomLevelWord.Create(0x222, LevelBlockFlipFlags.None, RoomCollisionType.DoorBlock),
-                RoomLevelWord.Create(0x1af, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x1d0, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
-                RoomLevelWord.Create(0x220, LevelBlockFlipFlags.None, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x222, BlockMirroring.None, RoomCollisionType.DoorBlock),
+                RoomLevelWord.Create(0x1af, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x1d0, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+                RoomLevelWord.Create(0x220, BlockMirroring.None, RoomCollisionType.VerticalExtension),
             ],
             [
-                RoomLevelWord.Create(0x223, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x1eb, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x1d0, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x221, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x223, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x1eb, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x1d0, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x221, BlockMirroring.None, RoomCollisionType.Air),
             ],
         ],
         [MotherBrainFakeDeathDraw.BackgroundRowEUnused] =
         [
             [
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x319, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x319, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ],
         ],
         [MotherBrainFakeDeathDraw.BackgroundRowFUnused] =
         [
             [
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-                RoomLevelWord.Create(0x44, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomLevelWord.Create(0x44, BlockMirroring.None, RoomCollisionType.SolidBlock),
             ],
         ],
         [MotherBrainFakeDeathDraw.ClearCeilingBlock] =
         [
             [
-                RoomLevelWord.Create(0x2fc, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x2fc, BlockMirroring.None, RoomCollisionType.Slope),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
             ],
         ],
         [MotherBrainFakeDeathDraw.ClearCeilingTube] =
         [
             [
-                RoomLevelWord.Create(0x2fc, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x2fc, BlockMirroring.None, RoomCollisionType.Slope),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
             ],
         ],
         [MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube] =
         [
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x339, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x339, BlockMirroring.None, RoomCollisionType.Slope),
             ],
         ],
         [MotherBrainFakeDeathDraw.ClearBottomMiddleTubes] =
         [
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x339, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x339, BlockMirroring.None, RoomCollisionType.Slope),
             ],
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x339, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x339, BlockMirroring.None, RoomCollisionType.Slope),
             ],
         ],
         [MotherBrainFakeDeathDraw.ClearBottomLeftTube] =
         [
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x339, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x339, BlockMirroring.None, RoomCollisionType.Slope),
             ],
-            [RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air)],
+            [RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air)],
         ],
         [MotherBrainFakeDeathDraw.ClearBottomRightTube] =
         [
             [
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-                RoomLevelWord.Create(0x339, LevelBlockFlipFlags.None, RoomCollisionType.Slope),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+                RoomLevelWord.Create(0x339, BlockMirroring.None, RoomCollisionType.Slope),
             ],
-            [RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air)],
+            [RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air)],
         ],
     };
 
@@ -213,14 +213,14 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     ];
 
     /// <summary>A mirrored mural cell.</summary>
-    private const LevelBlockFlipFlags FlipX = LevelBlockFlipFlags.Horizontal;
+    private const BlockMirroring FlipX = BlockMirroring.Horizontal;
     /// <summary>A vertically flipped mural cell.</summary>
-    private const LevelBlockFlipFlags FlipY = LevelBlockFlipFlags.Vertical;
+    private const BlockMirroring FlipY = BlockMirroring.Vertical;
     /// <summary>A mural cell flipped both ways.</summary>
-    private const LevelBlockFlipFlags FlipXY = LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical;
+    private const BlockMirroring FlipXY = BlockMirroring.Horizontal | BlockMirroring.Vertical;
 
     /// <summary>One air mural cell: tileset tile <paramref name="index"/> with <paramref name="flips"/>.</summary>
-    private static RoomLevelWord Tile(int index, LevelBlockFlipFlags flips = LevelBlockFlipFlags.None) =>
+    private static RoomLevelWord Tile(int index, BlockMirroring flips = BlockMirroring.None) =>
         RoomLevelWord.Create(checked((ushort)index), flips, RoomCollisionType.Air);
 
     /// <summary>The twelve mural rows, top to bottom; a row's position is its row of the mural.</summary>

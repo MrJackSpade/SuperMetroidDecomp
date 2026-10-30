@@ -16,7 +16,7 @@ internal static class RoomRevealClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealTable.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayReveals.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelWord.cs")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomBlockAppearance.cs")]),
         new("SuperMetroid.Core.Samus.Abilities.Artwork.InstalledXrayOverlays", "xray-complete-items-and-required-room-overlays", ["ItemMetatile", "RoomTiles"],
             [XrayCatalog, new("csharp/src/SuperMetroid.Core/Samus/Abilities/Artwork/InstalledXrayOverlays.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRoomOverlayVisual.cs"),

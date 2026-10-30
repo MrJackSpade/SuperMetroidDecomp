@@ -15,10 +15,10 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     /// </summary>
     internal static readonly Dictionary<SporeSpawnCeilingDraw, RoomLevelWord> Cells = new()
     {
-        [SporeSpawnCeilingDraw.Clear] = RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-        [SporeSpawnCeilingDraw.CrumbleFirst] = RoomLevelWord.Create(0x53, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-        [SporeSpawnCeilingDraw.CrumbleSecond] = RoomLevelWord.Create(0x54, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-        [SporeSpawnCeilingDraw.CrumbleThird] = RoomLevelWord.Create(0x55, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        [SporeSpawnCeilingDraw.Clear] = RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.Air),
+        [SporeSpawnCeilingDraw.CrumbleFirst] = RoomLevelWord.Create(0x53, BlockMirroring.None, RoomCollisionType.Air),
+        [SporeSpawnCeilingDraw.CrumbleSecond] = RoomLevelWord.Create(0x54, BlockMirroring.None, RoomCollisionType.Air),
+        [SporeSpawnCeilingDraw.CrumbleThird] = RoomLevelWord.Create(0x55, BlockMirroring.None, RoomCollisionType.Air),
     };
 
     /// <summary>The clear layout's and the three successive crumble appearances' editable artwork keys.</summary>

@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <summary>Verification access to <see cref="RoomCollisionBlock"/> members production does not use.</summary>
 internal static class RoomCollisionBlockAccess
 {
-    /// <summary>Extracts the visual tile index from a collision block's packed room word.</summary>
+    /// <summary>Reads the block a collision block's terrain shows.</summary>
     extension(RoomCollisionBlock self)
     {
-        /// <summary>Low ten bits selecting the visual 16×16 block definition.</summary>
-        internal ushort VisualBlockIndex => self.PackedWord.VisualBlockIndex;
+        /// <summary>The block the terrain shows, by its number in the tileset's block set.</summary>
+        internal int VisualBlockIndex => self.Terrain.Appearance.Block;
     }
 }

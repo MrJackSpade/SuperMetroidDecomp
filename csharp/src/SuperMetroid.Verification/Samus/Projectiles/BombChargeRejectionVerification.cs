@@ -16,7 +16,7 @@ internal static class BombChargeRejectionVerification
     {
         Suite(nameof(VerifyBombChargeRelease), () => VerifyBombChargeRelease());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
         foreach (ushort charge in new ushort[] { 0, 58, 60 })
         foreach (bool bombsEquipped in new[] { false, true })
         foreach (bool powerBombSelected in new[] { false, true })
@@ -53,7 +53,7 @@ internal static class BombChargeRejectionVerification
     private static void VerifyBombChargeRelease()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]));
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
         foreach (ushort charge in new ushort[] { 0, 1, 59, 60 })
         foreach (ushort selection in new ushort[] { 0, 3 })
         {

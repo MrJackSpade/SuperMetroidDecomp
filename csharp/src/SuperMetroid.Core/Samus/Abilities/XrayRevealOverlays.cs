@@ -73,7 +73,7 @@ public static class XrayRevealOverlays
         if ((uint)x >= XrayRevealLayout.MetatileColumns - 1 || (uint)y >= XrayRevealLayout.MetatileRows) return;
         // $91:D0A6 swaps the two tile rows for vertical flip. It neither toggles each
         // tile's mirroring nor implements horizontal flip; preserve that native behavior.
-        bool flip = (metatileWord.VisualFlipFlags & LevelBlockFlipFlags.Vertical) != LevelBlockFlipFlags.None;
+        bool flip = (metatileWord.VisualFlipFlags & BlockMirroring.Vertical) != BlockMirroring.None;
         blocks[XrayRevealCells.CellOf(x, y)] = new RevealedBlock(metatileWord.VisualBlockIndex,
             flip ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
     }

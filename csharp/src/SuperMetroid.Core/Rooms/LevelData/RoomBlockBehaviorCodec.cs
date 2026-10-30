@@ -4,19 +4,15 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>
-/// The codec between <see cref="RoomBlockBehavior"/> and the BTS byte a room's behavior data stores. It is the one
-/// place a typed behavior becomes that byte, and the one place a BTS byte becomes a blue-door orientation, a station
-/// access or a downward-gate trigger; the behavior holds 0 through 255, so the conversion is lossless.
+/// The one place a block's behaviour parameter becomes a blue-door orientation, a station access or a downward-gate
+/// trigger, and the one place those become a parameter.
 /// </summary>
-[EncodingOwner("room block behaviour byte")]
+[EncodingOwner("room block behaviour parameter")]
 internal static class RoomBlockBehaviorCodec
 {
-    /// <summary>The four blue-door cap behaviors in BTS order, starting at the left-facing cap.</summary>
+    /// <summary>The four blue-door cap behaviors in parameter order, starting at the left-facing cap.</summary>
     private static readonly ColoredDoorOrientation[] BlueDoorOrientations =
         [ColoredDoorOrientation.Left, ColoredDoorOrientation.Right, ColoredDoorOrientation.Up, ColoredDoorOrientation.Down];
-
-    /// <summary>The BTS byte that stores <paramref name="behavior"/>.</summary>
-    internal static byte ToBtsByte(this RoomBlockBehavior behavior) => checked((byte)behavior.Value);
 
     /// <summary>The blue-door cap behavior facing <paramref name="orientation"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="orientation"/> is not a door orientation.</exception>
@@ -42,10 +38,10 @@ internal static class RoomBlockBehaviorCodec
         return false;
     }
 
-    /// <summary>The station-access behavior <paramref name="access"/> as the BTS byte the station's block stores.</summary>
-    internal static RoomBlockBehavior StationAccess(StationAccessBehavior access) => new((byte)access);
+    /// <summary>The station-access behavior <paramref name="access"/> as the parameter the station's block holds.</summary>
+    internal static RoomBlockBehavior StationAccess(StationAccessBehavior access) => new((int)access);
 
-    /// <summary>Decodes a map, recharge, or save-station access byte.</summary>
+    /// <summary>Decodes a map, recharge, or save-station access behaviour.</summary>
     internal static bool TryStationAccess(RoomBlockBehavior behavior, out StationAccessBehavior access)
     {
         access = (StationAccessBehavior)behavior.Value;

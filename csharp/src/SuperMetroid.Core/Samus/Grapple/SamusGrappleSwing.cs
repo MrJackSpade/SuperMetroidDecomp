@@ -473,7 +473,7 @@ public static class SamusGrappleSwing
         Position16<RoomBlocks> blockPosition)
     {
         RoomCollisionBlock initialBlock =
-            level.GetCollisionBlockOrPrefilledSolid(blockPosition);
+            level.GetCollisionBlockOrEdgeSolid(blockPosition);
         if (initialBlock.Index < 0)
             return true;
 
@@ -481,7 +481,7 @@ public static class SamusGrappleSwing
         for (int extensionDepth = 0; extensionDepth <= 16; extensionDepth++)
         {
             RoomCollisionBlock block =
-                level.GetCollisionBlockByIndexOrPrefilledSolid(index);
+                level.GetCollisionBlockByIndexOrEdgeSolid(index);
             switch (block.CollisionType)
             {
                 // The swing dispatcher intentionally treats shootable/bombable air as air;
@@ -494,12 +494,12 @@ public static class SamusGrappleSwing
                     return false;
 
                 case RoomCollisionType.SpikeAir:
-                    // `$94:AA9E` has a mostly-zero BTS table: only spike-air BTS two queues
+                    // `$94:AA9E` has a mostly-zero behaviour table: only spike-air behaviour two queues
                     // `$0010` damage. It never collides, but it still starts the common
                     // 60-frame invulnerability and 10-frame knockback timers. The timer
-                    // check must precede the BTS lookup so a second radial probe in this
+                    // check must precede the behaviour lookup so a second radial probe in this
                     // same six-point sweep cannot queue damage again.
-                    ApplySwingSpikeDamage(samus, block.Bts.Value, block: SwingSpikeBlock.Plain);
+                    ApplySwingSpikeDamage(samus, block.Behavior.Value, block: SwingSpikeBlock.Plain);
                     return false;
 
                 // Slopes are unconditional collision in this grapple-specific dispatcher.
@@ -514,21 +514,21 @@ public static class SamusGrappleSwing
 
                 case RoomCollisionType.SpikeBlock:
                     // `$94:AB17` always reports collision. Before setting carry it applies
-                    // `$003C` for BTS zero or `$0010` for BTS one; every other entry is
-                    // literally zero. A negative BTS skips the table entirely.
-                    ApplySwingSpikeDamage(samus, block.Bts.Value, block: SwingSpikeBlock.Solid);
+                    // `$003C` for behaviour zero or `$0010` for behaviour one; every other entry is
+                    // literally zero. A negative behaviour skips the table entirely.
+                    ApplySwingSpikeDamage(samus, block.Behavior.Value, block: SwingSpikeBlock.Solid);
                     return true;
 
                 case RoomCollisionType.HorizontalExtension:
-                    if (block.Bts == RoomBlockBehaviorValues.None)
+                    if (block.Behavior == RoomBlockBehaviorValues.None)
                         return false;
-                    index += block.Bts.ExtensionOffset;
+                    index += block.Behavior.ExtensionOffset;
                     continue;
 
                 case RoomCollisionType.VerticalExtension:
-                    if (block.Bts == RoomBlockBehaviorValues.None)
+                    if (block.Behavior == RoomBlockBehaviorValues.None)
                         return false;
-                    index += block.Bts.ExtensionOffset * level.Size.X;
+                    index += block.Behavior.ExtensionOffset * level.Size.X;
                     continue;
 
                 default:
@@ -548,7 +548,7 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // $9B:B8F1 calls the firing block dispatcher again at the stored endpoint and tests
-        // carry only. Persistent type-$E/BTS-$00 or $03 therefore stays connected; replacing
+        // carry only. Persistent type-$E/behaviour-$00 or $03 therefore stays connected; replacing
         // it with air disconnects. PLM-producing dynamic blocks retain their explicit stop.
         GrappleBlockReaction reaction = SamusGrappleMovement.ReactAtEndpoint(
             level,
@@ -558,13 +558,13 @@ public static class SamusGrappleSwing
     }
 
 
-    /// <summary>Applies BTS-specific spike damage once per invincibility window and starts knockback.</summary>
+    /// <summary>Applies behaviour-specific spike damage once per invincibility window and starts knockback.</summary>
     private static void ApplySwingSpikeDamage(
         SamusState samus,
         int behavior,
         SwingSpikeBlock block)
     {
-        // Both native handlers return immediately while `$18A8` is nonzero or when BTS is
+        // Both native handlers return immediately while `$18A8` is nonzero or when behaviour is
         // negative. This shared guard is observable because one sweep can sample the same
         // damaging block up to six times, yet only its first sample may publish damage.
         if (!samus.InvincibilityTimer.IsZero || new RoomBlockBehavior(behavior).RejectsGrappleReaction)

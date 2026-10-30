@@ -35,9 +35,9 @@ internal static class BeamImpactSoundVerification
         for (int x = 16; x < 64; x++)
         {
             int index = y * level.Size.X + x;
-            level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
-                y >= 32 || x == 44 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
-            level.SetBehavior(index, 0);
+            level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None,
+                y >= 32 || x == 44 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
+            level.SetBehavior(index, RoomBlockBehaviorValues.None);
         }
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();

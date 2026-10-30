@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
@@ -127,7 +128,7 @@ internal static class GrappleEnemyDeathVerification
             samus.Grapple.Phase = GrapplePhase.Firing;
             fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level });
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
-            var movementRoom = CreateRoom(new(32, 32), new ushort[32 * 32], new byte[32 * 32]);
+            var movementRoom = CreateRoom(new(32, 32), new RoomTerrainBlock[32 * 32], new RoomBlockBehavior[32 * 32]);
             var result = SamusGrappleMovement.Step(new SamusTerrain { Level = movementRoom }, samus, 0, 0);
             AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {(int)pose:X2} completes grapple cleanup");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");

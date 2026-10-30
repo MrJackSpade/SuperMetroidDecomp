@@ -76,7 +76,7 @@ internal sealed class LinkedRestorePlmFamily
             // the top-left cell carries the parent's collision type.
             RoomCollisionType collision = row == 0 && column == 0 ? Family._parentCollision
                 : row == 0 ? RoomCollisionType.HorizontalExtension : RoomCollisionType.VerticalExtension;
-            return RoomLevelWord.Create(0, LevelBlockFlipFlags.None, collision).WithVisualWord(Family._visualBlock.Raw).Raw;
+            return RoomLevelWord.Create(0, BlockMirroring.None, collision).WithVisualWord(Family._visualBlock.Raw).Raw;
         }
     }
 

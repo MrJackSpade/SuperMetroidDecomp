@@ -68,13 +68,13 @@ internal static class RetailDoorCaptureTests
         // Same staged approach as the existing visual regression: discover the real
         // authored door via its collision block, then run the production dispatcher.
         var level = runtime.Room.LoadedLevelData;
-        for (int index = 0; index < level.ForegroundEntries.Length; index++)
+        for (int index = 0; index < level.Size.Area; index++)
         {
             var block = level.GetCollisionBlockByIndex(index);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: false);
+            var door = level.ResolveDoorCollision(block.Behavior.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: false);
             if (door.Pointer != pointer) continue;
-            level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
+            level.ResolveDoorCollision(block.Behavior.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
             return;
         }
         throw new InvalidOperationException($"No authored collision for door {pointer:X4}.");

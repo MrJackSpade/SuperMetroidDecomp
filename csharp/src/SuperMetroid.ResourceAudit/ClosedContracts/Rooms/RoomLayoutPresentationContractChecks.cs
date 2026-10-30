@@ -17,7 +17,7 @@ internal static class RoomLayoutPresentationContractChecks
     internal static void Run()
     {
         RoomLevelId first = RoomVisualLayoutSourceDefinitions.All.First();
-        RoomLevelArtwork Layout(RoomLevelId level) => new(level, new(1, 1), [0], [0]);
+        RoomLevelArtwork Layout(RoomLevelId level) => new(level, new(1, 1), [default(RoomBlockAppearance)], [default(RoomBlockAppearance)]);
         var owned = RoomVisualLayoutSourceDefinitions.All.ToDictionary(level => level, Layout);
         var incomplete = new Dictionary<RoomLevelId, RoomLevelArtwork>(owned);
         incomplete.Remove(first);

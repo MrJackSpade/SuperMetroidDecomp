@@ -117,19 +117,19 @@ internal static class SamusEaterPlmDraws
             if ((uint)block >= Count(run)) throw new ArgumentOutOfRangeException(nameof(block));
             int tile;
             RoomCollisionType collision;
-            LevelBlockFlipFlags flips;
+            BlockMirroring flips;
             if (run == 2)
             {
                 // Four-wide foliage: two tiles followed by their mirrored pair.
                 tile = FoliageFirstBlock + Phase * 2 + Math.Min(block, 3 - block);
                 collision = RoomCollisionType.SpikeAir;
-                flips = block >= 2 ? LevelBlockFlipFlags.Horizontal : LevelBlockFlipFlags.None;
+                flips = block >= 2 ? BlockMirroring.Horizontal : BlockMirroring.None;
             }
             else
             {
                 // Right mouth half precedes the left half in native draw order.
                 tile = MouthFirstBlock + Phase * 2 + (run == 0 ? 1 - block : block);
-                flips = run == 0 ? LevelBlockFlipFlags.Horizontal : LevelBlockFlipFlags.None;
+                flips = run == 0 ? BlockMirroring.Horizontal : BlockMirroring.None;
                 collision = new SamusEaterBlock(run, block) switch
                 {
                     (0, 1) or (1, 0) => RoomCollisionType.SolidBlock,
@@ -138,7 +138,7 @@ internal static class SamusEaterPlmDraws
                     _ => RoomCollisionType.Air,
                 };
             }
-            return RoomLevelWord.Create(tile, flips | (Ceiling ? LevelBlockFlipFlags.Vertical : LevelBlockFlipFlags.None), collision).Raw;
+            return RoomLevelWord.Create(tile, flips | (Ceiling ? BlockMirroring.Vertical : BlockMirroring.None), collision).Raw;
         }
     }
 }

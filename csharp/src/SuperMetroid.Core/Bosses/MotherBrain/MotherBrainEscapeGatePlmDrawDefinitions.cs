@@ -19,24 +19,24 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
     {
         [MotherBrainEscapeGateDraw.Open] =
         [
-            RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-            RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-            RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-            RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
         ],
         [MotherBrainEscapeGateDraw.HalfClosed] =
         [
-            RoomLevelWord.Create(0x30f, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-            RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-            RoomLevelWord.Create(0xff, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-            RoomLevelWord.Create(0x30f, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
         ],
         [MotherBrainEscapeGateDraw.Closed] =
         [
-            RoomLevelWord.Create(0x30f, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-            RoomLevelWord.Create(0x2e8, LevelBlockFlipFlags.Vertical, RoomCollisionType.SolidBlock),
-            RoomLevelWord.Create(0x2e8, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
-            RoomLevelWord.Create(0x30f, LevelBlockFlipFlags.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0x2e8, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0x2e8, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomLevelWord.Create(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
         ],
     };
 

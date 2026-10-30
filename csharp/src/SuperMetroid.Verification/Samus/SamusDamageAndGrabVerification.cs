@@ -97,10 +97,10 @@ internal static void VerifySamusDrainedController()
 
     const int width = 8;
     const int height = 8;
-    var foreground = new ushort[width * height];
+    var foreground = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
-        foreground[6 * width + x] = 0x8000; // Solid floor begins at whole Y 96.
-    RoomLevelData level = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
+        foreground[6 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock); // Solid floor begins at whole Y 96.
+    RoomLevelData level = CreateRoom(new(width, height), foreground, new RoomBlockBehavior[foreground.Length]);
 
     VerifyDrainedPoseHistory();
     var right = new SamusState

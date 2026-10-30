@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>One indexed pair from native <c>level_data</c> and parallel <c>BTS</c>.</summary>
-/// <param name="Index">Row-major room-block index, not the native level-data byte offset; synthetic prefilled-solid boundary results use minus one.</param>
-/// <param name="PackedWord">Complete native BG1 word: collision type, parent flips and visual block selector.</param>
-/// <param name="Bts">
-/// Parallel native BTS byte. The collision type determines which of its named interpretations is valid; it is not a
-/// universal terrain identifier.
+/// <summary>One block of a room's terrain grid as collision reads it: where it is, its terrain and its behaviour.</summary>
+/// <param name="Index">Row-major room-block index; an edge-solid result for a probe outside the room uses minus one.</param>
+/// <param name="Terrain">What the block shows and how it collides.</param>
+/// <param name="Behavior">
+/// The block's behaviour parameter. Its collision kind determines which of its named views applies; it is not a universal
+/// terrain identifier.
 /// </param>
-public readonly record struct RoomCollisionBlock(int Index, RoomLevelWord PackedWord, RoomBlockBehavior Bts)
+public readonly record struct RoomCollisionBlock(int Index, RoomTerrainBlock Terrain, RoomBlockBehavior Behavior)
 {
-    /// <summary>Typed bank-$94 collision-dispatch nibble for this block.</summary>
-    public RoomCollisionType CollisionType => PackedWord.CollisionType;
+    /// <summary>How the block collides.</summary>
+    public RoomCollisionType CollisionType => Terrain.Collision;
 }

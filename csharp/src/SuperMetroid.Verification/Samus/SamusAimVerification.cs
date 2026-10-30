@@ -59,10 +59,10 @@ internal static void VerifySamusStandingAimMovement()
 
     const int width = 8;
     const int height = 8;
-    var blocks = new ushort[width * height];
+    var blocks = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
-        blocks[4 * width + x] = 0x8000;
-    RoomLevelData level = CreateRoom(new(width, height), blocks, new byte[blocks.Length]);
+        blocks[4 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    RoomLevelData level = CreateRoom(new(width, height), blocks, new RoomBlockBehavior[blocks.Length]);
 
     var samus = new SamusState
     {
@@ -235,9 +235,9 @@ internal static void VerifySamusAimedAerialMovement()
 
     const int width = 8;
     const int height = 20;
-    var blocks = new ushort[width * height];
+    var blocks = new RoomTerrainBlock[width * height];
     for (int x = 0; x < width; x++)
-        blocks[12 * width + x] = 0x8000;
+        blocks[12 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData level = CreateRoom(new(width, height),
         blocks,
         new byte[blocks.Length]);
@@ -362,12 +362,12 @@ level, samus, ControllerButton.A, unchecked((ushort)index));
     // A final-boundary-only eleven-pixel probe sees the air quadrant and grows downward
     // through the platform. `$94:96AB` first probes eight pixels, detects the solid lower
     // quadrant, and makes `$91:FF49` preserve the already-landed bottom boundary.
-    var halfPlatformWords = new ushort[width * height];
-    var halfPlatformBts = new byte[halfPlatformWords.Length];
-    halfPlatformWords[12 * width + 2] = 0x1000;
-    halfPlatformWords[12 * width + 3] = 0x1000;
-    halfPlatformBts[12 * width + 2] = 0x02;
-    halfPlatformBts[12 * width + 3] = 0x00;
+    var halfPlatformWords = new RoomTerrainBlock[width * height];
+    var halfPlatformBts = new RoomBlockBehavior[halfPlatformWords.Length];
+    halfPlatformWords[12 * width + 2] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
+    halfPlatformWords[12 * width + 3] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Slope);
+    halfPlatformBts[12 * width + 2] = new RoomBlockBehavior(0x02);
+    halfPlatformBts[12 * width + 3] = new RoomBlockBehavior(0x00);
     RoomLevelData halfPlatform = CreateRoom(new(width, height),
         halfPlatformWords,
         halfPlatformBts);
@@ -441,7 +441,7 @@ level, compactLeftLanding, 0, index);
     // ordinary `$27` and `$91:FFD4-$91:FFE9` moves the center up by 10-16 = -6 pixels.
     var boxedBlocks = (ushort[])blocks.Clone();
     for (int x = 0; x < width; x++)
-        boxedBlocks[9 * width + x] = 0x8000;
+        boxedBlocks[9 * width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData boxedLevel = CreateRoom(new(width, height),
         boxedBlocks,
         new byte[boxedBlocks.Length]);

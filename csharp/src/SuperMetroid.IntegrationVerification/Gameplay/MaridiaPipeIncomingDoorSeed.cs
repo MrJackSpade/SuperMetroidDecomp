@@ -16,11 +16,11 @@ internal static class MaridiaPipeIncomingDoorSeed
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.PlasmaSpark);
         var level = runtime.Room.LoadedLevelData;
         int entry = -1;
-        for (int index = 0; index < level.ForegroundEntries.Length; index++)
+        for (int index = 0; index < level.Size.Area; index++)
         {
             var block = level.GetCollisionBlockByIndex(index);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            if (level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), false).Pointer != door.Pointer) continue;
+            if (level.ResolveDoorCollision(block.Behavior.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), false).Pointer != door.Pointer) continue;
             entry = index;
             break;
         }

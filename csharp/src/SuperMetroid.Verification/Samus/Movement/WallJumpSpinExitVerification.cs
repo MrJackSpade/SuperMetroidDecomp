@@ -36,8 +36,8 @@ internal static class WallJumpSpinExitVerification
             for (int x = 16; x < 48; x++)
             {
                 int index = y * level.Size.X + x;
-                level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0, RoomCollisionType.Air).Raw);
-                level.SetBehavior(index, 0);
+                level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.Air));
+                level.SetBehavior(index, RoomBlockBehaviorValues.None);
             }
             var samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();

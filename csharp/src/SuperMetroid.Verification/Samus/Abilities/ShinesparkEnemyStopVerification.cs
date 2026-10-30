@@ -12,7 +12,7 @@ internal static class ShinesparkEnemyStopVerification
     /// <summary>Checks exact crash position at a four-pixel gap and continued vertical flight at a twenty-pixel gap.</summary>
     internal static void VerifyShinesparkEnemyStop()
     {
-        var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
+        var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         foreach (bool frozen in new[] { false, true })
         foreach (int gap in new[] { 4, 20 })
         {

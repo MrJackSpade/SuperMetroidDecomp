@@ -108,12 +108,12 @@ public static class XrayRevealMap
     }
 
     /// <summary>How a copied block lays out its picture: mirrored as the level word's flips mirror it.</summary>
-    private static RevealedBlockArrangement Mirrored(LevelBlockFlipFlags flips) => flips switch
+    private static RevealedBlockArrangement Mirrored(BlockMirroring flips) => flips switch
     {
-        LevelBlockFlipFlags.None => RevealedBlockArrangement.AsDefined,
-        LevelBlockFlipFlags.Horizontal => RevealedBlockArrangement.MirroredHorizontally,
-        LevelBlockFlipFlags.Vertical => RevealedBlockArrangement.MirroredVertically,
-        LevelBlockFlipFlags.Horizontal | LevelBlockFlipFlags.Vertical => RevealedBlockArrangement.MirroredBoth,
+        BlockMirroring.None => RevealedBlockArrangement.AsDefined,
+        BlockMirroring.Horizontal => RevealedBlockArrangement.MirroredHorizontally,
+        BlockMirroring.Vertical => RevealedBlockArrangement.MirroredVertically,
+        BlockMirroring.Horizontal | BlockMirroring.Vertical => RevealedBlockArrangement.MirroredBoth,
         _ => throw new InvalidDataException($"A BG1 block has undefined flips {flips}."),
     };
 }

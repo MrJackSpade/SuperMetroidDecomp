@@ -505,13 +505,13 @@ internal sealed class ProjectileMotion
         RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
 
         // `$94:9D9F/$9DCA` return the dispatcher to its caller with N set, causing the same
-        // point reaction to run again on the signed horizontal/vertical parent. A zero-BTS
+        // point reaction to run again on the signed horizontal/vertical parent. A zero-behaviour
         // extension is transparent. Reuse the already translated level resolver so missiles
         // and the broad Samus body scans cannot disagree about chained extensions.
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
+            block.Behavior == RoomBlockBehaviorValues.CollectibleTrigger)
         {
             _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
             return true;
@@ -526,10 +526,10 @@ internal sealed class ProjectileMotion
 
         if (block.CollisionType is RoomCollisionType.BombableAir or RoomCollisionType.BombableBlock)
         {
-            // `$94:9FD6/$9FF4` always indexes the bomb-block PLM table for nonnegative BTS.
+            // `$94:9FD6/$9FF4` always indexes the bomb-block PLM table for nonnegative behaviour.
             // A missile or Super Missile still performs Spawn_PLM, but setup `$84:CEDA`
             // immediately clears the new slot because its family is neither `$0500` nor
-            // `$0300`; no level word, timer, sound, or persistent PLM survives that call.
+            // `$0300`; no terrain write, timer, sound, or persistent PLM survives that call.
             // The reaction's carry is independent of setup: bombable air passes through,
             // while bombable solid destroys the missile.
             return block.CollisionType == RoomCollisionType.BombableBlock;
@@ -549,7 +549,7 @@ internal sealed class ProjectileMotion
             RoomCollisionType.SpecialBlock or
             RoomCollisionType.GrappleBlock => true,
 
-            // `$94:A147/$A15E` divide slope BTS values into the five square definitions and
+            // `$94:A147/$A15E` divide slope behaviour values into the five square definitions and
             // the remaining 27 pixel-height definitions. Both paths use the missile center;
             // the direction only changes which half of a square definition is sampled.
             RoomCollisionType.Slope =>
@@ -576,30 +576,30 @@ internal sealed class ProjectileMotion
         SamusProjectileSlot slot,
         bool horizontalMovement)
     {
-        int slopeShape = block.Bts.SlopeShape;
+        int slopeShape = block.Behavior.SlopeShape;
         if (slopeShape >= 5)
         {
             // `$94:A58F` mirrors the projectile's within-block coordinate before indexing
-            // the cartridge table. BTS bit 6 flips X and bit 7 flips Y. A table height at or
+            // the cartridge table. behaviour bit 6 flips X and bit 7 flips Y. A table height at or
             // above the mirrored Y point (the original uses signed `height - y <= 0`) is
             // solid. Values can reach 20 for overhanging shapes, so do not mask to a nibble.
             int xInBlock = slot.Position.X.Whole & 15;
-            if (block.Bts.SlopeFlipsHorizontally)
+            if (block.Behavior.SlopeFlipsHorizontally)
                 xInBlock ^= 15;
 
             int yInBlock = slot.Position.Y.Whole & 15;
-            if (block.Bts.SlopeFlipsVertically)
+            if (block.Behavior.SlopeFlipsVertically)
                 yInBlock ^= 15;
 
             int height = SlopeHeights.Read(slopeShape, xInBlock);
             return height <= yInBlock;
         }
 
-        // `$94:A66A/$A71A` treat each square slope as four 8x8 quadrants. The top two BTS
+        // `$94:A66A/$A71A` treat each square slope as four 8x8 quadrants. The top two behaviour
         // bits select the base flip, while the projectile half along the movement axis and
         // then the perpendicular axis select the exact quadrant. Each ROM byte is either
         // `$00` (air) or `$80` (solid).
-        int quadrant = slopeShape * 4 + block.Bts.SlopeOrientation;
+        int quadrant = slopeShape * 4 + block.Behavior.SlopeOrientation;
         if (horizontalMovement)
         {
             quadrant ^= (slot.Position.X.Whole & 8) >> 3;

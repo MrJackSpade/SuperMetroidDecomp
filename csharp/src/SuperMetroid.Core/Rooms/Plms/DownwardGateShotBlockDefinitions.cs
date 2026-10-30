@@ -14,13 +14,13 @@ internal static class DownwardGateShotBlockDefinitions
     /// </summary>
     internal static IReadOnlyList<DownwardGateShotBlockDefinition> Triggers { get; } =
     [
-        new(DownwardGateProgram.TriggerBlueLeft, RoomLevelWord.Create(0x46, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw, 0),
-        new(DownwardGateProgram.TriggerBlueRight, 0, RoomLevelWord.Create(0x47, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw),
-        new(DownwardGateProgram.TriggerRedLeft, RoomLevelWord.Create(0x48, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw, 0),
-        new(DownwardGateProgram.TriggerRedRight, 0, RoomLevelWord.Create(0x49, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw),
-        new(DownwardGateProgram.TriggerGreenLeft, RoomLevelWord.Create(0x4a, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw, 0),
-        new(DownwardGateProgram.TriggerGreenRight, 0, RoomLevelWord.Create(0x4b, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw),
-        new(DownwardGateProgram.TriggerYellowLeft, RoomLevelWord.Create(0x4c, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw, 0),
-        new(DownwardGateProgram.TriggerYellowRight, 0, RoomLevelWord.Create(0x4d, LevelBlockFlipFlags.None, RoomCollisionType.ShootableBlock).Raw),
+        new(DownwardGateProgram.TriggerBlueLeft, RoomLevelWord.Create(0x46, BlockMirroring.None, RoomCollisionType.ShootableBlock).Raw, 0),
+        new(DownwardGateProgram.TriggerBlueRight, 0, RoomLevelWord.Create(0x47, BlockMirroring.None, RoomCollisionType.ShootableBlock).Raw),
+        new(DownwardGateProgram.TriggerRedLeft, RoomLevelWord.Create(0x48, BlockMirroring.None, RoomCollisionType.ShootableBlock).Raw, 0),
+        new(DownwardGateProgram.TriggerRedRight, 0, RoomLevelWord.Create(0x49, BlockMirroring.None, RoomCollisionType.ShootableBlock).Raw),
+        new(DownwardGateProgram.TriggerGreenLeft, RoomLevelWord.Create(0x4a, BlockMirroring.None, RoomCollisionType.ShootableBlock).Raw, 0),
+        new(DownwardGateProgram.TriggerGreenRight, 0, RoomLevelWord.Create(0x4b, BlockMirroring.None, RoomCollisionType.ShootableBlock).Raw),
+        new(DownwardGateProgram.TriggerYellowLeft, RoomLevelWord.Create(0x4c, BlockMirroring.None, RoomCollisionType.ShootableBlock).Raw, 0),
+        new(DownwardGateProgram.TriggerYellowRight, 0, RoomLevelWord.Create(0x4d, BlockMirroring.None, RoomCollisionType.ShootableBlock).Raw),
     ];
 }

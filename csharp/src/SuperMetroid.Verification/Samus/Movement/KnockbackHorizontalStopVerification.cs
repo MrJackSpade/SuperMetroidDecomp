@@ -11,7 +11,7 @@ internal static class KnockbackHorizontalStopVerification
     /// <summary>Exercises both directions against a nearby solid enemy, then checks the next clear step moves 1.5 pixels.</summary>
     internal static void VerifyKnockbackHorizontalStop()
     {
-        var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
+        var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         foreach (bool right in new[] { false, true })
         {
             var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };

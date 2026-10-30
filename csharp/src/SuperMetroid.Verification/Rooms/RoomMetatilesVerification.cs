@@ -86,8 +86,8 @@ internal static class RoomMetatilesVerification
         topLeft["tileColumn"] = (originalColumn + 1) % RoomMetatileFormat.TileColumns;
         RoomMetatileAtlas modified = RoomMetatileAtlas.Load(
             new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(edited)), cre.Length);
-        ExpandedBlockTiles before = LevelBlockTilemapExpander.Expand(0, stockCre.BlockTiles.Span);
-        ExpandedBlockTiles after = LevelBlockTilemapExpander.Expand(0, modified.BlockTiles.Span);
+        ExpandedBlockTiles before = LevelBlockTilemapExpander.Expand(RoomBlockAppearance.Of(0), stockCre.BlockTiles.Span);
+        ExpandedBlockTiles after = LevelBlockTilemapExpander.Expand(RoomBlockAppearance.Of(0), modified.BlockTiles.Span);
         AssertTrue(before.TopLeft != after.TopLeft && before.TopRight == after.TopRight &&
             before.BottomLeft == after.BottomLeft && before.BottomRight == after.BottomRight &&
             stockCre.BlockTiles.Span[4..].SequenceEqual(modified.BlockTiles.Span[4..]),

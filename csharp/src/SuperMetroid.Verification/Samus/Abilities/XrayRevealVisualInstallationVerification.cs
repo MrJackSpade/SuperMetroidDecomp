@@ -27,7 +27,7 @@ internal static class XrayRevealVisualInstallationVerification
         static RevealedBlock Defined(int block) => new(block, RevealedBlockArrangement.AsDefined);
         // An overlay's word places its block, rows swapped where it is flipped vertically; it draws no horizontal flip.
         static RevealedBlock Overlaid(ushort word) => new(new RoomLevelWord(word).VisualBlockIndex,
-            (new RoomLevelWord(word).VisualFlipFlags & LevelBlockFlipFlags.Vertical) != LevelBlockFlipFlags.None
+            (new RoomLevelWord(word).VisualFlipFlags & BlockMirroring.Vertical) != BlockMirroring.None
                 ? RevealedBlockArrangement.RowsSwapped : RevealedBlockArrangement.AsDefined);
         InstalledXrayReveals stock = installed.LoadXrayRevealVisuals();
         int drawable = 0;

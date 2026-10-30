@@ -57,7 +57,7 @@ internal static class EyeDoorPlmDrawDefinitionsVerification
         AssertEqual(23, entries.Length, "the mirrored clear preserves the existing authored visual identities");
         for (int block = 0; block < 4; block++)
             AssertEqual((ushort)(edited.GetWord(EyeDoorDraws.VisualSource(
-                EyeDoorPlmDrawDefinitions.MirroredOpeningClear), block) ^ (ushort)LevelBlockFlipFlags.Horizontal),
+                EyeDoorPlmDrawDefinitions.MirroredOpeningClear), block) ^ (ushort)BlockMirroring.Horizontal),
                 edited.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, block),
                 "left opening clear mirrors its authored appearance without changing the override schema");
         Suite(nameof(VerifyEyeDoorNativeDrawPath), () => VerifyEyeDoorNativeDrawPath(EyeDoorOrientation.Left, lists, null));

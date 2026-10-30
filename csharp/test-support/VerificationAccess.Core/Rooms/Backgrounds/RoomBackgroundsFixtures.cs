@@ -53,7 +53,7 @@ internal static class RoomBackgroundsFixtures
             blockCells[row / 2 * SideBlocks + column / 2][row % 2 * 2 + column % 2] = cell.Raw;
         var definitionIndices = new Dictionary<BlockCellWords, ushort>();
         var definitions = new BackgroundTile[Definitions * BlockTiles];
-        var blocks = new ushort[blockCells.Length];
+        var blocks = new RoomBlockAppearance[blockCells.Length];
         for (int block = 0; block < blocks.Length; block++)
         {
             ushort[] words = blockCells[block];
@@ -65,7 +65,7 @@ internal static class RoomBackgroundsFixtures
                 for (int corner = 0; corner < words.Length; corner++)
                     definitions[index * BlockTiles + corner] = BackgroundTileWordBytes.Tile(words[corner]);
             }
-            blocks[block] = index;
+            blocks[block] = RoomBlockAppearance.Of(index);
         }
         // BG2 shows the tilemap the fixture loaded at the gameplay BG2 tilemap, as a library background's image (#1403).
         return new(new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks),
@@ -355,9 +355,15 @@ internal static class RoomBackgroundsFixtures
     {
         RoomBackgroundLayer Layer(Position16<TilePlanePixels> scroll)
         {
-            var blocks = new ushort[SideBlocks * SideBlocks];
+            // Each draw is a seeded sixteen-bit value: its low ten bits name the block and the next two its mirroring.
+            var blocks = new RoomBlockAppearance[SideBlocks * SideBlocks];
             for (int index = 0; index < blocks.Length; index++)
-                blocks[index] = (ushort)random.Next(ushort.MaxValue + 1);
+            {
+                int draw = random.Next(ushort.MaxValue + 1);
+                blocks[index] = RoomBlockAppearance.Of(draw & RoomBlockAppearance.LastBlock,
+                    ((draw & (1 << 10)) != 0 ? BlockMirroring.Horizontal : BlockMirroring.None) |
+                    ((draw & (1 << 11)) != 0 ? BlockMirroring.Vertical : BlockMirroring.None));
+            }
             var inside = new Position16<TilePlanePixels>((ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2),
                 (ushort)random.Next(SideBlocks * RoomLevelPlane.BlockPixels / 2));
             return new RoomBackgroundLayer(new RoomLevelPlane(new Extent16<RoomBlocks>(SideBlocks, SideBlocks), blocks).Cells,

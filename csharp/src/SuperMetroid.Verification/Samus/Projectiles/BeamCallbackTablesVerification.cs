@@ -38,7 +38,7 @@ internal static class BeamCallbackTablesVerification
             () => SamusBeamCallbacks.Resolve(false, SamusBeamCombinations.FromTableIndex(16)),
             "beam combination rejects index beyond low nibble");
 
-        var room = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]));
+        var room = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
         foreach (bool charged in new[] { false, true })
         foreach (int beamType in Enumerable.Range(0, 12))
         {

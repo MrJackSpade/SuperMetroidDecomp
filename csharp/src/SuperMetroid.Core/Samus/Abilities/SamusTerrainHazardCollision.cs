@@ -18,7 +18,7 @@ public static class SamusTerrainHazardCollision
 {
     /// <summary>
     /// Runs the damaging subset of <c>BlockInsideDetection</c> at <c>$94:9B60</c> and
-    /// publishes the room-dependent spike-block BTS-zero gate used later during movement.
+    /// publishes the room-dependent spike-block behaviour-zero gate used later during movement.
     /// </summary>
     public static void PrepareFrame(
         RoomLevelData level,
@@ -29,7 +29,7 @@ public static class SamusTerrainHazardCollision
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
 
-        // `$94:8E83` makes Wrecked Ship's BTS-zero spike blocks harmless until Phantoon's
+        // `$94:8E83` makes Wrecked Ship's behaviour-zero spike blocks harmless until Phantoon's
         // area-boss bit is set. Every other area admits that table entry unconditionally.
         samus.OrdinarySpikeBlockBtsZeroDamageEnabled =
             area != AreaId.WreckedShip || areaBossDefeated;
@@ -46,8 +46,8 @@ public static class SamusTerrainHazardCollision
         if (!samus.InvincibilityTimer.IsZero)
             return;
 
-        // Every other spike-block BTS value selects a harmless reaction.
-        SpikeBlockBehavior? spike = block.Bts.Value switch
+        // Every other spike-block behaviour value selects a harmless reaction.
+        SpikeBlockBehavior? spike = block.Behavior.Value switch
         {
             0 => SpikeBlockBehavior.Heavy,
             1 => SpikeBlockBehavior.Light,
@@ -77,11 +77,11 @@ public static class SamusTerrainHazardCollision
         SamusState samus,
         Position16<RoomPixels> point)
     {
-        RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)(point.X >> 4)), unchecked((ushort)(point.Y >> 4))));
+        RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(new(unchecked((ushort)(point.X >> 4)), unchecked((ushort)(point.Y >> 4))));
         if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
         if (block.CollisionType != RoomCollisionType.SpikeAir ||
-            block.Bts.Value != SpikeHazardDefinitions.DamagingSpikeAirBehavior)
+            block.Behavior != SpikeHazardDefinitions.DamagingSpikeAirBehavior)
         {
             return;
         }

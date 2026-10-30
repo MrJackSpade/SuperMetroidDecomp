@@ -191,7 +191,7 @@ internal static class GrappleConnectionDefinitionsVerification
         // invented movement/aim pairs through pose $FD and rewrote the adjacent executable
         // bytes in a fake bus; that did not represent a cartridge-reachable state.
         var guard = NewGrappleConnectionReadGuard(rom);
-        var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
+        var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
         using var artworkDirectory = new TestScratchDirectory("map-catalog");
         SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,

@@ -42,9 +42,9 @@ internal static class GroundedSpreadTransitionVerification
         for (int x = 24; x < 40; x++)
         {
             int index = y * level.Size.X + x;
-            level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
-                y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
-            level.SetBehavior(index, 0);
+            level.SetTerrain(index, RoomTerrainBlock.Of(0, BlockMirroring.None,
+                y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
+            level.SetBehavior(index, RoomBlockBehaviorValues.None);
         }
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();

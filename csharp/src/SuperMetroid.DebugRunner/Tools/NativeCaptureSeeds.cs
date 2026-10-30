@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.DebugRunner.Tools;
@@ -48,8 +49,11 @@ internal static class NativeCaptureSeeds
         using (var writer = new BinaryWriter(File.Create(Path.Combine(output, "room.bin"))))
         {
             writer.Write(level.Size.X); writer.Write(level.Size.Y);
-            foreach (ushort tile in level.ForegroundEntries.Span) writer.Write(tile);
-            writer.Write(level.BehaviorBytes);
+            // The native capture reads the room as the cartridge's level words and behaviour bytes.
+            for (int index = 0; index < level.Size.Area; index++)
+                writer.Write(RoomLevelWordCodec.Encode(level.GetCollisionBlockByIndex(index).Terrain));
+            for (int index = 0; index < level.Size.Area; index++)
+                writer.Write(checked((byte)level.GetCollisionBlockByIndex(index).Behavior.Value));
         }
         File.WriteAllText(Path.Combine(output, "seed.txt"), scenario.TakeoffSeed());
         var (rows, apex) = scenario.Jump();

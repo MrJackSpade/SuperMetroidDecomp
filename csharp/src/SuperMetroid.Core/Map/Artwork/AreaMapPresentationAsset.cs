@@ -52,7 +52,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         return new(cells, rules);
     }
 
-    /// <summary>How the cell at logical map coordinates X 0–63, Y 0–31 looks; native two-page ordering is applied later when building a screen tilemap.</summary>
+    /// <summary>How the cell at logical map coordinates X 0–63, Y 0–31 looks.</summary>
     public MapCell Cell(Position16<MapTiles> cell) => cells[Index(cell)];
     /// <summary>Gets the supplied rule snapshot for whether logical cell (X 0–63, Y 0–31) can be discovered, independent of the edited character or blank artwork.</summary>
     public bool IsDiscoverable(Position16<MapTiles> cell) => discoverable[Index(cell)];
@@ -61,10 +61,12 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
     /// <summary>Gets the supplied slope-rule snapshot for whether visiting logical cell (X 0–63, Y 0–31) also explores the cell above; replacing its artwork does not change this rule.</summary>
     public bool RevealsCellAbove(Position16<MapTiles> cell) => revealsAbove[Index(cell)];
 
-    /// <summary>Validates the native two-page coordinate, then indexes the editable logical row-major array.</summary>
+    /// <summary>Validates the logical coordinate, then indexes the row-major arrays.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The cell lies outside the area map.</exception>
     private static int Index(Position16<MapTiles> cell)
     {
-        _ = AreaMapPages.GetTilemapWordIndex(cell); // Shared coordinate validation; storage here is row-major.
+        if (cell.X >= AreaMapLayout.WidthInTiles || cell.Y >= AreaMapLayout.HeightInTiles)
+            throw new ArgumentOutOfRangeException(nameof(cell), "The cell lies outside the area map.");
         return AreaMapLayout.Size.RowMajorIndex(cell);
     }
 }

@@ -38,7 +38,7 @@ public sealed class CeresHazeState
     /// <summary>Last published native ramp strength in RGB5 channel units, not a frame count: fade-in writes 0..15, fade-out writes 16..1, and zero counter retains the final strength one.</summary>
     public int Intensity { get; private set; }
 
-    /// <summary>Samples the boss bit once, as the HDMA object's instruction list is selected.</summary>
+    /// <summary>Samples the boss bit once, as the room's haze starts.</summary>
     /// <param name="enabled">Whether the room's setup callback spawns the Ceres haze owner.</param>
     /// <param name="ridleyIsDead">Loaded area's boss-bit result selecting red rather than blue for this owner's lifetime.</param>
     /// <param name="immediateViewport">True for immediate viewport installation: starts holding at counter 16 with published strength 15; false starts waiting at zero for the door fade-in phase.</param>

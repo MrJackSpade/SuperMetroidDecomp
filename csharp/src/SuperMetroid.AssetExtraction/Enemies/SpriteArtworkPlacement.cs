@@ -17,20 +17,16 @@ public sealed record SpriteArtworkPlacement(SpriteArtworkSource Source, int Firs
     public SpriteArtworkSource Source { get; } = Ensure.NotNull(Source);
 
     /// <summary>The sprite character it shows from.</summary>
-    public int FirstCharacter { get; } = Ensure.BetweenInclusive(0, SpriteArtworkPlacements.CharacterCount - 1, FirstCharacter);
+    public int FirstCharacter { get; } = Ensure.BetweenInclusive(0, SpriteCharacterTableLayout.CharacterCount - 1, FirstCharacter);
 
     /// <summary>The characters it shows.</summary>
-    public int CharacterCount { get; } = Ensure.BetweenInclusive(1, SpriteArtworkPlacements.CharacterCount - FirstCharacter, CharacterCount);
+    public int CharacterCount { get; } = Ensure.BetweenInclusive(1, SpriteCharacterTableLayout.CharacterCount - FirstCharacter, CharacterCount);
 
     /// <summary>The table byte the placement shows from.</summary>
-    internal int FirstByte => FirstCharacter * SpriteArtworkPlacements.CharacterByteCount;
+    internal int FirstByte => FirstCharacter * SpriteCharacterTableLayout.CharacterByteCount;
 
     /// <summary>The table bytes the placement shows.</summary>
-    internal int ByteCount => CharacterCount * SpriteArtworkPlacements.CharacterByteCount;
-
-    /// <summary>Whether the placement shares a character with <paramref name="characterCount"/> characters from <paramref name="firstCharacter"/>.</summary>
-    public bool Overlaps(int firstCharacter, int characterCount) =>
-        FirstCharacter < firstCharacter + characterCount && firstCharacter < FirstCharacter + CharacterCount;
+    internal int ByteCount => CharacterCount * SpriteCharacterTableLayout.CharacterByteCount;
 
     /// <summary>Whether the placement shows over every one of <paramref name="characterCount"/> characters from <paramref name="firstCharacter"/>.</summary>
     public bool Covers(int firstCharacter, int characterCount) =>

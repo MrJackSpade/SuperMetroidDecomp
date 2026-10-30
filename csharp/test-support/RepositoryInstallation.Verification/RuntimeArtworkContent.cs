@@ -56,5 +56,5 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
 
     /// <summary>The gameplay OBJ character page the shown sprite looks leave, each placed where the cartridge shows it, over the bound artwork.</summary>
     /// <param name="looks">Gameplay's shown sprite looks.</param>
-    internal SpriteArtwork GameplayObjectPage(ShownSpriteArtwork looks) => GameplayObjectPage(SpriteArtworkPlacements.Of(looks));
+    internal SpriteArtwork GameplayObjectPage(ShownSpriteArtwork looks) => GameplayObjectPage(SpriteArtworkPlacementsConstants.Of(looks));
 }

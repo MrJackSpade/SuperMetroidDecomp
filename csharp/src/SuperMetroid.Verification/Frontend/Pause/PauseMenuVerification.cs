@@ -19,7 +19,6 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Hud;
@@ -123,7 +122,7 @@ internal static class PauseMenuVerification
         AssertEqual(0x080b, pause.ReadReserveSupplyDigit(2).Raw,
             "pause equipment reserve-supply ones digit renders current supply");
         RgbaPixel[] firstPauseFrame = pause.Render();
-        Layer3ViewportLayer retainedPlane = pause.CaptureRenderSnapshot().Layers.OfType<Layer3ViewportLayer>().First();
+        Layer3ViewportLayer retainedPlane = pause.CaptureRenderSnapshot().Layers.ToArray().OfType<Layer3ViewportLayer>().First();
         AssertTrue(ReferenceEquals(MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseHud).Frame(HudTopRowImage.Instance.FrameName),
             retainedPlane.Plane.Pictures[0].Picture), "pause retains and draws the gameplay HUD's top row");
         AssertEqual(new RgbaPixel(0, 255, 0, 255), firstPauseFrame[80 * 256 + 80],

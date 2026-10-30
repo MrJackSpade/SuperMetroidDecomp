@@ -209,7 +209,7 @@ internal static void VerifyHudState()
     ClearFixtureMapStationBit(bus, new(secretHudX, secretHudY));
     var overrideSystem = new SharedGameState();
     hud.UpdateMinimap(overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, MapRevealMode = MapRevealMode.Public, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
-    AssertEqual((ushort)MapTileWords.HudBlank, hud.TileWords[26],
+    AssertEqual(MapTileWords.HudBlank.Raw, hud.TileWords[26],
         "Public HUD override excludes cartridge secret-only cell");
     AssertEqual(0x2c00, hud.TileWords[27] & 0x3c00,
         "Public HUD override reveals station cell as unentered");
@@ -223,7 +223,7 @@ internal static void VerifyHudState()
     AssertEqual(0x2c00, hud.TileWords[27] & 0x3c00,
         "Secret HUD leaves override-only public cell unentered");
     hud.UpdateMinimap(overrideSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(0x17, 0), RoomSize = new(9 * 16, 5 * 16), Samus = new(0x0440, 0x04bb), FrameCounter = 8, MapRevealMode = MapRevealMode.None, PresentationMap = SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, AreaId.Crateria) });
-    AssertEqual((ushort)MapTileWords.HudBlank, hud.TileWords[27],
+    AssertEqual(MapTileWords.HudBlank.Raw, hud.TileWords[27],
         "returning HUD override to None immediately hides unentered public cell");
     AssertTrue(!overrideSystem.HasAreaMap(AreaId.Crateria),
         "HUD reveal override does not grant the map station");
@@ -246,7 +246,7 @@ internal static void VerifyHudState()
     AssertEqual(0x2c1f, hud.TileWords[59],
         "right-page sparse map keeps the western cell blank");
 
-    AssertEqual(HudState.MutableTileCount, hud.Tiles.Length, "the HUD's three drawn rows");
+    AssertEqual(HudStateConstants.MutableTileCount, hud.Tiles.Length, "the HUD's three drawn rows");
     AssertEqual(0x2c0f, hud.Tiles[0].PackedWord, "the HUD's first drawn cell is the blank word the latched BG3 plane shows");
 
     Console.WriteLine("  HUD: inventory, live minimap coordinates/blink and WRAM upload agree.");
@@ -302,7 +302,7 @@ static void SeedSyntheticCrateriaAreaMap(TestAddressSpace bus)
 /// </summary>
 static void SeedBlankHudTemplateAndDigitTables(TestAddressSpace bus)
 {
-    for (int tile = 0; tile < HudState.MutableTileCount; tile++)
+    for (int tile = 0; tile < HudStateConstants.MutableTileCount; tile++)
         WriteTestWord(bus, 0x8098cb + tile * 2, 0x2c0f);
     for (int digit = 0; digit < 10; digit++)
     {

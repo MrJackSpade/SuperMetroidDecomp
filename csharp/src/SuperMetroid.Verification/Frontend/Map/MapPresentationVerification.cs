@@ -1051,20 +1051,32 @@ internal static class MapPresentationVerification
         void AssertOverride(ushort definitionPointer, string description)
         {
             PaletteFxColours animated = PaletteFxObjectAccess.FromNative(definitionPointer).AnimatedColours;
+            string context = $"runtime catalog binding consumes {description} palette-FX override in its {animated}";
+            // A title or cinematic effect animates a frontend screen's colours (#1464); every other one animates gameplay's.
+            if (PaletteFxColourPlacementDefinitions.Placements[animated] is ScreenColoursPlacement)
+            {
+                var stockScreen = new ScreenPaletteFxColours(new ScreenPalette());
+                var editedScreen = new ScreenPaletteFxColours(new ScreenPalette());
+                Step(stockScreen, original);
+                Step(editedScreen, edited);
+                AssertTrue(!stockScreen.ScreenColours(animated).Colors.SequenceEqual(editedScreen.ScreenColours(animated).Colors), context);
+                return;
+            }
             var stockRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
             stockRuntime.Artwork.MapPresentation = original;
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
             editedRuntime.Artwork.MapPresentation = edited;
-            var stockPaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-            var editedPaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
-            stockPaletteFx.SpawnDefinition(definitionPointer, 0);
-            editedPaletteFx.SpawnDefinition(definitionPointer, 0);
-            stockPaletteFx.Step(stockRuntime.PaletteFxColours, original.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            editedPaletteFx.Step(editedRuntime.PaletteFxColours, edited.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            AssertTrue(
-                stockRuntime.Colours.Colors[animated.CartridgeColour] !=
-                editedRuntime.Colours.Colors[animated.CartridgeColour],
-                $"runtime catalog binding consumes {description} palette-FX override in its {animated}");
+            Step(stockRuntime.PaletteFxColours, original);
+            Step(editedRuntime.PaletteFxColours, edited);
+            AssertTrue(stockRuntime.Colours.Colors[animated.CartridgeColour] != editedRuntime.Colours.Colors[animated.CartridgeColour], context);
+
+            // Spawns the effect and runs its first step over `owners` with `presentation`'s colours.
+            void Step(IPaletteFxColourOwners owners, AreaMapPresentation presentation)
+            {
+                var paletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
+                paletteFx.SpawnDefinition(definitionPointer, 0);
+                paletteFx.Step(owners, presentation.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            }
         }
     }
 

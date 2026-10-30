@@ -14,9 +14,6 @@ internal static class LoadedRoomAssetsCharacterAccess
     /// <summary>The bytes of the characters the room's load shows, as a character catalog installs them.</summary>
     extension(LoadedRoomAssets self)
     {
-        /// <summary>The common room elements' characters the room's load shows, as <paramref name="characters"/> installs them.</summary>
-        internal ReadOnlyMemory<byte> CreCharactersIn(RoomCharacterAtlases characters) => Ensure.NotNull(characters).Cre.Characters;
-
         /// <summary>The tileset's characters the room's load shows, as <paramref name="characters"/> installs them.</summary>
         internal ReadOnlyMemory<byte> TilesetCharactersIn(RoomCharacterAtlases characters) =>
             Ensure.NotNull(characters).Get(self.Tileset.Characters).Characters;

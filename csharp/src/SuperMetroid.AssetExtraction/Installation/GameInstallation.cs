@@ -100,8 +100,6 @@ public sealed record GameInstallation(string Root)
         StandardObjectArtworkFiles.Load(StandardObjectDirectory, StandardObjectOverrideDirectory);
     /// <summary>Stock projectile artwork and presentation selectors under the replaceable content tree.</summary>
     public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
-    /// <summary>Stock room character-tile atlases and their source manifests.</summary>
-    public string RoomCharacterDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomCharacterDirectoryName);
     /// <summary>Stock Samus body PNGs and visual selectors under the replaceable content tree.</summary>
     public string SamusBodyDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusBodyDirectoryName);
     /// <summary>Replacement Samus body PNGs and visual selectors survive stock rebuilds.</summary>
@@ -158,8 +156,6 @@ public sealed record GameInstallation(string Root)
     public string BossBodySheetOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.BossBodySheetDirectoryName);
     /// <summary>Loads every boss's pre-assembled body sheet, preferring the player's edits (#1466).</summary>
     public BossBodySheets LoadBossBodySheets() => BossBodySheetFiles.Load(BossBodySheetDirectory, BossBodySheetOverrideDirectory);
-    /// <summary>Stock background tilemaps, including sky tilemaps, under the replaceable content tree.</summary>
-    public string RoomBackgroundTilemapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
     /// <summary>Stock visual room-block references under the replaceable content tree.</summary>
     public string RoomVisualLayoutDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.RoomVisualLayoutDirectoryName);
     /// <summary>Persistent replacements for visual room-block references, preserved during stock rebuilds.</summary>

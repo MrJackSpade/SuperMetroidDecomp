@@ -41,7 +41,7 @@ internal static class Layer3PlaneVerification
         ushort[] firstWords = runtime.AcceptedHudWords;
         ushort[] topRow = BackgroundTileWordBytes.Words(artwork.TopRowTiles());
         AssertTrue(firstWords[..Layer3Plane.Columns].SequenceEqual(topRow), "row zero is the HUD's static top row");
-        AssertTrue(firstWords[Layer3Plane.Columns..(Layer3Plane.HudRows * Layer3Plane.Columns)].SequenceEqual(runtime.Hud.TileWords),
+        AssertTrue(firstWords[Layer3Plane.Columns..(Layer3PlaneConstants.HudRows * Layer3Plane.Columns)].SequenceEqual(runtime.Hud.TileWords),
             "rows one through three are the rows the HUD's values draw");
 
         // A HUD change reaches the next NMI's plane; the published one keeps its rows. Lost energy redraws the energy
@@ -71,7 +71,7 @@ internal static class Layer3PlaneVerification
 
         Layer3Plane plane = Layer3Plane.Compose(water.EffectPageTiles());
         ReadOnlySpan<byte> page = presentation.RoomFxLayer3Tilemaps.ResolveBytes(RoomFxType.Water);
-        for (int row = Layer3Plane.HudRows; row < Layer3Plane.Rows; row++)
+        for (int row = Layer3PlaneConstants.HudRows; row < Layer3Plane.Rows; row++)
         for (int column = 0; column < Layer3Plane.Columns; column++)
         {
             int pageWord = (row - Layer3Plane.EffectPageFirstRow) * Layer3Plane.Columns + column;
@@ -80,7 +80,7 @@ internal static class Layer3PlaneVerification
                 : Layer3Plane.ClearedCell.PackedWord;
             AssertEqual(expected, plane.Words[row * Layer3Plane.Columns + column], $"BG3 row {row} column {column}: cleared, with the water page from row 31");
         }
-        AssertTrue(plane.Words[..(Layer3Plane.HudRows * Layer3Plane.Columns)].All(word => word == Layer3Plane.ClearedCell.PackedWord),
+        AssertTrue(plane.Words[..(Layer3PlaneConstants.HudRows * Layer3Plane.Columns)].All(word => word == Layer3Plane.ClearedCell.PackedWord),
             "the rows the HUD's images cover stay cleared above the effect");
 
         RoomLayer3FxRenderSnapshot shown = water.CaptureForDisplay() ?? throw new InvalidOperationException("Water is a renderable effect.");

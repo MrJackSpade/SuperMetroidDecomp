@@ -91,7 +91,7 @@ public abstract record LibraryBackgroundSource
         /// <summary>Sky page <paramref name="page"/>, 0 through 6.</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not a sky page.</exception>
         public SkyPage(int page) =>
-            Page = Ensure.BetweenInclusive(0, SuperMetroid.Core.Rooms.Artwork.RoomSkyTilemapFormat.PageCount - 1, page);
+            Page = Ensure.BetweenInclusive(0, RoomSkyTilemapFormat.PageCount - 1, page);
 
         /// <summary>The sky page, 0 through 6.</summary>
         public int Page { get; }

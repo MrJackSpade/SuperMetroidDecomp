@@ -42,6 +42,6 @@ internal static class ObjCharacterTablePageAccess
 
         /// <summary>The page the shown <paramref name="looks"/> leave, each placed where the cartridge shows it, with their artwork as <paramref name="resolver"/> resolves it now.</summary>
         /// <exception cref="InvalidDataException">A look's artwork is shorter than the range it shows.</exception>
-        public SpriteArtwork Page(ShownSpriteArtwork looks, IInstalledArtworkContent resolver) => self.Page(SpriteArtworkPlacements.Of(looks), resolver);
+        public SpriteArtwork Page(ShownSpriteArtwork looks, IInstalledArtworkContent resolver) => self.Page(SpriteArtworkPlacementsConstants.Of(looks), resolver);
     }
 }

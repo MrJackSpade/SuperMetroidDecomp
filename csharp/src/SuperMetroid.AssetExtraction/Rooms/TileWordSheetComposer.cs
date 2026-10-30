@@ -44,7 +44,7 @@ internal static class TileWordSheetComposer
             .SelectMany(writer => Parts(inputs, writer).Select(part => new NamedPart($"{writer}.{part.Name}", part.Part)))];
         // Words over the sprites' artwork show only what its load and encounters place there, never the tileset's.
         return Compose(inputs, tileset, TileWordLayer.Bg12, parts, content, new TileWordOptions(
-            uploads.WordArtwork == RoomBlockArtwork.Sprites ? [] : uploads.Options, BgCharacterSet.Tiles, uploads.WordUploads));
+            new AppearanceOptions(uploads.WordArtwork == RoomBlockArtwork.Sprites ? [] : uploads.Options), BgCharacterSet.Tiles, uploads.WordUploads));
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ internal static class TileWordSheetComposer
             Fill(Layer3Plane.ClearedCell)];
         return Compose(inputs, tileset, TileWordLayer.Bg3, parts,
             uploads.Bg3Content ?? throw new InvalidDataException($"No room of {tileset} records what BG3 shows over."),
-            new TileWordOptions(uploads.Bg3Options, BgCharacterSet.Layer3, []),
+            new TileWordOptions(new AppearanceOptions(uploads.Bg3Options), BgCharacterSet.Layer3, []),
             [.. HudFrames(hud)]);
     }
 
@@ -111,7 +111,7 @@ internal static class TileWordSheetComposer
         int characterWords = CharacterWordsOf(layer);
         IReadOnlyList<BgCharacterUpload> load = RoomBlockUploads.LoadUploads(inputs, tileset);
         Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = load.Append(RoomBlockUploads.HudCharacters(inputs))
-            .Concat(options.Options.Select(option => option.Upload)).Concat(options.Bound)
+            .Concat(options.Options.All.Select(option => option.Upload)).Concat(options.Bound)
             .GroupBy(upload => upload.Identity).ToDictionary(group => group.Key, group => group.First().Bytes);
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(tileset.Palette));
 
@@ -143,7 +143,7 @@ internal static class TileWordSheetComposer
                     throw new InvalidDataException(
                         $"{TileWordSheet.NameOf(layer, tileset)} part {part.Name} reads {options.Set} character {character}, which a room can show other artwork at.");
                 string[] loaded = [.. Enumerable.Repeat(RoomAppearanceValues.Loaded, depends.Length)];
-                if (!RoomAppearanceComposition.TryShowing(options.Set, character, 1, depends, loaded, options.Options, content, out BgArtworkShown shown))
+                if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(options.Set, character, 1), depends, loaded, options.Options, content, out BgArtworkShown shown))
                     throw new InvalidDataException($"{TileWordSheet.NameOf(layer, tileset)} part {part.Name} reads {options.Set} character {character}, which its room loads nothing over.");
                 var appearance = new TileWordAppearance(tile, AppearancePictureNames.Spelling(depends, loaded));
                 placed.Add(new PlacedWord(top, new ShownWord(word, shown), cell));
@@ -162,7 +162,7 @@ internal static class TileWordSheetComposer
             foreach (string[] values in RoomAppearanceComposition.Assignments(depends, options.Options, withLoaded: true))
             {
                 if (values.All(value => value == RoomAppearanceValues.Loaded)
-                    || !RoomAppearanceComposition.TryShowing(options.Set, character, 1, depends, values, options.Options, content, out BgArtworkShown shown))
+                    || !RoomAppearanceComposition.TryShowing(new CharacterSpan(options.Set, character, 1), depends, values, options.Options, content, out BgArtworkShown shown))
                     continue;
                 var again = new TileWordAppearance(tile, AppearancePictureNames.Spelling(depends, values));
                 if (pictured.Add(again))
@@ -378,6 +378,6 @@ internal static class TileWordSheetComposer
     /// <param name="Options">What the rooms show over the layer's characters after loading, each word pictured again for.</param>
     /// <param name="Set">The character set the layer's words read.</param>
     /// <param name="Bound">Artwork the room binds beyond its load, which its words show over.</param>
-    private sealed record TileWordOptions(IReadOnlyList<AppearanceOption> Options, BgCharacterSet Set, IReadOnlyList<BgCharacterUpload> Bound);
+    private sealed record TileWordOptions(AppearanceOptions Options, BgCharacterSet Set, IReadOnlyList<BgCharacterUpload> Bound);
 }
 

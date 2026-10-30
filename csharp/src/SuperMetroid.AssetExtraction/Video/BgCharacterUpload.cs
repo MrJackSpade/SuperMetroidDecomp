@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
@@ -27,18 +25,4 @@ internal sealed record BgCharacterUpload(BgArtworkIdentity Identity, BgCharacter
 
     /// <summary>Binds the artwork.</summary>
     internal void BindTo(BgArtworkBindings bindings) => Placement.BindTo(bindings);
-
-    /// <summary>
-    /// The artwork <paramref name="placement"/> binds, holding <paramref name="bytes"/>: exactly the characters the
-    /// placement counts.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The bytes are not the placement's characters.</exception>
-    internal static BgCharacterUpload Of(BgCharacterPlacement placement, ReadOnlyMemory<byte> bytes)
-    {
-        Ensure.NotNull(placement);
-        return placement.Set.CharactersIn(bytes.Length) == placement.CharacterCount
-            ? new BgCharacterUpload(placement.Identity, placement.Set, placement.FirstCharacter, bytes)
-            : throw new InvalidDataException(
-                $"{placement.Identity.Name} binds {placement.CharacterCount} {placement.Set} characters, not the {bytes.Length} bytes given.");
-    }
 }

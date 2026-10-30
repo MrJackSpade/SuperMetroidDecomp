@@ -14,6 +14,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks Norfair Ridley's shared FX acid rise and death drain through room rendering.</summary>
 internal static class RidleyAcidVerification

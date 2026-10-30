@@ -13,14 +13,14 @@ internal static class ShownSpriteArtworkAccess
     extension(ShownSpriteArtwork self)
     {
         /// <summary>The placements the shown looks leave, each where the cartridge shows it, replayed now.</summary>
-        public SpriteArtworkPlacements Placed => SpriteArtworkPlacements.Of(self);
+        public SpriteArtworkPlacements Placed => SpriteArtworkPlacementsConstants.Of(self);
 
         /// <summary>The placements the shown looks leave, in order.</summary>
-        public IReadOnlyList<SpriteArtworkPlacement> Uploads => SpriteArtworkPlacements.Of(self).placements;
+        public IReadOnlyList<SpriteArtworkPlacement> Uploads => SpriteArtworkPlacementsConstants.Of(self).placements;
 
         /// <summary>The placement shown last over any of <paramref name="characterCount"/> characters from <paramref name="firstCharacter"/>, if any has been.</summary>
         public SpriteArtworkPlacement? LastOver(int firstCharacter, int characterCount) =>
-            SpriteArtworkPlacements.Of(self).LastOver(firstCharacter, characterCount);
+            SpriteArtworkPlacementsConstants.Of(self).LastOver(firstCharacter, characterCount);
 
         /// <summary>Shows <paramref name="placement"/>'s look, as production's setup and encounters do.</summary>
         /// <exception cref="InvalidDataException">The cartridge shows the look somewhere else.</exception>

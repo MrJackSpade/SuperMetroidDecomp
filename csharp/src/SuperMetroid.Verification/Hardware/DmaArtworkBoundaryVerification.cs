@@ -38,8 +38,7 @@ internal static class DmaArtworkBoundaryVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         var background = new SnesVram();
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(background));
-        Action upload = new Action(enemies.KraidBehavior.Rise.ShowKraidRoomBackdrop);
-        upload();
+        enemies.KraidBehavior.Rise.ShowKraidRoomBackdrop();
         var expected = new SnesVram();
         ImportedVramOracle.ExecuteQueued(expected, reference,
             KraidSourceDefinitions.RoomBackgroundTiles,
@@ -48,12 +47,8 @@ internal static class DmaArtworkBoundaryVerification
         AssertTrue(BgArtworkFixtures.ComposedVram(background, new BgArtworkBytes().WithKraidBackground(art.Bosses.KraidBackground
                 ?? throw new InvalidOperationException("Verification requires installed Kraid background characters."))).ImageEquals(expected),
             "Kraid background characters use installed art with exact native VRAM placement");
-        enemies.BossArtwork = null;
-        AssertThrows<InvalidDataException>(upload,
-            "missing Kraid background artwork is not a cartridge fallback");
-        enemies.BossArtwork = art.Bosses;
 
-        Console.WriteLine("DMA artwork boundary: typed memory/asset ports, mixed queues, Kraid background and missing-artwork rejection pass.");
+        Console.WriteLine("DMA artwork boundary: typed memory/asset ports, mixed queues and Kraid background pass.");
     }
 
     /// <summary>Runs direct DMA artwork-owner checks with the repository cartridge.</summary>

@@ -63,10 +63,13 @@ internal sealed class SpriteSheetSourceCatalog
         new(() => maps.Value, () => intro.Value, () => ending.Value, () => endingPalettes.Value, () => endingMode7.Value);
 
     /// <summary>What sheet <paramref name="sheet"/> composes.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The sheet is the escape timer, which composes from the cartridge.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The sheet is the escape timer, which composes from the cartridge, or the pause HUD, which composes from the HUD's images.
+    /// </exception>
     internal SpriteSheetSources For(SpriteSheetId sheet) => sheet switch
     {
         SpriteSheetId.EscapeTimer => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The escape timer composes from the cartridge."),
+        SpriteSheetId.PauseHud => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The pause HUD composes from the HUD's images, not sprite parts."),
         SpriteSheetId.GameOver => GameOverSheetComposer.Sources(maps.Value),
         SpriteSheetId.FileSelect => FileSelectSheetComposer.Sources(maps.Value),
         SpriteSheetId.GameOptions => GameOptionsSheetComposer.Sources(maps.Value),
@@ -101,7 +104,7 @@ internal sealed class SpriteSheetSourceCatalog
             SpriteSheetId.AreaMapBackgroundTilesBrinstar or SpriteSheetId.AreaMapBackgroundTilesNorfair or
             SpriteSheetId.AreaMapBackgroundTilesWreckedShip or SpriteSheetId.AreaMapBackgroundTilesMaridia or
             SpriteSheetId.AreaMapBackgroundTilesTourian or SpriteSheetId.PauseMapTiles or
-            SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHud or SpriteSheetId.IntroSceneTiles or
+            SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.IntroSceneTiles or
             SpriteSheetId.IntroFontTiles or SpriteSheetId.CeresFlightObjectTiles or
             SpriteSheetId.CeresIntroObjectTiles or SpriteSheetId.ZebesRevealTiles or
             SpriteSheetId.EndingCreditsFontTiles or SpriteSheetId.EndingTextFontTiles or

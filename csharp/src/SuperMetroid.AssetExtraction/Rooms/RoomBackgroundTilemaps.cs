@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public sealed class RoomBackgroundTilemaps
 {
     /// <summary>Copied tilemap lookup; each selected atlas remains the caller's installed compilation.</summary>
-    private readonly Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas> byTilemap;
+    internal readonly Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas> byTilemap;
 
     /// <summary>Installs every background tilemap the library-background programs decompress, copying the lookup while retaining the supplied compiled atlases.</summary>
     /// <param name="byTilemap">Complete mapping from every <see cref="RoomBackgroundTilemap"/> to its nonnull selected tilemap.</param>
@@ -24,9 +24,6 @@ public sealed class RoomBackgroundTilemaps
                 $"Room background catalog requires all {all.Length} background tilemaps with nonnull tilemaps.");
         this.byTilemap = new Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas>(byTilemap);
     }
-
-    /// <summary>Every selected tilemap, by the background it pictures.</summary>
-    public IReadOnlyDictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas> Tilemaps => byTilemap;
 
     /// <summary>Resolves installed, already compiled tilemap words for a library-background decompression command; performs no cartridge read or decompression.</summary>
     /// <param name="tilemap">The background tilemap the command decompresses.</param>

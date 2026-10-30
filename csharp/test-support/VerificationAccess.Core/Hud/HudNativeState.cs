@@ -28,7 +28,7 @@ internal static class HudNativeState
         /// <exception cref="InvalidDataException">A minimap word is not one the HUD's minimap writes.</exception>
         internal void ImportNative(ReadOnlySpan<ushort> words, SamusState samus, HudItem highlighted, GameplayHudPresentation artwork)
         {
-            Ensure.LengthEqual(words, HudState.MutableTileCount);
+            Ensure.LengthEqual(words, HudStateConstants.MutableTileCount);
             Ensure.NotNull(samus);
             Ensure.NotNull(artwork);
             hud.Initialize(new HudSnapshot(samus.Health, samus.MaxHealth, samus.Missiles, samus.MaxMissiles, samus.SuperMissiles,

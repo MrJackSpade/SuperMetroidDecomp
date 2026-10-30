@@ -127,8 +127,8 @@ internal static class RoomAssetRomDataVerification
             LoadedRoomAssets guarded = LoadFixtureRoomAssets(header, palettes, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
-            AssertTrue(native.CreCharactersIn(characters).Span.SequenceEqual(guarded.CreCharactersIn(characters).Span) &&
-                native.TilesetCharactersIn(characters).Span.SequenceEqual(guarded.TilesetCharactersIn(characters).Span) &&
+            // The common room elements' characters are the catalog's for every room (#1466), so only the tileset's are compared.
+            AssertTrue(native.TilesetCharactersIn(characters).Span.SequenceEqual(guarded.TilesetCharactersIn(characters).Span) &&
                 ReferenceEquals(native.TilesetColours, guarded.TilesetColours) &&
                 // The room's blocks are its tileset's block pictures and the inputs each depends on (#1431, #1466).
                 ReferenceEquals(native.BlockSheet, guarded.BlockSheet) && native.BlockSheet.Tileset == native.Tileset,
@@ -199,7 +199,7 @@ internal static class RoomAssetRomDataVerification
             SelectedRoom room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
             LoadedRoomAssets native = LoadFixtureRoomAssets(room);
             LoadedRoomAssets installed = LoadFixtureRoomAssets(room);
-            AssertTrue(installed.CreCharactersIn(catalog).Span.SequenceEqual(native.CreCharactersIn(FixtureRoomCharacters).Span) &&
+            AssertTrue(catalog.Cre.Characters.Span.SequenceEqual(FixtureRoomCharacters.Cre.Characters.Span) &&
                 installed.TilesetCharactersIn(catalog).Span.SequenceEqual(native.TilesetCharactersIn(FixtureRoomCharacters).Span),
                 $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
             var nativeVram = new SnesVram();

@@ -16,9 +16,6 @@ public sealed class Layer3Plane
     /// <summary>Tile rows.</summary>
     public const int Rows = 64;
 
-    /// <summary>The rows at the top of the plane the HUD's images cover.</summary>
-    public const int HudRows = 4;
-
     /// <summary>The row the effect's authored page begins on (<c>$5BE0</c>).</summary>
     public const int EffectPageFirstRow = 31;
 
@@ -39,7 +36,7 @@ public sealed class Layer3Plane
     /// <summary>
     /// The plane a room shows: every cell cleared to <see cref="ClearedCell"/>, with the room effect's authored page from
     /// row <see cref="EffectPageFirstRow"/>, when the effect has one. The HUD's images cover the top
-    /// <see cref="HudRows"/> rows.
+    /// <c>HudRows</c> rows.
     /// </summary>
     /// <param name="effectPage">The effect's authored page tiles, or empty when the effect shows none.</param>
     public static Layer3Plane Compose(ReadOnlySpan<BackgroundTile> effectPage)

@@ -42,7 +42,7 @@ internal static class AnimatedTileFrameArtwork
         if (!frames.TryShown(AnimatedTileFrames.Of(animatedObject), out ArtworkFrame shown))
             return;
         RoomFxAnimatedTileLoop mechanics = RoomFxAnimatedTiles.Require(animatedObject);
-        vram.LoadBytes(AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) * sizeof(ushort), Bytes(shown.Artwork, atlas).Span);
+        vram.LoadBytes(AnimatedTileVramDestinations.WordOf(mechanics.AnimatedObject) * sizeof(ushort), Bytes(BgArtworkIdentity.Frame(shown), atlas).Span);
     }
 
     /// <summary>Every animated-tile frame, with the cartridge source and size of its installed characters.</summary>

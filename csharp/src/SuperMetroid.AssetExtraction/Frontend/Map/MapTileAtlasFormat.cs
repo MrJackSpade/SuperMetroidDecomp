@@ -15,6 +15,4 @@ public static class MapTileAtlasFormat
     public const int ColorCount = 16;
     /// <summary>8192 compiled bytes: 256 characters with 32 planar bytes per 8-by-8 4-bpp character.</summary>
     public const int ByteCount = Width * Height / 2;
-    /// <summary>The atlas's 4-bpp characters.</summary>
-    public const int CharacterCount = ByteCount / 32;
 }

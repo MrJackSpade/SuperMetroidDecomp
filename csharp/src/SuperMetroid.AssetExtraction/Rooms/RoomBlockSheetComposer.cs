@@ -105,9 +105,10 @@ internal static class RoomBlockSheetComposer
         var loaded = new BgArtworkBindings();
         foreach (BgCharacterUpload placement in load)
             placement.BindTo(loaded);
-        IReadOnlyList<AppearanceOption> options = uploads.AllOptions;
+        var options = new AppearanceOptions(uploads.AllOptions);
+        var looks = new AppearanceOptions(uploads.ObjectPageLooks);
         var bytes = new Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>>();
-        foreach (BgCharacterUpload placement in load.Concat(options.Select(option => option.Upload)).Concat(uploads.ObjectPageLoad ?? [])
+        foreach (BgCharacterUpload placement in load.Concat(options.All.Select(option => option.Upload)).Concat(uploads.ObjectPageLoad ?? [])
             .Concat(uploads.ObjectPageLooks.Select(option => option.Upload)))
             bytes[placement.Identity] = placement.Bytes;
         // A room whose blocks show the sprites' artwork shows them over what its load places there, and over the looks its
@@ -139,7 +140,7 @@ internal static class RoomBlockSheetComposer
             BackgroundTile[] tiles = blocks.TilesOf(block).ToArray();
             tilesetInputs[block] = AddBlock(block, RoomBlockArtwork.Tileset, tiles, options, loaded);
             if (spriteInputs is not null)
-                spriteInputs[block] = AddBlock(block, RoomBlockArtwork.Sprites, tiles, uploads.ObjectPageLooks, objectPage);
+                spriteInputs[block] = AddBlock(block, RoomBlockArtwork.Sprites, tiles, looks, objectPage);
         }
         foreach (RoomBlockUploads.CollectibleSlotCharacters slot in uploads.Collectibles)
         {
@@ -147,11 +148,12 @@ internal static class RoomBlockSheetComposer
             // names both the tiles and their colours.
             ImmutableArray<AppearanceInput> slotInputs = [slot.Option.Input];
             string[] values = [slot.Option.Value];
+            var slotOptions = new AppearanceOptions([slot.Option]);
             for (int block = 0; block < slot.Tiles.Length / RoomMetatileFormat.TilesPerBlock; block++)
             {
                 BackgroundTile[] tiles = slot.Tiles[(block * RoomMetatileFormat.TilesPerBlock)..((block + 1) * RoomMetatileFormat.TilesPerBlock)];
                 AddPicture(RoomBlockPictureNames.Of(slot.FirstBlock + block, RoomBlockArtwork.Tileset, slotInputs, values), slot.FirstBlock + block,
-                    tiles, slotInputs, values, [slot.Option], null);
+                    tiles, slotInputs, values, slotOptions, null);
             }
         }
         // A library background's image shows its room's load; each 16x16 cell whose characters an input reaches draws the
@@ -204,7 +206,7 @@ internal static class RoomBlockSheetComposer
         // Adds a picture of block `block` over `artwork` for each assignment of values to the inputs `candidates` give the
         // runs of characters it reads, over what `over` shows where an input shows the load; returns those inputs. A block
         // one of whose runs shows nothing for an assignment is not pictured for it.
-        ImmutableArray<AppearanceInput> AddBlock(int block, RoomBlockArtwork artwork, BackgroundTile[] tiles, IReadOnlyList<AppearanceOption> candidates,
+        ImmutableArray<AppearanceInput> AddBlock(int block, RoomBlockArtwork artwork, BackgroundTile[] tiles, AppearanceOptions candidates,
             BgArtworkBindings? over)
         {
             ImmutableArray<RoomBlockCharacterRun> runs = blocks.Characters.RunsOf(block);
@@ -217,13 +219,13 @@ internal static class RoomBlockSheetComposer
         // Adds the picture `name` of block `block`'s `tiles` while `blockInputs` take `values`, unless a run of characters the
         // block reads shows nothing then.
         void AddPicture(string name, int block, BackgroundTile[] tiles, ImmutableArray<AppearanceInput> blockInputs, string[] values,
-            IReadOnlyList<AppearanceOption> candidates, BgArtworkBindings? over)
+            AppearanceOptions candidates, BgArtworkBindings? over)
         {
             ImmutableArray<RoomBlockCharacterRun> runs = blocks.Characters.RunsOf(block);
             var shown = new BgArtworkShown[runs.Length];
             for (int run = 0; run < runs.Length; run++)
             {
-                if (!RoomAppearanceComposition.TryShowing(BgCharacterSet.Tiles, runs[run].FirstCharacter, runs[run].CharacterCount, blockInputs, values,
+                if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, runs[run].FirstCharacter, runs[run].CharacterCount), blockInputs, values,
                     candidates, over, out shown[run]))
                     return;
             }
@@ -242,7 +244,7 @@ internal static class RoomBlockSheetComposer
                 var shown = new BgArtworkShown[RoomBackgroundImage.CellTiles];
                 bool pictured = true;
                 for (int tile = 0; tile < shown.Length && pictured; tile++)
-                    pictured = RoomAppearanceComposition.TryShowing(BgCharacterSet.Tiles, cellTiles[tile].Tile, 1, cellInputs, values, options, loaded, out shown[tile]);
+                    pictured = RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, cellTiles[tile].Tile, 1), cellInputs, values, options, loaded, out shown[tile]);
                 if (pictured)
                     pictures.TryAdd(AppearancePictureNames.Of(subject, cellInputs, values), new Picture([.. cellTiles], shown));
             }
@@ -253,9 +255,9 @@ internal static class RoomBlockSheetComposer
     /// The 16x16 cells of 32-tile-wide <paramref name="tiles"/>, row by row, each its four tiles: top left, top right,
     /// bottom left, bottom right.
     /// </summary>
-    private static IEnumerable<BackgroundTile[]> CellsOf(IReadOnlyList<BackgroundTile> tiles)
+    private static IEnumerable<BackgroundTile[]> CellsOf(BackgroundTile[] tiles)
     {
-        for (int cell = 0; cell < tiles.Count / RoomBackgroundImage.CellTiles; cell++)
+        for (int cell = 0; cell < tiles.Length / RoomBackgroundImage.CellTiles; cell++)
         {
             // Sixteen cells to a pair of 32-tile rows.
             int first = cell / (RoomBackgroundImage.PageTiles / 2) * 2 * RoomBackgroundImage.PageTiles + cell % (RoomBackgroundImage.PageTiles / 2) * 2;

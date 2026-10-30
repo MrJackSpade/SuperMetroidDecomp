@@ -42,7 +42,7 @@ internal static class PauseHudPlaneVerification
     }
 
     /// <summary>The four HUD rows' words.</summary>
-    private const int HudWordCount = Layer3Plane.HudRows * Layer3Plane.Columns;
+    private const int HudWordCount = Layer3PlaneConstants.HudRows * Layer3Plane.Columns;
 
     /// <summary>
     /// A HUD with its top row, its template and energy digits <paramref name="numeral"/> placed in the drawn rows, each

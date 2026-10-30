@@ -16,6 +16,7 @@ using SuperMetroid.Core.Escape.Artwork;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>The installed map, pause, HUD and escape-timer presentation parts an area-map presentation catalog is built from (#633).</summary>
+[ArchitectureReview("context-bag", "The import's one hand-off of the installed map, pause, HUD and frontend presentation catalogs to AreaMapPresentation; every member is immutable installed presentation data, not a service.")]
 internal sealed record AreaMapPresentationParts
 {
     /// <summary>Areas.</summary>

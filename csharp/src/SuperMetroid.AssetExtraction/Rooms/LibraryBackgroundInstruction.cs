@@ -18,7 +18,4 @@ public readonly record struct LibraryBackgroundInstruction(
     int ByteCount,
     DoorDefinition? Door)
 {
-    /// <summary>Whether the command copies its source to its destination: a transfer of any kind.</summary>
-    public bool Transfers => Command is LibraryBackgroundCommand.Transfer or LibraryBackgroundCommand.TransferForKraid
-        or LibraryBackgroundCommand.TransferForDoor;
 }

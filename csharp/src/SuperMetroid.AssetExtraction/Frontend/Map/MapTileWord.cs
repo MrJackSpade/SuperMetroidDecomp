@@ -116,8 +116,4 @@ public readonly record struct MapTileWord(ushort Raw)
         ((cell.Mirroring & TileFlip.Horizontal) != TileFlip.None ? HorizontalFlipMask : 0) |
         ((cell.Mirroring & TileFlip.Vertical) != TileFlip.None ? VerticalFlipMask : 0))));
 
-    /// <summary>Returns the complete native BG word without stripping map palette meaning or display attributes.</summary>
-    /// <param name="word">Typed map cell whose stored bits are to be published or transferred.</param>
-    /// <returns>The unchanged 16-bit value, including character, palette, priority, and flip fields.</returns>
-    public static explicit operator ushort(MapTileWord word) => word.Raw;
 }

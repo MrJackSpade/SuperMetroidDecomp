@@ -60,7 +60,7 @@ internal static class RoomCharacterInstallationVerification
             LoadedRoomAssets native = LoadFixtureRoomAssets(landing);
             LoadedRoomAssets installedRoom = LoadFixtureRoomAssets(landing);
             ReadOnlyMemory<byte> nativeCharacters = native.TilesetCharactersIn(FixtureRoomCharacters);
-            AssertTrue(installedRoom.CreCharactersIn(stock).Span.SequenceEqual(native.CreCharactersIn(FixtureRoomCharacters).Span) &&
+            AssertTrue(stock.Cre.Characters.Span.SequenceEqual(FixtureRoomCharacters.Cre.Characters.Span) &&
                 installedRoom.TilesetCharactersIn(stock).Span.SequenceEqual(nativeCharacters.Span),
                 "installed stock room PNGs retain Landing Site character bytes");
 

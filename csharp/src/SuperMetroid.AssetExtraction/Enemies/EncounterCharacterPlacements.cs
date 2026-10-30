@@ -65,8 +65,8 @@ internal static class EncounterCharacterPlacements
 
     /// <summary>The whole sprite characters <paramref name="byteCount"/> bytes of the cartridge's copy hold.</summary>
     /// <exception cref="InvalidDataException">The bytes are not whole characters.</exception>
-    private static int Characters(int byteCount) => byteCount % SpriteArtworkPlacements.CharacterByteCount == 0
-        ? byteCount / SpriteArtworkPlacements.CharacterByteCount
+    private static int Characters(int byteCount) => byteCount % SpriteCharacterTableLayout.CharacterByteCount == 0
+        ? byteCount / SpriteCharacterTableLayout.CharacterByteCount
         : throw new InvalidDataException($"{byteCount} bytes are not whole sprite characters.");
 
     /// <summary>The character skeleton chunk <paramref name="chunk"/> begins at: rows of the first region, then of the second.</summary>

@@ -60,7 +60,7 @@ internal static class TreadmillVisualVerification
                 runtime.StepFrame(0);
                 byte[] shown = BgArtworkFixtures.Composed(runtime.Vram, runtime.BgArtwork, runtime.BackgroundArtwork());
                 if (latched is { } latchedFrame)
-                    AnimatedTileFrameArtwork.Bytes(latchedFrame.Artwork, animatedTiles).Span.CopyTo(
+                    AnimatedTileFrameArtwork.Bytes(BgArtworkIdentity.Frame(latchedFrame), animatedTiles).Span.CopyTo(
                         shown.AsSpan(AnimatedTileVramDestinations.WordOf(AnimatedTileObject.WreckedShipTreadmillRightwards) * 2));
                 // The floor's characters as the frame shows them: the actual artwork, not merely a changing DMA
                 // pointer or unrelated enemy animation.

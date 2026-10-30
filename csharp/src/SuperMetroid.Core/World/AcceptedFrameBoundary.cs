@@ -307,7 +307,7 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>The room effect's part of the BG3 plane this NMI displays (#1348); the HUD's images cover its top rows (#1466).</summary>
-    private Layer3Plane CaptureLayer3Plane() => Layer3Plane.Compose(_room.Layer3Fx?.EffectPageTiles() ?? []);
+    internal Layer3Plane CaptureLayer3Plane() => Layer3Plane.Compose(_room.Layer3Fx?.EffectPageTiles() ?? []);
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's BG3 sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>

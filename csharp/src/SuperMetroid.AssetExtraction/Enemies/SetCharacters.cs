@@ -144,7 +144,7 @@ internal sealed class SetCharacters
             {
                 // A character past the table reads the page's blank overhang.
                 int firstByte = (part.Character + row * SpriteArtwork.CharactersPerRow + column) * SpriteArtwork.CharacterByteCount;
-                if (firstByte < SpriteArtworkPlacements.TableByteCount && firstByte < region.FirstByte + region.ByteCount
+                if (firstByte < SpriteCharacterTableLayout.TableByteCount && firstByte < region.FirstByte + region.ByteCount
                     && region.FirstByte < firstByte + SpriteArtwork.CharacterByteCount)
                     return true;
             }

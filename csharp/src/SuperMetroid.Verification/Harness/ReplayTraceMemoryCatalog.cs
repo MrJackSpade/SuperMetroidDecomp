@@ -222,7 +222,7 @@ internal static class ReplayTraceMemoryCatalog
         WorkRamRange.Between(NativeSnapshotMemory.RidleyTailFunctionIndex, RidleyTailControllerEnd),
         WorkRamRange.Between(NativeSnapshotMemory.RidleySwoopTimer, RidleyExtraEnd),
         WorkRamRange.Between(NativeSnapshotMemory.PaletteBuffer, PaletteBufferEnd),
-        WorkRamRange.Words(NativeSnapshotMemory.HudTilemap, HudState.MutableTileCount),
+        WorkRamRange.Words(NativeSnapshotMemory.HudTilemap, HudStateConstants.MutableTileCount),
         WorkRamRange.Between(NativeSnapshotMemory.ScrollStorage,
             NativeSnapshotMemory.SavedExploredMaps + SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea),
         WorkRamRange.Between(NativeSnapshotMemory.TrailLeftInstructionTimer, TrailArraysEnd),

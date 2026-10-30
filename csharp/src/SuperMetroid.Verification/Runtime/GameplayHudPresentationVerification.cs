@@ -43,9 +43,12 @@ internal static class GameplayHudPresentationVerification
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
         var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         topRowRuntime.Artwork.MapPresentation = original;
-        AssertTrue(topRowRuntime.FrameBoundary.CaptureLayer3Plane().Words[..GameplayHudDefinitions.TopRowCellCount]
+        // The HUD draws its images over the BG3 plane's top rows (#1466): its current images, as the installed artwork lays
+        // their tiles out, show the installed HUD row.
+        GameplayHudPresentation boundHud = topRowRuntime.Hud.Presentation ?? throw new InvalidOperationException("The runtime binds the HUD artwork.");
+        AssertTrue(BackgroundTileWordBytes.Words(GameplayHudArtwork.Of(boundHud).Rows(topRowRuntime.Hud.Shown()))[..GameplayHudDefinitions.TopRowCellCount]
             .SequenceEqual(stockTopRow),
-            "the BG3 plane the NMI latches shows the installed immutable HUD row without source reads");
+            "the HUD's images show the installed immutable HUD row without source reads");
         ushort equipment = ((SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.GrappleBeam).ToEquipmentWord());
         var snapshot = new HudSnapshot(
             Health: 345, MaxHealth: 499,

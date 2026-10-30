@@ -18,8 +18,8 @@ internal static class HudStateWords
         /// while no artwork is bound.
         /// </summary>
         internal BackgroundTile[] Tiles => hud.Presentation is { } presentation
-            ? GameplayHudArtwork.Of(presentation).Rows(hud.Shown())[HudState.WidthInTiles..]
-            : new BackgroundTile[HudState.MutableTileCount];
+            ? GameplayHudArtwork.Of(presentation).Rows(hud.Shown())[HudStateConstants.WidthInTiles..]
+            : new BackgroundTile[HudStateConstants.MutableTileCount];
 
         /// <summary>A copy of each drawn cell's packed tilemap word, row-major.</summary>
         internal ushort[] TileWords => BackgroundTileWordBytes.Words(hud.Tiles);

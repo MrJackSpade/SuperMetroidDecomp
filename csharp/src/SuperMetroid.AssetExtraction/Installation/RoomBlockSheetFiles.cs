@@ -67,7 +67,7 @@ public static class RoomBlockSheetFiles
         File.WriteAllBytes(Path.Combine(directory, Mode7ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(
             new Mode7Manifest(Mode7ManifestVersion, composition.FloorTiles.Values.ToDictionary(tiles => RoomBlockSheet.NameOf(tiles.Tileset),
                 tiles => new FloorTilesDocument(
-                    tiles.Shown.Select(shown => shown is { } bound ? new ShownDocument(bound.Artwork.Name, bound.WordOffset) : null).ToArray(),
+                    tiles.Shown.Select(shown => shown is not null).ToArray(),
                     tiles.Map),
                 StringComparer.Ordinal)),
             JsonOptions));
@@ -135,8 +135,8 @@ public static class RoomBlockSheetFiles
             Sheets(TileWordLayer.Bg12), Sheets(TileWordLayer.Bg3),
             tilesets.ToDictionary(tileset => tileset, tileset => new MessageBoxSheet(tileset, store.Read(MessageBoxSheet.NameOf(tileset)), messageTiles)),
             mode7.Tiles.Select(entry => byName.TryGetValue(entry.Key, out TilesetDefinition tileset) ? new FloorTileSheet(tileset,
-                    store.Read(FloorTileSheet.NameOf(tileset)), [.. (entry.Value.Shown ?? throw new InvalidDataException(
-                        $"Mode 7 manifest {mode7Path} records no tiles for {entry.Key}.")).Select(shown => shown is not null)],
+                    store.Read(FloorTileSheet.NameOf(tileset)), [.. entry.Value.Pictured ?? throw new InvalidDataException(
+                        $"Mode 7 manifest {mode7Path} records no tiles for {entry.Key}.")],
                     entry.Value.Map ?? throw new InvalidDataException($"Mode 7 manifest {mode7Path} has no floor map for {entry.Key}."))
                 : throw new InvalidDataException($"Mode 7 manifest {mode7Path} names unknown tileset {entry.Key}."))
                 .ToDictionary(tiles => tiles.Tileset));
@@ -183,14 +183,9 @@ public static class RoomBlockSheetFiles
     private sealed record Mode7Manifest(int Version, Dictionary<string, FloorTilesDocument> Tiles);
 
     /// <summary>One Ceres tileset's floor tiles and floor map.</summary>
-    /// <param name="Shown">Each tile's artwork, by tile; null for a tile not pictured.</param>
+    /// <param name="Pictured">Whether the sheet pictures each tile, by tile.</param>
     /// <param name="Map">The floor map a room of the tileset starts from: 16384 tile numbers, row-major.</param>
-    private sealed record FloorTilesDocument(ShownDocument?[] Shown, byte[] Map);
-
-    /// <summary>What showed at a tile's characters.</summary>
-    /// <param name="Artwork">The artwork.</param>
-    /// <param name="Offset">The characters' word offset within it.</param>
-    private sealed record ShownDocument(string Artwork, int Offset);
+    private sealed record FloorTilesDocument(bool[]? Pictured, byte[] Map);
 
     /// <summary>The message box manifest: the words each message box image pictures, the same in every tileset's sheet.</summary>
     /// <param name="Version">The schema revision.</param>

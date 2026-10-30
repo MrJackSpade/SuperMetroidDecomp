@@ -34,5 +34,9 @@ internal static class GameInstallationAccess
         /// </summary>
         public RoomSkyTilemaps LoadRoomSkyTilemaps() =>
             RoomSkyTilemapArtworkFiles.Load(self.RoomBackgroundTilemapDirectory, self.RoomBackgroundTilemapOverrideDirectory);
+        /// <summary>Stock room character-tile atlases and their source manifests.</summary>
+        public string RoomCharacterDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayout.RoomCharacterDirectoryName);
+        /// <summary>Stock background tilemaps, including sky tilemaps, under the replaceable content tree.</summary>
+        public string RoomBackgroundTilemapDirectory => Path.Combine(self.ContentDirectory, GameInstallationLayout.RoomBackgroundTilemapDirectoryName);
     }
 }

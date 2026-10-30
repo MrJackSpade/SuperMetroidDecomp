@@ -86,16 +86,15 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
             new Dictionary<string, string>(StringComparer.Ordinal));
 
         // Pictures that paint the same cells with the same characters share the first one's place.
-        var placeOf = new Dictionary<string, int>(StringComparer.Ordinal);
+        var placeOf = new Dictionary<BossBodyPicture, int>(BossBodyPictureContent.Instance);
         var places = new List<BossBodyPicture>();
         var placeIndex = new int[pictures.Count];
         for (int index = 0; index < pictures.Count; index++)
         {
-            string content = ContentKey(pictures[index]);
-            if (!placeOf.TryGetValue(content, out int place))
+            if (!placeOf.TryGetValue(pictures[index], out int place))
             {
                 place = places.Count;
-                placeOf.Add(content, place);
+                placeOf.Add(pictures[index], place);
                 places.Add(pictures[index]);
             }
             placeIndex[index] = place;
@@ -141,19 +140,6 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
             });
         }
         return new ComposedBossBodySheet(owner, canvas.ToRoomSheet(colours, documents), blankPart, frames);
-    }
-
-    /// <summary>What <paramref name="picture"/> paints: its size and each cell's place, tile and character bytes.</summary>
-    private static string ContentKey(BossBodyPicture picture)
-    {
-        var key = new System.Text.StringBuilder();
-        key.Append(picture.Columns).Append('x').Append(picture.Rows);
-        foreach (BossBodyPaintedCell cell in picture.Cells)
-        {
-            key.Append('|').Append(cell.Column).Append(',').Append(cell.Row).Append(',').Append(cell.Tile).Append(',')
-                .Append(Convert.ToHexString(cell.Character.Span));
-        }
-        return key.ToString();
     }
 
     /// <summary>

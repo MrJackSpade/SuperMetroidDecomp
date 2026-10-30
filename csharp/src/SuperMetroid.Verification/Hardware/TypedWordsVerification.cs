@@ -312,17 +312,17 @@ internal static void VerifyTypedNativeWords()
     foreach ((string name, ushort raw) in mapCellRoundTrips)
     {
         var cell = new MapTileWord(raw);
-        AssertEqual(raw, (ushort)cell, $"{name} map cell raw round trip");
+        AssertEqual(raw, cell.Raw, $"{name} map cell raw round trip");
     }
     AssertTrue(MapTileWords.PauseBlank.IsBlank && MapTileWords.HudBlank.IsBlank,
         "pause and HUD blank sentinels share the empty character");
-    AssertEqual((ushort)0xa812, (ushort)new MapTileWord(0xac12).AsExplored(),
+    AssertEqual((ushort)0xa812, new MapTileWord(0xac12).AsExplored().Raw,
         "explored map cell clears only cartridge palette bit $0400");
-    AssertEqual((ushort)0xebff, (ushort)new MapTileWord(0xffff).ForHud(explored: true),
+    AssertEqual((ushort)0xebff, new MapTileWord(0xffff).ForHud(explored: true).Raw,
         "HUD explored cell preserves character and flips while replacing attributes");
-    AssertEqual((ushort)0xec12, (ushort)new MapTileWord(0xe012).ForHud(explored: false),
+    AssertEqual((ushort)0xec12, new MapTileWord(0xe012).ForHud(explored: false).Raw,
         "HUD unexplored cell preserves character and flips while replacing attributes");
-    AssertEqual((ushort)0x3c12, (ushort)new MapTileWord(0x2812).WithLocationBlink(),
+    AssertEqual((ushort)0x3c12, new MapTileWord(0x2812).WithLocationBlink().Raw,
         "HUD location blink applies native palette bits");
 
     // The low byte belongs to individual enemy families; the typed word keeps it untouched while making every

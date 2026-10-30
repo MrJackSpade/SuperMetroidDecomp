@@ -66,8 +66,9 @@ internal static class RoomBlockPicturesVerification
         Check(RoomHeaderDefinitions.Wasteland, expectUploads: true);
         Check(RoomHeaderDefinitions.MorphBall, expectUploads: true);
         Check(RoomHeaderDefinitions.EastSandHall, expectUploads: true);
-        // The Ceres Ridley arena's blocks read the OBJ character table's enemy tiles.
-        Check(RoomHeaderDefinitions.CeresRidley, expectUploads: true);
+        // The Ceres Ridley arena's blocks read the OBJ character table's enemy tiles: the page its load composes is the
+        // pictures' baseline, and only the getaway's looks, which show later in the encounter, change them (#1466).
+        Check(RoomHeaderDefinitions.CeresRidley, expectUploads: false);
         // The treadmills run once Phantoon, the Wrecked Ship's boss, is defeated.
         Check(RoomHeaderDefinitions.WreckedShipMainShaft, expectUploads: true,
             RoomStateSelection.GetStates(RoomHeaderDefinitions.WreckedShipMainShaft)

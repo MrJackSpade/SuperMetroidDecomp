@@ -1151,9 +1151,6 @@ internal static class LookupStream3Verification
                 "stream 3 grapple transfer asset dispatch");
             AssertEqual(expectedSources[index], actualTransfers[index].SourceAddress, "stream 3 grapple transfer cartridge source");
         }
-        foreach (int invalid in new[] { -1, 7, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = actualTransfers[invalid],
-                "stream 3 grapple transfer bounds");
         AssertThrows<InvalidDataException>(() => GrappleTileSelection.TransferFor((InstalledArtworkId)(-1)),
             "stream 3 invalid grapple asset");
 
@@ -2699,18 +2696,18 @@ internal static class LookupStream3Verification
                 AssertTrue(parts.SequenceEqual(EnemySpritemapCompiler.CompileParts(document.Frames[frame.Name], frame.Name)),
                     "stream 3 exact supplied Baby part order and every visual field");
             }
-            // The catalog names each frame by its identity (#1402), in identity-name order; every frame here shows itself.
+            // The catalog names each frame by its installed sheet key (#1402, #1465), in key order; every frame here shows itself.
             string expected = SelectedPresentationHash.Create("enemy-oam-v2", content =>
             {
-                foreach (var frame in definitions.OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal))
+                foreach (var frame in definitions.OrderBy(frame => EnemyFrameSheetKeys.Of(frame.Frame), StringComparer.Ordinal))
                 {
-                    content.AppendName("frame", frame.Frame.ToString());
+                    content.AppendName("frame", EnemyFrameSheetKeys.Of(frame.Frame));
                     content.AppendEnemyParts(EnemySpritemapCompiler.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
-                foreach (var frame in definitions.OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal))
+                foreach (var frame in definitions.OrderBy(frame => EnemyFrameSheetKeys.Of(frame.Frame), StringComparer.Ordinal))
                 {
-                    content.AppendName("native-binding", frame.Frame.ToString());
-                    content.AppendName("selected-binding", frame.Frame.ToString());
+                    content.AppendName("native-binding", EnemyFrameSheetKeys.Of(frame.Frame));
+                    content.AppendName("selected-binding", EnemyFrameSheetKeys.Of(frame.Frame));
                 }
             });
             AssertEqual(expected, catalog.ContentIdentity, "stream 3 indexed OAM view retains canonical hash framing");

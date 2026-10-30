@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core;
 using System.Text.Json;
@@ -7,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rendering;
@@ -43,14 +45,10 @@ internal static class MotherBrainRoomColorsVerification
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed Mother Brain room-entry glass and tube palettes match full native CGRAM");
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(original.MotherBrainRoomColors, extracted));
-        var nativeState = new MotherBrainEnemyState(native.SlotTable.Slots[0])
-        {
-            RoomFlashFrame = 0,
-        };
-        var installedState = new MotherBrainEnemyState(installed.SlotTable.Slots[0])
-        {
-            RoomFlashFrame = 0,
-        };
+        var nativeState = StagedState(native);
+        nativeState.RoomFlashFrame = 0;
+        var installedState = StagedState(installed);
+        installedState.RoomFlashFrame = 0;
         for (int frame = 0; frame < 48; frame++)
         {
             native.MotherBrainBehavior.RunMotherBrainRoomPalette(nativeState);
@@ -267,6 +265,16 @@ internal static class MotherBrainRoomColorsVerification
             "room-entry edits change only the two selected CGRAM colors");
     }
 
+    /// <summary>
+    /// Mother Brain's state in <paramref name="enemies"/>' first slot, her body staged on a cleared canvas over the installed
+    /// sheets as her room's entry stages it, which her phase-two transition shows.
+    /// </summary>
+    private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies) =>
+        new(enemies.SlotTable.Slots[0])
+        {
+            StagedBody = new BossBodyCanvas(BossBodySheetFixtures.Stock.Sheets.Of(BossBodyOwner.MotherBrain), BossBodyDefinitions.SharedBodyRows),
+        };
+
     /// <summary>Checks a selected flash/final/phase-two color edit reaches CGRAM without changing body phase or palette-program timing.</summary>
     private static void AssertEdited(string methodName, Func<MotherBrainBehavior, Action<MotherBrainEnemyState>> select,
         AreaMapPresentation original,
@@ -279,8 +287,8 @@ internal static class MotherBrainRoomColorsVerification
             original.MotherBrainRoomColors);
         var editedEnemy = CreateEnemy(editedCgram,
             edited.MotherBrainRoomColors);
-        var stockState = new MotherBrainEnemyState(stockEnemy.SlotTable.Slots[0]);
-        var editedState = new MotherBrainEnemyState(editedEnemy.SlotTable.Slots[0]);
+        var stockState = StagedState(stockEnemy);
+        var editedState = StagedState(editedEnemy);
         if (flash)
         {
             stockState.RoomFlashFrame = 0;
@@ -307,7 +315,7 @@ internal static class MotherBrainRoomColorsVerification
     private static RoomEnemySystem CreateEnemy(SamusColourRig cgram,
         MotherBrainRoomColorPresentation? colors)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRoomColors = colors } };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRoomColors = colors, BodySheets = BossBodySheetFixtures.Stock.Sheets } };
         enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         return enemies;

@@ -72,4 +72,28 @@ internal static class NativeColourImage
         sprites.All.CopyFrom(image.Slice(GameplayColourPositionDefinitions.SpriteSetsFirst, GameplayColourPositionDefinitions.SetsColours));
         return new BackgroundColours(ShownBackgroundColourSets.Of(backgrounds), ShownColourSets.Of(sprites));
     }
+
+    /// <summary>
+    /// The colours a frame shows when its colour memory holds <paramref name="image"/>, in the colour model of
+    /// <paramref name="like"/>: gameplay's background sets, or a frontend screen's sets each at its own order.
+    /// </summary>
+    internal static BackgroundColours DecodeLike(BackgroundColours like, ReadOnlySpan<RgbColor> image) =>
+        Ensure.NotNull(like).Backgrounds switch
+        {
+            GameplayShownBackgrounds => Decode(image),
+            ScreenShownBackgrounds => DecodeScreen(image),
+            _ => throw new InvalidOperationException($"Unknown shown background colours {like.Backgrounds}."),
+        };
+
+    /// <summary>The colours a frontend screen shows when its colour memory holds <paramref name="image"/>, each set at its own order.</summary>
+    [WholeImageFixture("a frame's colours from a 256-colour native colour image")]
+    private static BackgroundColours DecodeScreen(ReadOnlySpan<RgbColor> image)
+    {
+        Ensure.LengthEqual(image, ColorCount);
+        var backgrounds = new ScreenColourSets();
+        backgrounds.All.CopyFrom(image.Slice(GameplayColourPositionDefinitions.BackgroundSetsFirst, GameplayColourPositionDefinitions.SetsColours));
+        var sprites = new SpriteColourSets();
+        sprites.All.CopyFrom(image.Slice(GameplayColourPositionDefinitions.SpriteSetsFirst, GameplayColourPositionDefinitions.SetsColours));
+        return new BackgroundColours(ShownColourSets.Of(backgrounds), ShownColourSets.Of(sprites));
+    }
 }

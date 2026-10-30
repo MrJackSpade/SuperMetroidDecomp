@@ -33,10 +33,13 @@ internal static class RepositoryInstallation
         DateTime deadline = DateTime.UtcNow + SetupLockWait;
         while (true)
         {
+            var steps = new InstallStepTiming();
             try
             {
-                return GameAssetInstaller.EnsureInstalled(root) ??
-                    GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);
+                GameInstallation installed = GameAssetInstaller.EnsureInstalled(root, progress: steps) ??
+                    GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root, progress: steps);
+                steps.Finish();
+                return installed;
             }
             catch (IOException error) when (error.InnerException is IOException && DateTime.UtcNow < deadline)
             {

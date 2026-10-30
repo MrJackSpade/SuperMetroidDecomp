@@ -249,7 +249,7 @@ internal static class RidleyFullMovieVerification
             {
                 for (int y = 0; y < 3; y++)
                 for (int x = 0; x < 5; x++)
-                    AssertEqual((ushort)MapTileWords.HudBlank, runtime.Hud.TileWords[26 + y * HudState.WidthInTiles + x],
+                    AssertEqual(MapTileWords.HudBlank.Raw, runtime.Hud.TileWords[26 + y * HudStateConstants.WidthInTiles + x],
                         "Ridley blanks all fifteen minimap tiles");
                 runtime.Hud.EnableMinimapAfterDoorEntry();
                 AssertTrue(!runtime.Hud.MinimapDisabled, "door entry restores minimap updates");
@@ -986,7 +986,7 @@ internal static class RidleyFullMovieVerification
             CheckBytes("Opened door bits", SharedGameState.DoorBitByteCount, runtime.System.GetOpenedDoorByteRaw, NativeSnapshotMemory.OpenedDoors);
             if (game.GameState is not (SuperMetroidGameState.HitDoorBlock or
                 SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
-                for (int tile = 0; tile < HudState.MutableTileCount; tile++)
+                for (int tile = 0; tile < HudStateConstants.MutableTileCount; tile++)
                     Check($"HUD tile {tile}", runtime.Hud.TileWords[tile], NativeSnapshotMemory.HudTilemap + tile * 2);
             Check("Previous HUD selection", runtime.Hud.PreviousSelectedItem.ToWord(), NativeSnapshotMemory.PreviousHudSelection);
             CheckBytes("Save/elevator markers", SharedGameState.UsedSaveStationByteCount,

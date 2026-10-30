@@ -40,9 +40,6 @@ public sealed class ShownSpriteArtwork
         visible = null;
     }
 
-    /// <summary>The looks in the order they were last shown, oldest first.</summary>
-    public IReadOnlyList<SpriteArtworkSource> InOrder => shown;
-
     /// <summary>
     /// The looks still visible, newest first: each look no later look hides, as <paramref name="overlap"/> judges them.
     /// </summary>

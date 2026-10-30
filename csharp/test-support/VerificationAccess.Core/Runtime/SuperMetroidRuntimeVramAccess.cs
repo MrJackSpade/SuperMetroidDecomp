@@ -4,8 +4,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Runtime;
@@ -39,7 +37,7 @@ internal static class SuperMetroidRuntimeVramAccess
                 var bindings = new BgArtworkBindings();
                 if (self.Artwork.MapPresentation is not null)
                     bindings.Bind(BgArtworkIdentity.Asset(InstalledArtworkId.StandardHudTiles), BgCharacterSet.Layer3, 0,
-                        BgCharacterSet.Layer3.CharactersIn(HudTileAtlasFormat.CharacterByteCount));
+                        BgCharacterSet.Layer3.CharactersIn(SuperMetroid.AssetExtraction.Hud.HudTileAtlasFormat.CharacterByteCount));
                 if (self.Room.Scope is { } scope)
                 {
                     RoomAppearanceBindings.BindLoad(bindings, scope.Assets.Tileset, artwork);

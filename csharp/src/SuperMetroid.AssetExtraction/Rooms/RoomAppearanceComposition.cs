@@ -14,26 +14,30 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 internal static class RoomAppearanceComposition
 {
     /// <summary>The inputs some option of which shows over any of <paramref name="characters"/> of <paramref name="set"/>, in token order.</summary>
-    internal static ImmutableArray<AppearanceInput> InputsOver(BgCharacterSet set, IEnumerable<int> characters, IReadOnlyList<AppearanceOption> options)
+    internal static ImmutableArray<AppearanceInput> InputsOver(BgCharacterSet set, IEnumerable<int> characters, AppearanceOptions options)
     {
-        int[] reached = [.. Ensure.NotNull(characters)];
-        return [.. Ensure.NotNull(options).Where(option => reached.Any(character => option.Upload.Covers(set, character)))
-            .Select(option => option.Input).Distinct().OrderBy(input => input.Token, StringComparer.Ordinal)];
+        Ensure.NotNull(options);
+        var reached = new HashSet<AppearanceInput>();
+        foreach (int character in Ensure.NotNull(characters))
+        {
+            foreach (AppearanceOption option in options.Reaching(set, character))
+                reached.Add(option.Input);
+        }
+        return [.. reached.OrderBy(input => input.Token, StringComparer.Ordinal).ThenBy(options.FirstOptionOf)];
     }
 
     /// <summary>
     /// Every assignment of a value to each of <paramref name="inputs"/>, in order: the room's load, when
     /// <paramref name="withLoaded"/>, and each value an option gives the input.
     /// </summary>
-    internal static IEnumerable<string[]> Assignments(ImmutableArray<AppearanceInput> inputs, IReadOnlyList<AppearanceOption> options, bool withLoaded)
+    internal static IEnumerable<string[]> Assignments(ImmutableArray<AppearanceInput> inputs, AppearanceOptions options, bool withLoaded)
     {
         Ensure.NotNull(options);
         IEnumerable<string[]> assignments = [new string[inputs.Length]];
         for (int index = 0; index < inputs.Length; index++)
         {
             int place = index;
-            string[] values = [.. (withLoaded ? [RoomAppearanceValues.Loaded] : Array.Empty<string>()),
-                .. options.Where(option => option.Input == inputs[place]).Select(option => option.Value).Distinct()];
+            string[] values = [.. (withLoaded ? [RoomAppearanceValues.Loaded] : Array.Empty<string>()), .. options.ValuesOf(inputs[place])];
             assignments = [.. assignments.SelectMany(earlier => values.Select(value =>
             {
                 string[] chosen = [.. earlier];
@@ -45,26 +49,37 @@ internal static class RoomAppearanceComposition
     }
 
     /// <summary>
-    /// What shows over <paramref name="count"/> characters of <paramref name="set"/> from <paramref name="first"/> while
+    /// What shows over <paramref name="characters"/> while
     /// <paramref name="inputs"/> take <paramref name="values"/>: an animation that paints them shows its selected frame
     /// (#1406); otherwise the newest artwork shown there, Kraid's backdrop over the collectibles the room bound as it
     /// loaded and a later encounter look over an earlier; otherwise what <paramref name="load"/> binds there. False where
     /// nothing shows, or where an animation's selected frame does not reach them.
     /// </summary>
-    internal static bool TryShowing(BgCharacterSet set, int first, int count, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values,
-        IReadOnlyList<AppearanceOption> options, BgArtworkBindings? load, out BgArtworkShown shown)
+    internal static bool TryShowing(CharacterSpan characters, ImmutableArray<AppearanceInput> inputs, ReadOnlySpan<string> values,
+        AppearanceOptions options, BgArtworkBindings? load, out BgArtworkShown shown)
     {
+        (BgCharacterSet set, int first, int count) = characters;
         Ensure.LengthEqual(values, inputs.Length);
+        AppearanceOption[] reaching = Ensure.NotNull(options).Reaching(set, first);
         // The first animation by name that paints the characters and has selected a frame shows that frame there.
-        foreach (AppearanceInput animation in Ensure.NotNull(options)
-            .Where(option => PrecedenceOf(option.Input) == AppearancePrecedence.Animation && option.Upload.Covers(set, first))
-            .Select(option => option.Input).Distinct().OrderBy(input => input.Token, StringComparer.Ordinal))
+        AppearanceInput? animation = null;
+        int selected = -1;
+        foreach (AppearanceOption option in reaching)
         {
-            int index = inputs.IndexOf(animation);
+            if (PrecedenceOf(option.Input) != AppearancePrecedence.Animation)
+                continue;
+            int index = inputs.IndexOf(option.Input);
             if (index < 0 || values[index] == RoomAppearanceValues.Loaded)
                 continue;
-            string value = values[index];
-            AppearanceOption? frame = options.FirstOrDefault(option => option.Input == animation && option.Value == value);
+            if (animation is null || ShowsBefore(option.Input, animation, options))
+            {
+                animation = option.Input;
+                selected = index;
+            }
+        }
+        if (animation is not null)
+        {
+            AppearanceOption? frame = options.Option(animation, values[selected]);
             if (frame is null || !frame.Upload.Covers(set, first))
             {
                 shown = default;
@@ -74,11 +89,11 @@ internal static class RoomAppearanceComposition
             return true;
         }
         AppearanceOption? bound = null;
-        foreach (AppearanceOption option in options)
+        foreach (AppearanceOption option in reaching)
         {
             AppearancePrecedence precedence = PrecedenceOf(option.Input);
             int index = inputs.IndexOf(option.Input);
-            if (precedence == AppearancePrecedence.Animation || index < 0 || values[index] != option.Value || !option.Upload.Covers(set, first))
+            if (precedence == AppearancePrecedence.Animation || index < 0 || values[index] != option.Value)
                 continue;
             if (bound is null || precedence <= PrecedenceOf(bound.Input))
                 bound = option;
@@ -92,6 +107,16 @@ internal static class RoomAppearanceComposition
             return load.TryShowing(set, first, count, out shown);
         shown = default;
         return false;
+    }
+
+    /// <summary>
+    /// Whether animation <paramref name="input"/> comes before <paramref name="other"/>: by token, and among equal tokens
+    /// by the first option naming each.
+    /// </summary>
+    private static bool ShowsBefore(AppearanceInput input, AppearanceInput other, AppearanceOptions options)
+    {
+        int byToken = string.CompareOrdinal(input.Token, other.Token);
+        return byToken != 0 ? byToken < 0 : options.FirstOptionOf(input) < options.FirstOptionOf(other);
     }
 
     /// <summary>Whether <paramref name="input"/>'s artwork shows over another's where both reach the same characters.</summary>

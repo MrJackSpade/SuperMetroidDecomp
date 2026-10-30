@@ -16,14 +16,8 @@ internal static class FramePaintAccess
         /// (the extraction pipeline's ObjCharacterImage), so the records reach both backends only as a frame description.
         /// </summary>
         internal static FramePaint FromOam(ReadOnlySpan<byte> vram, ReadOnlySpan<RgbColor> cgram,
-            ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection)
-        {
-            var oam = new OamBuffer();
-            oam.LoadUploadPayload(oamUpload, spriteCount);
-            var image = new SnesVram();
-            image.LoadBytes(0, vram);
-            return FramePaint.FromNative(cgram, ObjCharacterImageConstants.Draws(oam, image, objectSelection));
-        }
+            ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection) =>
+            FramePaint.FromNative(cgram, OamDraws(vram, oamUpload, spriteCount, objectSelection));
 
         /// <summary>A frame whose colour memory holds <paramref name="nativeColours"/>, a native 256-colour image.</summary>
         internal static FramePaint FromNative(ReadOnlySpan<RgbColor> nativeColours, ImmutableArray<SpriteDraw> spriteDraws)
@@ -42,7 +36,32 @@ internal static class FramePaintAccess
         /// </summary>
         internal ReadOnlySpan<RgbColor> Colors => NativeColourImage.Of(memory.Backgrounds);
 
+        /// <summary>
+        /// This frame with its colour memory holding <paramref name="nativeColours"/>, a native 256-colour image read in the
+        /// frame's own colour model, gameplay's or a frontend screen's; its sprite draws are kept.
+        /// </summary>
+        internal FramePaint WithNativeColours(ReadOnlySpan<RgbColor> nativeColours) =>
+            new(NativeColourImage.DecodeLike(memory.Backgrounds, nativeColours), memory.SpriteDraws);
+
+        /// <summary>
+        /// This frame with its colour memory holding <paramref name="nativeColours"/>, read in the frame's own colour model,
+        /// and its sprites an OAM fixture's records, converted as <see cref="FromOam"/> converts them.
+        /// </summary>
+        internal FramePaint WithNativeColoursAndOam(ReadOnlySpan<byte> vram, ReadOnlySpan<RgbColor> nativeColours,
+            ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection) =>
+            new(NativeColourImage.DecodeLike(memory.Backgrounds, nativeColours), OamDraws(vram, oamUpload, spriteCount, objectSelection));
+
         /// <summary>Every sprite part the frame shows, frontmost first.</summary>
         internal PlacedSpritePart[] SpriteParts() => PlacedSpritePart.Of(memory.SpriteDraws);
+    }
+
+    /// <summary>The sprite draws an OAM fixture's records make over <paramref name="vram"/>, as a frontend capture converts them.</summary>
+    private static ImmutableArray<SpriteDraw> OamDraws(ReadOnlySpan<byte> vram, ReadOnlySpan<byte> oamUpload, int spriteCount, int objectSelection)
+    {
+        var oam = new OamBuffer();
+        oam.LoadUploadPayload(oamUpload, spriteCount);
+        var image = new SnesVram();
+        image.LoadBytes(0, vram);
+        return ObjCharacterImageConstants.Draws(oam, image, objectSelection);
     }
 }

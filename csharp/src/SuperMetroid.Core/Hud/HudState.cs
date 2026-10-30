@@ -18,12 +18,6 @@ namespace SuperMetroid.Core.Hud;
 /// </summary>
 public sealed class HudState
 {
-    /// <summary>Number of eight-pixel cells per HUD row.</summary>
-    public const int WidthInTiles = GameplayHudDefinitions.Width;
-    /// <summary>Number of HUD rows the HUD's values are drawn over, excluding the preceding static row.</summary>
-    public const int MutableRowCount = GameplayHudDefinitions.Height;
-    /// <summary>Ninety-six cells in the three rows the HUD's values are drawn over.</summary>
-    public const int MutableTileCount = WidthInTiles * MutableRowCount;
 
     /// <summary>Each energy tank as last drawn, or null where the template shows.</summary>
     private readonly HudEnergyTank?[] energyTanks = new HudEnergyTank?[GameplayHudDefinitions.EnergyTankCount];

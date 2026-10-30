@@ -9,6 +9,7 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
 

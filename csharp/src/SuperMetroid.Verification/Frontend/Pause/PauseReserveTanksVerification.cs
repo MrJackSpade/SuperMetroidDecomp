@@ -54,7 +54,7 @@ internal static class PauseReserveTanksVerification
                 if (capacity != 0) Draw(0x1f, tank);
                 native.FinalizeFrame();
                 byte[] objects = native.LowTable.ConcatToArray(native.HighTable);
-                var memory = FramePaint.FromOam(captureVram, capture.Paint.Colors, objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection);
+                var memory = capture.Paint.WithNativeColoursAndOam(captureVram, capture.Paint.Colors, objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection);
                 var expected = DisplayRendering.Render(new LayeredScene(memory, capture.Layers, capture.Brightness));
                 // This rectangle encloses the tank strip and end-cap, but not the
                 // independently animated equipment selector. BG remains identical.

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 public sealed class RoomSkyTilemaps
 {
     /// <summary>The tiles of the seven selected sky pages, in scrolling order.</summary>
-    private readonly BackgroundTile[] pages;
+    internal readonly BackgroundTile[] pages;
 
     /// <summary>The land rows, built when first shown.</summary>
     private SkyTilemap? land;
@@ -35,9 +35,6 @@ public sealed class RoomSkyTilemaps
             atlas.Tiles.Span.CopyTo(pages.AsSpan(index * RoomSkyTilemapFormat.PageTiles));
         }
     }
-
-    /// <summary>The tiles of all seven selected sky pages in their scrolling order.</summary>
-    public ReadOnlyMemory<BackgroundTile> Pages => pages;
 
     /// <summary>The sky rows the land or ocean chunk table selects from these pages (#1347).</summary>
     public SkyTilemap Tilemap(ScrollingSkyChunkTable variant) => variant switch

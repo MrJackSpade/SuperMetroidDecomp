@@ -8,10 +8,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="MouthY">Head Y plus five, validated by the simulation to lie strictly inside the native scanline work area.</param>
 /// <param name="EdgeA">Lower edge angle, 0 through 255: aim table index minus half the angular width, wrapped around the 256-unit turn.</param>
 /// <param name="EdgeB">Upper edge angle, 0 through 255: aim table index plus half the angular width, wrapped around the 256-unit turn.</param>
-/// <param name="Direction">Dispatcher selected from the edge quadrants: right, up or down, never retain or unsupported.</param>
 public readonly record struct MotherBrainRainbowBeamGeometry(
     int MouthScreenX,
     int MouthY,
     int EdgeA,
-    int EdgeB,
-    MotherBrainBeamDirection Direction);
+    int EdgeB);

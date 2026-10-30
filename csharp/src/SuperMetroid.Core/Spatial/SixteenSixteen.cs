@@ -30,9 +30,6 @@ public static class SixteenSixteen
         (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, whole) << FractionBits |
         (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, fraction);
 
-    /// <summary><paramref name="value"/> times a 16.16 factor, truncated to whole units (arithmetic shift).</summary>
-    public static int Multiply(int value, int factor) => value * factor >> FractionBits;
-
     /// <summary>The whole part of a raw 16.16 value.</summary>
     public static int WholeOf(int raw) => raw >> FractionBits;
 

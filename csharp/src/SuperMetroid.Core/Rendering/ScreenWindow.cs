@@ -46,9 +46,6 @@ public sealed record ScreenWindow
     public static ScreenWindow Of(WindowShape shape, int firstLine = 0, int endLine = DisplayScreen.Height) =>
         new([shape], firstLine, endLine);
 
-    /// <summary>Whether the window covers no pixel because it has no shapes or no lines.</summary>
-    public bool IsClosed => shapes.Length == 0 || FirstLine == EndLine;
-
     /// <summary>Whether both windows join the same shapes, in the same order, over the same lines.</summary>
     public bool Equals(ScreenWindow? other) =>
         other is not null && FirstLine == other.FirstLine && EndLine == other.EndLine && shapes.SequenceEqual(other.shapes);

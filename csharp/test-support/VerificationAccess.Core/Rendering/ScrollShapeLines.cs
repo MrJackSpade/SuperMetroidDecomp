@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Rendering;
-
-namespace SuperMetroid.TestSupport.FrameRendering;
+namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// The scroll a described line scroll gives a screen line (#1468), as Tiles.hlsl's <c>LineScroll</c> draws it, evaluated
@@ -11,6 +9,12 @@ internal static class ScrollShapeLines
 {
     /// <summary>The byte angle's steps in one whole turn.</summary>
     private const int AngleStepsPerTurn = 256;
+
+    /// <summary>The fraction bits of a 16.16 factor.</summary>
+    private const int SixteenSixteenFractionBits = 16;
+
+    /// <summary><paramref name="value"/> times a 16.16 factor, truncated to whole units (arithmetic shift).</summary>
+    internal static int TimesSixteenSixteen(int value, int factor) => value * factor >> SixteenSixteenFractionBits;
 
     /// <summary>The scroll <paramref name="shape"/> gives screen line <paramref name="line"/>, or <paramref name="ownScroll"/> without a shape.</summary>
     internal static ushort Scroll(LineScroll? shape, int line, int ownScroll = 0) => shape switch
@@ -39,7 +43,7 @@ internal static class ScrollShapeLines
     {
         if (line < wave.FirstLine || line >= wave.EndLine) return 0;
         int sine = Trigonometry.SignedSine(new ByteAngle(unchecked((byte)(wave.Phase.RawValue + line * AngleStepsPerTurn / wave.Period))));
-        int magnitude = SixteenSixteen.Multiply(Math.Abs(sine), wave.Amplitude);
+        int magnitude = TimesSixteenSixteen(Math.Abs(sine), wave.Amplitude);
         return sine < 0 ? -magnitude : magnitude;
     }
 
@@ -50,7 +54,7 @@ internal static class ScrollShapeLines
     internal static ushort StretchScroll(ScrollStretch stretch, int line) =>
         line < stretch.FirstLine ? checked((ushort)stretch.ScrollAbove)
         : line >= stretch.EndLine ? checked((ushort)stretch.BaseScroll)
-        : unchecked((ushort)(stretch.BaseScroll - SixteenSixteen.Multiply(line - stretch.FirstLine, stretch.Slope)));
+        : unchecked((ushort)(stretch.BaseScroll - TimesSixteenSixteen(line - stretch.FirstLine, stretch.Slope)));
 
     /// <summary>
     /// The scroll <paramref name="wave"/> gives screen line <paramref name="line"/>: inside its band, the base moved by the

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -18,14 +17,12 @@ internal static class LookupLiquidWaveVerification
         for (int index = 0; index < 16; index++)
         {
             AssertEqual(Water(index), LiquidEffects.WaterWaveDisplacement(index), "Original water displacement");
-            AssertEqual(Heat(index), LiquidEffects.HeatVerticalWaveDisplacement(index), "Original heat displacement");
+            AssertEqual(Heat(index), LiquidEffects.WaterWaveDisplacement(index), "The vertical heat haze repeats the water wave");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => LiquidEffects.WaterWaveDisplacement(invalid),
                 "Water retains original sixteen-word bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => LiquidEffects.HeatVerticalWaveDisplacement(invalid),
-                "Heat alias retains original sixteen-word bounds");
         }
 
         // Confirm actual projection consumers over every circular phase and camera

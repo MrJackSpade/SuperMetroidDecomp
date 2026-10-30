@@ -22,14 +22,12 @@ internal static class D3D11WindowPacking
     /// <summary>The kind of each shape, as Window.hlsli names them.</summary>
     private enum ShapeKind
     {
-        /// <summary>No shape.</summary>
-        None,
         /// <summary>A <see cref="WindowRectangle"/>.</summary>
-        Rectangle,
+        Rectangle = 1,
         /// <summary>A <see cref="WindowOval"/>.</summary>
-        Oval,
+        Oval = 2,
         /// <summary>A <see cref="WindowCone"/>.</summary>
-        Cone,
+        Cone = 3,
     }
 
     /// <summary>Writes <paramref name="window"/> into the window block of <paramref name="data"/>.</summary>

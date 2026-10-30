@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 

@@ -47,7 +47,7 @@ internal static class PowerBombShapeVerification
             for (int index = 0; index < PowerBombShapeCursor.CountOf(stream); index++)
             {
                 int radius = new PowerBombShapeCursor(stream, index).HorizontalRadius();
-                AssertEqual((int)rom.ReadCartridgeByte(table + index * PowerBombShapeReferenceData.ShapeLines), radius * 255 / 256,
+                AssertEqual(rom.ReadCartridgeByte(table + index * PowerBombShapeReferenceData.ShapeLines), radius * 255 / 256,
                     $"Power Bomb {stream} shape {index} has the cartridge shape's middle width");
             }
             AssertThrows<InvalidOperationException>(

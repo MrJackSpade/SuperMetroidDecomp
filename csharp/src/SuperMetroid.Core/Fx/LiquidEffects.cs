@@ -5,13 +5,10 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>The waveforms liquid surfaces and heat haze follow, and lava's choice of bubbling sound (#1415).</summary>
 public static class LiquidEffects
 {
-    /// <summary>One period of the water wave, sixteen samples (#1468): the waveform a water surface's waves are drawn from.</summary>
+    /// <summary>One period of the water wave, sixteen samples (#1468): the waveform a water surface's waves and the
+    /// vertical heat haze are drawn from.</summary>
     public static ImmutableArray<int> WaterWaveform { get; } =
         [.. Enumerable.Range(0, WaterWaveDefinitions.WaveDisplacementCount).Select(index => (int)WaterWaveDisplacement(index))];
-
-    /// <summary>One period of the vertical heat haze, sixteen samples (#1468).</summary>
-    public static ImmutableArray<int> HeatVerticalWaveform { get; } =
-        [.. Enumerable.Range(0, LavaAcidWaveDefinitions.WaveDisplacementCount).Select(index => (int)HeatVerticalWaveDisplacement(index))];
 
     /// <summary>One period of the horizontal heat haze, sixteen samples (#1468).</summary>
     public static ImmutableArray<int> HeatHorizontalWaveform { get; } =
@@ -35,12 +32,6 @@ public static class LiquidEffects
         int magnitude = Math.Min(position, 3 - position);
         return (short)((index & 4) == 0 ? magnitude : -magnitude);
     }
-
-    /// <summary>Calculates the vertical heat-haze displacement for index 0..15.</summary>
-    /// <remarks>Native $88:B60A is independently verified as the same mirrored,
-    /// sign-alternating integer wave as $88:C46E. Reuse that exact bounded mapping;
-    /// liquid-options bit one selects this BG2VOFS waveform.</remarks>
-    public static short HeatVerticalWaveDisplacement(int index) => WaterWaveDisplacement(index);
 
     /// <summary>
     /// Signed BG2HOFS displacement for index 0..15, matching $88:B589.

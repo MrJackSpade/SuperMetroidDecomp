@@ -42,7 +42,7 @@ internal static class MotherBrainBeamWindowVerification
         void Step() => beam.Step(true, new(100, 95), RotationAngle.QuarterTurn, Width(64));
         Step();
         AssertEqual(MotherBrainBeamDefinitions.InitialColor, beam.Color, "beam first frame uses E767 fixed color");
-        AssertEqual(new MotherBrainRainbowBeamGeometry(114, 100, 32, 96, MotherBrainBeamDirection.Right),
+        AssertEqual(new MotherBrainRainbowBeamGeometry(114, 100, 32, 96),
             beam.Geometry, "right beam publishes the low-byte mouth X, mouth Y and both wrapped edges");
         // The beam's edges are measured from straight down: 32 and 96 reflect to the screen's 96 and 32, a cone from
         // up-right to down-right of the mouth, below the HUD (#1468).

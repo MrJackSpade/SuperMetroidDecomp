@@ -23,7 +23,7 @@ public sealed record SampledScrollWave(int BaseScroll, ImmutableArray<int> Sampl
     : LineScroll
 {
     /// <summary>The scroll every line shows before its displacement, 0 through 65535.</summary>
-    public override int BaseScroll
+    public int BaseScroll
     {
         get;
         init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);

@@ -39,10 +39,6 @@ public readonly record struct RgbColor
     /// <summary>Black: every channel zero.</summary>
     public static RgbColor Black => default;
 
-    /// <summary>Expands a five-bit channel to eight bits by replicating its high bits into the low ones.</summary>
-    public static byte ExpandChannel(int fiveBit) =>
-        (byte)(((fiveBit & MaxChannel) << 3) | ((fiveBit & MaxChannel) >> 2));
-
     /// <summary>White: every channel at <see cref="MaxChannel"/>.</summary>
     public static RgbColor White => new(ColorBits);
 

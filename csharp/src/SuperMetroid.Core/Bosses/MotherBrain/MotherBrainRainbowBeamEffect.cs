@@ -81,7 +81,7 @@ public sealed class MotherBrainRainbowBeamEffect
             throw new InvalidDataException($"Mother Brain beam mouth Y={originY} is outside its native scanline work area.");
         // DE20 reads XPosition-1, then masks after adding: this is the low X byte,
         // not a camera-relative coordinate or the enemy header pointer in the C decompile.
-        Geometry = new(unchecked((byte)(head.X + MotherBrainBeamDefinitions.MouthXOffset)), originY, a, b, direction);
+        Geometry = new(unchecked((byte)(head.X + MotherBrainBeamDefinitions.MouthXOffset)), originY, a, b);
     }
 
     /// <summary>Reads the installed color cycle and fails if rainbow presentation colors were never bound.</summary>

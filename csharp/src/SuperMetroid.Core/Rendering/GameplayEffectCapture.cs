@@ -73,7 +73,8 @@ public static class GameplayEffectCapture
             return null;
         }
 
-        return HeatHaze(bg2VerticalScroll, bg2VerticalScroll, fx.LavaAcidBg2WavePhase, LiquidEffects.HeatVerticalWaveform);
+        // $88:B60A's vertical haze repeats the water wave's samples.
+        return HeatHaze(bg2VerticalScroll, bg2VerticalScroll, fx.LavaAcidBg2WavePhase, LiquidEffects.WaterWaveform);
     }
 
     /// <summary>

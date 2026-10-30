@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record ScrollWave(int BaseScroll, int Amplitude, ByteAngle Phase, int Period, int FirstLine, int EndLine) : LineScroll
 {
     /// <summary>The horizontal scroll every line shows before its displacement, 0 through 65535.</summary>
-    public override int BaseScroll
+    public int BaseScroll
     {
         get;
         init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);

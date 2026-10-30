@@ -23,7 +23,7 @@ public sealed record ScrollStretch(int ScrollAbove, int BaseScroll, int FirstLin
     } = Ensure.BetweenInclusive(0, ushort.MaxValue, ScrollAbove);
 
     /// <summary>The vertical scroll the band stretches from and the lines below it show, 0 through 65535.</summary>
-    public override int BaseScroll
+    public int BaseScroll
     {
         get;
         init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
@@ -49,8 +49,4 @@ public sealed record ScrollStretch(int ScrollAbove, int BaseScroll, int FirstLin
         get;
         init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     } = Ensure.BetweenInclusive(0, ushort.MaxValue, Slope);
-
-    /// <summary>A plane levelled at <paramref name="scroll"/>: every line shows it, and no band stretches.</summary>
-    /// <param name="scroll">The vertical scroll every line shows, 0 through 65535.</param>
-    public static ScrollStretch Level(int scroll) => new(scroll, scroll, 0, 0, 0);
 }

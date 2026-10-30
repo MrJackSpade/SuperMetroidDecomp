@@ -72,8 +72,9 @@ internal static class PhantoonReport1196Verification
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "first death HDMA call remains setup-only");
 
         // Any stale amplitude would split the body: the displayed wave is flat at BG2's own X on every line.
-        AssertTrue((wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.")) is { BaseScroll: 13, Amplitude: 0 },
-            "every first-frame death scroll equals native BG2 X");
+        PhantoonWave displayed = wave.DisplayedWave ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.");
+        AssertEqual(13, displayed.BaseScroll, "every first-frame death scroll starts at native BG2 X");
+        AssertEqual(0, displayed.Amplitude, "every first-frame death scroll equals native BG2 X");
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         wave.Step(boss);
         AssertEqual(14, wave.Phase, "following HDMA pass resumes native phase advancement");

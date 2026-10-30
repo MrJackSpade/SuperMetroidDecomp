@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rendering;
 public sealed record ScrollBands(int BaseScroll, ImmutableArray<ScrollBand> Bands) : LineScroll
 {
     /// <summary>The scroll the lines above the first band show, 0 through 65535.</summary>
-    public override int BaseScroll
+    public int BaseScroll
     {
         get;
         init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);

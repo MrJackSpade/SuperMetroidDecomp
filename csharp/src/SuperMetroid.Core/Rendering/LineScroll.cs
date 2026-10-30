@@ -6,8 +6,4 @@ namespace SuperMetroid.Core.Rendering;
 /// (<see cref="ScrollStretch"/>) or a list of bands (<see cref="ScrollBands"/>). The backend's shader evaluates the shape
 /// line by line; nothing keeps a table of lines.
 /// </summary>
-public abstract record LineScroll
-{
-    /// <summary>The scroll the shape starts from, 0 through 65535; each kind of shape says which lines show it.</summary>
-    public abstract int BaseScroll { get; init; }
-}
+public abstract record LineScroll;

@@ -131,9 +131,9 @@ public static class GameplayDisplayCapture
             bg2Lines.FirstLine, bg2Lines.EndLine,
             BackgroundPixelation: latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.MosaicBlockSize) : default);
         // Phantoon's wave owns the BG2 horizontal scroll while it shows; otherwise lava, water or the sky does.
-        LineScroll? bg2Horizontal = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave) : (LineScroll?)lavaX ?? waterX ?? skyX;
+        LineScroll? bg2Horizontal = latched.Phantoon?.Wave is { } wave ? BossLineScrolls.Of(wave) : lavaX ?? waterX ?? (LineScroll?)skyX;
         // Crocomire's melt owns the BG2 vertical scroll while it shows on his body layer; otherwise lava's does.
-        LineScroll? bg2Vertical = crocomireBody is null ? (LineScroll?)lavaY
+        LineScroll? bg2Vertical = crocomireBody is null ? lavaY
             : live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt) : null;
         // A sky room shows the sky's rows on BG2 (#1347); a boss shows its body layer there while it owns it (#1352,
         // #1353), its pages laid out by BG2's map size, each part from its picture (#1466).

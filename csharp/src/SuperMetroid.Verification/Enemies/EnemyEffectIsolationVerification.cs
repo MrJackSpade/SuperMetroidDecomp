@@ -10,7 +10,6 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;

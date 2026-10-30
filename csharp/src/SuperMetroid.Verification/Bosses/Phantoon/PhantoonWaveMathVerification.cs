@@ -2,7 +2,6 @@ using static SuperMetroid.Verification.Hardware.WordSamplesVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Bosses.Phantoon;
 using SuperMetroid.Verification.Enemies;
 

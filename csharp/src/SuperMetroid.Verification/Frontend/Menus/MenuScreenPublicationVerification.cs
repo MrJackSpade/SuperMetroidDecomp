@@ -78,10 +78,10 @@ internal static class MenuScreenPublicationVerification
         // Options shows its backdrop's picture, then the primary page's picture with its four English language rows over it (#1467).
         SpriteSheet menuPictures = optionsSheets.Get(SpriteSheetId.MenuPictures);
         LayeredScene optionsScene = options.CaptureRenderSnapshot();
-        AssertTrue(optionsScene.Layers.Length == 3 && optionsScene.Layers[0] is PicturesLayer { Pictures.Pictures: [{ } backdrop] } &&
+        AssertTrue(optionsScene.Layers.Length == 3 && optionsScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } backdrop] } &&
             ReferenceEquals(backdrop.Picture, menuPictures.Frame(GameOptionsNames.BackgroundFrame)) && optionsScene.Layers[2] is SpritesLayer,
             "options shows its backdrop's picture under its page and sprites");
-        AssertTrue(optionsScene.Layers[1] is PicturesLayer { Pictures.Pictures: { } page } && page.Length == 1 + GameOptionsDefinitions.LanguagePaletteRegionCount &&
+        AssertTrue(optionsScene.Layers[1] is PicturedPlaneLayer { Plane.Pictures: { } page } && page.Length == 1 + GameOptionsDefinitions.LanguagePaletteRegionCount &&
             ReferenceEquals(page[0].Picture, menuPictures.Frame(GameOptionsNames.PageFrame(GameOptionsTilemap.Primary))) &&
             Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).All(region =>
                 ReferenceEquals(page[1 + region].Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(region, japanese: false)))),
@@ -95,9 +95,9 @@ internal static class MenuScreenPublicationVerification
             gameOver.Step(0);
         // Game over shows one picture of its whole page at the page's corner, under the sprites (#1467).
         LayeredScene gameOverScene = gameOver.CaptureRenderSnapshot();
-        AssertTrue(gameOverScene.Layers.Length == 2 && gameOverScene.Layers[0] is PicturesLayer { Pictures.Pictures: [{ } page] } &&
+        AssertTrue(gameOverScene.Layers.Length == 2 && gameOverScene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } page] } &&
             ReferenceEquals(page.Picture, gameOverSheets.Get(SpriteSheetId.MenuPictures).Frame(SuperMetroid.Core.Frontend.GameOver.Artwork.GameOverPresentationDefinitions.PageFrame)) &&
-            page.At == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");
+            page.Corner == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");
         AssertTrue(gameOverScene.Paint.Colors.SequenceEqual(gameOver.screen.Palette.Colors), "game over draws its own palette");
         AssertTrue(PaintedSpriteEntries.AreOwn(gameOverScene.Paint.SpriteDraws, gameOver.screen.Objects.Draws), "game over draws its own sprite entries");
         Console.WriteLine("  Menu screens: file select publishes its own tilemaps, palette and sprite entries; options and game over their pages' pictures.");

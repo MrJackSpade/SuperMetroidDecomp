@@ -48,11 +48,9 @@ internal static class EndingTextPresentationVerification
         int comparedFrames = 0;
         foreach (EndingTextSequence sequence in Enum.GetValues<EndingTextSequence>())
         {
-            BackgroundTile[] installedTilemap = Enumerable.Repeat(
-                EndingScreenDefinitions.BlankTile,
-                EndingScreenDefinitions.TilemapWords).ToArray();
+            var installedPage = new EndingTextPage();
             // The installed sequence runs to completion with its text streams guarded.
-            var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = installedTilemap, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = sequence });
+            var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = installedPage, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = sequence });
             var installedScreen = new EndingScreen();
             for (int frame = 0; !installed.Completed; frame++)
             {
@@ -61,8 +59,7 @@ internal static class EndingTextPresentationVerification
                 installed.Step(installedScreen);
                 comparedFrames++;
             }
-            AssertTrue(installedTilemap.Any(tile => tile != EndingScreenDefinitions.BlankTile),
-                $"installed ending {sequence} draws its text");
+            AssertTrue(!installedPage.Written.IsEmpty, $"installed ending {sequence} draws its text");
         }
 
         JsonObject editedDocument = RequiredJson.Parse(extracted).AsObject();
@@ -79,12 +76,12 @@ internal static class EndingTextPresentationVerification
         AssertEqual(EndingTextDefinitions.ResultBlankTile,
             edited.BuildResultPanel()[EndingTextDefinitions.ResultProducedBy.Column + 4],
             "shorter producer text clears the remainder of its bounded panel");
-        AssertEqual(EndingTextGlyphs.CompileGlyph('T', EndingTextStyle.PercentageSmall),
-            edited.Compile(EndingTextSequence.ItemPercentage)[0].Top,
+        AssertEqual(new EndingTextCharacter(EndingTextDefinitions.PercentageHeading.Row, EndingTextDefinitions.PercentageHeading.Column,
+                EndingTextStyle.PercentageSmall, 'T'),
+            edited.Compile(EndingTextSequence.ItemPercentage)[0],
             "edited percentage text reaches its live program");
 
-        var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = Enumerable.Repeat(EndingScreenDefinitions.BlankTile,
-                EndingScreenDefinitions.TilemapWords).ToArray(), Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
+        var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = new EndingTextPage(), Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
         saved.Step(new EndingScreen());
         using var snapshot = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
@@ -144,8 +141,7 @@ internal static class EndingTextPresentationVerification
         File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertEqual(EndingTextGlyphs.CompileGlyph('T', EndingTextStyle.FinalLarge),
-            edited.EndingText.Compile(EndingTextSequence.FinalMessage)[0].Top,
+        AssertEqual('T', edited.EndingText.Compile(EndingTextSequence.FinalMessage)[0].Character,
             "catalog override changes installed ending text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "ending-text override changes catalog content identity");

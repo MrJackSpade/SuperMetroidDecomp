@@ -110,7 +110,7 @@ public static class EndingTextExtractor
             if (bottom is { } lower && EndingTextGlyphs.DecodeGlyph(lower, style, bottom: true) != glyph)
                 throw new InvalidDataException($"Native {sequence} glyph halves disagree.");
             text.Add(glyph);
-            compiled.Add(new(row, column, top, bottom));
+            compiled.Add(new(row, column, style, glyph));
             cursor = Add(cursor, 6);
         }
         throw new InvalidDataException($"Native {sequence} did not terminate within the bounded record count.");

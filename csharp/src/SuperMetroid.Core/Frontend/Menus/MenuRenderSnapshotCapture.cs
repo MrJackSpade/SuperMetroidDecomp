@@ -34,12 +34,12 @@ internal static class MenuRenderSnapshotCapture
     /// <param name="page">The pictures the page shows.</param>
     /// <param name="pageVerticalScroll">The page's vertical scroll; only its low sixteen bits position the page.</param>
     /// <param name="brightness">The screen brightness.</param>
-    internal static LayeredScene Capture(MenuScreen screen, PlacedPictures backdrop, PlacedPictures page, int pageVerticalScroll, int brightness)
+    internal static LayeredScene Capture(MenuScreen screen, PicturedPlane backdrop, PicturedPlane page, int pageVerticalScroll, int brightness)
     {
         DisplayLayer[] layers =
         [
-            new PicturesLayer(backdrop, default, null),
-            new PicturesLayer(page, new Position16<TilePlanePixels>(0, unchecked((ushort)pageVerticalScroll)), null),
+            new PicturedPlaneLayer(backdrop, default, null),
+            new PicturedPlaneLayer(page, new Position16<TilePlanePixels>(0, unchecked((ushort)pageVerticalScroll)), null),
             new SpritesLayer(),
         ];
         return new(screen.Paint(), layers, brightness);

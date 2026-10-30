@@ -107,9 +107,8 @@ internal static class ScreenTilePicturesVerification
     }
 
     /// <summary>
-    /// Each phase of the ending that shows a Mode 1 background (the explosion, the credits roll, the waiting and wavy
-    /// backdrops, the post-credits text and the logo) draws every background from its tiles, exactly as its characters
-    /// draw them, for the suitless and suited endings.
+    /// Each phase of the ending that shows its floor draws it from its tiles, exactly as its characters draw them, for the
+    /// suitless and suited endings; the ending's other backgrounds are pre-assembled pictures (#1467).
     /// </summary>
     internal static void VerifyEndingScreenTilePictures()
     {
@@ -123,7 +122,7 @@ internal static class ScreenTilePicturesVerification
             while (ending.Stage.Phase != EndingCreditsPhase.SeeYouNextMission)
             {
                 LayeredScene scene = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
-                if (scene.Layers.ToArray().Any(layer => layer is ScreenTilesLayer or ScreenTilesViewportLayer or AddedScreenTilesLayer or TurningFloorLayer)
+                if (scene.Layers.ToArray().Any(layer => layer is TurningFloorLayer)
                     && sampled.Add($"{hours} hours, {ending.Stage.Phase}"))
                 {
                     var shownEnding = ending.ShownVram();
@@ -133,7 +132,7 @@ internal static class ScreenTilePicturesVerification
                 audio.AdvanceFrame(default);
             }
         }
-        Console.WriteLine($"Screen tile pictures: {sampled.Count} ending phases draw all {layers} of their background layers from their tiles, as their characters do.");
+        Console.WriteLine($"Screen tile pictures: {sampled.Count} ending phases draw all {layers} of their floor layers from their tiles, as their characters do.");
     }
 
     /// <summary>

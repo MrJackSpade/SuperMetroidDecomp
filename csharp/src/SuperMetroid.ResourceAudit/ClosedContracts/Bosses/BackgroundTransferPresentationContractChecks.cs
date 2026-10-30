@@ -27,7 +27,7 @@ internal static class BackgroundTransferPresentationContractChecks
             using SuperMetroid.Core.Fx.Artwork;
             class BackgroundConsumer {
                 void Inspect(RoomFxLayer3Pages pages, RoomFxBlendInks blends,
-                    EndingObjectArtwork ending, GunshipLiftoffArtworkCatalog ship, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds) {
+                    SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectSourceArtwork ending, GunshipLiftoffArtworkCatalog ship, SuperMetroid.Core.Assets.BackgroundColourSets backgrounds) {
                     pages.Resolve(RoomFxType.Lava);
                     pages.Resolve((RoomFxType)255);
                     blends.Apply(backgrounds, 0);

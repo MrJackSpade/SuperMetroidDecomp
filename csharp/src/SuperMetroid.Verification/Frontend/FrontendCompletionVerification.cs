@@ -333,26 +333,25 @@ internal static void VerifyDoorOpeningTrajectories()
         "  Doors: all four IRQ trajectories, frame counts, endpoints, and delayed nudge agree.");
 }
 
-/// <summary>Checks installed credits rows advance on half-pixel scroll boundaries and wrap the circular tilemap.</summary>
+/// <summary>
+/// Checks the credits roll takes its rows on half-pixel scroll boundaries and holds the last thirty-two, each one screen
+/// below its row's place (#1467).
+/// </summary>
 internal static void VerifyCreditsObjectInterpreter()
 {
-    BackgroundTile[][] rows = Enumerable.Range(0, 33)
-        .Select(index => Enumerable.Repeat(BackgroundTileWordBytes.Tile(0x0100 + index), 32).ToArray())
-        .ToArray();
-    var credits = new CreditsObjectState(
-        CreditsPresentation.FromCompiledRowsForVerification(rows));
+    const int rows = 33;
+    var credits = new CreditsObjectState(rows);
     for (int frame = 0; frame < 15; frame++)
         AssertTrue(!credits.Step().CopiedRow, "credits waits sixteen half-pixel frames");
     CreditsObjectStepResult first = credits.Step();
-    AssertTrue(first.CopiedRow, "credits copies first row at eight-pixel boundary");
-    AssertEqual(1, credits.NextRow, "credits advances circular destination row");
-    AssertEqual((ushort)0x0100, credits.Tilemap[0].PackedWord, "credits copies installed first row");
+    AssertTrue(first.CopiedRow, "credits takes its first row at the eight-pixel boundary");
+    AssertEqual(1, credits.NextSourceRow, "credits advances to its next row");
+    AssertEqual(8, (int)credits.ScrollPosition.Y, "the first row is taken as the roll reaches eight pixels");
 
-    for (int row = 1; row < rows.Length; row++)
+    for (int row = 1; row < rows; row++)
         for (int frame = 0; frame < 16; frame++)
             credits.Step();
-    AssertEqual(1, credits.NextRow, "credits destination wraps after thirty-two rows");
-    AssertEqual((ushort)0x0120, credits.Tilemap[0].PackedWord, "wrapped row replaces circular row zero");
+    AssertEqual(rows, credits.NextSourceRow, "credits takes one row per eight pixels");
 
     CreditsObjectStepResult ending = default;
     for (int frame = 0; frame < 16; frame++)
@@ -385,8 +384,6 @@ internal static void VerifyEndingCreditsState()
     var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     var audio = new SuperMetroid.Core.Audio.AudioQueues();
     var ending = CreateRetailEndingFixture(audio, gameTimeHours: 2, gameTimeMinutes: 59);
-    ending.InstalledArtwork.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
-        SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus))));
     EndingCreditsPhase previous = ending.Stage.Phase;
     var reached = new HashSet<EndingCreditsPhase> { previous };
     int renderedTransitions = 0;
@@ -425,9 +422,8 @@ internal static void VerifyEndingCreditsState()
     AssertEqual(EndingReward.Helmetless, middle.Stage.EndingReward, "three-to-ten-hour ending branch");
     AssertEqual(EndingReward.Armored, slow.Stage.EndingReward, "ten-hour ending branch");
 
-    var percentageTilemap = new BackgroundTile[0x400];
-    Array.Fill(percentageTilemap, BackgroundTileWordBytes.Tile(0x007f));
-    var percentage = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = percentageTilemap, Inventory = new EndingInventorySnapshot(
+    var percentagePage = new EndingTextPage();
+    var percentage = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Page = percentagePage, Inventory = new EndingInventorySnapshot(
             MaxHealth: 1499,
             MaxReserveEnergy: 400,
             MaxMissiles: 230,
@@ -440,10 +436,13 @@ internal static void VerifyEndingCreditsState()
         percentage.Step(percentageScreen);
     AssertTrue(percentage.Completed && percentage.RequestedItemPercentageScroll,
         "item-percentage object reaches its native scroll handoff");
-    AssertEqual((ushort)0x3861, percentageTilemap[462].PackedWord, "100% hundreds top tile");
-    AssertEqual((ushort)0x3860, percentageTilemap[463].PackedWord, "100% tens top tile");
-    AssertEqual((ushort)0x3860, percentageTilemap[464].PackedWord, "100% units top tile");
-    AssertEqual((ushort)0x386a, percentageTilemap[465].PackedWord, "100% percent-sign top tile");
+    // The digits and the percent sign are pictures written left to right from the hundreds digit's cell (#1467).
+    ShownEndingText[] digits = [.. percentagePage.Written.Where(text => text.Cell.Y == EndingResultTextLayout.PercentageHundredsCell.Y)];
+    AssertTrue(digits.Select(text => text.Picture).SequenceEqual([EndingPictureNames.PercentDigit(1), EndingPictureNames.PercentDigit(0),
+            EndingPictureNames.PercentDigit(0), EndingPictureNames.PercentSign]),
+        "100% shows one, zero, zero and the percent sign");
+    AssertTrue(digits.Select(text => (int)text.Cell.X).SequenceEqual(Enumerable.Range(EndingResultTextLayout.PercentageHundredsCell.X, 4)),
+        "100% places its glyphs in consecutive cells from the hundreds digit");
 
     Console.WriteLine(
         "  Ending: escape, explosion, clear time, credits, rewards, 100% count, and final hold agree.");

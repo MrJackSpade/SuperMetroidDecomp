@@ -25,8 +25,6 @@ internal static class PostCreditsCharacterArtworkVerification
         EndingFloorArtwork stockMode7 = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var source = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        CreditsPresentation credits = CreditsPresentation.Load(new MemoryStream(
-            CreditsPresentationExtractor.Extract(source)));
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
             var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
@@ -35,8 +33,6 @@ internal static class PostCreditsCharacterArtworkVerification
             var installedAudio = new AudioQueues();
             var native = CreateRetailEndingFixture(nativeAudio, hours, 0);
             var installed = CreateRetailEndingFixture(installedAudio, hours, 0);
-            native.InstalledArtwork.BindStaffCredits(credits);
-            installed.InstalledArtwork.BindStaffCredits(credits);
             installed.InstalledArtwork.BindFixtureObjectArtwork(stock);
             installed.Stage.BindFloorArtwork(stockMode7);
             var checkedPhases = new HashSet<EndingCreditsPhase>();
@@ -209,8 +205,6 @@ internal static class PostCreditsCharacterArtworkVerification
                 var editedAudio = new AudioQueues();
                 var stockState = CreateRetailEndingFixture(stockAudio, hours, 0);
                 var editedState = CreateRetailEndingFixture(editedAudio, hours, 0);
-                stockState.InstalledArtwork.BindStaffCredits(credits);
-                editedState.InstalledArtwork.BindStaffCredits(credits);
                 stockState.InstalledArtwork.BindFixtureObjectArtwork(stock);
                 editedState.InstalledArtwork.BindFixtureObjectArtwork(edited);
                 stockState.Stage.BindFloorArtwork(stockMode7);

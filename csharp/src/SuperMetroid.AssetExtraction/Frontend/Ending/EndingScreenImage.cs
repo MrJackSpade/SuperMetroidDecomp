@@ -4,128 +4,77 @@ using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
-using SuperMetroid.AssetExtraction.Areas.Ceres;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
-/// Replays the ending's recorded transfers over the bound artwork into the memory image the backends draw (#1358), each
-/// at the native words, lanes and order its transfer wrote.
+/// Executes the ending's transfers once over the installed artwork into the memory image its sprite pages are cut from
+/// (#1358, #1467), each at the native words, lanes and order its transfer wrote.
 /// </summary>
 internal static class EndingScreenImage
 {
-    /// <summary>The image <paramref name="uploads"/> leave over <paramref name="artwork"/>, in order.</summary>
-    internal static byte[] Compose(IReadOnlyList<EndingUpload> uploads, EndingScreenArtwork artwork)
+    /// <summary>The image <paramref name="transfers"/> leave over <paramref name="artwork"/>, in order.</summary>
+    internal static byte[] Compose(IReadOnlyList<EndingTransfer> transfers, EndingTransferArtwork artwork)
     {
         var vram = new SnesVram();
-        foreach (EndingUpload upload in uploads)
-            Replay(vram, upload, artwork);
+        foreach (EndingTransfer transfer in transfers)
+            Execute(vram, transfer, artwork);
         return vram.CaptureImage();
     }
 
     /// <summary>Writes one transfer into <paramref name="vram"/>.</summary>
-    private static void Replay(SnesVram vram, EndingUpload upload, EndingScreenArtwork artwork)
+    internal static void Execute(SnesVram vram, EndingTransfer transfer, EndingTransferArtwork artwork)
     {
         var ending = new EndingVram(vram);
-        switch (upload.Kind)
+        switch (transfer.Kind)
         {
-            case EndingUploadKind.FloorSceneTiles:
-                EndingFloorSceneArtwork scene = Mode7(artwork)[upload.As<EndingFloorSceneUpload>().Scene];
-                var floor = new Mode7Vram(vram);
-                floor.LoadMap(scene.Map.Span);
-                floor.LoadMap(scene.Map.Span, cell: EndingFloorArtworkFormat.MapByteCount);
-                floor.LoadCharacters(EndingFloorSceneCharacters.Of(scene).Characters.Span);
-                break;
-            case EndingUploadKind.FlyawayChunk:
-                ReplayFlyawayChunk(vram, upload.As<EndingChunkUpload>().Chunk, artwork);
-                break;
-            case EndingUploadKind.EscapeClouds:
+            case EndingTransferKind.EscapeClouds:
                 ending.PostCreditsObjects.Load(Objects(artwork).Clouds.Characters.Span[..EndingArtworkExtentDefinitions.FloorBytes]);
                 break;
-            case EndingUploadKind.ExplosionObjects:
-                ending.ExplosionObjects.Load(Objects(artwork).Explosion.Characters.Span[..EndingArtworkExtentDefinitions.ExplosionObjectBytes]);
+            case EndingTransferKind.ExplosionObjects:
+                ending.ExplosionObjects.Load(Objects(artwork).Explosion.Characters.Span[..EndingTransferExtentDefinitions.ExplosionObjectBytes]);
                 break;
-            case EndingUploadKind.ObjectFragment:
-                EndingObjectFragmentId fragment = upload.As<EndingObjectFragmentUpload>().Fragment;
-                ending.ObjectFragment(fragment).Load(MapBytes(Objects(artwork).Fragment(fragment)).AsSpan(0, EndingArtworkExtentDefinitions.ObjectFragmentBytes));
+            case EndingTransferKind.ExplosionMap:
+                EndingObjectFragmentId fragment = transfer.Fragment ?? throw new InvalidOperationException("An explosion map transfer names its map.");
+                ending.ObjectFragment(fragment).Load(MapBytes(Objects(artwork).Fragment(fragment)).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
                 break;
-            case EndingUploadKind.EndingFont:
-                ending.EndingFont.Load(Font(artwork).Characters.Span[..EndingArtworkExtentDefinitions.ObjectFragmentLimit]);
+            case EndingTransferKind.EndingFont:
+                ending.EndingFont.Load(Font(artwork).Characters.Span[..EndingTransferExtentDefinitions.ObjectFragmentLimit]);
                 break;
-            case EndingUploadKind.CreditsFont:
-                ending.CreditsFont.Load(Font(artwork).Characters.Span[..EndingArtworkExtentDefinitions.FontCharacterBytes]);
+            case EndingTransferKind.CreditsCharacterArt:
+                ExecuteCreditsCharacterArt(ending, artwork);
                 break;
-            case EndingUploadKind.CreditsCharacterArt:
-                ReplayCreditsCharacterArt(ending, artwork);
-                break;
-            case EndingUploadKind.CreditsTilemap:
-                ending.CreditsTilemap.Write(Words(upload));
-                break;
-            case EndingUploadKind.TextTilemap:
-                vram.ExecuteWordTransfer(Words(upload), EndingVram.TextTilemapWord(upload.As<EndingTextTilemapUpload>().Tilemap), wordIncrement: 1);
-                break;
-            case EndingUploadKind.PostShotLowerTilemap:
-                ending.PostShotLowerTilemap.Write(Words(upload));
-                break;
-            case EndingUploadKind.RewardChunk:
-                // The queued transfer writes both VRAM ports with increment-after-high; the bytes are already interleaved.
-                int source = EndingRewardGraphicsUploads.ChunkOffset(upload.As<EndingChunkUpload>().Chunk);
-                vram.LoadBytes(EndingVramDestinations.RewardChunkWordOf(upload.As<EndingChunkUpload>().Chunk) * sizeof(ushort),
-                    EndingRewardIconCharacters.Of(Mode7(artwork).RewardIcon).Bytes.Span.Slice(source,
-                        EndingRewardGraphicsUploadDefinitions.ChunkBytes));
-                break;
-            case EndingUploadKind.PostShotTransfer:
-                ReplayPostShotTransfer(vram, upload.As<EndingChunkUpload>().Chunk, artwork);
+            case EndingTransferKind.PostShotPart:
+                ExecutePostShotPart(vram, transfer.Chunk, artwork);
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(upload), upload.Kind, "Undefined ending upload.");
+                throw new ArgumentOutOfRangeException(nameof(transfer), transfer.Kind, "Undefined ending transfer.");
         }
-    }
-
-    /// <summary>One of the sixteen flyaway chunks: the first half replace Mode 7 characters, the rest the padded map.</summary>
-    private static void ReplayFlyawayChunk(SnesVram vram, int index, EndingScreenArtwork artwork)
-    {
-        SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightArtwork flight = artwork.Flight ?? throw new InvalidOperationException(
-            "Ending flyaway requires installed flight artwork.");
-        int chunkBytes = EndingArtworkExtentDefinitions.FlyawayChunkBytes;
-        int chunksPerLane = EndingArtworkExtentDefinitions.FloorBytes / chunkBytes;
-        int offset = index % chunksPerLane * chunkBytes;
-        var floor = new Mode7Vram(vram);
-        if (index < chunksPerLane)
-        {
-            floor.LoadCharacters(CeresFlightCharacters.Of(flight).FloorCharacters.Span.Slice(offset, chunkBytes), offset);
-            return;
-        }
-        // The map lane is the flight's map data padded with the blank tile to the full lane.
-        var map = new byte[EndingArtworkExtentDefinitions.FloorBytes];
-        flight.FloorMaps.Span[..EndingArtworkExtentDefinitions.FlyawayMapDataBytes].CopyTo(map);
-        map.AsSpan(EndingArtworkExtentDefinitions.FlyawayMapDataBytes).Fill(EndingArtworkExtentDefinitions.FlyawayBlankTile);
-        floor.LoadMap(map.AsSpan(offset, chunkBytes), offset);
     }
 
     /// <summary>The waiting, shooting and reward characters with the post-credits map fragments.</summary>
-    private static void ReplayCreditsCharacterArt(EndingVram ending, EndingScreenArtwork artwork)
+    private static void ExecuteCreditsCharacterArt(EndingVram ending, EndingTransferArtwork artwork)
     {
         EndingObjectSourceArtwork objects = Objects(artwork);
         ReadOnlySpan<byte> waiting = objects.WaitingSamus.Characters.Span;
-        ending.WaitingCharacters.Load(waiting[..EndingArtworkExtentDefinitions.WaitingCharacterBytes]);
-        ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingArtworkExtentDefinitions.ShootingCharacterBytes]);
-        ending.WaitingTilemap.Load(MapBytes(objects.WaitingTilemap).AsSpan(0, EndingArtworkExtentDefinitions.WaitingTilemapBytes));
+        ending.WaitingCharacters.Load(waiting[..EndingTransferExtentDefinitions.WaitingCharacterBytes]);
+        ending.PostCreditsObjects.Load(objects.ShootingScreen.Characters.Span[..EndingTransferExtentDefinitions.ShootingCharacterBytes]);
+        ending.WaitingTilemap.Load(MapBytes(objects.WaitingTilemap).AsSpan(0, EndingTransferExtentDefinitions.WaitingTilemapBytes));
         // Function 126 selects suitless (<3h) or suited (>=3h) art; the latter reuses the waiting-scene sheet.
         ReadOnlySpan<byte> reward = artwork.Reward == EndingReward.Suitless ? objects.SuitlessSamus.Characters.Span : waiting;
         ending.RewardCharacters.Load(reward[..EndingArtworkExtentDefinitions.FloorBytes]);
-        ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Characters.Span[..EndingArtworkExtentDefinitions.PostCreditsFragmentABytes]);
-        ending.PostCreditsFragmentB.Load(MapBytes(objects.PostCreditsFragmentB).AsSpan(0, EndingArtworkExtentDefinitions.ObjectFragmentBytes));
+        ending.PostCreditsFragmentA.Load(objects.PostCreditsFragmentA.Characters.Span[..EndingTransferExtentDefinitions.PostCreditsFragmentABytes]);
+        ending.PostCreditsFragmentB.Load(MapBytes(objects.PostCreditsFragmentB).AsSpan(0, EndingTransferExtentDefinitions.ObjectFragmentBytes));
     }
 
-    /// <summary>One post-shot subtitle, logo-tile or logo-map transfer at its native word.</summary>
-    private static void ReplayPostShotTransfer(SnesVram vram, int index, EndingScreenArtwork artwork)
+    /// <summary>One post-shot subtitle, logo-tile or logo-map part at its native word.</summary>
+    private static void ExecutePostShotPart(SnesVram vram, int index, EndingTransferArtwork artwork)
     {
         EndingPostShotUploadDefinition transfer = EndingPostShotUploads.Get(index);
         int length = transfer.Length;
         ReadOnlySpan<byte> bytes = transfer.Source switch
         {
-            EndingPostShotUploadSource.Subtitle => Font(artwork).Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset, length),
+            EndingPostShotUploadSource.Subtitle => Font(artwork).Characters.Span.Slice(EndingPostShotUploadDefinitions.SubtitleFontOffset, length),
             EndingPostShotUploadSource.LogoTiles => Objects(artwork).PostShotLogoTiles.Characters.Span.Slice(
                 transfer.Offset, length),
             EndingPostShotUploadSource.LogoMap => MapBytes(Objects(artwork).PostShotLogoMap).AsSpan(0, length),
@@ -134,26 +83,14 @@ internal static class EndingScreenImage
         vram.LoadBytes(EndingVramDestinations.PostShotWordOf(transfer) * sizeof(ushort), bytes);
     }
 
-    /// <summary>The tilemap words of the tiles a tilemap transfer recorded, encoded through the codec.</summary>
-    private static ReadOnlySpan<ushort> Words(EndingUpload upload) => upload switch
-    {
-        EndingTilemapUpload tilemap => BackgroundTileWords.ToWords(tilemap.Tiles),
-        EndingTextTilemapUpload text => BackgroundTileWords.ToWords(text.Tiles),
-        _ => throw new InvalidOperationException($"The {upload.Kind} transfer records no tilemap words."),
-    };
-
     /// <summary>An installed map's tiles as the little-endian tilemap words a transfer writes.</summary>
-    private static byte[] MapBytes(RoomBackgroundTilemapAtlas map) => BackgroundTileWords.ToBytes(map.Tiles.Span);
+    internal static byte[] MapBytes(RoomBackgroundTilemapAtlas map) => BackgroundTileWords.ToBytes(map.Tiles.Span);
 
-    /// <summary>The bound Mode 7 artwork.</summary>
-    private static EndingFloorArtwork Mode7(EndingScreenArtwork artwork) =>
-        artwork.Floor ?? throw new InvalidOperationException("Ending Mode-7 scenes require installed artwork.");
-
-    /// <summary>The bound OBJ artwork as the import pipeline read it, with its character atlases.</summary>
-    private static EndingObjectSourceArtwork Objects(EndingScreenArtwork artwork) =>
+    /// <summary>The bound OBJ artwork as the import pipeline read it, with its character atlases and maps.</summary>
+    private static EndingObjectSourceArtwork Objects(EndingTransferArtwork artwork) =>
         EndingObjectSourceArtwork.Of(artwork.Objects ?? throw new InvalidOperationException("Ending objects require installed artwork."));
 
     /// <summary>The bound ending font.</summary>
-    private static EndingFontCharacters Font(EndingScreenArtwork artwork) =>
+    private static EndingFontCharacters Font(EndingTransferArtwork artwork) =>
         EndingFontCharacters.Of(artwork.Font ?? throw new InvalidOperationException("Ending font requires installed presentation assets."));
 }

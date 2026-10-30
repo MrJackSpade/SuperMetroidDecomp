@@ -39,10 +39,9 @@ static const uint SourceBossBody = 6, SourceXrayReveal = 7, SourceLibraryBackgro
 static const uint SourceScreenCells = 9;
 // The HUD's placed pictures (PicturedHud, #1466), at the HUD's place at the top of the screen.
 static const uint SourceHud = 10;
-// A frontend picture layer's placed pictures (PicturesLayer, #1467), its table at room level word `TilemapWord`: their
-// count, then two words each in drawing order, the picture's offset and its top-left layer pixel, x below y. The layer
-// repeats every MapWidth by MapHeight cells.
-static const uint SourcePlacedPictures = 11;
+// A pictured plane (PicturedPlane, #1467), its table's word in TilemapWord: its size in cells, x below y, the count of its
+// pictures, then two words each in drawing order, the picture's offset and its upper-left plane pixel, x below y.
+static const uint SourcePicturedPlane = 11;
 // A frontend picture grid (PictureGridLayer, #1467), its table at room level word `TilemapWord`: its width and height in
 // cells, x below y, then a word per cell row by row, its one-cell picture's offset (zero for none) with its horizontal and
 // vertical mirroring in bits 30 and 31. The grid wraps at its edges.
@@ -123,28 +122,6 @@ bool Bg3Picture(uint firstRow, uint rows, uint2 scrolled, out uint2 within, out 
     within = (scrolled & 7) + uint2(corner & 65535, corner >> 16);
     return picture != 0;
 }
-// The last of the placed pictures in `table` (#1466, #1467) covering a layer position, as `picture`, with `within` its
-// pixel there; false where no picture covers it, which shows nothing. `wrap` masks the distance from a picture's top-left
-// pixel, so a layer that repeats shows a picture reaching past its top or left edge again at the other side.
-bool PlacedPicture(uint table, uint2 position, uint2 wrap, out uint2 within, out uint picture)
-{
-    picture = 0;
-    within = uint2(0, 0);
-    for (uint placed = RoomLevels[table]; placed > 0; placed--)
-    {
-        uint record = table + 1 + (placed - 1) * 2;
-        uint shown = RoomLevels[record];
-        uint corner = RoomLevels[record + 1];
-        uint2 origin = uint2(corner & 65535, corner >> 16);
-        uint extent = RoomLevels[shown + PictureSizeWord];
-        uint2 offset = (position - origin) & wrap;
-        if (offset.x >= (extent & 65535) || offset.y >= (extent >> 16)) continue;
-        picture = shown;
-        within = offset;
-        return true;
-    }
-    return false;
-}
 // The HUD's picture at a screen position (#1466): the last placed picture covering it, as `picture`, with `within` its
 // pixel there; false where no picture covers it, which shows nothing.
 bool HudPicture(uint2 screen, out uint2 within, out uint picture)
@@ -153,7 +130,44 @@ bool HudPicture(uint2 screen, out uint2 within, out uint picture)
     within = uint2(0, 0);
     uint table = RoomLevels[RoomHudWord];
     if (table == 0) return false;
-    return PlacedPicture(table, screen, uint2(65535, 65535), within, picture);
+    for (uint placed = RoomLevels[table]; placed > 0; placed--)
+    {
+        uint record = table + 1 + (placed - 1) * 2;
+        uint shown = RoomLevels[record];
+        uint corner = RoomLevels[record + 1];
+        uint2 origin = uint2(corner & 65535, corner >> 16);
+        uint extent = RoomLevels[shown + PictureSizeWord];
+        if (screen.x < origin.x || screen.y < origin.y) continue;
+        uint2 offset = screen - origin;
+        if (offset.x >= (extent & 65535) || offset.y >= (extent >> 16)) continue;
+        picture = shown;
+        within = offset;
+        return true;
+    }
+    return false;
+}
+// A pictured plane's picture at a scrolled position (#1467): the last placed picture covering it, the plane repeating at
+// its edges and each picture continuing across them, as `picture`, with `within` its pixel there; false where none does.
+bool PlanePicture(uint table, uint2 scrolled, out uint2 within, out uint picture)
+{
+    picture = 0;
+    within = uint2(0, 0);
+    uint cells = RoomLevels[table];
+    uint2 size = uint2(cells & 65535, cells >> 16) * 8;
+    uint2 position = scrolled % size;
+    for (uint placed = RoomLevels[table + 1]; placed > 0; placed--)
+    {
+        uint record = table + 2 + (placed - 1) * 2;
+        uint shown = RoomLevels[record];
+        uint corner = RoomLevels[record + 1];
+        uint2 offset = (position + size - uint2(corner & 65535, corner >> 16)) % size;
+        uint extent = RoomLevels[shown + PictureSizeWord];
+        if (offset.x >= (extent & 65535) || offset.y >= (extent >> 16)) continue;
+        picture = shown;
+        within = offset;
+        return true;
+    }
+    return false;
 }
 // The cell picture of a picture grid (#1467) at a scrolled position, wrapping at the grid's edges, as `picture`, with
 // `within` its pixel there, mirrored as the cell mirrors it; false where the cell shows nothing.
@@ -343,19 +357,27 @@ bool MainCoverage(uint2 screen)
     uint4 geometry = uint4(CenterX, CenterY, OffsetX, OffsetY);
     if (geometry.w == 0) return true;
     uint4 map = uint4(MatrixA, MatrixB, MatrixC, MatrixD);
-    uint2 position = (screen + map.zw) & (geometry.xy * 8 - 1);
-    // A covering picture layer (#1467): Reserved1 marks it, and map.x is its placed pictures' table; an opaque pixel of
-    // the picture showing there, in the tier the pass asks for, covers.
     if (Reserved1 != 0)
     {
-        uint2 placedWithin;
-        uint placedPicture;
-        if (!PlacedPicture(map.x, position, geometry.xy * 8 - 1, placedWithin, placedPicture)) return false;
-        uint placedIndex;
-        bool placedHigh;
-        bool placedCovered = PicturePixel(placedPicture, placedWithin, placedIndex, placedHigh) != 0 && placedIndex != 0;
-        return placedCovered && (geometry.z == 0 || (placedHigh ? 1u : 0u) == geometry.z - 1);
+        // A covering pictured plane (#1467): an opaque pixel of its picture covers, in its picture's priority tier; where
+        // no picture lies, nothing covers and the tier is the back one.
+        uint2 coverWithin;
+        uint coverPicture;
+        uint coverIndex = 0;
+        bool coverHigh = false;
+        bool coverShown = PlanePicture(map.x, (screen + map.zw) & 65535, coverWithin, coverPicture);
+        bool coverCovered = coverShown && PicturePixel(coverPicture, coverWithin, coverIndex, coverHigh) != 0 && coverIndex != 0;
+        if (geometry.z != 0 && (coverHigh ? 1u : 0u) != geometry.z - 1) return false;
+        if (AddG != 0)
+        {
+            bool coverBlends;
+            uint2 coverObj = SpriteAt(screen, coverBlends);
+            if (coverObj.y != NoSprite && (!coverCovered || coverObj.y >= (coverHigh ? 3 : 2)))
+                return coverBlends;
+        }
+        return coverCovered;
     }
+    uint2 position = (screen + map.zw) & (geometry.xy * 8 - 1);
     uint2 tile = position >> 3;
     // The coverage layer's cells, packed row by row from room level word map.x (#1403).
     uint entry = RoomLevels[map.x + tile.y * geometry.x + tile.x];
@@ -532,10 +554,9 @@ void Main(uint3 id : SV_DispatchThreadID)
         {
             if (!HudPicture(id.xy, within, picture)) return;
         }
-        else if (source == SourcePlacedPictures)
+        else if (source == SourcePicturedPlane)
         {
-            uint2 wrap = uint2(MapWidth, MapHeight) * 8 - 1;
-            if (!PlacedPicture(TilemapWord, scrolled & wrap, wrap, within, picture)) return;
+            if (!PlanePicture(TilemapWord, scrolled, within, picture)) return;
         }
         else if (source == SourcePictureGrid)
         {

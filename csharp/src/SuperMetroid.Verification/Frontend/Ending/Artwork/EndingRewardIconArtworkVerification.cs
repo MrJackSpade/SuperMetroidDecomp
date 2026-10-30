@@ -32,8 +32,6 @@ internal static class EndingRewardIconArtworkVerification
         AssertTrue(stock.RewardIcon.Bytes.Span.SequenceEqual(native.AsSpan(0,
                 EndingRewardIconArtworkFormat.ByteCount)),
             "reward icon JSON/PNG preserves all interleaved native map and character bytes");
-        CreditsPresentation credits = CreditsPresentation.Load(new MemoryStream(
-            CreditsPresentationExtractor.Extract(source)));
 
         var nativeBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var installedBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
@@ -41,8 +39,6 @@ internal static class EndingRewardIconArtworkVerification
         var installedAudio = new AudioQueues();
         var nativeScene = CreateRetailEndingFixture(nativeAudio, 3, 0);
         var installedScene = CreateRetailEndingFixture(installedAudio, 3, 0);
-        nativeScene.InstalledArtwork.BindStaffCredits(credits);
-        installedScene.InstalledArtwork.BindStaffCredits(credits);
         installedScene.Stage.BindFloorArtwork(stock);
         int jumpFrames = 0;
         for (int frame = 0; frame < 60_000 &&
@@ -118,11 +114,11 @@ internal static class EndingRewardIconArtworkVerification
                 var partial = new EndingScreen();
                 for (int chunk = 0; chunk < 8; chunk++)
                     partial.Record(EndingUploadKind.RewardChunk, chunk);
-                SnesVram partialVram = EndingScreenFixtures.Vram(partial, new EndingScreenArtwork(edited, null, null, null, EndingReward.Armored));
-                AssertTrue(partialVram.Bytes[..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)]
+                byte[] partialVram = EndingScreenMemory.Compose(partial, edited, null, null, null, EndingReward.Armored);
+                AssertTrue(partialVram[..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)].AsSpan()
                         .SequenceEqual(edited.RewardIcon.Bytes.Span
                             [..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)]) &&
-                        partialVram.Bytes[(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)..]
+                        partialVram[(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)..]
                             .All(value => value == 0),
                     $"{name} rebinds eight completed chunks without writing pending ones");
                 AssertEqual(0, uploadBus.ForbiddenReadAttempts,
@@ -130,7 +126,6 @@ internal static class EndingRewardIconArtworkVerification
                 var sceneBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
                 var sceneAudio = new AudioQueues();
                 var scene = CreateRetailEndingFixture(sceneAudio, 3, 0);
-                scene.InstalledArtwork.BindStaffCredits(credits);
                 scene.Stage.BindFloorArtwork(stock);
                 for (int frame = 0; frame < 60_000 &&
                     scene.Stage.Phase != EndingCreditsPhase.PostCreditsJump; frame++)

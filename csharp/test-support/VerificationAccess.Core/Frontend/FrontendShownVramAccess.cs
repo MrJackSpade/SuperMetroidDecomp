@@ -30,8 +30,8 @@ internal static class FrontendShownVramAccess
     extension(CeresDestructionCinematicState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => CeresDestructionScreenMemory.Compose(self); }
 
     /// <summary>The ending's composed image.</summary>
-    extension(EndingCreditsState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => EndingScreenImage.Compose(self.screen.uploads,
-        new EndingScreenArtwork(self.Stage.FloorArtwork, self.Flyaway.FlightArtwork, self.Stage.ObjectArtwork, self.Stage.EndingFont, self.Stage.EndingReward)); }
+    extension(EndingCreditsState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => EndingScreenMemory.Compose(self.screen,
+        self.Stage.FloorArtwork, self.Flyaway.FlightArtwork, self.Stage.ObjectArtwork, self.Stage.EndingFont, self.Stage.EndingReward); }
 
     /// <summary>The title screen's composed image.</summary>
     extension(TitleSequenceState self) { [WholeImageFixture("the scene's composed memory image")] internal byte[] ShownVram() => TitleScreenMemory.Compose(self); }

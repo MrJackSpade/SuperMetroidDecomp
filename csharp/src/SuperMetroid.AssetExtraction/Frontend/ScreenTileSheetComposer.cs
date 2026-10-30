@@ -48,20 +48,6 @@ internal static class ScreenTileSheetComposer
                 TileInkDepth.SixteenColours, FlightColours(sources.Intro.CeresFlight)),
             SpriteSheetId.ZebesRevealTiles => Compose(sources.Intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionArtworkFormat.ZebesCharacterByteCount],
                 TileInkDepth.SixteenColours, FlightColours(sources.Intro.CeresFlight)),
-            SpriteSheetId.EndingCreditsFontTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingArtworkExtentDefinitions.FontCharacterBytes],
-                TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.Credits)),
-            SpriteSheetId.EndingTextFontTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span[..EndingArtworkExtentDefinitions.FontCharacterBytes],
-                TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingSubtitleTiles => Compose(EndingFontCharacters.Of(maps.EndingFont).Characters.Span.Slice(EndingPostShotDefinitions.SubtitleFontOffset,
-                EndingPostShotUploadDefinitions.SubtitleLength), TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingLogoTiles => Compose(sources.EndingObjects.PostShotLogoTiles.Characters.Span, TileInkDepth.SixteenColours,
-                EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingWaitingTiles => Compose(sources.EndingObjects.WaitingSamus.Characters.Span[..EndingArtworkExtentDefinitions.WaitingCharacterBytes],
-                TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingWavySamusTiles => Compose(sources.EndingObjects.PostCreditsFragmentA.Characters.Span[..EndingArtworkExtentDefinitions.PostCreditsFragmentABytes],
-                TileInkDepth.FourColours, EndingColours(sources, EndingPaletteId.PostCredits)),
-            SpriteSheetId.EndingExplosionTiles => Compose(sources.EndingObjects.Explosion.Characters.Span[..EndingArtworkExtentDefinitions.ExplosionObjectBytes],
-                TileInkDepth.SixteenColours, EndingColours(sources, EndingPaletteId.Explosion)),
             SpriteSheetId.MenuForegroundTiles => Compose(WorldMapCharacters.Of(maps.WorldArtwork).ForegroundCharacters(), TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
             SpriteSheetId.MenuMapTiles => Compose(MapCharacterArtwork.Of(maps).Map.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.FileSelect)),
             SpriteSheetId.PauseMapTiles => Compose(MapCharacterArtwork.Of(maps).Map.Characters, TileInkDepth.SixteenColours, ScreenColourImage.Encode(maps.Palettes.Pause)),
@@ -95,7 +81,9 @@ internal static class ScreenTileSheetComposer
                 SpriteSheetId.TitleFloorTiles or SpriteSheetId.TitleBabyTiles or
                 SpriteSheetId.CeresFlightFloorTiles or SpriteSheetId.EndingEscapeAFloorTiles or
                 SpriteSheetId.EndingEscapeBFloorTiles or SpriteSheetId.EndingPlanetExplosionFloorTiles or
-                SpriteSheetId.EndingFlyawayFloorTiles or SpriteSheetId.EndingRewardIconFloorTiles =>
+                SpriteSheetId.EndingFlyawayFloorTiles or SpriteSheetId.EndingRewardIconFloorTiles or SpriteSheetId.EndingCreditsRows or
+                SpriteSheetId.EndingPostCreditsPictures or SpriteSheetId.EndingWavySamusPicture or
+                SpriteSheetId.EndingExplosionPictures =>
                 throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no screen tiles."),
             _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
         };
@@ -183,10 +171,8 @@ internal static class ScreenTileSheetComposer
                 SpriteSheetId.PauseMapTiles or SpriteSheetId.PauseInterfaceTiles or SpriteSheetId.PauseHud or
                 SpriteSheetId.IntroSceneTiles or SpriteSheetId.IntroFontTiles or
                 SpriteSheetId.CeresFlightObjectTiles or SpriteSheetId.CeresIntroObjectTiles or
-                SpriteSheetId.ZebesRevealTiles or SpriteSheetId.EndingCreditsFontTiles or
-                SpriteSheetId.EndingTextFontTiles or SpriteSheetId.EndingSubtitleTiles or
-                SpriteSheetId.EndingLogoTiles or SpriteSheetId.EndingWaitingTiles or
-                SpriteSheetId.EndingWavySamusTiles or SpriteSheetId.EndingExplosionTiles =>
+                SpriteSheetId.ZebesRevealTiles or SpriteSheetId.EndingCreditsRows or
+                SpriteSheetId.EndingPostCreditsPictures or SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures =>
                 throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no Mode 7 characters."),
             _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
         };
@@ -270,11 +256,8 @@ internal static class ScreenTileSheetComposer
         return ScreenColourImage.Encode(intro.Palette.Colours);
     }
 
-    /// <summary>The ending's palette <paramref name="palette"/>, whose colours its scenes load where they lie.</summary>
-    private static ReadOnlySpan<RgbColor> EndingColours(ScreenTileSources sources, EndingPaletteId palette) => EndingColours(sources.EndingPalettes, palette);
-
     /// <summary>The ending's palette <paramref name="palette"/> from <paramref name="palettes"/>.</summary>
-    private static ReadOnlySpan<RgbColor> EndingColours(EndingPaletteSet palettes, EndingPaletteId palette)
+    internal static ReadOnlySpan<RgbColor> EndingColours(EndingPaletteSet palettes, EndingPaletteId palette)
     {
         return ScreenColourImage.Encode(palettes[palette].Screen);
     }

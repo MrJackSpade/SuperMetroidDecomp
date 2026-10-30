@@ -4,11 +4,24 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>
-/// The ending's object artwork as the import pipeline reads it (#633, #1463): the tilemaps the game binds, with the
-/// character atlases and sprite compositions its sheets are composed from.
+/// The ending's object artwork as the import pipeline reads it (#633, #1463, #1467): its maps, character atlases and sprite
+/// compositions, which its pictures and sheets are composed from.
 /// </summary>
-public sealed record EndingObjectArtworkParts : EndingObjectSceneParts
+public sealed record EndingObjectArtworkParts
 {
+
+    /// <summary>Four 32-by-32-cell explosion maps, ordered by <see cref="EndingObjectFragmentId"/>.</summary>
+    public required IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments { get; init; }
+
+    /// <summary>$0800-byte, 32-by-32-cell BG2 waiting-scene map.</summary>
+    public required RoomBackgroundTilemapAtlas WaitingTilemap { get; init; }
+
+    /// <summary>32-by-32-cell BG3 transformation map.</summary>
+    public required RoomBackgroundTilemapAtlas PostCreditsFragmentB { get; init; }
+
+    /// <summary>$0800-byte, 32-by-32-cell final-logo map.</summary>
+    public required RoomBackgroundTilemapAtlas PostShotLogoMap { get; init; }
+
     /// <summary>$4000-byte atmospheric-cloud OBJ character sheet.</summary>
     public required RoomCharacterAtlas Clouds { get; init; }
 

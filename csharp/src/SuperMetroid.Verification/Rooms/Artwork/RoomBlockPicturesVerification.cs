@@ -344,7 +344,8 @@ internal static class RoomBlockPicturesVerification
         AffineFloor shown = runtime.Display.Latched.Rooms?.Floor ?? throw new InvalidOperationException($"{room.Name} shows no floor.");
         RoomFloorSheet floor = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException($"{room.Name} has no floor.")).Sheet;
         AssertTrue(ReferenceEquals(shown.Image, floor.Floor.Image), $"{room.Name} shows its tileset's installed floor");
-        (byte[] map, byte[] pixels) = AffineFloorConstants.Split(runtime.ComposedVram());
+        FloorMemory memory = AffineFloorConstants.Split(runtime.ComposedVram());
+        byte[] map = memory.Map, pixels = memory.Pixels;
         SpriteImage sheet = shown.Image.Sheet;
         int checkedPixels = 0;
         for (int y = 0; y < AffineFloor.SidePixels; y++)

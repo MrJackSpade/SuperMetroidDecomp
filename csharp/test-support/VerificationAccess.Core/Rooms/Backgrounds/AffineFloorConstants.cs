@@ -20,8 +20,8 @@ internal static class AffineFloorConstants
     public static AffineFloor Capture(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette)
     {
         Ensure.LengthEqual(image, SnesVram.ByteCount);
-        (byte[] map, byte[] pixels) = Split(image);
-        return new AffineFloor(Load(FloorSheetComposer.Compose([FloorSheetComposer.Whole(FloorFrame, map, pixels)], palette), "floor-fixture").Frame(FloorFrame));
+        FloorMemory memory = Split(image);
+        return new AffineFloor(Load(FloorSheetComposer.Compose([FloorSheetComposer.Whole(FloorFrame, memory.Map, memory.Pixels)], palette), "floor-fixture").Frame(FloorFrame));
     }
 
     /// <summary>
@@ -29,8 +29,8 @@ internal static class AffineFloorConstants
     /// floor animation frame pictured over it, coloured from <paramref name="palette"/>.
     /// </summary>
     public static RoomFloorSheet CeresRoom(ReadOnlySpan<byte> map, byte[] pixels, ReadOnlySpan<RgbColor> palette) =>
-        new(default, Load(FloorSheetComposer.Compose(
-            [FloorSheetComposer.Whole(RoomFloorSheet.FloorFrameName, map, pixels), .. CeresFloorDrawings.Pictures(map, pixels)], palette, roomColours: true),
+        new(default, Load(FloorSheetComposer.ComposeRoom(
+            [FloorSheetComposer.Whole(RoomFloorSheet.FloorFrameName, map, pixels), .. CeresFloorDrawings.Pictures(map, pixels)], palette),
             "ceres-floor-fixture"));
 
     /// <summary>A Ceres room floor sheet of tile zero everywhere, whose tiles hold zeros and show nothing.</summary>
@@ -38,7 +38,7 @@ internal static class AffineFloorConstants
         CeresRoom(new byte[FloorSheetComposer.CellCount], new byte[FloorSheetComposer.TileSetBytes], new RgbColor[SnesCgram.ColorCount]);
 
     /// <summary>The floor map (each word's low byte) and tile pixels (each word's high byte) of memory image <paramref name="image"/>.</summary>
-    public static (byte[] Map, byte[] Pixels) Split(ReadOnlySpan<byte> image)
+    public static FloorMemory Split(ReadOnlySpan<byte> image)
     {
         var map = new byte[FloorSheetComposer.CellCount];
         var pixels = new byte[FloorSheetComposer.TileSetBytes];
@@ -47,7 +47,7 @@ internal static class AffineFloorConstants
             map[word] = image[word * sizeof(ushort)];
             pixels[word] = image[word * sizeof(ushort) + 1];
         }
-        return (map, pixels);
+        return new FloorMemory(map, pixels);
     }
 
     /// <summary>The composed sheet as an installed sheet would load.</summary>

@@ -1,7 +1,4 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
-using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rendering;
 

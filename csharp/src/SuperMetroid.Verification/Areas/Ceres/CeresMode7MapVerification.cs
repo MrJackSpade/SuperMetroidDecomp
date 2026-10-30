@@ -31,7 +31,8 @@ internal static class CeresMode7MapVerification
         AffineFloor first = Published(runtime);
         // The floor's map is the low bytes of the first $4000 words the room's character upload composes, its tiles'
         // pixels their high bytes; the installed floor pictures exactly them.
-        (byte[] map, byte[] pixels) = AffineFloorConstants.Split(runtime.ComposedVram());
+        FloorMemory memory = AffineFloorConstants.Split(runtime.ComposedVram());
+        byte[] map = memory.Map, pixels = memory.Pixels;
         SpriteImage image = first.Image.Sheet;
         int mismatches = 0;
         for (int y = 0; y < AffineFloor.SidePixels; y++)

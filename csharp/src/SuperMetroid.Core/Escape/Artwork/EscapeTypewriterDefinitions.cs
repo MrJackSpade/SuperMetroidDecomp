@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Schema and native identities for the two escape-warning text programs.</summary>

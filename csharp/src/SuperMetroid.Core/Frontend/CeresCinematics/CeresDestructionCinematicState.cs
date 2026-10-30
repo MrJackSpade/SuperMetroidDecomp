@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
@@ -436,7 +435,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         {
             CeresDestructionActorDefinition definition =
                 CeresDestructionActors.InitialActor(index);
-            if (Artwork?.CeresDestruction.DestructionActors is { } layout)
+            if (content.CeresDestruction.DestructionActors is { } layout)
             {
                 CeresDestructionActorPlacement placement = layout[index];
                 definition = definition with { Position = placement.Position };

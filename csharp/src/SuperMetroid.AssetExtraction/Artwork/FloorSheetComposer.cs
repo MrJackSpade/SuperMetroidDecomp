@@ -56,12 +56,36 @@ internal static class FloorSheetComposer
         : throw new InvalidDataException($"Floor {name}'s map holds {map.Length} cells, not {CellCount}.");
 
     /// <summary>
-    /// The sheet of <paramref name="pictures"/>, each a frame under its name, laid out in rows, every cell showing its tile's
-    /// pixels in <paramref name="palette"/>'s colours: a frontend screen's colours, or with <paramref name="roomColours"/>
-    /// a gameplay room's background sets.
+    /// The frontend screen sheet of <paramref name="pictures"/>, each a frame under its name, laid out in rows, every cell
+    /// showing its tile's pixels in <paramref name="palette"/>'s colours.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture is not whole rows of cells, leaves the floor, or two share a name.</exception>
-    internal static ComposedSpriteSheet Compose(IReadOnlyList<FloorPicture> pictures, ReadOnlySpan<RgbColor> palette, bool roomColours = false)
+    internal static ComposedSpriteSheet Compose(IReadOnlyList<FloorPicture> pictures, ReadOnlySpan<RgbColor> palette)
+    {
+        PaintedFloors painted = Paint(pictures, palette);
+        return painted.Canvas.ToSheet(painted.Colours, painted.Frames, SpriteImageColours.FullPalette);
+    }
+
+    /// <summary>
+    /// The gameplay room sheet of <paramref name="pictures"/>, laid out as <see cref="Compose"/> lays them, coloured so each
+    /// colour group draws in the room's background set of its order.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A picture is not whole rows of cells, leaves the floor, or two share a name.</exception>
+    internal static ComposedSpriteSheet ComposeRoom(IReadOnlyList<FloorPicture> pictures, ReadOnlySpan<RgbColor> palette)
+    {
+        PaintedFloors painted = Paint(pictures, palette);
+        return painted.Canvas.ToRoomSheet(painted.Colours, painted.Frames, SpriteImageColours.FullPalette);
+    }
+
+    /// <summary>The painted canvas, its colours and its frames.</summary>
+    /// <param name="Canvas">The canvas every picture is painted on.</param>
+    /// <param name="Colours">The colours the pixels name.</param>
+    /// <param name="Frames">Each picture's frame by its name.</param>
+    private sealed record PaintedFloors(RoomTileCanvas Canvas, RgbColor[] Colours, Dictionary<string, SpriteSheetFrameDocument> Frames);
+
+    /// <summary>Paints <paramref name="pictures"/> laid out in rows in <paramref name="palette"/>'s colours.</summary>
+    /// <exception cref="InvalidDataException">A picture is not whole rows of cells, leaves the floor, or two share a name.</exception>
+    private static PaintedFloors Paint(IReadOnlyList<FloorPicture> pictures, ReadOnlySpan<RgbColor> palette)
     {
         Ensure.NotNull(pictures);
         if (pictures.Count == 0)
@@ -110,8 +134,7 @@ internal static class FloorSheetComposer
             if (!frames.TryAdd(picture.Name, frame))
                 throw new InvalidDataException($"Two floor pictures are named {picture.Name}.");
         }
-        return roomColours ? canvas.ToRoomSheet(colours, frames, SpriteImageColours.FullPalette)
-            : canvas.ToSheet(colours, frames, SpriteImageColours.FullPalette);
+        return new PaintedFloors(canvas, colours, frames);
     }
 
     /// <summary>

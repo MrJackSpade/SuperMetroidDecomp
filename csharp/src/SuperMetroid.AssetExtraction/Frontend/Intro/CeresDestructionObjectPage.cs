@@ -26,7 +26,7 @@ internal static class CeresDestructionObjectPage
         return page;
     }
 
-    /// <summary>The page as the scene's sprite artwork, with the Zebes reveal's characters loaded when <paramref name="zebesRevealed"/>.</summary>
-    internal static SpriteArtwork Of(IntroCinematicArtwork artwork, bool zebesRevealed) =>
-        new(new SpriteArtworkId(SpriteArtworkKind.CeresDestructionObjects), Characters(artwork, zebesRevealed));
+    /// <summary>The page of <paramref name="characters"/> as the scene's sprite artwork.</summary>
+    internal static SpriteArtwork Of(byte[] characters) =>
+        new(new SpriteArtworkId(SpriteArtworkKind.CeresDestructionObjects), characters);
 }

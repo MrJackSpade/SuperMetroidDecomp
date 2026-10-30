@@ -27,18 +27,22 @@ internal static class FrontendFloorSheetComposer
     internal static ComposedSpriteSheet Compose(SpriteSheetId sheet, ScreenTileSources sources)
     {
         Ensure.NotNull(sources);
-        return sheet switch
-        {
-            SpriteSheetId.TitleFloor => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
-            SpriteSheetId.CeresFloor => Ceres(sources.Intro),
-            SpriteSheetId.EndingEscapeAFloor => EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape),
-            SpriteSheetId.EndingEscapeBFloor => EndingScene(sources, EndingFloorSceneId.EscapeB, EndingPaletteId.Escape),
-            SpriteSheetId.EndingPlanetExplosionFloor => EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion),
-            SpriteSheetId.EndingFlyawayFloor => Flyaway(sources.Intro.CeresFlight, sources.EndingPalettes),
-            SpriteSheetId.EndingRewardIconFloor => RewardIcon(sources.EndingMode7, sources.EndingPalettes),
-            _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no frontend floor."),
-        };
+        return Composers.TryGetValue(sheet, out Func<ScreenTileSources, ComposedSpriteSheet>? compose) ? compose(sources)
+            : throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no frontend floor.");
     }
+
+    /// <summary>How each frontend floor sheet composes from the stock artwork.</summary>
+    private static readonly IReadOnlyDictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>> Composers =
+        new Dictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>>
+        {
+            [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
+            [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro),
+            [SpriteSheetId.EndingEscapeAFloor] = sources => EndingScene(sources, EndingFloorSceneId.EscapeA, EndingPaletteId.Escape),
+            [SpriteSheetId.EndingEscapeBFloor] = sources => EndingScene(sources, EndingFloorSceneId.EscapeB, EndingPaletteId.Escape),
+            [SpriteSheetId.EndingPlanetExplosionFloor] = sources => EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion),
+            [SpriteSheetId.EndingFlyawayFloor] = sources => Flyaway(sources.Intro.CeresFlight, sources.EndingPalettes),
+            [SpriteSheetId.EndingRewardIconFloor] = sources => RewardIcon(sources.EndingMode7, sources.EndingPalettes),
+        };
 
     /// <summary>
     /// The title's floor with each Baby Metroid page shown: the title's map over the start of a floor whose other cells

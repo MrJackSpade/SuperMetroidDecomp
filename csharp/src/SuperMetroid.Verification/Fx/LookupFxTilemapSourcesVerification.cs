@@ -1,7 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Fx.Artwork;
 
 using SuperMetroid.AssetExtraction.Fx;
 

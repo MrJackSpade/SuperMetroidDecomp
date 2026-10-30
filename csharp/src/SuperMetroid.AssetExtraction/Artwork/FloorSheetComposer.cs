@@ -121,7 +121,7 @@ internal static class FloorSheetComposer
             for (int cell = 0; cell < picture.Cells.Length; cell++)
             {
                 int cellLeft = corner.X + cell % picture.Columns * TilePixels, cellTop = corner.Y + cell / picture.Columns * TilePixels;
-                coloured = coloured.With(PaintTile(canvas, cellLeft, cellTop, picture.Cells[cell], picture.TilePixels, colours));
+                coloured = coloured.Union(PaintTile(canvas, cellLeft, cellTop, picture.Cells[cell], picture.TilePixels, colours));
             }
             var frame = new SpriteSheetFrameDocument
             {

@@ -11,18 +11,18 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 internal static class CeresFloorDrawings
 {
     /// <summary>The tiles of each cell <paramref name="frame"/>'s runs write, by floor cell.</summary>
-    internal static IReadOnlyDictionary<int, byte> Cells(CeresFloorAnimationFrame frame)
+    internal static IReadOnlyDictionary<int, int> Cells(CeresFloorAnimationFrame frame)
     {
         if (!CeresFloorDrawingDefinitions.Frames.TryGetValue(frame, out IReadOnlyList<CeresFloorRunDefinition>? rows))
             throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");
-        var cells = new Dictionary<int, byte>();
+        var cells = new Dictionary<int, int>();
         foreach (CeresFloorRunDefinition row in rows)
         {
             int cell = row.Row * FloorSheetComposer.Side + row.Column;
             foreach (CeresFloorAtlasRun run in row.Tiles)
             {
                 for (int offset = 0; offset < run.Length; offset++)
-                    cells[cell++] = checked((byte)(run.FirstTile + run.Step * offset));
+                    cells[cell++] = run.FirstTile + run.Step * offset;
             }
         }
         return cells;
@@ -56,7 +56,7 @@ internal static class CeresFloorDrawings
     /// <summary>The picture of <paramref name="frame"/>'s runs written over <paramref name="map"/>.</summary>
     private static FloorSheetComposer.FloorPicture Picture(CeresFloorAnimationFrame frame, ReadOnlySpan<byte> map, byte[] tilePixels)
     {
-        IReadOnlyDictionary<int, byte> written = Cells(frame);
+        IReadOnlyDictionary<int, int> written = Cells(frame);
         int left = written.Keys.Min(cell => cell % FloorSheetComposer.Side), right = written.Keys.Max(cell => cell % FloorSheetComposer.Side);
         int top = written.Keys.Min(cell => cell / FloorSheetComposer.Side), bottom = written.Keys.Max(cell => cell / FloorSheetComposer.Side);
         int columns = right - left + 1;
@@ -64,7 +64,7 @@ internal static class CeresFloorDrawings
         for (int index = 0; index < cells.Length; index++)
         {
             int cell = (top + index / columns) * FloorSheetComposer.Side + left + index % columns;
-            cells[index] = written.TryGetValue(cell, out byte tile) ? tile : map[cell];
+            cells[index] = written.TryGetValue(cell, out int tile) ? checked((byte)tile) : map[cell];
         }
         return new FloorSheetComposer.FloorPicture(CeresFloorAnimation.PictureOf(frame), cells, columns, left, top, tilePixels);
     }

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Options;
+namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>One primary-page byte range whose palette identifies the active language.</summary>
 /// <param name="ByteOffset">Byte offset of the first native tilemap word in one language-label row, relative to the page start.</param>

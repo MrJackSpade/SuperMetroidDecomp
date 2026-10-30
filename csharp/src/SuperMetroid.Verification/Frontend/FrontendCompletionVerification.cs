@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -30,12 +31,12 @@ internal static void VerifyGameOptionsRomDataCatalog()
 {
     const ushort packedTile = 0xe155;
     SnesBgTilemapWord selected = new SnesBgTilemapWord(packedTile)
-        .WithPaletteIndex(GameOptionsDefinitions.TilePalettes.Selected);
+        .WithPaletteIndex(GameOptionsPageDefinitions.TilePalettes.Selected);
     SnesBgTilemapWord unselected = selected
-        .WithPaletteIndex(GameOptionsDefinitions.TilePalettes.Unselected);
-    AssertEqual(GameOptionsDefinitions.TilePalettes.Selected, selected.PaletteIndex,
+        .WithPaletteIndex(GameOptionsPageDefinitions.TilePalettes.Unselected);
+    AssertEqual(GameOptionsPageDefinitions.TilePalettes.Selected, selected.PaletteIndex,
         "selected option uses typed tile palette");
-    AssertEqual(GameOptionsDefinitions.TilePalettes.Unselected, unselected.PaletteIndex,
+    AssertEqual(GameOptionsPageDefinitions.TilePalettes.Unselected, unselected.PaletteIndex,
         "unselected option uses typed tile palette");
     AssertEqual(new SnesBgTilemapWord(packedTile).CharacterIndex, unselected.CharacterIndex,
         "options palette replacement preserves character index");

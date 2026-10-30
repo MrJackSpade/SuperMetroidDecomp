@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Options;
@@ -27,8 +28,8 @@ internal static class OptionsGeometryLookupsVerification
     /// <summary>Checks the seven controller-label boxes against the native byte offsets their labels are drawn at.</summary>
     internal static void VerifyOptionsLabelDestinations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f639, 2, 7,
-            action => checked((ushort)((GameOptionsPositions.ControllerLabelAnchor(action).Y * GameOptionsDefinitions.MenuTilemapWidth
-                + GameOptionsPositions.ControllerLabelAnchor(action).X) * sizeof(ushort))), "controller label box"));
+            action => checked((ushort)((GameOptionsPageCells.ControllerLabelAnchor(action).Y * GameOptionsDefinitions.MenuTilemapWidth
+                + GameOptionsPageCells.ControllerLabelAnchor(action).X) * sizeof(ushort))), "controller label box"));
 
     /// <summary>Checks seven source words used by controller-label transfers.</summary>
     internal static void VerifyOptionsLabelSources(ISnesAddressSpace rom) =>

@@ -10,18 +10,6 @@ public static class GameOptionsPresentationDefinitions
     public const string FileName = "options-menu.json";
     /// <summary>The JSON name of the common BG2 background page, separate from the foreground option pages.</summary>
     public const string BackgroundPageName = "Background";
-    /// <summary>Number of row-major tile cells in each 32-by-32 options page.</summary>
-    public const int PageCellCount = GameOptionsDefinitions.MenuTilemapWidth * GameOptionsDefinitions.MenuTilemapHeight;
-    /// <summary>Height in characters of the atlas addressed by authored background cells.</summary>
-    public const int CharacterRows = 32;
-    /// <summary>Width in tile cells of a controller-button label patch: three.</summary>
-    public const int ControllerLabelWidth = GameOptionsDefinitions.ControllerLabels.WidthInTiles;
-    /// <summary>Height in tile cells of a controller-button label patch: two.</summary>
-    public const int ControllerLabelHeight = GameOptionsDefinitions.ControllerLabels.HeightInTiles;
-    /// <summary>Six row-major tile cells required for each controller-button glyph patch.</summary>
-    public const int ControllerLabelCellCount = ControllerLabelWidth * ControllerLabelHeight;
-    /// <summary>Size of one controller-label glyph patch in tile cells.</summary>
-    public static Extent16<TilemapCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
 
     /// <summary>The foreground option pages in document order: primary, then English and Japanese controller and special pages.</summary>
     public static IReadOnlyList<GameOptionsTilemap> Tilemaps { get; } = Enum.GetValues<GameOptionsTilemap>();
@@ -88,26 +76,6 @@ public static class GameOptionsPresentationDefinitions
             [GameOptionsToggle.Moonwalk] = "Moonwalk",
         };
 
-    /// <summary>$82:F665 ButtonTilemaps_A: upper-left A glyph; right half mirrors it.</summary>
-    internal const int AButtonTile = 0x90;
-    /// <summary>$82:F671 ButtonTilemaps_B: upper-left B glyph; right half is next in atlas.</summary>
-    internal const int BButtonTile = 0x91;
-    /// <summary>$82:F659 ButtonTilemaps_X: diagonal half; opposite half flips both axes.</summary>
-    internal const int XButtonTile = 0x93;
-    /// <summary>$82:F689 ButtonTilemaps_Y: upper-left Y glyph; right half mirrors it.</summary>
-    internal const int YButtonTile = 0x94;
-    /// <summary>$82:F67D ButtonTilemaps_Select: three consecutive tiles per atlas row.</summary>
-    internal const int SelectButtonTile = 0x95;
-    /// <summary>$82:F695/F6A1 ButtonTilemaps_L/R: common shoulder outline corner.</summary>
-    internal const int ShoulderCornerTile = 0x9a;
-    /// <summary>$82:F697 ButtonTilemaps_L: central L glyph; lower half follows one atlas row.</summary>
-    internal const int LeftShoulderTile = 0x9b;
-    /// <summary>$82:F6A3 ButtonTilemaps_R: central R glyph; lower half follows one atlas row.</summary>
-    internal const int RightShoulderTile = 0x9c;
-    /// <summary>$82:F65D and sibling two-column labels pad the third column with tile $0F.</summary>
-    internal const int ButtonPaddingTile = 0x0f;
-    /// <summary>$82:F659-F6AC glyph upper/lower halves occupy adjacent 16-character atlas rows.</summary>
-    internal const int ButtonAtlasRowStride = 16;
     /// <summary>Returns the number of selection-row anchors required by a menu layout.</summary>
     internal static readonly IReadOnlyDictionary<GameOptionsPage, int> CursorCounts =
         new Dictionary<GameOptionsPage, int>

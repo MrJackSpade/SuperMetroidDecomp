@@ -767,7 +767,7 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom);
         GameOptionsPresentationDocument ReadDocument() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             imported, ArtworkJson.Options);
-        GameOptionsPresentation Load(GameOptionsPresentationDocument document) => GameOptionsSourcePresentation.Load(new MemoryStream(
+        GameOptionsSourcePresentation Load(GameOptionsPresentationDocument document) => GameOptionsSourcePresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         var stock = ReadDocument();
         var loaded = Load(stock);
@@ -781,7 +781,7 @@ internal static class LookupStream3Verification
         {
             ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<TilemapCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
-                GameOptionsArtworkCells.ControllerAnchor(action), "native options label anchor");
+                GameOptionsPageCells.ControllerAnchor(action), "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
@@ -797,7 +797,7 @@ internal static class LookupStream3Verification
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
-                BackgroundTileWords.ToWord(GameOptionsArtworkCells.ControllerLabelTile(GameOptionsNames.ControllerLabelButton(button), cell)),
+                BackgroundTileWords.ToWord(GameOptionsPageCells.ControllerLabelTile(GameOptionsNames.ControllerLabelButton(button), cell)),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
         var edited = ReadDocument();

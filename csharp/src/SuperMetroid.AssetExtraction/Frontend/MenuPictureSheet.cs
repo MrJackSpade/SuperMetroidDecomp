@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
+using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -20,7 +21,7 @@ internal static class MenuPictureSheet
     internal static IReadOnlyList<ScreenPictureSubject> Subjects(AreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
-        return [GameOverSourcePresentation.Of(maps.GameOver).PageSubject()];
+        return [GameOverSourcePresentation.Of(maps.GameOver).PageSubject(), .. GameOptionsSourcePresentation.Of(maps.GameOptions).Subjects()];
     }
 
     /// <summary>The characters the menus' pages name: the world foreground's, then the map's after them.</summary>

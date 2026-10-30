@@ -5,6 +5,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Saves;
@@ -70,10 +71,23 @@ internal static class MenuScreenPublicationVerification
         AssertEqual(FileSelectPhase.Main, fileSelect.Phase, "file select reaches its main menu");
         AssertPublished(fileSelect.screen, fileSelect.CaptureRenderSnapshot(), "file select");
 
-        var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: MenuSheetFixtures.For(maps));
+        InstalledSpriteSheets optionsSheets = MenuSheetFixtures.For(maps);
+        var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: optionsSheets);
         for (int frame = 0; frame < 30; frame++)
             options.Step(0);
-        AssertPublished(options.screen, options.CaptureRenderSnapshot(), "options");
+        // Options shows its backdrop's picture, then the primary page's picture with its four English language rows over it (#1467).
+        SpriteSheet menuPictures = optionsSheets.Get(SpriteSheetId.MenuPictures);
+        LayeredScene optionsScene = options.CaptureRenderSnapshot();
+        AssertTrue(optionsScene.Layers.Length == 3 && optionsScene.Layers[0] is PicturesLayer { Pictures.Pictures: [{ } backdrop] } &&
+            ReferenceEquals(backdrop.Picture, menuPictures.Frame(GameOptionsNames.BackgroundFrame)) && optionsScene.Layers[2] is SpritesLayer,
+            "options shows its backdrop's picture under its page and sprites");
+        AssertTrue(optionsScene.Layers[1] is PicturesLayer { Pictures.Pictures: { } page } && page.Length == 1 + GameOptionsDefinitions.LanguagePaletteRegionCount &&
+            ReferenceEquals(page[0].Picture, menuPictures.Frame(GameOptionsNames.PageFrame(GameOptionsTilemap.Primary))) &&
+            Enumerable.Range(0, GameOptionsDefinitions.LanguagePaletteRegionCount).All(region =>
+                ReferenceEquals(page[1 + region].Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(region, japanese: false)))),
+            "options shows the primary page with its language rows highlighting English");
+        AssertTrue(optionsScene.Paint.Colors.SequenceEqual(options.screen.Palette.Colors), "options draws its own palette");
+        AssertTrue(PaintedSpriteEntries.AreOwn(optionsScene.Paint.SpriteDraws, options.screen.Objects.Draws), "options draws its own sprite entries");
 
         InstalledSpriteSheets gameOverSheets = MenuSheetFixtures.For(maps);
         var gameOver = new GameOverMenuState(new AudioQueues(), maps, gameOverSheets);
@@ -86,7 +100,7 @@ internal static class MenuScreenPublicationVerification
             page.At == default && gameOverScene.Layers[1] is SpritesLayer, "game over shows its page's picture under its sprites");
         AssertTrue(gameOverScene.Paint.Colors.SequenceEqual(gameOver.screen.Palette.Colors), "game over draws its own palette");
         AssertTrue(PaintedSpriteEntries.AreOwn(gameOverScene.Paint.SpriteDraws, gameOver.screen.Objects.Draws), "game over draws its own sprite entries");
-        Console.WriteLine("  Menu screens: file select and options publish their own tilemaps, palette and sprite entries; game over its page's picture.");
+        Console.WriteLine("  Menu screens: file select publishes its own tilemaps, palette and sprite entries; options and game over their pages' pictures.");
     }
 
     /// <summary>Asserts that <paramref name="snapshot"/> is composed from <paramref name="screen"/>'s published state.</summary>

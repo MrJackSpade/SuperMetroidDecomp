@@ -44,7 +44,6 @@ internal static class ClosedPresentationIndexDefinitions
         ("FileSelectPresentation", "CursorPosition", "selected") => new(0, 6),
         ("MotherBrainRoomColorPresentation", "ApplyRecoveryLights", "frame") => new(0, MotherBrainRoomColorDefinitions.RecoveryLightsFrames),
         ("MotherBrainRoomColorPresentation", "ApplyFlash", "frame") => new(0, MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount),
-        ("GameOptionsPresentation", "ApplyControllerLabel", "action" or "button") => new(0, 7),
         ("GameOptionsPresentation", "DrawCursor", "frame") => new(0, 4),
         ("GameOverPresentation", "DrawBaby", "frame") => new(0, 3),
         ("GameOverPresentation", "DrawCursor", "frame") => new(0, 4),

@@ -35,7 +35,7 @@ namespace SuperMetroid.Verification.Frontend;
 internal static class ScreenTilePicturesVerification
 {
     /// <summary>
-    /// Options, file select, each Zebes area's map with and without its backdrop, and each area's room map and
+    /// File select, each Zebes area's map with and without its backdrop, and each area's room map and
     /// frame each draw every background from their tiles, exactly as their characters draw them.
     /// </summary>
     internal static void VerifyMenuScreenTilePictures()
@@ -47,8 +47,6 @@ internal static class ScreenTilePicturesVerification
             layers += AssertDrawnFromTiles(scene, vram, name);
             screens++;
         }
-        var options = new GameOptionsMenuState(mapPresentation: maps, spriteSheets: InstalledFixtures.SpriteSheets);
-        Check(options.CaptureRenderSnapshot(), options.ShownVram(), "options");
         var fileSelect = new FileSelectMenuState(new SaveSlotStore(maps), new AudioQueues(), maps, InstalledFixtures.SpriteSheets);
         Check(fileSelect.CaptureRenderSnapshot(), fileSelect.ShownVram(), "file select");
         var explored = new SharedGameState();

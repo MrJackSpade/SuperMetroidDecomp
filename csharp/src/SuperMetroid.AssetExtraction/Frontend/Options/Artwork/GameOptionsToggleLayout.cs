@@ -1,7 +1,7 @@
-namespace SuperMetroid.Core.Frontend.Options;
+namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Four palette boxes belonging to one binary special-setting row.</summary>
-/// <param name="EnabledTop">Page-relative byte offset of the enabled-choice top row, covering <see cref="GameOptionsDefinitions.SpecialToggles.PaletteRegionByteCount"/> bytes.</param>
+/// <param name="EnabledTop">Page-relative byte offset of the enabled-choice top row, covering <see cref="GameOptionsPageDefinitions.SpecialToggles.PaletteRegionByteCount"/> bytes.</param>
 /// <param name="EnabledBottom">Page-relative byte offset of the enabled-choice bottom row, one $40-byte tilemap row below its top.</param>
 /// <param name="DisabledTop">Page-relative byte offset of the disabled-choice top row, seven tilemap words to the right of the enabled choice.</param>
 /// <param name="DisabledBottom">Page-relative byte offset of the disabled-choice bottom row, one $40-byte tilemap row below its top.</param>

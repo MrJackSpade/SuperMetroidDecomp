@@ -30,8 +30,8 @@ internal static class PowerBombAfterglowShapeVerification
         // quarters of it tall, below the HUD (#1468).
         int radius = finalShape.HorizontalRadius();
         AssertEqual(255, radius, "the final white oval reaches the widest radius");
-        ScreenWindow finalOval = ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(32, 208), radius,
-            radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts), DisplayScreen.HudHeight);
+        ScreenWindow finalOval = ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(32, 208), new Extent16<ScreenPixels>(checked((ushort)radius),
+            checked((ushort)(radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts)))), DisplayScreen.HudHeight);
         int checkedFrames = 0;
         while (explosion.IsActive)
         {

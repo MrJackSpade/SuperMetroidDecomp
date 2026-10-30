@@ -51,7 +51,7 @@ public sealed record ScreenWindow
 
     /// <summary>Whether both windows join the same shapes, in the same order, over the same lines.</summary>
     public bool Equals(ScreenWindow? other) =>
-        other is not null && FirstLine == other.FirstLine && EndLine == other.EndLine && shapes.AsSpan().SequenceEqual(other.shapes);
+        other is not null && FirstLine == other.FirstLine && EndLine == other.EndLine && shapes.SequenceEqual(other.shapes);
 
     /// <summary>A hash of the window's lines and its first shape.</summary>
     public override int GetHashCode() => HashCode.Combine(FirstLine, EndLine, shapes.Length == 0 ? null : shapes[0]);

@@ -53,7 +53,7 @@ internal static class D3D11WindowPacking
                     break;
                 case WindowOval oval:
                     Write(row, ShapeKind.Oval, oval.CoreStart.X, oval.CoreStart.Y, oval.CoreWidth,
-                        oval.HorizontalRadius, oval.VerticalRadius);
+                        oval.Radii.X, oval.Radii.Y);
                     break;
                 case WindowCone cone:
                     Write(row, ShapeKind.Cone, cone.Apex.X, cone.Apex.Y, cone.FirstEdge, cone.SecondEdge, 0);

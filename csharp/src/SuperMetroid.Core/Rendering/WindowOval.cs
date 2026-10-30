@@ -14,27 +14,23 @@ public sealed record WindowOval : WindowShape
     /// <summary>How many pixels the core runs right of <see cref="CoreStart"/>; zero or more.</summary>
     public int CoreWidth { get; }
 
-    /// <summary>How far the oval reaches left and right of its core, in pixels; one or more.</summary>
-    public int HorizontalRadius { get; }
-
-    /// <summary>How far the oval reaches above and below its core, in lines; one or more.</summary>
-    public int VerticalRadius { get; }
+    /// <summary>How far the oval reaches left and right of its core (X) and above and below it (Y); one or more each.</summary>
+    public Extent16<ScreenPixels> Radii { get; }
 
     /// <summary>Creates an oval around a horizontal core.</summary>
     /// <param name="coreStart">The left end of the core, on the oval's middle line.</param>
     /// <param name="coreWidth">How many pixels the core runs right of <paramref name="coreStart"/>; zero or more.</param>
-    /// <param name="horizontalRadius">How far the oval reaches left and right of its core; one or more.</param>
-    /// <param name="verticalRadius">How far the oval reaches above and below its core; one or more.</param>
+    /// <param name="radii">How far the oval reaches beside its core (X) and above and below it (Y); one or more each.</param>
     /// <exception cref="ArgumentOutOfRangeException">The core's width is negative or a radius is below one.</exception>
-    public WindowOval(Offset16<ScreenPixels> coreStart, int coreWidth, int horizontalRadius, int verticalRadius)
+    public WindowOval(Offset16<ScreenPixels> coreStart, int coreWidth, Extent16<ScreenPixels> radii)
     {
         CoreStart = coreStart;
         CoreWidth = Ensure.AtLeastZero(coreWidth);
-        HorizontalRadius = Ensure.BetweenInclusive(1, short.MaxValue, horizontalRadius);
-        VerticalRadius = Ensure.BetweenInclusive(1, short.MaxValue, verticalRadius);
+        if (radii.X == 0 || radii.Y == 0)
+            throw new ArgumentOutOfRangeException(nameof(radii), radii, "A window oval reaches at least one pixel each way.");
+        Radii = radii;
     }
 
     /// <summary>An ellipse centred on <paramref name="centre"/>.</summary>
-    public static WindowOval Ellipse(Offset16<ScreenPixels> centre, int horizontalRadius, int verticalRadius) =>
-        new(centre, 0, horizontalRadius, verticalRadius);
+    public static WindowOval Ellipse(Offset16<ScreenPixels> centre, Extent16<ScreenPixels> radii) => new(centre, 0, radii);
 }

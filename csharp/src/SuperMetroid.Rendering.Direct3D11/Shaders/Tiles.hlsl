@@ -426,9 +426,10 @@ void Main(uint3 id : SV_DispatchThreadID)
             uint3 colour = uint3(AddR, AddG, AddB);
             if (MatrixC > 0)
             {
-                int strength = (int)id.y < MatrixA ? 0 : min(MatrixC, 1 + ((int)id.y - MatrixA) / MatrixB);
-                uint scale = (uint)max(0, strength + MatrixD);
-                colour = min(31u, (colour * scale + (uint)(MatrixC / 2)) / (uint)MatrixC);
+                uint firstLine = (uint)MatrixA, linesPerStep = (uint)MatrixB, steps = (uint)MatrixC;
+                uint strength = id.y < firstLine ? 0u : min(steps, 1u + (id.y - firstLine) / linesPerStep);
+                uint scale = (uint)max(0, (int)strength + MatrixD);
+                colour = min(31u, (colour * scale + steps / 2u) / steps);
             }
             uint pixel = Output[id.xy];
             Output[id.xy] = Pack(min(255, Unpack(pixel) + ((colour << 3) | (colour >> 2))), pixel >> 24);

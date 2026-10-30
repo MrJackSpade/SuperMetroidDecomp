@@ -1022,7 +1022,7 @@ internal static void VerifyPowerBombColorMathWindow()
     AssertEqual(0x3400, explosion.PreExplosionRadius.RawValue,
         "power-bomb logic advances next-frame radius");
     ColourAddWindowLayer scaled = CaptureWindow();
-    AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), 4, 3), DisplayScreen.HudHeight),
+    AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(4, 3)), DisplayScreen.HudHeight),
         scaled.Window, "the first flash is an oval of the drawn radius");
     AssertEqual(new RgbColor(1, 2, 3), scaled.Colour, "the first flash adds the installed fixed colour");
 
@@ -1034,7 +1034,7 @@ internal static void VerifyPowerBombColorMathWindow()
         "first pre-scaled yellow frame is retained for composition");
     AssertEqual<PowerBombShapeCursor?>(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), explosion.RenderedShape,
         "first yellow frame selects the first yellow oval");
-    AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), 146, 109), DisplayScreen.HudHeight),
+    AssertEqual(ScreenWindow.Of(WindowOval.Ellipse(Offset16<ScreenPixels>.Of(centerX, centerY), new Extent16<ScreenPixels>(146, 109)), DisplayScreen.HudHeight),
         CaptureWindow().Window, "the first yellow oval is centred on the blast");
     Console.WriteLine("  Power bomb: drawn-radius timing, the oval's size and its centre agree.");
 

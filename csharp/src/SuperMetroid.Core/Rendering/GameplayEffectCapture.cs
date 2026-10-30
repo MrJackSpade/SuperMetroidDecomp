@@ -246,7 +246,8 @@ public static class GameplayEffectCapture
         int radius = PowerBombHorizontalRadius(explosion);
         int verticalRadius = radius * PowerBombExplosionDefinitions.OvalHeightParts / PowerBombExplosionDefinitions.OvalWidthParts;
         ScreenWindow window = verticalRadius == 0 ? ScreenWindow.Closed
-            : ScreenWindow.Of(WindowOval.Ellipse(explosion.Position.RelativeToCamera(layer1), radius, verticalRadius),
+            : ScreenWindow.Of(WindowOval.Ellipse(explosion.Position.RelativeToCamera(layer1),
+                new Extent16<ScreenPixels>(checked((ushort)radius), checked((ushort)verticalRadius))),
                 firstVisibleScanline);
         return new(window, explosion.FixedColor);
     }
@@ -333,5 +334,5 @@ public static class GameplayEffectCapture
     /// <summary>The beam's column widened on each line by its rounded sides, widest at the middle line.</summary>
     private static WindowOval CurvedColumn(int left, int right, int centre) =>
         new(Offset16<ScreenPixels>.Of(left, centre), right - left,
-            SuitPickupBeamDefinitions.CurveWidth, SuitPickupBeamDefinitions.BeamLines / 2);
+            new Extent16<ScreenPixels>(SuitPickupBeamDefinitions.CurveWidth, SuitPickupBeamDefinitions.BeamLines / 2));
 }

@@ -36,7 +36,7 @@ internal static class ColorWindowSmokeTests
                     firstEdge, firstEdge + random.Next(WindowCone.AngleUnitsPerTurn / 2)),
                 WindowRectangle.Spanning(left, top, left + random.Next(64), top + random.Next(64)),
                 new WindowOval(Offset16<ScreenPixels>.Of(random.Next(-64, 320), random.Next(-64, 288)), random.Next(64),
-                    1 + random.Next(128), 1 + random.Next(128)),
+                    new Extent16<ScreenPixels>(checked((ushort)(1 + random.Next(128))), checked((ushort)(1 + random.Next(128))))),
             ];
             int firstLine = random.Next(224);
             var window = new ScreenWindow(shapes.AsSpan(0, 1 + sample % shapes.Length), firstLine, random.Next(firstLine, 225));

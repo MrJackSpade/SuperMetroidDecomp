@@ -71,7 +71,7 @@ internal static class CinematicSnapshotTestsVerification
                     explosionWindow |= !window.Window.IsClosed && coloured;
                     // The blast's oval reaches the top line and its window starts there, with no HUD band cut out (#1468).
                     explosionCoversTop |= coloured && window.Window.FirstLine == 0 && window.Window.Shapes.Length != 0 &&
-                        window.Window.Shapes[0] is WindowOval oval && oval.CoreStart.Y - oval.VerticalRadius <= 0;
+                        window.Window.Shapes[0] is WindowOval oval && oval.CoreStart.Y - oval.Radii.Y <= 0;
                 }
                 Compare(expected, snapshot, tick);
                 destruction.Step();

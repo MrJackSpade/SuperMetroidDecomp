@@ -41,7 +41,12 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // The population entry names the patrol speed record and the starting direction.
         GRipperSpawnSettings settings = slot.Spawn.Population.SpawnSettingsOf<GRipperSpawnSettings>();
         state.SpeedTableByteOffset = settings.SpeedIndex * 8;
-        LoadRipperVelocity(state, settings.MovesRight);
+        LoadRipperVelocity(state, settings.Direction switch
+        {
+            GRipperStartDirection.Left => false,
+            GRipperStartDirection.Right => true,
+            _ => throw new InvalidOperationException($"GRipper start direction {settings.Direction} is not a direction."),
+        });
         SetRipperProgram(
             slot,
             state.XVelocity.WholePixels < 0 ? RipperProgram.GRipperMovingLeft : RipperProgram.GRipperMovingRight);

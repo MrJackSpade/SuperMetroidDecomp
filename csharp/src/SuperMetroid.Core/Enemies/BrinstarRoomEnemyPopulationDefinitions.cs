@@ -303,9 +303,9 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.Sidehopper, new(0x01ba, 0x01a8), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x2000), EnemyExtraPropertyWord.FromWord(0x0000), 0x0000, 0x0000),
             new(EnemyDefinitionId.Sidehopper, new(0x0200, 0x01a8), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x2000), EnemyExtraPropertyWord.FromWord(0x0000), 0x0000, 0x0000),
-            new(EnemyDefinitionId.ShutterGrowing, new(0x0198, 0x0128), new GrowingShutterSpawnSettings(WaitsForSamus: true), EnemyPropertyWord.FromWord(0xa800), EnemyExtraPropertyWord.FromWord(0x0000), 0x0090, 0x0010),
-            new(EnemyDefinitionId.ShutterGrowing, new(0x0228, 0x0128), new GrowingShutterSpawnSettings(WaitsForSamus: true), EnemyPropertyWord.FromWord(0xa800), EnemyExtraPropertyWord.FromWord(0x0000), 0x0090, 0x0010),
-            new(EnemyDefinitionId.ShutterGrowing, new(0x0288, 0x0128), new GrowingShutterSpawnSettings(WaitsForSamus: true), EnemyPropertyWord.FromWord(0xa800), EnemyExtraPropertyWord.FromWord(0x0000), 0x0090, 0x0010),
+            new(EnemyDefinitionId.ShutterGrowing, new(0x0198, 0x0128), new GrowingShutterSpawnSettings(GrowingShutterWait.SamusNear), EnemyPropertyWord.FromWord(0xa800), EnemyExtraPropertyWord.FromWord(0x0000), 0x0090, 0x0010),
+            new(EnemyDefinitionId.ShutterGrowing, new(0x0228, 0x0128), new GrowingShutterSpawnSettings(GrowingShutterWait.SamusNear), EnemyPropertyWord.FromWord(0xa800), EnemyExtraPropertyWord.FromWord(0x0000), 0x0090, 0x0010),
+            new(EnemyDefinitionId.ShutterGrowing, new(0x0288, 0x0128), new GrowingShutterSpawnSettings(GrowingShutterWait.SamusNear), EnemyPropertyWord.FromWord(0xa800), EnemyExtraPropertyWord.FromWord(0x0000), 0x0090, 0x0010),
             new(EnemyDefinitionId.Waver, new(0x00ab, 0x004b), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x2000), EnemyExtraPropertyWord.FromWord(0x0000), 0x0000, 0x0000),
             new(EnemyDefinitionId.Waver, new(0x0108, 0x006b), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x2800), EnemyExtraPropertyWord.FromWord(0x0000), 0x0001, 0x0000),
             new(EnemyDefinitionId.Waver, new(0x0211, 0x0065), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x2000), EnemyExtraPropertyWord.FromWord(0x0000), 0x0001, 0x0000),

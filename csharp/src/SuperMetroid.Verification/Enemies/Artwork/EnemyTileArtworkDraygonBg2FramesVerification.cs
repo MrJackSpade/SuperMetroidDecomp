@@ -263,7 +263,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         // His fight attaches the body layer his body frames draw on.
         BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, RepositoryInstallation.Artwork.BossBodySheets
             ?? throw new InvalidOperationException("The repository installation has no boss body sheets."), BossBodyOwner.Draygon);
-        enemies.Drawing.Enqueue(0, 0);
+        enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

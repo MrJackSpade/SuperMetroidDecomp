@@ -2830,7 +2830,7 @@ internal static class EnemySpritemapArtworkVerification
             // The enemy draws as a room drawing it loads it: at its tile base and in its palette there.
             enemies.GraphicsSet.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, SpawnedObjectFixtures.SetDrawing(definition), new SpriteColourSets());
             SpriteGraphics indexes = enemies.GraphicsSet.DrawIndexes(definition);
-            enemies.Drawing.Enqueue(0, 0);
+            enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

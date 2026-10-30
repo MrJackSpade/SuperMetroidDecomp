@@ -54,7 +54,7 @@ internal static class EnemyFormatDrawEntriesVerification
         ordinary.TileIndexBase = checked((ushort)beetom.TileIndexBase);
         ordinary.Colouring = new GraphicsSetMemberColouring(beetom.DefinitionId);
         ordinary.Position = ordinary.Position.WithWhole(new(100, 80));
-        enemies.Drawing.Enqueue(0, 0);
+        enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
 
         // Extended enemy on layer one, showing a frame with several components.
         EnemyFrameId extendedFrame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.PirateGreenWalking]

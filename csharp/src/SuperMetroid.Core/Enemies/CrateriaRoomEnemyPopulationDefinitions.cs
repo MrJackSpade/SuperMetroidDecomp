@@ -177,7 +177,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Skultera, new(0x04a4, 0x0570), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x2000), EnemyExtraPropertyWord.FromWord(0x0000), 0x0010, 0x0210),
             new(EnemyDefinitionId.Skultera, new(0x03cb, 0x057a), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x2000), EnemyExtraPropertyWord.FromWord(0x0000), 0x0110, 0x0210),
             new(EnemyDefinitionId.Zeb, new(0x0278, 0x02c0), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0x6900), EnemyExtraPropertyWord.FromWord(0x0000), 0x0000, 0x0000),
-            new(EnemyDefinitionId.GRipper, new(0x0590, 0x0430), new GRipperSpawnSettings(16, MovesRight: true), EnemyPropertyWord.FromWord(0x2800), EnemyExtraPropertyWord.FromWord(0x0000), 0x0560, 0x05c0),
+            new(EnemyDefinitionId.GRipper, new(0x0590, 0x0430), new GRipperSpawnSettings(16, GRipperStartDirection.Right), EnemyPropertyWord.FromWord(0x2800), EnemyExtraPropertyWord.FromWord(0x0000), 0x0560, 0x05c0),
             new(EnemyDefinitionId.Tripper, new(0x0150, 0x00d8), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0xa000), EnemyExtraPropertyWord.FromWord(0x0000), 0x0000, 0x0010),
             new(EnemyDefinitionId.Tripper, new(0x0388, 0x0058), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0xa000), EnemyExtraPropertyWord.FromWord(0x0000), 0x0000, 0x0010),
             new(EnemyDefinitionId.Tripper, new(0x0370, 0x0160), EnemySpawnSettings.None, EnemyPropertyWord.FromWord(0xa000), EnemyExtraPropertyWord.FromWord(0x0000), 0x0001, 0x0010),

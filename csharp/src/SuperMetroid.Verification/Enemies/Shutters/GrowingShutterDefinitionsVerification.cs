@@ -27,7 +27,7 @@ internal static class GrowingShutterDefinitionsVerification
                 for (int speed = 0; speed < 24; speed++)
                 {
                     slot.ExtraProperties = EnemyExtraPropertyWord.FromWord((ushort)(selector >> 1));
-                    slot.SetSpawnSettings(new GrowingShutterSpawnSettings(WaitsForSamus: (selector & 1) != 0));
+                    slot.SetSpawnSettings(new GrowingShutterSpawnSettings((selector & 1) != 0 ? GrowingShutterWait.SamusNear : GrowingShutterWait.Timer));
                     slot.SetSpawnParameter2((ushort)((high << 8) | speed));
                     slot.Position = slot.Position.WithWholeY(selector < 2 ? (ushort)65530 : (ushort)5);
                     initialize(slot);

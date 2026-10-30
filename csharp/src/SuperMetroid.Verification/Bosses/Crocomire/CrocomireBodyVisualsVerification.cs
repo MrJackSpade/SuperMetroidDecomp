@@ -236,7 +236,7 @@ internal static class CrocomireBodyVisualsVerification
                 ?? throw new InvalidOperationException("The repository installation has no boss body sheets.");
             enemies.BossArtworkBinding.BodySheets = bodySheets;
             BossBodyCanvas image = BossBodyCanvasFixtures.AttachBlank(enemies, bodySheets, BossBodyOwner.Crocomire);
-            enemies.Drawing.Enqueue(0, 0);
+            enemies.Drawing.Enqueue(0, enemies.SlotTable.Slots[0]);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

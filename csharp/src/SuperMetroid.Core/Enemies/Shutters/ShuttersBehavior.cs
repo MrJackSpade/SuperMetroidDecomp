@@ -35,8 +35,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer selects its wait from the low extra-property word and the population
         // entry's wait before clearing the former. Keep native dispatch ordering independent
         // of the origin direction encoded below.
-        int initialFunctionIndex = slot.ExtraProperties.ToWord() * 2 +
-            (slot.Spawn.Population.SpawnSettingsOf<GrowingShutterSpawnSettings>().WaitsForSamus ? 1 : 0);
+        GrowingShutterWait wait = slot.Spawn.Population.SpawnSettingsOf<GrowingShutterSpawnSettings>().Wait;
+        int initialFunctionIndex = slot.ExtraProperties.ToWord() * 2 + wait switch
+        {
+            GrowingShutterWait.Timer => 0,
+            GrowingShutterWait.SamusNear => 1,
+            _ => throw new InvalidOperationException($"Growing shutter wait {wait} is not a wait."),
+        };
         state.Function = GrowingShutters.InitialFunction(initialFunctionIndex);
 
         bool growsUp = slot.ExtraProperties.ToWord() != 0;

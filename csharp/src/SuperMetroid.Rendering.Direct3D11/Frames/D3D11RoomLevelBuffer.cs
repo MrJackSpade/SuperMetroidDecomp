@@ -89,6 +89,13 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private const int HudWord = MessagePictureWord + 1;
     /// <summary>Words of a placed HUD picture's record.</summary>
     private const int HudPictureWords = 2;
+    /// <summary>
+    /// Words of a pictured plane's table before its pictures (#1467): its size in cells, x below y, then its count of pictures;
+    /// each picture follows in drawing order as two words, its picture's offset and its upper-left plane pixel, x below y.
+    /// </summary>
+    private const int PlaneTableHeaderWords = 2;
+    /// <summary>Words of a placed plane picture's record.</summary>
+    private const int PlanePictureWords = 2;
     /// <summary>The bit an X-ray reveal block's arrangement starts at.</summary>
     private const int ArrangementShift = 28;
     /// <summary>Words of a frontend layer's tile table: three for each tile its cells name (#1392).</summary>
@@ -112,6 +119,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     private readonly List<D3D11ColourSlot> colourSlots = [];
     /// <summary>Where the last <see cref="Pack"/> put each frontend layer's cells (#1403).</summary>
     private readonly Dictionary<ScreenTileMap, int> screenMaps = [];
+    /// <summary>Where the last <see cref="Pack"/> put each pictured plane's table (#1467).</summary>
+    private readonly Dictionary<PicturedPlane, int> planeTables = [];
 
     /// <summary>Creates an empty buffer.</summary>
     internal D3D11RoomLevelBuffer(ID3D11Device device)
@@ -165,13 +174,14 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         PicturedHud? hud = frame.Hud;
         ImmutableArray<ScreenLayerPictures> screens = frame.Screens?.Layers ?? [];
         ImmutableArray<ScreenTileMap> screenCells = frame.Screens?.Maps ?? [];
+        ImmutableArray<PicturedPlane> pictured = frame.Planes?.Planes ?? [];
         if (packed == frame && packedGeneration == images.Generation)
             return false;
         // No dispatch samples t3 without one of these, so such a scene keeps the last packed room unread. It colours no
         // picture either, so the last room's colour slots go: the scene's colours are packed for none of its images, and a
         // later frame showing that room again packs it afresh.
         if (bg1 is null && bg2 is null && sky is null && bg3 is null && mode7 is null && reveal is null && image is null
-            && message is null && screens.IsEmpty && hud is null)
+            && message is null && screens.IsEmpty && hud is null && pictured.IsEmpty)
         {
             colourSlots.Clear();
             packed = null;
@@ -193,6 +203,12 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         {
             if (screenMaps.TryAdd(map, words))
                 words += map.Cells.Length;
+        }
+        planeTables.Clear();
+        foreach (PicturedPlane plane in pictured)
+        {
+            if (planeTables.TryAdd(plane, words))
+                words += PlaneTableHeaderWords + plane.Pictures.Length * PlanePictureWords;
         }
         var blockOffsets = new int[PlaneSlots];
         for (int slot = 0; slot < PlaneSlots; slot++)
@@ -307,6 +323,8 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             PackScreenTable(upload.Slice(offset, ScreenTableWords), screen, pictureWords);
         foreach ((ScreenTileMap map, int offset) in screenMaps)
             PackScreenMap(upload.Slice(offset, map.Cells.Length), map);
+        foreach ((PicturedPlane plane, int offset) in planeTables)
+            PackPlane(upload, plane, offset, pictureWords);
         upload[Bg2ImageWord] = (uint)imageOffset;
         upload[SkyImageWord] = (uint)skyImageOffset;
         foreach ((RoomBackgroundImagePlane? plane, int offset) in new[] { (image, imageOffset), (skyImage, skyImageOffset) })
@@ -402,6 +420,29 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
         }
     }
 
+    /// <summary>
+    /// Packs <paramref name="plane"/>'s table from <paramref name="offset"/>, as <see cref="PlaneTableHeaderWords"/>
+    /// describes: its size in cells, the count of its pictures, then each picture's offset and its upper-left plane pixel.
+    /// </summary>
+    private static void PackPlane(Span<uint> upload, PicturedPlane plane, int offset, Dictionary<SpriteSheetFrame, int> pictureWords)
+    {
+        ImmutableArray<PlacedPlanePicture> pictures = plane.Pictures;
+        upload[offset] = D3D11ConstantPacking.Halves(plane.Size.X, plane.Size.Y);
+        upload[offset + 1] = (uint)pictures.Length;
+        for (int index = 0; index < pictures.Length; index++)
+        {
+            PlacedPlanePicture placed = pictures[index];
+            int record = offset + PlaneTableHeaderWords + index * PlanePictureWords;
+            upload[record] = (uint)pictureWords[placed.Picture];
+            upload[record + 1] = D3D11ConstantPacking.Halves(placed.Corner.X, placed.Corner.Y);
+        }
+    }
+
+    /// <summary>The room level buffer word of <paramref name="plane"/>'s table in the last packing (#1467).</summary>
+    /// <exception cref="InvalidOperationException">The last packing held no such plane.</exception>
+    internal uint PlaneTable(PicturedPlane plane) => planeTables.TryGetValue(plane, out int offset) ? (uint)offset
+        : throw new InvalidOperationException("A pictured plane was not packed with its frame.");
+
     /// <summary>The tile pictures of an overlay, or none.</summary>
     private static ImmutableArray<BgTilePicture?> Tiles(ImmutableArray<BgTilePicture?>? pictures) =>
         pictures is { IsDefault: false } shown ? shown : [];
@@ -409,7 +450,7 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
     /// <summary>
     /// Every picture <paramref name="frame"/> draws and how it is coloured, in packing order: the planes' and the reveal's
     /// block pictures, the background images, the message, the frontend tile sheets, the boss body's parts, the HUD's
-    /// pictures, then the overlays' and the layer-3 plane's tile pictures. A picture may appear more than once.
+    /// pictures, the pictured planes' pictures, then the overlays' and the layer-3 plane's tile pictures. A picture may appear more than once.
     /// </summary>
     private static IEnumerable<(SpriteSheetFrame Picture, D3D11PictureColouring Colouring)> Pictures(RoomLevelLayers frame)
     {
@@ -447,6 +488,11 @@ internal sealed class D3D11RoomLevelBuffer : IDisposable
             yield return (part.Picture, D3D11PictureColouring.Frame);
         foreach (PlacedHudPicture placed in frame.Hud?.Pictures ?? [])
             yield return (placed.Picture, D3D11PictureColouring.Frame);
+        foreach (PicturedPlane plane in frame.Planes?.Planes ?? [])
+        {
+            foreach (PlacedPlanePicture placed in plane.Pictures)
+                yield return (placed.Picture, D3D11PictureColouring.Frame);
+        }
         IEnumerable<BgTilePicture?>[] tilePictures =
         [
             Tiles(frame.Bg2Overlay?.Pictures),

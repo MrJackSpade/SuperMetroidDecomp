@@ -6,6 +6,8 @@ using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -43,7 +45,7 @@ internal static class CeresDestructionScreenMemory
             ceres.ObjectCharacters.Load(CeresDestructionObjectPage.Characters(artwork, zebesRevealed));
         }
         if (zebesRevealed)
-            ceres.ZebesTilemap.Load(artwork.CeresDestruction.ZebesMap.Bytes.Span[..CeresDestructionArtworkFormat.ZebesMapByteCount]);
+            ceres.ZebesTilemap.Load(IntroCinematicSourceArtwork.Of(artwork).ZebesReveal.Map.Bytes.Span[..ZebesRevealArtworkFormat.MapByteCount]);
         return vram.CaptureImage();
     }
 

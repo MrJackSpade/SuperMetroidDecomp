@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Defines one stable 3-by-2 portrait eye tilemap rectangle.</summary>
 public sealed record IntroEyeTilemapFrame

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>File identities and physical 4-bpp transfer lengths for the opening scene.</summary>
 public static class IntroCinematicArtworkFormat

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>The tiles of one two-cell stalactite drawing in the intro cave.</summary>
 /// <param name="Top">The first of the two top-row tiles; the second follows it in the atlas.</param>

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Stable identities and calculated atlas layout for the four portrait eye drawings. The three selected patch anchors and display design identify authored portrait content; changing them invents different drawings. Timing and pixels are outside this retained scope.</summary>
 public static class IntroEyeTilemapFormat

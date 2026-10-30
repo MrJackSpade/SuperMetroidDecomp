@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>$97:88CC Samus-head BG2 composition, copied by $8B:A4A5-A4B3 to VRAM word $4800. Atlas runs and repeated cells calculate; selected drawing layout remains explicit.</summary>
 internal static class IntroPortraitTilemapDefinitions

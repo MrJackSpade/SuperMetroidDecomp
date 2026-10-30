@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.Intro.Artwork.IntroPortraitTilemapDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroPortraitTilemapDefinitions;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
 /// Draws the intro's Samus-head BG2 page (<see cref="IntroPortraitTilemapDefinitions"/>): the silhouette's atlas cells and the

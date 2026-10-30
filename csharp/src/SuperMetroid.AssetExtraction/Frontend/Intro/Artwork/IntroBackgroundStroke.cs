@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>One drawing step of an illustrated intro background page, applied in page order.</summary>
 internal abstract record IntroBackgroundStroke

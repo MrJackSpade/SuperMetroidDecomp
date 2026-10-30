@@ -4,6 +4,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
@@ -22,7 +23,7 @@ internal static class CeresDestructionObjectPage
         // The station's setup loads the standard cinematic sheet over the start of the flight's object characters.
         IntroCinematicSourceArtwork.Of(artwork).IntroObjectCharacters.Characters.Span[..CeresDestructionSceneDefinitions.SharedObjectCharacterBytes].CopyTo(page);
         if (zebesRevealed)
-            artwork.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionArtworkFormat.ZebesCharacterByteCount].CopyTo(page);
+            IntroCinematicSourceArtwork.Of(artwork).ZebesReveal.Characters.Characters.Span[..ZebesRevealArtworkFormat.CharacterByteCount].CopyTo(page);
         return page;
     }
 

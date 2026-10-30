@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Defines the complete ordered set of opening portrait eye frames.</summary>
 public sealed record IntroEyeTilemapDocument

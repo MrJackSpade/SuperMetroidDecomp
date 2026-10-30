@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend;
+using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
@@ -42,7 +43,7 @@ internal static class CeresCinematicPictureSheetComposer
         // The destruction loads the shared cinematic sheet over the start of the flight's objects; the reveal its own over them.
         byte[] zebes = (byte[])flight.Clone();
         IntroCinematicSourceArtwork.Of(intro).IntroObjectCharacters.Characters.Span[..CeresDestructionSceneDefinitions.SharedObjectCharacterBytes].CopyTo(zebes);
-        intro.CeresDestruction.ZebesCharacters.Characters.Span[..CeresDestructionArtworkFormat.ZebesCharacterByteCount].CopyTo(zebes);
+        IntroCinematicSourceArtwork.Of(intro).ZebesReveal.Characters.Characters.Span[..ZebesRevealArtworkFormat.CharacterByteCount].CopyTo(zebes);
         int letters = SpaceColonyCaptionDefinitions.LetterCount;
         int japaneseRows = SpaceColonyCaptionTileDefinitions.JapaneseTiles.Length / SpaceColonyCaptionDefinitions.JapaneseWidth;
         int captionWidth = (letters + SpaceColonyCaptionDefinitions.JapaneseWidth) * CharacterPixels;
@@ -64,7 +65,7 @@ internal static class CeresCinematicPictureSheetComposer
             japanese = japanese.Union(Paint(canvas, (letters + cell % SpaceColonyCaptionDefinitions.JapaneseWidth) * CharacterPixels,
                 cell / SpaceColonyCaptionDefinitions.JapaneseWidth * CharacterPixels, japaneseTiles[cell], flight, colours));
         frames.Add(CeresCinematicPictures.JapaneseCaption, Frame(letters * CharacterPixels, 0, SpaceColonyCaptionDefinitions.JapaneseWidth, japaneseRows, japanese));
-        ReadOnlySpan<BackgroundTile> planet = intro.CeresDestruction.ZebesMap.Tiles.Span[..(CeresDestructionArtworkFormat.ZebesMapByteCount / sizeof(ushort))];
+        ReadOnlySpan<BackgroundTile> planet = IntroCinematicSourceArtwork.Of(intro).ZebesReveal.Map.Tiles.Span[..(ZebesRevealArtworkFormat.MapByteCount / sizeof(ushort))];
         ImageColourGroups planetGroups = ImageColourGroups.None;
         for (int cell = 0; cell < planet.Length; cell++)
             planetGroups = planetGroups.Union(Paint(canvas, cell % PlanetCells * CharacterPixels, captionHeight + cell / PlanetCells * CharacterPixels,

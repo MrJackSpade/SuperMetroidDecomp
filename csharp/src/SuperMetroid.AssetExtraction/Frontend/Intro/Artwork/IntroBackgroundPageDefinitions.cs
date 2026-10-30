@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>$96:FF14: the four illustrated intro BG pages, copied by $8B:A4E5-A4F3 to VRAM word $5000, as the ordered drawing
 /// steps <see cref="IntroBackgroundPages"/> applies to each page after filling it with the border blank.</summary>

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Rooms.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable subtitle-staging tile references for BG3 rows 24-27; glyph pixels, translated narration, and reveal timing are separate resources or runtime state.</summary>
 public sealed record IntroFinalLineTilemapDocument

@@ -64,7 +64,7 @@ internal static class IntroCinematicArtworkVerification
             GameInstallation installation = copy.Installation;
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
             Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
-            IntroCinematicArtwork stock = installation.LoadIntroCinematicArt();
+            IntroCinematicSourceArtwork stock = installation.LoadIntroCinematicArt();
             AssertTrue(IntroCinematicSourceArtwork.Of(stock).BackgroundCharacters.Characters.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicSourceDefinitions.BackgroundCharacters,
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
@@ -281,7 +281,7 @@ internal static class IntroCinematicArtworkVerification
             };
             using (var output = File.Create(dividerOverridePath))
                 IntroFinalLineTilemap.Write(output, dividerDocument);
-            IntroCinematicArtwork editedDivider = installation.LoadIntroCinematicArt();
+            IntroCinematicSourceArtwork editedDivider = installation.LoadIntroCinematicArt();
             var editedDividerState = CreateRetailIntroFixture(characterArtwork: editedDivider);
             editedDividerState.SetupFirstIllustratedPage();
             byte[] expectedDividerVram = stockDividerVram.ToArray();
@@ -361,7 +361,7 @@ internal static class IntroCinematicArtworkVerification
                 using (var output = File.Create(overridePath))
                     IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Colours);
 
-                IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
+                IntroCinematicSourceArtwork edited = installation.LoadIntroCinematicArt();
                 var editedState = CreateRetailIntroFixture(characterArtwork: edited);
                 byte[] expected = nativeVram.ToArray();
                 // $8B:A395 copies the fixed OBJ sheet before the compressed sheet;
@@ -425,7 +425,7 @@ internal static class IntroCinematicArtworkVerification
                     RoomBackgroundTilemapAtlas.Write(output, document,
                         IntroCinematicArtworkFormat.BackgroundPageByteCount);
 
-                IntroCinematicArtwork edited = installation.LoadIntroCinematicArt();
+                IntroCinematicSourceArtwork edited = installation.LoadIntroCinematicArt();
                 byte[] expected = nativeVram.ToArray();
                 BackgroundTileWordBytes.Of(edited.BackgroundPages.Span).CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundPages.Offset * 2)));
@@ -474,10 +474,10 @@ internal static class IntroCinematicArtworkVerification
                 {
                     new VerifyIntroCinematicArtworkCase(IntroCinematicArtworkFormat.PortraitTilemapFileName,
                         (IntroVramLayout.PortraitTilemap.Offset * 2),
-                        artwork => BackgroundTileWordBytes.Of(artwork.PortraitTilemap.Span)),
+                        artwork => BackgroundTileWordBytes.Of(IntroCinematicSourceArtwork.Of(artwork).PortraitTilemap.Span)),
                     new VerifyIntroCinematicArtworkCase(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName,
                         (IntroVramLayout.NarrationTilemap.Offset * 2),
-                        artwork => BackgroundTileWordBytes.Of(artwork.InitialNarrationTilemap.Span)),
+                        artwork => BackgroundTileWordBytes.Of(IntroCinematicSourceArtwork.Of(artwork).InitialNarrationTilemap.Span)),
                 })
             {
                 string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);

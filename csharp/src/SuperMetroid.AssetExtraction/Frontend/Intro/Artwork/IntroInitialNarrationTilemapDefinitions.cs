@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>The opening BG3 card, decompressed from $97:8D12 and copied at $8B:A4C5 to VRAM word $4C00.</summary>
 internal static class IntroInitialNarrationTilemapDefinitions

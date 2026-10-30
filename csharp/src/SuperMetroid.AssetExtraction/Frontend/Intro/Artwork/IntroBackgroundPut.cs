@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Places one tile on one cell.</summary>
 /// <param name="Cell">The page cell.</param>

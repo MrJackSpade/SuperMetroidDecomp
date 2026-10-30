@@ -13,7 +13,6 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Death;
@@ -23,6 +22,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

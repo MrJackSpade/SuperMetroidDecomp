@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>The width of a ceiling point in the intro background.</summary>
 public enum IntroCeilingPointWidth

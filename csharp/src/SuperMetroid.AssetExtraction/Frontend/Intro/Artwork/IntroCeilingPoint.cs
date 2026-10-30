@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
+
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>$96:FF14 cave: one of the two selected two-cell stalactite drawings. Their lower rows are repacked rather than
 /// following the atlas-row stride.</summary>

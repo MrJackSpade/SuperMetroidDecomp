@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Writes one illustrated intro background page into its slice of the combined pages.</summary>
 /// <param name="output">The combined pages, in native page order.</param>

@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>File identity and dimensions for the cartridge's four-row Japanese subtitle staging map.</summary>
 public static class IntroFinalLineTilemapFormat
@@ -18,8 +20,12 @@ public static class IntroFinalLineTilemapFormat
         (IntroFontAtlasFormat.BitsPerPixel * IntroFontAtlasFormat.TileSize * Rows);
     /// <summary>$8B:A72B-A82A: center the subtitle staging width in the 32-column BG page.</summary>
     internal const int MarginColumns = (Columns - InteriorColumns) / 2;
-    /// <summary>$8B:A6B7: margins share the surrounding Japanese blank tile, colour variant and priority.</summary>
-    internal static BackgroundTile MarginTile => IntroCinematicDefinitions.Text.JapaneseBlank;
+    /// <summary>$8B:A6B7: margins share the surrounding Japanese blank tile, colour variant and priority: the blank cell of the Japanese narration layout, in front.</summary>
+    internal static BackgroundTile MarginTile => new(JapaneseBlankGlyph, JapaneseBlankColourVariant, highPriority: true);
+    /// <summary>The font tile of the Japanese narration layout's blank glyph.</summary>
+    private const int JapaneseBlankGlyph = 0x029;
+    /// <summary>The colour variant the Japanese narration layout's blank cells show in.</summary>
+    private const int JapaneseBlankColourVariant = 7;
     /// <summary>$8B:A72B: first subtitle tile follows its VRAM staging destination relative to the font base; colour variant four and priority are selected subtitle style.</summary>
     internal static BackgroundTile FirstInteriorTile => new(
         IntroTileSetDefinitions.JapaneseBlankFirstTile, SubtitlePalette, highPriority: true);

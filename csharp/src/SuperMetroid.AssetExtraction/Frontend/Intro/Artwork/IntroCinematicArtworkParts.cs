@@ -6,10 +6,28 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
 /// The opening cinematic as the import pipeline reads it (#633, #1463): the scene artwork the game binds, with the
-/// character atlases and sprite compositions its sheets are composed from.
+/// tilemaps, character atlases and sprite compositions its sheets are composed from (#1467).
 /// </summary>
 public sealed record IntroCinematicArtworkParts : IntroCinematicSceneParts
 {
+    /// <summary>Exactly four ordered 32x32 tilemap pages of the illustrated scenes.</summary>
+    public required IReadOnlyList<RoomBackgroundTilemapAtlas> BackgroundPages { get; init; }
+
+    /// <summary>One 32x32 Samus-head portrait page.</summary>
+    public required RoomBackgroundTilemapAtlas PortraitTilemap { get; init; }
+
+    /// <summary>One 32x32 pre-typewriter narration page.</summary>
+    public required RoomBackgroundTilemapAtlas InitialNarrationTilemap { get; init; }
+
+    /// <summary>Four rows referencing the Japanese subtitle glyphs.</summary>
+    public required IntroFinalLineTilemap FinalLine { get; init; }
+
+    /// <summary>Samus portrait eye rectangles, independent of blink timing.</summary>
+    public required IntroEyeTilemapPresentation EyeFrames { get; init; }
+
+    /// <summary>The Zebes reveal's tilemap and characters, which the planet's picture is composed from.</summary>
+    public required ZebesRevealArtwork ZebesReveal { get; init; }
+
     /// <summary>Palette-indexed BG characters of the illustrated scenes.</summary>
     public required RoomCharacterAtlas BackgroundCharacters { get; init; }
 

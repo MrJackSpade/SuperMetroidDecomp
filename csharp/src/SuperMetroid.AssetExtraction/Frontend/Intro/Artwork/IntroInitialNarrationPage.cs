@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Core.Frontend.Intro.Artwork.IntroInitialNarrationTilemapDefinitions;
+using static SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroInitialNarrationTilemapDefinitions;
+using SuperMetroid.Core.Frontend.Intro.Artwork;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>
 /// Draws the intro's opening narration page (<see cref="IntroInitialNarrationTilemapDefinitions"/>).

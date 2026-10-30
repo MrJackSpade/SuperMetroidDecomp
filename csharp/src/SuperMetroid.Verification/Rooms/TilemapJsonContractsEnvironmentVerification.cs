@@ -7,8 +7,8 @@ using System.Text;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Rooms.TilemapJsonContractsVerification;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Verification.Rooms;
 

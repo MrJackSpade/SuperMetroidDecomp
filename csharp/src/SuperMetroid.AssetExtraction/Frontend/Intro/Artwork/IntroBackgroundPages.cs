@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Assets;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>$96:FF14: composes the four illustrated intro BG pages from their drawing steps
 /// (<see cref="IntroBackgroundPageDefinitions"/>).</summary>

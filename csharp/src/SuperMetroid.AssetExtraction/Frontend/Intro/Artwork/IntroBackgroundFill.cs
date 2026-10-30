@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Paints a rectangle of cells with one tile.</summary>
 /// <param name="Origin">The rectangle's top-left cell.</param>

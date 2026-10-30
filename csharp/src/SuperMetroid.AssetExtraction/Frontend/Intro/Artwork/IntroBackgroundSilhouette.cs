@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Copies only the occupied cells of an atlas block, row by row, leaving the rest of the page as drawn.</summary>
 /// <param name="Origin">The page cell the block's top-left lands on.</param>

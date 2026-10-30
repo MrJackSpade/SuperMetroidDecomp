@@ -1,8 +1,9 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>The four-row Japanese subtitle staging map, as ordered editable BG tile references.</summary>
 public sealed class IntroFinalLineTilemap

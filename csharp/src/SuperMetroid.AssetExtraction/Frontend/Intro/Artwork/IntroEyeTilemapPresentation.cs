@@ -1,8 +1,9 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Four editable 3x2 Samus-eye BG2 rectangles; blink timing stays in code.</summary>
 public sealed class IntroEyeTilemapPresentation

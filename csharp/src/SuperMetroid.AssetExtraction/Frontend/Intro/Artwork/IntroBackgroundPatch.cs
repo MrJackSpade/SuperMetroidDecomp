@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Copies a rectangle of the intro atlas onto the page, reflected as a whole when <paramref name="Flips"/> names an axis.</summary>
 /// <param name="Origin">The page cell the patch's top-left lands on.</param>

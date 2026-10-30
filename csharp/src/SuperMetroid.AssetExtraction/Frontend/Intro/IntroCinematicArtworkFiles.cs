@@ -428,7 +428,7 @@ public static class IntroCinematicArtworkFiles
 
         return new IntroCinematicSourceArtwork(new IntroCinematicArtworkParts { BackgroundCharacters = LoadSheet(names[0], IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = LoadSheet(names[1], IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = LoadSheet(names[2], IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
                 .Select(page => LoadPage(IntroCinematicArtworkFormat.BackgroundPageFileName(page)))
-                .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Palette = LoadPalette(), CeresFlight = LoadCeresFlight(), CeresDestruction = LoadCeresDestruction(), CeresDestructionSprites = LoadCeresDestructionSprites() });
+                .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Palette = LoadPalette(), CeresFlight = LoadCeresFlight(), CeresDestruction = LoadCeresDestruction(), ZebesReveal = LoadZebesReveal(), CeresDestructionSprites = LoadCeresDestructionSprites() });
 
         RoomCharacterAtlas LoadSheet(string name, int nativeByteCount)
         {
@@ -629,8 +629,6 @@ public static class IntroCinematicArtworkFiles
         CeresDestructionArtwork LoadCeresDestruction()
         {
             (string ceresPath, byte[] ceres) = ReadSelected(CeresDestructionArtworkFormat.CeresMapFileName);
-            (string zebesMapPath, byte[] zebesMap) = ReadSelected(CeresDestructionArtworkFormat.ZebesMapFileName);
-            (string zebesPngPath, byte[] zebesPng) = ReadSelected(CeresDestructionArtworkFormat.ZebesCharacterFileName);
             (string actorsPath, byte[] actors) = ReadSelected(CeresRevealActorLayoutFormat.FileName);
             (string destructionActorsPath, byte[] destructionActors) =
                 ReadSelected(CeresDestructionActorLayoutFormat.FileName);
@@ -638,16 +636,29 @@ public static class IntroCinematicArtworkFiles
             {
                 return CeresDestructionArtwork.Load(
                     new MemoryStream(ceres, writable: false),
-                    new MemoryStream(zebesMap, writable: false),
-                    RoomCharacterAtlasPng.Read(new MemoryStream(zebesPng, writable: false), CeresDestructionArtworkFormat.ZebesCharacterByteCount),
                     new MemoryStream(actors, writable: false),
                     new MemoryStream(destructionActors, writable: false));
             }
             catch (InvalidDataException error)
             {
                 throw new InvalidDataException(
-                    $"Invalid destruction artwork ({ceresPath}, {zebesMapPath}, {zebesPngPath}, {actorsPath}, {destructionActorsPath}): {error.Message}",
+                    $"Invalid destruction artwork ({ceresPath}, {actorsPath}, {destructionActorsPath}): {error.Message}",
                     error);
+            }
+        }
+
+        ZebesRevealArtwork LoadZebesReveal()
+        {
+            (string mapPath, byte[] map) = ReadSelected(ZebesRevealArtworkFormat.MapFileName);
+            (string pngPath, byte[] png) = ReadSelected(ZebesRevealArtworkFormat.CharacterFileName);
+            try
+            {
+                return ZebesRevealArtwork.Load(new MemoryStream(map, writable: false),
+                    RoomCharacterAtlasPng.Read(new MemoryStream(png, writable: false), ZebesRevealArtworkFormat.CharacterByteCount));
+            }
+            catch (InvalidDataException error)
+            {
+                throw new InvalidDataException($"Invalid Zebes reveal artwork ({mapPath}, {pngPath}): {error.Message}", error);
             }
         }
 
@@ -705,8 +716,8 @@ public static class IntroCinematicArtworkFiles
         CeresFlightSpriteFormat.FileName,
         CeresFlightActorLayoutFormat.FileName,
         CeresDestructionArtworkFormat.CeresMapFileName,
-        CeresDestructionArtworkFormat.ZebesMapFileName,
-        CeresDestructionArtworkFormat.ZebesCharacterFileName,
+        ZebesRevealArtworkFormat.MapFileName,
+        ZebesRevealArtworkFormat.CharacterFileName,
         CeresDestructionSpriteFormat.FileName,
         CeresRevealActorLayoutFormat.FileName,
         CeresDestructionActorLayoutFormat.FileName,

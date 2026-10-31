@@ -43,8 +43,8 @@ internal static class GunshipEscapeTimerVerification
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
         SamusPresentation.InitializeAnimation(samus);
         samus.Presentation.PrimeGraphics(samus);
-        runtime.EscapeTimer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
-        runtime.EscapeTimer.SetTime(PackedDecimal.FromDecimal(2), PackedDecimal.FromDecimal(59), PackedDecimal.FromDecimal(50));
+        runtime.EscapeTimer.SelectRunningPhase(EscapeTimerPhase.InPlace);
+        runtime.EscapeTimer.SetRemaining(EscapeTimerClock.Time(2, 59, 50));
         runtime.ShowEscapeTimerSpriteTiles();
         runtime.StepFrame(0);
         var timerTilesBefore = new ObjCharacterTablePage().Page(runtime.Enemies.Room.Session.SpriteLooks, RuntimeArtworkContent.Of(runtime))
@@ -81,7 +81,7 @@ internal static class GunshipEscapeTimerVerification
         Console.WriteLine("Gunship escape timer: normal timer draws, same-frame boarding suppression, preserved active status and no timer sprites through liftoff dust upload passed.");
         return 0;
 
-        TimeResult Time() => new TimeResult(runtime.EscapeTimer.Minutes.Raw, runtime.EscapeTimer.Seconds.Raw, runtime.EscapeTimer.Centiseconds.Raw);
+        int Time() => runtime.EscapeTimer.RemainingCentiseconds;
         bool TimerSpritesPresent() => runtime.Sprites.Draws.Any(draw => draw.Source.Kind == SpriteSourceKind.EscapeTimer);
     }
 

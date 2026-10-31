@@ -485,7 +485,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMultiplicationExhaustively), () => VerifyMultiplicationExhaustively()),
         new(nameof(VerifySmCompressionFormat), () => VerifySmCompressionFormat()),
         new(nameof(VerifyVramWriteQueue), () => VerifyVramWriteQueue()),
-        new(nameof(VerifyEscapeTimerBcd), () => VerifyEscapeTimerBcd()),
         new(nameof(VerifyEscapeTimerStateMachine), () => VerifyEscapeTimerStateMachine()),
         new(nameof(VerifyEscapeTimerFloor), () => VerifyEscapeTimerFloor()),
         new(nameof(VerifyControllerInputLatch), () => VerifyControllerInputLatch()),

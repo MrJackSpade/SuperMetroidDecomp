@@ -1,12 +1,14 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>The escape timer's editable layout: where its label and digit pairs sit and how far apart a pair's digits are.</summary>
 public sealed class EscapeTimerPresentation
 {
+    /// <summary>The base of the decimal digits each pair shows.</summary>
+    private const int DigitBase = 10;
+
     /// <summary>Only edited screen-relative offsets; stock anchors are calculated when absent.</summary>
     internal readonly Dictionary<EscapeTimerAnchor, Offset16<SpritePixels>> anchors;
 
@@ -20,29 +22,27 @@ public sealed class EscapeTimerPresentation
     /// <summary>Horizontal pixel displacement from each pair's tens-digit origin to its ones-digit origin; stock spacing is eight pixels.</summary>
     public int DigitSpacing { get; }
 
-    /// <summary>Publishes the timer as image draws from its sheet while retaining live BCD/countdown state.</summary>
-    /// <param name="timer">Live timer supplying packed-BCD minutes, seconds and centiseconds and the integer pixel origin of its moving position.</param>
+    /// <summary>Publishes the timer as image draws from its sheet: its label, then two decimal digits for each of its minutes, seconds and centiseconds.</summary>
+    /// <param name="timer">Live timer supplying its readout and the integer pixel origin of its moving position.</param>
     /// <param name="sprites">Frame receiving the TIME label and then the tens and ones digit of each pair, after any sprites already emitted.</param>
     /// <param name="sheet">The installed timer sheet, one frame per glyph.</param>
     /// <remarks>The caller controls visibility. This method neither checks whether the timer is active nor advances its countdown.</remarks>
     /// <exception cref="ArgumentNullException">An argument is null.</exception>
-    /// <exception cref="InvalidOperationException">A timer byte contains a nondecimal BCD nibble; earlier draws may already have been added.</exception>
     public void Draw(EscapeTimer timer, SpriteFrameBuffer sprites, SpriteSheet sheet)
     {
         Ensure.NotNull(timer);
         Ensure.NotNull(sprites);
         Ensure.NotNull(sheet);
+        EscapeTimeReadout readout = timer.Readout;
         DrawFrame(EscapeTimerGlyph.Label, Anchor(EscapeTimerAnchor.Label));
-        DrawPair(timer.Minutes, Anchor(EscapeTimerAnchor.Minutes));
-        DrawPair(timer.Seconds, Anchor(EscapeTimerAnchor.Seconds));
-        DrawPair(timer.Centiseconds, Anchor(EscapeTimerAnchor.Centiseconds));
+        DrawPair(readout.Minutes, Anchor(EscapeTimerAnchor.Minutes));
+        DrawPair(readout.Seconds, Anchor(EscapeTimerAnchor.Seconds));
+        DrawPair(readout.Centiseconds, Anchor(EscapeTimerAnchor.Centiseconds));
 
-        void DrawPair(PackedDecimal pair, Offset16<SpritePixels> anchor)
+        void DrawPair(int value, Offset16<SpritePixels> anchor)
         {
-            if (!pair.IsValid)
-                throw new InvalidOperationException($"Cannot draw invalid packed-BCD timer byte ${pair.Raw:X2}.");
-            DrawFrame(EscapeTimerComposition.DigitGlyph(pair.Tens), anchor);
-            DrawFrame(EscapeTimerComposition.DigitGlyph(pair.Ones),
+            DrawFrame(EscapeTimerComposition.DigitGlyph(value / DigitBase), anchor);
+            DrawFrame(EscapeTimerComposition.DigitGlyph(value % DigitBase),
                 anchor + new Offset16<SpritePixels>(checked((short)DigitSpacing), 0));
         }
 

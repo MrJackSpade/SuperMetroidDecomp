@@ -7,32 +7,32 @@ namespace SuperMetroid.Core.Escape;
 public static class ZebesEscapeDefinitions
 {
     /// <summary>The updates a temporary diagonal shake lasts before the room returns to its horizontal shake.</summary>
-    public const ushort DiagonalFrames = 42;
+    public const int DiagonalFrames = 42;
 
     /// <summary>Light horizontal shaking, enemies included.</summary>
-    public const ushort LightHorizontal = 18;
+    public const int LightHorizontal = 18;
 
     /// <summary>Medium horizontal shaking, enemies included.</summary>
-    public const ushort MediumHorizontal = 21;
+    public const int MediumHorizontal = 21;
 
     /// <summary>The medium diagonal shake a lightly shaking room turns to.</summary>
-    public const ushort MediumDiagonal = 23;
+    public const int MediumDiagonal = 23;
 
     /// <summary>The strong diagonal shake a medium shaking room turns to.</summary>
-    public const ushort StrongDiagonal = 26;
+    public const int StrongDiagonal = 26;
 
     /// <summary>A lightly shaking room turns diagonal on an update whose random number is below this.</summary>
-    public const ushort LightChance = 512;
+    public const int LightChance = 512;
 
     /// <summary>A medium shaking room turns diagonal on an update whose random number is below this.</summary>
-    public const ushort MediumChance = 384;
+    public const int MediumChance = 384;
 
     /// <summary>The blank foreground tile outdoor explosions skip.</summary>
-    public const ushort BlankTile = 255;
+    public const int BlankTile = 255;
 
     /// <summary>The strong horizontal shake, enemies included, Mainstreet's escape room shakes with.</summary>
-    public const ushort MainstreetQuake = 24;
+    public const int MainstreetQuake = 24;
 
     /// <summary>The strong horizontal background shake the Landing Site shakes with during the escape.</summary>
-    public const ushort LandingQuake = 6;
+    public const int LandingQuake = 6;
 }

@@ -69,7 +69,7 @@ internal static class RetailRidleyEscapeTests
                 }
                 if (finished) break;
             }
-            if (!finished || mixedFrames == 0 || matrices.Count < 2 || runtime.EscapeTimer.State == EscapeTimerState.Inactive)
+            if (!finished || mixedFrames == 0 || matrices.Count < 2 || runtime.EscapeTimer.Phase == EscapeTimerPhase.Inactive)
                 throw new InvalidOperationException($"Native escape coverage incomplete: triggered={triggered}, finished={finished}, " +
                     $"phase={(ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function}, mode7={mixedFrames}, matrices={matrices.Count}.");
             Console.WriteLine($"{device.Kind}: native Ridley escape hits={hitThreshold}: {samples} exact samples, " +

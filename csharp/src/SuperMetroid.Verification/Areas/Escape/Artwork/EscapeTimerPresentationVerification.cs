@@ -11,7 +11,6 @@ using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 
 using SuperMetroid.Verification.Harness;
@@ -75,7 +74,7 @@ internal static class EscapeTimerPresentationVerification
         SpriteSheet sheet = EscapeTimerDrawChecks.Sheet(bus);
         var timer = new EscapeTimer();
         timer.Clear();
-        timer.SetTime(PackedDecimal.FromDecimal(1), PackedDecimal.FromDecimal(23), PackedDecimal.FromDecimal(45));
+        timer.SetRemaining(EscapeTimerClock.Time(1, 23, 45));
         var native = new OamBuffer();
         native.BeginFrame();
         DrawImportedEscapeTimer(bus, timer, native);
@@ -176,9 +175,10 @@ internal static class EscapeTimerPresentationVerification
     {
         ushort palette = NativeSpriteGraphicsWords.PaletteBits(5);
         Draw(0, EscapeTimerPresentationDefinitions.LabelSpritemap);
-        Digits(timer.Minutes.Raw, unchecked((short)0xffe4));
-        Digits(timer.Seconds.Raw, unchecked((short)0xfffc));
-        Digits(timer.Centiseconds.Raw, 0x0014);
+        // The cartridge draws each field from its packed-decimal byte.
+        Digits(EscapeTimerClock.PackedDecimal(timer.Readout.Minutes), unchecked((short)0xffe4));
+        Digits(EscapeTimerClock.PackedDecimal(timer.Readout.Seconds), unchecked((short)0xfffc));
+        Digits(EscapeTimerClock.PackedDecimal(timer.Readout.Centiseconds), 0x0014);
 
         void Digits(byte bcd, short offset)
         {

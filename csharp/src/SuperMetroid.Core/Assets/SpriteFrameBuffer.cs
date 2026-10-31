@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// One frame's sprite description: the whole-frame draws of every actor, in emission order, frontmost first. Gameplay
-/// builds one per frame and the NMI latches it; backends draw it without OAM or VRAM.
+/// builds one per frame and the frame boundary latches it; backends draw it directly.
 /// </summary>
 public sealed class SpriteFrameBuffer
 {
@@ -31,7 +31,7 @@ public sealed class SpriteFrameBuffer
         pending.Clear();
     }
 
-    /// <summary>Makes a finalized frame the displayed one, as the NMI does.</summary>
+    /// <summary>Makes a finalized frame the displayed one, as the frame boundary does.</summary>
     /// <param name="staging">The buffer the main loop built and finalized.</param>
     public void LatchFrom(SpriteFrameBuffer staging) => finalized = Ensure.NotNull(staging).finalized;
 }

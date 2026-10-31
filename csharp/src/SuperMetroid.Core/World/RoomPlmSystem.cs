@@ -171,7 +171,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
 
 
     /// <summary>
-    /// Executes the PLM handler with the accepted NMI's newly pressed controller bits.
+    /// Executes the PLM handler with the frame boundary's newly pressed controller bits.
     /// Resident programs such as the n00b tube consume edges, not held input.
     /// </summary>
     public void Step(RoomLevelData level, PlmFrameInputs frame)

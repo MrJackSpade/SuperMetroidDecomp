@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// FX $24's state: the flash clock that <c>$88:B07C</c> initializes and its pre-instruction <c>$88:B0BC</c> steps, and
-/// the darkness level the dying Firefleas advance. The cartridge keeps these in WRAM (<c>$7E:1778</c>, <c>$177A</c>,
+/// the darkness level the dying Firefleas advance. The game keeps these for the session (<c>$7E:1778</c>, <c>$177A</c>,
 /// <c>$177E</c>); the room FX state owns them for the session, so a room load does not reset them.
 /// </summary>
 public sealed class FirefleaFxState

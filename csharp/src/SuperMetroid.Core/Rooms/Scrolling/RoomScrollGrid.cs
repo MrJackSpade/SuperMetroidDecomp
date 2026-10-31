@@ -88,13 +88,13 @@ public sealed class RoomScrollGrid
     public RoomScrollState ReadState(int index) => RoomScrollStates.FromStorageByte(ReadStorage(index));
 
     /// <summary>
-    /// Reads the native WRAM-relative byte selected by a bank-$80 scroll calculation.
+    /// Reads the scroll-storage byte selected by a scroll calculation.
     /// </summary>
     /// <remarks>
     /// Most accesses stay in <c>$CD20..CD51</c>, but the bottom row can legally select
     /// index $32, which is the first byte of <c>ExploredMapTiles</c> at $CD52. The 65C816
-    /// does not know the C# array ended there, so camera code must observe adjacent WRAM
-    /// rather than throw or manufacture a clamped scroll cell.
+    /// does not know the C# array ended there, so camera code must observe the explored-map
+    /// byte that follows rather than throw or manufacture a clamped scroll cell.
     /// </remarks>
     public byte ReadCameraStorage(int index)
     {
@@ -104,7 +104,7 @@ public sealed class RoomScrollGrid
     }
 
     /// <summary>
-    /// Typed view of a native-relative read, including legal adjacent-WRAM reads. A byte past the three
+    /// Typed view of a scroll-storage read, including the legal read past its end. A byte past the three
     /// authored states reads as the camera treats it, <see cref="RoomScrollState.Green"/>; the raw byte stays
     /// available through <see cref="ReadCameraStorage"/>.
     /// </summary>
@@ -113,7 +113,7 @@ public sealed class RoomScrollGrid
 
     /// <summary>
     /// Writes one raw byte in the fixed 50-byte scroll allocation. Enemy and PLM scripts use
-    /// literal WRAM indexes rather than logical room coordinates, so this seam preserves their
+    /// literal storage indexes rather than logical room coordinates, so this seam preserves their
     /// overlapping word stores without reverse-engineering them into guessed screen cells.
     /// </summary>
     public void SetStorage(int index, RoomScrollState state)

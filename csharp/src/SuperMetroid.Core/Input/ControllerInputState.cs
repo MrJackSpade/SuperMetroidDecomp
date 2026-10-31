@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Input;
 
 /// <summary>
 /// Ports the controller-1 portion of <c>$80:9459</c>, which runs near the end of every
-/// accepted NMI after the SNES automatic joypad read has completed.
+/// frame boundary after the SNES automatic joypad read has completed.
 /// </summary>
 public sealed class ControllerInputState
 {
@@ -33,7 +33,7 @@ public sealed class ControllerInputState
     public ControllerButton Current { get; private set; }
 
     /// <summary>
-    /// Rising-edge button bits at direct page <c>$8F</c>. A bit is set for exactly the NMI
+    /// Rising-edge buttons. A button is set for exactly the frame boundary
     /// where it changes from released to pressed.
     /// </summary>
     public ControllerButton NewlyPressed { get; private set; }
@@ -52,7 +52,7 @@ public sealed class ControllerInputState
 
     /// <summary>
     /// Temporarily publishes the demo's explicit held/edge pair, as bank-$90 demo alpha
-    /// does. Disposing restores the real NMI sample for the demo-cancellation check.
+    /// does. Disposing restores the real latched sample for the demo-cancellation check.
     /// This is deliberately not Latch: recorded edges need not equal held-input changes.
     /// </summary>
     internal IDisposable UseDemoInput(ControllerButton held, ControllerButton newlyPressed)
@@ -63,7 +63,7 @@ public sealed class ControllerInputState
         return restore;
     }
 
-    /// <summary>Restores the real NMI controller sample after a scoped demo input override.</summary>
+    /// <summary>Restores the real latched controller sample after a scoped demo input override.</summary>
     private sealed class DemoInputRestore(ControllerInputState owner, ControllerButton held, ControllerButton newlyPressed) : IDisposable
     {
         /// <summary>Prevents a repeated dispose from replacing a later controller sample.</summary>

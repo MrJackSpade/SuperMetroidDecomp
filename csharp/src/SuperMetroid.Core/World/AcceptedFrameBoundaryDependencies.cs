@@ -11,11 +11,11 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="AcceptedFrameBoundary"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [ArchitectureReview("wide-dependencies", "The display snapshot boundary: each member is an owner whose state becomes " +
-    "visible at this NMI (scroll, windows, sprites, HUD, room layers, FX colors, X-ray, eye beam) and is read once to " +
+    "visible at the frame boundary (scroll, windows, sprites, HUD, room layers, FX colors, X-ray, eye beam) and is read once to " +
     "latch it; narrowing would only move the same reads into a second boundary.")]
 internal sealed record AcceptedFrameBoundaryDependencies
 {
-    /// <summary>The input half of the accepted NMI: the controller latches and the frame counters.</summary>
+    /// <summary>The input half of the frame boundary: the controller latches and the frame counters.</summary>
     public required AcceptedFrameInput Input { get; init; }
 
     /// <summary>Artwork.</summary>
@@ -33,7 +33,7 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-    /// <summary>Sprite frame the NMI makes visible.</summary>
+    /// <summary>Sprite frame the frame boundary makes visible.</summary>
     public required SpriteFrameBuffer DisplayedSprites { get; init; }
 
     /// <summary>The enemy words and installed enemy artwork that outlive each room.</summary>

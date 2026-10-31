@@ -8,7 +8,7 @@ using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The live enemy state the NMI display latch, actor drawing and window registers read at their own points. Reads are
+/// The live enemy state the frame-boundary display latch, actor drawing and screen windows read at their own points. Reads are
 /// live; the latch that captures them stays latched.
 /// </summary>
 internal interface IEnemyDisplaySources

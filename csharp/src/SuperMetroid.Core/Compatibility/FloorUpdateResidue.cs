@@ -2,8 +2,8 @@ namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
 /// The descriptors the Ceres Ridley getaway's floor updates leave behind, owned for the session (#1338, #1406). The
-/// cartridge queues each floor update as a nine-byte descriptor in WRAM <c>$02D0-$032F</c> (<c>QueueMode7Transfers</c>,
-/// <c>$80:8B8B</c>), each followed by a cleared byte, and the NMI handler (<c>$80:8BBA</c>) clears only the first two
+/// cartridge queues each floor update as a nine-byte descriptor (<c>$02D0-$032F</c>) (<c>QueueMode7Transfers</c>,
+/// <c>$80:8B8B</c>), each followed by a cleared byte, and the frame's display upload (<c>$80:8BBA</c>) clears only the first two
 /// bytes after copying them, so the rest outlive the update. The Speed Booster cadence the game never authored
 /// (<see cref="UnauthoredBoostCadence"/>, <c>$91:0303</c>) reads those bytes as delays: the running cadence's stage-five
 /// reads in the Ceres SMV established it. The getaway records each update's floor updates here at the point it queued

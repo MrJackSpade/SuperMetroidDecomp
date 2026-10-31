@@ -100,7 +100,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// </summary>
     /// <remarks>
     /// The synchronous bank-$85 message pauses PLM_Handler, so the diagnostic pickup list
-    /// intentionally remains visible during many accepted NMIs. Audio must not infer an
+    /// intentionally remains visible during many frames. Audio must not infer an
     /// edge from that retained list or it will clear/requeue the fanfare every frame.
     /// </remarks>
     public bool ConsumeCollectibleFanfareRequest()

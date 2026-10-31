@@ -26,8 +26,7 @@ public sealed class BackgroundScrollState
     public Layer2ScrollModes Layer2Scroll { get; set; } = Layer2ScrollModes.CopiesLayer1;
 
     /// <summary>Wrapped delta added to <see cref="Layer1Position"/> to form BG1HOFS/BG1VOFS.</summary>
-    /// <remarks>These offsets are separate native variables despite the confusing adjacency of the BG1 X offset and
-    /// Layer2ScrollY in WRAM ($091F is addressed as Layer2ScrollY+1).</remarks>
+    /// <remarks>These offsets are separate values, independent of the second layer's scroll mode.</remarks>
     public Offset16<RoomPixels> Bg1Offset { get; set; }
 
     /// <summary>Wrapped delta added to <see cref="Layer2Position"/> to form BG2HOFS/BG2VOFS.</summary>
@@ -50,9 +49,9 @@ public sealed class BackgroundScrollState
     public void SetBg1VerticalScroll(int vertical) => Bg1Scroll = Bg1Scroll.WithY(vertical);
 
     /// <summary>
-    /// Implements <c>$80:AE29</c> after a directional door setup has staged its off-screen
-    /// layer-one coordinate. BG1 retains the source-room PPU scroll while state $0B clears
-    /// both BG2 registers; all four offsets then remain active throughout the opening IRQ.
+    /// Installs the door-opening offsets after a directional door setup has staged its
+    /// off-screen layer-one coordinate. BG1 keeps the source room's scroll while the door
+    /// transition clears BG2's; all four offsets then remain active throughout the opening scroll.
     /// </summary>
     public void ConfigureDoorOpeningOffsets(
         Position16<RoomPixels> retainedBg1Scroll,
@@ -81,7 +80,7 @@ public sealed class BackgroundScrollState
     /// <param name="destination">The layer-one destination published to <see cref="Layer1Position"/>.</param>
     /// <param name="parallaxBasis">
     /// The layer-one words the parallax calculation reads. An upward door calculates BG2 from
-    /// destination+$1F before the IRQ's layer-one endpoint becomes destination+$20.
+    /// destination+$1F before the scroll's layer-one endpoint becomes destination+$20.
     /// </param>
     public void PrepareDoorOpeningDestination(Position16<RoomPixels> destination, Position16<RoomPixels> parallaxBasis)
     {

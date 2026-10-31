@@ -867,7 +867,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.RequireSpeciesState<MamaTurtleEnemyState>(),
             frame.Samus,
             frame.Level,
-            frame.Clock.Counter8);
+            frame.Clock.ShortCounter);
     }
 
     /// <summary>Ports BabyTurtle's main AI.</summary>

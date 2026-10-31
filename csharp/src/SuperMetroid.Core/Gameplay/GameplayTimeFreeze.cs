@@ -3,7 +3,7 @@
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// The global gameplay freeze word (WRAM <c>$0A78</c>) and the effective freeze including X-ray's.
+/// The global gameplay freeze and the effective freeze including X-ray's.
 /// </summary>
 internal sealed class GameplayTimeFreeze
 {
@@ -17,7 +17,7 @@ internal sealed class GameplayTimeFreeze
     }
 
     /// <summary>
-    /// Host ownership of shared WRAM <c>$0A78</c> outside X-ray. Reserve auto-refill and
+    /// Ownership of the shared freeze outside X-ray. Reserve auto-refill and
     /// fatal-damage states set this while still calling portions of state-eight gameplay;
     /// every enemy/projectile/scroll consumer must observe the same native word.
     /// </summary>

@@ -103,15 +103,15 @@ public sealed class TourianStatueSequence
     /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes; the next room builds its own sequence.</summary>
     public bool Enabled { get; private set; }
     /// <summary>
-    /// The whole word of native HDMAObject_Var1:Var0, which descends by $FFFF:C000 per
+    /// The whole part of the statues' 16.16 descent, which descends by a quarter pixel per
     /// frame. As a signed 16.16 value its whole word floors toward negative infinity, so
     /// the first quarter-pixel step already reads -1. The descent stops at its authored distance, so the offset stays
     /// between minus that distance and zero.
     /// </summary>
     public int VerticalOffset => unchecked((short)SixteenSixteen.WholeOf(-Descent));
-    /// <summary>BG2 offset accepted with the same NMI as the displayed OBJ buffer.</summary>
+    /// <summary>BG2 offset latched at the same frame boundary as the displayed sprite frame.</summary>
     public int DisplayedVerticalOffset { get; private set; }
-    /// <summary>Captures the current BG2 position for presentation with the corresponding NMI OBJ buffer.</summary>
+    /// <summary>Captures the current BG2 position for presentation with the corresponding sprite frame.</summary>
     internal void LatchDisplay() => DisplayedVerticalOffset = VerticalOffset;
 
     /// <summary>

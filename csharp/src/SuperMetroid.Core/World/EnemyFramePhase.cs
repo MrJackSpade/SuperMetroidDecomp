@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.World;
 /// </summary>
 internal sealed class EnemyFramePhase
 {
-    /// <summary>Receives Phantoon's body-layer placement before the next NMI latches the frame.</summary>
+    /// <summary>Receives Phantoon's body-layer placement before the next frame boundary latches the frame.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Supplies current and newly pressed controller words to EnemyMain.</summary>
     private readonly ControllerInputState _controller1;
@@ -70,7 +70,7 @@ internal sealed class EnemyFramePhase
         }
     }
 
-    /// <summary>Runs EnemyMain after Samus alpha and projectiles, then applies enemy-authored palette, scroll, escape, HDMA, and player handoffs before beta movement.</summary>
+    /// <summary>Runs EnemyMain after Samus alpha and projectiles, then applies enemy-authored palette, scroll, escape, per-line effect, and player handoffs before beta movement.</summary>
     /// <param name="processingList">
     /// True in game state eight, whose frame start already ran $A0:8EB6. Door-transition
     /// enemy passes build the list immediately before EnemyMain instead.
@@ -84,7 +84,7 @@ internal sealed class EnemyFramePhase
     {
         if (_room.Camera is not null && room.Enemies.IsLoaded)
         {
-            EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, FrameCounterLowByte = _clock.Counter8, TurningFloor = _display.ActiveTurningFloor, SharedProjectiles = room.BombProjectiles, ResolveSamusContactBeforeAi = true, CollisionPlms = room.Plms.BreakableTerrain, FrameCounter = _clock.Counter, ProcessingListPrepared = processingList == EnemyProcessingList.Prepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
+            EnemyFrameResult result = room.Enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, SamusColours = _player.Colours, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = room.Projectiles, FrameCounterLowByte = _clock.ShortCounter, TurningFloor = _display.ActiveTurningFloor, SharedProjectiles = room.BombProjectiles, ResolveSamusContactBeforeAi = true, CollisionPlms = room.Plms.BreakableTerrain, FrameCounter = _clock.Counter, ProcessingListPrepared = processingList == EnemyProcessingList.Prepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
             _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects, room.Plms, room.Layer3Fx, room.PaletteFx, room.Enemies);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {

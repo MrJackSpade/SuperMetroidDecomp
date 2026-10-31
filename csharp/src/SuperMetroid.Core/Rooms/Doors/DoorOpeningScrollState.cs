@@ -1,24 +1,24 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// Pure coordinate owner for <c>$80:AD30-$80:AFC0</c>'s four IRQ door trajectories.
+/// Pure coordinate owner for a door's opening scroll in each of the four directions.
 /// </summary>
 /// <remarks>
 /// Keeping the arithmetic independent of room loading makes every directional trace
-/// exhaustively testable. The runtime merely publishes these values to Camera, Samus, and
-/// the background-scroll mirrors; it never substitutes host interpolation. Each IRQ call
-/// moves only the travel axis, so whole-value steps carry a zero component on the other.
+/// exhaustively testable. The runtime merely publishes these values to the camera, Samus and
+/// the background scroll; it never substitutes interpolation. Each scroll update moves only
+/// the travel axis, so whole-value steps carry a zero component on the other.
 /// </remarks>
 internal sealed class DoorOpeningScrollState
 {
-    /// <summary>Pixels the camera and layer two move per IRQ call.</summary>
+    /// <summary>Pixels the camera and layer two move per scroll update.</summary>
     private const short LayerStepPixels = 4;
 
-    /// <summary>Captures the directional setup positions, IRQ step, and exact destination snapshots.</summary>
+    /// <summary>Captures the directional setup positions, Samus's step, and the exact destination positions.</summary>
     private DoorOpeningScrollState(DoorOpeningScrollSetup setup)
     {
         Direction = setup.Direction;
-        SamusIrqStep = setup.SamusIrqStep;
+        SamusScrollStep = setup.SamusScrollStep;
         RemainingFrames = setup.RemainingFrames;
         CameraPosition = setup.CameraPosition;
         Layer2Position = setup.Layer2Position;
@@ -31,22 +31,22 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Travel axis and sign selected by the destination door header.</summary>
     public DoorDirection Direction { get; }
 
-    /// <summary>Samus's signed 16.16 displacement for one moving IRQ call, along the travel axis.</summary>
-    public FixedVector<RoomPixels> SamusIrqStep { get; }
+    /// <summary>Samus's signed 16.16 displacement for one scroll update, along the travel axis.</summary>
+    public FixedVector<RoomPixels> SamusScrollStep { get; }
 
-    /// <summary>Moving IRQ calls still required before the trajectory can snap to its destination.</summary>
+    /// <summary>Scroll updates still required before the scroll can snap to its destination.</summary>
     public int RemainingFrames { get; private set; }
 
-    /// <summary>The layer-one words <c>$0911/$0915</c> owned by the IRQ.</summary>
+    /// <summary>The camera's position as the scroll carries it.</summary>
     public Position16<RoomPixels> CameraPosition { get; private set; }
 
-    /// <summary>The layer-two words <c>$0917/$0919</c> owned by the IRQ.</summary>
+    /// <summary>The second background layer's position as the scroll carries it.</summary>
     public Position16<BackgroundPixels> Layer2Position { get; private set; }
 
-    /// <summary>Samus's 16.16 position as the IRQ carries her.</summary>
+    /// <summary>Samus's 16.16 position as the scroll carries her.</summary>
     public FixedPosition<RoomPixels> SamusPosition { get; private set; }
 
-    /// <summary>Exact layer-one endpoint published after the final directional IRQ call.</summary>
+    /// <summary>Exact camera endpoint published after the scroll's final update.</summary>
     public Position16<RoomPixels> FinalCameraPosition { get; }
 
     /// <summary>Layer-two endpoint reached through directional four-pixel steps.</summary>
@@ -55,10 +55,10 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Deferred Samus endpoint retained by the door loader for the destination handoff.</summary>
     public FixedPosition<RoomPixels> FinalSamusPosition { get; }
 
-    /// <summary>Whether the just-advanced IRQ recomputes the scroll registers; upward doors delay their first frames.</summary>
+    /// <summary>Whether the just-advanced update recomputes the layer scrolls; upward doors delay their first frames.</summary>
     public bool RecalculatesScrollAfterAdvance { get; private set; } = true;
 
-    /// <summary>Builds the native setup position and IRQ trajectory from a door header and destination coordinates.</summary>
+    /// <summary>Builds the setup position and the scroll's trajectory from a door and its destination coordinates.</summary>
     public static DoorOpeningScrollState Create(
         DoorDefinition door,
         FixedPosition<RoomPixels> sourceSamus,
@@ -80,15 +80,15 @@ internal sealed class DoorOpeningScrollState
             _ => throw new ArgumentOutOfRangeException(nameof(door), direction, "Undefined door direction."),
         };
 
-        return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusIrqStep = GetSamusStep(door), RemainingFrames = MovingIrqCalls(direction), CameraPosition = GetSetupCamera(door), Layer2Position = finalLayer2 + layer2Setup, SamusPosition = samus, FinalCameraPosition = finalCamera, FinalLayer2Position = finalLayer2, FinalSamusPosition = finalSamus });
+        return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusScrollStep = GetSamusStep(door), RemainingFrames = MovingScrollUpdates(direction), CameraPosition = GetSetupCamera(door), Layer2Position = finalLayer2 + layer2Setup, SamusPosition = samus, FinalCameraPosition = finalCamera, FinalLayer2Position = finalLayer2, FinalSamusPosition = finalSamus });
     }
 
     /// <summary>
-    /// The IRQ calls that remain after setup: right/left setup calls DoorTransition once
-    /// before placement (63 remain), down's frame zero only stages a row (56 remain), and
-    /// FixDoorsMovingUp leaves counter one for setup's first moving call (55 remain).
+    /// The scroll updates that remain after setup: a right or left setup takes the first step
+    /// before placement (63 remain), down's first update only stages a row (56 remain), and an
+    /// upward door's tile correction leaves its first moving step to setup (55 remain).
     /// </summary>
-    internal static int MovingIrqCalls(DoorDirection direction) => direction switch
+    internal static int MovingScrollUpdates(DoorDirection direction) => direction switch
     {
         DoorDirection.Right or DoorDirection.Left => 63,
         DoorDirection.Down => 56,
@@ -121,14 +121,14 @@ internal sealed class DoorOpeningScrollState
         return setup.WithWhole(GetSetupCamera(door) + withinScreen);
     }
 
-    /// <summary>One moving IRQ call; downward setup alone omits this displacement.</summary>
+    /// <summary>One scroll update's step; downward setup alone omits this displacement.</summary>
     internal static FixedPosition<RoomPixels> AdvanceSamus(DoorDefinition door, FixedPosition<RoomPixels> samus) =>
         samus.Advance(GetSamusStep(door));
 
     /// <summary>
-    /// Samus's fixed-point displacement for one native door IRQ call: the door's speed
-    /// (or the axis default), added along right/down and subtracted along left/up with
-    /// the native 32-bit wrap.
+    /// Samus's fixed-point displacement for one scroll update: the door's speed (or the
+    /// axis default), added along right/down and subtracted along left/up, wrapping at
+    /// 32 bits.
     /// </summary>
     internal static FixedVector<RoomPixels> GetSamusStep(DoorDefinition door)
     {
@@ -153,7 +153,7 @@ internal sealed class DoorOpeningScrollState
         DoorDefinition door, FixedPosition<RoomPixels> source) =>
         door.Orientation.Direction == DoorDirection.Down ? source : AdvanceSamus(door, source);
 
-    /// <summary>The signed four-pixel layer step of one IRQ call along the travel axis.</summary>
+    /// <summary>The signed four-pixel layer step of one scroll update along the travel axis.</summary>
     private static Offset16<TSpace> LayerStep<TSpace>(DoorDirection direction)
         where TSpace : ISpatialSpace => direction switch
         {
@@ -164,7 +164,7 @@ internal sealed class DoorOpeningScrollState
             _ => throw new InvalidOperationException($"Undefined door direction {direction}."),
         };
 
-    /// <summary>Runs one IRQ call and reports the frame that sets completion bit $8000.</summary>
+    /// <summary>Runs one scroll update and reports whether it is the one that finishes the scroll.</summary>
     public bool Advance()
     {
         if (RemainingFrames <= 0)
@@ -173,7 +173,7 @@ internal sealed class DoorOpeningScrollState
         int frameCounter = Direction == DoorDirection.Up ? 57 - RemainingFrames : 0;
         CameraPosition += LayerStep<RoomPixels>(Direction);
         Layer2Position += LayerStep<BackgroundPixels>(Direction);
-        SamusPosition = SamusPosition.Advance(SamusIrqStep);
+        SamusPosition = SamusPosition.Advance(SamusScrollStep);
 
         RemainingFrames--;
         RecalculatesScrollAfterAdvance = Direction != DoorDirection.Up || frameCounter >= 5;
@@ -182,7 +182,7 @@ internal sealed class DoorOpeningScrollState
 
     /// <summary>
     /// Applies the door loader's <c>PlaceSamusOnElevator</c> ($A3:9612): whole X, and Y
-    /// with a zero fraction. Later IRQ calls move Samus on from this position.
+    /// with a zero fraction. Later scroll updates move Samus on from this position.
     /// </summary>
     public void PlaceSamusOnElevator(Position16<RoomPixels> position) =>
         SamusPosition = new FixedPosition<RoomPixels>(
@@ -190,19 +190,18 @@ internal sealed class DoorOpeningScrollState
             new FixedCoordinate(position.Y, 0));
 
     /// <summary>
-    /// Applies <c>Irq_FollowDoorTransition</c>'s layer-one destination snap after the
-    /// directional routine has produced its final background-stream request.
+    /// Snaps the camera to the door's destination after the final directional step has
+    /// produced its last background request.
     /// </summary>
     public void SnapLayerOneToDestination()
     {
         if (RemainingFrames != 0)
             throw new InvalidOperationException(
-                "A door-opening trajectory cannot snap before its final IRQ call.");
+                "A door-opening trajectory cannot snap before its final scroll update.");
 
-        // The cartridge calls $80:A3A0 from DoorTransition_* before control returns to
-        // Irq_FollowDoorTransition. Only then does the wrapper replace $0911/$0915 with
-        // the exact door destination. Layer two reaches its endpoint through the final
-        // directional step and is not rewritten by the wrapper.
+        // The final directional step recalculates the layer scrolls first; only then is the
+        // camera replaced with the exact door destination. Layer two reaches its endpoint
+        // through the final directional step and is not rewritten by the snap.
         CameraPosition = FinalCameraPosition;
     }
 }

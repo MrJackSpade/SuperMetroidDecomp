@@ -38,7 +38,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.AdvanceScreenFadeIn();
-        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, PauseAnimationPhase.FadingIn);
+        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.ShortCounter, PauseAnimationPhase.FadingIn);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.SetDisplayBrightness(session.PauseBrightness);
         if (session.PauseBrightness == PauseFadeTiming.FullyLit)
@@ -56,7 +56,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
             session.GameplayRuntime.System.TimedHeldInput,
             session.GameplayRuntime.PhysicalController1.NewlyPressed,
             session.GameplayRuntime.PhysicalController1.Current,
-            session.GameplayRuntime.Clock.Counter8);
+            session.GameplayRuntime.Clock.ShortCounter);
         // State $0F runs the HUD writer after pause input. The next accepted NMI
         // latches its rows, including on the first unpause fade frame.
         if (previousReserveMode == ReserveTankMode.Auto &&
@@ -76,7 +76,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedHud);
-        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, PauseAnimationPhase.FadingOut);
+        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.ShortCounter, PauseAnimationPhase.FadingOut);
         session.display.PublishMenu(session.ActivePauseMenu);
         if (session.StepScreenFadeOut() == 0)
             session.GameState = SuperMetroidGameState.UnpausingB;

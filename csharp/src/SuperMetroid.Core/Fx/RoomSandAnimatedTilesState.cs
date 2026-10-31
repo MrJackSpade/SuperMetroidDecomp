@@ -36,7 +36,7 @@ public sealed class RoomSandAnimatedTilesState
         }
     }
 
-    /// <summary>Advances the shared timed-list interpreter and queues the ROM-authored character frames for NMI.</summary>
+    /// <summary>Advances the shared timed-list interpreter and queues the ROM-authored character frames for the next frame boundary.</summary>
     public void Step(ArtworkFrameSelections frames)
     {
         foreach (var animation in objects) animation.Step(frames);

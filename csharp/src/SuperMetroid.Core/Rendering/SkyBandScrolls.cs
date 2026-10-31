@@ -12,7 +12,7 @@ public static class SkyBandScrolls
     /// next band, the end of the sky, or the sixteen-bit wrap. Lines above the gameplay lines show the unshifted base.
     /// </summary>
     /// <param name="sky">The sky the frame published.</param>
-    /// <param name="shift">The horizontal shift added to every line, as the room's shake adds to BG2's register after HDMA.</param>
+    /// <param name="shift">The horizontal shift added to every line, as the room's shake adds to BG2's scroll after each band's value.</param>
     public static ScrollBands Of(ScrollingSkyLayer sky, int shift)
     {
         Ensure.NotNull(sky);

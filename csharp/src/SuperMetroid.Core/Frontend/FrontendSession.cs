@@ -45,7 +45,7 @@ internal sealed class FrontendSession
     /// <summary>Accepted menu NMI counters used by frontend animation and input timing.</summary>
     internal readonly MenuLayer1Retention menuLayer1 = new();
 
-    /// <summary>The session's accepted-frame counters <c>$05B5/$05B6</c>: every runtime it creates counts on them.</summary>
+    /// <summary>The session's frame counters: every runtime it creates counts on them.</summary>
     internal readonly FrameClock frameClock = new();
     /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
     [field: NonSerialized]
@@ -456,7 +456,7 @@ internal sealed class FrontendSession
                 SelectedItem: 0,
                 ReserveHealth: restartSlot.ReserveEnergy,
                 ReserveMode: restartSlot.ReserveMode));
-            runtime.FrameBoundary.PublishForcedBlankTransfers();
+            runtime.FrameBoundary.PublishWhileLoading();
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             SamusState restartedSamus = runtime.Player.Samus
@@ -481,7 +481,7 @@ internal sealed class FrontendSession
             InitializeSelectedGameHud(slot);
             runtime.GameTime.Load(slot.GameTimeFrames, slot.GameTimeSeconds,
                 slot.GameTimeMinutes, slot.GameTimeHours);
-            runtime.FrameBoundary.PublishForcedBlankTransfers();
+            runtime.FrameBoundary.PublishWhileLoading();
 
             // Preserve the already-translated Ceres elevator entrance for its checkpoint.
             // Every other station uses the general cartridge-backed loader below.
@@ -531,7 +531,7 @@ internal sealed class FrontendSession
         // same cartridge-backed sequence used by the room diagnostic; there is no host
         // terrain image, hand-placed Samus, or alternate playable-only initialization.
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.FrameBoundary.PublishForcedBlankTransfers();
+        runtime.FrameBoundary.PublishWhileLoading();
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         // CinematicFunction_Intro_Func73 at `$8B:C100` publishes area six/station zero

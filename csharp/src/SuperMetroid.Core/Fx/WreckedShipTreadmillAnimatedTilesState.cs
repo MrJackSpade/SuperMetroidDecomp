@@ -69,7 +69,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
 
     /// <summary>
     /// Runs one bank-$87 handler pass and publishes the source selected for the following
-    /// NMI. While Phantoon's area-boss bit is clear, the wait ($87:81BA) holds the object for
+    /// frame boundary. While Phantoon's area-boss bit is clear, the wait ($87:81BA) holds the object for
     /// another pass and no source exists; once the bit is set, the four frames loop forever.
     /// </summary>
     public void Step(

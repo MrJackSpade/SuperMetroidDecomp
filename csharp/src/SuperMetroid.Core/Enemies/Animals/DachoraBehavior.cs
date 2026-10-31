@@ -566,7 +566,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.RequireSpeciesState<DachoraEnemyState>(),
             frame.Samus,
             frame.Level,
-            frame.Clock.Counter8);
+            frame.Clock.ShortCounter);
     }
 
     /// <inheritdoc/>

@@ -35,7 +35,7 @@ public static class GameplayDisplayCapture
         if (!doorOwnsDisplay)
         {
             // Rainbow configuration $24 removes BG3 from the main screen. Its fixed
-            // color window replaces room liquid/fog blending while the beam owns HDMA.
+            // color window replaces room liquid/fog blending while the beam owns the per-line effects.
             MotherBrainRainbowBeamRenderSnapshot? rainbow = RainbowBeam(frame);
             if (rainbow?.Active != true && latched.RoomLayer3Fx is { } fx)
             {
@@ -61,7 +61,7 @@ public static class GameplayDisplayCapture
                 AddLayer(GameplayEffectCapture.CaptureMotherBrainRainbowBeam(beam));
         }
         // Preserve the reference ordering, including the effects which remain enabled
-        // during the door IRQ. Message glyphs precede the suit's final color window.
+        // during the door's scroll. Message glyphs precede the suit's final color window.
         AddLayer(GameplayEffectCapture.CapturePowerBombGlow(PowerBomb(frame), scrolls.Layer1Position));
         AddLayer(live.MessageBox);
         AddLayer(GameplayEffectCapture.CaptureSuitPickup(SuitPickup(frame)));
@@ -93,9 +93,9 @@ public static class GameplayDisplayCapture
         // water waves then displace.
         Position16<BackgroundPixels> bg2Scroll = (bosses.DraygonBody?.LayerPlacement ?? bosses.MotherBrainBody?.LayerPlacement ?? scrolls.Bg2Scroll) + shake.Bg2;
         if (live.TourianStatuesEnabled)
-            // $88:DBCB supplies BG2VOFS through HDMA after the ordinary scroll
-            // register upload. It replaces, rather than adds to, the quake-adjusted
-            // register. Type 13 also gives the statue OBJ zero quake displacement.
+            // The statues' descent supplies BG2's vertical scroll per line after the
+            // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
+            // scroll. Type 13 also gives the statue OBJ zero quake displacement.
             bg2Scroll = bg2Scroll.WithY(unchecked((ushort)(scrolls.Layer1Position.Y + latched.TourianStatueVerticalOffset)));
         RoomLayer3FxRenderSnapshot? fx = latched.RoomLayer3Fx;
         LatchedScrollingSky? sky = scene.ScrollingSky;
@@ -151,20 +151,20 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>
-    /// The HUD the accepted NMI latched, its own layer drawn straight after the room (#1466): gameplay's HUD band shows its
+    /// The HUD the frame boundary latched, its own layer drawn straight after the room (#1466): gameplay's HUD band shows its
     /// pictures with their colour zero opaque, in front of everything the band holds.
     /// </summary>
     private static HudLayer Hud(GameplayDisplayLatch latched) => new(latched.PicturedHud
-        ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the accepted NMI that latched it resolves its pictures."),
+        ?? throw new InvalidOperationException("A gameplay frame shows the HUD once the frame boundary that latched it resolves its pictures."),
         TransparentColorZero: false, Priority: null);
 
-    /// <summary>The BG3 plane the accepted NMI displays (#1348).</summary>
+    /// <summary>The BG3 plane the frame boundary displays (#1348).</summary>
     private static Layer3Cells Bg3(GameplayDisplayLatch latched) => (latched.Rooms
         ?? throw new InvalidOperationException("A gameplay frame shows BG3 only once a room is loaded.")).ShownBg3;
 
     /// <summary>
     /// The sky's bands of BG2 horizontal scroll (#1468) with the latched room shake added, or null without a sky. Room
-    /// shake is added to the live BG2HOFS register after HDMA supplies each band's value.
+    /// shake is added to BG2's horizontal scroll after each band's value is supplied.
     /// </summary>
     internal static ScrollBands? SkyHorizontalScrolls(GameplayFrameEndDisplayInputs live, RoomShakeFrameResult shake) =>
         live.ScrollingSky is { } sky ? SkyBandScrolls.Of(sky, shake.Bg2.X) : null;
@@ -177,7 +177,7 @@ public static class GameplayDisplayCapture
         return active with
         {
             Color = frame.Latched.FixedColors.RainbowBeam
-                ?? throw new InvalidOperationException("An active rainbow beam has no NMI-latched fixed color."),
+                ?? throw new InvalidOperationException("An active rainbow beam has no latched fixed color."),
         };
     }
 
@@ -246,7 +246,7 @@ public static class GameplayDisplayCapture
         }, ordinary.Rooms, ordinary.BackgroundLineScrolls);
         if (mode == LayerBlendingConfiguration.PhantoonHidden) return gameplay;
         // $88:80D9: TM=$15, TS=$02, CGADSUB=$35. Gameplay HUD is the separate
-        // IRQ band; below it BG2 adds to eligible main sources, never occluding BG1.
+        // band; below it BG2 adds to eligible main sources, never occluding BG1.
         return new GameplayBlendLayer(gameplay, ScreenWindow.Closed, false, new SceneBlend { Layers = ColorBlend.Bg1 | ColorBlend.Bg3 | ColorBlend.Sprites | ColorBlend.Backdrop, BlendsWithLayersBehind = true, FixedColor = RgbColor.Black }, subscreenUsesBg2: true);
     }
 
@@ -265,7 +265,7 @@ public static class GameplayDisplayCapture
         var scrolls = latched.Scrolls;
         var mode = XrayRoomDisplayRules.Select(xrayRoom, scene.FxType, scene.Boss);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
-        // The reveal shows once an accepted NMI has latched it; until then BG2 shows what the room shows (#1403).
+        // The reveal shows once a frame boundary has latched it; until then BG2 shows what the room shows (#1403).
         XrayRevealPlane? shownReveal = reveal ? latched.XrayReveal : null;
         var view = ordinary.View;
         if (shownReveal is not null)
@@ -283,7 +283,7 @@ public static class GameplayDisplayCapture
                 ? ScreenLayers.Foreground | ScreenLayers.Sprites
                 : ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.Sprites,
         };
-        // Reveal BG2 must not inherit the room's parallax or liquid HDMA. Excluded
+        // Reveal BG2 must not inherit the room's parallax or liquid per-line scroll. Excluded
         // rooms retain their original map and per-line register values.
         // The reveal is BG2, drawn from block pictures (#1392), so the room's layer-2 plane is not shown under it.
         var gameplay = shownReveal is not null
@@ -312,15 +312,15 @@ public static class GameplayDisplayCapture
         int red = fixedColor.Red, green = fixedColor.Green, blue = fixedColor.Blue;
         if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
             red = green = blue = XrayWindowRenderDefinitions.FixedColorComponent;
-        // Phase five deletes the HDMA object but its blend bits have already been
+        // Phase five deletes the per-line effect object but its blend bits have already been
         // published for this pass. Only its fixed color is cleared immediately.
         if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) red = green = blue = 0;
         BackgroundColours colours = basis.Paint.Backgrounds;
         bool restoring = finishedThisFrame || xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
         if (!settingUp) colours = colours.WithBackdrop(restoring ? RgbColor.Black : XrayRoomDisplayRules.ActiveBackdrop);
         var paint = new FramePaint(colours, basis.Paint.SpriteDraws);
-        // Releasing Run merely advances the native dispatcher to phase three. That
-        // phase closes the HDMA window on the NEXT call and clears the backdrop;
+        // Releasing Run merely advances the beam to phase three. That
+        // phase closes the beam's window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.
         bool closed = settingUp || restoring || xray.BeamPhase == XrayBeamPhase.NoBeam;
         ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, scrolls.Layer1Position);

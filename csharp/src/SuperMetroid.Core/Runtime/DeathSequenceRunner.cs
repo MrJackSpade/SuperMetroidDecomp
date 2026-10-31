@@ -18,7 +18,7 @@ internal sealed class DeathSequenceRunner
     private readonly GameplayColours _colours;
     /// <summary>Supplies the active Samus Mode-7 transform during death drawing.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Processes one accepted NMI before each isolated death-state frame.</summary>
+    /// <summary>Processes one frame boundary before each isolated death-state frame.</summary>
     private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
@@ -56,7 +56,7 @@ internal sealed class DeathSequenceRunner
             _player.Samus,
             _room.Camera.PixelPosition);
 
-        // The next accepted NMI must see pose `$D7/$D8` definitions. Native game state 15
+        // The next frame boundary must see pose `$D7/$D8` definitions. Native game state 15
         // draws once before setup and state 16 draws the new pose on its following call;
         // priming here preserves that same first-visible-frame contract in this thin host.
         _player.Samus.Presentation.PrimeGraphics(_player.Samus);
@@ -84,8 +84,8 @@ internal sealed class DeathSequenceRunner
 
     /// <summary>
     /// Runs one isolated bank-$9B death-animation frame for game states <c>$16-$18</c>.
-    /// The selected pose or explosion frame becomes visible through the ordinary accepted-
-    /// NMI pipeline, while every state-eight actor remains stopped as on the cartridge.
+    /// The selected pose or explosion frame becomes visible through the ordinary frame
+    /// boundary, while every gameplay actor remains stopped.
     /// </summary>
     public SamusDeathSequenceStepResult StepDeathSequenceFrame(ControllerButton controllerInput)
     {

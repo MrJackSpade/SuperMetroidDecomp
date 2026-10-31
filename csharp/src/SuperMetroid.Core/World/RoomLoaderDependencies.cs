@@ -67,6 +67,9 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The frame clock.</summary>
     public required FrameClock Clock { get; init; }
 
+    /// <summary>How the door transition's scroll counts frames on the short frame counter.</summary>
+    public required DoorTransitionFrameCounting DoorFrameCounting { get; init; }
+
     /// <summary>Options.</summary>
     public required GameplayOptions Options { get; init; }
 

@@ -68,8 +68,10 @@ internal sealed class RoomLoader
     /// <summary>Holds HUD values carried into the loaded room.</summary>
     private readonly HudState _hud;
 
-    /// <summary>Receives the door IRQ's request to advance the NMI counter.</summary>
+    /// <summary>The frame counters: the minimap reads the short one, and a door's scroll restarts it.</summary>
     private readonly FrameClock _clock;
+    /// <summary>Whether the door transition's scroll is restarting the short frame counter.</summary>
+    private readonly DoorTransitionFrameCounting _doorFrameCounting;
     /// <summary>Restores the saved controller and movement options.</summary>
     private readonly GameplayOptions _options;
     /// <summary>Holds Samus and her load-time presentation state.</summary>
@@ -114,6 +116,7 @@ internal sealed class RoomLoader
         _hud = dependencies.Hud;
 
         _clock = dependencies.Clock;
+        _doorFrameCounting = Ensure.NotNull(dependencies.DoorFrameCounting);
         _options = dependencies.Options;
         _player = dependencies.Player;
         _shotBlockVisuals = dependencies.ShotBlockVisuals;
@@ -127,16 +130,11 @@ internal sealed class RoomLoader
         _tester = dependencies.Tester;
 
     }
-    /// <summary>
-    /// Whether the door scroll is far enough along that each frame clears the 8-bit frame counter while the door
-    /// loader waits for the destination to finish loading.
-    /// </summary>
-    private bool _doorScrollClearsCounter8;
-    /// <summary>The four-pixel IRQ trajectory retained across atomic room construction.</summary>
+    /// <summary>The door's four-pixel scroll trajectory, retained across atomic room construction.</summary>
     private DoorOpeningScrollState? _doorOpeningScroll;
     /// <summary>
-    /// Elevator placement produced by the atomic room load but deferred until the native
-    /// door loader reaches that enemy's initialization slot.
+    /// Elevator placement produced by the atomic room load but deferred until room loading
+    /// has progressed to that enemy's initialization (<see cref="IRoomLoadProgress"/>).
     /// </summary>
     private LoaderSamusPlacement? _pendingLoaderSamusPlacement;
     /// <summary>What the source room showed, kept until the door-opening scroll's offsets are installed.</summary>
@@ -416,15 +414,15 @@ internal sealed class RoomLoader
         : throw new InvalidOperationException("No pending door destination exists.");
 
     /// <summary>
-    /// Applies the layer designation shared by start, horizontal, and vertical door IRQs.
-    /// BG2 is always disabled; BG1 is also disabled when either adjacent room requests the
-    /// cartridge's CRE transition path.
+    /// Chooses the layers a door transition shows below the HUD for its whole scroll. The
+    /// background layer is always hidden; the foreground is hidden too when either room
+    /// selects the isolated door transition.
     /// </summary>
     [IndependentFlag("Whether the source and destination rooms are isolated are independent room properties.")]
-    internal void BeginDoorTransitionIrqDisplay(bool sourceIsolated, bool destinationIsolated)
+    internal void BeginDoorTransitionDisplay(bool sourceIsolated, bool destinationIsolated)
     {
         if (_room.DoorTransitionMainScreenLayers is not null)
-            throw new InvalidOperationException("Door-transition IRQ display is already active.");
+            throw new InvalidOperationException("The door-transition display is already active.");
 
         bool suppressBg1 = sourceIsolated || destinationIsolated;
         _room.DoorTransitionMainScreenLayers = suppressBg1
@@ -432,25 +430,26 @@ internal sealed class RoomLoader
             : ScreenLayers.Foreground | ScreenLayers.Sprites;
     }
 
-    /// <summary>Returns main-screen ownership to the room's ordinary gameplay IRQ.</summary>
-    internal void EndDoorTransitionIrqDisplay()
+    /// <summary>Returns the screen to the destination room's ordinary layers.</summary>
+    internal void EndDoorTransitionDisplay()
     {
         if (_room.DoorTransitionMainScreenLayers is null)
-            throw new InvalidOperationException("Door-transition IRQ display is not active.");
-        // The final door scanout still uses the installed end-drawing command;
-        // the new gameplay IRQ takes ownership on the following frame.
-        ClearCounter8DuringDoorScroll();
+            throw new InvalidOperationException("The door-transition display is not active.");
+        // The update that hands the screen back still counts as a scrolling update; the
+        // room's ordinary display takes over on the following frame.
+        RestartShortCounterDuringDoorScroll();
         _room.DoorTransitionMainScreenLayers = null;
-        _doorScrollClearsCounter8 = false;
+        _doorFrameCounting.EndScroll();
     }
 
     /// <summary>
-    /// Clears the 8-bit frame counter on a frame of the door scroll, as the door transition's mid-frame scroll step
-    /// does once Samus is placed for tile loading; enemies and projectiles that read the counter see the reset.
+    /// Restarts the short frame counter on an update of the door scroll, from the update that places Samus for tile
+    /// loading on (<see cref="DoorTransitionFrameCounting"/>); enemies and projectiles that read the counter see the
+    /// restart.
     /// </summary>
-    internal void ClearCounter8DuringDoorScroll()
+    internal void RestartShortCounterDuringDoorScroll()
     {
-        if (_doorScrollClearsCounter8) _clock.ClearCounter8ForDoorIrq();
+        if (_doorFrameCounting.RestartsShortCounter) _clock.RestartShortCounter();
     }
 
     /// <summary>
@@ -468,7 +467,7 @@ internal sealed class RoomLoader
     }
 
 
-    /// <summary>Rebases Samus and publishes the first moving IRQ during tile loading.</summary>
+    /// <summary>Rebases Samus and publishes the scroll's first moving step during tile loading.</summary>
     internal void PlaceSamusForDoorTileLoading()
     {
         DoorDefinition door = PendingDoorTransition
@@ -484,26 +483,26 @@ internal sealed class RoomLoader
         Offset16<RoomPixels> firstStep = vertical ? new(0, checked((short)delta)) : new(checked((short)delta), 0);
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door) + firstStep);
         _room.Camera.PublishDoorSamusTravelAxis(vertical, _player.Samus.Position.Whole);
-        _doorScrollClearsCounter8 = true;
-        ClearCounter8DuringDoorScroll();
+        _doorFrameCounting.BeginScroll();
+        RestartShortCounterDuringDoorScroll();
     }
 
     /// <summary>
-    /// Rewinds an atomically loaded destination to the position established by
-    /// <c>DoorTransitionScrollingSetup</c> and <c>PlaceSamusLoadTiles</c>.
+    /// Rewinds an atomically loaded destination to the position established by the
+    /// scroll's setup and Samus's placement for tile loading.
     /// </summary>
     /// <remarks>
-    /// The room constructor necessarily loads tiles, PLMs, FX, and enemies in one host
-    /// operation. Native code performs those operations while the door-opening IRQ is
-    /// already active. Capturing the source fixed coordinates before that constructor and
-    /// rewinding only the four IRQ-owned coordinate pairs preserves the same observable
-    /// trajectory without pretending the loader itself is incremental.
+    /// The room constructor loads tiles, PLMs, FX and enemies in one operation, while the
+    /// door's scroll is already moving. Capturing the source fixed coordinates before that
+    /// constructor and rewinding only the four scroll-owned coordinate pairs preserves the
+    /// same observable trajectory; how far loading had progressed on each scroll update is
+    /// <see cref="IRoomLoadProgress"/>'s.
     /// </remarks>
     internal void BeginDoorOpeningScroll(
         DoorDefinition door,
         FixedPosition<RoomPixels> sourceSamus,
         IRoomLoadProgress loaderProgress,
-        int completedLoadingIrqSteps = 0)
+        int completedLoadingScrollUpdates = 0)
     {
         if (_room.Camera is null || _player.Samus is null)
             throw new InvalidOperationException("A loaded destination and Samus are required.");
@@ -542,23 +541,22 @@ internal sealed class RoomLoader
         // The source screen stays where it was while the destination scrolls in around it.
         _room.DoorSourceBackground = RoomDoorBackground.Begin(sourceScroll.SourceBackground, sourceScroll.Bg1Scroll.AsBgPlaneScroll());
         PublishDoorOpeningLayers(_doorOpeningScroll);
-        // Each native directional setup immediately invokes its first DoorTransition_*
-        // step, which recomputes the scroll registers from the already-advanced layer
-        // positions. Down's frame-zero probe restores the registers it moved, so only the
-        // horizontal and upward setups leave new registers behind.
+        // Each directional setup immediately takes its first step, which recomputes the
+        // layer scrolls from the already-advanced layer positions. Down's first update
+        // restores the scrolls it moved, so only the horizontal and upward setups leave
+        // new scrolls behind.
         if (direction != DoorDirection.Down)
             _backgroundScroll.CalculateLayerScrolls();
         _player.Samus.Position = _doorOpeningScroll.SamusPosition;
         _room.Camera.PublishDoorSamusPosition(_player.Samus.Position.Whole);
-        // Recreate the VRAM producer requests for IRQ progress already published
-        // before the atomic destination load. Those steps do not consume more input.
-        for (int step = 0; step < completedLoadingIrqSteps; step++)
+        // Replay the scroll updates already shown before the atomic destination load.
+        // Those steps do not consume more input.
+        for (int step = 0; step < completedLoadingScrollUpdates; step++)
             StepDoorOpeningScroll(loaderProgress);
     }
 
     /// <summary>
-    /// Runs one <c>Irq_FollowDoorTransition</c> coordinate update. True means the IRQ set
-    /// bit $8000 in <c>door_transition_flag</c> on this call.
+    /// Runs one update of the door's scroll. True means this update finished the scroll.
     /// </summary>
     internal bool StepDoorOpeningScroll(IRoomLoadProgress loaderProgress)
     {
@@ -568,21 +566,20 @@ internal sealed class RoomLoader
             throw new InvalidOperationException("Door-opening scroll lost its room actors.");
         bool completed = state.Advance();
         PublishDoorOpeningLayers(state);
-        // The IRQ recomputes the scroll registers after each four-pixel step, except
-        // during an upward door's first frames.
+        // Each four-pixel step recomputes the layer scrolls, except during an upward
+        // door's first frames.
         if (state.RecalculatesScrollAfterAdvance)
             _backgroundScroll.CalculateLayerScrolls();
 
         if (completed)
         {
-            // `$80:AE4E` calls the direction routine first. That routine performs the
-            // last `$80:A3A0` register calculation using the stepped coordinates.
-            // The wrapper then snaps only layer one to the exact destination without
-            // recalculating PPU scroll.
+            // The final directional step has already recalculated the layer scrolls from
+            // the stepped coordinates; only the camera snaps to the exact destination,
+            // without another scroll calculation.
             state.SnapLayerOneToDestination();
             PublishDoorCameraPosition(state.CameraPosition);
         }
-        // The IRQ runs at the start of the update; the loader's main-thread work follows.
+        // The scroll moves at the start of the update; room loading's progress follows.
         if (_pendingLoaderSamusPlacement is { } placement)
         {
             if (loaderProgress.HasInitializedEnemySlot(placement.EnemySlot))
@@ -605,8 +602,8 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Publishes the IRQ-owned layer-one and layer-two words to the camera (whose fraction
-    /// words the IRQ never writes) and to the background-scroll owner.
+    /// Publishes the scroll's camera and second-layer positions to the camera (whose
+    /// fractions the scroll never writes) and to the background-scroll owner.
     /// </summary>
     private void PublishDoorOpeningLayers(DoorOpeningScrollState state)
     {
@@ -622,8 +619,8 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Applies <c>$82:E544</c>'s horizontal eight-pixel alignment after the
-    /// post-scroll NMI, before the music wait and the later narrow-door nudges.
+    /// Applies the horizontal eight-pixel doorway alignment on the update after the
+    /// scroll ends, before the music wait and the later narrow-door nudges.
     /// </summary>
     internal void AlignSamusAfterDoorLoading()
     {
@@ -648,9 +645,9 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Applies <c>$82:E6A2</c> after music has drained: the doorway nudges to Samus's live
+    /// Applies the doorway nudges after music has drained: the nudges to Samus's live
     /// position, then an elevator door's Samus command (7 going down, 0 going up). Releases
-    /// the temporary IRQ-owned trajectory. This is deliberately later than the scroll.
+    /// the scroll's trajectory. This is deliberately later than the scroll.
     /// </summary>
     internal void FinishDoorOpeningScroll()
     {
@@ -677,8 +674,8 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Loads state $0B's destination without destroying the source-room VRAM ring. The
-    /// following door IRQ replaces that ring incrementally while the screen slides.
+    /// Loads the door's destination while the source room stays on screen; the following
+    /// scroll updates slide the destination in.
     /// </summary>
     internal InitialViewportResult LoadPendingDoorDestinationForTransition(FixedPosition<RoomPixels> sourceSamus)
     {
@@ -701,7 +698,7 @@ internal sealed class RoomLoader
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourcePosition ?? _player.Samus.Position);
         SelectedRoom room = LoadSelectedRoom(door.DestinationRoom);
 
-        // Native transition teardown deletes direct G-Mode's stranded X-Ray HDMA object,
+        // The transition's teardown deletes direct G-Mode's stranded X-ray beam,
         // but it does not restore the four subsystem enable words. Destination room setup
         // therefore begins in indirect G-Mode and cannot create a visible gate actor.
         _player.Samus.Xray.TransitionDirectGModeToIndirect();
@@ -735,14 +732,14 @@ internal sealed class RoomLoader
         // a door definition, that definition and its destination header become authoritative:
         // the destination's scope is built without a load station.
 
-        // State $0B's door IRQ has already placed Samus before LoadMoreThings constructs
-        // the destination room. This ordering is observable for elevator arrivals:
+        // The door's scroll has already placed Samus before the destination room is
+        // constructed. This ordering is observable for elevator arrivals:
         // Elevator_Init sees status two, moves the platform to parameter 2, and then pins
         // Samus to it. Applying the generic placement after Enemies.Load used to overwrite
         // that native attachment and exposed the upward arrival one row too low.
         _player.Samus.Position = placement.SamusPosition;
-        // Door IRQ travel has its own speed words. Ordinary jump velocity survives
-        // native room loading and the final nudge; clearing it here restarts a fall
+        // The door's scroll moves Samus at its own speed. Ordinary jump velocity survives
+        // room loading and the final nudge; clearing it here restarts a fall
         // at its apex and lets horizontal momentum carry Samus too far after exit.
         _player.Samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
 
@@ -853,8 +850,8 @@ internal sealed class RoomLoader
             _backgroundScroll.CalculateScrolls();
         else
         {
-            // Up calculates BG2 from destination+$1F before changing the IRQ's layer-one
-            // endpoint to destination+$20. Keeping those adjacent words distinct prevents
+            // Up calculates BG2 from destination+$1F before changing the scroll's camera
+            // endpoint to destination+$20. Keeping those adjacent positions distinct prevents
             // a parallax room from accumulating a one-pixel layer mismatch at the snap.
             Position16<RoomPixels> parallaxBasis = door.Orientation.Direction == DoorDirection.Up
                 ? camera - new Offset16<RoomPixels>(0, 1)
@@ -887,8 +884,8 @@ internal sealed class RoomLoader
         LoadGameplaySpritePalettes();
 
         // LoadFXHeader selects the door-specific sixteen-byte record, applies its palette
-        // blend, chooses the effect page the BG3 plane shows, and creates the type-owned HDMA/
-        // animtile state before palette-FX objects and enemies begin running.
+        // blend, chooses the effect page the BG3 plane shows, and creates the type-owned per-line
+        // effect and animtile state before palette-FX objects and enemies begin running.
         var roomLayer3Fx = RoomLayer3FxState.ForRoom(
             _roomFx,
             _colours.BackgroundSets,
@@ -1124,11 +1121,11 @@ internal sealed class RoomLoader
         DoorDirection direction = door.Orientation.Direction;
 
         // Setup's first directional call (none for down), then PlaceSamusLoadTiles replaces
-        // both whole positions, then every remaining IRQ call moves along the travel axis.
+        // both whole positions, then every remaining scroll update moves along the travel axis.
         FixedPosition<RoomPixels> samus = DoorOpeningScrollState.RebaseSamus(
             door, DoorOpeningScrollState.ApplySetupMovement(door, source));
         FixedVector<RoomPixels> step = DoorOpeningScrollState.GetSamusStep(door);
-        for (int call = DoorOpeningScrollState.MovingIrqCalls(direction); call > 0; call--)
+        for (int update = DoorOpeningScrollState.MovingScrollUpdates(direction); update > 0; update--)
             samus = samus.Advance(step);
 
         int finalX = NudgeOffScreenRightEdge(NudgeOffScreenLeftEdge(samus.X.Whole));
@@ -1138,7 +1135,7 @@ internal sealed class RoomLoader
             finalX = direction == DoorDirection.Right ? (ushort)(finalX | 7) : unchecked((ushort)(finalX & ~7));
         samus = samus.WithWhole(new Position16<RoomPixels>(checked((ushort)finalX), NudgeOffScreenLeftEdge(samus.Y.Whole)));
         // `$80:ADC8` adds $20 to door_destination_y_pos after using the unmodified value
-        // for Samus's setup origin. The IRQ completion later snaps an upward transition's
+        // for Samus's setup origin. The scroll's completion later snaps an upward transition's
         // camera to that adjusted destination; the other three directions retain theirs.
         Position16<RoomPixels> destination = DoorOpeningScrollState.GetDestination(door);
         Position16<RoomPixels> finalCamera = direction == DoorDirection.Up
@@ -1201,7 +1198,7 @@ internal sealed class RoomLoader
         // the ROM HUD template's unrelated map glyphs visible for the entire descent. Seed
         // the real area-six room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        _hud.UpdateMinimap(_system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.Counter8, MapRevealMode = _options.MapRevealMode, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+        _hud.UpdateMinimap(_system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, FrameCounter = _clock.ShortCounter, MapRevealMode = _options.MapRevealMode, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
 
         // `SamusCode_08_SetupForCeresStart` installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the

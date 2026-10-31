@@ -9,7 +9,7 @@ internal sealed class GradualPaletteTransition
 {
     /// <summary>Native divisor controlling how far each interpolation call moves.</summary>
     private readonly int denominator;
-    /// <summary>Shared WRAM fade counter advanced and reset by this transition.</summary>
+    /// <summary>Shared fade counter advanced and reset by this transition.</summary>
     private readonly GradualColorChangeCounter numerator;
 
     /// <summary>Captures the destination palette and binds the native shared fade counter.</summary>

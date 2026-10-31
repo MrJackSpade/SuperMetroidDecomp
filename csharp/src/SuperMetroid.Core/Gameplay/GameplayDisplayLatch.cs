@@ -8,10 +8,10 @@ using SuperMetroid.Core.Hud;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
-/// The scene one accepted (or forced-blank) frame shows (#1407): the camera's layer scrolls and room shake, the layers
+/// The scene one shown (or loading) frame shows (#1407): the camera's layer scrolls and room shake, the layers
 /// shown, the Ceres perspective floor, the room's and the bosses' backgrounds, the blends' fixed colours and the
 /// effects' latched state. Gameplay latches it before Samus's graphics are copied, so a change the main loop makes
-/// shows from the next accepted frame. A lag frame leaves the previous latch in place. Arrays are owned copies;
+/// shows from the next shown frame. An update without a frame boundary leaves the previous latch in place. Arrays are owned copies;
 /// simulation cannot change them.
 /// </summary>
 /// <param name="Scrolls">The camera's layer-1 and layer-2 scrolls and the room shake.</param>
@@ -28,14 +28,14 @@ namespace SuperMetroid.Core.Gameplay;
 /// <param name="Bosses">The bodies bosses draw as layer 2.</param>
 /// <param name="FixedColors">The fixed colours the frame's blends use.</param>
 /// <param name="XrayReveal">
-/// The X-ray reveal the NMI queue uploads for BG2 while X-ray is active, drawn from the room's block pictures (#1392).
+/// The X-ray reveal BG2 shows while X-ray is active, drawn from the room's block pictures (#1392).
 /// </param>
-/// <param name="Rooms">The room backgrounds this NMI displays, resolved from level data; null before the first room.</param>
-/// <param name="Layer3">The room effect's BG3 plane this NMI latched, which its pictures are resolved from; null before the first room.</param>
-/// <param name="Hud">The HUD's images this NMI latched, which the pause screen keeps (#1466).</param>
+/// <param name="Rooms">The room backgrounds this frame boundary displays, resolved from level data; null before the first room.</param>
+/// <param name="Layer3">The room effect's BG3 plane this frame boundary latched, which its pictures are resolved from; null before the first room.</param>
+/// <param name="Hud">The HUD's images this frame boundary latched, which the pause screen keeps (#1466).</param>
 /// <param name="PicturedHud">
 /// <paramref name="Hud"/>'s images as their pictures in the room's BG3 sheet, which the frame's HUD layer draws (#1466); null
-/// until the accepted NMI that latched them resolves them, and before the first room.
+/// until the frame boundary that latched them resolves them, and before the first room.
 /// </param>
 public sealed record GameplayDisplayLatch(
     GameplayRenderSnapshot Scrolls,

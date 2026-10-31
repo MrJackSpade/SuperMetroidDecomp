@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The layers gameplay shows on the main screen (#1407): chosen on each main-loop pass, shown from the accepted frame
-/// that latches them. A lag frame leaves the shown layers in place.
+/// that latches them. An update without a frame boundary leaves the shown layers in place.
 /// </summary>
 internal sealed class GameplayScreenLayers
 {

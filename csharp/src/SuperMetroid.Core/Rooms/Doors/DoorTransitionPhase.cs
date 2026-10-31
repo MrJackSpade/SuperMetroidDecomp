@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>Identifies the current stage of the ordinary non-elevator door coroutine.</summary>
+/// <summary>Identifies the current stage of an ordinary door transition.</summary>
 public enum DoorTransitionPhase
 {
     /// <summary>No door transition has begun.</summary>
@@ -9,19 +9,19 @@ public enum DoorTransitionPhase
     WaitForSoundQueues,
     /// <summary>Fade the source-room palette while retaining required HUD colors.</summary>
     FadeOutSourcePalette,
-    /// <summary>Consume the door-header coroutine boundary and configure transition IRQ display.</summary>
+    /// <summary>Read the door's header, stop the per-line effects and give the screen to the door transition's display.</summary>
     LoadDoorHeader,
     /// <summary>Move the source camera one pixel per update to the required screen boundary.</summary>
     AlignSourceCamera,
-    /// <summary>Apply the native tile correction for upward-moving doors.</summary>
+    /// <summary>The update in which an upward-moving door corrects the source room's top tile row.</summary>
     FixDoorsMovingUp,
-    /// <summary>Preserve the native room-setup coroutine boundary before scrolling setup.</summary>
+    /// <summary>The room-setup update before scrolling setup.</summary>
     SetupNewRoom,
     /// <summary>Apply the door direction's pre-loading player movement.</summary>
     SetupScrolling,
     /// <summary>Place Samus for destination tile loading.</summary>
     PlaceSamusAndLoadTiles,
-    /// <summary>Construct the destination room and begin its door-opening IRQ scroll.</summary>
+    /// <summary>Construct the destination room and begin its door-opening scroll.</summary>
     LoadMoreThingsAndOpenDoor,
     /// <summary>Wait for the incremental destination door scroll to finish.</summary>
     WaitForDoorOpeningScroll,
@@ -29,7 +29,7 @@ public enum DoorTransitionPhase
     HandleAnimatedTiles,
     /// <summary>Wait for the global music queue to drain before selecting room music.</summary>
     WaitForMusicQueue,
-    /// <summary>Finish the opening scroll and release transition IRQ display ownership.</summary>
+    /// <summary>Finish the opening scroll and return the screen to the destination room's display.</summary>
     HandleTransition,
     /// <summary>Run destination actors while fading the loaded room palette in.</summary>
     FadeInDestinationPalette,

@@ -265,8 +265,8 @@ public enum DoorSetupCode
     DoorASM_ToCeresElevatorShaft = 82,
 
     /// <summary>
-    /// <c>DoorASM_FromCeresElevatorShaft</c>; restores ordinary Mode 1
-    /// rendering and disables Mode-7 IRQ/transfer handling.
+    /// The Ceres elevator shaft's exit program; returns the screen from the turning
+    /// floor to the ordinary room display.
     /// </summary>
     DoorASM_FromCeresElevatorShaft = 83,
 }

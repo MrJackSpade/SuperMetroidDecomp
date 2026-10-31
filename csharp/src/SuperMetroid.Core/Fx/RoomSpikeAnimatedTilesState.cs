@@ -29,7 +29,7 @@ public sealed class RoomSpikeAnimatedTilesState
             }
     }
 
-    /// <summary>Schedules the authored character transfer for the next accepted NMI.</summary>
+    /// <summary>Schedules the authored character transfer for the next frame boundary.</summary>
     public void Step(ArtworkFrameSelections frames) =>
         animation.Step(frames);
 }

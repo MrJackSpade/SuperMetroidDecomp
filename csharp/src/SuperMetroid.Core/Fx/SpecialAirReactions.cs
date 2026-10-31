@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 public static class SpecialAirReactions
 {
-    /// <summary>Resolves the native inside-body header/setup for retail areas and indexes 0..15.</summary>
+    /// <summary>Resolves the inside-body header/setup for retail areas and indexes 0..15.</summary>
     public static SpecialAirReactionDefinition ResolveInside(AreaId area, int areaReactionIndex)
     {
         Validate(area, areaReactionIndex, "inside-body");
@@ -31,7 +31,7 @@ public static class SpecialAirReactions
         };
     }
 
-    /// <summary>Resolves the native movement-collision header/setup for retail areas and indexes 0..15.</summary>
+    /// <summary>Resolves the movement-collision header/setup for retail areas and indexes 0..15.</summary>
     public static SpecialAirReactionDefinition ResolveCollision(AreaId area, int areaReactionIndex)
     {
         Validate(area, areaReactionIndex, "movement-collision");

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// Editable colors for room and cinematic palette animations. Native timing, destinations,
+/// Editable colors for room and cinematic palette animations. Timing, destinations,
 /// instructions, and side effects remain compiled engine mechanics.
 /// </summary>
 public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource

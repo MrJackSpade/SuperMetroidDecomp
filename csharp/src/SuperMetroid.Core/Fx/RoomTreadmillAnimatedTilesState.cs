@@ -12,10 +12,10 @@ namespace SuperMetroid.Core.Fx;
 [RoomLifetime]
 public sealed class RoomTreadmillAnimatedTilesState
 {
-    /// <summary>Treadmill animations selected by the current room FX bitset in native bit order.</summary>
+    /// <summary>Treadmill animations selected by the current room FX bitset in bit order.</summary>
     internal readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
-    /// <summary>Spawns one room's objects from the door-selected FX record in native bit order.</summary>
+    /// <summary>Spawns one room's objects from the door-selected FX record in bit order.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="area">The room's area, which selects each bit's object.</param>
@@ -43,7 +43,7 @@ public sealed class RoomTreadmillAnimatedTilesState
                 _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {definition}."),
             };
             // Other animation families retain their own owners. Selection here is by
-            // native object identity, not room number or an assumed area-specific bit.
+            // // object identity, not room number or an assumed area-specific bit.
             if (direction is null) continue;
             var animation = new WreckedShipTreadmillAnimatedTilesState();
             animation.Start(direction.Value);
@@ -51,7 +51,7 @@ public sealed class RoomTreadmillAnimatedTilesState
         }
     }
 
-    /// <summary>Runs each selected native list; its boss wait gates graphics independently of floor collision.</summary>
+    /// <summary>Runs each selected animation script; its boss wait gates graphics independently of floor collision.</summary>
     public void Step(bool areaBossDefeated, ArtworkFrameSelections frames)
     {
         foreach (var animation in objects) animation.Step(areaBossDefeated, frames);

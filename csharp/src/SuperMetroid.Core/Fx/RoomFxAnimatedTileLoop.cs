@@ -34,10 +34,10 @@ public sealed class RoomFxAnimatedTileLoop
         frames = new CalculatedFrames(animatedObject, frameCount, frameDuration);
     }
 
-    /// <summary>Bounded four-byte frame cursors with one native duration per object.</summary>
-    /// <remarks>The seven simple native loops at $87:817E,8221,8235,8293,82B1,82CF,82ED
+    /// <summary>Bounded four-byte frame cursors with one duration per object.</summary>
+    /// <remarks>The seven simple loops
     /// have counts4,4,4,5,5,5,3. Spikes wait8 ticks, lava13, and all others10.
-    /// Native timed entries consist of duration then artwork-source operand; goto
+    /// Timed entries consist of duration then artwork-source operand; goto
     /// follows the last entry. Both cursor and duration mappings are independently
     /// verified against NTSC J/U v1.0 and pinned bank_87.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). This view stores parameters only,
@@ -56,12 +56,12 @@ public sealed class RoomFxAnimatedTileLoop
                 return new(animatedObject, index, duration);
             }
         }
-        /// <summary>Yields frame cursors in native instruction order.</summary>
+        /// <summary>Yields frame cursors in script order.</summary>
         public IEnumerator<RoomFxAnimatedTileFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < count; index++) yield return this[index];
         }
-        /// <summary>Exposes the same native frame order to non-generic collection callers.</summary>
+        /// <summary>Exposes the same frame order to non-generic collection callers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The animated-tile object this definition schedules.</summary>
@@ -74,7 +74,7 @@ public sealed class RoomFxAnimatedTileLoop
     /// <summary>The distinct pictures the object's frames show, each held once in the installed atlas.</summary>
     public int ImageCount { get; }
 
-    /// <summary>The timed frame-control records in cartridge execution order.</summary>
+    /// <summary>The timed frame-control records in execution order.</summary>
     public IReadOnlyList<RoomFxAnimatedTileFrameDefinition> Frames => frames;
 
     /// <summary>The distinct pictures the object's frames show, in order.</summary>

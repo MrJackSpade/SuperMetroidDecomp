@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Immutable mechanics for the old-Tourian railing and panel flash loops.</summary>
 /// <remarks>
-/// Definitions <c>$FFDD</c> and <c>$FFE1</c> use identical fifteen-record timing.
+/// The two definitions use identical fifteen-record timing.
 /// Their 90 BGR555 words remain live presentation data; this catalog owns palette
 /// placement, timing, waits, and loop control.
 /// </remarks>

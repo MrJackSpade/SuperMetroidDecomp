@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Fx;
 /// The scrolling sky's 23 parallax bands and BG2 vertical scroll (#1347).
 /// </summary>
 /// <remarks>
-/// <see cref="ProcessFrame"/> ports <c>$88:ADC2</c> and the vertical scroll of <c>$88:AFA3</c>. The sky's rows are
-/// drawn from its installed picture (<see cref="SuperMetroid.Core.Rooms.Backgrounds.SkyPictures"/>), so the cartridge's
+/// <see cref="ProcessFrame"/> advances the bands and the sky's vertical scroll. The sky's rows are
+/// drawn from its installed picture (<see cref="SuperMetroid.Core.Rooms.Backgrounds.SkyPictures"/>), so the game's
 /// circular row streaming is not modeled; the bands are published with <see cref="Publish"/>.
 /// </remarks>
 /// <param name="variant">The land or ocean chunk table the room main selects.</param>
@@ -23,13 +23,13 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     /// <summary>The land or ocean chunk table the sky's rows follow.</summary>
     public ScrollingSkyChunkTable Variant { get; } = variant;
 
-    /// <summary>23 native 16.16 per-line data slots; the last slot is stationary.</summary>
+    /// <summary>23 16.16 per-line data slots; the last slot is stationary.</summary>
     private readonly uint[] _fixedHorizontalScrolls =
         new uint[ScrollingSkyBandDefinitions.DataSlotCount];
 
     /// <summary>
     /// Returns whether a room-state callback dispatches to the translated land-sky
-    /// implementation. This is the same bank-$8F dispatch decision made by the cartridge;
+    /// implementation. This is the same room-main dispatch decision the game makes;
     /// callers must not infer it from a room number, area, door, or camera position.
     /// </summary>
     public static bool IsLandRoomMain(RoomMainCallback callback) =>
@@ -47,7 +47,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
             : throw new ArgumentOutOfRangeException(nameof(callback), callback, "The room main runs no scrolling sky.");
 
     /// <summary>
-    /// The BG2 scroll the sky publishes: <c>$88:AFB2</c> copies layer-one Y, with its sixteen-bit wrap, into Y.
+    /// The BG2 scroll the sky publishes: the sky copies layer-one Y, with its sixteen-bit wrap, into Y.
     /// X stays zero because the sky never writes the uniform horizontal scroll; its bands shift each line instead.
     /// </summary>
     public Position16<BackgroundPixels> Bg2Scroll { get; private set; }
@@ -55,7 +55,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     /// <summary>Whether the indirect table has not been terminated by a frozen frame.</summary>
     public bool BandsShown { get; private set; } = hasBands;
 
-    /// <summary>Integer per-line data words, indexed like the 23 four-byte slots at $7E:9F80.</summary>
+    /// <summary>Integer per-line data words, indexed like the sky's 23 four-byte slots.</summary>
     public int GetDataSlotPosition(int slot)
     {
         if ((uint)slot >= _fixedHorizontalScrolls.Length)
@@ -94,7 +94,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
         return new ScrollingSkyLayer(layer1YPosition, offsets.MoveToImmutable(), BandsShown);
     }
 
-    /// <summary>Adds each strip's native 16.16 speed and resets the stationary bottom strip.</summary>
+    /// <summary>Adds each strip's 16.16 speed and resets the stationary bottom strip.</summary>
     private void AdvanceHorizontalScrolls()
     {
         for (int index = 0; index < ScrollingSkyBandDefinitions.SectionCount; index++)
@@ -104,7 +104,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
                 _fixedHorizontalScrolls[section.DataSlot] + (uint)section.Velocity.RawValue);
         }
 
-        // $88:ADF2-$88:ADFA clears the final fractional and integer words after all 23
+        // // The sky clears the final fractional and integer words after all 23
         // additions, keeping the bottommost section stationary.
         _fixedHorizontalScrolls[ScrollingSkyBandDefinitions.DataSlotCount - 1] = 0;
     }

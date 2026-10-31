@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>One ordered strip of native 2-bpp room-FX, treadmill, and statue characters.</summary>
+/// <summary>One ordered strip of 2-bpp room-FX, treadmill, and statue characters.</summary>
 public static class RoomFxAnimatedTileAtlasFormat
 {
     /// <summary>Installed indexed PNG filename for the append-only strip of room-FX and related animated characters.</summary>
     public const string FileName = "room-fx-animated-tiles.png";
-    /// <summary>Two native planar bitplanes per pixel, producing sixteen bytes for each 8-by-8 character.</summary>
+    /// <summary>Two planar bitplanes per pixel, producing sixteen bytes for each 8-by-8 character.</summary>
     public const int BitsPerPixel = 2;
     /// <summary>Four palette-index values representable by the two-bit artwork; visible palette colors remain separately owned.</summary>
     public const int ColorCount = 4;

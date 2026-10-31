@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// Immutable engine-owned header and control data for the simple retail room-FX
-/// animated-tile objects in bank <c>$87</c>.
+/// animated-tile objects.
 /// </summary>
 /// <remarks>
 /// Frame source pointers deliberately are not stored here. They identify replaceable
@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Fx;
 public static class RoomFxAnimatedTileMechanicsDefinitions
 {
     /// <summary>The seven supported objects' headers, by object (<see cref="RoomFxAnimatedTiles"/>).</summary>
-    /// <remarks>Seven named spike/sand/liquid/weather objects select native instruction starts,
-    /// transfer sizes and encoded VRAM destinations. Each field and the full ushort
+    /// <remarks>Seven named spike/sand/liquid/weather objects select script starts,
+    /// transfer sizes and encoded destinations. Each field and the full ushort
     /// identity domain are independently verified against NTSC J/U v1.0 and pinned
     /// bank_87.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).
     /// Frame schedules use the separately verified arithmetic view; neither headers

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// <summary>
 /// The shared strip of characters the four Tourian statues' animated tiles show (#1395): each statue's three
 /// oscillation pictures and its released picture are windows of the one strip the room-FX atlas packs (#1415: by
-/// character position, not by cartridge address).
+/// character position).
 /// </summary>
 public static class TourianStatueTileStripDefinitions
 {

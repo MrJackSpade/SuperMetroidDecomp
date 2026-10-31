@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
 /// One ordered strip of characters in the installed room-FX artwork atlas (#1415): a picture of an animated-tile
-/// object, or the shared Tourian statue strip. Each kind is its own record; extraction maps each to where the cartridge
+/// object, or the shared Tourian statue strip. Each kind is its own record; extraction maps each to where the source
 /// stores it.
 /// </summary>
 public abstract record RoomFxAtlasSegment

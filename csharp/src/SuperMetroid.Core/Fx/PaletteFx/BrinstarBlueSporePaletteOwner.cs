@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>The mutually exclusive blue-spore room palette owner.</summary>
 public enum BrinstarBlueSporePaletteOwner
 {
-    /// <summary>Palette-FX object $8D:F775, native Brinstar 1: the $ED99 loop animates the <see cref="PaletteFxColours.BrinstarBlueSpores"/> in ordinary blue-spore rooms, without a boss-death pre-instruction.</summary>
+    /// <summary>Brinstar palette effect 1: the loop animates the <see cref="PaletteFxColours.BrinstarBlueSpores"/> in ordinary blue-spore rooms, without a boss-death frame behaviour.</summary>
     StandardRooms,
-    /// <summary>Palette-FX object $8D:F779, native Brinstar 8: the $EE2D variant uses the same spore colors but installs $EEC5 to delete the object when the current area's mini-boss defeat bit ($0002) is set.</summary>
+    /// <summary>Brinstar palette effect 8: the variant uses the same spore colors but deletes the object when the current area's mini-boss is defeated.</summary>
     SporeSpawnRoom,
 }

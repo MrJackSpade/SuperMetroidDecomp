@@ -13,12 +13,12 @@ internal sealed class QuicksandPlms
     {
         _slotTable = slotTable;
     }
-    /// <summary>True when all forty cartridge PLM slots are occupied.</summary>
+    /// <summary>True when all forty PLM slots are occupied.</summary>
     public bool IsAllocationFull => _slotTable.IsFull;
 
     /// <summary>
     /// Allocates one transient sand-reaction PLM and leaves its setup effects to the
-    /// collision owner, matching <c>Spawn_PLM_to_CurrentBlockIndex</c> at $84:84E7.
+    /// collision owner, as spawning a PLM at the current block does.
     /// </summary>
     /// <remarks>
     /// Every sand header points to the shared delete list. During ordinary gameplay the
@@ -27,7 +27,7 @@ internal sealed class QuicksandPlms
     /// sand falls back to air. Allocation is therefore observable gameplay state even
     /// though the actor never draws a tile.
     /// </remarks>
-    /// <returns>False only when the native allocation is full.</returns>
+    /// <returns>False only when the PLM pool is full.</returns>
     public bool TrySpawnQuicksandReaction(
         int blockIndex,
         PlmHeaderId header)

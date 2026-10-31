@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// <summary>
 /// The animations room effects, treadmills, spikes, sand and the Tourian statues paint their characters with (#1406):
 /// each animated-tile object is an animation whose frames are the pictures it shows, which asset extraction pictures and
-/// the object selects at the update the cartridge copied them.
+/// the object selects at the update the game showed them.
 /// </summary>
 internal static class AnimatedTileFrames
 {

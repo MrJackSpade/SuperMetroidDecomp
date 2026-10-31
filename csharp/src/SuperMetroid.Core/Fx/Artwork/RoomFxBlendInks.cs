@@ -2,12 +2,12 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Editable three-color room-FX blends selected by native FX records.</summary>
+/// <summary>Editable three-color room-FX blends selected by FX records.</summary>
 public sealed class RoomFxBlendInks
 {
-    /// <summary>Three installed CGRAM inks for the lava selector.</summary>
+    /// <summary>Three installed inks for the lava selector.</summary>
     private readonly RoomFxBlendColors lava;
-    /// <summary>Three installed CGRAM inks for Landing Site rain.</summary>
+    /// <summary>Three installed inks for Landing Site rain.</summary>
     private readonly RoomFxBlendColors landingSiteRain;
     /// <summary>Three installed inks for Maridia's first water selector.</summary>
     private readonly RoomFxBlendColors maridiaWaterA;
@@ -43,7 +43,7 @@ public sealed class RoomFxBlendInks
     /// <summary>Cosmetic fixed-color tint selected after Ceres Ridley is defeated.</summary>
     public RgbColor CeresHazeRed { get; }
 
-    /// <summary>Applies the native three-color write, or clears only color 27 for selection zero.</summary>
+    /// <summary>Applies the three-color write, or clears only color 27 for selection zero.</summary>
     public void Apply(BackgroundColourSets colours, RoomFxPaletteBlend selection)
     {
         Ensure.NotNull(colours);

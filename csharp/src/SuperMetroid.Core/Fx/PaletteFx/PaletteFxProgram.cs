@@ -1,343 +1,343 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The palette-FX objects' programs (#1298), one per bank-$8D list an object, a setup, a pre-instruction or a branch
-/// enters, in address order. Generated from the verified native lists; see <see cref="PaletteFxAnimations"/>.
+/// The palette-FX objects' programs (#1298), one per entry point an object, a setup, a frame behaviour or a branch
+/// enters, in authored order. Generated from the verified animation scripts; see <see cref="PaletteFxAnimations"/>.
 /// </summary>
 public enum PaletteFxProgram
 {
-    /// <summary><c>InstList_PaletteFXObject_FadeInSuperMetroidTitleLogo</c> at $8D:C696.</summary>
+    /// <summary>The fade in Super Metroid title logo program.</summary>
     FadeInSuperMetroidTitleLogo,
-    /// <summary><c>InstList_PaletteFXObject_FadeInNintendoBootLogo</c> at $8D:C7AC.</summary>
+    /// <summary>The fade in Nintendo boot logo program.</summary>
     FadeInNintendoBootLogo,
-    /// <summary><c>InstList_PaletteFXObject_Common_FadeInLogo</c> at $8D:C7B0.</summary>
+    /// <summary>The shared fade in logo program its variants continue into.</summary>
     CommonFadeInLogo,
-    /// <summary><c>InstList_PaletteFXObject_FadeInNintendoCopyright</c> at $8D:C7F2.</summary>
+    /// <summary>The fade in Nintendo copyright program.</summary>
     FadeInNintendoCopyright,
-    /// <summary><c>InstList_PaletteFXObject_TitleScreenBabyMetroidTubeLight_0</c> at $8D:C7FA.</summary>
+    /// <summary>The title screen Baby Metroid tube light program, step 0.</summary>
     TitleScreenBabyMetroidTubeLight0,
-    /// <summary><c>InstList_PaletteFXObject_TitleScreenBabyMetroidTubeLight_1</c> at $8D:C7FE.</summary>
+    /// <summary>The title screen Baby Metroid tube light program, step 1.</summary>
     TitleScreenBabyMetroidTubeLight1,
-    /// <summary><c>InstList_PaletteFXObject_TitleScreenFlickeringDisplays_0</c> at $8D:C862.</summary>
+    /// <summary>The title screen flickering displays program, step 0.</summary>
     TitleScreenFlickeringDisplays0,
-    /// <summary><c>InstList_PaletteFXObject_TitleScreenFlickeringDisplays_1</c> at $8D:C866.</summary>
+    /// <summary>The title screen flickering displays program, step 1.</summary>
     TitleScreenFlickeringDisplays1,
-    /// <summary><c>InstList_PaletteFXObject_CutsceneGunshipEngineFlicker_0</c> at $8D:C87A.</summary>
+    /// <summary>The cutscene gunship engine flicker program, step 0.</summary>
     CutsceneGunshipEngineFlicker0,
-    /// <summary><c>InstList_PaletteFXObject_CutsceneGunshipEngineFlicker_1</c> at $8D:C87E.</summary>
+    /// <summary>The cutscene gunship engine flicker program, step 1.</summary>
     CutsceneGunshipEngineFlicker1,
-    /// <summary><c>InstList_PaletteFXObject_CutsceneCeresNavigationLight_Sprite</c> at $8D:C88E.</summary>
+    /// <summary>The cutscene Ceres navigation light sprite program.</summary>
     CutsceneCeresNavigationLightSprite,
-    /// <summary><c>InstList_PaletteFXObject_Common_CeresNavigationLights</c> at $8D:C892.</summary>
+    /// <summary>The shared Ceres navigation lights program its variants continue into.</summary>
     CommonCeresNavigationLights,
-    /// <summary><c>InstList_PaletteFXObject_CutsceneCeresNavigationLights_BG</c> at $8D:C906.</summary>
+    /// <summary>The cutscene Ceres navigation lights background program.</summary>
     CutsceneCeresNavigationLightsBG,
-    /// <summary><c>InstList_PaletteFXObject_FadeInPlanetZebesText</c> at $8D:C90E.</summary>
+    /// <summary>The fade in Planet Zebes text program.</summary>
     FadeInPlanetZebesText,
-    /// <summary><c>InstList_PaletteFXObject_FadeOutPlanetZebesText</c> at $8D:C964.</summary>
+    /// <summary>The fade out Planet Zebes text program.</summary>
     FadeOutPlanetZebesText,
-    /// <summary><c>InstList_PaletteFXObject_OldMotherBrainFightBGLights_0</c> at $8D:C9BA.</summary>
+    /// <summary>The old Mother Brain fight background lights program, step 0.</summary>
     OldMotherBrainFightBGLights0,
-    /// <summary><c>InstList_PaletteFXObject_OldMotherBrainFightBGLights_1</c> at $8D:C9BE.</summary>
+    /// <summary>The old Mother Brain fight background lights program, step 1.</summary>
     OldMotherBrainFightBGLights1,
-    /// <summary><c>InstList_PaletteFXObject_GunshipGlow_0</c> at $8D:CA4E.</summary>
+    /// <summary>The gunship glow program, step 0.</summary>
     GunshipGlow0,
-    /// <summary><c>InstList_PaletteFXObject_GunshipGlow_1</c> at $8D:CA52.</summary>
+    /// <summary>The gunship glow program, step 1.</summary>
     GunshipGlow1,
-    /// <summary><c>InstList_PaletteFXObject_FadeOutZoomedOutExplodingZebes</c> at $8D:CAAA.</summary>
+    /// <summary>The fade out zoomed out exploding Zebes program.</summary>
     FadeOutZoomedOutExplodingZebes,
-    /// <summary><c>InstList_PaletteFXObject_WidePartOfZebesExplosion_Foreground</c> at $8D:CB3C.</summary>
+    /// <summary>The wide part of Zebes explosion foreground program.</summary>
     WidePartOfZebesExplosionForeground,
-    /// <summary><c>InstList_PaletteFXObject_ZebesExplosionFinale</c> at $8D:CD62.</summary>
+    /// <summary>The Zebes explosion finale program.</summary>
     ZebesExplosionFinale,
-    /// <summary><c>InstList_PaletteFXObject_WidePartOfZebesExplosion_Background</c> at $8D:D362.</summary>
+    /// <summary>The wide part of Zebes explosion background program.</summary>
     WidePartOfZebesExplosionBackground,
-    /// <summary><c>InstList_PaletteFXObject_WhiteOutSpaceDuringZebesExplosion</c> at $8D:D36A.</summary>
+    /// <summary>The white out Space during Zebes explosion program.</summary>
     WhiteOutSpaceDuringZebesExplosion,
-    /// <summary><c>InstList_PaletteFXObject_Common_ZebesExplosion</c> at $8D:D36E.</summary>
+    /// <summary>The shared Zebes explosion program its variants continue into.</summary>
     CommonZebesExplosion,
-    /// <summary><c>InstList_PaletteFXObject_ZebesExplosionPlanetAfterGlow_0</c> at $8D:D3CA.</summary>
+    /// <summary>The Zebes explosion Planet after glow program, step 0.</summary>
     ZebesExplosionPlanetAfterGlow0,
-    /// <summary><c>InstList_PaletteFXObject_ZebesExplosionPlanetAfterGlow_1</c> at $8D:D3CE.</summary>
+    /// <summary>The Zebes explosion Planet after glow program, step 1.</summary>
     ZebesExplosionPlanetAfterGlow1,
-    /// <summary><c>InstList_PaletteFXObject_ExplodingZebesLava_0</c> at $8D:D44A.</summary>
+    /// <summary>The exploding Zebes lava program, step 0.</summary>
     ExplodingZebesLava0,
-    /// <summary><c>InstList_PaletteFXObject_ExplodingZebesLava_1</c> at $8D:D44E.</summary>
+    /// <summary>The exploding Zebes lava program, step 1.</summary>
     ExplodingZebesLava1,
-    /// <summary><c>InstList_PaletteFXObject_FadeOutExplodingZebesCrust</c> at $8D:D48E.</summary>
+    /// <summary>The fade out exploding Zebes crust program.</summary>
     FadeOutExplodingZebesCrust,
-    /// <summary><c>InstList_PaletteFXObject_FadeOutExplodingZebesGreyClouds</c> at $8D:D5A4.</summary>
+    /// <summary>The fade out exploding Zebes grey clouds program.</summary>
     FadeOutExplodingZebesGreyClouds,
-    /// <summary><c>InstList_PaletteFXObject_GunshipEmergingFromZebesExplosion</c> at $8D:D6BA.</summary>
+    /// <summary>The gunship emerging from Zebes explosion program.</summary>
     GunshipEmergingFromZebesExplosion,
-    /// <summary><c>InstList_PaletteFXObject_HyperBeam_0</c> at $8D:D900.</summary>
+    /// <summary>The Hyper Beam program, step 0.</summary>
     HyperBeam0,
-    /// <summary><c>InstList_PaletteFXObject_HyperBeam_1</c> at $8D:D904.</summary>
+    /// <summary>The Hyper Beam program, step 1.</summary>
     HyperBeam1,
-    /// <summary><c>UNUSED_InstList_PaletteFXObject_8DD9D0</c> at $8D:D9D0.</summary>
+    /// <summary>An unused program.</summary>
     ListD9D0,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_PowerSuit_0</c> at $8D:DB62.</summary>
+    /// <summary>The Samus loading Power suit program, step 0.</summary>
     SamusLoadingPowerSuit0,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_PowerSuit_1</c> at $8D:DB69.</summary>
+    /// <summary>The Samus loading Power suit program, step 1.</summary>
     SamusLoadingPowerSuit1,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_PowerSuit_2</c> at $8D:DBB8.</summary>
+    /// <summary>The Samus loading Power suit program, step 2.</summary>
     SamusLoadingPowerSuit2,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_PowerSuit_3</c> at $8D:DC07.</summary>
+    /// <summary>The Samus loading Power suit program, step 3.</summary>
     SamusLoadingPowerSuit3,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_PowerSuit_4</c> at $8D:DC56.</summary>
+    /// <summary>The Samus loading Power suit program, step 4.</summary>
     SamusLoadingPowerSuit4,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_VairaSuit_0</c> at $8D:DCC8.</summary>
+    /// <summary>The Samus loading Varia suit program, step 0.</summary>
     SamusLoadingVairaSuit0,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_VairaSuit_1</c> at $8D:DCCF.</summary>
+    /// <summary>The Samus loading Varia suit program, step 1.</summary>
     SamusLoadingVairaSuit1,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_VairaSuit_2</c> at $8D:DD1E.</summary>
+    /// <summary>The Samus loading Varia suit program, step 2.</summary>
     SamusLoadingVairaSuit2,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_VairaSuit_3</c> at $8D:DD6D.</summary>
+    /// <summary>The Samus loading Varia suit program, step 3.</summary>
     SamusLoadingVairaSuit3,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_VairaSuit_4</c> at $8D:DDBC.</summary>
+    /// <summary>The Samus loading Varia suit program, step 4.</summary>
     SamusLoadingVairaSuit4,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_GravitySuit_0</c> at $8D:DE2E.</summary>
+    /// <summary>The Samus loading Gravity suit program, step 0.</summary>
     SamusLoadingGravitySuit0,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_GravitySuit_1</c> at $8D:DE35.</summary>
+    /// <summary>The Samus loading Gravity suit program, step 1.</summary>
     SamusLoadingGravitySuit1,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_GravitySuit_2</c> at $8D:DE84.</summary>
+    /// <summary>The Samus loading Gravity suit program, step 2.</summary>
     SamusLoadingGravitySuit2,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_GravitySuit_3</c> at $8D:DED3.</summary>
+    /// <summary>The Samus loading Gravity suit program, step 3.</summary>
     SamusLoadingGravitySuit3,
-    /// <summary><c>InstList_PaletteFXObject_SamusLoading_GravitySuit_4</c> at $8D:DF22.</summary>
+    /// <summary>The Samus loading Gravity suit program, step 4.</summary>
     SamusLoadingGravitySuit4,
-    /// <summary><c>InstList_PaletteFXObject_PostCreditsSuperMetroidIconGlare</c> at $8D:DF94.</summary>
+    /// <summary>The post credits Super Metroid icon glare program.</summary>
     PostCreditsSuperMetroidIconGlare,
-    /// <summary><c>InstList_PaletteFXObject_Nothing</c> at $8D:E220.</summary>
+    /// <summary>The nothing program.</summary>
     Nothing,
-    /// <summary><c>InstList_PaletteFXObject_GreyOutTourianStatue_Draygon</c> at $8D:E222.</summary>
+    /// <summary>The grey out Tourian statue Draygon program.</summary>
     GreyOutTourianStatueDraygon,
-    /// <summary><c>InstList_PaletteFXObject_GreyOutTourianStatue_Kraid</c> at $8D:E22A.</summary>
+    /// <summary>The grey out Tourian statue Kraid program.</summary>
     GreyOutTourianStatueKraid,
-    /// <summary><c>InstList_PaletteFXObject_GreyOutTourianStatue_Ridley</c> at $8D:E232.</summary>
+    /// <summary>The grey out Tourian statue Ridley program.</summary>
     GreyOutTourianStatueRidley,
-    /// <summary><c>InstList_PaletteFXObject_GreyOutTourianStatue_Phantoon</c> at $8D:E23A.</summary>
+    /// <summary>The grey out Tourian statue Phantoon program.</summary>
     GreyOutTourianStatuePhantoon,
-    /// <summary><c>InstList_PaletteFXObject_Common_GreyOutTourianStatue</c> at $8D:E23E.</summary>
+    /// <summary>The shared grey out Tourian statue program its variants continue into.</summary>
     CommonGreyOutTourianStatue,
-    /// <summary><c>InstList_PaletteFXObject_BombTorizoBelly_0</c> at $8D:E2E9.</summary>
+    /// <summary>The Bomb Torizo belly program, step 0.</summary>
     BombTorizoBelly0,
-    /// <summary><c>InstList_PaletteFXObject_BombTorizoBelly_1</c> at $8D:E2F1.</summary>
+    /// <summary>The Bomb Torizo belly program, step 1.</summary>
     BombTorizoBelly1,
-    /// <summary><c>InstList_PaletteFXObject_GoldenTorizoBelly_0</c> at $8D:E331.</summary>
+    /// <summary>The Golden Torizo belly program, step 0.</summary>
     GoldenTorizoBelly0,
-    /// <summary><c>InstList_PaletteFXObject_GoldenTorizoBelly_1</c> at $8D:E339.</summary>
+    /// <summary>The Golden Torizo belly program, step 1.</summary>
     GoldenTorizoBelly1,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_0</c> at $8D:E45E.</summary>
+    /// <summary>The Samus in heat Power suit program, step 0.</summary>
     SamusInHeatPowerSuit0,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_1</c> at $8D:E466.</summary>
+    /// <summary>The Samus in heat Power suit program, step 1.</summary>
     SamusInHeatPowerSuit1,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_2</c> at $8D:E488.</summary>
+    /// <summary>The Samus in heat Power suit program, step 2.</summary>
     SamusInHeatPowerSuit2,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_3</c> at $8D:E4AA.</summary>
+    /// <summary>The Samus in heat Power suit program, step 3.</summary>
     SamusInHeatPowerSuit3,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_4</c> at $8D:E4CC.</summary>
+    /// <summary>The Samus in heat Power suit program, step 4.</summary>
     SamusInHeatPowerSuit4,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_5</c> at $8D:E4EE.</summary>
+    /// <summary>The Samus in heat Power suit program, step 5.</summary>
     SamusInHeatPowerSuit5,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_6</c> at $8D:E510.</summary>
+    /// <summary>The Samus in heat Power suit program, step 6.</summary>
     SamusInHeatPowerSuit6,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_7</c> at $8D:E532.</summary>
+    /// <summary>The Samus in heat Power suit program, step 7.</summary>
     SamusInHeatPowerSuit7,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_8</c> at $8D:E554.</summary>
+    /// <summary>The Samus in heat Power suit program, step 8.</summary>
     SamusInHeatPowerSuit8,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_9</c> at $8D:E576.</summary>
+    /// <summary>The Samus in heat Power suit program, step 9.</summary>
     SamusInHeatPowerSuit9,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_A</c> at $8D:E598.</summary>
+    /// <summary>The Samus in heat Power suit program, step A.</summary>
     SamusInHeatPowerSuitA,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_B</c> at $8D:E5BA.</summary>
+    /// <summary>The Samus in heat Power suit program, step B.</summary>
     SamusInHeatPowerSuitB,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_C</c> at $8D:E5DC.</summary>
+    /// <summary>The Samus in heat Power suit program, step C.</summary>
     SamusInHeatPowerSuitC,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_D</c> at $8D:E5FE.</summary>
+    /// <summary>The Samus in heat Power suit program, step D.</summary>
     SamusInHeatPowerSuitD,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_E</c> at $8D:E620.</summary>
+    /// <summary>The Samus in heat Power suit program, step E.</summary>
     SamusInHeatPowerSuitE,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_F</c> at $8D:E642.</summary>
+    /// <summary>The Samus in heat Power suit program, step F.</summary>
     SamusInHeatPowerSuitF,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_PowerSuit_10</c> at $8D:E664.</summary>
+    /// <summary>The Samus in heat Power suit program, step 10.</summary>
     SamusInHeatPowerSuit10,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_0</c> at $8D:E68A.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 0.</summary>
     SamusInHeatVariaSuit0,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_2</c> at $8D:E692.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 2.</summary>
     SamusInHeatVariaSuit2,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_3</c> at $8D:E6B4.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 3.</summary>
     SamusInHeatVariaSuit3,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_4</c> at $8D:E6D6.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 4.</summary>
     SamusInHeatVariaSuit4,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_5</c> at $8D:E6F8.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 5.</summary>
     SamusInHeatVariaSuit5,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_6</c> at $8D:E71A.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 6.</summary>
     SamusInHeatVariaSuit6,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_7</c> at $8D:E73C.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 7.</summary>
     SamusInHeatVariaSuit7,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_8</c> at $8D:E75E.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 8.</summary>
     SamusInHeatVariaSuit8,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_9</c> at $8D:E780.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 9.</summary>
     SamusInHeatVariaSuit9,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_A</c> at $8D:E7A2.</summary>
+    /// <summary>The Samus in heat Varia suit program, step A.</summary>
     SamusInHeatVariaSuitA,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_B</c> at $8D:E7C4.</summary>
+    /// <summary>The Samus in heat Varia suit program, step B.</summary>
     SamusInHeatVariaSuitB,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_C</c> at $8D:E7E6.</summary>
+    /// <summary>The Samus in heat Varia suit program, step C.</summary>
     SamusInHeatVariaSuitC,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_D</c> at $8D:E808.</summary>
+    /// <summary>The Samus in heat Varia suit program, step D.</summary>
     SamusInHeatVariaSuitD,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_E</c> at $8D:E82A.</summary>
+    /// <summary>The Samus in heat Varia suit program, step E.</summary>
     SamusInHeatVariaSuitE,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_F</c> at $8D:E84C.</summary>
+    /// <summary>The Samus in heat Varia suit program, step F.</summary>
     SamusInHeatVariaSuitF,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_10</c> at $8D:E86E.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 10.</summary>
     SamusInHeatVariaSuit10,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_VariaSuit_11</c> at $8D:E890.</summary>
+    /// <summary>The Samus in heat Varia suit program, step 11.</summary>
     SamusInHeatVariaSuit11,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_0</c> at $8D:E8B6.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 0.</summary>
     SamusInHeatGravitySuit0,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_2</c> at $8D:E8BE.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 2.</summary>
     SamusInHeatGravitySuit2,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_3</c> at $8D:E8E0.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 3.</summary>
     SamusInHeatGravitySuit3,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_4</c> at $8D:E902.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 4.</summary>
     SamusInHeatGravitySuit4,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_5</c> at $8D:E924.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 5.</summary>
     SamusInHeatGravitySuit5,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_6</c> at $8D:E946.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 6.</summary>
     SamusInHeatGravitySuit6,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_7</c> at $8D:E968.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 7.</summary>
     SamusInHeatGravitySuit7,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_8</c> at $8D:E98A.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 8.</summary>
     SamusInHeatGravitySuit8,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_9</c> at $8D:E9AC.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 9.</summary>
     SamusInHeatGravitySuit9,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_A</c> at $8D:E9CE.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step A.</summary>
     SamusInHeatGravitySuitA,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_B</c> at $8D:E9F0.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step B.</summary>
     SamusInHeatGravitySuitB,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_C</c> at $8D:EA12.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step C.</summary>
     SamusInHeatGravitySuitC,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_D</c> at $8D:EA34.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step D.</summary>
     SamusInHeatGravitySuitD,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_E</c> at $8D:EA56.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step E.</summary>
     SamusInHeatGravitySuitE,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_F</c> at $8D:EA78.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step F.</summary>
     SamusInHeatGravitySuitF,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_10</c> at $8D:EA9A.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 10.</summary>
     SamusInHeatGravitySuit10,
-    /// <summary><c>InstList_PaletteFXObject_SamusInHeat_GravitySuit_11</c> at $8D:EABC.</summary>
+    /// <summary>The Samus in heat Gravity suit program, step 11.</summary>
     SamusInHeatGravitySuit11,
-    /// <summary><c>InstList_PaletteFXObject_WreckedShip1_0</c> at $8D:EAE2.</summary>
+    /// <summary>The Wrecked Ship palette effect 1 program, step 0.</summary>
     WreckedShip10,
-    /// <summary><c>InstList_PaletteFXObject_WreckedShip1_1</c> at $8D:EAE6.</summary>
+    /// <summary>The Wrecked Ship palette effect 1 program, step 1.</summary>
     WreckedShip11,
-    /// <summary><c>InstList_PaletteFXObject_Crateria1_0</c> at $8D:EB3B.</summary>
+    /// <summary>The Crateria palette effect 1 program, step 0.</summary>
     Crateria10,
-    /// <summary><c>InstList_PaletteFXObject_Crateria1_1</c> at $8D:EB43.</summary>
+    /// <summary>The Crateria palette effect 1 program, step 1.</summary>
     Crateria11,
-    /// <summary><c>InstList_PaletteFXObject_Crateria1_2</c> at $8D:EB5A.</summary>
+    /// <summary>The Crateria palette effect 1 program, step 2.</summary>
     Crateria12,
-    /// <summary><c>InstList_PaletteFXObject_Crateria1_3</c> at $8D:EC01.</summary>
+    /// <summary>The Crateria palette effect 1 program, step 3.</summary>
     Crateria13,
-    /// <summary><c>UNUSED_InstList_PaletteFXObject_DarkLightning_0_8DEC6E</c> at $8D:EC6E.</summary>
+    /// <summary>An unused dark lightning program, step 0.</summary>
     ListEC6E,
-    /// <summary><c>UNUSED_InstList_PaletteFXObject_DarkLightning_1_8DEC76</c> at $8D:EC76.</summary>
+    /// <summary>An unused dark lightning program, step 1.</summary>
     CrateriaAboveY380Second,
-    /// <summary><c>UNUSED_InstList_PaletteFXObject_DarkLightning_2_8DEC8B</c> at $8D:EC8B.</summary>
+    /// <summary>An unused dark lightning program, step 2.</summary>
     ListEC8B,
-    /// <summary><c>UNUSED_InstList_PaletteFXObject_DarkLightning_3_8DED34</c> at $8D:ED34.</summary>
+    /// <summary>An unused dark lightning program, step 3.</summary>
     ListED34,
-    /// <summary><c>InstList_PaletteFXObject_Brinstar1_0</c> at $8D:ED99.</summary>
+    /// <summary>The Brinstar palette effect 1 program, step 0.</summary>
     Brinstar10,
-    /// <summary><c>InstList_PaletteFXObject_Brinstar1_1</c> at $8D:ED9D.</summary>
+    /// <summary>The Brinstar palette effect 1 program, step 1.</summary>
     Brinstar11,
-    /// <summary><c>InstList_PaletteFXObject_Brinstar8_0</c> at $8D:EE2D.</summary>
+    /// <summary>The Brinstar palette effect 8 program, step 0.</summary>
     Brinstar80,
-    /// <summary><c>InstList_PaletteFXObject_Brinstar8_1</c> at $8D:EE35.</summary>
+    /// <summary>The Brinstar palette effect 8 program, step 1.</summary>
     Brinstar81,
-    /// <summary><c>InstList_PaletteFXObject_Brinstar2_0</c> at $8D:EED7.</summary>
+    /// <summary>The Brinstar palette effect 2 program, step 0.</summary>
     Brinstar20,
-    /// <summary><c>InstList_PaletteFXObject_Brinstar2_1</c> at $8D:EEDB.</summary>
+    /// <summary>The Brinstar palette effect 2 program, step 1.</summary>
     Brinstar21,
-    /// <summary><c>InstList_PaletteFXObject_Crateria80_Brinstar4_0</c> at $8D:EFF7.</summary>
+    /// <summary>The Crateria palette effect 80 and Brinstar palette effect 4 program, step 0.</summary>
     Crateria80Brinstar40,
-    /// <summary><c>InstList_PaletteFXObject_Crateria80_Brinstar4_1</c> at $8D:EFFB.</summary>
+    /// <summary>The Crateria palette effect 80 and Brinstar palette effect 4 program, step 1.</summary>
     Crateria80Brinstar41,
-    /// <summary><c>InstList_PaletteFXObject_Norfair2_0</c> at $8D:F08E.</summary>
+    /// <summary>The Norfair palette effect 2 program, step 0.</summary>
     Norfair20,
-    /// <summary><c>InstList_PaletteFXObject_Norfair2_1</c> at $8D:F092.</summary>
+    /// <summary>The Norfair palette effect 2 program, step 1.</summary>
     Norfair21,
-    /// <summary><c>InstList_PaletteFXObject_Norfair4_0</c> at $8D:F1D1.</summary>
+    /// <summary>The Norfair palette effect 4 program, step 0.</summary>
     Norfair40,
-    /// <summary><c>InstList_PaletteFXObject_Norfair4_1</c> at $8D:F1D5.</summary>
+    /// <summary>The Norfair palette effect 4 program, step 1.</summary>
     Norfair41,
-    /// <summary><c>InstList_PaletteFXObject_Norfair8_0</c> at $8D:F2D9.</summary>
+    /// <summary>The Norfair palette effect 8 program, step 0.</summary>
     Norfair80,
-    /// <summary><c>InstList_PaletteFXObject_Norfair8_1</c> at $8D:F2DD.</summary>
+    /// <summary>The Norfair palette effect 8 program, step 1.</summary>
     Norfair81,
-    /// <summary><c>InstList_PaletteFXObject_Norfair10_0</c> at $8D:F3E1.</summary>
+    /// <summary>The Norfair palette effect 10 program, step 0.</summary>
     Norfair100,
-    /// <summary><c>InstList_PaletteFXObject_Norfair10_1</c> at $8D:F3E5.</summary>
+    /// <summary>The Norfair palette effect 10 program, step 1.</summary>
     Norfair101,
-    /// <summary><c>InstList_PaletteFXObject_Maridia1_0</c> at $8D:F4E9.</summary>
+    /// <summary>The Maridia palette effect 1 program, step 0.</summary>
     Maridia10,
-    /// <summary><c>InstList_PaletteFXObject_Maridia1_1</c> at $8D:F4ED.</summary>
+    /// <summary>The Maridia palette effect 1 program, step 1.</summary>
     Maridia11,
-    /// <summary><c>InstList_PaletteFXObject_Maridia2_0</c> at $8D:F541.</summary>
+    /// <summary>The Maridia palette effect 2 program, step 0.</summary>
     Maridia20,
-    /// <summary><c>InstList_PaletteFXObject_Maridia2_1</c> at $8D:F545.</summary>
+    /// <summary>The Maridia palette effect 2 program, step 1.</summary>
     Maridia21,
-    /// <summary><c>InstList_PaletteFXObject_Maridia4_0</c> at $8D:F579.</summary>
+    /// <summary>The Maridia palette effect 4 program, step 0.</summary>
     Maridia40,
-    /// <summary><c>InstList_PaletteFXObject_Maridia4_1</c> at $8D:F57D.</summary>
+    /// <summary>The Maridia palette effect 4 program, step 1.</summary>
     Maridia41,
-    /// <summary><c>InstList_PaletteFXObject_Tourian4</c> at $8D:F62A.</summary>
+    /// <summary>The Tourian palette effect 4 program.</summary>
     Tourian4,
-    /// <summary><c>InstList_PaletteFXObject_Tourian2</c> at $8D:F632.</summary>
+    /// <summary>The Tourian palette effect 2 program.</summary>
     Tourian2,
-    /// <summary><c>InstList_PaletteFXObject_Common_Tourian2_Tourian4_0</c> at $8D:F636.</summary>
+    /// <summary>The shared Tourian palette effect 2 and Tourian palette effect 4 program its variants continue into, step 0.</summary>
     CommonTourian2Tourian40,
-    /// <summary><c>InstList_PaletteFXObject_Common_Tourian2_Tourian4_1</c> at $8D:F63A.</summary>
+    /// <summary>The shared Tourian palette effect 2 and Tourian palette effect 4 program its variants continue into, step 1.</summary>
     CommonTourian2Tourian41,
-    /// <summary><c>InstList_PaletteFXObject_Tourian8_0</c> at $8D:F7A9.</summary>
+    /// <summary>The Tourian palette effect 8 program, step 0.</summary>
     Tourian80,
-    /// <summary><c>InstList_PaletteFXObject_Tourian8_1</c> at $8D:F7AD.</summary>
+    /// <summary>The Tourian palette effect 8 program, step 1.</summary>
     Tourian81,
-    /// <summary><c>InstList_PaletteFXObject_Tourian10_0</c> at $8D:F891.</summary>
+    /// <summary>The Tourian palette effect 10 program, step 0.</summary>
     Tourian100,
-    /// <summary><c>InstList_PaletteFXObject_Tourian10_1</c> at $8D:F895.</summary>
+    /// <summary>The Tourian palette effect 10 program, step 1.</summary>
     Tourian101,
-    /// <summary><c>InstList_PaletteFXObject_Tourian20</c> at $8D:F941.</summary>
+    /// <summary>The Tourian palette effect 20 program.</summary>
     Tourian20,
-    /// <summary><c>InstList_PaletteFXObject_Tourian40</c> at $8D:F949.</summary>
+    /// <summary>The Tourian palette effect 40 program.</summary>
     Tourian40,
-    /// <summary><c>InstList_PaletteFXObject_Common_Tourian20_Tourian40</c> at $8D:F94D.</summary>
+    /// <summary>The shared Tourian palette effect 20 and Tourian palette effect 40 program its variants continue into.</summary>
     CommonTourian20Tourian40,
-    /// <summary><c>InstList_PaletteFXObject_Crateria8_0</c> at $8D:FA69.</summary>
+    /// <summary>The Crateria palette effect 8 program, step 0.</summary>
     Crateria80,
-    /// <summary><c>InstList_PaletteFXObject_Crateria8_1</c> at $8D:FA6D.</summary>
+    /// <summary>The Crateria palette effect 8 program, step 1.</summary>
     Crateria81,
-    /// <summary><c>InstList_PaletteFXObject_Crateria10_0</c> at $8D:FBC1.</summary>
+    /// <summary>The Crateria palette effect 10 program, step 0.</summary>
     Crateria100,
-    /// <summary><c>InstList_PaletteFXObject_Crateria10_1</c> at $8D:FBC5.</summary>
+    /// <summary>The Crateria palette effect 10 program, step 1.</summary>
     Crateria101,
-    /// <summary><c>InstList_PaletteFXObject_Crateria20_0</c> at $8D:FC5F.</summary>
+    /// <summary>The Crateria palette effect 20 program, step 0.</summary>
     Crateria200,
-    /// <summary><c>InstList_PaletteFXObject_Crateria20_1</c> at $8D:FC63.</summary>
+    /// <summary>The Crateria palette effect 20 program, step 1.</summary>
     Crateria201,
-    /// <summary><c>InstList_PaletteFXObject_Crateria2_0</c> at $8D:FCFD.</summary>
+    /// <summary>The Crateria palette effect 2 program, step 0.</summary>
     Crateria20,
-    /// <summary><c>InstList_PaletteFXObject_Crateria2_1</c> at $8D:FD01.</summary>
+    /// <summary>The Crateria palette effect 2 program, step 1.</summary>
     Crateria21,
-    /// <summary><c>InstList_PaletteFXObject_Crateria4_0</c> at $8D:FE01.</summary>
+    /// <summary>The Crateria palette effect 4 program, step 0.</summary>
     Crateria40,
-    /// <summary><c>InstList_PaletteFXObject_Crateria4_1</c> at $8D:FE05.</summary>
+    /// <summary>The Crateria palette effect 4 program, step 1.</summary>
     Crateria41,
-    /// <summary><c>InstList_PaletteFXObject_Crateria40_0</c> at $8D:FF27.</summary>
+    /// <summary>The Crateria palette effect 40 program, step 0.</summary>
     Crateria400,
-    /// <summary><c>InstList_PaletteFXObject_Crateria40_1</c> at $8D:FF2B.</summary>
+    /// <summary>The Crateria palette effect 40 program, step 1.</summary>
     Crateria401,
 }

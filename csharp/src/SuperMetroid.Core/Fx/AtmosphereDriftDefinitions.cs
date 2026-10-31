@@ -18,7 +18,7 @@ public static class AtmosphereDriftDefinitions
 
     /// <summary>
     /// The spores add to the background, the sprites drawn in blending palettes and the backdrop; the foreground
-    /// does not blend ($88:80AB).
+    /// does not blend.
     /// </summary>
     public const ColorBlend SporesBlendedLayers = ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop;
 }

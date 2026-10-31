@@ -3,12 +3,12 @@ using static SuperMetroid.Core.Fx.PaletteFx.NorfairEnvironmentalPaletteFxColorDe
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// Materializes the four native Norfair environmental programs (<see cref="NorfairEnvironmentalPaletteFxColorDefinitions"/>) from
-/// their shared record geometry, in native object order without storing duplicate records.
+/// Materializes the four Norfair environmental programs (<see cref="NorfairEnvironmentalPaletteFxColorDefinitions"/>) from
+/// their shared record geometry, in object order without storing duplicate records.
 /// </summary>
 internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition>
 {
-    /// <summary>The four adjacent definition identities at $8D:F785 through $F791.</summary>
+    /// <summary>The four adjacent definition identities.</summary>
     public int Count => 4;
     /// <summary>Builds one program's definition from its owner index.</summary>
     public NorfairEnvironmentalPaletteFxColorDefinition this[int index]
@@ -32,6 +32,6 @@ internal sealed class NorfairEnvironmentalPalettePrograms : IReadOnlyList<Norfai
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
-    /// <summary>Exposes the same native-order sequence through the nongeneric collection contract.</summary>
+    /// <summary>Exposes the same sequence through the nongeneric collection contract.</summary>
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 }

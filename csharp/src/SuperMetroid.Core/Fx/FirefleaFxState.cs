@@ -2,9 +2,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// FX $24's state: the flash clock that <c>$88:B07C</c> initializes and its pre-instruction <c>$88:B0BC</c> steps, and
-/// the darkness level the dying Firefleas advance. The game keeps these for the session (<c>$7E:1778</c>, <c>$177A</c>,
-/// <c>$177E</c>); the room FX state owns them for the session, so a room load does not reset them.
+/// The Fireflea room effect's state: the flash clock its setup initializes and its per-frame behaviour steps, and
+/// the darkness level the dying Firefleas advance. The game keeps these for the session;
+/// the room FX state owns them for the session, so a room load does not reset them.
 /// </summary>
 public sealed class FirefleaFxState
 {
@@ -30,7 +30,7 @@ public sealed class FirefleaFxState
 
     /// <summary>
     /// Samples enemy-owned darkness, advances the flash clock unless frozen, and writes the shared fixed colour using
-    /// native 16-bit shade addition, including the seventh offset value.
+    /// 16-bit shade addition, including the seventh offset value.
     /// </summary>
     internal void Step(RoomFixedColor fixedColor, bool frozen, int darkness)
     {
@@ -56,7 +56,7 @@ public sealed class FirefleaFxState
         int shade = WordWrap.LowByte(
             FirefleaShades.FlashingShade(index) +
             FirefleaShades.DarknessShade(darkness));
-        // Each of the cartridge's three writes carries the shade as its five-bit intensity. Past the darkness ramp the
+        // // Each of the game's three writes carries the shade as its five-bit intensity. Past the darkness ramp the
         // shade's upper bits only select channels the other writes set to the same value.
         int intensity = shade & RgbColor.MaxChannel;
         fixedColor.Color = new RgbColor(intensity, intensity, intensity);

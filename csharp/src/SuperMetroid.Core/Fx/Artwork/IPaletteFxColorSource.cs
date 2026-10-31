@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
-/// Host-selected presentation colors consumed by the compiled bank-$8D palette-FX
+/// Host-selected presentation colors consumed by the compiled palette-FX
 /// interpreter. Implementations expose colors only; timing, destinations, and control
 /// flow remain engine-owned mechanics.
 /// </summary>

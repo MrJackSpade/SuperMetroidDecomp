@@ -147,7 +147,7 @@ internal static class RoomFxRecordCatalogSource
         source.AppendLine();
         source.AppendLine("namespace SuperMetroid.Core.Fx;");
         source.AppendLine();
-        source.AppendLine("/// <summary>The retail room FX headers, each holding its records in native order; regenerate with --generate-room-fx-records.</summary>");
+        source.AppendLine("/// <summary>The retail room FX headers, each holding its records in the game's order; regenerate with --generate-room-fx-records.</summary>");
         source.AppendLine("public static class RoomFxDefinitions");
         source.AppendLine("{");
         bool first = true;

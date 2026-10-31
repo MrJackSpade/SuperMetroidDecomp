@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 public static class WreckedShipTreadmills
 {
-    /// <summary>Dispatches the two physical conveyor directions to their native headers.</summary>
+    /// <summary>Dispatches the two physical conveyor directions to their headers.</summary>
     public static WreckedShipTreadmillLoop ForDirection(WreckedShipTreadmillDirection direction) =>
         WreckedShipTreadmillMechanicsDefinitions.Directions.TryGetValue(direction, out WreckedShipTreadmillLoop? loop)
             ? loop : throw new InvalidDataException($"Unknown Wrecked Ship treadmill direction {direction}.");

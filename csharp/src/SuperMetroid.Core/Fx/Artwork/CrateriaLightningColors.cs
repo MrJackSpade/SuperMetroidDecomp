@@ -21,7 +21,7 @@ internal static class CrateriaLightningColors
         if (!SurfaceProgram.Rows.TryLocate(key, out int frame, out int index))
             return false;
         int phase = frame < 9 ? 4 - Math.Abs(4 - frame) : 13 - frame;
-        // Native words $2D6C + $18C6 * phase - $0421 * index: channels (12, 11, 11) rise
+        // // Colour words follow a base plus a per-phase step minus a per-position step: channels (12, 11, 11) rise
         // six per phase and fall one per position, never borrowing between channels.
         int level = 6 * phase - index;
         color = phase == 4 ? RgbColor.White : new RgbColor(12 + level, 11 + level, 11 + level);

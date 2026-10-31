@@ -5,11 +5,11 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
 {
     /// <summary>Power-suit colors.</summary>
     /// <remarks>
-    /// Issue #856 / #625: all 144 BGR555 words in ROM program <c>$8D:DB62</c>
-    /// match existing authored Samus palettes in bank <c>$9B</c>. Records
-    /// 0, 2, 4, 6, 8 equal normal Power Suit <c>$9B:9400</c>; records 1 and 3
-    /// equal speed-boost shade <c>$9B:9B80</c>; records 5 and 7 equal
-    /// <c>$9B:9B60</c> and <c>$9B:9B40</c>. Each comparison covers all sixteen
+    /// Issue #856 / #625: all 144 BGR555 words in the Power-suit loading program
+    /// match existing authored Samus palettes. Records
+    /// 0, 2, 4, 6, 8 equal the normal Power Suit palette; records 1 and 3
+    /// equal its first speed-boost shade; records 5 and 7 equal
+    /// its second and third shades. Each comparison covers all sixteen
     /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
     /// owns calculated sharing/shades and the specific base-ink disposition;
     /// LoadingPaletteInputView documents independent tint components. Production
@@ -18,11 +18,11 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     PowerSuit,
     /// <summary>Varia-suit colors.</summary>
     /// <remarks>
-    /// Issue #857 / #625: all 144 BGR555 words in ROM program <c>$8D:DCC8</c>
-    /// match existing authored Samus palettes in bank <c>$9B</c>. Records
-    /// 0, 2, 4, 6, 8 equal normal Varia Suit <c>$9B:9520</c>; records 1 and 3
-    /// equal speed-boost shade <c>$9B:9D80</c>; records 5 and 7 equal
-    /// <c>$9B:9D60</c> and <c>$9B:9D40</c>. Each comparison covers all sixteen
+    /// Issue #857 / #625: all 144 BGR555 words in the Varia-suit loading program
+    /// match existing authored Samus palettes. Records
+    /// 0, 2, 4, 6, 8 equal the normal Varia Suit palette; records 1 and 3
+    /// equal its first speed-boost shade; records 5 and 7 equal
+    /// its second and third shades. Each comparison covers all sixteen
     /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
     /// owns calculated sharing/shades and the specific base-ink disposition;
     /// LoadingPaletteInputView documents independent tint components. Production
@@ -31,11 +31,11 @@ public enum SamusLoadingSuitPaletteFxProgramOwner
     VariaSuit,
     /// <summary>Gravity-suit colors.</summary>
     /// <remarks>
-    /// Issue #858 / #625: all 144 BGR555 words in ROM program <c>$8D:DE2E</c>
-    /// match existing authored Samus palettes in bank <c>$9B</c>. Records
-    /// 0, 2, 4, 6, 8 equal normal Gravity Suit <c>$9B:9800</c>; records 1 and 3
-    /// equal speed-boost shade <c>$9B:9F80</c>; records 5 and 7 equal
-    /// <c>$9B:9F60</c> and <c>$9B:9F40</c>. Each comparison covers all sixteen
+    /// Issue #858 / #625: all 144 BGR555 words in the Gravity-suit loading program
+    /// match existing authored Samus palettes. Records
+    /// 0, 2, 4, 6, 8 equal the normal Gravity Suit palette; records 1 and 3
+    /// equal its first speed-boost shade; records 5 and 7 equal
+    /// its second and third shades. Each comparison covers all sixteen
     /// colors, independently rechecked under #1165. LoadingPaletteColorDefinitions
     /// owns calculated sharing/shades and the specific base-ink disposition;
     /// LoadingPaletteInputView documents independent tint components. Production

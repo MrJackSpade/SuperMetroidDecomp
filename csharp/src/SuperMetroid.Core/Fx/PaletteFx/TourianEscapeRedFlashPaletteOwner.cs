@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// <summary>The mutually exclusive early Tourian escape red-flash program.</summary>
 public enum TourianEscapeRedFlashPaletteOwner
 {
-    /// <summary>PalFxDef_Tourian8 ($8D:FFC9), flashing the six <see cref="PaletteFxColours.TourianShutters"/> through the fourteen two-tick records at $F7A9.</summary>
+    /// <summary>Tourian palette effect 8, flashing the six <see cref="PaletteFxColours.TourianShutters"/> through fourteen two-tick records.</summary>
     Shutter,
-    /// <summary>PalFxDef_Tourian10 ($8D:FFCD), flashing the four <see cref="PaletteFxColours.TourianBackground"/> through the fourteen four-tick records at $F891.</summary>
+    /// <summary>Tourian palette effect 10, flashing the four <see cref="PaletteFxColours.TourianBackground"/> through fourteen four-tick records.</summary>
     Background,
 }

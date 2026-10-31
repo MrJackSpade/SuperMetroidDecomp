@@ -21,13 +21,13 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// <summary>The selected direction's object definition, which names its frame art.</summary>
     private WreckedShipTreadmillLoop? _compiledMechanics;
 
-    /// <summary>Whether one of the two door-spawned objects occupies its native slot.</summary>
+    /// <summary>Whether one of the two door-spawned objects occupies its slot.</summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>Direction selected by the object header passed to $87:8027.</summary>
+    /// <summary>Direction selected by the object header passed when the object spawns.</summary>
     public WreckedShipTreadmillDirection Direction { get; private set; }
 
-    /// <summary>Index of the next entry in the four-frame cartridge list.</summary>
+    /// <summary>Index of the next entry in the four-frame animation script.</summary>
     public int NextFrameIndex { get; private set; }
 
     /// <summary>The picture the most recent handler pass showed, if it showed one.</summary>
@@ -35,8 +35,8 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
 
 
     /// <summary>
-    /// Mirrors <c>Spawn_AnimatedTilesObject</c> for object $8275 or $827B. Both lists begin
-    /// on the wait-for-area-boss instruction with an instruction timer of one.
+    /// Mirrors <c>Spawn_AnimatedTilesObject</c> for either treadmill object. Both scripts begin
+    /// on the wait-for-area-boss step with a frame hold of one.
     /// </summary>
     public void Start(WreckedShipTreadmillDirection direction)
     {
@@ -46,7 +46,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     }
 
     /// <summary>
-    /// Starts one bank-$87 object. Only the two treadmill objects are compiled, and each only
+    /// Starts one animated-tile object. Only the two treadmill objects are compiled, and each only
     /// for its own direction; any other object is rejected before it can run.
     /// </summary>
     internal void StartDefinition(
@@ -68,8 +68,8 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     }
 
     /// <summary>
-    /// Runs one bank-$87 handler pass and publishes the source selected for the following
-    /// frame boundary. While Phantoon's area-boss bit is clear, the wait ($87:81BA) holds the object for
+    /// Runs one animated-tile handler pass and publishes the source selected for the following
+    /// frame boundary. While Phantoon's area-boss bit is clear, the wait holds the object for
     /// another pass and no source exists; once the bit is set, the four frames loop forever.
     /// </summary>
     public void Step(

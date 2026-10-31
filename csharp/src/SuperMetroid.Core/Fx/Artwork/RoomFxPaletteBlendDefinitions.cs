@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Fx.Artwork;
 
-/// <summary>Native bank-$89 room-FX blend selectors, distinct from editable colors.</summary>
+/// <summary>Room-FX blend selectors, distinct from editable colors.</summary>
 public static class RoomFxPaletteBlendDefinitions
 {
     /// <summary>The colours one palette blend writes.</summary>

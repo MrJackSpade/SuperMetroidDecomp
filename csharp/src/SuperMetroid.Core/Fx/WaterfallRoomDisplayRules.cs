@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>Colosseum/Halfie Climb layer blending, native $88:80CA configuration $16.</summary>
+/// <summary>Colosseum/Halfie Climb layer blending, configuration $16.</summary>
 public static class WaterfallRoomDisplayRules
 {
     /// <summary>The foreground and the sprites are the layers the screen shows directly.</summary>

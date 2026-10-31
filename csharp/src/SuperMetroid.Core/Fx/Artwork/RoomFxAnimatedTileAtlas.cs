@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// </summary>
 public sealed class RoomFxAnimatedTileAtlas
 {
-    /// <summary>Concatenated edited tile bytes in the native segment order.</summary>
+    /// <summary>Concatenated edited tile bytes in segment order.</summary>
     internal readonly byte[] characters;
 
     /// <summary>Accepts the compiled character strip only when its length matches the ordered frame and statue segments.</summary>

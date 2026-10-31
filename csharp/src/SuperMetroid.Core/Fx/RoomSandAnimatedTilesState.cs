@@ -6,7 +6,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// Sand-family portion of LoadFxHeader's bank-$87 object population. Selection comes
+/// Sand-family portion of LoadFxHeader's animated-tile object population. Selection comes
 /// from the area table and selected FX record, never from a particular room number.
 /// Other animated-tile families retain their existing independent owners.
 /// </summary>
@@ -16,7 +16,7 @@ public sealed class RoomSandAnimatedTilesState
     /// <summary>Only sand-family objects selected by the current room's area and FX record.</summary>
     internal readonly List<RoomFxAnimatedTilesState> objects = [];
 
-    /// <summary>Spawns one room's objects from the door-selected FX record in native bit order.</summary>
+    /// <summary>Spawns one room's objects from the door-selected FX record in bit order.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="area">The room's area, which selects each bit's object.</param>
@@ -36,7 +36,7 @@ public sealed class RoomSandAnimatedTilesState
         }
     }
 
-    /// <summary>Advances the shared timed-list interpreter and queues the ROM-authored character frames for the next frame boundary.</summary>
+    /// <summary>Advances the shared timed-list interpreter and queues the authored character frames for the next frame boundary.</summary>
     public void Step(ArtworkFrameSelections frames)
     {
         foreach (var animation in objects) animation.Step(frames);

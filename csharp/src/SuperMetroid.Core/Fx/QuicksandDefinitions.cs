@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 public static class QuicksandDefinitions
 {
     /// <summary>
-    /// Named setup dispatch for the eight supported sand headers at $84:B713..B73F. All select the shared delete list
+    /// Named setup dispatch for the eight supported sand headers. All select the shared delete list
     /// (<see cref="QuicksandReactions"/>); no other header, including the unused surface clones between the named
     /// headers, is a sand reaction.
     /// </summary>

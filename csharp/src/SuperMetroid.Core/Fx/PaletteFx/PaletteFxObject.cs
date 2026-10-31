@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// The bank-$8D palette-FX objects, named by the disassembly's <c>PaletteFXObjects_</c> labels. Each selects a setup
+/// The palette-FX objects, named by what each animates. Each selects a setup
 /// and an initial program (<see cref="RoomPaletteFxDefinitions"/>); a slot holds the object it runs.
 /// </summary>
 public enum PaletteFxObject

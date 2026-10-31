@@ -1,18 +1,18 @@
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>
-/// Immutable control words for the three Samus-in-heat palette programs in bank $8D.
+/// Immutable control words for the three Samus-in-heat palette programs.
 /// </summary>
 /// <remarks>
 /// Each timed record contains fifteen BGR555 colors between its duration and terminal
 /// wait command. Those 720 color words remain live presentation data; this catalog owns
 /// only program setup, timing, waits, and loop control.
-/// Power, Varia, and Gravity enter at $8D:E45E, $E68A, and $E8B6;
-/// each installs heat pre-instruction $E379 and CGRAM byte $0182.
-/// Their sixteen records start at $E466, $E692, or $E8BE plus $22*p,
-/// p=0..15, and each ends in $C595 wait. Gotos at $E686, $E8B2,
-/// and $EADE return to phase zero; p=16 reaches control. All 114
-/// mechanics words match the pinned NTSC J/U v1.0 ROM.
+/// The Power, Varia, and Gravity programs each install the heat frame behaviour
+/// and the same colour index.
+/// Their sixteen records are 34 bytes apart,
+/// p=0..15, and each ends in a wait. Each final goto
+/// returns to phase zero; p=16 reaches control. All 114
+/// mechanics words match the original programs.
 /// </remarks>
 public static class PaletteFxHeatProgramMechanicsDefinitions
 {
@@ -35,7 +35,7 @@ public static class PaletteFxHeatProgramMechanicsDefinitions
         Rows = PaletteFxColorRows.Of(PaletteFxProgram.SamusInHeatGravitySuit2, PaletteFxHeatProgramDefinition.ColorsPerFrame),
     };
 
-    /// <summary>The Power, Varia, and Gravity programs in native selection order.</summary>
+    /// <summary>The Power, Varia, and Gravity programs in selection order.</summary>
     public static IReadOnlyList<PaletteFxHeatProgramDefinition> All { get; } = [Power, Varia, Gravity];
 
 }

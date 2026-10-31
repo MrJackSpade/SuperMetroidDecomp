@@ -12,7 +12,7 @@ public sealed class RoomSpikeAnimatedTilesState
     /// <summary>Current room's horizontal-spike tile transfer state, reset whenever a new FX record is selected.</summary>
     private readonly RoomFxAnimatedTilesState animation = new();
 
-    /// <summary>Spawns one room's objects from the door-selected FX record in native bit order.</summary>
+    /// <summary>Spawns one room's objects from the door-selected FX record in bit order.</summary>
     /// <param name="fx">The room state's FX definition.</param>
     /// <param name="door">The entry door, which selects the FX record.</param>
     /// <param name="area">The room's area, which selects each bit's object.</param>

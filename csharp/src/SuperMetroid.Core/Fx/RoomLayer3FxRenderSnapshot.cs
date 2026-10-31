@@ -13,7 +13,7 @@ public readonly record struct RoomLayer3FxRenderSnapshot(
 {
     /// <summary>
     /// Effective circular phase of the lava/acid BG2 per-line table. Zero is the first table
-    /// produced after <c>$88:B4CE</c>; subsequent phases move backward through 16 entries.
+    /// produced after the haze starts; subsequent phases move backward through 16 entries.
     /// </summary>
     public int LavaAcidBg2WavePhase { get; init; }
 }

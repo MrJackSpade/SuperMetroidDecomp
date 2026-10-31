@@ -2,9 +2,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Immutable mechanics for the old-Tourian escape-shaft red-flash loop.</summary>
 /// <remarks>
-/// Definition <c>$FFD9</c> enters one fourteen-record program. Its 112 BGR555 words
+/// The definition enters one fourteen-record program. Its 112 BGR555 words
 /// remain live presentation data; this catalog owns palette placement, timing, both
-/// inline CGRAM skips, waits, and loop control.
+/// inline colour skips, waits, and loop control.
 /// </remarks>
 public static class OldTourianEscapeRedFlashPaletteFxColorDefinitions
 {

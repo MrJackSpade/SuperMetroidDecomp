@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Fx;
 public static class QuicksandReactions
 {
     /// <summary>
-    /// `$84:B48B-$84:B495`, suit-indexed moving displacement, stationary
+    /// The suit-indexed moving displacement, stationary
     /// displacement, and upward-speed-limit values used by the surface reaction.
     /// Gravity equipment selects one of two named scalar cases. Moving displacement is
     /// 2 pixels per frame for either suit, stationary displacement is 1.125/1, and the
-    /// NTSC upward cap is 2.5/3.5 pixels per frame without/with Gravity. The cartridge
+    /// NTSC upward cap is 2.5/3.5 pixels per frame without/with Gravity. The game
     /// stores them as unsigned 8.8 words; they are held here as the 16.16 values its
     /// consumers widen them to.
     /// </summary>
@@ -42,5 +42,5 @@ public static class QuicksandReactions
             : throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
-                "Quicksand reaction header must be one of the eight bank-$84 sand entries.");
+                "Quicksand reaction header must be one of the eight sand entries.");
 }

@@ -10,8 +10,8 @@ internal sealed class RoomEarthquake
     public WrappingCountdown EarthquakeTimer { get; set; }
 
     /// <summary>
-    /// ORs <paramref name="bits"/> into the shake timer word, as the producers' <c>ORA</c>/<c>STA</c> into
-    /// <c>$1840</c> do. It never shortens a running shake; setting bit 15 keeps the room shaking for tens of
+    /// ORs <paramref name="bits"/> into the shake timer word, as the producers do.
+    /// It never shortens a running shake; setting bit 15 keeps the room shaking for tens of
     /// thousands of frames, which is how continuous effects avoid re-arming the timer every frame.
     /// </summary>
     internal void AddTimerBits(int bits) =>
@@ -29,14 +29,14 @@ internal sealed class RoomEarthquake
     /// <summary>
     /// Room-shake type selecting background/projectile offsets and whether actors shake; types 0 through 35 are
     /// consumed by <see cref="Advance"/>, while 36 and above are ignored there. Producers write a type from 0 through
-    /// 65535 (the cartridge's word); every test is an ordinary comparison of that non-negative number, so values
+    /// 65535 (a sixteen-bit word); every test is an ordinary comparison of that non-negative number, so values
     /// outside the range are rejected rather than wrapped.
     /// </summary>
     public int EarthquakeType { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
     /// Displacement produced by the most recent <see cref="Advance"/>. It is deliberately a delta rather than
-    /// mutated camera state: the cartridge adjusts direct-page PPU scroll copies after camera logic, without
+    /// mutated camera state: the game adjusts its layer scroll copies after camera logic, without
     /// moving the world viewport.
     /// </summary>
     public RoomShakeFrameResult LastRoomShake { get; internal set; }
@@ -47,7 +47,7 @@ internal sealed class RoomEarthquake
     /// </summary>
     private bool ShowsOppositeSide => EarthquakeTimer.IsInAlternatePhase(RoomEarthquakeDefinitions.StepsPerShakeSide);
 
-    /// <summary>Ports $86:8427, evaluated at each projectile draw pass before room-shake timer consumption.</summary>
+    /// <summary>The room-shake offset for projectiles, evaluated at each projectile draw pass before room-shake timer consumption.</summary>
     internal Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)
     {
         if (EarthquakeTimer.IsZero || timeIsFrozen || EarthquakeType >= RoomEarthquakeDefinitions.FirstNonRenderedType)
@@ -59,7 +59,7 @@ internal sealed class RoomEarthquake
     }
 
     /// <summary>
-    /// The earthquake part of <c>Handle_Room_Shaking</c> ($A0:8687-$8711): this frame's background displacement and
+    /// The earthquake part of room shaking: this frame's background displacement and
     /// timer step. Returns whether the type also shakes the actors selected for processing.
     /// </summary>
     internal bool Advance(bool timeIsFrozen)
@@ -78,8 +78,8 @@ internal sealed class RoomEarthquake
         Offset16<RoomPixels> bg1 = definition.Bg1;
         Offset16<BackgroundPixels> bg2 = definition.Bg2;
 
-        // The timer alternates which side of the origin is shown. Native code forms the
-        // negative half with EOR #$FFFF / INC before adding the same table word.
+        // // The timer alternates which side of the origin is shown. The game forms the
+        // // negative half by negating the same table word.
         if (ShowsOppositeSide)
         {
             bg1 = -bg1;

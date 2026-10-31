@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Fx;
 /// <remarks>
 /// Lava, acid, rain, and spores do not obtain their visible characters from the room tileset.
 /// Their FX type initializer spawns one of the looping objects, each with its own timed frames,
-/// transfer size, and VRAM destination. Playing the whole loop matters: copying one convenient
-/// frame would make the first still image look plausible while discarding the cartridge's cadence
+/// transfer size, and destination. Playing the whole loop matters: copying one convenient
+/// frame would make the first still image look plausible while discarding the game's cadence
 /// and preventing replacement graphics from following the same data path.
 /// </remarks>
 internal sealed class RoomFxAnimatedTilesState
@@ -19,7 +19,7 @@ internal sealed class RoomFxAnimatedTilesState
     private AnimatedTileObject animatedObject;
     /// <summary>
     /// The frame shown when the timer next expires, an index into the loaded object's
-    /// <see cref="RoomFxAnimatedTileLoop.Frames"/>. It replaces the cartridge's instruction pointer into
+    /// <see cref="RoomFxAnimatedTileLoop.Frames"/>. It replaces a script position in
     /// the object's list: every supported list is its timed frames followed by a goto back to the first frame, so the
     /// cursor only ever moves to the next frame, and from the last frame back to the first in the same handler pass.
     /// </summary>
@@ -60,7 +60,7 @@ internal sealed class RoomFxAnimatedTilesState
             _ => throw new InvalidOperationException($"Undefined RoomFxType {type}."),
         };
 
-    /// <summary>Loads a timed looping object selected by a cartridge header, independent of FX type.</summary>
+    /// <summary>Loads a timed looping object selected by its header, independent of FX type.</summary>
     /// <exception cref="InvalidOperationException">This object has already loaded a definition.</exception>
     public void LoadDefinition(AnimatedTileObject definition)
     {

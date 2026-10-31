@@ -71,7 +71,7 @@ public static class PaletteFxHeatPrograms
         PaletteFxProgram.SamusInHeatGravitySuit11,
     ];
 
-    /// <summary><c>$8D:E440</c>: the heat object's start for <paramref name="suit"/>.</summary>
+    /// <summary>The heat object's start for <paramref name="suit"/>.</summary>
     public static PaletteFxProgram Start(PaletteFxHeatSuit suit) => suit switch
     {
         PaletteFxHeatSuit.Power => PaletteFxProgram.SamusInHeatPowerSuit0,

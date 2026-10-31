@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// Complete compiled palette-FX definition and room-area selection domains used by the
-/// retail cartridge: each <see cref="PaletteFxObject"/>'s setup and initial program, and the object each
+/// retail game: each <see cref="PaletteFxObject"/>'s setup and initial program, and the object each
 /// area's effect bit selects.
 /// </summary>
 internal static class RoomPaletteFxDefinitions

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 public enum RoomFxType
 {
-    /// <summary>No animated bank-$83 room-FX object is present.</summary>
+    /// <summary>No animated room-FX object is present.</summary>
     None = 0,
     /// <summary>Animated damaging lava surface with BG3 tiles, palette effects, and optional BG2 distortion.</summary>
     Lava = 1,

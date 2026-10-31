@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 public static class AtmosphereDrift
 {
     /// <summary>Calculates rain's signed 8.8 horizontal velocity for selector 0..3.</summary>
-    /// <remarks>Native $88:D981 selects a word at $88:D992 using RNG bits two/three.
+    /// <remarks>Rain picks one of four horizontal speeds using random bits two/three.
     /// Selector bit one reduces the speed from six to four pixels/frame; bit zero
     /// selects positive rather than negative motion. Multiply by256, then preserve
     /// the two's-complement ushort representation. The four original values and

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// <summary>One of the first two blend colors, separating shared tint rules from edits.</summary>
 internal sealed class RoomFxPairColor
 {
-    /// <summary>Native blend selector used by the shared component calculations.</summary>
+    /// <summary>Blend selector used by the shared component calculations.</summary>
     private readonly RoomFxPaletteBlend selection;
     /// <summary>Distinguishes the first ink from the second ink's tint rules.</summary>
     private readonly bool isPrimary;

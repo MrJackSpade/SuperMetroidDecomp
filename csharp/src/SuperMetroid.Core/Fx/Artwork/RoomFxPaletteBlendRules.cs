@@ -14,13 +14,13 @@ public static class RoomFxPaletteBlendRules
     public static RgbColor StockCeresHazeRed => StockCeresHaze(CeresHazeColor.Red);
 
     /// <summary>
-    /// Native $88:DE10/DE15 selects COLDATA blue/red; DE42 stops fade-in at counter16,
+    /// The Ceres haze selects a blue or red tint; it stops fading in at counter16,
     /// after counter15 was the final written amplitude. Calculate that selected RGB
     /// axis directly instead of retaining two default tint records.
     /// </summary>
     public static RgbColor StockCeresHaze(CeresHazeColor color) => StockCeresHazeTint(color == CeresHazeColor.Red);
 
-    /// <summary>The same native tint as a colour value, without constructing a per-scanline record.</summary>
+    /// <summary>The same tint as a colour value, without constructing a per-scanline record.</summary>
     internal static RgbColor StockCeresHazeTint(bool ridleyIsDead) =>
         new(ridleyIsDead ? CeresHazeDefinitions.FadeSteps - 1 : 0, 0,
             ridleyIsDead ? 0 : CeresHazeDefinitions.FadeSteps - 1);

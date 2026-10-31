@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// components are stored. The nine independent choices are Power dim1 red14/
 /// green6, dim2 blue13, bright9 blue21, dim12 red22/green16; Varia bright10
 /// blue29 and dim12 red13; Gravity dim2 blue27. These specify the chosen tint
-/// of categorical sprite inks. Native $91:DD5B copies the corresponding bank9B
-/// colors into fixed OBJ slots, while the loading program repeats the same art;
+/// of categorical sprite inks. The suit-loading setup copies the corresponding normal suit
+/// colors into fixed sprite colour slots, while the loading program repeats the same art;
 /// neither supplies illumination, temperature or another quantity deriving these
 /// tint targets. Temporal shade and shared-channel relationships are calculated
 /// separately. An index fit for these remaining choices would only encode the

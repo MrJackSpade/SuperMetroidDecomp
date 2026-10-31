@@ -14,18 +14,24 @@ internal sealed class MenuThinBorderArtwork
     internal const int TileCount = 2;
     /// <summary>Only pixels differing from the calculable stock line pattern are retained.</summary>
     internal readonly Dictionary<int, byte>? edits;
+    /// <summary>The menu atlas tile holding each cell of the thin border.</summary>
+    private static readonly MenuAtlasCells<MenuThinBorderCell> AtlasCells = new(new Dictionary<MenuThinBorderCell, int>
+    {
+        [MenuThinBorderCell.Line] = 0xad,
+        [MenuThinBorderCell.Corner] = 0xae,
+    });
     /// <summary>Admits atlas tile $AD or $AE, the two thin-border cells.</summary>
-    internal static bool Contains(int tile) => Enum.IsDefined((MenuThinBorderCell)tile);
+    internal static bool Contains(int tile) => AtlasCells.Contains(tile);
 
     /// <summary>Compares both tile cells with the stock line pattern and records independent pixel edits.</summary>
     internal MenuThinBorderArtwork(IndexedPngImage image)
     {
-        foreach (int tile in Enum.GetValues<MenuThinBorderCell>().Select(cell => (int)cell))
+        foreach (int tile in AtlasCells.Tiles)
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
             int pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
-            if (pixel != Basis((MenuThinBorderCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
+            if (pixel != Basis(AtlasCells.Cell(tile), new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
         }
     }
 
@@ -33,7 +39,7 @@ internal sealed class MenuThinBorderArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis((MenuThinBorderCell)tile, point);
+        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis(AtlasCells.Cell(tile), point);
     }
 
     /// <summary>Draws palette index six across row one and down the left edge of the corner cell.</summary>

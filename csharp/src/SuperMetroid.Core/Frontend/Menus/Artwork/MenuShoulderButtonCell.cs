@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
-/// <summary>The menu atlas cells of the pressed L/R buttons ($82:C48F/C4A0).</summary>
+/// <summary>The menu atlas cells of the pressed L/R buttons; the import pipeline knows which atlas tile holds each.</summary>
 internal enum MenuShoulderButtonCell
 {
-    /// <summary>$28: the button's rounded left edge.</summary>
-    LeftEdge = 40,
+    /// <summary>The button's rounded left edge.</summary>
+    LeftEdge,
 
-    /// <summary>$29: the middle cell bearing the L glyph.</summary>
-    L = 41,
+    /// <summary>The middle cell bearing the L glyph.</summary>
+    L,
 
-    /// <summary>$2A: the button's rounded right edge.</summary>
-    RightEdge = 42,
+    /// <summary>The button's rounded right edge.</summary>
+    RightEdge,
 
-    /// <summary>$2E: the middle cell bearing the R glyph.</summary>
-    R = 46,
+    /// <summary>The middle cell bearing the R glyph.</summary>
+    R,
 }

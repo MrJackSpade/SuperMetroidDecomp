@@ -21,22 +21,30 @@ internal sealed class MenuShoulderButtonArtwork
     private readonly bool[] rightLetter;
     /// <summary>Imported pixels that differ from the calculated button pill and selected glyphs.</summary>
     internal readonly Dictionary<int, byte>? edits;
+    /// <summary>The menu atlas tile holding each cell of the pressed L/R buttons.</summary>
+    private static readonly MenuAtlasCells<MenuShoulderButtonCell> AtlasCells = new(new Dictionary<MenuShoulderButtonCell, int>
+    {
+        [MenuShoulderButtonCell.LeftEdge] = 0x28,
+        [MenuShoulderButtonCell.L] = 0x29,
+        [MenuShoulderButtonCell.RightEdge] = 0x2a,
+        [MenuShoulderButtonCell.R] = 0x2e,
+    });
     /// <summary>Recognizes the four menu-atlas tiles used by pressed L and R buttons.</summary>
-    internal static bool Contains(int tile) => Enum.IsDefined((MenuShoulderButtonCell)tile);
+    internal static bool Contains(int tile) => AtlasCells.Contains(tile);
 
     /// <summary>Reads the authored L/R glyphs, then keeps only differences from the rounded pill calculation.</summary>
     internal MenuShoulderButtonArtwork(IndexedPngImage image)
     {
-        leftLetter = ReadLetter((int)MenuShoulderButtonCell.L);
-        rightLetter = ReadLetter((int)MenuShoulderButtonCell.R);
-        foreach (int tile in Enum.GetValues<MenuShoulderButtonCell>().Select(cell => (int)cell))
+        leftLetter = ReadLetter(AtlasCells.Tile(MenuShoulderButtonCell.L));
+        rightLetter = ReadLetter(AtlasCells.Tile(MenuShoulderButtonCell.R));
+        foreach (int tile in AtlasCells.Tiles)
         {
             if (!Contains(tile)) continue;
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
                 int pixel = Source(tile, x, y);
-                if (pixel != Basis((MenuShoulderButtonCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
+                if (pixel != Basis(AtlasCells.Cell(tile), new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
             }
         }
         bool[] ReadLetter(int tile)
@@ -54,7 +62,7 @@ internal sealed class MenuShoulderButtonArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis((MenuShoulderButtonCell)tile, point);
+        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis(AtlasCells.Cell(tile), point);
     }
 
     /// <summary>Composes a glyph mask with the shared 24-by-seven pill outline and shaded edge.</summary>

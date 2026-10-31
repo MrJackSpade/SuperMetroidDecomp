@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
-/// <summary>The menu atlas cells of the sixteen-row panel edge ($B6:CAE0..CB5F).</summary>
+/// <summary>The menu atlas cells of the sixteen-row panel edge; the import pipeline knows which atlas tile holds each.</summary>
 internal enum MenuPanelCell
 {
-    /// <summary>$57: the upper-left cell.</summary>
-    UpperLeft = 87,
+    /// <summary>The upper-left cell.</summary>
+    UpperLeft,
 
-    /// <summary>$58: the upper-right cell.</summary>
-    UpperRight = 88,
+    /// <summary>The upper-right cell.</summary>
+    UpperRight,
 
-    /// <summary>$59: the lower-left cell.</summary>
-    LowerLeft = 89,
+    /// <summary>The lower-left cell.</summary>
+    LowerLeft,
 
-    /// <summary>$5A: the lower-right cell.</summary>
-    LowerRight = 90,
+    /// <summary>The lower-right cell.</summary>
+    LowerRight,
 }

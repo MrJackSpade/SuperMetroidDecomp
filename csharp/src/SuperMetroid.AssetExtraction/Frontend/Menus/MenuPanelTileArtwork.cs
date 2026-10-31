@@ -13,18 +13,26 @@ internal sealed class MenuPanelTileArtwork
     internal const int TileCount = 4;
     /// <summary>Only pixels that differ from the calculated panel edge are retained as artwork edits.</summary>
     internal readonly Dictionary<int, byte>? edits;
+    /// <summary>The menu atlas tile holding each cell of the panel edge.</summary>
+    private static readonly MenuAtlasCells<MenuPanelCell> AtlasCells = new(new Dictionary<MenuPanelCell, int>
+    {
+        [MenuPanelCell.UpperLeft] = 0x57,
+        [MenuPanelCell.UpperRight] = 0x58,
+        [MenuPanelCell.LowerLeft] = 0x59,
+        [MenuPanelCell.LowerRight] = 0x5a,
+    });
     /// <summary>Accepts only the four native panel-edge tile indexes.</summary>
-    internal static bool Contains(int tile) => Enum.IsDefined((MenuPanelCell)tile);
+    internal static bool Contains(int tile) => AtlasCells.Contains(tile);
 
     /// <summary>Compares installed PNG pixels with the calculated border bands and retains only differences.</summary>
     internal MenuPanelTileArtwork(IndexedPngImage image)
     {
-        foreach (int tile in Enum.GetValues<MenuPanelCell>().Select(cell => (int)cell))
+        foreach (int tile in AtlasCells.Tiles)
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
             int pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
-            if (pixel != Basis((MenuPanelCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
+            if (pixel != Basis(AtlasCells.Cell(tile), new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
         }
     }
 
@@ -32,7 +40,7 @@ internal sealed class MenuPanelTileArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis((MenuPanelCell)tile, point);
+        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis(AtlasCells.Cell(tile), point);
     }
 
     /// <summary>Calculates the sixteen-row panel edge from its corner columns and palette-index bands.</summary>

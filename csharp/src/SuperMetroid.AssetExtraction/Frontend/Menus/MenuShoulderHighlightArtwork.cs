@@ -15,20 +15,28 @@ internal sealed class MenuShoulderHighlightArtwork
     internal const int TileCount = 4;
     /// <summary>Only pixels differing from the calculated symmetric contour, keyed by tile and local pixel index.</summary>
     internal readonly Dictionary<int, byte>? edits;
+    /// <summary>The menu atlas tile holding each cell of the L/R highlight.</summary>
+    private static readonly MenuAtlasCells<MenuShoulderHighlightCell> AtlasCells = new(new Dictionary<MenuShoulderHighlightCell, int>
+    {
+        [MenuShoulderHighlightCell.TopLeft] = 0x3c,
+        [MenuShoulderHighlightCell.TopRight] = 0x3d,
+        [MenuShoulderHighlightCell.BottomRight] = 0x43,
+        [MenuShoulderHighlightCell.BottomLeft] = 0x51,
+    });
     /// <summary>Admits only the four native shoulder-highlight tile identities.</summary>
-    internal static bool Contains(int tile) => Enum.IsDefined((MenuShoulderHighlightCell)tile);
+    internal static bool Contains(int tile) => AtlasCells.Contains(tile);
 
     /// <summary>Compares supplied tile pixels with the calculated contour and retains independently edited exceptions.</summary>
     internal MenuShoulderHighlightArtwork(IndexedPngImage image)
     {
-        foreach (int tile in Enum.GetValues<MenuShoulderHighlightCell>().Select(cell => (int)cell))
+        foreach (int tile in AtlasCells.Tiles)
         {
             if (!Contains(tile)) continue;
             for (int y = 0; y < 8; y++)
             for (int x = 0; x < 8; x++)
             {
                 int pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
-                if (pixel != Basis((MenuShoulderHighlightCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
+                if (pixel != Basis(AtlasCells.Cell(tile), new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
             }
         }
     }
@@ -37,7 +45,7 @@ internal sealed class MenuShoulderHighlightArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis((MenuShoulderHighlightCell)tile, point);
+        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis(AtlasCells.Cell(tile), point);
     }
 
     /// <summary>Maps each tile-local pixel into the combined shoulder frame and computes its quadratic cutout edge.</summary>

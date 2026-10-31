@@ -23,7 +23,7 @@ internal static class KzanBehaviorVerification
         slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.Position = slot.Position.WithWholeY(128);
-        enemies.KzanBehavior.InitializeKzanTop(slot);
+        KzanBehavior.InitializeKzanTop(slot);
         AssertEqual(AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle),
             (enemies.SlotTable.Slots[0].EntityState<KzanEntity, KzanEnemyState>() ?? throw new InvalidOperationException("The Kzan has no state.")).Program,
             "Kzan initializer animation");
@@ -48,7 +48,7 @@ internal static class KzanBehaviorVerification
         slot.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
         slot.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
         slot.Position = slot.Position.WithWhole(new(128, 65520));
-        enemies.KzanBehavior.InitializeKzanTop(slot);
+        KzanBehavior.InitializeKzanTop(slot);
         KzanEnemyState state = slot.RequireSpeciesState<KzanEnemyState>();
         AssertEqual(new Position16<RoomPixels>(0, 16), state.FallingTarget, "the falling target wraps past the room's bottom edge");
         AssertEqual(new Position16<RoomPixels>(0, 65520), state.RisingTarget, "the rising target is the spawn position");

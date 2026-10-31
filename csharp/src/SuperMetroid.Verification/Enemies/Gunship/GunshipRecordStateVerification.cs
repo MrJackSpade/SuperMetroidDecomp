@@ -23,9 +23,9 @@ internal static class GunshipRecordStateVerification
         part.RumbleFrame = 64;
         AssertEqual(160, part.BaseY, "the base Y keeps its value apart from the landing-brake step and the rumble frame");
         AssertEqual(17, part.LandingBrakeStep, "the landing-brake step keeps its value");
-        part.BobTimer = 70;
-        part.EngineSoundTimer = 71;
-        AssertEqual(70, part.BobTimer, "the bob timer keeps its value apart from the engine-sound timer");
+        part.BobTimer = WrappingCountdown.Start(70);
+        part.EngineSoundTimer = WrappingCountdown.Start(71);
+        AssertEqual(70, part.BobTimer.RawValue, "the bob timer keeps its value apart from the engine-sound timer");
         part.Function = GunshipFunction.NoOperation;
         part.EscapeVelocity = 256;
         AssertEqual(GunshipFunction.NoOperation, part.Function, "the function keeps its value apart from the escape velocity");
@@ -37,8 +37,8 @@ internal static class GunshipRecordStateVerification
         AssertEqual(0, part.FunctionTimer, "a kill empties the function timer");
         AssertEqual(0, part.NextLiftoffPage, "a kill empties the next liftoff page");
         AssertEqual(0, part.BobPhase, "a kill empties the bob phase");
-        AssertEqual(0, part.BobTimer, "a kill empties the bob timer");
-        AssertEqual(0, part.EngineSoundTimer, "a kill empties the engine-sound timer");
+        AssertEqual(0, part.BobTimer.RawValue, "a kill empties the bob timer");
+        AssertEqual(0, part.EngineSoundTimer.RawValue, "a kill empties the engine-sound timer");
         AssertEqual(0, part.BaseY, "a kill empties the base Y");
         AssertEqual(0, part.LandingBrakeStep, "a kill empties the landing-brake step");
         AssertEqual(0, part.RumbleFrame, "a kill empties the rumble frame");

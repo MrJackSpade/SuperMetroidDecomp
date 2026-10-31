@@ -59,14 +59,14 @@ internal static class GunshipMotionDefinitionsVerification
             var part = new GunshipPartState();
             top.SetSpeciesState(part, part.ClearWithRecord);
             part.BobPhase = phase;
-            part.BobTimer = 1;
+            part.BobTimer = WrappingCountdown.Start(1);
             top.Position = top.Position.WithWholeY(0x2000);
             enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
             enemies.SlotTable.Slots[2].Position = enemies.SlotTable.Slots[2].Position.WithWholeY(0x2200);
 
             stepBob(top);
 
-            AssertEqual(expectedTimer, part.BobTimer,
+            AssertEqual(expectedTimer, part.BobTimer.RawValue,
                 $"gunship production bob timer {phase}");
             AssertEqual((phase + 1) & 3, part.BobPhase,
                 $"gunship production bob phase {phase}");

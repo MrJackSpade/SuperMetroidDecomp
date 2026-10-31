@@ -5,19 +5,24 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// <summary>
 /// The state of one Beetom. The arc's speed index, the function, both countdowns and the last controller input are
 /// values the cartridge keeps in the enemy's common record, so they are emptied with that record when the enemy is
-/// killed (<see cref="ClearWithRecord"/>); the rest live in the slot's <see cref="BeetomExtensionWords"/>, which
-/// outlive the occupant until room load.
+/// killed (<see cref="ClearWithRecord"/>). Its facing is inherited from the previous Beetom in its slot
+/// (<see cref="SlotInheritance{TOccupant}"/>).
 /// </summary>
 public sealed class BeetomEnemyState
 {
     /// <summary>The largest quadratic-speed record index a falling or flung Beetom accelerates to.</summary>
     internal const int MaximumYSpeedTableIndex = 64;
 
-    /// <summary>The slot's Beetom extension words, kept for the room across occupants.</summary>
-    private readonly BeetomExtensionWords _words;
-
-    /// <summary>Binds one Beetom to its slot's extension words.</summary>
-    internal BeetomEnemyState(BeetomExtensionWords words) => _words = words;
+    /// <summary>
+    /// Starts one Beetom, facing the way the previous Beetom in its slot last faced, or left for the slot's first.
+    /// </summary>
+    /// <remarks>
+    /// Setup (<c>InitAI_Beetom</c>) never writes the facing, and the touch handler reads it to choose the drain's side
+    /// before the Beetom's first action decision writes it, so a fresh Beetom touched at once drains facing its
+    /// predecessor's way. Every other value setup writes itself.
+    /// </remarks>
+    /// <param name="previous">The slot's previous Beetom, or null for the slot's first in the room.</param>
+    internal BeetomEnemyState(BeetomEnemyState? previous) => FacingRight = previous?.FacingRight ?? false;
 
     /// <summary>
     /// Quadratic-speed record index for the current arc, from zero to <see cref="MaximumYSpeedTableIndex"/> or the
@@ -35,20 +40,18 @@ public sealed class BeetomEnemyState
     public ControllerButton PreviousController1Input { get; internal set; }
     /// <summary>Where the typed animation (#641) resumes; installation also resets the common instruction timer and loop counter.</summary>
     internal AnimationProgramCursor<BeetomProgram> Program { get; set; }
-    /// <summary>Short-hop starting record index, the first multiple of four whose integrated unaligned quadratic-table words reach a height of $3000.</summary>
-    public int InitialShortLeapYSpeedIndex { get => _words.InitialShortLeapYSpeedIndex; internal set => _words.InitialShortLeapYSpeedIndex = value; }
-    /// <summary>Long-hop starting record index, the first multiple of five whose integrated unaligned quadratic-table words reach a height of $4000.</summary>
-    public int InitialLongLeapYSpeedIndex { get => _words.InitialLongLeapYSpeedIndex; internal set => _words.InitialLongLeapYSpeedIndex = value; }
-    /// <summary>Lunge starting record index, the first multiple of three whose integrated unaligned quadratic-table words reach a height of $3000.</summary>
-    public int InitialLungeYSpeedIndex { get => _words.InitialLungeYSpeedIndex; internal set => _words.InitialLungeYSpeedIndex = value; }
+    /// <summary>Short-hop starting record index, the first multiple of four whose integrated quadratic speeds reach the short hop's height.</summary>
+    public int InitialShortLeapYSpeedIndex { get; internal set; }
+    /// <summary>Long-hop starting record index, the first multiple of five whose integrated quadratic speeds reach the long hop's height.</summary>
+    public int InitialLongLeapYSpeedIndex { get; internal set; }
+    /// <summary>Lunge starting record index, the first multiple of three whose integrated quadratic speeds reach the lunge's height.</summary>
+    public int InitialLungeYSpeedIndex { get; internal set; }
     /// <summary>Arc phase: false uses the rising speed-table half; passing the apex switches to the falling half at index zero.</summary>
-    public bool Falling { get => _words.Falling; internal set => _words.Falling = value; }
+    public bool Falling { get; internal set; }
     /// <summary>Attachment latch set on first touch and cleared after escape or the common-shot callback; it prevents repeated attachment setup.</summary>
-    public bool AttachedToSamus { get => _words.AttachedToSamus; internal set => _words.AttachedToSamus = value; }
-    /// <summary>Whether the Beetom faces right rather than left; collision reverses it, while the flung state moves opposite this facing.</summary>
-    public bool FacingRight { get => _words.FacingRight; internal set => _words.FacingRight = value; }
-    /// <summary>Signed room-pixel Samus-minus-Beetom offset captured on initial attachment; retained although following snaps X directly to Samus and uses Samus Y minus four.</summary>
-    public Offset16<RoomPixels> InitialAttachmentOffset { get => _words.InitialAttachmentOffset; internal set => _words.InitialAttachmentOffset = value; }
+    public bool AttachedToSamus { get; internal set; }
+    /// <summary>Whether the Beetom faces right rather than left, inherited from the slot's previous Beetom; collision reverses it, while the flung state moves opposite this facing.</summary>
+    public bool FacingRight { get; internal set; }
 
     /// <summary>
     /// One rising update of an arc: lowers the speed index by <paramref name="step"/>; once that would pass below

@@ -19,7 +19,7 @@ internal static class RipperVariantOwnedStateVerification
         const int speedRecord = 3;
         slot.SetSpawnParameter1(EnemyDefinitionId.Ripper2, speedRecord);
         slot.SetSpawnParameter2(EnemyDefinitionId.Ripper2, 0);
-        enemies.RipperBehavior.InitializeRipper2(slot);
+        RipperBehavior.InitializeRipper2(slot);
         RipperEnemyState state = slot.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 
@@ -28,7 +28,7 @@ internal static class RipperVariantOwnedStateVerification
         SignedSixteenSixteen positive = speeds.Positive;
         AssertEqual(speeds, state.Speeds, "the speed row");
         AssertEqual(negative, state.XVelocity, "the negative half is loaded");
-        enemies.RipperBehavior.ReverseRipperVariant(slot, RipperProgram.Ripper2MovingLeft, RipperProgram.Ripper2MovingRight);
+        RipperBehavior.ReverseRipperVariant(slot, RipperProgram.Ripper2MovingLeft, RipperProgram.Ripper2MovingRight);
         AssertEqual(positive, state.XVelocity, "a reversal loads the positive half");
 
         slot.Clear();

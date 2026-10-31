@@ -144,8 +144,13 @@ internal static class NativeEnemyFamilyStateImport
             gunshipRecord.FunctionTimer = words.A;
             gunshipRecord.NextLiftoffPage = words.B;
             gunshipRecord.BobPhase = words.C;
+            // The cartridge keeps the top hull's bob timer and the bottom hull's engine-sound timer in variable D, and
+            // the base Y, the landing-brake step and the rumble frame in variable E; each part reads only its own.
             gunshipRecord.BobTimer = words.D;
+            gunshipRecord.EngineSoundTimer = words.D;
             gunshipRecord.BaseY = words.E;
+            gunshipRecord.LandingBrakeStep = words.E;
+            gunshipRecord.RumbleFrame = words.E;
             gunshipRecord.EscapeVelocity = words.F;
         }
         if (slot.SpeciesState<CeresSteamEnemyState>() is { } ceresSteamRecord)
@@ -239,10 +244,26 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<DachoraEnemyState>() is { } dachoraRecord)
         {
-            dachoraRecord.Speed = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
-            dachoraRecord.VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.D);
             dachoraRecord.SetPaletteCycle(frame: LittleEndianBytes.HighByte(words.E), ticks: LittleEndianBytes.LowByte(words.E));
             dachoraRecord.Function = words.F == 0 ? null : AnimalsNativeWords.DachoraAiFunctions.Decode(words.F, "recorded DachoraAiFunction");
+            // The cartridge keeps the speed's whole pixels and the countdowns in variable A, and the acceleration's
+            // fraction and an echo's lifetime in variable D; each is read here as the meaning the recorded phase gives it.
+            if (dachoraRecord.Function == DachoraAiFunction.Echo)
+            {
+                dachoraRecord.EchoPositionTimer = WrappingCountdown.FromRaw(words.A);
+                dachoraRecord.EchoLifetime = WrappingCountdown.FromRaw(words.D);
+            }
+            else if (dachoraRecord.Function is DachoraAiFunction.BlinkingBeforeRun or DachoraAiFunction.ChargingShinespark)
+            {
+                dachoraRecord.PhaseTimer = WrappingCountdown.FromRaw(words.A);
+                dachoraRecord.Speed = SignedSixteenSixteen.FromParts(0, words.B);
+                dachoraRecord.VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.D);
+            }
+            else
+            {
+                dachoraRecord.Speed = SignedSixteenSixteen.FromParts(unchecked((short)words.A), words.B);
+                dachoraRecord.VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)words.C), words.D);
+            }
         }
         if (slot.SpeciesState<PipeBugEnemyState>() is { } pipeBugRecord)
         {

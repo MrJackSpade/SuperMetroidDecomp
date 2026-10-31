@@ -2,25 +2,18 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
-/// The state of a Kzan top; its last four values live in the native bank-$7E extension arrays. The bottom half has no
-/// private state: it follows the immediately preceding top slot. The values the cartridge keeps in the enemy's common
-/// record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// The state of a Kzan top. The bottom half has no private state: it follows the immediately preceding top slot. The
+/// values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed
+/// (<see cref="ClearWithRecord"/>). The rest are the Kzan's own too: setup writes the wait reload and the speed row,
+/// each fall or rise writes the previous position before carrying Samus by it, and landing writes the rise wait before
+/// it counts down, so nothing a previous Kzan in the slot left reaches a new one.
 /// </summary>
 public sealed class KzanEnemyState
 {
-    /// <summary>The slot's Kzan extension words, kept for the room across occupants.</summary>
-    private readonly KzanExtensionWords _words;
-
-    /// <summary>Projects a Kzan top slot and its bank-$7E extension arrays into typed state.</summary>
-    internal KzanEnemyState(KzanExtensionWords words)
-    {
-        _words = words;
-    }
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<KzanProgram> Program { get; set; }
 
-    /// <summary>Current bank-$A6 AI entry; none once a kill has emptied the record.</summary>
+    /// <summary>The current AI behaviour; none once a kill has emptied the record.</summary>
     public KzanEnemyFunction? Function { get; internal set; }
 
     /// <summary>
@@ -56,36 +49,20 @@ public sealed class KzanEnemyState
     /// </summary>
     public SignedSixteenSixteen InitialFallingSpeed { get; internal set; }
 
-    /// <summary>Reload value for the top wait in actor updates, 0 through 255, copied from population parameter 2's low byte into the owning slot's native <c>$7E:7800,x</c> extension word.</summary>
-    public int FallWaitTimerResetValue
-    {
-        get => _words.FallWaitTimerResetValue;
-        internal set => _words.FallWaitTimerResetValue = value;
-    }
+    /// <summary>Reload value for the top wait in actor updates, 0 through 255, from the spawn's fall wait.</summary>
+    public int FallWaitTimerResetValue { get; internal set; }
 
-    /// <summary>The top's position saved before a falling or rising update, backed by <c>$7E:7802,x</c>; only its Y is read, and the accepted whole-pixel movement since it determines rider displacement.</summary>
-    public Position16<RoomPixels> PreviousPosition
-    {
-        get => _words.PreviousPosition;
-        internal set => _words.PreviousPosition = value;
-    }
+    /// <summary>The top's position saved before a falling or rising update; only its Y is read, and the accepted whole-pixel movement since it determines rider displacement.</summary>
+    public Position16<RoomPixels> PreviousPosition { get; internal set; }
 
     /// <summary>
     /// The row of the shared linear speed table the fall moves at. Initialized from population parameter 1's low byte
     /// (0 through 255), it advances one row per falling update and is capped at row 64.
     /// </summary>
-    public int FallingSpeedRow
-    {
-        get => _words.FallingSpeedRow;
-        internal set => _words.FallingSpeedRow = value;
-    }
+    public int FallingSpeedRow { get; internal set; }
 
-    /// <summary>Post-landing wait in actor updates, backed by <c>$7E:7806,x</c>; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
-    public WrappingCountdown RiseWaitTimer
-    {
-        get => _words.RiseWaitTimer;
-        internal set => _words.RiseWaitTimer = value;
-    }
+    /// <summary>Post-landing wait in actor updates; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
+    public WrappingCountdown RiseWaitTimer { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

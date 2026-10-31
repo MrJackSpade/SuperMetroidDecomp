@@ -19,7 +19,7 @@ internal static class ChootOwnedStateVerification
         slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0200));
         slot.SetSpawnParameter1(EnemyDefinitionId.Choot, 2);
-        enemies.ChootBehavior.InitializeChoot(slot);
+        ChootBehavior.InitializeChoot(slot);
         ChootEnemyState state = enemies.ChootStates[0]
             ?? throw new InvalidOperationException("The initialized Choot has no state.");
 

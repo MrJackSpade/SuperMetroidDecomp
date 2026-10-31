@@ -2,28 +2,18 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The state of a Dachora body or echo. The cartridge reuses its common-record words between phases: the run speed's
-/// whole pixels and the phase countdown are one word, so a run that begins after a countdown starts from the
-/// countdown's last value; the body's vertical subacceleration and an echo's lifetime are one word. The state keeps
-/// each shared word once, so every meaning sees the others' writes as the cartridge's do. The values the cartridge
-/// keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
+/// The state of a Dachora body or echo. The speed, the phase countdown, the echo pacing countdown, the vertical
+/// acceleration and the echo lifetime are separate values. The cartridge keeps the speed's whole pixels and the
+/// countdowns in one place, and the acceleration's fraction and the lifetime in another, but no meaning ever reads what
+/// another left: a body's countdown always runs out at zero before its speed is next read, so its run and its shinespark
+/// both start from rest (<see cref="StartBlinking"/>, <see cref="StartCharging"/>); the echo pacing countdown and the
+/// lifetime belong to echoes, which have no speed or acceleration. The values the cartridge keeps in the enemy's common
+/// record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class DachoraEnemyState
 {
-    /// <summary>The speed's whole pixels while running, falling or shinesparking, and the phase countdown otherwise.</summary>
-    private int _speedWholeOrPhaseTime;
-
-    /// <summary>The speed's fraction in 65536ths of a pixel, 0 through 65535.</summary>
-    private int _speedFraction;
-
-    /// <summary>The vertical acceleration's whole pixels.</summary>
-    private int _accelerationWhole;
-
-    /// <summary>The body's vertical acceleration fraction in 65536ths of a pixel, and an echo's lifetime.</summary>
-    private int _accelerationFractionOrEchoLifetime;
-
     /// <summary>
-    /// The bits of the palette cycle's tick count, below its frame. The cycle stays one word because the cartridge
+    /// The bits of the palette cycle's tick count, below its frame. The cycle stays one count because the cartridge
     /// steps it as one: a tick from a cleared cycle borrows into the frame, and a speed or shine step past the top of
     /// the ticks carries into it.
     /// </summary>
@@ -37,59 +27,48 @@ public sealed class DachoraEnemyState
 
     /// <summary>
     /// The signed 16.16 speed in pixels per update while running, falling or shinesparking, horizontal while running and
-    /// vertical after the launch. It accumulates with the cartridge's carry and 32-bit wraparound, and its whole pixels
-    /// are the word <see cref="PhaseTimer"/> counts.
+    /// vertical after the launch. It accumulates with the cartridge's carry and 32-bit wraparound.
     /// </summary>
-    public SignedSixteenSixteen Speed
-    {
-        get => SignedSixteenSixteen.FromParts(unchecked((short)_speedWholeOrPhaseTime), checked((ushort)_speedFraction));
-        internal set
-        {
-            _speedWholeOrPhaseTime = value.WholeWord;
-            _speedFraction = value.Fraction;
-        }
-    }
+    public SignedSixteenSixteen Speed { get; internal set; }
 
-    /// <summary>
-    /// While blinking or charging: the native wrapping countdown to the next phase (<c>DEC</c>, <c>BNE</c>), kept in
-    /// the word that holds <see cref="Speed"/>'s whole pixels.
-    /// </summary>
-    public WrappingCountdown PhaseTimer
-    {
-        get => WrappingCountdown.FromRaw(checked((ushort)_speedWholeOrPhaseTime));
-        internal set => _speedWholeOrPhaseTime = value.RawValue;
-    }
+    /// <summary>While blinking or charging: the wrapping countdown to the next phase, which ends when it reaches zero.</summary>
+    public WrappingCountdown PhaseTimer { get; internal set; }
 
     /// <summary>On the first echo: frames until the echo positions next advance.</summary>
-    public WrappingCountdown EchoPositionTimer
-    {
-        get => WrappingCountdown.FromRaw(checked((ushort)_speedWholeOrPhaseTime));
-        internal set => _speedWholeOrPhaseTime = value.RawValue;
-    }
+    public WrappingCountdown EchoPositionTimer { get; internal set; }
 
     /// <summary>
     /// On the body during the shinespark: the signed 16.16 vertical acceleration per update, which gravity accumulates
     /// into with the cartridge's carry and 32-bit wraparound.
     /// </summary>
-    public SignedSixteenSixteen VerticalAcceleration
+    public SignedSixteenSixteen VerticalAcceleration { get; internal set; }
+
+    /// <summary>
+    /// On an echo: the updates the echo stays visible, counted down to zero and never below it; zero marks the echo free
+    /// for the next trail position.
+    /// </summary>
+    public WrappingCountdown EchoLifetime { get; internal set; }
+
+    /// <summary>
+    /// Starts the warning countdown before the first run. The run that follows starts from rest: the cartridge counts
+    /// the countdown in the place of the speed's whole pixels, which the countdown leaves at zero, and keeps the fraction.
+    /// </summary>
+    /// <param name="duration">The countdown, in updates.</param>
+    internal void StartBlinking(WrappingCountdown duration)
     {
-        get => SignedSixteenSixteen.FromParts(
-            unchecked((short)_accelerationWhole), checked((ushort)_accelerationFractionOrEchoLifetime));
-        internal set
-        {
-            _accelerationWhole = value.WholeWord;
-            _accelerationFractionOrEchoLifetime = value.Fraction;
-        }
+        PhaseTimer = duration;
+        Speed = Speed.WithWholePixels(0);
     }
 
     /// <summary>
-    /// On an echo: the updates the echo stays visible, counted down to zero and never below it (<c>LDA</c>,
-    /// <c>BEQ</c>, <c>DEC</c>); zero marks the echo free for the next trail position.
+    /// Starts the shinespark charge countdown. The launch that follows starts from rest: the cartridge counts the charge
+    /// in the place of the speed's whole pixels, which the countdown leaves at zero, and clears the fraction.
     /// </summary>
-    public WrappingCountdown EchoLifetime
+    /// <param name="duration">The countdown, in updates.</param>
+    internal void StartCharging(WrappingCountdown duration)
     {
-        get => WrappingCountdown.FromRaw(checked((ushort)_accelerationFractionOrEchoLifetime));
-        internal set => _accelerationFractionOrEchoLifetime = value.RawValue;
+        PhaseTimer = duration;
+        Speed = SignedSixteenSixteen.Zero;
     }
 
     /// <summary>The speed or shine palette frame the cycle shows next.</summary>
@@ -109,7 +88,7 @@ public sealed class DachoraEnemyState
 
     /// <summary>
     /// Counts one update off the speed palette cycle and reports whether its ticks reached zero. The cartridge
-    /// decrements the frame and ticks together as one word, so ticks counted down from zero borrow from the frame:
+    /// decrements the frame and ticks together as one count, so ticks counted down from zero borrow from the frame:
     /// a cleared cycle becomes frame 255 with 255 ticks.
     /// </summary>
     internal bool TickPaletteCycle()
@@ -121,7 +100,7 @@ public sealed class DachoraEnemyState
     /// <summary>
     /// Moves the speed palette cycle to its next frame with <see cref="DachoraPaletteDefinitions.SpeedStep"/>'s ticks
     /// added; once that passes the last frame, the cycle stays on the brightest frame instead of wrapping to frame zero.
-    /// The step and the bound are compared as the cartridge's signed word arithmetic does.
+    /// The step and the bound are compared as the cartridge's signed 16-bit arithmetic does.
     /// </summary>
     internal void AdvanceSpeedPaletteCycle()
     {
@@ -132,7 +111,7 @@ public sealed class DachoraEnemyState
 
     /// <summary>
     /// Moves the shine palette cycle to its next frame; after the last frame it returns to frame zero. The step and the
-    /// bound are compared as the cartridge's signed word arithmetic does.
+    /// bound are compared as the cartridge's signed 16-bit arithmetic does.
     /// </summary>
     internal void AdvanceShinePaletteCycle()
     {
@@ -141,7 +120,7 @@ public sealed class DachoraEnemyState
             _paletteCycle = 0;
     }
 
-    /// <summary>The bank-$A7 indirect main-AI behaviour; none once a kill has emptied the record.</summary>
+    /// <summary>The main-AI behaviour; none once a kill has emptied the record.</summary>
     public DachoraAiFunction? Function { get; internal set; }
 
     /// <summary>Whether the Dachora faces right (parameter one is nonzero); a wall or the ceiling turns it.</summary>
@@ -151,10 +130,11 @@ public sealed class DachoraEnemyState
     internal void ClearWithRecord()
     {
         FacingRight = false;
-        _speedWholeOrPhaseTime = 0;
-        _speedFraction = 0;
-        _accelerationWhole = 0;
-        _accelerationFractionOrEchoLifetime = 0;
+        Speed = SignedSixteenSixteen.Zero;
+        PhaseTimer = WrappingCountdown.Start(0);
+        EchoPositionTimer = WrappingCountdown.Start(0);
+        VerticalAcceleration = SignedSixteenSixteen.Zero;
+        EchoLifetime = WrappingCountdown.Start(0);
         _paletteCycle = 0;
         Function = null;
     }

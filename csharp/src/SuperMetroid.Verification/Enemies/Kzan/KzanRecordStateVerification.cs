@@ -15,7 +15,7 @@ internal static class KzanRecordStateVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var state = new KzanEnemyState(new KzanExtensionWords());
+        var state = new KzanEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<KzanEnemyFunction>()[^1];
         state.FallWaitTimer = WrappingCountdown.Start(1);

@@ -34,4 +34,7 @@ internal sealed record EnemyCollisionDependencies
 
     /// <summary>Slot table.</summary>
     public required EnemySlotTable SlotTable { get; init; }
+
+    /// <summary>The power bomb's sweep radius after a kill, shared with the deaths that record kills.</summary>
+    public required PowerBombRadiusAfterKill PowerBombRadius { get; init; }
 }

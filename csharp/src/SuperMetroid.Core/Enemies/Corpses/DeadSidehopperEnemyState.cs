@@ -1,12 +1,16 @@
+using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// One dead sidehopper's corpse state: its silhouette, rot schedule, hop, palette and contact progress. The
+/// One dead sidehopper's corpse state: its silhouette, rot schedule, animation, hop, palette and contact progress. The
 /// values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
 /// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class DeadSidehopperEnemyState
 {
+    /// <summary>The dead Sidehopper's typed animation (#641), started by setup and restarted by each hop, landing and rot.</summary>
+    internal AnimationProgramCursor<DeadTourianProgram> Program { get; set; }
+
     /// <summary>Captures one corpse's silhouette and its own rot schedule.</summary>
     internal DeadSidehopperEnemyState(RoomEnemySlot slot, int graphicsVariant, CorpseRotSchedule rot)
     {
@@ -15,7 +19,7 @@ public sealed class DeadSidehopperEnemyState
         GraphicsVariant = graphicsVariant;
     }
 
-    /// <summary>The physical enemy slot owning this corpse's positions, native AI words, collision properties, and instruction list.</summary>
+    /// <summary>The enemy slot owning this corpse's position, collision properties and instruction timing.</summary>
     public RoomEnemySlot Slot { get; }
     /// <summary>Silhouette selected by the population parameter: 0 for the initially living Shitroid victim or 2 for the already dead Tourian corpse, selecting initial graphics and row-copy column layouts.</summary>
     public int GraphicsVariant { get; }
@@ -25,7 +29,7 @@ public sealed class DeadSidehopperEnemyState
     internal RottingCorpseKind Flesh { get; init; }
 
     /// <summary>
-    /// Holding the current bank-$A9 dead-sidehopper AI function pointer; none once a kill has emptied the record.
+    /// The current dead-sidehopper AI behaviour; none once a kill has emptied the record.
     /// </summary>
     public DeadSidehopperAiFunction? Function { get; internal set; }
 
@@ -43,7 +47,7 @@ public sealed class DeadSidehopperEnemyState
     [IntegerQuantity("drain progress counted from zero to eight; comparisons test how far draining has gone")]
     public int PaletteStage { get; internal set; }
 
-    /// <summary>Native signed 8.8 velocity: horizontal word 0A and vertical word 0B.</summary>
+    /// <summary>Signed 8.8 hop velocity, horizontal and vertical.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>

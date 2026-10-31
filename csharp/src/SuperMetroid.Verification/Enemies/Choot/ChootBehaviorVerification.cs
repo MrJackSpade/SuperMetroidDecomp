@@ -25,7 +25,7 @@ internal static class ChootBehaviorVerification
         slot.SetSpawnParameter1(EnemyDefinitionId.Choot, 1);
         slot.SetSpawnParameter2(EnemyDefinitionId.Choot, 0);
         slot.Position = slot.Position.WithWhole(new(256, 256));
-        enemies.ChootBehavior.InitializeChoot(slot);
+        ChootBehavior.InitializeChoot(slot);
         ChootEnemyState state = enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0].");
 
         AssertEqual(AnimationProgramCursor<ChootProgram>.Start(ChootProgram.Idle), state.Program, "Choot initializer animation");

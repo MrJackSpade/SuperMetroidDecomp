@@ -4,12 +4,13 @@ namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the Dachora's shared record words and that a kill empties them.</summary>
+/// <summary>Checks the Dachora's phase countdowns put its speed at rest, and that a kill empties its record.</summary>
 internal static class DachoraRecordStateVerification
 {
     /// <summary>
-    /// Confirms a charge countdown's last value becomes the next run's whole speed, as the cartridge's shared word
-    /// does, and that a kill empties the speed, acceleration, palette cycle and function.
+    /// Confirms the warning countdown leaves the next run starting at rest with the speed's fraction kept, the charge
+    /// countdown leaves the launch starting fully at rest, as the countdown that ends at zero in the speed's place does
+    /// on the cartridge, and that a kill empties the speed, acceleration, palette cycle and function.
     /// </summary>
     internal static void VerifyDachoraRecordState()
     {
@@ -19,10 +20,14 @@ internal static class DachoraRecordStateVerification
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.Speed = SignedSixteenSixteen.FromParts(3, 0x8000);
-        state.PhaseTimer = WrappingCountdown.Start(5);
-        state.Speed = state.Speed.WithFraction(0);
-        AssertEqual(SignedSixteenSixteen.FromParts(5, 0), state.Speed,
-            "a run that begins after a countdown starts from the countdown's last value");
+        state.StartBlinking(WrappingCountdown.Start(5));
+        AssertEqual(WrappingCountdown.Start(5), state.PhaseTimer, "the warning countdown starts");
+        AssertEqual(SignedSixteenSixteen.FromParts(0, 0x8000), state.Speed,
+            "the run after the warning countdown starts at rest, keeping the speed's fraction");
+        state.Speed = SignedSixteenSixteen.FromParts(7, 0x8000);
+        state.StartCharging(WrappingCountdown.Start(5));
+        AssertEqual(WrappingCountdown.Start(5), state.PhaseTimer, "the charge countdown starts");
+        AssertEqual(SignedSixteenSixteen.Zero, state.Speed, "the launch after the charge countdown starts at rest");
 
         state.VerticalAcceleration = SignedSixteenSixteen.FromParts(1, 2);
         state.SetPaletteCycle(frame: 3, ticks: 4);
@@ -34,7 +39,7 @@ internal static class DachoraRecordStateVerification
         AssertEqual(0, state.PaletteFrame, "a kill empties the palette frame");
         AssertEqual(0, state.PaletteTicks, "a kill empties the palette ticks");
         AssertEqual<DachoraAiFunction?>(null, state.Function, "a kill empties the function");
-        Console.WriteLine("Dachora record state: the countdown carries into the run speed, and a kill empties the record.");
+        Console.WriteLine("Dachora record state: each countdown leaves the next phase at rest, and a kill empties the record.");
     }
 
     /// <summary>Runs the focused Dachora record-state check.</summary>

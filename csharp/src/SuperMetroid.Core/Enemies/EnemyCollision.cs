@@ -34,10 +34,13 @@ internal sealed class EnemyCollision
     private readonly EnemyRoomBinding _room;
     /// <summary>Defines native enemy iteration order for the collision passes.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Resizes a power bomb's sweep after each kill it makes.</summary>
+    private readonly PowerBombRadiusAfterKill _powerBombRadius;
 
     /// <summary>Binds the enemy and room owners whose state or callbacks collisions can change.</summary>
     internal EnemyCollision(EnemyCollisionDependencies dependencies)
     {
+        _powerBombRadius = dependencies.PowerBombRadius;
         _dispatch = dependencies.Dispatch;
         _audio = dependencies.Audio;
         _deathsAndDrops = dependencies.DeathsAndDrops;
@@ -628,18 +631,16 @@ internal sealed class EnemyCollision
         int carry = horizontalRadius & 1;
         int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + carry) >> 1;
         int reactionCount = 0;
-        _deathsAndDrops.ClearRespawnScratch();
+        _powerBombRadius.Forget();
 
         // The blast reaches every slot in its own order, independent of the ordinary
         // active list. That matters while a power bomb reaches off-screen actors and then
         // sets their process-off-screen property below.
         foreach (RoomEnemySlot enemy in EnemySlotOrder.InBlastOrder(_slotTable.Slots))
         {
-            // A death inside the previous reaction overwrote `$12`, the horizontal radius
-            // this walker never reloads: zero for an ordinary kill and $4000 for a
-            // respawning one. The vertical radius in `$14` survives unchanged.
-            if (_deathsAndDrops.TakeRespawnScratch() is { } deathScratch)
-                horizontalRadius = deathScratch;
+            // A death inside the previous reaction resizes the horizontal reach for the rest of
+            // the sweep; the vertical reach is unchanged.
+            horizontalRadius = _powerBombRadius.HorizontalRadius(horizontalRadius);
             if (enemy.DefinitionId is EnemyDefinitionId.None or EnemyDefinitionId.Respawn ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted))
@@ -701,7 +702,7 @@ internal sealed class EnemyCollision
             reactionCount++;
         }
 
-        _deathsAndDrops.ClearRespawnScratch();
+        _powerBombRadius.Forget();
         return reactionCount;
     }
 

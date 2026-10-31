@@ -36,13 +36,6 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>The words each physical slot keeps across DeadTourian occupants for the current room.</summary>
-    internal readonly DeadTourianExtensionWords[] Extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static DeadTourianExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new DeadTourianExtensionWords())];
-
     /// <summary>Recognizes the three Tourian corpse enemy headers handled by this owner.</summary>
     internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionId) =>
         definitionId is EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree;
@@ -102,7 +95,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Colouring = new EncounterSpriteColouring(TourianCorpseColourDefinitions.DrainedCorpses);
         state.Function = DeadTourianCorpseFunction.Waiting;
-        Extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
+        state.Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
         _deadMonsters.BeginRot(state.Flesh);
     }
 
@@ -211,14 +204,15 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances DeadTourian's typed animation.</summary>
-    internal void AdvanceDeadTourianTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceDeadTourianTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<DeadTourianProgram> cursor = Extensions[slot.SlotIndex].Program;
+        DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
+        AnimationProgramCursor<DeadTourianProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.ShownFrames.Of,
             (cue, _) => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
-        Extensions[slot.SlotIndex].Program = cursor;
+        state.Program = cursor;
     }
 
     /// <summary>Ports DeadTourian's main AI.</summary>

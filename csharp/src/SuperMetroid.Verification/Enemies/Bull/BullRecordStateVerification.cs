@@ -15,7 +15,7 @@ internal static class BullRecordStateVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var state = new BullEnemyState(new BullExtensionWords());
+        var state = new BullEnemyState(previous: null);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<BullEnemyFunction>()[^1];
         state.Acceleration = 1;

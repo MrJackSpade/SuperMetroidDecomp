@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
 /// One Bull occupant: its initialization, main AI, typed animation and immune-hit recoil after shots and bombs, with the
-/// shared reactions otherwise. Its state reads the slot's <see cref="BullExtensionWords"/>, which outlive the occupant.
+/// shared reactions otherwise. Its state inherits the shot-reaction guard of the previous Bull in its slot.
 /// </summary>
 /// <param name="species">The Bull species owner.</param>
 /// <param name="slot">The slot the Bull occupies.</param>

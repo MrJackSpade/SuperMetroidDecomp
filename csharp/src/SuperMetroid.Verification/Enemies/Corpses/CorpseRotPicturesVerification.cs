@@ -162,7 +162,7 @@ internal static class CorpseRotPicturesVerification
         {
             DeadSidehopperEnemyState sidehopper = slot.RequireSpeciesState<DeadSidehopperEnemyState>();
             if (sidehopper.Function == DeadSidehopperAiFunction.AliveWaitForCamera)
-                enemies.DeadSidehopperBehavior.SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperCorpse);
+                DeadSidehopperBehavior.SetDeadSidehopperProgram(slot, sidehopper, DeadTourianProgram.SidehopperCorpse);
             DeadSidehopperBehavior.TriggerDeadSidehopperRotting(slot, sidehopper);
             return Batch(sidehopper.Flesh, () => sidehopper.ProcessCallCount, () => sidehopper.Function == DeadSidehopperAiFunction.Rotting);
         }

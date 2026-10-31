@@ -27,29 +27,22 @@ public sealed class GrowingShutterEnemyState
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>
-    /// The bank-$A2 dispatcher behaviour; initialization selects a wait function and activation replaces it with a
+    /// The dispatcher behaviour; initialization selects a wait function and activation replaces it with a
     /// growth function. None once a kill has emptied the record.
     /// </summary>
     public GrowingShutterFunction? Function { get; internal set; }
-
-    /// <summary>The authored activation word, parameter one: a timer-mode wait or a proximity-mode distance.</summary>
-    private int _activationWord;
 
     /// <summary>
     /// The timer-mode activation wait: tested for expiry before each decrement, so a wait of N activates on call N + 1
     /// and an expired wait stays expired instead of wrapping.
     /// </summary>
-    public WrappingCountdown ActivationTimer
-    {
-        get => WrappingCountdown.FromRaw(checked((ushort)_activationWord));
-        internal set => _activationWord = value.RawValue;
-    }
+    public WrappingCountdown ActivationTimer { get; internal set; }
 
     /// <summary>The proximity-mode distance in pixels: the shutter activates once Samus is horizontally within it.</summary>
     public int ActivationDistance
     {
-        get => _activationWord;
-        internal set => _activationWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -102,7 +95,8 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour, no origins, level zero.</summary>
     internal void ClearWithRecord()
     {
-        _activationWord = 0;
+        ActivationTimer = WrappingCountdown.Start(0);
+        ActivationDistance = 0;
         Function = null;
         Array.Clear(_sectionOrigins);
         GrowthLevel = 0;

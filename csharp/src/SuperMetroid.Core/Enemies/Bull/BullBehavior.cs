@@ -20,17 +20,17 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Bulls wait sixteen enemy frames before retargeting Samus.</summary>
     private const ushort BullMovementDelayFrames = 16;
 
-    /// <summary>The words each physical slot keeps across Bull occupants for the current room.</summary>
-    private readonly BullExtensionWords[] _extensions = NewExtensions();
+    /// <summary>Hands each new Bull the previous Bull in its slot, whose shot-reaction guard it inherits.</summary>
+    private readonly SlotInheritance<BullEnemyState> _inheritance;
 
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static BullExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new BullExtensionWords())];
+    /// <summary>Binds the slot-inheritance service Bull setup uses.</summary>
+    /// <param name="inheritance">Hands each new Bull the previous Bull in its slot.</param>
+    internal BullBehavior(SlotInheritance<BullEnemyState> inheritance) => _inheritance = inheritance;
 
     /// <summary>Ports <c>InitAI_Bull</c> at <c>$A8:D8C9</c>.</summary>
     internal void InitializeBull(RoomEnemySlot slot)
     {
-        var state = new BullEnemyState(_extensions[slot.SlotIndex]);
+        BullEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous));
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -239,7 +239,6 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 BullEnemyState bullState = c.Enemy.RequireSpeciesState<BullEnemyState>();
-                bullState.PreviousHealth = c.HealthBefore;
                 if (c.Enemy.Health == c.HealthBefore)
                     ResolveBullImmuneShot(c.Enemy, bullState, SamusBombProjectileSlot.Direction);
             },
@@ -253,7 +252,6 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 BullEnemyState bullState = c.Enemy.RequireSpeciesState<BullEnemyState>();
-                bullState.PreviousHealth = c.HealthBefore;
                 if (c.Froze || c.Enemy.Health == c.HealthBefore)
                     ResolveBullImmuneShot(c.Enemy, bullState, c.ProjectileDirection);
             },

@@ -102,7 +102,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (settings.Role == DachoraRole.SpeedBoostEcho)
         {
-            // An echo faces the way the body does, while variable D later becomes its eight-frame life.
+            // An echo faces the way the body does; each trail placement later gives it an eight-update life.
             state.Program = AnimationProgramCursor<DachoraProgram>.Start(settings.Facing == HorizontalDirection.Right
                 ? DachoraProgram.EchoRight
                 : DachoraProgram.EchoLeft);
@@ -188,7 +188,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? DachoraProgram.BlinkRight
                 : DachoraProgram.BlinkLeft);
         state.Function = DachoraAiFunction.BlinkingBeforeRun;
-        state.PhaseTimer = WrappingCountdown.Start(DachoraBlinkDuration);
+        state.StartBlinking(WrappingCountdown.Start(DachoraBlinkDuration));
         LastDachoraSoundEffect = DachoraActivationSound;
     }
 
@@ -261,9 +261,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         InstallDachoraInstruction(slot, state, DachoraProgram.ChargeRight);
         state.Function = DachoraAiFunction.ChargingShinespark;
-        state.PhaseTimer = WrappingCountdown.Start(DachoraChargeDuration);
-        // Variable A now holds the charge countdown; only the speed's fraction word is cleared.
-        state.Speed = state.Speed.WithFraction(0);
+        state.StartCharging(WrappingCountdown.Start(DachoraChargeDuration));
         state.SetPaletteCycle(frame: 0, ticks: 0);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 8)));
         LastDachoraSoundEffect = DachoraChargeSound;

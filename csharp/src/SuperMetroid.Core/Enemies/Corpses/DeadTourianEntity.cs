@@ -18,7 +18,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySl
     public EnemyMainAiHandler? FindMain() => species.RunDeadTourianMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceDeadTourianTypedAnimation;
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation;
 
     /// <summary>The corpse's rot trigger, when its header names it as the shot callback; it is selected by pointer because it is not a named callback.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>

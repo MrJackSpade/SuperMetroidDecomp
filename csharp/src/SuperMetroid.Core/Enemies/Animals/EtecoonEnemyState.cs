@@ -15,15 +15,15 @@ public sealed class EtecoonEnemyState
     /// </summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Wrapped countdown.</summary>
+    /// <summary>The current behaviour's wrapping countdown, in updates.</summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
 
-    /// <summary>Bank-$A7 function address; none once a kill has emptied the record.</summary>
+    /// <summary>The main-AI behaviour; none once a kill has emptied the record.</summary>
     public EtecoonAiFunction? Function { get; internal set; }
 
     /// <summary>
     /// The authored route, parameter two's low byte: zero runs left and one right to the teaching start, two starts
-    /// teaching at once and loops its hops; bit one also allows the long run.
+    /// teaching at once and loops its hops; route two also allows the long run.
     /// </summary>
     public int Route
     {
@@ -38,23 +38,25 @@ public sealed class EtecoonEnemyState
         internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
-    /// <summary>Whether the Etecoon is heading right (parameter one's low byte is nonzero).</summary>
+    /// <summary>
+    /// Whether the Etecoon is heading right, from its spawn settings until it first takes a heading of its own.
+    /// </summary>
+    /// <remarks>
+    /// The cartridge keeps the heading and <see cref="TeachingHops"/> together and tests them together, so a hop count
+    /// would also read as heading right; but every state that tests the heading is reached only after the Etecoon has
+    /// taken a heading (<see cref="Head"/>), which empties the count, and the teaching hops that count again always end
+    /// in the return run, whose wall takes a heading before the next test. The heading is therefore read alone.
+    /// </remarks>
     public bool HeadingRight { get; internal set; }
 
-    /// <summary>Teaching hops taken since the counter was last cleared, 0 through 255 (parameter one's high byte).</summary>
+    /// <summary>Teaching hops taken since the count was last emptied, 0 through 255, starting from the spawn settings.</summary>
     public int TeachingHops
     {
         get;
         internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
-    /// <summary>
-    /// Whether parameter one's word is nonzero, the cartridge's test for heading right: a hop count left in the high
-    /// byte also passes it.
-    /// </summary>
-    internal bool HeadsRightOrCountsHops => HeadingRight || TeachingHops != 0;
-
-    /// <summary>Stores a heading the way the cartridge stores the whole parameter word, which also clears the hop count.</summary>
+    /// <summary>Takes a heading, which also empties the teaching-hop count.</summary>
     internal void Head(HorizontalDirection side)
     {
         HeadingRight = side == HorizontalDirection.Right;

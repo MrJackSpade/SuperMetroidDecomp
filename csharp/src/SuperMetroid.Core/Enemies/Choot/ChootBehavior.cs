@@ -11,22 +11,15 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Choot];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ChootEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ChootEntity(slot, common);
 
     /// <summary>Samus must be within 80 horizontal pixels for a waiting Choot to arm its jump timer.</summary>
     private const ushort ChootActivationDistance = 80;
 
-    /// <summary>The words each physical slot keeps across Choot occupants for the current room.</summary>
-    private readonly ChootExtensionWords[] _extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static ChootExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new ChootExtensionWords())];
-
     /// <summary>Ports <c>InitAI_Choot</c> at <c>$A2:DF76</c>, selecting a falling pattern and calculating ascent speed from native parameters.</summary>
-    internal void InitializeChoot(RoomEnemySlot slot)
+    internal static void InitializeChoot(RoomEnemySlot slot)
     {
-        var state = new ChootEnemyState(_extensions[slot.SlotIndex]);
+        var state = new ChootEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         SetChootProgram(slot, state, ChootProgram.Idle);

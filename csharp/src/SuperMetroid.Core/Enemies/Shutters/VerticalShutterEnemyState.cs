@@ -2,8 +2,8 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// The state of a vertical shutter. Its extended values correspond one-for-one with the native $7800/$8800 arrays;
-/// keeping them explicit avoids another opaque bag of numbered scratch fields. The values the cartridge keeps in the
+/// The state of a vertical shutter: its behaviour, speeds, endpoints, rest lengths, trigger and rider carry, each a
+/// value of its own. The values the cartridge keeps in the
 /// enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class VerticalShutterEnemyState
@@ -12,7 +12,7 @@ public sealed class VerticalShutterEnemyState
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>
-    /// The bank-$A2 dispatcher behaviour, shared by shootable/destroyable shutters and the Kamer vertical platform;
+    /// The dispatcher behaviour, shared by shootable/destroyable shutters and the Kamer vertical platform;
     /// none once a kill has emptied the record.
     /// </summary>
     public VerticalShutterFunction? Function { get; internal set; }

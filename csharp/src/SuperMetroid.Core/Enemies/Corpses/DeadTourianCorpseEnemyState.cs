@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
@@ -7,6 +8,9 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 public sealed class DeadTourianCorpseEnemyState
 {
+    /// <summary>The corpse's typed pose (#641), started by setup.</summary>
+    internal AnimationProgramCursor<DeadTourianProgram> Program { get; set; }
+
     /// <summary>Captures the selected corpse variant's callback profile and its own rot schedule for one slot.</summary>
     internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotSchedule rot)
     {

@@ -33,17 +33,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId KzanLandingSound =
         EnemySoundEffectDefinitions.KzanLandingSoundEffect;
 
-    /// <summary>The words each physical slot keeps across Kzan occupants for the current room.</summary>
-    private readonly KzanExtensionWords[] _extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static KzanExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new KzanExtensionWords())];
-
-    /// <summary>Initializes the top's idle list, wrapped speed-table index, fall distance, and low-byte wait timer from its two parameters.</summary>
-    internal void InitializeKzanTop(RoomEnemySlot slot)
+    /// <summary>Initializes the top's idle list, speed row, fall distance and wait timer from its spawn settings.</summary>
+    internal static void InitializeKzanTop(RoomEnemySlot slot)
     {
-        var state = new KzanEnemyState(_extensions[slot.SlotIndex]);
+        var state = new KzanEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.Program = AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle);

@@ -53,7 +53,7 @@ public sealed class PauseReserveArrowColours
     }
 
     /// <summary>
-    /// $82:AD5D/AD9D mirror two16-phase RGB ramps around the repeated midpoint.
+    /// The reserve arrow's two 16-phase RGB ramps mirror around the repeated midpoint.
     /// Starts share the reversed solid-arrow colors; grey midpoint channels share one level.
     /// Repeated normalized fade subtraction explains the below-integer blue crossings at5/10.
     /// The penultimate bright-red/dark-blue channels hold their preceding shade. Endpoint

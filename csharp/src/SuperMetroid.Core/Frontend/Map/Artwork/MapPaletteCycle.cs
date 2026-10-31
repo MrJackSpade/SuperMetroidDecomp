@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// <summary>Immutable authored highlight colors and durations; contains no palette addresses or audio commands.</summary>
 public sealed class MapPaletteCycle
 {
-    /// <summary>Frame holds that differ from the native fifteen/three-tick schedule.</summary>
+    /// <summary>Frame holds that differ from the stock fifteen/three-tick schedule.</summary>
     internal readonly Dictionary<int, byte> durationEdits = [];
     /// <summary>Independent forward color phases or the complete supplied sequence for other lengths.</summary>
     internal readonly RgbColor[][] colors;
@@ -13,7 +13,7 @@ public sealed class MapPaletteCycle
     internal readonly Dictionary<ColourCell, RgbColor> reverseColorEdits = [];
 
     /// <summary>
-    /// Native $82:C10C pauses fifteen ticks at the loop origin and advances other
+    /// The cycle pauses fifteen ticks at the loop origin and advances other
     /// highlight phases every three ticks. Independently edited frame holds remain exact.
     /// </summary>
     private static int StockDuration(int frame) => frame == 0 ? 15 : 3;
@@ -24,7 +24,7 @@ public sealed class MapPaletteCycle
         FrameCount = durations.Length;
         for (int frame = 0; frame < FrameCount; frame++)
             if (durations[frame] != StockDuration(frame)) durationEdits.Add(frame, durations[frame]);
-        // The fourteen native frames traverse eight phases forward then backward.
+        // // The fourteen stock frames traverse eight phases forward then backward.
         // Retain the independent phase artwork; only the reverse traversal is calculated.
         int phaseCount = FrameCount == 14 ? 8 : FrameCount;
         colors = suppliedColors[..phaseCount];

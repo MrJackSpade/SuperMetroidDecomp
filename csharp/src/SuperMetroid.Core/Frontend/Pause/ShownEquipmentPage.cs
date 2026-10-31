@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
-/// What the equipment page shows (#1467), as the cartridge's writes to its tilemap last left it: each item label's state,
+/// What the equipment page shows (#1467), as the game's writes to its tilemap last left it: each item label's state,
 /// whether Hyper replaces the beam labels, the Plasma overrun's tail, the wireframe, the reserve labels and digits, and
 /// the reserve arrow's colouring. The page is immutable; each write makes a new one and the menu captures the one it
 /// uploads.

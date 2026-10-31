@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>Editable JSON schema for boss, elevator-label, and gunship drawing anchors; native identities, slot order, progression visibility, and destination rules remain application-owned.</summary>
+/// <summary>Editable JSON schema for boss, elevator-label, and gunship drawing anchors; identities, slot order, progression visibility, and destination rules remain application-owned.</summary>
 public sealed record MapLandmarkDocument
 {
     /// <summary>Schema revision, which must equal <see cref="MapLandmarkFormat.Version"/>.</summary>

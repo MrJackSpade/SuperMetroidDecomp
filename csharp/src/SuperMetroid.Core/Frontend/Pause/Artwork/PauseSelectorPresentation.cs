@@ -13,9 +13,9 @@ public abstract class PauseSelectorPresentation
 {
     /// <summary>Only anchors differing from compiled stock coordinates.</summary>
     internal readonly Dictionary<string, AnchorOverride> anchorOverrides;
-    /// <summary>Category frame sequences sharing their native base frame unless a phase overrides it.</summary>
+    /// <summary>Category frame sequences sharing their base frame unless a phase overrides it.</summary>
     internal readonly PhaseFrames reserve, beam, equipment;
-    /// <summary>Authored durations differing from the native phase timing rule.</summary>
+    /// <summary>Authored durations differing from the stock phase timing rule.</summary>
     internal readonly Dictionary<int, int>? durationOverrides;
     /// <summary>Dwell time before the selector enters its cyclic animation.</summary>
     public int InitialDurationTicks { get; }
@@ -34,7 +34,7 @@ public abstract class PauseSelectorPresentation
     }
     /// <summary>Wraps a nonnegative animation phase into the authored phase count.</summary>
     public int NormalizePhase(int phase) => phase >= 0 ? phase % PhaseCount : throw new ArgumentOutOfRangeException(nameof(phase));
-    /// <summary>Calculates the shared native dwell rule after cyclic phase normalization.</summary>
+    /// <summary>Calculates the shared dwell rule after cyclic phase normalization.</summary>
     public int Duration(int phase)
     {
         int normalized = NormalizePhase(phase);
@@ -59,11 +59,11 @@ public abstract class PauseSelectorPresentation
         }).Get(normalized);
         Ensure.NotNull(entries).AddImage(Ensure.NotNull(sheet).Frame(PauseSelectorAnchors.SheetFrameName(frame)), point);
     }
-    /// <summary>Native $82:C137 has zero sprite offsets in every phase: each category
+    /// <summary>The stock selector has zero sprite offsets in every phase: each category
     /// holds its base frame. Capture only explicitly authored phase differences.</summary>
     internal sealed class PhaseFrames(string basis)
     {
-        /// <summary>Native base frame shared by phases without an authored override.</summary>
+        /// <summary>Base frame shared by phases without an authored override.</summary>
         internal readonly string basis = basis;
         /// <summary>Only animation phases selecting a different frame.</summary>
         internal Dictionary<int, string>? Overrides { get; private set; }
@@ -74,7 +74,7 @@ public abstract class PauseSelectorPresentation
         }
         /// <summary>The base frame and each authored phase frame.</summary>
         internal IEnumerable<string> Frames => Overrides is null ? [basis] : [basis, .. Overrides.Values];
-        /// <summary>Resolves an authored phase frame or falls back to the native base frame.</summary>
+        /// <summary>Resolves an authored phase frame or falls back to the base frame.</summary>
         public string Get(int phase) => Overrides is not null && Overrides.TryGetValue(phase, out var value)
             ? value : basis;
     }
@@ -97,7 +97,7 @@ public abstract class PauseSelectorPresentation
         /// <summary>Cycle length used when normalizing the live phase.</summary>
         public required int PhaseCount { get; init; }
 
-        /// <summary>Phases whose dwell times differ from native menu timing.</summary>
+        /// <summary>Phases whose dwell times differ from the stock menu timing.</summary>
         public required Dictionary<int, int>? DurationOverrides { get; init; }
 
         /// <summary>Delay before the first selector animation phase.</summary>

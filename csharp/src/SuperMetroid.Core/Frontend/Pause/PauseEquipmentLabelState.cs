@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>How the equipment page shows an item's label, or part of one (#1467), as the cartridge last wrote it.</summary>
+/// <summary>How the equipment page shows an item's label, or part of one (#1467), as the game last wrote it.</summary>
 internal enum PauseEquipmentLabelState
 {
     /// <summary>The blank strip an uncollected item shows.</summary>

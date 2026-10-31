@@ -5,10 +5,10 @@ using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Initial palette preparation and centered area-map reveal from $81:A32A-$81:A725.</summary>
+/// <summary>Initial palette preparation and centered area-map reveal.</summary>
 public sealed class FileSelectMapEntry
 {
-    /// <summary>Native gradual palette fade toward installed file-select colors.</summary>
+    /// <summary>Gradual palette fade toward installed file-select colors.</summary>
     private readonly GradualPaletteTransition palette;
     /// <summary>Number of eight-pixel expansion updates applied to the centered reveal.</summary>
     private int revealSteps;
@@ -16,7 +16,7 @@ public sealed class FileSelectMapEntry
     /// <summary>Gets the live 256 colors the entry palette fade writes (#1358).</summary>
     public ScreenPalette Palette { get; } = new();
 
-    /// <summary>Gets the current native entry-coroutine stage.</summary>
+    /// <summary>Gets the current entry-coroutine stage.</summary>
     public FileSelectMapEntryPhase Phase { get; private set; } = FileSelectMapEntryPhase.PaletteFade;
 
     /// <summary>Gets whether the reveal has finished and ordinary area-map input may begin.</summary>
@@ -54,7 +54,7 @@ public sealed class FileSelectMapEntry
     {
         if (content is null) return;
         // Update the destination without restarting the ongoing fade or replacing
-        // current interpolated colors. The native two cleared entries stay black.
+        // // current interpolated colors. The two cleared entries stay black.
         LoadEntryTarget(content.FileSelect);
     }
 
@@ -93,7 +93,7 @@ public sealed class FileSelectMapEntry
                 Phase = FileSelectMapEntryPhase.Revealing;
                 break;
             case FileSelectMapEntryPhase.Revealing:
-                // Native returns before updating edges on the signed-underflow call,
+                // // The game returns before updating edges on the signed-underflow call,
                 // disables the mask, and displays the whole area scene on that frame.
                 if (Top - FileSelectMapDefinitions.EntryWindowSpeed < 0)
                     Phase = FileSelectMapEntryPhase.Complete;

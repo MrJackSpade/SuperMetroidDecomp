@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Bounded copy/clear row selection from $81:96C2, $81:9813 and $81:9B64.</summary>
+/// <summary>Bounded copy/clear row selection.</summary>
 internal static class FileSelectDataNavigation
 {
     /// <summary>Three-bit mask admitting every save slot before occupied or excluded-source filtering.</summary>
@@ -10,9 +10,9 @@ internal static class FileSelectDataNavigation
 
     /// <summary>Moves among occupied save slots and Exit, without wrapping.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against native source/clear selection and
+    /// Independently reviewed for #1165 against the game's source/clear selection and
     /// the prior managed filtered lists. Bits0..2 represent the live occupancy of
-    /// slots A..C; the native bit selectors at $81:975B and $81:9BEC are 1 shifted
+    /// slots A..C; the game's bit selectors are 1 shifted
     /// by the slot. Exit is always selectable, including an empty occupancy mask.
     /// No ordinal lookup or generated list is required.
     /// </remarks>
@@ -25,8 +25,8 @@ internal static class FileSelectDataNavigation
 
     /// <summary>Moves among the other two save slots and Exit, without wrapping.</summary>
     /// <remarks>Copy destinations exclude the source regardless of occupancy.
-    /// The source is a validated save-slot identity0..2. Native $81:983D..9848
-    /// and $81:98A5..98AD skip that identity while moving in either direction.</remarks>
+    /// The source is a validated save-slot identity0..2. The game
+    /// skips that identity while moving in either direction.</remarks>
     internal static FileSelectItem MoveCopyDestination(FileSelectItem selected, int sourceSlot, ControllerButton pressed)
     {
         if ((uint)sourceSlot >= FileSelectLayout.SaveSlotCount)

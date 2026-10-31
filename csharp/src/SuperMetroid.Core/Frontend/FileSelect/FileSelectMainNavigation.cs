@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Visible main-menu navigation from $81:A25E..A2AF.</summary>
+/// <summary>Visible main-menu navigation.</summary>
 internal static class FileSelectMainNavigation
 {
     /// <summary>Moves one row, wrapping at Exit and skipping Copy/Clear when every save slot is empty.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against the native up/down branches and the
+    /// Independently reviewed for #1165 against the game's up/down branches and the
     /// prior managed choice lists. Save slots always remain selectable; Copy and
     /// Clear require at least one save; Exit is always visible. These are semantic
     /// visibility and wrap rules, not stored ordinal lists. Hidden selections preserve

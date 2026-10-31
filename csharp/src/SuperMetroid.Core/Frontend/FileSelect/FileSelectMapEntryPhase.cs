@@ -5,9 +5,9 @@ public enum FileSelectMapEntryPhase
 {
     /// <summary>Fades the first two palettes to their installed file-select colors.</summary>
     PaletteFade,
-    /// <summary>Represents the native foreground-tilemap loading stage.</summary>
+    /// <summary>Represents the foreground-tilemap loading stage.</summary>
     LoadForeground,
-    /// <summary>Represents the native background-tilemap loading stage.</summary>
+    /// <summary>Represents the background-tilemap loading stage.</summary>
     LoadBackground,
     /// <summary>Configures the centered initial reveal window.</summary>
     SetupWindow,

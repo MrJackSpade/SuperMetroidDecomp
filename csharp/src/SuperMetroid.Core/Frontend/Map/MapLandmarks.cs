@@ -5,16 +5,16 @@ using static SuperMetroid.Core.Frontend.Map.MapLandmarkDefinitions;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>
-/// Lists each area's map landmarks (<see cref="MapLandmarkDefinitions"/>): its boss markers in native slot order, its elevator
+/// Lists each area's map landmarks (<see cref="MapLandmarkDefinitions"/>): its boss markers in slot order, its elevator
 /// labels with their destinations, and the sprite each destination's elevator shows.
 /// </summary>
 public static class MapLandmarks
 {
     /// <summary>
-    /// $82:C7CB..C7D7 selects native boss slot lists ($82:C83B/C89D/C90B/C981/C9DB/CA9B for
-    /// Crateria/Kraid/Ridley/Phantoon/Draygon/Ceres); Crateria's three FFFE slots still consume bits.
+    /// Each area selects its boss slot list (Crateria, Kraid, Ridley, Phantoon, Draygon and
+    /// Ceres); Crateria's three unused slots still consume bits.
     /// </summary>
-    /// <remarks>Each slot is a boss landmark identity, or null for a reserved native slot.</remarks>
+    /// <remarks>Each slot is a boss landmark identity, or null for a reserved slot.</remarks>
     public static ImmutableArray<string?> Bosses(AreaId area) => area switch
     {
         AreaId.Crateria => [null, null, null],
@@ -27,7 +27,7 @@ public static class MapLandmarks
         _ => throw new ArgumentOutOfRangeException(nameof(area)),
     };
 
-    /// <summary>$82:C74D..C757 selects the six Zebes elevator destination lists; Ceres has no list.</summary>
+    /// <summary>Selects the six Zebes elevator destination lists; Ceres has no list.</summary>
     public static ElevatorSequence Elevators(AreaId area) => new(area, area switch
     {
         AreaId.Crateria or AreaId.Brinstar => 5,
@@ -39,7 +39,7 @@ public static class MapLandmarks
     });
 
     /// <summary>
-    /// $82:C759/C779/C799/C7A1/C7AF/C7C3 are area-ordered native destination
+    /// The elevator destination labels, in area order: these are the
     /// label records. The ordinal names identify independently editable anchors;
     /// the cases below preserve the physical area connection of each label.
     /// </summary>
@@ -47,15 +47,15 @@ public static class MapLandmarks
     {
         /// <summary>Source area whose fixed map labels and physical destinations are projected.</summary>
         private readonly AreaId area;
-        /// <summary>Number of destination labels in the area's native record list.</summary>
+        /// <summary>Number of destination labels in the area's record list.</summary>
         private readonly int count;
-        /// <summary>Binds a source area to its native elevator label count.</summary>
+        /// <summary>Binds a source area to its elevator label count.</summary>
         internal ElevatorSequence(AreaId area, int count) { this.area = area; this.count = count; }
         /// <summary>Gets the number of elevator label records for the area.</summary>
         public int Count => count;
         /// <summary>Gets the sequence length for array-style consumers.</summary>
         public int Length => Count;
-        /// <summary>Gets the stable label identity and physical destination for one native record.</summary>
+        /// <summary>Gets the stable label identity and physical destination for one record.</summary>
         /// <param name="index">Zero-based record index within the source area.</param>
         public MapElevatorLabel this[int index]
         {
@@ -74,16 +74,16 @@ public static class MapLandmarks
                 return new($"{area}.Elevator.{index}", destination);
             }
         }
-        /// <summary>Enumerates the area's elevator labels in native record order.</summary>
+        /// <summary>Enumerates the area's elevator labels in record order.</summary>
         /// <returns>An enumerator over the fixed label sequence.</returns>
         public IEnumerator<MapElevatorLabel> GetEnumerator()
         {
             for (int i = 0; i < Count; i++) yield return this[i];
         }
-        /// <summary>Exposes native elevator label order through the non-generic collection interface.</summary>
+        /// <summary>Exposes the elevator label order through the non-generic collection interface.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>$82:C759..C7CA use menu spritemaps $59..$5D for Crateria through Maridia labels.</summary>
+    /// <summary>The labels use menu spritemaps $59..$5D for Crateria through Maridia.</summary>
     public static MapSpriteId ElevatorSpritemap(AreaId destination) => destination switch
     {
         AreaId.Crateria => MapSpriteId.ElevatorCrateria, AreaId.Brinstar => MapSpriteId.ElevatorBrinstar,
@@ -95,7 +95,7 @@ public static class MapLandmarks
     };
 
     /// <summary>Enumerates every published boss, elevator, and gunship landmark identity.</summary>
-    /// <returns>All non-reserved landmark IDs in area and native-slot order.</returns>
+    /// <returns>All non-reserved landmark IDs in area and slot order.</returns>
     public static IEnumerable<string> AllIds()
     {
         foreach (AreaId area in Enum.GetValues<AreaId>())

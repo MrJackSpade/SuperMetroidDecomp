@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <param name="Timer">
 /// Starting value of the window's countdown: the window moves on that many calls plus the call that reaches zero, and
 /// completes when the countdown goes negative. A stock window starts between 32 and 64; the window rejects a start
-/// that is already negative as a native word.
+/// that is already negative as a sixteen-bit word.
 /// </param>
 /// <param name="Left">Signed 16.16 per-call velocity of the left edge.</param>
 /// <param name="Right">Signed 16.16 per-call velocity of the right edge.</param>

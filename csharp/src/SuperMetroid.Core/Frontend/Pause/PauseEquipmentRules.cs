@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <summary>Application-owned pause inventory and transfer rules, independent of authored menu visuals.</summary>
 internal static class PauseEquipmentRules
 {
-    /// <summary>$82:BF04 ReserveTank_TransferEnergyPerFrame: one energy per selected manual-transfer tick.</summary>
+    /// <summary>ReserveTank_TransferEnergyPerFrame: one energy per selected manual-transfer tick.</summary>
     public const int ReserveEnergyPerFrame = 1;
 
     /// <summary>Selects the upgrade flag belonging to a named category/item control.
@@ -37,8 +37,8 @@ internal static class PauseEquipmentRules
             _ => throw new ArgumentOutOfRangeException(nameof(item)),
         };
     }
-    /// <summary>Exact inverse of the four equipment words at $82:B257..B25E.
-    /// Native $82:B212 masks the entire equipped-items word to Varia/Hi-Jump, then
+    /// <summary>Exact inverse of the four boot/suit equipment words.
+    /// The game masks the entire equipped-items word to Varia/Hi-Jump, then
     /// searches [neither, Hi-Jump, Varia, both]. Pack Hi-Jump into result bit0 and
     /// Varia into bit1. All65536 input words are supported; every other bit, including
     /// Gravity, is ignored.</summary>

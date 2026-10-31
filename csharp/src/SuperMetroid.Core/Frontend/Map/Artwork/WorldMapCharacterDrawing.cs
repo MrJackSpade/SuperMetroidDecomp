@@ -2,7 +2,7 @@ using static SuperMetroid.Core.Frontend.Map.Artwork.WorldMapCharacterDefinitions
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>Native $8E:8000/D600 menu character geometry; independent supplied artwork remains separate.</summary>
+/// <summary>Menu character geometry; independent supplied artwork remains separate.</summary>
 /// <remarks>Each cell's drawing is selected by <see cref="WorldMapCharacterDefinitions"/>; together with the remaining
 /// exact glyph contours, these define this particular bitmap design. RGB colors, tilemaps, timing and other atlases are
 /// outside these two bounded character fields.</remarks>
@@ -70,7 +70,7 @@ internal static class WorldMapCharacterDrawing
         return false;
     }
 
-    /// <summary>Native Latin and Japanese glyph cells; paired tall glyphs keep their own upper/lower boundaries.</summary>
+    /// <summary>Latin and Japanese glyph cells; paired tall glyphs keep their own upper/lower boundaries.</summary>
     internal static bool IsForegroundFontTile(int tile) =>
         Array.IndexOf(ForegroundFontExclusions, tile) < 0 && InAny(ForegroundFontCells, tile);
 
@@ -112,7 +112,7 @@ internal static class WorldMapCharacterDrawing
         return true;
     }
 
-    /// <summary>$8E:D9C0..DA5F: ten outlined small numerals, ordered 1..9,0.</summary>
+    /// <summary>Ten outlined small numerals, ordered 1..9,0.</summary>
     internal static bool IsOutlinedDigit(int tile) => OutlinedDigitCells.Contains(tile);
 
     /// <summary>Selected pen-two digit footprint, surrounded by a one-pixel eight-neighbor pen-one outline.</summary>
@@ -133,7 +133,7 @@ internal static class WorldMapCharacterDrawing
         return true;
     }
 
-    /// <summary>Calculates the native solid, guide, room-edge, arrow, panel and binary wedge cells. Font/icon contours return false.</summary>
+    /// <summary>Calculates the solid, guide, room-edge, arrow, panel and binary wedge cells. Font/icon contours return false.</summary>
     internal static bool TryBackgroundPixel(int tile, Position16<CharacterPixels> point, out int value)
     {
         if ((uint)tile >= WorldMapArtworkFormat.BackgroundTileCount || (uint)point.X >= Side || (uint)point.Y >= Side)
@@ -210,14 +210,14 @@ internal static class WorldMapCharacterDrawing
         }
     }
 
-    /// <summary>$8E:D800..D87F: room fill with edges on the bordered sides.</summary>
+    /// <summary>Room fill with edges on the bordered sides.</summary>
     private static int RoomBorder(WorldMapRoomBorder border, Position16<CharacterPixels> point)
     {
         (bool top, bool bottom, bool left, bool right) = border;
         return top && point.Y == 0 || bottom && point.Y == Side - 1 || left && point.X == 0 || right && point.X == Side - 1 ? Edge : Fill;
     }
 
-    /// <summary>$8E:D730..D7AF/D880..D8FF: half-cell slopes and their chosen wall/guide joins.</summary>
+    /// <summary>Half-cell slopes and their chosen wall/guide joins.</summary>
     private static int DiagonalRoom(WorldMapDiagonalRoom room, Position16<CharacterPixels> point)
     {
         (bool mirror, int offset, bool below, bool left, bool right, bool dashLeft, bool dashBottom, bool wallJoin) = room;
@@ -230,7 +230,7 @@ internal static class WorldMapCharacterDrawing
         return dashLeft && point.X == 0 && point.Y % 2 != 0 || dashBottom && point.Y == Side - 1 && point.X % 2 == 0 ? Edge : Outside;
     }
 
-    /// <summary>$8E:8000..D5FF: exact foreground cell geometry and identified glyph-piece reuse.</summary>
+    /// <summary>Exact foreground cell geometry and identified glyph-piece reuse.</summary>
     /// <remarks>Returns an independently supplied source-pixel identity, or -1 for blank padding.
     /// Chosen ink identities and the explicitly named shape/state policies are narrowly retained composition inputs;
     /// circles, edges, periodic ramps, shared parts and empty regions calculate from them.</remarks>

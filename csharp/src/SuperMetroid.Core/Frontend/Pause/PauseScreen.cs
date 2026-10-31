@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>
 /// The pause screen <c>GameState_13</c> sets up (#1358): the installed artwork and pictures it draws, its palette and
-/// its sprite entries. It publishes these; the capture composes them, so pause owns no PPU memory.
+/// its sprite entries. It publishes these; the capture composes them, so pause owns no display memory.
 /// </summary>
 internal sealed class PauseScreen
 {
@@ -56,7 +56,7 @@ internal sealed class PauseScreen
         return new PicturedPlane(MenuScreen.PageSize, placed.ToImmutable());
     }
 
-    /// <summary><paramref name="picture"/> placed with its origin on the frame's corner, where the cartridge's page shows it.</summary>
+    /// <summary><paramref name="picture"/> placed with its origin on the frame's corner, where the game's page shows it.</summary>
     private static PlacedPlanePicture AtCorner(SpriteSheetFrame picture) =>
         PlacedPlanePicture.AtCell(picture, default, MenuScreen.PageSize);
 

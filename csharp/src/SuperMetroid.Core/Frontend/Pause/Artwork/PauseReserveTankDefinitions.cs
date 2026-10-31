@@ -1,27 +1,27 @@
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
-/// <summary>Reserve-strip visual identities and import-only cartridge bindings.</summary>
+/// <summary>Reserve-strip visual identities and import-only bindings.</summary>
 public static class PauseReserveTankDefinitions
 {
     /// <summary>Supported schema version for the editable reserve-strip anchors, palette, and visual frames.</summary>
     public const int Version = 1;
     /// <summary>JSON asset filename for the pause equipment screen's reserve-tank strip presentation.</summary>
     public const string FileName = "pause-reserve-tanks.json";
-    /// <summary>$82:C1D6 supplies six origins, including the trailing cap position.</summary>
+    /// <summary>Six origins, including the trailing cap position.</summary>
     public const int AnchorCount = 6;
     /// <summary>The sprite palette every reserve-gauge part is drawn with.</summary>
     public const int Palette = 3;
-    /// <summary>$82:C1D6: screen X of the first tank's anchor.</summary>
+    /// <summary>Screen X of the first tank's anchor.</summary>
     internal const int FirstAnchorX = 24;
-    /// <summary>$82:C1D6..C1E2: horizontal distance between neighbouring tank anchors, one eight-pixel column.</summary>
+    /// <summary>Horizontal distance between neighbouring tank anchors, one eight-pixel column.</summary>
     internal const int AnchorStride = 8;
-    /// <summary>$82:C1D6..C1E2: screen Y shared by every anchor, Y96 minus the draw bias.</summary>
+    /// <summary>Screen Y shared by every anchor, Y96 minus the draw bias.</summary>
     internal const int AnchorY = 95;
-    /// <summary>$82:B3D9: the two identical eight-entry partial-fill tables together hold sixteen entries.</summary>
+    /// <summary>The two identical eight-entry partial-fill tables together hold sixteen entries.</summary>
     internal const int PartialMapEntries = 16;
 
-    /// <summary>$82:B305 full tank; $82:B396 trailing cap; $82:B37D empty tank and $82:B3D9 seven fill levels, as ten stable
-    /// frame-name/native-spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order.</summary>
+    /// <summary>Full tank, trailing cap, empty tank and seven fill levels, as ten stable
+    /// frame-name/spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order.</summary>
     internal static readonly PauseReserveTankFrame[] Frames =
     [
         new("Full", PauseReserveTankVisual.Full),

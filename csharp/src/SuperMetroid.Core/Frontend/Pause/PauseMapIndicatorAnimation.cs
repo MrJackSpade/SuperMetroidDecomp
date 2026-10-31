@@ -2,13 +2,13 @@ using SuperMetroid.Core.Frontend.Map;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>Shared four-phase pulse for pause and file-select map markers at $82:B9FC.</summary>
+/// <summary>Shared four-phase pulse for pause and file-select map markers.</summary>
 internal static class PauseMapIndicatorAnimation
 {
-    /// <summary>$82:BA06 wraps at byte offset8: four word-indexed phases.</summary>
+    /// <summary>The pulse wraps at byte offset8: four word-indexed phases.</summary>
     public const int FrameCount = 4;
 
-    /// <summary>Calculates the triangular sprite pulse at $82:BA2D, phase0..3.</summary>
+    /// <summary>Calculates the triangular sprite pulse, phase0..3.</summary>
     /// <remarks>Independently reviewed for #1165: start at5F, rise twice, then fall.
     /// The bounded triangle is2-abs(2-phase). Invalid indices throw
     /// ArgumentOutOfRangeException; timer advancement remains caller-owned.</remarks>
@@ -21,9 +21,9 @@ internal static class PauseMapIndicatorAnimation
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
-    /// <summary>Calculates the alternating endpoint/midpoint dwell at $82:BA25.</summary>
+    /// <summary>Calculates the alternating endpoint/midpoint dwell.</summary>
     /// <remarks>Independently reviewed for #1165: phases0/2 hold an endpoint for8
-    /// ticks; phases1/3 traverse the middle image for4. Native consumers advance
+    /// ticks; phases1/3 traverse the middle image for4. The game's consumers advance
     /// before loading this delay and decrement on that same tick.</remarks>
     public static int FrameDelay(int frame)
     {

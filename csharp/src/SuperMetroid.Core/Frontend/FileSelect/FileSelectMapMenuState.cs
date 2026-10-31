@@ -60,7 +60,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
     /// <param name="audio">Owner receiving menu confirmation, scroll, palette-loop, and transition sound requests.</param>
     /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
-    /// <param name="initialHeldInput">Native controller-button word already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
+    /// <param name="initialHeldInput">Controller-button word already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
     /// <param name="mapPresentation">Required installed map artwork/layout catalog, rebound separately after debugger restoration.</param>
     /// <param name="spriteSheets">Required installed sprite sheets the map's sprites draw from, rebound with the other artwork.</param>
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
@@ -125,8 +125,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         return new FileSelectMapScroll(catalog.Get(typedArea), roomGraphics.MapSystem, anchor);
     }
 
-    /// <summary>Advances one menu update, retaining input latching during entry and native ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
-    /// <param name="input">Current held native controller-button word; edge interpretation is owned by navigation, not by rendering.</param>
+    /// <summary>Advances one menu update, retaining input latching during entry and the game's ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
+    /// <param name="input">Current held controller-button word; edge interpretation is owned by navigation, not by rendering.</param>
     public void Step(ControllerButton input)
     {
         if (!entry.IsComplete)
@@ -138,7 +138,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         FileSelectMapNavigationPhase before = Phase;
         drawArrows = before == FileSelectMapNavigationPhase.Room;
         if (drawArrows) animations.StepArrows(Scroll.CanScroll);
-        // Native draws/advances map icons before testing input, including the frame
+        // // The game draws/advances map icons before testing input, including the frame
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
         {
@@ -256,7 +256,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         return Insert(areaScene, roomScene, left, top, right + 1, bottom);
     }
 
-    /// <summary>Overlays an inner scene inside half-open screen bounds while retaining the basis scene's PPU memory and brightness.</summary>
+    /// <summary>Overlays an inner scene inside half-open screen bounds while retaining the basis scene's display memory and brightness.</summary>
     private static LayeredScene Insert(LayeredScene basis, LayeredScene inside,
         int left, int top, int right, int bottom)
     {

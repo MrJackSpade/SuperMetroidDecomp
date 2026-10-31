@@ -65,7 +65,7 @@ public abstract class FileSelectPresentation
     /// <summary>The OBJ palette the borders, cursor and helmets draw in.</summary>
     internal int ObjectPalette => document.ObjectPalette;
 
-    /// <summary>Draws the page's border frame of the file-select sheet at its authored OAM anchor.</summary>
+    /// <summary>Draws the page's border frame of the file-select sheet at its authored screen anchor.</summary>
     internal void DrawBorder(ScreenSprites screenSprites, SpriteSheet sheet, FileSelectBorder border) =>
         screenSprites.AddImage(sheet.Frame(FileSelectParts.BorderSpriteName(border)), borderAnchors[border]);
 
@@ -73,12 +73,12 @@ public abstract class FileSelectPresentation
     internal static void DrawCursor(ScreenSprites screenSprites, SpriteSheet sheet, int frame, Position16<SpritePixels> anchor) =>
         screenSprites.AddImage(sheet.Frame(FileSelectParts.CursorSpriteName(frame)), anchor);
 
-    /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's OAM anchor.</summary>
+    /// <summary>Draws a selected-slot helmet frame of the file-select sheet at that slot's screen anchor.</summary>
     internal void DrawHelmet(ScreenSprites screenSprites, SpriteSheet sheet, int frame, int slot) =>
         screenSprites.AddImage(sheet.Frame(FileSelectParts.HelmetSpriteName(frame)),
             Point(document.HelmetAnchors, slot, "helmet"));
 
-    /// <summary>Reads an indexed OAM anchor, rejecting selections outside its layout.</summary>
+    /// <summary>Reads an indexed screen anchor, rejecting selections outside its layout.</summary>
     private static Position16<SpritePixels> Point(Position16<SpritePixels>[] points, int index, string owner) =>
         (uint)index < points.Length ? points[index] :
             throw new ArgumentOutOfRangeException(owner);

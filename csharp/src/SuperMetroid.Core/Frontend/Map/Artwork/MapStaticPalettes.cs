@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>
-/// Named complete presentation colours by screen owner (#1464), which the import pipeline decodes; no native offsets,
+/// Named complete presentation colours by screen owner (#1464), which the import pipeline decodes; no original offsets,
 /// palette programs or selection rules.
 /// </summary>
 public sealed class MapStaticPalettes

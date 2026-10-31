@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
-/// <summary>The pause screen's page (WRAM <c>$0753</c>).</summary>
+/// <summary>The pause screen's page.</summary>
 public enum PauseScreenMode
 {
     /// <summary>The area map.</summary>

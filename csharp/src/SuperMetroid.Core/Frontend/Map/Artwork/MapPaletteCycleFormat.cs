@@ -7,10 +7,10 @@ public static class MapPaletteCycleFormat
     public const string FileName = "map-highlight-cycle.json";
     /// <summary>Required cycle-document schema revision.</summary>
     public const int Version = 1;
-    /// <summary>Number of colors written per frame, equal to one sixteen-color native CGRAM row.</summary>
+    /// <summary>Number of colors written per frame, equal to one sixteen-color palette row.</summary>
     public const int ColorCount = 16;
     /// <summary>Maximum selected frame count, 255, preserving the animation owner's byte-sized frame cursor.</summary>
     public const int MaximumFrames = 255;
-    /// <summary>Maximum authored frame hold, 254 ticks; zero is invalid and the native $FF duration marks stream termination rather than a hold.</summary>
+    /// <summary>Maximum authored frame hold, 254 ticks; zero is invalid and a duration of 255 marks stream termination rather than a hold.</summary>
     public const int MaximumDuration = 254;
 }

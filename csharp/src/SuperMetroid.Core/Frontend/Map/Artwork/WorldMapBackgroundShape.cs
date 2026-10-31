@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
-/// <summary>The calculated drawing of a $8E:D600 world-map background character cell.</summary>
+/// <summary>The calculated drawing of a world-map background character cell.</summary>
 public enum WorldMapBackgroundShape
 {
     /// <summary>Slanted numeral or percent glyph whose bottom row is outside padding; the rest is supplied.</summary>

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
-/// <summary>Stable visual bindings for native equipment selectors; no editable navigation table.</summary>
+/// <summary>Stable visual bindings for equipment selectors; no editable navigation table.</summary>
 public static class PauseSelectorDefinitions
 {
     /// <summary>Supported revision of the equipment-selector anchor, composition, animation, and palette JSON schema.</summary>
@@ -14,7 +14,7 @@ public static class PauseSelectorDefinitions
     /// <summary>The reserve column's two controls: the mode toggle and the transfer button.</summary>
     internal const int ReserveControlCount = 2;
 
-    /// <summary>The stable asset anchor name of each native equipment control, by category and item.</summary>
+    /// <summary>The stable asset anchor name of each equipment control, by category and item.</summary>
     internal static readonly IReadOnlyDictionary<PauseEquipmentSlot, string> AnchorNames = new Dictionary<PauseEquipmentSlot, string>
     {
         [new(PauseEquipmentCategory.Reserves, 0)] = "Reserve.Mode",
@@ -35,7 +35,7 @@ public static class PauseSelectorDefinitions
         [new(PauseEquipmentCategory.Boots, 2)] = "Boots.SpeedBooster",
     };
 
-    /// <summary>$82:C196..C1D5: the native screen position of each category's first selector, including the draw routine's
+    /// <summary>The screen position of each category's first selector, including the draw routine's
     /// one-pixel bias.</summary>
     internal static readonly IReadOnlyDictionary<PauseEquipmentCategory, Position16<ScreenPixels>> CategoryOrigins =
         new Dictionary<PauseEquipmentCategory, Position16<ScreenPixels>>
@@ -48,7 +48,7 @@ public static class PauseSelectorDefinitions
 
     /// <summary>Vertical distance between successive items' selectors, one eight-pixel row.</summary>
     internal const int ItemRowStride = 8;
-    /// <summary>The native draw routine's one-pixel bias on both selector coordinates.</summary>
+    /// <summary>The draw routine's one-pixel bias on both selector coordinates.</summary>
     internal const int DrawBias = 1;
     /// <summary>The first suit/misc item below the gap after Gravity (Morph Ball).</summary>
     internal const int SuitsLowerGroupFirstItem = 2;

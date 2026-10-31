@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// <summary>Provides one map arrow's screen anchor and cyclic cosmetic phase timing.</summary>
 public sealed class MapArrowVisual
 {
-    /// <summary>Only edited durations are stored; stock phases use native timing.</summary>
+    /// <summary>Only edited durations are stored; stock phases use the stock timing.</summary>
     internal readonly Dictionary<int, int>? durationOverrides;
-    /// <summary>Captures the authored phase count and stores deviations from cartridge timing.</summary>
+    /// <summary>Captures the authored phase count and stores deviations from the stock timing.</summary>
     internal MapArrowVisual(Position16<SpritePixels> position, int[] durations)
     {
         Position = position;
@@ -16,13 +16,13 @@ public sealed class MapArrowVisual
             if (durations[phase] != MenuSelectorTiming.Duration(phase))
                 (durationOverrides ??= new()).Add(phase, WordWrap.LowByte(durations[phase]));
     }
-    /// <summary>Screen-pixel anchor used when composing this direction's OAM sprite.</summary>
+    /// <summary>Screen-pixel anchor used when composing this direction's sprite.</summary>
     public Position16<SpritePixels> Position { get; }
     /// <summary>Bounds the cyclic phase index supplied to <see cref="Duration"/>.</summary>
     public int PhaseCount { get; }
 
-    /// <summary>Calculates native arrow timing, with independent authored phase edits.</summary>
-    /// <remarks>$82:C137 holds the initial phase for15 ticks and every following
+    /// <summary>Calculates the stock arrow timing, with independent authored phase edits.</summary>
+    /// <remarks>The arrows hold the initial phase for15 ticks and every following
     /// phase for2. The original14-phase cycle repeats this rule without a cache.
     /// Custom cycle lengths and individual delays remain document-owned inputs.</remarks>
     public int Duration(int phase)

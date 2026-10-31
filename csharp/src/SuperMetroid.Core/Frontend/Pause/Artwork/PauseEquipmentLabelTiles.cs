@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// </summary>
 public static class PauseEquipmentLabelTiles
 {
-    /// <summary>Equipment label identities alias the corresponding selector controls. Native
-    /// 82:C08C..C0A6 selects Charge/Ice/Wave/Spazer/Plasma, suit/misc and boot labels in
+    /// <summary>Equipment label identities alias the corresponding selector controls. The game
+    /// selects Charge/Ice/Wave/Spazer/Plasma, suit/misc and boot labels in
     /// the same category/item order. Reserve controls have no ordinary inventory label.</summary>
     public static PauseEquipmentLabelId Label(PauseEquipmentCategory category, int item)
     {
@@ -76,7 +76,7 @@ public static class PauseEquipmentLabelTiles
             .Select(anchor => new PauseEquipmentLabelKey(anchor.Category, anchor.Item, Label(anchor.Category, anchor.Item))).ToArray());
 
     /// <summary>Returns the ordinary category strip width in sixteen-bit tile words, not bytes; Hyper's stored width and Plasma's button-patch overrun are separate contracts.</summary>
-    /// <param name="category">Native equipment category: one denotes beams; every other integer returns the equipment width without category validation.</param>
+    /// <param name="category">Equipment category: one denotes beams; every other integer returns the equipment width without category validation.</param>
     /// <returns>Five for the beam category, otherwise nine.</returns>
     public static int WordCount(PauseEquipmentCategory category) => category == PauseEquipmentCategory.Beams ? BeamWords : EquipmentWords;
 
@@ -87,14 +87,14 @@ public static class PauseEquipmentLabelTiles
         return IsOrdinaryBeam(label) ? BeamWords : EquipmentWords;
     }
 
-    /// <summary>$82:C06C-C086: label columns4/21 and category rows16/9/19, with the suit-to-misc gap.</summary>
+    /// <summary>Label columns4/21 and category rows16/9/19, with the suit-to-misc gap.</summary>
     internal static int StockPageByte(PauseEquipmentLabelId label)
     {
         if (label == PauseEquipmentLabelId.Hyper) label = Label(PauseEquipmentCategory.Beams, HyperBeamItem);
         return Ensure.Listed(destinations.Value, label);
     }
 
-    /// <summary>Native label destinations derived once from category columns and rows for per-cell lookup.</summary>
+    /// <summary>Label destinations derived once from category columns and rows for per-cell lookup.</summary>
     private static readonly Lazy<Dictionary<PauseEquipmentLabelId, int>> destinations = new(() =>
         Labels().ToDictionary(label => label.Label, label =>
         {

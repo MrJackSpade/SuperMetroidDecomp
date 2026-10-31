@@ -12,7 +12,7 @@ public static class MapScreens
     internal static AreaId RequireZebesArea(AreaId area) => AreaIds.IsZebes(area)
         ? area : throw new ArgumentOutOfRangeException(nameof(area));
 
-    /// <summary>Named pages select one of the authored PNG atlases, never a VRAM address.</summary>
+    /// <summary>Named pages select one of the authored PNG atlases, never a display memory location.</summary>
     public static IEnumerable<MapScreenPage> Pages()
     {
         yield return new(WorldForeground, WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.ForegroundTileCount);

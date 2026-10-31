@@ -18,7 +18,7 @@ public sealed class FileSelectMapNavigation
     /// <summary>Rebinds room-map labels before a pending window is constructed.</summary>
     internal void BindLabels(SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelPositions? content) => labels = content;
 
-    /// <summary>Creates normal area/room-map navigation for a saved area's native index.</summary>
+    /// <summary>Creates normal area/room-map navigation for a saved area's index.</summary>
     /// <param name="area">Zero-based saved area index.</param>
     /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
     public FileSelectMapNavigation(int area, ControllerButton initialHeldInput = ControllerButton.None)
@@ -46,7 +46,7 @@ public sealed class FileSelectMapNavigation
     /// </summary>
     public void Step(ControllerButton heldInput)
     {
-        // Same edge rule as ControllerInputState.NewlyPressedButtons, over the native joypad word.
+        // // Same edge rule as ControllerInputState.NewlyPressedButtons, over the controller word.
         ControllerButton pressed = heldInput & ~previousInput;
         previousInput = heldInput;
         bool cancel = (pressed & ControllerButton.B) != ControllerButton.None;
@@ -54,7 +54,7 @@ public sealed class FileSelectMapNavigation
         switch (Phase)
         {
             case FileSelectMapNavigationPhase.Area:
-                // $81:A800's direction handling changes areas only with enable_debug.
+                // // The game's direction handling changes areas only with debug enabled.
                 // Its non-debug branch replaces the working input word with zero when
                 // a direction/Select edge exists, also suppressing a simultaneous confirm.
                 if ((pressed & (ControllerButton.Up | ControllerButton.Down | ControllerButton.Left |
@@ -71,7 +71,7 @@ public sealed class FileSelectMapNavigation
                 if (ActiveWindow.Step()) Phase = FileSelectMapNavigationPhase.InitializingRoom;
                 break;
             case FileSelectMapNavigationPhase.InitializingRoom:
-                // $81:AD17 installs the room map after the expanding-window endpoint;
+                // // The room map is installed after the expanding-window endpoint;
                 // the endpoint itself still shows only the frame, not room-map cells.
                 Phase = FileSelectMapNavigationPhase.Room;
                 break;
@@ -89,7 +89,7 @@ public sealed class FileSelectMapNavigation
         }
     }
 
-    /// <summary>Called after the frontend finishes $81:AF97's return-to-area sequence.</summary>
+    /// <summary>Called after the frontend finishes the return-to-area sequence.</summary>
     public void CompleteAreaReturn()
     {
         if (Phase != FileSelectMapNavigationPhase.AreaReturnRequested)

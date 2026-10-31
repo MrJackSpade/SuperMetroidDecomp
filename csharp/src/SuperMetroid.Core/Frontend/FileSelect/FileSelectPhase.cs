@@ -31,7 +31,7 @@ public enum FileSelectPhase
     TurnSelectedHelmet,
     /// <summary>Fade the selected helmet and main page to black, then signal the game-options handoff.</summary>
     FadeOutToOptions,
-    /// <summary>Fade to black after Exit/B, then request the host's reset path corresponding to native SoftReset.</summary>
+    /// <summary>Fade to black after Exit/B, then request the host's soft-reset path.</summary>
     FadeOutToTitle,
     /// <summary>Finish the entry fade-out and blank the display, then wait out one update.</summary>
     EnterBlankScreen,

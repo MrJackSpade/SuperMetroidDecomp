@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map;
 
-/// <summary>Shared $82:A92B palette animation used by pause and file-select maps.</summary>
+/// <summary>Shared palette animation used by pause and file-select maps.</summary>
 public sealed class MapPaletteAnimation
 {
     /// <summary>
@@ -22,7 +22,7 @@ public sealed class MapPaletteAnimation
     /// <summary>Restores ResetPauseMenuAnimations' initial frame and one-tick delay.</summary>
     public void Reset() { Timer = 1; Frame = 0; }
 
-    /// <summary>Copies the native palette frame; true requests library-three MapPaletteLoop.</summary>
+    /// <summary>Copies the palette frame; true requests library-three MapPaletteLoop.</summary>
     public bool Step(ScreenPalette colours)
     {
         if (Timer == 0) return false;
@@ -30,7 +30,7 @@ public sealed class MapPaletteAnimation
         if (Timer != 0) return false;
         MapPaletteCycle cycle = content ?? throw new InvalidOperationException(
             "Map palette animation requires installed palette-cycle assets.");
-        // Preserve native increment-before-read and loop sound ownership. A
+        // // Preserve the game's increment-before-read and loop sound ownership. A
         // shorter replacement cycle wraps at the next frame boundary, not bind.
         int next = Frame + 1;
         bool wrapped = next >= cycle.FrameCount;

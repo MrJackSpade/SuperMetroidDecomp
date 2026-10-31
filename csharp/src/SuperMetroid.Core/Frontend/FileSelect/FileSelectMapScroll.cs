@@ -5,7 +5,7 @@ using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Initial room-select positioning and $81:AECA/$82:925D scroll ownership.</summary>
+/// <summary>Initial room-select positioning and scroll ownership.</summary>
 public sealed class FileSelectMapScroll
 {
     /// <summary>Elapsed menu ticks in the accepted eight-tick directional step.</summary>
@@ -14,10 +14,10 @@ public sealed class FileSelectMapScroll
     /// <summary>Gets the current wrapped map scroll offset in map pixels.</summary>
     public Position16<MapPixels> Scroll { get; private set; }
 
-    /// <summary>Gets the leftmost and adjusted upper revealed-map coordinates used by the native arrow boundaries.</summary>
+    /// <summary>Gets the leftmost and adjusted upper revealed-map coordinates used by the arrow boundaries.</summary>
     public Position16<MapPixels> Minimum { get; }
 
-    /// <summary>Gets the rightmost and lower revealed-map coordinates used by the native arrow boundaries.</summary>
+    /// <summary>Gets the rightmost and lower revealed-map coordinates used by the arrow boundaries.</summary>
     public Position16<MapPixels> Maximum { get; }
 
     /// <summary>Gets the direction of the accepted eight-tick scroll step, or <see cref="MapScrollDirection.None"/>.</summary>
@@ -32,7 +32,7 @@ public sealed class FileSelectMapScroll
     {
         Ensure.NotNull(map);
         Ensure.NotNull(system);
-        // Native selects one plane, not the union: a downloaded map uses its station
+        // // The game selects one plane, not the union: a downloaded map uses its station
         // mask even if an explored secret cell lies outside that mask.
         bool Visible(int x, int y) => system.HasAreaMap(map.Area)
             ? map.IsRevealedByMapStation(new(x, y)) : system.IsMapTileExplored(map.Area, new(x, y));
@@ -48,7 +48,7 @@ public sealed class FileSelectMapScroll
         for (int y = 31; y > 0; y--)
             if (Enumerable.Range(0, 64).Any(x => Visible(x, y))) { bottom = y; break; }
         // Every map word below holds its wrapped sixteen-bit value; the signed tests read those
-        // words as the cartridge's branches do.
+        // // words as the game's branches do.
         int minimumX = Wrap(left * 8 - (map.Area == AreaId.Maridia ? 24 : 0));
         int maximumX = Wrap(right * 8);
         int minimumY = Wrap(top * 8);
@@ -70,11 +70,11 @@ public sealed class FileSelectMapScroll
         }
         Scroll = new(Wrap(horizontal), Wrap(vertical));
         Maximum = new(Wrap(maximumX), Wrap(maximumY));
-        // $81:AD17 adjusts the upper arrow boundary only after positioning.
+        // // The game adjusts the upper arrow boundary only after positioning.
         Minimum = new(Wrap(minimumX), Wrap(minimumY + 24));
     }
 
-    /// <summary>Determines whether another eight-pixel step fits within the native boundary for a direction.</summary>
+    /// <summary>Determines whether another eight-pixel step fits within the boundary for a direction.</summary>
     /// <param name="direction">Direction to test.</param>
     /// <returns><see langword="true"/> when the corresponding scroll arrow may accept a step.</returns>
     public bool CanScroll(MapScrollDirection direction) => direction switch
@@ -88,7 +88,7 @@ public sealed class FileSelectMapScroll
     };
 
     /// <summary>
-    /// Processes held input in native arrow order. Returns true at the scroll-sound
+    /// Processes held input in arrow order. Returns true at the scroll-sound
     /// boundary. A released button does not cancel an already accepted eight-tick step.
     /// </summary>
     public bool Step(ControllerButton heldInput)
@@ -97,7 +97,7 @@ public sealed class FileSelectMapScroll
             if (Direction == MapScrollDirection.None && CanScroll(MapScrollControls.ArrowAt(index)) &&
                 (heldInput & MapScrollControls.ButtonFor(MapScrollControls.ArrowAt(index))) != ControllerButton.None)
                 Direction = MapScrollControls.ArrowAt(index);
-        // Native has this explicit cancellation only for the lower boundary.
+        // // The game has this explicit cancellation only for the lower boundary.
         if (Direction == MapScrollDirection.Down && !CanScroll(Direction))
         {
             Direction = MapScrollDirection.None;
@@ -116,8 +116,8 @@ public sealed class FileSelectMapScroll
         return true;
     }
 
-    /// <summary>Preserves native sixteen-bit wrap in map-scroll arithmetic.</summary>
+    /// <summary>Preserves sixteen-bit wrap in map-scroll arithmetic.</summary>
     private static int Wrap(int value) => WordWrap.Unsigned(value);
-    /// <summary>Interprets wrapped boundary differences as signed native words.</summary>
+    /// <summary>Interprets wrapped boundary differences as signed sixteen-bit words.</summary>
     private static int Signed(int value) => WordWrap.Signed(value);
 }

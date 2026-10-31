@@ -11,13 +11,13 @@ public static class WorldMapArtworkFormat
     public const int TileColumns = 16;
     /// <summary>Atlas width in pixels.</summary>
     public const int Width = TileColumns * 8;
-    /// <summary>Size in bytes of the native 4-bpp foreground character transfer.</summary>
+    /// <summary>Size in bytes of the 4-bpp foreground character artwork.</summary>
     public const int ForegroundBytes = 22016;
     /// <summary>Number of 32-byte 4-bpp characters in the foreground atlas.</summary>
     public const int ForegroundTileCount = ForegroundBytes / 32;
     /// <summary>Foreground atlas height in pixels.</summary>
     public const int ForegroundHeight = ForegroundTileCount / TileColumns * 8;
-    /// <summary>Size in bytes of the native 2-bpp background character transfer.</summary>
+    /// <summary>Size in bytes of the 2-bpp background character artwork.</summary>
     public const int BackgroundBytes = 1536;
     /// <summary>Number of 16-byte 2-bpp characters in the background atlas.</summary>
     public const int BackgroundTileCount = BackgroundBytes / 16;

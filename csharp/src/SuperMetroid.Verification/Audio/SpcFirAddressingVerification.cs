@@ -33,7 +33,7 @@ internal static class SpcFirAddressingVerification
             ram[0x6001] = 10;
             ram[0x6002] = commandPreset;
             var channel = new ManagedSpcMusicChannel { PatternOrderPointer = 0x6000 };
-            effect(channel, (byte)SpcMusicEffect.ConfigureEcho);
+            effect(channel, SpcMusicDefinitionCodec.EffectOpcode(SpcMusicEffect.ConfigureEcho));
             // Execute the original MUL YA / MOV X,A semantics; discarded Y cannot carry.
             ushort ya = (ushort)(Read(0x1a95) * commandPreset);
             byte x = (byte)ya;

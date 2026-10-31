@@ -10,6 +10,23 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 [EncodingOwner("sound driver sound-effect channel program bytecode")]
 internal static class SpcSoundEffectProgramCodec
 {
+    /// <summary>The opcode byte of each instruction; every other byte begins a note packet.</summary>
+    private static readonly Dictionary<int, SpcSoundEffectOpcode> opcodes = new()
+    {
+        [0xf5] = SpcSoundEffectOpcode.PitchSlideLegato,
+        [0xf8] = SpcSoundEffectOpcode.PitchSlide,
+        [0xf9] = SpcSoundEffectOpcode.SetAdsr,
+        [0xfb] = SpcSoundEffectOpcode.RepeatForever,
+        [0xfc] = SpcSoundEffectOpcode.EnableNoise,
+        [0xfd] = SpcSoundEffectOpcode.EndRepeat,
+        [0xfe] = SpcSoundEffectOpcode.BeginRepeat,
+        [0xff] = SpcSoundEffectOpcode.End,
+    };
+
+    /// <summary>The opcode byte of <paramref name="instruction"/>.</summary>
+    private static int OpcodeByte(SpcSoundEffectOpcode instruction) =>
+        opcodes.First(pair => pair.Value == instruction).Key;
+
     /// <summary>Decodes uploaded SPC bytes into bounded instructions until End or RepeatForever.</summary>
     internal static AudioSoundProgramMetadata Decode(
         string id,
@@ -22,8 +39,7 @@ internal static class SpcSoundEffectProgramCodec
         for (int count = 0; count < SpcDriverDefinitions.ApuRamSize; count++)
         {
             byte opcode = ReadByte(ram, written, ref cursor, address);
-            var command = (SpcSoundEffectOpcode)opcode;
-            if (!Enum.IsDefined(command))
+            if (!opcodes.TryGetValue(opcode, out SpcSoundEffectOpcode command))
             {
                 // Every other byte begins a note packet whose first byte is the instrument.
                 byte[] arguments = new byte[5];
@@ -91,14 +107,14 @@ internal static class SpcSoundEffectProgramCodec
                     $"SPC sound program '{program.Id}' contains a null instruction at {index}.");
             (int opcode, int argumentCount, bool terminal) = instruction.Operation switch
             {
-                AudioSoundInstructionOperations.SetAdsr => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.SetAdsr, 4, false),
-                AudioSoundInstructionOperations.PitchSlideLegato => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.PitchSlideLegato, 2, false),
-                AudioSoundInstructionOperations.PitchSlide => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.PitchSlide, 2, false),
-                AudioSoundInstructionOperations.End => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.End, 0, true),
-                AudioSoundInstructionOperations.BeginRepeat => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.BeginRepeat, 1, false),
-                AudioSoundInstructionOperations.RepeatForever => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.RepeatForever, 0, true),
-                AudioSoundInstructionOperations.EndRepeat => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.EndRepeat, 0, false),
-                AudioSoundInstructionOperations.EnableNoise => new SoundEffectOpcodeShape((int)SpcSoundEffectOpcode.EnableNoise, 0, false),
+                AudioSoundInstructionOperations.SetAdsr => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.SetAdsr), 4, false),
+                AudioSoundInstructionOperations.PitchSlideLegato => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.PitchSlideLegato), 2, false),
+                AudioSoundInstructionOperations.PitchSlide => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.PitchSlide), 2, false),
+                AudioSoundInstructionOperations.End => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.End), 0, true),
+                AudioSoundInstructionOperations.BeginRepeat => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.BeginRepeat), 1, false),
+                AudioSoundInstructionOperations.RepeatForever => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.RepeatForever), 0, true),
+                AudioSoundInstructionOperations.EndRepeat => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.EndRepeat), 0, false),
+                AudioSoundInstructionOperations.EnableNoise => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.EnableNoise), 0, false),
                 AudioSoundInstructionOperations.PlayNote => new SoundEffectOpcodeShape(0, 5, false),
                 _ => throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' uses unknown operation '{instruction.Operation}'."),
@@ -121,7 +137,7 @@ internal static class SpcSoundEffectProgramCodec
             }
             if (instruction.Operation == AudioSoundInstructionOperations.PlayNote)
             {
-                if (Enum.IsDefined((SpcSoundEffectOpcode)instruction.Arguments[0]))
+                if (opcodes.ContainsKey(instruction.Arguments[0]))
                 {
                     throw new InvalidDataException(
                         $"SPC sound program '{program.Id}' playNote instrument ${instruction.Arguments[0]:X2} " +

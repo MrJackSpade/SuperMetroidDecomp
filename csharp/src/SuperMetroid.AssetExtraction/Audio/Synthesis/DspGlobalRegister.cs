@@ -1,36 +1,36 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
-/// <summary>The S-DSP's named global registers, valued by their register-file address.</summary>
+/// <summary>The S-DSP's named global registers; <see cref="SnesDspRegisterLayout"/> owns their register-file addresses.</summary>
 internal enum DspGlobalRegister
 {
     /// <summary>MVOLL: left master volume.</summary>
-    MasterVolumeLeft = 0x0c,
+    MasterVolumeLeft,
     /// <summary>MVOLR: right master volume.</summary>
-    MasterVolumeRight = 0x1c,
+    MasterVolumeRight,
     /// <summary>EVOLL: left echo volume.</summary>
-    EchoVolumeLeft = 0x2c,
+    EchoVolumeLeft,
     /// <summary>EVOLR: right echo volume.</summary>
-    EchoVolumeRight = 0x3c,
+    EchoVolumeRight,
     /// <summary>KON: key-on voice bits.</summary>
-    KeyOn = 0x4c,
+    KeyOn,
     /// <summary>KOFF: key-off voice bits.</summary>
-    KeyOff = 0x5c,
+    KeyOff,
     /// <summary>FLG: reset, mute, echo-write and noise-rate flags.</summary>
-    Flags = 0x6c,
+    Flags,
     /// <summary>ENDX: voice end flags, published by the DSP.</summary>
-    EndFlags = 0x7c,
+    EndFlags,
     /// <summary>EFB: echo feedback.</summary>
-    EchoFeedback = 0x0d,
+    EchoFeedback,
     /// <summary>PMON: pitch-modulation voice bits.</summary>
-    PitchModulation = 0x2d,
+    PitchModulation,
     /// <summary>NON: noise voice bits.</summary>
-    NoiseEnable = 0x3d,
+    NoiseEnable,
     /// <summary>EON: echo voice bits.</summary>
-    EchoEnable = 0x4d,
+    EchoEnable,
     /// <summary>DIR: BRR sample directory page.</summary>
-    SourceDirectory = 0x5d,
+    SourceDirectory,
     /// <summary>ESA: echo buffer page.</summary>
-    EchoBufferAddress = 0x6d,
+    EchoBufferAddress,
     /// <summary>EDL: echo delay.</summary>
-    EchoDelay = 0x7d,
+    EchoDelay,
 }

@@ -3,9 +3,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// <summary>Immutable lookup tables embedded in Super Metroid's uploaded music driver.</summary>
 internal static class SpcMusicTables
 {
-    /// <summary>Number of contiguous native effect opcodes from SetInstrument through SetFastForward.</summary>
-    internal const int EffectCount = (int)SpcMusicEffect.SetFastForward - (int)SpcMusicEffect.SetInstrument + 1;
-
     /// <summary>Returns the operand count for the zero-based native effect index 0..30.</summary>
     /// <remarks>
     /// Independently reviewed for #1165 against all NTSC J/U v1.0 bytes, pinned
@@ -18,9 +15,8 @@ internal static class SpcMusicTables
     /// </remarks>
     internal static byte EffectByteLength(int index)
     {
-        if ((uint)index >= EffectCount) throw new ArgumentOutOfRangeException(nameof(index));
-        int opcode = index + (int)SpcMusicEffect.SetInstrument;
-        return SuperMetroid.AssetExtraction.Cartridge.ClosedEnumWords.Decode<SpcMusicEffect>(opcode, "SPC music effect opcode") switch
+        if ((uint)index >= SpcMusicDefinitionCodec.EffectCount) throw new ArgumentOutOfRangeException(nameof(index));
+        return SpcMusicDefinitionCodec.DecodeEffect(index + SpcDriverDefinitions.Music.FirstEffect) switch
         {
             SpcMusicEffect.DisableVibrato or SpcMusicEffect.DisableTremolo or
             SpcMusicEffect.DisablePitchEnvelope or SpcMusicEffect.DisableEcho or

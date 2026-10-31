@@ -77,7 +77,7 @@ internal sealed class SpcMusicSequencer
     /// <summary>Consumes a following slide opcode immediately after a note when no slide is already active.</summary>
     private void CheckPitchSlideToNote(ManagedSpcMusicChannel channel)
     {
-        if (channel.PitchSlideLength != 0 || PeekSequenceByte(channel.PatternOrderPointer) != (byte)SpcMusicEffect.PitchSlide)
+        if (channel.PitchSlideLength != 0 || PeekSequenceByte(channel.PatternOrderPointer) != SpcMusicDefinitionCodec.EffectOpcode(SpcMusicEffect.PitchSlide))
             return;
         channel.PatternOrderPointer = SpcDriverWrap.Word(channel.PatternOrderPointer + 1);
         channel.PitchSlideDelayLeft = NextSequenceByte(ref channel.PatternOrderPointer);
@@ -90,13 +90,14 @@ internal sealed class SpcMusicSequencer
     internal void HandleEffect(ManagedSpcMusicChannel channel, int rawEffect)
     {
         int tableIndex = rawEffect - SpcDriverDefinitions.Music.FirstEffect;
-        if ((uint)tableIndex >= SpcMusicTables.EffectCount)
+        if ((uint)tableIndex >= SpcMusicDefinitionCodec.EffectCount)
             throw new InvalidDataException($"Unknown SPC music effect ${rawEffect:X2}.");
         int argument = SpcMusicTables.EffectByteLength(tableIndex) != 0
             ? NextSequenceByte(ref channel.PatternOrderPointer)
             : 0;
 
-        switch ((SpcMusicEffect)rawEffect)
+        SpcMusicEffect effect = SpcMusicDefinitionCodec.DecodeEffect(rawEffect);
+        switch (effect)
         {
             case SpcMusicEffect.SetInstrument:
                 SetInstrument(channel, argument);
@@ -176,7 +177,7 @@ internal sealed class SpcMusicSequencer
                 break;
             case SpcMusicEffect.PitchEnvelopeTo:
             case SpcMusicEffect.PitchEnvelopeFrom:
-                channel.PitchEnvelopeDirection = rawEffect == (byte)SpcMusicEffect.PitchEnvelopeTo
+                channel.PitchEnvelopeDirection = effect == SpcMusicEffect.PitchEnvelopeTo
                     ? (byte)1 : (byte)0;
                 channel.PitchEnvelopeDelay = argument;
                 channel.PitchEnvelopeTicks = NextSequenceByte(ref channel.PatternOrderPointer);
@@ -274,7 +275,7 @@ internal sealed class SpcMusicSequencer
                     command = NextSequenceByte(ref pointer);
                 if (command == SpcDriverDefinitions.Music.TieNote)
                     return false;
-                if (command == (byte)SpcMusicEffect.CallPattern)
+                if (command == SpcMusicDefinitionCodec.EffectOpcode(SpcMusicEffect.CallPattern))
                     pointer = _voices.ReadWord(pointer);
                 else if (command >= SpcDriverDefinitions.Music.FirstEffect)
                     pointer = AddWord(pointer, SpcMusicTables.EffectByteLength(command - SpcDriverDefinitions.Music.FirstEffect));
@@ -515,7 +516,7 @@ internal sealed class SpcMusicSequencer
                 {
                     MusicTrackControl.FastForwardOn => unchecked((byte)record),
                     MusicTrackControl.FastForwardOff => 0,
-                    _ => throw new InvalidOperationException($"Undefined {nameof(MusicTrackControl)} {(int)control}."),
+                    _ => throw new InvalidOperationException($"Undefined {nameof(MusicTrackControl)} {control}."),
                 };
             }
             else

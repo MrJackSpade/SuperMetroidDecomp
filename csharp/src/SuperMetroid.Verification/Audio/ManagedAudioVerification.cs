@@ -160,7 +160,7 @@ internal static class ManagedAudioVerification
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             ]);
         AddSpcUploadRecord(upload, channelPattern,
-            [(byte)SpcMusicEffect.ConfigureEcho, 0x02, 0x0a, 0x0a, 1, SpcDriverDefinitions.Music.RestNote]);
+            [checked((byte)SpcMusicDefinitionCodec.EffectOpcode(SpcMusicEffect.ConfigureEcho)), 0x02, 0x0a, 0x0a, 1, SpcDriverDefinitions.Music.RestNote]);
         AddSpcUploadRecord(
             upload,
             SpcDriverDefinitions.Echo.FirCoefficientTableAddress + 10 * SpcDriverDefinitions.Echo.FirTapCount,

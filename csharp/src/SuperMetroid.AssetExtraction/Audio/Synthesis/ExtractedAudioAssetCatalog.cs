@@ -383,7 +383,7 @@ public sealed class ExtractedAudioAssetCatalog
             _ = SpcMusicDefinitionCodec.EncodeProgram(program);
             foreach (AudioMusicInstructionMetadata instruction in program.Instructions)
             {
-                if (instruction.Opcode != (byte)SpcMusicEffect.CallPattern)
+                if (instruction.Opcode != SpcMusicDefinitionCodec.EffectOpcode(SpcMusicEffect.CallPattern))
                     continue;
                 int target = unchecked(
                     LittleEndianBytes.Word(instruction.Arguments[0], instruction.Arguments[1]));

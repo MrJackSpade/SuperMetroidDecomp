@@ -5,8 +5,8 @@ using SuperMetroid.Core.Bosses;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// What one enemy pass produced for the runtime to apply after EnemyMain. Each value is applied at the point the native
-/// code performs it; see <see cref="EnemyFramePhase"/>.
+/// What one enemy pass produced for the runtime to apply after EnemyMain. Each value is applied at the point the game
+/// performs it; see <see cref="EnemyFramePhase"/>.
 /// </summary>
 /// <param name="Elevator">The elevator lifecycle event, if any.</param>
 /// <param name="ElevatorClearedProjectileData">The elevator called <c>ResetProjectileData</c>; the bomb owner completes it.</param>

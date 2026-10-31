@@ -22,7 +22,7 @@ internal sealed class EnemyDrawList
     private readonly EnemyInstructionInterpreter _instructions;
     /// <summary>Runs Mother Brain's draw hook on its authored layer-five pass.</summary>
     private readonly MotherBrainBehavior _motherBrainBehavior;
-    /// <summary>Emits ordinary enemy spritemaps to OAM.</summary>
+    /// <summary>Emits ordinary enemy frames to the frame's sprites.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies installed extended frames and validates active room ownership.</summary>
     private readonly EnemyRoomBinding _room;
@@ -60,11 +60,11 @@ internal sealed class EnemyDrawList
     /// <summary>
     /// The simulation half of <c>WriteEnemyOams</c> for an inclusive layer range, in queue order: each queued
     /// enemy's shake tick is consumed while its origin is formed, and an extended enemy's boss body frame is
-    /// drawn. These run whenever the cartridge's draw pass runs, whether or not the frame is shown.
+    /// drawn. These run whenever the game's draw pass runs, whether or not the frame is shown.
     /// </summary>
     /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
-    /// <param name="firstLayer">First native draw layer, inclusively, in the range 0..7.</param>
-    /// <param name="lastLayer">Last native draw layer, inclusively, in the range 0..7 and not below firstLayer.</param>
+    /// <param name="firstLayer">First draw layer, inclusively, in the range 0..7.</param>
+    /// <param name="lastLayer">Last draw layer, inclusively, in the range 0..7 and not below firstLayer.</param>
     /// <exception cref="ArgumentOutOfRangeException">The inclusive layer range is invalid.</exception>
     public void AdvanceLayers(Position16<RoomPixels> camera, int firstLayer, int lastLayer)
     {
@@ -87,10 +87,10 @@ internal sealed class EnemyDrawList
                 // precedes the camera subtraction and wraps at sixteen bits.
                 Position16<ScreenPixels> origin = (slot.Position.Whole + slot.DrawOffset).ToScreen(camera);
 
-                // `WriteEnemyOAM` `$A0:947B-$9494` consumes one shake tick while forming
+                // Drawing an enemy consumes one shake tick while forming
                 // the shared origin for both ordinary and extended spritemaps. Bit one of
                 // the enemy's frame counter chooses -1 or +1; this is deliberately not the
-                // room's BG displacement. Ceres quake types >=$12 reload ShakeTimer for
+                // room's background displacement. Ceres quake types 18 and above reload ShakeTimer for
                 // every active enemy, which is why its ordinary door sprites visibly move
                 // with the station instead of remaining pinned to host screen space.
                 if (!slot.ShakeTimer.IsZero)
@@ -131,13 +131,13 @@ internal sealed class EnemyDrawList
 
     /// <summary>
     /// Publishes the draws <see cref="AdvanceLayers"/> prepared for the same layer range, in queue order, as
-    /// whole-frame entries over the gameplay OBJ page. An occupant's supplemental sprites and the layer-five boss hooks
-    /// still write OAM between them, in the cartridge's order.
+    /// whole-frame entries over the gameplay sprite page. An occupant's supplemental sprites and the layer-five boss hooks
+    /// still write sprites between them, in the game's order.
     /// </summary>
-    /// <param name="sprites">The frame's sprite description; the occupant and boss hooks write its OAM.</param>
+    /// <param name="sprites">The frame's sprite description; the occupant and boss hooks write its sprites.</param>
     /// <param name="camera">Layer-one camera position (viewport top-left) in whole room pixels.</param>
-    /// <param name="firstLayer">First native draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
-    /// <param name="lastLayer">Last native draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
+    /// <param name="firstLayer">First draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
+    /// <param name="lastLayer">Last draw layer, inclusively; the range <see cref="AdvanceLayers"/> prepared.</param>
     /// <exception cref="InvalidOperationException">The range was not prepared by <see cref="AdvanceLayers"/>.</exception>
     public void DrawLayers(
         SpriteFrameBuffer sprites,
@@ -205,7 +205,7 @@ internal sealed class EnemyDrawList
     }
 
     /// <summary>One queued enemy's draw, formed by <see cref="AdvanceLayers"/>.</summary>
-    /// <param name="Layer">The native draw layer it was queued on.</param>
+    /// <param name="Layer">The draw layer it was queued on.</param>
     /// <param name="Slot">The enemy.</param>
 
     /// <param name="Origin">Its shaken screen origin.</param>

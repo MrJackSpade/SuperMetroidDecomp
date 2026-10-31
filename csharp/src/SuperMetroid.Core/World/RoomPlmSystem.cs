@@ -23,19 +23,19 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Frame-steppable room PLM owner translating movement-triggered breakable terrain and its
-/// ROM-authored bank-$84 instruction lists.
+/// authored animation scripts.
 /// </summary>
 /// <remarks>
 /// A PLM is not a Samus animation. It is an independent room object which keeps running
-/// after the rope disconnects, owns collision/BTS mutation, and requests a BG1 redraw when
+/// after the rope disconnects, owns collision/BTS mutation, and requests a background redraw when
 /// an instruction changes its level word. Keeping this state outside <c>SamusGrappleState</c>
 /// is essential for the respawning block: Samus is long gone when its original word returns.
 ///
-/// The retail allocation contains 40 word-indexed slots ($00 through $4E) and searches from
-/// the highest slot downward. The C# array uses logical indices 0..39 but preserves that
-/// search and handler order. The translated opcode surface is deliberately limited to the
+/// The retail allocation contains 40 slots and searches from
+/// the highest slot downward. The C# array uses logical indices 0..39 and preserves that
+/// search and handler order. The translated step surface is deliberately limited to the
 /// collision-bomb, projectile-reaction bomb, and breakable-grapple lists. Encountering any
-/// other pointer fails instead of silently inventing an effect for a still-untranslated PLM
+/// other program fails instead of silently inventing an effect for a still-untranslated PLM
 /// family.
 /// </remarks>
 [RoomLifetime]
@@ -50,7 +50,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
     /// <summary>The game's event flags, which scripted room objects set.</summary>
     internal IGlobalEventFlags? Events { get; }
 
-    /// <summary>Forty native word-indexed PLM slots shared by the room's object families.</summary>
+    /// <summary>Forty word-indexed PLM slots shared by the room's object families.</summary>
     internal PlmSlotTable SlotTable { get; }
 
     /// <summary>Queues sound requests emitted by room object instructions.</summary>
@@ -194,7 +194,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
             if (slot.Family is { } family && _families.Step(slot, family, context) == PlmStepOutcome.Consumed)
                 continue;
 
-            // Native JSR ($1CD7,x): the slot's one pre-instruction. A routine it installs runs from the next pass.
+            // The slot's one frame behaviour. A routine it installs runs from the next pass.
             slot.FrameBehavior.Run(slot, context);
             if (!slot.Active)
                 continue;
@@ -210,7 +210,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
     }
 
     /// <summary>
-    /// Releases the slot. Native lists and typed programs end a PLM the same way.
+    /// Releases the slot. Lists and typed programs end a PLM the same way.
     /// </summary>
     internal void DeletePlm(PlmSlot slot)
     {

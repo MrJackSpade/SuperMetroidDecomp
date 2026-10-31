@@ -12,7 +12,7 @@ using SuperMetroid.Core.Fx.Artwork;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// Owns the four bank-$87 statue tile programs and the bank-$88 descending BG2
+/// Owns the four statue tile programs and the descending BG2
 /// pre-instructions. Boss victories and grey-statue events are deliberately separate:
 /// visiting the room must play each release before opening the elevator route.
 /// </summary>
@@ -94,7 +94,7 @@ public sealed class TourianStatueSequence
         /// <summary>Ends the program, deleting the object.</summary>
         internal void Stop() => Cursor = null;
     }
-    /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches native slot traversal and busy-bit ownership.</summary>
+    /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches slot traversal and busy-bit ownership.</summary>
     internal readonly List<TileObject> objects = [];
     /// <summary>Minus two waits for all grey events; nonnegative values count down the authored pre-descent hold.</summary>
     private int delay = -2;
@@ -153,7 +153,7 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>
-    /// Translates the four LDY/JSL calls directly. Native allocation
+    /// Spawns the four statue objects in order. Allocation
     /// and handler traversal both descend through slots, so insertion order also
     /// preserves execution order and which statue can acquire the shared busy bit.
     /// </summary>
@@ -177,7 +177,7 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>
-    /// Runs AnimtilesHandler in native spawn order: each live statue counts its frame down and, when it expires,
+    /// Runs AnimtilesHandler in spawn order: each live statue counts its frame down and, when it expires,
     /// advances its typed program to the next shown picture, running the program's cues on the way.
     /// </summary>
     public void StepTiles()
@@ -287,7 +287,7 @@ public sealed class TourianStatueSequence
         if (_freeze.TimeIsFrozen) return;
         Descent += TourianStatueSequenceDefinitions.DescentStep;
         _enemies.TourianStatue.VerticalOffset = VerticalOffset;
-        // $88:DC90 compares the whole word against $FF10, which it first reaches
+        // The statue's descent compares the whole position against its end value, which it first reaches
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueSequenceDefinitions.DescentDistance)
         {

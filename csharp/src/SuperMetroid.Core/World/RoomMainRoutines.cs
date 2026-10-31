@@ -48,7 +48,7 @@ internal sealed class RoomMainRoutines
     }
 
     /// <summary>
-    /// Reconstructs the one side effect still owned by the native door-transition caller.
+    /// Reconstructs the one side effect still owned by the door-transition caller.
     /// This host resumes gameplay immediately after loading the destination, so the arriving
     /// downward actor can cross its pseudo-door while statuses two/three are visible to
     /// state eight. Retain its moving beta handler, but permit its type-$9 handler to
@@ -58,12 +58,12 @@ internal sealed class RoomMainRoutines
     internal static bool ShouldPublishFacingForwardElevatorDoorSideEffects(
         ElevatorActorStatus status) => status == ElevatorActorStatus.Departing;
 
-    /// <summary>Most recent <c>$89:ACC3</c> room-main call.</summary>
+    /// <summary>Most recent Ceres elevator shaft room-main call.</summary>
     public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; internal set; }
 
     /// <summary>
     /// <c>AnimatedTilesObject_Handler</c>: gameplay and the door
-    /// transition's $82:E659 and every $82:E737 fade step call it. XraySetup's
+    /// transition's scroll and every fade step call it. XraySetup's
     /// Disable_AnimatedTilesObjects freezes every object until the scope ends.
     /// </summary>
     internal void RunAnimatedTilesObjectHandler(RoomScope room)
@@ -76,12 +76,12 @@ internal sealed class RoomMainRoutines
             room.TreadmillTiles.Step(_system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss), room.ArtworkFrames);
         room.TourianStatues.StepTiles();
 
-        // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its
+        // The Wrecked Ship treadmill door code creates an ordinary animated-tile object. Its
         // handler shows one treadmill frame a pass only after Phantoon's area-boss bit is set.
         if (room.WreckedShipTreadmill.IsActive)
         {
             AreaId areaIndex = _room.ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
-                "A live Wrecked Ship treadmill animation has no active cartridge room.");
+                "A live Wrecked Ship treadmill animation has no active room.");
             room.WreckedShipTreadmill.Step(
                 _system.HasAnyBossBits(areaIndex, BossBits.AreaBoss),
                 room.ArtworkFrames);
@@ -90,16 +90,16 @@ internal sealed class RoomMainRoutines
 
     /// <summary>
     /// Implements the complete visibility test in <c>SamusDisplayHandler_UsingElevator</c>
-    /// at <c>$90:EC14</c>. The retail handler returns on odd frames and calls the fatal/no-
+    /// at the elevator display handler. The retail handler returns on odd frames and calls the fatal/no-
     /// animation body renderer on even frames, producing the deliberate 30 Hz elevator
     /// flicker. Keeping the predicate named prevents host display cadence (including RDP)
-    /// from being mistaken for the cartridge-authored effect.
+    /// from being mistaken for the original game-authored effect.
     /// </summary>
     internal static bool ShouldDrawSamusOnElevator(int frameCounter) =>
         (frameCounter & 1) == 0;
 
     /// <summary>
-    /// Executes Falling Tile room main <c>$8F:E525-$E550</c>. It samples the existing RNG
+    /// Executes the Falling Tile room main. It samples the existing RNG
     /// word rather than generating a new one, preserving subsequent random consumers.
     /// </summary>
     internal void RunCeresFallingDebrisRoomMain(RoomScope room)

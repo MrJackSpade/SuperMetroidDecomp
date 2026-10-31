@@ -5,7 +5,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The room FX as room PLMs use it (#1395). Bank $84 writes the shared liquid words Samus reads; the port keeps Samus's
+/// The room FX as room PLMs use it (#1395). PLMs write the shared liquid values Samus reads; the port keeps Samus's
 /// copy of the liquid options, so enabling water physics writes both in the same operation.
 /// </summary>
 internal sealed class RoomPlmFx(RoomLayer3FxState fx, Func<SamusState?> samus) : IRoomPlmFx

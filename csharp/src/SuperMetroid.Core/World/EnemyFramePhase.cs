@@ -35,7 +35,7 @@ internal sealed class EnemyFramePhase
     private readonly ActiveRoomState _room;
 
 
-    /// <summary>Binds gameplay owners that exchange state at the native EnemyMain frame boundary.</summary>
+    /// <summary>Binds gameplay owners that exchange state at the EnemyMain frame boundary.</summary>
     internal EnemyFramePhase(EnemyFramePhaseDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
@@ -54,16 +54,16 @@ internal sealed class EnemyFramePhase
     {
         if (_room.Camera is not null && room.Enemies.IsLoaded)
         {
-            // Samus's bank-$94 collision phase follows EnemyMain. A pseudo-door contact
-            // published last frame therefore becomes `$0E16=1` immediately before this
-            // frame's elevator actor dispatcher, preserving the native producer order.
+            // Samus's collision phase follows EnemyMain. A pseudo-door contact
+            // published last frame therefore arms the elevator immediately before this
+            // frame's elevator actor dispatcher, preserving the producer order.
             if (_room.LevelData?.ConsumeElevatorDoorContact() == true)
                 room.Enemies.Elevator.PublishElevatorDoorContact();
             if (_player.Samus is not null)
             {
-                // `$94:9B60-$9B72` clears all four external-displacement words before
+                // The frame start clears all four external-displacement values before
                 // EnemyMain. Rideable enemies then accumulate accepted platform deltas and
-                // bank `$90` consumes those live values during Samus movement below. They
+                // Samus's movement consumes those live values below. They
                 // are producer-owned words, so movement deliberately does not clear them.
                 _player.Samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
             }
@@ -72,7 +72,7 @@ internal sealed class EnemyFramePhase
 
     /// <summary>Runs EnemyMain after Samus alpha and projectiles, then applies enemy-authored palette, scroll, escape, per-line effect, and player handoffs before beta movement.</summary>
     /// <param name="processingList">
-    /// True in game state eight, whose frame start already ran $A0:8EB6. Door-transition
+    /// True in game state eight, whose frame start already built the processing list. Door-transition
     /// enemy passes build the list immediately before EnemyMain instead.
     /// </param>
     /// <param name="samusPreviousPositionCheckpoint">
@@ -94,7 +94,7 @@ internal sealed class EnemyFramePhase
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
                 // MakeSamusFaceForward ends by reloading the suit palette. The actor
-                // clears flare/projectile state, but cannot restore runtime-owned CGRAM.
+                // clears flare/projectile state, but cannot restore runtime-owned colours.
                 // Without this write, cancelling charge leaves its last flashing colors
                 // behind after the palette handler becomes inactive.
                 _player.IntroducedSamus.Presentation.LoadSuitPalette(_player.IntroducedSamus, _player.Colours);
@@ -123,14 +123,14 @@ internal sealed class EnemyFramePhase
             }
             if (result.CeresEscapeStarted)
             {
-                // $A6:C117 starts the escape timer on the same EnemyMain call that changes
+                // Ceres Ridley starts the escape timer on the same EnemyMain call that changes
                 // ceres_status from one to two; the actor sets the boss bit itself.
                 _enemyRoomEffects.StartCeresEscape();
             }
             if (result.LayerOneXOverride is int layerOneX)
             {
                 int shitroidCameraX = Ensure.BetweenInclusive(0, ushort.MaxValue, layerOneX);
-                // `$A9:EFE6` writes layer1_x_pos during EnemyMain, before the ordinary
+                // The Shitroid writes layer one's X position during EnemyMain, before the ordinary
                 // scrolling routine later in this frame. Do not route it through entry
                 // placement, which would clear subposition and ideal-camera state.
                 _room.Camera.SetLayerOneXFromEnemyAi(Ensure.BetweenInclusive(0, ushort.MaxValue, shitroidCameraX));
@@ -141,14 +141,14 @@ internal sealed class EnemyFramePhase
                 room.Layer3Fx.StopLiquidMotion();
             if (result.ElevatorClearedProjectileData)
             {
-                // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary
+                // The elevator clears all ten projectile slots and their counters. Ordinary
                 // beam/missile slots were reset inside the actor call; bombs and the shared
                 // cooldown live in this companion owner and complete that same operation.
                 room.BombProjectiles.Reset();
             }
-            // `$A6:A2DF` does not install the post-enemy hook until Ridley's animation word
-            // becomes nonzero. Before the reveal it branches directly into `$A6:A2E3`
-            // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
+            // Ceres Ridley does not install the post-enemy hook until his animation
+            // starts. Before the reveal he draws the Baby and door directly
+            // during EnemyMain, so emit the Baby/door sprites now, before queued enemy layers.
             room.Enemies.Ceres.DrawCeresRidleyImmediateBabyAndDoor(
                 _sprites,
                 _room.Camera.PixelPosition);
@@ -166,7 +166,7 @@ internal sealed class EnemyFramePhase
                 }
                 else if (result.Gunship == GunshipFrameEvent.LandingCompleted)
                 {
-                    // `$A2:A987` restores the ordinary Samus handler pair only after the
+                    // The gunship restores the ordinary Samus handler pair only after the
                     // closing-pad hold. Enemy AI has already restored Samus's normal pair;
                     // publish the runtime's matching movement gate at the same boundary.
                     _player.GroundedSamusMovementEnabled = true;

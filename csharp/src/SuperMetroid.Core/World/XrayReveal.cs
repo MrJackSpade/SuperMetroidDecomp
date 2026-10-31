@@ -18,7 +18,7 @@ internal sealed class XrayReveal
     /// <summary>Supplies system flags that affect revealed overlays.</summary>
     private readonly SharedGameState _system;
     /// <summary>
-    /// The frozen reveal map, owned here (#1406). The cartridge built it in the tilemap staging its library backgrounds
+    /// The frozen reveal map, owned here (#1406). The original game built it in the tilemap staging its library backgrounds
     /// decompress into; nothing reads one through the other, so the map is its own state.
     /// </summary>
     private readonly RevealedBlock?[] _revealedBlocks = new RevealedBlock?[XrayRevealLayout.Cells];
@@ -40,8 +40,8 @@ internal sealed class XrayReveal
     /// <summary>
     /// Setup call four's reveal construction, run before the setup stage advances. The reveal map is
     /// owned state, so state saves retain it and rendering never reruns game logic to synthesize a replacement. Its base
-    /// copy reads the BG1 plane's blocks the room shows from level data (#1351, #1431), where the cartridge read two BG1
-    /// screens back out of VRAM on the two setup calls before; time is frozen across them.
+    /// copy reads the foreground plane's blocks the room shows from level data (#1351, #1431), where the original game read
+    /// two foreground screens back from the displayed background on the two setup calls before; time is frozen across them.
     /// </summary>
     internal void BuildXrayRevealMap(IRoomPlms plms)
     {

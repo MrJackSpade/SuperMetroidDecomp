@@ -28,7 +28,7 @@ internal sealed class AcceptedFrameBoundary
 {
     /// <summary>Latches the controllers and advances the frame counters after publication.</summary>
     private readonly AcceptedFrameInput _input;
-    /// <summary>Publishes rebound beam art after accepted VRAM transfers.</summary>
+    /// <summary>Publishes rebound beam art after the frame's accepted artwork transfers.</summary>
     private readonly RuntimeArtwork _artwork;
     /// <summary>Captures the BG1 and BG2 scroll registers visible with the frame boundary.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
@@ -48,7 +48,7 @@ internal sealed class AcceptedFrameBoundary
     private readonly GameplayScreenLayers _screenLayers;
     /// <summary>Sprite frame the update finalized for the next frame boundary.</summary>
     private readonly SpriteFrameBuffer _sprites;
-    /// <summary>Supplies Samus graphics DMA for frame boundary transfers.</summary>
+    /// <summary>Supplies Samus's per-frame graphics for frame boundary transfers.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Supplies the room's fixed colour.</summary>
     private readonly RoomFxSession _roomFx;
@@ -112,15 +112,14 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     internal void PublishWhileLoading() => PublishAcceptedFrameTransfers();
 
-    /// <summary>The OAM, Samus, video-queue and register publication of $80:959E..$80:95DE.</summary>
+    /// <summary>Publishes the frame's sprites, Samus's graphics, queued artwork and the rotating-view state, in that order.</summary>
     private void PublishAcceptedFrameTransfers()
     {
-        // Preserve $80:95A1 -> $80:95D0 -> $80:95E1 order: dedicated Samus graphics
-        // DMA precedes the general video queue, and both precede controller latching.
-        // $80:959E uploads the finalized main-loop OAM image immediately before that
-        // Samus DMA. `$80:95A7` subsequently copies the Mode 7 shadow words to
-        // $211B..$2120. Retain both displayed values so software rendering sees one
-        // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
+        // Preserve this order: Samus's dedicated graphics transfer precedes the general
+        // artwork queue, and both precede controller latching. The finished sprite list is
+        // published immediately before Samus's graphics, and the rotating-view matrix
+        // after them. Retain both displayed values so rendering sees one coherent frame
+        // instead of combining old sprites with a newer room-main matrix.
         _displayedSprites.LatchFrom(_sprites);
         _screenLayers.Latch();
         var displayScroll = new GameplayRenderSnapshot(
@@ -158,7 +157,7 @@ internal sealed class AcceptedFrameBoundary
         // The planes' blocks show the pictures named by what gameplay has shown so far (#1392, #1466).
         if (_display.Latched.Rooms is { } rooms)
             _display.Latched = WithBlockPictures(_display.Latched, rooms, reveal);
-        // A rebound snapshot may retain old CGRAM; apply current content only at this frame boundary.
+        // A rebound snapshot may retain old colours; apply current content only at this frame boundary.
         _artwork.PublishReboundBeamPalette();
     }
 
@@ -181,7 +180,7 @@ internal sealed class AcceptedFrameBoundary
 
     /// <summary>
     /// The Ceres perspective floor this frame shows: the floor Ceres Ridley's getaway flies over while he flies it (his
-    /// room main <c>$A6:AAAF</c> computes it), otherwise the elevator shaft's while the shaft has its transform. The
+    /// room main computes it), otherwise the elevator shaft's while the shaft has its transform. The
     /// shaft's transform exists exactly while the room was entered through the shaft's door.
     /// </summary>
     /// <param name="layer1Scroll">Layer 1's scroll this frame shows, which scrolls the shaft's floor.</param>

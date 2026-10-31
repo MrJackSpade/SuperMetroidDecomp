@@ -56,13 +56,13 @@ internal sealed class PlmFramePhase
     /// </summary>
     /// <remarks>
     /// The ordinary frame dispatcher intentionally suppresses PLMs while the shared
-    /// door/elevator freeze flag is set. This call is the cartridge's one exception: it
+    /// door/elevator freeze flag is set. This call is the game's one exception: it
     /// advances freshly loaded room setup lists once before the destination fades in.
     /// </remarks>
     internal void RunDoorTransitionPlmHandler(RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
-        // The explicit transition-time call still enters the common bank-$84 handler,
-        // whose first instruction returns while native PLM word `$1C23` is disabled.
+        // The explicit transition-time call still enters the common handler,
+        // whose first step returns while the PLM handler is disabled.
         // Indirect G-Mode deliberately carries that disabled word across the door.
         if (_player.Samus?.Xray.ArePlmsSuspended == true)
             return;
@@ -84,7 +84,7 @@ internal sealed class PlmFramePhase
     }
 
     /// <summary>
-    /// Runs the shared bank-$84 handler body used by ordinary gameplay and the explicit
+    /// Runs the shared handler body used by ordinary gameplay and the explicit
     /// transition-time call. Player-facing events remain with each caller because the
     /// transition path cannot legitimately collect an item or activate a station.
     /// </summary>
@@ -103,19 +103,19 @@ internal sealed class PlmFramePhase
     /// <summary>Runs the ordinary PLM phase when gameplay permits it, then applies pickups, station messages, and spawned projectiles.</summary>
     internal void RunPlmPhase(bool deathOwnsSamus, SamusState samus, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
-        // Native gameplay state eight reaches PLM_Handler after Samus's new-state and
+        // Gameplay state eight reaches PLM_Handler after Samus's new-state and
         // enemy-projectile passes but before MainScrollingRoutine. A grapple block
-        // acquired above therefore consumes its initial timer and draws $E0B7 in this
+        // acquired above therefore consumes its initial timer and draws its first frame in this
         // same frame; when it later becomes air, anchor validation has already run and
         // sees that mutation on the following Samus frame.
         if (!deathOwnsSamus && !_freeze.TimeIsFrozen && !samus.Xray.ArePlmsSuspended)
         {
             RunPlmHandlerCore(_controller1.NewlyPressed, plms, bombProjectiles, room);
 
-            // Item PLMs publish acquisition only after their native trigger and
+            // Item PLMs publish acquisition only after their trigger and
             // handler pass. Apply the hardware-facing consequences at that same seam:
             // beam combinations replace the projectile character/palette staging, and
-            // suit changes defer their visible palette reveal until bank-$88 stage
+            // suit changes defer their visible palette reveal until stage
             // three after the message. Resource tanks and other equipment bits are
             // consumed directly by the HUD/movement owners.
             foreach (CollectiblePickupEvent pickup in plms.CollectiblePlms.CollectiblePickupEvents)
@@ -147,7 +147,7 @@ internal sealed class PlmFramePhase
                 {
                     throw new InvalidDataException(
                         "Multiple permanent items attempted to enter the synchronous " +
-                        "bank-$85 message routine during one PLM pass.");
+                        "message box during one PLM pass.");
                 }
                 _messageBox.Begin(pickup.MessageBoxIndex, _controller1.Current);
             }
@@ -186,8 +186,8 @@ internal sealed class PlmFramePhase
                 if (_messageBox.IsActive)
                 {
                     throw new InvalidDataException(
-                        "Multiple PLMs attempted to enter the synchronous bank-$85 " +
-                        "message routine during one handler pass.");
+                        "Multiple PLMs attempted to open the synchronous message box " +
+                        "during one handler pass.");
                 }
                 _messageBox.Begin(station.MessageBoxIndex, _controller1.Current);
             }

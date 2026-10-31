@@ -12,11 +12,11 @@ internal sealed class EscapeRoomEffects
 {
     /// <summary>Suppresses explosion generation while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Sets the native two- or four-frame explosion cadence.</summary>
+    /// <summary>Sets the two- or four-frame explosion cadence.</summary>
     private readonly FrameClock _clock;
     /// <summary>Provides the active room callback, camera and level.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Supplies the cartridge random sequence and Zebes timebomb event.</summary>
+    /// <summary>Supplies the original game random sequence and Zebes timebomb event.</summary>
     private readonly SharedGameState _system;
 
     /// <summary>Binds room, enemy, freeze, clock, and system owners used by escape callbacks.</summary>
@@ -27,10 +27,10 @@ internal sealed class EscapeRoomEffects
         _room = room;
         _system = system;
     }
-    /// <summary>Initializes the selected room's quake and clears diagonal countdowns only for the two native switchers.</summary>
+    /// <summary>Initializes the selected room's quake and clears diagonal countdowns only for the two switchers.</summary>
     internal void SetupEscapeRoomEffects(RoomSetupCallback setup, RoomEnemySystem enemies, EscapeDiagonalQuakeState diagonalQuake)
     {
-        // $8F:C93C/$C964 clear the diagonal countdown for the two rooms whose mains switch quake types; the other
+        // The two rooms whose mains switch quake types clear the diagonal countdown in their setup; the other
         // setups leave the countdown the previous room's main left.
         if (setup is RoomSetupCallback.SetLightHorizontalRoomShaking or
             RoomSetupCallback.SetupEscapeRoom4PlmAndMediumHorizontalShaking)
@@ -70,7 +70,7 @@ internal sealed class EscapeRoomEffects
             _system.SetEvent(SuperMetroid.Core.Progression.EventNumber.ZebesTimebombSet);
     }
 
-    /// <summary>Dispatches the escape room-main callbacks at the native post-draw boundary.</summary>
+    /// <summary>Dispatches the escape room-main callbacks at the post-draw boundary.</summary>
     internal void StepEscapeRoomEffects(RoomScope room)
     {
         RoomEnemySystem enemies = room.Enemies;

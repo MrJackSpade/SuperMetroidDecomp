@@ -115,10 +115,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The <see cref="EnemyProcessingWindow"/> owner of this RoomEnemySystem.</summary>
     internal EnemyProcessingWindow ProcessingWindow { get; }
 
-    /// <summary>The room's bank-$B4 enemy graphics set.</summary>
+    /// <summary>The room's enemy graphics set.</summary>
     internal EnemyGraphicsSet GraphicsSet { get; }
 
-    /// <summary>Puts populations into slots and runs their banked AI.</summary>
+    /// <summary>Puts populations into slots and runs their AI.</summary>
     internal EnemySlotDispatch Dispatch { get; }
 
     /// <summary>The <see cref="GunshipBehavior"/> owner of this RoomEnemySystem.</summary>
@@ -572,7 +572,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// </summary>
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
     /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
-    /// <param name="services">The cartridge-state services the room's AI calls, or null when none is supplied.</param>
+    /// <param name="services">The original game-state services the room's AI calls, or null when none is supplied.</param>
     /// <param name="bossArtwork">The session's installed boss artwork, or null for a system with its own, empty binding.</param>
     /// <param name="areaArtwork">The session's installed area artwork, or null for a system with its own, empty binding.</param>
     internal RoomEnemySystem(EnemySession session,
@@ -703,7 +703,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity));
         AtomicBehavior = new AtomicBehavior();
         AlcoonBehavior = new AlcoonBehavior(Room, Terrain, Projectiles, Audio);
-        // Every species with room or frame lifecycle state, in the cartridge reset order.
+        // Every species with room or frame lifecycle state, in the original game reset order.
         _species =
         [
             ShitroidBehavior,
@@ -871,9 +871,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RinkaBehavior.SetRinkaCamera(request.Camera);
         ShuttersBehavior.BeginShutterFrame(request.Camera);
 
-        // $A0:8A6D does not even inspect the room's enemy set when the first population
+        // Enemy loading does not even inspect the room's enemy set when the first population
         // word is the terminator. This is observable: an empty room must not overwrite
-        // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
+        // the room's colours or enemy artwork merely because its state happens to retain a non-empty enemy set.
         RoomEnemyPopulationDefinition population = request.Population;
         if (!population.Records.IsEmpty)
             GraphicsSet.LoadGraphicsSet(definitions, request.GraphicsSet, request.Colours.SpriteSets);
@@ -884,7 +884,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     }
 
     /// <summary>
-    /// Runs one native enemy pass: executes selected AI and instruction lists, publishes
+    /// Runs one enemy pass: executes selected AI and instruction lists, publishes
     /// live collision bodies and frame requests, and builds queues for the later draw phase.
     /// </summary>
     /// <param name="frame">What one enemy pass reads from the rest of the frame: the camera, Samus and her projectiles, controller input, clocks and the room systems enemies touch (#633).</param>
@@ -912,7 +912,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
         foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
         {
-            // EnemyMain $A0:9021-$902E decrements tangible actors' invincibility
+            // EnemyMain decrements tangible actors' invincibility
             // before checking time freeze. X-ray therefore stops their movement but
             // not this clock. Remember the entry value: the call that reaches zero
             // still skips collision, and a new AI-owned timer must not lose a tick.
@@ -921,10 +921,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 slot.InvincibilityTimer = slot.InvincibilityTimer.Decrement().Remaining;
             // EnemyMain checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
-            // bank $90 consumes the carry; a late touch pass would retrigger that support.
+            // Samus's movement consumes the carry; a late touch pass would retrigger that support.
             if (!frame.TimeIsFrozen && !invincibleAtEntry && frame.ResolveSamusContactBeforeAi && frame.Samus is not null)
             {
-                // Native extended collision runs projectiles before bombs/touch and
+                // Extended collision runs projectiles before bombs/touch and
                 // before selecting hurt/main AI. In particular, a retained Plasma
                 // hit must publish Phantoon's hurt clock before this frame ticks it.
                 if (slot.Entity is IEnemyContactHooks hooks)
@@ -932,7 +932,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 if (frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
                     Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles,
                         frame.Samus, slot);
-                // Alpha already updated the bomb slots. Native EnemyMain checks
+                // Alpha already updated the bomb slots. EnemyMain checks
                 // them before this actor's touch and AI, so escape starts now.
                 if (frame.SharedProjectiles is not null && frame.SamusProjectiles is not null)
                     Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, slot);
@@ -948,8 +948,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             {
                 bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(slot, aiFrame);
                 // Hurt AI replaces main AI while the hurt bit is set; the first registered match runs.
-                // Native selects the lowest AI bit even when its handler is just
-                // RTL. Hurt therefore delays frozen AI until flash housekeeping
+                // Selects the lowest AI bit even when its handler is just
+                // a bare return. Hurt therefore delays frozen AI until flash housekeeping
                 // clears bit two; falling through here prematurely clears flash.
                 if (!ranActorAi &&
                     (slot.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None &&
@@ -958,7 +958,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     hurt(slot, frame);
                     ranActorAi = true;
                 }
-                // $A0:9044 selects the handler from the lowest set AI bit alone. A frozen
+                // EnemyMain selects the handler from the lowest set AI bit alone. A frozen
                 // clock without bit four (a Geruta flame sharing its parent's freeze)
                 // still runs main AI.
                 if (!ranActorAi && (slot.AiStates & EnemyAiStates.Frozen) != EnemyAiStates.None)
@@ -993,7 +993,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     }
                     foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
                         handler(slot);
-                    // The native frame clock advances after every selected AI call,
+                    // The frame clock advances after every selected AI call,
                     // including frozen AI. Instruction gating below remains separate.
                     ranActorAi = true;
                 }
@@ -1006,7 +1006,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 if (ranActorAi)
                 {
                     slot.FrameCounter = WrappingCounter.IncrementWord(slot.FrameCounter);
-                    // `$A0:8FF7` skips the instruction interpreter whenever frozen bit
+                    // EnemyMain skips the animation script whenever frozen bit
                     // four is present, even if lower-priority hurt bit two selected an
                     // enemy-specific hurt callback above. Testing only `ranActorAi` here
                     // incorrectly advanced a Metroid's body animation while its frozen
@@ -1023,7 +1023,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             }
 
             // EnemyMain queues ordinary-sprite actors only after AI and instruction work.
-            // Properties $0100/$0200 suppress drawing, while extra-property bit $0004 can
+            // The two hide-drawing properties suppress drawing, while the always-queue extra property can
             // force an otherwise off-screen actor into the queue. Gunship uses the normal
             // radius-aware visibility test.
             bool visible = slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) ||
@@ -1031,13 +1031,13 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
             if (visible && !slot.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
                 Drawing.Enqueue(slot.Layer & 7, slot);
 
-            // $A0:9128 performs this after the enemy has been admitted to its draw queue.
+            // EnemyMain performs this after the enemy has been admitted to its draw queue.
             // Keeping it here also makes the boss's latched draw palettes describe the
             // frame just processed rather than the already-decremented following frame.
             if (!frame.TimeIsFrozen && !slot.FlashTimer.IsZero)
             {
                 slot.FlashTimer = slot.FlashTimer.Decrement().Remaining;
-                // `$A0:9128` clears hurt dispatch once the post-decrement timer is below
+                // EnemyMain clears hurt dispatch once the post-decrement timer is below
                 // eight. This is a signed comparison and applies even when another AI bit
                 // remains set; omitting it would strand Metroid in custom hurt forever.
                 if (slot.FlashTimer.EndsWithin(8))
@@ -1073,8 +1073,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     public RoomShakeFrameResult HandleRoomShaking(bool timeIsFrozen)
     {
         Room.EnsureLoaded();
-        // This runs after drawing on the cartridge, so the two-frame actor timer becomes visible
-        // on the following frame rather than retroactively changing already-emitted OAM.
+        // This runs after drawing on the original game, so the two-frame actor timer becomes visible
+        // on the following frame rather than retroactively changing already-emitted sprites.
         if (Earthquake.Advance(timeIsFrozen))
         {
             foreach (RoomEnemySlot slot in ProcessingWindow.ActiveEnemies)
@@ -1185,7 +1185,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         CeresRidleyBehavior.Hits.AddCeresRidleyBombReactions(table);
         BombTorizoBehavior.Combat.AddBombTorizoBombReactions(table);
 
-        // `$A9:B503` is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and the
+        // The body callback is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and the
         // body callback performs no health, phase, or multipart-state work of its own.
         MotherBrainCombat.AddMotherBrainBodyBombReactions(table);
         MotherBrainBehavior.Combat.AddMotherBrainBombReactions(table);
@@ -1198,7 +1198,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         MaridiaLargeSnailBehavior.AddMaridiaLargeSnailBombReactions(table);
         RipperBehavior.AddRipperBombReactions(table);
         DragonBehavior.AddDragonBombReactions(table);
-        // `$A3:8B0F` restores the dying actor's graphics long enough to seed four debris actors, then clears both
+        // The metal-debris death restores the dying actor's graphics long enough to seed four debris actors, then clears both
         // words. The host death flag does not erase the record, so the exact source remains here.
         MetareeBehavior.AddMetareeBombReactions(table);
         FirefleaBehavior.AddFirefleaBombReactions(table);
@@ -1225,7 +1225,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         OwtchBehavior.AddOwtchBombReactions(table);
 }
 
-    /// <summary>Maps banked power-bomb reaction pointers for each supported species.</summary>
+    /// <summary>Maps the species' own power-bomb reactions for each supported species.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations. Matches are mutually exclusive: each names its
     /// definition and header reaction.</remarks>
@@ -1233,7 +1233,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     {
         // These headers name their own reactions instead of falling through common power-bomb damage. The ignoring
         // reaction intentionally does nothing; the shutter reactions only run their trigger state machines. All still
-        // receive the native process-off-screen bit after a qualifying ellipse overlap.
+        // receive the process-off-screen bit after a qualifying ellipse overlap.
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy =>
             EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.Ignore)
         {
@@ -1373,11 +1373,11 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         MetroidBehavior.AddMetroidShotReactions(table);
         YardBehavior.AddYardShotReactions(table);
 
-        // `$A3:8B0F` saves these graphics words around common shot AI, uses them for four metal debris actors on
+        // The metal-debris shot handler saves these graphics words around common shot AI, uses them for four metal debris actors on
         // death, then clears the dead body. Spawning before the clears preserves that exact graphics index.
         MetareeBehavior.AddMetareeShotReactions(table);
 
-        // $A3:C7F5 adds Skree's four debris actors after the shared normal shot handler reports death, before the
+        // Skree's shot handler adds its four debris actors after the shared normal shot handler reports death, before the
         // common death animation releases the enemy slot.
         SkreeBehavior.AddSkreeShotReactions(table);
         FirefleaBehavior.AddFirefleaShotReactions(table);
@@ -1467,7 +1467,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>
     /// Publishes enemy-authored target colors to the current room-fade owner. Only written
     /// entries are transferred: untouched HUD, suit, and room rows retain their own targets.
-    /// Current CGRAM must not be changed by instructions which target the fade buffer.
+    /// The current colours must not be changed by instructions which target the fade buffer.
     /// </summary>
     internal void ConsumeTargetPaletteWrites(Action<SporeSpawnStagedColour> write)
     {

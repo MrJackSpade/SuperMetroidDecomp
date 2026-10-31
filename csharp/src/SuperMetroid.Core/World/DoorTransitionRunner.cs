@@ -59,12 +59,12 @@ internal sealed class DoorTransitionRunner
         _system = dependencies.System;
     }
     /// <summary>
-    /// Runs the setup routine named by the active bank-$83 door header after PLM creation.
+    /// Runs the setup routine named by the active door header after PLM creation.
     /// </summary>
     /// <remarks>
-    /// Native <c>LoadMoreThings</c> calls the door's bank-$8F routine between room-object
+    /// <c>LoadMoreThings</c> calls the door's routine between room-object
     /// construction and the first visible destination viewport. These routines are shared
-    /// cartridge programs, not room-name patches: every door that points at a translated
+    /// programs, not room-name patches: every door that points at a translated
     /// address receives the same writes. Unknown nonzero pointers throw so missing camera
     /// boundary behavior can never masquerade as a successful room load.
     /// </remarks>
@@ -84,9 +84,9 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorSetupCode.DoorASM_ToCeresElevatorShaft:
-                // `$8F:E4E0` owns the Ceres Mode-7 matrix and center registers. Those
+                // Ceres's door setup owns the rotating-room matrix and centre. Those
                 // values must exist before room graphics/actors initialize, so the shared
-                // loader installs them at construction time and this native-order dispatch
+                // loader installs them at construction time and this dispatch
                 // point merely verifies that the recognized routine was not discarded.
                 if (!door.EntersCeresElevatorShaft || _display.ActiveTurningFloor is null)
                 {
@@ -220,9 +220,9 @@ internal sealed class DoorTransitionRunner
         }
 
         wreckedShipTreadmill.Start(direction);
-        // Both native spawn helpers return carry set when their fixed arrays are full, and
+        // Both spawn helpers return carry set when their fixed arrays are full, and
         // the door routine deliberately ignores that result. The dedicated animated owner
-        // above cannot exhaust; preserve the PLM allocator's native false result here.
+        // above cannot exhaust; preserve the PLM allocator's false result here.
         _ = plms.WreckedShipTreadmill.TrySpawnWreckedShipEntranceTreadmill(
             _room.LevelData,
             direction,
@@ -243,7 +243,7 @@ internal sealed class DoorTransitionRunner
             maridiaElevatube.SetUpFromNorth(samus);
 
         // The door routine ignores SpawnHardcodedPLM's carry result when all forty IDs are
-        // occupied. Retaining the bool-returning allocator preserves that cartridge edge.
+        // occupied. Retaining the bool-returning allocator preserves that edge.
         _ = plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
     }
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>

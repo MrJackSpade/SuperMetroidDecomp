@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Waver;
@@ -48,7 +47,6 @@ internal static class WaverAnimationDefinitionsVerification
                 $"production Waver loop timer {selector}");
         }
 
-        var guarded = NewWaverAnimationReadGuard(rom);
         for (ushort parameter = 0; parameter < 2; parameter++)
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -70,7 +68,7 @@ internal static class WaverAnimationDefinitionsVerification
         AssertEqual(false, WaverNativeWords.Animations.TryDecode(4, out _), "Waver animation index past table");
         VerifyWaverAnimationRequests();
         Console.WriteLine(
-            "Waver animation definitions: four native selectors, all four real handoffs, and both production initial facing paths pass with the pointer table forbidden.");
+            "Waver animation definitions: four native selectors, all four real handoffs, and both production initial facing paths and the named animation requests pass.");
     }
 
     /// <summary>
@@ -90,9 +88,4 @@ internal static class WaverAnimationDefinitionsVerification
                 WaverPrograms.SteadyWithSameFacing(animation), $"Waver {animation} after a spin");
         }
     }
-
-    /// <summary>Rejects runtime reads of the compiled bank A3 animation pointer table.</summary>
-    private static CartridgeReadGuard NewWaverAnimationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa386db and < 0xa386e3,
-            address => $"Waver attempted migrated animation-selector read ${address:X6}.");
 }

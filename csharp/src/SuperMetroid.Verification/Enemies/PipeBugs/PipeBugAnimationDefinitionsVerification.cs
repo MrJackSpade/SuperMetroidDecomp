@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.PipeBugs;
@@ -15,7 +14,6 @@ internal static class PipeBugAnimationDefinitionsVerification
     {
         const int normalTable = 0xb3882b;
         const int strongTable = 0xb38833;
-        var guarded = NewPipeBugAnimationReadGuard(rom);
 
         foreach (bool strong in new[] { false, true })
         {
@@ -41,7 +39,6 @@ internal static class PipeBugAnimationDefinitionsVerification
                     NativeEnemyProgramOracle.EntryOf(PipeBugNativeListAddresses.Entries, PipeBugPrograms.BrinstarProgram(strong, selector)),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
                 var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
                 {
                     InstructionTimer = WrappingCountdown.Start(0x2222),
@@ -81,11 +78,6 @@ internal static class PipeBugAnimationDefinitionsVerification
                 PipeBugPrograms.ShootingWithSameFacing(selector), $"Pipe Bug {selector} shooting");
         }
         Console.WriteLine(
-            "Pipe Bug animation definitions: eight native selectors and all eight production handoffs pass with both pointer tables forbidden.");
+            "Pipe Bug animation definitions: eight native selectors, all eight production handoffs and the named animation requests pass.");
     }
-
-    /// <summary>Forbids runtime reads from both compiled bank B3 animation pointer tables.</summary>
-    private static CartridgeReadGuard NewPipeBugAnimationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xb3882b and < 0xb3883b,
-            address => $"Pipe Bug attempted migrated animation read ${address:X6}.");
 }

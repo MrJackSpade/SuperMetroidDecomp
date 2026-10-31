@@ -14,7 +14,7 @@ internal static class PlasmaPenetrationVerification
         foreach (bool charged in new[] { false, true })
         for (ushort combination = 0; combination < 8; combination++)
         {
-            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var slot = shots.Slots[0];
             SamusProjectileType type = SamusProjectileType.Beam(
                 SamusBeamCombinations.Of((SamusBeamFlags)combination | SamusBeamFlags.Plasma), charged);

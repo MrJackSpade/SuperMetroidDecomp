@@ -111,7 +111,7 @@ internal static class ProjectileTrailCoordinatesVerification
             SamusProjectileProgramAddresses.RecordAddress(records.First(record =>
                 SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(record)).AnimationFrame == frame)) +
             SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)))).ToArray();
-        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+        var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         var spawn = new Action<SamusProjectileSlot>(system.Trails.SpawnTrail);
         int cases = 0;
         // 36 is the Spazer combo's trail echo; no projectile is an echo of Spazer+Wave (37), which the typed identity cannot name.

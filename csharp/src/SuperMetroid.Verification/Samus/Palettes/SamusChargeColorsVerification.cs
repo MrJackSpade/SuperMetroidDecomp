@@ -71,7 +71,7 @@ internal static class SamusChargeColorsVerification
             EquippedBeams = SamusBeamFlags.Charge,
             Presentation = { ChargeColors = edited.SamusChargeColors },
         };
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.Charge.FlareCounter = 60;
         var cgram = new SamusColourRig();
         ushort[] suits = [0, 1, 0x20];
@@ -563,7 +563,7 @@ internal static class SamusChargeColorsVerification
         var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge, Presentation = { ChargeColors = colours } };
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.Charge.FlareCounter = 60;
         ushort[] suits = [0, 1, 0x20];
         for (int family = 0; family < 2; family++)

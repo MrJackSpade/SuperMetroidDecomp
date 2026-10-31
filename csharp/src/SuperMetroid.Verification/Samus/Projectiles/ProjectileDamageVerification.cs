@@ -57,7 +57,7 @@ internal static class ProjectileDamageVerification
         for (ushort beam = 0; beam < 12; beam++)
         foreach (bool charged in new[] { false, true })
         {
-            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var samus = Samus(); samus.EquippedBeams = (SamusBeamFlags)beam;
             system.Firing.TryFireBeam(room, samus, ControllerButton.X, new SamusBombProjectileSystem(), null, charged);
             var slot = system.Slots[0];
@@ -68,7 +68,7 @@ internal static class ProjectileDamageVerification
         }
         foreach (ushort item in new ushort[] { 1, 2 })
         {
-            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads); var samus = Samus(); samus.SelectedHudItem = HudItems.Decode(item);
+            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads); var samus = Samus(); samus.SelectedHudItem = HudItems.Decode(item);
             var result = system.Firing.TryFireMissile(samus, ControllerButton.X, 0, new SamusBombProjectileSystem());
             AssertEqual(0, result.Slot, "Missile allocation succeeds");
             Check(system.Slots[0], SamusProjectileNonBeamTables.DataPointers, item, system.Slots[0].Direction.ToAimIndex());
@@ -81,12 +81,12 @@ internal static class ProjectileDamageVerification
                 AssertEqual(300, system.Slots[0].Damage, "Link allocation does not replace its owner");
             }
         }
-        var hyper = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+        var hyper = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         hyper.Firing.TryFireHyperBeam(room, Samus(), new SamusBombProjectileSystem(), null);
         AssertEqual(1000, hyper.Slots[0].Damage, "Hyper retains its post-initialization damage override");
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
-            var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads); var samus = Samus();
+            var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads); var samus = Samus();
             samus.EquippedBeams = (SamusBeamFlags)beam; samus.SelectedHudItem = HudItem.PowerBomb; samus.PowerBombs = 10;
             AssertTrue(system.Combos.TryActivateCombo(samus, new SamusBombProjectileSystem(), out _), "Combo initializes with damage ROM reads forbidden");
             foreach (var slot in system.Slots.Take(4))
@@ -188,7 +188,7 @@ internal static class ProjectileDamageVerification
         var guarded = NewComboMechanicsReadGuard(rom);
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var shared = new SamusBombProjectileSystem();
             var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
@@ -243,7 +243,7 @@ internal static class ProjectileDamageVerification
             new VerifyComboAngleStepWrapsAtTheByteBoundaryCase(SamusPoseId.FacingLeftNormalPose, -4, 2, 254),
         })
         {
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var shared = new SamusBombProjectileSystem();
             var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {

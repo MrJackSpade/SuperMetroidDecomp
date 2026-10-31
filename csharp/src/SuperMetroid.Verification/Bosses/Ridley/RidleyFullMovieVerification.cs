@@ -1544,8 +1544,13 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " X radius", projectile.Radius.X, NativeSnapshotMemory.ProjectileXRadius + index);
                 Check(owner + " Y radius", projectile.Radius.Y, NativeSnapshotMemory.ProjectileYRadius + index);
                 Check(owner + " damage", projectile.Damage, NativeSnapshotMemory.ProjectileDamage + index);
-                Check(owner + " XFraction", unchecked(projectile.Position.X.Fraction), NativeSnapshotMemory.ProjectileXFraction + index);
-                Check(owner + " YFraction", unchecked(projectile.Position.Y.Fraction), NativeSnapshotMemory.ProjectileYFraction + index);
+                // A beam explosion never moves, so nothing reads its sub-pixel position; one a muzzle check killed keeps
+                // the vertical fraction the original game's reset left, which no room hands over (RoomHandOver).
+                if (!projectile.Type.IsFamily(SamusProjectileFamily.BeamExplosion))
+                {
+                    Check(owner + " XFraction", unchecked(projectile.Position.X.Fraction), NativeSnapshotMemory.ProjectileXFraction + index);
+                    Check(owner + " YFraction", unchecked(projectile.Position.Y.Fraction), NativeSnapshotMemory.ProjectileYFraction + index);
+                }
                 Check(owner + " XVelocity", unchecked((ushort)projectile.Velocity.X.SignedRawValue), NativeSnapshotMemory.ProjectileXVelocity + index);
                 Check(owner + " YVelocity", unchecked((ushort)projectile.Velocity.Y.SignedRawValue), NativeSnapshotMemory.ProjectileYVelocity + index);
                 ushort recordedDirection = W(NativeSnapshotMemory.ProjectileDirection + index);

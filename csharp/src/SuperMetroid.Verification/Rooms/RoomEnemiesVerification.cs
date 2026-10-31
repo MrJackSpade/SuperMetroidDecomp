@@ -247,9 +247,8 @@ internal static void VerifyRoomEnemyLoading()
     // the death quota untouched even though current enemy counts are cleared.
     AssertTrue(ReferenceEquals(RoomEnemyGraphicsSetDefinitions.SessionStart,
             new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0)).GraphicsSet.LoadedSet),
-        "a session's first room draws under no loaded graphics set until it loads one");
-    RoomEnemyGraphicsSetDefinition outgoingSet = enemies.GraphicsSet.LoadedSet;
-    enemies = new RoomEnemySystem(enemies.Room.Session, EnemyRoomResidue.Of(enemies), bus, new StandaloneRoomEnemyServices(() => 0));
+        "a room draws under no loaded graphics set until it loads one");
+    enemies = new RoomEnemySystem(enemies.Room.Session, bus, new StandaloneRoomEnemyServices(() => 0));
     const ushort emptyPopulationPointer = 0x9400;
     SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
     cgram.SetColor(128, RgbColor.FromWord(0x4567));
@@ -263,8 +262,8 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual<AreaBoss?>(null, enemies.RoomStatus.Boss, "room load clears the boss before an empty population");
     AssertEqual(0x4567, cgram.Colors[128], "empty population leaves CGRAM untouched");
     AssertEqual(0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
-    AssertTrue(ReferenceEquals(outgoingSet, enemies.GraphicsSet.LoadedSet),
-        "empty population draws its spawned objects under the graphics set the outgoing room left loaded");
+    AssertTrue(ReferenceEquals(RoomEnemyGraphicsSetDefinitions.SessionStart, enemies.GraphicsSet.LoadedSet),
+        "empty population draws its spawned objects under the standard sprites alone, whatever the outgoing room loaded");
 
     Console.WriteLine(
         "  Enemies: complete headers, populations, spawn snapshots, palettes, tile staging, " +
@@ -366,7 +365,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     eyeShot.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
-    var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+    var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
     SamusProjectileSlot owner = shots.Slots[0];
     owner.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile);
     owner.Damage = 0x012c;

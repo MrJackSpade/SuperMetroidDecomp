@@ -30,8 +30,8 @@ public static class RoomEnemyGraphicsSetDefinitions
     public static IReadOnlyList<RoomEnemyGraphicsSetDefinition> All => Definitions;
 
     /// <summary>
-    /// The enemy graphics a session starts under (#1392): no set's tiles or palettes loaded over the standard ones. A
-    /// room whose population is empty loads no set, so the session's first room draws its spawned objects under this.
+    /// The enemy graphics a room draws under when it loads no set (#1392, #1476): no set's tiles or palettes loaded over
+    /// the standard ones. A room whose population is empty loads no set and draws its spawned objects under this.
     /// </summary>
     public static RoomEnemyGraphicsSetDefinition SessionStart { get; } = new(nameof(SessionStart), []);
 

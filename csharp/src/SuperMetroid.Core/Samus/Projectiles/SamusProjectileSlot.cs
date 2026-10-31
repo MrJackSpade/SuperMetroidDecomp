@@ -111,8 +111,9 @@ public sealed class SamusProjectileSlot
     }
 
     /// <summary>
-    /// The per-slot state a door load or elevator ride clears. Unlike deletion it keeps both subpixels, the animation
-    /// frame and the Spazer phase, which a later shot in the slot inherits.
+    /// The per-slot state an elevator ride or a full projectile reset clears. Unlike deletion it keeps the sub-pixel position, which a later beam
+    /// fired left from the slot reads at its muzzle check, the animation frame and the Spazer phase, which every Spazer
+    /// special attack sets before reading.
     /// </summary>
     internal void ClearForProjectileDataReset()
     {

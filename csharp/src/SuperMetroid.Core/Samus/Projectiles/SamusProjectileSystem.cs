@@ -77,9 +77,8 @@ public sealed class SamusProjectileSystem
 
     /// <summary>Creates one room's five projectile slots, eighteen trail slots and the owners that run them.</summary>
     /// <param name="charge">The held beam charge, flare and charge palette, which outlive each room's projectiles.</param>
-    /// <param name="residue">The words the previous room's projectile slots leave behind.</param>
     /// <param name="overreads">The installed services reproducing the glitch reads the shots, trails and flare make.</param>
-    internal SamusProjectileSystem(BeamChargeState charge, SamusProjectileResidue residue, SamusOverreadServices overreads)
+    internal SamusProjectileSystem(BeamChargeState charge, SamusOverreadServices overreads)
     {
         Ensure.NotNull(overreads);
         Charge = Ensure.NotNull(charge);
@@ -96,8 +95,24 @@ public sealed class SamusProjectileSystem
         Combos = new BeamCombos(Animation, Charge, SlotTable, Trails, overreads.SpaceTimeOverwrite);
         Firing = new BeamFiring(Animation, Charge, Combos, SlotTable, TerrainCollision);
         Motion = new ProjectileMotion(Animation, SlotTable, TerrainCollision, Trails);
-        Ensure.NotNull(residue).ApplyTo(SlotTable.Slots);
     }
+
+    /// <summary>
+    /// Starts each shot slot's horizontal sub-pixel position from what the room this one replaces left
+    /// (<see cref="RoomHandOver"/>), before any shot is fired.
+    /// </summary>
+    internal void TakeOverFrom(RoomHandOver handOver)
+    {
+        Ensure.NotNull(handOver);
+        IReadOnlyList<SamusProjectileSlot> slots = SlotTable.Slots;
+        for (int index = 0; index < slots.Count; index++)
+            slots[index].Position = slots[index].Position.WithFractionX(handOver.ShotHorizontalFraction(index));
+    }
+
+    /// <summary>Leaves each shot slot's horizontal sub-pixel position for the room that replaces this one (<see cref="RoomHandOver"/>).</summary>
+    internal void HandOverTo(RoomHandOver handOver) =>
+        Ensure.NotNull(handOver).LeaveShots(SlotTable.Slots.Select(slot => (int)slot.Position.X.Fraction));
+
     /// <summary>How many ordinary shots Samus can have out at once; bombs have their own slots.</summary>
     public const int SlotCount = 5;
 

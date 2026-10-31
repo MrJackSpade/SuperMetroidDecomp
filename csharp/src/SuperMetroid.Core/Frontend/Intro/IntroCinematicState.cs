@@ -244,7 +244,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         bool japaneseText = false)
     {
         this.samusOverreads = Ensure.NotNull(samusOverreads);
-        flashbackProjectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, samusOverreads);
+        flashbackProjectiles = new SamusProjectileSystem(new BeamChargeState(), samusOverreads);
 
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = audio;

@@ -151,7 +151,7 @@ internal static class ShotCallbackDefinitionsVerification
                 ShotBody = EnemyInteractionCallbacks.Body(shotWord, EnemyInteractionCallbacks.IsLiteralNoOpShot(shotBank, shotWord)),
                 NoOpCallbackBody = EnemyInteractionCallbacks.NoOpCallbackBody(shotBank),
             });
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             SamusProjectileSlot projectile = projectiles.Slots[0];
             projectile.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false);
             projectile.Damage = 20;

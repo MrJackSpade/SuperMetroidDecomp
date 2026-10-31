@@ -96,7 +96,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         new MemoryStream(ProjectileFrameBindingExtractor.Extract(bus)));
     var fixtureSprites = InstalledProjectileSprites.Load(
         new MemoryStream(ProjectileSpriteExtractor.Extract(bus)));
-    SamusProjectileSystem CreateSyntheticProjectiles() => new(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = fixtureFrames } };
+    SamusProjectileSystem CreateSyntheticProjectiles() => new(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = fixtureFrames } };
     SamusBombProjectileSystem CreateSyntheticBombs() => new() { FrameBindings = fixtureFrames };
     ushort NativeWord(int a) => CartridgeImportSource.Require(nativeProjectileRom).ReadCartridgeWord(a);
     ushort NativeDamage(int table, int beam) => NativeWord(0x930000 | NativeWord(table + beam * 2));

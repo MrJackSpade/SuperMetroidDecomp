@@ -95,7 +95,7 @@ internal static class RidleyFlightTailVerification
         var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
         aim(state, samus, 0);
         int? samusTarget = state.ClockwiseWhipTarget;
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.SlotTable.ProjectileCounter = 1;
         projectiles.Slots[0].Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
         projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWhole(new(96, 128));

@@ -1411,7 +1411,7 @@ internal static class LookupStream1Verification
         }
         var compositions = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
-        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+        var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork flareObjects = InstalledFixtures.ProjectileArtwork();
         var shiftedDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(json, options);
@@ -2522,7 +2522,7 @@ internal static class LookupStream1Verification
             if (edited)
                 foreach (ushort pointer in expected) document.Frames[ProjectileFrameBindingFormat.FrameNameAt(pointer)] = ProjectileSpriteDefinitions.Name(0xa117);
             var bindings = InstalledProjectileFrameBindings.Load(new MemoryStream(InstalledProjectileFrameBindings.Write(document)));
-            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = bindings } };
+            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
             foreach (ushort pointer in expected)
             {
@@ -2603,7 +2603,7 @@ internal static class LookupStream1Verification
         int actualTicks = 0, loops = 0, deletions = 0;
         foreach (var program in programs)
         {
-            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = bindings } };
+            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
             var slot = new SamusProjectileSlot(0) { InstructionTimer = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Damage = 30 };
             var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };

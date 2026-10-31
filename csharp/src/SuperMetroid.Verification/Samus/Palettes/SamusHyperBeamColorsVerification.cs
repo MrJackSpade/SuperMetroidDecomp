@@ -353,7 +353,7 @@ internal static class SamusHyperBeamColorsVerification
             }
         }
         var shotSamus = new SamusState(InstalledFixtures.AnimationContinuation) { HyperBeamEnabled = true, Presentation = { ChargeColors = shot } };
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0x8014);
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 20; call++)

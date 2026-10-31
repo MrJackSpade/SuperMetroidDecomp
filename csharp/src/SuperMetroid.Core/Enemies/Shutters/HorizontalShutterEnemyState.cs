@@ -8,7 +8,7 @@ public sealed class HorizontalShutterEnemyState
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>
-    /// The bank-$A2 dispatcher behaviour of the retail-unused horizontal shutter, retained across wait, movement, and
+    /// The dispatcher behaviour of the retail-unused horizontal shutter, retained across wait, movement, and
     /// endpoint-rest updates; none once a kill has emptied the record.
     /// </summary>
     public HorizontalShutterFunction? Function { get; internal set; }
@@ -41,7 +41,7 @@ public sealed class HorizontalShutterEnemyState
     public int MovedRightRestParameter { get; internal set; }
     /// <summary>Population trigger mode: timer, horizontal proximity, immediate, one-shot reaction, or repeatable reaction activation.</summary>
     public ShutterTriggerMode TriggerMode { get; internal set; }
-    /// <summary>Whole-pixel X separation of the two endpoints, 0 through 255; the native storage calls this field YDistance.</summary>
+    /// <summary>Whole-pixel X separation of the two endpoints, 0 through 255.</summary>
     public int TravelDistance { get; internal set; }
     /// <summary>Parameter 2, 0 through 65535: initial AI-update wait or strict absolute horizontal pixel-distance threshold, according to trigger mode.</summary>
     public int HorizontalProximityOrWaitTime { get; internal set; }

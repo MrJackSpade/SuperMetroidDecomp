@@ -27,8 +27,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeGrowingShutter(RoomEnemySlot slot)
     {
         GrowingShutterSpawnSettings settings = slot.SpawnSettings<GrowingShutterSpawnSettings>();
+        // The spawn's one activation setting is the wait of a timed shutter and the distance of a proximity one.
         var state = new GrowingShutterEnemyState(slot)
         {
+            ActivationTimer = WrappingCountdown.Start(settings.ActivationDistance),
             ActivationDistance = settings.ActivationDistance,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);

@@ -145,7 +145,6 @@ internal static class ShutterBehaviorVerification
     /// <summary>
     /// The growing shutter's timer-mode wait tests for expiry before it decrements: a wait of two activates on the
     /// third call, and an expired wait stays at zero (activating again) instead of wrapping to a 65535-update wait.
-    /// The wait stays in parameter 1, where other enemies' aliased enemy-RAM reads observe it.
     /// </summary>
     internal static void VerifyGrowingShutterActivationTimer()
     {

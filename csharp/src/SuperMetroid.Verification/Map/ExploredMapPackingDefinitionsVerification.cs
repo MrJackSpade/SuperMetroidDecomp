@@ -53,7 +53,7 @@ internal static class ExploredMapPackingDefinitionsVerification
                 $"packed map area {area} source pointer");
             for (int index = 0; index < indexes.Count; index++)
             {
-                AssertEqual((int)ExploredMapPackingDefinitionsRomByte(retail, 0x810000 |
+                AssertEqual(ExploredMapPackingDefinitionsRomByte(retail, 0x810000 |
                         unchecked((ushort)(nativeSourcePointer + index))),
                     indexes[index],
                     $"packed map area {area} byte index {index}");

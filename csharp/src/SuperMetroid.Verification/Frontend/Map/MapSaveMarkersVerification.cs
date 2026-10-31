@@ -72,7 +72,7 @@ internal static class MapSaveMarkersVerification
         {
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = MapSaveMarkers.Indices(invalid); },
                 "invalid area rejects without enumerating the lazy sequence");
-            AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.HasUsedMarker(invalid, new NumberedFlags(PersistentProgress.StationsPerArea)),
+            AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.HasUsedMarker(invalid, new NumberedFlagSet(PersistentProgress.StationsPerArea)),
                 "invalid area rejects even an empty used mask");
             try
             {

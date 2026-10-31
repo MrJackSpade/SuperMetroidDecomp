@@ -68,7 +68,7 @@ public static class MapSaveMarkers
     /// <param name="area">One of the six Zebes area identities.</param>
     /// <param name="usedStations">The area's used save stations and elevators, by station slot.</param>
     /// <returns>True when a used station has a usable marker; used unused slots do not reveal an area label.</returns>
-    public static bool HasUsedMarker(AreaId area, NumberedFlags usedStations)
+    public static bool HasUsedMarker(AreaId area, NumberedFlagSet usedStations)
     {
         Ensure.NotNull(usedStations);
         foreach (int index in Indices(area))

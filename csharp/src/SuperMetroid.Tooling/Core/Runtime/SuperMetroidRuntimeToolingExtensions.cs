@@ -29,7 +29,9 @@ internal static class SuperMetroidRuntimeToolingExtensions
             SuperMetroid.Core.Progression.SharedRandom? random = null) =>
             new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt, SamusOverreads = samusOverreads },
                 new SuperMetroid.Core.Gameplay.FrameClock(), new SuperMetroid.Core.Compatibility.FloorUpdateResidue(),
-                random ?? new SuperMetroid.Core.Progression.SharedRandom());
+                random ?? new SuperMetroid.Core.Progression.SharedRandom(),
+                // A tooling runtime powers on as the game does with an empty save store.
+                new SuperMetroid.Core.Saves.SaveSlotStore().EarthquakeSoundDelayAtPowerOn());
     }
 
     /// <summary>Provides direct room-loading seams for ROM-backed debug and extraction hosts.</summary>

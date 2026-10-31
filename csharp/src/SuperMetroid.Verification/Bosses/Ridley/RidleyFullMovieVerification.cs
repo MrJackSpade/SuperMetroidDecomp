@@ -986,14 +986,14 @@ internal static class RidleyFullMovieVerification
             }
             // Progress is compared as the native tables decode: each event, boss, item, door, station and map.
             var nativeProgress = new PersistentProgress();
-            ProgressionTableCodec.ReadAreaBosses(memory.AsSpan(NativeSnapshotMemory.BossBits, ProgressionTableCodec.AreaBossByteCount), nativeProgress);
-            ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), nativeProgress.Events);
-            ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), nativeProgress.CollectedItems);
-            ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), nativeProgress.OpenedDoors);
-            ProgressionTableCodec.ReadUsedStations(memory.AsSpan(NativeSnapshotMemory.SaveElevatorMarkers, ProgressionTableCodec.UsedStationByteCount), nativeProgress);
-            ProgressionTableCodec.ReadAreaMaps(memory.AsSpan(NativeSnapshotMemory.MapStationMarkers, ProgressionTableCodec.MapStationByteCount), nativeProgress);
+            ProgressionTableCodec.ReadAreaBosses(memory.Slice(NativeSnapshotMemory.BossBits, ProgressionTableCodec.AreaBossByteCount), nativeProgress);
+            ProgressionTableCodec.ReadFlags(memory.Slice(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), nativeProgress.Events);
+            ProgressionTableCodec.ReadFlags(memory.Slice(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), nativeProgress.CollectedItems);
+            ProgressionTableCodec.ReadFlags(memory.Slice(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), nativeProgress.OpenedDoors);
+            ProgressionTableCodec.ReadUsedStations(memory.Slice(NativeSnapshotMemory.SaveElevatorMarkers, ProgressionTableCodec.UsedStationByteCount), nativeProgress);
+            ProgressionTableCodec.ReadAreaMaps(memory.Slice(NativeSnapshotMemory.MapStationMarkers, ProgressionTableCodec.MapStationByteCount), nativeProgress);
             PersistentProgress portProgress = runtime.System.Progress;
-            void CheckFlags(string name, NumberedFlags actual, NumberedFlags expected)
+            void CheckFlags(string name, NumberedFlagSet actual, NumberedFlagSet expected)
             {
                 if (!actual.SetEquals(expected))
                     mismatches.Add($"{name}: native=[{string.Join(",", expected.Members)}] port=[{string.Join(",", actual.Members)}]");
@@ -1099,7 +1099,7 @@ internal static class RidleyFullMovieVerification
                 {
                     int plane = area == W(NativeSnapshotMemory.CurrentArea) ? NativeSnapshotMemory.LiveExploredMap :
                         NativeSnapshotMemory.SavedExploredMaps + area * ProgressionTableCodec.ExploredPlaneByteCount;
-                    ProgressionTableCodec.ReadExploredPlane(memory.AsSpan(plane, ProgressionTableCodec.ExploredPlaneByteCount),
+                    ProgressionTableCodec.ReadExploredPlane(memory.Slice(plane, ProgressionTableCodec.ExploredPlaneByteCount),
                         AreaIds.At(area), nativeProgress);
                     if (!nativeProgress.ExploredCells(AreaIds.At(area)).SequenceEqual(portProgress.ExploredCells(AreaIds.At(area))))
                         mismatches.Add($"Explored map {AreaIds.At(area)} differs");

@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Progression;
 /// explored map cells by cell. Numbers run from zero to <see cref="Capacity"/> minus one; a number outside that range is
 /// rejected rather than reaching a neighbouring flag.
 /// </summary>
-public sealed class NumberedFlags
+public sealed class NumberedFlagSet
 {
     /// <summary>Whether each numbered flag is on.</summary>
     private readonly bool[] _on;
 
     /// <summary>Creates the flags numbered zero through <paramref name="capacity"/> minus one, all off.</summary>
     /// <param name="capacity">How many flags the range numbers.</param>
-    public NumberedFlags(int capacity) => _on = new bool[Ensure.AtLeastZero(capacity)];
+    public NumberedFlagSet(int capacity) => _on = new bool[Ensure.AtLeastZero(capacity)];
 
     /// <summary>How many flags the range numbers.</summary>
     public int Capacity => _on.Length;
@@ -51,7 +51,7 @@ public sealed class NumberedFlags
 
     /// <summary>Makes every flag match <paramref name="source"/>'s.</summary>
     /// <exception cref="ArgumentException"><paramref name="source"/> numbers a different range.</exception>
-    public void CopyFrom(NumberedFlags source)
+    public void CopyFrom(NumberedFlagSet source)
     {
         Ensure.NotNull(source);
         RequireSameRange(source);
@@ -59,9 +59,9 @@ public sealed class NumberedFlags
     }
 
     /// <summary>A detached copy of these flags.</summary>
-    public NumberedFlags Copy()
+    public NumberedFlagSet Copy()
     {
-        var copy = new NumberedFlags(Capacity);
+        var copy = new NumberedFlagSet(Capacity);
         copy.CopyFrom(this);
         return copy;
     }
@@ -92,7 +92,7 @@ public sealed class NumberedFlags
         : throw new ArgumentOutOfRangeException(nameof(number), number, $"Flag numbers run from 0 through {_on.Length - 1}.");
 
     /// <summary>Rejects flags that number a different range.</summary>
-    private void RequireSameRange(NumberedFlags other)
+    private void RequireSameRange(NumberedFlagSet other)
     {
         if (other.Capacity != Capacity)
             throw new ArgumentException($"Flags numbering {other.Capacity} cannot stand for flags numbering {Capacity}.", nameof(other));

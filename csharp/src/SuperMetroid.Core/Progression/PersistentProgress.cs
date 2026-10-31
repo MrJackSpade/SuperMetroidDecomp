@@ -24,25 +24,25 @@ public sealed class PersistentProgress
     private readonly BossBits[] _defeatedBosses = new BossBits[AreaIds.RetailCount];
 
     /// <summary>Each area's used save stations and elevators, by area index.</summary>
-    private readonly NumberedFlags[] _usedStations = Areas(StationsPerArea);
+    private readonly NumberedFlagSet[] _usedStations = Areas(StationsPerArea);
 
     /// <summary>Whether each area's map has been acquired, by area index.</summary>
     private readonly bool[] _acquiredMaps = new bool[AreaIds.RetailCount];
 
     /// <summary>Each area's explored map cells, by area index, each cell numbered in row-major order.</summary>
-    private readonly NumberedFlags[] _explored = Areas(MapCellsPerArea);
+    private readonly NumberedFlagSet[] _explored = Areas(MapCellsPerArea);
 
     /// <summary>The story events that have happened, by event number.</summary>
-    public NumberedFlags Events { get; } = new(EventCount);
+    public NumberedFlagSet Events { get; } = new(EventCount);
 
     /// <summary>The Chozo orbs broken open, by room-data number; independent of whether the item they exposed was collected.</summary>
-    public NumberedFlags ChozoOrbs { get; } = new(RoomFlagCount);
+    public NumberedFlagSet ChozoOrbs { get; } = new(RoomFlagCount);
 
     /// <summary>The item locations whose pickup has been collected, by room-data number.</summary>
-    public NumberedFlags CollectedItems { get; } = new(RoomFlagCount);
+    public NumberedFlagSet CollectedItems { get; } = new(RoomFlagCount);
 
     /// <summary>The coloured doors opened for good, by room-data number.</summary>
-    public NumberedFlags OpenedDoors { get; } = new(RoomFlagCount);
+    public NumberedFlagSet OpenedDoors { get; } = new(RoomFlagCount);
 
     /// <summary>Whether <paramref name="eventNumber"/> has happened.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="eventNumber"/> names no retail event.</exception>
@@ -68,7 +68,7 @@ public sealed class PersistentProgress
     }
 
     /// <summary>The save stations and elevators used in <paramref name="area"/>, by station number.</summary>
-    public NumberedFlags UsedStations(AreaId area) => _usedStations[AreaIds.ToIndex(area)];
+    public NumberedFlagSet UsedStations(AreaId area) => _usedStations[AreaIds.ToIndex(area)];
 
     /// <summary>Whether <paramref name="area"/>'s map has been acquired.</summary>
     public bool HasAreaMap(AreaId area) => _acquiredMaps[AreaIds.ToIndex(area)];
@@ -140,8 +140,8 @@ public sealed class PersistentProgress
     }
 
     /// <summary>One range of <paramref name="capacity"/> flags for each area.</summary>
-    private static NumberedFlags[] Areas(int capacity) =>
-        [.. Enumerable.Range(0, AreaIds.RetailCount).Select(_ => new NumberedFlags(capacity))];
+    private static NumberedFlagSet[] Areas(int capacity) =>
+        [.. Enumerable.Range(0, AreaIds.RetailCount).Select(_ => new NumberedFlagSet(capacity))];
 
     /// <summary>The number of a map cell, rejecting a cell outside the area map.</summary>
     private static int CellNumber(Position16<MapTiles> cell) => AreaMapLayout.Size.Contains(cell)

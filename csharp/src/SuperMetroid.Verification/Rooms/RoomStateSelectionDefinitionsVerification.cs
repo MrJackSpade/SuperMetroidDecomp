@@ -96,7 +96,7 @@ internal static class RoomStateSelectionDefinitionsVerification
                     if (matches) { expected = clause.Target; break; }
                 }
                 // Events stored past the supplied bytes are clear, as truncated storage read them.
-                var storedEvents = new NumberedFlags(PersistentProgress.EventCount);
+                var storedEvents = new NumberedFlagSet(PersistentProgress.EventCount);
                 for (int number = 0; number < events.Length * 8; number++)
                     storedEvents.Set(number, (events[number / 8] & (1 << (number % 8))) != 0);
                 var context = new RoomStateSelectionContext(storedEvents, (BossBits)bosses, morph, powerBombs);

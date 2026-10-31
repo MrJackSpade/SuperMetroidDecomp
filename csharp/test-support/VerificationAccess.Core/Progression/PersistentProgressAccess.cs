@@ -4,17 +4,17 @@ namespace SuperMetroid.Core.Progression;
 internal static class PersistentProgressAccess
 {
     /// <summary>Turns on every flag numbered in <paramref name="flags"/>.</summary>
-    internal static void FillAll(NumberedFlags flags)
+    internal static void FillAll(NumberedFlagSet flags)
     {
         for (int number = 0; number < flags.Capacity; number++)
             flags.Add(number);
     }
 
     /// <summary>Compares numbered flags.</summary>
-    extension(NumberedFlags self)
+    extension(NumberedFlagSet self)
     {
         /// <summary>Whether <paramref name="other"/> numbers the same range with the same flags on.</summary>
-        internal bool SetEquals(NumberedFlags other) =>
+        internal bool SetEquals(NumberedFlagSet other) =>
             self.Capacity == other.Capacity && self.Members.SequenceEqual(other.Members);
     }
 

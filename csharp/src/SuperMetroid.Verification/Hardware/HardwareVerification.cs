@@ -125,7 +125,7 @@ internal static void VerifyTimedHeldInputTimeline()
 internal static void VerifyEventBitfield()
 {
     var state = new SharedGameState();
-    NumberedFlags events = state.Progress.Events;
+    NumberedFlagSet events = state.Progress.Events;
     for (int eventNumber = 0; eventNumber < PersistentProgress.EventCount; eventNumber++)
     {
         events.Add(eventNumber);

@@ -159,7 +159,7 @@ internal static class SpacetimeBeamVerification
             byte[] expected = [.. native.Select(value => value ?? ProgressionSentinel)];
             AssertTrue(DecodeSlice(expected).SameAs(state.Progress),
                 $"SpaceTime from {cursor} in slot {slot} leaves every event, boss, orb, item, door, station and map as the original copy does");
-            AssertEqual((int)LittleEndianBytes.Word(expected[ProgressionSliceLayout.LoadingGameStateOffset], expected[ProgressionSliceLayout.LoadingGameStateOffset + 1]),
+            AssertEqual(LittleEndianBytes.Word(expected[ProgressionSliceLayout.LoadingGameStateOffset], expected[ProgressionSliceLayout.LoadingGameStateOffset + 1]),
                 state.SavedLoadingGameState, $"SpaceTime from {cursor} in slot {slot} leaves the loading state as the original copy does");
             situations++;
         }

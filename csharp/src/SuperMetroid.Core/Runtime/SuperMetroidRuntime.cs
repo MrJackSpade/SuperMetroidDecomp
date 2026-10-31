@@ -167,7 +167,7 @@ internal sealed class SuperMetroidRuntime
 
         BeamCharge = new BeamChargeState();
         Freeze = new GameplayTimeFreeze(Player);
-        Tester = new TesterTools(Colours, Player, System);
+        Tester = new TesterTools(Player, System);
         TourianStatueDependencies = new TourianStatueSequenceDependencies { Colours = Colours, Player = Player, Room = Room, System = System, Tester = Tester, Freeze = Freeze };
         Artwork = new RuntimeArtwork(new RuntimeArtworkDependencies { BossArtwork = BossArtwork, Room = Room, RoomFx = RoomFx, Hud = Hud, Player = Player });
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Hud = Hud, Player = Player, EnemySession = EnemySession, Room = Room });

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 
@@ -9,17 +8,14 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 internal sealed class TesterTools
 {
-    /// <summary>Destination for the suit palette after test inventory is granted.</summary>
-    private readonly GameplayColours _colours;
     /// <summary>Current Samus actor receiving tester inventory once per initialization.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Persistent item, event, boss, and door bits adjusted by tester options.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Connects tester options to the current player, system state, and palette owners.</summary>
-    internal TesterTools(GameplayColours colours, SamusFrameState player, SharedGameState system)
+    /// <summary>Connects tester options to the current player and system state.</summary>
+    internal TesterTools(SamusFrameState player, SharedGameState system)
     {
-        _colours = colours;
         _player = player;
         _system = system;
     }

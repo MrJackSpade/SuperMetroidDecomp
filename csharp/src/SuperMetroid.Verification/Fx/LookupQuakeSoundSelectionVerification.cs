@@ -21,7 +21,7 @@ internal static class LookupQuakeSoundSelectionVerification
             var stateSession = new RoomFxSession();
             var state = new RoomLayer3FxState(stateSession);
             state.EarthquakeSoundSequenceIndex = index;
-            state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
+            state.PublishStatueEarthquakeSound(0, SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame);
             AssertEqual(1, state.SoundRequests.Count, "Each original selection emits exactly one rumble");
             var sound = state.SoundRequests[0];
             int originalIndex = index == count ? 0 : index;

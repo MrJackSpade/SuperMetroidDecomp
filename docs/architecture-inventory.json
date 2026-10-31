@@ -17230,6 +17230,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Progression.ProgressionTableCodec",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Progression/ProgressionTableCodec.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.ReferenceRendering.OutputTileCorner",
       "kind": "record struct",
       "scope": "tool",
@@ -49551,17 +49564,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.ProgressionOverwrite",
-      "kind": "record",
+      "type": "SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/ProgressionOverwrite.cs"
+        "csharp/src/SuperMetroid.Core/Compatibility/PowerOnEarthquakeSoundDelay.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.RainbowBeamCameraCheckpoint",
@@ -49733,7 +49746,7 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.SpaceTimeProgressionOverwrite\u003CTCursor\u003E",
+      "type": "SuperMetroid.Core.Compatibility.SpaceTimeProgressionOverwrite\u003CTCursor, TOverwrite\u003E",
       "kind": "class",
       "scope": "product",
       "assemblies": [
@@ -81748,6 +81761,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.GameplaySessionCarryover",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/GameplaySessionCarryover.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.IFrontendScreen",
       "kind": "interface",
       "scope": "product",
@@ -98063,45 +98089,6 @@
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.Core.Map.ExploredMapPacking",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Map/ExploredMapPacking.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Map.ExploredMapPacking.OccupiedByteIndexes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Map/ExploredMapPacking.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Map.ExploredMapPackingDefinition",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Map/ExploredMapPackingDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Map.ExploredMapPackingDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -98115,23 +98102,7 @@
         "csharp/test-support/VerificationAccess.Core/Map/ExploredMapPackingDefinitionsConstants.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Map.ExploredMapPackingDefinitionsConstants.extension(SuperMetroid.Core.Map.ExploredMapPacking)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Map/ExploredMapPackingDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Map.ExploredMapStorage",
@@ -99010,19 +98981,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Progression.BossBitsCodec",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Progression/BossBitsCodec.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Core.Progression.EventNumber",
       "kind": "enum",
       "scope": "product",
@@ -99047,6 +99005,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.FlagOverwrite",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/FlagOverwrite.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Progression.GameTimeState",
@@ -99101,17 +99072,91 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Progression.ProgressionBit",
-      "kind": "record struct",
+      "type": "SuperMetroid.Core.Progression.NumberedFlagSet",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Progression/ProgressionBit.cs"
+        "csharp/src/SuperMetroid.Core/Progression/NumberedFlagSet.cs"
       ],
       "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.PersistentProgress",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/PersistentProgress.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.PersistentProgressAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Progression/PersistentProgressAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.PersistentProgressAccess.extension(SuperMetroid.Core.Progression.NumberedFlagSet)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Progression/PersistentProgressAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.PersistentProgressAccess.extension(SuperMetroid.Core.Progression.PersistentProgress)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Progression/PersistentProgressAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Progression.ProgressionOverwrite",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Progression/ProgressionOverwrite.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Core.Progression.ProvenBossBits",
@@ -122828,6 +122873,32 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Saves.SaveAreaBossesJsonDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Saves/SaveAreaBossesJsonDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Saves.SaveAreaStationsJsonDocument",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Saves/SaveAreaStationsJsonDocument.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
       "type": "SuperMetroid.Core.Saves.SaveCheckpointJsonDocument",
       "kind": "record",
       "scope": "product",
@@ -127773,6 +127844,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.SaveRamMapPacking",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/SaveRamMapPacking.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Diagnostics.Saves.SaveRamPackedArea",
+      "kind": "record",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Diagnostics"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Diagnostics/Saves/SaveRamPackedArea.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
     },
     {
       "type": "SuperMetroid.Diagnostics.Sessions.InstalledGameSession",

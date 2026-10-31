@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Diagnostics.Saves;
 

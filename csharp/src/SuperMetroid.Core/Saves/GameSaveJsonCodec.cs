@@ -412,7 +412,7 @@ public static class GameSaveJsonCodec
     }
 
     /// <summary>Turns on the listed flags, rejecting duplicates, disorder and numbers outside the range.</summary>
-    private static void DecodeNumbers(int[] numbers, NumberedFlags flags, string property)
+    private static void DecodeNumbers(int[] numbers, NumberedFlagSet flags, string property)
     {
         int previous = -1;
         for (int index = 0; index < numbers.Length; index++)

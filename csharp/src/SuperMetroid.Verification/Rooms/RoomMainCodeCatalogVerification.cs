@@ -124,7 +124,7 @@ internal static class RoomMainCodeCatalogVerification
         }
         for (int eventIndex = 0; eventIndex < PersistentProgress.EventCount; eventIndex++)
         {
-            var events = new NumberedFlags(PersistentProgress.EventCount);
+            var events = new NumberedFlagSet(PersistentProgress.EventCount);
             events.Add(eventIndex);
             contexts.Add(new RoomStateSelectionContext(events, BossBits.None, false, false));
         }

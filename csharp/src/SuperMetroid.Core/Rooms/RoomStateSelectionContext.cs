@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms;
 /// <param name="HasPowerBombs">Whether Samus carries power bombs.</param>
 [IndependentFlag("independent equipment facts the room-state tests read")]
 public readonly record struct RoomStateSelectionContext(
-    NumberedFlags? Events,
+    NumberedFlagSet? Events,
     BossBits BossBits,
     bool HasMorphBallAndMissiles,
     bool HasPowerBombs)

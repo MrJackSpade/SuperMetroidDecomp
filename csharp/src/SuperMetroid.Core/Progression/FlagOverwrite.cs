@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// What an overwrite decides for a range of <see cref="NumberedFlags"/>: the flags numbered from zero up to
+/// What an overwrite decides for a range of <see cref="NumberedFlagSet"/>: the flags numbered from zero up to
 /// <paramref name="Decided"/>, each turned on when <paramref name="Set"/> lists it and off otherwise. Flags from
 /// <paramref name="Decided"/> on keep their state.
 /// </summary>

@@ -391,12 +391,15 @@ internal sealed class FrontendSession
         {
             Purpose = purpose,
             Overrides = ConfiguredOptions.RuntimeOverrides(attract),
-            Random = Random,
-            EarthquakeSoundDelay = earthquakeSoundDelay,
+            Carryover = new GameplaySessionCarryover
+            {
+                Clock = frameClock,
+                Random = Random,
+                FloorQueueResidue = floorQueueResidue,
+                EarthquakeSoundDelay = earthquakeSoundDelay,
+            },
             Layer1 = menuLayer1,
             Artwork = Artwork,
-            Clock = frameClock,
-            FloorQueueResidue = floorQueueResidue,
             // Attract scripts retain the default controls and options of their private runtime.
             Selected = attract ? null : ChosenOptions ?? new SelectedGameplayOptions(false, ControllerBindings.Default, false, false),
         });

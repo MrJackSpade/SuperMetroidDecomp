@@ -50,7 +50,7 @@ public static class ProgressionTableCodec
 
     /// <summary>Turns on exactly the flags <paramref name="table"/> stores.</summary>
     /// <exception cref="ArgumentException">The table's size does not match the flags' range.</exception>
-    public static void ReadFlags(ReadOnlySpan<byte> table, NumberedFlags flags)
+    public static void ReadFlags(ReadOnlySpan<byte> table, NumberedFlagSet flags)
     {
         Ensure.NotNull(flags);
         Ensure.LengthEqual(table, flags.Capacity / BitsPerByte);
@@ -60,10 +60,10 @@ public static class ProgressionTableCodec
 
     /// <summary>Stores <paramref name="flags"/> in <paramref name="table"/>.</summary>
     /// <exception cref="ArgumentException">The table's size does not match the flags' range.</exception>
-    public static void WriteFlags(NumberedFlags flags, Span<byte> table)
+    public static void WriteFlags(NumberedFlagSet flags, Span<byte> table)
     {
         Ensure.NotNull(flags);
-        Ensure.LengthEqual((ReadOnlySpan<byte>)table, flags.Capacity / BitsPerByte);
+        Ensure.LengthEqual(table, flags.Capacity / BitsPerByte);
         table.Clear();
         foreach (int number in flags.Members)
             table[number / BitsPerByte] |= (byte)(1 << (number % BitsPerByte));
@@ -96,7 +96,7 @@ public static class ProgressionTableCodec
     public static void WriteAreaBosses(PersistentProgress progress, Span<byte> table)
     {
         Ensure.NotNull(progress);
-        Ensure.LengthEqual((ReadOnlySpan<byte>)table, AreaBossByteCount);
+        Ensure.LengthEqual(table, AreaBossByteCount);
         table.Clear();
         for (int index = 0; index < AreaIds.RetailCount; index++)
         {
@@ -141,7 +141,7 @@ public static class ProgressionTableCodec
     public static void WriteUsedStations(PersistentProgress progress, Span<byte> table)
     {
         Ensure.NotNull(progress);
-        Ensure.LengthEqual((ReadOnlySpan<byte>)table, UsedStationByteCount);
+        Ensure.LengthEqual(table, UsedStationByteCount);
         table.Clear();
         for (int index = 0; index < AreaIds.RetailCount; index++)
         {
@@ -180,7 +180,7 @@ public static class ProgressionTableCodec
     public static void WriteAreaMaps(PersistentProgress progress, Span<byte> table)
     {
         Ensure.NotNull(progress);
-        Ensure.LengthEqual((ReadOnlySpan<byte>)table, MapStationByteCount);
+        Ensure.LengthEqual(table, MapStationByteCount);
         table.Clear();
         for (int index = 0; index < AreaIds.RetailCount; index++)
         {
@@ -219,7 +219,7 @@ public static class ProgressionTableCodec
     public static void WriteExploredPlane(PersistentProgress progress, AreaId area, Span<byte> plane)
     {
         Ensure.NotNull(progress);
-        Ensure.LengthEqual((ReadOnlySpan<byte>)plane, ExploredPlaneByteCount);
+        Ensure.LengthEqual(plane, ExploredPlaneByteCount);
         plane.Clear();
         foreach (Position16<MapTiles> cell in progress.ExploredCells(area))
             plane[AreaMapPages.GetBitByteIndex(cell)] |= AreaMapPages.GetBitMask(cell.X);

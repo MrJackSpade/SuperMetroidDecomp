@@ -846,7 +846,7 @@ internal static void VerifyCartridgeRoomStateSelection()
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer),
         "room selector default inline state");
 
-    var eventBytes = new NumberedFlags(PersistentProgress.EventCount);
+    var eventBytes = new NumberedFlagSet(PersistentProgress.EventCount);
     eventBytes.Add(0);
     AssertEqual((ushort)0x9100,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,

@@ -40,7 +40,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// <summary>The Boyon or Golden Torizo placed in the first enemy slot.</summary>
         internal RoomEnemySlot Actor => Enemies.SlotTable.Slots[0];
         /// <summary>Samus position used for the actor's proximity and hit interactions.</summary>
-        internal SamusState Samus { get; } = new() { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 16)) };
+        internal SamusState Samus { get; } = new(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 16)) };
         /// <summary>Room collision plane with a flat floor below the actor.</summary>
         internal RoomLevelData Level { get; }
         /// <summary>Fixture VRAM receiving enemy tile presentation.</summary>

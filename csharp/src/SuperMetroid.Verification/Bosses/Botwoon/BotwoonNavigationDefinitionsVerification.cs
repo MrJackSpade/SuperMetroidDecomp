@@ -3,27 +3,24 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Bosses.Botwoon;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Retail comparison for Botwoon's four hole bounds, 32 path choices and bank-$B3 movement streams.</summary>
+/// <summary>Retail comparison for Botwoon's four hole bounds, 32 path choices and authored paths.</summary>
 /// <remarks>
 /// The cartridge names holes by eight-byte table offsets, path choices by eight-byte descriptor offsets and movement
-/// samples by two-byte bank-$B3 pointers. This oracle owns those translations; the simulation holds hole indices,
-/// path choices and sample indices.
+/// samples by two-byte bank-$B3 pointers into one sample table. This oracle and <see cref="BotwoonPathCodec"/> own
+/// those translations; the simulation holds hole indices, path choices, and path and step indices.
 /// </remarks>
 internal static class BotwoonNavigationDefinitionsVerification
 {
     /// <summary>Bytes per cartridge hole record and per path descriptor record.</summary>
     private const int RecordBytes = 8;
 
-    /// <summary>Bytes per cartridge movement sample (signed X then Y).</summary>
-    private const int SampleBytes = 2;
-
-    /// <summary>The compiled sample index of a cartridge movement-sample pointer.</summary>
-    private static int SampleIndexOf(int pointer) =>
-        (pointer - BotwoonNavigationDefinitionsConstants.MovementDataStart) / SampleBytes;
+    /// <summary>The bytes the cartridge rewinds a backward walk's sample pointer by before its first step.</summary>
+    private const int BackwardRewindBytes = 4;
 
     /// <summary>Checks each hole's exclusive right edge through the production detection routine and rejects invalid hole indices.</summary>
     internal static void VerifyBotwoonHoleRightBounds(SuperMetroidAddressSpace rom)
@@ -71,9 +68,10 @@ internal static class BotwoonNavigationDefinitionsVerification
     /// <summary>Matches all 32 native path descriptors and checks their installation into live Botwoon movement state.</summary>
     internal static void VerifyBotwoonPathDescriptorMappings(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifyBotwoonPathPointerMapping), () => VerifyBotwoonPathPointerMapping(rom));
+        Suite(nameof(VerifyBotwoonPathStartMapping), () => VerifyBotwoonPathStartMapping(rom));
         Suite(nameof(VerifyBotwoonPathDirectionMapping), () => VerifyBotwoonPathDirectionMapping(rom));
         Suite(nameof(VerifyBotwoonPathDestinationMapping), () => VerifyBotwoonPathDestinationMapping(rom));
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         Action<RoomEnemySlot, BotwoonEnemyState> run = BotwoonBehavior.RunBotwoonMovement;
         for (int offset = 0; offset < 256; offset += 8)
         {
@@ -84,41 +82,52 @@ internal static class BotwoonNavigationDefinitionsVerification
             ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
             short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
             run(head, state);
-            // The cartridge rewinds a reverse stream's pointer by four bytes: two samples.
-            AssertEqual(SampleIndexOf(direction < 0 ? pointer - 4 : pointer), state.PathSampleIndex, "Botwoon production path sample and reverse rewind");
-            AssertEqual(direction, state.PathDirection, "Botwoon production path direction");
+            BotwoonPathPosition start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
+            AssertEqual(start.Path, state.PathIndex, "Botwoon production path");
+            AssertEqual(start.Step, state.PathStep, "Botwoon production first step and backward rewind");
+            AssertEqual(direction < 0 ? BotwoonPathTraversal.Backward : BotwoonPathTraversal.Forward, state.PathTraversal,
+                "Botwoon production path direction");
             AssertEqual(ReadRomWord(rom, 0xb3e154 + offset), RecordBytes * state.TargetHoleIndex, "Botwoon production destination");
             AssertEqual(BotwoonMovementFunction.FollowAuthoredPath, state.MovementFunction, "Botwoon path handoff");
         }
         AssertEqual(32, BotwoonNavigationDefinitions.PathChoiceCount, "Botwoon has 32 path choices");
         foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
             AssertThrows<InvalidDataException>(() => BotwoonNavigation.PathForChoice(invalid), "Botwoon descriptor rejects every invalid path choice");
-        Console.WriteLine("Botwoon path descriptors: all 32 sample, direction and destination fields and production installations match native records; invalid choices rejected.");
+        Console.WriteLine("Botwoon path descriptors: all 32 path, first-step, direction and destination fields and production installations match native records; invalid choices rejected.");
     }
 
-    /// <summary>Checks path starts and signed stream separators, including the distinct early terminal marker.</summary>
-    private static void VerifyBotwoonPathPointerMapping(SuperMetroidAddressSpace rom)
+    /// <summary>
+    /// Checks the table's separators, including the distinct early terminator, and that each descriptor's sample
+    /// pointer starts its walk on the path and step the typed descriptor names.
+    /// </summary>
+    private static void VerifyBotwoonPathStartMapping(SuperMetroidAddressSpace rom)
     {
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         ushort[] boundaries = [0xa058,0xa328,0xa6ba,0xaa22,0xadfc,0xb168,0xb554,0xb954,
             0xbc84,0xc084,0xc28e,0xc68e,0xc9ca,0xcdca,0xd13e,0xd4a0,0xd87e,
             0xda00,0xdb9a,0xdd40,0xde7c,0xdfde,0xe14e];
         foreach (ushort pointer in boundaries)
-        {
             AssertEqual((ushort)0x0080, ReadRomWord(rom, 0xb30000 | pointer), "Botwoon native stream separator");
-            AssertEqual(new Offset16<RoomPixels>(sbyte.MinValue, 0), BotwoonNavigation.MovementSample(SampleIndexOf(pointer)), "Botwoon compiled stream separator");
-        }
+        AssertTrue(boundaries.Select(pointer => 0xb30000 | pointer).SequenceEqual(BotwoonPathCodec.SeparatorAddresses(cartridge)),
+            "Botwoon separators are exactly the native stream boundaries");
         AssertEqual((ushort)0xf080, ReadRomWord(rom, 0xb3a6b4), "Botwoon early terminal is distinct from stream separator");
         for (int offset = 0; offset < 256; offset += 8)
-            AssertEqual(SampleIndexOf(ReadRomWord(rom, 0xb3e150 + offset)),
-                BotwoonNavigation.PathForChoice(offset / RecordBytes).FirstSampleIndex, "Botwoon native forward/reverse descriptor start");
+        {
+            ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
+            short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
+            BotwoonPathDescriptorDefinition descriptor = BotwoonNavigation.PathForChoice(offset / RecordBytes);
+            BotwoonPathPosition start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
+            AssertEqual(start.Path, descriptor.Path, "Botwoon native descriptor path");
+            AssertEqual(start.Step, descriptor.FirstStep, "Botwoon native descriptor first step");
+        }
     }
 
     /// <summary>Checks forward and reverse traversal words for every authored path choice.</summary>
     private static void VerifyBotwoonPathDirectionMapping(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
-            AssertEqual((short)ReadRomWord(rom, 0xb3e152 + offset),
-                BotwoonNavigation.PathForChoice(offset / RecordBytes).Direction, "Botwoon native traversal direction");
+            AssertEqual((short)ReadRomWord(rom, 0xb3e152 + offset) < 0 ? BotwoonPathTraversal.Backward : BotwoonPathTraversal.Forward,
+                BotwoonNavigation.PathForChoice(offset / RecordBytes).Traversal, "Botwoon native traversal direction");
     }
 
     /// <summary>Checks destination holes, including the repeated hidden choice in the native table.</summary>
@@ -129,11 +138,15 @@ internal static class BotwoonNavigationDefinitionsVerification
                 RecordBytes * BotwoonNavigation.PathForChoice(offset / RecordBytes).TargetHoleIndex, "Botwoon native destination including repeated hidden choice");
     }
 
-    /// <summary>Compares hole rectangles and movement samples against retail words while guarding compiled source ranges during production navigation.</summary>
+    /// <summary>
+    /// Compares hole rectangles, the authored paths and every step's production movement in both directions against
+    /// the retail tables.
+    /// </summary>
     internal static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
         Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
 
         var holes = new BotwoonHoleDefinition[4];
         for (int holeIndex = 0; holeIndex < holes.Length; holeIndex++)
@@ -141,8 +154,8 @@ internal static class BotwoonNavigationDefinitionsVerification
             int address = 0xb3949b + RecordBytes * holeIndex;
             BotwoonHoleDefinition hole = BotwoonNavigation.HoleAt(holeIndex);
             holes[holeIndex] = hole;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), hole.TopLeft.X, $"Botwoon hole {holeIndex} left");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), hole.TopLeft.Y, $"Botwoon hole {holeIndex} top");
+            AssertEqual(cartridge.ReadCartridgeWord(address), hole.TopLeft.X, $"Botwoon hole {holeIndex} left");
+            AssertEqual(cartridge.ReadCartridgeWord((address + 4)), hole.TopLeft.Y, $"Botwoon hole {holeIndex} top");
         }
 
         Action<RoomEnemySlot, BotwoonEnemyState> runMovement = BotwoonBehavior.RunBotwoonMovement;
@@ -151,13 +164,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             int address = 0xb3e150 + RecordBytes * choice;
             BotwoonPathDescriptorDefinition descriptor =
                 BotwoonNavigation.PathForChoice(choice);
-            AssertEqual(SampleIndexOf(CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), descriptor.FirstSampleIndex,
-                $"Botwoon path {choice} first sample");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), descriptor.Direction,
-                $"Botwoon path {choice} direction");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), RecordBytes * descriptor.TargetHoleIndex,
-                $"Botwoon path {choice} target hole");
-            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)),
+            AssertEqual((ushort)0, cartridge.ReadCartridgeWord((address + 6)),
                 $"Botwoon path {choice} alignment word");
 
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -169,76 +176,69 @@ internal static class BotwoonNavigationDefinitionsVerification
                 Speed = 0,
             };
             runMovement(head, state);
-            int expectedSample = descriptor.Direction < 0
-                ? descriptor.FirstSampleIndex - 2
-                : descriptor.FirstSampleIndex;
-            AssertEqual(expectedSample, state.PathSampleIndex,
-                $"Botwoon production path {choice} sample");
-            AssertEqual(descriptor.Direction, state.PathDirection,
-                $"Botwoon production path {choice} direction");
+            AssertEqual(descriptor.Path, state.PathIndex, $"Botwoon production path {choice} path");
+            AssertEqual(descriptor.FirstStep, state.PathStep, $"Botwoon production path {choice} first step");
+            AssertEqual(descriptor.Traversal, state.PathTraversal, $"Botwoon production path {choice} direction");
             AssertEqual(descriptor.TargetHoleIndex, state.TargetHoleIndex,
                 $"Botwoon production path {choice} target hole");
             AssertEqual(BotwoonMovementFunction.FollowAuthoredPath, state.MovementFunction,
                 $"Botwoon production path {choice} handoff");
         }
 
+        // The typed paths are the cartridge's, step for step.
+        BotwoonPathStep[][] native = BotwoonPathCodec.Paths(cartridge);
+        AssertEqual(native.Length, BotwoonPathDefinitions.Paths.Length, "Botwoon authored path count");
+        for (int path = 0; path < native.Length; path++)
+        {
+            AssertEqual(native[path].Length, BotwoonPathDefinitions.Paths[path].Length, $"Botwoon path {path} length");
+            for (int step = 0; step < native[path].Length; step++)
+                AssertEqual(native[path][step], BotwoonPathDefinitions.Paths[path][step], $"Botwoon path {path} step {step}");
+        }
+
+        // Every position a walk can reach, one before the first step through one after the last, moves the head by
+        // the cartridge's sample at that position, or ends the walk where the cartridge reads a marker.
         var movementEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot movementHead = movementEnemies.SlotTable.Slots[0];
-        int movementSampleCount = 0;
-        for (int pointer = BotwoonNavigationDefinitionsConstants.MovementDataStart;
-             pointer < BotwoonNavigationDefinitionsConstants.MovementDataEndExclusive;
-             pointer += SampleBytes)
+        List<int> separators = BotwoonPathCodec.SeparatorAddresses(cartridge);
+        int movementStepCount = 0;
+        for (int path = 0; path < BotwoonPathDefinitions.Paths.Length; path++)
         {
-            int sampleIndex = SampleIndexOf(pointer);
-            sbyte expectedX = unchecked((sbyte)rom.ReadCartridgeByte(0xb30000 | pointer));
-            sbyte expectedY = unchecked((sbyte)rom.ReadCartridgeByte(0xb30000 | pointer + 1));
-            Offset16<RoomPixels> compiled =
-                BotwoonNavigation.MovementSample(sampleIndex);
-            AssertEqual(expectedX, compiled.X, $"Botwoon movement ${pointer:X4} X");
-            AssertEqual(expectedY, compiled.Y, $"Botwoon movement ${pointer:X4} Y");
-
-            foreach (short direction in new short[] { 0, -1 })
+            for (int step = -1; step <= BotwoonPathDefinitions.Paths[path].Length; step++)
             {
-                movementHead.Position = movementHead.Position.WithWhole(new(0x8000, 0x8000));
-                var state = new BotwoonEnemyState()
+                int address = BotwoonPathCodec.AddressOf(separators, path, step);
+                Offset16<RoomPixels> expected = BotwoonPathCodec.Sample(cartridge, address);
+                bool terminates = BotwoonPathCodec.IsMarker(cartridge, address);
+                foreach (BotwoonPathTraversal traversal in Enum.GetValues<BotwoonPathTraversal>())
                 {
-                    MovementFunction = BotwoonMovementFunction.FollowAuthoredPath,
-                    PathSampleIndex = sampleIndex,
-                    PathDirection = direction,
-                    Speed = 1,
-                };
-                runMovement(movementHead, state);
+                    movementHead.Position = movementHead.Position.WithWhole(new(0x8000, 0x8000));
+                    var state = new BotwoonEnemyState()
+                    {
+                        MovementFunction = BotwoonMovementFunction.FollowAuthoredPath,
+                        PathIndex = path,
+                        PathStep = step,
+                        PathTraversal = traversal,
+                        Speed = 1,
+                    };
+                    runMovement(movementHead, state);
 
-                bool terminates = expectedX == sbyte.MinValue || expectedY == sbyte.MinValue;
-                AssertEqual(terminates, state.PathComplete,
-                    $"Botwoon production movement ${pointer:X4}/{direction} completion");
-                if (terminates)
-                {
-                    AssertEqual(sampleIndex, state.PathSampleIndex,
-                        $"Botwoon terminating movement ${pointer:X4}/{direction} sample");
-                    AssertEqual((ushort)0x8000, movementHead.Position.X.Whole,
-                        $"Botwoon terminating movement ${pointer:X4}/{direction} X");
-                    AssertEqual((ushort)0x8000, movementHead.Position.Y.Whole,
-                        $"Botwoon terminating movement ${pointer:X4}/{direction} Y");
-                    continue;
+                    string context = $"Botwoon path {path} step {step} ${address:X6} {traversal}";
+                    AssertEqual(terminates, state.PathComplete, $"{context} completion");
+                    if (terminates)
+                    {
+                        AssertEqual(step, state.PathStep, $"{context} terminating step");
+                        AssertEqual((ushort)0x8000, movementHead.Position.X.Whole, $"{context} terminating X");
+                        AssertEqual((ushort)0x8000, movementHead.Position.Y.Whole, $"{context} terminating Y");
+                        continue;
+                    }
+
+                    int sign = traversal == BotwoonPathTraversal.Backward ? -1 : 1;
+                    AssertEqual(unchecked((ushort)(0x8000 + sign * expected.X)), movementHead.Position.X.Whole, $"{context} X");
+                    AssertEqual(unchecked((ushort)(0x8000 + sign * expected.Y)), movementHead.Position.Y.Whole, $"{context} Y");
+                    AssertEqual(step + sign, state.PathStep, $"{context} next step");
                 }
-
-                int sign = direction < 0 ? -1 : 1;
-                AssertEqual(unchecked((ushort)(0x8000 + sign * expectedX)),
-                    movementHead.Position.X.Whole,
-                    $"Botwoon production movement ${pointer:X4}/{direction} X");
-                AssertEqual(unchecked((ushort)(0x8000 + sign * expectedY)),
-                    movementHead.Position.Y.Whole,
-                    $"Botwoon production movement ${pointer:X4}/{direction} Y");
-                AssertEqual(sampleIndex + sign,
-                    state.PathSampleIndex,
-                    $"Botwoon production movement ${pointer:X4}/{direction} sample");
+                movementStepCount++;
             }
-
-            movementSampleCount++;
         }
-        AssertEqual(movementSampleCount, BotwoonMovementSampleData.Count,
-            "Botwoon compiled movement corpus covers exactly the cartridge's sample range");
 
         Action<RoomEnemySlot, BotwoonEnemyState> detectHole = BotwoonBehavior.DetectBotwoonHole;
         for (int holeIndex = 0; holeIndex < holes.Length; holeIndex++)
@@ -301,11 +301,14 @@ internal static class BotwoonNavigationDefinitionsVerification
             () => BotwoonNavigation.PathForChoice(32),
             "Botwoon path choice past table");
         AssertThrows<InvalidDataException>(
-            () => BotwoonNavigation.MovementSample(-1),
-            "Botwoon movement sample before corpus");
+            () => BotwoonNavigation.HasStep(0, -2),
+            "Botwoon path position before the walk's end");
         AssertThrows<InvalidDataException>(
-            () => BotwoonNavigation.MovementSample(BotwoonMovementSampleData.Count),
-            "Botwoon movement sample after corpus");
+            () => BotwoonNavigation.HasStep(0, BotwoonPathDefinitions.Paths[0].Length + 1),
+            "Botwoon path position past the walk's end");
+        AssertThrows<InvalidDataException>(
+            () => BotwoonNavigation.HasStep(BotwoonPathDefinitions.Paths.Length, 0),
+            "Botwoon path past the authored paths");
 
         var invalidEnemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot invalidHead = invalidEnemies.SlotTable.Slots[0];
@@ -313,16 +316,19 @@ internal static class BotwoonNavigationDefinitionsVerification
         {
             MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
             PathChoice = BotwoonNavigationDefinitions.PathChoiceCount,
-            PathSampleIndex = 77,
-            PathDirection = -7,
+            PathIndex = 7,
+            PathStep = 77,
+            PathTraversal = BotwoonPathTraversal.Backward,
             TargetHoleIndex = 3,
         };
         AssertThrows<InvalidDataException>(
             () => runMovement(invalidHead, invalidState),
             "Botwoon invalid production path selector");
-        AssertEqual(77, invalidState.PathSampleIndex,
-            "Botwoon invalid path leaves sample unchanged");
-        AssertEqual(-7, invalidState.PathDirection,
+        AssertEqual(7, invalidState.PathIndex,
+            "Botwoon invalid path leaves path unchanged");
+        AssertEqual(77, invalidState.PathStep,
+            "Botwoon invalid path leaves step unchanged");
+        AssertEqual(BotwoonPathTraversal.Backward, invalidState.PathTraversal,
             "Botwoon invalid path leaves direction unchanged");
         AssertEqual(3, invalidState.TargetHoleIndex,
             "Botwoon invalid path leaves target unchanged");
@@ -330,9 +336,9 @@ internal static class BotwoonNavigationDefinitionsVerification
             "Botwoon invalid path leaves callback unchanged");
 
         Console.WriteLine(
-            $"Botwoon navigation definitions: 144 native words, {movementSampleCount:N0} signed " +
-            "movement pairs in both directions, all 32 real descriptor handoffs, four movement " +
-            "targets and rectangle boundaries pass with fixed definition reads forbidden.");
+            $"Botwoon navigation definitions: 144 native words, all {BotwoonPathDefinitions.Paths.Length} authored " +
+            $"paths step for step, {movementStepCount:N0} walk positions in both directions, all 32 real descriptor " +
+            "handoffs, four movement targets and rectangle boundaries pass.");
     }
 
 

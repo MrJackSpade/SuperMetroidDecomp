@@ -7,10 +7,15 @@ internal static class BotwoonSpeedDefinitionsConstants
     /// <summary>$B3:94BB, BotwoonSpeedTable: three speed/body-travel-time pairs.</summary>
     public const int MovementReferenceAddress = 0xb394bb;
 
+    /// <summary>The bytes of one head-history entry; the cartridge's segment spacing is a byte distance.</summary>
+    public const int HistoryEntryBytes = 4;
+
     /// <summary>Provides Botwoon's native movement reference address for speed data comparison.</summary>
     extension(BotwoonSpeedDefinitions)
     {
         /// <inheritdoc cref="BotwoonSpeedDefinitionsConstants.MovementReferenceAddress"/>
         internal static int MovementReferenceAddress => BotwoonSpeedDefinitionsConstants.MovementReferenceAddress;
+        /// <inheritdoc cref="BotwoonSpeedDefinitionsConstants.HistoryEntryBytes"/>
+        internal static int HistoryEntryBytes => BotwoonSpeedDefinitionsConstants.HistoryEntryBytes;
     }
 }

@@ -136,11 +136,11 @@ internal static class BotwoonAnimationsVerification
         for (ushort selector = 0; selector < 64; selector += 2)
         {
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector));
-            _ = BotwoonAnimations.SegmentPrograms.Steps(BotwoonSegmentProgram.FromSelector(selector));
+            _ = BotwoonAnimations.SegmentPrograms.Steps(BotwoonSegmentSelectorCodec.Program(selector));
             AssertTrue(native != 0, $"Botwoon segment selector ${selector:X2} has a native list");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => BotwoonSegmentProgram.FromSelector(1), "odd Botwoon segment selector");
-        AssertThrows<ArgumentOutOfRangeException>(() => BotwoonSegmentProgram.FromSelector(64), "Botwoon segment selector past the table");
+        AssertThrows<ArgumentOutOfRangeException>(() => BotwoonSegmentSelectorCodec.Program(1), "odd Botwoon segment selector");
+        AssertThrows<ArgumentOutOfRangeException>(() => BotwoonSegmentSelectorCodec.Program(64), "Botwoon segment selector past the table");
         AssertThrows<ArgumentOutOfRangeException>(() => BotwoonAnimations.FacingOfOctant(8), "Botwoon octant past the circle");
         Console.WriteLine("  Botwoon animation selection: AI head choices, hiding and reinstallation follow the cartridge.");
     }
@@ -154,7 +154,7 @@ internal static class BotwoonAnimationsVerification
         for (ushort selector = 0; selector < 64; selector += 2)
         {
             var projectile = new RoomEnemyProjectileSlot(0) { Kind = RoomEnemyProjectileKind.BotwoonBody };
-            projectile.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentProgram.FromSelector(selector)));
+            projectile.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentSelectorCodec.Program(selector)));
             CompareBotwoonProjectile(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector)), projectile, Pass,
                 $"segment selector ${selector:X2}");
         }
@@ -171,14 +171,14 @@ internal static class BotwoonAnimationsVerification
         var segment = new RoomEnemyProjectileSlot(1)
         {
             Kind = RoomEnemyProjectileKind.BotwoonBody,
-            State = new BotwoonSegmentState(BotwoonSegmentProgram.FromSelector(0)),
+            State = new BotwoonSegmentState(BotwoonSegmentSelectorCodec.Program(0)),
         };
-        segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentProgram.FromSelector(0)));
+        segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentSelectorCodec.Program(0)));
         Pass(segment);
         Pass(segment);
         animate(segment, 0);
         AssertEqual((ushort)7, segment.InstructionTimer.RawValue, "an unchanged Botwoon segment program keeps its timer");
-        segment.StateOf<BotwoonSegmentState>().Pose = BotwoonSegmentProgram.FromSelector(2);
+        segment.StateOf<BotwoonSegmentState>().Pose = BotwoonSegmentSelectorCodec.Program(2);
         animate(segment, 0);
         AssertEqual((ushort)1, segment.InstructionTimer.RawValue, "a changed Botwoon segment program restarts");
         Pass(segment);
@@ -186,12 +186,12 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        Action<RoomEnemySlot, BotwoonEnemyState, ushort> spawnBody = (bodyHead, bodyState, bodyArgument) => enemies.BotwoonBehavior.SpawnBotwoonBodySegment(bodyHead, bodyState, bodyArgument);
+        Action<RoomEnemySlot, BotwoonEnemyState, int> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
         Action<RoomEnemyProjectileSlot, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyPreInstruction;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState();
         enemies.BotwoonBehavior.BotwoonState = state;
-        spawnBody(head, state, 2);
+        spawnBody(head, state, 1);
         RoomEnemyProjectileSlot body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
         AssertEqual(BotwoonSegmentProgram.Hidden, ((BotwoonProjectileAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).Segment,
             "the real body producer starts a non-tail segment hidden");

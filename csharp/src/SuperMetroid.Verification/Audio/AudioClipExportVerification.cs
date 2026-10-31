@@ -73,7 +73,7 @@ internal static class AudioClipExportVerification
     /// </summary>
     private static void VerifyMusic(ExtractedAudioAssetCatalog catalog, ClipAudioLibrary clips, int track, bool loopRepeatsExactly)
     {
-        MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, track);
+        MusicClipEntry entry = clips.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(track));
         long loopStart = entry.LoopStart ?? throw new InvalidOperationException($"Green Brinstar track {track} loops.");
         short[] clip = clips.ReadClip(entry.Clip);
         long frames = entry.Clip.Frames;

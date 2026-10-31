@@ -114,11 +114,11 @@ internal static class AudioClipExporter
         short[] pcm = MusicTrackRendering.RenderClip(catalog, track);
         long start = track.StartSample;
         long clipFrames = pcm.Length / 2;
-        var segments = new List<MusicTempoSegment>();
+        var segments = new List<SongTempo>();
         foreach ((long sample, int tempo) in track.TempoChanges)
         {
             if (sample - start < clipFrames)
-                segments.Add(new MusicTempoSegment(sample - start, tempo));
+                segments.Add(new SongTempo(sample - start, tempo));
         }
         return new MusicClipEntry(
             AudioAssetCatalogDefinitions.Get(key.Bank).DataSet

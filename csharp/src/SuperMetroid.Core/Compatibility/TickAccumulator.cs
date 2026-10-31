@@ -3,12 +3,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// <summary>
 /// A phase that advances by a step on every sound clock step and overflows once per
 /// <see cref="Period"/> accumulated counts, carrying the remainder into the next step. The sound
-/// program paces its music (by the track's tempo) and its request checks (by a fixed step) this
-/// way, so which update a music command or a sound request is acted on depends on the carried
-/// phase; that timing is gameplay-observable through the acknowledgements, so the overflow and
-/// its remainder are kept exactly.
+/// acceptance clock paces its request checks (by a fixed step) this way, so which update a sound
+/// request is acted on depends on the carried phase; that timing is gameplay-observable through
+/// the acknowledgements, so the overflow and its remainder are kept exactly.
 /// </summary>
-[CompatibilityService("a phase that wraps at a fixed period and carries its remainder, pacing the sound clock's checks and the music tempo")]
+[CompatibilityService("a phase that wraps at a fixed period and carries its remainder, pacing the sound clock's request checks")]
 public readonly record struct TickAccumulator
 {
     /// <summary>Accumulated counts per overflow: the phase wraps back to zero after this many.</summary>

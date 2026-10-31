@@ -36,13 +36,13 @@ public sealed class ClipAudioLibrary
 
     /// <summary>The audio root the manifest's paths are relative to.</summary>
     private readonly string root;
-    /// <summary>Music clips by (bank, track).</summary>
+    /// <summary>Songs by clip set and track.</summary>
     private readonly Dictionary<MusicTrackKey, MusicClipEntry> music;
-    /// <summary>Sound-effect entries by (data set, sound).</summary>
+    /// <summary>Sound-effect entries by clip set and sound.</summary>
     private readonly Dictionary<SoundEffectClipKey, SoundEffectClipEntry> soundEffects;
     /// <summary>Each sound's acceptance policy, the same in every data set.</summary>
     private readonly Dictionary<SoundEffectId, SoundEffectClipPolicy> policies = [];
-    /// <summary>Effects with no clip in a context, by (data set, sound).</summary>
+    /// <summary>Effects with no clip in a clip set, by clip set and sound.</summary>
     private readonly Dictionary<SoundEffectClipKey, UnrenderableSoundEffect> unrenderable;
     /// <summary>Each override replacement clip's absolute path; every other clip lives beneath <see cref="root"/>.</summary>
     private readonly IReadOnlyDictionary<AudioClipFile, string> overrideFiles;
@@ -177,15 +177,15 @@ public sealed class ClipAudioLibrary
             _ = ReadClip(layer.Clip);
     }
 
-    /// <summary>The music clip for <paramref name="track"/> in <paramref name="audioSet"/>.</summary>
-    /// <exception cref="KeyNotFoundException">The bank has no such track.</exception>
-    public MusicClipEntry GetMusic(MusicDataSet audioSet, int track) =>
-        music.TryGetValue(new MusicTrackKey(audioSet, track), out MusicClipEntry? entry)
+    /// <summary>The song <paramref name="track"/> in <paramref name="clipSet"/>'s clip set.</summary>
+    /// <exception cref="KeyNotFoundException">The clip set has no such song.</exception>
+    public MusicClipEntry GetMusic(MusicDataSet clipSet, MusicTrack track) =>
+        music.TryGetValue(new MusicTrackKey(clipSet, track.Number), out MusicClipEntry? entry)
             ? entry
-            : throw new KeyNotFoundException($"No music clip for {audioSet} track {track}.");
+            : throw new KeyNotFoundException($"No song for {clipSet} {track}.");
 
-    /// <summary>The sound effect's entry in <paramref name="context"/> (null for only the shared sounds).</summary>
-    /// <exception cref="InvalidDataException">The effect keys sources the context does not upload, so it has no clip there.</exception>
+    /// <summary>The sound effect's entry in <paramref name="context"/>'s clip set (null for only the shared sounds).</summary>
+    /// <exception cref="InvalidDataException">The effect plays samples the clip set lacks, so it has no clip there.</exception>
     /// <exception cref="KeyNotFoundException">The library has no such effect.</exception>
     public SoundEffectClipEntry GetSoundEffect(MusicDataSet? context, SoundEffectId sound)
     {
@@ -194,7 +194,7 @@ public sealed class ClipAudioLibrary
         if (unrenderable.TryGetValue(new SoundEffectClipKey(context, sound), out UnrenderableSoundEffect? missing))
         {
             throw new InvalidDataException(
-                $"{sound} has no clip in {ContextName(context)}: the upload lacks " +
+                $"{sound} has no clip in {ContextName(context)}: the clip set lacks " +
                 $"{string.Join("; ", missing.MissingSources)}.");
         }
         throw new KeyNotFoundException($"No sound effect {sound} in {ContextName(context)}.");

@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <param name="FormatVersion">Must equal <see cref="CurrentFormatVersion"/>.</param>
 /// <param name="SourceContentIdentity">The content identity of the extracted audio catalog the clips were rendered from.</param>
-/// <param name="SampleRate">The clips' rate in stereo frames per second: the native S-DSP rate.</param>
-/// <param name="Music">One clip per (bank, track).</param>
+/// <param name="SampleRate">The clips' rate in stereo frames per second: 32,040, one update's clock samples sixty times.</param>
+/// <param name="Music">One clip per song of each clip set.</param>
 /// <param name="SoundEffects">One entry per renderable (data set, effect).</param>
 /// <param name="Unrenderable">The (data set, effect) pairs with no clip.</param>
 public sealed record AudioClipManifest(

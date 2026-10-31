@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// One track of the loaded music data set. A data set holds a handful of tracks numbered from one, the numbering room
-/// headers select tracks by and the clip catalog keys each rendered track by (<see cref="MusicTrackKey"/>); playing a
-/// track needs only its number because the data set it belongs to is the one loaded.
+/// One track of the loaded music data set. A data set holds a handful of songs numbered from one, the numbering rooms
+/// select songs by and the clip library finds each song of a clip set by (<see cref="MusicTrackKey"/>); playing a
+/// track needs only its number because the clip set it belongs to is the one loaded.
 /// </summary>
 public readonly record struct MusicTrack
 {

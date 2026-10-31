@@ -16,7 +16,7 @@ public abstract record AudioEvent
     {
     }
 
-    /// <summary>Switches to <see cref="DataSet"/>'s clips before the update's clock steps run; the music stops.</summary>
+    /// <summary>Switches to <see cref="DataSet"/>'s clip set before the update's clock steps run; the song stops.</summary>
     /// <param name="DataSet">The music data set switched to, or null for only the shared sounds.</param>
     public sealed record ChangeMusicDataSet(MusicDataSet? DataSet) : AudioEvent
     {
@@ -25,8 +25,8 @@ public abstract record AudioEvent
     }
 
     /// <summary>
-    /// Selects <see cref="Track"/> before the update's clock steps run; the music changes at the next music tick. A null
-    /// track stops the music.
+    /// Selects <see cref="Track"/> before the update's clock steps run; the song changes on the music's next beat. A
+    /// null track stops the music.
     /// </summary>
     /// <param name="Track">The track selected, or null to stop the music.</param>
     public sealed record SelectMusicTrack(MusicTrack? Track) : AudioEvent

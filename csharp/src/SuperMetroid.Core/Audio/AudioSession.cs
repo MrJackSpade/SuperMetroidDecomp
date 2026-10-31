@@ -15,11 +15,11 @@ namespace SuperMetroid.Core.Audio;
 /// </remarks>
 public sealed class AudioSession
 {
-    /// <summary>Host PCM output rate of 48,000 stereo frames per second, after resampling the native 32-kHz DSP output.</summary>
+    /// <summary>Host PCM output rate of 48,000 stereo frames per second, after resampling the clips' 32,040-Hz mix.</summary>
     public const int SampleRate = 48_000;
     /// <summary>Two interleaved PCM channels per stereo frame: left followed by right.</summary>
     public const int ChannelCount = 2;
-    /// <summary>Eight hundred stereo frames generated for each 60-Hz emulation update, yielding 1,600 signed 16-bit channel samples.</summary>
+    /// <summary>Eight hundred stereo frames generated for each 60-Hz update, yielding 1,600 signed 16-bit channel samples.</summary>
     public const int StereoFramesPerVideoFrame = SampleRate / 60;
     /// <summary>Interleaved left/right samples in one update's PCM frame.</summary>
     public const int PcmSamplesPerFrame = StereoFramesPerVideoFrame * ChannelCount;

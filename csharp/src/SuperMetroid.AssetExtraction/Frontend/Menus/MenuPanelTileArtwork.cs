@@ -16,10 +16,10 @@ internal sealed class MenuPanelTileArtwork
     /// <summary>The menu atlas tile holding each cell of the panel edge.</summary>
     private static readonly MenuAtlasCells<MenuPanelCell> AtlasCells = new(new Dictionary<MenuPanelCell, int>
     {
-        [MenuPanelCell.UpperLeft] = 0x57,
-        [MenuPanelCell.UpperRight] = 0x58,
-        [MenuPanelCell.LowerLeft] = 0x59,
-        [MenuPanelCell.LowerRight] = 0x5a,
+        [MenuPanelCell.UpperLeft] = 87,
+        [MenuPanelCell.UpperRight] = 88,
+        [MenuPanelCell.LowerLeft] = 89,
+        [MenuPanelCell.LowerRight] = 90,
     });
     /// <summary>Accepts only the four native panel-edge tile indexes.</summary>
     internal static bool Contains(int tile) => AtlasCells.Contains(tile);

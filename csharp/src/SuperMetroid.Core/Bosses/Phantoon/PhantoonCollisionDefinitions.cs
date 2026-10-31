@@ -46,13 +46,13 @@ internal static class PhantoonCollisionDefinitions
     internal static readonly EnemyCollisionHitbox[] EyeOnlyList = [Eye];
 
     /// <summary>The one inert point component most frames carry.</summary>
-    internal static readonly ImmutableArray<PhantoonCollisionComponent> PointComponents = [new(Offset16<RoomPixels>.Zero, PointList)];
+    internal static readonly ImmutableArray<EnemyCollisionComponent> PointComponents = [new(Offset16<RoomPixels>.Zero, PointList)];
     /// <summary>The full body's one component.</summary>
-    internal static readonly ImmutableArray<PhantoonCollisionComponent> FullBodyComponents = [new(Offset16<RoomPixels>.Zero, FullBodyList)];
+    internal static readonly ImmutableArray<EnemyCollisionComponent> FullBodyComponents = [new(Offset16<RoomPixels>.Zero, FullBodyList)];
     /// <summary>The eye-only body's one component.</summary>
-    internal static readonly ImmutableArray<PhantoonCollisionComponent> EyeOnlyComponents = [new(Offset16<RoomPixels>.Zero, EyeOnlyList)];
+    internal static readonly ImmutableArray<EnemyCollisionComponent> EyeOnlyComponents = [new(Offset16<RoomPixels>.Zero, EyeOnlyList)];
     /// <summary>A tentacle frame's two inert point components.</summary>
-    internal static readonly ImmutableArray<PhantoonCollisionComponent> TentacleComponents =
+    internal static readonly ImmutableArray<EnemyCollisionComponent> TentacleComponents =
         [new(Offset16<RoomPixels>.Zero, PointList), new(Offset16<RoomPixels>.Zero, PointList)];
 
     /// <summary>A body rectangle that Samus touches and shoots.</summary>
@@ -70,7 +70,7 @@ internal static class PhantoonCollisionDefinitions
     /// Each Phantoon BG2 frame's components: the full body and the eye alone each have one component, the three
     /// tentacle frames two inert points, and every other frame one inert point.
     /// </summary>
-    internal static readonly Dictionary<EnemyFrameId, ImmutableArray<PhantoonCollisionComponent>> FrameComponents = new()
+    internal static readonly Dictionary<EnemyFrameId, ImmutableArray<EnemyCollisionComponent>> FrameComponents = new()
     {
         [EnemyFrameId.PhantoonInvulnerableBody0] = PointComponents,
         [EnemyFrameId.PhantoonFullHitboxBody0] = FullBodyComponents,

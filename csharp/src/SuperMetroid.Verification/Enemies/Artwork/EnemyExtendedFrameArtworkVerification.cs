@@ -1396,7 +1396,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.Frame = RoomEnemySlotFrameAccess.FrameAt(EnemyExtendedFrameDefinitions.Bank, pointer);
         slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
-        SpacePirateCollisionComponent component =
+        EnemyCollisionComponent component =
             SpacePirateCollisionDefinitions.ComponentsAt(pointer)[0];
         EnemyCollisionHitbox hitbox = component.Hitboxes[0];
         ushort sampleX = unchecked((ushort)(slot.Position.X.Whole + component.Offset.X +

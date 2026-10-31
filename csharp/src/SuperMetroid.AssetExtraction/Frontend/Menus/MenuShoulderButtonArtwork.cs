@@ -24,10 +24,10 @@ internal sealed class MenuShoulderButtonArtwork
     /// <summary>The menu atlas tile holding each cell of the pressed L/R buttons.</summary>
     private static readonly MenuAtlasCells<MenuShoulderButtonCell> AtlasCells = new(new Dictionary<MenuShoulderButtonCell, int>
     {
-        [MenuShoulderButtonCell.LeftEdge] = 0x28,
-        [MenuShoulderButtonCell.L] = 0x29,
-        [MenuShoulderButtonCell.RightEdge] = 0x2a,
-        [MenuShoulderButtonCell.R] = 0x2e,
+        [MenuShoulderButtonCell.LeftEdge] = 40,
+        [MenuShoulderButtonCell.L] = 41,
+        [MenuShoulderButtonCell.RightEdge] = 42,
+        [MenuShoulderButtonCell.R] = 46,
     });
     /// <summary>Recognizes the four menu-atlas tiles used by pressed L and R buttons.</summary>
     internal static bool Contains(int tile) => AtlasCells.Contains(tile);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
@@ -9,7 +10,7 @@ internal static class CrocomireCorpseCollision
     internal static bool HasFrame(EnemyFrameId? frame) => frame is { } shown && CrocomireCorpseCollisionDefinitions.Frames.ContainsKey(shown);
 
     /// <summary>Returns physical component placement for a compiled corpse frame.</summary>
-    internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
+    internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
         frame is { } shown && CrocomireCorpseCollisionDefinitions.Frames.TryGetValue(shown, out var parts)
             ? parts
             : throw new InvalidDataException($"Unknown Crocomire corpse frame {frame}.");

@@ -18,10 +18,10 @@ internal sealed class MenuShoulderHighlightArtwork
     /// <summary>The menu atlas tile holding each cell of the L/R highlight.</summary>
     private static readonly MenuAtlasCells<MenuShoulderHighlightCell> AtlasCells = new(new Dictionary<MenuShoulderHighlightCell, int>
     {
-        [MenuShoulderHighlightCell.TopLeft] = 0x3c,
-        [MenuShoulderHighlightCell.TopRight] = 0x3d,
-        [MenuShoulderHighlightCell.BottomRight] = 0x43,
-        [MenuShoulderHighlightCell.BottomLeft] = 0x51,
+        [MenuShoulderHighlightCell.TopLeft] = 60,
+        [MenuShoulderHighlightCell.TopRight] = 61,
+        [MenuShoulderHighlightCell.BottomRight] = 67,
+        [MenuShoulderHighlightCell.BottomLeft] = 81,
     });
     /// <summary>Admits only the four native shoulder-highlight tile identities.</summary>
     internal static bool Contains(int tile) => AtlasCells.Contains(tile);

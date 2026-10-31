@@ -17,8 +17,8 @@ internal sealed class MenuThinBorderArtwork
     /// <summary>The menu atlas tile holding each cell of the thin border.</summary>
     private static readonly MenuAtlasCells<MenuThinBorderCell> AtlasCells = new(new Dictionary<MenuThinBorderCell, int>
     {
-        [MenuThinBorderCell.Line] = 0xad,
-        [MenuThinBorderCell.Corner] = 0xae,
+        [MenuThinBorderCell.Line] = 173,
+        [MenuThinBorderCell.Corner] = 174,
     });
     /// <summary>Admits atlas tile $AD or $AE, the two thin-border cells.</summary>
     internal static bool Contains(int tile) => AtlasCells.Contains(tile);

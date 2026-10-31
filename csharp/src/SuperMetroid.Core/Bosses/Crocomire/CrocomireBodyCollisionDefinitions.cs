@@ -52,7 +52,7 @@ internal static class CrocomireBodyCollisionDefinitions
     private static readonly EnemyCollisionHitbox[] LowerCentralBody = [new(-38, -4, 42, 52, EnemyReaction.CrocomireClawTouch, EnemyReaction.CrocomireHitCountShot)];
 
     /// <summary>The fifty living-body frames' physical component lists, with presentation art excluded.</summary>
-    internal static EnemyFrameCollision<CrocomireBodyCollisionComponent> Frames { get; } = new()
+    internal static EnemyFrameCollision<EnemyCollisionComponent> Frames { get; } = new()
     {
         { EnemyFrameId.CrocomireBody0, [new(new(3, 11), MidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, 0), CentralBody), new(new(0, 0), CentralBody), new(new(0, -1), CentralBody)] },
         { EnemyFrameId.CrocomireBody1, [new(new(1, 11), WideMidBody), new(new(0, 38), EmptyLowComponent), new(new(-29, 38), EmptyLowComponent), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody), new(new(0, -2), CentralBody)] },

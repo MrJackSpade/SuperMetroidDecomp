@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using static SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCollisionDefinitions;
 
@@ -11,8 +12,8 @@ internal static class SporeSpawnCollision
 
     /// <summary>The collision components of Spore Spawn frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of Spore Spawn's collision frames.</exception>
-    internal static ReadOnlySpan<SporeSpawnCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && FrameComponents.TryGetValue(shown, out SporeSpawnCollisionComponent[]? components)
+    internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
+        frame is { } shown && FrameComponents.TryGetValue(shown, out EnemyCollisionComponent[]? components)
             ? components
             : throw new InvalidDataException($"Spore Spawn frame {frame} has no compiled collision identity.");
 }

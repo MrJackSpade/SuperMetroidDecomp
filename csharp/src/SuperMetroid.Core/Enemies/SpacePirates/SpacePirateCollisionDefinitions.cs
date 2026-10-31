@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;
@@ -169,7 +170,7 @@ internal static class SpacePirateCollisionDefinitions
     ];
 
     /// <summary>The walking, wall and ninja frames' authored component placements, and the common empty frame's.</summary>
-    internal static EnemyFrameCollision<SpacePirateCollisionComponent> Frames { get; } = new()
+    internal static EnemyFrameCollision<EnemyCollisionComponent> Frames { get; } = new()
     {
         { EnemyFrameId.EmptyExtended, [new(new(0, 0), HitboxLists[0])] },
         { EnemyFrameId.WallPirateClimbLeft0, [new(new(0, 0), HitboxLists[10]), new(new(0, 0), HitboxLists[1])] },

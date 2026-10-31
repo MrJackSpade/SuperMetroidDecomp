@@ -157,14 +157,14 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         foreach (EnemySpritemapDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, frame.Pointer));
-            System.Collections.Immutable.ImmutableArray<PhantoonCollisionComponent> components =
+            System.Collections.Immutable.ImmutableArray<EnemyCollisionComponent> components =
                 PhantoonCollision.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadCartridgeByte(root), (byte)components.Length,
                 $"Phantoon {frame.Name} compiled hitbox component count");
             for (int index = 0; index < components.Length; index++)
             {
                 int record = root + 2 + index * 8;
-                PhantoonCollisionComponent component = components[index];
+                EnemyCollisionComponent component = components[index];
                 AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(record)), component.Offset.X,
                     $"Phantoon {frame.Name} component X");
                 AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), component.Offset.Y,

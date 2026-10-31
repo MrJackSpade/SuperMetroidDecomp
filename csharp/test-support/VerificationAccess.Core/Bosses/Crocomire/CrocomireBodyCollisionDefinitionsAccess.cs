@@ -16,7 +16,7 @@ internal static class CrocomireBodyCollisionDefinitionsAccess
             CrocomireBodyCollision.HasFrame(RoomEnemySlotFrameAccess.TryFrameAt(CrocomireBodyCollision.Bank, frame));
 
         /// <summary>The components of the living or defeated body frame at native address <paramref name="frame"/>.</summary>
-        internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(ushort frame) =>
+        internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(ushort frame) =>
             CrocomireBodyCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(CrocomireBodyCollision.Bank, frame));
     }
 }

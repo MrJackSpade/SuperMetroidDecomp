@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
@@ -10,8 +11,8 @@ internal static class CrocomireBodyCollision
         CrocomireCorpseCollision.HasFrame(frame);
 
     /// <summary>Finds the physical components, each with its own hitbox list, for a living or defeated frame.</summary>
-    internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        CrocomireBodyCollisionDefinitions.Frames.TryGet(frame, out CrocomireBodyCollisionComponent[] components)
+    internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
+        CrocomireBodyCollisionDefinitions.Frames.TryGet(frame, out EnemyCollisionComponent[] components)
             ? components
             : CrocomireCorpseCollision.ComponentsAt(frame);
 }

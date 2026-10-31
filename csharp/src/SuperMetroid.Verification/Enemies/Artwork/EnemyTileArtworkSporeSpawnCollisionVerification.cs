@@ -41,14 +41,14 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
             installedSlot.SpritemapPointer =
                 frame.Pointer;
             int root = ((int)new SnesAddress(frame.Bank, frame.Pointer));
-            ReadOnlySpan<SporeSpawnCollisionComponent> components =
+            ReadOnlySpan<EnemyCollisionComponent> components =
                 SporeSpawnCollision.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadCartridgeByte(root), components.Length,
                 $"Spore Spawn frame {frame.Pointer:X4} native component count");
             for (int component = 0; component < components.Length; component++)
             {
                 int record = root + 2 + component * 8;
-                SporeSpawnCollisionComponent compiled = components[component];
+                EnemyCollisionComponent compiled = components[component];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)compiled.Offset.X),
                     $"Spore Spawn frame {frame.Pointer:X4} component {component} X");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)compiled.Offset.Y),

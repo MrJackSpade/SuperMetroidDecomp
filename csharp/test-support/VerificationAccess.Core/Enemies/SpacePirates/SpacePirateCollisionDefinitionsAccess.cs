@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -19,12 +20,12 @@ internal static class SpacePirateCollisionDefinitionsAccess
         /// <summary>The <paramref name="index"/>th compiled frame, in native order, with its native address.</summary>
         internal static SpacePirateCollisionFrame Frame(int index)
         {
-            KeyValuePair<EnemyFrameId, SpacePirateCollisionComponent[]> frame = SpacePirateCollisionDefinitions.Frames.ElementAt(index);
+            KeyValuePair<EnemyFrameId, EnemyCollisionComponent[]> frame = SpacePirateCollisionDefinitions.Frames.ElementAt(index);
             return new(EnemyFrameCartridgeLookupTooling.Word(frame.Key), frame.Value);
         }
 
         /// <summary>The components of the frame at native address <paramref name="pointer"/>.</summary>
-        internal static ReadOnlySpan<SpacePirateCollisionComponent> ComponentsAt(ushort pointer) =>
+        internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(ushort pointer) =>
             pointer == CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame || RoomEnemySlotFrameAccess.Shows(SpacePiratesBank, pointer)
                 ? SpacePirateCollisionDefinitions.Frames.Of(RoomEnemySlotFrameAccess.FrameAt(SpacePiratesBank, pointer))
                 : throw new InvalidDataException($"Space Pirate collision frame $B2:{pointer:X4} is not compiled.");

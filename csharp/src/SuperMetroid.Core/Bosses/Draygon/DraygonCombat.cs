@@ -241,7 +241,7 @@ internal sealed class DraygonCombat
 
         // Both OAM and BG2 art are replaceable presentation. Their native
         // component offsets and hitbox pointers remain fixed gameplay data.
-        foreach (DraygonCollisionComponent component in
+        foreach (EnemyCollisionComponent component in
                  DraygonCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;

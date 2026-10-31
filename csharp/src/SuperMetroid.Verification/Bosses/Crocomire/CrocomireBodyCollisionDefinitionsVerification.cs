@@ -50,14 +50,14 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         {
             AssertTrue(CrocomireBodyCollision.HasFrame(frame),
                 $"Crocomire body $A4:{frame:X4} has compiled collision");
-            ReadOnlySpan<CrocomireBodyCollisionComponent> components =
+            ReadOnlySpan<EnemyCollisionComponent> components =
                 CrocomireBodyCollision.ComponentsAt(frame);
             AssertEqual((byte)rom.ReadCartridgeWord((0xa40000 | frame)), (byte)components.Length,
                 $"Crocomire body $A4:{frame:X4} component count");
             for (int index = 0; index < components.Length; index++)
             {
                 int address = 0xa40000 | unchecked((ushort)(frame + 2 + index * 8));
-                CrocomireBodyCollisionComponent component = components[index];
+                EnemyCollisionComponent component = components[index];
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), component.Offset.X,
                     $"Crocomire $A4:{frame:X4} component {index} X");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), component.Offset.Y,

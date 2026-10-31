@@ -847,7 +847,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // These twelve OAM frames are selected by Spore Spawn. Old visual
         // overrides may carry Draygon-prefixed keys, but every rectangle
         // and callback comes from the compiled gameplay catalog.
-        foreach (SporeSpawnCollisionComponent component in
+        foreach (EnemyCollisionComponent component in
                  SporeSpawnCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;

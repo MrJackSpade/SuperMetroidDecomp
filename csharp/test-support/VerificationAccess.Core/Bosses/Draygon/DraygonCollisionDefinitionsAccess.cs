@@ -29,7 +29,7 @@ internal static class DraygonCollisionDefinitionsAccess
     extension(DraygonCollision)
     {
         /// <summary>The components of the frame at native address <paramref name="frame"/>.</summary>
-        internal static ImmutableArray<DraygonCollisionComponent> ComponentsAt(ushort frame) =>
+        internal static ImmutableArray<EnemyCollisionComponent> ComponentsAt(ushort frame) =>
             DraygonCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
     }
 

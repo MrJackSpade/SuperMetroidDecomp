@@ -12,15 +12,15 @@ internal static class PauseReserveTankVisualWords
     /// <summary>The menu spritemap ordinal of each reserve-tank visual.</summary>
     internal static readonly NativeWordIdentities<PauseReserveTankVisual> Ordinals = new(new Dictionary<PauseReserveTankVisual, ushort>
     {
-        [PauseReserveTankVisual.Full] = 0x1b,
-        [PauseReserveTankVisual.EndCap] = 0x1f,
-        [PauseReserveTankVisual.Empty] = 0x20,
-        [PauseReserveTankVisual.Fill1] = 0x21,
-        [PauseReserveTankVisual.Fill2] = 0x22,
-        [PauseReserveTankVisual.Fill3] = 0x23,
-        [PauseReserveTankVisual.Fill4] = 0x24,
-        [PauseReserveTankVisual.Fill5] = 0x25,
-        [PauseReserveTankVisual.Fill6] = 0x26,
-        [PauseReserveTankVisual.Fill7] = 0x27,
+        [PauseReserveTankVisual.Full] = 27,
+        [PauseReserveTankVisual.EndCap] = 31,
+        [PauseReserveTankVisual.Empty] = 32,
+        [PauseReserveTankVisual.Fill1] = 33,
+        [PauseReserveTankVisual.Fill2] = 34,
+        [PauseReserveTankVisual.Fill3] = 35,
+        [PauseReserveTankVisual.Fill4] = 36,
+        [PauseReserveTankVisual.Fill5] = 37,
+        [PauseReserveTankVisual.Fill6] = 38,
+        [PauseReserveTankVisual.Fill7] = 39,
     });
 }

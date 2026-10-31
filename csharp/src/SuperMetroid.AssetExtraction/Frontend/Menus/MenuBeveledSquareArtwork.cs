@@ -18,8 +18,8 @@ internal sealed class MenuBeveledSquareArtwork
     /// <summary>The menu atlas tile holding each cell of the beveled square.</summary>
     private static readonly MenuAtlasCells<MenuBeveledSquareCell> AtlasCells = new(new Dictionary<MenuBeveledSquareCell, int>
     {
-        [MenuBeveledSquareCell.Light] = 0x98,
-        [MenuBeveledSquareCell.Dark] = 0x99,
+        [MenuBeveledSquareCell.Light] = 152,
+        [MenuBeveledSquareCell.Dark] = 153,
     });
     /// <summary>Restricts lookup to the menu's $98 and $99 square cells.</summary>
     internal static bool Contains(int tile) => AtlasCells.Contains(tile);

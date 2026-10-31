@@ -59,18 +59,18 @@ internal static class SporeSpawnCollisionDefinitions
     internal static readonly EnemyCollisionHitbox[][] OpeningHeadLists = [ExtendedHeadList, .. MovingHeadLists];
 
     /// <summary>The dead root's one inactive head component.</summary>
-    internal static readonly SporeSpawnCollisionComponent[] DeadComponents = [new(Offset16<RoomPixels>.Zero, ClosedHeadList)];
+    internal static readonly EnemyCollisionComponent[] DeadComponents = [new(Offset16<RoomPixels>.Zero, ClosedHeadList)];
     /// <summary>The closed root's one head component.</summary>
-    internal static readonly SporeSpawnCollisionComponent[] ClosedComponents = [new(Offset16<RoomPixels>.Zero, OpenHeadList)];
+    internal static readonly EnemyCollisionComponent[] ClosedComponents = [new(Offset16<RoomPixels>.Zero, OpenHeadList)];
     /// <summary>Each opening root's head and inner point, indexed by opening step; the inner point oscillates B, C, D, C.</summary>
-    internal static readonly SporeSpawnCollisionComponent[][] OpeningComponents =
+    internal static readonly EnemyCollisionComponent[][] OpeningComponents =
         [.. Enumerable.Range(0, OpeningHeadLists.Length).Select(opening => HeadAndPoint(OpeningHeadLists[opening], opening % 4))];
     /// <summary>Each fully open root's final head and inner point, indexed by oscillation phase B, C, D.</summary>
-    internal static readonly SporeSpawnCollisionComponent[][] FullyOpenComponents =
+    internal static readonly EnemyCollisionComponent[][] FullyOpenComponents =
         [.. Enumerable.Range(0, 3).Select(phase => HeadAndPoint(MovingHeadLists[^1], phase))];
 
     /// <summary>A zero-offset head followed by its zero-offset inner point at <paramref name="phase"/>.</summary>
-    private static SporeSpawnCollisionComponent[] HeadAndPoint(EnemyCollisionHitbox[] head, int phase) =>
+    private static EnemyCollisionComponent[] HeadAndPoint(EnemyCollisionHitbox[] head, int phase) =>
         [new(Offset16<RoomPixels>.Zero, head), new(Offset16<RoomPixels>.Zero, InnerPointsByPhase[phase])];
 
     /// <summary>
@@ -78,7 +78,7 @@ internal static class SporeSpawnCollisionDefinitions
     /// geometry while the inner point oscillates B, C, D, C; fully open frames hold the final head and select B, C, D.
     /// All component offsets are zero.
     /// </summary>
-    internal static readonly Dictionary<EnemyFrameId, SporeSpawnCollisionComponent[]> FrameComponents = new()
+    internal static readonly Dictionary<EnemyFrameId, EnemyCollisionComponent[]> FrameComponents = new()
     {
         [EnemyFrameId.SporeSpawnDead0] = DeadComponents,
         [EnemyFrameId.SporeSpawnClosed0] = ClosedComponents,

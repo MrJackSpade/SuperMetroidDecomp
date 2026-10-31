@@ -50,7 +50,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             for (int componentIndex = 0;
                  componentIndex < frame.Components.Length; componentIndex++)
             {
-                SpacePirateCollisionComponent component =
+                EnemyCollisionComponent component =
                     frame.Components[componentIndex];
                 ushort record = unchecked((ushort)(frame.Pointer + 2 +
                     componentIndex * 8));
@@ -144,7 +144,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             int checksum = 0;
             for (int index = 0; index < 65536; index++)
             {
-                ReadOnlySpan<SpacePirateCollisionComponent> components = SpacePirateCollisionDefinitions.ComponentsAt(frame);
+                ReadOnlySpan<EnemyCollisionComponent> components = SpacePirateCollisionDefinitions.ComponentsAt(frame);
                 checksum += components.Length;
                 checksum += components[0].Hitboxes.Count;
             }
@@ -166,7 +166,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
                     originY, compiledPirate: false);
                 var compiled = CreateSystem(guard, frame.Pointer, originX,
                     originY, compiledPirate: true);
-                foreach (SpacePirateCollisionComponent component in
+                foreach (EnemyCollisionComponent component in
                          frame.Components)
                 {
                     foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)

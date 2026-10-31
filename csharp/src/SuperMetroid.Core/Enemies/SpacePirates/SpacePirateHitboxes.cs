@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
@@ -10,7 +11,7 @@ internal static class SpacePirateHitboxes
     internal static bool Find(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
         reaction = null;
-        foreach (SpacePirateCollisionComponent component in
+        foreach (EnemyCollisionComponent component in
                  SpacePirateCollisionDefinitions.Frames.Of(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;

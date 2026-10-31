@@ -443,7 +443,7 @@ internal sealed class CrocomireCombat
         // Physical body components and their hitbox lists are compiled
         // independently of Crocomire's replaceable OAM/BG2 presentation.
         // Preserve native component/hitbox order: the first overlap wins.
-        foreach (CrocomireBodyCollisionComponent component in
+        foreach (EnemyCollisionComponent component in
                  CrocomireBodyCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;

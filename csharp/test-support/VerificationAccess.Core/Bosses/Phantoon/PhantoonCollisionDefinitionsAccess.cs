@@ -13,7 +13,7 @@ internal static class PhantoonCollisionDefinitionsAccess
     extension(PhantoonCollision)
     {
         /// <summary>The components of the frame at native address <paramref name="frame"/>.</summary>
-        internal static ImmutableArray<PhantoonCollisionComponent> ComponentsAt(ushort frame) =>
+        internal static ImmutableArray<EnemyCollisionComponent> ComponentsAt(ushort frame) =>
             PhantoonCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
     }
 }

@@ -179,14 +179,14 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         foreach (EnemySpritemapDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
             int root = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, frame.Pointer));
-            DraygonCollisionComponent[] components =
+            EnemyCollisionComponent[] components =
                 [.. DraygonCollision.ComponentsAt(frame.Pointer)];
             AssertEqual(rom.ReadCartridgeByte(root), components.Length,
                 $"Draygon {frame.Name} compiled collision component count");
             for (int index = 0; index < components.Length; index++)
             {
                 int record = root + 2 + index * 8;
-                DraygonCollisionComponent component = components[index];
+                EnemyCollisionComponent component = components[index];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)component.Offset.X),
                     $"Draygon {frame.Name} collision X offset");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)component.Offset.Y),

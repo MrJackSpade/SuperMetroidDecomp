@@ -728,7 +728,7 @@ internal static class LookupStream5Verification
             for (int index = 0; index < components.Length; index++)
             {
                 int record = root + 2 + index * 8;
-                PhantoonCollisionComponent component = components[index];
+                EnemyCollisionComponent component = components[index];
                 AssertEqual(unchecked((short)ReadVerificationWord(rom, record)), component.Offset.X, "Native component X");
                 AssertEqual(unchecked((short)ReadVerificationWord(rom, record + 2)), component.Offset.Y, "Native component Y");
                 componentCount++;

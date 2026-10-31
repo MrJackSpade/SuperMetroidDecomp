@@ -15,7 +15,7 @@ internal static class MotherBrainCollisionDefinitionsAccess
         internal static byte Bank => NativeBank;
 
         /// <summary>The components of the body frame at native address <paramref name="frame"/>.</summary>
-        internal static ReadOnlySpan<MotherBrainCollisionComponent> ComponentsAt(ushort frame) =>
+        internal static ReadOnlySpan<EnemyCollisionComponent> ComponentsAt(ushort frame) =>
             MotherBrainCollision.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
     }
 }

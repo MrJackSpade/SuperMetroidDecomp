@@ -13,7 +13,7 @@ internal enum MagdolliteCueKind
     MoveWithPillarDown1,
     /// <summary>Moves this part and the following one up a pixel (<c>Instruction_Magdollite_MoveBaseAndPillarUp1Pixel</c>, $A8:AE50).</summary>
     MoveWithPillarUp1,
-    /// <summary>Records the operand's library-two sound while the Magdollite is on screen (<c>Instruction_Magdollite_QueueSFXInY_Lib2_Max6_IfOnScreen</c>, $A8:AE12).</summary>
+    /// <summary>Records the operand's library-two sound while the Magdollite is on screen ($A8:AE12).</summary>
     PlaySoundIfOnScreen,
     /// <summary>Returns the head and body to the origin height (<c>Instruction_Magdollite_RestoreInitialYPositions</c>, $A8:AE88).</summary>
     RestoreOrigins,

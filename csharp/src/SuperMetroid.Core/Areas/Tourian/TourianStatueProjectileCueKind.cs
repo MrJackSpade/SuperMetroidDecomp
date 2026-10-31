@@ -5,7 +5,7 @@ internal enum TourianStatueProjectileCueKind
 {
     /// <summary>Deletes the projectile (<c>Instruction_EnemyProjectile_Delete</c>, $86:8154).</summary>
     Delete,
-    /// <summary>Queues the statue release sound (<c>Instruction_EnemyProjectile_QueueSoundInY_Lib2_Max6</c>, $86:8312).</summary>
+    /// <summary>Queues the statue release sound ($86:8312).</summary>
     PlayReleaseSound,
     /// <summary>Starts the unlocking earthquake ($86:B7F5).</summary>
     Earthquake,

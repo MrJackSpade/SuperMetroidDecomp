@@ -122,7 +122,7 @@ internal static class GunshipLandingVerification
                     "landing writes SamusPreviousXPosition with Samus X");
                 AssertTrue(enemies.Audio.SoundRequests.Contains(new SoundRequest(
                         Library3Sound.GunshipPadOpening, Priority: SoundRequestPriority.Normal)),
-                    "landing queues QueueSound_Lib3_Max6($14)");
+                    "landing requests the gunship landing sound");
                 // EnemyMain starts the pad-opening program, then this same slot's ordinary
                 // instruction phase shows its first timed frame before StepFrame returns.
                 AssertPadShowsFirstFrame(pad, GunshipProgram.EntrancePadOpening,
@@ -141,7 +141,7 @@ internal static class GunshipLandingVerification
         AssertTrue(observedPadOpen, "gunship publishes pad-open boundary");
         AssertTrue(observedPadClose, "gunship publishes pad-close boundary");
         AssertTrue(observedEngineSound,
-            "gunship bottom timer publishes QueueSfx2_Max6($4D)");
+            "gunship bottom timer requests the engine sound");
         AssertEqual(GunshipFrameEvent.LandingCompleted, enemies.LastEnemyFrame.Gunship,
             "gunship completes post-Ceres landing");
         AssertEqual(641, frames, "gunship full landing frame count");
@@ -168,7 +168,7 @@ internal static class GunshipLandingVerification
         AssertEqual(GunshipFrameEvent.EntryStarted, enemies.LastEnemyFrame.Gunship,
             "endgame Down input begins ordinary gunship entry");
         AssertEqual(1, enemies.Audio.SoundRequests.Count(request => request == openingSound),
-            "entry frame publishes exactly one library-three $14 Max6 sound");
+            "entry frame requests exactly one landing sound");
         if (entrySoundOnly)
         {
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x0400, 0x0400), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = ControllerButton.Down });

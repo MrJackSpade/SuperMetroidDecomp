@@ -31,7 +31,7 @@ internal static class KiHunterSpitAudioVerification
         byte[] nativeQueueCall = [0xa9, 0x4c, 0x00, 0x22, 0xcb, 0x90, 0x80];
         AssertSequenceEqual(nativeQueueCall, Enumerable.Range(0, nativeQueueCall.Length)
             .Select(offset => bus.ReadCartridgeByte(0xa8f6dc + offset)),
-            "retail spit instruction loads $4C and calls QueueSfx2_Max6 once");
+            "the spit instruction requests the acid-spit sound once");
         var random = new SharedRandom();
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -65,7 +65,7 @@ internal static class KiHunterSpitAudioVerification
         }
         Step();
         AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpitRight), "staged attack spawns one real acid projectile");
-        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.Priority.Requests == 6), "spit calls library two Max6");
+        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.Priority.Requests == 6), "the spit sound has normal priority");
         // Remain in the post-spit waiting state without introducing another attack.
         // The right spit animation's final sleep.
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 8);

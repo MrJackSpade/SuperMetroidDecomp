@@ -65,7 +65,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
             case OldTourianWallExplosionCue.ExplosionSound:
                 _audio.QueueEnemySound(
                     OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ExplosionSound,
-                    OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ExplosionSoundMaximum);
+                    OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ExplosionSoundPriority);
                 break;
             case OldTourianWallExplosionCue.Delete:
                 projectile.Clear();

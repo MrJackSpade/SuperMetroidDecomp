@@ -26,9 +26,9 @@ internal static class PoseProjectileOriginVerification
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleBeamDrawing.RefreshFiringDrawOrigins);
         SamusPoseId guardedPose = default;
         var bus = new CartridgeReadGuard(rom)
-            .Forbid(address => address == 0x91b629 + (int)SamusPoseNumbering.Number(guardedPose) * 8 + 3,
+            .Forbid(address => address == 0x91b629 + SamusPoseNumbering.Number(guardedPose) * 8 + 3,
                 _ => "Compiled pose aim read artwork metadata.")
-            .Forbid(address => address == 0x91b629 + (int)SamusPoseNumbering.Number(guardedPose) * 8 + 4,
+            .Forbid(address => address == 0x91b629 + SamusPoseNumbering.Number(guardedPose) * 8 + 4,
                 _ => "Installed graphics offset read ROM.");
         var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         var slot = new SamusProjectileSlot(0);

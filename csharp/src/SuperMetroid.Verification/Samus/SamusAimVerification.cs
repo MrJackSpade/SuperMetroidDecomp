@@ -534,7 +534,7 @@ internal static void VerifySamusGunExtendedMovement()
         new SamusSpecialStatesPose(SamusPoseId.FiringLandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]),
     ];
     foreach ((SamusPoseId pose, byte[] definition) in definitions)
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose), definition);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), definition);
 
     // Synthetic storage keeps the tests compact, but each stream's bytes reproduce the
     // relevant retail control flow: running loops ten frames; jump/fall loop; firing

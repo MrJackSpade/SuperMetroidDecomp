@@ -932,7 +932,7 @@ internal static void VerifySamusLiquidPhysics()
                 YSpeed = new UnsignedSixteenSixteen(1, 0),
             },
         };
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(released.Pose), [8, 2, 0xff, 0xff, 0, 0, 12, 0]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(released.Pose), [8, 2, 0xff, 0xff, 0, 0, 12, 0]);
         released.HorizontalSpeed.BaseSpeed = released.HorizontalSpeed.BaseSpeed.WithWhole(2);
         released.Grapple.ReleasedMovementActive = true;
         if (medium == (int)SamusLiquidMedium.Water)
@@ -1017,7 +1017,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, frameCounter: 
             YSpeed = new UnsignedSixteenSixteen(3, 0),
         },
     };
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.ScrewAttackRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.ScrewAttackRightPose),
         [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
     fullySubmergedScrew.LiquidPhysics.ConfigureWater(surfaceY: 100);
     fullySubmergedScrew.LiquidPhysics.InitializeRememberedMedium(fullySubmergedScrew);
@@ -1419,34 +1419,34 @@ static TestAddressSpace CreateSpaceJumpAndScrewAttackCartridge()
         new CreateSpaceJumpAndScrewAttackCartridgeCase(SamusPoseId.ScrewAttackLeftPose, 4),
     })
     {
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose), [direction, 3, 0xff, 0xff, 0, 0, 12, 0]);
-        ushort stream = unchecked((ushort)(0xc000 + (int)SamusPoseNumbering.Number(pose) * 0x20));
-        WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(pose) * 2, stream);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), [direction, 3, 0xff, 0xff, 0, 0, 12, 0]);
+        ushort stream = unchecked((ushort)(0xc000 + SamusPoseNumbering.Number(pose) * 0x20));
+        WriteTestWord(bus, 0x91b010 + SamusPoseNumbering.Number(pose) * 2, stream);
         for (int frame = 0; frame < 31; frame++)
             WriteTestByte(bus, 0x910000 | unchecked((ushort)(stream + frame)), 4);
     }
 
     // Running sources and spin-landing endpoints are sufficient to prove equipment
     // substitution and Screw palette restoration without mocking pose metadata in code.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose),
         [8, 1, 0xff, 2, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MovingLeftNormalPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.MovingLeftNormalPose),
         [4, 1, 0xff, 7, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.SpinLandingRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.SpinLandingRightPose),
         [8, 0, 0xff, 2, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.SpinLandingLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.SpinLandingLeftPose),
         [4, 0, 0xff, 7, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.NormalJumpGunExtendedRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.NormalJumpGunExtendedRightPose),
         [8, 2, 0xff, 2, 0, 0, 19, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.WallJumpRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.WallJumpRightPose),
         [8, 0x14, SamusPoseNumbering.Number(SamusPoseId.SpinJumpRightPose), 0xff, 8, 0, 19, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.NormalJumpAimDownLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.NormalJumpAimDownLeftPose),
         [4, 2, 0xff, 5, 0, 0, 10, 0]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.SpinLandingRightPose) * 2, 0xc800);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.SpinLandingLeftPose) * 2, 0xc810);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.NormalJumpGunExtendedRightPose) * 2, 0xc820);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.WallJumpRightPose) * 2, 0xc828);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.NormalJumpAimDownLeftPose) * 2, 0xc830);
+    WriteTestWord(bus, 0x91b010 + SamusPoseNumbering.Number(SamusPoseId.SpinLandingRightPose) * 2, 0xc800);
+    WriteTestWord(bus, 0x91b010 + SamusPoseNumbering.Number(SamusPoseId.SpinLandingLeftPose) * 2, 0xc810);
+    WriteTestWord(bus, 0x91b010 + SamusPoseNumbering.Number(SamusPoseId.NormalJumpGunExtendedRightPose) * 2, 0xc820);
+    WriteTestWord(bus, 0x91b010 + SamusPoseNumbering.Number(SamusPoseId.WallJumpRightPose) * 2, 0xc828);
+    WriteTestWord(bus, 0x91b010 + SamusPoseNumbering.Number(SamusPoseId.NormalJumpAimDownLeftPose) * 2, 0xc830);
     WriteTestByte(bus, 0x91c800, 4);
     WriteTestByte(bus, 0x91c810, 4);
     WriteTestByte(bus, 0x91c820, 4);
@@ -1491,9 +1491,9 @@ static TestAddressSpace CreateSamusLiquidPhysicsCartridge()
 /// <summary>Seeds the Space Jump spin pose and zeroed spin speed records.</summary>
 static void SeedSpaceJumpSpinPoseAndZeroSpinSpeeds(TestAddressSpace bus)
 {
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.SpaceJumpRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.SpaceJumpRightPose),
         [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.SpaceJumpRightPose) * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + SamusPoseNumbering.Number(SamusPoseId.SpaceJumpRightPose) * 2, 0xc000);
     for (int frame = 0; frame < 32; frame++)
         WriteTestByte(bus, 0x91c000 + frame, 4);
     foreach (int tableBase in new[] { 0x909f55, 0x90a08d, 0x90a1dd })
@@ -1512,9 +1512,9 @@ static TestAddressSpace CreateSamusAtmosphericEffectsCartridge()
     // Use native running pose `$09` for the movement type and X direction used by
     // the producer branches. Its delay metadata also lets the footstep fixture land exactly
     // on running frame two with timer one, matching `$90:A3EE-$A401`.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose),
         [8, 1, 0xff, 0, 0, 0, 12, 0]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose) * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose) * 2, 0xc000);
     bus.WriteBytes(0x91c000, [1, 1, 1, 1]);
 
     // Seed only the bank-$90 table records exercised below. Distinct attributes and timers

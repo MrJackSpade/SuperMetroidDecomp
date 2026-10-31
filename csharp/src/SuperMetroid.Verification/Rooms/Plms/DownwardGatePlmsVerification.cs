@@ -125,7 +125,7 @@ internal static class DownwardGatePlmsVerification
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(gateBlockIndex - 1).CollisionType,
             "left trigger table installs a shootable block");
-        AssertEqual((int)PlmBlockBehaviorNativeWords.DownwardGateTriggers.Word(DownwardGateTriggerBehavior.BlueLeft),
+        AssertEqual(PlmBlockBehaviorNativeWords.DownwardGateTriggers.Word(DownwardGateTriggerBehavior.BlueLeft),
             level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior.Value,
             "argument zero installs retail blue-left BTS $46");
 

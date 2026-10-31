@@ -20,7 +20,7 @@ internal static class PoseInputDefinitionsVerification
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         {
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitions.Poses.TransitionListPointers + (int)SamusPoseNumbering.Number(pose) * 2));
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitions.Poses.TransitionListPointers + SamusPoseNumbering.Number(pose) * 2));
             var native = new List<PoseInputDefinitionsNative>();
             for (int address = 0x910000 | pointer; CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address) != ushort.MaxValue; address += 6)
             {
@@ -55,7 +55,7 @@ internal static class PoseInputDefinitionsVerification
                         if ((input & (ControllerButton)native[i].Held) == (ControllerButton)native[i].Held && (edges & (ControllerButton)native[i].New) == (ControllerButton)native[i].New)
                         { match = i; break; }
                     expected = match < 0 ? new(null, native.Count != 0)
-                        : native[match].Target == (ushort)SamusPoseNumbering.Number(pose) ? new(null, false)
+                        : native[match].Target == SamusPoseNumbering.Number(pose) ? new(null, false)
                         : new(new SamusPoseTransition(SamusPoseNumbering.FromNumber(native[match].Target)), false);
                 }
                 AssertEqual(expected, SamusPoseTransitionTable.Lookup(pose, input, edges),

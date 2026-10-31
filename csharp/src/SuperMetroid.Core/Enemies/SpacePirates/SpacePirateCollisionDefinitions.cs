@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies.SpacePirates;

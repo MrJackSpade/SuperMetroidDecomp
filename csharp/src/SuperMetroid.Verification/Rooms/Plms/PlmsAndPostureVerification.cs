@@ -630,12 +630,12 @@ static TestAddressSpace CreateSamusPostureCartridge()
 static void SeedAimedTransitionPoseDefinitions(
     TestAddressSpace bus, SamusPoseId crouchPose, SamusPoseId standPose, byte direction, byte shot)
 {
-    int crouchAddress = 0x91b629 + (int)SamusPoseNumbering.Number(crouchPose) * 8;
+    int crouchAddress = 0x91b629 + SamusPoseNumbering.Number(crouchPose) * 8;
     bus.WriteBytes(crouchAddress, [
         direction, 0x0f, 0xff, shot,
         0x08, 0x00, 0x10, 0x00,
     ]);
-    int standAddress = 0x91b629 + (int)SamusPoseNumbering.Number(standPose) * 8;
+    int standAddress = 0x91b629 + SamusPoseNumbering.Number(standPose) * 8;
     bus.WriteBytes(standAddress, [
         direction, 0x0f, 0xff, shot,
         0x03, 0x00, 0x15, 0x00,

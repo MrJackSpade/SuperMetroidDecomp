@@ -1691,7 +1691,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // through the public producer and explosion owner, rather than mutating HitCounter.
     WritePoseDefinition(
         bus,
-        (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
+        SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
     WriteTestWord(bus, 0x9383c1, 0x8431);
     WriteTestWord(bus, 0x938431, 20);

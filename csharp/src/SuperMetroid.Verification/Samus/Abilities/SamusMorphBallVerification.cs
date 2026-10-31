@@ -37,7 +37,7 @@ internal static void VerifySamusMorphBallMovement()
     // slice are populated, but the complete eight-byte records make direction, movement,
     // fallback, graphics offset, and collision radius independently observable.
     void WritePose(SamusPoseId pose, byte[] definition) =>
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose), definition);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), definition);
     WritePose(SamusPoseId.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]);
     WritePose(SamusPoseId.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]);
     WritePose(SamusPoseId.MorphBallGroundRightPose, [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);

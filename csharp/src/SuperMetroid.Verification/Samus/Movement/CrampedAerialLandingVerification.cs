@@ -26,15 +26,15 @@ internal static class CrampedAerialLandingVerification
         // make their cartridge layout explicit and keep RefreshCollisionRadii on its real path.
         WritePoseDefinition(
             bus,
-            (int)SamusPoseNumbering.Number(SamusPoseId.SpinJumpRightPose),
+            SamusPoseNumbering.Number(SamusPoseId.SpinJumpRightPose),
             [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
         WritePoseDefinition(
             bus,
-            (int)SamusPoseNumbering.Number(SamusPoseId.SpinLandingRightPose),
+            SamusPoseNumbering.Number(SamusPoseId.SpinLandingRightPose),
             [0x08, 0x00, 0xff, 0x02, 0x00, 0x00, 0x15, 0x00]);
         WritePoseDefinition(
             bus,
-            (int)SamusPoseNumbering.Number(SamusPoseId.CrouchingRightPose),
+            SamusPoseNumbering.Number(SamusPoseId.CrouchingRightPose),
             [0x08, 0x05, 0xff, 0x02, 0x00, 0x00, 0x10, 0x00]);
         SeedSyntheticAnimationDelay(bus, SamusPoseId.CrouchingRightPose, 0xc100, 0x01);
 
@@ -94,7 +94,7 @@ internal static class CrampedAerialLandingVerification
         AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection,
             "cramped landing does not publish grounded direction");
 
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.ScrewAttackRightPose),
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.ScrewAttackRightPose),
             [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
         samus.Pose = SamusPoseId.ScrewAttackRightPose;
         samus.Position = samus.Position.WithWholeY(0x0034);

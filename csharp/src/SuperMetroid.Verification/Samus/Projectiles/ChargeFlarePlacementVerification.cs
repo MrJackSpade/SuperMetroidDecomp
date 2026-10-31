@@ -61,7 +61,7 @@ internal static class ChargeFlarePlacementVerification
             // Exercise all original low-nibble operands at the renderer's metadata
             // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
-            int record = SamusSourceDefinitions.PoseDefinitions.Value + (int)SamusPoseNumbering.Number(pose) * 8;
+            int record = SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(pose) * 8;
             bool running = bus.ReadCartridgeByte(record + 1) == SamusMovementTypeNativeWords.Byte(SamusMovementType.Running);
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
             byte yOffset = bus.ReadCartridgeByte(record + 4);
@@ -147,8 +147,8 @@ internal static class ChargeFlarePlacementVerification
         {
             int syntheticOffset = address - (SamusSourceDefinitions.PoseDefinitions.Value + 0xfd * 8);
             if ((uint)syntheticOffset < 8)
-                return syntheticOffset == 3 ? direction : CpuBusRegionRead.Read(source, SamusSourceDefinitions.PoseDefinitions.Value + (int)SamusPoseNumbering.Number(pose) * 8 + syntheticOffset);
-            if (address == SamusSourceDefinitions.PoseDefinitions.Value + (int)SamusPoseNumbering.Number(pose) * 8 + 3) return direction;
+                return syntheticOffset == 3 ? direction : CpuBusRegionRead.Read(source, SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(pose) * 8 + syntheticOffset);
+            if (address == SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbering.Number(pose) * 8 + 3) return direction;
             if (forbid && address is >= 0x90c1a8 and < 0x90c210)
                 throw new InvalidDataException("Flare placement still reads origin ROM.");
             return CpuBusRegionRead.Read(source, address);

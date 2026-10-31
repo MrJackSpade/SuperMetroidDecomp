@@ -114,7 +114,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         byte sourceXDirection = sourceFacesLeft ? (byte)4 : (byte)8;
         byte sourceRadius = shotDirection is 4 or 5 ? (byte)10 : (byte)19;
         byte sourceMovementType = jumping ? (byte)2 : (byte)6;
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(sourcePose), [
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(sourcePose), [
             sourceXDirection, sourceMovementType, 0xff, (byte)shotDirection,
             0, 0, sourceRadius, 0,
         ]);
@@ -122,7 +122,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         bool targetFacesLeft = shotDirection < 5;
         byte targetXDirection = targetFacesLeft ? (byte)4 : (byte)8;
         byte targetMovementType = jumping ? (byte)0x17 : (byte)0x18;
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(expectedPose), [
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(expectedPose), [
             targetXDirection, targetMovementType, 0xff, 0xfb,
             8, 0, 19, 0,
         ]);
@@ -304,7 +304,7 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
 
     // Mirror the fixture to the wall's right. Right alone probes left and launches; adding
     // Left changes the first native branch to a rightward probe, so no wall is contacted.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.SpinJumpLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.SpinJumpLeftPose),
         [4, 3, 0xff, 0xff, 0, 0, 12, 0]);
     WritePoseAnimationDelayPointer(bus, SamusPoseId.SpinJumpLeftPose, 0xc200);
     SamusState rightOnlyLeftWall = CreateLeftSpinSamus(animationFrame: 0x0b);
@@ -459,27 +459,27 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     // Pose definitions live at `$91:B629 + pose * 8`. Only the fields consumed by this
     // slice are nonzero: X direction, movement type, vertical graphics offset, and radius.
     // `$53/$54` are type-$0A hurt poses; `$4F/$50` are type-$19 damage-boost poses.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose), [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FallingRightPose), [0x08, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.NeutralJumpRightPose), [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.DamageBoostLeftPose), [0x08, 0x19, 0x4e, 0xff, 0x08, 0x00, 0x13, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.DamageBoostRightPose), [0x04, 0x19, 0x4d, 0xff, 0x08, 0x00, 0x13, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.KnockbackRightPose), [0x08, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.KnockbackLeftPose), [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.NormalLandingLeftPose), [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose), [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.FallingRightPose), [0x08, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.NeutralJumpRightPose), [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.DamageBoostLeftPose), [0x08, 0x19, 0x4e, 0xff, 0x08, 0x00, 0x13, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.DamageBoostRightPose), [0x04, 0x19, 0x4d, 0xff, 0x08, 0x00, 0x13, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.KnockbackRightPose), [0x08, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.KnockbackLeftPose), [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.NormalLandingLeftPose), [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]);
 
     // One representative pose for each retail Morph/Spring movement type admitted by
     // `$90:DF15/$91:EE27`. Alternating facings make the pose-direction-only knockback
     // selection independently observable from the enemy's X-side word.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MorphBallGroundRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.MorphBallGroundRightPose),
         [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MorphBallFallingLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.MorphBallFallingLeftPose),
         [0x04, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.SpringBallGroundRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.SpringBallGroundRightPose),
         [0x08, 0x11, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.SpringBallJumpLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.SpringBallJumpLeftPose),
         [0x04, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.SpringBallFallingRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.SpringBallFallingRightPose),
         [0x08, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
 
     // One long ordinary delay is enough to keep animation unrelated to this
@@ -844,9 +844,9 @@ floorLevel, downKnockback, frameCounter: 0);
     // radius-nineteen turn body's bottom. The nine-pixel shift is the cartridge behavior
     // that admits the later controller-driven crossing; merely clearing hurt velocity
     // leaves Samus above the floor and makes the technique impossible.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.TurningLeftToRightJumpAimDownPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.TurningLeftToRightJumpAimDownPose),
         [0x04, 0x17, 0xff, 0xfb, 0x08, 0x00, 0x13, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.NormalJumpAimDownRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.NormalJumpAimDownRightPose),
         [0x08, 0x02, 0xff, 0x04, 0x05, 0x00, 0x0a, 0x00]);
     var floorClipOverlap = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
@@ -897,7 +897,7 @@ floorLevel, downKnockback, frameCounter: 0);
     // `$90:DDE9` contains carry-clear interrupt entries as real behavior, not missing code.
     // A grounded turn keeps its current pose and ordinary movement handler while retaining
     // the producer-owned hurt timer used by Samus flicker.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.TurningRightToLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.TurningRightToLeftPose),
         [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
     var suppressedTurnHit = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
@@ -915,9 +915,9 @@ floorLevel, downKnockback, frameCounter: 0);
 
     // The unused movement-type-seven table arm is nevertheless completely defined by the
     // cartridge. It selects `$33/$34` instead of throwing, then enters the same hurt handler.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.UnusedKnockbackRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.UnusedKnockbackRightPose),
         [0x08, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.UnusedKnockbackLeftPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.UnusedKnockbackLeftPose),
         [0x04, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.UnusedKnockbackRightPose, 0xc170, [4]);
     WritePoseAnimationDelays(bus, SamusPoseId.UnusedKnockbackLeftPose, 0xc171, [4]);

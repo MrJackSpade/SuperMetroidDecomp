@@ -313,7 +313,7 @@ internal static void VerifySamusBlockCollision()
     // Unlike the ownerless topology fixtures above, a live Samus-owned kinematics child
     // must publish the exact `$94:8E83/$8ECF/$8F0A` spike damage before clipping. Exercise
     // every damaging table entry plus the harmless entry two with an identical floor hit.
-    WritePoseDefinitionByte(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose), 0, (byte)SamusFacingDirection.Right);
+    WritePoseDefinitionByte(bus, SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose), 0, (byte)SamusFacingDirection.Right);
     foreach ((byte spikeBehavior, ushort expectedDamage) in new SamusTerrainMovementVerifySamusBlockCollisionCase[]
     {
         new SamusTerrainMovementVerifySamusBlockCollisionCase((byte)SpikeBlockBehavior.Heavy,
@@ -667,8 +667,8 @@ internal static void VerifySamusGroundedReversal()
 
     // The production movement port now also validates the pose's literal dispatcher byte,
     // so seed the two ordinary turn definitions before isolating their displacement.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.TurningRightToLeftPose), [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.TurningLeftToRightPose), [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.TurningRightToLeftPose), [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.TurningLeftToRightPose), [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
 
     // Pose $25 is already facing left ($04), but mode one makes $90:8EA9 choose the
     // opposite/right helper while its $0E speed record decelerates old momentum.
@@ -718,11 +718,11 @@ internal static void VerifySamusGroundedReversal()
     // Seed the exact retail pose metadata and delay bytecode needed by $09->$25->$02.
     // The compact standing/running streams only provide valid frame-zero delays because
     // this test's subject is the turn stream itself.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingLeftNormalPose), [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose), [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MovingLeftNormalPose), [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.TurningRightToLeftPose), [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.TurningLeftToRightPose), [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.FacingLeftNormalPose), [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose), [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.MovingLeftNormalPose), [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.TurningRightToLeftPose), [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.TurningLeftToRightPose), [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.FacingLeftNormalPose, 0xc100, [0x0a]);
     WritePoseAnimationDelays(bus, SamusPoseId.MovingRightNormalPose, 0xc110, [0x02]);
     WritePoseAnimationDelays(bus, SamusPoseId.MovingLeftNormalPose, 0xc120, [0x02]);
@@ -792,7 +792,7 @@ internal static void VerifySamusGroundedReversal()
     ];
     foreach ((SamusPoseId sourcePose, byte[] definition) in aimedSources)
     {
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(sourcePose), definition);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(sourcePose), definition);
 
         // Frame-zero delay belongs to the compiled native animation table. Do not
         // install a synthetic pointer or delay: those bus writes no longer affect
@@ -812,7 +812,7 @@ internal static void VerifySamusGroundedReversal()
         new AimedTurn(SamusPoseId.TurningLeftToRightAimDiagonalUpPose, [0x08, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
     ];
     foreach ((SamusPoseId turnPose, byte[] definition) in aimedTurns)
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(turnPose), definition);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(turnPose), definition);
 
     // NTSC uses three two-tick art frames for every aimed grounded turn. `$F8` then
     // installs the corresponding opposite-facing standing-aim pose shown in this table.
@@ -904,8 +904,8 @@ internal static void VerifySamusGroundedReversal()
     ];
     foreach ((SamusPoseId sourcePose, byte[] definition) in crouchedSources)
     {
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(sourcePose), definition);
-        WritePoseAnimationDelays(bus, sourcePose, (ushort)(0xc600 + (int)SamusPoseNumbering.Number(sourcePose) * 2), [0x0a]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(sourcePose), definition);
+        WritePoseAnimationDelays(bus, sourcePose, (ushort)(0xc600 + SamusPoseNumbering.Number(sourcePose) * 2), [0x0a]);
     }
 
     // `$43/$44` really are movement type `$0E`; the six aimed records really are `$17`.
@@ -923,7 +923,7 @@ internal static void VerifySamusGroundedReversal()
         new AimedTurn(SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose, [0x08, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
     ];
     foreach ((SamusPoseId turnPose, byte[] definition) in crouchedTurns)
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(turnPose), definition);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(turnPose), definition);
 
     CrouchedTurnCase[] crouchedTurnCases =
     [
@@ -1033,7 +1033,7 @@ internal static void VerifySamusMoonwalking()
             [0x04, 0x10, 0x07, 0x03, 0x06, 0x00, 0x15, 0x00], SamusPoseId.StandingAimDiagonalDownRightPose, -1),
     ];
     foreach ((SamusPoseId pose, byte[] definition, _, _) in stable)
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose), definition);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), definition);
 
     // The standing definitions are the actual sources and no-button destinations for the
     // six records above. Their one-byte streams are enough because these focused checks do
@@ -1049,14 +1049,14 @@ internal static void VerifySamusMoonwalking()
     ];
     foreach ((SamusPoseId pose, byte[] definition) in standing)
     {
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose), definition);
-        WritePoseAnimationDelays(bus, pose, (ushort)(0xc000 + (int)SamusPoseNumbering.Number(pose)), [10]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), definition);
+        WritePoseAnimationDelays(bus, pose, (ushort)(0xc000 + SamusPoseNumbering.Number(pose)), [10]);
     }
 
     // The disabled-option substitution enters ordinary right-to-left `$25`, including the
     // initializer's momentum fold and mode-one selection. `$25`'s short stream need not
     // complete here; merely initializing it proves the candidate was not retained.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.TurningRightToLeftPose), [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.TurningRightToLeftPose), [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.TurningRightToLeftPose, 0xc100, [0x02, 0x02, 0x02, 0xf8, 0x02]);
     var disabled = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose };
     disabled.HorizontalSpeed.BaseSpeed = disabled.HorizontalSpeed.BaseSpeed.WithFraction(0x4000);
@@ -1085,7 +1085,7 @@ internal static void VerifySamusMoonwalking()
     ];
     foreach (SamusPoseId landingPose in rightLandingPoses)
     {
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(landingPose),
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(landingPose),
             [0x08, 0x00, 0x01, 0x02, 0x00, 0x00, 0x15, 0x00]);
         var landingMoonwalk = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = landingPose };
         SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(landingMoonwalk, 
@@ -1366,7 +1366,7 @@ internal static void VerifySamusMoonwalking()
     ];
     foreach (SamusPoseId landingPose in leftLandingPoses)
     {
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(landingPose),
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(landingPose),
             [0x04, 0x00, 0x02, 0x07, 0x00, 0x00, 0x15, 0x00]);
         var landingMoonwalk = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = landingPose };
         SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(landingMoonwalk, 
@@ -1736,8 +1736,8 @@ floor, walker, frameCounter: 0);
     }
 
     // Spin endpoints and dry-air constants are read through production code after `$F8`.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.SpinJumpRightPose), [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.SpinJumpLeftPose), [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.SpinJumpRightPose), [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.SpinJumpLeftPose), [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpRightPose, 0xc400, [2]);
     WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpLeftPose, 0xc401, [2]);
     SeedMoonwalkTurnJumpDryVerticalRows(bus);
@@ -1806,17 +1806,17 @@ internal static void VerifySamusRanIntoWall()
     ];
     foreach ((SamusPoseId pose, byte[] definition) in wallPoses)
     {
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose), definition);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), definition);
         WritePoseAnimationDelayPointer(bus, pose, 0xc500);
     }
     WriteAnimationDelayStream(bus, 0xc500, [0x10, 0xff]);
 
     // Minimal current/prospective definitions make direction and movement-type selection
     // auditable without copying unrelated animation data into this focused fixture.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose), [0x08, 0x00, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingLeftNormalPose), [0x04, 0x00, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose), [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MovingLeftNormalPose), [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose), [0x08, 0x00, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.FacingLeftNormalPose), [0x04, 0x00, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose), [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.MovingLeftNormalPose), [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
 
     SamusPoseId[] selectedByShotDirection =
     [
@@ -1854,7 +1854,7 @@ internal static void VerifySamusRanIntoWall()
             SamusGroundedPoseTransitions.SelectRanIntoWallPose(sourcePose),
             $"ran-into-wall shot selector {direction}");
     }
-    WritePoseDefinitionByte(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose), 3, 2);
+    WritePoseDefinitionByte(bus, SamusPoseNumbering.Number(SamusPoseId.MovingRightNormalPose), 3, 2);
 
     const int width = 12;
     var openForeground = new RoomTerrainBlock[width * 4];

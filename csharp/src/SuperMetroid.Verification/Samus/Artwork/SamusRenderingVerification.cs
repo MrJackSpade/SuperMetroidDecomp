@@ -327,7 +327,7 @@ internal static void VerifySamusRenderingSlice()
         new SamusRenderingVerifySamusRenderingSliceCase(SamusPoseId.UnusedPose63, 0x0d, 1, 2, "other unused type-D pose remains split"),
     })
     {
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose), [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(pose), [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
         WriteSamusTileAnimationPointer(bus, pose, 0xe100);
         AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
         WriteSamusSpritemapBases(bus, pose, top: 0, bottom: 0);
@@ -374,7 +374,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0x0084, samus.Presentation.SpritemapPosition.Y,
         "morph transition frame one reads signed minus-two table byte");
 
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.UnusedPose39), [8, 0x0f, 0xff, 0xff, 9, 0, 16, 0]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.UnusedPose39), [8, 0x0f, 0xff, 0xff, 9, 0, 16, 0]);
     WriteSamusTileAnimationPointer(bus, SamusPoseId.UnusedPose39, 0xe100);
     WriteSamusSpritemapBases(bus, SamusPoseId.UnusedPose39, top: 0, bottom: 0);
     samus.Pose = SamusPoseId.UnusedPose39;
@@ -411,7 +411,7 @@ internal static void VerifySamusRenderingSlice()
         3, 3, 6, 0,
         0,
     ]);
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.NormalLandingRightPose), [8, 0, 0xff, 0xff, 9, 0, 21, 0]);
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.NormalLandingRightPose), [8, 0, 0xff, 0xff, 9, 0, 21, 0]);
     WriteSamusTileAnimationPointer(bus, SamusPoseId.NormalLandingRightPose, 0xe100);
     WriteSamusSpritemapBases(bus, SamusPoseId.NormalLandingRightPose, top: 0, bottom: 0);
     samus.Pose = SamusPoseId.NormalLandingRightPose;
@@ -822,7 +822,7 @@ internal static void VerifySamusHurtFlashPalette()
 
     // Counter forty calls command `$1C` for spin/wall-jump movement. A Screw Attack pose
     // must select `$33`; using the ROM movement-type byte keeps this a real dispatcher test.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.ScrewAttackRightPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.ScrewAttackRightPose),
         [0x08, 0x03, 0, 0, 0, 0, 0x15, 0]);
     var spinning = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
@@ -839,7 +839,7 @@ internal static void VerifySamusHurtFlashPalette()
 
     // A non-spinning charged shot arms the native one-word latch. The post-draw consumer
     // queues `$41` only while Shoot is still held, then clears the latch in either case.
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0, 0, 0, 0, 0x15, 0]);
     var charging = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {

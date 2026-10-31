@@ -429,7 +429,7 @@ internal static class FullMovieReplayVerification
         Check("Reserve energy", SamusQuantity.Encode(samus.ReserveEnergy), MovieDesyncMemory.Reserve);
         if (game.GameState != SuperMetroidGameState.MainGameplay) return mismatches;
 
-        Check("Samus pose", (ushort)SamusPoseNumbering.Number(samus.Pose), MovieDesyncMemory.SamusPose);
+        Check("Samus pose", SamusPoseNumbering.Number(samus.Pose), MovieDesyncMemory.SamusPose);
         Check("Room", runtime.Room.LoadedRoom.Pointer, MovieDesyncMemory.Room);
         Check("Camera X", runtime.Room.LoadedCamera.PixelPosition.X, MovieDesyncMemory.CameraX);
         Check("Camera Y", runtime.Room.LoadedCamera.PixelPosition.Y, MovieDesyncMemory.CameraY);

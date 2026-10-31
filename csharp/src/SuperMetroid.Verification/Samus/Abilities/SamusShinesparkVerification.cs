@@ -56,11 +56,11 @@ internal static void VerifySamusStoredShineAndShinespark()
         SamusPoseId.ShinesparkDiagonalLeftPose,
     })
     {
-        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose),
-            [(byte)(((int)SamusPoseNumbering.Number(pose) & 1) != 0 ? 0x08 : 0x04), 0x1b, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
-        WritePoseAnimationDelays(bus, pose, unchecked((ushort)(0xc600 + (int)SamusPoseNumbering.Number(pose))), [4]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(pose),
+            [(byte)((SamusPoseNumbering.Number(pose) & 1) != 0 ? 0x08 : 0x04), 0x1b, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
+        WritePoseAnimationDelays(bus, pose, unchecked((ushort)(0xc600 + SamusPoseNumbering.Number(pose))), [4]);
     }
-    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
+    WritePoseDefinition(bus, SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0xff, 0x02, 0x00, 0x00, 0x15, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.FacingRightNormalPose, 0xc500, [4]);
 

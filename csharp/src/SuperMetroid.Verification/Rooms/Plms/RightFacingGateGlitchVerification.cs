@@ -246,7 +246,7 @@ internal static class RightFacingGateGlitchVerification
             openFrame,
             samus.Position.Whole,
             samus.Kinematics.Position.X.Fraction,
-            (int)SamusPoseNumbering.Number(samus.Pose),
+            SamusPoseNumbering.Number(samus.Pose),
             shotPosition);
     }
 

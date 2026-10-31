@@ -132,7 +132,7 @@ internal static class GreenHillGateGlitchVerification
             openFrame,
             samus.Position.Whole,
             samus.Kinematics.Position.X.Fraction,
-            (int)SamusPoseNumbering.Number(samus.Pose),
+            SamusPoseNumbering.Number(samus.Pose),
             samus.Grapple.Anchor,
             samus.Grapple.Phase == GrapplePhase.Firing ? (ushort)0xc703 : (ushort)0xc4f0);
 

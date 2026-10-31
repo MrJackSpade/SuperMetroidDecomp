@@ -379,7 +379,7 @@ internal static class SamusBodyArtworkVerification
             SamusArmCannonArtworkFormat.JsonFileName);
         JsonNode armDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
             installation.SamusBodyDirectory, SamusArmCannonArtworkFormat.JsonFileName)));
-        ushort armPosePointer = stock.ArmCannon.PoseDrawingData((int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose));
+        ushort armPosePointer = stock.ArmCannon.PoseDrawingData(SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose));
         byte armSelector = stock.ArmCannon.ReadDrawingByteAt(armPosePointer);
         ushort armXAddress = unchecked((ushort)(armPosePointer +
             ((armSelector & 0x80) != 0 ? 4 : 2)));

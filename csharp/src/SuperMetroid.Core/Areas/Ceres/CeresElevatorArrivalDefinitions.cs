@@ -4,36 +4,36 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Compiled bank-$86 mechanics for the two enemy projectiles used by the initial
-/// Ceres elevator arrival. Spritemap payloads remain presentation data in bank $8D.
+/// Compiled mechanics for the two enemy projectiles used by the initial
+/// Ceres elevator arrival. Spritemap payloads remain presentation data.
 /// </summary>
 internal static class CeresElevatorArrivalDefinitions
 {
 
-    /// <summary>$86:A387, moving pad spawned first into enemy-projectile slot $22.</summary>
+    /// <summary>Moving pad spawned first into enemy-projectile slot $22.</summary>
     internal static readonly CeresElevatorProjectileDefinition MovingPad = new(
         Program: CeresElevatorArrivalProgram.Pad);
 
-    /// <summary>$86:A395, stationary level-data concealer spawned into slot $20.</summary>
+    /// <summary>Stationary level-data concealer spawned into slot $20.</summary>
     internal static readonly CeresElevatorProjectileDefinition StationaryPlatform = new(
         Program: CeresElevatorArrivalProgram.Platform);
 
-    /// <summary>The graphics both arrival projectiles start with: character zero in the common colours, as <c>$86:A301</c> clears them.</summary>
+    /// <summary>The graphics both arrival projectiles start with: character zero in the common colours, as their initializer clears them.</summary>
     internal static SpriteGraphics StartingGraphics { get; } = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.Common);
 
-    /// <summary>$86:A316 seeds the moving pad's pre-instruction delay to sixty frames.</summary>
+    /// <summary>The initializer seeds the moving pad's frame-behaviour delay to sixty frames.</summary>
     internal const int MovingPadWaitFrames = 60;
 
-    /// <summary>$86:A2FE places the moving pad twenty-eight pixels below Samus.</summary>
+    /// <summary>The initializer places the moving pad twenty-eight pixels below Samus.</summary>
     internal const int MovingPadYOffset = 28;
 
-    /// <summary>$86:A31B places the stationary platform at world Y=97.</summary>
+    /// <summary>The initializer places the stationary platform at world Y=97.</summary>
     internal const int StationaryPlatformY = 97;
 
-    /// <summary>$86:A34D clamps Samus to world Y=72 at the end of the descent.</summary>
+    /// <summary>The descent clamps Samus to world Y=72 when it ends.</summary>
     internal const int LandingSamusY = 72;
 
-    /// <summary>$86:A345 compares the incremented Samus Y against 73 before clamping.</summary>
+    /// <summary>The descent compares the incremented Samus Y against 73 before clamping.</summary>
     internal const int LandingThresholdY = 73;
 
     /// <summary>The composition each arrival pose shows.</summary>

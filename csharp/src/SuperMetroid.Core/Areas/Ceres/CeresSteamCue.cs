@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>One cue of the Ceres steam vents' programs, with the operands its native instruction carries.</summary>
+/// <summary>One cue of the Ceres steam vents' programs, with its typed operands.</summary>
 internal abstract record CeresSteamCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -10,7 +10,7 @@ internal abstract record CeresSteamCue
 
     /// <summary>
     /// Counts the vent's activation timer down, continuing at <see cref="Target"/> while it runs and at
-    /// <see cref="Alternate"/>, visible and tangible, once it expires (<c>DecrementActivationTimerGotoYOrY2</c>, $A6:F127).
+    /// <see cref="Alternate"/>, visible and tangible, once it expires.
     /// </summary>
     /// <param name="Target">The program the vent continues at while its timer runs.</param>
     /// <param name="Alternate">The program the vent continues at once its timer expires.</param>

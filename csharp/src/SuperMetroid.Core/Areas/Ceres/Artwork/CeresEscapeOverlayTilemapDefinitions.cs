@@ -42,7 +42,7 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     /// <summary>The five fixed overlays in transfer order: the English title, then the four Japanese row halves.</summary>
     internal static ImmutableArray<CeresEscapeOverlayTilemapDefinition> All { get; } =
         [Emergency, JapaneseFirst, JapaneseSecond, JapaneseThird, JapaneseFourth];
-    /// <summary>The Japanese subtitle's four row halves, in the order the one-shot list at $A6:C3B8 writes them.</summary>
+    /// <summary>The Japanese subtitle's four row halves, in the order the one-shot list writes them.</summary>
     internal static ImmutableArray<CeresEscapeOverlayTilemapDefinition> Japanese { get; } =
         [JapaneseFirst, JapaneseSecond, JapaneseThird, JapaneseFourth];
 }

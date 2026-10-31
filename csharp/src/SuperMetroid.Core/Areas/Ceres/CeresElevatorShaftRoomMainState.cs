@@ -6,17 +6,17 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Cartridge-authored room-main state for Ceres room <c>$DF45</c>'s elevator shaft.
+/// Authored room-main state for the Ceres elevator shaft.
 /// </summary>
 /// <remarks>
-/// Door ASM <c>$8F:E4E0</c> seeds the shaft's turn step and timer before the shaft becomes visible.
-/// Room main <c>$89:ACC3</c> later sweeps the step forward and back through the records at <c>$89:AD5F</c>. The
+/// The elevator door's setup seeds the shaft's turn step and timer before the shaft becomes visible.
+/// The room's main behaviour later sweeps the step forward and back through the records. The
 /// step it last reached is what the following room's main inherits (<see cref="RoomMainCarryover"/>).
 /// </remarks>
 [RoomLifetime]
 public sealed class CeresElevatorShaftRoomMainState
 {
-    /// <summary>The turn step door ASM <c>$8F:E4E0</c> starts the shaft at, sweeping forward.</summary>
+    /// <summary>The turn step the elevator door's setup starts the shaft at, sweeping forward.</summary>
     public const int InitialRotationIndex = 34;
 
     /// <summary>The last step of the forward sweep; the turn reverses after it.</summary>
@@ -25,10 +25,10 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>The step the backward sweep starts at.</summary>
     private const int FirstBackwardStep = 68;
 
-    /// <summary>Initial turn timer written by door ASM <c>$8F:E4E0</c>.</summary>
+    /// <summary>Initial turn timer written by the elevator door's setup.</summary>
     public const int InitialRotationTimer = 60;
 
-    /// <summary>Native state-$20 hold written by <c>SamusCode_02_ReachCeresElevator</c>.</summary>
+    /// <summary>State-$20 hold written by <c>SamusCode_02_ReachCeresElevator</c>.</summary>
     public const int DepartureHoldFrames = 60;
 
     /// <summary>Whether the active room owns this room-main routine.</summary>
@@ -53,8 +53,8 @@ public sealed class CeresElevatorShaftRoomMainState
     public TurningFloorTransform Transform { get; private set; } = CreateInitialTransform();
 
     /// <summary>
-    /// Builds one room's shaft owner, selecting whether the room owns <c>$89:ACC3</c>. An active entry is the elevator
-    /// door, whose ASM <c>$8F:E4E0</c> writes the rotation index and timer.
+    /// Builds one room's shaft owner, selecting whether the room runs the shaft's main behaviour. An active entry is the elevator
+    /// door, whose setup writes the rotation index and timer.
     /// </summary>
     /// <param name="active">Whether the room's main routine is the shaft and its entry door uses Mode 7.</param>
     /// <param name="carryover">The room-main value the following room inherits, which receives the initial turn step.</param>
@@ -75,12 +75,12 @@ public sealed class CeresElevatorShaftRoomMainState
     /// </summary>
     public void Deactivate() => IsActive = false;
 
-    /// <summary>Executes one call to room main <c>$89:ACC3</c>.</summary>
+    /// <summary>Runs the shaft's room main behaviour once.</summary>
     /// <param name="samus">Live Samus state inspected by the elevator trigger.</param>
     /// <param name="elevatorDoorDestroyed">Whether the Ceres elevator door's destruction has released the rotation.</param>
     /// <param name="allowDeparture">
     /// True only when the outer dispatcher is state eight. States $20/$21 still call the
-    /// ordinary gameplay body, but the native room main explicitly rejects their game-state
+    /// ordinary gameplay body, but the room main explicitly rejects their game-state
     /// numbers; keeping that input explicit preserves the same ownership boundary.
     /// </param>
     /// <param name="carryover">The room-main value the following room inherits, which receives every turn step.</param>
@@ -105,9 +105,9 @@ public sealed class CeresElevatorShaftRoomMainState
             samus is not null &&
             IsInsideDepartureTrigger(samus))
         {
-            // `SamusCode_02_ReachCeresElevator` chooses pose $01/$02 from the current
-            // cartridge x-direction metadata, refreshes pose radii/animation, seeds the
-            // 60-frame state-$20 hold, then installs SamusCode_00's input lock. The hold is
+            // Reaching the Ceres elevator chooses the facing-left or facing-right elevator pose from the current
+            // facing, refreshes pose radii/animation, seeds the
+            // 60-frame elevator hold, then locks Samus's input. The hold is
             // owned by the frontend dispatcher; everything Samus-visible remains here.
             bool facingLeft = SamusPoseMetadata.ReadPoseXDirection(samus) == 4;
             samus.Pose = facingLeft
@@ -122,7 +122,7 @@ public sealed class CeresElevatorShaftRoomMainState
 
         // DEC followed by BMI is deliberately modeled as a wrapping 16-bit decrement.
         // Zero remains visible for one complete call; only the following call makes it
-        // $FFFF and consumes the next record. This differs from a conventional <= 0 timer.
+        // -1 and consumes the next record. This differs from a conventional <= 0 timer.
         CountdownStep timer = RotationTimer.Decrement();
         RotationTimer = timer.Remaining;
         if (timer.IsNonNegative)
@@ -162,7 +162,7 @@ public sealed class CeresElevatorShaftRoomMainState
     }
 
     /// <summary>
-    /// Applies $89:ACD0's asymmetric elevator bounds: X in (112,144], Y in [75,128),
+    /// Applies the elevator trigger's asymmetric bounds: X in (112,144], Y in [75,128),
     /// with both whole and fractional vertical speed zero.
     /// </summary>
     private static bool IsInsideDepartureTrigger(SamusState samus) =>
@@ -185,6 +185,6 @@ public sealed class CeresElevatorShaftRoomMainState
         MatrixC: 0,
         Center: CeresShaftRotationCenter);
 
-    /// <summary>The room point the shaft's turning floor always rotates about, set by both <c>$8F:E4E0</c> and room main.</summary>
+    /// <summary>The room point the shaft's turning floor always rotates about, set by both the elevator door's setup and room main.</summary>
     internal static readonly Position16<RoomPixels> CeresShaftRotationCenter = new(128, 1008);
 }

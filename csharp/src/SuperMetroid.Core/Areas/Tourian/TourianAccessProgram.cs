@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian elevator access PLM programs (#1296), in place of their bank-$84 lists.</summary>
+/// <summary>The Tourian elevator access PLM programs (#1296).</summary>
 internal enum TourianAccessProgram
 {
     /// <summary>Seeds the six-row crumble (<c>InstList_PLM_CrumbleAccessToTourianElevator_0</c>).</summary>

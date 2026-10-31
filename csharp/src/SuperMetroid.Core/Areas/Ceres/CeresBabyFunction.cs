@@ -8,14 +8,14 @@ public enum CeresBabyFunction
 {
     /// <summary>Outside Ceres the Baby workspace is never initialized and holds no behaviour.</summary>
     None = 0,
-    /// <summary><c>$A6:BE9C UpdateBabyMetroidPosition_CarriedInArms</c>: the Baby stays at Ridley's arm anchor.</summary>
+    /// <summary>The Baby stays at Ridley's arm anchor.</summary>
     CarriedInArms = 1,
-    /// <summary><c>$A6:BEB3 UpdateBabyMetroidPosition_CarriedInFeet</c>: the Baby follows Ridley's grasp point.</summary>
+    /// <summary>The Baby follows Ridley's grasp point.</summary>
     CarriedInFeet,
-    /// <summary><c>$A6:BECA DropBabyMetroid</c>: clears the fall state and starts falling.</summary>
+    /// <summary>Clears the fall state and starts falling.</summary>
     Drop,
-    /// <summary><c>$A6:BEDC BabyMetroidDropped</c>: the Baby falls under gravity until it lands.</summary>
+    /// <summary>The Baby falls under gravity until it lands.</summary>
     Dropped,
-    /// <summary><c>$A6:BF19 RTS_A6BF19</c>: the idle function after landing.</summary>
+    /// <summary>The idle function after landing.</summary>
     Idle,
 }

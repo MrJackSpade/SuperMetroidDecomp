@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 public static class CeresShaftRotationDefinitions
 {
 
-    /// <summary>$89:AD5F-$AEFC contains 69 records, from sine -34 through +34.</summary>
+    /// <summary>The delay table contains 69 records, from sine -34 through +34.</summary>
     public const int RecordCount = 69;
 
     /// <summary>The step whose rotation is level: sine zero, the middle of the records.</summary>

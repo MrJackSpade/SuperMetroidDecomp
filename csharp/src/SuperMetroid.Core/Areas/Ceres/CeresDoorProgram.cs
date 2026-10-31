@@ -1,49 +1,49 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres doors' and walls' typed programs (#641), one per bank-$A6 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="CeresDoorAnimations"/>.
+/// The Ceres doors' and walls' typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="CeresDoorAnimations"/>.
 /// </summary>
 internal enum CeresDoorProgram
 {
-    /// <summary><c>InstList_CeresDoor_RidleysRoom_FacingRight_0</c> at $A6:F53A.</summary>
+    /// <summary>The ridley room facing right animation.</summary>
     RidleyRoomFacingRight,
-    /// <summary><c>InstList_CeresDoor_RidleysRoom_FacingRight_1</c> at $A6:F55E.</summary>
+    /// <summary>The ridley room facing right wait animation.</summary>
     RidleyRoomFacingRightWait,
-    /// <summary><c>InstList_CeresDoor_Normal_FacingRight</c> at $A6:F56C.</summary>
+    /// <summary>The normal facing right animation.</summary>
     NormalFacingRight,
-    /// <summary><c>InstList_CeresDoor_Open_FacingRight_0</c> at $A6:F578.</summary>
+    /// <summary>The open facing right animation.</summary>
     OpenFacingRight,
-    /// <summary><c>InstList_CeresDoor_Open_FacingRight_1</c> at $A6:F584.</summary>
+    /// <summary>The close facing right animation.</summary>
     CloseFacingRight,
-    /// <summary><c>InstList_CeresDoor_Closed_FacingRight_0</c> at $A6:F598.</summary>
+    /// <summary>The closed facing right animation.</summary>
     ClosedFacingRight,
-    /// <summary><c>InstList_CeresDoor_Closed_FacingRight_1</c> at $A6:F59C.</summary>
+    /// <summary>The closed facing right wait animation.</summary>
     ClosedFacingRightWait,
-    /// <summary><c>InstList_CeresDoor_Normal_FacingLeft_0</c> at $A6:F5BE.</summary>
+    /// <summary>The normal facing left animation.</summary>
     NormalFacingLeft,
-    /// <summary>The native list at $A6:F5CA.</summary>
+    /// <summary>The open facing left animation.</summary>
     OpenFacingLeft,
-    /// <summary>The native list at $A6:F5D6.</summary>
+    /// <summary>The close facing left animation.</summary>
     CloseFacingLeft,
-    /// <summary>The native list at $A6:F5EA.</summary>
+    /// <summary>The closed facing left animation.</summary>
     ClosedFacingLeft,
-    /// <summary>The native list at $A6:F5EE.</summary>
+    /// <summary>The closed facing left wait animation.</summary>
     ClosedFacingLeftWait,
-    /// <summary><c>InstList_CeresDoor_RotatingElevRoom_PreExploDoorOverlay_0</c> at $A6:F610.</summary>
+    /// <summary>The rotating elevator pre explosion overlay animation.</summary>
     RotatingElevatorPreExplosionOverlay,
-    /// <summary><c>InstList_CeresDoor_RotatingElevRoom_PreExploDoorOverlay_1</c> at $A6:F612.</summary>
+    /// <summary>The rotating elevator pre explosion overlay loop animation.</summary>
     RotatingElevatorPreExplosionOverlayLoop,
-    /// <summary><c>InstList_CeresDoor_RotatingElevatorRoom_InvisibleWall_0</c> at $A6:F61A.</summary>
+    /// <summary>The rotating elevator invisible wall animation.</summary>
     RotatingElevatorInvisibleWall,
-    /// <summary><c>InstList_CeresDoor_RotatingElevatorRoom_InvisibleWall_1</c> at $A6:F622.</summary>
+    /// <summary>The rotating elevator invisible wall loop animation.</summary>
     RotatingElevatorInvisibleWallLoop,
-    /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_0</c> at $A6:F62A.</summary>
+    /// <summary>The ridley escape floor left wall animation.</summary>
     RidleyEscapeFloorLeftWall,
-    /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7LeftWall_1</c> at $A6:F62C.</summary>
+    /// <summary>The ridley escape floor left wall loop animation.</summary>
     RidleyEscapeFloorLeftWallLoop,
-    /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7RightWall_0</c> at $A6:F634.</summary>
+    /// <summary>The ridley escape floor right wall animation.</summary>
     RidleyEscapeFloorRightWall,
-    /// <summary><c>InstList_CeresDoor_RidleyEscapeMode7RightWall_1</c> at $A6:F636.</summary>
+    /// <summary>The ridley escape floor right wall loop animation.</summary>
     RidleyEscapeFloorRightWallLoop,
 }

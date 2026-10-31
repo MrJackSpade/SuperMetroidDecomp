@@ -17,9 +17,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, slot, common);
 
-    /// <summary>Allocates the three fixed statue decoration actors in native reverse-slot order.</summary>
+    /// <summary>Allocates the three fixed statue decoration actors in reverse-slot order.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Supplies visible CGRAM for the entrance statue's initial palette rows.</summary>
+    /// <summary>Supplies the visible palette for the entrance statue's initial palette rows.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>The session's installed area artwork.</summary>
     private readonly AreaArtworkBinding _areaArtwork;
@@ -34,12 +34,12 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>
-    /// Native <c>tourian_entrance_statue_finished</c> bit $8000. The translated enemy-
-    /// projectile pre-instruction publishes the same completion latch for debugger hosts.
+    /// Whether the entrance statue has finished sinking. The enemy-
+    /// projectile frame behaviour publishes the same completion latch for debugger hosts.
     /// </summary>
     public bool TourianEntranceStatueFinished { get; internal set; }
     /// <summary>
-    /// Signed BG2 displacement owned by $88:DC69; OBJ follows the same sinking statue. The statue sequence only writes
+    /// Signed background displacement owned by the statue's sinking; sprites follow the same sinking statue. The statue sequence only writes
     /// its descent offset, between minus the descent distance and zero.
     /// </summary>
     public int TourianEntranceStatueVerticalOffset { get; internal set; }
@@ -61,8 +61,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         statue.SetSpeciesState(new TourianEntranceStatueState(AnimationProgramCursor<TourianEntranceStatueProgram>.Start(part)));
 
         // Only the first of the three enemy records creates the fixed screen actors. The
-        // native allocator searches from slot $22 down, so this exact call order gives the
-        // decoration, Ridley, and Phantoon their retail OAM ordering.
+        // allocator searches from the last slot down, so this exact call order gives the
+        // decoration, Ridley, and Phantoon their authored draw ordering.
         if (part == TourianEntranceStatueProgram.BaseDecoration)
         {
             SpawnTourianEntranceStatueProjectile(
@@ -76,9 +76,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
                 position: new(132, 136));
         }
 
-        // Statue init writes target palette rows $F and $A from $AA:D785/$D765.
-        // This runtime exposes the currently visible CGRAM buffer, so install those rows
-        // directly while retaining every cartridge color word.
+        // Statue initialization writes target palette rows 15 and 10.
+        // This runtime exposes the currently visible palette, so install those rows
+        // directly while retaining every authored color word.
         (_areaArtwork.Artwork?.TourianStatueColors ?? throw new InvalidDataException(
             "Tourian entrance statues require installed palette artwork.")).ApplyEntrance(_presentation.Colours);
     }

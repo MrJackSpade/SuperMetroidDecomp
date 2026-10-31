@@ -2,8 +2,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
-/// Six shared warm target paints: normal door $A6:F4FE-F509, escape door
-/// $A6:F51E-F529 and Norfair Ridley $A6:E1E1-E1EC. The existing selected seven
+/// Six shared warm target paints: the normal door, the escape door
+/// and Norfair Ridley. The existing selected seven
 /// material channels and gold shade steps belong to one paint operation; resource
 /// occurrences retain their independently supplied values. These are copied target
 /// colors, not a claim about visible door pixels.

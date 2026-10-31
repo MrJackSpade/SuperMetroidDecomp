@@ -17,7 +17,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             TryStepWreckedShipTreadmill(context.Level, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
-    /// <summary>Native PLM slot pool used for treadmill and elevatube allocation.</summary>
+    /// <summary>PLM slot pool used for treadmill and elevatube allocation.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Attaches treadmill and elevatube spawning to the room's PLM pool.</summary>
@@ -26,12 +26,12 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
         _slotTable = slotTable;
     }
     /// <summary>
-    /// Spawns header $B64B or $B64F at cartridge block coordinate (4,9), then executes
-    /// shared setup $84:B04A synchronously by replacing the following 56 blocks with
+    /// Spawns one of the two treadmill PLMs at room block (4,9), then runs its
+    /// shared setup synchronously by replacing the following 56 blocks with
     /// blank air. The first ordinary PLM pass later either installs treadmill collision
     /// when Phantoon is dead or deletes the actor without doing so.
     /// </summary>
-    /// <returns>False only when all forty native PLM slots are occupied.</returns>
+    /// <returns>False only when all forty PLM slots are occupied.</returns>
     public bool TrySpawnWreckedShipEntranceTreadmill(
         RoomLevelData level,
         WreckedShipTreadmillDirection direction,
@@ -63,7 +63,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             direction,
             areaBossDefeated);
 
-        // Setup $84:B04A writes blank air and deliberately leaves the blocks' behaviour alone.
+        // The setup writes blank air and deliberately leaves the blocks' behaviour alone.
         for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
         {
             int blockIndex = origin + offset;
@@ -73,11 +73,11 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// Spawns the effectively invisible $B8F9 elevatube PLM at (1,0). Its ordinary ROM
+    /// Spawns the effectively invisible elevatube PLM at (1,0). Its ordinary
     /// instruction list supplies a sixteen-frame delay, queues library-two sound $15, and
     /// deletes; the shared interpreter already owns each of those operations.
     /// </summary>
-    /// <returns>False only when all forty native PLM slots are occupied.</returns>
+    /// <returns>False only when all forty PLM slots are occupied.</returns>
     public bool TrySpawnMaridiaElevatube(RoomLevelData level)
     {
         Ensure.NotNull(level);
@@ -93,7 +93,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
         return true;
     }
 
-    /// <summary>Consumes the native first-pass boss test for one treadmill PLM.</summary>
+    /// <summary>Consumes the first-pass boss test for one treadmill PLM.</summary>
     internal static bool TryStepWreckedShipTreadmill(
         RoomLevelData level,
         PlmSlot slot)
@@ -109,7 +109,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
                 WreckedShipTreadmillBlockDefinitions.BlockCount);
             bool rightwards = state.Direction == WreckedShipTreadmillDirection.Rightwards;
 
-            // Instructions $AD43/$AD58 call the shared row writer. The blank appearance is
+            // Both direction cues call the shared row writer. The blank appearance is
             // unchanged; only the special-air kind and the direction behaviour become active.
             for (int offset = 0; offset < WreckedShipTreadmillBlockDefinitions.BlockCount; offset++)
             {
@@ -123,7 +123,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
             }
         }
 
-        // Both branches terminate in $84:86BC during this same handler pass.
+        // Both branches end by deleting the PLM during this same handler pass.
         slot.Delete();
         slot.Family = null;
         return true;

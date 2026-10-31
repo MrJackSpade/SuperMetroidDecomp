@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresEscapeObjectPages
 {
     /// <summary>
-    /// The looks the timer-sprite list ($A6:C4CB) shows over the sprites' artwork, one an update, in its order: the escape
+    /// The looks the timer-sprite list shows over the sprites' artwork, one an update, in its order: the escape
     /// timer's two pages, then the warning text's from its first.
     /// </summary>
     internal static IReadOnlyList<SpriteArtworkSource> ObjectPages { get; } =

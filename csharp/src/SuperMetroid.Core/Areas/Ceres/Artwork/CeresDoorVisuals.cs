@@ -25,7 +25,7 @@ public sealed class CeresDoorVisuals
             }
         });
 
-    /// <summary>Validated 4bpp door characters used for the VRAM transfer.</summary>
+    /// <summary>Validated 4bpp door characters used for the door's tile upload.</summary>
     private readonly RoomCharacterAtlas tiles;
     /// <summary>Normal setup colors, including any supplied edits to stock values.</summary>
     private readonly CeresDoorNormalPaint normal;

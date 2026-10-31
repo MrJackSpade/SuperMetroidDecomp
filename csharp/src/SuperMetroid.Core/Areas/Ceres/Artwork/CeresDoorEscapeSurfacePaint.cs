@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
-/// Eight grey-blue surface shades shared by $A6:F50E-F51D and $A5:A239-A248.
+/// Eight grey-blue surface shades shared by the escape door and the matching room palette.
 /// The reviewed escape-door material owns four selected highlight/edge levels,
 /// a clipped five-step bevel ramp, blue tint3 and the middle-bevel blue channel.
 /// This owner centralizes the identical material; each supplied occurrence and
@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// </summary>
 internal sealed class CeresDoorEscapeSurfacePaint
 {
-    /// <summary>Native blue tint, bevel decrement, and RGB5 ceiling used by the calculated door material.</summary>
+    /// <summary>Blue tint, bevel decrement, and RGB5 ceiling used by the calculated door material.</summary>
     private const int BlueTint = 3, BevelShadeStep = 5, MaximumChannel = (1 << 5) - 1;
     /// <summary>Four independently supplied highlight and edge brightness levels shared by matching door surfaces.</summary>
     internal readonly int[] highlightAndEdgeLevels;

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresDoorRumble
 {
-    /// <summary>Converts emission order into the paired horizontal and native vertical destruction offsets.</summary>
+    /// <summary>Converts emission order into the paired horizontal and vertical destruction offsets.</summary>
     internal static Offset16<RoomPixels> Offset(int index)
     {
         if ((uint)index >= Count)

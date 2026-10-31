@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 
-/// <summary>Mutually exclusive native Tourian statue palette payload domains.</summary>
+/// <summary>Mutually exclusive Tourian statue palette payload domains.</summary>
 internal enum TourianStatuePaintBand
 {
     /// <summary>Olive base and neutral decoration colors.</summary>

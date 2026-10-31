@@ -4,9 +4,9 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Room-owned $88:DDC7/$DE10-$DED2 haze selection and direct pre-instruction cases.
-/// Waiting falls through into the first fade-in write ($88:DE27..DE2D); counter16
-/// selects holding without writing. Holding selects fade-out and returns ($88:DE95),
+/// Room-owned haze selection and its fade phases.
+/// Waiting falls through into the first fade-in write; counter16
+/// selects holding without writing. Holding selects fade-out and returns,
 /// so its first write is on the next call. Fade-in writes counters0..15 before
 /// incrementing; fade-out writes16..1 before decrementing and retains1 at zero.
 /// These mutually exclusive control phases use scalar state, not a sampled timing
@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 [RoomLifetime]
 public sealed class CeresHazeState
 {
-    /// <summary>Mutually exclusive native pre-instruction phases of the room-owned haze.</summary>
+    /// <summary>Mutually exclusive pre-instruction phases of the room-owned haze.</summary>
     private enum Phase
     {
         /// <summary>Waits for the room fade-in gate without changing the published haze strength.</summary>
@@ -33,9 +33,9 @@ public sealed class CeresHazeState
     private int _counter;
     /// <summary>Whether the loaded room setup owns a haze effect; false makes updates inert and suppresses the renderer's layer, independently of the stored fade phase.</summary>
     public bool Enabled { get; private set; }
-    /// <summary>Channel selection sampled once by $88:DDC7: true chooses the Ridley-dead red ramp ($20), false the Ridley-alive blue ramp ($80); later boss-bit changes do not retarget it.</summary>
+    /// <summary>Channel selection sampled once when the haze starts: true chooses the Ridley-dead red ramp, false the Ridley-alive blue ramp; later boss-bit changes do not retarget it.</summary>
     public bool IsRed { get; private set; }
-    /// <summary>Last published native ramp strength in RGB5 channel units, not a frame count: fade-in writes 0..15, fade-out writes 16..1, and zero counter retains the final strength one.</summary>
+    /// <summary>Last published ramp strength in RGB5 channel units, not a frame count: fade-in writes 0..15, fade-out writes 16..1, and zero counter retains the final strength one.</summary>
     public int Intensity { get; private set; }
 
     /// <summary>Samples the boss bit once, as the room's haze starts.</summary>
@@ -52,7 +52,7 @@ public sealed class CeresHazeState
         Intensity = immediateViewport ? CeresHazeDefinitions.FadeSteps - 1 : 0;
     }
 
-    /// <summary>One native pre-instruction call. Transition changes do not rewrite the selected channel.</summary>
+    /// <summary>One pre-instruction call. Transition changes do not rewrite the selected channel.</summary>
     /// <param name="roomFade">
     /// The door fade: on fade-in a waiting owner enters fade-in and writes its first strength on this same update; on
     /// fade-out a holding owner changes phase now but publishes its first fade-out strength on the following update.

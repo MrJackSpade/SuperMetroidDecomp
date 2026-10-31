@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileProgram;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
-/// <summary>The Tourian statue projectile programs (#641), in place of their bank-$86 lists.</summary>
+/// <summary>The Tourian statue projectile programs (#641).</summary>
 internal static class TourianStatueProjectileAnimations
 {
     /// <summary>Every program.</summary>

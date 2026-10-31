@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
-/// Editable Ceres escape warning and door characters. The native transfer order,
+/// Editable Ceres escape warning and door characters. The transfer order,
 /// sizes and destinations remain compiled gameplay/presentation metadata.
 /// </summary>
 public sealed class CeresEscapeTileArtwork
@@ -17,7 +17,7 @@ public sealed class CeresEscapeTileArtwork
                 content.Append("tiles", page.Characters.Span);
         });
 
-    /// <summary>Validated, owned warning-text and door atlases in native transfer order.</summary>
+    /// <summary>Validated, owned warning-text and door atlases in transfer order.</summary>
     private readonly RoomCharacterAtlas[] pages;
 
     /// <summary>Requires both tile pages at their compiled transfer sizes and copies the supplied atlas references.</summary>

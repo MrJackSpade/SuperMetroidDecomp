@@ -17,7 +17,7 @@ internal sealed class TourianUnlockBehavior
     private readonly RoomEarthquake _earthquake;
     /// <summary>Audio queue receiving the statue eye release sound.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>CGRAM owner receiving installed statue eye colors.</summary>
+    /// <summary>Palette owner receiving installed statue eye colors.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>The session's installed area artwork.</summary>
     private readonly AreaArtworkBinding _areaArtwork;
@@ -57,7 +57,7 @@ internal sealed class TourianUnlockBehavior
         }
     }
 
-    /// <summary>$87:8320 spawns a statue eye's glow from the bank-$86 definition and lights the eye's colours.</summary>
+    /// <summary>Spawns a statue eye's glow from the definition and lights the eye's colours.</summary>
     public void SpawnTourianEyeGlow(int parameter)
     {
         if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, parameter) is null) return;
@@ -66,14 +66,14 @@ internal sealed class TourianUnlockBehavior
             .ApplyEye(_presentation.Colours, parameter);
     }
 
-    /// <summary>$87:832F spawns a statue's released soul from the bank-$86 definition, rising from the eye.</summary>
+    /// <summary>Spawns a statue's released soul from the definition, rising from the eye.</summary>
     public void SpawnTourianSoul(int parameter)
     {
         if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, parameter) is not { } soul) return;
         soul.Velocity = soul.Velocity.WithY(SignedEightEight.Wrapped(-1024));
     }
 
-    /// <summary>Allocates an unlock effect at the statue's native eye position; null when every slot is busy.</summary>
+    /// <summary>Allocates an unlock effect at the statue's eye position; null when every slot is busy.</summary>
     private RoomEnemyProjectileSlot? SpawnAtStatueEye(RoomEnemyProjectileKind kind, int parameter)
     {
         Position16<RoomPixels> position = TourianStatueUnlock.EyePosition(parameter);

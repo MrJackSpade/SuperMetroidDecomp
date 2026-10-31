@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Areas.Escape;
 [RoomLifetime]
 internal sealed class EscapeExplosionsBehavior
 {
-    /// <summary>Shared queue that applies native enemy sound limits to each explosion sound.</summary>
+    /// <summary>Shared queue that applies enemy sound limits to each explosion sound.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>Room pool that owns the emitted explosion sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
@@ -22,12 +22,12 @@ internal sealed class EscapeExplosionsBehavior
         _spriteObjects = spriteObjects;
     }
 
-    /// <summary>Native $8F:C1A9 sprite/sound publication through the shared object pool.</summary>
+    /// <summary>Publishes an escape explosion's sprite and sound through the shared object pool.</summary>
     /// <remarks>A random low nibble of eight or more leaves the inherited X selector unchanged; the caller may supply zero or a block offset.</remarks>
     public void SpawnEscapeExplosion(Position16<RoomPixels> position, int random, int inheritedX)
     {
         int choice = random & 15;
-        // Preserve the cartridge's unchanged-X branch, not the upstream C port's bugfix.
+        // Preserve the game's unchanged-X branch, not the upstream C port's bugfix.
         if (choice < 8)
         {
             inheritedX = WordWrap.Unsigned(choice);

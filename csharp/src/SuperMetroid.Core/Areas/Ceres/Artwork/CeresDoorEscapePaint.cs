@@ -2,11 +2,11 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>
-/// Escape material paint at $A6:F50E-F52B. Selected highlight/edge brightness,
+/// Escape material paint. Selected highlight/edge brightness,
 /// clipped inner-bevel ramp and hue choices specify the grey-blue material composition.
-/// Native pixels1..8 distinguish highlights, edges, outlines and inner facets. Slot15
+/// Pixels1..8 distinguish highlights, edges, outlines and inner facets. Slot15
 /// is separately preserved cyan target paint, not claimed as visible door pixels.
-/// The uniform target copy at $A6:F717-F726 does not choose these material shades.
+/// The uniform target copy does not choose these material shades.
 /// Six warm target colors share the normal palette; every supplied edit stays independent.
 /// </summary>
 internal sealed class CeresDoorEscapePaint

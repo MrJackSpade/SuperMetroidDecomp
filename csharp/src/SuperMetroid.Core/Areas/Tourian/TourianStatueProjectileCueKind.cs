@@ -3,14 +3,14 @@
 /// <summary>What a statue projectile program cue does.</summary>
 internal enum TourianStatueProjectileCueKind
 {
-    /// <summary>Deletes the projectile (<c>Instruction_EnemyProjectile_Delete</c>, $86:8154).</summary>
+    /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Queues the statue release sound ($86:8312).</summary>
+    /// <summary>Queues the statue release sound.</summary>
     PlayReleaseSound,
-    /// <summary>Starts the unlocking earthquake ($86:B7F5).</summary>
+    /// <summary>Starts the unlocking earthquake.</summary>
     Earthquake,
-    /// <summary>Spawns an unlocking particle at the projectile ($86:B7EA).</summary>
+    /// <summary>Spawns an unlocking particle at the projectile.</summary>
     SpawnParticle,
-    /// <summary>Spawns the particle's tail at the projectile ($86:B818).</summary>
+    /// <summary>Spawns the particle's tail at the projectile.</summary>
     SpawnTail,
 }

@@ -30,7 +30,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Provides slot zero's frame counter for the shared palette cycle.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Owns VRAM and CGRAM destinations for Ceres door artwork.</summary>
+    /// <summary>Owns the tile and palette destinations for Ceres door artwork.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Spawns smoke or explosion effects around the shaking door.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -80,7 +80,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                         "Ceres door proximity instruction requires the active Samus actor.");
                 }
 
-                // `$A6:F63E` subtracts the two unsigned position words, interprets the
+                // The distance test subtracts the two unsigned position words, interprets the
                 // wrapped result as signed, then takes its absolute value independently
                 // on each axis. If either distance is at least 48 pixels, the door branches.
                 int xDistance = CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole);
@@ -88,13 +88,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 return xDistance >= 48 || yDistance >= 48 ? cue.Target : null;
             }
             case CeresDoorCueKind.GoToIfAreaBossAlive:
-                // `$A6:F66A-$F676` samples bit zero of the current area's SRAM-mirror
+                // The test samples bit zero of the current area's saved
                 // boss byte. Ceres begins with that bit clear, so the facing-right door
-                // loops as a tangible actor during Ridley's fight. `$A6:C117` publishes
+                // loops as a tangible actor during Ridley's fight. Ridley's escape publishes
                 // the boss bit together with status two; the next pass must then run on
-                // past the branch to `$F68B`'s intangible setup.
+                // past the branch to the intangible setup.
                 // Hardcoding the early-game branch stranded the invisible 8x32 actor at
-                // X=$0008 and clipped Samus at X=$001D after the getaway cutscene.
+                // X=8 and clipped Samus at X=29 after the getaway cutscene.
                 return _room.Services.Bosses.IsDefeated(BossBits.AreaBoss) ? null : cue.Target;
             case CeresDoorCueKind.GoToIfRidleyNotEscaped:
                 return _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : cue.Target;
@@ -139,7 +139,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         _areaArtwork.Artwork?.CeresDoorVisual ?? throw new InvalidOperationException(
             "Ceres door requires installed visual artwork.");
 
-    /// <summary>Ports <c>CeresDoor_Init</c> at $A6:F6C5 for every retail population variant.</summary>
+    /// <summary>Ports <c>CeresDoor_Init</c> for every retail population variant.</summary>
     internal void InitializeCeresDoor(RoomEnemySlot slot)
     {
         CeresDoorVariant variant = slot.Spawn.Population.SpawnSettingsOf<CeresDoorSpawnSettings>().Variant;
@@ -163,8 +163,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped && variant == CeresDoorVariant.RidleyRoomFacingRight)
         {
-            // The native destination $142 is a byte offset into target_palettes: colors
-            // 161..175. This runtime exposes the final fade target directly in CGRAM.
+            // The destination is the target palette's colours
+            // 161..175. This runtime exposes the final fade target directly in the live palette.
             SelectedCeresDoorVisual.LoadNormalColors(CeresDoorColourDefinitions.Inactive.In(_presentation.Colours));
             return;
         }
@@ -194,7 +194,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
             case CeresDoorFunction.RidleyEscapeFloorWall:
                 // Ridley's room overlay begins hidden. Ridley's escape reveals it and swap
                 // to enemy palette seven; the actor remains present so later Mode-7 drawing
-                // can retain the native priority relationship with Samus and Ridley.
+                // can retain the priority relationship with Samus and Ridley.
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
                 if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyEscaped)
                 {
@@ -207,8 +207,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunCeresDoorPaletteAnimation();
                 if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
                 {
-                    // $A6:F7BD installs the destruction function and initializes all three
-                    // actor-owned counters, but deliberately does not execute $F7DC until
+                    // Entering the destruction state installs the destruction function and initializes all three
+                    // actor-owned counters, but deliberately does not run the destruction step until
                     // the following enemy frame.
                     state.Function = CeresDoorFunction.RotatingElevatorRumble;
                     state.RumbleCallsLeft = CeresDoorRumbleDuration;
@@ -230,7 +230,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the two entry points at $A6:F76B/$F770 without advancing the RNG.</summary>
+    /// <summary>Runs the earthquake shared by both escape behaviours without advancing the RNG.</summary>
     private void RunCeresDoorEarthquake(int baseEarthquakeType)
     {
         // The door cannot start a second quake while the shared timer is active. A separate
@@ -253,7 +253,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         _earthquake.EarthquakeType = baseEarthquakeType;
     }
 
-    /// <summary>Ports the 49-call destruction state at $A6:F7DC exactly.</summary>
+    /// <summary>Ports the 49-call destruction state exactly.</summary>
     internal void RunCeresDoorRumbleAndExplosions(RoomEnemySlot slot)
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
@@ -261,7 +261,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RumbleCallsLeft = rumble.Remaining.RemainingFrames;
         if (rumble.IsNegative)
         {
-            // The 49th call underflows $0000 to $FFFF. Native code hides the door, returns
+            // The 49th call underflows zero to -1. The door hides, returns
             // it to the perpetual elevator-animation function, and publishes its destruction so the
             // room's Mode-7 controller begins the rotation after Ridley's escape.
             slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
@@ -286,7 +286,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> explosion = new(
             CoordinateAxis.Wrap(slot.Position.X.Whole + xOffset), CoordinateAxis.Wrap(slot.Position.Y.Whole + yOffset));
 
-        // GenerateRandomNumber is called exactly once per explosion. Values below $4000
+        // GenerateRandomNumber is called exactly once per explosion. Values below 0x4000
         // select animation $0C; all other values select animation three (smoke).
         int randomNumber = _room.Random.Generate();
         MiscDustAnimation animation = randomNumber < 16384
@@ -307,7 +307,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // timebase for the room-owned palette cycle.
         int frame = _slotTable.Slots[0].FrameCounter;
 
-        // AnimateCeresElevatorPlatform at $A6:F8F1 does not belong to either arrival
+        // AnimateCeresElevatorPlatform does not belong to either arrival
         // projectile. It survives their touchdown deletion because the rotating-room door
         // actor keeps alternating these four Mode-7 tilemap bytes forever. Omitting this
         // queue made the moving OBJ pad flash correctly, then left the landed floor platform

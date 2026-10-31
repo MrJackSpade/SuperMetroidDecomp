@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres falling tiles' typed programs (#641), in place of their bank-$86 lists: one pose, then a sleep while the
+/// The Ceres falling tiles' typed programs (#641): one pose, then a sleep while the
 /// pre-instruction moves the tile. Each program's frame is the program itself.
 /// </summary>
 internal static class CeresFallingDebrisAnimations

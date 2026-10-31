@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The state of one Ceres door. Its function, drawing hand-off and destruction counters are values the cartridge keeps
+/// The state of one Ceres door. Its function, drawing hand-off and destruction counters are values the game keeps
 /// in the enemy's common record, so they are emptied with the record when the door is killed
 /// (<see cref="ClearWithRecord"/>).
 /// </summary>
 internal sealed class CeresDoorEnemyState
 {
-    /// <summary>The bank-$A6 main-AI function; none once a kill has emptied the record.</summary>
+    /// <summary>The main-AI function; none once a kill has emptied the record.</summary>
     public CeresDoorFunction? Function { get; internal set; }
 
     /// <summary>
@@ -39,7 +39,7 @@ internal sealed class CeresDoorEnemyState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

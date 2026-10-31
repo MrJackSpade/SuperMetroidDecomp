@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
 /// The Tourian statue room's shared animation state: which boss statues are still animating, whether one statue is
-/// already playing its release, and whether all four have released. The cartridge sets and clears these bits
+/// already playing its release, and whether all four have released. The game sets and clears these bits
 /// independently (OR and AND-NOT), so they compose.
 /// </summary>
 [Flags]

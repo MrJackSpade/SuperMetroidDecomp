@@ -1,33 +1,33 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres steam vents' typed programs (#641), one per bank-$A6 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="CeresSteamAnimations"/>.
+/// The Ceres steam vents' typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="CeresSteamAnimations"/>.
 /// </summary>
 internal enum CeresSteamProgram
 {
-    /// <summary><c>InstList_CeresSteam_Up_0</c> at $A6:F04D.</summary>
+    /// <summary>The up animation.</summary>
     Up,
-    /// <summary>The loop at $A6:F059.</summary>
+    /// <summary>The loop.</summary>
     UpLoop,
-    /// <summary>The loop at $A6:F061.</summary>
+    /// <summary>The loop.</summary>
     UpLoop2,
-    /// <summary><c>InstList_CeresSteam_Left_0</c> at $A6:F081.</summary>
+    /// <summary>The left animation.</summary>
     Left,
-    /// <summary>The loop at $A6:F08D.</summary>
+    /// <summary>The loop.</summary>
     LeftLoop,
-    /// <summary>The loop at $A6:F095.</summary>
+    /// <summary>The loop.</summary>
     LeftLoop2,
-    /// <summary><c>InstList_CeresSteam_Down_0</c> at $A6:F0B5.</summary>
+    /// <summary>The down animation.</summary>
     Down,
-    /// <summary>The loop at $A6:F0C1.</summary>
+    /// <summary>The loop.</summary>
     DownLoop,
-    /// <summary>The loop at $A6:F0C9.</summary>
+    /// <summary>The loop.</summary>
     DownLoop2,
-    /// <summary><c>InstList_CeresSteam_Right_0</c> at $A6:F0E9.</summary>
+    /// <summary>The right animation.</summary>
     Right,
-    /// <summary>The loop at $A6:F0F5.</summary>
+    /// <summary>The loop.</summary>
     RightLoop,
-    /// <summary>The loop at $A6:F0FD.</summary>
+    /// <summary>The loop.</summary>
     RightLoop2,
 }

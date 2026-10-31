@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 public sealed class RoomPlmTourianAccessVisuals
 {
     /// <summary>
-    /// Canonical identity of the selected visual frames, excluding native mechanics. The identity keeps the name it was
+    /// Canonical identity of the selected visual frames, excluding mechanics. The identity keeps the name it was
     /// introduced under, so installed content identities do not change.
     /// </summary>
     public string ContentIdentity => SelectedPresentationHash.Create("RoomPlmTourianAccessVisualCatalog", content =>

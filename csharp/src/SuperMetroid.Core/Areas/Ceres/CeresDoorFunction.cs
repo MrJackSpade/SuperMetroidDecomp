@@ -2,25 +2,25 @@ namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// The Ceres door's and wall's main behaviours.
-/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1415).
+/// Its values are arbitrary.
 /// </summary>
 internal enum CeresDoorFunction
 {
-    /// <summary><c>$A6:F76B Function_CeresDoor_HandleEarthquakeDuringEscape</c>.</summary>
+    /// <summary>Shakes the screen while Ceres self-destructs.</summary>
     HandleEarthquakeDuringEscape = 1,
 
-    /// <summary><c>$A6:F770 Function_CeresDoor_HandleEarthquakeDuringEscapeInRidleysRoom</c>.</summary>
+    /// <summary>Shakes the screen while Ceres self-destructs, in Ridley's room.</summary>
     HandleEarthquakeDuringEscapeInRidleysRoom,
 
-    /// <summary><c>$A6:F7A5 Function_CeresDoor_RidleyEscapeMode7Wall</c>: the wall beside Ridley's rotating escape floor.</summary>
+    /// <summary>The wall beside Ridley's rotating escape floor.</summary>
     RidleyEscapeFloorWall,
 
-    /// <summary><c>$A6:F7BD Function_CeresDoor_RotatingElevatorRoom_Default</c>.</summary>
+    /// <summary>The rotating elevator room's default behaviour, before the destruction rumble.</summary>
     RotatingElevatorRoomDefault,
 
-    /// <summary><c>$A6:F7DC</c>: the rotating-elevator destruction rumble and explosions.</summary>
+    /// <summary>The rotating-elevator destruction rumble and explosions.</summary>
     RotatingElevatorRumble,
 
-    /// <summary><c>$A6:F850</c>: the perpetual rotating-elevator palette animation.</summary>
+    /// <summary>The perpetual rotating-elevator palette animation.</summary>
     ElevatorAnimation,
 }

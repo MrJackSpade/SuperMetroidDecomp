@@ -16,7 +16,7 @@ internal sealed class TourianPlms
     private readonly IGlobalEventFlags? _events;
     /// <summary>The enemy effects room objects trigger.</summary>
     private readonly IRoomPlmEnemyEffects? _enemies;
-    /// <summary>Native forty-slot PLM table scanned from the final slot during hardcoded spawns.</summary>
+    /// <summary>Forty-slot PLM table scanned from the final slot during hardcoded spawns.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Binds Tourian room callbacks to the active room's services and PLM slots.</summary>
@@ -28,7 +28,7 @@ internal sealed class TourianPlms
         _slotTable = slotTable;
     }
     /// <summary>
-    /// Applies setup <c>$84:DB1E</c>: select one bank-$84 pre-instruction through the exact
+    /// Applies the Metroids-cleared setup: select one frame behaviour through the exact
     /// room-argument table and leave the actor on its permanent sleeping instruction list.
     /// </summary>
     internal static void SetupMetroidsClearedSlot(PlmSlot slot)
@@ -39,8 +39,8 @@ internal sealed class TourianPlms
     }
 
     /// <summary>
-    /// Runs the selected pre-instruction before the ordinary timer/list pass, matching
-    /// <c>PLM_Handler</c>. Arguments below $12 are deliberate RTS handlers. The four active
+    /// Runs the selected frame behaviour before the ordinary timer/list pass, as the PLM
+    /// pass does. Arguments below 18 select handlers that do nothing. The four active
     /// handlers compare the complete enemy-death word with the room's required-kill byte and
     /// repeatedly mark their idempotent event once the quota is reached.
     /// </summary>
@@ -54,10 +54,10 @@ internal sealed class TourianPlms
     }
 
     /// <summary>
-    /// Runs room setup $8F:91A9: Spawn_Hardcoded_PLM at block ($10,$87), whose setup
-    /// $84:B3C1 clears the block's collision bits before the list starts on timer one.
+    /// Runs the room setup that spawns the PLM at block (16,135), whose setup
+    /// clears the block's collision bits before the list starts on timer one.
     /// </summary>
-    /// <returns>False only when all 40 native PLM slots are occupied.</returns>
+    /// <returns>False only when all 40 PLM slots are occupied.</returns>
     public bool TrySpawnOldTourianEscapeShaftWall(RoomLevelData level)
     {
         Ensure.NotNull(level);
@@ -77,7 +77,7 @@ internal sealed class TourianPlms
     }
 
     /// <summary>
-    /// Ports pre-instruction $84:B927. WakePLMIfSamusIsBelowRightOfTarget ($84:B8FD) wakes
+    /// Runs the fake wall's frame behaviour. Once Samus is below and right of the target, the wake advances
     /// the list past its sleep and leaves carry clear, which spawns the explosion; while
     /// Samus is not strictly below and right of the target it returns carry set and nothing
     /// happens.
@@ -90,14 +90,14 @@ internal sealed class TourianPlms
             OldTourianEscapeShaftWallPlmDefinitions.WakeTargetY >= samus.Position.Y.Whole)
             return;
 
-        // $84:B90B-$B914 advances past the sleep and arms timer one; unlike other wakes it
+        // The wake advances past the sleep and arms timer one; unlike other wakes it
         // leaves the loop timer alone.
         (slot.Animation ?? throw new InvalidOperationException("The old Tourian escape wall waits without its program.")).WakePastSleep();
         slot.FrameHold = WrappingCountdown.Start(1);
         (_enemies ?? throw new InvalidOperationException(
             "Old Tourian escape-shaft wall has no enemy-projectile owner.")).SpawnOldTourianEscapeShaftWallExplosion();
     }
-    /// <summary>$88:DB8A/DC69 spawn the native clear/crumble lists at block (6,12).</summary>
+    /// <summary>Spawns the clear or crumble animation at block (6,12).</summary>
     public bool TrySpawnTourianAccess(RoomLevelData level, TourianAccessFloor floor)
     {
         TourianAccessPlmDefinition definition = TourianAccessFloors.ForState(floor);

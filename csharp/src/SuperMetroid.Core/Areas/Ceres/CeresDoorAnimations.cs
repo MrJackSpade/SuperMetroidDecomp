@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Areas.Ceres.CeresDoorProgram;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// The Ceres doors' and walls' typed programs (#641), in place of their bank-$A6 lists. Generated from the verified native lists: each
+/// The Ceres doors' and walls' typed programs (#641). Each
 /// frame shows a <see cref="CeresDoorFrame"/> pose and each callback becomes a <see cref="CeresDoorCue"/> with its typed operands.
 /// </summary>
 internal static class CeresDoorAnimations

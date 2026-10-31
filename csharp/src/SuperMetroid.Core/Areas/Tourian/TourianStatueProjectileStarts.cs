@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
 /// The typed programs Tourian statue projectiles start at spawn (#1395): the family's spawners initialize a projectile from its
-/// definition and then start the program its kind names, as bank $86 starts the definition's list.
+/// definition and then start the program its kind names.
 /// </summary>
 internal static class TourianStatueProjectileStarts
 {

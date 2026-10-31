@@ -21,7 +21,7 @@ internal sealed record CeresDoorBehaviorDependencies
     /// <summary>Provides slot zero's frame counter for the shared palette cycle.</summary>
     public required EnemySlotTable SlotTable { get; init; }
 
-    /// <summary>Owns VRAM and CGRAM destinations for Ceres door artwork.</summary>
+    /// <summary>Owns the tile and palette destinations for Ceres door artwork.</summary>
     public required EnemyPresentation Presentation { get; init; }
 
     /// <summary>Spawns smoke or explosion effects around the shaking door.</summary>

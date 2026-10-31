@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Escape.Artwork;
 
-/// <summary>Schema and native identities for the two escape-warning text programs.</summary>
+/// <summary>Schema and identities for the two escape-warning text programs.</summary>
 public static class EscapeTypewriterDefinitions
 {
     /// <summary>The key click the Zebes typewriter plays.</summary>
@@ -15,31 +15,31 @@ public static class EscapeTypewriterDefinitions
     /// <summary>The embedded editable escape-warning program asset file name.</summary>
     public const string FileName = "escape-typewriter.json";
 
-    /// <summary>$A6:C450/$C49C runtime delay reset; unchanged and outside the installed programs table payload. No timing exemption is claimed.</summary>
+    /// <summary>The delay between typed characters; unchanged and outside the installed programs table payload. No timing exemption is claimed.</summary>
     public const int CharacterDelayFrames = 2;
     /// <summary>Maximum authored warning length and BG tilemap row width, in character cells.</summary>
     public const int MaximumLineLength = 32;
 
-    /// <summary>$A6:C458, TypewriterText_CeresEscapeTimer: chosen English warning wording, retained as lexical content.</summary>
+    /// <summary>Chosen English warning wording, retained as lexical content.</summary>
     private const string CeresSequenceWarning = "SELF DESTRUCT SEQUENCE";
-    /// <summary>$A6:C472, TypewriterText_CeresEscapeTimer: chosen English warning wording, retained as lexical content.</summary>
+    /// <summary>Chosen English warning wording, retained as lexical content.</summary>
     private const string CeresEvacuationWarning = "ACTIVATED EVACUATE";
-    /// <summary>$A6:C488, TypewriterText_CeresEscapeTimer: chosen English warning wording, retained as lexical content.</summary>
+    /// <summary>Chosen English warning wording, retained as lexical content.</summary>
     private const string CeresColonyWarning = "COLONY IMMEDIATELY";
-    /// <summary>$A6:C4A4, TypewriterText_ZebesEscapeTimer: chosen English warning wording, retained as lexical content.</summary>
+    /// <summary>Chosen English warning wording, retained as lexical content.</summary>
     private const string ZebesBombWarning = "TIME BOMB SET!";
-    /// <summary>$A6:C4B6, TypewriterText_ZebesEscapeTimer: chosen English warning wording, retained as lexical content.</summary>
+    /// <summary>Chosen English warning wording, retained as lexical content.</summary>
     private const string ZebesEscapeWarning = "ESCAPE IMMEDIATELY!";
 
-    /// <summary>$A6:C456/$C4A2 destination operands: reviewed five-cell warning-block margin; a chosen text-composition input, not derived from game state.</summary>
+    /// <summary>Reviewed five-cell warning-block margin; a chosen text-composition input, not derived from game state.</summary>
     internal const int FirstColumn = 5;
-    /// <summary>$A6:C456/$C4A2 destination operands: reviewed first tile row eight; a chosen text-composition input.</summary>
+    /// <summary>Reviewed first tile row eight; a chosen text-composition input.</summary>
     internal const int FirstRow = 8;
-    /// <summary>$A6:C470/$C486/$C4B4 destination operands: reviewed two-row leading; preserves the selected one-blank-row warning typography.</summary>
+    /// <summary>Reviewed two-row leading; preserves the selected one-blank-row warning typography.</summary>
     internal const int LineRowStep = 2;
-    /// <summary>$A6:C454..C49A: reviewed three-line grouping of the approved Ceres wording; selected line breaks are lexical composition.</summary>
+    /// <summary>Reviewed three-line grouping of the approved Ceres wording; selected line breaks are lexical composition.</summary>
     private const int CeresLineCount = 3;
-    /// <summary>$A6:C4A0..C4C9: reviewed two-line grouping of the approved Zebes wording; selected line breaks are lexical composition.</summary>
+    /// <summary>Reviewed two-line grouping of the approved Zebes wording; selected line breaks are lexical composition.</summary>
     private const int ZebesLineCount = 2;
 
     /// <summary>Each warning program's line count: Ceres uses three warning lines while Zebes uses two.</summary>

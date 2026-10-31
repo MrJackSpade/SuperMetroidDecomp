@@ -21,7 +21,7 @@ public static class EscapeTimerComposition
     /// <summary>The JSON key of an anchor, whose coordinates are pixel offsets from the live timer origin.</summary>
     public static string AnchorName(EscapeTimerAnchor anchor) => Ensure.Listed(EscapeTimerPresentationDefinitions.AnchorNames, anchor);
 
-    /// <summary>$80:9F7B/9F84/9F8D: three two-digit groups separated by one cell, centered across eight cells.</summary>
+    /// <summary>Three two-digit groups separated by one cell, centered across eight cells.</summary>
     internal static Offset16<SpritePixels> DefaultAnchor(EscapeTimerAnchor anchor) =>
         Ensure.Listed(EscapeTimerPresentationDefinitions.DefaultAnchors, anchor);
 }

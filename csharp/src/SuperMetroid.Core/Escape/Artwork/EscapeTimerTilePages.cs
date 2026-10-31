@@ -2,11 +2,11 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Escape.Artwork;
 
-/// <summary>Native transfer records of the escape-timer character pages.</summary>
+/// <summary>Transfer records of the escape-timer character pages.</summary>
 public static class EscapeTimerTilePages
 {
 
-    /// <summary>The page's native upload size in bytes.</summary>
+    /// <summary>The page's upload size in bytes.</summary>
     public static ushort ByteCountOf(EscapeTimerTilePage page) => page switch
     {
         EscapeTimerTilePage.First => EscapeTimerTileAtlasFormat.FirstByteCount,
@@ -22,7 +22,7 @@ public static class EscapeTimerTilePages
         _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerTilePage)} {page}."),
     };
 
-    /// <summary>The typed VRAM asset installed for the page.</summary>
+    /// <summary>The typed tile asset installed for the page.</summary>
     public static InstalledArtworkId AssetOf(EscapeTimerTilePage page) => page switch
     {
         EscapeTimerTilePage.First => InstalledArtworkId.EscapeTimerFirstTiles,

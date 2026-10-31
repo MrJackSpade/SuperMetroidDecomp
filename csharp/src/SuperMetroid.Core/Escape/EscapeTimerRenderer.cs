@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Escape;
 
 /// <summary>
 /// Publishes the escape timer's installed label and digit frames as whole-frame draws. The
-/// cartridge's <c>$80:9F6C-$80:9FD3</c> layout is extracted before gameplay.
+/// timer's layout is extracted before gameplay.
 /// </summary>
 public static class EscapeTimerRenderer
 {

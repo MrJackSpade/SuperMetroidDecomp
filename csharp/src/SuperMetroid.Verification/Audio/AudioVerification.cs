@@ -53,10 +53,10 @@ internal static class AudioVerification
             () => MusicQueueDelay.FromEffectiveUpdates(7),
             "invalid effective music delay fails loudly");
         AssertTrue(
-            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueMusicDelayed8), [typeof(MusicRequest)]),
+            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueMusic), [typeof(MusicRequest)]),
             "music queue accepts typed commands");
         AssertTrue(
-            !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueMusicDelayed8), [typeof(ushort)]),
+            !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueMusic), [typeof(ushort)]),
             "music queue exposes no raw-word overload");
 
         byte[] rom = new byte[0x10_0000];
@@ -76,8 +76,8 @@ internal static class AudioVerification
         Suite(nameof(VerifyGameplayAudioPublication), () => VerifyGameplayAudioPublication());
 
         var audio = new AudioQueues();
-        audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-        audio.QueueMusicDelayed8(MusicRequest.SelectTrack(5));
+        audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
+        audio.QueueMusic(MusicRequest.SelectTrack(5));
 
         IReadOnlyList<AudioRequest> reset =
             audio.AdvanceFrame(default);
@@ -117,7 +117,7 @@ internal static class AudioVerification
         // Every permanent item uses the same $84:8BDD -> $82:E118 sequence. Seed a stale
         // request to prove queue clearing, then observe track two, the 360-frame fanfare
         // hold/silence, and restoration of the room track that was live at acquisition.
-        audio.QueueMusicDelayed8(MusicRequest.SelectTrack(7));
+        audio.QueueMusic(MusicRequest.SelectTrack(7));
         audio.QueuePermanentItemFanfare();
         var permanentItemPortWrites = new List<int>();
         for (int frame = 0; frame < 384; frame++)
@@ -139,7 +139,7 @@ internal static class AudioVerification
         // `$82:E071/$E0D5` return on each zero field; zero is not a stop command.
         var inheritedRoomMusic = new AudioQueues();
         inheritedRoomMusic.AdvanceFrame(default);
-        inheritedRoomMusic.QueueMusicDelayed8(MusicRequest.SelectTrack(7));
+        inheritedRoomMusic.QueueMusic(MusicRequest.SelectTrack(7));
         // The first handler call copies the newly queued entry into the active timer;
         // the following eight calls count down the native delay and emit the port write.
         for (int frame = 0; frame < 9; frame++)
@@ -183,7 +183,7 @@ internal static class AudioVerification
         // bank/track pair, so the latter track must be resent after bank six uploads.
         var postCeresLandingMusic = new AudioQueues();
         postCeresLandingMusic.AdvanceFrame(default);
-        postCeresLandingMusic.QueueMusicDelayed8(MusicRequest.SelectTrack(5));
+        postCeresLandingMusic.QueueMusic(MusicRequest.SelectTrack(5));
         for (int frame = 0; frame < 9; frame++)
             postCeresLandingMusic.AdvanceFrame(default);
         postCeresLandingMusic.QueueRoomMusic(new RoomMusic(MusicDataSet.EmptyCrateria, RoomMusicTrack.Plays(5)));

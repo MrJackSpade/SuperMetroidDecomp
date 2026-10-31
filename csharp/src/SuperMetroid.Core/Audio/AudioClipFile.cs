@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// One rendered clip file (#1305): an uncompressed 16-bit stereo WAV at the native S-DSP rate,
+/// One rendered clip file (#1305): an uncompressed 16-bit stereo WAV at the clips' 32,040-Hz rate,
 /// its path relative to the audio root, its SHA-256 and its length in stereo frames.
 /// </summary>
 /// <param name="Path">Relative path beneath the audio root.</param>

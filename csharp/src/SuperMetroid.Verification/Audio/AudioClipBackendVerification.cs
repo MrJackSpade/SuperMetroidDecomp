@@ -13,8 +13,8 @@ namespace SuperMetroid.Verification.Audio;
 /// emulated driver's byte for byte, both for a Green Brinstar track over 600 updates and for one
 /// library-1 sound with no music. Confirmation 3: scripted events select the clips the driver's
 /// rules select: the same track is ignored, an ended track restarts, stop silences, priority,
-/// low-health mode and exempt requests decide acceptance, and an upload silences a sound until
-/// its next key-on.
+/// low-health mode and exempt requests decide acceptance, and a clip-set switch interrupts a sound until
+/// its next note.
 /// </summary>
 internal static class AudioClipBackendVerification
 {
@@ -30,8 +30,8 @@ internal static class AudioClipBackendVerification
     /// <summary>The common item-fanfare track, which ends.</summary>
     private const byte EndingTrack = 2;
 
-    /// <summary>Updates within which the eight-bit tempo accumulator carries at any nonzero tempo: 256 driver ticks of 64 cycles.</summary>
-    private const int MusicTickUpdates = 256 * 64 / ManagedSnesDsp.NativeStereoFramesPerVideoFrame + 1;
+    /// <summary>Updates within which the music's beat completes at any nonzero tempo: a beat's parts in clock steps.</summary>
+    private const int BeatUpdates = ClipPlaybackState.BeatParts * SoundClockTiming.SamplesPerStep / SoundClockTiming.SamplesPerUpdate + 1;
 
     /// <summary>Updates within which a request written now starts: the port model latches it at one poll and the driver acts at the next.</summary>
     private const int SoundStartUpdates = 3;
@@ -76,38 +76,38 @@ internal static class AudioClipBackendVerification
         AssertTrue(audible, $"{name} is audible");
     }
 
-    /// <summary>Same track ignored, an ended track restarting, and stop.</summary>
+    /// <summary>The playing song requested again, an ended song restarting, and stop.</summary>
     private static void VerifyMusicCommands(ClipAudioLibrary clips)
     {
         var script = new Script(clips);
         script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         script.Advance([AudioRequest.ForTrack(new MusicTrack(RoomTrack))]);
-        script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
-        long start = script.State.MusicStart;
-        AssertEqual(clips.GetMusic(MusicDataSet.GreenBrinstar, RoomTrack), script.State.Music, "the room track's clip starts");
+        script.AdvanceUntil(() => script.State.Song is not null, BeatUpdates);
+        long start = script.State.SongStart;
+        AssertEqual(clips.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(RoomTrack)), script.State.Song, "the room song's clip starts");
 
         script.Advance([AudioRequest.ForTrack(new MusicTrack(RoomTrack))]);
         script.Advance(60);
-        AssertEqual(start, script.State.MusicStart, "writing the playing track does not restart it");
+        AssertEqual(start, script.State.SongStart, "requesting the playing song does not restart it");
 
         script.Advance([new AudioRequest.StopMusic()]);
-        script.AdvanceUntil(() => script.State.Music is null, MusicTickUpdates);
-        AssertEqual(0, script.State.MusicPort, "stop returns the port to zero");
+        script.AdvanceUntil(() => script.State.Song is null, BeatUpdates);
+        AssertEqual<MusicTrack?>(null, script.State.PlayingTrack, "stop leaves no song playing");
 
-        MusicClipEntry ending = clips.GetMusic(MusicDataSet.GreenBrinstar, EndingTrack);
+        MusicClipEntry ending = clips.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(EndingTrack));
         AssertTrue(ending.LoopStart is null, "track 2 ends");
         script.Advance([AudioRequest.ForTrack(new MusicTrack(EndingTrack))]);
-        script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
-        long firstStart = script.State.MusicStart;
-        script.AdvanceUntil(() => script.State.Music is null, (int)(ending.Clip.Frames / ManagedSnesDsp.NativeStereoFramesPerVideoFrame) + 2);
-        AssertEqual(0, script.State.MusicPort, "an ended track returns the port to zero");
-        AssertTrue(script.State.Sample - firstStart >= ending.Clip.Frames, "the track ended after its whole clip");
+        script.AdvanceUntil(() => script.State.Song is not null, BeatUpdates);
+        long firstStart = script.State.SongStart;
+        script.AdvanceUntil(() => script.State.Song is null, (int)(ending.Clip.Frames / ManagedSnesDsp.NativeStereoFramesPerVideoFrame) + 2);
+        AssertEqual<MusicTrack?>(null, script.State.PlayingTrack, "an ended song leaves no song playing");
+        AssertTrue(script.State.Sample - firstStart >= ending.Clip.Frames, "the song ended after its whole clip");
         script.Advance([AudioRequest.ForTrack(new MusicTrack(EndingTrack))]);
-        script.AdvanceUntil(() => script.State.Music is not null, MusicTickUpdates);
-        AssertTrue(script.State.MusicStart > firstStart, "the same track restarts after it ended");
+        script.AdvanceUntil(() => script.State.Song is not null, BeatUpdates);
+        AssertTrue(script.State.SongStart > firstStart, "the same song restarts after it ended");
     }
 
-    /// <summary>Priority, low-health mode, exempt requests and upload silencing.</summary>
+    /// <summary>Priority, low-health mode, exempt requests and clip-set switch interruption.</summary>
     private static void VerifySoundCommands(ClipAudioLibrary clips)
     {
         SoundEffectClipEntry high = clips.Manifest.SoundEffects.First(entry =>
@@ -143,7 +143,7 @@ internal static class AudioClipBackendVerification
         long position = script.State.Sample - library3.Start;
         script.Advance([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         SoundEffectClipLayer beep = library3.Sound?.Layers[0] ?? throw new InvalidOperationException("The beep has a layer.");
-        AssertTrue(library3.SilencedUntil[0] > position && beep.KeyOnFrames.Count != 0, "an upload silences the looping beep until a later key-on");
+        AssertTrue(library3.InterruptedUntil[0] > position && beep.KeyOnFrames.Count != 0, "a clip-set switch interrupts the looping beep until a later note");
 
         script.Advance([new AudioRequest.RequestSound(Library3Sound.Silence)]);
         script.AdvanceUntil(() => library3.Sound?.Sound == Library3Sound.Silence, SoundStartUpdates);

@@ -1,28 +1,27 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// Plays pre-rendered clips (#1305) from the session's audio events, reproducing the driver's
-/// command semantics from the session's events.
+/// The clip player (#1305, #1478): plays the pre-rendered songs and sounds from the session's audio events.
 /// <list type="bullet">
-/// <item>A track selection is latched and consumed at the next music tick: a carry of the tempo
-/// accumulator, which advances by the playing clip's tempo on every clock step.</item>
-/// <item>Selecting the playing track is ignored. A track that ends leaves no track selected, so
-/// the same track can then restart. Selecting no track stops the music.</item>
-/// <item>Each library accepts a request by its clip's policy (priority, low-health mode, exempt
-/// requests); the sound holds the library until its logical end.</item>
-/// <item>A data set change stops the music and silences each playing sound until its next key-on,
-/// then continues it in the new data set's clips.</item>
-/// <item>A cut clip fades over one key-off release.</item>
+/// <item>A song change waits for the music's next beat: every sound clock step advances the beat by the playing song's
+/// tempo (or, while none plays, the last song's), and the change takes effect when the beat completes.</item>
+/// <item>Requesting the song that plays changes nothing. A song that ends leaves none playing, so the same song can then
+/// restart. A stop silences the music.</item>
+/// <item>Each library accepts a sound by its clip's policy (priority, low-health mode, exempt sounds); the sound holds
+/// the library until its logical end.</item>
+/// <item>A clip-set switch stops the song and interrupts each sound still holding its library until the sound's next
+/// note, from which it continues in the new set's clips.</item>
+/// <item>A cut clip fades out over <see cref="ReleaseFrames"/> frames.</item>
 /// </list>
-/// Clips mix in the native 32.04-kHz domain and resample to 48 kHz exactly as the emulated DSP's
-/// output does, so a clip-only update matches it byte for byte.
+/// Clips mix at their own rate (<see cref="SoundClockTiming.SamplesPerUpdate"/> frames per update) and are resampled
+/// to the host's 48 kHz. Audio output is presentation: nothing here reaches a gameplay update.
 /// </summary>
 public sealed class ClipAudioBackend
 {
-    /// <summary>Frames of the key-off release a cut clip fades over: the S-DSP's 8-ms release from full envelope.</summary>
+    /// <summary>Frames a cut clip fades out over: eight milliseconds.</summary>
     internal const int ReleaseFrames = 256;
 
-    /// <summary>Native stereo frames in one update.</summary>
+    /// <summary>Clip frames in one update.</summary>
     private const int FramesPerUpdate = SoundClockTiming.SamplesPerUpdate;
 
     /// <summary>The installed clips.</summary>
@@ -47,41 +46,41 @@ public sealed class ClipAudioBackend
 
     /// <summary>Applies one update's events in order and writes its interleaved 48-kHz stereo PCM.</summary>
     /// <exception cref="InvalidDataException">
-    /// An event is malformed or out of order, a pause or resume command arrives, a track is
-    /// requested with no music bank loaded, or a requested sound has no clip in the data set.
+    /// An event is malformed or out of order, a song is requested with no clip set loaded, or a
+    /// requested sound has no clip in the clip set.
     /// </exception>
     public void Render(in AudioFrameEvents frame, Span<short> stereo48k)
     {
         IReadOnlyList<AudioEvent> events = Ensure.NotNull(frame.Events);
         long frameStart = State.Sample;
         int cursor = 0;
-        bool ticked = false;
-        int lastTick = -1;
-        bool lastPolled = false;
+        bool stepped = false;
+        int lastStep = -1;
+        bool lastChecked = false;
         foreach (AudioEvent audioEvent in events)
         {
             switch (audioEvent)
             {
                 case AudioEvent.ChangeMusicDataSet change:
-                    RequireBeforeTicks(ticked, audioEvent);
-                    ChangeDataSet(change.DataSet, frameStart);
+                    RequireBeforeSteps(stepped, audioEvent);
+                    SwitchClipSet(change.DataSet, frameStart);
                     break;
                 case AudioEvent.SelectMusicTrack selection:
-                    RequireBeforeTicks(ticked, audioEvent);
-                    State.LatchMusic(selection.Track?.Number ?? 0);
+                    RequireBeforeSteps(stepped, audioEvent);
+                    State.RequestSongChange(new SongChange(selection.Track));
                     break;
                 case AudioEvent.ClockStep step:
                     if (step.SampleOffset < cursor || step.SampleOffset >= FramesPerUpdate)
                         throw new InvalidDataException($"Clock step at sample {step.SampleOffset} is out of order or outside the update.");
                     Mix(frameStart, cursor, step.SampleOffset);
                     cursor = step.SampleOffset;
-                    ticked = true;
-                    lastTick = step.SampleOffset;
-                    lastPolled = step.ChecksRequests;
-                    Tick(frameStart + cursor, step.Steps, step.ChecksRequests);
+                    stepped = true;
+                    lastStep = step.SampleOffset;
+                    lastChecked = step.ChecksRequests;
+                    Step(frameStart + cursor, step.Steps, step.ChecksRequests);
                     break;
                 case AudioEvent.StartSoundEffect startSoundEffect:
-                    if (!lastPolled || lastTick != startSoundEffect.SampleOffset)
+                    if (!lastChecked || lastStep != startSoundEffect.SampleOffset)
                         throw new InvalidDataException($"{audioEvent} does not follow its request-checking clock step.");
                     StartSoundEffect(startSoundEffect.SoundEffect, frameStart + startSoundEffect.SampleOffset);
                     break;
@@ -94,11 +93,11 @@ public sealed class ClipAudioBackend
         PcmFrameResampler.ResampleStereoLinear(mix, stereo48k[..AudioSession.PcmSamplesPerFrame]);
     }
 
-    /// <summary>A data set change stops the music, clears the music latch and silences each playing sound until its next key-on in the new data set.</summary>
-    private void ChangeDataSet(MusicDataSet? dataSet, long now)
+    /// <summary>A clip-set switch stops the song, drops the waiting song change and interrupts each sound still holding its library until its next note in the new set.</summary>
+    private void SwitchClipSet(MusicDataSet? clipSet, long now)
     {
         ReleaseMusic(now);
-        State.Upload(dataSet);
+        State.SwitchClipSet(clipSet);
         for (int index = 0; index < State.Libraries.Length; index++)
         {
             ClipLibraryState library = State.Libraries[index];
@@ -110,50 +109,47 @@ public sealed class ClipAudioBackend
                 library.Clear();
                 continue;
             }
-            SoundEffectClipEntry continued = catalog.GetSoundEffect(State.Context, sound.Sound);
+            SoundEffectClipEntry continued = catalog.GetSoundEffect(State.ClipSet, sound.Sound);
             long position = now - library.Start;
-            library.Continue(continued, [.. continued.Layers.Select(layer => NextKeyOn(layer, position))]);
+            library.Continue(continued, [.. continued.Layers.Select(layer => NextNote(layer, position))]);
         }
     }
 
-    /// <summary>Services one clock step: sound logical ends at a request check, then the tempo timer and, on a carry, the music latch.</summary>
-    private void Tick(long now, int ticks, bool polled)
+    /// <summary>Plays one clock step: sounds past their logical end release their library at a request check, then the beat advances and, when it completes, the waiting song change takes effect.</summary>
+    private void Step(long now, int steps, bool checksRequests)
     {
-        if (polled)
+        if (checksRequests)
         {
-            // A sound ends at the poll after its logical end; a request at the end poll itself still meets it.
+            // A sound ends at the check after its logical end; a request at that check itself still meets it.
             foreach (ClipLibraryState library in State.Libraries)
                 library.EndIfFinished(now);
         }
 
-        if (State.Music is MusicClipEntry music && music.LoopStart is null && now - State.MusicStart >= music.Clip.Frames)
-        {
-            // The track reached its $0000 terminator: the driver returned the port to zero.
-            State.EndTrack(TempoAt(music, music.Clip.Frames));
-        }
+        if (State.Song is MusicClipEntry song && song.LoopStart is null && now - State.SongStart >= song.Clip.Frames)
+            State.EndSong(TempoAt(song, song.Clip.Frames));
 
-        if (State.AdvanceTempo(ticks * CurrentTempo(now)))
-            MusicTick(now);
+        if (State.AdvanceBeat(steps * CurrentTempo(now)))
+            OnBeat(now);
     }
 
-    /// <summary>Consumes the latched music command at a music tick.</summary>
-    private void MusicTick(long now)
+    /// <summary>Applies the song change waiting for this beat, unless it asks for what already plays.</summary>
+    private void OnBeat(long now)
     {
-        if (State.TakeMusicLatch() is not int command || command == State.MusicPort)
+        if (State.TakeSongChange() is not SongChange change || change.Track == State.PlayingTrack)
             return;
-        if (State.Music is MusicClipEntry playing)
-            State.HoldTempo(TempoAt(playing, now - State.MusicStart));
+        if (State.Song is MusicClipEntry playing)
+            State.HoldTempo(TempoAt(playing, now - State.SongStart));
         ReleaseMusic(now);
-        if (command == 0)
+        if (change.Track is not MusicTrack track)
         {
-            State.SelectTrack(command, null, now);
+            State.StopSong();
             return;
         }
-        MusicDataSet loadedSet = State.Context ?? throw new InvalidDataException($"Track {command} was requested with no music data set loaded.");
-        State.SelectTrack(command, catalog.GetMusic(loadedSet, command), now);
+        MusicDataSet clipSet = State.ClipSet ?? throw new InvalidDataException($"Song {track} was requested with no clip set loaded.");
+        State.PlaySong(track, catalog.GetMusic(clipSet, track), now);
     }
 
-    /// <summary>Applies a sound start at its poll: the library's policy decides acceptance; an accepted sound replaces the library's sound.</summary>
+    /// <summary>Applies a sound start at its request check: the library's policy decides acceptance; an accepted sound replaces the library's sound.</summary>
     private void StartSoundEffect(SoundEffectId soundEffect, long now)
     {
         int index = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
@@ -162,19 +158,19 @@ public sealed class ClipAudioBackend
         if (library.Rejects(policy))
             return;
 
-        SoundEffectClipEntry sound = catalog.GetSoundEffect(State.Context, soundEffect);
+        SoundEffectClipEntry sound = catalog.GetSoundEffect(State.ClipSet, soundEffect);
         ReleaseSound(library, now);
         library.Play(sound, now, policy);
     }
 
-    /// <summary>Fades the playing music clip over one release.</summary>
+    /// <summary>Fades the playing song out.</summary>
     private void ReleaseMusic(long now)
     {
-        if (State.Music is MusicClipEntry music && Position(music.Clip.Frames, music.LoopStart, now - State.MusicStart) is not null)
-            State.Releasing.Add(new ReleasingClip(music.Clip, music.LoopStart, State.MusicStart, ReleaseFrames));
+        if (State.Song is MusicClipEntry song && Position(song.Clip.Frames, song.LoopStart, now - State.SongStart) is not null)
+            State.Releasing.Add(new ReleasingClip(song.Clip, song.LoopStart, State.SongStart, ReleaseFrames));
     }
 
-    /// <summary>Fades each audible layer of a library's sound over one release.</summary>
+    /// <summary>Fades each audible layer of a library's sound out.</summary>
     private void ReleaseSound(ClipLibraryState library, long now)
     {
         if (library.Sound is not SoundEffectClipEntry sound)
@@ -182,7 +178,7 @@ public sealed class ClipAudioBackend
         for (int layer = 0; layer < sound.Layers.Count; layer++)
         {
             SoundEffectClipLayer clip = sound.Layers[layer];
-            if (now - library.Start >= library.SilencedUntil[layer] && Position(clip.Clip.Frames, clip.LoopStart, now - library.Start) is not null)
+            if (now - library.Start >= library.InterruptedUntil[layer] && Position(clip.Clip.Frames, clip.LoopStart, now - library.Start) is not null)
                 State.Releasing.Add(new ReleasingClip(clip.Clip, clip.LoopStart, library.Start, ReleaseFrames));
         }
     }
@@ -195,8 +191,8 @@ public sealed class ClipAudioBackend
             long now = frameStart + index;
             int left = 0;
             int right = 0;
-            if (State.Music is MusicClipEntry music)
-                Add(music.Clip, music.LoopStart, now - State.MusicStart, 1, 1, ref left, ref right);
+            if (State.Song is MusicClipEntry song)
+                Add(song.Clip, song.LoopStart, now - State.SongStart, 1, 1, ref left, ref right);
             foreach (ClipLibraryState library in State.Libraries)
             {
                 if (library.Sound is not SoundEffectClipEntry sound)
@@ -204,7 +200,7 @@ public sealed class ClipAudioBackend
                 long position = now - library.Start;
                 for (int layer = 0; layer < sound.Layers.Count; layer++)
                 {
-                    if (position >= library.SilencedUntil[layer])
+                    if (position >= library.InterruptedUntil[layer])
                         Add(sound.Layers[layer].Clip, sound.Layers[layer].LoopStart, position, 1, 1, ref left, ref right);
                 }
             }
@@ -244,43 +240,42 @@ public sealed class ClipAudioBackend
         return loop + (position - loop) % (frames - loop);
     }
 
-    /// <summary>The unwrapped position of a layer's first key-on at or after <paramref name="position"/>; never for a layer with none ahead.</summary>
-    private static long NextKeyOn(SoundEffectClipLayer layer, long position)
+    /// <summary>The unwrapped position of a layer's first note start at or after <paramref name="position"/>; never for a layer with none ahead.</summary>
+    private static long NextNote(SoundEffectClipLayer layer, long position)
     {
         long frames = layer.Clip.Frames;
         if (Position(frames, layer.LoopStart, position) is not long frame)
             return long.MaxValue;
-        foreach (long keyOn in layer.KeyOnFrames)
+        foreach (long noteStart in layer.KeyOnFrames)
         {
-            if (keyOn >= frame)
-                return position + (keyOn - frame);
+            if (noteStart >= frame)
+                return position + (noteStart - frame);
         }
         if (layer.LoopStart is long loopStart)
         {
-            foreach (long keyOn in layer.KeyOnFrames)
+            foreach (long noteStart in layer.KeyOnFrames)
             {
-                if (keyOn >= loopStart)
-                    return position + (frames - frame) + (keyOn - loopStart);
+                if (noteStart >= loopStart)
+                    return position + (frames - frame) + (noteStart - loopStart);
             }
         }
         return long.MaxValue;
     }
 
-    /// <summary>The tempo at a driver tick: the playing clip's tempo before this tick, or the held tempo.</summary>
+    /// <summary>The tempo of a clock step now: the playing song's tempo before this step, or the held tempo.</summary>
     private int CurrentTempo(long now) =>
-        State.Music is MusicClipEntry music ? TempoAt(music, now - State.MusicStart) : State.Tempo;
+        State.Song is MusicClipEntry song ? TempoAt(song, now - State.SongStart) : State.Tempo;
 
     /// <summary>
-    /// The tempo a driver tick at clip position <paramref name="position"/> adds: the clip's last
-    /// tempo change before that frame, wrapped into the loop. The driver state at the loop start
-    /// equals the state at the clip's end, so the same lookup holds in every pass. Before the
-    /// clip's first change the held tempo applies.
+    /// The tempo a clock step at song position <paramref name="position"/> advances the beat by: the song's last
+    /// tempo change before that frame, wrapped into the loop. The song at its loop start is as it was at its end, so the
+    /// same lookup holds in every pass. Before the song's first change the held tempo applies.
     /// </summary>
-    private int TempoAt(MusicClipEntry music, long position)
+    private int TempoAt(MusicClipEntry song, long position)
     {
-        long frame = Position(music.Clip.Frames, music.LoopStart, position) ?? music.Clip.Frames;
+        long frame = Position(song.Clip.Frames, song.LoopStart, position) ?? song.Clip.Frames;
         int tempo = State.Tempo;
-        foreach (MusicTempoSegment segment in music.TempoSegments)
+        foreach (SongTempo segment in song.TempoSegments)
         {
             if (segment.Frame >= frame)
                 break;
@@ -297,13 +292,13 @@ public sealed class ClipAudioBackend
         return pcm;
     }
 
-    /// <summary>Data set changes and track selections precede the update's clock steps; one after a step is malformed.</summary>
-    private static void RequireBeforeTicks(bool ticked, AudioEvent audioEvent)
+    /// <summary>Clip-set switches and song changes precede the update's clock steps; one after a step is malformed.</summary>
+    private static void RequireBeforeSteps(bool stepped, AudioEvent audioEvent)
     {
-        if (ticked)
+        if (stepped)
             throw new InvalidDataException($"{audioEvent} follows a clock step; it must precede the update's steps.");
     }
 
-    /// <summary>Saturates a mixed sample to signed 16 bits, as the DSP's output stage does.</summary>
+    /// <summary>Saturates a mixed sample to signed 16 bits.</summary>
     private static short Clamp16(int value) => (short)Math.Clamp(value, short.MinValue, short.MaxValue);
 }

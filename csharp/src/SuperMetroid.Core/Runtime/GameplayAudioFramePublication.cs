@@ -12,7 +12,7 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
     private bool selectionPublished;
 
     /// <summary>
-    /// Flushes earlier native producers before the queue-dependent animation lookup.
+    /// Flushes the update's earlier sound producers before the queue-dependent animation lookup.
     /// A later completion call publishes only newly appended requests, not duplicates.
     /// </summary>
     public void PublishPrefix(SuperMetroidRuntime runtime)
@@ -35,7 +35,7 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
         while (paletteMusic < music.Count)
         {
             var request = music[paletteMusic++];
-            audio.QueueMusicDelayed(request.Request, request.Delay);
+            audio.ScheduleMusic(request.Request, request.Delay);
         }
         if (runtime.Player.Samus is not { } samus)
             return;
@@ -55,7 +55,7 @@ internal sealed class GameplayAudioFramePublication(AudioQueues audio)
         }
     }
 
-    /// <summary>Executes the native Max6 sound call, returning what the queue did with the echo.</summary>
+    /// <summary>Requests the Speed Booster echo at normal priority, returning what library three's queue did with it.</summary>
     public SoundQueueAdmission QueueEcho(SuperMetroidRuntime runtime)
     {
         PublishPrefix(runtime);

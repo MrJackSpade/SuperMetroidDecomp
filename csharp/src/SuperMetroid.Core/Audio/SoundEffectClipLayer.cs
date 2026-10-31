@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <param name="Clip">The rendered layer.</param>
 /// <param name="LoopStart">For a looping channel, the first frame of its loop, repeated to the clip's end; null for a one-shot layer.</param>
-/// <param name="Voices">The hardware voices this layer sounds on.</param>
-/// <param name="KeyOnFrames">Clip-relative frames at which the layer keys a note on; an upload silences the layer until its next key-on.</param>
+/// <param name="Voices">The playback voices this layer sounds on.</param>
+/// <param name="KeyOnFrames">Clip-relative frames at which the layer starts a note; a clip-set switch interrupts the layer until its next note.</param>
 public sealed record SoundEffectClipLayer(
     AudioClipFile Clip,
     long? LoopStart,

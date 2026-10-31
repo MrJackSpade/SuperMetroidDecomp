@@ -9,11 +9,8 @@ public static class AudioQueueDefinitions
     /// <summary>The sound libraries, each with its own sound queue.</summary>
     public const int SoundLibraryCount = SoundClockTiming.LibraryCount;
 
-    /// <summary>Positions in each sound queue's ring, including the one kept empty to tell a full ring from an empty one.</summary>
-    public const int SoundCapacity = 16;
-
-    /// <summary>The most unread requests a sound queue can hold: fifteen.</summary>
-    public const int MaximumSoundOccupancy = SoundCapacity - 1;
+    /// <summary>Positions in each sound queue's ring: its most waiting requests plus the one kept empty to tell a full ring from an empty one.</summary>
+    public const int SoundCapacity = SoundQueueAdmission.MaximumOccupancy + 1;
 
     /// <summary>The shortest music delay, in music-handler calls; shorter requested delays are lengthened to it.</summary>
     public const int MinimumMusicDelayFrames = 8;

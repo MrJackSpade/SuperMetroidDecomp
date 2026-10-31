@@ -1,97 +1,106 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// The clip backend's playback state (#1305), kept by the session so a restored session continues
-/// its audio: the data set, the music port and tempo timer, the music clip and its start, each
-/// sound library's sound, priority and low-health mode, and the clips still releasing. Positions
-/// are absolute native stereo frames since the session's first update.
+/// The clip player's playback state (#1305, #1478), kept by the session so a restored session continues its audio: the
+/// clip set loaded, the song playing and from when, the song change waiting for the music's next beat, how far the beat
+/// has advanced and the tempo between songs, each sound library's sound, priority and low-health mode, and the clips
+/// still fading out. Positions are absolute clip frames since the session's first update. Presentation only: no
+/// gameplay update reads it.
 /// </summary>
 public sealed class ClipPlaybackState
 {
+    /// <summary>The parts one beat is divided into; a song's tempo counts the parts each clock step advances.</summary>
+    public const int BeatParts = 256;
+
+    /// <summary>
+    /// The tempo the beat advances at before any song has played: the rate the songs' tempo maps were rendered against
+    /// before a song set its own. Each song's tempo map starts at its first frame, so it does not record this one.
+    /// </summary>
+    internal const int InitialTempo = 16;
+
     /// <summary>The three sound libraries, in queue order.</summary>
     internal readonly ClipLibraryState[] Libraries = [new(), new(), new()];
 
-    /// <summary>Clips cut by a newer sound, a track change or a data set change, fading over one key-off release.</summary>
+    /// <summary>Clips cut by a newer sound, a song change or a clip-set switch, fading out.</summary>
     internal readonly List<ReleasingClip> Releasing = [];
 
-    /// <summary>Native stereo frames rendered so far.</summary>
+    /// <summary>Clip frames played so far.</summary>
     internal long Sample { get; private set; }
 
-    /// <summary>The music data set loaded last, or null while only the shared sounds are loaded.</summary>
-    internal MusicDataSet? Context { get; private set; }
+    /// <summary>The clip set loaded last, named by its music data set, or null while only the shared sounds are loaded.</summary>
+    internal MusicDataSet? ClipSet { get; private set; }
 
-    /// <summary>The track the music port holds, 0 through 255; zero when stopped or after a track ended.</summary>
-    internal int MusicPort { get; private set; }
+    /// <summary>The song playing, or null when stopped or after a song ended.</summary>
+    internal MusicClipEntry? Song { get; private set; }
 
-    /// <summary>The music-port write the driver consumes at its next music tick, or null when none is pending.</summary>
-    internal int? MusicLatch { get; private set; }
+    /// <summary>The track of the song playing, or null when none plays.</summary>
+    internal MusicTrack? PlayingTrack { get; private set; }
 
-    /// <summary>The tempo accumulator; each overflow is a music tick.</summary>
-    internal TickAccumulator TempoAccumulator { get; private set; }
+    /// <summary>Absolute frame of the song's frame zero.</summary>
+    internal long SongStart { get; private set; }
 
-    /// <summary>
-    /// The tempo music ticks run at before any track has played: the rate the clips' tempo timelines were rendered
-    /// against before a track set its own. The clip manifest records each track's tempo from its first frame, but not
-    /// this one.
-    /// </summary>
-    internal const int PowerOnTempo = 16;
+    /// <summary>The song change waiting for the music's next beat, or null when none waits.</summary>
+    internal SongChange? PendingSongChange { get; private set; }
 
-    /// <summary>The tempo in force while no track plays, 0 through 255: <see cref="PowerOnTempo"/>, then each track's last.</summary>
-    internal int Tempo { get; private set; } = PowerOnTempo;
+    /// <summary>Parts of the current beat already played, 0 through <see cref="BeatParts"/> - 1.</summary>
+    internal int Beat { get; private set; }
 
-    /// <summary>The playing music clip, or null.</summary>
-    internal MusicClipEntry? Music { get; private set; }
+    /// <summary>The tempo while no song plays, 0 through <see cref="BeatParts"/> - 1: <see cref="InitialTempo"/>, then each song's last.</summary>
+    internal int Tempo { get; private set; } = InitialTempo;
 
-    /// <summary>Absolute frame of the music clip's frame zero.</summary>
-    internal long MusicStart { get; private set; }
-
-    /// <summary>Records that rendering has reached absolute frame <paramref name="sample"/>.</summary>
+    /// <summary>Records that playback has reached absolute frame <paramref name="sample"/>.</summary>
     internal void RenderedTo(long sample) => Sample = sample;
 
-    /// <summary>Holds a music-port write until the next music tick.</summary>
-    internal void LatchMusic(int? command) => MusicLatch = command;
+    /// <summary>Holds <paramref name="change"/> until the music's next beat, replacing any change already waiting.</summary>
+    internal void RequestSongChange(SongChange change) => PendingSongChange = change;
 
-    /// <summary>Takes the latched music-port write, leaving none pending.</summary>
-    internal int? TakeMusicLatch()
+    /// <summary>Takes the song change waiting for this beat, leaving none.</summary>
+    internal SongChange? TakeSongChange()
     {
-        int? latched = MusicLatch;
-        MusicLatch = null;
-        return latched;
+        SongChange? change = PendingSongChange;
+        PendingSongChange = null;
+        return change;
     }
 
-    /// <summary>Loading <paramref name="context"/> stops the music, empties the port and drops the pending write.</summary>
-    internal void Upload(MusicDataSet? context)
+    /// <summary>Switching to <paramref name="clipSet"/>'s clips stops the song and drops the waiting song change.</summary>
+    internal void SwitchClipSet(MusicDataSet? clipSet)
     {
-        Music = null;
-        MusicPort = 0;
-        MusicLatch = null;
-        Context = context;
+        StopSong();
+        PendingSongChange = null;
+        ClipSet = clipSet;
     }
 
-    /// <summary>Holds <paramref name="tempo"/> while no track plays.</summary>
+    /// <summary>Holds <paramref name="tempo"/> while no song plays.</summary>
     internal void HoldTempo(int tempo) => Tempo = tempo;
 
-    /// <summary>The track reached its terminator: the driver keeps its last tempo and returns the port to zero.</summary>
-    internal void EndTrack(int lastTempo)
+    /// <summary>The song played to its end: the music keeps the song's last tempo and no song plays.</summary>
+    internal void EndSong(int lastTempo)
     {
         Tempo = lastTempo;
-        Music = null;
-        MusicPort = 0;
+        StopSong();
     }
 
-    /// <summary>Adds <paramref name="amount"/> to the tempo accumulator and reports whether it overflowed into a music tick.</summary>
-    internal bool AdvanceTempo(int amount)
+    /// <summary>Advances the beat by <paramref name="parts"/> and reports whether that completed it; the overshoot starts the next beat.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="parts"/> is negative.</exception>
+    internal bool AdvanceBeat(int parts)
     {
-        (TempoAccumulator, bool musicTick) = TempoAccumulator.Advance(amount);
-        return musicTick;
+        int reached = Beat + Ensure.AtLeastZero(parts);
+        Beat = reached % BeatParts;
+        return reached >= BeatParts;
     }
 
-    /// <summary>The port takes <paramref name="command"/> and plays <paramref name="music"/> from <paramref name="now"/>, or stops on track zero.</summary>
-    internal void SelectTrack(int command, MusicClipEntry? music, long now)
+    /// <summary>Plays <paramref name="song"/>, the clip of <paramref name="track"/>, from <paramref name="now"/>.</summary>
+    internal void PlaySong(MusicTrack track, MusicClipEntry song, long now)
     {
-        MusicPort = command;
-        Music = music;
-        if (music is not null)
-            MusicStart = now;
+        PlayingTrack = track;
+        Song = song;
+        SongStart = now;
+    }
+
+    /// <summary>Stops the song; none plays until the next change.</summary>
+    internal void StopSong()
+    {
+        PlayingTrack = null;
+        Song = null;
     }
 }

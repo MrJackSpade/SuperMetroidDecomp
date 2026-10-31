@@ -100,7 +100,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         foreach (SoundRequest request in source.Room.LoadedScope.Enemies.Audio.SoundRequests)
             session.audio.QueueSound(request);
         foreach (DelayedMusicRequest request in source.Room.LoadedScope.Enemies.Audio.MusicRequests)
-            session.audio.QueueMusicDelayed(request.Request, request.Delay);
+            session.audio.ScheduleMusic(request.Request, request.Delay);
         if (source.Player.Samus is { } samus)
             foreach (SoundRequest request in samus.LiquidPhysics.SoundRequests)
                 session.audio.QueueSound(request);

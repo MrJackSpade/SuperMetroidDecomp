@@ -52,9 +52,9 @@ internal sealed class EndingEscapeScenes
         _stage.FloorAngle = EndingMotionDefinitions.EscapeInitialAngle.ToAngle();
         _stage.Brightness = 0;
         _stage.PostCreditsScroll = Position16<TilePlanePixels>.Zero;
-        audio.QueueMusicDelayed8(MusicRequest.Stop);
-        audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.ZebesExplosion));
-        audio.QueueMusicDelayed(
+        audio.QueueMusic(MusicRequest.Stop);
+        audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.ZebesExplosion));
+        audio.ScheduleMusic(
             MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.Track),
             MusicQueueDelay.AtLeastShortest(EndingSequenceDefinitions.Music.DelayArgument));
         _stage.Phase = EndingCreditsPhase.WaitForEscapeMusic;

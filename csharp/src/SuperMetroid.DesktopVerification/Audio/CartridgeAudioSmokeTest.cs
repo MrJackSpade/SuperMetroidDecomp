@@ -11,8 +11,8 @@ public static class CartridgeAudioSmokeTest
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frames);
 
         var queue = new AudioQueues();
-        queue.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-        queue.QueueMusicDelayed8(MusicRequest.SelectTrack(5));
+        queue.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
+        queue.QueueMusic(MusicRequest.SelectTrack(5));
 
         int nonZeroSamples = 0;
         int peakAmplitude = 0;

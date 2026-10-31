@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>Host-rate conversion for one interleaved stereo S-DSP output block.</summary>
+/// <summary>Host-rate conversion for one update's interleaved stereo clip mix.</summary>
 internal static class PcmFrameResampler
 {
     /// <summary>
-    /// Linearly interpolates the native DSP samples at the host-frame positions. The old
+    /// Linearly interpolates the mixed clip samples at the host-frame positions. The old
     /// nearest-neighbor path duplicated roughly one third of all 48-kHz samples when converting
     /// Super Metroid's 534-sample frame, producing content-dependent high-frequency imaging that
     /// is especially exposed after pause cancels the foreground sound-effect voices.

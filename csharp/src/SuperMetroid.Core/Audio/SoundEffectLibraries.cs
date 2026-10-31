@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Checked conversions for raw instruction data and zero-based queue storage.</summary>
 public static class SoundEffectLibraries
 {
-    /// <summary>The number of sound-effect libraries, each with its own host queue and APU port.</summary>
+    /// <summary>The number of sound-effect libraries, each with its own request queue.</summary>
     public const int Count = SoundClockTiming.LibraryCount;
 
     /// <summary>The libraries in host queue order: queue index N is library N + 1.</summary>

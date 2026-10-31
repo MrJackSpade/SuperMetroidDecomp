@@ -118,8 +118,8 @@ internal sealed class IntroCeresFlightState
         {
             case IntroCeresFlightPhase.Initial:
                 // $8B:BDD2-$BDDF: the flight's music data, then its track, on the shared queue.
-                audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
-                audio.QueueMusicDelayed(
+                audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
+                audio.ScheduleMusic(
                     MusicRequest.SelectTrack(CeresFlightSceneDefinitions.MusicTrack),
                     MusicQueueDelay.AtLeastShortest(CeresFlightSceneDefinitions.MusicDelay));
                 Phase = IntroCeresFlightPhase.WaitForMusicQueue;

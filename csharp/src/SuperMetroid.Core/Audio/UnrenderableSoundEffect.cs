@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// A sound effect with no clip in one data set because its instruments key BRR sources that
-/// the context's upload does not provide (#1305). Requesting it there fails loudly.
+/// A sound effect with no clip in one clip set because its instruments play samples the set
+/// does not hold (#1305). Requesting it there fails loudly.
 /// </summary>
-/// <param name="Context">The music data set loaded, or null for only the shared sounds.</param>
+/// <param name="Context">The music data set naming the clip set, or null for only the shared sounds.</param>
 /// <param name="Sound">The sound effect.</param>
-/// <param name="MissingSources">Each instrument whose source the context lacks.</param>
+/// <param name="MissingSources">Each instrument whose sample the clip set lacks.</param>
 public sealed record UnrenderableSoundEffect(
     MusicDataSet? Context,
     SoundEffectId Sound,

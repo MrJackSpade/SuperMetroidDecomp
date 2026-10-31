@@ -97,7 +97,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                             session.Artwork.SpriteSheets));
                     else
                     {
-                        session.audio.QueueMusicDelayed8(MusicRequest.Stop);
+                        session.audio.QueueMusic(MusicRequest.Stop);
                         session.Show(new TitleSequenceState(
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,

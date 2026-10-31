@@ -12,11 +12,11 @@ internal abstract record AudioRequest
     {
     }
 
-    /// <summary>Plays <paramref name="Track"/> of the loaded music data set from the next music tick.</summary>
+    /// <summary>Plays <paramref name="Track"/> of the loaded music data set from the music's next beat.</summary>
     /// <param name="Track">The track to play.</param>
     internal sealed record PlayMusicTrack(MusicTrack Track) : AudioRequest;
 
-    /// <summary>Stops the music at the next music tick.</summary>
+    /// <summary>Stops the music on its next beat.</summary>
     internal sealed record StopMusic : AudioRequest;
 
     /// <summary>

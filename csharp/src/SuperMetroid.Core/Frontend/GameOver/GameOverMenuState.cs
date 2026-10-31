@@ -159,8 +159,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 break;
 
             case GameOverMenuPhase.Initialize:
-                audio.QueueMusicDelayed8(MusicRequest.Stop);
-                audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
+                audio.QueueMusic(MusicRequest.Stop);
+                audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
                 BabyStep = null;
                 BabyInstructionTimer = WrappingCountdown.Start(0);
                 StepBabyMetroid();
@@ -174,7 +174,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 // $81:93E8 only polls the music queue; it neither animates the Baby nor draws the missile.
                 if (!audio.HasQueuedMusic)
                 {
-                    audio.QueueMusicDelayed8(
+                    audio.QueueMusic(
                         MusicRequest.SelectTrack(GameOverMenuDefinitions.MusicTrack));
                     Phase = GameOverMenuPhase.FadeIn;
                 }

@@ -64,9 +64,9 @@ internal sealed class FrontendSession
     internal readonly PowerOnEarthquakeSoundDelay earthquakeSoundDelay;
     /// <summary>Boot-time <c>NumberOfDemoSets</c> ($1F59); fixed for the session.</summary>
     internal readonly int bootDemoSetCount;
-    /// <summary>Native music and SFX queues shared across menus and gameplay.</summary>
+    /// <summary>The music queue and the sound libraries' request queues, shared across menus and gameplay.</summary>
     internal readonly AudioQueues audio = new();
-    /// <summary>Core-owned SPC port model and synthesizer advanced at the end of every update.</summary>
+    /// <summary>The sound acceptance clock and clip playback, advanced at the end of every update.</summary>
     internal readonly AudioSession audioSession = new();
     /// <summary>The frontend screen showing now: the one menu or cinematic the current state runs, or none.</summary>
     internal IFrontendScreen? Screen { get; private set; }
@@ -218,12 +218,12 @@ internal sealed class FrontendSession
     /// <summary>How far room loading has progressed; see <see cref="IRoomLoadProgress"/>.</summary>
     internal IRoomLoadProgress RoomLoadProgress => HostServices.RoomLoadProgress;
     /// <summary>
-    /// Moves already-translated per-frame publishers into the single cartridge queue.
+    /// Moves the update's published sound and music requests into the audio queues.
     /// </summary>
     /// <remarks>
     /// This is intentionally a collection seam, not sound policy. Samus, projectiles, and
-    /// PLMs retain ownership of the exact library/ID/cap chosen by their ROM routines; the
-    /// frontend merely performs the global QueueSfx call those producers requested.
+    /// PLMs own the sound and priority of each request; the frontend merely queues the
+    /// requests those producers published, in their order.
     /// </remarks>
     internal void CollectTranslatedAudioRequests(GameplayAudioFramePublication gameplayAudio)
     {
@@ -243,11 +243,11 @@ internal sealed class FrontendSession
                 audio.QueueRoomMusic(roomState.Music);
             LastAudioRoomState = roomState;
         }
-        // Enemy initialization follows the room's music-data queueing in native loading. Before the first room load,
-        // such as while a Ceres save starts its destruction cinematic, there are no enemies to initialize.
+        // The music this room's enemies start is queued after the room's own, with the shortest delay. Before the
+        // first room load, such as while a Ceres save starts its destruction cinematic, there are no enemies.
         if (runtime?.Room.Scope is { } scope)
-            foreach (MusicRequest request in scope.Enemies.Audio.ConsumeInitializationMusicDelayed8())
-                audio.QueueMusicDelayed8(request);
+            foreach (MusicRequest request in scope.Enemies.Audio.ConsumeRoomEnemyStartMusic())
+                audio.QueueMusic(request);
 
         // The message-box save choice runs outside gameplay, not part of the gameplay
         // publication generation below. It has explicit consume semantics so its one-shot
@@ -344,14 +344,14 @@ internal sealed class FrontendSession
         foreach (SoundRequest request in runtime.Room.LoadedScope.Plms.Sounds.SoundRequests)
             audio.QueueSound(request);
         foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.Plms.BombTorizoHand.MusicRequests)
-            audio.QueueMusicDelayed(request.Request, request.Delay);
+            audio.ScheduleMusic(request.Request, request.Delay);
         if (runtime.Room.LoadedScope.Plms.CollectiblePlms.ConsumeCollectibleFanfareRequest())
             audio.QueuePermanentItemFanfare();
 
         foreach (SoundRequest request in runtime.Room.LoadedScope.Enemies.Audio.SoundRequests)
             audio.QueueSound(request);
         foreach (DelayedMusicRequest request in runtime.Room.LoadedScope.Enemies.Audio.MusicRequests)
-            audio.QueueMusicDelayed(request.Request, request.Delay);
+            audio.ScheduleMusic(request.Request, request.Delay);
     }
     /// <summary>
     /// Ports the state-publication half of <c>HandleSamusOutOfHealthAndGameTile</c>. Runtime
@@ -517,12 +517,12 @@ internal sealed class FrontendSession
             // call, schedules the room track 360 frames later. Mark this room state as
             // already handled so the generic room-change collector cannot overwrite the
             // fanfare with an immediate track request.
-            // Loading from file select still has the title's SPC song data installed.
-            // Preserve the appearance track sequence, but upload the room's bank first
-            // just as ordinary room loading does; track numbers alone are bank-local.
+            // Loading from file select still has the title's music data set loaded.
+            // Preserve the appearance track sequence, but switch to the room's data set first
+            // just as ordinary room loading does; track numbers alone belong to a data set.
             audio.QueueRoomMusicData(loadedState.Music.DataSet);
-            audio.QueueMusicDelayed(MusicRequest.SelectTrack(1), MusicQueueDelay.AtLeastShortest(14));
-            audio.QueueMusicDelayed(
+            audio.ScheduleMusic(MusicRequest.SelectTrack(1), MusicQueueDelay.AtLeastShortest(14));
+            audio.ScheduleMusic(
                 loadedState.Music.Track.Request,
                 MusicQueueDelay.AtLeastShortest(360 + 5));
             LastAudioRoomState = loadedState;

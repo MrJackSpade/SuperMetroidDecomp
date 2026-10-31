@@ -1,10 +1,13 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// The music data sets: the songs and instruments one stretch of the game plays from. Exactly one is loaded at a time;
-/// changing it switches the clips music and sounds play from, and costs the sound libraries the downtime
-/// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> describes. Before any is loaded only the shared
-/// sounds play, which is represented as no data set (null).
+/// The music data sets: the songs and instruments one stretch of the game plays from, each installed as a clip set.
+/// Exactly one is loaded at a time. Changing it is a clip-set switch: the song stops, music and sounds play from the new
+/// set's clips, and the sound libraries take no requests for the downtime
+/// <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> describes (every library's request is withdrawn for
+/// eight sound-handler calls, and the sound acceptance clock drops the requests not yet taken,
+/// <see cref="SoundAcceptanceClock{TSound}.PauseForMusicLoad"/>). Before any is loaded only the shared sounds play,
+/// which is represented as no data set (null).
 /// </summary>
 /// <remarks>Values are arbitrary; the import pipeline decodes the cartridge's data set numbering into these names once.</remarks>
 public enum MusicDataSet

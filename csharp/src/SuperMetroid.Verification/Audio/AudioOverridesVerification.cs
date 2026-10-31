@@ -57,8 +57,8 @@ internal static class AudioOverridesVerification
             () => AudioAssetOverrideInstaller.Initialize(installation),
             "audio override initialization refuses to overwrite user content");
         AssertEqual(
-            stock.GetMusic(MusicDataSet.GreenBrinstar, ReplacedTrack).Clip,
-            installation.LoadAudioClips().GetMusic(MusicDataSet.GreenBrinstar, ReplacedTrack).Clip,
+            stock.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(ReplacedTrack)).Clip,
+            installation.LoadAudioClips().GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(ReplacedTrack)).Clip,
             "an empty override selects the stock clips");
         AssertEqual(stock.ContentIdentity, installation.LoadAudioClips().ContentIdentity, "an empty override keeps the stock identity");
 
@@ -75,7 +75,7 @@ internal static class AudioOverridesVerification
         AudioAssetOverrideInstaller.Replace(installation, songId, tonePath, ToneLoop);
 
         ClipAudioLibrary selected = installation.LoadAudioClips();
-        MusicClipEntry song = selected.GetMusic(MusicDataSet.GreenBrinstar, ReplacedTrack);
+        MusicClipEntry song = selected.GetMusic(MusicDataSet.GreenBrinstar, new MusicTrack(ReplacedTrack));
         AssertEqual(ToneFrames, song.Clip.Frames, "the replacement's length selects the song");
         AssertEqual<long?>(ToneLoop, song.LoopStart, "the replacement's loop selects the song");
         AssertSequenceEqual(tone, selected.ReadClip(song.Clip), "the session plays the replacement's samples");

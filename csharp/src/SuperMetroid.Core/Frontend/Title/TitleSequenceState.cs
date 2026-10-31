@@ -130,9 +130,9 @@ public sealed class TitleSequenceState : IFrontendScreen
                 "Title sequence requires installed palette presentation assets.");
         if (openingMusic == TitleOpeningMusic.Queue)
         {
-            audio?.QueueMusicDelayed8(
+            audio?.QueueMusic(
                 MusicRequest.LoadDataSet(MusicDataSet.TitleSequence));
-            audio?.QueueMusicDelayed8(
+            audio?.QueueMusic(
                 MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.OpeningTrack));
         }
 
@@ -290,7 +290,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 {
                     // HandleCinematicsTransitions_1 at $8B:9A83 queues track six before
                     // rebuilding the immediate title objects.
-                    audio?.QueueMusicDelayed8(
+                    audio?.QueueMusic(
                         MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));
                     EnterImmediateTitleObjects();
                     rebuildConsolePaletteFxAfterStep = true;

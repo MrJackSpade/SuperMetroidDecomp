@@ -31,14 +31,14 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// True while X-Ray owns Samus's bank-$91 input and bank-$90 movement handlers.
-    /// The HDMA object can remain active after automatic Reserve recovery restores the
+    /// The cone effect can remain active after automatic Reserve recovery restores the
     /// normal handler pair; that cartridge state is the persistent greyout glitch.
     /// </summary>
     public bool OwnsSamusControl { get; private set; }
 
     /// <summary>
     /// True when Reserve recovery cleared the shared freeze word underneath X-Ray's
-    /// still-live phase-five HDMA object. The object deliberately cannot clean itself up.
+    /// still-live phase-five cone effect. The effect deliberately cannot clean itself up.
     /// </summary>
     public bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
 
@@ -134,7 +134,7 @@ public sealed class SamusXrayState
         return requested;
     }
 
-    /// <summary>Consumes HDMA teardown's native <c>QueueSfx1_Max6($0A)</c> call.</summary>
+    /// <summary>Consumes the sound the cone effect's teardown queues.</summary>
     public bool ConsumeDeactivationSoundRequest()
     {
         bool requested = DeactivationSoundRequested;
@@ -188,7 +188,7 @@ public sealed class SamusXrayState
 
         // A second X-Ray setup under direct G-Mode makes the stranded phase-five object
         // observe a nonzero freeze word. Its `$88:8A08 -> $91:E2AD` cleanup immediately
-        // restores the four subsystem-enable words. Represent the two native HDMA objects
+        // restores the four subsystem-enable words. Represent the two cone effects
         // at their shared observable boundary instead of inventing gate-specific state.
         if (cancellingDirectGMode)
         {
@@ -225,7 +225,7 @@ public sealed class SamusXrayState
     {
         // `$91:E217-$E28A` runs inside XraySetup itself, before UpdateSamusPose
         // arbitrates the special command that installs X-Ray's Samus handlers. If a
-        // same-frame hurt expiry wins that later arbitration, the beam HDMA lifecycle,
+        // same-frame hurt expiry wins that later arbitration, the beam effect's lifecycle,
         // frozen-time word, and four subsystem disables still remain live: X-Mode.
         Angle = facingLeft ? RotationAngle.ThreeQuarterTurn : RotationAngle.QuarterTurn;
         AngularHalfWidth = SignedSixteenSixteen.Zero;
@@ -274,7 +274,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Models Samus command <c>$1B</c> replacing the X-Ray handler pair when automatic
-    /// Reserve recovery begins. The independent HDMA object and shared freeze word remain.
+    /// Reserve recovery begins. The independent cone effect and shared freeze word remain.
     /// </summary>
     internal void RelinquishSamusControlForReserveRecovery()
     {
@@ -295,7 +295,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Models state <c>$1B</c> clearing shared WRAM <c>$0A78</c> before restoring ordinary
-    /// Samus handlers. X-Ray phase five observes zero and therefore leaves its HDMA object
+    /// Samus handlers. X-Ray phase five observes zero and therefore leaves its cone effect
     /// installed, producing Reserve Mode/greyout rather than normal X-Ray teardown.
     /// </summary>
     internal void ClearSharedFreezeForReserveMode()
@@ -306,7 +306,7 @@ public sealed class SamusXrayState
 
     /// <summary>
     /// Models the door-transition cleanup which removes direct G-Mode's stranded X-Ray
-    /// HDMA object without restoring any of the four independent subsystem-enable words.
+    /// cone effect without restoring any of the four independent subsystem-enable words.
     /// </summary>
     internal void TransitionDirectGModeToIndirect()
     {
@@ -412,7 +412,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
-    /// Advances one bank-$88 HDMA-object call. The setup-stage count represents the eight
+    /// Advances the cone effect by one update. The setup-stage count represents the eight
     /// real cartridge functions. Actual BG2 copies remain intentionally outside this movement
     /// state; the renderer consumes its angle/width only after setup has completed.
     /// </summary>
@@ -662,7 +662,7 @@ public sealed class SamusXrayState
             samus.Position -= new Offset16<RoomPixels>(0, unchecked((short)radiusDifference));
 
         // `$91:E2AD` restores both normal Samus handler pointers. X-Mode can arrange for
-        // an active spark to own the movement word while the old visor HDMA reaches this
+        // an active spark to own the movement word while the old visor effect reaches this
         // teardown; replacing that spark while retaining `$0B3E` is the Blue Suit result.
         samus.Shinespark.RelinquishMovementHandler();
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
@@ -713,7 +713,7 @@ public sealed class SamusXrayState
         _ => throw new InvalidOperationException($"Undefined SamusMovementType {movementType}."),
     };
 
-    /// <summary>Records the starting HDMA phase separately from whether this call removed the object.</summary>
+    /// <summary>Records the starting beam phase separately from whether this call removed the effect.</summary>
     private static XrayBeamStepResult SnapshotBeamStep(
         XrayBeamPhase phaseAtStart,
         bool completed) => new(

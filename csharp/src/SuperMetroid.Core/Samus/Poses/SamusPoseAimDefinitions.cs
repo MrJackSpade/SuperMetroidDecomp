@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Pose-specific cannon direction and firing restrictions, independent of editable artwork.</summary>
 /// <remarks>
 /// Poses 00..FC use semantic cases. FD..FF retain only the bounded byte observations
-/// of the unrelated $91:BE11 X-ray HDMA machine-code routine. Those instruction encodings
+/// of the unrelated X-ray cone code stored beside the pose table. Those instruction encodings
 /// have no managed pose-policy meaning; re-deriving them as pose data would be nonsense.
 /// Exact addresses, instructions and the byte-only consumer contract were reviewed in
 /// #1165 (stream 1, Batch 30). This exemption covers no ordinary pose value.

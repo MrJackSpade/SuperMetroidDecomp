@@ -6,15 +6,14 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Bank-$88's two cooperating power-bomb HDMA objects, represented as one semantic owner.
+/// The power-bomb explosion's two cooperating per-line display effects, represented as one owner.
 /// </summary>
 /// <remarks>
-/// The cartridge uses one HDMA object to advance the explosion instruction list and a
-/// second object to configure the color-math window. The second object has no independent
-/// lifetime: it sleeps until the first object disables both channels. Keeping one host
-/// object therefore exposes the meaningful state without inventing a second animation.
-/// Every phase transition and every 8.8 fixed-point radius update below comes directly
-/// from $88:8ACE/$8B80 and their pre-instructions at $88:8DE9-$91A8.
+/// The game uses one effect to advance the explosion's stages and a second to configure
+/// the color-math window. The second effect has no independent lifetime: it waits until
+/// the first ends both. Keeping one owner therefore exposes the meaningful state without
+/// inventing a second animation. Every phase transition and every 8.8 fixed-point radius
+/// update below follows the game's explosion stages exactly.
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
 {
@@ -52,7 +51,7 @@ public sealed class SamusPowerBombExplosionState
     public PowerBombExplosionPhase Phase { get; private set; }
 
     /// <summary>
-    /// Phase whose HDMA table was produced during the current logic frame.
+    /// Phase whose per-line window was produced during the current update.
     /// </summary>
     /// <remarks>
     /// A pre-instruction can advance <see cref="Phase"/> after generating its final table.
@@ -79,7 +78,7 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public bool IsActive { get; private set; }
 
-    /// <summary>HDMA fade timer; its zero initialization underflows to permit the first afterglow step.</summary>
+    /// <summary>Afterglow fade timer; its zero initialization underflows to permit the first afterglow step.</summary>
     private WrappingCountdown _afterglowTimer;
 
     /// <summary>
@@ -90,7 +89,7 @@ public sealed class SamusPowerBombExplosionState
 
     /// <summary>
     /// Native Crystal Flash completion count, kept separate from the editable colour so
-    /// rebinding colors cannot change the HDMA cleanup frame after restoration.
+    /// rebinding colors cannot change the effect's cleanup frame after restoration.
     /// </summary>
     private int _crystalFlashAfterglowStepsRemaining;
 
@@ -110,12 +109,12 @@ public sealed class SamusPowerBombExplosionState
         Position = position;
         IsActive = true;
 
-        // Allocation occurs after this frame's HDMA pass. The NEXT pass consumes the
-        // instruction list and installs the radius pre-instruction; that pre-instruction
-        // cannot run until the pass after setup. Executing setup here skips one frame.
+        // The explosion starts after this update's effect pass. The NEXT pass runs its
+        // setup and installs the radius step; that step cannot run until the pass after
+        // setup. Executing setup here would skip one update.
         PreExplosionRadius = PowerBombRadius.Zero;
         ExplosionRadius = PowerBombRadius.Zero;
-        // $88:8AA4 allocates the objects without clearing $0CF0. The next HDMA
+        // Starting the explosion does not clear the previous shape. The next effect
         // setup owns its replacement, even when the previous explosion has ended.
         Shape = null;
         RenderedShape = null;
@@ -135,9 +134,9 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public void BeginCrystalFlash(Position16<RoomPixels> position)
     {
-        // `$90:D6AE` releases the one-at-a-time Power Bomb lock before spawning the two
-        // Crystal Flash HDMA objects. Their animation still reuses the same status,
-        // position, radius, speed, fixed-color, and window-table WRAM words.
+        // Crystal Flash releases the one-at-a-time Power Bomb lock before starting its two
+        // explosion effects. Their animation still shares the Power Bomb's status,
+        // position, radius, speed, fixed color, and window.
         IsArmed = false;
         Position = position;
         IsActive = true;
@@ -157,7 +156,7 @@ public sealed class SamusPowerBombExplosionState
     }
 
     /// <summary>
-    /// Runs one invocation of the active bank-$88 HDMA pre-instruction.
+    /// Runs one update of the explosion's active stage step.
     /// </summary>
     /// <returns>True only on the frame that $88:8B4E completes cleanup.</returns>
     public bool StepFrame()
@@ -266,8 +265,8 @@ public sealed class SamusPowerBombExplosionState
             return;
         }
 
-        // Advancing past Sleep executes CallFar($8B32), installs pre-instruction $91A8,
-        // and sleeps again during this same HDMA-object-handler pass.
+        // Advancing past the wait runs the yellow stage's setup, installs its radius step,
+        // and waits again during this same effect pass.
         Shape = new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0);
         Phase = PowerBombExplosionPhase.PreExplosionYellow;
     }
@@ -377,7 +376,7 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.Afterglow;
     }
 
-    /// <summary>Fades the three fixed-color components on timer underflow and releases HDMA after the last step.</summary>
+    /// <summary>Fades the three fixed-color components on timer underflow and ends the effect after the last step.</summary>
     private bool StepAfterglow()
     {
         _afterglowTimer = _afterglowTimer.Decrement().Remaining;
@@ -425,7 +424,7 @@ public sealed class SamusPowerBombExplosionState
             return;
         }
 
-        // The sleeping list clears the HDMA timer before installing `$88:A35D`. As with
+        // The waiting effect clears the afterglow timer before installing the afterglow step. As with
         // the ordinary afterglow, zero underflows on its first active pre-instruction.
         _afterglowTimer = WrappingCountdown.Start(0);
         _crystalFlashAfterglowStepsRemaining =
@@ -452,8 +451,8 @@ public sealed class SamusPowerBombExplosionState
             return false;
         }
 
-        // The awakened list immediately calls `$88:A317`, disables both HDMA channels,
-        // and clears every shared Power Bomb word. Flag is already zero from `$90:D6AE`,
+        // The awakened effect immediately ends both per-line effects and clears every
+        // shared Power Bomb value. The lock is already released by Crystal Flash's start,
         // but assigning it again mirrors the cleanup routine and makes reset atomic.
         IsArmed = false;
         IsActive = false;
@@ -467,7 +466,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
         // Replacement colors may be brighter than the stock lifetime operand. Once
-        // the HDMA window is released, do not retain their unused display remainder.
+        // the window is released, do not retain their unused display remainder.
         FixedColor = RgbColor.Black;
         return true;
     }

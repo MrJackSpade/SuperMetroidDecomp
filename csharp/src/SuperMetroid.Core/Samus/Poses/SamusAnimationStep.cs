@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>What one Samus animation step reads: input, the NMI clock, system state, liquid-sound and pose-input policy, and the echo-sound queue (#633).</summary>
+/// <summary>What one Samus animation step reads: input, the frame counter, system state, liquid-sound and pose-input policy, and the echo-sound queue (#633).</summary>
 public sealed record SamusAnimationStep
 {
     /// <summary>Controller input.</summary>

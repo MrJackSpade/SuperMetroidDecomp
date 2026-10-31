@@ -511,7 +511,7 @@ public static class SamusBlockCollision
                             // while scanning left-to-right. $94:95F5 initializes it to
                             // zero and increments while scanning right-to-left. Passing
                             // the traversal offset directly made the physical left/right
-                            // edge tests alternate every NMI beside a square-slope wall.
+                            // edge tests alternate every frame beside a square-slope wall.
                             blocksLeftToCheck: move.ScanLeftToRight
                                 ? horizontalSpan - offset
                                 : offset,
@@ -746,7 +746,7 @@ public static class SamusBlockCollision
     /// <param name="state">A collision probe copy; its position receives the accepted distance.</param>
     /// <param name="owner">The Samus whose collision reactions act, or null for an ownerless probe.</param>
     /// <param name="displacement">Signed 16.16 distance to test; zero tests the current bottom boundary.</param>
-    /// <param name="scanLeftToRight">Scan order chosen by the NMI frame counter's parity.</param>
+    /// <param name="scanLeftToRight">Scan order chosen by the frame counter's parity.</param>
     /// <param name="plms">The room's PLM owner for special and bombable blocks.</param>
     internal static BlockMoveResult ProbeChangedPoseVertical(
 

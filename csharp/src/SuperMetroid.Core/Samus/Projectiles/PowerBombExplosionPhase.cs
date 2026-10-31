@@ -19,7 +19,7 @@ public enum PowerBombExplosionPhase
     CrystalFlashExplosion,
     /// <summary>$88:A35D, PreInstruction_CrystalFlash_2_AfterGlow: retains the small final window while colors fade, then $88:A317 clears the shared explosion state.</summary>
     CrystalFlashAfterglow,
-    /// <summary>Allocated $88:8ACE list awaiting its first HDMA pass and $88:8B14 setup.</summary>
+    /// <summary>Started explosion awaiting its first effect update and its pre-explosion setup.</summary>
     /// <remarks>Appended to preserve existing debugger-state enum identities.</remarks>
     PendingPreExplosionSetup,
 }

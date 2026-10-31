@@ -71,7 +71,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Seeds pose/frame-zero graphics before the first NMI, as room/game setup must do
+    /// Seeds pose/frame-zero graphics before the first displayed frame, as room/game setup must do
     /// before a visible normal-gameplay Samus can be constructed.
     /// </summary>
     public void PrimeGraphics(SamusState samus) =>
@@ -395,7 +395,7 @@ internal sealed class SamusPresentation
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
         // `$90:85E2-$90:85FC` applies invincibility flicker to the body spritemaps, not to
-        // animation or graphics streaming as a whole. An odd NMI hides ordinary invincible
+        // animation or graphics streaming as a whole. An odd frame hides ordinary invincible
         // Samus. Active knockback and any nonzero stored/active shine timer independently
         // force the body visible, even though the separately drawn arm cannon follows its
         // stricter `$90:C663` rule and may still disappear on that same odd frame.
@@ -407,7 +407,7 @@ internal sealed class SamusPresentation
         {
             // Native branches around every position/index/OAM write, then still falls
             // through to `$92:8000`. Preserve the previous visible spritemap indices for
-            // echo drawing while selecting this frame's tile definitions for the next NMI.
+            // echo drawing while selecting this frame's tile definitions for the next displayed frame.
             BodyFrames.Select(samus.Pose, samus.AnimationFrame);
             return false;
         }
@@ -499,7 +499,7 @@ internal sealed class SamusPresentation
             "Samus rendering requires installed spritemap artwork.");
         var top = new SamusBodyHalfFrame(samus.Pose, SamusBodyHalf.Top, samus.AnimationFrame);
         TopSpritemap = top;
-        // `$92:8000` follows these spritemaps natively, but it only chooses the transfers the next NMI shows with
+        // `$92:8000` follows these spritemaps natively, but it only chooses the transfers the next displayed frame shows with
         // them. Selecting first lets the draws bind the characters they are displayed with; nothing between reads it.
         BodyFrames.Select(samus.Pose, samus.AnimationFrame);
         ShownPictures = BodyFrames.Shown;
@@ -650,7 +650,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Ports `$90:88BA/$90:EBF3`: on odd NMI frames, draw both crash-orbit copies after
+    /// On odd frames of the frame counter, draws both crash-orbit copies after
     /// the real Samus body using the current pose/frame spritemaps.
     /// </summary>
     public void DrawShinesparkCrashEchoes(SamusState samus, 

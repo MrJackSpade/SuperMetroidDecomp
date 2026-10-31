@@ -23,6 +23,6 @@ public enum XraySuspendedSubsystems
     AnimatedTiles = 1 << 2,
     /// <summary>Host mask for the $1E79 palette-FX enable word cleared by $91:E23D; suspends room palette effects, not Samus's independently handled visor colors.</summary>
     PaletteFx = 1 << 3,
-    /// <summary>All four independent disables installed by admitted X-ray setup and cleared by normal teardown; excludes shared time freeze, HDMA, and Samus control ownership.</summary>
+    /// <summary>All four independent disables installed by admitted X-ray setup and cleared by normal teardown; excludes shared time freeze, the cone effect, and Samus control ownership.</summary>
     All = EnemyProjectiles | Plms | AnimatedTiles | PaletteFx,
 }

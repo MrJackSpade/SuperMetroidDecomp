@@ -190,9 +190,9 @@ public sealed class SamusProjectileSystem
     /// modeled Samus CGRAM palette.
     /// </summary>
     /// <remarks>
-    /// This belongs to the Samus palette handler, not charge-flare drawing. On hardware the
-    /// main thread edits palette-buffer colors 192-207 and a later NMI uploads them. The
-    /// software PPU exposes CGRAM directly, so the same words are written at this phase.
+    /// This belongs to the Samus palette handler, not charge-flare drawing. It edits
+    /// palette colors 192-207, which the next displayed frame shows, so the same colors
+    /// are written at this phase.
     /// The runtime executes special Speed Booster/Screw/Shinespark/Crystal Flash/X-ray
     /// handlers afterward unless glow expiry returns the normal-suit restoration action.
     /// That action models carry set at `$91:D70B`, bypassing special handlers for one frame.
@@ -623,7 +623,7 @@ public sealed class SamusProjectileSystem
                 continue;
 
             // Only an ordinary uncharged beam reaches the flicker branches; a charged beam,
-            // missile or explosion remains visible on every NMI parity.
+            // missile or explosion remains visible on every frame parity.
             if (slot.Type.Family == SamusProjectileFamily.Beam && !slot.Type.IsChargedBeam)
             {
                 // Shots in odd and even slots flicker on opposite frames. Spazer/plasma combinations use frame bit

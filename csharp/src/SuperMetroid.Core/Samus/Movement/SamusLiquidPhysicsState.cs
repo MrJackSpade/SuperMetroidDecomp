@@ -686,7 +686,7 @@ public sealed class SamusLiquidPhysicsState
             new(unchecked((ushort)(samus.Position.X.Whole - 3)), unchecked((ushort)(bottom - 4))));
     }
 
-    /// <summary>Creates a bubble every 128 accepted NMIs only when Samus's mouth is underwater and particle slot two is free.</summary>
+    /// <summary>Creates a bubble every 128 frames only when Samus's mouth is underwater and particle slot two is free.</summary>
     private void TrySpawnAirBubbles(
         SamusState samus,
         int top,

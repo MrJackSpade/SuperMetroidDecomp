@@ -36,25 +36,24 @@ internal static class ExploredMapPackingDefinitionsVerification
         int exportedByteCount = 0;
         for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
         {
-            ExploredMapPackingDefinition definition =
-                ExploredMapPacking.Area(area, RetailPresentationFixture());
-            ExploredMapPacking.OccupiedByteIndexes indexes = definition.AreaByteIndexes;
+            SaveRamPackedArea definition = SaveRamMapPacking.Area(area, RetailPresentationFixture());
+            IReadOnlyList<int> indexes = definition.PlaneBytes;
             AssertEqual(ExploredMapPackingDefinitionsRomByte(retail,
-                    ExploredMapPacking.NativeByteCountTable + area),
+                    ExploredMapPackingDefinitionsConstants.NativeByteCountTable + area),
                 unchecked((byte)indexes.Count),
                 $"packed map area {area} byte count");
             AssertEqual(Word(
-                    ExploredMapPacking.NativeDestinationOffsetTable + area * 2),
+                    ExploredMapPackingDefinitionsConstants.NativeDestinationOffsetTable + area * 2),
                 definition.SaveOffset,
                 $"packed map area {area} SRAM offset");
             ushort nativeSourcePointer = ExploredMapNativeSourcePointers[area];
             AssertEqual(Word(
-                    ExploredMapPacking.NativeSourcePointerTable + area * 2),
+                    ExploredMapPackingDefinitionsConstants.NativeSourcePointerTable + area * 2),
                 nativeSourcePointer,
                 $"packed map area {area} source pointer");
             for (int index = 0; index < indexes.Count; index++)
             {
-                AssertEqual(ExploredMapPackingDefinitionsRomByte(retail, 0x810000 |
+                AssertEqual((int)ExploredMapPackingDefinitionsRomByte(retail, 0x810000 |
                         unchecked((ushort)(nativeSourcePointer + index))),
                     indexes[index],
                     $"packed map area {area} byte index {index}");
@@ -63,35 +62,30 @@ internal static class ExploredMapPackingDefinitionsVerification
         }
         AssertEqual(327, exportedByteCount, "packed map exported byte count");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => ExploredMapPacking.Area(SaveRamLayoutConstants.PackedMapAreaCount, RetailPresentationFixture()),
+            () => SaveRamMapPacking.Area(SaveRamLayoutConstants.PackedMapAreaCount, RetailPresentationFixture()),
             "packed map excludes native Ceres list");
 
+        // Every third cell of every area explored: a save keeps exactly the cells of the Zebes runs the stock map occupies.
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
-        var explored = new byte[
-            SharedGameState.ExploredMapAreaCount *
-            SharedGameState.ExploredMapBytesPerArea];
-        for (int index = 0; index < explored.Length; index++)
-            explored[index] = unchecked((byte)(index * 37 + 11));
-        saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot { ExploredMapBytes = explored });
+        var explored = new PersistentProgress();
+        foreach (AreaId area in Enum.GetValues<AreaId>())
+        {
+            for (int index = 0; index < AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles; index += 3)
+                explored.SetExplored(area, AreaMapLayout.Size.CellAtRowMajorIndex(index), explored: true);
+        }
+        saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot { Progress = explored });
         SuperMetroidSaveSlot restored = saveRam.ReadSlot(0) ??
             throw new InvalidOperationException("Compiled explored-map save failed checksums.");
-
-        var exported = new bool[explored.Length];
-        for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
+        foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            foreach (byte areaByteIndex in
-                ExploredMapPacking.Area(area, RetailPresentationFixture()).AreaByteIndexes)
-            {
-                exported[area * SharedGameState.ExploredMapBytesPerArea +
-                    areaByteIndex] = true;
-            }
+            Position16<MapTiles>[] expected = [.. explored.ExploredCells(area).Where(cell => AreaIds.IsZebes(area) &&
+                ExploredMapStorage.IsKept(RetailPresentationFixture().Get(area), cell))];
+            AssertTrue(expected.SequenceEqual(restored.Progression.ExploredCells(area)),
+                $"packed map production round trip keeps {area}'s occupied runs");
         }
-        for (int index = 0; index < explored.Length; index++)
-        {
-            AssertEqual(exported[index] ? explored[index] : (byte)0,
-                restored.ExploredMapBytes[index],
-                $"packed map production round trip byte {index}");
-        }
+        byte[] image = SaveRamCodec.Encode(saveRam, RetailPresentationFixture());
+        AssertTrue(SaveRamCodec.Decode(image, RetailPresentationFixture()).ReadSlot(0)?.Progression.SameAs(restored.Progression) == true,
+            "the packed field round-trips the kept exploration through the save image");
 
         Suite(nameof(VerifyCalculatedMapPackingBindings), () => VerifyCalculatedMapPackingBindings(retail, explored));
 
@@ -103,7 +97,7 @@ internal static class ExploredMapPackingDefinitionsVerification
     private static byte ExploredMapPackingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that edited map artwork preserves SRAM layout and that debugger restoration requires artwork rebinding.</summary>
-    private static void VerifyCalculatedMapPackingBindings(ISnesAddressSpace native, byte[] explored)
+    private static void VerifyCalculatedMapPackingBindings(ISnesAddressSpace native, PersistentProgress explored)
     {
         string parent = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
         string root = Directory.CreateDirectory(Path.Combine(parent, "packing-bindings-" + Guid.NewGuid().ToString("N"))).FullName;
@@ -128,7 +122,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             }
             var edited = MapPresentationFiles.Load(stock, edits);
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var snapshot = new SuperMetroidSaveSnapshot { ExploredMapBytes = explored };
+            var snapshot = new SuperMetroidSaveSnapshot { Progress = explored };
             var unbound = new SaveSlotStore();
             AssertThrows<InvalidOperationException>(() => unbound.SaveSlot(0, snapshot),
                 "unbound map packing fails before persistence");
@@ -141,12 +135,10 @@ internal static class ExploredMapPackingDefinitionsVerification
             AssertTrue(expected.SequenceEqual(SaveRamCodec.Encode(editedSaves, edited)), "blank artwork overrides preserve exact SRAM format");
             for (int area = 0; area < SaveRamLayoutConstants.PackedMapAreaCount; area++)
             {
-                var a = ExploredMapPacking.Area(area, original);
-                var b = ExploredMapPacking.Area(area, edited);
-                AssertTrue(a.AreaByteIndexes.SequenceEqual(b.AreaByteIndexes), "editable artwork retains stock occupied byte order");
+                SaveRamPackedArea a = SaveRamMapPacking.Area(area, original);
+                SaveRamPackedArea b = SaveRamMapPacking.Area(area, edited);
+                AssertTrue(a.PlaneBytes.SequenceEqual(b.PlaneBytes), "editable artwork retains stock occupied byte order");
                 AssertEqual(a.SaveOffset, b.SaveOffset, "editable artwork retains packed offset");
-                AssertThrows<ArgumentOutOfRangeException>(() => _ = a.AreaByteIndexes[-1], "negative packed index rejected");
-                AssertThrows<ArgumentOutOfRangeException>(() => _ = a.AreaByteIndexes[a.AreaByteIndexes.Count], "packed index end rejected");
             }
 
             var game = new SuperMetroidGame(editedSaves);
@@ -166,7 +158,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             });
             AssertTrue(restoredSaves.ReadSlot(0) is not null, "the restored graph keeps the decoded slot");
             restoredSaves.SaveSlot(0, snapshot);
-            AssertTrue((restoredSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(0).")).ExploredMapBytes.SequenceEqual((editedSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires editedSaves.ReadSlot(0).")).ExploredMapBytes),
+            AssertTrue((restoredSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(0).")).Progression.SameAs((editedSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires editedSaves.ReadSlot(0).")).Progression),
                 "rebound debugger game preserves decoded exploration");
         }
         finally

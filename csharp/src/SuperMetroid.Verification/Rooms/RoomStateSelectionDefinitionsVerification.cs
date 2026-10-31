@@ -95,7 +95,11 @@ internal static class RoomStateSelectionDefinitionsVerification
                     };
                     if (matches) { expected = clause.Target; break; }
                 }
-                var context = new RoomStateSelectionContext(events, (BossBits)bosses, morph, powerBombs);
+                // Events stored past the supplied bytes are clear, as truncated storage read them.
+                var storedEvents = new NumberedFlags(PersistentProgress.EventCount);
+                for (int number = 0; number < events.Length * 8; number++)
+                    storedEvents.Set(number, (events[number / 8] & (1 << (number % 8))) != 0);
+                var context = new RoomStateSelectionContext(storedEvents, (BossBits)bosses, morph, powerBombs);
                 AssertEqual(expected, RoomStateSelection.Select(RoomHeaderDefinitions.Get(room), context).Pointer,
                     $"Room {room:X4} native first-match/default selection");
                 AssertEqual(expected, SelectedRoom.LoadUsingCompiledSelection(RoomHeaderDefinitions.Get(room), context).State.Pointer,

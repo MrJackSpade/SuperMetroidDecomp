@@ -47,7 +47,7 @@ internal static class GameSaveJsonVerification
         };
         var system = new SharedGameState();
         system.SetEvent(EventNumber.ZebesAwake);
-        system.SetEventRaw(63);
+        system.Progress.Events.Add(63);
         system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaMiniBoss);
         system.SetRoomChozoBit(17);
         system.SetCollectedItemBit(23);
@@ -92,15 +92,16 @@ internal static class GameSaveJsonVerification
         AssertTrue(restoredSlot.CollectedItems.HasAll(
             SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.VariaSuit),
             "JSON collected equipment flags");
-        AssertTrue(restoredSlot.BossBytes.Select(value => (BossBits)value).SequenceEqual(snapshot.BossFlags), "JSON boss flags");
-        AssertTrue(restoredSlot.EventBytes.SequenceEqual(snapshot.EventBytes), "JSON event flags");
-        AssertTrue(restoredSlot.ExploredMapBytes.SequenceEqual(snapshot.ExploredMapBytes),
-            "JSON explored-map coordinates");
+        SuperMetroidSaveSlot savedSlot = saveRam.ReadSlot(1) ?? throw new InvalidOperationException("The saved slot 1 failed.");
+        AssertTrue(restoredSlot.Progression.SameAs(savedSlot.Progression),
+            "JSON events, bosses, orbs, items, doors, stations, maps and explored cells");
+        AssertTrue(restoredSlot.Progression.Events.Contains(63) && restoredSlot.Progression.HasEvent(EventNumber.ZebesAwake),
+            "JSON keeps named and unnamed events");
         AssertEqual(bindings, restoredSlot.ControllerBindings, "JSON controller bindings");
         AssertEqual(7, restoredSlot.GameTimeHours, "JSON game-time hours");
 
         AssertInvalidJsonSave(
-            json.Replace("\"schemaVersion\": 2", "\"schemaVersion\": 99", StringComparison.Ordinal),
+            json.Replace("\"schemaVersion\": 3", "\"schemaVersion\": 99", StringComparison.Ordinal),
             "schemaVersion");
         AssertInvalidJsonSave(
             json.Replace("\"selectedSlot\": 1,", "\"selectedSlot\": 1,\n  \"unknownField\": true,",

@@ -3,65 +3,55 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Map;
 
 /// <summary>
-/// Which explored-map bytes a save keeps (#1322, #1421): each area's bytes a stock map tile occupies, packed into one
-/// fixed field, so exploration of cells no stock tile occupies is lost when the game is saved.
+/// Which explored map cells a save keeps (#1322, #1421, #1475). A save keeps the six Zebes areas' exploration, not
+/// Ceres's, and keeps it in runs of eight neighbouring cells of one map row, starting at every eighth column: a run is kept
+/// whole when the area's stock map has a cell that can be explored in it, and lost whole otherwise. Exploring a cell
+/// whose whole run lies in blank map therefore does not survive saving the game.
 /// </summary>
+/// <remarks>
+/// Evidence: <c>SaveMap</c> and <c>LoadMap</c> in bank $81 copy each area's exploration byte by byte through a list of the
+/// bytes the area's map occupies, a byte being eight cells of a row; the save-map check compares the occupied runs with
+/// those lists. The stock topology decides it even when installed artwork overrides the picture.
+/// </remarks>
 public static class ExploredMapStorage
 {
-    /// <summary>The areas whose explored maps a save keeps.</summary>
-    public const int PackedAreaCount = 6;
+    /// <summary>The neighbouring cells of a map row a save keeps or loses together.</summary>
+    public const int RunCellCount = 8;
 
-    /// <summary>The bytes of the packed field that keeps them.</summary>
-    public const int PackedByteCount = 1280;
-
-    /// <summary>Packs each area's occupied explored-map bytes into the saved field.</summary>
-    public static byte[] Pack(ReadOnlySpan<byte> exploredMap, IAreaMapSource? maps)
+    /// <summary>
+    /// The exploration a save of <paramref name="progress"/> keeps: the Zebes areas' explored cells in runs the stock map
+    /// occupies, and nothing of Ceres. Every other part of the progress is kept as it is.
+    /// </summary>
+    /// <param name="progress">The progress being saved; it is not changed.</param>
+    /// <param name="maps">Installed stock map rules; the runs they occupy decide what is kept.</param>
+    /// <returns>A detached copy of the progress as the save keeps it.</returns>
+    /// <exception cref="InvalidOperationException">No map rules are bound.</exception>
+    public static PersistentProgress Retained(PersistentProgress progress, IAreaMapSource? maps)
     {
-        int expectedByteCount = SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea;
-        if (exploredMap.Length != expectedByteCount)
-            throw new InvalidDataException($"A save snapshot requires exactly {expectedByteCount} unpacked explored-map bytes.");
-
-        var compressed = new byte[PackedByteCount];
-        for (int area = 0; area < PackedAreaCount; area++)
+        Ensure.NotNull(progress);
+        IAreaMapSource stock = maps ?? throw new InvalidOperationException("Saving explored maps requires bound immutable stock map rules.");
+        PersistentProgress kept = progress.Copy();
+        foreach (AreaId area in Enum.GetValues<AreaId>())
         {
-            ExploredMapPackingDefinition definition = ExploredMapPacking.Area(area, RequireMaps(maps));
-            ExploredMapPacking.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
-            for (int index = 0; index < areaByteIndexes.Count; index++)
-            {
-                int compressedIndex = definition.SaveOffset + index;
-                if ((uint)compressedIndex >= compressed.Length)
-                    throw new InvalidDataException("Compiled packed-map table escapes the saved map field.");
-                compressed[compressedIndex] = exploredMap[area * SharedGameState.ExploredMapBytesPerArea + areaByteIndexes[index]];
-            }
+            IAreaMapView? view = AreaIds.IsZebes(area) ? stock.Get(area) : null;
+            foreach (Position16<MapTiles> cell in progress.ExploredCells(area))
+                kept.SetExplored(area, cell, view is not null && IsKept(view, cell));
         }
-        return compressed;
+        return kept;
     }
 
-    /// <summary>Expands the saved map field into area-major explored-map bytes using stock map rules.</summary>
-    public static byte[] Unpack(ReadOnlySpan<byte> compressed, IAreaMapSource? maps)
+    /// <summary>Whether a save keeps <paramref name="cell"/>'s exploration: its run has a cell the stock map can explore.</summary>
+    /// <param name="stockRules">The area's stock map rules.</param>
+    /// <param name="cell">The map cell.</param>
+    public static bool IsKept(IAreaMapView stockRules, Position16<MapTiles> cell)
     {
-        Ensure.LengthEqual(compressed, PackedByteCount);
-
-        var explored = new byte[SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea];
-        for (int area = 0; area < PackedAreaCount; area++)
+        Ensure.NotNull(stockRules);
+        int runStart = cell.X / RunCellCount * RunCellCount;
+        for (int x = runStart; x < runStart + RunCellCount; x++)
         {
-            ExploredMapPackingDefinition definition = ExploredMapPacking.Area(area, RequireMaps(maps));
-            ExploredMapPacking.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
-            for (int index = 0; index < areaByteIndexes.Count; index++)
-            {
-                int compressedIndex = definition.SaveOffset + index;
-                if ((uint)compressedIndex >= compressed.Length)
-                    throw new InvalidDataException("Compiled packed-map table escapes the saved map field.");
-                explored[area * SharedGameState.ExploredMapBytesPerArea + areaByteIndexes[index]] = compressed[compressedIndex];
-            }
+            if (stockRules.IsDiscoverable(new Position16<MapTiles>(checked((ushort)x), cell.Y)))
+                return true;
         }
-        return explored;
+        return false;
     }
-
-    /// <summary>The explored-map bytes a save of <paramref name="exploredMap"/> reads back.</summary>
-    internal static byte[] Retained(ReadOnlySpan<byte> exploredMap, IAreaMapSource? maps) => Unpack(Pack(exploredMap, maps), maps);
-
-    /// <summary>The bound map rules; packing fails loudly without them.</summary>
-    private static IAreaMapSource RequireMaps(IAreaMapSource? maps) =>
-        maps ?? throw new InvalidOperationException("Save-map packing requires bound immutable stock map rules.");
 }

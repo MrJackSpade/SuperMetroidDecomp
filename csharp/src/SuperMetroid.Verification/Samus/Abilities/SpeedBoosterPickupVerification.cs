@@ -54,11 +54,11 @@ internal static class SpeedBoosterPickupVerification
             fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level);
             AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.YVelocity.RawValue,
                 "only the Chozo instruction list writes the native upward velocity");
-            fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
+            fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
             AssertEqual((ushort)0x20, fx.Timer.RawValue, "first FX pass selects waiting phase");
             for (int frame = 0; frame < 32; frame++)
             {
-                fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
+                fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
                 AssertEqual((ushort)0xda, fx.BaseY.Whole, "surface waits throughout native delay");
                 AssertEqual(chozo, fx.EarthquakeRequest.HasValue,
                     "native liquid owner publishes pickup earthquake during delay");
@@ -67,7 +67,7 @@ internal static class SpeedBoosterPickupVerification
             // in 8.8, the first four moving frames consume that half pixel.
             for (int frame = 1; frame <= 5; frame++)
             {
-                fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
+                fx.Step(new ArtworkFrameSelections(), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.OneFrame });
                 AssertEqual(chozo && frame == 5 ? (ushort)0xd9 : (ushort)0xda,
                     fx.BaseY.Whole, "lava rises at native subpixel speed after delay");
             }

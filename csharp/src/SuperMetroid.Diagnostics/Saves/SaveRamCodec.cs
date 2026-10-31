@@ -1,10 +1,12 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Diagnostics.Saves;
@@ -16,9 +18,11 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// </summary>
 /// <remarks>
 /// <c>$81:8000-$81:812A</c> stores one contiguous WRAM mirror ($D7C0-$DE1B) per slot, then writes both a checksum and
-/// its complement into two redundant directories. Decoding applies the cartridge's validity, selected-slot and
-/// boot-carry rules to the image as given; encoding writes the canonical image of a store, without padding or
-/// noncanonical marker bytes.
+/// its complement into two redundant directories. Decoding applies the cartridge's validity and selected-slot rules to
+/// the image as given, and decides from its raw completion mark the earthquake rumble delay power-on gives
+/// (<see cref="PowerOnEarthquakeSoundDelay"/>); progress is read through <see cref="ProgressionTableCodec"/>, which keeps
+/// what the game can observe. Encoding writes the canonical image of a store, without padding or noncanonical marker
+/// bytes.
 /// <para>
 /// The encoding owned here: the little-endian slot words at the <see cref="SaveRamLayout"/> offsets,
 /// the controller bindings stored as controller-button words, the equipment, beam and per-area boss flags stored as
@@ -42,7 +46,10 @@ public static class SaveRamCodec
         for (int slot = 0; slot < slots.Length; slot++)
             slots[slot] = IsSlotValid(image, slot) ? DecodeSlot(image, slot, maps) : null;
         return SaveSlotStore.Imported(slots, ReadSelectedSlot(image), HasCompletedGame(image), HasCorruptMarker(image),
-            MarkerCarry(image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length)), maps);
+            MarkerCarry(image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length))
+                ? PowerOnEarthquakeSoundDelay.OneFrame
+                : PowerOnEarthquakeSoundDelay.None,
+            maps);
     }
 
     /// <summary>Encodes the canonical SRAM image of <paramref name="store"/>.</summary>
@@ -84,11 +91,11 @@ public static class SaveRamCodec
     }
 
     /// <summary>Decodes the payload of <paramref name="slot"/> in <paramref name="image"/>, whatever its checksums.</summary>
-    internal static SuperMetroidSaveSlot DecodeSlot(ReadOnlySpan<byte> image, int slot, IAreaMapSource? maps) =>
+    internal static SuperMetroidSaveSlot DecodeSlot(ReadOnlySpan<byte> image, int slot, IAreaMapSource maps) =>
         DecodePayload(Payload(image, slot), slot, maps);
 
     /// <summary>Decodes one native slot payload into the slot record <see cref="SaveSlotStore"/> holds.</summary>
-    internal static SuperMetroidSaveSlot DecodePayload(ReadOnlySpan<byte> payload, int slot, IAreaMapSource? maps)
+    internal static SuperMetroidSaveSlot DecodePayload(ReadOnlySpan<byte> payload, int slot, IAreaMapSource maps)
     {
         Ensure.LengthEqual(payload, SaveRamLayout.SlotByteCount);
         return new SuperMetroidSaveSlot(
@@ -113,15 +120,7 @@ public static class SaveRamCodec
             GameTimeSeconds: ReadWord(payload, SaveRamLayout.GameTimeSecondsOffset),
             GameTimeMinutes: ReadWord(payload, SaveRamLayout.GameTimeMinutesOffset),
             GameTimeHours: ReadWord(payload, SaveRamLayout.GameTimeHoursOffset),
-            EventBytes: payload.Slice(SaveRamLayout.EventsOffset, SharedGameState.EventByteCount).ToArray(),
-            BossBytes: payload.Slice(SaveRamLayout.BossBitsOffset, SharedGameState.AreaCount).ToArray(),
-            RoomChozoBytes: payload.Slice(SaveRamLayout.RoomChozoBitsOffset, SharedGameState.RoomChozoBitByteCount).ToArray(),
-            CollectedItemBytes: payload.Slice(SaveRamLayout.CollectedItemBitsOffset, SharedGameState.ItemBitByteCount).ToArray(),
-            OpenedDoorBytes: payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, SharedGameState.DoorBitByteCount).ToArray(),
-            UsedSaveStationBytes: payload.Slice(SaveRamLayout.UsedSaveStationsOffset, SharedGameState.UsedSaveStationByteCount).ToArray(),
-            MapStationBytes: payload.Slice(SaveRamLayout.MapStationsOffset, SharedGameState.MapStationByteCount).ToArray(),
-            ExploredMapBytes: ExploredMapStorage.Unpack(
-                payload.Slice(SaveRamLayout.CompressedMapDataOffset, SaveRamLayout.CompressedMapDataByteCount), maps),
+            Progression: DecodeProgression(payload, maps),
             LoadingGameState: ReadWord(payload, SaveRamLayout.LoadingGameStateOffset),
             SaveStation: ReadWord(payload, SaveRamLayout.SaveStationOffset),
             Area: ReadWord(payload, SaveRamLayout.AreaOffset))
@@ -141,7 +140,7 @@ public static class SaveRamCodec
     /// Ports <c>SaveToSRAM</c>'s payload for the translated state a snapshot holds. The payload is a byte-for-byte
     /// cartridge structure; <see cref="WriteSlot"/> adds its directory words.
     /// </summary>
-    internal static byte[] EncodePayload(SuperMetroidSaveSnapshot snapshot, IAreaMapSource? maps)
+    internal static byte[] EncodePayload(SuperMetroidSaveSnapshot snapshot, IAreaMapSource maps)
     {
         Ensure.NotNull(snapshot);
         byte[] payload = new byte[SaveRamLayout.SlotByteCount];
@@ -189,33 +188,12 @@ public static class SaveRamCodec
             SaveFieldValue.Encode(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker)));
         WriteWord(payload, SaveRamLayout.IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
 
-        if (snapshot.EventBytes.Length != SharedGameState.EventByteCount)
-            throw new InvalidDataException("A save snapshot requires exactly eight event bytes.");
-        if (snapshot.BossFlags.Length != SharedGameState.AreaCount)
-            throw new InvalidDataException("A save snapshot requires exactly eight area-boss flag sets.");
-        snapshot.EventBytes.CopyTo(payload, SaveRamLayout.EventsOffset);
-        for (int area = 0; area < snapshot.BossFlags.Length; area++)
-            payload[SaveRamLayout.BossBitsOffset + area] = (byte)snapshot.BossFlags[area];
-        if (snapshot.RoomChozoBytes.Length != SharedGameState.RoomChozoBitByteCount)
-            throw new InvalidDataException("A save snapshot requires exactly 64 room-Chozo bytes.");
-        snapshot.RoomChozoBytes.CopyTo(payload, SaveRamLayout.RoomChozoBitsOffset);
-        if (snapshot.CollectedItemBytes.Length != SharedGameState.ItemBitByteCount)
-            throw new InvalidDataException("A save snapshot requires exactly 64 collected-item bytes.");
-        snapshot.CollectedItemBytes.CopyTo(payload, SaveRamLayout.CollectedItemBitsOffset);
-        if (snapshot.OpenedDoorBytes.Length != SharedGameState.DoorBitByteCount)
-            throw new InvalidDataException("A save snapshot requires exactly 64 opened-door bytes.");
-        snapshot.OpenedDoorBytes.CopyTo(payload, SaveRamLayout.OpenedDoorBitsOffset);
-        if (snapshot.UsedSaveStationBytes.Length != SharedGameState.UsedSaveStationByteCount)
-            throw new InvalidDataException("A save snapshot requires exactly 16 used save/elevator bytes.");
-        snapshot.UsedSaveStationBytes.CopyTo(payload, SaveRamLayout.UsedSaveStationsOffset);
-        if (snapshot.MapStationBytes.Length != SharedGameState.MapStationByteCount)
-            throw new InvalidDataException("A save snapshot requires exactly 12 map-station bytes.");
-        snapshot.MapStationBytes.CopyTo(payload, SaveRamLayout.MapStationsOffset);
+        EncodeProgression(snapshot.Progress, payload);
         WriteWord(payload, SaveRamLayout.LoadingGameStateOffset,
             SaveFieldValue.Encode(snapshot.LoadingGameState, nameof(snapshot.LoadingGameState)));
         WriteWord(payload, SaveRamLayout.SaveStationOffset, SaveFieldValue.Encode(snapshot.SaveStation, nameof(snapshot.SaveStation)));
         WriteWord(payload, SaveRamLayout.AreaOffset, SaveFieldValue.Encode(snapshot.Area, nameof(snapshot.Area)));
-        ExploredMapStorage.Pack(snapshot.ExploredMapBytes, maps).CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);
+        SaveRamMapPacking.Pack(snapshot.Progress, maps).CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);
         return payload;
     }
 
@@ -253,15 +231,38 @@ public static class SaveRamCodec
         LoadingGameState = slot.LoadingGameState,
         SaveStation = slot.SaveStation,
         Area = slot.Area,
-        EventBytes = slot.EventBytes.ToArray(),
-        BossFlags = slot.BossBytes.Select(value => (BossBits)value).ToArray(),
-        RoomChozoBytes = slot.RoomChozoBytes.ToArray(),
-        CollectedItemBytes = slot.CollectedItemBytes.ToArray(),
-        OpenedDoorBytes = slot.OpenedDoorBytes.ToArray(),
-        UsedSaveStationBytes = slot.UsedSaveStationBytes.ToArray(),
-        MapStationBytes = slot.MapStationBytes.ToArray(),
-        ExploredMapBytes = slot.ExploredMapBytes.ToArray(),
+        Progress = slot.Progression.Copy(),
     };
+
+    /// <summary>
+    /// The persistent progress a slot payload's progression tables and packed explored map hold, read through the
+    /// cartridge's table codec (<see cref="ProgressionTableCodec"/>).
+    /// </summary>
+    private static PersistentProgress DecodeProgression(ReadOnlySpan<byte> payload, IAreaMapSource maps)
+    {
+        var progress = new PersistentProgress();
+        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount), progress.Events);
+        ProgressionTableCodec.ReadAreaBosses(payload.Slice(SaveRamLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount), progress);
+        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.ChozoOrbs);
+        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);
+        ProgressionTableCodec.ReadFlags(payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.OpenedDoors);
+        ProgressionTableCodec.ReadUsedStations(payload.Slice(SaveRamLayout.UsedSaveStationsOffset, ProgressionTableCodec.UsedStationByteCount), progress);
+        ProgressionTableCodec.ReadAreaMaps(payload.Slice(SaveRamLayout.MapStationsOffset, ProgressionTableCodec.MapStationByteCount), progress);
+        SaveRamMapPacking.Unpack(payload.Slice(SaveRamLayout.CompressedMapDataOffset, SaveRamLayout.CompressedMapDataByteCount), maps, progress);
+        return progress;
+    }
+
+    /// <summary>Writes <paramref name="progress"/>'s progression tables into a slot payload; the packed map is written separately.</summary>
+    private static void EncodeProgression(PersistentProgress progress, Span<byte> payload)
+    {
+        ProgressionTableCodec.WriteFlags(progress.Events, payload.Slice(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount));
+        ProgressionTableCodec.WriteAreaBosses(progress, payload.Slice(SaveRamLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount));
+        ProgressionTableCodec.WriteFlags(progress.ChozoOrbs, payload.Slice(SaveRamLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
+        ProgressionTableCodec.WriteFlags(progress.CollectedItems, payload.Slice(SaveRamLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
+        ProgressionTableCodec.WriteFlags(progress.OpenedDoors, payload.Slice(SaveRamLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount));
+        ProgressionTableCodec.WriteUsedStations(progress, payload.Slice(SaveRamLayout.UsedSaveStationsOffset, ProgressionTableCodec.UsedStationByteCount));
+        ProgressionTableCodec.WriteAreaMaps(progress, payload.Slice(SaveRamLayout.MapStationsOffset, ProgressionTableCodec.MapStationByteCount));
+    }
 
     /// <summary>Writes <paramref name="payload"/> into <paramref name="slot"/> with both redundant checksum pairs.</summary>
     internal static void WriteSlot(Span<byte> image, int slot, ReadOnlySpan<byte> payload)

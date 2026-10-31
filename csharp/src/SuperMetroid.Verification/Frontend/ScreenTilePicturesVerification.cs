@@ -43,7 +43,7 @@ internal static class ScreenTilePicturesVerification
         AreaMapPresentation maps = InstalledFixtures.Maps;
         InstalledSpriteSheets sheets = InstalledFixtures.SpriteSheets;
         var explored = new SharedGameState();
-        explored.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
+        explored.Progress.ExploreEveryCell();
         ushort[] used = Enumerable.Repeat(ushort.MaxValue, FileSelectMapDefinitions.AreaCount).ToArray();
         for (int area = 0; area < FileSelectMapDefinitions.AreaCount; area++)
         {
@@ -53,7 +53,7 @@ internal static class ScreenTilePicturesVerification
             FileSelectAreaMapGraphics world = InstalledFixtures.CreateFileSelectAreaMap(area);
             foreach (AreaMapColorMath math in new[] { AreaMapColorMath.WithBackdrop, AreaMapColorMath.ForegroundOnly })
             {
-                LayeredScene scene = world.CaptureRenderSnapshot(used, math);
+                LayeredScene scene = world.CaptureRenderSnapshot(FileSelectMapGraphicsPixelsAccess.UsedStations(used), math);
                 AssertTrue(scene.Layers[0] is PicturedPlaneLayer { Plane.Pictures: [{ } shownForeground] } && ReferenceEquals(shownForeground.Picture, foreground)
                     && scene.Layers[1] is AddedPicturedPlaneLayer { Plane.Pictures: [{ } shownBackground] } added && ReferenceEquals(shownBackground.Picture, background)
                     && (added.MainCoverage is null) == (math == AreaMapColorMath.WithBackdrop),
@@ -179,7 +179,7 @@ internal static class ScreenTilePicturesVerification
     {
         AreaMapPresentation maps = InstalledFixtures.Maps;
         var system = new SharedGameState();
-        system.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
+        system.Progress.ExploreEveryCell();
         var pause = new PauseMenuState(new PauseMenuEntry
         {
             Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = maps,

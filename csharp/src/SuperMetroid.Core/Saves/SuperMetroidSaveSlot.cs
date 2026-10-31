@@ -4,7 +4,35 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Saves;
 
-/// <summary>Decoded debugger view of the player fields and checkpoint in one valid slot.</summary>
+/// <summary>
+/// One saved game (#1475): the player's inventory, resources, clock and checkpoint, and the persistent progress the save
+/// keeps (<see cref="Progression"/>, a copy the slot owns). Hosts persist it; no part of it is a memory image.
+/// </summary>
+/// <param name="Slot">The slot, A through C as 0 through 2.</param>
+/// <param name="EquippedItems">The collected items currently enabled on Samus.</param>
+/// <param name="CollectedItems">The item upgrades Samus has collected.</param>
+/// <param name="EquippedBeams">The collected beams currently enabled on Samus.</param>
+/// <param name="CollectedBeams">The beam upgrades Samus has collected.</param>
+/// <param name="ReserveMode">The reserve tanks' mode.</param>
+/// <param name="Health">Samus's energy.</param>
+/// <param name="MaxHealth">Samus's energy capacity.</param>
+/// <param name="Missiles">The missile count.</param>
+/// <param name="MaxMissiles">The missile capacity.</param>
+/// <param name="SuperMissiles">The super missile count.</param>
+/// <param name="MaxSuperMissiles">The super missile capacity.</param>
+/// <param name="PowerBombs">The power bomb count.</param>
+/// <param name="MaxPowerBombs">The power bomb capacity.</param>
+/// <param name="HudItem">The selected HUD item.</param>
+/// <param name="MaxReserveEnergy">The reserve tanks' capacity.</param>
+/// <param name="ReserveEnergy">The energy stored in reserve tanks.</param>
+/// <param name="GameTimeFrames">The game clock's frames.</param>
+/// <param name="GameTimeSeconds">The game clock's seconds.</param>
+/// <param name="GameTimeMinutes">The game clock's minutes.</param>
+/// <param name="GameTimeHours">The game clock's hours.</param>
+/// <param name="Progression">The persistent progress the save keeps; the slot owns this copy.</param>
+/// <param name="LoadingGameState">The saved startup dispatcher value, carried unchanged.</param>
+/// <param name="SaveStation">The load station within <paramref name="Area"/>.</param>
+/// <param name="Area">The checkpoint's area index.</param>
 public sealed record SuperMetroidSaveSlot(
     int Slot,
     SamusEquipmentFlags EquippedItems,
@@ -27,14 +55,7 @@ public sealed record SuperMetroidSaveSlot(
     int GameTimeSeconds,
     int GameTimeMinutes,
     int GameTimeHours,
-    byte[] EventBytes,
-    byte[] BossBytes,
-    byte[] RoomChozoBytes,
-    byte[] CollectedItemBytes,
-    byte[] OpenedDoorBytes,
-    byte[] UsedSaveStationBytes,
-    byte[] MapStationBytes,
-    byte[] ExploredMapBytes,
+    PersistentProgress Progression,
     int LoadingGameState,
     int SaveStation,
     int Area)
@@ -96,19 +117,12 @@ public sealed record SuperMetroidSaveSlot(
         samus.ReserveMissiles = ReserveMissiles;
     }
 
-    /// <summary>Restores player inventory and all progression bytes represented in SRAM.</summary>
+    /// <summary>Restores player inventory, the saved progress, the loading state and the item-load count.</summary>
     public void ApplyTo(SamusState samus, SharedGameState system)
     {
         ApplyTo(samus);
         Ensure.NotNull(system);
-        system.LoadEventBytes(EventBytes);
-        system.LoadBossBytes(BossBytes);
-        system.LoadRoomChozoBytes(RoomChozoBytes);
-        system.LoadCollectedItemBytes(CollectedItemBytes);
-        system.LoadOpenedDoorBytes(OpenedDoorBytes);
-        system.LoadUsedSaveStationBytes(UsedSaveStationBytes);
-        system.LoadMapStationBytes(MapStationBytes);
-        system.LoadExploredMapBytes(ExploredMapBytes);
+        system.Progress.CopyFrom(Progression);
         system.LoadSavedLoadingGameState(SaveFieldValue.Encode(LoadingGameState, nameof(LoadingGameState)));
         system.LoadedItemCount = SaveFieldValue.Encode(LoadedItemCount, nameof(LoadedItemCount));
     }

@@ -1,7 +1,5 @@
 using SuperMetroid.Diagnostics.Saves;
-using SuperMetroid.Core.Map;
 namespace SuperMetroid.Core.Saves;
-using SuperMetroid.Core.Progression;
 
 /// <summary>Cartridge values of <see cref="SaveRamLayout"/> that only verification reads.</summary>
 internal static class SaveRamLayoutConstants
@@ -11,7 +9,8 @@ internal static class SaveRamLayoutConstants
     /// <summary>Size of the unassigned $7E:D8F0-$7E:D8F7 allocation.</summary>
     public const int ProgressionPaddingByteCount = 8;
     /// <summary>Unassigned eight-byte SRAM-mirror allocation at $7E:D8F0-$7E:D8F7.</summary>
-    public const int ProgressionPaddingWramAddress = OpenedDoorBitsWramAddress + SharedGameState.DoorBitByteCount;
+    public const int ProgressionPaddingWramAddress = OpenedDoorBitsWramAddress +
+        (SaveRamLayout.UsedSaveStationsOffset - SaveRamLayout.OpenedDoorBitsOffset - ProgressionPaddingByteCount);
     /// <summary>Offset of the selected-slot complement immediately after its stored word.</summary>
     public const int SelectedSlotComplementOffset = SaveRamLayout.SelectedSlotOffset + WordByteCount;
     /// <summary>Byte width of one little-endian SRAM layout word.</summary>
@@ -60,5 +59,5 @@ internal static class SaveRamLayoutConstants
         internal static int WordByteCount => SaveRamLayoutConstants.WordByteCount;
     }
     /// <summary>Number of Zebes area maps packed into SRAM; the Ceres prologue has no persisted map.</summary>
-    public const int PackedMapAreaCount = ExploredMapStorage.PackedAreaCount;
+    public const int PackedMapAreaCount = SaveRamMapPacking.PackedAreaCount;
 }

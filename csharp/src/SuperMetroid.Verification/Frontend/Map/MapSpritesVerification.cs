@@ -114,7 +114,7 @@ internal static class MapSpritesVerification
         {
             var guard = NewMapSpriteGuard(bus);
             var system = new SharedGameState(); system.SetAreaMapAcquired(AreaId.WreckedShip);
-            system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
+            system.Progress.ExploreEveryCell();
             var marker = new FileSelectStationMarker(AreaId.WreckedShip, 0,
                 original.SaveMarkers);
             var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, mapPresentation: original, sheets: MenuSheetFixtures.For(original));

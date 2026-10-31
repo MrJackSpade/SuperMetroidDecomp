@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Progression;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -14,22 +14,22 @@ internal static class ProgressionSliceLayout
     internal const int EventsOffset = 0;
 
     /// <summary>Offset of the per-area boss bitset.</summary>
-    internal const int BossBitsOffset = EventsOffset + SharedGameState.EventByteCount;
+    internal const int BossBitsOffset = EventsOffset + ProgressionTableCodec.EventByteCount;
 
     /// <summary>Offset of the room-indexed opened-Chozo-orb bitset.</summary>
-    internal const int RoomChozoBitsOffset = BossBitsOffset + SharedGameState.AreaCount;
+    internal const int RoomChozoBitsOffset = BossBitsOffset + ProgressionTableCodec.AreaBossByteCount;
 
     /// <summary>Offset of the room-indexed collected-item bitset.</summary>
-    internal const int CollectedItemBitsOffset = RoomChozoBitsOffset + SharedGameState.RoomChozoBitByteCount;
+    internal const int CollectedItemBitsOffset = RoomChozoBitsOffset + ProgressionTableCodec.RoomFlagByteCount;
 
     /// <summary>Offset of the room-indexed opened-door bitset.</summary>
-    internal const int OpenedDoorBitsOffset = CollectedItemBitsOffset + SharedGameState.ItemBitByteCount;
+    internal const int OpenedDoorBitsOffset = CollectedItemBitsOffset + ProgressionTableCodec.RoomFlagByteCount;
 
     /// <summary>
     /// Offset of the padding after the opened-door bits (<c>$7E:D8F0-$D8F7</c>), which no game logic reads; save schema
     /// two zeroes it, and it is not state.
     /// </summary>
-    internal const int PaddingOffset = OpenedDoorBitsOffset + SharedGameState.DoorBitByteCount;
+    internal const int PaddingOffset = OpenedDoorBitsOffset + ProgressionTableCodec.RoomFlagByteCount;
 
     /// <summary>Bytes of padding after the opened-door bits.</summary>
     internal const int PaddingByteCount = 8;
@@ -38,10 +38,10 @@ internal static class ProgressionSliceLayout
     internal const int UsedSaveStationsOffset = PaddingOffset + PaddingByteCount;
 
     /// <summary>Offset of the per-area acquired map-station flags.</summary>
-    internal const int MapStationsOffset = UsedSaveStationsOffset + SharedGameState.UsedSaveStationByteCount;
+    internal const int MapStationsOffset = UsedSaveStationsOffset + ProgressionTableCodec.UsedStationByteCount;
 
     /// <summary>Offset of the saved dispatcher word, the slice's last two bytes, low byte first.</summary>
-    internal const int LoadingGameStateOffset = MapStationsOffset + SharedGameState.MapStationByteCount;
+    internal const int LoadingGameStateOffset = MapStationsOffset + ProgressionTableCodec.MapStationByteCount;
 
     /// <summary>Bytes in the slice.</summary>
     internal const int ByteCount = LoadingGameStateOffset + sizeof(ushort);

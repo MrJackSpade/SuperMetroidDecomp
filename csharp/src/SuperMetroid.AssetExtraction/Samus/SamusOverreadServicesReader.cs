@@ -7,6 +7,7 @@ using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -84,7 +85,7 @@ internal static class SamusOverreadServicesReader
     }
 
     /// <summary>Every SpaceTime animation position's overwrite, by slot.</summary>
-    private static SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>> SpaceTimeOverwrite(
+    private static SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> SpaceTimeOverwrite(
         IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> overwrites)
     {
         var result = new Dictionary<AnimationProgramCursor<SamusProjectileProgram>, IReadOnlyList<ProgressionOverwrite?>>();
@@ -112,8 +113,19 @@ internal static class SamusOverreadServicesReader
     /// <summary>One decoded overwrite in the progression's own terms.</summary>
     private static ProgressionOverwrite? Overwrite(SamusOverreadDocument.Overwrite? overwrite) => overwrite is null
         ? null
-        : new ProgressionOverwrite(overwrite.Events, overwrite.AreaBosses, overwrite.ChozoOrbs, overwrite.CollectedItems,
-            overwrite.OpenedDoors, overwrite.UsedStations, overwrite.MapStations, overwrite.SavedLoadingGameState);
+        : new ProgressionOverwrite(
+            Require(overwrite.Events, nameof(overwrite.Events)),
+            Require(overwrite.AreaBosses, nameof(overwrite.AreaBosses)).ToDictionary(
+                area => Parse<AreaId>(area.Key, "SpaceTime boss area"),
+                area => area.Value.Aggregate(BossBits.None, (bosses, name) => bosses | Parse<BossBits>(name, "SpaceTime boss"))),
+            Require(overwrite.ChozoOrbs, nameof(overwrite.ChozoOrbs)),
+            Require(overwrite.CollectedItems, nameof(overwrite.CollectedItems)),
+            Require(overwrite.OpenedDoors, nameof(overwrite.OpenedDoors)),
+            Require(overwrite.UsedStations, nameof(overwrite.UsedStations)).ToDictionary(
+                area => Parse<AreaId>(area.Key, "SpaceTime station area"), area => area.Value),
+            Require(overwrite.AreaMaps, nameof(overwrite.AreaMaps)).ToDictionary(
+                area => Parse<AreaId>(area.Key, "SpaceTime map area"), area => area.Value),
+            overwrite.SavedLoadingGameState);
 
     /// <summary>Every animation position the Chainsaw fuse lands somewhere.</summary>
     private static ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> ChainsawFuseShift(

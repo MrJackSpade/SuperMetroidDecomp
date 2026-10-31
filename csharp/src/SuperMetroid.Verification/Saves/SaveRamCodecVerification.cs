@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
@@ -48,10 +49,10 @@ internal static class SaveRamCodecVerification
             AssertTrue(PayloadOf(decoded.ReadSlot(0), maps).SequenceEqual(PayloadOf(written.ReadSlot(0), maps)),
                 "a valid slot decodes to the record that was written");
             AssertEqual(1, decoded.ReadSelectedSlot(), "the selection decodes as written, whatever the selected slot holds");
-            AssertEqual(expectedCarry, decoded.DetermineBootMainLoopCarry(), "the decoded boot carry compares the raw marker words");
+            AssertEqual(expectedCarry, AddsRumbleFrame(decoded), "the decoded boot carry compares the raw marker words");
             AssertTrue(!decoded.HasCompletedGame, "a noncanonical marker is not the completed-game signature");
             decoded.SaveSlot(2, Snapshot(health: 33, area: AreaId.Crateria));
-            AssertEqual(expectedCarry, decoded.DetermineBootMainLoopCarry(),
+            AssertEqual(expectedCarry, AddsRumbleFrame(decoded),
                 "a later save keeps the raw marker comparison for the next boot");
         }
         Console.WriteLine("SRAM decode: an invalid slot decodes empty; noncanonical markers keep their raw boot carry across saves.");
@@ -72,13 +73,13 @@ internal static class SaveRamCodecVerification
             SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length);
 
         // Boot with every slot invalid keeps the carry set, writes the corrupt marker and fixes three demo sets.
-        AssertTrue(store.DetermineBootMainLoopCarry(), "an empty store's boot carry is set");
+        AssertTrue(AddsRumbleFrame(store), "an empty store's boot carry is set");
         AssertEqual(DemoSetUnlockDefinitions.SetsBeforeCompletion, store.DetermineNumberOfDemoSets(), "an all-invalid boot fixes three demo sets");
         AssertEqual("madadameyohn", Marker(), "an all-invalid boot writes the corrupt-SRAM marker");
         RoundTrips("an all-invalid boot");
         store.SaveSlot(0, Snapshot(health: 61, area: AreaId.Brinstar));
         // Last word "hn" ($6E68) is above "id" ($6469): the corrupt marker leaves the next boot's carry set.
-        AssertTrue(store.DetermineBootMainLoopCarry(), "boot carry over the corrupt marker");
+        AssertTrue(AddsRumbleFrame(store), "boot carry over the corrupt marker");
         AssertEqual("madadameyohn", Marker(), "a save leaves the marker");
         RoundTrips("saving slot A");
         store.SaveSlot(2, Snapshot(health: 88, area: AreaId.Maridia));
@@ -95,11 +96,11 @@ internal static class SaveRamCodecVerification
         RoundTrips("selecting slot B");
         store.SetGameCompleted(true);
         AssertEqual("supermetroid", Marker(), "completion writes the signature");
-        AssertTrue(store.DetermineBootMainLoopCarry(), "a completed save's boot carry is set");
+        AssertTrue(AddsRumbleFrame(store), "a completed save's boot carry is set");
         AssertEqual(DemoSetUnlockDefinitions.SetCount, store.DetermineNumberOfDemoSets(), "a completed save enables the fourth demo set");
         RoundTrips("completing the game");
         store.SetGameCompleted(false);
-        AssertTrue(!store.DetermineBootMainLoopCarry(), "a valid incomplete save's boot carry is clear");
+        AssertTrue(!AddsRumbleFrame(store), "a valid incomplete save's boot carry is clear");
         RoundTrips("clearing completion");
         Console.WriteLine("Save store: boot, save, copy, clear, select and completion have the cartridge's effect and round-trip through SRAM.");
     }
@@ -163,8 +164,8 @@ internal static class SaveRamCodecVerification
 
     /// <summary>
     /// The progression owner's saved fields: the loaded-item count and the saved dispatcher route accept exactly a save
-    /// field's range, and an area's boss byte keeps its unproven bits through typed set, clear and query, so the byte the
-    /// save mirror receives is the byte it was loaded with, changed only in the named bits.
+    /// field's range, and an area's boss state holds the named flags a save image's boss byte stores; the bits no routine
+    /// tests are not progress (#1475).
     /// </summary>
     internal static void VerifyProgressionSavedFields()
     {
@@ -179,24 +180,25 @@ internal static class SaveRamCodecVerification
         AssertThrows<ArgumentOutOfRangeException>(() => system.LoadSavedLoadingGameState(-1),
             "a dispatcher route outside a save field is rejected");
 
-        // An unproven bit beside two named ones: typed operations change only the named bits around it.
-        byte unprovenBit = 128;
-        byte loaded = (byte)(unprovenBit | (BossBits.AreaBoss | BossBits.AreaTorizo).ToSaveByte());
-        byte[] areas = new byte[SharedGameState.AreaCount];
-        areas[AreaIds.ToIndex(AreaId.Norfair)] = loaded;
-        system.LoadBossBytes(areas);
-        AssertEqual(loaded, system.GetBossBitsRaw(AreaId.Norfair), "a loaded boss byte reads back exactly");
+        // A save image's boss byte with a bit no routine tests beside two named ones: only the named flags are progress,
+        // and typed operations change only the named flags; writing the table back leaves the untested bit clear.
+        byte[] areas = new byte[ProgressionTableCodec.AreaBossByteCount];
+        areas[AreaIds.ToIndex(AreaId.Norfair)] = 0x85;
+        ProgressionTableCodec.ReadAreaBosses(areas, system.Progress);
+        AssertEqual(BossBits.AreaBoss | BossBits.AreaTorizo, system.GetBossBits(AreaId.Norfair), "a loaded boss byte keeps its named flags");
         system.SetBossBits(AreaId.Norfair, BossBits.AreaMiniBoss);
         system.ClearBossBits(AreaId.Norfair, BossBits.AreaBoss);
-        AssertEqual((byte)(unprovenBit | (BossBits.AreaMiniBoss | BossBits.AreaTorizo).ToSaveByte()),
-            system.GetBossBitsRaw(AreaId.Norfair), "typed set and clear keep the unproven bit");
-        AssertTrue(system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaTorizo), "a named bit beside an unproven one is found");
-        AssertTrue(!system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss), "a cleared named bit is absent");
-        AssertThrows<ArgumentOutOfRangeException>(() => system.GetBossBits(AreaId.Norfair),
-            "named boss state refuses to hand out an unproven bit");
-        AssertEqual(0, system.GetBossBitsRaw(AreaId.Crateria), "other areas stay clear");
-        Console.WriteLine("Progression saved fields: save-field ranges are enforced and boss bytes keep their unproven bits.");
+        AssertEqual(BossBits.AreaMiniBoss | BossBits.AreaTorizo, system.GetBossBits(AreaId.Norfair), "typed set and clear change only their flags");
+        AssertTrue(system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaTorizo), "a named flag is found");
+        AssertTrue(!system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss), "a cleared named flag is absent");
+        ProgressionTableCodec.WriteAreaBosses(system.Progress, areas);
+        AssertEqual((byte)0x06, areas[AreaIds.ToIndex(AreaId.Norfair)], "the written boss byte holds only the named flags");
+        AssertEqual(BossBits.None, system.GetBossBits(AreaId.Crateria), "other areas stay clear");
+        Console.WriteLine("Progression saved fields: save-field ranges are enforced and boss state holds the named flags.");
     }
+
+    /// <summary>Whether a store's power-on adds a frame to the earthquake rumble's delay.</summary>
+    private static bool AddsRumbleFrame(SaveSlotStore store) => store.EarthquakeSoundDelayAtPowerOn().ExtraFrames == 1;
 
     /// <summary>A save with a distinct health, area, progression and explored map.</summary>
     private static SuperMetroidSaveSnapshot Snapshot(ushort health, AreaId area)

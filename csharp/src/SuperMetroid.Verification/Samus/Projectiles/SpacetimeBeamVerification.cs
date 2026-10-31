@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Artwork;
@@ -75,28 +76,9 @@ internal static class SpacetimeBeamVerification
         samus.PowerBombs = 3;
         samus.MaxPowerBombs = 5;
 
+        // Progress as the native probe's sentinel-filled tables decode, with the opening cinematic as the loading state.
         var system = new SharedGameState();
-        byte[] a5Events = Enumerable.Repeat((byte)0xa5,
-            SharedGameState.EventByteCount).ToArray();
-        byte[] a5Bosses = Enumerable.Repeat((byte)0xa5,
-            SharedGameState.AreaCount).ToArray();
-        byte[] a5Chozo = Enumerable.Repeat((byte)0xa5,
-            SharedGameState.RoomChozoBitByteCount).ToArray();
-        byte[] a5Items = Enumerable.Repeat((byte)0xa5,
-            SharedGameState.ItemBitByteCount).ToArray();
-        byte[] a5Doors = Enumerable.Repeat((byte)0xa5,
-            SharedGameState.DoorBitByteCount).ToArray();
-        byte[] a5Stations = Enumerable.Repeat((byte)0xa5,
-            SharedGameState.UsedSaveStationByteCount).ToArray();
-        byte[] a5Maps = Enumerable.Repeat((byte)0xa5,
-            SharedGameState.MapStationByteCount).ToArray();
-        system.LoadEventBytes(a5Events);
-        system.LoadBossBytes(a5Bosses);
-        system.LoadRoomChozoBytes(a5Chozo);
-        system.LoadCollectedItemBytes(a5Items);
-        system.LoadOpenedDoorBytes(a5Doors);
-        system.LoadUsedSaveStationBytes(a5Stations);
-        system.LoadMapStationBytes(a5Maps);
+        system.Progress.CopyFrom(SentinelProgression().Progress);
         system.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.OpeningCinematic));
 
         var shared = CreateBombFixture();
@@ -107,15 +89,11 @@ internal static class SpacetimeBeamVerification
             "SpaceTime initial shot allocation");
         AssertEqual(0x9137, projectiles.Slots[0].InstructionPointer,
             "native frame-zero next animation record");
-        AssertEqual(0xa11546b9u, HashProgression(system),
-            "native frame-zero progression hash");
 
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
         SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         AssertEqual(1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
-        AssertEqual(0x601b9b2cu, HashProgression(system),
-            "retail frame-one progression hash");
         AssertEqual(0x0880, system.SavedLoadingGameState,
             "retail frame-one loading_game_state corruption");
         AssertEqual((ushort)0x100e, samus.EquippedBeams.ToEquipmentWord(),
@@ -129,14 +107,8 @@ internal static class SpacetimeBeamVerification
             "save retains invalid SpaceTime equipment");
         AssertEqual(0x0880, saved.LoadingGameState,
             "save retains corrupted startup dispatcher word");
-        AssertTrue(saved.EventBytes.SequenceEqual(OwnedBytes(SharedGameState.EventByteCount, system.GetEventByteRaw)),
-            "save retains corrupted event bytes");
-        AssertTrue(saved.BossBytes.SequenceEqual(OwnedBytes(SharedGameState.AreaCount, system.GetBossBitsRaw)),
-            "save retains corrupted boss bytes");
-        AssertTrue(saved.CollectedItemBytes.SequenceEqual(OwnedBytes(SharedGameState.ItemBitByteCount, system.GetCollectedItemByteRaw)),
-            "save retains corrupted item bytes");
-        AssertTrue(saved.OpenedDoorBytes.SequenceEqual(OwnedBytes(SharedGameState.DoorBitByteCount, system.GetOpenedDoorByteRaw)),
-            "save retains corrupted door bytes");
+        AssertTrue(saved.Progression.SameAs(system.Progress),
+            "save retains the corrupted events, bosses, orbs, items, doors, stations and maps");
 
         var restarted = new SamusState(InstalledFixtures.AnimationContinuation);
         FrontendSession.RestoreSpacetimeRestartInventory(restarted, saved);
@@ -160,9 +132,10 @@ internal static class SpacetimeBeamVerification
 
     /// <summary>
     /// Runs the original copy over the supported ROM for every animation position a SpaceTime shot can hold and every
-    /// slot, and requires the installed service's overwrite, applied to progression filled with a sentinel, to leave
-    /// exactly the bytes the copy writes into the persistent-progress slice and the sentinel everywhere else. The eight
-    /// padding bytes after the opened-door bits are not state (owner decision on #1330) and are not compared.
+    /// slot, and requires the installed service's overwrite, applied to progress decoded from sentinel-filled tables, to
+    /// leave every event, boss, orb, item, door, station, map and the loading state as the tables the copy writes over the
+    /// sentinel decode (#1475). What no game routine reads (the padding after the doors, owner decision on #1330, the
+    /// eighth area slot, unnamed boss bits and the map-station padding) is not progress and is not compared.
     /// </summary>
     private static void VerifySpacetimeOverwritesAgainstRetailRom(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
@@ -183,14 +156,11 @@ internal static class SpacetimeBeamVerification
                 state.Overwrite(overwrite);
                 reaching++;
             }
-            byte[] actual = ProgressionSlice(state);
-            for (int offset = 0; offset < SpacetimeCopyOracle.ProgressionSliceByteCount; offset++)
-            {
-                if (offset is >= PaddingStart and < PaddingStart + PaddingByteCount)
-                    continue;
-                AssertEqual(native[offset] ?? ProgressionSentinel, actual[offset],
-                    $"SpaceTime from {cursor} in slot {slot} leaves progression byte {offset} as the original copy does");
-            }
+            byte[] expected = [.. native.Select(value => value ?? ProgressionSentinel)];
+            AssertTrue(DecodeSlice(expected).SameAs(state.Progress),
+                $"SpaceTime from {cursor} in slot {slot} leaves every event, boss, orb, item, door, station and map as the original copy does");
+            AssertEqual((int)LittleEndianBytes.Word(expected[ProgressionSliceLayout.LoadingGameStateOffset], expected[ProgressionSliceLayout.LoadingGameStateOffset + 1]),
+                state.SavedLoadingGameState, $"SpaceTime from {cursor} in slot {slot} leaves the loading state as the original copy does");
             situations++;
         }
         AssertTrue(reaching > 0, "Some SpaceTime animation positions copy into progression");
@@ -202,66 +172,33 @@ internal static class SpacetimeBeamVerification
     /// <summary>The byte every progression table starts with in the overwrite comparison.</summary>
     private const byte ProgressionSentinel = 0xa5;
 
-    /// <summary>Where the padding after the opened-door bits starts in the persistent-progress slice.</summary>
-    private const int PaddingStart = 208;
-
-    /// <summary>The padding bytes after the opened-door bits.</summary>
-    private const int PaddingByteCount = 8;
-
-    /// <summary>Progression with every table byte, and both loading-state bytes, set to the sentinel.</summary>
+    /// <summary>
+    /// Progress as progression tables filled with the sentinel decode, and the loading state both of whose bytes are the
+    /// sentinel: every flag the tables' sentinel bits name.
+    /// </summary>
     private static SharedGameState SentinelProgression()
     {
         var state = new SharedGameState();
-        state.LoadEventBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.EventByteCount).ToArray());
-        state.LoadBossBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.AreaCount).ToArray());
-        state.LoadRoomChozoBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.RoomChozoBitByteCount).ToArray());
-        state.LoadCollectedItemBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.ItemBitByteCount).ToArray());
-        state.LoadOpenedDoorBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.DoorBitByteCount).ToArray());
-        state.LoadUsedSaveStationBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.UsedSaveStationByteCount).ToArray());
-        state.LoadMapStationBytes(Enumerable.Repeat(ProgressionSentinel, SharedGameState.MapStationByteCount).ToArray());
-        state.LoadSavedLoadingGameState(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(
-            (byte[])[ProgressionSentinel, ProgressionSentinel]));
+        state.Progress.CopyFrom(DecodeSlice(Enumerable.Repeat(ProgressionSentinel, SpacetimeCopyOracle.ProgressionSliceByteCount).ToArray()));
+        state.LoadSavedLoadingGameState(LittleEndianBytes.Word(ProgressionSentinel, ProgressionSentinel));
         return state;
     }
 
-    /// <summary>The persistent-progress slice <paramref name="state"/> holds, in the original layout, the padding as the sentinel.</summary>
-    private static byte[] ProgressionSlice(SharedGameState state)
-    {
-        var loading = new byte[sizeof(ushort)];
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(loading, checked((ushort)state.SavedLoadingGameState));
-        return [.. OwnedBytes(SharedGameState.EventByteCount, state.GetEventByteRaw),
-            .. OwnedBytes(SharedGameState.AreaCount, state.GetBossBitsRaw),
-            .. OwnedBytes(SharedGameState.RoomChozoBitByteCount, state.GetRoomChozoByteRaw),
-            .. OwnedBytes(SharedGameState.ItemBitByteCount, state.GetCollectedItemByteRaw),
-            .. OwnedBytes(SharedGameState.DoorBitByteCount, state.GetOpenedDoorByteRaw),
-            .. Enumerable.Repeat(ProgressionSentinel, PaddingByteCount),
-            .. OwnedBytes(SharedGameState.UsedSaveStationByteCount, state.GetUsedSaveStationByteRaw),
-            .. OwnedBytes(SharedGameState.MapStationByteCount, state.GetMapStationByteRaw),
-            .. loading];
-    }
-
-    /// <summary>The <paramref name="count"/> bytes <paramref name="read"/> returns, in index order.</summary>
-    private static byte[] OwnedBytes(int count, Func<int, byte> read) => [.. Enumerable.Range(0, count).Select(read)];
-
     /// <summary>
-    /// FNV-1a hash of the owned progression bytes from the event bitset through the map stations, in native mirror
-    /// order. The retail probe's hash also covered the eight padding bytes after the door bits, which no game logic reads.
+    /// The progress a whole persistent-progress slice stores, read table by table through the cartridge's table codec;
+    /// the padding after the doors, the eighth area slot and the map-station padding hold nothing the game reads.
     /// </summary>
-    private static uint HashProgression(SharedGameState system)
+    private static PersistentProgress DecodeSlice(byte[] slice)
     {
-        uint hash = 2166136261;
-        foreach (byte value in (byte[])[.. OwnedBytes(SharedGameState.EventByteCount, system.GetEventByteRaw),
-            .. OwnedBytes(SharedGameState.AreaCount, system.GetBossBitsRaw),
-            .. OwnedBytes(SharedGameState.RoomChozoBitByteCount, system.GetRoomChozoByteRaw),
-            .. OwnedBytes(SharedGameState.ItemBitByteCount, system.GetCollectedItemByteRaw),
-            .. OwnedBytes(SharedGameState.DoorBitByteCount, system.GetOpenedDoorByteRaw),
-            .. OwnedBytes(SharedGameState.UsedSaveStationByteCount, system.GetUsedSaveStationByteRaw),
-            .. OwnedBytes(SharedGameState.MapStationByteCount, system.GetMapStationByteRaw)])
-        {
-            hash ^= value;
-            hash *= 16777619;
-        }
-        return hash;
+        var progress = new PersistentProgress();
+        ProgressionTableCodec.ReadFlags(slice.AsSpan(ProgressionSliceLayout.EventsOffset, ProgressionTableCodec.EventByteCount), progress.Events);
+        ProgressionTableCodec.ReadAreaBosses(slice.AsSpan(ProgressionSliceLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount), progress);
+        ProgressionTableCodec.ReadFlags(slice.AsSpan(ProgressionSliceLayout.RoomChozoBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.ChozoOrbs);
+        ProgressionTableCodec.ReadFlags(slice.AsSpan(ProgressionSliceLayout.CollectedItemBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);
+        ProgressionTableCodec.ReadFlags(slice.AsSpan(ProgressionSliceLayout.OpenedDoorBitsOffset, ProgressionTableCodec.RoomFlagByteCount), progress.OpenedDoors);
+        ProgressionTableCodec.ReadUsedStations(slice.AsSpan(ProgressionSliceLayout.UsedSaveStationsOffset, ProgressionTableCodec.UsedStationByteCount), progress);
+        ProgressionTableCodec.ReadAreaMaps(slice.AsSpan(ProgressionSliceLayout.MapStationsOffset, ProgressionTableCodec.MapStationByteCount), progress);
+        return progress;
     }
 
     /// <summary>Loads a SpaceTime-equipped save through both opening paths and checks Ceres restart inventory and progression.</summary>
@@ -287,7 +224,8 @@ internal static class SpacetimeBeamVerification
                 CollectedItems = SamusEquipmentFlags.GravitySuit,
                 LoadingGameState = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.OpeningCinematic),
             };
-            Array.Fill(snapshot.EventBytes, byte.MaxValue);
+            for (int number = 0; number < PersistentProgress.EventCount; number++)
+                snapshot.Progress.Events.Add(number);
             return snapshot;
         }
 
@@ -350,8 +288,7 @@ internal static class SpacetimeBeamVerification
             "SpaceTime Ceres restart retains Super Missiles");
         AssertEqual(3, runtime.Player.IntroducedSamus.PowerBombs,
             "SpaceTime Ceres restart retains Power Bombs");
-        AssertTrue(Enumerable.Range(0, SharedGameState.EventByteCount).All(
-                index => runtime.System.GetEventByteRaw(index) == 0),
+        AssertTrue(!runtime.System.Progress.Events.Members.Any(),
             "SpaceTime Ceres restart begins with fresh progression events");
 
         static void Until(

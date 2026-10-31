@@ -33,14 +33,14 @@ internal static class CeresSaveStartupVerification
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var maps = installation.LoadMaps();
-        var bossFlags = new BossBits[SharedGameState.AreaCount];
-        bossFlags[(int)AreaId.Ceres] = BossBits.AreaBoss;
+        var departureProgress = new PersistentProgress();
+        departureProgress.SetDefeatedBosses(AreaId.Ceres, BossBits.AreaBoss);
         var departure = new SuperMetroidSaveSnapshot
         {
             Area = (ushort)AreaId.Ceres,
             SaveStation = 0,
             LoadingGameState = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.CeresDestruction),
-            BossFlags = bossFlags,
+            Progress = departureProgress,
             Health = 77,
             GameTimeMinutes = 2,
             GameTimeSeconds = 11,
@@ -107,7 +107,7 @@ internal static class CeresSaveStartupVerification
         var arrivalSlot = fresh.Saves.ReadSlot(0);
         AssertEqual(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.CeresElevatorArrival), (arrivalSlot ?? throw new InvalidOperationException("Verification requires arrivalSlot.")).LoadingGameState,
             "#1153 initial automatic save records native mode $1F");
-        AssertEqual((byte)0, arrivalSlot.BossBytes[(int)AreaId.Ceres],
+        AssertEqual(BossBits.None, arrivalSlot.Progression.DefeatedBosses(AreaId.Ceres),
             "#1153 initial checkpoint does not activate the escape");
 
         // Reload the captured initial checkpoint through options, not Load State.
@@ -191,7 +191,7 @@ internal static class CeresSaveStartupVerification
         var escapeSlot = reloadSaves.ReadSlot(0);
         AssertEqual(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.CeresDestruction), (escapeSlot ?? throw new InvalidOperationException("Verification requires escapeSlot.")).LoadingGameState,
             "#1153 escape-blackout saver records native mode $22");
-        AssertEqual((byte)BossBits.AreaBoss, escapeSlot.BossBytes[(int)AreaId.Ceres],
+        AssertEqual(BossBits.AreaBoss, escapeSlot.Progression.DefeatedBosses(AreaId.Ceres),
             "#1153 escape checkpoint retains defeated-Ridley progression");
 
         // Stub only the already-reported landing event, not an entire flight.

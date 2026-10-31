@@ -120,65 +120,59 @@ internal static void VerifyTimedHeldInputTimeline()
 }
 
 /// <summary>
-/// Exercises every allocated event bit and verifies its exact containing byte. This catches
-/// swapped shift/index operations as well as clear-mask width errors.
+/// Exercises every story event number: each is set and cleared on its own, without touching another (#1475).
 /// </summary>
 internal static void VerifyEventBitfield()
 {
     var state = new SharedGameState();
-    for (int eventNumber = 0; eventNumber < SharedGameState.EventByteCount * 8; eventNumber++)
+    NumberedFlags events = state.Progress.Events;
+    for (int eventNumber = 0; eventNumber < PersistentProgress.EventCount; eventNumber++)
     {
-        state.SetEventRaw(eventNumber);
-        AssertTrue(state.HasEventRaw(eventNumber), $"event ${eventNumber:X2} set");
-
-        int expectedByteIndex = eventNumber >> 3;
-        byte expectedMask = (byte)(1 << (eventNumber & 7));
-        AssertEqual(expectedMask, state.GetEventByteRaw(expectedByteIndex), $"event ${eventNumber:X2} byte/mask");
-
-        state.ClearEventRaw(eventNumber);
-        AssertTrue(!state.HasEventRaw(eventNumber), $"event ${eventNumber:X2} clear");
-        AssertEqual(0, state.GetEventByteRaw(expectedByteIndex), $"event ${eventNumber:X2} cleared byte");
+        events.Add(eventNumber);
+        AssertTrue(events.Contains(eventNumber), $"event ${eventNumber:X2} set");
+        AssertTrue(events.Members.SequenceEqual([eventNumber]), $"event ${eventNumber:X2} alone");
+        events.Remove(eventNumber);
+        AssertTrue(!events.Contains(eventNumber), $"event ${eventNumber:X2} clear");
     }
 
-    AssertThrows<ArgumentOutOfRangeException>(() => state.SetEventRaw(-1), "negative raw event rejected");
-    AssertThrows<ArgumentOutOfRangeException>(() => state.SetEventRaw(64), "raw event past allocation rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => events.Add(-1), "negative event number rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => events.Add(PersistentProgress.EventCount), "event number past the game's rejected");
     AssertThrows<ArgumentOutOfRangeException>(
         () => state.SetEvent((EventNumber)0x3f),
         "unnamed event rejected by named API");
     state.SetEvent(EventNumber.TourianUnlocked);
     AssertTrue(state.HasEvent(EventNumber.TourianUnlocked), "named retail event set");
     state.ClearEvent(EventNumber.TourianUnlocked);
-    Console.WriteLine("  Events: all 64 allocated bits set, map, and clear correctly.");
+    Console.WriteLine("  Events: all 64 event numbers set and clear on their own.");
 }
 
 /// <summary>
-/// Verifies that boss masks combine independently in all eight area bytes.
+/// Verifies that boss flags combine independently in all seven areas.
 /// </summary>
 internal static void VerifyBossBitfield()
 {
     var state = new SharedGameState();
-    for (int area = 0; area < SharedGameState.AreaCount; area++)
+    for (int area = 0; area < AreaIds.RetailCount; area++)
     {
         state.SetBossBits(area, BossBits.AreaBoss | BossBits.AreaTorizo);
         AssertTrue(state.HasAnyBossBits(area, BossBits.AreaBoss), $"area {area} boss bit");
         AssertTrue(!state.HasAnyBossBits(area, BossBits.AreaMiniBoss), $"area {area} mini-boss remains clear");
         AssertEqual(BossBits.AreaBoss | BossBits.AreaTorizo, state.GetBossBits(area),
             $"area {area} typed combined mask");
-        AssertEqual(0x05, state.GetBossBitsRaw(area), $"area {area} combined raw mask");
 
         state.ClearBossBits(area, BossBits.AreaTorizo);
-        AssertEqual(0x01, state.GetBossBitsRaw(area), $"area {area} selective clear");
+        AssertEqual(BossBits.AreaBoss, state.GetBossBits(area), $"area {area} selective clear");
     }
 
     AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(-1, BossBits.AreaBoss), "negative area rejected");
-    AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(8, BossBits.AreaBoss), "area past allocation rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(AreaIds.RetailCount, BossBits.AreaBoss), "area past the game's rejected");
     AssertThrows<ArgumentOutOfRangeException>(
         () => state.SetBossBits(0, (BossBits)0x80),
         "unnamed boss bit rejected by typed API");
     AssertThrows<ArgumentOutOfRangeException>(
         () => BossBitMasksConstants.FromCartridge(0x80, "constructed selector"),
         "unnamed cartridge boss mask rejected");
-    Console.WriteLine("  Boss state: all eight area bytes preserve independent masks.");
+    Console.WriteLine("  Boss state: all seven areas keep independent flags.");
 }
 
 /// <summary>

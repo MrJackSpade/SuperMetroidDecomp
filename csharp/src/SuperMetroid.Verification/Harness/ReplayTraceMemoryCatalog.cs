@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Harness;
@@ -224,7 +225,7 @@ internal static class ReplayTraceMemoryCatalog
         WorkRamRange.Between(NativeSnapshotMemory.PaletteBuffer, PaletteBufferEnd),
         WorkRamRange.Words(NativeSnapshotMemory.HudTilemap, HudStateConstants.MutableTileCount),
         WorkRamRange.Between(NativeSnapshotMemory.ScrollStorage,
-            NativeSnapshotMemory.SavedExploredMaps + SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea),
+            NativeSnapshotMemory.SavedExploredMaps + AreaIds.RetailCount * ProgressionTableCodec.ExploredPlaneByteCount),
         WorkRamRange.Between(NativeSnapshotMemory.TrailLeftInstructionTimer, TrailArraysEnd),
         WorkRamRange.Between(NativeSnapshotMemory.Events, ProgressBitsEnd),
         WorkRamRange.Between(NativeSnapshotMemory.PlmInstructionTimer, PlmTimersEnd),

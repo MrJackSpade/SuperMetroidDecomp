@@ -120,18 +120,13 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     for (int index = 0; index < noDataWords.Length; index++)
         WriteRomWord(rom, 0x810000 | (FileSelectTilemapSourceDefinitions.NoData + index * 2), noDataWords[index]);
 
-    // Use two sparse bytes that the real compiled Crateria codec exports. This proves SRAM
-    // persists the packed representation and ReadSlot reconstructs the seven-plane domain
-    // representation without allowing a synthetic ROM to redefine fixed codec metadata.
-    var exploredMap = new byte[
-        SharedGameState.ExploredMapAreaCount *
-        SharedGameState.ExploredMapBytesPerArea];
-    exploredMap[0x07] = 0x80;
-    exploredMap[0x84] = 0x04;
-    var usedSaveStations = new byte[SharedGameState.UsedSaveStationByteCount];
-    usedSaveStations[0] = 0x01;
-    var mapStations = new byte[SharedGameState.MapStationByteCount];
-    mapStations[0] = 0xff;
+    // Two explored Crateria cells in runs the stock map occupies, a used Crateria station and the Crateria map. This
+    // proves a save keeps them and ReadSlot returns them, without a synthetic ROM redefining the stock map.
+    var progress = new PersistentProgress();
+    progress.SetExplored(AreaId.Crateria, new(24, 1), explored: true);
+    progress.SetExplored(AreaId.Crateria, new(37, 1), explored: true);
+    progress.UsedStations(AreaId.Crateria).Add(0);
+    progress.SetAreaMap(AreaId.Crateria, acquired: true);
 
     var addressSpace = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     using var overrideRootScratch = new TestScratchDirectory("file-select-label-fixture");
@@ -183,9 +178,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         MaxHealth = 99,
         GameTimeMinutes = 34,
         GameTimeHours = 12,
-        UsedSaveStationBytes = usedSaveStations,
-        MapStationBytes = mapStations,
-        ExploredMapBytes = exploredMap,
+        Progress = progress,
         Area = 6,
         SaveStation = 0,
     });
@@ -195,10 +188,10 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(99, saved.MaxHealth, "Ceres checkpoint saved maximum health");
     AssertEqual(6, saved.Area, "Ceres checkpoint saved area");
     AssertEqual(0, saved.SaveStation, "Ceres checkpoint saved load station");
-    AssertEqual(0x01, saved.UsedSaveStationBytes[0], "used Crateria save-station bit");
-    AssertEqual(0xff, saved.MapStationBytes[0], "Crateria map-station byte");
-    AssertEqual(0x80, saved.ExploredMapBytes[0x07], "unpacked explored-map first exported byte");
-    AssertEqual(0x04, saved.ExploredMapBytes[0x84], "unpacked explored-map sparse byte");
+    AssertTrue(saved.Progression.UsedStations(AreaId.Crateria).Members.SequenceEqual([0]), "used Crateria save station");
+    AssertTrue(saved.Progression.HasAreaMap(AreaId.Crateria), "Crateria map acquired");
+    AssertTrue(saved.Progression.ExploredCells(AreaId.Crateria).SequenceEqual([new Position16<MapTiles>(24, 1), new Position16<MapTiles>(37, 1)]),
+        "the saved explored cells");
 
     var savedMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation, spriteSheets: MenuSheetFixtures.For(fixturePresentation));
     ReadOnlySpan<ushort> savedTilemap = savedMenu.BackgroundTilemap(fixturePresentation);

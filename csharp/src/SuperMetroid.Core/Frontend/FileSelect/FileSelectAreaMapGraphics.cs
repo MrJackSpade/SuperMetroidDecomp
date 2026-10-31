@@ -112,10 +112,9 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     /// <summary>Builds title and valid used-station labels in display order, highlighting the selected area.</summary>
-    private void PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)
+    private void PrepareLabels(PersistentProgress progress)
     {
-        if (usedStationMasks.Length < FileSelectMapDefinitions.AreaCount)
-            throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
+        Ensure.NotNull(progress);
         ScreenSprites entries = screen.Objects;
         entries.BeginFrame();
         if (labels is null || mapSheet is null)
@@ -127,7 +126,7 @@ public sealed class FileSelectAreaMapGraphics
             if (!AreaIds.IsZebes(area))
                 throw new InvalidDataException("File-select map display table contains an invalid area.");
             int index = AreaIds.ToIndex(area);
-            if (MapSaveMarkers.HasUsedMarker(area, usedStationMasks[index]))
+            if (MapSaveMarkers.HasUsedMarker(area, progress.UsedStations(area)))
                 DrawArea(area, index);
         }
         entries.FinishFrame();
@@ -145,9 +144,9 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     /// <summary>Captures BG1/subscreen math followed by labels, preserving OBJ exclusion from color addition.</summary>
-    public LayeredScene CaptureRenderSnapshot(ReadOnlySpan<ushort> usedStationMasks, AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop)
+    public LayeredScene CaptureRenderSnapshot(PersistentProgress progress, AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop)
     {
-        PrepareLabels(usedStationMasks);
+        PrepareLabels(progress);
         LayeredScene backgrounds = CaptureBackgrounds(colorMath);
         return new(backgrounds.Paint, [.. backgrounds.Layers, new SpritesLayer()], DisplayBrightness.Full);
     }

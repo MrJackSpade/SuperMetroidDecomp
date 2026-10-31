@@ -75,14 +75,12 @@ internal static class MapStationLayoutVerification
         var graphics = new FileSelectRoomMapGraphics(state, AreaId.Brinstar, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var nativePixels = nativeGraphics.Render(new(0, 0), marker);
         AssertTrue(nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "stock station full-menu pixels with ROM layout blocked");
-        byte[] before = Enumerable.Range(0, SharedGameState.ExploredMapBytesPerArea)
-            .Select(i => state.GetExploredMapByteRaw(AreaId.Brinstar, i)).ToArray();
+        Position16<MapTiles>[] before = [.. state.Progress.ExploredCells(AreaId.Brinstar)];
         graphics.BindFixtureArtwork(edited);
         AssertTrue(!nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "edited station changes actual menu pixels after rebind");
         graphics.BindFixtureArtwork(original);
         AssertTrue(nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "station rebind restores stock pixels");
-        AssertTrue(before.SequenceEqual(Enumerable.Range(0, before.Length)
-            .Select(i => state.GetExploredMapByteRaw(AreaId.Brinstar, i)).ToArray()), "layout render/rebind preserves exploration bytes");
+        AssertTrue(before.SequenceEqual(state.Progress.ExploredCells(AreaId.Brinstar)), "layout render/rebind preserves exploration");
         string rebuilt = Path.Combine(overrides, "rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, MapPresentationFiles.Load(rebuilt, overrides).ContentIdentity, "station override survives stock replacement");

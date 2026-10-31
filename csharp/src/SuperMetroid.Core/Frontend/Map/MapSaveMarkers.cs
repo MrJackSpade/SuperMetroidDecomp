@@ -66,12 +66,13 @@ public static class MapSaveMarkers
     }
     /// <summary>$81:A97E DrawAreaSelectMapLabels: at least one used, non-unused save-coordinate slot.</summary>
     /// <param name="area">One of the six Zebes area identities.</param>
-    /// <param name="usedMask">Sixteen native used-station bits, with bit positions matching station slots.</param>
-    /// <returns>True when at least one set bit names a usable marker; bits for unused slots do not reveal an area label.</returns>
-    public static bool HasUsedMarker(AreaId area, int usedMask)
+    /// <param name="usedStations">The area's used save stations and elevators, by station slot.</param>
+    /// <returns>True when a used station has a usable marker; used unused slots do not reveal an area label.</returns>
+    public static bool HasUsedMarker(AreaId area, NumberedFlags usedStations)
     {
+        Ensure.NotNull(usedStations);
         foreach (int index in Indices(area))
-            if ((usedMask & (1 << index)) != 0) return true;
+            if (usedStations.Contains(index)) return true;
         return false;
     }
     /// <summary>Enumerates the complete stable save/elevator marker identity set for editable layout validation, independent of player discovery.</summary>

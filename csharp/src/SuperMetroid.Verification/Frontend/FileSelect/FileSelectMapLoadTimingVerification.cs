@@ -25,8 +25,8 @@ internal static class FileSelectMapLoadTimingVerification
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
-        save.MapStationBytes[4] = 1;
-        save.UsedSaveStationBytes[8] = 1;
+        save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true);
+        save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(0, save);
         var game = CreateRetailGameFixture(saves);

@@ -33,7 +33,7 @@ internal static class RetailFileMapTests
             foreach (ushort used in new ushort[] { 0, 1, ushort.MaxValue })
             {
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
-                Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(masks, backdrop ? AreaMapColorMath.WithBackdrop : AreaMapColorMath.ForegroundOnly), $"area={area}, labels/backdrop");
+                Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(FileSelectMapGraphicsPixelsAccess.UsedStations(masks), backdrop ? AreaMapColorMath.WithBackdrop : AreaMapColorMath.ForegroundOnly), $"area={area}, labels/backdrop");
             }
             var room = new FileSelectRoomMapGraphics(new SharedGameState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly), "frame-only");
@@ -44,7 +44,7 @@ internal static class RetailFileMapTests
         {
             var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create(bus));
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
-            save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
+            save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
             saves.SaveSlot(0, save);
             var legacy = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));
             var captured = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, InstalledFixtures.Maps, MenuSheetFixtures.For(InstalledFixtures.Maps));

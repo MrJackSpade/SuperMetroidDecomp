@@ -28,7 +28,7 @@ internal static class MapAtlasVerification
         for (int i = 0; i < source.Length; i++) AssertEqual(source[i], vram.ReadByte(i), "stock PNG recompiles exact map tile bytes");
         var guard = NewMapDataGuard(bus, rules);
         var system = new SharedGameState();
-        system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
+        system.Progress.ExploreEveryCell();
         var menu = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });

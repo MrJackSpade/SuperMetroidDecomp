@@ -4,38 +4,39 @@ using SuperMetroid.Core.Saves;
 namespace SuperMetroid.Verification.Runtime;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks how boot SRAM comparison carry affects earthquake sound timer reloads.</summary>
+/// <summary>Checks how the save file found at power-on lengthens the earthquake rumble's delay (#1475).</summary>
 internal static class MainGameLoopCarryVerification
 {
     /// <summary>
-    /// Confirms the boot comparison's carry survives into the earthquake timer ADC,
-    /// preserving the native rumble cadence and following sound-queue wait.
+    /// Confirms each power-on case of <see cref="PowerOnEarthquakeSoundDelay"/> (no valid save, a valid save without the
+    /// completion mark, a completed game) and that the rumble's delay reload adds its frame, preserving the native rumble
+    /// cadence.
     /// </summary>
     internal static void VerifyMainGameLoopCarry()
     {
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        AssertTrue(saveRam.DetermineBootMainLoopCarry(), "blank SRAM: the third LoadFromSRAM's carry survives");
+        AssertEqual(1, saveRam.EarthquakeSoundDelayAtPowerOn().ExtraFrames, "no valid save: power-on adds a frame");
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot());
         saveRam.SetGameCompleted(false);
-        AssertTrue(!saveRam.DetermineBootMainLoopCarry(), "a valid slot without the marker: zero is below 'id'");
+        AssertEqual(0, saveRam.EarthquakeSoundDelayAtPowerOn().ExtraFrames, "a valid save without the mark adds none");
         saveRam.SetGameCompleted(true);
-        AssertTrue(saveRam.DetermineBootMainLoopCarry(), "the full marker leaves the final comparison's carry set");
+        AssertEqual(1, saveRam.EarthquakeSoundDelayAtPowerOn().ExtraFrames, "a completed game adds a frame");
 
-        foreach (bool carry in new[] { true, false })
+        foreach (PowerOnEarthquakeSoundDelay delay in new[] { PowerOnEarthquakeSoundDelay.OneFrame, PowerOnEarthquakeSoundDelay.None })
         {
             var stateSession = new RoomFxSession();
             var state = new RoomLayer3FxState(stateSession);
             state.EarthquakeSoundTimer = WrappingCountdown.Start(0);
             state.EarthquakeSoundSequenceIndex = 0;
-            // Native update 330722: the first entry (base 1) with RNG & 3 = 0 reloads to 2.
-            state.PublishStatueEarthquakeSound(0xac0c, carry);
-            AssertEqual((ushort)(carry ? 2 : 1), state.EarthquakeSoundTimer.RawValue,
-                $"earthquake reload with main-loop carry {carry}");
+            // Native update 330722: the first entry (base 1) with RNG & 3 = 0 reloads to 2 when the carry is set.
+            state.PublishStatueEarthquakeSound(0xac0c, delay);
+            AssertEqual((ushort)(1 + delay.ExtraFrames), state.EarthquakeSoundTimer.RawValue,
+                $"earthquake reload with {delay.ExtraFrames} power-on frames");
         }
-        Console.WriteLine("Main-loop carry: boot SRAM decides it, and the earthquake timer reload adds it.");
+        Console.WriteLine("Power-on rumble delay: the save file decides it, and the earthquake timer reload adds it.");
     }
 
-    /// <summary>Runs the focused boot-carry and quake-timer check.</summary>
+    /// <summary>Runs the focused power-on rumble delay check.</summary>
     [VerificationCommand("--main-game-loop-carry")]
     internal static int MainGameLoopCarryCommand()
     {

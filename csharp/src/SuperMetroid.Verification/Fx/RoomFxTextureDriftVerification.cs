@@ -57,7 +57,7 @@ internal static class RoomFxTextureDriftVerification
         static ushort WholePixels(ushort accumulator) => unchecked((ushort)(sbyte)LittleEndianBytes.HighByte(accumulator));
 
         static RoomLayer3FxFrame Frame() =>
-            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = false };
+            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None };
     }
 
     /// <summary>A room-FX owner loaded from a synthetic record of <paramref name="type"/> with the installed presentation.</summary>

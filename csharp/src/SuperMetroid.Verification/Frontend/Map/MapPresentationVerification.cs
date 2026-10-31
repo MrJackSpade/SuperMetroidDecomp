@@ -1351,7 +1351,7 @@ internal static class MapPresentationVerification
     private static void VerifyFileSelectMapCatalog(AreaMapPresentation original, AreaMapPresentation edited)
     {
         var system = new SharedGameState();
-        system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
+        system.Progress.ExploreEveryCell();
         var stock = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system,
             AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system, AreaId.Crateria,

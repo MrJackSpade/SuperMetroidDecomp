@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Progression;
 /// The backing table has room for 64 event bits, but the original game names only these.
 /// </summary>
 /// <remarks>
-/// These values are bit indices in the persistent eight-byte event table at
-/// <c>$7E:D820-$7E:D827</c>, not composable masks. <c>MarkEvent_inA</c> sets the
-/// corresponding bit; save/load preserves it independently of the area boss bits.
+/// These are story events, not composable masks: <see cref="PersistentProgress.Events"/> records which have happened,
+/// by the number the game gives each (<see cref="EventNumberCodec"/>), and saves keep them independently of the area
+/// bosses.
 /// </remarks>
 public enum EventNumber
 {

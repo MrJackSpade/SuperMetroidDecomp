@@ -1093,15 +1093,11 @@ internal sealed class RoomLoader
     {
         AreaId areaIndex = Ensure.NotNull(room).AreaIndex;
 
-        // RoomStateSelectionContext owns an immutable snapshot. Copying eight bytes is both
-        // cheaper and safer than exposing SharedGameState's writable SRAM-mirror arrays.
-        var events = new byte[SharedGameState.EventByteCount];
-        for (int byteIndex = 0; byteIndex < events.Length; byteIndex++)
-            events[byteIndex] = _system.GetEventByteRaw(byteIndex);
-
+        // RoomStateSelectionContext owns a detached copy of the events, so selection never
+        // observes or changes the live progress.
         SamusState? samus = _player.Samus;
         var selection = new RoomStateSelectionContext(
-            events,
+            _system.Progress.Events.Copy(),
             BossBits: _system.GetBossBits(areaIndex),
             HasMorphBallAndMissiles:
                 samus is not null &&

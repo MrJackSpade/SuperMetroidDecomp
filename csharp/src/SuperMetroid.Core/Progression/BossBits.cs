@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Bits in each area's byte at SRAM mirror <c>$7E:D828-$7E:D82F</c>.
+/// The bosses defeated in one area: its area boss, its mini-boss and its Torizo.
 /// </summary>
 [Flags]
 public enum BossBits

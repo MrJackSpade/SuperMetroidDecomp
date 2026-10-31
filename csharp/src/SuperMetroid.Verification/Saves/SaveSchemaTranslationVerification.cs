@@ -32,6 +32,14 @@ internal static class SaveSchemaTranslationVerification
         var ram = new SaveSlotStore(RetailPresentationFixture());
         var samus = new SamusState(InstalledFixtures.AnimationContinuation) { ReserveMissiles = 27 };
         var system = new SharedGameState { LoadedItemCount = 65535 };
+        // Progress in every set schema two listed by table position, so its upgrade is exercised (#1475).
+        system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss | BossBits.AreaTorizo);
+        system.MarkSaveStationUsed(AreaId.Norfair, 3);
+        system.Progress.UsedStations(AreaId.Maridia).Add(12);
+        system.SetAreaMapAcquired(AreaId.WreckedShip);
+        system.SetCollectedItemBit(23);
+        system.SetOpenedDoorBit(31);
+        system.SetRoomChozoBit(17);
         ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = 0, SaveStation = 0, JapaneseText = true }));
         ram.SetGameCompleted(true);
         ram.SelectSlot(0);
@@ -55,9 +63,20 @@ internal static class SaveSchemaTranslationVerification
 
         Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(ram));
 
+        // A schema-two save lists bosses by the eight area slots, stations and maps by table bit; it upgrades to the same store.
+        JsonObject schemaTwo = RequiredJson.Parse(json).AsObject();
+        schemaTwo["schemaVersion"] = 2;
+        ToSchemaTwoProgression(schemaTwo);
+        GameSaveJsonDocument upgradedTwo = LegacyGameSaveJson.Deserialize(schemaTwo.ToJsonString(), "game save", out bool migratedTwo);
+        AssertTrue(migratedTwo, "a schema-two save is upgraded");
+        AssertEqual(GameSaveJsonFormat.SchemaVersion, upgradedTwo.SchemaVersion, "schema two becomes the current schema");
+        AssertSameBytes(SaveRamCodec.Encode(GameSaveJsonCodec.ToStore(upgradedTwo, RetailPresentationFixture()), RetailPresentationFixture()),
+            SaveRamCodec.Encode(ram, RetailPresentationFixture()), "a schema-two save upgrades to the same saves");
+
         // Build a genuine old envelope independently: old named fields override its raw mirror.
         JsonObject legacy = RequiredJson.Parse(json).AsObject();
         legacy["schemaVersion"] = 1;
+        ToSchemaTwoProgression(legacy);
         legacy.Remove("gameCompleted");
         JsonObject slot = legacy.Required("slots").Required(0).AsObject();
         slot.Remove("japaneseText"); slot.Remove("loadedItemCount");
@@ -71,7 +90,7 @@ internal static class SaveSchemaTranslationVerification
         legacy["preservedUntranslatedSram"] = pages;
         string oldJson = legacy.ToJsonString();
         var upgraded = LegacyGameSaveJson.Deserialize(oldJson, "game save", out _);
-        AssertEqual(2, upgraded.SchemaVersion, "schema-one import becomes schema two");
+        AssertEqual(GameSaveJsonFormat.SchemaVersion, upgraded.SchemaVersion, "schema-one import becomes the current schema");
         SaveSlotStore importedSaves = GameSaveJsonCodec.ToStore(upgraded, RetailPresentationFixture());
         var imported = importedSaves.ReadSlot(0);
         AssertEqual(42, (imported ?? throw new InvalidOperationException("Verification requires imported.")).Health, "legacy named health overrides stale raw image");
@@ -106,6 +125,46 @@ internal static class SaveSchemaTranslationVerification
         finally { Directory.Delete(fixtureDirectory, recursive: true); }
         Console.WriteLine("Schema two: named missing state, runtime restoration, legacy JSON conversion, precedence, padding removal, strict failures and backed-up upgrade pass.");
     }
+    /// <summary>
+    /// Rewrites each slot's current progression lists as schema two wrote them: bosses for eight area slots, used stations
+    /// as bit positions of the sixteen-byte station table, acquired maps as every bit of each area's map-station byte, and
+    /// the orb, item and door lists under their schema-two names.
+    /// </summary>
+    private static void ToSchemaTwoProgression(JsonObject root)
+    {
+        foreach (JsonNode? slotNode in root.Required("slots").AsArray())
+        {
+            if (slotNode is null) continue;
+            JsonObject progression = slotNode.Required("progression").AsObject();
+            var bosses = new JsonArray();
+            foreach (JsonNode? entry in progression.Required("defeatedBosses").AsArray())
+                bosses.Add(entry?.Required("bosses").DeepClone());
+            bosses.Add("none");
+            var stations = new JsonArray();
+            foreach (JsonNode? entry in progression.Required("usedStations").AsArray())
+            {
+                int area = AreaIds.ToIndex(Enum.Parse<AreaId>(entry?.Required("area").GetValue<string>() ?? "", ignoreCase: true));
+                foreach (JsonNode? station in entry?.Required("stations").AsArray() ?? [])
+                    stations.Add(area * PersistentProgress.StationsPerArea + (station?.GetValue<int>() ?? 0));
+            }
+            var maps = new JsonArray();
+            foreach (JsonNode? entry in progression.Required("acquiredMaps").AsArray())
+            {
+                int area = AreaIds.ToIndex(Enum.Parse<AreaId>(entry?.GetValue<string>() ?? "", ignoreCase: true));
+                for (int bit = 0; bit < 8; bit++)
+                    maps.Add(area * 8 + bit);
+            }
+            progression["roomChozoBits"] = progression.Required("brokenChozoOrbs").DeepClone();
+            progression["collectedItemBits"] = progression.Required("collectedItems").DeepClone();
+            progression["openedDoorBits"] = progression.Required("openedDoors").DeepClone();
+            foreach (string name in new[] { "defeatedBosses", "usedStations", "acquiredMaps", "brokenChozoOrbs", "collectedItems", "openedDoors" })
+                progression.Remove(name);
+            progression["bossFlagsByAreaIndex"] = bosses;
+            progression["usedSaveStationBits"] = stations;
+            progression["acquiredMapStationBits"] = maps;
+        }
+    }
+
     /// <summary>Confirms translated completion and item-load fields are consumed by the live frontend.</summary>
     private static void VerifyNamedSaveRuntime(SaveSlotStore ram)
     {

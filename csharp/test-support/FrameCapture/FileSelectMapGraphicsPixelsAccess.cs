@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
@@ -8,9 +9,12 @@ internal static class FileSelectMapGraphicsPixelsAccess
     /// <summary>The area map's published pixels.</summary>
     extension(FileSelectAreaMapGraphics graphics)
     {
-        /// <summary>Captures the area map for the visited-station masks and draws it with the game's renderer.</summary>
+        /// <summary>
+        /// Captures the area map for the visited stations, each area's given as a mask of its station numbers by area
+        /// index, and draws it with the game's renderer.
+        /// </summary>
         internal RgbaPixel[] Render(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true) =>
-            FrontendScenePixelsAccess.Pixels(graphics.CaptureRenderSnapshot(usedStationMasks, ColorMath(includeBackdropInColorMath)));
+            FrontendScenePixelsAccess.Pixels(graphics.CaptureRenderSnapshot(UsedStations(usedStationMasks), ColorMath(includeBackdropInColorMath)));
 
         /// <summary>
         /// The area map's BG1 foreground with its additive BG3 background and no labels, drawn with the game's renderer.
@@ -35,6 +39,21 @@ internal static class FileSelectMapGraphicsPixelsAccess
         /// <param name="scroll">The map's scroll in pixels.</param>
         internal RgbaPixel[] RenderBackgrounds(Position16<MapPixels> scroll) =>
             FrontendScenePixelsAccess.Pixels(graphics.CaptureRenderSnapshot(scroll));
+    }
+
+    /// <summary>Progress whose used stations are the stations each area's mask, by area index, names.</summary>
+    internal static PersistentProgress UsedStations(ReadOnlySpan<ushort> usedStationMasks)
+    {
+        var progress = new PersistentProgress();
+        for (int area = 0; area < usedStationMasks.Length; area++)
+        {
+            for (int station = 0; station < PersistentProgress.StationsPerArea; station++)
+            {
+                if ((usedStationMasks[area] & (1 << station)) != 0)
+                    progress.UsedStations(AreaIds.At(area)).Add(station);
+            }
+        }
+        return progress;
     }
 
     /// <summary>The area map's colour math: whether its background is also added to the backdrop.</summary>

@@ -55,8 +55,9 @@ internal static class MapSaveMarkersVerification
             AssertTrue(expectedIndices.SequenceEqual(MapSaveMarkers.Indices((AreaId)area)),
                 "lazy enumeration preserves native ascending station order");
             for (int mask = 0; mask <= ushort.MaxValue; mask++)
-                AssertEqual((mask & nativeMask) != 0, MapSaveMarkers.HasUsedMarker((AreaId)area, (ushort)mask),
-                    "every used-station mask retains native area-label eligibility");
+                AssertEqual((mask & nativeMask) != 0, MapSaveMarkers.HasUsedMarker((AreaId)area,
+                        FileSelectMapGraphicsPixelsAccess.UsedStations([(ushort)mask]).UsedStations(AreaId.Crateria)),
+                    "every set of used stations retains native area-label eligibility");
             foreach (int invalid in new[] { int.MinValue, -1, 16, 256, int.MaxValue })
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.IsUsable((AreaId)area, invalid),
@@ -71,7 +72,7 @@ internal static class MapSaveMarkersVerification
         {
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = MapSaveMarkers.Indices(invalid); },
                 "invalid area rejects without enumerating the lazy sequence");
-            AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.HasUsedMarker(invalid, 0),
+            AssertThrows<ArgumentOutOfRangeException>(() => MapSaveMarkers.HasUsedMarker(invalid, new NumberedFlags(PersistentProgress.StationsPerArea)),
                 "invalid area rejects even an empty used mask");
             try
             {
@@ -128,8 +129,8 @@ internal static class MapSaveMarkersVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "save marker edit changes content identity");
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
-        snapshot.MapStationBytes[(int)AreaId.Maridia] = 1;
-        snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
+        snapshot.Progress.SetAreaMap(AreaId.Maridia, acquired: true);
+        snapshot.Progress.UsedStations(AreaId.Maridia).Add(0);
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
         var control = new FileSelectMapMenuState(new AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));

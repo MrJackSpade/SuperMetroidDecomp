@@ -170,17 +170,18 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoorBit(cap.DoorBit);
 
     /// <summary>
-    /// <c>$84:8A91</c> at its threshold: records the door bit, leaves the spent door-bit word as the argument and
+    /// <c>$84:8A91</c> at its threshold: records the door as opened, leaves the opened doors of its window as the argument and
     /// replaces the shot wake with the inert pre-instruction.
     /// </summary>
     internal void MarkDoorOpened(PlmSlot slot)
     {
         if (slot.Argument is DoorBitArgument { Persists: true } cap)
         {
-            // The native routine leaves the door-bit window it just updated in the argument, marked spent.
+            // The cap keeps the opened doors of the window it just updated, marked spent.
             SharedGameState system = RequireSystem();
             system.SetOpenedDoorBit(cap.DoorBit);
-            slot.Argument = new SpentDoorArgument(system.GetOpenedDoorWordRaw(cap.DoorBit / 8));
+            int firstDoor = SpentDoorArgument.FirstDoorOfWindow(cap.DoorBit);
+            slot.Argument = new SpentDoorArgument(firstDoor, system.OpenedDoorsFrom(firstDoor, SpentDoorArgument.WindowDoorCount));
         }
         slot.PreInstruction = PlmPreInstructions.Inert;
     }

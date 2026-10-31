@@ -706,7 +706,7 @@ internal static class LookupStream5Verification
             }
             actual.FinishFrame(); expected.FinishFrame();
             AssertTrue(actual.ImageEquals(expected), "Actual native ordered landmark OAM");
-            AssertEqual(defeated ? (byte)1 : (byte)0, system.GetBossBitsRaw(area), "Drawing preserves boss bits");
+            AssertEqual(defeated ? BossBits.AreaBoss : BossBits.None, system.GetBossBits(area), "Drawing preserves boss bits");
             AssertEqual(downloaded, system.HasAreaMap(area), "Drawing preserves map state");
             void Draw(MapSpriteId id, int x, int y, ScreenColourGroup colouring) => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(sprites), id, expected, new(unchecked((ushort)(x + adjustment - 7)), unchecked((ushort)(y + adjustment - 9))), colouring);
         }

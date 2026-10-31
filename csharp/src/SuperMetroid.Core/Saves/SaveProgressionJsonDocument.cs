@@ -3,30 +3,30 @@ using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Saves;
 
-/// <summary>Named bit-index lists retain every persistent progression plane without Base64.</summary>
+/// <summary>A save slot's persistent progress, each set listed by its own identities (schema three, #1475).</summary>
 public sealed record SaveProgressionJsonDocument
 {
-    /// <summary>Canonical names of set global event bits; unknown numeric bits are rejected by the JSON codec.</summary>
+    /// <summary>The story events that have happened: a retail event's name, or <c>0xNN</c> for an event the game does not name.</summary>
     public required string[] Events { get; init; }
 
-    /// <summary>One composable boss-state byte for each native area index.</summary>
-    public required BossBits[] BossFlagsByAreaIndex { get; init; }
+    /// <summary>Each area's defeated bosses, one entry per area in area order.</summary>
+    public required SaveAreaBossesJsonDocument[] DefeatedBosses { get; init; }
 
-    /// <summary>Set bit indices in the 64-byte room Chozo-orb persistence plane.</summary>
-    public required int[] RoomChozoBits { get; init; }
+    /// <summary>The Chozo orbs broken open, by room-data number, ascending.</summary>
+    public required int[] BrokenChozoOrbs { get; init; }
 
-    /// <summary>Set bit indices in the 64-byte collected-item persistence plane.</summary>
-    public required int[] CollectedItemBits { get; init; }
+    /// <summary>The item locations collected, by room-data number, ascending.</summary>
+    public required int[] CollectedItems { get; init; }
 
-    /// <summary>Set bit indices in the 64-byte opened-door persistence plane.</summary>
-    public required int[] OpenedDoorBits { get; init; }
+    /// <summary>The coloured doors opened for good, by room-data number, ascending.</summary>
+    public required int[] OpenedDoors { get; init; }
 
-    /// <summary>Set bit indices in the 16-byte save-station and elevator persistence plane.</summary>
-    public required int[] UsedSaveStationBits { get; init; }
+    /// <summary>Each area's used save stations and elevators, one entry per area in area order.</summary>
+    public required SaveAreaStationsJsonDocument[] UsedStations { get; init; }
 
-    /// <summary>Set bit indices in the 12-byte acquired-map-station persistence plane.</summary>
-    public required int[] AcquiredMapStationBits { get; init; }
+    /// <summary>The areas whose map has been acquired, in area order.</summary>
+    public required AreaId[] AcquiredMaps { get; init; }
 
-    /// <summary>Explored map cells grouped by the six persisted Zebes areas.</summary>
+    /// <summary>Explored map cells, one entry per area in area order.</summary>
     public required ExploredAreaJsonDocument[] ExploredAreas { get; init; }
 }

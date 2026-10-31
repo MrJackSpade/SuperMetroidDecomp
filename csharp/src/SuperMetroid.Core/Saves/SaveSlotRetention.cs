@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Saves;
 
 /// <summary>
 /// What a saved slot keeps of a snapshot (#1421): <c>SaveToSRAM</c> stores and <c>LoadFromSRAM</c> reads back the
-/// snapshot's fields as their saved words, so every value is checked as the save stores it and the explored map keeps
-/// only the bytes a stock map tile occupies.
+/// snapshot's fields as their saved words, so every value is checked as the save stores it, and the explored map keeps
+/// only the runs of cells the stock map occupies (<see cref="ExploredMapStorage"/>).
 /// </summary>
 [EncodingOwner("save slot words")]
 internal static class SaveSlotRetention
@@ -34,17 +34,10 @@ internal static class SaveSlotRetention
         ushort debugFlag = SaveFieldValue.Encode(snapshot.DebugFlag, nameof(snapshot.DebugFlag));
         ushort newFileMarker = SaveFieldValue.Encode(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker));
 
-        RequireLength(snapshot.EventBytes, SharedGameState.EventByteCount, "A save snapshot requires exactly eight event bytes.");
-        RequireLength(snapshot.BossFlags, SharedGameState.AreaCount, "A save snapshot requires exactly eight area-boss flag sets.");
-        RequireLength(snapshot.RoomChozoBytes, SharedGameState.RoomChozoBitByteCount, "A save snapshot requires exactly 64 room-Chozo bytes.");
-        RequireLength(snapshot.CollectedItemBytes, SharedGameState.ItemBitByteCount, "A save snapshot requires exactly 64 collected-item bytes.");
-        RequireLength(snapshot.OpenedDoorBytes, SharedGameState.DoorBitByteCount, "A save snapshot requires exactly 64 opened-door bytes.");
-        RequireLength(snapshot.UsedSaveStationBytes, SharedGameState.UsedSaveStationByteCount, "A save snapshot requires exactly 16 used save/elevator bytes.");
-        RequireLength(snapshot.MapStationBytes, SharedGameState.MapStationByteCount, "A save snapshot requires exactly 12 map-station bytes.");
         ushort loadingGameState = SaveFieldValue.Encode(snapshot.LoadingGameState, nameof(snapshot.LoadingGameState));
         ushort saveStation = SaveFieldValue.Encode(snapshot.SaveStation, nameof(snapshot.SaveStation));
         ushort area = SaveFieldValue.Encode(snapshot.Area, nameof(snapshot.Area));
-        byte[] exploredMap = ExploredMapStorage.Retained(snapshot.ExploredMapBytes, maps);
+        PersistentProgress progression = ExploredMapStorage.Retained(snapshot.Progress, maps);
 
         return new SuperMetroidSaveSlot(
             Slot: slot,
@@ -68,14 +61,7 @@ internal static class SaveSlotRetention
             GameTimeSeconds: gameTimeSeconds,
             GameTimeMinutes: gameTimeMinutes,
             GameTimeHours: gameTimeHours,
-            EventBytes: snapshot.EventBytes.ToArray(),
-            BossBytes: [.. snapshot.BossFlags.Select(flags => (byte)flags)],
-            RoomChozoBytes: snapshot.RoomChozoBytes.ToArray(),
-            CollectedItemBytes: snapshot.CollectedItemBytes.ToArray(),
-            OpenedDoorBytes: snapshot.OpenedDoorBytes.ToArray(),
-            UsedSaveStationBytes: snapshot.UsedSaveStationBytes.ToArray(),
-            MapStationBytes: snapshot.MapStationBytes.ToArray(),
-            ExploredMapBytes: exploredMap,
+            Progression: progression,
             LoadingGameState: loadingGameState,
             SaveStation: saveStation,
             Area: area)
@@ -93,11 +79,4 @@ internal static class SaveSlotRetention
 
     /// <summary>A quantity as the save keeps it: checked against the saved word's range.</summary>
     private static int Kept(int quantity) => SamusQuantity.Decode(SamusQuantity.Encode(quantity));
-
-    /// <summary>Rejects a snapshot array of the wrong length.</summary>
-    private static void RequireLength<T>(T[] values, int length, string message)
-    {
-        if (values.Length != length)
-            throw new InvalidDataException(message);
-    }
 }

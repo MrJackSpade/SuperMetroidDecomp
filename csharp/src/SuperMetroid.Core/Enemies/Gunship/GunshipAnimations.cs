@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
-/// The gunship hull's and entrance pad's typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// The gunship hull's and entrance pad's typed programs (#641). Each
 /// frame shows a <see cref="GunshipFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class GunshipAnimations
@@ -70,7 +70,7 @@ internal static class GunshipAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue> FallInto(GunshipProgram program) => AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue> Hold => AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>.Hold;
 
 }

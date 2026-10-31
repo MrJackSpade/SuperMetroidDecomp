@@ -29,10 +29,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int BrinstarPipeBugTriggerWidth = 64;
     /// <summary>Vertical band above a Brinstar bug in which Samus can trigger emergence.</summary>
     private const int BrinstarPipeBugTriggerTop = 96;
-    /// <summary>Native wait before an offscreen Brinstar bug may emerge again.</summary>
+    /// <summary>Wait before an offscreen Brinstar bug may emerge again.</summary>
     private const int BrinstarPipeBugRespawnFrames = 48;
 
-    /// <summary>Leader plus four consecutive followers addressed by Norfair's native routine.</summary>
+    /// <summary>Leader plus four consecutive followers addressed by Norfair's routine.</summary>
     private const int NorfairFormationSize = 5;
 
     /// <summary>Forward horizontal range that wakes a yellow pipe bug.</summary>
@@ -46,7 +46,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>First quadratic-speed index for the yellow bug's vertical arc.</summary>
     private const int YellowPipeBugArcCounterStart = 40;
 
-    /// <summary>Ports <c>BrinstarPipeBug_Init</c> at $B3:883B.</summary>
+    /// <summary>Ports <c>BrinstarPipeBug_Init</c>.</summary>
     internal static void InitializeBrinstarPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
@@ -61,7 +61,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             PipeBugAnimationSelector.RisingFacingLeft));
     }
 
-    /// <summary>Ports <c>NorfairPipeBug_Init</c> at $B3:8B61.</summary>
+    /// <summary>Ports <c>NorfairPipeBug_Init</c>.</summary>
     internal static void InitializeNorfairPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
@@ -75,7 +75,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = PipeBugEnemyFunction.NorfairWaitForFormation;
     }
 
-    /// <summary>Ports <c>BrinstarYellowPipeBug_Init</c> at $B3:8F4C.</summary>
+    /// <summary>Ports <c>BrinstarYellowPipeBug_Init</c>.</summary>
     internal static void InitializeYellowPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
@@ -96,7 +96,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ArcCompleted = false;
     }
 
-    /// <summary>Dispatches the three bank-$B3 main routines and every indirect target.</summary>
+    /// <summary>Dispatches the three main routines and every indirect target.</summary>
     private void RunPipeBugMain(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -106,7 +106,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case PipeBugEnemyFunction.BrinstarWaitUntilOnScreen:
-                // The poorly named native CheckIfEnemyIsOnScreen returns zero when the
+                // The poorly named CheckIfEnemyIsOnScreen returns zero when the
                 // origin is visible. $B3:8880 branches on that zero result, so this initial
                 // state arms the proximity check on-screen, not after a despawn boundary.
                 if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
@@ -230,7 +230,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SelectBrinstarPipeBugAnimation(slot, state);
     }
 
-    /// <summary>Applies the native fractional Y decrement until the bug rises above Samus and switches to horizontal flight.</summary>
+    /// <summary>Applies the fractional Y decrement until the bug rises above Samus and switches to horizontal flight.</summary>
     private static void RunBrinstarPipeBugEmergence(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -415,7 +415,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// <c>ResetEnemyIfOffScreen</c> ($B3:8BA8) tests the bare enemy center with
+    /// <c>ResetEnemyIfOffScreen</c> tests the bare enemy center with
     /// <c>CheckIfEnemyCenterIsOnScreen</c>, not the sprite-padded visibility check.
     /// </summary>
     private static void ResetNorfairPipeBugIfOffScreen(
@@ -497,7 +497,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Advances yellow flight and begins its single quadratic arc after passing Samus by the native threshold.</summary>
+    /// <summary>Advances yellow flight and begins its single quadratic arc after passing Samus by the threshold.</summary>
     private static void RunYellowPipeBugStraightFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -540,7 +540,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         AddYellowPipeBugHorizontalVelocity(slot, state, direction == HorizontalDirection.Left);
         if (state.ArcRising)
         {
-            // The cartridge decrements and ends the rise when the record would go below zero, holding it at zero; the
+            // The game decrements and ends the rise when the record would go below zero, holding it at zero; the
             // count never goes below zero, so the end is tested before the decrement.
             if (state.ArcCounter == 0)
             {

@@ -2,12 +2,12 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
-/// The state of Oum, with its ten family-extra values. The values the cartridge keeps in the enemy's common record are
+/// The state of Oum, with its ten family-extra values. The values the game keeps in the enemy's common record are
 /// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class MaridiaLargeSnailEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<MaridiaLargeSnailProgram> Program { get; set; }
 
     /// <summary>
@@ -25,7 +25,7 @@ public sealed class MaridiaLargeSnailEnemyState
 
     /// <summary>
     /// Extra word $03: set only during the rolling frames where Oum may turn into its next
-    /// attack. The native name is "attack allowing rotation flag"; it is not a hitbox flag.
+    /// attack. The name is "attack allowing rotation flag"; it is not a hitbox flag.
     /// </summary>
     public bool AttackAllowsRotation { get; internal set; }
 
@@ -71,7 +71,7 @@ public sealed class MaridiaLargeSnailEnemyState
     /// <summary>Falling/rising half of the quadratic bounce; none once a kill has emptied the record.</summary>
     public MaridiaLargeSnailBounceFunction? BounceFunction { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

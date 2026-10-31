@@ -15,7 +15,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FirefleaEntity(slot, common);
 
-    /// <summary>Runs common touch handling before Fireflea's unconditional native death call.</summary>
+    /// <summary>Runs common touch handling before Fireflea's unconditional death call.</summary>
     private readonly EnemyCollision _collision;
     /// <summary>Starts explosion and drop processing, including the retail second-death path.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -30,14 +30,14 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         _roomStatus = roomStatus;
     }
 
-    /// <summary>Ports <c>InitAI_Fireflea</c> at <c>$A3:8D2D</c>, decoding motion parameters and the retail initial-circle angle bug.</summary>
+    /// <summary>Ports <c>InitAI_Fireflea</c>, decoding motion parameters and the retail initial-circle angle bug.</summary>
     internal static void InitializeFireflea(RoomEnemySlot slot)
     {
         var state = new FirefleaEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop);
 
-        // Parameter one is native `init0`: bit one selects circle versus vertical motion,
+        // Parameter one: bit one selects circle versus vertical motion,
         // bit zero selects the sign half of the speed table, and its high byte is the initial
         // circle angle. Parameter two (`init1`) packs speed index low and radius index high.
         FirefleaSpawnSettings settings = slot.SpawnSettings<FirefleaSpawnSettings>();
@@ -66,7 +66,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MaximumYExtent = spawnY + reach;
     }
 
-    /// <summary>Ports <c>MainAI_Fireflea</c> at <c>$A3:8DEE</c>, advancing circular angle or wrapped vertical travel.</summary>
+    /// <summary>Ports <c>MainAI_Fireflea</c>, advancing circular angle or wrapped vertical travel.</summary>
     private static void RunFirefleaMain(RoomEnemySlot slot, FirefleaEnemyState state)
     {
         if (state.UsesCircularMovement)
@@ -82,7 +82,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Position = slot.Position.AdvanceY(EnemyLinearSpeeds.Row(state.SpeedRow).Toward(state.SpeedSign));
 
-        // Native CMP/BMI and CMP/BPL consume wrapped signed subtraction, not ordinary host
+        // The bounds compare by the sign of the wrapped subtraction, not ordinary host
         // bounds comparisons. The actor is intentionally allowed to overshoot before its
         // speed reverses to the row's other sign.
         bool crossedMinimum = (slot.Position.Whole - state.MinimumYExtent).Y < 0;
@@ -100,7 +100,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     };
 
     /// <summary>
-    /// Ports Fireflea touch AI at $A3:8E6B, including its retail double-death bug. The
+    /// Ports Fireflea touch AI, including its retail double-death bug. The
     /// private handler calls common touch AI and then calls <c>EnemyDeath</c> unconditionally:
     /// normal contact therefore kills an otherwise healthy Fireflea, while Screw Attack and
     /// similar contact attacks can increment the room kill count twice.
@@ -111,15 +111,15 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _collision.ResolveNormalEnemyTouch(slot, samus);
 
-        // With ordinary contact, native A still contains the surviving health ($A0:A480).
+        // With ordinary contact, the game still holds the surviving health.
         // EnemyDeath clamps values above four to the small explosion. Queue that real
         // death program before clearing the actor so its artwork and sound can run.
         if (slot.DefinitionId != EnemyDefinitionId.None)
             _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosions.ForLeftoverNumber(slot.Health));
         else
         {
-            // Common attacking contact already ran EnemyDeath ($A0:A48F), which returns A = 0
-            // (or $00A3 after installing the respawn placeholder); $A3:8E6F then runs EnemyDeath
+            // Common attacking contact already ran EnemyDeath, which returns A = 0
+            // (or the respawn placeholder's header after installing it); the Fireflea's touch reaction then runs EnemyDeath
             // again on the cleared slot. Both values select the small explosion. It spawns at
             // (0,0) with the slot's current header (zero, or the placeholder), clears any
             // placeholder, and counts a second kill.
@@ -129,7 +129,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Advances global <c>$177E</c> after one Fireflea death. Retail rooms contain at most
+    /// Advances the global Fireflea darkness level after one Fireflea death. Retail rooms contain at most
     /// five, so valid progression is 0,2,4,6,8,10; the original comparison nevertheless
     /// permits 12 and rejects 14, and that exact boundary remains visible here.
     /// </summary>

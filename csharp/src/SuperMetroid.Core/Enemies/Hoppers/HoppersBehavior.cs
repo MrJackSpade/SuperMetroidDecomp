@@ -56,12 +56,12 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Native global RNG seed written when a Hopper initializes.</summary>
+    /// <summary>Global RNG seed written when a Hopper initializes.</summary>
     private const int HopperRandomSeed = 37;
     /// <summary>Terminal quadratic-speed table index used to cap the falling half of a hop.</summary>
     private const int MaximumHopperYSpeedTableIndex = 64;
 
-    /// <summary>Ports <c>InitAI_Hopper</c> at $A3:AB09.</summary>
+    /// <summary>Ports <c>InitAI_Hopper</c>.</summary>
     internal void InitializeHopper(RoomEnemySlot slot)
     {
         if (slot.Definition.VariantIndex > 3)
@@ -89,7 +89,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         SetHopperProgram(slot, state, ReadHopperProgram(state, SurfaceOf(state), HopperPhase.Landed));
 
         // Both physics rows currently contain the same constants, but the header-dependent
-        // byte offset and two independent calculations are part of the ROM contract.
+        // byte offset and two independent calculations are part of the authored contract.
         state.SmallHopInitialYSpeedTableIndex = CalculateInitialHopperYSpeedTableIndex(
             jumpHeight: 4096,
             tableIndexDelta: 3);
@@ -98,7 +98,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             tableIndexDelta: 4);
     }
 
-    /// <summary>Ports <c>MainAI_Hopper</c> and every indirect target at $A3:ABCF-$AD56.</summary>
+    /// <summary>Ports <c>MainAI_Hopper</c> and every indirect target.</summary>
     private void RunHopperMain(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -108,7 +108,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case HopperEnemyFunction.ChooseHopSize:
-                // The ROM consumes an entire frame choosing one of two setup functions.
+                // The game consumes an entire frame choosing one of two setup functions.
                 state.Function = (_room.Random.Generate() & 1) == 0
                     ? HopperEnemyFunction.PrepareSmallHop
                     : HopperEnemyFunction.PrepareBigHop;
@@ -236,7 +236,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = HopperEnemyFunction.WaitToHop;
     }
 
-    /// <summary>Advances a floor or ceiling hop with native vertical-first collision and phase-dependent horizontal reversal.</summary>
+    /// <summary>Advances a floor or ceiling hop with vertical-first collision and phase-dependent horizontal reversal.</summary>
     private void RunHopperMovement(
         RoomEnemySlot slot,
         HopperEnemyState state,
@@ -244,14 +244,14 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperSurface surface)
     {
         bool movingAwayFromSurface = !state.Falling;
-        // Native has four movement routines: floor actors use the negative half while
+        // Has four movement routines: floor actors use the negative half while
         // jumping and the positive half while falling; ceiling actors do the inverse.
         // Inequality expresses that table exactly. Equality reverses both phases, making
         // each actor collide with its starting surface and then migrate to the opposite one.
         bool useNegativeSpeed = (surface == HopperSurface.Ceiling) != movingAwayFromSurface;
         int verticalDisplacement = EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.YSpeedTableIndex)).Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
-        // Every native movement entry resolves Y first. A collision while rising reverses
+        // Every movement entry resolves Y first. A collision while rising reverses
         // X and changes to the falling half without performing horizontal motion that frame.
         // A collision while falling installs Landed and likewise ends the frame immediately.
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
@@ -284,7 +284,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (movingAwayFromSurface)
         {
-            // The cartridge stores the decremented record and branches on its sign: a record below zero is the apex,
+            // The game stores the decremented record and branches on its sign: a record below zero is the apex,
             // replaced by zero as the hop turns back toward the surface.
             int next = state.YSpeedTableIndex - state.YSpeedTableIndexDelta;
             if (next < 0)
@@ -299,7 +299,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The cartridge caps the returning record by the sign of its word difference from the cap; both stay far
+        // The game caps the returning record by the sign of its word difference from the cap; both stay far
         // below the word's sign bit, so that is the ordinary minimum.
         state.YSpeedTableIndex = Math.Min(
             state.YSpeedTableIndex + state.YSpeedTableIndexDelta,
@@ -326,7 +326,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         throw new InvalidDataException(
-            "Hopper initial-speed calculation did not reach its ROM jump height.");
+            "Hopper initial-speed calculation did not reach its authored jump height.");
     }
 
     /// <summary>Selects the program for this variant's facing and jumping or landing half.</summary>

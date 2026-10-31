@@ -55,7 +55,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
     internal bool MagdollitePaletteAnimationInstalled { get; set; }
 
-    /// <summary>Ports <c>NorfairLavaMan_Init</c> at $A8:AF8B.</summary>
+    /// <summary>Ports <c>NorfairLavaMan_Init</c>.</summary>
     internal void InitializeMagdollite(RoomEnemySlot slot, SamusState? samus)
     {
         MagdollitePart part = slot.SpawnSettings<MagdolliteSpawnSettings>().Part;
@@ -140,7 +140,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
-    /// <summary>Ports <c>NorfairLavaMan_Main</c> at $A8:B10A and its indirect functions.</summary>
+    /// <summary>Ports <c>NorfairLavaMan_Main</c> and its indirect functions.</summary>
     private void RunMagdolliteMain(
         RoomEnemySlot slot,
         MagdolliteEnemyState state,
@@ -287,13 +287,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.WithWholeY(state.Origin.Y);
     }
 
-    /// <summary>Rises using the preceding head's velocity, advances growth phases at their native thresholds, and stops at the apex or above Samus.</summary>
+    /// <summary>Rises using the preceding head's velocity, advances growth phases at their thresholds, and stops at the apex or above Samus.</summary>
     internal void RunMagdolliteBodyRising(
         RoomEnemySlot body,
         MagdolliteEnemyState state,
         SamusState? samus)
     {
-        // The native arm reads velocity at X-$40: the preceding head owns the
+        // The arm reads velocity at X-$40: the preceding head owns the
         // population speed parameter. The arm's own parameter is zero in retail.
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(body);
         MagdolliteEnemyState speedOwner = head.RequireSpeciesState<MagdolliteEnemyState>();
@@ -512,7 +512,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new InvalidOperationException($"Undefined {nameof(MagdollitePart)} {part}."),
     };
 
-    /// <summary>Ports the global graphics-drawn palette hook at $A8:B0B2.</summary>
+    /// <summary>Ports the global graphics-drawn palette hook.</summary>
     internal void StepMagdollitePaletteAnimation()
     {
         if (!MagdollitePaletteAnimationInstalled)
@@ -533,7 +533,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Carries out one cue of a Magdollite part's animations: the sixteen private bank-$A8 callbacks the ten
+    /// Carries out one cue of a Magdollite part's animations: the sixteen private callbacks the ten
     /// retail lists reference. Every cue runs on to the next step, so none redirects.
     /// </summary>
     private MagdolliteProgram? ApplyMagdolliteCue(
@@ -639,10 +639,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         return _slotTable.Slots[slot.SlotIndex + 1];
     }
 
-    /// <summary>Ports the shared post-combat tail at $A8:B410.</summary>
+    /// <summary>Ports the shared post-combat tail.</summary>
     private void ResolveMagdolliteCombatAfterCommon(RoomEnemySlot current)
     {
-        // The native callback literally addresses current+$40 and current+$80. Ordinary
+        // The callback literally addresses current+$40 and current+$80. Ordinary
         // touch/shot reaches only the collision-enabled head, but power bombs may expose
         // this retail cross-record quirk, so do not silently normalize current to a group.
         RoomEnemySlot? following = current.SlotIndex + 1 < EnemySlotOrder.Capacity
@@ -764,7 +764,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Signed 8.8 sideways speed of thrown lava, three pixels per update, negated for a leftward throw.</summary>
     private const int MagdolliteLavaHorizontalSpeed = 768;
 
-    /// <summary>Ports <c>EprojInit_NorfairLavaMan</c> at $86:E000.</summary>
+    /// <summary>Ports <c>EprojInit_NorfairLavaMan</c>.</summary>
     internal void SpawnMagdolliteLava(RoomEnemySlot source, bool throwsRight)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

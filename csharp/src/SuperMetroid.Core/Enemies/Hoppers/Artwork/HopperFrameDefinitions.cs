@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Hoppers.Artwork;
 
 /// <summary>
-/// The presentation boundary of the Sidehoppers' and Dessgeegas' programs (#641): the bank-$A3 spritemap each
+/// The presentation boundary of the Sidehoppers' and Dessgeegas' programs (#641): the spritemap each
 /// <see cref="HopperFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class HopperFrameDefinitions

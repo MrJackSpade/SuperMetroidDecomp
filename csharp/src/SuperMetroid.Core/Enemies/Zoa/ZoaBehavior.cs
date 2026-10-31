@@ -13,7 +13,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ZoaEntity(slot, common);
 
-    /// <summary>Advances Zoa's typed animation (#641) where the interpreter would run its native list.</summary>
+    /// <summary>Advances Zoa's typed animation (#641) where the interpreter would run its list.</summary>
     internal static void AdvanceZoaAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
@@ -45,7 +45,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>NTSC upward travel of half a pixel per gameplay frame.</summary>
     private const int ZoaRisingSubpixelSpeed = 32768;
 
-    /// <summary>Ports <c>InitAI_Zoa</c> at $A3:B44A, saving the population coordinate and hiding the idle actor.</summary>
+    /// <summary>Ports <c>InitAI_Zoa</c>, saving the population coordinate and hiding the idle actor.</summary>
     internal static void InitializeZoa(RoomEnemySlot slot)
     {
         var state = new ZoaEnemyState
@@ -105,7 +105,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // Odd indexes are rising lists: one faces left and three faces right. The sign test
-        // uses the same wrapped Samus-minus-enemy word as the common bank-$A0 helper.
+        // uses the same wrapped Samus-minus-enemy word as the common helper.
         state.AnimationScriptTableIndex = ZoaAnimationSelector.Rising |
             (CoordinateAxis.AsSigned(signedDistance) < 0
                 ? ZoaAnimationSelector.None

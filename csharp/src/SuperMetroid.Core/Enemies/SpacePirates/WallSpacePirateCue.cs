@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>One cue of the wall Space Pirates' programs, with the operands its native instruction carries.</summary>
+/// <summary>One cue of the wall Space Pirates' programs, with its typed operands.</summary>
 internal abstract record WallSpacePirateCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -8,15 +8,15 @@ internal abstract record WallSpacePirateCue
     {
     }
 
-    /// <summary>Climbs the operand's pixels on the left wall, continuing at the opposite climb after terrain contact (<c>Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Left</c>, $B2:EE40).</summary>
+    /// <summary>Climbs the operand's pixels on the left wall, continuing at the opposite climb after terrain contact.</summary>
     /// <param name="ClimbPixels">For a climb cue: the whole pixels the Pirate moves down the wall; negative climbs up.</param>
     internal sealed record ClimbLeftWall(int ClimbPixels) : WallSpacePirateCue;
 
-    /// <summary>Climbs the operand's pixels on the right wall, continuing at the opposite climb after terrain contact (<c>Inst_PirateWall_MoveYPixelsDown_ChangeDirOnCollision_Right</c>, $B2:EE72).</summary>
+    /// <summary>Climbs the operand's pixels on the right wall, continuing at the opposite climb after terrain contact.</summary>
     /// <param name="ClimbPixels">For a climb cue: the whole pixels the Pirate moves down the wall; negative climbs up.</param>
     internal sealed record ClimbRightWall(int ClimbPixels) : WallSpacePirateCue;
 
-    /// <summary>Sets the function main AI runs next (<c>Instruction_PirateWall_FunctionInY</c>, $B2:EF83).</summary>
+    /// <summary>Sets the function main AI runs next.</summary>
     /// <param name="Function">The cue's Function operand.</param>
     internal sealed record SetFunction(WallSpacePirateFunction Function) : WallSpacePirateCue;
 

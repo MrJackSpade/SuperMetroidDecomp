@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Polyp;
 
-/// <summary>Fixed launch/cooldown mechanics selected by three independent native RNG draws.</summary>
+/// <summary>Fixed launch/cooldown mechanics selected by three independent RNG draws.</summary>
 public static class PolypLaunchDefinitions
 {
     /// <summary>The RNG bits 1..3 that select the cooldown; bit zero and the upper bits do not select a record.</summary>

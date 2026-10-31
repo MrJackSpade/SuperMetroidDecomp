@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>
-/// The state of one Spark. The function, base time and countdown are values the cartridge keeps in the enemy's
+/// The state of one Spark. The function, base time and countdown are values the game keeps in the enemy's
 /// common record, so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class SparkEnemyState
@@ -19,7 +19,7 @@ public sealed class SparkEnemyState
     /// </summary>
     public int BaseFunctionTime { get; internal set; }
 
-    /// <summary>The countdown decremented with the cartridge's <c>DEC; BEQ</c>: reaching zero expires it, and one that starts from zero wraps instead.</summary>
+    /// <summary>The countdown decremented with the game's <c>DEC; BEQ</c>: reaching zero expires it, and one that starts from zero wraps instead.</summary>
     public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>

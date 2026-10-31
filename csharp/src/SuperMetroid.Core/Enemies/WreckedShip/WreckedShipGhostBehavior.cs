@@ -42,7 +42,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>The three movement classes on each axis: moving toward smaller coordinates, still, or toward larger ones.</summary>
     private const int WreckedShipGhostMovementClassCount = 3;
 
-    /// <summary>Ports <c>WreckedShipGhost_Init</c> at <c>$A8:9AEE</c>.</summary>
+    /// <summary>Ports <c>WreckedShipGhost_Init</c>.</summary>
     internal void InitializeWreckedShipGhost(RoomEnemySlot slot)
     {
         // Every named retail ghost population places this actor in physical slot zero.
@@ -117,7 +117,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>
-    /// Ports $A8:9D13. A zero timer also advances immediately, matching the native ORA/DEC
+    /// Ports $A8:9D13. A zero timer also advances immediately, matching the ORA/DEC
     /// branch rather than wrapping zero to $FFFF.
     /// </summary>
     private static void RunWreckedShipGhostInitialDelay(WreckedShipGhostEnemyState state)
@@ -208,7 +208,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             }
         }
 
-        // The native tracker publishes a fresh asymmetric [position-1, position+1) box at
+        // The tracker publishes a fresh asymmetric [position-1, position+1) box at
         // the end of every non-spawning frame.
         state.PreviousSamusPosition = samusPosition;
         state.SamusLowerBound = samusPosition - WreckedShipGhostStillMargin;
@@ -236,7 +236,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.StableDirectionTimer = WrappingCountdown.Start(WreckedShipGhostStableDirectionDuration);
     }
 
-    /// <summary>Ports the white-flash ramp at $A8:9B42 and its flicker helper.</summary>
+    /// <summary>Ports the white-flash ramp and its flicker helper.</summary>
     internal void RunWreckedShipGhostBrightening(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)
@@ -250,7 +250,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             if (current.Red >= 31)
                 continue;
 
-            // Native adds $0421 as a word, raising red, green, and blue together. It gates
+            // Adds $0421 as a word, raising red, green, and blue together. It gates
             // only on red and does not saturate the others: a full green or blue carries
             // into the next field exactly as the word sum does, and CGRAM keeps 15 bits.
             palette.Write(color,
@@ -295,7 +295,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         state.StableDirectionTimer = WrappingCountdown.Start(WreckedShipGhostStableDirectionDuration);
     }
 
-    /// <summary>Ports the signed 16.16 oscillation and 120-frame visible lifetime at $A8:9C8A.</summary>
+    /// <summary>Ports the signed 16.16 oscillation and 120-frame visible lifetime.</summary>
     private static void RunWreckedShipGhostBobbing(
         RoomEnemySlot slot,
         WreckedShipGhostEnemyState state)

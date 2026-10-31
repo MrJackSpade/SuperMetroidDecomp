@@ -19,7 +19,7 @@ internal sealed class DownwardGateBehavior
         _projectiles = projectiles;
     }
 
-    /// <summary>Applies one bank-$84 gate request to the shared eighteen-slot projectile pool.</summary>
+    /// <summary>Applies one gate request to the shared eighteen-slot projectile pool.</summary>
     public void ApplyDownwardGateProjectileRequest(
         DownwardGateProjectileRequest request,
         int roomWidthInBlocks)
@@ -105,7 +105,7 @@ internal sealed class DownwardGateBehavior
         int accumulated = projectile.GeneralTimer + speedMagnitude;
         if (accumulated >= DownwardGateDefinitions.OneBlockDistance)
         {
-            // Native steps the list two bytes past its sleep, which wakes the next visual frame
+            // Steps the list two bytes past its sleep, which wakes the next visual frame
             // on this same projectile-handler pass.
             ResumeDownwardGate(projectile);
             accumulated = 0;
@@ -115,7 +115,7 @@ internal sealed class DownwardGateBehavior
     }
 
     /// <summary>
-    /// Steps a gate past the sleep its program holds, as the native two-byte list advance with a one-update timer
+    /// Steps a gate past the sleep its program holds, as the two-byte list advance with a one-update timer
     /// does: the program resumes with the one authored after that sleep.
     /// </summary>
     private static void ResumeDownwardGate(RoomEnemyProjectileSlot projectile)
@@ -148,7 +148,7 @@ internal sealed class DownwardGateBehavior
         }
     }
 
-    /// <summary>Connects the bank-$86 moving-gate pre-instruction to the projectile handler table.</summary>
+    /// <summary>Connects the moving-gate pre-instruction to the projectile handler table.</summary>
     internal static void AddDownwardGateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddCue<DownwardGateProjectileCue>((context, cue) => ApplyDownwardGateCue(context.Projectile, cue));

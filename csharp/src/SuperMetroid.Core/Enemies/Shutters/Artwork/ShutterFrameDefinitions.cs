@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Shutters.Artwork;
 
 /// <summary>
-/// The presentation boundary of the shutters' and Kamer's programs (#641): the bank-$A2 spritemap each
+/// The presentation boundary of the shutters' and Kamer's programs (#641): the spritemap each
 /// <see cref="ShutterFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class ShutterFrameDefinitions

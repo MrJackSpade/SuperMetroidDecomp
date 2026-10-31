@@ -1,29 +1,29 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The walking Space Pirates' walk, look, flinch and laser animations as typed programs (#641), one per bank-$B2 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="WalkingSpacePirateAnimations"/>.
+/// The walking Space Pirates' walk, look, flinch and laser animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="WalkingSpacePirateAnimations"/>.
 /// </summary>
 internal enum WalkingSpacePirateProgram
 {
-    /// <summary><c>InstList_PirateWalking_Flinch_FacingLeft</c> at $B2:FB4C.</summary>
+    /// <summary>The flinch facing left animation.</summary>
     FlinchFacingLeft,
-    /// <summary><c>InstList_PirateWalking_Flinch_FacingRight</c> at $B2:FB58.</summary>
+    /// <summary>The flinch facing right animation.</summary>
     FlinchFacingRight,
-    /// <summary><c>InstList_PirateWalking_WalkingLeft_0</c> at $B2:FB64.</summary>
+    /// <summary>The walking left animation.</summary>
     WalkingLeft,
-    /// <summary>The loop at $B2:FB68.</summary>
+    /// <summary>The loop.</summary>
     WalkingLeftLoop,
-    /// <summary><c>InstList_PirateWalking_FireLasersLeft</c> at $B2:FB8C.</summary>
+    /// <summary>The fire lasers left animation.</summary>
     FireLasersLeft,
-    /// <summary><c>InstList_PirateWalking_LookingAround_FacingLeft</c> at $B2:FBC6.</summary>
+    /// <summary>The looking facing left animation.</summary>
     LookingFacingLeft,
-    /// <summary><c>InstList_PirateWalking_WalkingRight_0</c> at $B2:FBE6.</summary>
+    /// <summary>The walking right animation.</summary>
     WalkingRight,
-    /// <summary>The loop at $B2:FBEA.</summary>
+    /// <summary>The loop.</summary>
     WalkingRightLoop,
-    /// <summary><c>InstList_PirateWalking_FireLasersRight</c> at $B2:FC0E.</summary>
+    /// <summary>The fire lasers right animation.</summary>
     FireLasersRight,
-    /// <summary><c>InstList_PirateWalking_LookingAround_FacingRight</c> at $B2:FC48.</summary>
+    /// <summary>The looking facing right animation.</summary>
     LookingFacingRight,
 }

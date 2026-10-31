@@ -41,10 +41,10 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Upper bound applied to the airborne speed-table index.</summary>
     private const int MaximumPuyoYSpeedTableIndex = 16384;
 
-    /// <summary>Ports <c>InitAI_Puyo</c> at $A2:9A3F.</summary>
+    /// <summary>Ports <c>InitAI_Puyo</c>.</summary>
     internal static void InitializePuyo(RoomEnemySlot slot)
     {
-        // The native initializer writes the common empty map and clears Enemy.var0 before
+        // The initializer writes the common empty map and clears Enemy.var0 before
         // installing the fast grounded list. Enemy.var0 is not one of the six exposed
         // per-family variable words; no later Puyo routine reads it.
         slot.Frame = EnemyFrameId.Empty;
@@ -56,7 +56,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = PuyoEnemyFunction.Grounded,
             // InitAI never writes the airborne function or the inactive extended words. The room loader's
             // cleared enemy allocation therefore leaves them empty until InitiateHop owns
-            // them; do not pre-populate plausible values the cartridge has not written.
+            // them; do not pre-populate plausible values the game has not written.
             AirborneFunction = null,
             HopRecord = 0,
             HopType = PuyoHopType.NormalSmall,
@@ -98,7 +98,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>Function_Puyo_Grounded</c> at $A2:9B65.</summary>
+    /// <summary>Ports <c>Function_Puyo_Grounded</c>.</summary>
     private void RunGroundedPuyo(RoomEnemySlot slot, PuyoEnemyState state, SamusState samus)
     {
         // DEC followed by BPL means a zero cooldown waits one frame and then wraps to FFFF
@@ -128,7 +128,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Aim toward Samus unless the preceding terrain collision latched the opposite
-        // direction. Equality follows the cartridge's BPL path and therefore aims right.
+        // direction. Equality follows the game's BPL path and therefore aims right.
         PuyoDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
             ? PuyoDirection.Left
             : PuyoDirection.Right;
@@ -154,14 +154,14 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         CalculateInitialPuyoHopSpeed(state);
     }
 
-    /// <summary>Ports the integration loop at $A2:9B1A without simplifying its odd units.</summary>
+    /// <summary>Ports the integration loop without simplifying its odd units.</summary>
     internal static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
     {
         int timeAccumulator = 0;
         int distanceAccumulator = 0;
         PuyoHopDefinition hop = Hop(state);
         int xSpeed = hop.XSpeed;
-        // The cartridge exchanges the height word's bytes (XBA); every authored height is below 256 pixels, so that
+        // The game exchanges the height word's bytes (XBA); every authored height is below 256 pixels, so that
         // makes the height the whole part of an 8.8 distance.
         int swappedJumpHeight = UnsignedEightEight.FromParts(whole: Ensure.BetweenInclusive(0, byte.MaxValue, hop.Height), fraction: 0);
 
@@ -193,7 +193,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static PuyoHopDefinition Hop(PuyoEnemyState state) =>
         PuyoHops.FromByteIndex(Ensure.BetweenInclusive(0, ushort.MaxValue, state.HopRecord * PuyoHopDefinitions.RecordSize));
 
-    /// <summary>Ports the indirect airborne dispatcher at $A2:9B81.</summary>
+    /// <summary>Ports the indirect airborne dispatcher.</summary>
     private void RunAirbornePuyo(
         RoomEnemySlot slot,
         PuyoEnemyState state,
@@ -253,7 +253,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoProgram(slot, state, landingProgram);
     }
 
-    /// <summary>Ports <c>Function_Puyo_Airborne_GiantHop</c> at $A2:9D6B.</summary>
+    /// <summary>Ports <c>Function_Puyo_Airborne_GiantHop</c>.</summary>
     private void RunGiantPuyoHop(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         MovePuyo(slot, state, level);
@@ -261,7 +261,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // A normal landing returns giant hops to type zero. A wall/ceiling collision takes
-        // the native branch around these two writes, leaving type four's dropping recovery.
+        // the branch around these two writes, leaving type four's dropping recovery.
         if (!state.InvertDirection)
         {
             state.HopType = PuyoHopType.NormalSmall;
@@ -272,7 +272,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoProgram(slot, state, PuyoProgram.GroundedSlow);
     }
 
-    /// <summary>Ports the constant-speed collision fall at $A2:9D98.</summary>
+    /// <summary>Ports the constant-speed collision fall.</summary>
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         int packed = Hop(state).YIndexDelta;
@@ -288,13 +288,13 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// <c>GetRandomNumber0_7</c> ($A2:9B06): generates a random number, then adds the
+    /// Generates a random number, then adds the
     /// enemy's frame counter before keeping the low three bits.
     /// </summary>
     private int NextPuyoRandom0To7(RoomEnemySlot slot) =>
         WordWrap.Unsigned((_room.Random.Generate() + slot.FrameCounter) & 7);
 
-    /// <summary>Ports the post-drop bounce wrapper at $A2:9DCD.</summary>
+    /// <summary>Ports the post-drop bounce wrapper.</summary>
     private void RunDroppedPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         MovePuyo(slot, state, level);
@@ -306,7 +306,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoProgram(slot, state, PuyoProgram.GroundedSlow);
     }
 
-    /// <summary>Ports <c>PuyoMovement</c> at $A2:9B88.</summary>
+    /// <summary>Ports <c>PuyoMovement</c>.</summary>
     private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
         int cappedIndex = Math.Min(state.YSpeedTableIndex, MaximumPuyoYSpeedTableIndex);
@@ -318,7 +318,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             if (!state.Falling)
             {
                 // $A2:9BBF copies the stale direct-page word at $01 into the invert flag.
-                // During gameplay HandleHUDTilemap_PausedAndRunning ($80:9BFE) leaves
+                // During gameplay HandleHUDTilemap_PausedAndRunning leaves
                 // $00 = $9DD3 every frame, so the flag is set. Door transitions can leave
                 // other values before the first HUD pass of a room; those are treated as
                 // nonzero too, by decision, rather than modelling every scratch writer.
@@ -337,7 +337,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Pose selection happens before the index changes, matching the five discrete
-        // squash/stretch thresholds in the ROM rather than interpolating sprite frames.
+        // squash/stretch thresholds in the authored rather than interpolating sprite frames.
         SetPuyoAirborneProgram(slot, state);
 
         state.StepAirborneIndex(Hop(state).YIndexDelta);
@@ -411,7 +411,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         SetPuyoProgram(slot, state, program);
     }
 
-    /// <summary>Flips the two-entry native direction domain after a terrain impact.</summary>
+    /// <summary>Flips the two-entry direction domain after a terrain impact.</summary>
     private static PuyoDirection Opposite(PuyoDirection direction) => direction switch
     {
         PuyoDirection.Right => PuyoDirection.Left,

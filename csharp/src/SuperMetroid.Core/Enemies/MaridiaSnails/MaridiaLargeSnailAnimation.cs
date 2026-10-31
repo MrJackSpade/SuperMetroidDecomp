@@ -3,13 +3,13 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// <summary>The eight mutually exclusive facing/action animation states used by Oum.</summary>
 internal enum MaridiaLargeSnailAnimation
 {
-    /// <summary>Selects the one-frame, sleeping right-facing list at $A2:CADB.</summary>
+    /// <summary>Selects the one-frame, sleeping right-facing list.</summary>
     FacingRightIdle = 0,
-    /// <summary>Selects the one-frame, sleeping left-facing list at $A2:CA4B.</summary>
+    /// <summary>Selects the one-frame, sleeping left-facing list.</summary>
     FacingLeftIdle = 1,
     /// <summary>Selects the right-facing rolling loop that changes attack-rotation permission.</summary>
     FacingRightRollingForwards = 2,
-    /// <summary>Selects the corresponding left-facing rolling loop at $A2:CA8B.</summary>
+    /// <summary>Selects the corresponding left-facing rolling loop.</summary>
     FacingLeftRollingForwards = 3,
     /// <summary>Selects the right-facing attack with its splash sound and completion callback.</summary>
     FacingRightAttacking = 4,

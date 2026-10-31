@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// Native dispatch-table indexes stored in ordinary Metroid variable F. These are indexes,
-/// not bank-$A3 function addresses: main AI uses the word directly to select one of four
-/// movement routines at <c>$A3:EC09</c>.
+/// Dispatch-table indexes stored in ordinary Metroid variable F. These are indexes,
+/// not function addresses: main AI uses the word directly to select one of four
+/// movement routines.
 /// </summary>
 public enum MetroidAiFunction
 {

@@ -1,57 +1,57 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The Work Robot's unpowered poses and its walk, wall, recoil, laser and ledge animations as typed programs (#641), one per bank-$A8 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="WorkRobotAnimations"/>.
+/// The Work Robot's unpowered poses and its walk, wall, recoil, laser and ledge animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="WorkRobotAnimations"/>.
 /// </summary>
 internal enum WorkRobotProgram
 {
-    /// <summary><c>InstList_RobotNoPower_Neutral</c> at $A8:C6D3.</summary>
+    /// <summary>The no power neutral animation.</summary>
     NoPowerNeutral,
-    /// <summary><c>InstList_RobotNoPower_LeaningLeft</c> at $A8:C6D9.</summary>
+    /// <summary>The no power leaning left animation.</summary>
     NoPowerLeaningLeft,
-    /// <summary><c>InstList_RobotNoPower_LeaningRIght</c> at $A8:C6DF.</summary>
+    /// <summary>The no power leaning right animation.</summary>
     NoPowerLeaningRight,
-    /// <summary><c>InstList_Robot_Initial</c> at $A8:C6E5.</summary>
+    /// <summary>The initial animation.</summary>
     Initial,
-    /// <summary><c>InstList_Robot_FacingLeft_WalkingForwards_0</c> at $A8:C6E9.</summary>
+    /// <summary>The facing left walking forwards animation.</summary>
     FacingLeftWalkingForwards,
-    /// <summary><c>InstList_Robot_FacingLeft_WalkingForwards_1</c> at $A8:C6ED.</summary>
+    /// <summary>The facing left walking forwards loop animation.</summary>
     FacingLeftWalkingForwardsLoop,
-    /// <summary><c>InstList_Robot_FacingLeft_HitWallMovingForwards</c> at $A8:C73F.</summary>
+    /// <summary>The facing left hit wall moving forwards animation.</summary>
     FacingLeftHitWallMovingForwards,
-    /// <summary><c>InstList_Robot_FacingLeft_Shot_SamusIsAhead</c> at $A8:C7BB.</summary>
+    /// <summary>The facing left shot samus ahead animation.</summary>
     FacingLeftShotSamusAhead,
-    /// <summary><c>InstList_Robot_FacingLeft_Shot_SamusIsBehind</c> at $A8:C833.</summary>
+    /// <summary>The facing left shot samus behind animation.</summary>
     FacingLeftShotSamusBehind,
-    /// <summary><c>InstList_Robot_FacingLeft_ShotLaserDownLeft</c> at $A8:C8B1.</summary>
+    /// <summary>The facing left shot laser down left animation.</summary>
     FacingLeftShotLaserDownLeft,
-    /// <summary><c>InstList_Robot_FacingLeft_ShotLaserLeft</c> at $A8:C8BD.</summary>
+    /// <summary>The facing left shot laser left animation.</summary>
     FacingLeftShotLaserLeft,
-    /// <summary><c>InstList_Robot_FacingLeft_ShotLaserUpLeft</c> at $A8:C8D1.</summary>
+    /// <summary>The facing left shot laser up left animation.</summary>
     FacingLeftShotLaserUpLeft,
-    /// <summary><c>InstList_Robot_FacingLeft_LaserShotRecoil</c> at $A8:C8E9.</summary>
+    /// <summary>The facing left laser shot recoil animation.</summary>
     FacingLeftLaserShotRecoil,
-    /// <summary><c>InstList_Robot_ApproachingAFallToTheRight</c> at $A8:C91B.</summary>
+    /// <summary>The approaching fall right animation.</summary>
     ApproachingFallRight,
-    /// <summary><c>InstList_Robot_FacingRight_WalkingForwards_0</c> at $A8:C92D.</summary>
+    /// <summary>The facing right walking forwards animation.</summary>
     FacingRightWalkingForwards,
-    /// <summary><c>InstList_Robot_FacingRight_WalkingForwards_1</c> at $A8:C931.</summary>
+    /// <summary>The facing right walking forwards loop animation.</summary>
     FacingRightWalkingForwardsLoop,
-    /// <summary><c>InstList_Robot_FacingRight_HitWallMovingForwards</c> at $A8:C985.</summary>
+    /// <summary>The facing right hit wall moving forwards animation.</summary>
     FacingRightHitWallMovingForwards,
-    /// <summary><c>InstList_Robot_FacingRight_Shot_SamusIsAhead</c> at $A8:CA01.</summary>
+    /// <summary>The facing right shot samus ahead animation.</summary>
     FacingRightShotSamusAhead,
-    /// <summary><c>InstList_Robot_FacingRight_Shot_SamusIsBehind</c> at $A8:CA7D.</summary>
+    /// <summary>The facing right shot samus behind animation.</summary>
     FacingRightShotSamusBehind,
-    /// <summary><c>InstList_Robot_FacingRight_ShotLaserDownRight</c> at $A8:CAFD.</summary>
+    /// <summary>The facing right shot laser down right animation.</summary>
     FacingRightShotLaserDownRight,
-    /// <summary><c>InstList_Robot_FacingRight_ShotLaserRight</c> at $A8:CB09.</summary>
+    /// <summary>The facing right shot laser right animation.</summary>
     FacingRightShotLaserRight,
-    /// <summary><c>InstList_Robot_FacingRight_ShotLaserUpRight</c> at $A8:CB1D.</summary>
+    /// <summary>The facing right shot laser up right animation.</summary>
     FacingRightShotLaserUpRight,
-    /// <summary><c>InstList_Robot_FacingRight_LaserShotRecoil</c> at $A8:CB35.</summary>
+    /// <summary>The facing right laser shot recoil animation.</summary>
     FacingRightLaserShotRecoil,
-    /// <summary><c>InstList_Robot_ApproachingAFallToTheLeft</c> at $A8:CB65.</summary>
+    /// <summary>The approaching fall left animation.</summary>
     ApproachingFallLeft,
 }

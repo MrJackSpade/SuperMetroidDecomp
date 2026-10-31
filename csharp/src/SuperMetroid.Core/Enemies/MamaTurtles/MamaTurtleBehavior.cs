@@ -109,7 +109,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int MamaTurtleRisingSpeed = 7;
     /// <summary>Ticks held at the ascent peak before Mama begins falling.</summary>
     private const int MamaTurtlePeakPauseFrames = 30;
-    /// <summary>Whole-speed cap consulted by the native fall routine's slot-zero read.</summary>
+    /// <summary>Whole-speed cap consulted by the fall routine's slot-zero read.</summary>
     private const int MamaTurtleMaximumFallingSpeed = 4;
     /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
     private const int MamaTurtleMaximumHoveringSpeed = 3;
@@ -206,7 +206,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the first-frame parent/child setup at <c>$A2:8DD8</c>.</summary>
+    /// <summary>Ports the first-frame parent/child setup.</summary>
     private void LinkMamaTurtleChildren(RoomEnemySlot mama, MamaTurtleEnemyState state)
     {
         if (mama.SlotIndex + 4 >= EnemySlotOrder.Capacity)
@@ -231,7 +231,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MamaTurtleAiFunction.Asleep;
     }
 
-    /// <summary>Ports the sleeping shell height/carry routine at <c>$A2:8E0A</c>.</summary>
+    /// <summary>Ports the sleeping shell height/carry routine.</summary>
     internal static void RunMamaTurtleAsleep(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -267,7 +267,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, WordWrap.Signed(overlap));
     }
 
-    /// <summary>Ports the deliberately jittery shell-opening routine at <c>$A2:8EE0</c>.</summary>
+    /// <summary>Ports the deliberately jittery shell-opening routine.</summary>
     private void RunMamaTurtleLeavingShell(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -304,7 +304,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MamaTurtleAiFunction.Idle;
     }
 
-    /// <summary>Ports the facing-dependent return-to-shell selector at <c>$A2:8F3F</c>.</summary>
+    /// <summary>Ports the facing-dependent return-to-shell selector.</summary>
     private static void RunMamaTurtleEnteringShell(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -319,7 +319,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MamaTurtleAiFunction.Idle;
     }
 
-    /// <summary>Ports the 16-frame upward transition at <c>$A2:8F8D</c>.</summary>
+    /// <summary>Ports the 16-frame upward transition.</summary>
     private void RunMamaTurtleRisingToHover(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -347,7 +347,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MamaTurtleAiFunction.Hovering;
     }
 
-    /// <summary>Ports accelerating horizontal hover and its original wall bug at $A2:8FEB.</summary>
+    /// <summary>Ports accelerating horizontal hover and its original wall bug.</summary>
     private void RunMamaTurtleHovering(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -368,7 +368,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         AddAndClampMamaTurtleHorizontalAcceleration(state);
     }
 
-    /// <summary>Ports <c>HandleSamusLandingOnHoveringTatori</c> at $A2:8F5F.</summary>
+    /// <summary>Ports <c>HandleSamusLandingOnHoveringTatori</c>.</summary>
     private static void HandleSamusLandingOnMamaTurtle(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -395,7 +395,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         int magnitude = Math.Abs(CoordinateAxis.AsSigned(newWhole));
         int cappedWhole = magnitude < MamaTurtleMaximumHoveringSpeed
             ? newWhole
-            // Native chooses the cap's sign from the old velocity word, before storing the
+            // Chooses the cap's sign from the old velocity word, before storing the
             // just-computed result. Preserve that one-frame zero-crossing behavior.
             : CoordinateAxis.AsSigned(oldWhole) < 0
                 ? WordWrap.Unsigned(-MamaTurtleMaximumHoveringSpeed)
@@ -422,7 +422,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             WordWrap.Signed(~acceleration.WholePixels - lowered), WordWrap.Unsigned(-acceleration.Fraction));
     }
 
-    /// <summary>Ports the rider-powered seven-pixel ascent at <c>$A2:9083</c>.</summary>
+    /// <summary>Ports the rider-powered seven-pixel ascent.</summary>
     private void RunMamaTurtleRisingToPeak(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -448,7 +448,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.Zero);
     }
 
-    /// <summary>Ports the 30-frame peak delay at <c>$A2:90CC</c>.</summary>
+    /// <summary>Ports the 30-frame peak delay.</summary>
     private void RunMamaTurtleHoveringAtPeak(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -460,7 +460,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = MamaTurtleAiFunction.Falling;
     }
 
-    /// <summary>Ports gravity, collision, and landing-list selection at <c>$A2:90E1</c>.</summary>
+    /// <summary>Ports gravity, collision, and landing-list selection.</summary>
     private void RunMamaTurtleFalling(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -504,7 +504,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Baby Turtle AI requires the active Samus actor.");
 
-        // The prologue requires the child's parent to be a Mama Turtle. The cartridge also clears and republishes a
+        // The prologue requires the child's parent to be a Mama Turtle. The game also clears and republishes a
         // carried-height word on the parent here, which nothing reads.
         _ = RequireMamaTurtleParent(state);
         switch (state.Function)
@@ -704,7 +704,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             : MamaTurtleProgram.BabyCrawlingRight;
     }
 
-    /// <summary>Ports Mama's custom ordinary-touch callback at <c>$A2:9281</c>.</summary>
+    /// <summary>Ports Mama's custom ordinary-touch callback.</summary>
     private void ResolveMamaTurtleTouch(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
@@ -717,7 +717,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithWholeY(2);
     }
 
-    /// <summary>Ports Baby's direction flip, separation, and wake callback at $A2:929F.</summary>
+    /// <summary>Ports Baby's direction flip, separation, and wake callback.</summary>
     private void ResolveBabyTurtleTouch(
         RoomEnemySlot baby,
         BabyTurtleEnemyState state,
@@ -765,7 +765,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         parent.AsleepFlag = parent.AsleepFlag.DecrementToZero();
     }
 
-    /// <summary>Ports Mama's expanded private damage box at <c>$A2:9315</c>.</summary>
+    /// <summary>Ports Mama's expanded private damage box.</summary>
     private void ResolveMamaTurtleExpandedContact(
         RoomEnemySlot mama,
         SamusState samus)
@@ -802,7 +802,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision.ResolveNormalEnemyTouch(mama, samus);
     }
 
-    /// <summary>Resolves the child's native parent slot and rejects a non-Mama occupant.</summary>
+    /// <summary>Resolves the child's parent slot and rejects a non-Mama occupant.</summary>
     private MamaTurtleEnemyState RequireMamaTurtleParent(BabyTurtleEnemyState child)
     {
         RoomEnemySlot parent = _slotTable.Slots[child.ParentSlotIndex];

@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// A projectile family's typed animation, run in place of the bank-$86 instruction interpreter (#641).
-/// The slot keeps the cartridge's timer gate, so each frame lasts exactly as long as the native frame did.
+/// A projectile family's typed animation, run in place of the instruction interpreter (#641).
+/// The slot keeps the game's timer gate, so each frame lasts exactly as long as the frame did.
 /// </summary>
 internal abstract class EnemyProjectileAnimation
 {
     /// <summary>
-    /// Advances one projectile pass: the frame expires on the update its native timer would. A cue published
+    /// Advances one projectile pass: the frame expires on the update its timer would. A cue published
     /// on the way may end the animation (deleting the projectile or handing it to another program); the pass
-    /// then stops, as the native instruction that did so would.
+    /// then stops, as the instruction that did so would.
     /// </summary>
     internal void Advance(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)
     {
@@ -23,7 +23,7 @@ internal abstract class EnemyProjectileAnimation
             return;
         if (!shown)
         {
-            // A held timeline is the native sleep: the timer stays zero and wraps, never expiring again.
+            // A held timeline is the sleep: the timer stays zero and wraps, never expiring again.
             projectile.FrameHold = WrappingCountdown.Start(0);
             return;
         }

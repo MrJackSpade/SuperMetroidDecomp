@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The shared delete reaction, <c>InstList_EnemyProjectile_Delete</c> ($86:84FC): the shot or touch list of every projectile
+/// The shared delete reaction, <c>InstList_EnemyProjectile_Delete</c>: the shot or touch list of every projectile
 /// without a typed reaction of its own. Its single command deletes the projectile on the pass after the reaction starts,
-/// as the native list does.
+/// as the list does.
 /// </summary>
 internal sealed class EnemyProjectileDeleteAnimation : EnemyProjectileAnimation
 {

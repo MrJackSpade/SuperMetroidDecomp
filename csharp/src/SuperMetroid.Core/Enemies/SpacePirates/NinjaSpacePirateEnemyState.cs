@@ -3,15 +3,15 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The state of one ninja Pirate. The speed and spawn position are the ninja's own state, which nothing else reads. The
-/// values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// values the game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
 /// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class NinjaSpacePirateEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<NinjaSpacePirateProgram> Program { get; set; }
 
-    /// <summary>Bank-$B2 movement/decision function; none once a kill has emptied the record.</summary>
+    /// <summary>Movement/decision function; none once a kill has emptied the record.</summary>
     public NinjaSpacePirateFunction? Function { get; internal set; }
 
     /// <summary>
@@ -24,7 +24,7 @@ public sealed class NinjaSpacePirateEnemyState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Native variable C: the active stance animation, facing Samus, that becoming active continues at.</summary>
+    /// <summary>Variable C: the active stance animation, facing Samus, that becoming active continues at.</summary>
     internal NinjaSpacePirateProgram ActiveProgram { get; set; }
 
     /// <summary>
@@ -75,12 +75,12 @@ public sealed class NinjaSpacePirateEnemyState
     public int LandingDustCount { get; internal set; }
 
     /// <summary>
-    /// Changes <see cref="Speed"/> by <paramref name="delta"/> 1/256-pixel units, wrapping as the cartridge's
+    /// Changes <see cref="Speed"/> by <paramref name="delta"/> 1/256-pixel units, wrapping as the game's
     /// sixteen-bit speed does.
     /// </summary>
     internal void ChangeSpeed(int delta) => Speed = SignedEightEight.Wrapped(Speed.RawValue + delta);
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

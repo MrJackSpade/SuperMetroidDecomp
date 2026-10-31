@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
 /// The state of the Nuclear Waffle, with its projectile and sprite-object links. The seven articulated body links
-/// alternate between the two shared native pools, exactly as the original actor does. Its behaviour and wait are
-/// values the cartridge keeps in the enemy's common record, so a kill empties them with that record
+/// alternate between the two shared pools, exactly as the original actor does. Its behaviour and wait are
+/// values the game keeps in the enemy's common record, so a kill empties them with that record
 /// (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
-    /// <summary>Where the body's typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the body's typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<NuclearWaffleProgram> Program { get; set; }
 
     /// <summary>The current waiting or sweeping behaviour; none once a kill has emptied the record.</summary>
@@ -21,7 +21,7 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>Wrapping wait countdown in enemy AI calls, expiring only after decrement produces a signed-negative word and reloaded from the population reset byte.</summary>
     public WrappingCountdown WaitingTimer { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour and no wait.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour and no wait.</summary>
     internal void ClearWithRecord()
     {
         Function = null;
@@ -80,11 +80,11 @@ public sealed class NuclearWaffleEnemyState
     /// <summary>The owning enemy's sheet characters and palette row, captured at room load for the persistent body links and transient joint-turn sprite objects.</summary>
     public SpriteGraphics GraphicsAttributes { get; internal set; }
 
-    /// <summary>Four persistent, damaging bank-$86 links.</summary>
+    /// <summary>Four persistent, damaging links.</summary>
     public RoomEnemyProjectileSlot?[] ProjectileSegments { get; } =
         new RoomEnemyProjectileSlot?[4];
 
-    /// <summary>Three persistent, cosmetic bank-$B4 links interleaved with the projectiles.</summary>
+    /// <summary>Three persistent, cosmetic links interleaved with the projectiles.</summary>
     public RoomSpriteObjectSlot?[] SpriteSegments { get; } =
         new RoomSpriteObjectSlot?[3];
 

@@ -4,7 +4,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.E
 
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
-/// <summary>The Wrecked Ship attic PLM's program (#1296), in place of its bank-$84 list at $84:BAFF.</summary>
+/// <summary>The Wrecked Ship attic PLM's program (#1296), in place of its list.</summary>
 internal static class WreckedShipAtticPlmProgramDefinitions
 {
     /// <summary>The attic program.</summary>

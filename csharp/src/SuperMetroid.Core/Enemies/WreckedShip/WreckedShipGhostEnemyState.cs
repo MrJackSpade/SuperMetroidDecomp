@@ -3,8 +3,8 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
-/// The state of the Wrecked Ship ghost, with its bank-$A8 extension in WRAM $7800. Its behaviour, phase timer and
-/// flicker offset are values the cartridge keeps in the enemy's common record, so a kill empties them with that record
+/// The state of the Wrecked Ship ghost, with its extension in WRAM $7800. Its behaviour, phase timer and
+/// flicker offset are values the game keeps in the enemy's common record, so a kill empties them with that record
 /// (<see cref="ClearWithRecord"/>); the extension outlives the kill.
 /// </summary>
 public sealed class WreckedShipGhostEnemyState
@@ -12,7 +12,7 @@ public sealed class WreckedShipGhostEnemyState
     /// <summary>The colours the ghost fades to, kept separate from the colours it shows.</summary>
     private readonly RgbColor[] _targetColours = new RgbColor[16];
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<WreckedShipGhostProgram> Program { get; set; }
 
     /// <summary>The current behaviour; none once a kill has emptied the record.</summary>
@@ -32,7 +32,7 @@ public sealed class WreckedShipGhostEnemyState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour, timer or flicker offset.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour, timer or flicker offset.</summary>
     internal void ClearWithRecord()
     {
         Function = null;
@@ -48,7 +48,7 @@ public sealed class WreckedShipGhostEnemyState
 
     /// <summary>
     /// Extended words $01 (fraction) and $02 (whole pixels): the visible ghost's signed 16.16 vertical speed in pixels
-    /// per update, accelerating toward <see cref="BobbingOrigin"/> with the cartridge's carry and wraparound.
+    /// per update, accelerating toward <see cref="BobbingOrigin"/> with the game's carry and wraparound.
     /// </summary>
     public SignedSixteenSixteen VerticalVelocity { get; internal set; }
 

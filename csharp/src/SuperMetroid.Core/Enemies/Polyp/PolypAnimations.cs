@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>
-/// Polyp's stationary pose as a typed program (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// Polyp's stationary pose as a typed program (#641). Each
 /// frame shows a <see cref="PolypFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class PolypAnimations
@@ -23,7 +23,7 @@ internal static class PolypAnimations
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<PolypProgram, PolypFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<PolypProgram, PolypFrame, NoAnimationCue>.Show(new(pose), duration);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<PolypProgram, PolypFrame, NoAnimationCue> Hold => AnimationProgramStep<PolypProgram, PolypFrame, NoAnimationCue>.Hold;
 
 }

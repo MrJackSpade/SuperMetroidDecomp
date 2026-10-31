@@ -58,7 +58,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WalkingSpacePirateBehavior.IsWalkingSpacePirateDefinition(definition) ||
         NinjaSpacePirateBehavior.IsNinjaSpacePirateDefinition(definition);
 
-    /// <summary>Ports <c>InitAI_PirateWall</c> at <c>$B2:EF9F</c>.</summary>
+    /// <summary>Ports <c>InitAI_PirateWall</c>.</summary>
     internal static void InitializeWallSpacePirate(RoomEnemySlot slot)
     {
         var state = new WallSpacePirateEnemyState();
@@ -158,12 +158,12 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         SnapWallSpacePirateXToTile(slot);
     }
 
-    /// <summary>Uses native sine and cosine products to place the Pirate on a parameter-two-sized jump ellipse.</summary>
+    /// <summary>Uses sine and cosine products to place the Pirate on a parameter-two-sized jump ellipse.</summary>
     private static void PositionWallSpacePirateOnArc(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
     {
-        // Native math rewrites both whole positions every frame ($B2:F0F9/$F113) and leaves
+        // Math rewrites both whole positions every frame and leaves
         // the fractions untouched. The jump ellipse is parameter2 pixels wide and
         // parameter2/4 pixels tall.
         slot.Position = slot.Position.WithWrappedWholeX(
@@ -181,7 +181,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         CoordinateAxis.Distance(samus.Position.Y.Whole, slot.Position.Y.Whole) <
             WallPirateSamusDetectionBand;
 
-    /// <summary>Applies the native split alignment rule when a Pirate starts or lands on a wall.</summary>
+    /// <summary>Applies the split alignment rule when a Pirate starts or lands on a wall.</summary>
     private static void SnapWallSpacePirateXToTile(RoomEnemySlot slot)
     {
         // `$B2:EFFF` deliberately has two alignment grids. Nibbles 0..10 round down to an
@@ -291,7 +291,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>
     /// Carries out one cue of the wall Space Pirates' animations. A climb continues at the opposite climb after terrain
-    /// contact and a random direction choice always continues at the chosen climb, as the native opcodes return those
+    /// contact and a random direction choice always continues at the chosen climb, as the opcodes return those
     /// lists; every other cue runs on.
     /// </summary>
     private WallSpacePirateProgram? ApplyWallSpacePirateCue(RoomEnemySlot slot, WallSpacePirateCue cue, RoomLevelData? level)
@@ -368,7 +368,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 // is observable) or a Ninja's spin-jump speed; a walking Pirate keeps nothing there.
                 ClearPirateMoveOnShotDeath(c.Enemy);
                 // $B2:878F records the Gold Ninja's position as the drop origin before EnemyDeath clears the slot;
-                // $B2:87B4 then spawns the death explosion before MetalNinjaPirateDeathItemDropRoutine ($B2:87B8)
+                // $B2:87B4 then spawns the death explosion before MetalNinjaPirateDeathItemDropRoutine
                 // spawns the drops.
                 bool spawnsGoldNinjaDrops = c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja;
                 Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;

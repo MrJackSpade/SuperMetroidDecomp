@@ -57,7 +57,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Ports <c>InitAI_Spark</c> at <c>$A8:E637</c>.</summary>
+    /// <summary>Ports <c>InitAI_Spark</c>.</summary>
     internal void InitializeSpark(RoomEnemySlot slot)
     {
         var state = new SparkEnemyState();
@@ -75,7 +75,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         // defeat is exempt under the emulation scope limits (owner decision on #1318).
     }
 
-    /// <summary>Ports the indirect main dispatcher at <c>$A8:E68E</c>.</summary>
+    /// <summary>Ports the indirect main dispatcher.</summary>
     private void RunSparkMain(RoomEnemySlot slot, SparkEnemyState state)
     {
         switch (state.Function)
@@ -130,7 +130,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         return false;
     }
 
-    /// <summary>Ports <c>SetSparkFunctionTimer</c> at <c>$A8:E6F6</c>.</summary>
+    /// <summary>Ports <c>SetSparkFunctionTimer</c>.</summary>
     private void SetSparkFunctionTimer(SparkEnemyState state, int additionalTime)
     {
         int baseTime = state.BaseFunctionTime;

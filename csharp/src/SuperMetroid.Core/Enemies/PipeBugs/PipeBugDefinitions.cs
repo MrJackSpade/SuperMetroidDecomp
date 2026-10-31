@@ -12,7 +12,7 @@ internal static class PipeBugDefinitions
 
     /// <summary>
     /// $B3:8C87-8CA4 assigns each formation slot its center/upper/lower movement
-    /// function. These are semantic native role branches, not ordinal addresses.
+    /// function. These are semantic role branches, not ordinal addresses.
     /// </summary>
     internal static readonly PipeBugEnemyFunction[] NorfairPostRiseFunctions =
     [

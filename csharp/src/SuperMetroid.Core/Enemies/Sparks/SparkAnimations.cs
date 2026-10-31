@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Sparks.SparkProgram;
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>
-/// The Wrecked Ship Spark's flicker, active and emitter animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// The Wrecked Ship Spark's flicker, active and emitter animations as typed programs (#641). Each
 /// frame shows a <see cref="SparkFrame"/> pose and each callback becomes a <see cref="SparkCue"/> with its typed operands.
 /// </summary>
 internal static class SparkAnimations
@@ -72,7 +72,7 @@ internal static class SparkAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<SparkProgram, SparkFrame, SparkCue> FallInto(SparkProgram program) => AnimationProgramStep<SparkProgram, SparkFrame, SparkCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<SparkProgram, SparkFrame, SparkCue> Hold => AnimationProgramStep<SparkProgram, SparkFrame, SparkCue>.Hold;
 
 }

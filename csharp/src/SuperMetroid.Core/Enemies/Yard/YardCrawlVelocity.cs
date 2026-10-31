@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// <summary>Signs a Yard's crawling speed for its direction.</summary>
 public static class YardCrawlVelocity
 {
-    /// <summary>Equivalent to native XOR $FFFF then increment; negation wraps at sixteen bits.</summary>
+    /// <summary>Equivalent to XOR $FFFF then increment; negation wraps at sixteen bits.</summary>
     public static EightEightVector<RoomPixels> Apply(int magnitude, YardDirection direction)
     {
         var positive = new SignedEightEight(magnitude);

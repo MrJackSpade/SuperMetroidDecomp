@@ -1,21 +1,21 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// Dragon's idle, wing and attack animations as typed programs (#641), one per bank-$A2 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="DragonAnimations"/>.
+/// Dragon's idle, wing and attack animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="DragonAnimations"/>.
 /// </summary>
 internal enum DragonProgram
 {
-    /// <summary><c>InstList_Dragon_Idle_FacingLeft</c> at $A2:E59B.</summary>
+    /// <summary>The idle facing left animation.</summary>
     IdleFacingLeft,
-    /// <summary><c>InstList_Dragon_Wings_FacingLeft</c> at $A2:E5A1.</summary>
+    /// <summary>The wings facing left animation.</summary>
     WingsFacingLeft,
-    /// <summary><c>InstList_Dragon_Idle_FacingRight</c> at $A2:E5AD.</summary>
+    /// <summary>The idle facing right animation.</summary>
     IdleFacingRight,
-    /// <summary><c>InstList_Dragon_Wings_FacingRight</c> at $A2:E5B3.</summary>
+    /// <summary>The wings facing right animation.</summary>
     WingsFacingRight,
-    /// <summary><c>InstList_Dragon_Attacking_FacingLeft</c> at $A2:E5BF.</summary>
+    /// <summary>The attacking facing left animation.</summary>
     AttackingFacingLeft,
-    /// <summary><c>InstList_Dragon_Attacking_FacingRight</c> at $A2:E5D7.</summary>
+    /// <summary>The attacking facing right animation.</summary>
     AttackingFacingRight,
 }

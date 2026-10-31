@@ -3,15 +3,15 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <summary>Compiled physical phase definitions for Magdollite's rising body.</summary>
 internal static class MagdollitePhaseDefinitions
 {
-    /// <summary>$A8:B220, maximum whole-pixel rise before Magdollite reaches its apex.</summary>
+    /// <summary>Maximum whole-pixel rise before Magdollite reaches its apex.</summary>
     internal const int MaximumRise = 108;
 
     /// <summary>
-    /// Whether an arm in each enemy slot grows one final phase on reaching <see cref="MaximumRise"/>. The cartridge's
-    /// <c>.doneGrowing</c> at $A8:B259 is reached from the maximum-rise test before Y is loaded from the growth
+    /// Whether an arm in each enemy slot grows one final phase on reaching <see cref="MaximumRise"/>. The game's
+    /// <c>.doneGrowing</c> is reached from the maximum-rise test before Y is loaded from the growth
     /// index, so it compares the rise with the word the slot's offset selects past the threshold table
-    /// ($A8:AF55 + 64*slot), using the Y the enemy main loop left at $A0:9073. The
-    /// threshold table holds nine words, so every slot but zero reads the bank-$A8 bytes that follow it. The rise is
+    ///, using the Y the enemy main loop left. The
+    /// threshold table holds nine words, so every slot but zero reads the bytes that follow it. The rise is
     /// then 108 to 112 pixels, and each of those words gives the same answer for every such rise.
     /// </summary>
     internal static readonly bool[] s_apexGrowsByEnemySlot =

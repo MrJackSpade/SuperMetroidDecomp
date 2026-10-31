@@ -9,7 +9,7 @@ internal static class FirefleaOrbit
     {
         if (index >= FirefleaMovementDefinitions.Radii.Length)
             throw new InvalidDataException(
-                $"Fireflea radius index {index} is outside the 8-entry native table.");
+                $"Fireflea radius index {index} is outside the eight authored radii.");
         return FirefleaMovementDefinitions.Radii[index];
     }
 }

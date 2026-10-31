@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 
 /// <summary>
-/// The presentation boundary of the walking Space Pirates' programs (#641): the bank-$B2 spritemap each
+/// The presentation boundary of the walking Space Pirates' programs (#641): the spritemap each
 /// <see cref="WalkingSpacePirateFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class WalkingSpacePirateFrameDefinitions

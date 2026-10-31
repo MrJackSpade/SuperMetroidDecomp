@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>
-/// The eye-door sweat drop's falling and floor-splash programs (#1296), in place of their bank-$86 lists ($86:B615..B62C). Each frame shows a <see cref="EyeDoorSweatFrame"/> pose and each
+/// The eye-door sweat drop's falling and floor-splash programs (#1296). Each frame shows a <see cref="EyeDoorSweatFrame"/> pose and each
 /// command becomes an <see cref="EnemyProjectileCommonCue"/>.
 /// </summary>
 internal static class EyeDoorSweatAnimations
@@ -38,6 +38,6 @@ internal static class EyeDoorSweatAnimations
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => AnimationProgramStep<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue>.Publish(cue);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<EyeDoorSweatProgram, EyeDoorSweatFrame, EnemyProjectileCommonCue>.Hold;
 }

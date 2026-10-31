@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 
 /// <summary>
-/// The presentation boundary of the Morph Ball eye's programs (#641): the bank-$A8 spritemap each
+/// The presentation boundary of the Morph Ball eye's programs (#641): the spritemap each
 /// <see cref="MorphBallEyeFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class MorphBallEyeFrameDefinitions

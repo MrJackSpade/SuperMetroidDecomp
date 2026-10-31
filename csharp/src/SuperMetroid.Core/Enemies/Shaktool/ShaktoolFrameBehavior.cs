@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
 /// How a Shaktool segment moves itself before its instructions run.
-/// Its values are arbitrary; verification's native view names the cartridge routines each member stands for (#1412).
+/// Its values are arbitrary; verification's view names the game routines each member stands for (#1412).
 /// </summary>
 public enum ShaktoolFrameBehavior
 {

@@ -33,7 +33,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Angle bits toggled after collision with a horizontal surface.</summary>
     private const int MultiviolaVerticalReflection = 192;
 
-    /// <summary>Ports <c>InitAI_Multiviola</c> at $A2:B3E0.</summary>
+    /// <summary>Ports <c>InitAI_Multiviola</c>.</summary>
     internal static void InitializeMultiviola(RoomEnemySlot slot)
     {
         var state = new MultiviolaEnemyState
@@ -45,12 +45,12 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Retail redundantly performs the same magnitude calculation here and again at the
         // beginning of every main-AI call. Preserve the visible variable writes: debugging
-        // immediately after room load should match $0FAC-$0FB2 before the first frame.
+        // immediately after room load should match the speed words before the first frame.
         CalculateMultiviolaVelocityMagnitudes(state);
         state.Program = AnimationProgramCursor<MultiviolaProgram>.Start(MultiviolaProgram.Flying);
     }
 
-    /// <summary>Ports <c>MainAI_Multiviola</c> at $A2:B40F.</summary>
+    /// <summary>Ports <c>MainAI_Multiviola</c>.</summary>
     private void RunMultiviolaMain(
         RoomEnemySlot slot,
         MultiviolaEnemyState state,
@@ -62,8 +62,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
                 "Multiviola movement requires the active room collision allocation.");
         }
 
-        // The two magnitudes are always rebuilt from the current reflected angle. Native
-        // code therefore stores the attempted velocity for this frame, not a persistent
+        // The two magnitudes are always rebuilt from the current reflected angle. The game
+        // therefore stores the attempted velocity for this frame, not a persistent
         // direction vector that can simply be negated after collision.
         CalculateMultiviolaVelocityMagnitudes(state);
 
@@ -97,7 +97,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     private static ByteAngle HeadingAngle(MultiviolaEnemyState state) => new(WordWrap.LowByte(state.Heading));
 
     /// <summary>
-    /// Recreates $A0:B643's unsigned |cos|/|sin| products of the heading and speed.
+    /// Recreates the shared unsigned |cos|/|sin| products of the heading and speed.
     /// </summary>
     private static void CalculateMultiviolaVelocityMagnitudes(MultiviolaEnemyState state)
     {
@@ -115,8 +115,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces the two-word EOR/EOR+INC sequences at $A2:B443 and $A2:B47D. This is not
-    /// a conventional 32-bit negation: when the fractional word is zero, its wrapped INC
+    /// Reproduces the Multiviola's two-word negations. This is not
+    /// a conventional 32-bit negation: when the fractional word is zero, its wrapped increment
     /// does not carry into the already-complemented whole word, leaving the velocity exactly
     /// one pixel/frame too negative. The retail disassembly explicitly documents this bug.
     /// </summary>
@@ -133,7 +133,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(NegateWithoutFractionCarry(state.Velocity.Y));
     }
 
-    /// <summary>Applies the native separate-word complement and fractional increment, including its missing carry.</summary>
+    /// <summary>Applies the separate-word complement and fractional increment, including its missing carry.</summary>
     private static SignedSixteenSixteen NegateWithoutFractionCarry(SignedSixteenSixteen axis) =>
         SignedSixteenSixteen.FromParts(
             CoordinateAxis.AsSigned(~axis.WholeWord), WordWrap.Unsigned(~axis.Fraction + 1));

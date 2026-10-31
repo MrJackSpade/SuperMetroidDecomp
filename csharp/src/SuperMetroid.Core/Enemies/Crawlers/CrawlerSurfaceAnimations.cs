@@ -8,7 +8,7 @@ internal static class CrawlerSurfaceAnimations
         CrawlerAnimationFamily family,
         CrawlerSurfaceOrientation orientation) => ForOrientation(Family(family), orientation);
 
-    /// <summary>Returns one shared surface animation using the native even species offset.</summary>
+    /// <summary>Returns one shared surface animation using the even species offset.</summary>
     internal static CrawlerProgram SurfaceProgram(
         int speciesByteOffset,
         CrawlerSurfaceOrientation orientation)

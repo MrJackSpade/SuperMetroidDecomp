@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal static class CrawlerAnimationDefinitions
 {
     /// <summary>
-    /// The four-word initial tables at <c>$A3:E2CC</c>, <c>$B667</c>, <c>$96DB</c>,
-    /// <c>$992B</c>, and <c>$E03B</c>, by <see cref="CrawlerAnimationFamily"/>.
+    /// The four-word initial animation tables, one per
+    /// <see cref="CrawlerAnimationFamily"/>.
     /// </summary>
     internal static readonly Dictionary<CrawlerAnimationFamily, CrawlerAnimationDefinition> Families = new()
     {
@@ -37,7 +37,7 @@ internal static class CrawlerAnimationDefinitions
     };
 
     /// <summary>
-    /// $A3:E630-$E65F: the family each even species instruction-table offset selects; the first three species share the
+    /// The family each even species instruction-table offset selects; the first three species share the
     /// common animation, the remaining species select Viola, Sciser and Zero respectively.
     /// </summary>
     internal static readonly Dictionary<int, CrawlerAnimationFamily> SurfaceFamilies = new()

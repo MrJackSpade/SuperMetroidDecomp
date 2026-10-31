@@ -41,7 +41,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Signed 8.8 vertical speed decrement applied during dive and return.</summary>
     private const int NorfairRioGravity = 32;
 
-    /// <summary>Ports <c>NorfairRio_Init</c> at $A2:C242.</summary>
+    /// <summary>Ports <c>NorfairRio_Init</c>.</summary>
     internal void InitializeNorfairRio(RoomEnemySlot slot)
     {
         var state = new NorfairRioEnemyState
@@ -67,7 +67,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports <c>NorfairRio_Main</c> and functions one through six at $A2:C277-$C40C.
+    /// Ports <c>NorfairRio_Main</c> and functions one through six.
     /// Every parent and follower advances the shared enemy RNG before dispatch.
     /// </summary>
     private void RunNorfairRioMain(
@@ -173,7 +173,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case NorfairRioEnemyFunction.FinishLanding:
-                // Native function six is intentionally a one-frame state: it changes only
+                // Function six is intentionally a one-frame state: it changes only
                 // the dispatch word. Looping list $C179 remains installed, which also keeps
                 // the follower half visible while the actor waits for another random attack.
                 state.Function = NorfairRioEnemyFunction.WaitForAttackOpportunity;

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>
-/// The n00b tube's crack, glass shard and released-air bubble programs (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The n00b tube's crack, glass shard and released-air bubble programs (#641). Each
 /// frame shows a <see cref="NoobTubeProjectileFrame"/> pose and each command becomes a <see cref="NoobTubeProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class NoobTubeProjectileAnimations
@@ -336,12 +336,12 @@ internal static class NoobTubeProjectileAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> FallInto(NoobTubeProjectileProgram program) => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Hold => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.Hold;
 
-    /// <summary>Shows <paramref name="pose"/>, or on even frames <paramref name="reflectedPose"/>, for the one update a native flicker lasts.</summary>
+    /// <summary>Shows <paramref name="pose"/>, or on even frames <paramref name="reflectedPose"/>, for the one update a flicker lasts.</summary>
     private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Flicker(int pose, int reflectedPose) => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.Show(new(pose, reflectedPose), 1);
 
-    /// <summary>Shows <paramref name="pose"/> for the one update a native flicker lasts.</summary>
+    /// <summary>Shows <paramref name="pose"/> for the one update a flicker lasts.</summary>
     private static AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue> Flicker(int pose) => AnimationProgramStep<NoobTubeProjectileProgram, NoobTubeProjectileFrame, NoobTubeProjectileCue>.Show(new(pose), 1);
 }

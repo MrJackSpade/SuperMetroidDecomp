@@ -3,9 +3,9 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <summary>Chooses a deactivated Work Robot's unpowered pose.</summary>
 internal static class WorkRobotPoses
 {
-    /// <summary>The unpowered pose <paramref name="parameter"/> selects; the native overrun at parameter three fails loudly.</summary>
+    /// <summary>The unpowered pose <paramref name="parameter"/> selects; the overrun at parameter three fails loudly.</summary>
     /// <exception cref="InvalidDataException"><paramref name="parameter"/> is three, which reads code as a list.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="parameter"/> is outside the native range check.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="parameter"/> is outside the range check.</exception>
     internal static WorkRobotProgram InitialProgram(int parameter)
     {
         if ((uint)parameter < (uint)WorkRobotInitializationDefinitions.InitialPrograms.Length)

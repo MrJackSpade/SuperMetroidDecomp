@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <remarks>
 /// Reviewed for #1165. The 132 frame records lie in 8 contiguous runs, so every frame address derives from its run
 /// start and the preceding record sizes. Each component references its hitbox list directly; where the 147 lists lie
-/// in the cartridge is known only to the verification oracle. Component placements and list rectangles are authored
+/// in the game is known only to the verification oracle. Component placements and list rectangles are authored
 /// per drawing and retained: no hitbox list is a facing mirror of another, and the 105 lists that repeat another
 /// list's rectangles stay separate records.
 /// </remarks>
 internal static class SpacePirateCollisionDefinitions
 {
     /// <summary>
-    /// The 147 authored hitbox lists in native record order; components reference them directly, and the
-    /// verification oracle owns where each list lies in the cartridge. Lists that repeat another list's
+    /// The 147 authored hitbox lists in record order; components reference them directly, and the
+    /// verification oracle owns where each list lies in the game. Lists that repeat another list's
     /// rectangles stay separate records, as authored.
     /// </summary>
     internal static readonly EnemyCollisionHitbox[][] HitboxLists =

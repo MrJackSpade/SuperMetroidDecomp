@@ -3,21 +3,21 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
-/// Physical collision for Oum's 30 bank-$A2 extended frames. Every native frame
+/// Physical collision for Oum's 30 extended frames. Every frame
 /// at $CB87-$CCA9 has exactly one component at (0,0); only its hitbox-list
 /// pointer changes. The editable OAM and the three callback identities are
 /// intentionally separate from this catalog.
 /// </summary>
 internal static class MaridiaLargeSnailCollisionDefinitions
 {
-    /// <summary>Native bank containing Oum's extended frames and hitbox lists.</summary>
-    /// <summary>Bank-$A2 callback used by Oum's extended hitboxes that hurt Samus on contact.</summary>
+    /// <summary>Bank containing Oum's extended frames and hitbox lists.</summary>
+    /// <summary>Callback used by Oum's extended hitboxes that hurt Samus on contact.</summary>
     private const EnemyReaction DamageTouch = EnemyReaction.MaridiaLargeSnailDamagingTouch;
-    /// <summary>Bank-$A2 callback for Oum surfaces that permit harmless contact.</summary>
+    /// <summary>Callback for Oum surfaces that permit harmless contact.</summary>
     private const EnemyReaction SafeTouch = EnemyReaction.MaridiaLargeSnailNonDamagingTouch;
-    /// <summary>Bank-$A2 callback for the shot-sensitive portion of an Oum frame.</summary>
+    /// <summary>Callback for the shot-sensitive portion of an Oum frame.</summary>
     private const EnemyReaction Shot = EnemyReaction.MaridiaLargeSnailShot;
-    /// <summary>Bank-$A0 no-op callback on Oum hitboxes that do not react to shots.</summary>
+    /// <summary>No-op callback on Oum hitboxes that do not react to shots.</summary>
     private const EnemyReaction NoShot = EnemyReaction.Ignore;
 
     /// <summary>The 30 hitbox lists, one per frame in frame order; the rectangles are fitted to the drawings.</summary>

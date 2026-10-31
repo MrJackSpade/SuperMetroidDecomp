@@ -7,7 +7,7 @@ public static class YardKickDefinitions
     internal const int FastestKickSpeed = 15;
 
     /// <summary>
-    /// The upward launch each whole horizontal speed selects, in sixteenths of a pixel per frame. The cartridge authors
+    /// The upward launch each whole horizontal speed selects, in sixteenths of a pixel per frame. The game authors
     /// each launch as a whole pixel count, three at rest and one more every third speed, with a fraction of zero, five
     /// eighths or one quarter of a pixel added toward zero; these are the resulting signed launches.
     /// </summary>

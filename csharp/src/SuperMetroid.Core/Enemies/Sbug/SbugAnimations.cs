@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>
-/// Sbug's eight directional animation loops as typed programs (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// Sbug's eight directional animation loops as typed programs (#641). Each
 /// frame shows a <see cref="SbugFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class SbugAnimations

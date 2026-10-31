@@ -10,7 +10,7 @@ internal static class MaridiaLargeSnailInstructionDefinitions
         MaridiaLargeSnailAnimation.FacingRightAttacking, MaridiaLargeSnailAnimation.FacingLeftAttacking,
         MaridiaLargeSnailAnimation.FacingRightRollingBackwards, MaridiaLargeSnailAnimation.FacingLeftRollingBackwards);
 
-    /// <summary>$A2:CB77 InstListPointers_Oum: the facing-specific program of each idle, roll and attack state.</summary>
+    /// <summary>The facing-specific program of each idle, roll and attack state.</summary>
     internal static readonly Dictionary<MaridiaLargeSnailAnimation, MaridiaLargeSnailProgram> Programs = new()
     {
         [MaridiaLargeSnailAnimation.FacingRightIdle] = MaridiaLargeSnailProgram.FacingRightIdle,

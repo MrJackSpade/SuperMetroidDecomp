@@ -2,13 +2,13 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>
-/// The state of the Blue Brinstar face block (<c>$A8:E8AE</c>). Its activation latch and last horizontal distance
-/// are values the cartridge keeps in the enemy's common record, so a kill empties them with that record
+/// The state of the Blue Brinstar face block. Its activation latch and last horizontal distance
+/// are values the game keeps in the enemy's common record, so a kill empties them with that record
 /// (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class BlueBrinstarFaceBlockEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<BlueBrinstarFaceBlockProgram> Program { get; set; }
 
     /// <summary>
@@ -34,7 +34,7 @@ public sealed class BlueBrinstarFaceBlockEnemyState
     /// </summary>
     public bool FacesRight { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record: not activated, no distance.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record: not activated, no distance.</summary>
     internal void ClearWithRecord()
     {
         Activated = false;

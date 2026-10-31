@@ -1,45 +1,45 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>
-/// The Yapping Maw's eight attack bites and six cooldown animations as typed programs (#641), one per bank-$A8 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="YappingMawAnimations"/>.
+/// The Yapping Maw's eight attack bites and six cooldown animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="YappingMawAnimations"/>.
 /// </summary>
 internal enum YappingMawProgram
 {
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingUp</c> at $A8:9F6F.</summary>
+    /// <summary>The attacking up animation.</summary>
     AttackingUp,
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingUpRight</c> at $A8:9F85.</summary>
+    /// <summary>The attacking up right animation.</summary>
     AttackingUpRight,
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingRight</c> at $A8:9F9B.</summary>
+    /// <summary>The attacking right animation.</summary>
     AttackingRight,
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingDownRight</c> at $A8:9FB1.</summary>
+    /// <summary>The attacking down right animation.</summary>
     AttackingDownRight,
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingDown</c> at $A8:9FC7.</summary>
+    /// <summary>The attacking down animation.</summary>
     AttackingDown,
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingDownLeft</c> at $A8:9FDD.</summary>
+    /// <summary>The attacking down left animation.</summary>
     AttackingDownLeft,
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingLeft</c> at $A8:9FF3.</summary>
+    /// <summary>The attacking left animation.</summary>
     AttackingLeft,
-    /// <summary><c>InstList_YappingMaw_Attacking_FacingUpLeft</c> at $A8:A009.</summary>
+    /// <summary>The attacking up left animation.</summary>
     AttackingUpLeft,
-    /// <summary><c>InstList_YappingMaw_Cooldown_FacingUpRight</c> at $A8:A01F.</summary>
+    /// <summary>The cooldown up right animation.</summary>
     CooldownUpRight,
-    /// <summary><c>InstList_YappingMaw_Cooldown_FacingUp_0</c> at $A8:A025.</summary>
+    /// <summary>The cooldown up animation.</summary>
     CooldownUp,
-    /// <summary>The loop at $A8:A027.</summary>
+    /// <summary>The loop.</summary>
     CooldownUpLoop,
-    /// <summary><c>InstList_YappingMaw_Cooldown_FacingUpLeft_0</c> at $A8:A03D.</summary>
+    /// <summary>The cooldown up left animation.</summary>
     CooldownUpLeft,
-    /// <summary>The loop at $A8:A045.</summary>
+    /// <summary>The loop.</summary>
     CooldownUpLeftLoop,
-    /// <summary><c>InstList_YappingMaw_Cooldown_FacingDownRight</c> at $A8:A05B.</summary>
+    /// <summary>The cooldown down right animation.</summary>
     CooldownDownRight,
-    /// <summary><c>InstList_YappingMaw_Cooldown_FacingDown_0</c> at $A8:A061.</summary>
+    /// <summary>The cooldown down animation.</summary>
     CooldownDown,
-    /// <summary>The loop at $A8:A063.</summary>
+    /// <summary>The loop.</summary>
     CooldownDownLoop,
-    /// <summary><c>InstList_YappingMaw_Cooldown_FacingDownLeft_0</c> at $A8:A079.</summary>
+    /// <summary>The cooldown down left animation.</summary>
     CooldownDownLeft,
-    /// <summary>The loop at $A8:A081.</summary>
+    /// <summary>The loop.</summary>
     CooldownDownLeftLoop,
 }

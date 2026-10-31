@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>
-/// The Stoke's projectile program (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="StokeProjectileAnimations"/>.
+/// The Stoke's projectile program (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// Their steps are <see cref="StokeProjectileAnimations"/>.
 /// </summary>
 internal enum StokeProjectileProgram
 {
-    /// <summary><c>UNUSED_InstList_EnemyProjectile_StokeProjectile_86DB0B</c> at $86:DB0C.</summary>
+    /// <summary>The initial animation. No authored spawn or branch enters it.</summary>
     Initial,
 }

@@ -14,7 +14,7 @@ using SuperMetroid.Core.Enemies.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The bank-$86 enemy-projectile engine: the eighteen physical slots, allocation and definition setup, the
+/// The enemy-projectile engine: the eighteen physical slots, allocation and definition setup, the
 /// per-frame pass (pre-instructions, then each instruction list), the instruction interpreter, both draw-priority
 /// passes and the Samus collision passes. Species behavior arrives through registered handlers; the engine names
 /// no species.
@@ -47,7 +47,7 @@ internal sealed class EnemyProjectileEngine
         return table;
     }
 
-    /// <summary>Carries out one shared bank-$86 command of a typed projectile program.</summary>
+    /// <summary>Carries out one shared command of a typed projectile program.</summary>
     private void ApplyCommonCue(RoomEnemyProjectileSlot projectile, EnemyProjectileCommonCue cue)
     {
         switch (cue)
@@ -76,14 +76,14 @@ internal sealed class EnemyProjectileEngine
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes projectiles from the loaded graphics set's sheets.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Owns bank-$B4 dust and explosion sprites separate from projectile slots.</summary>
+    /// <summary>Owns dust and explosion sprites separate from projectile slots.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
     /// <summary>Publishes room quake effects requested by projectile instructions.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Queues species projectile sounds under native queue limits.</summary>
+    /// <summary>Queues species projectile sounds under queue limits.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects the physical bank-$86 pool to room sprites, earthquakes and audio.</summary>
+    /// <summary>Connects the physical pool to room sprites, earthquakes and audio.</summary>
     internal EnemyProjectileEngine(EnemyRoomBinding room, EnemyPresentation presentation, RoomSpriteObjectPool spriteObjects,
         RoomEarthquake earthquake, EnemyAudioQueue audio)
     {
@@ -96,7 +96,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Eighteen physical enemy-projectile indices $00..$22 in two-byte steps.</summary>
     internal const int RoomEnemyProjectileSlotCount = 18;
 
-    /// <summary>Native pool including inactive entries, traversed from the highest physical slot down.</summary>
+    /// <summary>Pool including inactive entries, traversed from the highest physical slot down.</summary>
     private readonly RoomEnemyProjectileSlot[] _enemyProjectiles =
         Enumerable.Range(0, RoomEnemyProjectileSlotCount)
             .Select(index => new RoomEnemyProjectileSlot(index))
@@ -116,7 +116,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The 16-bit frame counter for the current projectile pass.</summary>
     internal int CurrentFrame16 { get; private set; }
 
-    /// <summary>All eighteen physical bank-$86 slots, including currently inactive slots.</summary>
+    /// <summary>All eighteen physical slots, including currently inactive slots.</summary>
     public IReadOnlyList<RoomEnemyProjectileSlot> EnemyProjectiles => _enemyProjectiles;
 
     /// <summary>Requests the dud sound a rejected Samus shot makes.</summary>
@@ -158,7 +158,7 @@ internal sealed class EnemyProjectileEngine
                     SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion)
                     continue;
 
-                // The native path intentionally compares only 32-pixel cells. It does not
+                // The path intentionally compares only 32-pixel cells. It does not
                 // run the radius overlap used by ordinary enemies, a coarse quirk preserved
                 // here instead of “fixing” shots near a cell corner.
                 if (enemyProjectile.Position.X.Whole >> CoarseContactCellShift != shot.Position.X.Whole >> CoarseContactCellShift ||
@@ -186,7 +186,7 @@ internal sealed class EnemyProjectileEngine
                         : EnemyProjectileDeleteAnimation.Instance);
                     enemyProjectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
 
-                    // Native masks properties with $0FFF. The typed fields below are the
+                    // Masks properties with $0FFF. The typed fields below are the
                     // three high property bits represented by this runtime, so clearing
                     // them is the exact structural equivalent rather than a Kago special.
                     enemyProjectile.BlocksSamusProjectiles = false;
@@ -214,7 +214,7 @@ internal sealed class EnemyProjectileEngine
         return frame;
     }
 
-    /// <summary>One bank-$86 projectile pass: every live slot's pre-instruction, then its instruction list.</summary>
+    /// <summary>One projectile pass: every live slot's pre-instruction, then its instruction list.</summary>
     internal void RunPass(
         RoomLevelData level,
         SamusState? samus,
@@ -270,7 +270,7 @@ internal sealed class EnemyProjectileEngine
     public void ResolveEnemyProjectileSamusHits(SamusState? samus)
     {
         _room.EnsureLoaded();
-        // Native gameplay runs `$86:868B` for every projectile first, then enters the
+        // Gameplay runs `$86:868B` for every projectile first, then enters the
         // separate `$A0:9894` Samus-collision pass. That pass samples invincibility and
         // contact-damage state once at entry; damage from one overlapping projectile does
         // not abort the remaining descending-slot scan. This distinction is observable for
@@ -390,7 +390,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Searches physical slots $22 down to $00 and returns null when the finite pool is full.</summary>
     internal RoomEnemyProjectileSlot? AllocateEnemyProjectile()
     {
-        // SpawnEnemyProjectile searches from native index $22 toward zero.
+        // SpawnEnemyProjectile searches from index $22 toward zero.
         for (int index = _enemyProjectiles.Length - 1; index >= 0; index--)
         {
             RoomEnemyProjectileSlot projectile = _enemyProjectiles[index];
@@ -404,7 +404,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Copies the seven-word bank-$86 definition record installed by
+    /// Copies the seven-word definition record installed by
     /// <c>SpawnEprojInner</c>. Family initializers may then replace fields exactly as their
     /// cartridge routine does; centralizing the copy prevents each projectile translation
     /// from inventing subtly different radius/property semantics.
@@ -424,7 +424,7 @@ internal sealed class EnemyProjectileEngine
             projectile.StartAnimation(animation);
 
         // SpawnEprojInner shows the blank frame before the first list tick. It is intentionally not the program's first
-        // frame; bank-$86 advances to that on its own pass.
+        // frame; advances to that on its own pass.
         projectile.Frame = EnemyProjectileFrameId.Blank;
         projectile.Radius = definition.Radius;
         projectile.Damage = definition.Damage;
@@ -490,7 +490,7 @@ internal sealed class EnemyProjectileEngine
 
         // Bank $86 checks every room block crossed by the projectile's perpendicular
         // diameter. The positive edge is inclusive, hence radius - 1; using +radius made
-        // right/down projectiles collide one pixel earlier than their native counterparts.
+        // right/down projectiles collide one pixel earlier than their counterparts.
         // The edge wraps at the room's sixteen-bit coordinate width, as the probe's block bounds check expects.
         int movementEdge = CoordinateAxis.Wrap(nextPosition +
             (velocity < 0 ? -movementRadius : movementRadius - 1));
@@ -566,7 +566,7 @@ internal sealed class EnemyProjectileEngine
         }
 
         // Resolve type-$5/$D behaviour links before dispatching the final block family, just as
-        // the native projectile collision loop does. Type zero is air; type nine is a door
+        // the projectile collision loop does. Type zero is air; type nine is a door
         // and remains a wall to an enemy projectile.
         int blockIndex = EnemyTerrain.ResolveEnemyCollisionBlockIndex(level, block);
         if (blockIndex < 0)
@@ -606,7 +606,7 @@ internal sealed class EnemyProjectileEngine
 
         if (type == RoomCollisionType.Slope && collisionBlock.Behavior.IsNonSquareSlope)
         {
-            // Horizontal bank-$86 motion ignores non-square slopes; the following
+            // Horizontal motion ignores non-square slopes; the following
             // vertical pass owns their height profile. Treating one as a full wall can
             // consume every Kago falling frame before Y collision is ever attempted.
             if ((axis == Axis.Horizontal))
@@ -668,7 +668,7 @@ internal sealed class EnemyProjectileEngine
         RoomCollisionType.BombableBlock;
 
     /// <summary>
-    /// <c>CheckForCollisionWithNonAirBlock</c> ($A6:D4F9): any block type other than air,
+    /// Any block type other than air,
     /// read directly without following extensions.
     /// </summary>
     internal static bool NonAirBlockAt(RoomLevelData level, Position16<RoomPixels> pixel) =>
@@ -746,7 +746,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Ports $86:ECE3/$ED17. Both instructions consume one object-number operand and one
     /// RNG word; its low and high bytes offset X and Y around the death actor respectively.
-    /// CreateSpriteAtPos owns a separate finite bank-$B4 pool, so these decorations never
+    /// CreateSpriteAtPos owns a separate finite pool, so these decorations never
     /// consume one of the eighteen pickup/death projectile slots.
     /// </summary>
     internal void SpawnRandomEnemyDeathSprite(
@@ -763,7 +763,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Uses native RNG rejection and sign bits to reposition a projectile within <paramref name="scatter"/>'s masks.
+    /// Uses RNG rejection and sign bits to reposition a projectile within <paramref name="scatter"/>'s masks.
     /// Each axis rejects negative candidate offsets, while two independent bits from the first random sample choose
     /// the eventual signs. This peculiar rejection loop is observable in Bomb Torizo's sonic-boom wall impact, so a
     /// host RNG approximation would produce a visibly different debris cloud and desynchronize later randomness.
@@ -800,8 +800,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Allocates the shared room-graphics dust/explosion actor at <c>$86:E509</c>.
-    /// The caller selects the animation the native spawn parameter indexes; this is shared by
+    /// Allocates the shared room-graphics dust/explosion actor.
+    /// The caller selects the animation the spawn parameter indexes; this is shared by
     /// special Rinka deaths, Boulder's impact clouds, and later families that invoke the same
     /// engine primitive.
     /// </summary>
@@ -829,7 +829,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Allocates the light or dark Ceres falling-tile actor requested by room main
     /// <c>$8F:E525</c>. The X coordinate and palette variant come directly from the room's
-    /// current RNG word; this initializer owns only bank-$86's projectile fields. The room
+    /// current RNG word; this initializer owns only projectile fields. The room
     /// main supplies the tile's animation and the graphics it draws in.
     /// </summary>
     public void SpawnCeresFallingDebris(int xPosition, bool dark, EnemyProjectileAnimation animation, SpriteGraphics graphics)
@@ -865,7 +865,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Ports <c>SpawnEprojWithRoomGfx($E6D2, 0)</c> and initializer $86:E6AD.
-    /// The cartridge derives the actor origin from the currently executing save-station
+    /// The game derives the actor origin from the currently executing save-station
     /// PLM: one block right and two blocks above its trigger block.
     /// </summary>
     public void SpawnSaveStationElectricity(int plmBlockIndex, int roomWidthInBlocks)
@@ -878,7 +878,7 @@ internal sealed class EnemyProjectileEngine
         if (projectile is null)
         {
             // SpawnEprojInner deliberately drops a spawn when all eighteen physical slots
-            // are occupied. This is the cartridge's finite-pool behavior, not a host error.
+            // are occupied. This is the game's finite-pool behavior, not a host error.
             return;
         }
 
@@ -893,11 +893,11 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Allocates one of gunship function <c>$A2:AC1B</c>'s six room-graphics dust actors.
-    /// Parameter values are even byte offsets <c>0..A</c> into the native X/list tables.
+    /// Parameter values are even byte offsets <c>0..A</c> into the X/list tables.
     /// </summary>
     internal void SpawnGunshipLiftoffDustCloud(int parameter, SamusState samus)
     {
-        // Validate before allocation, including when the native projectile pool is full.
+        // Validate before allocation, including when the projectile pool is full.
         var definition = GunshipDust.ForParameter(parameter);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -949,7 +949,7 @@ internal sealed class EnemyProjectileEngine
         particle.Velocity = velocity;
     }
 
-    /// <summary>Ports common bank-$A0 <c>CreateADudShot</c> for a protected head hitbox.</summary>
+    /// <summary>Ports common <c>CreateADudShot</c> for a protected head hitbox.</summary>
     internal void CreateEnemyProjectileDudShot(SamusProjectileSlot projectile)
     {
         _ = _spriteObjects.SpawnRoomSpriteObject(
@@ -961,7 +961,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Ports <c>Delete_EnemyProjectile_IfVerticallyOffScreen</c> at $86:B5B9, shared by
+    /// Ports <c>Delete_EnemyProjectile_IfVerticallyOffScreen</c>, shared by
     /// Dragon's fireball and both n00b-tube shard pre-instructions.
     /// </summary>
     /// <remarks>
@@ -1013,7 +1013,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Draws the bank-$86 one-in-four branch ($86:A456): it is taken when both high bits of the room's next random
+    /// Draws the one-in-four branch: it is taken when both high bits of the room's next random
     /// number are set.
     /// </summary>
     internal bool TakeOneInFourBranch() => _room.Random.Generate() >> 14 == 3;

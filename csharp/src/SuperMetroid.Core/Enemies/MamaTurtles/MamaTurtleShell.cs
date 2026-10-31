@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal static class MamaTurtleShell
 {
     /// <summary>
-    /// Returns the native signed vertical contour offset for a parent-minus-actor X
+    /// Returns the signed vertical contour offset for a parent-minus-actor X
     /// difference whose magnitude is below twenty-four pixels.
     /// </summary>
     internal static short GetOffset(int parentMinusActorX)

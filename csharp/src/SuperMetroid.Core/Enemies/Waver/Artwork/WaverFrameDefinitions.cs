@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Waver.Artwork;
 
 /// <summary>
-/// The presentation boundary of Waver's programs (#641): the bank-$A3 spritemap each
+/// The presentation boundary of Waver's programs (#641): the spritemap each
 /// <see cref="WaverFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class WaverFrameDefinitions

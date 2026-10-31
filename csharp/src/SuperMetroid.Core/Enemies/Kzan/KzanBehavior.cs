@@ -19,7 +19,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the species' end-of-update sound requests.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Uses native slot adjacency to couple each Kzan bottom to its top.</summary>
+    /// <summary>Uses slot adjacency to couple each Kzan bottom to its top.</summary>
     internal KzanBehavior(EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
         _audio = audio;
@@ -146,7 +146,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
 
-        // The cartridge caps the row by the sign of its difference from the cap; both stay far
+        // The game caps the row by the sign of its difference from the cap; both stay far
         // below the sign bit, so that is the ordinary minimum.
         state.FallingSpeedRow = Math.Min(state.FallingSpeedRow + 1, KzanMaximumFallingSpeedRow);
     }
@@ -179,7 +179,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
     }
 
-    /// <summary>Subtracts the native <c>[$14].[$12]</c> split pair from enemy Y.</summary>
+    /// <summary>Subtracts the <c>[$14].[$12]</c> split pair from enemy Y.</summary>
     private static void SubtractKzanY(
         RoomEnemySlot slot,
         int wholeSpeed,
@@ -218,7 +218,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Adds only the accepted whole-pixel Kzan delta to WRAM-equivalent <c>$0B5C</c>.
-    /// Native code deliberately leaves extra Y subdisplacement untouched.
+    /// Code deliberately leaves extra Y subdisplacement untouched.
     /// </summary>
     private static void CarrySamusWithKzanIfTouchingFromBelow(
         RoomEnemySlot slot,

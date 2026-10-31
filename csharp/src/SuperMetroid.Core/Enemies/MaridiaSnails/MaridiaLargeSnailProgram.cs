@@ -1,25 +1,25 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
-/// Oum's idle, attacking and rolling animations as typed programs (#641), one per bank-$A2 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="MaridiaLargeSnailAnimations"/>.
+/// Oum's idle, attacking and rolling animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="MaridiaLargeSnailAnimations"/>.
 /// </summary>
 internal enum MaridiaLargeSnailProgram
 {
-    /// <summary><c>InstList_Oum_FacingLeft_Idle</c> at $A2:CA4B.</summary>
+    /// <summary>The facing left idle animation.</summary>
     FacingLeftIdle,
-    /// <summary><c>InstList_Oum_FacingLeft_Attacking</c> at $A2:CA51.</summary>
+    /// <summary>The facing left attacking animation.</summary>
     FacingLeftAttacking,
-    /// <summary><c>InstList_Oum_FacingLeft_RollingForwards</c> at $A2:CA8B.</summary>
+    /// <summary>The facing left rolling forwards animation.</summary>
     FacingLeftRollingForwards,
-    /// <summary><c>InstList_Oum_FacingLeft_RollingBackwards</c> at $A2:CAB3.</summary>
+    /// <summary>The facing left rolling backwards animation.</summary>
     FacingLeftRollingBackwards,
-    /// <summary><c>InstList_Oum_FacingRight_Idle</c> at $A2:CADB.</summary>
+    /// <summary>The facing right idle animation.</summary>
     FacingRightIdle,
-    /// <summary><c>InstList_Oum_FacingRight_Attacking</c> at $A2:CAE1.</summary>
+    /// <summary>The facing right attacking animation.</summary>
     FacingRightAttacking,
-    /// <summary><c>InstList_Oum_FacingRight_RollingForwards</c> at $A2:CB1B.</summary>
+    /// <summary>The facing right rolling forwards animation.</summary>
     FacingRightRollingForwards,
-    /// <summary><c>InstList_Oum_FacingRight_RollingBackwards</c> at $A2:CB43.</summary>
+    /// <summary>The facing right rolling backwards animation.</summary>
     FacingRightRollingBackwards,
 }

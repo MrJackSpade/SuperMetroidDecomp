@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>
-/// Waver's steady and spinning animations as typed programs (#641), one per bank-$A3 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="WaverAnimations"/>.
+/// Waver's steady and spinning animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="WaverAnimations"/>.
 /// </summary>
 internal enum WaverProgram
 {
-    /// <summary>The native list at $A3:86A7.</summary>
+    /// <summary>The steady facing left animation.</summary>
     SteadyFacingLeft,
-    /// <summary>The native list at $A3:86AD.</summary>
+    /// <summary>The steady facing right animation.</summary>
     SteadyFacingRight,
-    /// <summary>The native list at $A3:86B3.</summary>
+    /// <summary>The spinning facing left animation.</summary>
     SpinningFacingLeft,
-    /// <summary>The native list at $A3:86C7.</summary>
+    /// <summary>The spinning facing right animation.</summary>
     SpinningFacingRight,
 }

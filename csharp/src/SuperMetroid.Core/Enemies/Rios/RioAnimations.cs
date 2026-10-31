@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Rios.RioProgram;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The Rio's idle, swoop and cooldown animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// The Rio's idle, swoop and cooldown animations as typed programs (#641). Each
 /// frame shows a <see cref="RioFrame"/> pose and each callback becomes a <see cref="RioCue"/> with its typed operands.
 /// </summary>
 internal static class RioAnimations
@@ -74,7 +74,7 @@ internal static class RioAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<RioProgram, RioFrame, RioCue> FallInto(RioProgram program) => AnimationProgramStep<RioProgram, RioFrame, RioCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<RioProgram, RioFrame, RioCue> Hold => AnimationProgramStep<RioProgram, RioFrame, RioCue>.Hold;
 
 }

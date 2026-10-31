@@ -1,21 +1,21 @@
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>
-/// The GRipper, Ripper II and Ripper flying loops as typed programs (#641), one per bank-$A2 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="RipperAnimations"/>.
+/// The GRipper, Ripper II and Ripper flying loops as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="RipperAnimations"/>.
 /// </summary>
 internal enum RipperProgram
 {
-    /// <summary><c>InstList_GRipper_MovingLeft</c> at $A2:E19B.</summary>
+    /// <summary>The g ripper moving left animation.</summary>
     GRipperMovingLeft,
-    /// <summary><c>InstList_GRipper_MovingRight</c> at $A2:E1AF.</summary>
+    /// <summary>The g ripper moving right animation.</summary>
     GRipperMovingRight,
-    /// <summary><c>InstList_Ripper2_MovingRight</c> at $A2:E2E0.</summary>
+    /// <summary>The ripper 2 moving right animation.</summary>
     Ripper2MovingRight,
-    /// <summary><c>InstList_Ripper2_MovingLeft</c> at $A2:E2F4.</summary>
+    /// <summary>The ripper 2 moving left animation.</summary>
     Ripper2MovingLeft,
-    /// <summary><c>InstList_Ripper_MovingRight</c> at $A2:E477.</summary>
+    /// <summary>The ripper moving right animation.</summary>
     RipperMovingRight,
-    /// <summary><c>InstList_Ripper_MovingLeft</c> at $A2:E48B.</summary>
+    /// <summary>The ripper moving left animation.</summary>
     RipperMovingLeft,
 }

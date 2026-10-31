@@ -21,7 +21,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemySlotTable _slotTable;
     /// <summary>Performs common Samus touch resolution before Dragon's body and wing synchronization.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Receives each fireball's sound in call order, as the cartridge queues it.</summary>
+    /// <summary>Receives each fireball's sound in call order, as the game queues it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects Dragon body AI, paired-wing state, fireball spawning and its sound to room systems.</summary>
@@ -57,7 +57,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int DragonWaitBeforeRiseFrames = 128;
 
 
-    /// <summary>Ports <c>InitAI_Dragon</c> at $A2:E606.</summary>
+    /// <summary>Ports <c>InitAI_Dragon</c>.</summary>
     internal static void InitializeDragon(RoomEnemySlot slot)
     {
         DragonEnemyState state = CreateDragonState(slot);
@@ -66,7 +66,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsWing)
         {
             // The wing begins on table index two (left-facing wings) and never runs body AI.
-            // Property $0400 keeps the cosmetic record out of touch/shot collision passes.
+            // Its intangibility property keeps the cosmetic record out of touch/shot collision passes.
             state.RequestedAnimation = DragonAnimationSelector.WingsFacingLeft;
             state.InstalledAnimation = DragonAnimationSelector.WingsFacingLeft;
             state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
@@ -83,7 +83,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = DragonEnemyFunction.WaitToRise;
     }
 
-    /// <summary>Ports <c>MainAI_Dragon</c> at $A2:E64E and its five body functions.</summary>
+    /// <summary>Ports <c>MainAI_Dragon</c> and its five body functions.</summary>
     private void RunDragonMain(RoomEnemySlot slot, DragonEnemyState state, SamusState? samus)
     {
         switch (state.Function)
@@ -117,7 +117,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports Dragon function $A2:E654.</summary>
+    /// <summary>Waits for Samus before rising.</summary>
     internal void RunDragonWaitToRise(
         RoomEnemySlot body,
         DragonEnemyState bodyState,
@@ -134,7 +134,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.FunctionTimer = WrappingCountdown.Start(DragonRiseOrSinkFrames);
         bodyState.Function = DragonEnemyFunction.Rising;
 
-        // $E666-$E672 records the sign of (Samus X - body X) as the body's facing. The following byte-sized list
+        // The wait records the sign of (Samus X - body X) as the body's facing. The following byte-sized list
         // edits use that sign to select even/odd left/right table entries for both physical records.
         bool facingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0;
         bodyState.FacingLeft = facingLeft;
@@ -148,7 +148,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallDragonAnimationScript(wing, wingState);
     }
 
-    /// <summary>Ports Dragon function $A2:E6AD.</summary>
+    /// <summary>Rises out of the lava.</summary>
     internal void RunDragonRising(RoomEnemySlot body, DragonEnemyState bodyState)
     {
         bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
@@ -161,14 +161,14 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             bodyState.Function = DragonEnemyFunction.Attacking;
         }
 
-        // The native 16.16 constant is exactly -$0001:0000 in the NTSC build, so both
+        // The 16.16 constant is exactly -1.0, so both
         // subpositions remain untouched while body and wing rise one whole pixel.
         RoomEnemySlot wing = GetDragonWing(body);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
         wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole - 1);
     }
 
-    /// <summary>Ports Dragon function $A2:E6F1.</summary>
+    /// <summary>Attacks, spitting fireballs.</summary>
     internal void RunDragonAttacking(RoomEnemySlot body, DragonEnemyState bodyState)
     {
         InstallDragonAnimationScript(body, bodyState);
@@ -181,7 +181,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         // by a whole attack animation.
         bodyState.ReinstallRequested = true;
         SpawnDragonFireball(body, bodyState);
-        // $A2:E70F queues one sound per fireball; two Dragons attacking in one frame queue two.
+        // Each fireball queues one sound; two Dragons attacking in one frame queue two.
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
         bodyState.AttackCounter = bodyState.AttackCounter.Decrement().Remaining;
         if (!bodyState.AttackCounter.IsZero)
@@ -194,7 +194,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.Function = DragonEnemyFunction.WaitToSink;
     }
 
-    /// <summary>Ports Dragon function $A2:E734.</summary>
+    /// <summary>Waits before sinking.</summary>
     private static void RunDragonWaitToSink(
         RoomEnemySlot body,
         DragonEnemyState bodyState)
@@ -208,7 +208,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallDragonAnimationScript(body, bodyState);
     }
 
-    /// <summary>Ports Dragon function $A2:E749.</summary>
+    /// <summary>Sinks back into the lava.</summary>
     private void RunDragonSinking(RoomEnemySlot body, DragonEnemyState bodyState)
     {
         bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
@@ -218,13 +218,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             bodyState.Function = DragonEnemyFunction.WaitToRise;
         }
 
-        // As with rising, the native regionalized 16.16 displacement is exactly one pixel.
+        // As with rising, the regionalized 16.16 displacement is exactly one pixel.
         RoomEnemySlot wing = GetDragonWing(body);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
         wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole + 1);
     }
 
-    /// <summary>Ports instruction opcode $A2:E5FB.</summary>
+    /// <summary>The animation cue that finishes the attack animation.</summary>
     private static void FinishDragonAttackAnimation(RoomEnemySlot body)
     {
         DragonEnemyState state = body.RequireSpeciesState<DragonEnemyState>();
@@ -237,14 +237,14 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports the shared tail at $A2:E7DA after touch, shot, or power-bomb common AI. A dead
+    /// Ports the shared tail after touch, shot, or power-bomb common AI. A dead
     /// body deletes its wing; a surviving body mirrors every timer/handler word that affects
     /// visible hurt and freeze rendering into that cosmetic record.
     /// </summary>
     private void ResolveDragonCombatAfterCommon(RoomEnemySlot actor)
     {
-        // The callback at $E7DA does not test init0. Normal touch/shot collision excludes
-        // wings via property $0400, but bank $A0's power-bomb scan does not. Consequently a
+        // The power-bomb reaction does not test the wing parameter. Normal touch/shot collision excludes
+        // wings via their intangibility property, but the power-bomb scan does not. Consequently a
         // power bomb may invoke this on a wing and copy into whatever physical record follows
         // it. Preserve that retail aliasing bug instead of silently normalizing to a body/wing
         // relationship; several dense populations place another live actor in that slot.
@@ -368,16 +368,16 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResolveDragonCombatAfterCommon(context.Slot);
             });
     }
-    /// <summary>Native upward launch velocity of each Dragon fireball, in signed eight-eight units.</summary>
+    /// <summary>Upward launch velocity of each Dragon fireball, in signed eight-eight units.</summary>
     private static readonly SignedEightEight DragonFireballInitialYVelocity = SignedEightEight.FromSignedRaw(-961);
-    /// <summary>Native leftward eight-eight fireball velocity.</summary>
+    /// <summary>Leftward eight-eight fireball velocity.</summary>
     private static readonly SignedEightEight DragonFireballLeftXVelocity = SignedEightEight.FromSignedRaw(-704);
-    /// <summary>Native rightward eight-eight fireball velocity.</summary>
+    /// <summary>Rightward eight-eight fireball velocity.</summary>
     private const int DragonFireballRightXVelocity = 704;
     /// <summary>Eight-eight downward acceleration applied to a live fireball.</summary>
     private const int DragonFireballGravity = 32;
 
-    /// <summary>Ports projectile initializer $86:B4EF.</summary>
+    /// <summary>Spawns and initializes a Dragon fireball.</summary>
     internal void SpawnDragonFireball(RoomEnemySlot body, DragonEnemyState bodyState)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -406,7 +406,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithFractionX(0);
     }
 
-    /// <summary>Ports projectile pre-instruction $86:B535.</summary>
+    /// <summary>Runs the fireball's per-frame behaviour.</summary>
     internal static void RunDragonFireballFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         int cameraY)
@@ -431,7 +431,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(
             projectile.Velocity.Y.RawValue + DragonFireballGravity));
 
-        // $86:B5B9 retains fireballs above the viewport; horizontal distance is never consulted.
+        // The fireball is retained above the viewport; horizontal distance is never consulted.
         EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
     }
 

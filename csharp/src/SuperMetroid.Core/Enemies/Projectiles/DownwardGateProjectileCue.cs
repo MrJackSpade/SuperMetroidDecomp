@@ -2,7 +2,7 @@
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>One cue of the downward shot gate's programs, with the operands its native command carries.</summary>
+/// <summary>One cue of the downward shot gate's programs, with the operands its command carries.</summary>
 internal abstract record DownwardGateProjectileCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -10,11 +10,11 @@ internal abstract record DownwardGateProjectileCue
     {
     }
 
-    /// <summary>Installs a movement routine (<c>Instruction_EnemyProjectile_FrameBehaviorInY</c>, $86:8161).</summary>
+    /// <summary>Installs a movement routine.</summary>
     /// <param name="FrameBehavior">The movement routine the cue installs.</param>
     internal sealed record SetFrameBehavior(EnemyProjectileFrameBehavior FrameBehavior) : DownwardGateProjectileCue;
 
-    /// <summary>Sets the gate's signed 8.8 Y velocity (<c>Instruction_EnemyProjectile_ShotGate_EnemyVelocityInY</c>, $86:E533).</summary>
+    /// <summary>Sets the gate's signed 8.8 Y velocity.</summary>
     /// <param name="YVelocity">The vertical velocity a <see cref="SetYVelocity"/> cue installs.</param>
     internal sealed record SetYVelocity(SignedEightEight YVelocity) : DownwardGateProjectileCue;
 

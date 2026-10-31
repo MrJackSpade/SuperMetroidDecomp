@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// One general bank-$86 command of a typed projectile program whose family adds no behavior of its own; the projectile
+/// One general command of a typed projectile program whose family adds no behavior of its own; the projectile
 /// engine carries it out for every such family.
 /// </summary>
 internal abstract record EnemyProjectileCommonCue
@@ -11,11 +11,11 @@ internal abstract record EnemyProjectileCommonCue
     {
     }
 
-    /// <summary>Scatters the projectile randomly about its position (<c>Instruction_EnemyProjectile_MoveRandomlyWithinXRadius_YRadius</c>, $86:81DF).</summary>
+    /// <summary>Scatters the projectile randomly about its position.</summary>
     /// <param name="Spread">The random repositioning a <see cref="Scatter"/> cue performs.</param>
     internal sealed record Scatter(EnemyProjectileScatter Spread) : EnemyProjectileCommonCue;
 
-    /// <summary>Installs a movement routine (<c>Instruction_EnemyProjectile_FrameBehaviorInY</c>, $86:8161).</summary>
+    /// <summary>Installs a movement routine.</summary>
     /// <param name="FrameBehavior">The movement routine a <see cref="SetFrameBehavior"/> cue installs.</param>
     internal sealed record SetFrameBehavior(EnemyProjectileFrameBehavior FrameBehavior) : EnemyProjectileCommonCue;
 

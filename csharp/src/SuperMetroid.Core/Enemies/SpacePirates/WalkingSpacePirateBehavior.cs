@@ -36,14 +36,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
     /// <summary>
     /// Carries out one cue of the walking Space Pirates' animations. Choosing a movement continues at the walk or laser
-    /// animation it selects, as the native opcode returns that list; every other cue runs on.
+    /// animation it selects, as the opcode returns that list; every other cue runs on.
     /// </summary>
     private WalkingSpacePirateProgram? ApplyWalkingSpacePirateCue(RoomEnemySlot slot, WalkingSpacePirateCue cue, SamusState? samus)
     {
         switch (cue)
         {
             case WalkingSpacePirateCue.SetFunction setFunction:
-                // Pirate bytecode does not jump to the operand. It stores that bank-$B2 function
+                // Pirate bytecode does not jump to the operand. It stores that function
                 // for main AI to dispatch next frame, then runs on.
                 RequireWalkingSpacePirateState(slot).Function = setFunction.Function;
                 return null;
@@ -66,9 +66,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private const int WalkingPirateLeftLedgeProbePixels = 17;
     /// <summary>Right patrol ledge probe distance in room pixels.</summary>
     private const int WalkingPirateRightLedgeProbePixels = 16;
-    /// <summary>Native signed fixed-point displacement for a left patrol step.</summary>
+    /// <summary>Signed fixed-point displacement for a left patrol step.</summary>
     private const int WalkingPirateLeftStepDisplacement = -14337;
-    /// <summary>Native signed fixed-point displacement for a right patrol step.</summary>
+    /// <summary>Signed fixed-point displacement for a right patrol step.</summary>
     private const int WalkingPirateRightStepDisplacement = 14336;
     /// <summary>Maximum vertical separation for choosing the laser attack.</summary>
     private const int WalkingPirateFiringBandPixels = 16;
@@ -76,9 +76,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private const int WalkingPirateFlinchBoxPixels = 32;
     /// <summary>Horizontal distance from the enemy center to the laser muzzle.</summary>
     private const int WalkingPirateLaserMuzzleXOffset = 24;
-    /// <summary>Slow laser's native whole-pixel movement per frame.</summary>
+    /// <summary>Slow laser's whole-pixel movement per frame.</summary>
     private const int WalkingPirateSlowLaserPixelsPerFrame = 2;
-    /// <summary>Fast laser's native whole-pixel movement per frame.</summary>
+    /// <summary>Fast laser's whole-pixel movement per frame.</summary>
     private const int WalkingPirateFastLaserPixelsPerFrame = 4;
 
     /// <summary>
@@ -97,7 +97,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         EnemyDefinitionId.PirateMagentaWalking or
         EnemyDefinitionId.PirateSilverWalking;
 
-    /// <summary>Ports <c>InitAI_PirateWalking</c> at <c>$B2:FD02</c>.</summary>
+    /// <summary>Ports <c>InitAI_PirateWalking</c>.</summary>
     internal static void InitializeWalkingSpacePirate(RoomEnemySlot slot)
     {
         var state = new WalkingSpacePirateEnemyState();
@@ -119,7 +119,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         state.LeftPost = new(CoordinateAxis.Wrap(slot.Position.X.Whole - settings.PatrolReach), 0);
     }
 
-    /// <summary>Ports <c>MainAI_PirateWalking</c> at <c>$B2:FD32</c>.</summary>
+    /// <summary>Ports <c>MainAI_PirateWalking</c>.</summary>
     private void RunWalkingSpacePirateMain(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -159,7 +159,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             "Walking Space Pirate movement requires room collision data.");
     }
 
-    /// <summary>Ports the asymmetric left-walk function at <c>$B2:FD44</c>.</summary>
+    /// <summary>Ports the asymmetric left-walk function.</summary>
     private void RunWalkingSpacePirateLeft(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -173,11 +173,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
 
         // The first one-pixel downward move doubles as the grounded test. Carry clear in
-        // the ROM means there was no floor, and the move itself is retained as falling.
+        // the authored means there was no floor, and the move itself is retained as falling.
         if (!_terrain.MoveEnemyVertically(level, slot, WalkingPirateOnePixelDown))
             return;
 
-        // Left and right are not mirrors in the cartridge. Left probes a point 17 pixels
+        // Left and right are not mirrors in the game. Left probes a point 17 pixels
         // away, then walks by -$3801 subpixels; right probes +16 and walks by +$3800.
         // Preserve that one-subpixel/one-pixel asymmetry instead of normalizing the speed.
         int originalX = slot.Position.X.Whole;
@@ -208,7 +208,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             WalkingSpacePirateProgram.LookingFacingLeft);
     }
 
-    /// <summary>Ports the right-walk function at <c>$B2:FDCE</c>.</summary>
+    /// <summary>Ports the right-walk function.</summary>
     private void RunWalkingSpacePirateRight(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -246,7 +246,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             WalkingSpacePirateProgram.LookingFacingRight);
     }
 
-    /// <summary>Ports <c>PirateWalking_FlinchTrigger</c> at <c>$B2:FE4B</c>.</summary>
+    /// <summary>Ports <c>PirateWalking_FlinchTrigger</c>.</summary>
     private static void TryTriggerWalkingSpacePirateFlinch(
         RoomEnemySlot slot,
         WalkingSpacePirateEnemyState state,
@@ -259,7 +259,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         SamusProjectileSlot? firstAllocated = null;
         for (int index = SamusProjectileSystem.SlotCount - 1; index >= 0; index--)
         {
-            // Native code tests the projectile type, not the program. More importantly,
+            // Code tests the projectile type, not the program. More importantly,
             // it stops at the first occupied high-index slot even when that shot is far
             // away; it never searches lower slots for a closer projectile.
             if (!projectiles.Slots[index].Type.IsNone)
@@ -310,7 +310,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             : WalkingSpacePirateProgram.WalkingRight;
     }
 
-    /// <summary>Tests signed vertical separation against the native sixteen-pixel firing band.</summary>
+    /// <summary>Tests signed vertical separation against the sixteen-pixel firing band.</summary>
     private static bool WalkingSpacePirateIsVerticallyClose(
         RoomEnemySlot slot,
         SamusState samus) =>
@@ -398,7 +398,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>
     /// Ports the common projectile initializer <c>$86:A009</c> after the caller has chosen
     /// its muzzle coordinate. Walking Pirates, wall Pirates, and Mother Brain enter through
-    /// different actor opcodes, but the cartridge deliberately funnels all of them through
+    /// different actor opcodes, but the game deliberately funnels all of them through
     /// this definition so animation, speed flags, collision damage, and disposal agree.
     /// </summary>
     /// <param name="source">The enemy firing the laser, whose damage the laser takes.</param>
@@ -518,7 +518,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         state.Program = cursor;
     }
 
-    /// <summary>Runs the extended-hitbox shot callback, including native collision marking before rejection or reflection.</summary>
+    /// <summary>Runs the extended-hitbox shot callback, including collision marking before rejection or reflection.</summary>
     internal bool ResolveSpacePirateHitboxShot(in EnemyShotContext c)
     {
         if (!c.UsesExtendedHitboxes)
@@ -529,7 +529,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // `$A0:9CD1-$9CD6` marks a non-plasma projectile as having entered an extended hitbox before the
             // selected callback runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
             // rejected and reflected hits return before that shared host path. Enemy property bit $1000 also forces
-            // the mark in native code, but its broader meaning is not yet proven, so it deliberately remains a
+            // the mark in code, but its broader meaning is not yet proven, so it deliberately remains a
             // documented raw bit rather than a prematurely named enum member.
             c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
         }

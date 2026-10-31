@@ -29,7 +29,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>AI updates of endpoint rest per unit of a shutter's population rest parameter.</summary>
     private const int RestUpdatesPerParameterUnit = 16;
 
-    /// <summary>Ports <c>GrowingShutter_Init</c> at $A2:E9DA.</summary>
+    /// <summary>Ports <c>GrowingShutter_Init</c>.</summary>
     internal static void InitializeGrowingShutter(RoomEnemySlot slot)
     {
         GrowingShutterSpawnSettings settings = slot.SpawnSettings<GrowingShutterSpawnSettings>();
@@ -69,7 +69,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             yRadius: 8);
     }
 
-    /// <summary>Ports <c>GrowingShutter_Main</c> at $A2:EAB6.</summary>
+    /// <summary>Ports <c>GrowingShutter_Main</c>.</summary>
     private void RunGrowingShutterMain(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
@@ -119,7 +119,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Native code tests the timer before decrementing it. Zero therefore activates on the
+    /// Code tests the timer before decrementing it. Zero therefore activates on the
     /// current call, while a positive N waits N complete calls and activates on call N + 1.
     /// </summary>
     internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state)
@@ -143,7 +143,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
-    /// <summary>Ports the four growth stages at $A2:EB11-$EC12.</summary>
+    /// <summary>Ports the four growth stages.</summary>
     private static void GrowShutterDown(RoomEnemySlot slot, GrowingShutterEnemyState state)
     {
         if (state.GrowthLevel >= 4)
@@ -159,7 +159,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         FinishGrowingShutterSection(slot, state, target, direction: VerticalDirection.Down);
     }
 
-    /// <summary>Ports the four upward growth stages at $A2:EC13-$ED20.</summary>
+    /// <summary>Ports the four upward growth stages.</summary>
     private static void GrowShutterUp(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
@@ -250,7 +250,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samus's four-pixel correction when pushing against a horizontal shutter.</summary>
     private const int HorizontalShutterManualPushPixels = 4;
 
-    /// <summary>Ports <c>HorizontalShutter_Init</c> at $A2:F111/$A2:F11E.</summary>
+    /// <summary>Ports <c>HorizontalShutter_Init</c>/$A2:F11E.</summary>
     internal static void InitializeHorizontalShutter(RoomEnemySlot slot)
     {
         var state = new HorizontalShutterEnemyState();
@@ -292,7 +292,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallHorizontalShutterProgram(slot, state);
     }
 
-    /// <summary>Ports <c>HorizontalShutter_Main</c> at $A2:F1DE.</summary>
+    /// <summary>Ports <c>HorizontalShutter_Main</c>.</summary>
     private static void RunHorizontalShutterMain(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
@@ -356,7 +356,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Horizontal shutter function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
-        // $A2:F1E4-$A2:F211: an idle shutter reacts when Samus's four solid-enemy collision
+        // An idle shutter reacts when Samus's four solid-enemy collision
         // words AND to this enemy's index and she has contact damage (e.g. screw attack).
         if (state.Function is not (HorizontalShutterFunction.MovingLeft or HorizontalShutterFunction.MovingRight) &&
             SamusContactsIdleShutter(slot, samus))
@@ -538,7 +538,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SolidContactSlotCombination.Combine(samus.Kinematics.SolidEnemyCollisions, EnemySlotOrder.Capacity) == slot.SlotIndex &&
         samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
 
-    /// <summary>Tests the native strict, wrapped absolute-X proximity threshold.</summary>
+    /// <summary>Tests the strict, wrapped absolute-X proximity threshold.</summary>
     private static bool IsSamusWithinShutterHorizontalDistance(
         RoomEnemySlot slot,
         SamusState samus,
@@ -675,7 +675,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.ShootableVerticalShutterShot)
         {
-            // $F0A2 goes directly to the shutter reaction instead of normal shot AI. The bank-$A0 collision walker
+            // $F0A2 goes directly to the shutter reaction instead of normal shot AI. The collision walker
             // has nevertheless already marked the colliding projectile, including Super Missile quake side effects.
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
@@ -724,7 +724,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                     ReactHorizontalShutter(context.Slot);
             });
     }
-    /// <summary>Ports $A2:EE05/$A2:EE12 and their shared tail at $A2:EE1F.</summary>
+    /// <summary>Ports $A2:EE05/$A2:EE12 and their shared tail.</summary>
     internal static void InitializeVerticalShutter(RoomEnemySlot slot)
     {
         if (!IsVerticalShutterDefinition(slot.DefinitionId))
@@ -775,7 +775,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.DefinitionId == EnemyDefinitionId.Kamer ? ShutterProgram.KamerPlatform : ShutterProgram.FortyPixels);
     }
 
-    /// <summary>Ports <c>VerticalShutter_Main</c> at $A2:EED1.</summary>
+    /// <summary>Ports <c>VerticalShutter_Main</c>.</summary>
     internal void RunVerticalShutterMain(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -784,7 +784,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The initial function JSRs through its parameter table during this very AI
         // call; it does not spend a frame installing the selected wait function.
-        // Keep Initial live until activation writes the moving function, as native does.
+        // Keep Initial live until activation writes the moving function, as does.
         switch (state.Function == VerticalShutterFunction.Initial
             ? SelectInitialVerticalShutterFunction(state) : state.Function)
         {
@@ -843,7 +843,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Vertical shutter function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
-        // $A2:EED7-$A2:EF04: an idle shutter reacts when Samus's four solid-enemy collision
+        // An idle shutter reacts when Samus's four solid-enemy collision
         // words AND to this enemy's index and she has contact damage (e.g. screw attack).
         if (state.Function is not (VerticalShutterFunction.MovingUp or VerticalShutterFunction.MovingDown) &&
             SamusContactsIdleShutter(slot, samus ?? throw new InvalidOperationException(

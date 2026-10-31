@@ -12,6 +12,6 @@ public enum WallSpacePirateParameterFlags
     None = 0,
     /// <summary>Parameter-one bit zero tested by $B2:EF9F: starts the downward-climbing list and detection function on the right wall; clearing it selects the left wall.</summary>
     StartsOnRightWall = 1,
-    /// <summary>Parameter-one bit fifteen preserves the native slow jump settings: two byte-angle units per update with right/left endpoint angles $BE/$42 instead of the fast $C0/$40 endpoints.</summary>
+    /// <summary>Parameter-one bit fifteen preserves the slow jump settings: two byte-angle units per update with right/left endpoint angles $BE/$42 instead of the fast $C0/$40 endpoints.</summary>
     SlowJumpAndLaser = 2,
 }

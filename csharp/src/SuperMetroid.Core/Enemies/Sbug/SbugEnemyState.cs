@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// <summary>
 /// The state of an Sbug, with its parallel WRAM extension arrays. The names follow the behavior established by
 /// $A3:A14D-$A67C rather than the anonymous var00/var20 labels required by the raw decompilation. The values the
-/// cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
 /// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class SbugEnemyState
@@ -23,7 +23,7 @@ public sealed class SbugEnemyState
     public SbugEnemyFunction? Function { get; internal set; }
 
     /// <summary>
-    /// The custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up). The cartridge
+    /// The custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up). The game
     /// adds random turns to a whole word whose high byte nothing steers by; the heading is its low byte. It changes
     /// only through <see cref="FaceCustomHeading"/> and <see cref="TurnCustomHeading"/>.
     /// </summary>
@@ -61,13 +61,13 @@ public sealed class SbugEnemyState
     public UnsignedSixteenSixteen ForwardXVelocity { get; internal set; }
     /// <summary>Spawn-computed unsigned 16.16 vertical magnitude in pixels per AI update; the spawn angle supplies its sign during forward movement.</summary>
     public UnsignedSixteenSixteen ForwardYVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle - $20</c>, used by the native left zigzag leg.</summary>
+    /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle - $20</c>, used by the left zigzag leg.</summary>
     public SignedSixteenSixteen LeftXVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle - $20</c>, used by the native left zigzag leg.</summary>
+    /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle - $20</c>, used by the left zigzag leg.</summary>
     public SignedSixteenSixteen LeftYVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle + $20</c>, used by the native right zigzag leg.</summary>
+    /// <summary>Spawn-computed signed 16.16 horizontal displacement for angle <c>InitialAngle + $20</c>, used by the right zigzag leg.</summary>
     public SignedSixteenSixteen RightXVelocity { get; internal set; }
-    /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle + $20</c>, used by the native right zigzag leg.</summary>
+    /// <summary>Spawn-computed signed 16.16 vertical displacement for angle <c>InitialAngle + $20</c>, used by the right zigzag leg.</summary>
     public SignedSixteenSixteen RightYVelocity { get; internal set; }
     /// <summary>Current signed 16.16 horizontal displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
     public SignedSixteenSixteen CustomXVelocity { get; internal set; }
@@ -80,7 +80,7 @@ public sealed class SbugEnemyState
     public int LeftFacing { get; internal set; }
     /// <summary>Spawn-computed facing, 0 through 7, for the spawn heading plus an eighth of a turn; used by the right zigzag leg.</summary>
     public int RightFacing { get; internal set; }
-    /// <summary>Facing, 0 through 7, for the custom heading; a reversal folds it into the first four facings as the cartridge does.</summary>
+    /// <summary>Facing, 0 through 7, for the custom heading; a reversal folds it into the first four facings as the game does.</summary>
     public int CustomFacing { get; internal set; }
 
     /// <summary>The loop most recently requested by direction-selection code.</summary>
@@ -89,10 +89,10 @@ public sealed class SbugEnemyState
     /// <summary>The loop already started, or none before the first direction is selected.</summary>
     internal SbugProgram? InstalledProgram { get; set; }
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<SbugProgram> Program { get; set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         StraightMovementTimer = WrappingCountdown.Start(0);

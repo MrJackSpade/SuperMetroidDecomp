@@ -111,7 +111,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.FrameHold = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
             state.Function = SkreeEnemyFunction.Burrowing;
-            // The floor collision has its own distinct impact/burrow request at `$A3:C771`.
+            // The floor collision has its own distinct impact/burrow request.
             _audio.QueueEnemySound(Library2Sound.SkreeBurrow, priority: SoundRequestPriority.Normal);
             return;
         }

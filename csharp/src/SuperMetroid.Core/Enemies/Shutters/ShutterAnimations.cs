@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
-/// The growing, vertical and horizontal shutters' poses and Kamer's platform loop as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// The growing, vertical and horizontal shutters' poses and Kamer's platform loop as typed programs (#641). Each
 /// frame shows a <see cref="ShutterFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class ShutterAnimations
@@ -54,7 +54,7 @@ internal static class ShutterAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<ShutterProgram, ShutterFrame, NoAnimationCue> GoTo(ShutterProgram program) => AnimationProgramStep<ShutterProgram, ShutterFrame, NoAnimationCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<ShutterProgram, ShutterFrame, NoAnimationCue> Hold => AnimationProgramStep<ShutterProgram, ShutterFrame, NoAnimationCue>.Hold;
 
 }

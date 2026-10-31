@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The thirty misc-dust explosion, smoke, dust, beam and drop programs (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The thirty misc-dust explosion, smoke, dust, beam and drop programs (#641). Each
 /// frame shows a <see cref="MiscDustProjectileFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class MiscDustProjectileAnimations
@@ -367,6 +367,6 @@ internal static class MiscDustProjectileAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<MiscDustProjectileProgram, MiscDustProjectileFrame, EnemyProjectileCommonCue> GoTo(MiscDustProjectileProgram program) => AnimationProgramStep<MiscDustProjectileProgram, MiscDustProjectileFrame, EnemyProjectileCommonCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<MiscDustProjectileProgram, MiscDustProjectileFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<MiscDustProjectileProgram, MiscDustProjectileFrame, EnemyProjectileCommonCue>.Hold;
 }

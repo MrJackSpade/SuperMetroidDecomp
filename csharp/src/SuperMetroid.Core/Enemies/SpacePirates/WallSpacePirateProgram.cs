@@ -1,33 +1,33 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// The wall Space Pirates' climb, jump and laser animations as typed programs (#641), one per bank-$B2 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="WallSpacePirateAnimations"/>.
+/// The wall Space Pirates' climb, jump and laser animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="WallSpacePirateAnimations"/>.
 /// </summary>
 internal enum WallSpacePirateProgram
 {
-    /// <summary><c>InstList_PirateWall_FireLaser_WallJumpLeft</c> at $B2:ECC0.</summary>
+    /// <summary>The fire and jump left animation.</summary>
     FireAndJumpLeft,
-    /// <summary><c>InstList_PirateWall_LandedOnLeftWall</c> at $B2:ECE4.</summary>
+    /// <summary>The landed on left wall animation.</summary>
     LandedOnLeftWall,
-    /// <summary><c>InstList_PirateWall_MovingUpLeftWall_0</c> at $B2:ECEC.</summary>
+    /// <summary>The moving up left wall animation.</summary>
     MovingUpLeftWall,
-    /// <summary>The loop at $B2:ECF4.</summary>
+    /// <summary>The loop.</summary>
     MovingUpLeftWallLoop,
-    /// <summary><c>InstList_PirateWall_MovingDownLeftWall_0</c> at $B2:ED36.</summary>
+    /// <summary>The moving down left wall animation.</summary>
     MovingDownLeftWall,
-    /// <summary>The loop at $B2:ED3E.</summary>
+    /// <summary>The loop.</summary>
     MovingDownLeftWallLoop,
-    /// <summary><c>InstList_PirateWall_FireLaser_WallJumpRight</c> at $B2:ED80.</summary>
+    /// <summary>The fire and jump right animation.</summary>
     FireAndJumpRight,
-    /// <summary><c>InstList_PirateWall_LandingOnRightWall</c> at $B2:EDA4.</summary>
+    /// <summary>The landed on right wall animation.</summary>
     LandedOnRightWall,
-    /// <summary><c>InstList_PirateWall_MovingDownRightWall_0</c> at $B2:EDAC.</summary>
+    /// <summary>The moving down right wall animation.</summary>
     MovingDownRightWall,
-    /// <summary>The loop at $B2:EDB4.</summary>
+    /// <summary>The loop.</summary>
     MovingDownRightWallLoop,
-    /// <summary><c>InstList_PirateWall_MovingUpRightWall_0</c> at $B2:EDF6.</summary>
+    /// <summary>The moving up right wall animation.</summary>
     MovingUpRightWall,
-    /// <summary>The loop at $B2:EDFE.</summary>
+    /// <summary>The loop.</summary>
     MovingUpRightWallLoop,
 }

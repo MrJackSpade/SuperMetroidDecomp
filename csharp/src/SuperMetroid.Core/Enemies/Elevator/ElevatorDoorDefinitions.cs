@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 public static class ElevatorDoorDefinitions
 {
     /// <summary>
-    /// <c>$82:E18E</c>: frames <c>DoorTransitionFunction_Wait48FramesForDownElevator</c>
-    /// ($82:E19F) counts before state $0A (<c>$0030*!FPS</c>, NTSC).
+    /// Frames <c>DoorTransitionFunction_Wait48FramesForDownElevator</c>
+    /// counts before the door continues (48 frames, NTSC).
     /// </summary>
     public const int DownwardsElevatorDelayFrames = 48;
 }

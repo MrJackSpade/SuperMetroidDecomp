@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
 /// The state of a Yard. Names follow what each word does rather than the original generic $7800 indexes. The values the
-/// cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
 /// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class YardEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<YardProgram> Program { get; set; }
 
     /// <summary>
@@ -23,7 +23,7 @@ public sealed class YardEnemyState
     /// </summary>
     public YardAirborneFacing AirborneFacingDirection { get; internal set; }
 
-    /// <summary>The hidden-shell animation for the current orientation ; none, the native $CF5F sentinel, suppresses the look-at hiding transition.</summary>
+    /// <summary>The hidden-shell animation for the current orientation; none, the native $CF5F sentinel, suppresses the look-at hiding transition.</summary>
     internal YardProgram? HidingProgram { get; set; }
 
     /// <summary>
@@ -37,23 +37,23 @@ public sealed class YardEnemyState
     }
 
     /// <summary>
-    /// Bank-$A3 movement dispatcher pointer, which may lag a direction instruction by one update and therefore owns
+    /// movement dispatcher pointer, which may lag a direction instruction by one update and therefore owns
     /// dispatch independently of <see cref="Direction"/>; none once a kill has emptied the record.
     /// </summary>
     public YardMovementFunction? MovementFunction { get; internal set; }
 
     /// <summary>
-    /// Native extension offsets $00-$06: signed 16.16 airborne velocity in pixels per AI update (Y fraction/whole at
+    /// Extension offsets $00-$06: signed 16.16 airborne velocity in pixels per AI update (Y fraction/whole at
     /// $00/$02, X fraction/whole at $04/$06). Gravity adds $2000 to Y, horizontal speed decays by $1000 toward zero
     /// when not colliding, and collisions negate each word separately; downward collision lands when the Y whole word
     /// is 0..2.
     /// </summary>
     public FixedVector<RoomPixels> AirborneVelocity { get; internal set; }
-    /// <summary>Native extension offset $08: slope/turn cooldown counter, 0 through 15, reset by adjustment or turning; an unadjusted crawl call whose increment reaches 16 reenables transitions without storing that increment.</summary>
+    /// <summary>Extension offset $08: slope/turn cooldown counter, 0 through 15, reset by adjustment or turning; an unadjusted crawl call whose increment reaches 16 reenables transitions without storing that increment.</summary>
     public int TurnTransitionDisableCounter { get; internal set; }
-    /// <summary>Native extension offset $0A flag selecting the turn-disabled corner-probe definitions, set after slope alignment, a turn, or landing and cleared by the crawl cooldown.</summary>
+    /// <summary>Extension offset $0A flag selecting the turn-disabled corner-probe definitions, set after slope alignment, a turn, or landing and cleared by the crawl cooldown.</summary>
     public bool TurnTransitionDisabled { get; internal set; }
-    /// <summary>Native extension offset $0C: saved population crawl-speed index, restored after ordinary touch in place of the aggressive post-kick speed index 8.</summary>
+    /// <summary>Extension offset $0C: saved population crawl-speed index, restored after ordinary touch in place of the aggressive post-kick speed index 8.</summary>
     public int IdleCrawlingSpeedIndex { get; internal set; }
     /// <summary>The live crawl-speed index (parameter one): the population's, or 8 while crawling aggressively after a landing.</summary>
     public int CrawlingSpeedIndex { get; internal set; }
@@ -65,12 +65,12 @@ public sealed class YardEnemyState
     /// landing; emptied with the record.
     /// </summary>
     internal CrawlerSurfaceOrientation BlockSide { get; set; }
-    /// <summary>Native extension offset $10: mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>
+    /// <summary>Extension offset $10: mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>
     public YardBehavior Behavior { get; internal set; }
-    /// <summary>Native parallel $7E:8000 flag: set by a horizontal airborne collision and cleared by a vertical bounce; a record of bounce state rather than a per-frame event.</summary>
+    /// <summary>Parallel $7E:8000 flag: set by a horizontal airborne collision and cleared by a vertical bounce; a record of bounce state rather than a per-frame event.</summary>
     public bool BouncedHorizontally { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         CrawlingVelocity = default;

@@ -3,12 +3,12 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>
 /// The state of a vertical shutter: its behaviour, speeds, endpoints, rest lengths, trigger and rider carry, each a
-/// value of its own. The values the cartridge keeps in the
+/// value of its own. The values the game keeps in the
 /// enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<ShutterProgram> Program { get; set; }
 
     /// <summary>
@@ -62,7 +62,7 @@ public sealed class VerticalShutterEnemyState
     /// <summary>The end the next reaction heads for, initially the primary heading; it turns after each reaction.</summary>
     public ShutterHeading ReactionDirection { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

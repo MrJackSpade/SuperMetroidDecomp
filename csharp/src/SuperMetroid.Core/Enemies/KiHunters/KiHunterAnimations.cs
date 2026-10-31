@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.KiHunters.KiHunterProgram;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations as typed programs (#641). Each
 /// frame shows a <see cref="KiHunterFrame"/> pose and each callback becomes a <see cref="KiHunterCue"/> with its typed operands.
 /// </summary>
 internal static class KiHunterAnimations
@@ -149,7 +149,7 @@ internal static class KiHunterAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue> FallInto(KiHunterProgram program) => AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue> Hold => AnimationProgramStep<KiHunterProgram, KiHunterFrame, KiHunterCue>.Hold;
 
 }

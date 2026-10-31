@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>
-/// The state of the Polyp. Its behaviour and launch cooldown are values the cartridge keeps in the enemy's common
+/// The state of the Polyp. Its behaviour and launch cooldown are values the game keeps in the enemy's common
 /// record, so a kill empties them with that record (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class PolypEnemyState
@@ -16,7 +16,7 @@ public sealed class PolypEnemyState
     /// <summary>The launch cooldown, decremented through $FFFF before the Polyp rearms.</summary>
     public WrappingCountdown CooldownTimer { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour and no cooldown.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour and no cooldown.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

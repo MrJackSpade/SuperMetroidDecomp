@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>
-/// The shared Mellow, Mella and Memu flight loop as a typed program (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// The shared Mellow, Mella and Memu flight loop as a typed program (#641). Each
 /// frame shows a <see cref="FlyFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class FlyAnimations

@@ -13,7 +13,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Locates the hitbox record immediately after each visible geyser record.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Receives each eruption's sound in call order, as the cartridge queues it.</summary>
+    /// <summary>Receives each eruption's sound in call order, as the game queues it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds paired Hibashi parts to the room enemy slot table and the enemy audio queue.</summary>
@@ -32,7 +32,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
                 PlayHibashiEruptionSound();
                 break;
             case HibashiCueKind.ActivityFrame:
-                // Each of the 22 bank-$A6 routines selects the correspondingly indexed Y-offset/radius pair.
+                // Each of the 22 routines selects the correspondingly indexed Y-offset/radius pair.
                 ApplyHibashiActivityFrame(slot, cue.Value);
                 break;
             case HibashiCueKind.FinishActivity:
@@ -44,7 +44,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Ports <c>InitAI_Hibashi</c> at <c>$A6:8FFC</c>.</summary>
+    /// <summary>Ports <c>InitAI_Hibashi</c>.</summary>
     internal static void InitializeHibashi(RoomEnemySlot slot)
     {
         var state = new HibashiEnemyState
@@ -71,7 +71,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Radius = slot.Radius.WithX(0);
     }
 
-    /// <summary>Ports <c>MainAI_Hibashi</c> at <c>$A6:9023</c>.</summary>
+    /// <summary>Ports <c>MainAI_Hibashi</c>.</summary>
     private void RunHibashiMain(RoomEnemySlot slot, HibashiEnemyState state)
     {
         if (state.IsCollisionPart)
@@ -93,10 +93,10 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>Function_Hibashi_Inactive</c> at <c>$A6:902F</c>.</summary>
+    /// <summary>Ports <c>Function_Hibashi_Inactive</c>.</summary>
     private void RunHibashiInactive(RoomEnemySlot graphics, HibashiEnemyState state)
     {
-        // DEC/BPL means timer zero deliberately becomes $FFFF and erupts immediately. A
+        // The countdown expires through zero, so timer zero deliberately becomes -1 and erupts immediately. A
         // reset value N later produces N+1 inactive actor frames because zero is nonnegative.
         state.InactiveTimer = state.InactiveTimer.Decrement().Remaining;
         if (!state.InactiveTimer.IsNegative)
@@ -109,14 +109,14 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         graphics.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Graphics);
 
-        // Property $0100 controls rendering only. Property $0400 controls admission to
+        // The invisibility property controls rendering only. The intangibility property controls admission to
         // Samus/projectile/grapple collision. The bottom remains visually invisible for the
         // entire eruption while becoming a live collision body here.
         graphics.Properties = graphics.Properties.Without(EnemyProperties.Invisible);
         hitbox.Properties = hitbox.Properties.Without(EnemyProperties.IgnoreSamusCollision);
     }
 
-    /// <summary>Ports <c>Function_Hibashi_Active</c> at <c>$A6:9062</c>.</summary>
+    /// <summary>Ports <c>Function_Hibashi_Active</c>.</summary>
     private static void RunHibashiActive(RoomEnemySlot graphics, HibashiEnemyState state)
     {
         if (!state.ActivityFinished)
@@ -127,7 +127,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = HibashiEnemyFunction.Inactive;
     }
 
-    /// <summary>Ports instruction <c>$A6:8DAF</c>.</summary>
+    /// <summary>Animation cue: plays the eruption sound.</summary>
     private void PlayHibashiEruptionSound()
     {
         // Each geyser queues its own sound; two erupting in one frame queue two.
@@ -135,7 +135,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports activity instructions $A6:8E13-$8FBD. The 22 commands differ only by their
+    /// Runs the activity cues. The 22 cues differ only by their
     /// direct activity index; frame zero additionally restores the fixed eight-pixel X
     /// radius.
     /// </summary>
@@ -154,7 +154,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
             hitbox.Radius = hitbox.Radius.WithX(8);
     }
 
-    /// <summary>Ports finish-activity instruction <c>$A6:8FD1</c>.</summary>
+    /// <summary>Animation cue: finishes the activity.</summary>
     private void FinishHibashiActivity(RoomEnemySlot graphics)
     {
         HibashiEnemyState state = graphics.RequireSpeciesState<HibashiEnemyState>();
@@ -168,7 +168,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Resolves the native <c>Enemy[1]</c> operand. Retail populations always pair part zero
+    /// Resolves the <c>Enemy[1]</c> operand. Retail populations always pair part zero
     /// with a following part-one record; reject only states that cannot represent that read.
     /// </summary>
     private RoomEnemySlot GetFollowingHibashiPart(RoomEnemySlot graphics)

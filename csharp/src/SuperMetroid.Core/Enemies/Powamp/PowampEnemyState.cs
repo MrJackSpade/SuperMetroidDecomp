@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
 /// The state of one half of a Powamp: a nonzero population parameter one makes the balloon, while zero is the
-/// immediately following moving body. The cartridge reuses the same record words for different values in each half;
-/// here each half's values have their own members. Every value here is one the cartridge keeps in the enemy's
+/// immediately following moving body. The game reuses the same record words for different values in each half;
+/// here each half's values have their own members. Every value here is one the game keeps in the enemy's
 /// common record, so it is emptied with that record when the half is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class PowampEnemyState

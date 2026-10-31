@@ -34,7 +34,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Each Polyp initializer resets the shared enemy random seed to $0011.</summary>
     private const int PolypRandomSeed = 17;
 
-    /// <summary>Ports <c>InitAI_Polyp</c> at $A2:B570.</summary>
+    /// <summary>Ports <c>InitAI_Polyp</c>.</summary>
     internal void InitializePolyp(RoomEnemySlot slot)
     {
         Action<int> setRandomNumber = _room.Random.Seed;
@@ -55,7 +55,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         setRandomNumber(PolypRandomSeed);
     }
 
-    /// <summary>Ports <c>MainAI_Polyp</c> and its three indirect functions at $A2:B58F.</summary>
+    /// <summary>Ports <c>MainAI_Polyp</c> and its three indirect functions.</summary>
     private void RunPolypMain(
         RoomEnemySlot slot,
         PolypEnemyState state,
@@ -96,7 +96,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the three independent random-table selections at $A2:B5B2.</summary>
+    /// <summary>Ports the three independent random-table selections.</summary>
     private void ShootPolypRock(RoomEnemySlot slot, PolypEnemyState state)
     {
         int xVelocity = PolypLaunches.XVelocity(_room.Random.Generate());
@@ -110,7 +110,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Recreates <c>GetSignedYMinusX</c> followed by the signed threshold comparison used by
-    /// both bank-$A0 proximity helpers. Equality at 64 pixels is outside; the modular $8000
+    /// both proximity helpers. Equality at 64 pixels is outside; the modular $8000
     /// difference also remains outside without passing through host <c>Math.Abs</c> overflow.
     /// </summary>
     private static bool IsWithinPolypAxis(int samusCoordinate, int enemyCoordinate)
@@ -143,7 +143,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         RunPolypMain(slot, slot.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
     }
 
-    /// <summary>Native projectile pre-instruction installed on each launched rock.</summary>
+    /// <summary>Projectile pre-instruction installed on each launched rock.</summary>
     private const EnemyProjectileFrameBehavior PolypRockFrameBehavior =
         EnemyProjectileFrameBehavior.PolypRockFlight;
     /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>
@@ -211,7 +211,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The native routine integrates two adjacent quadratic samples per frame, first
+        // The routine integrates two adjacent quadratic samples per frame, first
         // index velocity+1 and then velocity. This is why the table index changes by two
         // while the visual arc still advances at gameplay-frame rate.
         AddPolypRockQuadraticStep(projectile, rock.SpeedIndex + 1, sign: EnemySpeedSign.Negative);

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>
-/// Puyo's grounded loops and airborne hop poses as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// Puyo's grounded loops and airborne hop poses as typed programs (#641). Each
 /// frame shows a <see cref="PuyoFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class PuyoAnimations
@@ -70,7 +70,7 @@ internal static class PuyoAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<PuyoProgram, PuyoFrame, NoAnimationCue> GoTo(PuyoProgram program) => AnimationProgramStep<PuyoProgram, PuyoFrame, NoAnimationCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<PuyoProgram, PuyoFrame, NoAnimationCue> Hold => AnimationProgramStep<PuyoProgram, PuyoFrame, NoAnimationCue>.Hold;
 
 }

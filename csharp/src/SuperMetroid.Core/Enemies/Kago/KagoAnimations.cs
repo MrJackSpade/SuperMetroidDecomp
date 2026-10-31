@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
-/// Kago's slow and post-hit animation loops as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// Kago's slow and post-hit animation loops as typed programs (#641). Each
 /// frame shows a <see cref="KagoFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class KagoAnimations

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
-/// The state of one gunship hull or pad slot. Each value is the part's own: the cartridge keeps the top hull's bob timer
+/// The state of one gunship hull or pad slot. Each value is the part's own: the game keeps the top hull's bob timer
 /// with the bottom hull's engine-sound timer, its base Y and landing-brake step with the bottom hull's rumble frame, and
 /// its function with the bottom hull's escape speed, but each hull reads only its own meanings, and the top hull's
 /// landing brake ends by setting the base Y before anything reads it. The values are emptied with the record when the
@@ -67,7 +67,7 @@ internal sealed class GunshipPartState
     internal static GunshipPartState Of(RoomEnemySlot slot) =>
         slot.SpeciesState<GunshipPartState>() ?? throw new InvalidOperationException("A gunship slot has no state.");
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     [IntendedDuplicate("each state clears its own record values; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {

@@ -3,14 +3,14 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>
 /// The state of a Kzan top. The bottom half has no private state: it follows the immediately preceding top slot. The
-/// values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed
+/// values the game keeps in the enemy's common record are emptied with it when the enemy is killed
 /// (<see cref="ClearWithRecord"/>). The rest are the Kzan's own too: setup writes the wait reload and the speed row,
 /// each fall or rise writes the previous position before carrying Samus by it, and landing writes the rise wait before
 /// it counts down, so nothing a previous Kzan in the slot left reaches a new one.
 /// </summary>
 public sealed class KzanEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<KzanProgram> Program { get; set; }
 
     /// <summary>The current AI behaviour; none once a kill has emptied the record.</summary>
@@ -64,7 +64,7 @@ public sealed class KzanEnemyState
     /// <summary>Post-landing wait in actor updates; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
     public WrappingCountdown RiseWaitTimer { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

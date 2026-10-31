@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// The Ki-Hunter's acid-spit programs (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="KiHunterAcidSpitAnimations"/>.
+/// The Ki-Hunter's acid-spit programs (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// Their steps are <see cref="KiHunterAcidSpitAnimations"/>.
 /// </summary>
 internal enum KiHunterAcidSpitProgram
 {
-    /// <summary><c>InstList_EnemyProjectile_KiHunterAcidSpit_Left</c> at $86:CF34.</summary>
+    /// <summary>The left animation.</summary>
     Left,
-    /// <summary><c>InstList_EnemyProjectile_KiHunterAcidSpit_HitFloor</c> at $86:CF56.</summary>
+    /// <summary>The hit floor animation.</summary>
     HitFloor,
-    /// <summary><c>InstList_EnemyProjectile_KiHunterAcidSpit_Right</c> at $86:CF6E.</summary>
+    /// <summary>The right animation.</summary>
     Right,
 }

@@ -83,7 +83,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Delay after full retraction before Samus input is released.</summary>
     private const int YappingMawRetractedDelayFrames = 64;
 
-    /// <summary>Ports <c>YappingMaw_Init</c> at $A8:A148.</summary>
+    /// <summary>Ports <c>YappingMaw_Init</c>.</summary>
     internal void InitializeYappingMaw(RoomEnemySlot slot)
     {
         var state = new YappingMawEnemyState(slot)
@@ -102,7 +102,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        // SpawnEprojWithGfx searches native indexes $22,$20,... downward. The initializer
+        // SpawnEprojWithGfx searches indexes $22,$20,... downward. The initializer
         // receives parameters 3,2,1,0 and writes those physical indexes into variables
         // 43,42,41,40 respectively. Allocate in that literal order, then expose links in
         // root-to-mouth order so their geometric meaning is clear in a debugger.
@@ -127,7 +127,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // CreateSpriteAtPos uses object number 56 for parameter zero and 57 otherwise. Its
-        // returned native index is represented by the retained physical slot reference.
+        // returned index is represented by the retained physical slot reference.
         state.RootSpriteObject = _spriteObjects.SpawnRoomSpriteObject(
             new(slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole + (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down ? -8 : 8))),
             slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
@@ -217,7 +217,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = YappingMawAiFunction.BeginExtension;
     }
 
-    /// <summary>Ports the one-frame setup function at $A8:A28C.</summary>
+    /// <summary>Ports the one-frame setup function.</summary>
     internal static void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
     {
         state.Extension = SignedSixteenSixteen.Zero;
@@ -245,7 +245,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = YappingMawAiFunction.ExtendingOrRetracting;
     }
 
-    /// <summary>Ports the curved four-link solver and state transition at $A8:A445.</summary>
+    /// <summary>Ports the curved four-link solver and state transition.</summary>
     private void AdvanceYappingMawExtension(
         RoomEnemySlot slot,
         YappingMawEnemyState state,
@@ -253,7 +253,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The function only runs while the curl's whole part is in [0, YappingMawMaximumCurl]: setup starts it at zero,
         // the clamp below caps it, and the update that carries it negative leaves this function. In that range a
-        // quarter of the signed whole part equals the cartridge's two logical right shifts of the word; the checked
+        // quarter of the signed whole part equals the game's two logical right shifts of the word; the checked
         // conversion fails loudly if that range is ever violated.
         int bendStep = Ensure.BetweenInclusive(0, ushort.MaxValue, state.Extension.WholePixels / 4);
         // $A8:A532 corrects the eight offsets in one chain, link by link and X before Y: an offset whose correction
@@ -274,7 +274,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                     Ensure.BetweenInclusive(0, ushort.MaxValue, state.SegmentRadius / 2)) - state.Baseline.Y);
 
             // Variables 27..2E rotate a correction whose length is the LOW BYTE of raw X.
-            // Passing raw Y here is an attractive cleanup and is wrong; the cartridge's
+            // Passing raw Y here is an attractive cleanup and is wrong; the game's
             // lopsided curve is a direct consequence of reusing raw X for both components.
             int correctionX = CoordinateAxis.Wrap(
                 CalculateYappingMawX(state.CurlAngle.ToByteAngle(), rawX) -
@@ -295,7 +295,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Extension.WholePixels >= 0)
         {
-            // A nonnegative whole part minus 128 cannot wrap, so the cartridge's signed difference test is this
+            // A nonnegative whole part minus 128 cannot wrap, so the game's signed difference test is this
             // ordinary comparison.
             if (state.Extension.WholePixels >= YappingMawMaximumCurl)
             {
@@ -391,7 +391,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        // Samus command three ($90:F152) drops any active grapple via $9B:C8C5;
+        // Samus command three drops any active grapple via $9B:C8C5;
         // its transitional pose must be committed before the Maw releases input. It normalizes
         // spin-jump/wall-jump bodies. The input handler itself was already replaced by the
         // touch callback; do not force unrelated falling/running poses to standing.
@@ -541,7 +541,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) < 0 ||
         CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) < 0;
 
-    /// <summary>Ports EnemyFunc_ACA8 at $A0:ACA8 for the one family that consumes it.</summary>
+    /// <summary>Ports EnemyFunc_ACA8 for the one family that consumes it.</summary>
     private static YappingMawTarget CalculateYappingMawTarget(
         Position16<RoomPixels> origin,
         Position16<RoomPixels> samus)
@@ -568,7 +568,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         return new YappingMawTarget(distance, EnemyMath.CalculateBearing(new(CoordinateAxis.AsSigned(deltaX), CoordinateAxis.AsSigned(deltaY))));
     }
 
-    /// <summary>$A8:A73E: X is the Y helper with a minus-64 angle adjustment.</summary>
+    /// <summary>X is the Y helper with a minus-64 angle adjustment.</summary>
     internal static int CalculateYappingMawX(ByteAngle angle, int length) =>
         CalculateYappingMawY(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue), length);
 

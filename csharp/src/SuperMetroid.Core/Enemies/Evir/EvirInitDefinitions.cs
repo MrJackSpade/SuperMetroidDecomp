@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 public static class EvirInitDefinitions
 {
     /// <summary>
-    /// The first bobbing half-cycle of a body, by speed record. The cartridge's initialization looks the body's own
+    /// The first bobbing half-cycle of a body, by speed record. The game's initialization looks the body's own
     /// direction-change period up with the speed-table offset in place of the body's own position, so the value it
     /// halves belongs to another enemy, fixed by the speed record alone. Every Evir in the game uses speed record 8
     /// or 12: record 8 lands on the second enemy's second population parameter, and record 12 on the third enemy's

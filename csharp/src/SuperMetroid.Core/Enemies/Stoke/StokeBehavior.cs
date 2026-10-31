@@ -60,7 +60,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Two-pixel downward probe used to test for a solid floor without moving Stoke.</summary>
     private const int StokeFloorProbeDisplacement = 2 << 16;
 
-    /// <summary>Ports <c>InitAI_Stoke</c> at <c>$A2:89AD</c>.</summary>
+    /// <summary>Ports <c>InitAI_Stoke</c>.</summary>
     internal static void InitializeStoke(RoomEnemySlot slot)
     {
         StokeSpawnSettings settings = slot.SpawnSettings<StokeSpawnSettings>();
@@ -93,7 +93,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>MainAI_Stoke</c> at <c>$A2:89F0</c>.</summary>
+    /// <summary>Ports <c>MainAI_Stoke</c>.</summary>
     private void RunStokeMain(RoomEnemySlot slot, StokeEnemyState state, RoomLevelData? level)
     {
         if (level is null)
@@ -105,7 +105,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case StokeAiFunction.Moving:
-                // A nonzero spawn direction other than one takes the native right-facing branch, so only the left
+                // A nonzero spawn direction other than one takes the right-facing branch, so only the left
                 // word walks left.
                 bool left = state.Direction == StokeDirection.Left;
                 RunMovingStoke(
@@ -145,7 +145,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         SetStokeProgram(slot, state, attackingProgram);
     }
 
-    /// <summary>Ports <c>StokeMovement</c> at <c>$A2:8A76</c>.</summary>
+    /// <summary>Ports <c>StokeMovement</c>.</summary>
     private void MoveStokeAndTurnAtTerrain(
         RoomEnemySlot slot,
         StokeEnemyState state,
@@ -165,11 +165,11 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             TurnStokeAround(slot, state);
     }
 
-    /// <summary>Ports <c>CheckForVerticalSolidBlockCollision</c>'s Stoke use at $A0:BC76.</summary>
+    /// <summary>Ports <c>CheckForVerticalSolidBlockCollision</c>'s Stoke use.</summary>
     private static bool StokeHasSolidFloorTwoPixelsBelow(RoomLevelData level, RoomEnemySlot slot)
         => EnemyTerrain.EnemyMeetsAttachmentBlockVerticallyAhead(level, slot, StokeFloorProbeDisplacement);
 
-    /// <summary>Ports <c>TurnStokeAround</c> at <c>$A2:8A95</c>.</summary>
+    /// <summary>Ports <c>TurnStokeAround</c>.</summary>
     private static void TurnStokeAround(RoomEnemySlot slot, StokeEnemyState state)
     {
         // The routine always selects the left wrapper first, then replaces it with right

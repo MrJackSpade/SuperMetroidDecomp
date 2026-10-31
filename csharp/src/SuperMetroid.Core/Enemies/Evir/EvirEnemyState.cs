@@ -2,9 +2,9 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>
-/// The state of one Evir actor (also called Mini-Draygon in older source annotations). The cartridge builds each
+/// The state of one Evir actor (also called Mini-Draygon in older source annotations). The game builds each
 /// creature from three consecutive enemies: body, arms, and a reusable aimed projectile; each holds one of these.
-/// The facing, function, movement countdown and regeneration offset are values the cartridge keeps in the enemy's
+/// The facing, function, movement countdown and regeneration offset are values the game keeps in the enemy's
 /// common record, so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>);
 /// the rest outlive the kill.
 /// </summary>
@@ -48,7 +48,7 @@ public sealed class EvirEnemyState
     public bool Regenerating { get; internal set; }
 
     /// <summary>
-    /// Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record: the
+    /// Empties the values the game keeps in the enemy's common record, when a kill empties that record: the
     /// facing reads as left, there is no function, and the countdown and regeneration offset are zero. The body's
     /// arms and spit, already scheduled for the update in which it dies, read its facing after this.
     /// </summary>

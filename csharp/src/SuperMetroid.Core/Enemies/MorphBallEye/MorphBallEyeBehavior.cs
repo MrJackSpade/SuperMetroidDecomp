@@ -30,7 +30,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int EyeActivateYDistance = 128;
     /// <summary>Strict vertical range retained while tracking Samus.</summary>
     private const int EyeDeactivateYDistance = 128;
-    /// <summary>Native word countdown for both opening and closing eye transitions.</summary>
+    /// <summary>Word countdown for both opening and closing eye transitions.</summary>
     private const int EyeTransitionDuration = 32;
 
     /// <summary>The room-global beam an eye body casts.</summary>
@@ -74,7 +74,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeEnemyState state,
         SamusState? samus)
     {
-        // The cartridge tests collected_items ($09A4), not equipped_items ($09A2). This
+        // The game tests collected_items, not equipped_items. This
         // matters after the player disables Morph Ball in the equipment menu.
         if (samus is null || !samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall))
             return;
@@ -121,7 +121,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = MorphBallEyeAiFunction.Activating;
     }
 
-    /// <summary>Uses native decrement/wrap semantics, then sounds activation, requests the beam, and captures Samus's angle.</summary>
+    /// <summary>Uses decrement/wrap semantics, then sounds activation, requests the beam, and captures Samus's angle.</summary>
     private void AdvanceMorphBallEyeActivation(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
@@ -164,14 +164,14 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
 
-        // The native pointer is $8FAC plus the high angle nibble shifted down by two, one four-byte record per
+        // The pointer is $8FAC plus the high angle nibble shifted down by two, one four-byte record per
         // pose: the tracking loop resumes at the pose for the arc of the turn the angle lies in.
         state.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active,
             state.Angle.Sector(MorphBallEyeBeamDefinitions.TrackingPoses));
         eye.FrameHold = WrappingCountdown.Start(1);
     }
 
-    /// <summary>Returns to waiting when the native closing word reaches zero or a negative wrapped value.</summary>
+    /// <summary>Returns to waiting when the closing word reaches zero or a negative wrapped value.</summary>
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
         CountdownStep timer = state.FunctionTimer.Decrement();
@@ -180,7 +180,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
     }
 
-    /// <summary>Calculates the cartridge angle from signed wrapped eye-to-Samus displacement.</summary>
+    /// <summary>Calculates the game angle from signed wrapped eye-to-Samus displacement.</summary>
     private static RotationAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
         EnemyMath.CalculateBearing(
             new(CoordinateAxis.Difference(samus.Position.X.Whole, eye.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, eye.Position.Y.Whole))).ReinterpretAsTableAngle().ToAngle();
@@ -259,7 +259,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Cycles the sixteen native beam colors while the body stays activated, otherwise begins fading.</summary>
+    /// <summary>Cycles the sixteen beam colors while the body stays activated, otherwise begins fading.</summary>
     internal void StepFullMorphBallEyeBeam()
     {
         MorphBallEyeEnemyState bodyState = (RequireMorphBallEyeBeamBody()).RequireSpeciesState<MorphBallEyeEnemyState>();

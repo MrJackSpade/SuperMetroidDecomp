@@ -77,7 +77,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionId) =>
         definitionId is EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower;
 
-    /// <summary>Ports <c>InitAI_Robot</c> at $A8:CB77.</summary>
+    /// <summary>Ports <c>InitAI_Robot</c>.</summary>
     internal void InitializeWorkRobot(RoomEnemySlot slot)
     {
         var state = new WorkRobotEnemyState();
@@ -109,12 +109,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         WorkRobotPaletteAnimationColouring = slot.Colouring;
     }
 
-    /// <summary>Ports <c>InitAI_RobotNoPower</c> at $A8:CBCC.</summary>
+    /// <summary>Ports <c>InitAI_RobotNoPower</c>.</summary>
     internal void InitializeWorkRobotNoPower(RoomEnemySlot slot, WorkRobotEnemyState state)
     {
         state.Powered = false;
 
-        // The native range check accidentally accepts parameter three even though the
+        // The range check accidentally accepts parameter three even though the
         // pointer table has only three entries; retail populations use zero/one, and the
         // overrun into code at $CC36 fails loudly in the animation selection.
         int animation = slot.SpawnSettings<WorkRobotSpawnSettings>().Pose;
@@ -137,7 +137,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // rather than synthesized into CGRAM, matching the visible cartridge result.
     }
 
-    /// <summary>Ports the gravity-only <c>MainAI_Robot</c> at $A8:CC36.</summary>
+    /// <summary>Ports the gravity-only <c>MainAI_Robot</c>.</summary>
     private void RunWorkRobotMain(
         RoomEnemySlot slot,
         WorkRobotEnemyState state,
@@ -152,13 +152,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // Enemy instruction processing will decrement the timer later in this same frame.
         // Incrementing here cancels that tick, freezing the current art while airborne.
         slot.FrameHold = slot.FrameHold.AddFrames(1);
-        // The fraction carries into the whole pixels, which wrap, as the cartridge's paired additions do.
+        // The fraction carries into the whole pixels, which wrap, as the game's paired additions do.
         state.FallVelocity += WorkRobotGravity;
     }
 
     /// <summary>
     /// Carries out one cue of the Work Robot's animations. Steps that meet a wall or ledge, the two walk redirections, and
-    /// a laser that fires continue the animation elsewhere, as the native routines replace the instruction pointer.
+    /// a laser that fires continue the animation elsewhere, as the routines replace the instruction pointer.
     /// </summary>
     private WorkRobotProgram? ApplyWorkRobotCue(RoomEnemySlot slot, WorkRobotEnemyState state, EnemyInstructionContext context, WorkRobotCue cue)
     {
@@ -269,7 +269,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         return step.FallProgram ?? throw new InvalidOperationException("A ledge-watching Work Robot step names no fall animation.");
     }
 
-    /// <summary>Checks the robot origin against the native screen rectangle with exclusive top and left edges.</summary>
+    /// <summary>Checks the robot origin against the screen rectangle with exclusive top and left edges.</summary>
     private static bool IsWorkRobotOriginStrictlyOnScreen(
         RoomEnemySlot robot,
         Position16<RoomPixels> camera) =>
@@ -346,7 +346,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         state.LaserCooldown = state.LaserCooldown.AddFrames(64);
     }
 
-    /// <summary>Ports the global graphics-drawn palette hook at $A8:CC67.</summary>
+    /// <summary>Ports the global graphics-drawn palette hook.</summary>
     internal void StepWorkRobotPaletteAnimation()
     {
         if (WorkRobotPaletteAnimationTimer.IsZero)
@@ -461,7 +461,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // All five initializers place the muzzle four pixels in the signed facing direction
         // and sixteen pixels above the robot. The temporary graphics word comes from the
         // owner; pre-instruction $D3BF clears it before the first draw, matching the ROM's
-        // use of palette/tile bits embedded directly in the bank-$8D laser spritemaps.
+        // use of palette/tile bits embedded directly in the laser spritemaps.
         projectile.Position = new(new(CoordinateAxis.Wrap(robot.Position.X.Whole +
             (state.LaserVelocity.X.SignedRawValue < 0 ? -4 : 4)), 0), new(CoordinateAxis.Wrap(robot.Position.Y.Whole - 16), 0));
         // $86:D326 clears the graphics word in the down-left/right initializer itself.

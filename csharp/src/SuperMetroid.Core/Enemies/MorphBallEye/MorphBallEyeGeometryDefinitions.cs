@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 internal static class MorphBallEyeGeometryDefinitions
 {
     /// <summary>
-    /// InitAI_Eye at $A8:9058 selects offsets at $90CA/$90D2 and programs at $90DA.
+    /// InitAI_Eye selects offsets at $90CA/$90D2 and programs at $90DA.
     /// Parameter two's low nibble names left, right, up or down; the mount is one tile
     /// from the eye center along that direction.
     /// </summary>

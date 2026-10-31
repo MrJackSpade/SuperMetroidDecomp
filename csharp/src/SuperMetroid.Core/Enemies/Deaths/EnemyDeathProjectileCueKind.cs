@@ -1,22 +1,22 @@
 namespace SuperMetroid.Core.Enemies.Deaths;
 
-/// <summary>What a cue of an enemy's death explosion and drop programs does: one per bank-$86 command its lists use.</summary>
+/// <summary>What a cue of an enemy's death explosion and drop programs does: one per command its lists use.</summary>
 internal enum EnemyDeathProjectileCueKind
 {
-    /// <summary>Turns the explosion into its rolled drop, or into the respawn tail when nothing drops (<c>Instruction_EnemyProjectile_EnemyDeathExplosion_BecomePickup</c>, $86:EEAF).</summary>
+    /// <summary>Turns the explosion into its rolled drop, or into the respawn tail when nothing drops.</summary>
     BecomePickup,
-    /// <summary>Deletes the projectile (<c>Instruction_EnemyProjectile_Delete</c>, $86:8154).</summary>
+    /// <summary>Deletes the projectile.</summary>
     Delete,
-    /// <summary>Respawns the killed enemy when its room keeps it (<c>Instruction_EnemyProjectile_Pickup_HandleRespawningEnemy</c>, $86:EF10).</summary>
+    /// <summary>Respawns the killed enemy when its room keeps it.</summary>
     HandleRespawningEnemy,
-    /// <summary>Queues the killed-by-contact sound (<c>Instruction_EnemyProj_EDeathExplo_QueueContactKilledSoundFX</c>, $86:EEA3).</summary>
+    /// <summary>Queues the killed-by-contact sound.</summary>
     PlayContactKilledSound,
-    /// <summary>Queues the enemy-killed sound (<c>Instruction_EnemyProj_EnemyDeathExpl_QueueEnemyKilledSoundFX</c>, $86:EE8B).</summary>
+    /// <summary>Queues the enemy-killed sound.</summary>
     PlayEnemyKilledSound,
-    /// <summary>Queues the small-explosion sound (<c>Instruction_EnemyProj_EDeathExplo_QueueSmallExplosionSoundFX</c>, $86:EE97).</summary>
+    /// <summary>Queues the small-explosion sound.</summary>
     PlaySmallExplosionSound,
-    /// <summary>Spawns the sprite object up to 16 pixels from the explosion (<c>Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_10</c>, $86:ED17).</summary>
+    /// <summary>Spawns the sprite object up to 16 pixels from the explosion.</summary>
     SpawnSpriteWithin16,
-    /// <summary>Spawns the sprite object up to 32 pixels from the explosion (<c>Instruction_EnemyProj_EnemyDeathExpl_SpawnSpriteObjectInY_20</c>, $86:ECE3).</summary>
+    /// <summary>Spawns the sprite object up to 32 pixels from the explosion.</summary>
     SpawnSpriteWithin32,
 }

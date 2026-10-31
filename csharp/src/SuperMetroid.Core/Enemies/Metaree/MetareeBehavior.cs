@@ -118,7 +118,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // The SNES unsigned-divider input is the wrapped 16-bit Y difference. If Samus is
-        // above Metaree, this deliberately creates the cartridge's enormous dive velocity
+        // above Metaree, this deliberately creates the game's enormous dive velocity
         // instead of sanitizing the old bug into modern signed physics.
         int verticalDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole - slot.Position.Y.Whole);
         state.YVelocity = verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity;

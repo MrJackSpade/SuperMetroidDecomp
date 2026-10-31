@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>
 /// The behaviour routine Oum's main AI runs.
-/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
+/// Its values are arbitrary.
 /// </summary>
 public enum MaridiaLargeSnailEnemyFunction
 {

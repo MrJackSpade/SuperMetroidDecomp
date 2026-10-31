@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>
-/// Native <c>loading_game_state</c> branch sampled while the Landing Site gunship is
+/// The loading-game state sampled while the Landing Site gunship is
 /// initialized. These are mutually exclusive loader scenarios, not combinable flags.
 /// </summary>
 public enum GunshipLoadScenario

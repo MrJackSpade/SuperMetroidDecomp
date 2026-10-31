@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Owtch.OwtchProgram;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
-/// Owtch's left and right shell-cycling animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// Owtch's left and right shell-cycling animations as typed programs (#641). Each
 /// frame shows a <see cref="OwtchFrame"/> pose and each callback becomes a <see cref="OwtchCue"/> with its typed operands.
 /// </summary>
 internal static class OwtchAnimations

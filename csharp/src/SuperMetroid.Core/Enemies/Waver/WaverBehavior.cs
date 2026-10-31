@@ -39,12 +39,12 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Native horizontal speed of one and a half pixels per update in signed 16.16 form.</summary>
+    /// <summary>Horizontal speed of one and a half pixels per update in signed 16.16 form.</summary>
     private const int WaverHorizontalSpeedFixed = 98304;
     /// <summary>Four-pixel amplitude used by Waver's negative-sine vertical motion.</summary>
     private const int WaverVerticalRadius = 4;
 
-    /// <summary>Ports <c>InitAI_Waver</c> at <c>$A3:86ED</c>.</summary>
+    /// <summary>Ports <c>InitAI_Waver</c>.</summary>
     internal static void InitializeWaver(RoomEnemySlot slot)
     {
         HorizontalDirection facing = slot.SpawnSettings<WaverSpawnSettings>().Facing;
@@ -67,7 +67,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         SetWaverProgram(slot, state);
     }
 
-    /// <summary>Ports <c>MainAI_Waver</c> at <c>$A3:874C</c>.</summary>
+    /// <summary>Ports <c>MainAI_Waver</c>.</summary>
     private void RunWaverMain(
         RoomEnemySlot slot,
         WaverEnemyState state,

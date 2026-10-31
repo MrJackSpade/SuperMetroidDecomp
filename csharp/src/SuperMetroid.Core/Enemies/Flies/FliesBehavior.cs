@@ -46,7 +46,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Fly AI requires the active Samus actor.");
 
-        // $A2:B11F advances the global RNG even though this family does not consume the
+        // The flies advance the global RNG even though this family does not consume the
         // returned word. The side effect matters when several random enemies share a room.
         _room.Random.Generate();
         FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
@@ -149,7 +149,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.Advance(state.Velocity.ToSixteenSixteen());
     }
 
-    /// <summary>Reads the cartridge's negative-cosine table, including the phase-offset range used for horizontal motion.</summary>
+    /// <summary>Reads the game's negative-cosine table, including the phase-offset range used for horizontal motion.</summary>
     internal static int ReadSignedSineCosine(int index)
     {
         // The backing table begins with negative cosine at index zero, sine at index 64,

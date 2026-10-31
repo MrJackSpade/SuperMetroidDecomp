@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 internal static class NorfairLavaJumpDefinitions
 {
     /// <summary>
-    /// The four signed 8.8 Y velocities at <c>$A2:BE86-$BE8D</c>. Native AI selects a
+    /// The four signed 8.8 Y velocities. Native AI selects a
     /// two-byte record with <c>HIBYTE(random) &amp; 6</c>.
     /// </summary>
     private static readonly SignedEightEight[] InitialVerticalVelocities =
@@ -15,7 +15,7 @@ internal static class NorfairLavaJumpDefinitions
         SignedEightEight.FromSignedRaw(-1281),
     ];
 
-    /// <summary>Selects the exact launch velocity from the current native RNG word.</summary>
+    /// <summary>Selects the exact launch velocity from the current RNG word.</summary>
     internal static ushort InitialVerticalVelocity(int random) =>
         InitialVerticalVelocities[(random >> 9) & 3].RawValue;
 }

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>
-/// The state of the elevator enemy. Its resting height and direction are values the cartridge keeps in the enemy's
+/// The state of the elevator enemy. Its resting height and direction are values the game keeps in the enemy's
 /// common record, so they are emptied with that record when the slot is cleared (<see cref="ClearWithRecord"/>);
 /// the global elevator status survives travel to the destination room.
 /// </summary>

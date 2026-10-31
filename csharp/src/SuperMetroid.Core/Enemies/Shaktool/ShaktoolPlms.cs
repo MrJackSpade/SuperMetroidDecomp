@@ -27,7 +27,7 @@ internal sealed class ShaktoolPlms
     public bool TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
-        // Native hardcoded spawning leaves the scrolls untouched when its pool is full.
+        // Hardcoded spawning leaves the scrolls untouched when its pool is full.
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 

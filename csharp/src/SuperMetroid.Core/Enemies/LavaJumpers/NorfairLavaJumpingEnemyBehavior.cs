@@ -32,7 +32,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Unsigned rising-velocity threshold that switches to the visible jump list.</summary>
     private static readonly int NorfairLavaJumpingEnemyAnimationSwitchVelocity = SignedEightEight.FromSignedRaw(-1024).RawValue;
 
-    /// <summary>Ports <c>NorfairLavajumpingEnemy_Init</c> at $A2:BE99.</summary>
+    /// <summary>Ports <c>NorfairLavajumpingEnemy_Init</c>.</summary>
     internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)
     {
         var state = new NorfairLavaJumpingEnemyState
@@ -133,7 +133,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         }
     }
 
-    /// <summary>Carries out the jump animation's finishing cue, the private handshake at $A2:BE8E.</summary>
+    /// <summary>Carries out the jump animation's finishing cue, the private handshake.</summary>
     private static NorfairLavaJumperProgram? ApplyNorfairLavaJumperCue(NorfairLavaJumpingEnemyState state, NorfairLavaJumperCue cue)
     {
         if (cue.Kind != NorfairLavaJumperCueKind.FinishAnimation)
@@ -158,7 +158,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         }
 
         // Pair identity is checked at population initialization, not on every AI frame.
-        // The native flame routine reads the preceding physical record even after its
+        // The flame routine reads the preceding physical record even after its
         // header has been cleared: script deletion does not zero health or movement words.
         // Requiring a live definition here rejects valid retained-WRAM reads (#322).
 
@@ -177,7 +177,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         follower.Position = follower.Position.WithWholeY(parent.Position.Y.Whole);
     }
 
-    /// <summary>Returns the immediately preceding physical enemy record used by native follower aliasing.</summary>
+    /// <summary>Returns the immediately preceding physical enemy record used by follower aliasing.</summary>
     private RoomEnemySlot GetPrecedingNorfairLavaJumpingEnemySlot(RoomEnemySlot follower)
     {
         if (follower.SlotIndex == 0)
@@ -212,7 +212,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         slot.Position = slot.Position.AdvanceY(state.YVelocity.ToSixteenSixteenDelta());
     }
 
-    /// <summary>Ports function six at $A2:C012 without restarting an unchanged list.</summary>
+    /// <summary>Ports function six without restarting an unchanged list.</summary>
     private static void InstallNorfairLavaJumpingEnemyProgram(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state,

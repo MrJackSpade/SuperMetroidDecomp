@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Skultera.SkulteraProgram;
 namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>
-/// Skultera's swimming and turning animations as typed programs (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// Skultera's swimming and turning animations as typed programs (#641). Each
 /// frame shows a <see cref="SkulteraFrame"/> pose and each callback becomes a <see cref="SkulteraCue"/> with its typed operands.
 /// </summary>
 internal static class SkulteraAnimations
@@ -78,7 +78,7 @@ internal static class SkulteraAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue> FallInto(SkulteraProgram program) => AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue> Hold => AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>.Hold;
 
 }

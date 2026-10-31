@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// <summary>
 /// The state of one Skultera (spelled <c>Skulltera</c> in the upstream symbols; the enemy header and the game's
 /// visible name use <c>Skultera</c>). The function, both swimming speeds and the oscillation angle are values the
-/// cartridge keeps in the enemy's common record, so they are emptied with that record when the enemy is killed
+/// game keeps in the enemy's common record, so they are emptied with that record when the enemy is killed
 /// (<see cref="ClearWithRecord"/>); the rest outlive the kill.
 /// </summary>
 public sealed class SkulteraEnemyState
@@ -45,7 +45,7 @@ public sealed class SkulteraEnemyState
     /// <summary>Advances the oscillation phase by <see cref="AngleDelta"/>, wrapping after a full turn.</summary>
     internal void AdvanceAngle() => Angle = Angle.AddTableUnits(AngleDelta);
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record, when a kill empties that record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

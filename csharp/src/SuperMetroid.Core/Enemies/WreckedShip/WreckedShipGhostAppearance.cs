@@ -21,7 +21,7 @@ public static class WreckedShipGhostAppearance
     }
 
     /// <summary>
-    /// The flicker interval at <paramref name="index"/>; -1 at the terminator. Native appearance starts at index 1 but
+    /// The flicker interval at <paramref name="index"/>; -1 at the terminator. Appearance starts at index 1 but
     /// index 0 remains valid when the caller resets its offset after the terminator.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the seventeen entries.</exception>

@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Zoa.ZoaProgram;
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>
-/// Zoa's shooting and rising animations as typed programs (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// Zoa's shooting and rising animations as typed programs (#641). Each
 /// frame shows a <see cref="ZoaFrame"/> pose and each callback becomes a <see cref="ZoaCue"/> with its typed operands.
 /// </summary>
 internal static class ZoaAnimations

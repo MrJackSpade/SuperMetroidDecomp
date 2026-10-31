@@ -41,7 +41,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Each flight update subtracts 32 units from the signed 8.8 vertical velocity.</summary>
     private const int LowerNorfairRioGravity = 32;
 
-    /// <summary>Ports <c>LowerNorfairRio_Init</c> at $A2:C6F3.</summary>
+    /// <summary>Ports <c>LowerNorfairRio_Init</c>.</summary>
     internal void InitializeLowerNorfairRio(RoomEnemySlot slot)
     {
         var state = new LowerNorfairRioEnemyState
@@ -67,7 +67,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>
-    /// Ports <c>LowerNorfairRio_Main</c> and functions one through six at $A2:C724-$C8A2.
+    /// Ports <c>LowerNorfairRio_Main</c> and functions one through six.
     /// The shared RNG advances before every parent and follower dispatch, exactly as retail.
     /// </summary>
     private void RunLowerNorfairRioMain(
@@ -266,7 +266,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     private static void NegateLowerNorfairRioXVelocity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.ReversedX();
 
-    /// <summary>Applies the native negative 8.8 vertical acceleration after a flight step.</summary>
+    /// <summary>Applies the negative 8.8 vertical acceleration after a flight step.</summary>
     private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.WithY(new SignedEightEight(
             WordWrap.Unsigned(state.Velocity.Y.RawValue - LowerNorfairRioGravity)));

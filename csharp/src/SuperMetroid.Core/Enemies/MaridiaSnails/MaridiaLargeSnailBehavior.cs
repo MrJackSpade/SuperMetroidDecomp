@@ -64,7 +64,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     private static readonly SoundEffectId MaridiaLargeSnailShotSound =
         EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound;
 
-    /// <summary>Ports <c>InitAI_Oum</c> at $A2:CCD4.</summary>
+    /// <summary>Ports <c>InitAI_Oum</c>.</summary>
     internal static void InitializeMaridiaLargeSnail(RoomEnemySlot slot)
     {
         var state = new MaridiaLargeSnailEnemyState
@@ -246,7 +246,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (state.BounceFunction)
         {
             case MaridiaLargeSnailBounceFunction.Falling:
-                // The record stays within -3712 through 16384, so the cartridge's signed word comparisons are
+                // The record stays within -3712 through 16384, so the game's signed word comparisons are
                 // ordinary comparisons.
                 state.YSpeedTableIndex = Math.Min(
                     state.YSpeedTableIndex + MaridiaLargeSnailBounceAcceleration,
@@ -278,7 +278,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 }
 
                 // The rising half reads the negative member of the same quadratic row. The record is not
-                // negative here, so its whole part is the row the cartridge's sign-clearing AND selects.
+                // negative here, so its whole part is the row the game's sign-clearing AND selects.
                 int tableIndex = Ensure.BetweenInclusive(0, ushort.MaxValue, EightEight.WholeOf(state.YSpeedTableIndex));
                 _terrain.MoveEnemyVertically(
                     level,
@@ -305,7 +305,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             state.MovingLeft == state.SamusIsLeft;
         if (temporarilyReachTowardSamus)
         {
-            // Native temporarily extends the whole-pixel move sixteen pixels toward Samus,
+            // Temporarily extends the whole-pixel move sixteen pixels toward Samus,
             // performs collision, then retracts the center. Net velocity remains the table
             // speed while wall clipping naturally transfers the lost distance to Samus.
             speed = speed.WithWholePixels(WordWrap.Signed(speed.WholePixels + (state.MovingLeft ? -16 : 16)));
@@ -365,7 +365,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (MaridiaLargeSnailTouchesSamusFromBelow(slot, samus))
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
-            // displacement word. This preserves the last touching Oum's native ownership.
+            // displacement word. This preserves the last touching Oum's ownership.
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(CoordinateAxis.Difference(
                 slot.Position.Y.Whole, state.PreviousPosition.Y));
         }
@@ -504,13 +504,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>
-    /// Ports the private tail of <c>EnemyShot_Oum</c> at $A2:D3B8. It runs after common shot
+    /// Ports the private tail of <c>EnemyShot_Oum</c>. It runs after common shot
     /// AI for damaging, freezing, and zero-damage vulnerability results alike.
     /// </summary>
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MaridiaLargeSnail, MaridiaLargeSnailShotSound, priority: SoundRequestPriority.Normal);
 
-    /// <summary>Publishes Oum's native shot sound after common bomb damage.</summary>
+    /// <summary>Publishes Oum's shot sound after common bomb damage.</summary>
     internal void AddMaridiaLargeSnailBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Oum &&
@@ -549,7 +549,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                     throw new InvalidDataException("Maridia Large Snail lost its required extended-spritemap property.");
                 if (c.HitboxShotAi == EnemyReaction.Ignore)
                 {
-                    // Native multibox collision marks the projectile before calling the
+                    // Multibox collision marks the projectile before calling the
                     // no-op. It does not run normal shot AI, create an impact, play $57,
                     // or consult vulnerability for this protected shell component.
                     c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
@@ -601,7 +601,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!(MaridiaLargeSnailCollisionDefinitions.Frames.Contains(enemy.Frame) || probe.ArtworkInstalled))
             return null;
 
-        // Oum's 30 native frames each have one (0,0) component, but the
+        // Oum's 30 frames each have one (0,0) component, but the
         // ordered regions change with roll and attack direction. Keep
         // those rectangles and callback identities independent of OAM.
         foreach (EnemyCollisionHitbox hitbox in

@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
-/// <summary>The old Tourian escape-shaft fake-wall explosion's typed program, in place of its bank-$86 list.</summary>
+/// <summary>The old Tourian escape-shaft fake-wall explosion's typed program, in place of its list.</summary>
 internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionProgram program)
     : EnemyProjectileProgramAnimation<OldTourianWallExplosionProgram, int, OldTourianWallExplosionCue>(program)
 {

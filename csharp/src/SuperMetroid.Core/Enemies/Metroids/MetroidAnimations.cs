@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Metroids.MetroidProgram;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// The Metroid's chasing and draining pulse loops as typed programs (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// The Metroid's chasing and draining pulse loops as typed programs (#641). Each
 /// frame shows a <see cref="MetroidFrame"/> pose and each callback becomes a <see cref="MetroidCue"/> with its typed operands.
 /// </summary>
 internal static class MetroidAnimations

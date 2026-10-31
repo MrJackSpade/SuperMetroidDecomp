@@ -1,21 +1,21 @@
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>
-/// Powamp's body pulses and balloon inflate and sink animations as typed programs (#641), one per bank-$A8 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="PowampAnimations"/>.
+/// Powamp's body pulses and balloon inflate and sink animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="PowampAnimations"/>.
 /// </summary>
 internal enum PowampProgram
 {
-    /// <summary><c>InstList_Powamp_Body_FastAnimation</c> at $A8:C163.</summary>
+    /// <summary>The body fast animation.</summary>
     BodyFast,
-    /// <summary><c>InstList_Powamp_Body_SlowAnimation</c> at $A8:C173.</summary>
+    /// <summary>The body slow animation.</summary>
     BodySlow,
-    /// <summary><c>InstList_Powamp_Balloon_Inflate_0</c> at $A8:C183.</summary>
+    /// <summary>The balloon inflate 0 animation.</summary>
     BalloonInflate0,
-    /// <summary><c>InstList_Powamp_Balloon_Inflate_1</c> at $A8:C187.</summary>
+    /// <summary>The balloon inflate 1 animation.</summary>
     BalloonInflate1,
-    /// <summary><c>InstList_Powamp_Balloon_StartSinking</c> at $A8:C191.</summary>
+    /// <summary>The balloon start sinking animation.</summary>
     BalloonStartSinking,
-    /// <summary><c>InstList_Powamp_Balloon_Deflated</c> at $A8:C199.</summary>
+    /// <summary>The balloon deflated animation.</summary>
     BalloonDeflated,
 }

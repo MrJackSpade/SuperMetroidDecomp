@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
-/// <summary>The binary climb direction stored in native variable C.</summary>
+/// <summary>The binary climb direction stored in variable C.</summary>
 public enum WallSpacePirateClimbDirection
 {
     /// <summary>Variable-C value zero selects the downward climb list, whose movement opcodes add three room pixels to Y before collision handling.</summary>

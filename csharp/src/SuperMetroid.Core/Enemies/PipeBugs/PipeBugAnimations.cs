@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>
-/// The Zeb, Zebbo, Gamet and Geega Pipe Bugs' rising, shooting, flying and arcing loops as typed programs (#641), in place of their bank-$B3 lists. Generated from the verified native lists: each
+/// The Zeb, Zebbo, Gamet and Geega Pipe Bugs' rising, shooting, flying and arcing loops as typed programs (#641). Each
 /// frame shows a <see cref="PipeBugFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class PipeBugAnimations

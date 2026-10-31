@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.WorkRobots.WorkRobotProgram;
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The Work Robot's unpowered poses and its walk, wall, recoil, laser and ledge animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// The Work Robot's unpowered poses and its walk, wall, recoil, laser and ledge animations as typed programs (#641). Each
 /// frame shows a <see cref="WorkRobotFrame"/> pose and each callback becomes a <see cref="WorkRobotCue"/> with its typed operands.
 /// </summary>
 internal static class WorkRobotAnimations
@@ -468,7 +468,7 @@ internal static class WorkRobotAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue> FallInto(WorkRobotProgram program) => AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue> Hold => AnimationProgramStep<WorkRobotProgram, WorkRobotFrame, WorkRobotCue>.Hold;
 
 }

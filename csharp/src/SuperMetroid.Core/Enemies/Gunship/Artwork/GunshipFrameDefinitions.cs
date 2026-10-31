@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Gunship.Artwork;
 
 /// <summary>
-/// The presentation boundary of the gunship's hull and entrance pad programs (#641): the bank-$A2 spritemap each
+/// The presentation boundary of the gunship's hull and entrance pad programs (#641): the spritemap each
 /// <see cref="GunshipFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class GunshipFrameDefinitions

@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>
-/// The Blue Brinstar face block's neutral and turning animations as typed programs (#641), one per bank-$A8 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="BlueBrinstarFaceBlockAnimations"/>.
+/// The Blue Brinstar face block's neutral and turning animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="BlueBrinstarFaceBlockAnimations"/>.
 /// </summary>
 internal enum BlueBrinstarFaceBlockProgram
 {
-    /// <summary>The native list at $A8:E80C.</summary>
+    /// <summary>The samus left animation.</summary>
     SamusLeft,
-    /// <summary>The native list at $A8:E81A.</summary>
+    /// <summary>The samus right animation.</summary>
     SamusRight,
-    /// <summary>The native list at $A8:E828.</summary>
+    /// <summary>The initial animation.</summary>
     Initial,
 }

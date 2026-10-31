@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>
-/// Mochtroid's free-flight and attached pulse loops as typed programs (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// Mochtroid's free-flight and attached pulse loops as typed programs (#641). Each
 /// frame shows a <see cref="MochtroidFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class MochtroidAnimations

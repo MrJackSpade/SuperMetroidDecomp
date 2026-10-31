@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Dragon.DragonProgram;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// Dragon's idle, wing and attack animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// Dragon's idle, wing and attack animations as typed programs (#641). Each
 /// frame shows a <see cref="DragonFrame"/> pose and each callback becomes a <see cref="DragonCue"/> with its typed operands.
 /// </summary>
 internal static class DragonAnimations
@@ -67,7 +67,7 @@ internal static class DragonAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<DragonProgram, DragonFrame, DragonCue> GoTo(DragonProgram program) => AnimationProgramStep<DragonProgram, DragonFrame, DragonCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<DragonProgram, DragonFrame, DragonCue> Hold => AnimationProgramStep<DragonProgram, DragonFrame, DragonCue>.Hold;
 
 }

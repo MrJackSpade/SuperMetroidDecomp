@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Skree.SkreeMetareeProgram;
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>
-/// The Skree's and Metaree's idling, wind-up, diving and stop animations as typed programs (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// The Skree's and Metaree's idling, wind-up, diving and stop animations as typed programs (#641). Each
 /// frame shows a <see cref="SkreeMetareeFrame"/> pose and each callback becomes a <see cref="SkreeMetareeCue"/> with its typed operands.
 /// </summary>
 internal static class SkreeMetareeAnimations
@@ -96,7 +96,7 @@ internal static class SkreeMetareeAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<SkreeMetareeProgram, SkreeMetareeFrame, SkreeMetareeCue> FallInto(SkreeMetareeProgram program) => AnimationProgramStep<SkreeMetareeProgram, SkreeMetareeFrame, SkreeMetareeCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<SkreeMetareeProgram, SkreeMetareeFrame, SkreeMetareeCue> Hold => AnimationProgramStep<SkreeMetareeProgram, SkreeMetareeFrame, SkreeMetareeCue>.Hold;
 
 }

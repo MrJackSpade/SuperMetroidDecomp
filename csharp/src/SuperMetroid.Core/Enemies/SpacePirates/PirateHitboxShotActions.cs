@@ -63,7 +63,7 @@ internal static class PirateHitboxShotActions
     }
 
     /// <summary>
-    /// Dispatches a family-$0500 normal bomb through the same three bank-$B2 component
+    /// Dispatches a family-$0500 normal bomb through the same three component
     /// callbacks as the ordinary projectile path. Non-gold Pirates always jump to normal
     /// Pirate shot handling. Gold Ninjas return from both `$87C8` and `$883E` because a
     /// normal bomb sorts after Power Bomb family `$0300`; consequently bombs neither damage

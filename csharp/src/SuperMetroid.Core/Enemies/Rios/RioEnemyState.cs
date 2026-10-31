@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// The state of one Rio. The velocities, function and animation handshake are values the cartridge keeps in the
+/// The state of one Rio. The velocities, function and animation handshake are values the game keeps in the
 /// enemy's common record, so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class RioEnemyState
@@ -25,7 +25,7 @@ public sealed class RioEnemyState
     /// <summary>The last animation installed by a behavioural transition; none at room load.</summary>
     internal RioProgram? InstalledProgram { get; set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record, when a kill empties that record.</summary>
     internal void ClearWithRecord()
     {
         SavedHorizontalVelocity = default;

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.NoobTube;
 [RoomLifetime]
 internal sealed class NoobTubeBehavior
 {
-    /// <summary>The program each native even shard spawn parameter ($00-$12) selects, by parameter / 2.</summary>
+    /// <summary>The program each even shard spawn parameter ($00-$12) selects, by parameter / 2.</summary>
     private static readonly NoobTubeProjectileProgram[] ShardPrograms =
     [
         NoobTubeProjectileProgram.Shard0, NoobTubeProjectileProgram.Shard1, NoobTubeProjectileProgram.Shard2,
@@ -17,7 +17,7 @@ internal sealed class NoobTubeBehavior
         NoobTubeProjectileProgram.Shard9,
     ];
 
-    /// <summary>Provides room-load state and the native RNG for shard and bubble launch angles.</summary>
+    /// <summary>Provides room-load state and the RNG for shard and bubble launch angles.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates and advances crack, glass shard, and released-air-bubble projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -31,7 +31,7 @@ internal sealed class NoobTubeBehavior
 
     /// <summary>
     /// Executes the initializer selected by definitions $D904/$D912/$D920. The request
-    /// retains the executing PLM block because native bank $86 reads the global PLM index
+    /// retains the executing PLM block because bank $86 reads the global PLM index
     /// while constructing each actor.
     /// </summary>
     public void SpawnNoobTubeProjectile(
@@ -229,7 +229,7 @@ internal sealed class NoobTubeBehavior
         }
     }
 
-    /// <summary>Converts a native even-byte table offset to a shard or bubble entry index, rejecting odd and out-of-range operands.</summary>
+    /// <summary>Converts an even-byte table offset to a shard or bubble entry index, rejecting odd and out-of-range operands.</summary>
     private static int ValidateEvenNoobTubeParameter(
         int parameter,
         int entryCount,

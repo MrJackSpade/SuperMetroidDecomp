@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>
 /// The two routines Kago's main AI dispatches.
-/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
+/// Its values are arbitrary.
 /// </summary>
 public enum KagoEnemyFunction
 {

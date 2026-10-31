@@ -2,12 +2,12 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
-/// The state of an Owtch, with its three extended WRAM words <c>$7E:7800-$7804</c>. The values the cartridge keeps in
+/// The state of an Owtch, with its three extended WRAM words <c>$7E:7800-$7804</c>. The values the game keeps in
 /// the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class OwtchEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<OwtchProgram> Program { get; set; }
 
     /// <summary>
@@ -38,7 +38,7 @@ public sealed class OwtchEnemyState
 
     /// <summary>
     /// Counts one rising pixel off the burial depth and reports whether it reached zero. An
-    /// Owtch that starts rising unburied wraps to 65535, as the cartridge's decrement does, and keeps rising that many
+    /// Owtch that starts rising unburied wraps to 65535, as the game's decrement does, and keeps rising that many
     /// more updates.
     /// </summary>
     internal bool RiseOnePixel()
@@ -47,24 +47,24 @@ public sealed class OwtchEnemyState
         return BurialDepth == 0;
     }
 
-    /// <summary>Native extended word <c>$7E:7800,x</c>.</summary>
+    /// <summary>Extended word <c>$7E:7800,x</c>.</summary>
     public WrappingCountdown UndergroundTimer { get; internal set; }
 
     /// <summary>
-    /// Native extended word <c>$7E:7802,x</c>: the left end of the patrol, the spawn X less the travel distance with
+    /// Extended word <c>$7E:7802,x</c>: the left end of the patrol, the spawn X less the travel distance with
     /// room-coordinate wraparound; only its X is meaningful. Positions compare with it by the wrapped spatial
     /// difference.
     /// </summary>
     public Position16<RoomPixels> MinimumPosition { get; internal set; }
 
     /// <summary>
-    /// Native extended word <c>$7E:7804,x</c>: the right end of the patrol, the spawn X plus the travel distance with
+    /// Extended word <c>$7E:7804,x</c>: the right end of the patrol, the spawn X plus the travel distance with
     /// room-coordinate wraparound; only its X is meaningful. Positions compare with it by the wrapped spatial
     /// difference.
     /// </summary>
     public Position16<RoomPixels> MaximumPosition { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         RightVelocity = SignedSixteenSixteen.Zero;

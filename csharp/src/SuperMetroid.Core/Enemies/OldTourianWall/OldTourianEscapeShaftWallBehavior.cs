@@ -13,7 +13,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
     /// <summary>Native-equivalent eighteen-slot enemy projectile allocator for the wall explosion.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Enemy sound queue used by the wall explosion's bank-$86 instruction.</summary>
+    /// <summary>Enemy sound queue used by the wall explosion's instruction.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds room, projectile, and audio owners needed by the old Tourian fake-wall controller.</summary>
@@ -26,7 +26,7 @@ internal sealed class OldTourianEscapeShaftWallBehavior
 
     /// <summary>
     /// Spawns enemy projectile $86:B4B1 for PLM pre-instruction $84:B927. Its initializer
-    /// ($86:B49D) ignores the spawn parameter and places the explosion on the middle of the
+    /// ignores the spawn parameter and places the explosion on the middle of the
     /// breaking wall.
     /// </summary>
     public void SpawnOldTourianEscapeShaftWallExplosion()

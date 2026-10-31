@@ -42,7 +42,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         _roomStatus = roomStatus;
     }
 
-    /// <summary>Ports <c>Kago_Init</c> at <c>$A8:AB46</c>.</summary>
+    /// <summary>Ports <c>Kago_Init</c>.</summary>
     internal static void InitializeKago(RoomEnemySlot slot)
     {
         var state = new KagoEnemyState();
@@ -76,9 +76,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports the Kago-owned tail of <c>Kago_Shot</c> at <c>$A8:AB83</c>. The caller has
+    /// Ports the Kago-owned tail of <c>Kago_Shot</c>. The caller has
     /// already executed common normal-enemy shot AI, exactly matching the leading JSR in
-    /// the cartridge routine.
+    /// the game routine.
     /// </summary>
     internal void ResolveKagoShotAfterCommon(RoomEnemySlot slot, KagoEnemyState state)
     {
@@ -96,7 +96,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HitCounter.IsNegative)
         {
             // Common shot AI can theoretically kill the 1600-health shell first with a
-            // debug-edited projectile. Do not count the same native death request twice.
+            // debug-edited projectile. Do not count the same death request twice.
             if (!slot.Properties.HasAny(EnemyProperties.Deleted))
             {
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
@@ -205,7 +205,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Beyond this parent separation, the next jump homes toward the shell.</summary>
     private const int KagoBugSourceHomingDistance = 48;
 
-    /// <summary>Ports <c>EprojInit_KagosBugs</c> at <c>$86:D088</c>.</summary>
+    /// <summary>Ports <c>EprojInit_KagosBugs</c>.</summary>
     internal bool SpawnKagoBug(RoomEnemySlot source)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -284,7 +284,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
-            // A wall ends the rising phase immediately in the cartridge: both X velocity
+            // A wall ends the rising phase immediately in the game: both X velocity
             // and the upward component are replaced before selecting the falling list.
             projectile.Velocity = new(new SignedEightEight(0), SignedEightEight.FromSignedRaw(256));
             BeginKagoBugFall(projectile);
@@ -309,7 +309,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         StepKagoBugSound(projectile);
         EnableKagoBugShotCollisionWhenSeparated(projectile);
 
-        // The native routine is an if/else-if chain. A wall consumes this frame, zeros X,
+        // The routine is an if/else-if chain. A wall consumes this frame, zeros X,
         // and deliberately postpones both vertical motion and gravity until the next frame.
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
@@ -355,7 +355,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            // Inside that band the cartridge reuses the low jump height bit of the chosen vertical speed
+            // Inside that band the game reuses the low jump height bit of the chosen vertical speed
             // as a direction bit instead of requesting a second random sample.
             jumpLeft = KagoDefinitions.LeftJump.IsSetIn(random);
         }

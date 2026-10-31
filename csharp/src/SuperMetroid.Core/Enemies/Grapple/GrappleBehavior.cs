@@ -28,7 +28,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
     }
 
     /// <summary>
-    /// Ports <c>EnemyGrappleBeamCollisionDetection</c> at $A0:9E9A. Extended hitboxes are
+    /// Ports <c>EnemyGrappleBeamCollisionDetection</c>. Extended hitboxes are
     /// intentionally ignored: the original compares the endpoint with each ordinary radius
     /// plus an eight-pixel beam-point radius and selects the first interactive slot.
     /// </summary>
@@ -102,7 +102,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 return true;
 
             case GrappleAiRoutine.Kill:
-                // $A0:9FC4 always selects explosion variant zero. The shared death
+                // Grapple kills always select explosion variant zero. The shared death
                 // routine preserves the actor's position/drop identity and any respawn
                 // marker; directly deleting the enemy loses the complete visual tail.
                 _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Small);
@@ -143,7 +143,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
 
     /// <summary>
     /// The frame the common grapple wrapper hands to main AI: the enemy's own camera, Samus,
-    /// input and room, but no Samus projectiles, Mode 7 transform, shared bombs or VRAM queue,
+    /// input and room, but no Samus projectiles, Mode 7 transform, shared bombs or tile transfer queue,
     /// exactly as the wrapper's main-AI call has always received them (#633).
     /// </summary>
     internal sealed class GrappleWrappedAiFrame(IEnemyAiFrame frame) : IEnemyAiFrame

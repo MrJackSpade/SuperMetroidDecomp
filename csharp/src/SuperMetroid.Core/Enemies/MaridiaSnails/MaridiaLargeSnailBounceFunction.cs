@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// <summary>
 /// Oum's bounce routine. The enemy uses the shared quadratic-speed table for a diminishing three-impact
 /// settling animation.
-/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
+/// Its values are arbitrary.
 /// </summary>
 public enum MaridiaLargeSnailBounceFunction
 {

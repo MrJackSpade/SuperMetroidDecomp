@@ -34,7 +34,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         _spriteObjects = spriteObjects;
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Init</c> at <c>$A6:94C4</c>.</summary>
+    /// <summary>Ports <c>NuclearWaffle_Init</c>.</summary>
     internal void InitializeNuclearWaffle(RoomEnemySlot slot)
     {
         var state = new NuclearWaffleEnemyState();
@@ -76,7 +76,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         SpawnNuclearWaffleSpriteSegments(slot, state);
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Main</c> at <c>$A6:960E</c>.</summary>
+    /// <summary>Ports <c>NuclearWaffle_Main</c>.</summary>
     private void RunNuclearWaffleMain(RoomEnemySlot slot, NuclearWaffleEnemyState state)
     {
         switch (state.Function)
@@ -95,7 +95,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Func_1</c> at <c>$A6:9615</c>.</summary>
+    /// <summary>Ports <c>NuclearWaffle_Func_1</c>.</summary>
     private static void RunNuclearWaffleWaiting(
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state)
@@ -114,7 +114,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
     }
 
-    /// <summary>Ports <c>NuclearWaffle_Func_2</c> at <c>$A6:9682</c>.</summary>
+    /// <summary>Ports <c>NuclearWaffle_Func_2</c>.</summary>
     private void RunNuclearWaffleSweep(RoomEnemySlot slot, NuclearWaffleEnemyState state)
     {
         NuclearWaffleOrientation headOrientation = GetNuclearWaffleOrientation(
@@ -142,12 +142,12 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
     }
 
-    /// <summary>Allocates the four damaging projectile links in native association order.</summary>
+    /// <summary>Allocates the four damaging projectile links in association order.</summary>
     private void SpawnNuclearWaffleProjectileSegments(
         RoomEnemySlot owner,
         NuclearWaffleEnemyState state)
     {
-        // Native init parameters $08,$06,$04,$02 select four extra-RAM association words.
+        // Init parameters $08,$06,$04,$02 select four extra-RAM association words.
         // Keep array order identical to the later descending update loop.
         for (int segmentIndex = 0; segmentIndex < state.ProjectileSegments.Length; segmentIndex++)
         {
@@ -190,7 +190,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the projectile-link loop at <c>$A6:9721</c>.</summary>
+    /// <summary>Ports the projectile-link loop.</summary>
     private bool PositionNuclearWaffleProjectileSegments(NuclearWaffleEnemyState state)
     {
         int angle = state.CurrentAngle + state.InterleavedSegmentOffset;
@@ -221,7 +221,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         return finished;
     }
 
-    /// <summary>Ports the sprite-object-link loop at <c>$A6:97E9</c>.</summary>
+    /// <summary>Ports the sprite-object-link loop.</summary>
     private void PositionNuclearWaffleSpriteSegments(NuclearWaffleEnemyState state)
     {
         int angle = state.CurrentAngle;
@@ -247,7 +247,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Ports clamp/finished helper <c>$A6:98AD</c>. Every angle the sweep produces stays far inside a signed word, so
-    /// the native signed differences are ordinary comparisons.
+    /// the signed differences are ordinary comparisons.
     /// </summary>
     private static NuclearWaffleAngleClamp ClampNuclearWaffleAngle(
         NuclearWaffleEnemyState state,

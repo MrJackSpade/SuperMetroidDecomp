@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Platforms.PlatformProgram;
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// The Tripper's and Kamer's vertically moving and still platform loops as typed programs (#641), in place of their bank-$A3 lists. Generated from the verified native lists: each
+/// The Tripper's and Kamer's vertically moving and still platform loops as typed programs (#641). Each
 /// frame shows a <see cref="PlatformFrame"/> pose and each callback becomes a <see cref="PlatformCue"/> with its typed operands.
 /// </summary>
 internal static class PlatformAnimations

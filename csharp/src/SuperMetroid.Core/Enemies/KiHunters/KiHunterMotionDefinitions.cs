@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// <summary>Native KiHunter trigger, fixed-point acceleration and detached-wing orbit constants.</summary>
 public static class KiHunterMotionDefinitions
 {
-    /// <summary>$A8:F180, XProximityToActivateSwoop, tested with native signed distance comparison.</summary>
+    /// <summary>Tested with signed distance comparison.</summary>
     public const int SwoopTriggerDistance = 96;
     /// <summary>One eighth, in the 16.16 units these accelerations are added in.</summary>
     private const int OneEighth = 8192;

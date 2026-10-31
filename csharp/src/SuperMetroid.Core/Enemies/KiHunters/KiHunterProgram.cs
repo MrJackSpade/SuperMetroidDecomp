@@ -1,35 +1,35 @@
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
-/// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations as typed programs (#641), one per bank-$A8 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="KiHunterAnimations"/>.
+/// The Ki-Hunter body's flight, swoop, hop, landing and spit animations and its wings' animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="KiHunterAnimations"/>.
 /// </summary>
 internal enum KiHunterProgram
 {
-    /// <summary><c>InstList_Kihunter_Idling_FacingLeft</c> at $A8:E9FA.</summary>
+    /// <summary>The flying left animation.</summary>
     FlyingLeft,
-    /// <summary><c>InstList_Kihunter_Swiping_FacingLeft</c> at $A8:EA08.</summary>
+    /// <summary>The swoop left animation.</summary>
     SwoopLeft,
-    /// <summary><c>InstList_Kihunter_Idling_FacingRight</c> at $A8:EA24.</summary>
+    /// <summary>The flying right animation.</summary>
     FlyingRight,
-    /// <summary><c>InstList_Kihunter_Swiping_FacingRight</c> at $A8:EA32.</summary>
+    /// <summary>The swoop right animation.</summary>
     SwoopRight,
-    /// <summary><c>InstList_KihunterWings_FacingLeft</c> at $A8:EA4E.</summary>
+    /// <summary>The wings left animation.</summary>
     WingsLeft,
-    /// <summary><c>InstList_KihunterWings_FacingRight</c> at $A8:EA5E.</summary>
+    /// <summary>The wings right animation.</summary>
     WingsRight,
-    /// <summary><c>InstList_KihunterWings_Falling</c> at $A8:EA7E.</summary>
+    /// <summary>The detached wings animation.</summary>
     DetachedWings,
-    /// <summary><c>InstList_Kihunter_Hop_FacingLeft</c> at $A8:EA8A.</summary>
+    /// <summary>The jump left animation.</summary>
     JumpLeft,
-    /// <summary><c>InstList_Kihunter_Hop_FacingRight</c> at $A8:EAA6.</summary>
+    /// <summary>The jump right animation.</summary>
     JumpRight,
-    /// <summary><c>InstList_Kihunter_LandedFromHop_FacingLeft</c> at $A8:EAC2.</summary>
+    /// <summary>The land left animation.</summary>
     LandLeft,
-    /// <summary><c>InstList_Kihunter_LandedFromHop_FacingRight</c> at $A8:EADA.</summary>
+    /// <summary>The land right animation.</summary>
     LandRight,
-    /// <summary><c>InstList_Kihunter_AcidSpitAttack_FacingLeft</c> at $A8:EAF2.</summary>
+    /// <summary>The spit left animation.</summary>
     SpitLeft,
-    /// <summary><c>InstList_Kihunter_AcidSpitAttack_FacingRight</c> at $A8:EB10.</summary>
+    /// <summary>The spit right animation.</summary>
     SpitRight,
 }

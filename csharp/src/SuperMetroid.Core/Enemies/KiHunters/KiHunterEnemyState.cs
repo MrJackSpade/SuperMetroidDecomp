@@ -3,24 +3,24 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>
 /// Ki-Hunter's body or wing state. A body and a detached wing put different meanings in the same common-record word,
-/// and each meaning has its own value; detachment sets each detached value before reading it. The values the cartridge
+/// and each meaning has its own value; detachment sets each detached value before reading it. The values the game
 /// keeps in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class KiHunterEnemyState
 {
-    /// <summary>Captures the slot's body or wing role before native deletion can clear its definition identity.</summary>
+    /// <summary>Captures the slot's body or wing role before deletion can clear its definition identity.</summary>
     internal KiHunterEnemyState(RoomEnemySlot slot)
     {
-        // The definition word is mutable native storage and is cleared during deletion.
+        // The definition word is mutable storage and is cleared during deletion.
         // Role is established by the initializer and must survive that later write because
         // body/wing callbacks continue using physical +/-$40 slot aliases.
         IsWing = KiHunterBehavior.IsKiHunterWingDefinition(slot.DefinitionId);
     }
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<KiHunterProgram> Program { get; set; }
 
-    /// <summary>Role fixed by the initializer, retained even if deletion clears the native definition word; body and wing callbacks still use adjacent physical slots.</summary>
+    /// <summary>Role fixed by the initializer, retained even if deletion clears the definition word; body and wing callbacks still use adjacent physical slots.</summary>
     public bool IsWing { get; }
 
     /// <summary>Main-AI dispatcher; none once a kill has emptied the record.</summary>
@@ -60,7 +60,7 @@ public sealed class KiHunterEnemyState
     /// <summary>
     /// A detached wing's quadratic speed sum, accumulated at detachment until it reaches the detached-speed threshold.
     /// Detachment never resets it: it continues from zero or the earlier sum, and a kill empties it. Its sum wraps as
-    /// the cartridge's word does, through <see cref="AccumulateDetachedSpeed"/>.
+    /// the game's word does, through <see cref="AccumulateDetachedSpeed"/>.
     /// </summary>
     public int DetachedSpeedAccumulator
     {
@@ -96,7 +96,7 @@ public sealed class KiHunterEnemyState
 
     /// <summary>A body's whole-angle velocity cap: minus two for a leftward swoop or two for a rightward one.</summary>
     public int MaximumAngularVelocity { get; internal set; }
-    /// <summary>Wing $7E:7800,x bank-$A8 secondary function pointer, alternating between non-colliding and collision-bearing detached arcs.</summary>
+    /// <summary>Wing $7E:7800,x secondary function pointer, alternating between non-colliding and collision-bearing detached arcs.</summary>
     public KiHunterWingFunction WingFunction { get; internal set; }
     /// <summary>
     /// A body's signed 16.16 angular velocity in table units per update: zero when a swoop begins, accelerated each
@@ -139,10 +139,10 @@ public sealed class KiHunterEnemyState
     /// <summary>Body $7E:7828,x wingless latch, set by spawn parameter-one bit 15 or by health reaching the following wing record's parameter-one threshold.</summary>
     public bool HasLostWings { get; internal set; }
 
-    /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the cartridge's word does.</summary>
+    /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the game's word does.</summary>
     internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WordWrap.Unsigned(DetachedSpeedAccumulator + step);
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// <summary>
 /// The state of one Hibashi part. Every shipped pillar uses two consecutive records: part zero owns art and timing,
 /// while the nonzero part is the invisible collision body manipulated by part zero. Every value here is one the
-/// cartridge keeps in the enemy's common record (its variables and population parameters), so it is emptied with
+/// game keeps in the enemy's common record (its variables and population parameters), so it is emptied with
 /// that record when the part is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class HibashiEnemyState
@@ -15,7 +15,7 @@ public sealed class HibashiEnemyState
     /// <summary>The graphics part's behaviour, initialized to inactive; collision parts do not dispatch it, and none once a kill has emptied the record.</summary>
     public HibashiEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Countdown decremented once per inactive AI update; zero wraps to $FFFF and erupts immediately, while a nonnegative reset N waits N+1 updates.</summary>
+    /// <summary>Countdown decremented once per inactive AI update; zero wraps to -1 and erupts immediately, while a nonnegative reset N waits N+1 updates.</summary>
     public WrappingCountdown InactiveTimer { get; internal set; }
 
     /// <summary>Animation-to-AI handshake: cleared when an eruption starts, set by the finishing cue after the hitbox is disabled, and awaited by active AI.</summary>

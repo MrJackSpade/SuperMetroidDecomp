@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
 /// The state of the Mama Turtle. The function, the horizontal velocity's whole pixels and the wake counter are values
-/// the cartridge keeps in the enemy's common record, so they are emptied with that record when the enemy is killed
+/// the game keeps in the enemy's common record, so they are emptied with that record when the enemy is killed
 /// (<see cref="ClearWithRecord"/>); the rest outlive the kill.
 /// </summary>
 public sealed class MamaTurtleEnemyState
@@ -25,12 +25,12 @@ public sealed class MamaTurtleEnemyState
 
     /// <summary>
     /// Signed 16.16 horizontal acceleration per hovering update, toward Samus's side when hovering starts; a wall
-    /// reversal negates it with the cartridge's carry quirk.
+    /// reversal negates it with the game's carry quirk.
     /// </summary>
     public SignedSixteenSixteen XAcceleration { get; internal set; }
 
     /// <summary>
-    /// Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record: no
+    /// Empties the values the game keeps in the enemy's common record, when a kill empties that record: no
     /// function, a zero wake counter, and no whole pixels of horizontal velocity, its fraction and the vertical
     /// velocity kept.
     /// </summary>

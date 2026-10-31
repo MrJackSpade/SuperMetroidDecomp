@@ -42,7 +42,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of the Ki-Hunter body's animations. Returning to flight continues at the flying animation for
-    /// the current direction, as the native callback returns that list; every other cue runs on.
+    /// the current direction, as the callback returns that list; every other cue runs on.
     /// </summary>
     private KiHunterProgram? ApplyKiHunterCue(RoomEnemySlot slot, KiHunterCue cue)
     {
@@ -68,9 +68,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Native grounded decision delay between jumps or spits.</summary>
+    /// <summary>Grounded decision delay between jumps or spits.</summary>
     private const int KiHunterGroundWaitFrames = 12;
-    /// <summary>Native cooldown after an acid-spit instruction.</summary>
+    /// <summary>Cooldown after an acid-spit instruction.</summary>
     private const int KiHunterSpitWaitFrames = 24;
     /// <summary>Horizontal Samus range admitted by the grounded acid attack.</summary>
     private const int KiHunterGroundAttackDistance = 96;
@@ -260,7 +260,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         SetKiHunterPairFacing(body, movingRight: !swoopLeft);
     }
 
-    /// <summary>Ports the elliptic diving arc at <c>$A8:F3B8</c>.</summary>
+    /// <summary>Ports the elliptic diving arc.</summary>
     private void RunKiHunterSwoop(
         RoomEnemySlot body,
         KiHunterEnemyState state,
@@ -325,7 +325,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithY(SignedSixteenSixteen.FromParts(-1, 0));
     }
 
-    /// <summary>Ports the collision escape leg at <c>$A8:F4ED</c>.</summary>
+    /// <summary>Ports the collision escape leg.</summary>
     private void RunKiHunterSwoopRecovery(
         RoomEnemySlot body,
         KiHunterEnemyState state,
@@ -546,7 +546,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs the private tail after common shot/power-bomb AI at <c>$A8:F701</c>. A surviving
+    /// Runs the private tail after common shot/power-bomb AI. A surviving
     /// body mirrors freeze/hurt timing into its wing until health reaches the wing record's
     /// parameter-one threshold; that exact threshold—not a host constant—starts detachment.
     /// </summary>
@@ -557,7 +557,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState wingState = wings.RequireSpeciesState<KiHunterEnemyState>();
         if (body.Health == 0)
         {
-            // The native routine assigns exactly $0200, stripping processing and any other
+            // The routine assigns exactly $0200, stripping processing and any other
             // population flags rather than merely ORing the deleted bit.
             wings.Properties = EnemyProperties.Deleted;
             return;
@@ -658,7 +658,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Whether a detached wing's arc angle lies from a quarter turn up to three quarters: the cartridge's sign test of
+    /// Whether a detached wing's arc angle lies from a quarter turn up to three quarters: the game's sign test of
     /// the angle plus a quarter turn, which switches the wing from its orbit to its falling arc and back.
     /// </summary>
     private static bool LiesWithinMiddleHalfTurn(RotationAngle angle) =>
@@ -689,7 +689,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartKiHunterGroundWaitFromInstruction(KiHunterEnemyState state) =>
         state.Function = KiHunterEnemyFunction.GroundWait;
 
-    /// <summary>Emits the acid projectile and sound, then starts the native 24-frame spit wait.</summary>
+    /// <summary>Emits the acid projectile and sound, then starts the 24-frame spit wait.</summary>
     private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, HorizontalDirection direction)
     {
         _audio.QueueEnemySound(Library2Sound.AcidSpit, priority: SoundRequestPriority.Normal);
@@ -724,7 +724,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// bank $A8. The matching definition words are authoritative while the pair is being
     /// initialized. Afterward, however, <c>DetermineWhichEnemiesToProcess</c> clears only a
     /// deleted wing's definition word; all other words in its 64-byte record remain resident,
-    /// and the cartridge deliberately continues reading or writing them through this alias.
+    /// and the game deliberately continues reading or writing them through this alias.
     /// A permanently ground-bound red Ki-Hunter therefore has a live body followed by enemy
     /// definition zero on its second frame. Requiring the definition to remain $EB7F changed
     /// valid ROM behavior into a host exception whenever that body was shot.
@@ -732,7 +732,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body)
     {
         // NormalEnemyShotAi clears the complete body record before returning to Ki-Hunter's
-        // private `$A8:F701` tail on a fatal hit. The cartridge nevertheless keeps X as the
+        // private `$A8:F701` tail on a fatal hit. The game nevertheless keeps X as the
         // dead body's physical slot and accesses `enemy + $40` to delete its wings. Once the
         // typed state has established this slot as a body, a cleared definition word is
         // therefore valid until the callback finishes; revalidating only the mutable header
@@ -759,7 +759,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         // During wing initialization its typed state does not exist yet, so insist on the
         // authored matching definition. Once initialization has established the pair, retain
-        // the native physical alias even if deletion cleared the definition or the slot was
+        // the physical alias even if deletion cleared the definition or the slot was
         // subsequently reused. The latter is intentional: the 65C816 routine would alias and
         // mutate that replacement record too rather than performing a type check.
         if (wings.DefinitionId != expected &&
@@ -837,7 +837,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Connects acid spit startup and gravity movement to bank-$86 pre-instructions.</summary>
+    /// <summary>Connects acid spit startup and gravity movement to pre-instructions.</summary>
     internal static void AddKiHunterProjectiles(EnemyProjectileHandlerTable table)
     {
         table.AddFrameBehavior(context =>
@@ -887,7 +887,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
         });
     }
-    /// <summary>Bank-$86 acid mover installed by the startup callback after the projectile's idle frames.</summary>
+    /// <summary>Acid mover installed by the startup callback after the projectile's idle frames.</summary>
     private const EnemyProjectileFrameBehavior KiHunterAcidMovingFrameBehavior =
         EnemyProjectileFrameBehavior.KiHunterAcidFlight;
     /// <summary>Positive 8.8 horizontal acid speed, negated for leftward shots.</summary>
@@ -939,7 +939,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Ports $86:CFF8 exactly: move/test Y, then X, then add capped 8.8 gravity. A floor
-    /// collision swaps to the cartridge splash list; a wall collision only zeros X speed.
+    /// collision swaps to the game splash list; a wall collision only zeros X speed.
     /// </summary>
     internal static void RunKiHunterAcidMovement(
         RoomEnemyProjectileSlot projectile,

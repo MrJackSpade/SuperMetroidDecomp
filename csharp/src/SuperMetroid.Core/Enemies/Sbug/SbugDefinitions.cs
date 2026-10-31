@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Sbug;
 
-/// <summary>Sbug's native movement constants that are masks or offsets rather than quantities.</summary>
+/// <summary>Sbug's movement constants that are masks or offsets rather than quantities.</summary>
 internal static class SbugDefinitions
 {
     /// <summary>Enemy frames in each leg of the zigzag; the legs alternate left and right as the frame counter advances.</summary>
@@ -11,7 +11,7 @@ internal static class SbugDefinitions
 
     /// <summary>
     /// Facings a reversed custom facing wraps within: $A3:A565 masks the byte offset with $0007 rather than the expected
-    /// $000E, so a reversal folds every facing into the first four; preserved as the cartridge does.
+    /// $000E, so a reversal folds every facing into the first four; preserved as the game does.
     /// </summary>
     internal const int FoldedFacingCount = 4;
 

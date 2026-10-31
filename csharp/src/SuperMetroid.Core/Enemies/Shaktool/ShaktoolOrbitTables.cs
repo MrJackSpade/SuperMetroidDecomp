@@ -3,11 +3,11 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// <summary>Fixed Shaktool segment geometry, not editable animation data.</summary>
 public static class ShaktoolOrbitTables
 {
-    /// <summary>$AA:E03D through E2BC, negative-cosine prefix and signed sine words.</summary>
+    /// <summary>Negative-cosine prefix and signed sine words.</summary>
     /// <remarks>
     /// Independently verified for #1165: index 0..319 maps to angle=(index+192)%256,
     /// then trunc(3072*sin(angle*3.14159/128)) toward zero. Reduced pi and full-cycle
-    /// evaluation preserve the native asymmetric values and +/-3071 peaks without
+    /// evaluation preserve the asymmetric values and +/-3071 peaks without
     /// corrective samples. Reflection, true pi or direct negative cosine differ.
     /// This exact convention does not identify the original authoring software.
     /// </remarks>

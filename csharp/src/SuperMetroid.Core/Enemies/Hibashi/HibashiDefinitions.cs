@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
-/// <summary>Compiled cartridge definitions for Hibashi/fire pillars.</summary>
+/// <summary>Compiled authored definitions for Hibashi/fire pillars.</summary>
 internal static class HibashiDefinitions
 {
 
@@ -10,7 +10,7 @@ internal static class HibashiDefinitions
     internal static readonly SoundEffectId EruptionSoundEffect = Library2Sound.FireSpit;
 
     /// <summary>
-    /// $A6:8DBB/$A6:8DE7, the 22 eruption Y offsets and collision half-heights: the pillar rises five pixels a frame,
+    /// The 22 eruption Y offsets and collision half-heights: the pillar rises five pixels a frame,
     /// and its half-height holds at 24 until the last four frames shrink it four pixels each.
     /// </summary>
     internal static readonly HibashiActivityDefinition[] ActivityFrames =

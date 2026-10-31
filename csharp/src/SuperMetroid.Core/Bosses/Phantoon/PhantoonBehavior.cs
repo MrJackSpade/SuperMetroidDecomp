@@ -276,7 +276,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Mouth.Position = state.Mouth.Position.WithWholeY(body.Position.Y.Whole);
         state.Tentacles.Position = state.Tentacles.Position.WithWholeY(body.Position.Y.Whole);
         state.Eye.Position = state.Eye.Position.WithWholeY(body.Position.Y.Whole);
-        if (state.Parts[state.Eye.SlotIndex].WaveMode == 0)
+        if (state.Parts[state.Eye.SlotIndex].WaveLength is null)
         {
             state.BodyLayerPlacement = new(
                 unchecked((ushort)(camera.X - body.Position.X.Whole + 40)),

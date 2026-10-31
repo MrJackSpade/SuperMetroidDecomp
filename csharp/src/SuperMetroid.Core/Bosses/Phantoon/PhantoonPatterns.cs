@@ -48,7 +48,7 @@ internal sealed class PhantoonPatterns
             return;
 
         RoomEnemySlot eye = state.Eye;
-        state.Parts[eye.SlotIndex].WaveMode = 0;
+        state.Parts[eye.SlotIndex].WaveLength = null;
         state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext.FrameCounter >> 1) & 3];
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         state.Parts[body.SlotIndex].SpeedFraction = 0;

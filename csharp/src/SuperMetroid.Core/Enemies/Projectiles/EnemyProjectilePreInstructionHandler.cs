@@ -1,4 +1,4 @@
 ﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>One translated bank-$86 enemy-projectile pre-instruction.</summary>
+/// <summary>Carries out one enemy-projectile pre-instruction: how a projectile moves itself on a pass.</summary>
 internal delegate void EnemyProjectilePreInstructionHandler(EnemyProjectilePreInstructionContext context);

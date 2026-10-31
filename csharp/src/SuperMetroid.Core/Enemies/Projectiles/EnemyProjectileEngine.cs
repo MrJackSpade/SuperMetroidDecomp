@@ -437,7 +437,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Graphics = graphics;
     }
 
-    /// <summary>Dispatches the slot's current bank-$86 movement callback before its timed instruction list.</summary>
+    /// <summary>Runs the projectile's current pre-instruction before its program advances.</summary>
     private void RunEnemyProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,

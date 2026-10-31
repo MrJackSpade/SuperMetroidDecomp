@@ -1,12 +1,12 @@
 ﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The projectile engine's dispatch table: each closed native pre-instruction maps to exactly one handler.
+/// The projectile engine's dispatch table: each pre-instruction maps to exactly one handler.
 /// Registering an identity twice fails immediately with both registrations' identities.
 /// </summary>
 internal sealed class EnemyProjectileHandlerTable
 {
-    /// <summary>Closed native pre-instruction identities and their sole registered implementations.</summary>
+    /// <summary>Each pre-instruction and its sole registered implementation.</summary>
     private readonly Dictionary<EnemyProjectilePreInstruction, EnemyProjectilePreInstructionHandler> _preInstructions = [];
 
     /// <summary>Registers <paramref name="handler"/> for every listed pre-instruction.</summary>

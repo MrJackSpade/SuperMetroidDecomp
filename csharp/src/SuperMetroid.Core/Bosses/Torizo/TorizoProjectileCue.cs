@@ -28,9 +28,9 @@ internal abstract record TorizoProjectileCue
     /// <param name="Target">The program a conditional cue continues at.</param>
     internal sealed record GoToSometimes(TorizoProjectileProgram Target) : TorizoProjectileCue;
 
-    /// <summary>Queues a sound (the <c>QueueSoundInY</c> commands).</summary>
+    /// <summary>Requests a sound at the priority the cue states.</summary>
     /// <param name="Sound">The sound a <see cref="PlaySound"/> cue queues.</param>
-    /// <param name="Priority">How many sounds may already be queued for the cue's sound still to be queued: one or six.</param>
+    /// <param name="Priority">How strongly the sound competes for a place in its library's request queue.</param>
     internal sealed record PlaySound(SoundEffectId Sound, SoundRequestPriority Priority) : TorizoProjectileCue;
 
     /// <summary>Scatters the projectile randomly about its position ($86:81DF).</summary>

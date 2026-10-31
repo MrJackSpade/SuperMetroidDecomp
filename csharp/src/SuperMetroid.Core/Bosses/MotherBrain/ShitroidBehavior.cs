@@ -42,12 +42,15 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
+    /// <summary>Receives the Baby Metroid's cries and music changes.</summary>
+    private readonly EnemyAudioQueue _audio;
 
 
-    /// <summary>Connects the Tourian Baby Metroid to room, victim, palette, and Zebetite owners.</summary>
-    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, ZebetiteBehavior zebetiteBehavior, BossFrameResultBuilder frameResults, BossArtworkBinding bossArtwork)
+    /// <summary>Connects the Tourian Baby Metroid to room, victim, palette, audio and Zebetite owners.</summary>
+    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, ZebetiteBehavior zebetiteBehavior, BossFrameResultBuilder frameResults, BossArtworkBinding bossArtwork, EnemyAudioQueue audio)
     {
         _bossArtwork = bossArtwork;
+        _audio = audio;
         _frameResults = frameResults;
         _zebetiteBehavior = zebetiteBehavior;
         _room = room;
@@ -64,11 +67,16 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Layer-one camera used by the offscreen acceleration and wall sequence.</summary>
     private Position16<RoomPixels> _shitroidCamera;
 
-    /// <summary>Last library-two sound queued during this Shitroid frame.</summary>
-    public SoundEffectId? LastShitroidSoundEffectLibrary2 { get; private set; }
+    /// <summary>
+    /// Requests one of the Baby Metroid's cries at the end of the enemy update. A later cry in the same update replaces
+    /// it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
+    /// </summary>
+    private void RequestShitroidSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Shitroid, sound, SoundRequestPriority.Normal);
 
-    /// <summary>Last delayed music command queued during this Shitroid frame.</summary>
-    public DelayedMusicRequest? LastShitroidMusicRequest { get; private set; }
+    /// <summary>Requests the Baby Metroid's music change at the end of the enemy update.</summary>
+    private void RequestShitroidMusic(MusicRequest request) =>
+        _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Shitroid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Ports <c>Shitroid_Init</c> at <c>$A9:EF37</c>.</summary>
     internal void InitializeShitroid(RoomEnemySlot slot, int cameraX)
@@ -178,9 +186,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             case ShitroidAiFunction.EntranceDelay:
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    LastShitroidMusicRequest = new DelayedMusicRequest(
-                        MusicRequest.SelectTrack(5),
-                        MusicQueueDelay.Shortest);
+                    RequestShitroidMusic(MusicRequest.SelectTrack(5));
                     state.Function = ShitroidAiFunction.FlyToSidehopper;
                     goto case ShitroidAiFunction.FlyToSidehopper;
                 }
@@ -281,7 +287,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 GraduallyAccelerateShitroid(slot, state, 0, new(target.Position.X.Whole, 104), 1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    LastShitroidSoundEffectLibrary2 = ShitroidSoundDefinitions.FlyAwayCry;
+                    RequestShitroidSound(ShitroidSoundDefinitions.FlyAwayCry);
                     state.Function = ShitroidAiFunction.FlyLeft;
                     state.StateTimer = WrappingCountdown.Start(88);
                     SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
@@ -327,7 +333,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             case ShitroidAiFunction.BeginExit:
-                LastShitroidSoundEffectLibrary2 = ShitroidSoundDefinitions.RemorseCry;
+                RequestShitroidSound(ShitroidSoundDefinitions.RemorseCry);
                 state.Function = ShitroidAiFunction.Exit;
                 goto case ShitroidAiFunction.Exit;
 
@@ -493,9 +499,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.MetroidAttachmentPalette = SamusMetroidAttachmentPalette.Inactive;
             samus.Drained.LetFall(samus);
             state.CryEnabled = false;
-            LastShitroidMusicRequest = new DelayedMusicRequest(
-                MusicRequest.SelectTrack(7),
-                MusicQueueDelay.Shortest);
+            RequestShitroidMusic(MusicRequest.SelectTrack(7));
             return;
         }
 
@@ -760,9 +764,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.CryCounter >= 4)
             {
                 state.CryCounter = 0;
-                LastShitroidSoundEffectLibrary2 = state.PaletteDelay < 10
+                RequestShitroidSound(state.PaletteDelay < 10
                     ? ShitroidSoundDefinitions.QuickDrainCry
-                    : ShitroidSoundDefinitions.DrainCry;
+                    : ShitroidSoundDefinitions.DrainCry);
             }
         }
 
@@ -874,7 +878,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The cue samples the existing random word; it does not generate a new one.
                 if (unchecked((short)_room.Random.Read()) >= 0)
                     return ShitroidProgram.Remorse;
-                LastShitroidSoundEffectLibrary2 = ShitroidSoundDefinitions.RemorseCry;
+                RequestShitroidSound(ShitroidSoundDefinitions.RemorseCry);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(ShitroidCue)} {cue}.");
@@ -916,25 +920,5 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ShitroidTouch,
             context => ResolveShitroidTouch(context.Slot, context.Samus));
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastShitroidSoundEffectLibrary2 = null;
-        LastShitroidMusicRequest = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastShitroidSoundEffectLibrary2 is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
-    }
-
-    /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacyMusic(EnemyAudioQueue audio)
-    {
-        audio.QueueLegacyMusic(LastShitroidMusicRequest?.Request, LastShitroidMusicRequest?.Delay);
     }
 }

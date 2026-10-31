@@ -45,12 +45,15 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
+    /// <summary>Receives the Zebetite's shot sound.</summary>
+    private readonly EnemyAudioQueue _audio;
 
 
     /// <summary>Captures the shared systems used by Zebetite initialization, AI, and reactions.</summary>
     internal ZebetiteBehavior(ZebetiteBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.BossArtwork;
+        _audio = dependencies.Audio;
         _collision = dependencies.Collision;
         _elevatorBehavior = dependencies.ElevatorBehavior;
         _dispatch = dependencies.Dispatch;
@@ -64,11 +67,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Health ceiling applied while an active Zebetite regenerates each update.</summary>
     private const ushort ZebetiteMaximumHealth = 1000;
-    /// <summary>Library-3 sound $09, selected by the Zebetite shot reaction.</summary>
+    /// <summary>The sound a Zebetite makes when a shot hits it.</summary>
     private static readonly SoundEffectId ZebetiteShotSound = Library3Sound.MissileDoorHit;
-
-    /// <summary>Most recent library-three sound requested by Zebetite shot AI.</summary>
-    public SoundEffectId? LastZebetiteSoundEffect { get; private set; }
 
     /// <summary>
     /// Native <c>palette_change_num</c>, the count of scripted palette fades in progress. A
@@ -267,7 +267,9 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the private tail of <c>Zebetites_Shot</c> at <c>$A6:FDAC</c>.</summary>
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
-        LastZebetiteSoundEffect = ZebetiteShotSound;
+        // Every Zebetite shares one source: a second hit in the same update replaces the first hit's request
+        // (the update-end rule of EnemyAudioQueue.RequestSoundAtUpdateEnd).
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Zebetite, ZebetiteShotSound, SoundRequestPriority.Normal);
         RoomEnemySlot linked = _slotTable.Slots[struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedSlot];
         linked.Health = struck.Health;
         linked.FlashTimer = struck.FlashTimer;
@@ -380,19 +382,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             ExemptFromGenericDeath = true,
             AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
         });
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastZebetiteSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastZebetiteSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>

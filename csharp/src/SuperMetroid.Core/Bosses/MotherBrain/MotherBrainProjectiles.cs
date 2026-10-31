@@ -316,7 +316,7 @@ internal sealed class MotherBrainProjectiles
             impact,
             afterburnCount);
         _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallExplosion);
-        state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion;
+        _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
     }
 
     /// <summary>Clears a bomb slot when its native lifetime or collision ends.</summary>
@@ -535,7 +535,7 @@ internal sealed class MotherBrainProjectiles
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 impact,
                 MiscDustAnimation.BigExplosion);
-            state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion;
+            _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(10);
             _earthquake.EarthquakeType = 5;
             return;
@@ -702,7 +702,7 @@ internal sealed class MotherBrainProjectiles
         // the newborn dust list during the same pass, matching EprojRunOne's original X.
         ring.Clear();
         _projectiles.SpawnRoomGraphicsDustExplosion(position, MiscDustAnimation.SmallExplosion);
-        state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion;
+        _motherBrainEncounter.RequestCueSound(MotherBrainSoundDefinitions.Explosion);
     }
 
     /// <summary>Ports <c>PreInstruction_EnemyProjectile_MotherBrainsTurrets</c>.</summary>

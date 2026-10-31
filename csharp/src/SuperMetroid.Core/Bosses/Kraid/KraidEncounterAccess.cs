@@ -4,21 +4,32 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
+/// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and his sound and music requests.</summary>
 [RoomLifetime]
 internal sealed class KraidEncounterAccess
 {
     /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Receives Kraid's sound and music requests.</summary>
+    private readonly EnemyAudioQueue _audio;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidEncounterAccess(EnemyRoomBinding room)
+    internal KraidEncounterAccess(EnemyRoomBinding room, EnemyAudioQueue audio)
     {
         _room = room;
+        _audio = audio;
     }
 
-    /// <summary>Most recent Kraid-private sound request in the current enemy frame.</summary>
-    public KraidSoundRequest? LastKraidSoundEffect { get; internal set; }
+    /// <summary>
+    /// Requests one of Kraid's sounds at the end of the enemy update. A later Kraid sound in the same update replaces
+    /// it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
+    /// </summary>
+    internal void RequestKraidSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Kraid, sound, SoundRequestPriority.Normal);
+
+    /// <summary>Requests Kraid's music change at the end of the enemy update.</summary>
+    internal void RequestKraidMusic(MusicRequest request) =>
+        _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Kraid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Rejects a body part loaded outside its cartridge-defined slot index.</summary>
     internal static void EnsureKraidSlot(RoomEnemySlot slot, int expectedSlot, string part)

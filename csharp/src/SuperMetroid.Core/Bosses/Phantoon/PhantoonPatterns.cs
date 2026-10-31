@@ -542,7 +542,7 @@ internal sealed class PhantoonPatterns
                 SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, (byte)direction);
         }
 
-        _audio.QueueEnemySound(PhantoonRageDefinitions.WaveSound, PhantoonRageDefinitions.WaveSoundQueueCapacity);
+        _audio.QueueEnemySound(PhantoonRageDefinitions.WaveSound, PhantoonRageDefinitions.WaveSoundPriority);
         state.Parts[state.Eye.SlotIndex].RageWaveCount = WrappingCounter.IncrementWord(state.Parts[state.Eye.SlotIndex].RageWaveCount);
         if (unchecked((short)(state.Parts[state.Eye.SlotIndex].RageWaveCount - PhantoonRageDefinitions.WaveCount)) < 0)
         {

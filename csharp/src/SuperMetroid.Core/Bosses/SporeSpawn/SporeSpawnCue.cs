@@ -16,7 +16,7 @@ internal abstract record SporeSpawnCue
     /// <param name="DeathPaletteStep">The death-sequence palette row a death-palette cue loads, zero through six.</param>
     internal sealed record LoadDeathTargetPalette(int DeathPaletteStep) : SporeSpawnCue;
 
-    /// <summary>Queues a library-two sound (<c>Instruction_SporeSpawn_QueueSFXInY_Lib2_Max6</c>, $A5:E895).</summary>
+    /// <summary>Requests a sound ($A5:E895).</summary>
     /// <param name="Sound">The sound a <see cref="QueueSound"/> cue queues.</param>
     internal sealed record QueueSound(SoundEffectId? Sound) : SporeSpawnCue;
 

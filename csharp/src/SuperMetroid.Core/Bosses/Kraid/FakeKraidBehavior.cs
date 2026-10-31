@@ -28,15 +28,18 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
     /// <summary>Spawns death animation three and the four-pickup scatter after lethal hits.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>Receives Mini-Kraid's cry and spike-launch sounds.</summary>
+    private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Connects Mini-Kraid's walk, projectiles, and specialized death to room services.</summary>
-    internal FakeKraidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
+    /// <summary>Connects Mini-Kraid's walk, projectiles, sounds and specialized death to room services.</summary>
+    internal FakeKraidBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, EnemyAudioQueue audio)
     {
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
         _collision = collision;
         _deathsAndDrops = deathsAndDrops;
+        _audio = audio;
     }
 
     /// <summary>
@@ -58,7 +61,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // `$A6:9BB2` queues sound $16 only while the actor origin is inside the
                 // inclusive 256x256 native screen rectangle.
                 if (FakeKraidOriginIsOnScreen(slot, camera))
-                    LastFakeKraidSoundEffect = KraidSoundDefinitions.MiniKraidCry;
+                    RequestFakeKraidSound(KraidSoundDefinitions.MiniKraidCry);
                 return null;
             case FakeKraidCueKind.SpitLeft:
                 SpawnFakeKraidSpitPair(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), direction: HorizontalDirection.Left);
@@ -83,8 +86,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Sub-pixel steps in one whole pixel of a projectile's 8.8 velocity.</summary>
     private const int SubpixelsPerPixel = 256;
 
-    /// <summary>Last sound requested by Fake Kraid during this enemy frame, or null when it requested none.</summary>
-    public SoundEffectId? LastFakeKraidSoundEffect { get; private set; }
+    /// <summary>
+    /// Requests one of Mini-Kraid's sounds at the end of the enemy update. A later Mini-Kraid sound in the same update
+    /// replaces it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
+    /// </summary>
+    private void RequestFakeKraidSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.FakeKraid, sound, SoundRequestPriority.Normal);
 
 
     /// <summary>Ports <c>FakeKraid_Init</c> at <c>$A6:9A58</c>.</summary>
@@ -147,7 +154,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SpawnFakeKraidSpike(slot, state, timerIndex) &&
             FakeKraidOriginIsOnScreen(slot, camera))
         {
-            LastFakeKraidSoundEffect = KraidSoundDefinitions.MiniKraidSpikeLaunch;
+            RequestFakeKraidSound(KraidSoundDefinitions.MiniKraidSpikeLaunch);
         }
     }
 
@@ -449,18 +456,5 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (healthBefore != 0 && context.Slot.Health == 0)
                     KillFakeKraid(context.Slot);
             });
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastFakeKraidSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastFakeKraidSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

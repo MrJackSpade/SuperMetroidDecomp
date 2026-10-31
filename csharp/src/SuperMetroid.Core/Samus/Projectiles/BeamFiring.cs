@@ -189,7 +189,7 @@ internal sealed class BeamFiring
 
     /// <summary>
     /// Applies the shared tail of <c>FireUnchargedBeam</c>/<c>FireChargedBeam</c>. A
-    /// successful shot's own Max15 sequence replaces the charging sound. If allocation or
+    /// successful shot's own essential-priority sound replaces the charging sound. If allocation or
     /// muzzle initialization rejects a release after counter sixteen, the cartridge queues
     /// library-one `$02` instead so the sustained charge cannot remain audible.
     /// </summary>

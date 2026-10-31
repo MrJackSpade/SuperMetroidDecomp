@@ -324,7 +324,7 @@ public sealed class RoomPaletteFxSystem
             {
                 soundRequests.Add(new SoundRequest(
                     Library3Sound.IncrementalEnergy,
-                    PaletteFxHeatData.DamageSoundMaximumQueued,
+                    PaletteFxHeatData.DamageSoundPriority,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
             }
         }
@@ -392,7 +392,7 @@ public sealed class RoomPaletteFxSystem
                 soundRequests.Add(new SoundRequest(
                     queueSoundLibrary2.Sound ?? throw new InvalidDataException(
                         $"Palette-FX object {slot.Object} queued a library-2 sound cue without a sound."),
-                    PaletteFxAudioQueueLimits.SoundEffects,
+                    PaletteFxSoundPriorities.InstructionSound,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
                 return;
             default:

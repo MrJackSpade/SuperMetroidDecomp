@@ -59,7 +59,7 @@ internal sealed class CrocomireBridgeCollapse
         body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
         state.StartVerticalMotion(EightEight.FromWhole(CrocomireBehavior.SinkStartingAccelerationWhole));
         body.Radius = body.Radius.WithY(16);
-        _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BridgeCollapse;
+        _access.RequestCrocomireSound(CrocomireSoundDefinitions.BridgeCollapse);
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.BridgeFragmentsSpawned = 0;
         death.AcidSmokeTimer = WrappingCountdown.Start(1);
@@ -205,7 +205,7 @@ internal sealed class CrocomireBridgeCollapse
         if (!death.AcidSoundTimer.IsZero)
             return;
         death.AcidSoundTimer = WrappingCountdown.Start(32);
-        _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.AcidBurn;
+        _access.RequestCrocomireSound(CrocomireSoundDefinitions.AcidBurn);
     }
 
     /// <summary>Holds the submerged skeleton for its authored delay before rising begins.</summary>
@@ -318,9 +318,7 @@ internal sealed class CrocomireBridgeCollapse
         if (state.DeathSequenceIndex != CrocomireDeathPhase.WaitForSamusAtWall)
             return;
 
-        _access.LastCrocomireMusicRequest = new DelayedMusicRequest(
-            MusicRequest.SelectTrack(6),
-            MusicQueueDelay.Shortest);
+        _access.RequestCrocomireMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
         state.DeathSequenceIndex = CrocomireDeathPhase.RiverSkeletonDetour;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFlowingDownRiver);
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);

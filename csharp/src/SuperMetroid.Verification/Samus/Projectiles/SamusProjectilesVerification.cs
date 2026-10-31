@@ -313,7 +313,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                 chargeFrame.QueuedSoundEffect,
                 "charge counter sixteen queues the cartridge startup sound");
             AssertEqual<SoundRequestPriority?>(SoundRequestPriority.High, chargeFrame.QueuedSoundMaximum,
-                "charge startup uses QueueSfx1_Max9");
+                "charge startup is requested at high priority");
         }
         else
         {
@@ -365,7 +365,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         rejectedRelease.QueuedSoundEffect,
         "rejected post-sound charge release queues cartridge cancellation");
     AssertEqual<SoundRequestPriority?>(SoundRequestPriority.Essential, rejectedRelease.QueuedSoundMaximum,
-        "rejected charge release uses QueueSfx1_Max15 cancellation");
+        "rejected charge release requests its cancellation at essential priority");
 
     // Build two identical fifteen-call charge states so their central flare frame and
     // spritemap are identical. Rotating Samus's (+8,0) displacement around (120,96) by

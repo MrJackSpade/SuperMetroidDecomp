@@ -11,8 +11,8 @@ internal static class EyeDoorPlmProgramDefinitions
 {
     /// <summary>The library-2 sound each hit on the eye queues.</summary>
     internal static readonly SoundEffectId HitSound = Library2Sound.EnemyKilled;
-    /// <summary>The hit sound's queue cap.</summary>
-    internal static readonly SoundRequestPriority HitSoundMaximumQueued = SoundRequestPriority.Normal;
+    /// <summary>The hit sound's request priority.</summary>
+    internal static readonly SoundRequestPriority HitSoundPriority = SoundRequestPriority.Normal;
     /// <summary>The hits the eye takes before the door opens.</summary>
     internal const byte HitThreshold = 3;
     /// <summary>The hit counter a Super Missile seeds: the next count passes the threshold.</summary>

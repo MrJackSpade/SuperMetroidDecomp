@@ -46,7 +46,7 @@ internal static class BabyMetroidDeathCryVerification
         var request = enemies.Audio.SoundRequests.Single();
         AssertEqual(SoundEffectLibrary.Library3, request.SoundEffect.Library, "Death cry belongs to library three");
         AssertEqual<SoundEffectId>(Library3Sound.BabyMetroidDeath, request.SoundEffect, "Death cry is the Baby Metroid's death (native sequence 19)");
-        AssertEqual(6, request.Priority.Requests, "Death cry uses native Max6");
+        AssertEqual(SoundRequestPriority.Normal, request.Priority, "Death cry is requested at normal priority");
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.BeginEnemySoundRequestFrame();

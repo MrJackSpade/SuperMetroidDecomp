@@ -52,7 +52,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal KraidBehavior(KraidBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.Presentation.Artwork;
-        Access = new KraidEncounterAccess(dependencies.Room);
+        Access = new KraidEncounterAccess(dependencies.Room, dependencies.Audio);
         BodyLayer = new KraidBodyLayer(Access, _bossArtwork);
         Background = new KraidBackground(dependencies.Projectiles, dependencies.Presentation.Surfaces, Access, _bossArtwork);
         Head = new KraidHead(dependencies.Room, dependencies.Projectiles, dependencies.SlotTable, dependencies.Presentation.Surfaces, Access, Background);
@@ -303,28 +303,5 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidDataException(
                     $"Kraid body function {state.Parts[body.SlotIndex].Function} is not translated.");
         }
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        // Legacy publications are momentary like their native QueueSfx/QueueMusic calls; clearing them at the
-        // EnemyMain frame boundary keeps a paused or frozen actor from replaying its previous request.
-        if (Access.Kraid is not null)
-            Access.Kraid.MusicRequest = null;
-        Access.LastKraidSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (Access.LastKraidSoundEffect is { } kraidSound)
-            audio.QueueEnemySound(kraidSound.SoundEffect, priority: SoundRequestPriority.Normal);
-    }
-
-    /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacyMusic(EnemyAudioQueue audio)
-    {
-        audio.QueueLegacyMusic(Access.Kraid?.MusicRequest, MusicQueueDelay.Shortest);
     }
 }

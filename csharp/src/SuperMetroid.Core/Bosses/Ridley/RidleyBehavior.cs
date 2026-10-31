@@ -57,7 +57,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         Interactions = new RidleyInteractions(dependencies.Presentation.Surfaces, _bossArtwork);
         Combat = new NorfairRidleyCombat(new NorfairRidleyCombatDependencies { Room = _room, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, Presentation = dependencies.Presentation.Surfaces, RidleyEncounter = _ridleyEncounter, RidleyTail = _ridleyTail, RidleyProjectiles = dependencies.RidleyProjectiles, RoomFx = dependencies.RoomFx , BossArtwork = _bossArtwork });
         Movement = new NorfairRidleyMovement();
-        Death = new NorfairRidleyDeath(dependencies.Dispatch, _room, dependencies.DeathsAndDrops, _ridleyEncounter, dependencies.RidleyProjectiles, dependencies.RoomFx);
+        Death = new NorfairRidleyDeath(dependencies.Dispatch, _room, dependencies.DeathsAndDrops, _ridleyEncounter, dependencies.RidleyProjectiles, dependencies.RoomFx, dependencies.Audio);
         _roomStatus = dependencies.RoomStatus;
     }
 
@@ -477,19 +477,6 @@ internal sealed class RidleyBehavior : IEnemySpecies
         state.HurtMovementClamp = Math.Min(8, state.HurtMovementClamp + 1);
         if (state.GrabState != RidleyGrabState.Released && state.HurtMovementClamp >= 8 && samus is not null)
             NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(body, state, samus);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        // These are one-shot publications made by Ridley's current AI call, matching
-        // the global QueueMusic/QueueSfx calls in bank $A6. Clear them at the same
-        // enemy-frame boundary as every other Last* request above.
-        if (_ridleyEncounter.Ridley is not null)
-        {
-            _ridleyEncounter.Ridley.LastDeathSoundEffect = null;
-            _ridleyEncounter.Ridley.MusicRequest = null;
-        }
     }
 
     /// <summary>Adds Ridley's hurt callback for the post-hit AI window.</summary>

@@ -58,7 +58,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _frameContext = dependencies.FrameContext;
-        Parts = new DraygonParts(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.SpriteObjects, dependencies.Presentation, _frameContext, _bossArtwork);
+        Parts = new DraygonParts(dependencies);
         Turrets = new DraygonTurrets(_room, dependencies.Projectiles);
         Intro = new DraygonIntro(dependencies.SpriteObjects, dependencies.Presentation, Turrets);
         Movement = new DraygonMovement(dependencies.SpriteObjects);
@@ -284,34 +284,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         // longer includes Draygon; only a live Draygon reads the disabled words.
         _room.EnsureLoaded();
         Parts.Draygon?.DisabledCannons.Add(cannon);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        // Legacy publications are momentary like their native QueueSfx/QueueMusic calls; clearing them at the
-        // EnemyMain frame boundary keeps a paused or frozen actor from replaying its previous request.
-        if (Parts.Draygon is not null)
-        {
-            Parts.Draygon.LastSoundLibrary2 = null;
-            Parts.Draygon.LastSoundLibrary3 = null;
-            Parts.Draygon.MusicRequest = null;
-        }
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (Parts.Draygon?.LastSoundLibrary2 is SoundEffectId draygonLibrary2)
-            audio.QueueEnemySound(draygonLibrary2, priority: SoundRequestPriority.Normal);
-        if (Parts.Draygon?.LastSoundLibrary3 is SoundEffectId draygonLibrary3)
-            audio.QueueEnemySound(draygonLibrary3, priority: SoundRequestPriority.Normal);
-    }
-
-    /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacyMusic(EnemyAudioQueue audio)
-    {
-        audio.QueueLegacyMusic(Parts.Draygon?.MusicRequest, MusicQueueDelay.Shortest);
     }
 
     /// <summary>

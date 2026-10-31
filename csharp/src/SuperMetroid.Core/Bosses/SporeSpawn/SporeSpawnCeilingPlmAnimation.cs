@@ -20,7 +20,7 @@ internal sealed class SporeSpawnCeilingPlmAnimation(SporeSpawnCeilingProgram pro
         if (cue != SporeSpawnCeilingCue.QueueCrumbleSound)
             throw new InvalidOperationException($"Undefined {nameof(SporeSpawnCeilingCue)} {cue}.");
         context.QueueSound(SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundId,
-            SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundMaximumQueued);
+            SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundPriority);
         return null;
     }
 }

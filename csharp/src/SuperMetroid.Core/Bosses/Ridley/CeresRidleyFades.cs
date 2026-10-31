@@ -12,11 +12,14 @@ internal sealed class CeresRidleyFades
     private readonly EnemyPresentation _presentation;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
+    /// <summary>Receives the battle music the finished body fade starts.</summary>
+    private readonly EnemyAudioQueue _audio;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyFades(EnemyPresentation presentation, BossArtworkBinding bossArtwork)
+    internal CeresRidleyFades(EnemyPresentation presentation, BossArtworkBinding bossArtwork, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _bossArtwork = bossArtwork;
         _presentation = presentation;
     }
@@ -75,6 +78,6 @@ internal sealed class CeresRidleyFades
         // `$A6:A449` queues track five immediately after the final body shade.
         // This is the Ceres battle/escape track; it intentionally continues after Ridley
         // retreats, so omitting this single publication silences both scenes.
-        state.MusicRequest = MusicRequest.SelectTrack(5);
+        _audio.RequestRidleyMusic(MusicRequest.SelectTrack(5));
     }
 }

@@ -44,6 +44,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
+    /// <summary>Receives Botwoon's sound and music requests.</summary>
+    private readonly EnemyAudioQueue _audio;
 
     /// <summary>The colours Botwoon's body loads for itself, which its health bands rewrite.</summary>
     private static readonly EncounterSpriteColouring BodyColouring = new(BossColourDefinitions.BotwoonBody);
@@ -61,6 +63,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _presentation = dependencies.Presentation;
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;
+        _audio = dependencies.Audio;
     }
 
     /// <summary>Number of independent chance-table pickups requested when the wall crumbles.</summary>
@@ -68,8 +71,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Per-room movement, head-animation, body, and wall-collapse state.</summary>
     internal BotwoonEnemyState? BotwoonState { get; set; }
-    /// <summary>Last sound selected by Botwoon in the current enemy frame.</summary>
-    public SoundEffectId? LastBotwoonSoundEffect { get; internal set; }
 
     /// <summary>The value the pre-fall death count starts from once the tail completes its hole transition.</summary>
     private const int BotwoonDeathDelayStart = 240;
@@ -83,10 +84,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int BotwoonWallExplosionDuration = 192;
     /// <summary>Wall-explosion update from which the explosion timers run.</summary>
     private const int BotwoonWallExplosionsBegin = 64;
-
-
-    /// <summary>Track three, queued with the native eight-frame delay after wall cleanup.</summary>
-    public DelayedMusicRequest? LastBotwoonMusicRequest { get; private set; }
 
     /// <summary>Ports <c>Botwoon_Init</c> at <c>$B3:9583</c>.</summary>
     internal void InitializeBotwoon(RoomEnemySlot head)
@@ -649,7 +646,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 head.Radius = BotwoonAnimations.HeadRadius(state.HeadProgram.Facing);
                 return;
             case BotwoonHeadCue.QueueSpitSound:
-                LastBotwoonSoundEffect = BotwoonSoundDefinitions.Spit;
+                RequestBotwoonSound(BotwoonSoundDefinitions.Spit);
                 return;
             case BotwoonHeadCue.ReachSpitFrame:
                 state.SpitFrameReached = true;
@@ -713,7 +710,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         head.Position = head.Position.WithWholeY(200);
         state.Function = BotwoonEnemyFunction.WaitForBody;
         _projectiles.SpawnRoomGraphicsDustExplosion(head.Position.Whole, MiscDustAnimation.BigExplosion);
-        LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
+        RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
         head.Properties = head.Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
     }
@@ -753,11 +750,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             head.Properties = head.Properties.With(EnemyProperties.Deleted);
             state.BossBitSet = true;
             _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
-            // `$B3:9B32` invokes QueueMusic_Delayed8(3) only after the complete 192-frame
+            // `$B3:9B32` invokes the shortest-delay request for track three only after the complete 192-frame
             // wall-explosion phase, not when health first reaches zero.
-            LastBotwoonMusicRequest = new DelayedMusicRequest(
+            _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Botwoon, new DelayedMusicRequest(
                 MusicRequest.SelectTrack(3),
-                MusicQueueDelay.Shortest);
+                MusicQueueDelay.Shortest));
             return;
         }
 
@@ -773,7 +770,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     new(unchecked((ushort)((_room.Random.Generate() & 31) + 232)), unchecked((ushort)(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8))),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
                     graphics: SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles));
-                LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
+                RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
             }
 
             CountdownStep smallExplosionTimer =
@@ -1040,7 +1037,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         segment.Graphics = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
         segment.CanDamageSamus = false;
         segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
-        LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
+        RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
 
         // The tail segment owns the synchronization flag.
         if (ReferenceEquals(state.BodySegments[0], segment))
@@ -1085,23 +1082,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastBotwoonSoundEffect = null;
-        LastBotwoonMusicRequest = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastBotwoonSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
-    }
-
-    /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacyMusic(EnemyAudioQueue audio)
-    {
-        audio.QueueLegacyMusic(LastBotwoonMusicRequest?.Request, LastBotwoonMusicRequest?.Delay);
-    }
+    /// <summary>
+    /// Requests one of Botwoon's sounds at the end of the enemy update. A later Botwoon sound in the same update
+    /// replaces it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
+    /// </summary>
+    private void RequestBotwoonSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Botwoon, sound, SoundRequestPriority.Normal);
 }

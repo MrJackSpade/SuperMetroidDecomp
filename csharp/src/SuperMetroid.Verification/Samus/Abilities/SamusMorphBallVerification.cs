@@ -705,7 +705,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(
         new SoundRequest(Library2Sound.BombExplosion, SoundRequestPriority.Normal),
         explosion.SoundRequests[0],
-        "normal bomb fuse expiry queues cartridge library-two sound eight with Max6");
+        "normal bomb fuse expiry requests the bomb explosion at normal priority");
 
     for (int tick = 0; tick < 20 && bombs.BombCounter != 0; tick++)
         bombs.StepFrame(new SamusTerrain { Level = floor }, bombProjectileSamus, 0, 0);

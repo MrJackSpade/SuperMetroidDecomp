@@ -18,7 +18,7 @@ using SuperMetroid.Core.Progression;
 internal static class BeamImpactSoundVerification
 {
     /// <summary>
-    /// A beam that strikes a wall queues library-two $0C ($93:80EF, Max6) as it becomes an
+    /// A beam that strikes a wall requests library-two $0C ($93:80EF) at normal priority as it becomes an
     /// explosion. The 13% movie's door wait depends on it: the busy library holds back the
     /// next door sound for one more $82:E29E dispatch.
     /// </summary>
@@ -59,8 +59,8 @@ internal static class BeamImpactSoundVerification
             {
                 AssertTrue(runtime.Projectiles.ImpactAudio.ImpactSoundRequests.Contains(
                         new SoundRequest(Library2Sound.BeamImpact, SoundRequestPriority.Normal)),
-                    "the frame a beam hits the wall queues library-two $0C with Max6");
-                Console.WriteLine("  Beam impact sound: a wall hit queues library-two $0C (Max6).");
+                    "the frame a beam hits the wall requests library-two $0C at normal priority");
+                Console.WriteLine("  Beam impact sound: a wall hit requests library-two $0C at normal priority.");
                 return;
             }
         }

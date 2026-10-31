@@ -139,7 +139,7 @@ internal sealed class KraidDeath
             case KraidAiFunction.DeathFadeInBackground:
                 if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
                     return;
-                state.MusicRequest = MusicRequest.SelectTrack(3);
+                _access.RequestKraidMusic(MusicRequest.SelectTrack(3));
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
                 {
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFinishedWasDead;
@@ -247,7 +247,7 @@ internal sealed class KraidDeath
         state.DeathSoundTimer = state.DeathSoundTimer.Decrement().Remaining;
         if (state.DeathSoundTimer.IsZero)
         {
-            _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.RockSpit);
+            _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
             state.DeathSoundTimer = WrappingCountdown.Start(30);
         }
         ProcessKraidSinkTable(body, state);

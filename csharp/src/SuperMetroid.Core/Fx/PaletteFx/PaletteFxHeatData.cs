@@ -14,6 +14,6 @@ public static class PaletteFxHeatData
     /// </summary>
     public const ushort DamageSoundEnergyThreshold = 70;
 
-    /// <summary>$8D:E379 calls <c>QueueSfx3_Max6</c>.</summary>
-    public static readonly SoundRequestPriority DamageSoundMaximumQueued = SoundRequestPriority.Normal;
+    /// <summary>The heat-damage sound's request priority.</summary>
+    public static readonly SoundRequestPriority DamageSoundPriority = SoundRequestPriority.Normal;
 }

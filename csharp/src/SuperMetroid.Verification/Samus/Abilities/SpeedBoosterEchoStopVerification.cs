@@ -52,7 +52,7 @@ internal static class SpeedBoosterEchoStopVerification
                 if (request.SoundEffect == Library3Sound.SpeedBoosterEnd)
                 {
                     AssertEqual(40, frame, "echo stop occurs on the wall-cancellation frame");
-                    AssertEqual(15, request.Priority.Requests, "echo stop uses native Max15");
+                    AssertEqual(SoundRequestPriority.Essential, request.Priority, "echo stop is requested at essential priority");
                     stopRequests++;
                 }
                 queue.QueueSound(request);

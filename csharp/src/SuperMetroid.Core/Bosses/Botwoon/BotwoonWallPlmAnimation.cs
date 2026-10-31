@@ -36,7 +36,7 @@ internal sealed class BotwoonWallPlmAnimation(BotwoonWallProgram program)
                 scrolls.SetLogicalState(new(1, 0), RoomScrollState.Blue);
                 return null;
             case BotwoonWallCue.QueueCrumbleSound:
-                context.QueueSound(BotwoonWallPlmProgramDefinitions.CrumbleSound, BotwoonWallPlmProgramDefinitions.CrumbleSoundMaximumQueued);
+                context.QueueSound(BotwoonWallPlmProgramDefinitions.CrumbleSound, BotwoonWallPlmProgramDefinitions.CrumbleSoundPriority);
                 return null;
             case BotwoonWallCue.MoveDownOneBlock:
                 context.MoveOrigin(slot, columns: 0, rows: 1);

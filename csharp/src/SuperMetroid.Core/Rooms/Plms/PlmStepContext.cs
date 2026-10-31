@@ -23,7 +23,7 @@ internal readonly record struct PlmStepContext(
     internal void DrawRestoredBlock(PlmSlot slot) =>
         PlmLevelWrites.DrawTerrain(Level, slot.BlockIndex, slot.RestoreTerrain);
 
-    /// <summary>Queues <paramref name="sound"/> under the native queue cap <paramref name="priority"/>.</summary>
+    /// <summary>Queues <paramref name="sound"/> at <paramref name="priority"/>.</summary>
     internal void QueueSound(SoundEffectId sound, SoundRequestPriority priority) =>
         Plms.Sounds.Queue(sound, Priority: priority);
 

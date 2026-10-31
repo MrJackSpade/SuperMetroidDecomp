@@ -15,6 +15,6 @@ public static class LavaAcidWaveDefinitions
     /// <summary>Frames between lava's ambient bubbling sounds.</summary>
     public const ushort AmbientSoundPeriod = 112;
 
-    /// <summary>Most library-two sounds queued when lava requests an ambient sound.</summary>
-    public static readonly SoundRequestPriority AmbientSoundMaximumQueued = SoundRequestPriority.Normal;
+    /// <summary>The request priority of lava's ambient sound.</summary>
+    public static readonly SoundRequestPriority AmbientSoundPriority = SoundRequestPriority.Normal;
 }

@@ -126,7 +126,7 @@ public sealed class SamusXrayState
     /// <summary>Set by state five when sound-library-one effect ten would be queued.</summary>
     public bool DeactivationSoundRequested { get; private set; }
 
-    /// <summary>Consumes visor startup's native <c>QueueSfx1_Max6($09)</c> call.</summary>
+    /// <summary>Consumes visor startup's normal-priority sound request.</summary>
     public bool ConsumeActivationSoundRequest()
     {
         bool requested = ActivationSoundRequested;

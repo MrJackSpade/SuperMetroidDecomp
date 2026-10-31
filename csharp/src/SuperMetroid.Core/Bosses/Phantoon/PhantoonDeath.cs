@@ -31,11 +31,14 @@ internal sealed class PhantoonDeath
     private readonly PhantoonPatterns _patterns;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
+    /// <summary>Receives the death's explosion sounds, dying cry and music change.</summary>
+    private readonly EnemyAudioQueue _audio;
 
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal PhantoonDeath(PhantoonDeathDependencies dependencies)
     {
+        _audio = dependencies.Audio;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _presentation = dependencies.Presentation;
@@ -100,9 +103,9 @@ internal sealed class PhantoonDeath
         _projectiles.SpawnRoomGraphicsDustExplosion(position, explosion.Type);
         if (_projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive) > before)
             state.DeathExplosionsSpawned++;
-        state.LastCombatSoundEffect = explosion.Type == MiscDustAnimation.BigExplosion
+        _audio.RequestPhantoonCombatSound(explosion.Type == MiscDustAnimation.BigExplosion
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
-            : PhantoonSoundDefinitions.DeathExplosionSound;
+            : PhantoonSoundDefinitions.DeathExplosionSound);
 
         state.Parts[tentacles.SlotIndex].ExplosionIndex = WrappingCounter.IncrementWord(state.Parts[tentacles.SlotIndex].ExplosionIndex);
         if (state.Parts[tentacles.SlotIndex].ExplosionIndex < PhantoonDeathExplosionDefinitions.Count)
@@ -115,7 +118,7 @@ internal sealed class PhantoonDeath
     }
 
     /// <summary>Starts the distorted BG2 and mosaic stages after the fatal swoop.</summary>
-    internal static void BeginPhantoonWavyMosaicDeath(
+    internal void BeginPhantoonWavyMosaicDeath(
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
@@ -137,7 +140,7 @@ internal sealed class PhantoonDeath
         state.Eye.Properties = hiddenPartProperties;
         state.Tentacles.Properties = hiddenPartProperties;
         mouth.Properties = hiddenPartProperties;
-        state.LastCombatSoundEffect = PhantoonSoundDefinitions.DyingCry;
+        _audio.RequestPhantoonCombatSound(PhantoonSoundDefinitions.DyingCry);
     }
 
     /// <summary>Advances death-wave and mosaic counters before room activation.</summary>
@@ -233,7 +236,7 @@ internal sealed class PhantoonDeath
             state.BossDefeatPersisted = true;
         }
         state.BossDoorPlmRequest = PlmHeaderId.RestorePhantoonDoorAfterBossFight;
-        state.MusicRequest = MusicRequest.SelectTrack(3);
+        _audio.RequestPhantoonMusic(MusicRequest.SelectTrack(3));
         state.WreckedShipPowerPaletteComplete = true;
     }
 

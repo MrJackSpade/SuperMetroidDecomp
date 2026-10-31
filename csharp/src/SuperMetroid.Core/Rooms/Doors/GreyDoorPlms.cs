@@ -80,12 +80,12 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     private void PlayDudSoundIfShot(PlmSlot slot)
     {
         if (slot.ProjectileHit is not null)
-            _sounds.Queue(Library2Sound.DudShotOnDoor, Priority: DudSoundMaximumQueued);
+            _sounds.Queue(Library2Sound.DudShotOnDoor, Priority: DudSoundPriority);
         slot.ProjectileHit = null;
     }
 
-    /// <summary>The dud sound's native queue cap.</summary>
-    private static readonly SoundRequestPriority DudSoundMaximumQueued = SoundRequestPriority.Normal;
+    /// <summary>The dud sound's request priority.</summary>
+    private static readonly SoundRequestPriority DudSoundPriority = SoundRequestPriority.Normal;
 
     /// <summary><c>$84:8A91</c>: counts a hit on a grey cap; true when it opens the door.</summary>
     internal bool CountGreyDoorHit(PlmSlot slot)

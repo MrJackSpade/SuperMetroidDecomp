@@ -207,7 +207,7 @@ public sealed class SamusBombProjectileSystem
             explosionStarted |= slotExplosionStarted;
             if (slotExplosionStarted && wasNormalBomb)
             {
-                // `$90:C128` publishes this exact Max6 request for every normal bomb
+                // `$90:C128` requests this sound at normal priority for every normal bomb
                 // whose fuse expires. Keep the append-only shape because several spread
                 // bombs can expire during one Samus projectile pass.
                 soundRequests.Add(new SoundRequest(
@@ -217,8 +217,8 @@ public sealed class SamusBombProjectileSystem
             }
             else if (slotExplosionStarted)
             {
-                // The explosion queues library-one sound one through the ordinary
-                // Max15 entry immediately before it marks the explosion active and
+                // The explosion requests its sound at essential priority
+                // immediately before it marks the explosion active and
                 // starts its two per-line effects. Publish it from the same frame that
                 // Spawn installs the explosion's owner.
                 soundRequests.Add(new SoundRequest(

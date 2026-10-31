@@ -59,7 +59,7 @@ internal sealed class DraygonDeath
 
         SpawnDraygonDeathEvirs(state);
         state.Function = DraygonAiFunction.DyingSink;
-        state.MusicRequest = MusicRequest.SelectTrack(3);
+        _parts.RequestDraygonMusic(MusicRequest.SelectTrack(3));
         state.BurialWait = WrappingCountdown.Start(DraygonBehavior.DraygonDeathWaitFramesUs);
         _parts.StartDraygonProgram(body, DraygonProgram.Sleep);
 

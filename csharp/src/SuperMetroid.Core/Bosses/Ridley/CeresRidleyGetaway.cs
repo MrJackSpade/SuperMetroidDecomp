@@ -101,8 +101,8 @@ internal sealed class CeresRidleyGetaway
         int tableIndex = state.GetawayFrameIndex;
         state.GetawayFrameIndex = tableIndex + 1;
 
-        // HandleCeresRidleyGetawayCutscene queues the departure sound on the first table
-        // entry only ($A6:AABD -> QueueSfx2_Max6($4E)). Tying the request to the native
+        // HandleCeresRidleyGetawayCutscene requests the departure sound on the first table
+        // entry only ($A6:AABD). Tying the request to the native
         // table index preserves the same one-shot behavior after saves/replays and pauses.
         if (tableIndex == 0)
             _audio.QueueEnemySound(Library2Sound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
@@ -272,7 +272,7 @@ internal sealed class CeresRidleyGetaway
                     // $A6:C09F also queues music track seven after installing the final
                     // static warning tilemap page. The frontend consumes this typed request
                     // through the same bank-$80 queue used by every other music producer.
-                    state.MusicRequest = MusicRequest.SelectTrack(7);
+                    _audio.RequestRidleyMusic(MusicRequest.SelectTrack(7));
                     state.FunctionTimer = WrappingCountdown.Start(6);
                     state.CeresEscapeTextDelayTimer = WrappingCountdown.Start(128);
                 }

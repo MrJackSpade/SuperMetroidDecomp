@@ -50,7 +50,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _bossArtwork = dependencies.Presentation.Artwork;
         _room = dependencies.Room;
-        Access = new CrocomireEncounterAccess(dependencies.FrameResults, _room, dependencies.Projectiles);
+        Access = new CrocomireEncounterAccess(dependencies.FrameResults, _room, dependencies.Projectiles, dependencies.Audio);
         BodyLayer = new CrocomireBodyLayer(dependencies.SpriteObjects, dependencies.Presentation.Surfaces, Access);
         Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation.Surfaces, Collision = dependencies.Collision, ZebetiteBehavior = dependencies.ZebetiteBehavior, RoomStatus = dependencies.RoomStatus, BodyLayer = BodyLayer, Access = Access , BossArtwork = _bossArtwork });
         Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.Presentation.Surfaces, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access, _bossArtwork);
@@ -169,7 +169,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 BridgeCollapse.RunCrocomireRisingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.StartFirstDissolve:
-                Access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.FirstMeltDissolve;
+                Access.RequestCrocomireSound(CrocomireSoundDefinitions.FirstMeltDissolve);
                 Melting.BeginCrocomireMelting(state);
                 return;
             case CrocomireDeathPhase.DissolveFirstImage:
@@ -217,7 +217,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 BridgeCollapse.RunCrocomireRise(state);
                 return;
             case CrocomireDeathPhase.StartSecondDissolve:
-                Access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.SecondMeltDissolve;
+                Access.RequestCrocomireSound(CrocomireSoundDefinitions.SecondMeltDissolve);
                 Melting.BeginCrocomireMelting(state);
                 return;
             case CrocomireDeathPhase.DissolveSecondImage:
@@ -282,26 +282,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AdvanceCrocomireTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {
         Fight.AdvanceCrocomireBodyAnimation(slot, context.Samus, context.Level, context.Camera.X);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        Access.LastCrocomireSoundEffect = null;
-        Access.LastCrocomireMusicRequest = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (Access.LastCrocomireSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
-    }
-
-    /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacyMusic(EnemyAudioQueue audio)
-    {
-        audio.QueueLegacyMusic(Access.LastCrocomireMusicRequest?.Request, Access.LastCrocomireMusicRequest?.Delay);
     }
 
     /// <summary>Ports Crocomire's main AI.</summary>

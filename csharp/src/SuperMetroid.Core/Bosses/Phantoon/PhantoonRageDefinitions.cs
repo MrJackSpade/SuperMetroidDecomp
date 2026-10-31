@@ -15,6 +15,6 @@ internal static class PhantoonRageDefinitions
     internal const ushort WaveInterval = 128;
     /// <summary>$A7:D8E6: library-three sound emitted once after each complete wave.</summary>
     internal static SoundEffectId WaveSound => Library3Sound.PhantoonSuperMissiled;
-    /// <summary>$A7:D8E9: QueueSound_Lib3_Max6 handoff capacity.</summary>
-    internal static readonly SoundRequestPriority WaveSoundQueueCapacity = SoundRequestPriority.Normal;
+    /// <summary>The wave sound's request priority.</summary>
+    internal static readonly SoundRequestPriority WaveSoundPriority = SoundRequestPriority.Normal;
 }

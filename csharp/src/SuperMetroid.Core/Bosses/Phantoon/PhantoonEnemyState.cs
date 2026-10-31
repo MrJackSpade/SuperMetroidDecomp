@@ -60,16 +60,8 @@ public sealed class PhantoonEnemyState
     /// <summary>Gets the number of introductory flame requests that acquired a live bank-$86 projectile slot.</summary>
     public int StartingFlamesSpawned { get; internal set; }
 
-    /// <summary>Last delayed music request issued by Phantoon's private AI.</summary>
-    public MusicRequest? MusicRequest { get; internal set; }
-
     /// <summary>Position zero through two in the repeating three-sound materialization cycle; the next materialization plays this one and advances it.</summary>
     public int MaterializationSoundIndex { get; internal set; }
-    /// <summary>Gets the most recent materialization sound requested by the private instruction stream, cleared at the next body pass.</summary>
-    public SoundEffectId? LastMaterializationSound { get; internal set; }
-
-    /// <summary>Last combat sound requested this frame: a shot cry, death explosion or dying cry.</summary>
-    public SoundEffectId? LastCombatSoundEffect { get; internal set; }
     /// <summary>Gets the count of projectile collisions accepted by the vulnerable body path, including hits whose vulnerability produces zero damage.</summary>
     public int AcceptedProjectileHits { get; internal set; }
 

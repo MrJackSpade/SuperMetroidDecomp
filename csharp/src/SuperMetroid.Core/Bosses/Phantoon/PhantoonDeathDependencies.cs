@@ -32,4 +32,7 @@ internal sealed record PhantoonDeathDependencies
 
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
+
+    /// <summary>Receives the death's sounds and music change.</summary>
+    public required EnemyAudioQueue Audio { get; init; }
 }

@@ -224,7 +224,7 @@ public sealed class SamusHorizontalSpeedState
                 HasRunningMomentum = true;
                 SpecialPaletteTimer = WrappingCountdown.Start(1);
                 CyclePaletteStep = 0;
-                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadenceBytes.ReadResetWord(0));
+                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadences.CountdownAfterAdvance(0));
             }
 
             if (ExtraRunSpeed.WordsAtLeast(new UnsignedSixteenSixteen(7, 0)))
@@ -265,7 +265,7 @@ public sealed class SamusHorizontalSpeedState
     /// reaches an animation command. True means the command was consumed and frame zero
     /// was restarted from the ROM-authored delay list for the new boost stage.
     /// </summary>
-    /// <param name="floorUpdateResidue">The session's floor update residue, which stage five's delay list aliases.</param>
+    /// <param name="floorUpdateResidue">The session's floor update residue, which the unauthored boost cadence reads.</param>
     /// <param name="movementType">Current movement category; only running can consume this animation command.</param>
     /// <param name="controllerInput">Current held SNES button word; the native dash button must be held.</param>
     /// <param name="animationFrameBuffer">Native frame-delay adjustment added to the selected stage's first animation delay.</param>
@@ -310,37 +310,32 @@ public sealed class SamusHorizontalSpeedState
                     EchoSoundRequested = true;
                 else
                 {
-                    // The cartridge does not preserve A across its sound call: what the
-                    // call leaves there selects BOTH reset tables, independently of the
-                    // stage word already stored above. Do not clamp this selection:
-                    // queue occupancy five reads adjacent native data.
-                    echoSelection = SamusRunningCadenceBytes.EchoQueueSelection(queueEchoSound());
+                    // What the echo's queue request reports, not the stage just stored, picks
+                    // both the restart countdown and the first frame's cadence. Do not clamp
+                    // it: a full queue picks the unauthored cadence.
+                    echoSelection = SamusRunningCadences.EchoQueueSelection(queueEchoSound());
                 }
             }
         }
 
         int stage = echoSelection ?? SpeedBoostCounter.Stage;
-        int nextCadence = SamusRunningCadenceBytes.ReadResetWord(stage);
-        SpeedBoostCounter = SpeedBoostCounter.WithCadence(nextCadence);
+        SpeedBoostCounter = SpeedBoostCounter.WithCadence(SamusRunningCadences.CountdownAfterAdvance(stage));
 
-        SamusRunningCadence cadence = SamusRunningCadenceBytes.SpeedBoostCadence(stage);
+        SamusRunningCadence cadence = SamusRunningCadences.SpeedBoostCadence(stage);
         animationFrame = 0;
-        animationFrameTimer = unchecked((ushort)(
-            animationFrameBuffer + SamusRunningCadenceBytes.ReadAnimationByte(floorUpdateResidue, cadence, 0, windows: null)));
+        animationFrameTimer = WrappingCountdown.FromRaw(animationFrameBuffer)
+            .AddFrames(SamusRunningCadences.Delay(floorUpdateResidue, cadence, frame: 0)).RawValue;
         // Animation runs after movement. Native stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.
         // Publishing here enables boost damage one frame before the cartridge.
         return true;
     }
 
-    /// <summary>Reads one byte from the delay list selected by the counter's stage byte.</summary>
-    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, int byteIndex,
-        SamusAnimationWindows? windows)
-    {
-        int stage = SpeedBoostCounter.Stage;
-        return SamusRunningCadenceBytes.ReadAnimationByte(floorUpdateResidue,
-            SamusRunningCadenceBytes.SpeedBoostCadence(stage), byteIndex, windows);
-    }
+    /// <summary>The delay, in ticks, of running frame <paramref name="frame"/> at the boost's current stage.</summary>
+    /// <param name="floorUpdateResidue">The session's floor update residue, which the unauthored cadence reads.</param>
+    /// <param name="frame">The running frame, zero through nine.</param>
+    internal int SpeedBoosterDelay(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, int frame) =>
+        SamusRunningCadences.Delay(floorUpdateResidue, SamusRunningCadences.SpeedBoostCadence(SpeedBoostCounter.Stage), frame);
 
     /// <summary>
     /// Ports the dry-room Speed Booster branch of
@@ -627,7 +622,7 @@ public sealed class SamusHorizontalSpeedState
             {
                 SpecialPaletteTimer = WrappingCountdown.Start(0);
                 CyclePaletteStep = 0;
-                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadenceBytes.ReadResetWord(0));
+                SpeedBoostCounter = new SamusSpeedBoostCounter(stage: 0, cadence: SamusRunningCadences.CountdownAfterAdvance(0));
             }
             return;
         }

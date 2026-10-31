@@ -248,8 +248,8 @@ internal sealed class SamusPresentation
             int runningOrPoseDelay = samus.HorizontalSpeed.HasRunningMomentum &&
                 SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
-                    ? samus.HorizontalSpeed.ReadSpeedBoosterAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame, samus.Presentation.AnimationWindows)
-                    : ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, samus.AnimationFrame, samus.Presentation.AnimationWindows)
+                    ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.FloorQueueResidue, samus.AnimationFrame)
+                    : SamusRunningCadences.Delay(samus.FloorQueueResidue, SamusRunningCadence.Ordinary, samus.AnimationFrame)
                 : delayOrCommand;
             samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(runningOrPoseDelay);
             return;
@@ -288,7 +288,7 @@ internal sealed class SamusPresentation
             {
                 samus.AnimationFrame = 0;
                 samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(
-                    ReadDefaultRunningAnimationByte(samus.FloorQueueResidue, byteIndex: 0, windows: null));
+                    SamusRunningCadences.Delay(samus.FloorQueueResidue, SamusRunningCadence.Ordinary, frame: 0));
                 return;
             }
         }
@@ -449,20 +449,6 @@ internal sealed class SamusPresentation
     /// <summary>Reads one compiled delay byte from the animation list selected for this pose.</summary>
     private static byte ReadAnimationByte(SamusState samus, int byteIndex) =>
         SamusAnimationDelays.ReadAnimationByte(samus.FloorQueueResidue, samus.AnimationDelayList, byteIndex, samus.Presentation.AnimationWindows);
-
-    /// <summary>
-    /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
-    /// Cadence and command position are compiled mechanics; displayed artwork is separate.
-    /// </summary>
-    internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue, int byteIndex,
-        SamusAnimationWindows? windows)
-    {
-        return SamusRunningCadenceBytes.ReadAnimationByte(
-            floorUpdateResidue,
-            SamusRunningCadence.Ordinary,
-            byteIndex,
-            windows);
-    }
 
     /// <summary>
     /// Ports the standing and ordinary-running portions of <c>Samus_Draw</c> at

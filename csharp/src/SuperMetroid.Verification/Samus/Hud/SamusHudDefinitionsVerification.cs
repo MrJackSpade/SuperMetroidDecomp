@@ -46,7 +46,7 @@ internal static class SamusHudDefinitionsVerification
         for (byte movement = 0; movement < 28; movement++)
         {
             ushort handler = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90dd05 + movement * 2));
-            AssertEqual(handler, (ushort)SamusHudObservations.MovementHandler((SamusMovementType)movement), "All 28 native HUD handler identities");
+            AssertEqual(handler, (ushort)SamusHudObservations.MovementHandler(SamusMovementTypeNativeWords.Of(movement)), "All 28 native HUD handler identities");
             for (int pose = 0; pose < 253; pose++)
             foreach (bool locked in new[] { false, true })
             foreach (ushort selected in new ushort[] { 3, 4 })

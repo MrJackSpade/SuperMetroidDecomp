@@ -1,65 +1,65 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Verified movement-dispatch indices from pose-definition byte one. This is an ordinary
-/// enum, not a flag set: each pose selects exactly one bank-$90 movement handler.
+/// How a pose moves: each pose selects exactly one movement handler. This is an ordinary enum, not a flag set. Its values
+/// are arbitrary; the pose definitions name each pose's movement type at import.
 /// </summary>
 public enum SamusMovementType
 {
     /// <summary>Grounded standing poses; accepts ordinary aim, fire, crouch, jump, and run transitions.</summary>
-    Standing = 0,
+    Standing,
     /// <summary>Grounded horizontal movement with acceleration, momentum, and speed-boost handling.</summary>
-    Running = 1,
+    Running,
     /// <summary>Upright aerial movement for non-spinning jumps and rising aim poses.</summary>
-    NormalJumping = 2,
+    NormalJumping,
     /// <summary>Rotating aerial movement used by spin jump, Space Jump, and Screw Attack poses.</summary>
-    SpinJumping = 3,
+    SpinJumping,
     /// <summary>Grounded morph-ball movement, rolling collision bounds, and bomb interaction.</summary>
-    MorphBallGround = 4,
+    MorphBallGround,
     /// <summary>Grounded crouch poses and their stand/morph transitions.</summary>
-    Crouching = 5,
+    Crouching,
     /// <summary>Upright descending aerial movement after the vertical-speed apex.</summary>
-    Falling = 6,
+    Falling,
     /// <summary>Unused retail dispatcher slot <c>$07</c> associated with a glitch-ball pose family.</summary>
-    UnusedGlitchBall = 7,
+    UnusedGlitchBall,
     /// <summary>Descending morph-ball movement with airborne ball collision bounds.</summary>
-    MorphBallFalling = 8,
+    MorphBallFalling,
     /// <summary>Second unused retail glitch-ball dispatcher slot, at index <c>$09</c>.</summary>
-    UnusedGlitchBallAlternate = 9,
+    UnusedGlitchBallAlternate,
     /// <summary>Damage knockback movement until the hurt trajectory returns control to a normal pose.</summary>
-    Knockback = 10,
+    Knockback,
     /// <summary>Unused movement-dispatch table entry <c>$0B</c>; preserved for cartridge pose identity.</summary>
-    Unused0B = 11,
+    Unused0B,
     /// <summary>Unused movement-dispatch table entry <c>$0C</c>; preserved for cartridge pose identity.</summary>
-    Unused0C = 12,
+    Unused0C,
     /// <summary>Unused movement-dispatch table entry <c>$0D</c>, referenced only by unused pose records.</summary>
-    Unused0D = 13,
+    Unused0D,
     /// <summary>Grounded turn animation that defers the facing reversal until its pose sequence advances.</summary>
-    TurningOnGround = 14,
+    TurningOnGround,
     /// <summary>Short transition animations between standing, crouching, and morph-ball postures.</summary>
-    PostureTransition = 15,
+    PostureTransition,
     /// <summary>Backward grounded movement that keeps Samus facing opposite her travel direction.</summary>
-    Moonwalking = 16,
+    Moonwalking,
     /// <summary>Grounded morph-ball movement with Spring Ball's jump transition enabled.</summary>
-    SpringBallGround = 17,
+    SpringBallGround,
     /// <summary>Rising Spring Ball movement before the vertical-speed apex.</summary>
-    SpringBallInAir = 18,
+    SpringBallInAir,
     /// <summary>Descending Spring Ball movement after the vertical-speed apex.</summary>
-    SpringBallFalling = 19,
+    SpringBallFalling,
     /// <summary>The wall-jump launch state that applies the away-from-wall trajectory.</summary>
-    WallJumping = 20,
+    WallJumping,
     /// <summary>Grounded wall-stop animation entered when running momentum meets a blocking wall.</summary>
-    RanIntoWall = 21,
+    RanIntoWall,
     /// <summary>Grapple firing, connection, swing, and release movement owned by the grapple subsystem.</summary>
-    Grappling = 22,
+    Grappling,
     /// <summary>Midair facing-reversal animation while vertical movement is rising.</summary>
-    TurningWhileJumping = 23,
+    TurningWhileJumping,
     /// <summary>Midair facing-reversal animation while vertical movement is descending.</summary>
-    TurningWhileFalling = 24,
+    TurningWhileFalling,
     /// <summary>Intentional damage-boost trajectory produced by directional input during knockback.</summary>
-    DamageBoost = 25,
+    DamageBoost,
     /// <summary>Controller-limited movement while Draygon owns and repositions Samus.</summary>
-    DraygonHeld = 26,
+    DraygonHeld,
     /// <summary>Scripted movement for shinesparks, Crystal Flash, X-ray, death, and other special poses.</summary>
-    Special = 27,
+    Special,
 }

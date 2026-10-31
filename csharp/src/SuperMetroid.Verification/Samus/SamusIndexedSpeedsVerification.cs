@@ -28,7 +28,11 @@ internal static class SamusIndexedSpeedsVerification
             speed.SelectEnvironmentSpeedTable(medium);
             for (int movement = 0; movement <= byte.MaxValue; movement++)
             {
-                int address = speed.ResolveEntryAddress((SamusMovementType)movement);
+                // Movement bytes past the movement types name none; they stand for an out-of-domain identity here.
+                SamusMovementType type = SamusMovementTypeNativeWords.Types.TryDecode(movement, out SamusMovementType named)
+                    ? named
+                    : (SamusMovementType)(-1);
+                int address = speed.ResolveEntryAddress(type);
                 SpeedTableEntry expected = Read(address);
                 bool authored = address is >= 0x909f55 and < 0x90a32d;
                 AssertEqual(authored, SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out var entry), "Native authored/overread boundary");
@@ -37,12 +41,12 @@ internal static class SamusIndexedSpeedsVerification
                     AssertEqual(expected, entry, "All six indexed words match native data");
                     compiledCount++;
                     forbidReads = true;
-                    AssertEqual(expected, speed.ReadEntry((SamusMovementType)movement), "Actual byte-indexed read preserves adjacent authored tables");
+                    AssertEqual(expected, speed.ReadEntry(type), "Actual byte-indexed read preserves adjacent authored tables");
                 }
                 else
                 {
                     AssertThrows<InvalidDataException>(
-                        () => speed.ReadEntry((SamusMovementType)movement),
+                        () => speed.ReadEntry(type),
                         "Byte-indexed high-bank overread rejected");
                 }
             }

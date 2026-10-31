@@ -54,7 +54,7 @@ internal static class SamusMovementDefinitionsVerification
             bus.ReadCartridgeByte(SamusSourceDefinitions.PoseBank.Value | transitionPointer);
         }
 
-        int movementTypeCount = (byte)SamusMovementType.Special + 1;
+        int movementTypeCount = SamusMovementTypeNativeWords.Count;
         foreach (ushort table in new[]
         {
             SamusMovementDefinitions.HorizontalMotion.NormalAirSpeedTable,

@@ -74,7 +74,7 @@ internal static class RidleySamusDrawReferenceVerification
             throw new InvalidDataException("Movie body oracle requires a native Mode 7 transform mapping.");
         ushort pose = W(NativeSnapshotMemory.Pose), frame = W(NativeSnapshotMemory.Animation);
         SamusPoseId poseId = (SamusPoseId)pose;
-        var movement = (SamusMovementType)checkpoint[NativeSnapshotMemory.SamusMovementType];
+        SamusMovementType movement = SamusMovementTypeNativeWords.Of(checkpoint[NativeSnapshotMemory.SamusMovementType]);
         int yOffset = -unchecked((sbyte)rom.ReadCartridgeByte(NativeSnapshotMemory.PoseDefinitions + pose * 8 + 4));
         if (movement == SamusMovementType.Standing)
         {
@@ -120,7 +120,7 @@ internal static class RidleySamusDrawReferenceVerification
             SamusMovementType.Special =>
                 poseId is not (SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose) &&
                 (frame >= 2 || poseId is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)),
-            _ when (ushort)movement < 28 => true,
+            _ when Enum.IsDefined(movement) => true,
             SamusMovementType.Standing or
                 SamusMovementType.Running or
                 SamusMovementType.NormalJumping or

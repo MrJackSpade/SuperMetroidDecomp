@@ -34,10 +34,10 @@ internal static class PoseDispatchDefinitionsVerification
             AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection(samus), "Live pose facing retains native value");
             AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection((SamusPoseId)pose), "Prospective pose facing retains native value");
             AssertEqual(fallback, (byte)SamusPoseMetadata.ReadNoInputFallbackPose(samus), "No-input fallback retains native pose or sentinel");
-            if (movement <= (byte)SamusMovementType.Special)
+            if (movement < SamusMovementTypeNativeWords.Count)
             {
-                AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType(samus), "Live movement discriminator matches native");
-                AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType((SamusPoseId)pose), "Prospective movement discriminator matches native");
+                AssertEqual(movement, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(samus)), "Live movement discriminator matches native");
+                AssertEqual(movement, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType((SamusPoseId)pose)), "Prospective movement discriminator matches native");
                 commit(samus, source);
                 AssertEqual(SamusSnapshotWords.DecodeHistoryMovement(LittleEndianBytes.Word(facing, movement)), samus.PoseHistory.PreviousMovement,
                     "Actual history publisher retains native facing/movement word");

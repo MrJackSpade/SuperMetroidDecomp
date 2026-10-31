@@ -1738,7 +1738,7 @@ internal static class LookupStream1Verification
         SamusMovementType[] movements = Enum.GetValues<SamusMovementType>();
         AssertEqual(28, movements.Length, "death retail movement domain");
         foreach (SamusMovementType movement in movements)
-            AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + (byte)movement), SamusDeathSequenceFrames.InitialFrame(movement), "native movement death phase");
+            AssertEqual(LookupStream1DeathDefinitionsRomByte(rom, 0x9bb420 + SamusMovementTypeNativeWords.Byte(movement)), SamusDeathSequenceFrames.InitialFrame(movement), "native movement death phase");
         // The cartridge uploads the explosion as five pages; the atlas keeps them in that upload order.
         for (int page = 0; page < SamusDeathTileAtlasFormat.SegmentCount; page++)
         {
@@ -1871,10 +1871,10 @@ internal static class LookupStream1Verification
             else AssertThrows<InvalidOperationException>(() => ShinesparkEchoDepartures.DepartureAngles((SamusPoseId)pose), "crash departure exact pose domain");
         }
         foreach (byte invalid in new byte[] { 28, byte.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.MovementHandler((SamusMovementType)invalid), "HUD movement exact domain");
-            AssertThrows<InvalidDataException>(() => SamusAtmosphericEffects.WaterSplashFor((SamusMovementType)invalid), "splash exact movement domain");
-        }
+            AssertEqual(false, SamusMovementTypeNativeWords.Types.TryDecode(invalid, out _), "movement byte exact domain");
+        var undefinedMovement = (SamusMovementType)(-1);
+        AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.MovementHandler(undefinedMovement), "HUD movement exact domain");
+        AssertThrows<InvalidDataException>(() => SamusAtmosphericEffects.WaterSplashFor(undefinedMovement), "splash exact movement domain");
         foreach (ushort invalid in new ushort[] { 10, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => SamusAtmosphericEffects.IsRunningFootContact(invalid), "foot-contact exact frame domain");
         foreach (byte invalid in new byte[] { 16, byte.MaxValue })

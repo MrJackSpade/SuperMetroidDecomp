@@ -329,7 +329,7 @@ internal static void VerifySamusRenderingSlice()
     {
         WritePoseDefinition(bus, (int)pose, [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
         WriteSamusTileAnimationPointer(bus, pose, 0xe100);
-        AssertEqual(movementType, (byte)SamusPoseMetadata.ReadMovementType(pose), "Rendering fixture uses native movement identity");
+        AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
         WriteSamusSpritemapBases(bus, pose, top: 0, bottom: 0);
         samus.Pose = pose;
         samus.AnimationFrame = frame;

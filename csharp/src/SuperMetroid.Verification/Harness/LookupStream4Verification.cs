@@ -1759,13 +1759,13 @@ internal static class LookupStream4Verification
     private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
     {
         ushort morphedFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc99), ordinaryFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc9e);
+        // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
+        AssertThrows<InvalidOperationException>(() => RidleyGrabs.CanGrab((SamusMovementType)(-1)), "Undefined movement types fail loudly");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
-            var movement = (SamusMovementType)raw;
-            if (!Enum.IsDefined(movement))
+            if (!SamusMovementTypeNativeWords.Types.TryDecode(raw, out SamusMovementType movement))
             {
-                // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
-                AssertThrows<InvalidOperationException>(() => RidleyGrabs.CanGrab(movement), "Undefined movement types fail loudly");
+                AssertTrue(raw >= SamusMovementTypeNativeWords.Count, "Movement bytes name every movement type in the 28-entry table");
                 continue;
             }
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + raw);

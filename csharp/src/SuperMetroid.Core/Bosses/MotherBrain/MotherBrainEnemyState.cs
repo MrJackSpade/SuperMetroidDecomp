@@ -25,12 +25,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Physical slot one, enemy definition <c>$EC3F</c>.</summary>
     public RoomEnemySlot Head { get => field ?? throw new InvalidOperationException("Mother Brain's head slot is not attached; head initialization attaches it."); internal set; }
 
-    /// <summary>
-    /// Exact <c>$7E:9000/$7E:9700</c> corpse graphics and rot-table producer initialized by
-    /// the head record even though it is not consumed until the much later death sequence.
-    /// </summary>
-    public MotherBrainCorpseRottingState CorpseRotting { get; } = new();
-
     /// <summary>The encounter stage that shot, bomb and footstep handling branch on; the glass phase at room entry.</summary>
     public MotherBrainForm Form { get; internal set; }
 

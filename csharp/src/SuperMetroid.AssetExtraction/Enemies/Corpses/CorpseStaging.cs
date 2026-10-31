@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
@@ -18,7 +17,7 @@ internal sealed class CorpseStaging
     private readonly StagedBytes bg2 = new(EnemySourceDefinitions.EnemyBg2Staging, EnemySourceDefinitions.EnemyBg2StagingBytes);
 
     /// <summary>The rotting heap Mother Brain's corpse stages in and the dead Torizo's sand falls into.</summary>
-    private readonly StagedBytes heap = new(EnemySourceDefinitions.CorpseRottingHeap, EnemyStagingDefinitions.RottingHeapByteCount);
+    private readonly StagedBytes heap = new(EnemySourceDefinitions.CorpseRottingHeap, EnemySourceDefinitions.CorpseRottingHeapBytes);
 
     /// <summary>Bytes in one character.</summary>
     private const int TileBytes = 32;
@@ -49,7 +48,7 @@ internal sealed class CorpseStaging
     {
         var staged = new CorpseStaging();
         staged.bg2.Clear(0, EnemySourceDefinitions.EnemyBg2StagingBytes);
-        staged.heap.Clear(EnemyStagingDefinitions.DeadTorizoSandOffset, EnemyStagingDefinitions.DeadTorizoSandByteCount);
+        staged.heap.Clear(EnemySourceDefinitions.DeadTorizoSandOffset, EnemySourceDefinitions.DeadTorizoSandBytes);
         for (int row = 0; row < DeadTorizoGeometryDefinitions.Rows; row++)
             staged.Copy(atlas, DeadTorizoGeometryDefinitions.InitialCopy(row));
         return staged;
@@ -103,7 +102,7 @@ internal sealed class CorpseStaging
     /// <summary>Copies the first bitplane word of eighteen spaced rows of sand line <paramref name="line"/> into the sand strips.</summary>
     internal void CopySandLine(ReadOnlySpan<byte> atlas, int line)
     {
-        int destination = (EnemyStagingDefinitions.DeadTorizoSandOffset + CorpseStagingGeometryDefinitions.SandDestination(line)) / 2;
+        int destination = (EnemySourceDefinitions.DeadTorizoSandOffset + CorpseStagingGeometryDefinitions.SandDestination(line)) / 2;
         int source = CorpseStagingGeometryDefinitions.SandSource(line);
         // Eighteen tile rows are sixteen bytes apart in both the source sheet and the strips; only their first word changes.
         for (int row = 0; row < 18; row++)

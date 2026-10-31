@@ -17,7 +17,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DeadTourianEntity(this, slot, common);
 
-    /// <summary>Owns the corpse tile scratch area and room RNG used during decomposition.</summary>
+    /// <summary>Supplies the room RNG used during decomposition.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Supplies the enemy counter used to pace corpse dust sounds.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -95,14 +95,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         int variantIndex = slot.Spawn.Population.Parameter1 / 2;
         DeadTourianCorpseDefinition definition =
             DeadTourianCorpses.For(profile.Species, variantIndex);
-        // Two rows is the smallest corpse whose late-move entry (height less two) is a real entry index.
-        if (definition.EntryCount < 2)
-            throw new InvalidDataException($"Dead {profile.Species} has fewer than two corpse rows.");
-
-        int yLimit = definition.EntryCount - 1;
-        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variantIndex,
-            new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset },
-            profile: profile, rotTable: _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount))
+        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variantIndex, profile, new CorpseRotSchedule(definition.RowCount))
         {
             Flesh = definition.Kind,
         };
@@ -111,11 +104,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Colouring = new EncounterSpriteColouring(TourianCorpseColourDefinitions.DrainedCorpses);
         state.Function = DeadTourianCorpseFunction.Waiting;
         Extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
-        CorpseRottingTableProcessor.Initialize(state.RotTable);
         _deadMonsters.BeginRot(state.Flesh);
     }
 
-    /// <summary>Runs shared dispatcher <c>$A9:D8DB</c>: collision starts a 16-frame delay, then the corpse rots until its table is exhausted.</summary>
+    /// <summary>Runs shared dispatcher <c>$A9:D8DB</c>: collision starts a 16-frame delay, then the corpse rots until its last row has fallen.</summary>
     private void RunDeadTourianCorpseMain(RoomEnemySlot slot, SamusState? samus)
     {
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
@@ -161,17 +153,13 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             TriggerDeadTourianCorpseRotting(slot);
     }
 
-    /// <summary>Advances the rot table once and selects the step as the rot its kind shows, entering inert AI when it completes.</summary>
+    /// <summary>Runs one rot call and selects the step as the rot its kind shows, entering inert AI when it completes.</summary>
     private void RunDeadTourianCorpseRotting(
         RoomEnemySlot slot,
         DeadTourianCorpseEnemyState state)
     {
         state.ProcessCallCount++;
-        bool stillRotting = CorpseRottingTableProcessor.Step(
-            state.RotTable,
-            state.YLimit,
-            state.LateMoveEntryIndex,
-            entryIndex => FinishDeadTourianCorpseRow(slot, state));
+        bool stillRotting = state.Rot.Step(_ => FinishDeadTourianCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadTourianCorpseFunction.Finished;
         _deadMonsters.ShowRotStep(state.Flesh);

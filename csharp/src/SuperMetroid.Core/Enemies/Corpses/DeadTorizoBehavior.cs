@@ -21,7 +21,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DeadTorizoEntity(this, slot, common);
 
-    /// <summary>Supplies corpse scratch WRAM, installed tiles, and the shared random seed.</summary>
+    /// <summary>Supplies the shared random seed.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Supplies the enemy-frame counter used to cadence rotting sounds.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -63,18 +63,12 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
         slot.Colouring = new GraphicsSetMemberColouring(EnemyDefinitionId.CorpseTorizo);
 
-        DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
-        int yLimit = definition.EntryCount - 1;
-        DeadTorizo = new DeadTorizoEnemyState(slot,
-            new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset },
-            _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount))
+        DeadTorizo = new DeadTorizoEnemyState(slot, new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount))
         {
             Function = DeadTorizoFunction.Wait,
             Velocity = new(default, new SignedEightEight(8)),
         };
         slot.SetSpeciesState(DeadTorizo, DeadTorizo.ClearWithRecord);
-
-        CorpseRottingTableProcessor.Initialize(DeadTorizo.RotTable);
     }
 
     /// <summary>Ports <c>DeadTorizo_Main</c> at <c>$A9:D368</c>.</summary>
@@ -123,17 +117,13 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         ShowNextRotHalf(state);
     }
 
-    /// <summary>Advances sand rows, corpse motion, and one step of the native rotting table.</summary>
+    /// <summary>Advances the corpse's fall and runs one rot call of its schedule.</summary>
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 1))));
         MoveWithEightEightVelocity(slot, state.Velocity);
         state.ProcessCallCount++;
-        bool stillRotting = CorpseRottingTableProcessor.Step(
-            state.RotTable,
-            state.YLimit,
-            state.LateMoveEntryIndex,
-            _ => FinishDeadTorizoCorpseRow(state));
+        bool stillRotting = state.Rot.Step(_ => FinishDeadTorizoCorpseRow(state));
         if (!stillRotting)
             state.Function = DeadTorizoFunction.NoOperation;
     }

@@ -227,7 +227,7 @@ internal static class DeadTorizoArtworkVerification
 
     /// <summary>The first <paramref name="length"/> bytes of the staged sand strips.</summary>
     private static byte[] Sand(CorpseStaging staging, int length) =>
-        staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.CorpseRottingHeap + EnemyStagingDefinitions.DeadTorizoSandOffset, length, 0));
+        staging.Upload(new CorpseRotRow(0, EnemySourceDefinitions.CorpseRottingHeap + EnemySourceDefinitions.DeadTorizoSandOffset, length, 0));
 
     /// <summary>Renders the corpse hook's published frame as the OAM image it stands for.</summary>
     internal static OamBuffer DrawDeadTorizoCorpseFrame(InstalledEnemyArtwork artwork, Position16<RoomPixels> camera)

@@ -2,7 +2,9 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Enemies.Corpses;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -10,21 +12,19 @@ using SuperMetroid.Core.World;
 /// <summary>Checks alive and dead Sidehopper corpse metadata and production initialization.</summary>
 internal static class DeadSidehopperCorpseDefinitionsVerification
 {
-    /// <summary>Configuration word indices with a compiled consumer; word five, the graphics-initialization callback, has none.</summary>
-    private static readonly int[] ConsumedConfigurationWords =
-        [0, 1, 4];
-
     /// <summary>Compares both native configuration records and initialized rotting state without metadata rereads.</summary>
     internal static void VerifyDeadSidehopperCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDefinition), () => VerifyDefinition(
             rom,
             DeadSidehopperCorpseDefinitions.InitiallyAlive,
-            configurationPointer: 0xdd68));
+            configurationPointer: 0xdd68,
+            graphicsVariant: 0));
         Suite(nameof(VerifyDefinition), () => VerifyDefinition(
             rom,
             DeadSidehopperCorpseDefinitions.InitiallyDead,
-            configurationPointer: 0xdd78));
+            configurationPointer: 0xdd78,
+            graphicsVariant: 2));
 
         Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
             parameter1: 0,
@@ -36,27 +36,27 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             DeadSidehopperCorpseDefinitions.InitiallyDead));
 
         Console.WriteLine(
-            "Dead sidehopper corpse definitions: all 14 consumed native configuration words, two derived wrap offsets, and both production initializers pass with migrated metadata reads forbidden.");
+            "Dead sidehopper corpse definitions: both decoded configuration records' kinds, heights, row layouts and wraps, and both production initializers' own fresh rot schedules pass.");
     }
 
-    /// <summary>Compares the consumed words and rotation-derived wrap offset of one corpse record.</summary>
+    /// <summary>
+    /// Compares one corpse record, decoded by the codec, with the typed definition and the extraction's row movers: the
+    /// kind whose upload list it names, the corpse's height, its row layout and its wrap.
+    /// </summary>
     private static void VerifyDefinition(
         SuperMetroidAddressSpace rom,
         DeadSidehopperCorpseDefinition definition,
-        ushort configurationPointer)
+        ushort configurationPointer,
+        int graphicsVariant)
     {
-        int address = 0xa90000 | configurationPointer;
-        ushort Word(int index) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-        ushort[] actual = [definition.RottingTablePointer, definition.RowUploadPointer, checked((ushort)definition.EntryCount)];
-        AssertTrue(actual.SequenceEqual(ConsumedConfigurationWords.Select(Word)),
-            $"dead sidehopper configuration $A9:{configurationPointer:X4}");
-
-        ushort rotationTable = Word(6);
-        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(rotationTable + 2))));
-        AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
-            $"dead sidehopper configuration $A9:{configurationPointer:X4} wrap offset");
-        AssertEqual(CorpseRowLayouts.TableAddress(RottingCorpseSpecies.Sidehopper), rotationTable,
-            $"dead sidehopper configuration $A9:{configurationPointer:X4} names the sidehopper tile-row layout production copies with");
+        CorpseRottingConfiguration configuration = CorpseRottingConfigurationCodec.Decode(rom, configurationPointer);
+        string context = $"dead sidehopper configuration $A9:{configurationPointer:X4}";
+        AssertEqual<RottingCorpseKind?>(definition.Kind, configuration.Kind, $"{context} rots the kind whose upload list it names");
+        AssertEqual(definition.RowCount, configuration.RowCount, $"{context} corpse height");
+        AssertEqual(CorpseRowLayouts.TableAddress(RottingCorpseSpecies.Sidehopper), configuration.RowLayoutTable,
+            $"{context} names the sidehopper tile-row layout production copies with");
+        AssertEqual(configuration.Wrap, CorpseRowGeometry.Sidehopper(graphicsVariant).Wrap,
+            $"{context} wrap is the extraction's row movers'");
     }
 
     /// <summary>Checks the state installed for one alive or initially dead enemy parameter.</summary>
@@ -76,16 +76,9 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         DeadSidehopperEnemyState state = (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0]."));
         AssertEqual(graphicsVariant, state.GraphicsVariant,
             $"dead sidehopper parameter {parameter1} graphics variant");
-        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RotTableOffset, expected.EntryCount,
-            state.RotTable, $"dead sidehopper parameter {parameter1}");
+        CorpseRotScheduleChecks.AssertFreshSchedule(expected.RowCount, state.Rot, $"dead sidehopper parameter {parameter1}");
         AssertEqual(expected.Kind, state.Flesh,
             $"dead sidehopper parameter {parameter1} rots the configured kind of corpse");
-        AssertEqual(expected.EntryCount - 1, state.YLimit,
-            $"dead sidehopper parameter {parameter1} Y limit");
-        AssertEqual(expected.EntryCount - 2, state.LateMoveEntryIndex,
-            $"dead sidehopper parameter {parameter1} late-move row");
-        AssertEqual(expected.WrapOffset, state.WrapOffset,
-            $"dead sidehopper parameter {parameter1} wrap offset");
     }
 
 

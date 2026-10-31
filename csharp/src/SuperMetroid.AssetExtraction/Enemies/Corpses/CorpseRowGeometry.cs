@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
@@ -15,21 +16,21 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 internal sealed record CorpseRowGeometry(bool InHeap, int Rows, int TilesPerRow, int[] ColumnWords, int[] ColumnMinimumY, int CopyLimit, int Wrap)
 {
     /// <summary>The Sidehopper corpse's movers for graphics variant <paramref name="graphicsVariant"/> (population parameter 0 or 2).</summary>
-    internal static CorpseRowGeometry Sidehopper(int graphicsVariant, int wrap) => InBg2(RottingCorpseSpecies.Sidehopper,
+    internal static CorpseRowGeometry Sidehopper(int graphicsVariant) => InBg2(RottingCorpseSpecies.Sidehopper,
         [.. Enumerable.Range(0, 5).Select(column => CorpseStagingGeometryDefinitions.SidehopperColumnWordOffset(graphicsVariant, column))],
         [.. Enumerable.Range(0, 5).Select(column => CorpseStagingGeometryDefinitions.SidehopperColumnMinimumY(graphicsVariant, column))],
-        copyLimit: 38, wrap);
+        copyLimit: 38);
 
     /// <summary>A dead Zoomer's, Ripper's or Skree's movers for its variant <paramref name="layout"/>, which move every column from the top.</summary>
-    internal static CorpseRowGeometry Tourian(DeadTourianCorpseSpecies species, DeadTourianCorpseVariant layout,
-        int wrap) => InBg2(DeadTourianCorpseStagingDefinitions.RowLayout(species), [.. layout.ColumnWordOffsets.Select(offset => (int)offset)],
-            new int[layout.ColumnWordOffsets.Length], layout.MaximumY, wrap);
+    internal static CorpseRowGeometry Tourian(DeadTourianCorpseSpecies species, DeadTourianCorpseVariant layout) =>
+        InBg2(DeadTourianCorpseStagingDefinitions.RowLayout(species), [.. layout.ColumnWordOffsets.Select(offset => (int)offset)],
+            new int[layout.ColumnWordOffsets.Length], layout.MaximumY);
 
     /// <summary>The dead Torizo's movers.</summary>
     internal static CorpseRowGeometry Torizo { get; } = InBg2(RottingCorpseSpecies.Torizo,
         [.. Enumerable.Range(0, DeadTorizoGeometryDefinitions.Columns).Select(DeadTorizoGeometryDefinitions.ColumnWordOffset)],
         [.. Enumerable.Range(0, DeadTorizoGeometryDefinitions.Columns).Select(DeadTorizoGeometryDefinitions.ColumnMinimumY)],
-        copyLimit: 94, DeadTorizoCorpseDefinitions.Corpse.WrapOffset);
+        copyLimit: 94);
 
     /// <summary>
     /// Mother Brain's corpse's movers ($A9:EA40-$EB07): its rows' last two pixel rows land in the next row of characters, and
@@ -40,10 +41,14 @@ internal sealed record CorpseRowGeometry(bool InHeap, int Rows, int TilesPerRow,
         [.. Enumerable.Range(0, MotherBrainCorpseArtworkDefinitions.ColumnCount).Select(MotherBrainCorpseSheet.ColumnMinimumY)],
         CopyLimit: MotherBrainCorpseRottingState.EntryCount - 2, Wrap: 212);
 
-    /// <summary>Movers of a corpse staged in the enemy BG2 buffer, laid out as <paramref name="table"/> lays its rows.</summary>
-    private static CorpseRowGeometry InBg2(RottingCorpseSpecies table, int[] columnWords, int[] columnMinimumY, int copyLimit, int wrap)
+    /// <summary>
+    /// Movers of a corpse staged in the enemy BG2 buffer, laid out as <paramref name="table"/> lays its rows: a row falling
+    /// out of a character's last two rows skips the rest of its row of characters.
+    /// </summary>
+    private static CorpseRowGeometry InBg2(RottingCorpseSpecies table, int[] columnWords, int[] columnMinimumY, int copyLimit)
     {
         CorpseRotationExtent extent = CorpseStagingGeometryDefinitions.RotationExtent(table);
-        return new(InHeap: false, extent.Count, extent.Tiles, columnWords, columnMinimumY, copyLimit, wrap);
+        return new(InHeap: false, extent.Count, extent.Tiles, columnWords, columnMinimumY, copyLimit,
+            extent.Tiles * SpriteArtwork.CharacterByteCount - CorpseStagingGeometryDefinitions.WrapCarryBack);
     }
 }

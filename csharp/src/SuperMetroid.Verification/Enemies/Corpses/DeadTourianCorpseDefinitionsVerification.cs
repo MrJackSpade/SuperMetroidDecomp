@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.Core;
+using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Enemies.Corpses;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -13,6 +14,12 @@ using SuperMetroid.Core.World;
 /// <summary>Checks dead Tourian Zoomer, Ripper, and Skree variant metadata against cartridge tables and live setup.</summary>
 internal static class DeadTourianCorpseDefinitionsVerification
 {
+    /// <summary>The bank-$A9 configuration record of the initially living Shitroid victim's corpse.</summary>
+    private const ushort SidehopperInitiallyAliveConfiguration = 0xdd68;
+
+    /// <summary>The bank-$A9 configuration record of the already dead Tourian sidehopper's corpse.</summary>
+    private const ushort SidehopperInitiallyDeadConfiguration = 0xdd78;
+
     /// <summary>Each species' corpse, variant count and native instruction and configuration selector tables.</summary>
     private static readonly DeadTourianCorpseDefinitionsFamily[] Families =
         [
@@ -55,26 +62,56 @@ internal static class DeadTourianCorpseDefinitionsVerification
         AssertThrows<ArgumentOutOfRangeException>(
             () => DeadTourianCorpses.For((DeadTourianCorpseSpecies)3, 0),
             "unknown dead Tourian corpse species");
+        VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(rom);
         Console.WriteLine(
-            "Dead Tourian corpse definitions: 16 selectors, 64 configuration words, eight derived wrap offsets, and all eight real initializers pass with migrated metadata reads forbidden.");
+            "Dead Tourian corpse definitions: 16 selectors, eight decoded configuration records' kinds, heights, row layouts and wraps, all eight real initializers' own fresh rot schedules, and disjoint retail heap placement pass.");
     }
 
-    /// <summary>Checks the consumed configuration words and derives the wrap offset from the rotation table.</summary>
+    /// <summary>
+    /// Confirms the finding that lets each corpse own its rot schedule (#1472): the cartridge keeps every dead monster's
+    /// schedule in one shared heap, but the ten records of the dead monsters, which the Shitroid room holds together, place
+    /// their schedules in pairwise disjoint heap bytes, so no corpse's rot reaches another's.
+    /// </summary>
+    private static void VerifyCoexistingDeadMonsterSchedulesShareNoHeapBytes(SuperMetroidAddressSpace rom)
+    {
+        var schedules = new List<CorpseRottingConfiguration>
+        {
+            CorpseRottingConfigurationCodec.Decode(rom, SidehopperInitiallyAliveConfiguration),
+            CorpseRottingConfigurationCodec.Decode(rom, SidehopperInitiallyDeadConfiguration),
+        };
+        foreach (var family in Families)
+        {
+            for (int variantIndex = 0; variantIndex < family.VariantCount; variantIndex++)
+                schedules.Add(CorpseRottingConfigurationCodec.Decode(rom, ConfigurationPointer(rom, family.Species, variantIndex)));
+        }
+
+        for (int first = 0; first < schedules.Count; first++)
+        {
+            for (int second = first + 1; second < schedules.Count; second++)
+            {
+                AssertTrue(!schedules[first].ScheduleHeapBytes.Overlaps(schedules[second].ScheduleHeapBytes),
+                    $"{schedules[first].Kind} and {schedules[second].Kind} rot schedules share no heap byte");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Compares one decoded configuration record with the typed definition and the extraction's row movers: the kind whose
+    /// upload list it names, the corpse's height and its wrap.
+    /// </summary>
     private static void VerifyDeadTourianCorpseConfiguration(
         SuperMetroidAddressSpace rom,
         DeadTourianCorpseSpecies species,
         int variantIndex,
         DeadTourianCorpseDefinition definition)
     {
-        int address = 0xa90000 | ConfigurationPointer(rom, species, variantIndex);
-        ushort Word(int index) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-        ushort[] actual = [definition.RottingTablePointer, definition.RowUploadPointer, checked((ushort)definition.EntryCount)];
-        AssertTrue(actual.SequenceEqual(new[] { Word(0), Word(1), Word(4) }),
-            $"dead {species} variant {variantIndex} configuration words");
-
-        ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(Word(6) + 2))));
-        AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
-            $"dead {species} variant {variantIndex} wrap offset");
+        CorpseRottingConfiguration configuration = CorpseRottingConfigurationCodec.Decode(rom, ConfigurationPointer(rom, species, variantIndex));
+        AssertEqual<RottingCorpseKind?>(definition.Kind, configuration.Kind,
+            $"dead {species} variant {variantIndex} rots the kind whose upload list its record names");
+        AssertEqual(definition.RowCount, configuration.RowCount, $"dead {species} variant {variantIndex} corpse height");
+        AssertEqual(configuration.Wrap,
+            CorpseRowGeometry.Tourian(species, DeadTourianCorpseStagingDefinitions.Variants(species)[variantIndex]).Wrap,
+            $"dead {species} variant {variantIndex} wrap is the extraction's row movers'");
     }
 
     /// <summary>Checks one corpse initializer's installed instruction, rot table, callbacks, and row limits.</summary>
@@ -101,19 +138,12 @@ internal static class DeadTourianCorpseDefinitionsVerification
         AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(expected.InitialProgram),
             enemies.DeadTourianBehavior.Extensions[slot.SlotIndex].Program,
             $"dead {species} variant {variantIndex} started animation");
-        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RotTableOffset, expected.EntryCount,
-            state.RotTable, $"dead {species} variant {variantIndex}");
+        CorpseRotScheduleChecks.AssertFreshSchedule(expected.RowCount, state.Rot, $"dead {species} variant {variantIndex}");
         AssertEqual(expected.Kind, state.Flesh,
             $"dead {species} variant {variantIndex} rots the configured kind of corpse");
         AssertEqual(CorpseRowLayouts.TableAddress(DeadTourianCorpseStagingDefinitions.RowLayout(state.Species)),
-            CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa90000 | (ConfigurationPointer(rom, species, variantIndex) + 12)),
+            CorpseRottingConfigurationCodec.Decode(rom, ConfigurationPointer(rom, species, variantIndex)).RowLayoutTable,
             $"dead {species} variant {variantIndex} configuration names the tile-row layout production copies with");
-        AssertEqual(expected.EntryCount - 1, state.YLimit,
-            $"dead {species} variant {variantIndex} Y limit");
-        AssertEqual(expected.EntryCount - 2, state.LateMoveEntryIndex,
-            $"dead {species} variant {variantIndex} late-move row");
-        AssertEqual(expected.WrapOffset, state.WrapOffset,
-            $"dead {species} variant {variantIndex} wrap offset");
     }
 
 

@@ -19,7 +19,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DeadSidehopperEntity(this, slot, common);
 
-    /// <summary>Provides scratch tables, installed artwork, and the room random source for corpse decomposition.</summary>
+    /// <summary>Provides installed artwork and the room random source for corpse decomposition.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Handles level collision after the scripted opening movement reaches the terrain boundary.</summary>
     private readonly EnemyTerrain _terrain;
@@ -139,26 +139,18 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
     }
 
-    /// <summary>Allocates slot state, resets the rotation table, and installs the selected corpse tile variant.</summary>
+    /// <summary>Allocates slot state with the corpse's own rot schedule, and starts its kind's rot over.</summary>
     private DeadSidehopperEnemyState InitializeDeadSidehopperCorpseState(
         RoomEnemySlot slot,
         int graphicsVariant,
         DeadSidehopperCorpseDefinition definition)
     {
-        // Two rows is the smallest corpse whose late-move entry (height less two) is a real entry index.
-        if (definition.EntryCount < 2)
-            throw new InvalidDataException("Dead sidehopper corpse configuration has fewer than two rows.");
-
-        int yLimit = definition.EntryCount - 1;
-        var state = new DeadSidehopperEnemyState(slot, graphicsVariant,
-            new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset },
-            _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount))
+        var state = new DeadSidehopperEnemyState(slot, graphicsVariant, new CorpseRotSchedule(definition.RowCount))
         {
             Flesh = definition.Kind,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        CorpseRottingTableProcessor.Initialize(state.RotTable);
         _deadMonsters.BeginRot(state.Flesh);
         return state;
     }
@@ -432,17 +424,13 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
     }
 
-    /// <summary>Processes one rotation-table step and its dust callback, and selects the step as the rot its kind shows.</summary>
+    /// <summary>Runs one rot call and its dust, and selects the step as the rot its kind shows.</summary>
     private void RunDeadSidehopperRotting(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
     {
         state.ProcessCallCount++;
-        bool stillRotting = CorpseRottingTableProcessor.Step(
-            state.RotTable,
-            state.YLimit,
-            state.LateMoveEntryIndex,
-            entryIndex => FinishDeadSidehopperCorpseRow(slot, state));
+        bool stillRotting = state.Rot.Step(_ => FinishDeadSidehopperCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
         _deadMonsters.ShowRotStep(state.Flesh);

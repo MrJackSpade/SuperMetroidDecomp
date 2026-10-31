@@ -62,11 +62,6 @@ internal sealed class MotherBrainHead
                 $"Mother Brain's head requires native slot one, not slot {head.SlotIndex}.");
         }
 
-        // The cartridge seeds the complete future corpse effect during room load, not when
-        // Mother Brain dies. Keeping this eager call preserves the exact WRAM state visible
-        // throughout every earlier phase and prevents the death sequence from inventing it.
-        state.CorpseRotting.Initialize(_room.Staging);
-
         head.Health = 3000;
         // `$A9:8714` gives the head enemy the dummy program for life (the encounter state's
         // head-slot cursor starts there): its $A320 frame is the head's collision hitbox.

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Bosses.Artwork;
@@ -13,23 +12,17 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Mother Brain's final death and the escape it starts: explosions, the fades, the corpse, the escape text, timer and door.</summary>
 internal sealed class MotherBrainThirdPhaseDeath
 {
-    /// <summary>Advances the post-fight corpse animation and its room effects.</summary>
+    /// <summary>The corpse rotting away after the final death, with its own rot schedule.</summary>
     internal readonly MotherBrainCorpseRottingState CorpseRotting = new();
 
     /// <summary>The state every late-fight phase reads and writes: the body function and its timer, the neck and head programs, the brain's flags and the earthquake, with the walking and posture requests they share.</summary>
     private readonly MotherBrainLateFightState _state;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainThirdPhaseDeath(EnemyStagingSurfaces? corpseStaging, MotherBrainLateFightState state)
+    internal MotherBrainThirdPhaseDeath(MotherBrainLateFightState state)
     {
-        CorpseStaging = corpseStaging;
         _state = state;
     }
-
-    /// <summary>The bound staging surfaces; corpse rotting requires them.</summary>
-    [AllowNull]
-    private EnemyStagingSurfaces CorpseStaging => field ?? throw new InvalidDataException(
-        "Mother Brain corpse rotting requires the room's enemy staging surfaces.");
 
     /// <summary>
     /// Exact body enemy property word touched by `$A9:AEE1` and `$A9:AFF7`. Keeping the raw
@@ -98,12 +91,6 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// starts falling. The separate brain AI is not silently folded into the body function.
     /// </summary>
     public bool BrainDrawSetupRequested { get; private set; }
-
-    /// <summary>
-    /// Executes the corpse-table and graphics-buffer half of head initialization
-    /// <c>$A9:8705-$870B</c>. A real encounter calls this once when the brain enemy spawns.
-    /// </summary>
-    public void InitializeCorpseRotting() => CorpseRotting.Initialize(CorpseStaging);
 
     /// <summary>Selects the next corpse page, rejecting calls after the last has shown.</summary>
     private MotherBrainSpritePage NextCorpsePage()
@@ -518,16 +505,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// </summary>
     internal bool RunThirdPhaseDeathCorpseRotsAway(RainbowBeamAttackFrame frame, MotherBrainRainbowBeamStepRequests requests)
     {
-        // Retail initialization happens when the brain enemy slot is created, many
-        // phases before death. Keep an explicit public initializer for that normal
-        // route, but lazily perform the same work for focused debugger fixtures that
-        // start at a late phase. Nothing touches this private table/buffer in between,
-        // so the delayed call is state-equivalent while preventing a fake host setup.
-        if (!CorpseRotting.IsInitialized)
-            InitializeCorpseRotting();
-
         MotherBrainCorpseRottingStepResult corpseRotting = CorpseRotting.Step(
-            CorpseStaging,
             _state.BrainPosition,
             frame.RandomNumberSeed,
             frame.MainEnemyExecutionCounter);

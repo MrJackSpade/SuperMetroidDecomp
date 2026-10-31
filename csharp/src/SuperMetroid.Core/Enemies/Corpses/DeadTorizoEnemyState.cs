@@ -1,32 +1,23 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// Dead Torizo's corpse state: its function and velocity, rot table and schedule, the rot step each half of its rows
+/// Dead Torizo's corpse state: its function and velocity, rot schedule, the rot step each half of its rows
 /// shows, contact delay and sand-heap progress. The function and velocity are values the cartridge keeps in the enemy's common record, emptied
 /// with it when the corpse is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class DeadTorizoEnemyState
 {
-    /// <summary>Captures the corpse's rot schedule for this actor.</summary>
-    internal DeadTorizoEnemyState(RoomEnemySlot slot, CorpseRottingProgram rotting, CorpseRotTable rotTable)
+    /// <summary>Captures the corpse's own rot schedule.</summary>
+    internal DeadTorizoEnemyState(RoomEnemySlot slot, CorpseRotSchedule rot)
     {
         Slot = slot;
-        RotTable = Ensure.NotNull(rotTable);
-        YLimit = rotting.YLimit;
-        LateMoveEntryIndex = rotting.LateMoveEntryIndex;
-        WrapOffset = rotting.WrapOffset;
+        Rot = Ensure.NotNull(rot);
     }
 
     /// <summary>Physical enemy slot zero, owning the corpse's position and collision/instruction words.</summary>
     public RoomEnemySlot Slot { get; }
-    /// <summary>The corpse's ninety-six (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row.</summary>
-    internal CorpseRotTable RotTable { get; }
-    /// <summary>Corpse height less one, 95: a moved row completes when its next pixel Y reaches this boundary, which also identifies the final entry.</summary>
-    public int YLimit { get; }
-    /// <summary>Corpse height less two, 94: this entry and the final entry use destructive moves even during their last three delay calls.</summary>
-    public int LateMoveEntryIndex { get; }
-    /// <summary>Byte displacement, 308, applied when source pixel Y modulo eight is 6 or 7 so the two-pixel downward destination lands in the next tile row.</summary>
-    public int WrapOffset { get; }
+    /// <summary>The corpse's own rot schedule: the fall of each of its ninety-six pixel rows.</summary>
+    internal CorpseRotSchedule Rot { get; }
 
     /// <summary>
     /// Whether the half of the corpse's rows shown last is the odd half: body rows 6-11 and the first sand strip. Every

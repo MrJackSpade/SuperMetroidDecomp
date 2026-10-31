@@ -2,7 +2,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// Validated decoding of native sixteen-bit words that select a member of a closed enum, for the verification importers
-/// and native snapshots; cartridge import decodes byte selectors through <see cref="ClosedEnumWords"/>.
+/// and native snapshots; byte selectors decode through the verification importers' <c>ClosedEnumWords</c>.
 /// </summary>
 internal static class ClosedEnumWordDecoding
 {

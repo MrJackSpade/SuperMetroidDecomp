@@ -92,7 +92,7 @@ internal static class SamusAnimationProgramCodec
     }
 
     /// <summary>The window position the table's word for pose number <paramref name="pose"/> names.</summary>
-    private static int ProgramStart(IImportCartridgeSource cartridge, int pose) =>
+    internal static int ProgramStart(IImportCartridgeSource cartridge, int pose) =>
         cartridge.ReadCartridgeWord(PoseTable + pose * sizeof(ushort));
 
     /// <summary>The program byte at window position <paramref name="position"/>.</summary>

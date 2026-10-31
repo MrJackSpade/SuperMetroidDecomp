@@ -36,7 +36,7 @@ internal static class ProjectileTrailDefinitionsVerification
             if ((selection & 0x20) != 0 && selection is not (0x24 or 0x29))
                 continue;
             spawned++;
-            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
+            var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             var projectile = new SamusProjectileSlot(0)
             {
                 Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(selection),

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -24,7 +25,7 @@ internal static class WallProbeBombBlockVerification
             for (int y = 1; y < 6; y++)
                 foreground[y * width + 4] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.BombableBlock);
             RoomLevelData level = CreateRoom(new(width, height), foreground, new RoomBlockBehavior[foreground.Length]);
-            var samus = new SamusState { Pose = pose };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose };
             SamusKinematicsState state = samus.Kinematics;
             state.Position = state.Position.WithWholeX(58).WithFractionX(fraction).WithWholeY(48);
             state.Radius = new(5, 5);

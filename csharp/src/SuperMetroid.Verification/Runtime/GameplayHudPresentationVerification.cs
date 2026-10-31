@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
@@ -42,7 +43,7 @@ internal static class GameplayHudPresentationVerification
                 InHudRange(address, HudSourceDefinitions.AmmoDigits, 20) ||
                 InHudRange(address, HudSourceDefinitions.AutoReserve, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
-        var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        var topRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), InstalledFixtures.SamusOverreads, initialPaletteArt: initialPalettes);
         topRowRuntime.Artwork.MapPresentation = original;
         // The HUD draws its images over the BG3 plane's top rows (#1466): its current images, as the installed artwork lays
         // their tiles out, show the installed HUD row.
@@ -67,7 +68,7 @@ internal static class GameplayHudPresentationVerification
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed HUD template, icons, tanks, counters, AUTO and highlight match native");
 
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Health = 287,
             MaxHealth = 499,
@@ -115,7 +116,7 @@ internal static class GameplayHudPresentationVerification
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "gameplay HUD override changes selected catalog identity");
-        var editedTopRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        var editedTopRowRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), InstalledFixtures.SamusOverreads, initialPaletteArt: initialPalettes);
         editedTopRowRuntime.Artwork.MapPresentation = edited;
         GameplayHudArtwork editedArtwork = GameplayHudArtwork.Of(edited.GameplayHud);
         AssertTrue(editedArtwork.Rows(editedTopRowRuntime.Hud.Shown())[..GameplayHudDefinitions.TopRowCellCount]

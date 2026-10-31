@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -13,7 +14,7 @@ internal static class ProjectileOriginsVerification
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         var initialize = new Action<SamusState, SamusProjectileSlot>(BeamFiring.InitializePosition);
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         var slot = new SamusProjectileSlot(0);
 
         void Check(SamusPoseId pose, SamusProjectileDirection direction, ushort x, ushort y)

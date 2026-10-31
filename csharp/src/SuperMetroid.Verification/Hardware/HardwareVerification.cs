@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hud;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
@@ -443,7 +444,7 @@ internal static void VerifyControllerInputLatch()
 /// </summary>
 internal static void VerifyFrameRuntime()
 {
-    var infiniteAmmoSamus = new SamusState
+    var infiniteAmmoSamus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Missiles = 1,
         MaxMissiles = 5,
@@ -475,7 +476,7 @@ internal static void VerifyFrameRuntime()
     AssertEqual(1, infiniteAmmoSamus.Missiles,
         "repeated frame-exit reconciliation cannot remove the one-unit floor");
 
-    var pickupDuringLoan = new SamusState { Missiles = 1, MaxMissiles = 5 };
+    var pickupDuringLoan = new SamusState(InstalledFixtures.AnimationContinuation) { Missiles = 1, MaxMissiles = 5 };
     HostInfiniteAmmoFrameGuard pickupGuard =
         HostInfiniteAmmoFrameGuard.Begin(enabled: true, pickupDuringLoan);
     pickupDuringLoan.Missiles += 2;

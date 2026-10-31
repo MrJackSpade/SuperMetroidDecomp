@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidBodyContourVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
@@ -36,7 +37,7 @@ internal static class KraidContourCaseMappingsVerification
         var enemies = new RoomEnemySystem(new EnemySession());
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.SlotTable.Slots[0];
-        var shot = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None).Slots[0];
+        var shot = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads).Slots[0];
         body.Position = body.Position.WithWhole(new(256, 32768));
         shot.Radius = shot.Radius.WithX(0);
         foreach (short y in new short[] { -32768, -31746, -31745 })

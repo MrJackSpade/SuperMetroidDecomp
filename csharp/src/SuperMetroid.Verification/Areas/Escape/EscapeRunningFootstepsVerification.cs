@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -26,7 +27,7 @@ internal static class EscapeRunningFootstepsVerification
         foreach (bool able in new[] { false, true })
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
-            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             if (able) samus.Drained.SetupForRainbowBeamAbleToStand(samus);
@@ -44,7 +45,7 @@ internal static class EscapeRunningFootstepsVerification
             var request = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
             AssertTrue(request.TimerHandlingEnableRequested && request.MotherBrainEscapeTimerStartRequested,
                 "native death phase emits command F and timer start together");
-            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
+            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, InstalledFixtures.SamusOverreads, initialPaletteArt: BombTorizoHandFixturePalette());
             runtime.Player.Samus = samus;
             var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]);
             runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;

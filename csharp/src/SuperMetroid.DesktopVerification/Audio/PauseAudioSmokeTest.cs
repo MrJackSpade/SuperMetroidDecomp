@@ -160,7 +160,7 @@ public static class PauseAudioSmokeTest
         var system = new SharedGameState();
         system.SetBossBits(0, BossBits.AreaTorizo);
         system.MarkSaveStationUsed(0, 0);
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Health = 99,
             MaxHealth = 99,

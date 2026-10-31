@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -17,7 +18,7 @@ internal static class GunshipDustDefinitionsVerification
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var spawn = new Action<int, SamusState>(enemies.Projectiles.SpawnGunshipLiftoffDustCloud);
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         var slot = enemies.Projectiles.EnemyProjectiles[^1];
         for (ushort parameter = 0; parameter <= 10; parameter += 2)
         {

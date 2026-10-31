@@ -73,7 +73,7 @@ internal static class GrappleConnectionDefinitionsVerification
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
         var metadata = NewGrappleFiringReadGuard(rom, () => metadataPose);
         var guard = NewGrappleConnectionReadGuard(metadata);
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
         samus.Grapple.SwingFrames = SuperMetroid.Core.Samus.Artwork.InstalledGrappleSwingFrames.Load(
@@ -137,7 +137,7 @@ internal static class GrappleConnectionDefinitionsVerification
         for (int record = 0; record < native.Length; record++)
             AssertEqual(native[record], GrappleConnections.SpecialAngle(record), $"Native special-angle record {record}");
         AssertThrows<ArgumentOutOfRangeException>(() => GrappleConnections.SpecialAngle(native.Length), "Special-angle bound");
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         samus.Grapple.FlarePlacement = SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacements.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
         var g = samus.Grapple;
@@ -192,7 +192,7 @@ internal static class GrappleConnectionDefinitionsVerification
         // bytes in a fake bus; that did not represent a cartridge-reachable state.
         var guard = NewGrappleConnectionReadGuard(rom);
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
-        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
         using var artworkDirectory = new TestScratchDirectory("map-catalog");
         SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));

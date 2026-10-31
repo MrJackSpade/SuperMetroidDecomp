@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -58,7 +59,7 @@ internal static class NullContractsVerification
         AssertThrows<InvalidOperationException>(() => _ = room.LoadedCamera, "room camera requires a loaded room");
         var player = new SamusFrameState(new SpriteColourSets());
         AssertThrows<InvalidOperationException>(() => _ = player.IntroducedSamus, "gameplay Samus requires her introduction");
-        player.Samus = new SamusState();
+        player.Samus = new SamusState(InstalledFixtures.AnimationContinuation);
         AssertTrue(ReferenceEquals(player.Samus, player.IntroducedSamus), "the introduced Samus is the attached actor");
         var phantoon = new PhantoonEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
         AssertThrows<InvalidOperationException>(() => _ = phantoon.Eye, "Phantoon's eye requires part initialization");

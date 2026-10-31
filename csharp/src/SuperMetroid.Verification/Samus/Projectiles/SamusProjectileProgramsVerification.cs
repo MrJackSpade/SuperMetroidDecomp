@@ -54,7 +54,7 @@ internal static class SamusProjectileProgramsVerification
                     AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radii), LittleEndianBytes.HighByte(radii)), record.Radius, $"{at}: radii");
                     AssertEqual(Word(cursor + 6), record.AnimationFrame, $"{at}: animation frame");
                     records.Add(cursor);
-                    cursor = unchecked((ushort)(cursor + InstalledProjectileListPositions.TimedRecordByteCount));
+                    cursor = unchecked((ushort)(cursor + SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount));
                     continue;
                 }
                 switch ((SamusProjectileInstruction)word)

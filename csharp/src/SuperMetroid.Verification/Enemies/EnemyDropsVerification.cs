@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Audio;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
@@ -78,7 +79,7 @@ internal static class EnemyDropsVerification
         enemy.Health = 1;
         enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
         enemy.Properties = (EnemyProperties.RespawnIfKilled);
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         var colours = new SamusColourRig();
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, SamusColours = colours.Samus, ResolveSamusContactBeforeAi = true });
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId, "contact death retains respawn placeholder");

@@ -37,7 +37,7 @@ internal static void VerifySamusRenderingSlice()
     var bus = new TestAddressSpace();
     SeedPoseOneSamusData(bus);
 
-    var samus = new SamusState
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         AnimationFrame = 0,
@@ -96,7 +96,7 @@ internal static void VerifySamusRenderingSlice()
     // The item transition's two poses, chosen by equipment (#1473). Only the unused poses $3F/$40 hold one in retail;
     // pose $3F's run is one zero-tick frame, so the death-animation entry point, which shares the interpreter but needs no
     // gameplay movement metadata, reaches the transition on its first tick.
-    var itemTransitionSamus = new SamusState { Pose = SamusPoseId.UnusedPose3F };
+    var itemTransitionSamus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.UnusedPose3F };
     SamusPresentation.InitializeAnimation(itemTransitionSamus);
     SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.PendingTransitionalPose,
@@ -518,7 +518,7 @@ internal static void VerifySamusArmCannon()
     using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
     using var tiles = File.OpenRead(Path.Combine(directory, SamusArmCannonArtworkFormat.TileFileName));
     var artwork = InstalledSamusArmCannonArtworkTooling.Load(placement, tiles);
-    var samus = new SamusState
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         AnimationFrame = 0,
@@ -703,9 +703,9 @@ internal static void VerifySamusVisorPalette()
 
     // `HandleBeamChargePalettes` reaches the visor only through its no-charge branch.
     // This integration assertion prevents the exact state machine from becoming orphaned.
-    var integratedSamus = new SamusState();
+    var integratedSamus = new SamusState(InstalledFixtures.AnimationContinuation);
     integratedSamus.VisorPalette.PresentationColors = visorColors;
-    var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+    var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
     SamusBeamChargePaletteStepResult charge = projectiles.UpdateBeamChargePalette(
         cgram.Samus, integratedSamus,
         layerBlendingDefaultConfig: LayerBlendingConfiguration.VisorBackdrop28);
@@ -733,7 +733,7 @@ internal static void VerifySamusHurtFlashPalette()
     SeedHurtFlashPalettes(bus);
 
     var hurtColors = SamusHurtColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusHurtColorExtractor.Extract(bus)));
-    var samus = new SamusState
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit), // Both suit bits prove Gravity's native precedence.
@@ -806,7 +806,7 @@ internal static void VerifySamusHurtFlashPalette()
 
     // Cinematic call two suppresses impact audio and uses the dedicated intro palette in
     // place of equipment-selected colors. Odd call one remains the common hurt palette.
-    var cinematic = new SamusState { HurtFlashCounter = 2, EquippedItems = SamusEquipmentFlags.GravitySuit };
+    var cinematic = new SamusState(InstalledFixtures.AnimationContinuation) { HurtFlashCounter = 2, EquippedItems = SamusEquipmentFlags.GravitySuit };
     cinematic.LiquidPhysics.CinematicFunctionActive = true;
     SamusHurtFlashPalette.Update(
         cgram.Samus.Suit, cinematic, controllerInput: 0, presentationColors: hurtColors);
@@ -824,7 +824,7 @@ internal static void VerifySamusHurtFlashPalette()
     // must select `$33`; using the ROM movement-type byte keeps this a real dispatcher test.
     WritePoseDefinition(bus, (int)SamusPoseId.ScrewAttackRightPose,
         [0x08, 0x03, 0, 0, 0, 0, 0x15, 0]);
-    var spinning = new SamusState
+    var spinning = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.ScrewAttackRightPose,
         HurtFlashCounter = 39,
@@ -841,7 +841,7 @@ internal static void VerifySamusHurtFlashPalette()
     // queues `$41` only while Shoot is still held, then clears the latch in either case.
     WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
         [0x08, 0x00, 0, 0, 0, 0, 0x15, 0]);
-    var charging = new SamusState
+    var charging = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         HurtFlashCounter = 39,
@@ -864,7 +864,7 @@ internal static void VerifySamusHurtFlashPalette()
 
     // Grapple's pointer comparison accepts wall-grab release because its native handler is
     // still below `$C856`; cancel-pending is exactly the cutoff and must remain silent.
-    var grapple = new SamusState { HurtFlashCounter = 39 };
+    var grapple = new SamusState(InstalledFixtures.AnimationContinuation) { HurtFlashCounter = 39 };
     grapple.Grapple.Phase = GrapplePhase.WallGrabRelease;
     SamusHurtFlashPalette.Update(
         cgram.Samus.Suit, grapple, controllerInput: 0);
@@ -874,7 +874,7 @@ internal static void VerifySamusHurtFlashPalette()
         grapple.LiquidPhysics.SoundRequests[^1],
         "grapple recovery uses library one sound six maximum nine");
 
-    var cancelledGrapple = new SamusState { HurtFlashCounter = 39 };
+    var cancelledGrapple = new SamusState(InstalledFixtures.AnimationContinuation) { HurtFlashCounter = 39 };
     cancelledGrapple.Grapple.Phase = GrapplePhase.CancelPending;
     SamusHurtFlashPalette.Update(
         cgram.Samus.Suit, cancelledGrapple, controllerInput: 0);

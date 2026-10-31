@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -17,7 +18,7 @@ internal static class WallJumpExpansionVerification
             var entries = new RoomTerrainBlock[16 * 32];
             if (ceiling) entries[6 * 16 + (left ? 7 : 8)] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
             var room = CreateRoom(new(16, 32), entries, new RoomBlockBehavior[entries.Length]);
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(left ? (ushort)119 : (ushort)137, 127)),

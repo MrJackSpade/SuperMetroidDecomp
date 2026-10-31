@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -21,7 +22,7 @@ internal static class RidleyMissedLungeVerification
         var slot = enemies.SlotTable.Slots[0];
         slot.Health = 1000;
         slot.Position = slot.Position.WithWhole(new(160, 400));
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 420)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 420)) };
         var state = new RidleyEnemyState
         {
             Function = RidleyAiFunction.NorfairGrabApproach,

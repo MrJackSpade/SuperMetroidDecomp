@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
@@ -89,7 +90,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 bool translatedRecord = true;
                 try
                 {
-                    EnemySlotDispatch.RunInitializationAi(slot, EnemySpawnSurroundings.None with { Samus = new SamusState() });
+                    EnemySlotDispatch.RunInitializationAi(slot, EnemySpawnSurroundings.None with { Samus = new SamusState(InstalledFixtures.AnimationContinuation) });
                 }
                 catch (Exception exception)
                     when (IsUntranslatedEnemyInitializer(

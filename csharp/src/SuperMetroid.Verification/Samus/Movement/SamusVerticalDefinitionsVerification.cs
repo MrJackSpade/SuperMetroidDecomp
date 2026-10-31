@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Fx;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using SuperMetroid.Core.Samus;
@@ -16,7 +17,7 @@ internal static class SamusVerticalDefinitionsVerification
     internal static void VerifySamusVerticalDefinitions(SuperMetroidAddressSpace rom)
     {
         var guard = NewSlopeHeightNoReadBus();
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         int cases = 0;
         for (int equipment = 0; equipment < 8; equipment++)
         for (int environment = 0; environment < 4; environment++)

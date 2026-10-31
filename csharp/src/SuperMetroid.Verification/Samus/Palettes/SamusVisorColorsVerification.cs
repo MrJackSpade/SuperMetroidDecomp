@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Verification.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
@@ -155,7 +156,7 @@ internal static class SamusVisorColorsVerification
     /// <summary>Initializes a standing Samus actor and enters the stock X-ray beam sequence.</summary>
     private static SamusState CreateXraySamus()
     {
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
@@ -185,7 +186,7 @@ internal static class SamusVisorColorsVerification
         AreaMapPresentation edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "visor color override changes installed content identity");
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), InstalledFixtures.SamusOverreads, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

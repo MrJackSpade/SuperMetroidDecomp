@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -58,7 +59,7 @@ internal static class BoulderBehaviorVerification
             state.Function = BoulderAiFunction.Rebound;
             state.BounceSpeedAccumulator = start;
             var frame = new ClockedEnemyAiFrame(
-                new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(), Level = level },
+                new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation), Level = level },
                 new FrameCounters(0));
 
             enemies.BoulderBehavior.RunBoulderMainAi(slot, frame);

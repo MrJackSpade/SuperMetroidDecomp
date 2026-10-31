@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Hardware;
@@ -465,7 +466,7 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(!RoomBlockBehaviorValues.ScrollTrigger.TryGetStationAccess(out _),
         "non-station BTS rejects station view");
 
-    var typedPose = new SamusState();
+    var typedPose = new SamusState(InstalledFixtures.AnimationContinuation);
     typedPose.PoseId = SamusPoseId.ScrewAttackLeftPose;
     AssertEqual(SamusPoseId.ScrewAttackLeftPose, typedPose.Pose,
         "typed Samus pose writes the native byte");

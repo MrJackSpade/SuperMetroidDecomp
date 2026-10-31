@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -17,7 +18,7 @@ internal static class SpringBallBounceVerification
         var room = CreateRoom(new(16, 32), new RoomTerrainBlock[16 * 32], new RoomBlockBehavior[16 * 32]);
         foreach (SamusBallBounceState bounceState in new[] { SamusBallBounceState.SpringBallFirstRebound, SamusBallBounceState.None })
         {
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = SamusPoseId.SpringBallJumpRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x169)),

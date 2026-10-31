@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
@@ -53,7 +54,7 @@ internal static class BotwoonAttackCooldownVerification
         Console.WriteLine("  Botwoon attack cooldown: steps to zero, wraps and pins to zero, and gates the hidden spit on zero.");
 
         static ClockedEnemyAiFrame Frame() => new(
-            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState() },
+            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation) },
             new FrameCounters(0));
     }
 

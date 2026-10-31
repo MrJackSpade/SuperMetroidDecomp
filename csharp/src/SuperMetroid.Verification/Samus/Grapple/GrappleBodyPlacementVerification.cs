@@ -29,7 +29,7 @@ internal static class GrappleBodyPlacementVerification
                 _ => "Installed swing art still reads the ROM selector.")
             .Forbid(address => address is >= 0x9bc2c2 and < 0x9bc342,
                 address => $"Compiled Grapple body offset read ROM ${address:X6}.");
-        var samus = PrepareRetailSamusFixture(new SamusState());
+        var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation));
         byte[] json = GrappleSwingFrameExtractor.Extract(rom);
         var stock = InstalledGrappleSwingFrames.Load(new MemoryStream(json));
         var edited = InstalledGrappleSwingFrames.Load(new MemoryStream(InstalledGrappleSwingFrames.Write(new()
@@ -71,7 +71,7 @@ internal static class GrappleBodyPlacementVerification
         foreach (bool faceRight in new[] { false, true })
         for (int angle = 0; angle < 256; angle += 32)
         {
-            var native = PrepareRetailSamusFixture(new SamusState()); var changed = PrepareRetailSamusFixture(new SamusState());
+            var native = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation)); var changed = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation));
             native.Grapple.SwingFrames = stock; changed.Grapple.SwingFrames = edited;
             SamusGrappleMovement.ConnectUnobstructedSwing(bus, native, new Position16<RoomPixels>(512, 512), 32, RotationAngle.FromTableIndex(unchecked((byte)angle)), 128, faceRight);
             SamusGrappleMovement.ConnectUnobstructedSwing(bus, changed, new Position16<RoomPixels>(512, 512), 32, RotationAngle.FromTableIndex(unchecked((byte)angle)), 128, faceRight);

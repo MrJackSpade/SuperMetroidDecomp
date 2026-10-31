@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Enemies.Gunship.GunshipDustNativeListAddresses;
@@ -29,7 +30,7 @@ internal static class GunshipDustAnimationsVerification
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native gunship dust list at ${address:X6}.");
-            enemies.Projectiles.SpawnGunshipLiftoffDustCloud(parameter, new SamusState());
+            enemies.Projectiles.SpawnGunshipLiftoffDustCloud(parameter, new SamusState(InstalledFixtures.AnimationContinuation));
             RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
             GunshipDustProgram program = GunshipDust.ForParameter(parameter).Program;
             AssertTrue(dust.Animation is GunshipDustAnimation started && started.Cursor == AnimationProgramCursor<GunshipDustProgram>.Start(program),

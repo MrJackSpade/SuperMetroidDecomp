@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -23,7 +24,7 @@ internal static class NativeEnemyProjectileParity
         int update = 0;
         for (; update < updates; update++)
         {
-            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation), Position16<RoomPixels>.Zero);
             native.Step(cartridge);
             string at = $"{label} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");

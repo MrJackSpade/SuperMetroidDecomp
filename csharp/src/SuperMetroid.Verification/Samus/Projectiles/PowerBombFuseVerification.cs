@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Programs;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombRuntimeIntegrationVerification;
 using static SuperMetroid.Verification.Rendering.RenderingAndRoomsVerification;
@@ -52,8 +54,30 @@ internal static class PowerBombFuseVerification
                     $"{slow} position {position} switches to the same fast position");
         // Each counterpart is the position the native fuse reaches by adding its offset to the live list pointer.
         foreach (var counterpart in SamusPowerBombFuseData.FastCounterparts)
-            AssertEqual(unchecked((ushort)(SamusProjectileProgramAddresses.Address(counterpart.Key) + SamusPowerBombFuseData.FastAnimationOffset)),
+            AssertEqual(unchecked((ushort)(SamusProjectileProgramAddresses.Address(counterpart.Key) + SamusOverreadSourceDefinitions.FastAnimationOffset)),
                 SamusProjectileProgramAddresses.Address(counterpart.Value), $"{counterpart.Key} switches where the native list pointer lands");
+        // The Chainsaw beam runs the same fuse over its own list: for every animation position the installed service's
+        // landing is the list position the native pointer arithmetic reaches, and a position that reaches none has none.
+        int landings = 0;
+        foreach ((SamusProjectileProgram program, ushort[] places) in SamusProjectileProgramAddresses.StepAddresses)
+        {
+            for (int position = 0; position < places.Length; position++)
+            {
+                var cursor = new AnimationProgramCursor<SamusProjectileProgram>(program, position);
+                int landing = unchecked((ushort)(places[position] + SamusOverreadSourceDefinitions.FastAnimationOffset));
+                if (landing != 0 && SamusProjectileProgramAddresses.Layout.TryCursorAt(landing, out AnimationProgramCursor<SamusProjectileProgram> native))
+                {
+                    AssertEqual(native, InstalledFixtures.SamusOverreads.ChainsawFuseShift.Shift(cursor), $"Chainsaw fuse landing from {cursor}");
+                    landings++;
+                }
+                else
+                {
+                    AssertThrows<InvalidDataException>(() => InstalledFixtures.SamusOverreads.ChainsawFuseShift.Shift(cursor),
+                        $"Chainsaw fuse from {cursor} lands on no list position");
+                }
+            }
+        }
+        AssertTrue(landings > 0, "Some Chainsaw fuse moves land on a list position");
         Suite(nameof(VerifyPowerBombRetainedRadiusSpeed), () => VerifyPowerBombRetainedRadiusSpeed());
         Suite(nameof(VerifyPowerBombRadiusWrap), () => VerifyPowerBombRadiusWrap());
         Console.WriteLine("Power Bomb fuse: native boundary/flag/wrap cases and complete 60-frame fuse agree.");

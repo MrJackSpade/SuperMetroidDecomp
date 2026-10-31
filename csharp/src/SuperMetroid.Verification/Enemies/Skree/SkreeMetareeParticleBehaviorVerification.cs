@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Skree;
@@ -49,7 +50,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
                 var native = new NativeEnemyProjectileListDefinitions.Reader(SkreeMetareeParticleNativeListAddresses.Entry(program), particle.InstructionTimer.RawValue);
                 for (int update = 0; update < 40; update++)
                 {
-                    enemies.Projectiles.ProcessEnemyProjectileInstructions(particle, new SamusState(), Position16<RoomPixels>.Zero);
+                    enemies.Projectiles.ProcessEnemyProjectileInstructions(particle, new SamusState(InstalledFixtures.AnimationContinuation), Position16<RoomPixels>.Zero);
                     native.Step(cartridge);
                     string at = $"{particle.Kind} update {update}";
                     AssertTrue(!native.Deleted && particle.IsActive, $"{at}: the particle lives");

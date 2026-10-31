@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -150,7 +151,7 @@ internal static class SamusSuitColorsVerification
 
         var guard = NewSuitColorReadGuard(bus);
         var cgram = new SamusColourRig();
-        var samus = new SamusState { Presentation = { SuitColors = edited.SamusSuitColors } };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Presentation = { SuitColors = edited.SamusSuitColors } };
         ushort[] equipment =
         [
             0,
@@ -191,13 +192,13 @@ internal static class SamusSuitColorsVerification
             "hurt-flash recovery preserves edited Varia color");
 
         samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
-        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }, suitColors: edited.SamusSuitColors),
+        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterPalette(cgram.Samus, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = samus.EquippedItems }, InstalledFixtures.SamusOverreads.SpeedBoosterColours, suitColors: edited.SamusSuitColors),
             "Screw Attack recovery frame restores the normal suit");
         AssertEqual(edited.SamusSuitColors.Resolve(SamusSuit.Varia, 1),
             cgram.Samus.Suit[1],
             "Screw Attack recovery preserves edited Varia color");
 
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, InstalledFixtures.SamusOverreads, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

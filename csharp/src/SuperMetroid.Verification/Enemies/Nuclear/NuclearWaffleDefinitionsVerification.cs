@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Nuclear;
@@ -116,7 +117,7 @@ internal static class NuclearWaffleDefinitionsVerification
         for (int update = 0; update <= finishingUpdate; update++)
         {
             if (update == 96)
-                enemies.NuclearWaffleBehavior.BeginEnemyFrame(new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState() });
+                enemies.NuclearWaffleBehavior.BeginEnemyFrame(new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation) });
             enemies.NuclearWaffleBehavior.RunNuclearWaffleMainAi(slot, Frame());
             AssertEqual(SignedSixteenSixteen.FromRaw(startAngle * oneUnit + (update + 1) * (oneUnit + oneUnit / 2)), state.SweepAngle,
                 $"Nuclear Waffle sweep angle after sweep update {update}");
@@ -145,7 +146,7 @@ internal static class NuclearWaffleDefinitionsVerification
         Console.WriteLine("  Nuclear Waffle sweep: the 16.16 angle carries, both turns latch with the rising sound only, and the last link ends the sweep.");
 
         static ClockedEnemyAiFrame Frame() => new(
-            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState() },
+            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation) },
             new FrameCounters(0));
     }
 

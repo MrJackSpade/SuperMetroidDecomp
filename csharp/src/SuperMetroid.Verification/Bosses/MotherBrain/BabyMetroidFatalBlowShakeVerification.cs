@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -13,7 +14,7 @@ internal static class BabyMetroidFatalBlowShakeVerification
     /// </summary>
     internal static void VerifyBabyMetroidFatalBlowShake()
     {
-        var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
         var motherBrain = new MotherBrainRainbowBeamAttackSequence();
         var baby = new BabyMetroidCutsceneState();
         baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);

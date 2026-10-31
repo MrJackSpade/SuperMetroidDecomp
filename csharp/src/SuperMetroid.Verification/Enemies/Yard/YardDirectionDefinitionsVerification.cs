@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Yard;
@@ -115,7 +116,7 @@ internal static class YardDirectionDefinitionsVerification
 
             state.Behavior = YardBehavior.NormalCrawling;
             state.MovementFunction = YardMovementFunction.CrawlingUpsideUpMovingLeft;
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = facing == 0
                     ? SamusPoseId.FacingLeftNormalPose

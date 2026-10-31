@@ -52,21 +52,28 @@ internal static class ProjectileTrailCoordinatesVerification
         }
         AssertEqual(768, selections, "Three selector tables of sixteen rows by sixteen direction-table indexes");
 
+        // Every frame a trail can read past a list's run: each record's animation frame and the word before each list, which a
+        // trail spawned at a list's start reads. The installed service must yield what the cartridge holds there.
+        var trailStarts = InstalledFixtures.SamusOverreads.TrailStarts;
+        int[] frameDomain = [.. SamusProjectileRecordDefinitions.Records.Select(record => record.AnimationFrame)
+            .Concat(Enum.GetValues<SamusProjectileProgram>().Select(program => (int)SamusProjectileProgramAddresses.Prefix(program)))
+            .Distinct()
+            .Order()];
+        foreach (SamusProjectileProgram program in Enum.GetValues<SamusProjectileProgram>())
+            AssertEqual((int)SamusProjectileProgramAddresses.Prefix(program), trailStarts.FrameAtListStart(program),
+                $"A trail spawned at {program}'s start reads the word before its list");
         int overruns = 0;
         foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
-        foreach (int frame in ProjectileTrailPlacements.OverrunFrames(list, InstalledFixtures.SamusOverreads.ProjectileLists))
+        foreach (int frame in frameDomain.Where(frame => frame >= ProjectileTrailPlacementDefinitions.Records[list].Length))
         {
             int record = (starts[list] + frame * RecordByteCount) & ushort.MaxValue;
             ProjectileTrailPlacement? expected = RecordIsCartridge(record) ? NativePlacement(bus, record) : null;
-            AssertEqual(expected, ProjectileTrailPlacements.Start(list, frame, InstalledFixtures.SamusOverreads),
+            AssertEqual(expected, ProjectileTrailPlacements.Start(list, frame, trailStarts),
                 $"{list} at frame {frame} reads what the cartridge holds past its placements");
             overruns++;
         }
         ProjectileTrailPlacementList shortest = ProjectileTrailPlacementList.UnchargedIcePlasmaUp;
-        int pastRecords = ProjectileTrailPlacementDefinitions.Records[shortest].Length;
-        AssertThrows<InvalidOperationException>(() => ProjectileTrailPlacements.Start(shortest, pastRecords, null),
-            "A read past a list's placements needs the installed overread catalog");
-        AssertThrows<ArgumentOutOfRangeException>(() => ProjectileTrailPlacements.Start(shortest, ushort.MaxValue + 1, InstalledFixtures.SamusOverreads),
+        AssertThrows<ArgumentOutOfRangeException>(() => ProjectileTrailPlacements.Start(shortest, ushort.MaxValue + 1, trailStarts),
             "A frame no trail can read is rejected");
         Suite(nameof(VerifyCoordinateSpawn), () => VerifyCoordinateSpawn(bus, lists));
         Console.WriteLine($"Trail coordinates: {records} placements, {selections} selections and {overruns} reads past the placements match the cartridge.");
@@ -103,8 +110,8 @@ internal static class ProjectileTrailCoordinatesVerification
         var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
             SamusProjectileProgramAddresses.RecordAddress(records.First(record =>
                 SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(record)).AnimationFrame == frame)) +
-            InstalledProjectileListPositions.TimedRecordByteCount)))).ToArray();
-        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Overreads = InstalledFixtures.SamusOverreads };
+            SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)))).ToArray();
+        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         var spawn = new Action<SamusProjectileSlot>(system.Trails.SpawnTrail);
         int cases = 0;
         // 36 is the Spazer combo's trail echo; no projectile is an echo of Spazer+Wave (37), which the typed identity cannot name.

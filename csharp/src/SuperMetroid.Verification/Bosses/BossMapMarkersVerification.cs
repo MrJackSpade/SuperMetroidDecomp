@@ -36,7 +36,7 @@ internal static class BossMapMarkersVerification
                 ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (list + record * 4 + 2));
                 var system = new SharedGameState();
                 system.SetAreaMapAcquired(area);
-                var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
+                var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                 // Center the marker under test without changing its authored position.
                 pause.MapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));
                 var alive = pause.Render();
@@ -64,13 +64,13 @@ internal static class BossMapMarkersVerification
                 // format and restore path, entirely in disposable memory.
                 var source = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
                 source.SaveSlot(0,
-                    SuperMetroidSaveSnapshot.Capture(new SamusState(), system, new SaveSnapshotContext { Area = (AreaId)area, SaveStation = 0 }));
+                    SuperMetroidSaveSnapshot.Capture(new SamusState(InstalledFixtures.AnimationContinuation), system, new SaveSnapshotContext { Area = (AreaId)area, SaveStation = 0 }));
                 string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source));
                 var restored = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 var slot = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture()).ReadSlot(0) ??
                     throw new InvalidDataException("Boss-marker fixture lost its save slot.");
                 var restoredSystem = new SharedGameState();
-                slot.ApplyTo(new SamusState(), restoredSystem);
+                slot.ApplyTo(new SamusState(InstalledFixtures.AnimationContinuation), restoredSystem);
                 AssertTrue(dead.SequenceEqual(CenteredPause(restoredSystem).Render()),
                     "JSON/SRAM reload preserves the complete defeated pause image");
                 // The existing-save menu creates its own progression owner from the
@@ -101,7 +101,7 @@ internal static class BossMapMarkersVerification
 
                 PauseMenuState CenteredPause(SharedGameState state)
                 {
-                    var reopened = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = state, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
+                    var reopened = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = state, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                     reopened.MapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));
                     return reopened;
                 }

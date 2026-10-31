@@ -353,7 +353,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             nativeShard.ImageEquals(installedShard),
             "n00b-tube flicker instruction uses installed OAM without visual ROM reads");
 
-        var installedSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0)) };
+        var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0)) };
         var installedArrival = new CeresElevatorArrivalState(installedSamus);
         for (int frame = 0; frame < 3; frame++)
         {
@@ -1015,7 +1015,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                          .Where(particle => particle.IsActive))
             {
                 particle.InstructionTimer = WrappingCountdown.Start(1);
-                enemies.Projectiles.ProcessEnemyProjectileInstructions(particle, new SamusState(), Position16<RoomPixels>.Zero);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(particle, new SamusState(InstalledFixtures.AnimationContinuation), Position16<RoomPixels>.Zero);
             }
             var oam = new OamBuffer();
             oam.BeginFrame();
@@ -1079,7 +1079,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             slot.Graphics = SpawnedGraphics;
             // The first shard's flying loop opens with its reflecting flicker.
             slot.StartAnimation(new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Shard0Loop));
-            enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(), Position16<RoomPixels>.Zero);
+            enemies.Projectiles.ProcessEnemyProjectileInstructions(slot, new SamusState(InstalledFixtures.AnimationContinuation), Position16<RoomPixels>.Zero);
             // It draws from the sheets a set spawning it composes from this artwork.
             SpawnedObjectFixtures.LoadSetSpawning(enemies, slot.Frame ?? throw new InvalidOperationException("The shard shows a frame."));
             var oam = new OamBuffer();

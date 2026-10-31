@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -34,7 +35,7 @@ internal static class MotherBrainLaterContactVerification
             body.Position = body.Position.WithWhole(new(128, 128));
             state.Function = MotherBrainBodyFunction.FakeDeathAscentContinuePausing;
             state.FunctionTimer = WrappingCountdown.Start(contact == "post-dispatch position" ? 0 : 100);
-            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(158, 128)), Health = 500 };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(158, 128)), Health = 500 };
             samus.Kinematics.Radius = new(8, 16);
             ushort expectedX = 20;
             if (contact == "neck") { samus.Position = samus.Position.WithWhole(new(250, 80)); expectedX = 16; }
@@ -58,13 +59,13 @@ internal static class MotherBrainLaterContactVerification
         interactive.Add(body);
         foreach (SamusProjectileType type in new[] { SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), SamusProjectileType.Of(SamusProjectileFamily.Missile) })
         {
-            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
             var shot = shots.Slots[0];
             shot.Type = type; shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
             shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
             shot.PreInstruction = type.Family == SamusProjectileFamily.Missile ? SamusProjectilePreInstruction.Missile : SamusProjectilePreInstruction.NoWaveBeam;
-            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, new SamusBombProjectileSystem(), new SamusState()),
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, new SamusBombProjectileSystem(), new SamusState(InstalledFixtures.AnimationContinuation)),
                 "Mother Brain body accepts the projectile collision callback");
             AssertEqual(1000, body.Health, "Body projectile callback retains body health");
             AssertTrue(shot.IsSpent, "Body blocks the beam or missile");

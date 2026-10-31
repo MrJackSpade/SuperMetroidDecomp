@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -26,7 +27,7 @@ internal static class ChargeFlareDefinitionsVerification
             AssertThrows<InvalidDataException>(
                 () => ChargeFlareAnimations.ReadByte(address - SamusSourceDefinitions.ChargeFlarePrograms.Value),
                 "Unknown flare cadence address fails instead of reading arbitrary movement-bank data");
-        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         var advance = new Action<int>(system.Animation.AdvanceFlareComponent);
         var frames = system.Charge.FlareFrames;
         var timers = system.Charge.FlareTimers;

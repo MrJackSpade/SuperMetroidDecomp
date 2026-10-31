@@ -59,7 +59,7 @@ internal static class MapStaticPalettesVerification
         var system = new SharedGameState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         var room = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
-        var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
+        var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         var roomBefore = room.RenderBackgrounds(new(0, 0)).ToArray(); var pauseBefore = pause.Render();
         room.BindFixtureArtwork(edited); pause.BindFixtureArtwork(edited);
         AssertTrue(!roomBefore.SequenceEqual(room.RenderBackgrounds(new(0, 0))), "static palette edit reaches room-map pixels");

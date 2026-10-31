@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -92,7 +93,7 @@ internal static class BotwoonAnimationsVerification
             (RoomEnemySystem spitEnemies, RoomEnemySlot spitHead, BotwoonEnemyState spitState) = NewBotwoonHead();
             spitState.Function = BotwoonEnemyFunction.SpitWhileHidden;
             spitHead.Position = spitHead.Position.WithWhole(new(1000, 1000));
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(1000 + dx)), unchecked((ushort)(1000 + dy)))),
             };

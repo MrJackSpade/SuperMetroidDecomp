@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -90,7 +91,7 @@ internal static class RightFacingGateGlitchVerification
         {
             level.RestoreFrom(pristine);
             AssertTrue(InstanceStateEquals(level, pristine), "Restored gate-glitch level matches a freshly built level");
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)x), unchecked((ushort)y))),
                 PoseId = SamusPoseId.FacingRightNormalPose,

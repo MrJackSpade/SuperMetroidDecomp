@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonNativeListAddresses;
@@ -232,7 +233,7 @@ internal static class DraygonAnimationsVerification
         RoomEnemyProjectileSlot goop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonGoop);
         AssertTrue(goop.Animation is DraygonProjectileAnimation, "the real goop producer starts the typed goop program");
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         enemies.Projectiles.ProcessEnemyProjectileInstructions(goop, samus, Position16<RoomPixels>.Zero);
         AssertEqual(EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus, goop.PreInstruction, "the goop touch sticks the goop to Samus");
         AssertEqual(EnemyProjectileProgramFrameSources.Operand(DraygonProjectileVisualDefinitions.ShownProjectileFrames[new(DraygonProjectileFrameKind.Goop, 0)]), goop.PresentationOperandAddress,

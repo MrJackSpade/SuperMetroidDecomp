@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamSpeedRowsVerification;
@@ -43,7 +44,7 @@ internal static class BeamCallbackTablesVerification
         foreach (int beamType in Enumerable.Range(0, 12))
         {
             var bus = new BeamSpeedRowAddressSpace(retail);
-            var samus = new SamusState
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
@@ -42,7 +43,7 @@ internal static class RidleyBreakupProgramsVerification
                 { Angle = index == 6 ? (ushort)0x10 : (ushort)0, Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
         };
         enemies.RidleyEncounter.Ridley = state;
-        death(body, state, new SamusState());
+        death(body, state, new SamusState(InstalledFixtures.AnimationContinuation));
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
         var fragments = enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.RidleyExplosion).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");

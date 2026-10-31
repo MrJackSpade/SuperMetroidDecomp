@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
@@ -45,7 +46,7 @@ internal static class OperationContractsVerification
             "the common grapple wrapper accepts main AI's frame");
 
         // The grapple wrapper hands main AI the enemy's frame without projectiles, Mode 7, bombs or a VRAM queue.
-        var samus = new SamusState();
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
         var frame = new RoomEnemyFrame
         {
             Camera = new(0x0120, 0x0040),
@@ -53,7 +54,7 @@ internal static class OperationContractsVerification
             Samus = samus,
             NewlyPressedControllerInput = ControllerButton.A,
             ControllerInput = ControllerButton.Right,
-            SamusProjectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None),
+            SamusProjectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads),
             TurningFloor = new TurningFloorTransform(240, 16, -16, new(128, 112)),
             SharedProjectiles = new SamusBombProjectileSystem(),
         };

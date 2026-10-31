@@ -183,7 +183,7 @@ internal static class SporeSpawnAnimationsVerification
             int drops = 0;
             for (int update = 0; update < 48 && !native.Deleted; update++, updates++)
             {
-                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
+                enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(InstalledFixtures.AnimationContinuation), Position16<RoomPixels>.Zero);
                 native.Step(cartridge);
                 drops += native.Callbacks.Count(callback => callback == NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops);
                 string at = $"Spore Spawn projectile {program} update {update}";
@@ -204,7 +204,7 @@ internal static class SporeSpawnAnimationsVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;
-        enemies.DeathsAndDrops.BindSamus(new SamusState());
+        enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation));
         return enemies;
     }
 
@@ -237,7 +237,7 @@ internal static class SporeSpawnAnimationsVerification
         };
         enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
         enemies.VerificationServices().NextRandom = () => 4660;
-        enemies.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
+        enemies.DeathsAndDrops.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation) { Health = 99, MaxHealth = 99 });
         enemies.SporeSpawnBehavior.SporeSpawn = state;
 
         for (int frame = 0; frame < frames; frame++)

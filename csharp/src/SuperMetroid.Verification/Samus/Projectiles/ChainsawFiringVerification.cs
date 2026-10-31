@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
@@ -34,7 +35,7 @@ internal static class ChainsawFiringVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = SamusEquipmentFlags.HiJumpBoots,
@@ -68,7 +69,7 @@ internal static class ChainsawFiringVerification
         RoomTerrainBlock[] reactiveWords = new RoomTerrainBlock[256];
         reactiveWords[0] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.BombableBlock);
         var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reactiveWords, new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
-        var reactiveSamus = new SamusState
+        var reactiveSamus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
@@ -92,7 +93,7 @@ internal static class ChainsawFiringVerification
             doorBts[doorOrigin + row * 16] = new RoomBlockBehavior(unchecked((byte)-row));
         }
         var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new RoomBlockAppearance[256]));
-        var doorSamus = new SamusState
+        var doorSamus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
@@ -178,7 +179,7 @@ internal static class ChainsawFiringVerification
         interferenceWords[yellowDoorBlock] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var interferenceLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(interferenceWords, interferenceBts, new RoomBlockAppearance[25]));
         var interferencePlms = PlmFixtures.Unbound();
-        AssertEqual(1, PlmFixtures.LoadPopulation(ref interferencePlms, new PlmRoom(interferenceLevel, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, PlmFixtures.LoadPopulation(ref interferencePlms, new PlmRoom(interferenceLevel, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation)), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
         interferencePlms.Step(interferenceLevel);
 
@@ -244,7 +245,7 @@ internal static class ChainsawFiringVerification
         // bank-$90 JSR maps to mutable WRAM $7E:0A0A; the exact opcode stream depends on the
         // cached previous-Super-Missile word. The semantic port must preserve this unstable
         // destination and fail loudly rather than silently choosing ordinary Wave motion.
-        var chargedSamus = new SamusState
+        var chargedSamus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

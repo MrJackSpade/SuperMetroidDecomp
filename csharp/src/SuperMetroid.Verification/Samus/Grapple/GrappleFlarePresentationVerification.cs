@@ -47,7 +47,7 @@ internal static class GrappleFlarePresentationVerification
             Check(native, actual, changed);
             SamusState Seed()
             {
-                var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
+                var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
                 samus.Grapple.Phase = phase;
                 samus.Grapple.FireDirection = pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose
                     ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
@@ -64,7 +64,7 @@ internal static class GrappleFlarePresentationVerification
         }
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
-            var native = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
+            var native = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             native.Grapple.Phase = GrapplePhase.Firing;
             native.Grapple.FireDirection = pose == SamusPoseId.MovingLeftNormalPose
                 ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
@@ -87,7 +87,7 @@ internal static class GrappleFlarePresentationVerification
         foreach (ushort timer in new ushort[] { 0, 1, 2, 32768, 65535 })
         foreach (ushort frame in new ushort[] { 0, 15, 16, 29 })
         {
-            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose };
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.FlareCounter = 2;
             samus.Grapple.FlareAnimationFrame = frame;
@@ -153,7 +153,7 @@ internal static class GrappleFlarePresentationVerification
         AreaMapPresentation maps, GrappleTileAtlas grappleArtwork)
     {
         var random = new SharedRandom();
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes, random: random);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, InstalledFixtures.SamusOverreads, initialPaletteArt: roomAssets.InitialPalettes, random: random);
         runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.GrappleFlarePlacement = grappleArtwork.FlarePlacement;

@@ -106,9 +106,14 @@ internal sealed class BombSpreadTransitionScenario
     /// <summary>Whether <paramref name="frame"/> also records every bomb slot: the release window onward.</summary>
     internal bool RecordsBombs(int frame) => WallRoute ? frame >= 115 : Delay == 6 && frame >= 105;
 
-    /// <summary>The runtime's installed projectile list layout, whose instruction pointers the rows print.</summary>
-    private InstalledProjectileListPositions Lists => (Runtime.Artwork.SamusOverreads ?? throw new InvalidOperationException(
-        "The bomb-spread trace needs the installed Samus overread catalog.")).ProjectileLists;
+    /// <summary>The projectile list layout, read once from the repository's cartridge, whose instruction pointers the rows print.</summary>
+    private static readonly Lazy<SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout> lists = new(() =>
+        SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListEntries.Read(
+            SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(
+                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))));
+
+    /// <summary>The projectile list layout whose instruction pointers the rows print.</summary>
+    private static SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout Lists => lists.Value;
 
     /// <summary>One row per bomb slot. Inactive native slots retain scratch words that are overwritten
     /// at allocation, so an inactive slot records only its ownership, not dead bytes.</summary>
@@ -119,7 +124,7 @@ internal sealed class BombSpreadTransitionScenario
             var slot = Runtime.Room.LoadedScope.BombProjectiles.Slots[slotIndex];
             string bomb = $"bomb,{slotIndex},{(slot.IsActive ? 1 : 0)}";
             if (slot.IsActive)
-                bomb += $",{SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(slot.Type, slot.IsBombSpread, slot.HasReactedToTerrain):X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{slot.BombSpreadDirectionMagnitude:X4},{slot.BombSpreadYVelocity:X4},{slot.BombSpreadYSubvelocity:X4},{slot.BombTimer.RawValue:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{Lists.Position(slot.Cursor):X4},{slot.InstructionTimer.RawValue:X4},{slot.Sprite?.Name}";
+                bomb += $",{SuperMetroid.AssetExtraction.Samus.SamusProjectileWordEncoder.EncodeBombType(slot.Type, slot.IsBombSpread, slot.HasReactedToTerrain):X4},{slot.Position.X.Whole:X4},{slot.Position.X.Fraction:X4},{slot.Position.Y.Whole:X4},{slot.Position.Y.Fraction:X4},{slot.BombSpreadDirectionMagnitude:X4},{slot.BombSpreadYVelocity:X4},{slot.BombSpreadYSubvelocity:X4},{slot.BombTimer.RawValue:X4},{slot.Radius.X:X4},{slot.Radius.Y:X4},{(slot.Cursor is { } cursor ? Lists.Position(cursor) : 0):X4},{slot.InstructionTimer.RawValue:X4},{slot.Sprite?.Name}";
             yield return bomb;
         }
     }

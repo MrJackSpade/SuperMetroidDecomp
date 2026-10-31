@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -53,7 +54,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
     SeedSyntheticAnimationDelay(bus, SamusPoseId.DrainedStandingLeftPose, 0xc100, 0x10);
 
-    var samus = new SamusState
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.DrainedCrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x00ca, 0x00c0)),

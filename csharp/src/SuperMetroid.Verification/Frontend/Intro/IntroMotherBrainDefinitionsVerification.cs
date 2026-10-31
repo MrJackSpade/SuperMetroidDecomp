@@ -169,7 +169,7 @@ internal static class IntroMotherBrainDefinitionsVerification
     internal static void VerifyIntroMotherBrainMissilesAfterFourthHit()
     {
         var motherBrain = new IntroMotherBrainSpriteState();
-        var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None)
+        var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads)
         {
             Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings },
         };

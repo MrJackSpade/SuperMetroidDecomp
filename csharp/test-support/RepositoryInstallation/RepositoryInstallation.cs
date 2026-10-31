@@ -66,7 +66,8 @@ internal static class RepositoryInstallation
         MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false,
         SuperMetroid.Core.Progression.SharedRandom? random = null)
     {
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes(), random);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Artwork.SamusOverreads ?? throw new InvalidOperationException(
+            "The installation's artwork carries no Samus overread services."), Installation.LoadGameplayBasePalettes(), random);
         BindRuntime(runtime);
         return runtime;
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -145,7 +146,7 @@ internal static class CrystalFlashColorsVerification
 
         SamusState StartCrystalFlash()
         {
-            var started = new SamusState
+            var started = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

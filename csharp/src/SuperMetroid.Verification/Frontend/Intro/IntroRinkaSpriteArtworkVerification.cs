@@ -83,7 +83,7 @@ internal static class IntroRinkaSpriteArtworkVerification
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroRinkas);
         var rinkas = new IntroRinkaSystem();
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)) };
         for (int frame = 0; frame <= 75; frame++)
             rinkas.Step(samus, motherBrainExploding: false, explosionsAllocated: false);
         AssertEqual(2, rinkas.LiveRinkas.Count,

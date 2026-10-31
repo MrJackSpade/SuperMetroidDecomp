@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WreckedShip;
@@ -18,7 +19,7 @@ internal static class WreckedShipGhostBobbingVerification
     internal static void VerifyWreckedShipGhostBobbing()
     {
         var frame = new ClockedEnemyAiFrame(
-            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState() },
+            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation) },
             new FrameCounters(0));
         foreach ((string context, ushort y, ushort originY, short whole, ushort expectedY, int expectedVelocity) in
                  new VerifyWreckedShipGhostBobbingCase[]

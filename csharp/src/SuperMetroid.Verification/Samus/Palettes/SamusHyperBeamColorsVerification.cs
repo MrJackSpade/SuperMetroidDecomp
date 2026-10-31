@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -351,8 +352,8 @@ internal static class SamusHyperBeamColorsVerification
                     "Shot edits cannot mutate the separate full-body asset");
             }
         }
-        var shotSamus = new SamusState { HyperBeamEnabled = true, Presentation = { ChargeColors = shot } };
-        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
+        var shotSamus = new SamusState(InstalledFixtures.AnimationContinuation) { HyperBeamEnabled = true, Presentation = { ChargeColors = shot } };
+        var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
         projectiles.Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0x8014);
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
         for (int call = 0; call < 20; call++)
@@ -366,7 +367,7 @@ internal static class SamusHyperBeamColorsVerification
                     "Guarded Hyper-shot cycle preserves original applied colors and held rows");
         }
         AssertEqual(0, shotGuard.ForbiddenReadAttempts, "Hyper-shot calculated colors avoid original palette and pointer reads");
-        var installedSamus = new SamusState();
+        var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation);
         installedSamus.Drained.EnableRainbow(installedSamus);
         installedSamus.Drained.PresentationColors = catalog.ToColours();
         var installedCgram = new SamusColourRig();
@@ -414,7 +415,7 @@ internal static class SamusHyperBeamColorsVerification
         AssertTrue(edited.ContentIdentity != baseline.ContentIdentity,
             "Hyper Beam color override changes installed content identity");
 
-        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), InstalledFixtures.SamusOverreads, initialPaletteArt: initialPalettes);
         runtime.Artwork.MapPresentation = edited;
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

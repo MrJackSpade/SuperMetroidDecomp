@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Progression;
@@ -36,7 +37,7 @@ internal static class ScrollPlmsVerification
 
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]));
         var plms = PlmFixtures.Unbound();
-        AssertEqual(5, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(5, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), 0), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState(InstalledFixtures.AnimationContinuation)), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "single loader parses the trigger and four synchronous extensions");
         AssertEqual(1, plms.Scrolls.Snapshots.Count,
             "extension setup consumes no persistent PLM slot");
@@ -73,7 +74,7 @@ internal static class ScrollPlmsVerification
             { new VerifyRoomScrollPlmsCase(40, 21, false), new VerifyRoomScrollPlmsCase(72, 21, false),
               new VerifyRoomScrollPlmsCase(56, 7, false), new VerifyRoomScrollPlmsCase(56, 21, true) })
         {
-            var insideSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
+            var insideSamus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
             insideSamus.Kinematics.Radius = insideSamus.Kinematics.Radius.WithY(radius);
             SamusInsideBlockReactions.PrepareFrame(level, insideSamus, AreaId.Crateria, plms: plms);
             AssertEqual(shouldWake, plms.ScrollPlmTriggered(origin),
@@ -118,7 +119,7 @@ internal static class ScrollPlmsVerification
         scrolls.SetStorage(1, RoomScrollState.RedBoundary);
         WritePoseDefinition(bus, (int)SamusPoseId.MorphBallGroundRightPose,
             [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-        var ball = new SamusState
+        var ball = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
@@ -146,7 +147,7 @@ internal static class ScrollPlmsVerification
         // Ordinary Morph Ball movement already forwards that owner; this assertion guards
         // the special movement-handler composition seam used only during bomb-jump ascent.
         scrolls.SetStorage(1, RoomScrollState.RedBoundary);
-        var bombJump = new SamusState
+        var bombJump = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = SamusEquipmentFlags.Bombs,

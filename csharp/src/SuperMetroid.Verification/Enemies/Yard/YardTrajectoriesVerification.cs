@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
@@ -38,7 +39,7 @@ internal static class YardTrajectoriesVerification
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())));
             var actor = enemies.SlotTable.Slots[focus];
             var state = enemies.YardStates[focus];
-            var samus = new SamusState { Health = 999, MaxHealth = 999,
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole - 64)), actor.Position.Y.Whole)) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
@@ -77,7 +78,7 @@ internal static class YardTrajectoriesVerification
             state.MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = YardBehavior.Dropped;
             state.AirborneVelocity = state.AirborneVelocity.WithWholeY(1);
-            var samus = new SamusState { Health = 999, MaxHealth = 999,
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)) };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(128, 128), TimeIsFrozen = false, Samus = samus, Level = floor });

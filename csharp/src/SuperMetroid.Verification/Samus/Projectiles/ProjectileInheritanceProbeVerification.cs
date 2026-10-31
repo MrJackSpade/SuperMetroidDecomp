@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -128,7 +129,7 @@ internal static class ProjectileInheritanceProbeVerification
     private static void VerifyProjectileInheritanceMovement()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)) };
         samus.Kinematics.Radius = new(5, 5);
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         samus.ProjectileInheritance.ClearMovement();

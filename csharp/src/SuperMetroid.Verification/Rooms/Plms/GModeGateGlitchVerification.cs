@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -173,7 +174,7 @@ internal static class GModeGateGlitchVerification
     /// <summary>Checks that suspended quicksand setup fills forty PLM slots and stops adding sink displacement at capacity.</summary>
     private static void VerifyGModeSandOverload()
     {
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)),
@@ -323,7 +324,7 @@ internal static class GModeGateGlitchVerification
 
             SamusState CreateSamus()
             {
-                var result = new SamusState
+                var result = new SamusState(InstalledFixtures.AnimationContinuation)
                 {
                     Pose = SamusPoseId.FacingRightNormalPose,
                     Position = FixedPosition<RoomPixels>.FromWhole(new(40, 54)),
@@ -371,7 +372,7 @@ internal static class GModeGateGlitchVerification
         RoomLevelData level = CreateRoom(new(width, 16),
             new RoomTerrainBlock[width * 16],
             new RoomBlockBehavior[width * 16]);
-        var samus = new SamusState { Health = 1, MaxHealth = 99 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 1, MaxHealth = 99 };
         var plms = PlmFixtures.Unbound();
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new SharedGameState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
 
@@ -440,7 +441,7 @@ internal static class GModeGateGlitchVerification
         RoomLevelData level = CreateRoom(new(width, 16),
             new RoomTerrainBlock[width * 16],
             new RoomBlockBehavior[width * 16]);
-        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0100)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0100)) };
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         bool brokenEvent = false;
         var projectiles = new List<NoobTubeProjectileRequest>();

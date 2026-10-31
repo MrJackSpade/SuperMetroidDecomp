@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -24,7 +25,7 @@ internal static class DraygonEyeEffectsVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
             var eye = (runtime.Enemies.DraygonBehavior.Parts.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.DraygonBehavior.Draygon.")).Eye;
             eye.Position = eye.Position.WithWhole(new(128, 128));
-            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 256)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 256)) };
             foreach (ushort frame in new ushort[] { 127, 128, 129 })
             {
                 eye.FrameCounter = frame;

@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
@@ -212,7 +213,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
             slot.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.MiniKraid).Radius;
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
-            samus = new SamusState
+            samus = new SamusState(InstalledFixtures.AnimationContinuation)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(movingRight ? (ushort)0x0140 : (ushort)0x00c0, slot.Position.Y.Whole)),
             };

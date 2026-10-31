@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -71,7 +72,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     var cycleColors = SamusFullBodyCycleColorFile.Read(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
 
-    var shine = new SamusState
+    var shine = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -153,7 +154,7 @@ internal static void VerifySamusStoredShineAndShinespark()
             ShinesparkPhase.Diagonal, true, true),
     })
     {
-        var directional = new SamusState
+        var directional = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = windupPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -196,7 +197,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     // positive external Y value can therefore reverse an upward shinespark. Native then
     // skips its 15-pixel upward-only clamp because the temporary magnitude is negative.
     // Starting at 7.0000 with acceleration 0.2800 and adding +8.0000 yields +0.D800.
-    var externallyReversedSpark = new SamusState
+    var externallyReversedSpark = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -245,7 +246,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     })
     foreach (ushort energy in new ushort[] { 1, 2, 29, 30 })
     {
-        var invincible = new SamusState
+        var invincible = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -268,7 +269,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     }
 
     // Use a fresh state so horizontal arithmetic begins from exactly CFFA's writes.
-    var horizontal = new SamusState
+    var horizontal = new SamusState(InstalledFixtures.AnimationContinuation)
     {
         Pose = SamusPoseId.ShinesparkWindupRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -416,7 +417,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         RoomLevelData fixtureLevel,
         ushort projectileCounter)
     {
-        var fixture = new SamusState
+        var fixture = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
@@ -468,7 +469,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         const int height = 24;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
             new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]));
-        var samus = new SamusState
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
         {
             Pose = SamusPoseId.ShinesparkWindupRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),

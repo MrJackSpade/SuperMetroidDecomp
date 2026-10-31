@@ -38,8 +38,8 @@ internal static class PauseReserveTankAssetsVerification
         Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(bus, catalog.PauseReserveTanks));
         foreach (ushort capacity in new ushort[] { 0, 100, 200, 300, 400 })
         {
-            var nativeSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = ReserveTankMode.Manual };
-            var installedSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = ReserveTankMode.Manual };
+            var nativeSamus = new SamusState(InstalledFixtures.AnimationContinuation) { MaxReserveEnergy = capacity, ReserveTankMode = ReserveTankMode.Manual };
+            var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation) { MaxReserveEnergy = capacity, ReserveTankMode = ReserveTankMode.Manual };
             var native = Create(bus, nativeSamus, catalog);
             var installed = Create(guard, installedSamus, catalog);
             foreach (ushort supply in ReserveSupplySamples(capacity))
@@ -70,7 +70,7 @@ internal static class PauseReserveTankAssetsVerification
         using (var output = File.Create(path)) PauseReserveTankSourcePresentation.Write(output, custom);
         var edited = MapPresentationFiles.Load(stock, overrides);
         AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "reserve-only edit changes content identity");
-        var samus = new SamusState { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
         var menu = Create(guard, samus, edited);
         var snapshot = menu.CaptureRenderSnapshot();
         // The authored 16-pixel part at the edited anchor: X 120+12, Y 140-4, tile 50, palette 5, priority 3, both flips.

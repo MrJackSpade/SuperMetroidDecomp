@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Frontend.Pause.PauseHudLocationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -33,7 +34,7 @@ internal static class PauseMapPositionVerification
             var system = new SharedGameState();
             var samusCell = new Position16<MapTiles>(checked((ushort)(roomX + RoomScreenOf.Pixel(samusX))), checked((ushort)(roomY + RoomScreenOf.Pixel(samusY) + 1)));
             system.MarkExploredMapTile(area, samusCell);
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState { Position = new(new((ushort)samusX, 0), new((ushort)samusY, 0))}, System = system, AreaIndex = area, RoomMapPosition = new(checked((ushort)roomX), checked((ushort)roomY)) });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = new(new((ushort)samusX, 0), new((ushort)samusY, 0))}, System = system, AreaIndex = area, RoomMapPosition = new(checked((ushort)roomX), checked((ushort)roomY)) });
             int nativeFrame = 0, nativeTimer = 0;
             for (int frame = 0; frame < 48; frame++)
             {

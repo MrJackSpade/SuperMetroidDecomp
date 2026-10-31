@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -19,7 +20,7 @@ internal static class GrapplePoseRefireVerification
         foreach (bool left in new[] { false, true })
         foreach (int changeFrame in Enumerable.Range(1, 10))
         {
-            var samus = new SamusState {
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation) {
                 Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
             };

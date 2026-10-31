@@ -182,7 +182,7 @@ internal static class ScreenTilePicturesVerification
         system.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
         var pause = new PauseMenuState(new PauseMenuEntry
         {
-            Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = maps,
+            Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = maps,
             SpriteSheets = InstalledFixtures.SpriteSheets,
         });
         int layers = AssertPauseDrawnFromVram(pause, "pause map");

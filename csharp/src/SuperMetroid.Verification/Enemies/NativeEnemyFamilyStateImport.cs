@@ -83,7 +83,7 @@ internal static class NativeEnemyFamilyStateImport
             // The cartridge gives each record word a meaning per part (#1476); the part's identity says which.
             if (slot.DefinitionId == EnemyDefinitionId.PhantoonEye)
             {
-                phantoonPartRecord.ClosedTimer = words.A;
+                phantoonPartRecord.ClosedTimer = WrappingCountdown.FromRaw(words.A);
                 phantoonPartRecord.ShotMarker = words.B;
                 phantoonPartRecord.FigureEightReversed = words.C != 0;
                 phantoonPartRecord.DyingFadeCycles = words.C;
@@ -104,7 +104,7 @@ internal static class NativeEnemyFamilyStateImport
             else if (slot.DefinitionId == EnemyDefinitionId.PhantoonMouth)
             {
                 phantoonPartRecord.CasualFlamePattern = words.A;
-                phantoonPartRecord.CasualFlameHold = words.B;
+                phantoonPartRecord.CasualFlameHold = WrappingCountdown.FromRaw(words.B);
                 phantoonPartRecord.CasualFlameCount = unchecked((short)words.C);
                 phantoonPartRecord.WaveAmplitude = words.D;
                 phantoonPartRecord.WaveAmplitudeShrinking = words.E != 0;
@@ -119,7 +119,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoonPartRecord.SpeedFraction = words.B;
                 phantoonPartRecord.SpeedWhole = words.C;
                 phantoonPartRecord.SpeedPhase = words.D;
-                phantoonPartRecord.FunctionTimer = words.E;
+                phantoonPartRecord.FunctionTimer = WrappingCountdown.FromRaw(words.E);
                 if (words.F != 0)
                     phantoonPartRecord.Function = PhantoonNativeWords.AiFunctions.Decode(words.F, "recorded PhantoonAiFunction");
             }
@@ -130,24 +130,24 @@ internal static class NativeEnemyFamilyStateImport
             // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
             // each part reads only its own, so each is imported from the words.
             kraidPartRecord.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
-            kraidPartRecord.HeadTimer = words.C;
+            kraidPartRecord.HeadTimer = WrappingCountdown.FromRaw(words.C);
             kraidPartRecord.LintXOffset = words.C;
             kraidPartRecord.LintTravel = words.B;
             // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
             if (kraidPartRecord.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
                 kraidPartRecord.CeilingRock = words.F / sizeof(ushort);
             else
-                kraidPartRecord.FunctionTimer = words.F;
+                kraidPartRecord.FunctionTimer = WrappingCountdown.FromRaw(words.F);
         }
         if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
         {
-            gunshipRecord.FunctionTimer = words.A;
+            gunshipRecord.FunctionTimer = WrappingCountdown.FromRaw(words.A);
             gunshipRecord.NextLiftoffPage = words.B;
             gunshipRecord.BobPhase = words.C;
             // The cartridge keeps the top hull's bob timer and the bottom hull's engine-sound timer in variable D, and
             // the base Y, the landing-brake step and the rumble frame in variable E; each part reads only its own.
-            gunshipRecord.BobTimer = words.D;
-            gunshipRecord.EngineSoundTimer = words.D;
+            gunshipRecord.BobTimer = WrappingCountdown.FromRaw(words.D);
+            gunshipRecord.EngineSoundTimer = WrappingCountdown.FromRaw(words.D);
             gunshipRecord.BaseY = words.E;
             gunshipRecord.LandingBrakeStep = words.E;
             gunshipRecord.RumbleFrame = words.E;

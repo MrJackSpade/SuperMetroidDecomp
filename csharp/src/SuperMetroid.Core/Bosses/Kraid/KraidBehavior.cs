@@ -210,7 +210,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.MainAttackWithMouthOpen;
                     state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
-                    state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.RoarEntryDuration;
+                    state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.RoarEntryDuration);
                 }
                 return;
 

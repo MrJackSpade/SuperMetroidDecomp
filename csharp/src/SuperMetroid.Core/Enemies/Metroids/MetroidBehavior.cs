@@ -213,13 +213,13 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Metroid_Func_4</c>, including post-decrement timer semantics.</summary>
     internal static void RunMetroidPowerBombEscape(RoomEnemySlot slot, MetroidEnemyState state)
     {
-        slot.Position += MetroidReactions.EscapeDisplacement(state.EscapeTimer.RawValue);
+        slot.Position += MetroidReactions.EscapeDisplacement(state.EscapeTimer.RemainingFrames);
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
 
-        int oldTimer = state.EscapeTimer.RawValue;
-        state.EscapeTimer = state.EscapeTimer.Decrement().Remaining;
-        if (oldTimer != 1)
+        CountdownStep escapeStep = state.EscapeTimer.Decrement();
+        state.EscapeTimer = escapeStep.Remaining;
+        if (!escapeStep.IsZero)
             return;
 
         state.Function = MetroidAiFunction.Homing;
@@ -244,7 +244,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ApplyMetroidHurt(RoomEnemySlot slot)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
-        if ((slot.FlashTimer.RawValue & 2) != 0)
+        if (slot.FlashTimer.IsInAlternatePhase(2))
         {
             state.OuterBodyA.Graphics = state.OuterBodyA.Graphics.In(slot.Colouring);
             state.OuterBodyB.Graphics = state.OuterBodyB.Graphics.In(slot.Colouring);

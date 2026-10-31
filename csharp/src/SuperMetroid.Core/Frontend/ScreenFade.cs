@@ -110,8 +110,8 @@ public sealed class ScreenFade
     /// <summary>8-bit DEC $0723 with BEQ/BPL: true while the decremented byte stays positive.</summary>
     private bool ConsumeSlowDelay()
     {
-        LowByteCountdownStep step = WrappingCounter.DecrementLowByte(Delay.RawValue);
-        Delay = WrappingCountdown.FromRaw(step.Remaining);
+        LowByteCountdownStep step = Delay.DecrementEightBitCount();
+        Delay = step.Remaining;
         return !step.IsZeroOrNegative;
     }
 

@@ -288,10 +288,10 @@ internal static void VerifyTypedNativeWords()
     AssertThrows<ArgumentOutOfRangeException>(() => WrappingCountdown.Start(-1), "a countdown start cannot be negative");
 
     LowByteCountdownStep laneToZero = WrappingCounter.DecrementLowByte(0x1201);
-    AssertEqual((ushort)0x1200, laneToZero.Remaining, "8-bit low-byte DEC keeps the high byte");
+    AssertEqual((ushort)0x1200, laneToZero.Remaining.RawValue, "8-bit low-byte DEC keeps the high byte");
     AssertTrue(laneToZero.IsZero && !laneToZero.IsNegative, "8-bit low-byte DEC reports byte-width zero");
     LowByteCountdownStep laneWrapped = WrappingCounter.DecrementLowByte(0x3400);
-    AssertEqual((ushort)0x34ff, laneWrapped.Remaining, "8-bit low-byte DEC wraps without borrowing from the high byte");
+    AssertEqual((ushort)0x34ff, laneWrapped.Remaining.RawValue, "8-bit low-byte DEC wraps without borrowing from the high byte");
     AssertTrue(laneWrapped.IsNegative && !laneWrapped.IsZero && laneWrapped.IsZeroOrNegative,
         "8-bit low-byte DEC reports byte-width negative");
     LowByteCountdownStep laneHighBitOnly = WrappingCounter.DecrementLowByte(0x8003);

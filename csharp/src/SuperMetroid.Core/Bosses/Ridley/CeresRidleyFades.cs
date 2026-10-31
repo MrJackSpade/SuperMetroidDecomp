@@ -54,7 +54,7 @@ internal sealed class CeresRidleyFades
     internal void TickCeresRidleyBodyFade(RoomEnemySlot slot, RidleyEnemyState state)
     {
         state.FunctionTimer = state.FunctionTimer.AddFrames(1);
-        if (state.FunctionTimer.RawValue < 2)
+        if (state.FunctionTimer.IsBelow(2))
             return;
         state.FunctionTimer = WrappingCountdown.Start(0);
 

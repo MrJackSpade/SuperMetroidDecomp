@@ -57,7 +57,7 @@ internal sealed class SamusEaterPlms
         samus.Position = samus.Position.WithWhole(new(slot.PlantHeldPosition.X, slot.PlantHeldPosition.Y));
         // Native TSB is bitwise OR, not a clamp or an input lock. Samus's normal
         // movement runs before this placement, preserving cartridge interactions.
-        samus.InvincibilityTimer = WrappingCountdown.FromRaw(unchecked((ushort)(samus.InvincibilityTimer.RawValue | SamusEaterPlmDefinitions.HeldInvincibilityBit)));
+        samus.InvincibilityTimer = samus.InvincibilityTimer.MergedWith(SamusEaterPlmDefinitions.HeldInvincibilityBit);
     }
 
     /// <summary><c>$84:AC9D</c>: one chew's periodic damage to the held Samus.</summary>

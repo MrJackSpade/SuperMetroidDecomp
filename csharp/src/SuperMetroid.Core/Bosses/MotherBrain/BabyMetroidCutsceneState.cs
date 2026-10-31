@@ -502,7 +502,7 @@ public sealed class BabyMetroidCutsceneState
                 // actor owns only the resulting shake and health-to-function transition.
                 if (!OnionRingHitFlashTimer.IsZero)
                 {
-                    int shakingIndex = (OnionRingHitFlashTimer.RawValue & 6) >> 1;
+                    int shakingIndex = OnionRingHitFlashTimer.CyclePhase(2, 4);
                     Offset16<RoomPixels> shake = ShakingOffsets[shakingIndex];
                     Position = Position.WithWhole(samus.Position.Whole + shake + shake + SamusLatchOffset);
                 }
@@ -746,7 +746,7 @@ public sealed class BabyMetroidCutsceneState
         if (!OnionRingHitFlashTimer.IsZero)
         {
             OnionRingHitFlashTimer = OnionRingHitFlashTimer.Decrement().Remaining;
-            HitFlashPaletteShown = (OnionRingHitFlashTimer.RawValue & 2) != 0;
+            HitFlashPaletteShown = OnionRingHitFlashTimer.IsInAlternatePhase(2);
         }
         else
         {

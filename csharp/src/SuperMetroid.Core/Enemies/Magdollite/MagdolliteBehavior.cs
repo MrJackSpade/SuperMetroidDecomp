@@ -207,7 +207,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         (_, _, RoomEnemySlot overlay) = RequireMagdolliteComposite(head);
         MagdolliteEnemyState overlayState = overlay.RequireSpeciesState<MagdolliteEnemyState>();
-        if (!EnemyMath.IsNegative16(overlayState.AttackTimer.RawValue))
+        if (!overlayState.AttackTimer.IsNegative)
             return;
 
         overlayState.AttackTimer = WrappingCountdown.Start(0);

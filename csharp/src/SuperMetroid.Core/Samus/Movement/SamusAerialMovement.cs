@@ -183,7 +183,7 @@ public static class SamusAerialMovement
         // animation frames zero and eight. It is movement-owned, so publish it before the
         // later animation call can advance the timer/frame pair.
         if (fullySubmergedWithoutGravity &&
-            samus.AnimationFrameTimer.RawValue == 1 &&
+            samus.AnimationFrameTimer.IsAt(1) &&
             samus.AnimationFrame is 0 or 8)
         {
             samus.LiquidPhysics.QueueMovementSound(Library1Sound.UnderwaterSpaceJump, priority: SoundRequestPriority.Normal);

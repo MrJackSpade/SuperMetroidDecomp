@@ -123,7 +123,7 @@ internal sealed class KraidLimbs
         {
             state.Parts[body.SlotIndex].Function = KraidAiFunction.MouthOpenReaction;
             state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
-            state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.RoarEntryDuration;
+            state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.RoarEntryDuration);
         }
     }
 
@@ -134,12 +134,12 @@ internal sealed class KraidLimbs
             return false;
 
         state.Parts[body.SlotIndex].Function = KraidAiFunction.ProcessHeadInstructionAndTimer;
-        state.Parts[body.SlotIndex].FunctionTimer = 180;
+        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(180);
         state.Parts[0].NextFunction = KraidAiFunction.GrowReleaseCamera;
 
         KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadProgram).Growth;
         state.HeadProgram = KraidHeadAnimations.GrowthResumeCursor(resume);
-        state.Parts[body.SlotIndex].HeadTimer = checked((ushort)KraidHeadAnimations.GrowthResumeDelay(resume));
+        state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.GrowthResumeDelay(resume));
         _earthquake.EarthquakeType = 4;
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(340);
 
@@ -301,7 +301,7 @@ internal sealed class KraidLimbs
         _access.StartKraidPartProgram(arm, KraidPartProgram.ArmDyingOrPreparingToLunge);
         _access.StartKraidPartProgram(foot, KraidPartProgram.FootLungeForward);
         _access.Part(foot).Function = KraidAiFunction.FootFirstPhaseLunge;
-        _access.Part(foot).FunctionTimer = 0;
+        _access.Part(foot).FunctionTimer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Moves the small-form foot and body through the forward lunge.</summary>
@@ -320,7 +320,7 @@ internal sealed class KraidLimbs
         {
             part.NextFunction = KraidAiFunction.FootFirstPhaseRetreat;
             _access.Part(foot).Function = KraidAiFunction.DecrementFunctionTimerAndStartWalk;
-            _access.Part(foot).FunctionTimer = 1;
+            _access.Part(foot).FunctionTimer = WrappingCountdown.Start(1);
             _access.SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
         }
         else
@@ -333,11 +333,11 @@ internal sealed class KraidLimbs
     /// <summary>Counts down a foot phase and installs its next function at zero.</summary>
     private void TickKraidFootTransitionTimer(RoomEnemySlot foot, KraidPartState part)
     {
-        WrappingCountdown phaseTimer = WrappingCountdown.FromRaw(checked((ushort)_access.Part(foot).FunctionTimer));
+        WrappingCountdown phaseTimer = _access.Part(foot).FunctionTimer;
         if (phaseTimer.IsZero)
             return;
         CountdownStep step = phaseTimer.Decrement();
-        _access.Part(foot).FunctionTimer = step.Remaining.RawValue;
+        _access.Part(foot).FunctionTimer = step.Remaining;
         if (step.IsZero)
         {
             _access.Part(foot).Function = part.NextFunction;
@@ -363,7 +363,7 @@ internal sealed class KraidLimbs
             _access.StartKraidPartProgram(arm, KraidPartProgram.ArmNormal);
             _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
             _access.Part(foot).Function = KraidAiFunction.FootFirstPhaseThinking;
-            _access.Part(foot).FunctionTimer = 300;
+            _access.Part(foot).FunctionTimer = WrappingCountdown.Start(300);
             part.NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
         }
         else
@@ -388,7 +388,7 @@ internal sealed class KraidLimbs
         if (KraidFunctionGroups.BeforeFootWalkingBackwardLoop.Contains(KraidPartResidentProgram(foot)))
             return;
         _access.Part(foot).Function = KraidAiFunction.HandleFunctionTimer;
-        _access.Part(foot).FunctionTimer = 180;
+        _access.Part(foot).FunctionTimer = WrappingCountdown.Start(180);
         part.NextFunction = KraidAiFunction.FootSecondPhaseInitialize;
         _access.StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
     }

@@ -567,7 +567,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 palette,
                 introColours,
                 FrameCounterWord(elapsedUpdates),
-                crossfadeCounter.RawValue);
+                crossfadeCounter.RemainingFrames);
             // $8B:B842: deleting Mother Brain after the page-two crossfade hides Samus from
             // the next dispatch on.
             if (!CurrentFlashbackMotherBrain.IsVisible)
@@ -595,13 +595,13 @@ public sealed class IntroCinematicState : IFrontendScreen
             // The eight actors are allocated while object zero is already being processed,
             // so their first generic-handler call occurs on the following frame. Hit count
             // four is reached on the spawn frame, after the handler passed their free slots.
-            FlashbackMotherBrainExplosions?.Step(crossfadeCounter.RawValue);
+            FlashbackMotherBrainExplosions?.Step(crossfadeCounter.RemainingFrames);
         }
 
         // Handle_CinematicSpriteObjects ($8B:93EF) runs after the cinematic function, so the
         // actors a scene setup spawns take their first step in that same dispatch.
-        CurrentBabyDiscovery?.Step(FrameCounterWord(elapsedUpdates), crossfadeCounter.RawValue);
-        CurrentScientistCutscene?.Step(crossfadeCounter.RawValue, introCrossfadeCounter.RawValue);
+        CurrentBabyDiscovery?.Step(FrameCounterWord(elapsedUpdates), crossfadeCounter.RemainingFrames);
+        CurrentScientistCutscene?.Step(crossfadeCounter.RemainingFrames, introCrossfadeCounter.RemainingFrames);
     }
 
     /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay palette.</summary>
@@ -666,7 +666,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // $8B:B250 updates only when the pre-decrement counter is divisible by four.
         // Values 124..0 therefore yield exactly 32 component updates.
-        if (crossfadeCounter.RawValue % IntroCinematicDefinitions.Palette.CrossfadeStepFrames == 0)
+        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Palette.CrossfadeStepFrames))
         {
             FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay);
             FadeInPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
@@ -707,7 +707,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Fades gameplay and projectile ranges out while restoring portrait and text ranges.</summary>
     private void StepReverseGameplayToTextCrossfade(IntroCinematicPhase completedPhase)
     {
-        if (crossfadeCounter.RawValue % IntroCinematicDefinitions.Palette.CrossfadeStepFrames == 0)
+        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Palette.CrossfadeStepFrames))
         {
             FadeInPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
             FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
@@ -751,7 +751,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Reuses the text-to-gameplay fade before showing the SR388 discovery room alone.</summary>
     internal void StepBabyDiscoveryCrossfade()
     {
-        if (crossfadeCounter.RawValue % IntroCinematicDefinitions.Palette.CrossfadeStepFrames == 0)
+        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Palette.CrossfadeStepFrames))
         {
             FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay);
             FadeInPaletteSpans(IntroCinematicDefinitions.Palette.Narration);
@@ -825,7 +825,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Advances the text-to-laboratory palette spans using the cinematic-function countdown.</summary>
     private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
     {
-        if (crossfadeCounter.RawValue % IntroCinematicDefinitions.Palette.CrossfadeStepFrames == 0)
+        if (crossfadeCounter.IsOnMultipleOf(IntroCinematicDefinitions.Palette.CrossfadeStepFrames))
         {
             FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Gameplay);
             FadeInPaletteSpans(IntroCinematicDefinitions.Palette.Discovery);
@@ -865,7 +865,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>Advances the laboratory-to-text palette ranges using the retained intro countdown.</summary>
     private void StepScientistToTextCrossfade(IntroCinematicPhase completedPhase)
     {
-        if ((introCrossfadeCounter.RawValue & 3) == 0)
+        if (introCrossfadeCounter.IsOnMultipleOf(4))
         {
             FadeInPaletteSpans(IntroCinematicDefinitions.Palette.GameplayClear);
             FadeOutPaletteSpans(IntroCinematicDefinitions.Palette.Discovery);

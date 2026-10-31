@@ -133,7 +133,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.BurrowTimer.RawValue == 8)
+        if (state.BurrowTimer.IsAt(8))
             _projectiles.SpawnMetalParticleBurst(slot, SkreeParticleDefinitions.Burst);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
     }

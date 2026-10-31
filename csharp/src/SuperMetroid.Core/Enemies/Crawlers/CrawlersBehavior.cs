@@ -269,7 +269,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Changes an attached orange Zoomer to falling during the native Super Missile earthquake.</summary>
     private void TriggerCrawlerEarthquakeFall(CrawlerEnemyState state)
     {
-        if (_earthquake.EarthquakeTimer.RawValue == SuperMissileDefinitions.EarthquakeDuration &&
+        if (_earthquake.EarthquakeTimer.IsAt(SuperMissileDefinitions.EarthquakeDuration) &&
             _earthquake.EarthquakeType == SuperMissileDefinitions.EarthquakeType)
             BeginCrawlerFall(state);
     }

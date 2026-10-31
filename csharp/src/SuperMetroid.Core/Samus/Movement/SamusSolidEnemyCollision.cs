@@ -151,13 +151,13 @@ public static class SamusSolidEnemyCollision
         // tests that word rather than the fraction and a second DEC follows unless it is 0.
         if (borrowed)
         {
-            whole = WrappingCounter.Decrement(whole).Value;
+            whole = WrappingCounter.DecrementWord(whole);
             if (whole != 0)
-                whole = WrappingCounter.Decrement(whole).Value;
+                whole = WrappingCounter.DecrementWord(whole);
         }
         else if (fraction != 0)
         {
-            whole = WrappingCounter.Decrement(whole).Value;
+            whole = WrappingCounter.DecrementWord(whole);
         }
 
         return whole;

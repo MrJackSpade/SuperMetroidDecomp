@@ -972,7 +972,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                 PauseReserveEnergyDefinitions.RefillSoundInterval - 1) & -PauseReserveEnergyDefinitions.RefillSoundInterval);
         }
         ReserveTransferSoundDelay = ReserveTransferSoundDelay.Decrement().Remaining;
-        if (ReserveTransferSoundDelay.RawValue % PauseReserveEnergyDefinitions.RefillSoundInterval ==
+        if (ReserveTransferSoundDelay.CyclePhase(1, PauseReserveEnergyDefinitions.RefillSoundInterval) ==
             PauseReserveEnergyDefinitions.RefillSoundInterval - 1)
             audio?.QueueSound(PauseReserveEnergyDefinitions.RefillSound, PauseReserveEnergyDefinitions.MaximumQueuedSounds);
 

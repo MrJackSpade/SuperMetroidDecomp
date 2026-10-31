@@ -36,7 +36,7 @@ internal sealed class PhantoonOpening
         if (SpawnPhantoonStartingFlame(body, unchecked((byte)state.Parts[body.SlotIndex].StartingFlameIndex)))
             state.StartingFlamesSpawned++;
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
-        state.Parts[body.SlotIndex].FunctionTimer = 30;
+        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(30);
         state.Parts[body.SlotIndex].StartingFlameIndex = WrappingCounter.IncrementWord(state.Parts[body.SlotIndex].StartingFlameIndex);
         if (unchecked((short)(state.Parts[body.SlotIndex].StartingFlameIndex - 8)) < 0)
             return;
@@ -44,7 +44,7 @@ internal sealed class PhantoonOpening
         state.Parts[body.SlotIndex].StartingFlameIndex = 0;
         state.Parts[state.Tentacles.SlotIndex].RoundDamage = 0;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.WaitBeforeActivatingStartingFlames;
-        state.Parts[body.SlotIndex].FunctionTimer = 30;
+        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(30);
         state.BossDoorPlmRequest = PlmHeaderId.DrawPhantoonDoorDuringBossFight;
     }
 
@@ -53,7 +53,7 @@ internal sealed class PhantoonOpening
     {
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(body))
             return;
-        body.FunctionTimer = 240;
+        body.FunctionTimer = WrappingCountdown.Start(240);
         body.StartingFlamesActive = true;
         body.Function = PhantoonAiFunction.WaitForStartingFlamesToDisappear;
     }
@@ -70,7 +70,7 @@ internal sealed class PhantoonOpening
         state.SemiTransparent = true;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.WavyFadeIn;
         state.Parts[state.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.RoomDefault;
-        state.Parts[body.SlotIndex].FunctionTimer = 120;
+        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(120);
         state.Parts[state.Mouth.SlotIndex].WaveAmplitude = PhantoonBehavior.PhantoonIntroMaximumAmplitude;
         state.Parts[state.Mouth.SlotIndex].WaveAmplitudeShrinking = false;
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
@@ -92,7 +92,7 @@ internal sealed class PhantoonOpening
         {
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.PickFirstRoundPattern;
             state.Parts[state.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.RoomDefault;
-            state.Parts[body.SlotIndex].FunctionTimer = 30;
+            state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(30);
             return;
         }
 

@@ -150,7 +150,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             DeathAndEscapeExplosionIndex = WrappingCountdown.Start(MotherBrainDeathExplosionDefinitions.GroupCount - 1);
 
         int simultaneousCount = style == MotherBrainDeathExplosionStyle.Mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : 2;
-        int pairIndex = DeathAndEscapeExplosionIndex.RawValue * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
+        int pairIndex = DeathAndEscapeExplosionIndex.RemainingFrames * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
         for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
         {
             // The global RNG is called once per projectile, not once per visual batch. A
@@ -194,14 +194,14 @@ internal sealed class MotherBrainThirdPhaseDeath
         // The table is stored as interleaved X/Y words and indexed by `index * 4` bytes.
         // Spell out the semantic pairs so neither host endianness nor array stride can alter
         // the native 3,2,1,0 repeating order.
-        Position16<RoomPixels> position = DeathAndEscapeExplosionIndex.RawValue switch
+        Position16<RoomPixels> position = DeathAndEscapeExplosionIndex.RemainingFrames switch
         {
             0 => new(8, 108),
             1 => new(24, 128),
             2 => new(9, 144),
             3 => new(24, 116),
             _ => throw new InvalidOperationException(
-                $"Escape-door explosion index ${DeathAndEscapeExplosionIndex.RawValue:X4} escaped its native 0..3 range."),
+                $"Escape-door explosion index {DeathAndEscapeExplosionIndex} escaped its native 0..3 range."),
         };
 
         if (nextRandomNumber is null)
@@ -406,7 +406,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // its high byte as this frame's whole-pixel displacement, and accumulate Y.
         // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
         _state.FunctionTimer = _state.FunctionTimer.AddFrames(32);
-        int fallingDisplacement = UnsignedEightEight.Whole(_state.FunctionTimer.RawValue);
+        int fallingDisplacement = UnsignedEightEight.Whole(_state.FunctionTimer.RemainingFrames);
         Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, (short)fallingDisplacement);
         if (candidate.Y >= 196)
         {

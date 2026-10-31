@@ -62,13 +62,13 @@ public sealed class CeresElevatorArrivalState
         // therefore the pad pre-instruction must move Samus before the platform tests Y=72.
         if (pad.Active)
         {
-            if (pad.WaitTimer.RawValue > 1)
+            if (pad.WaitTimer.IsAbove(1))
             {
                 pad.WaitTimer = pad.WaitTimer.Decrement().Remaining;
             }
             else
             {
-                if (pad.WaitTimer.RawValue == 1)
+                if (pad.WaitTimer.IsAt(1))
                     pad.WaitTimer = WrappingCountdown.Start(0);
 
                 // `$86:A342` samples the old Samus position for the pad, then increments
@@ -129,9 +129,9 @@ public sealed class CeresElevatorArrivalState
     /// <summary>Runs a projectile's typed program (#641) when its frame expires: a new pose, or the delete.</summary>
     private static void ProcessInstructionList(CeresElevatorProjectile projectile)
     {
-        int oldTimer = projectile.InstructionTimer.RawValue;
-        projectile.InstructionTimer = projectile.InstructionTimer.Decrement().Remaining;
-        if (oldTimer != 1)
+        CountdownStep frameStep = projectile.InstructionTimer.Decrement();
+        projectile.InstructionTimer = frameStep.Remaining;
+        if (!frameStep.IsZero)
             return;
 
         AnimationProgramCursor<CeresElevatorArrivalProgram> cursor = projectile.Program;

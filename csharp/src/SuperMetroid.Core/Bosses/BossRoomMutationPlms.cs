@@ -55,7 +55,7 @@ internal sealed class BossRoomMutationPlms
         // SpawnHardcodedPlm stores the header before setup. Keep identity intact
         // for owner queries and mixed populations, not just instruction dispatch.
         slot.Header = header;
-        slot.LoopTimer = 0;
+        slot.LoopTimer = WrappingCountdown.Start(0);
         slot.StartAnimation(new BotwoonWallPlmAnimation(header == PlmHeaderId.ClearBotwoonWall
             ? BotwoonWallProgram.Clear
             : BotwoonWallProgram.Crumble));
@@ -93,7 +93,7 @@ internal sealed class BossRoomMutationPlms
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.LoopTimer = 0;
+        slot.LoopTimer = WrappingCountdown.Start(0);
         slot.StartAnimation(new SporeSpawnCeilingPlmAnimation(header == PlmHeaderId.CrumbleSporeSpawnCeiling
             ? SporeSpawnCeilingProgram.Crumble
             : SporeSpawnCeilingProgram.Clear));
@@ -730,7 +730,7 @@ internal sealed class BossRoomMutationPlms
             return false;
 
         slot.BlockIndex = blockIndex;
-        slot.LoopTimer = 0;
+        slot.LoopTimer = WrappingCountdown.Start(0);
         slot.StartAnimation(new CrocomireArenaPlmAnimation(program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Header = header;
@@ -764,7 +764,7 @@ internal sealed class BossRoomMutationPlms
 
         slot.Header = header;
         slot.BlockIndex = level.GetBlockIndex(block);
-        slot.LoopTimer = 0;
+        slot.LoopTimer = WrappingCountdown.Start(0);
         slot.PreInstruction = PlmPreInstructions.Inert;
         slot.Argument = null;
         PlmProgramStart.Delete.StartOn(slot);
@@ -1093,7 +1093,7 @@ internal sealed class BossRoomMutationPlms
             return false;
 
         slot.BlockIndex = level.GetBlockIndex(block);
-        slot.LoopTimer = 0;
+        slot.LoopTimer = WrappingCountdown.Start(0);
         slot.StartAnimation(new MotherBrainFakeDeathPlmAnimation(program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Header = header;

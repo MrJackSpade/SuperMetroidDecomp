@@ -99,7 +99,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         // DEC/BPL means timer zero deliberately becomes $FFFF and erupts immediately. A
         // reset value N later produces N+1 inactive actor frames because zero is nonnegative.
         state.InactiveTimer = state.InactiveTimer.Decrement().Remaining;
-        if (!EnemyMath.IsNegative16(state.InactiveTimer.RawValue))
+        if (!state.InactiveTimer.IsNegative)
             return;
 
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);

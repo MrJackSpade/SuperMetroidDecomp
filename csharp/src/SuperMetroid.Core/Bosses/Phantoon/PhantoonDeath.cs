@@ -80,7 +80,7 @@ internal sealed class PhantoonDeath
             return;
 
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingExplosions;
-        state.Parts[body.SlotIndex].FunctionTimer = 15;
+        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(15);
         state.Parts[state.Tentacles.SlotIndex].ExplosionIndex = 0;
         state.Parts[body.SlotIndex].ExplosionPass = 0;
     }
@@ -95,7 +95,7 @@ internal sealed class PhantoonDeath
 
         RoomEnemySlot tentacles = state.Tentacles;
         PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosions.Read(state.Parts[tentacles.SlotIndex].ExplosionIndex);
-        state.Parts[body.SlotIndex].FunctionTimer = explosion.Delay;
+        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(explosion.Delay);
         Position16<RoomPixels> position = body.Position.Whole + explosion.Offset;
 
         int before = _projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
@@ -188,7 +188,7 @@ internal sealed class PhantoonDeath
         state.SemiTransparent = false;
         state.Parts[state.Mouth.SlotIndex].LayerControl = PhantoonLayerControl.Removed;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.Dead;
-        state.Parts[body.SlotIndex].FunctionTimer = 60;
+        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(60);
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
         body.Position = body.Position.WithWhole(new(384, 128));
 
@@ -203,9 +203,9 @@ internal sealed class PhantoonDeath
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if (state.Parts[body.SlotIndex].FunctionTimer != 0)
+        if (!state.Parts[body.SlotIndex].FunctionTimer.IsZero)
         {
-            state.Parts[body.SlotIndex].FunctionTimer = WrappingCounter.Decrement(checked((ushort)state.Parts[body.SlotIndex].FunctionTimer)).Value;
+            state.Parts[body.SlotIndex].FunctionTimer = state.Parts[body.SlotIndex].FunctionTimer.DecrementToZero();
             return;
         }
         if ((_frameContext.FrameCounter & 3) != 0)

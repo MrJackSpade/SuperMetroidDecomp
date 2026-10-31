@@ -158,7 +158,7 @@ public sealed class SamusXrayState
         // `$91:E173-$E189` contains a very specific five-bomb/cooldown/divisor rejection.
         // Preserve the three-way conjunction; rejecting every nonzero cooldown would erase
         // a retail quirk, while ignoring it would permit the exact forbidden state.
-        if (conditions.ProjectileCooldownTimer.RawValue == 7 && conditions.BombCounter == 5 && samus.XSpeedDivisor == 2)
+        if (conditions.ProjectileCooldownTimer.IsAt(7) && conditions.BombCounter == 5 && samus.XSpeedDivisor == 2)
             return false;
 
         // Landing art `$A4-$A7/$E0-$E7` is explicitly excluded even though its movement
@@ -370,7 +370,7 @@ public sealed class SamusXrayState
         // Native waits until the final visible turning frame has exactly one tick left.
         // Its beta movement handler is RTS for type `$0E`, so generic animation owns this
         // countdown without X-ray's usual per-frame timer reset.
-        if (samus.AnimationFrame != 2 || samus.AnimationFrameTimer.RawValue != 1)
+        if (samus.AnimationFrame != 2 || !samus.AnimationFrameTimer.IsAt(1))
             return default;
 
         bool nowFacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);

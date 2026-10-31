@@ -213,7 +213,7 @@ internal sealed class DraygonGrab
             return;
         }
 
-        if (state.TailWhipTimer.RawValue == DraygonBehavior.DraygonTailWhipStartFrame)
+        if (state.TailWhipTimer.IsAt(DraygonBehavior.DraygonTailWhipStartFrame))
         {
             _parts.StartDraygonProgram(
                 state.Tail,

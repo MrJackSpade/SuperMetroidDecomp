@@ -31,12 +31,12 @@ internal sealed class PlmSlot
     public PlmRoomArgument? Argument { get; set; }
     /// <summary>The hits a Draygon cannon or Mother Brain's glass has taken.</summary>
     public int HitCounter { get; set; }
-    /// <summary>The slot's loop counter, distinct from the instruction countdown.</summary>
-    public int LoopTimer
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    /// <summary>
+    /// The slot's loop countdown, distinct from the instruction countdown: a counted program loop repeats until it
+    /// reaches zero. A downward gate keeps its trigger in it (nonzero once shot), and the Speed Booster escape keeps the
+    /// lavaquake stage it has reached, each stepped by its own owner.
+    /// </summary>
+    public WrappingCountdown LoopTimer { get; set; }
     /// <summary>
     /// The projectile hit on the slot's trigger block that its pre-instruction has not yet consumed, or null for none.
     /// The cartridge keeps the hit in the loop counter's storage; no PLM that reads hits runs a counted loop while its
@@ -67,7 +67,7 @@ internal sealed class PlmSlot
         PreInstruction = PlmPreInstructions.Inert;
         Argument = null;
         HitCounter = 0;
-        LoopTimer = 0;
+        LoopTimer = WrappingCountdown.Start(0);
         ProjectileHit = null;
         Family = null;
     }

@@ -241,7 +241,7 @@ internal sealed class EnemyDrawList
             return SharedSpriteColouring.Common;
 
         if (!slot.FrozenTimer.IsZero &&
-            (slot.FrozenTimer.RawValue >= 90 || (slot.FrozenTimer.RawValue & 2) != 0))
+            (slot.FrozenTimer.IsAtLeast(90) || slot.FrozenTimer.IsInAlternatePhase(2)))
         {
             return SharedSpriteColouring.Frozen;
         }

@@ -1040,7 +1040,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 // `$A0:9128` clears hurt dispatch once the post-decrement timer is below
                 // eight. This is a signed comparison and applies even when another AI bit
                 // remains set; omitting it would strand Metroid in custom hurt forever.
-                if (unchecked((short)(slot.FlashTimer.RawValue - 8)) < 0)
+                if (slot.FlashTimer.EndsWithin(8))
                     slot.AiStates = slot.AiStates & ~EnemyAiStates.Hurt;
             }
         }

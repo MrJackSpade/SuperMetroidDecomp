@@ -121,8 +121,8 @@ internal sealed class PhantoonPresentation
     /// <summary>Counts the body function timer down and reports its expiry.</summary>
     internal static bool TickPhantoonFunctionTimer(PhantoonPartState body)
     {
-        CountdownStep step = WrappingCounter.Decrement(checked((ushort)body.FunctionTimer));
-        body.FunctionTimer = step.Value;
+        CountdownStep step = body.FunctionTimer.Decrement();
+        body.FunctionTimer = step.Remaining;
         return step.IsZeroOrNegative;
     }
 

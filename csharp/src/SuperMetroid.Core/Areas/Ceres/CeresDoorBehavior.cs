@@ -258,7 +258,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
         CountdownStep rumble = WrappingCounter.Decrement(checked((ushort)state.RumbleCallsLeft));
-        state.RumbleCallsLeft = rumble.Value;
+        state.RumbleCallsLeft = rumble.Remaining.RemainingFrames;
         if (rumble.IsNegative)
         {
             // The 49th call underflows $0000 to $FFFF. Native code hides the door, returns
@@ -272,13 +272,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         CountdownStep interval = WrappingCounter.Decrement(checked((ushort)state.ExplosionIntervalLeft));
-        state.ExplosionIntervalLeft = interval.Value;
+        state.ExplosionIntervalLeft = interval.Remaining.RemainingFrames;
         if (!interval.IsNegative)
             return;
 
         state.ExplosionIntervalLeft = CeresDoorRumbleInterval;
         CountdownStep burst = WrappingCounter.Decrement(checked((ushort)state.ExplosionPositionIndex));
-        state.ExplosionPositionIndex = burst.IsNegative ? CeresDoorRumbleGeometryDefinitions.Count - 1 : burst.Value;
+        state.ExplosionPositionIndex = burst.IsNegative ? CeresDoorRumbleGeometryDefinitions.Count - 1 : burst.Remaining.RemainingFrames;
 
         Offset16<RoomPixels> burstOffset = CeresDoorRumble.Offset(state.ExplosionPositionIndex);
         int xOffset = burstOffset.X;

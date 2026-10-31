@@ -15,7 +15,7 @@ internal sealed class RoomEarthquake
     /// thousands of frames, which is how continuous effects avoid re-arming the timer every frame.
     /// </summary>
     internal void AddTimerBits(int bits) =>
-        EarthquakeTimer = WrappingCountdown.FromRaw(unchecked((ushort)(EarthquakeTimer.RawValue | Ensure.BetweenInclusive(0, ushort.MaxValue, bits))));
+        EarthquakeTimer = EarthquakeTimer.MergedWith(bits);
 
     /// <summary>The shake timer's top bit, which keeps the room shaking for tens of thousands of frames once set.</summary>
     private const int ContinuousShakeBit = 1 << 15;
@@ -45,7 +45,7 @@ internal sealed class RoomEarthquake
     /// Whether the shake shows the side of the origin opposite its table displacement: the sides alternate every
     /// <see cref="RoomEarthquakeDefinitions.StepsPerShakeSide"/> timer steps, starting from the far side.
     /// </summary>
-    private bool ShowsOppositeSide => EarthquakeTimer.RawValue / RoomEarthquakeDefinitions.StepsPerShakeSide % 2 != 0;
+    private bool ShowsOppositeSide => EarthquakeTimer.IsInAlternatePhase(RoomEarthquakeDefinitions.StepsPerShakeSide);
 
     /// <summary>Ports $86:8427, evaluated at each projectile draw pass before room-shake timer consumption.</summary>
     internal Offset16<RoomPixels> GetEnemyProjectileShake(bool timeIsFrozen)

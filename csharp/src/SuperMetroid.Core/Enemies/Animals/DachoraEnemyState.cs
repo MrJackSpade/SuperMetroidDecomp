@@ -93,7 +93,7 @@ public sealed class DachoraEnemyState
     /// </summary>
     internal bool TickPaletteCycle()
     {
-        _paletteCycle = WrappingCounter.Decrement(checked((ushort)_paletteCycle)).Value;
+        _paletteCycle = WrappingCounter.DecrementWord(_paletteCycle);
         return PaletteTicks == 0;
     }
 

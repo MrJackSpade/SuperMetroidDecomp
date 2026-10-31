@@ -207,8 +207,7 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(samus);
         LastVisorPaletteStep = default;
 
-        int timerBefore = Charge.ChargedShotGlowTimer.RawValue;
-        if (timerBefore == 0)
+        if (Charge.ChargedShotGlowTimer.IsZero)
         {
             // `$91:D748-$D793` admits the continuously cycling charge palette only while
             // grapple's function pointer is exactly inactive and the flare counter has
@@ -282,7 +281,7 @@ public sealed class SamusProjectileSystem
         // Hyper's sign bit selects this branch but is not part of the table index. Odd
         // values are pure hold calls; even low-five-bit values 20..2 select palette 0..9.
         // Each selected ROM palette consequently remains visible for exactly two calls.
-        if ((Charge.ChargedShotGlowTimer.RawValue & 1) != 0)
+        if (Charge.ChargedShotGlowTimer.IsInAlternatePhase(1))
         {
             Charge.ChargedShotGlowTimer = Charge.ChargedShotGlowTimer.Decrement().Remaining;
             LastBeamChargePaletteStep = new(
@@ -290,7 +289,7 @@ public sealed class SamusProjectileSystem
             return LastBeamChargePaletteStep;
         }
 
-        int tableOffset = unchecked((ushort)(Charge.ChargedShotGlowTimer.RawValue & 30));
+        int tableOffset = Charge.ChargedShotGlowTimer.CyclePhase(2, 16) * 2;
         if (tableOffset == 0)
         {
             // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
@@ -559,7 +558,7 @@ public sealed class SamusProjectileSystem
                 if (timer.IsZeroOrNegative)
                 {
                     bool finalFrame = Charge.FlareFrame(component) == 1;
-                    Charge.SetFlareFrame(component, WrappingCounter.Decrement(Charge.FlareFrame(component)).Value);
+                    Charge.SetFlareFrame(component, WrappingCounter.DecrementWord(Charge.FlareFrame(component)));
                     if (finalFrame)
                     {
                         // The fast-spark component at native offset four owns the global

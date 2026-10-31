@@ -90,7 +90,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // these exact sixteen words makes the later health-palette interpolation observable.
         _presentation.BossColours().PhantoonBody.Fill(RgbColor.Black);
 
-        Combat.Part(body).FunctionTimer = PhantoonTimerDefinitions.InitialFlameDelayFrames;
+        Combat.Part(body).FunctionTimer = WrappingCountdown.Start(PhantoonTimerDefinitions.InitialFlameDelayFrames);
         Combat.Part(body).StartingFlameIndex = 0;
         Combat.Part(body).StartingFlamesActive = false;
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -299,7 +299,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ApplyPhantoonHurt(RoomEnemySlot body, PhantoonEnemyState state)
     {
         PhantoonPartState tentacles = state.Parts[state.Tentacles.SlotIndex];
-        bool restoreHealthPalette = body.FlashTimer.RawValue == 8 ||
+        bool restoreHealthPalette = body.FlashTimer.IsAt(8) ||
             (body.FrameCounter & 2) == 0 && tentacles.HurtFlashShown;
         if (restoreHealthPalette)
         {
@@ -392,7 +392,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = state.Body;
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.EyeHitboxBody);
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        state.Parts[body.SlotIndex].FunctionTimer = PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Generate() & 7];
+        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(PhantoonTimerDefinitions.VulnerableWindow[_room.Random.Generate() & 7]);
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.EyeTracksSamus;
         PhantoonPresentation.InstallPhantoonProgram(state, state.Eye, PhantoonPartProgram.EyeballCentered);
     }

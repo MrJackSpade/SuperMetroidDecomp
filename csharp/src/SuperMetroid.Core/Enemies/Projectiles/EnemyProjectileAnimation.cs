@@ -14,9 +14,9 @@ internal abstract class EnemyProjectileAnimation
     internal void Advance(EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers)
     {
         RoomEnemyProjectileSlot projectile = context.Projectile;
-        int oldTimer = projectile.InstructionTimer.RawValue;
-        projectile.InstructionTimer = projectile.InstructionTimer.Decrement().Remaining;
-        if (oldTimer != 1)
+        CountdownStep frameStep = projectile.InstructionTimer.Decrement();
+        projectile.InstructionTimer = frameStep.Remaining;
+        if (!frameStep.IsZero)
             return;
         bool shown = TryShowNextFrame(context, handlers, out int duration, out EnemyProjectileFrameId frame);
         if (projectile.Animation != this)

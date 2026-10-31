@@ -232,7 +232,7 @@ internal static class DownwardGatePlmsVerification
             $"{trigger} is claimed by the gate dispatcher");
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
-        AssertEqual(accepted ? 1 : 0, gate.LoopTimer,
+        AssertEqual(accepted ? 1 : 0, gate.LoopTimer.RawValue,
             $"{trigger} projectile ${projectile:X4} acceptance matches cartridge");
         StepDownwardGatePlm(plms, level);
         StepDownwardGatePlm(plms, level);

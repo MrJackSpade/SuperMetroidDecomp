@@ -76,7 +76,7 @@ internal sealed class KraidProjectiles
         nail.Frame = EnemyFrameId.KraidNail0;
         state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;
         state.Parts[nail.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
-        state.Parts[nail.SlotIndex].FunctionTimer = 64;
+        state.Parts[nail.SlotIndex].FunctionTimer = WrappingCountdown.Start(64);
     }
 
     /// <summary>Registers the rock projectile initializers and per-frame handlers.</summary>
@@ -428,20 +428,20 @@ internal sealed class KraidProjectiles
         if (unchecked((short)(_access.Part(lint).LintTravel - 32)) >= 0)
         {
             _access.Part(lint).Function = KraidAiFunction.LintCharge;
-            _access.Part(lint).FunctionTimer = 30;
+            _access.Part(lint).FunctionTimer = WrappingCountdown.Start(30);
         }
     }
 
     /// <summary>Advances the visible lint charge before firing.</summary>
     private void ChargeKraidLint(RoomEnemySlot lint)
     {
-        lint.Colouring = (_access.Part(lint).FunctionTimer & 1) != 0
+        lint.Colouring = _access.Part(lint).FunctionTimer.IsInAlternatePhase(1)
             ? new GraphicsSetMemberColouring(EnemyDefinitionId.Kraid)
             : SharedSpriteColouring.Common;
         lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
             _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel)));
-        CountdownStep charge = WrappingCountdown.FromRaw(checked((ushort)_access.Part(lint).FunctionTimer)).Decrement();
-        _access.Part(lint).FunctionTimer = charge.Remaining.RawValue;
+        CountdownStep charge = _access.Part(lint).FunctionTimer.Decrement();
+        _access.Part(lint).FunctionTimer = charge.Remaining;
         if (charge.IsZero)
         {
             _access.Part(lint).Function = KraidAiFunction.LintFire;
@@ -459,7 +459,7 @@ internal sealed class KraidProjectiles
         {
             lint.Properties = lint.Properties.With(EnemyProperties.Invisible);
             part.Function = KraidAiFunction.AlignPartToKraid;
-            part.FunctionTimer = 300;
+            part.FunctionTimer = WrappingCountdown.Start(300);
             part.NextFunction = KraidAiFunction.LintProduce;
             part.LintTravel = 0;
         }

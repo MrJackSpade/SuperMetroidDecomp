@@ -104,7 +104,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // DEC followed by BPL means a zero cooldown waits one frame and then wraps to FFFF
         // before hopping. This is not equivalent to a conventional "if timer != 0" test.
         state.HopCooldownTimer = state.HopCooldownTimer.Decrement().Remaining;
-        if (!EnemyMath.IsNegative16(state.HopCooldownTimer.RawValue))
+        if (!state.HopCooldownTimer.IsNegative)
             return;
 
         state.Function = PuyoEnemyFunction.Airborne;

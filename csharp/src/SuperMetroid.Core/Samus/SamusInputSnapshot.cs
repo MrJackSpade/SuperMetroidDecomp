@@ -13,7 +13,7 @@ internal sealed class SamusInputSnapshot
     /// native jump admission still sees a nonzero shine without a Stored phase.
     /// </summary>
     public static int SharedShineTimer(SamusState samus) => samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash
-        ? samus.CrystalFlash.SpecialPaletteTimer.RawValue : samus.Shinespark.ShineTimer.RawValue;
+        ? samus.CrystalFlash.SpecialPaletteTimer.RemainingFrames : samus.Shinespark.ShineTimer.RemainingFrames;
 
     /// <summary>
     /// WRAM $0E00, joypad1_newinput_samusfilter: the Fire edge retained by $90:EAB3

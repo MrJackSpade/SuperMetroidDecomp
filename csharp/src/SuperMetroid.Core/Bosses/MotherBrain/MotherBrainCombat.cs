@@ -124,7 +124,7 @@ internal sealed class MotherBrainCombat
         // `$B52D-$B539` deliberately alternates odd/even flash parity when a second hit
         // arrives during the existing flash. The common no-death damage helper then owns
         // health, hurt-AI, and the final ROM-authored hurt duration.
-        head.FlashTimer = WrappingCountdown.FromRaw(!head.FlashTimer.IsZero && (head.FlashTimer.RawValue & 1) != 0
+        head.FlashTimer = WrappingCountdown.FromRaw(!head.FlashTimer.IsZero && head.FlashTimer.IsInAlternatePhase(1)
             ? (ushort)14
             : (ushort)13);
 
@@ -283,7 +283,7 @@ internal sealed class MotherBrainCombat
                 // cadence; every other movement type returns without changing either actor.
                 RoomEnemySlot slot = context.Slot;
                 if (SamusPoseMetadata.ReadMovementType(context.Samus) == SamusMovementType.SpinJumping)
-                    slot.FlashTimer = WrappingCountdown.FromRaw(!slot.FlashTimer.IsZero && (slot.FlashTimer.RawValue & 1) != 0
+                    slot.FlashTimer = WrappingCountdown.FromRaw(!slot.FlashTimer.IsZero && slot.FlashTimer.IsInAlternatePhase(1)
                         ? (ushort)14
                         : (ushort)13);
             });

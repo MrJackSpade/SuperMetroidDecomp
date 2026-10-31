@@ -42,8 +42,8 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
             (cue, continuation) => handlers.PublishProgramCue<TProgram, TCue>(context, cue));
         Cursor = cursor;
         // Only a counter step changes the counter; a deleted projectile keeps its cleared timer.
-        if (projectile.Animation == this && counter.RawValue != timerBefore)
-            projectile.GeneralTimer = counter.RawValue;
+        if (projectile.Animation == this && !counter.IsAt(timerBefore))
+            projectile.GeneralTimer = counter.RemainingFrames;
         switch (advance)
         {
             case AnimationProgramAdvance<TFrame>.Show shown:

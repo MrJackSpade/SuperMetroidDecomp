@@ -20,7 +20,7 @@ internal static class PhantoonReport1196Verification
         var enemies = CreatePhantoonSystem();
         var state = enemies.PhantoonBehavior.Combat.Phantoon;
         enemies.BeginEnemySoundRequestFrame();
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Parts[state.Body.SlotIndex].FunctionTimer = 1;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Parts[state.Body.SlotIndex].FunctionTimer = WrappingCountdown.FromRaw(1);
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state.Body, state);
         enemies.PublishEnemyAudioRequests();
         AssertEqual(1, state.StartingFlamesSpawned, "intro producer actually spawns a starting flame");

@@ -106,11 +106,11 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.SetCounterStep setCounter:
                     Cursor = next;
-                    slot.LoopTimer = (ushort)setCounter.Count;
+                    slot.LoopTimer = WrappingCountdown.Start(setCounter.Count);
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep repeat:
-                    CountdownStep counted = WrappingCounter.Decrement(slot.LoopTimer);
-                    slot.LoopTimer = counted.Value;
+                    CountdownStep counted = slot.LoopTimer.Decrement();
+                    slot.LoopTimer = counted.Remaining;
                     Cursor = counted.IsZero ? next : AnimationProgramCursor<TProgram>.Start(repeat.Target);
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep:

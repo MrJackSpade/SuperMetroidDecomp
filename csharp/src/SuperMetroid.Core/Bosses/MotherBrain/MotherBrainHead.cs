@@ -145,7 +145,7 @@ internal sealed class MotherBrainHead
                 head.Position.Whole + brainShake,
                 // The custom draw hook bypasses ordinary enemy colour selection. Retail
                 // still selects the shared white hurt colours on odd flash-timer frames.
-                (head.FlashTimer.RawValue & 1) != 0 ? SharedSpriteColouring.Common : state.BrainColouring),
+                head.FlashTimer.IsInAlternatePhase(1) ? SharedSpriteColouring.Common : state.BrainColouring),
             camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
@@ -153,7 +153,7 @@ internal sealed class MotherBrainHead
 
         // `$A9:930C-$9354` emits the joint nearest the brain first and the body-side joint
         // last. Equal-priority overlap therefore follows the same drawing precedence.
-        int shakeIndex = (head.FlashTimer.RawValue & 6) >> 1;
+        int shakeIndex = head.FlashTimer.CyclePhase(2, 4);
         Offset16<RoomPixels> neckShake = MotherBrainBehavior.MotherBrainShakeOffsets[shakeIndex];
         Position16<RoomPixels>[] segments = state.NeckJoints;
         for (int index = segments.Length - 1; index >= 0; index--)
@@ -196,11 +196,11 @@ internal sealed class MotherBrainHead
         if (!state.BrainMainShakeTimer.IsZero)
         {
             state.BrainMainShakeTimer = state.BrainMainShakeTimer.Decrement().Remaining;
-            shake = state.BrainMainShakeTimer.RawValue;
+            shake = state.BrainMainShakeTimer.RemainingFrames;
         }
         else
         {
-            shake = !head.FlashTimer.IsZero ? head.FlashTimer.RawValue : head.ShakeTimer.RawValue;
+            shake = !head.FlashTimer.IsZero ? head.FlashTimer.RemainingFrames : head.ShakeTimer.RemainingFrames;
         }
 
         int index = (shake & 6) >> 1;

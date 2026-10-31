@@ -412,7 +412,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampWiggleStop stop)
     {
         state.WiggleTimer = state.WiggleTimer.Decrement().Remaining;
-        if (!state.WiggleTimer.IsZero && !EnemyMath.IsNegative16(state.WiggleTimer.RawValue))
+        if (!state.WiggleTimer.IsZeroOrNegative)
             return false;
 
         state.WiggleTimer = WrappingCountdown.Start(PowampWiggleFramesPerOffset);
@@ -473,7 +473,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool TickPowampTimer(PowampEnemyState state)
     {
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        return state.FunctionTimer.IsZero || EnemyMath.IsNegative16(state.FunctionTimer.RawValue);
+        return state.FunctionTimer.IsZeroOrNegative;
     }
 
     /// <summary>The body's vertical displacement for terrain movement.</summary>

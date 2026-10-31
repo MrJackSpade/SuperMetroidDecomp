@@ -309,7 +309,7 @@ internal sealed class PhantoonCombat
             if (state.Parts[state.Tentacles.SlotIndex].RoundDamage >= PhantoonBehavior.PhantoonDamageThreshold)
             {
                 if (swooping)
-                    state.Parts[body.SlotIndex].FunctionTimer = 1;
+                    state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(1);
                 else
                     ClosePhantoonAfterDamage(body, state, PhantoonAiFunction.FadeOutWhileSwooping);
                 state.Parts[state.Tentacles.SlotIndex].HitReaction = 2;
@@ -325,8 +325,8 @@ internal sealed class PhantoonCombat
                 if (!state.Parts[state.Tentacles.SlotIndex].SwoopRequested)
                 {
                     state.Parts[state.Tentacles.SlotIndex].SwoopRequested = true;
-                    if (state.Parts[body.SlotIndex].FunctionTimer >= 16)
-                        state.Parts[body.SlotIndex].FunctionTimer = 16;
+                    if (state.Parts[body.SlotIndex].FunctionTimer.IsAtLeast(16))
+                        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(16);
                 }
                 return;
             }
@@ -345,7 +345,7 @@ internal sealed class PhantoonCombat
         PhantoonAiFunction fadeOut)
     {
         state.Parts[body.SlotIndex].Function = fadeOut;
-        state.Parts[body.SlotIndex].FunctionTimer = 0;
+        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(0);
         RoomEnemySlot tentacles = state.Tentacles;
         RoomEnemySlot eye = state.Eye;
         state.Parts[tentacles.SlotIndex].SwoopRequested = false;

@@ -706,9 +706,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses native post-decrement semantics, treating a one-to-zero or signed underflow as expiry.</summary>
     private static bool DecrementEtecoonTimerAndTestExpired(EtecoonEnemyState state)
     {
-        bool wasOne = state.FunctionTimer.RawValue == 1;
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        return wasOne || state.FunctionTimer.IsNegative;
+        CountdownStep step = state.FunctionTimer.Decrement();
+        state.FunctionTimer = step.Remaining;
+        return step.IsZeroOrNegative;
     }
 
     /// <summary>Checks strict wrapped horizontal distance from an Etecoon to Samus.</summary>

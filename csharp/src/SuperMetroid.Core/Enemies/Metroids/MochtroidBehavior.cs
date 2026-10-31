@@ -159,7 +159,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // This third dispatch entry is unused by retail callers but present in the shipped
         // table. The low two even bits select right/up/left/down, then the timer counts down.
-        slot.Position += MochtroidShake.Offset(state.ShakeTimer.RawValue);
+        slot.Position += MochtroidShake.Offset(state.ShakeTimer.RemainingFrames);
         StoreMochtroidXVelocity(state, 0);
         StoreMochtroidYVelocity(state, 0);
         state.ShakeTimer = state.ShakeTimer.Decrement().Remaining;

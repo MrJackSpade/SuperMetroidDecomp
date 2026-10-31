@@ -155,8 +155,8 @@ internal sealed class GatePlms : IPlmFamilySource
 
         // Trigger setup increments only a zero timer. Repeated accepted hits before the
         // resident pre-instruction runs do not accumulate extra close cycles.
-        if (gate.LoopTimer == 0)
-            gate.LoopTimer = 1;
+        if (gate.LoopTimer.IsZero)
+            gate.LoopTimer = WrappingCountdown.Start(1);
         temporary.Clear();
         return true;
     }
@@ -185,9 +185,9 @@ internal sealed class GatePlms : IPlmFamilySource
     {
         bool wake = preInstruction switch
         {
-            DownwardGatePreInstruction.WakeIfTriggered => slot.LoopTimer != 0,
+            DownwardGatePreInstruction.WakeIfTriggered => !slot.LoopTimer.IsZero,
             DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow =>
-                slot.LoopTimer != 0 || IsSamusInsideDownwardGateColumn(slot),
+                !slot.LoopTimer.IsZero || IsSamusInsideDownwardGateColumn(slot),
             DownwardGatePreInstruction.None or
                 DownwardGatePreInstruction.Inert => throw new InvalidOperationException(
                 $"Undefined downward gate pre-instruction {preInstruction}."),

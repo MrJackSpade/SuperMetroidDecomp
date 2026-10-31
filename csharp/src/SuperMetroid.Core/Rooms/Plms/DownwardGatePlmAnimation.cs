@@ -23,7 +23,7 @@ internal sealed class DownwardGatePlmAnimation(DownwardGateProgram program)
         switch (cue)
         {
             case DownwardGateCue.ClearTrigger:
-                slot.LoopTimer = 0;
+                slot.LoopTimer = WrappingCountdown.Start(0);
                 break;
             case DownwardGateCue.ArmWakeIfTriggered:
                 slot.PreInstruction = DownwardGatePreInstructions.WakeIfTriggered;

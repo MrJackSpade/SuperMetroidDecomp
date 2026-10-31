@@ -300,7 +300,7 @@ internal sealed class IntroBabyDiscoveryState
 
             case CinematicSpritePreInstruction.ConfusedBabyIdling:
                 BabyIdleTimer = BabyIdleTimer.Decrement().Remaining;
-                if (unchecked((short)BabyIdleTimer.RawValue) <= 0)
+                if (BabyIdleTimer.IsZeroOrNegative)
                 {
                     confusedBaby.InstallPreInstruction(
                         CinematicSpritePreInstruction.ConfusedBabyDancing);

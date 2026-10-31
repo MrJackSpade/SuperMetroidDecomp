@@ -14,9 +14,9 @@ internal static class BombTorizoHandDraws
     /// </summary>
     internal readonly record struct Draw(BombTorizoHandDraw Frame)
     {
-        /// <summary>The draw's strips in native run order.</summary>
+        /// <summary>The draw's strips in authored run order.</summary>
         private BombTorizoHandStrip[] Strips => BombTorizoHandPlmDrawDefinitions.Strips[Frame];
-        /// <summary>Gets the number of horizontal strips in the selected native draw list.</summary>
+        /// <summary>Gets the number of horizontal strips in the selected draw list.</summary>
         internal int RunCount => Strips.Length;
         /// <summary>Gets the block count in a selected strip, rejecting an invalid run index.</summary>
         internal int BlockCount(int run) => Strip(run).Cells.Length;
@@ -48,7 +48,7 @@ internal static class BombTorizoHandDraws
             (uint)run < RunCount ? Strips[run] : throw new ArgumentOutOfRangeException(nameof(run));
     }
 
-    /// <summary>Recognizes one of the two native hand draw pointers and returns its calculated descriptor.</summary>
+    /// <summary>Recognizes one of the two hand draw pointers and returns its calculated descriptor.</summary>
     internal static bool TryDescribe(PlmDraw request, out Draw draw)
     {
         bool owned = request is PlmFrameDraw<BombTorizoHandDraw>;
@@ -56,7 +56,7 @@ internal static class BombTorizoHandDraws
         return owned;
     }
 
-    /// <summary>Enumerates temporary draw DTOs for intact and cleared hand artwork in native order.</summary>
+    /// <summary>Enumerates temporary draw DTOs for intact and cleared hand artwork in authored order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -84,7 +84,7 @@ internal static class BombTorizoHandDraws
         return true;
     }
 
-    /// <summary>Gets the stable artwork ID for a supported native hand draw pointer.</summary>
+    /// <summary>Gets the stable artwork ID for a supported hand draw pointer.</summary>
     internal static string VisualId(PlmDraw request) =>
         VisualId(PlmDraw.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand draw with a visual ID"));
 

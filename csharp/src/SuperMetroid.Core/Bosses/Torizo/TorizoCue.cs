@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>One cue of Torizo's body programs, with the operands its native instruction carries.</summary>
+/// <summary>One cue of Torizo's body programs, with the operands its instruction carries.</summary>
 internal abstract record TorizoCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>
@@ -51,7 +51,7 @@ internal abstract record TorizoCue
     /// <param name="FrameBehavior">The pre-instruction a <see cref="SetFrameBehavior"/> cue installs.</param>
     internal sealed record SetFrameBehavior(TorizoFrameBehavior FrameBehavior) : TorizoCue;
 
-    /// <summary>Shows a piece of artwork under the body's poses (the cartridge's common <c>$814B</c> copy).</summary>
+    /// <summary>Shows a piece of artwork under the body's poses (the game's common artwork copy).</summary>
     /// <param name="Swap">The artwork a <see cref="ShowArtwork"/> cue shows.</param>
     internal sealed record ShowArtwork(TorizoArtworkSwap Swap) : TorizoCue;
 

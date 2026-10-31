@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// The masks bank $AA and Torizo's bank-$86 spawns apply to the room's random numbers. A decision that tests a mask is
+/// The masks Torizo's AI and spawns apply to the room's random numbers. A decision that tests a mask is
 /// taken when every masked bit is clear, so each mask's bit count sets its odds.
 /// </summary>
 internal static class TorizoRandomDefinitions
@@ -24,7 +24,7 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomSampleField DroolFallJitter = new(0, 5);
 
     /// <summary>
-    /// A turning Torizo's drool angle, any of the 256 table angles: the selection of bits 1-8, which the cartridge
+    /// A turning Torizo's drool angle, any of the 256 table angles: the selection of bits 1-8, which the original game
     /// reads as a word index into the full circle.
     /// </summary>
     internal static readonly RandomSampleField DroolTurningAngle = new(1, 8);
@@ -34,7 +34,7 @@ internal static class TorizoRandomDefinitions
 
     /// <summary>
     /// Golden Torizo's eye-beam angle spread, 0 through 15 table angles: the selection of bits 1-4, which the
-    /// cartridge reads as an even word-index step of up to thirty.
+    /// reads as an even word-index step of up to thirty.
     /// </summary>
     internal static readonly RandomSampleField EyeBeamSpread = new(1, 4);
 

@@ -14,7 +14,7 @@ internal sealed class TorizoCombat
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Exposes the two live CGRAM rows occupied by Torizo's body.</summary>
+    /// <summary>Exposes the two live palette rows occupied by Torizo's body.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Applies shot, bomb, and touch damage through the shared collision rules.</summary>
     private readonly EnemyCollision _collision;
@@ -34,9 +34,9 @@ internal sealed class TorizoCombat
     }
 
     /// <summary>
-    /// Dispatches an already-colliding family-<c>$0500</c> bomb through Torizo hitbox
-    /// callbacks <c>$AA:C97C/$C9C2/$D667</c>. The bank-$A0 multibox walker has already set
-    /// direction bit <c>$10</c>; this method owns only the species callback and its common
+    /// Dispatches an already-colliding normal bomb through Torizo's hitbox
+    /// callbacks. The multibox walker has already set
+    /// its explosion direction bit; this method owns only the species callback and its common
     /// no-death damage tail.
     /// </summary>
     private void ResolveTorizoNormalBomb(
@@ -52,8 +52,8 @@ internal sealed class TorizoCombat
         TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
         if (selectedShotAi == EnemyReaction.TorizoStandUpSitDownShot)
         {
-            // `$C9C2` is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
-            // Which accepts common damage only outside the active flash and while
+            // The transitional callback is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
+            // a guarded path, which accepts common damage only outside the active flash and while
             // `toriz_var_04` is zero. This transitional callback never arms the later
             // counterattack bits or captures a projectile family.
             if (isBombTorizo || !torizo.FlashTimer.IsZero || state.AnimationLocked)
@@ -82,7 +82,7 @@ internal sealed class TorizoCombat
 
         if (isGoldenTorizo && !state.AnimationLocked)
         {
-            // A bomb is neither Missile nor Super Missile, so `$D667` takes LABEL_11 and arms the
+            // A bomb is neither Missile nor Super Missile, so Golden Torizo's shot callback takes LABEL_11 and arms the
             // stun latch before common damage, whether or not the Super-catch latch is set.
             SetBehavior(torizo, TorizoBehaviorFlags.Stunned);
         }
@@ -99,7 +99,7 @@ internal sealed class TorizoCombat
     /// <summary>Selects Golden Torizo's body and belly health band from health bits 11 through 14.</summary>
     private void LoadGoldenTorizoHealthPalette(int health)
     {
-        // $84:8000 selects one of eight health bands using bits 11..14 of health, clamping
+        // The health gradient selects one of eight health bands using bits 11..14 of health, clamping
         // the upper half to the last band; each band resolves its colours from the installed health palettes.
         int healthBand = Ensure.BetweenInclusive(0, ushort.MaxValue, health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
         int band = Math.Min(healthBand, TorizoCombatDefinitions.LastHealthBand);
@@ -118,7 +118,7 @@ internal sealed class TorizoCombat
         }
     }
 
-    /// <summary>Ports Bomb Torizo's custom hurt callback $AA:C67E.</summary>
+    /// <summary>Runs Bomb Torizo's custom hurt callback.</summary>
     internal void ApplyBombTorizoHurt(RoomEnemySlot torizo)
     {
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
@@ -144,7 +144,7 @@ internal sealed class TorizoCombat
         state.Function = TorizoFunction.Idle;
         TorizoBody.StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.DeathSequence0));
         SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp);
-        // EnemyShot_Torizo_Normal `$AA:C9B7-$AA:C9BD` sets property $0400 when
+        // EnemyShot_Torizo_Normal makes the actor intangible when
         // entering the death stream. This removes the dying actor from Samus contact and
         // solid-enemy collision while its flashing/invisible instruction frames continue.
         torizo.Properties = torizo.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -168,8 +168,8 @@ internal sealed class TorizoCombat
                                                          ? EnemyReaction.BombTorizoShot
                                                          : EnemyReaction.GoldenTorizoShot))
         {
-            // Golden's definition installs $D667, but its ordinary extended body hitboxes call shared $C97C; that
-            // wrapper dispatches to $D667 by area. Stand-up/sit-down maps deliberately use $C9C2 instead. That
+            // Golden's definition installs its own shot callback, but its ordinary extended body hitboxes call the shared
+            // one; that wrapper dispatches to Golden's by area. Stand-up/sit-down maps deliberately use the transitional callback instead. That
             // callback is a no-op for area-zero Bomb Torizo and a guarded direct-damage path for Golden Torizo, so it
             // must remain distinguishable below.
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
@@ -222,9 +222,9 @@ internal sealed class TorizoCombat
         TorizoEnemyState torizoState = _access.RequireBombTorizoState(enemy);
         if (c.HitboxShotAi == EnemyReaction.TorizoStandUpSitDownShot)
         {
-            // `$AA:C9C2` returns immediately in area zero. In nonzero areas it calls `$AA:D658`, which admits common
-            // no-death shot damage only while both the flash timer and native `toriz_var_04` are zero. Crucially it
-            // never enters `$AA:D667`, so missiles are not caught, Supers are not reflected, and parameter-two
+            // The transitional callback returns immediately in area zero. In nonzero areas it calls a guarded path, which admits common
+            // no-death shot damage only while both the flash timer and `toriz_var_04` are zero. Crucially it
+            // never enters Golden's shot callback, so missiles are not caught, Supers are not reflected, and parameter-two
             // counterattack bits are not armed through these transitional body rectangles.
             if (isBombTorizo || !enemy.FlashTimer.IsZero || torizoState.AnimationLocked)
             {
@@ -240,7 +240,7 @@ internal sealed class TorizoCombat
             return true;
         }
 
-        // A caught Super bypasses family selection, but still reaches the native stun write before common damage.
+        // A caught Super bypasses family selection, but still reaches the stun write before common damage.
         // Animation lock and the transitional hitbox callback bypass that write instead.
         if (c.HitboxShotAi == EnemyReaction.BombTorizoShot && isGoldenTorizo &&
             !torizoState.AnimationLocked &&
@@ -294,7 +294,7 @@ internal sealed class TorizoCombat
 
     /// <summary>
     /// Registers Torizo_Hurt for each variant; the common instruction interpreter still
-    /// advances after the hurt callback, matching <c>$A0:8FF7</c>.
+    /// advances after the hurt callback, as EnemyMain does.
     /// </summary>
     internal void AddBombTorizoHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 /// <summary>
-/// The presentation boundary of Bomb and Golden Torizo's body (#641): the bank-$AA extended spritemap each
+/// The presentation boundary of Bomb and Golden Torizo's body (#641): the extended spritemap each
 /// <see cref="TorizoFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class TorizoFrameDefinitions

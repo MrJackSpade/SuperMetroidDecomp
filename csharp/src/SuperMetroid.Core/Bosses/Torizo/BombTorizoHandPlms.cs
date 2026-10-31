@@ -11,7 +11,7 @@ internal sealed class BombTorizoHandPlms
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
-    /// <summary>Physical PLM slots searched for active native header pointers.</summary>
+    /// <summary>Physical PLM slots searched for active header pointers.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Connects the statue-hand interpreter to the current room and PLM slot table.</summary>
@@ -26,7 +26,7 @@ internal sealed class BombTorizoHandPlms
     /// <summary>Delayed track-selection commands queued by the hand program for this frame.</summary>
     private readonly List<DelayedMusicRequest> _musicRequests = [];
 
-    /// <summary>Bank-$86 statue fragments emitted during the latest PLM pass.</summary>
+    /// <summary>Statue fragment projectiles emitted during the latest PLM pass.</summary>
     public IReadOnlyList<BombTorizoStatueProjectileRequest>
         BombTorizoStatueProjectileRequests => _bombTorizoStatueProjectileRequests;
 
@@ -35,13 +35,13 @@ internal sealed class BombTorizoHandPlms
 
     /// <summary>
     /// Tests the physical PLM header array exactly as enemy code such as
-    /// <c>$AA:C6C6</c> does. This is intentionally generic: the enemy does not know which
+    /// Bomb Torizo's awakening check does. This is intentionally generic: the enemy does not know which
     /// translated family owns a slot, only whether one of forty header words matches.
     /// </summary>
     public bool HasActiveHeader(PlmHeaderId header) =>
         _slotTable.Slots.Any(slot => slot.Active && slot.Header == header);
 
-    /// <summary>Runs setup $D606 after the generic room allocator has installed the header.</summary>
+    /// <summary>Runs the hand PLM's setup after the generic room allocator has installed the header.</summary>
     internal void SetupBombTorizoHandSlot(
         RoomLevelData level,
         PlmSlot slot,
@@ -66,7 +66,7 @@ internal sealed class BombTorizoHandPlms
     }
 
     /// <summary>
-    /// Runs pre-instruction <c>$84:D33B</c> before the ordinary PLM timer pass.
+    /// Runs the hand's frame behaviour before the ordinary PLM timer pass.
     /// </summary>
     internal void RunBombTorizoHandFrameBehavior(PlmSlot slot)
     {
@@ -76,8 +76,8 @@ internal sealed class BombTorizoHandPlms
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))
             return;
 
-        // The sleeping opcode leaves Y pointing at itself. D33B adds two to skip that word,
-        // restores the instruction timer to one, and replaces its pre-instruction with RTS.
+        // The sleeping step leaves the script position at itself. The frame behaviour skips past it,
+        // restores the frame hold to one, and replaces its frame behaviour with an empty one.
         slot.WakePastSleep();
         slot.FrameBehavior = PlmFrameBehaviors.Inert;
     }
@@ -85,7 +85,7 @@ internal sealed class BombTorizoHandPlms
     internal void SpawnFragment(PlmSlot slot, int fragment) =>
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
             fragment,
-            // The native fragment spawn carries both block coordinates as bytes.
+            // The fragment spawn carries both block coordinates as bytes.
             new(slot.BlockIndex % _bombTorizoHandRoomWidth,
                 slot.BlockIndex / _bombTorizoHandRoomWidth)));
 

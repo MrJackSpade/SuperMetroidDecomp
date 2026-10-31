@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class BombTorizoMovementDefinitions
 {
     /// <summary>
-    /// The sixteen X words and eight wrapping Y words at
-    /// <c>$AA:C40E-$AA:C41D</c>. The sitting-down copies
+    /// The sixteen X values and eight wrapping Y values of the posture
+    /// movement. The sitting-down copies
     /// are byte-identical and are subtracted by the caller. Left-facing per-frame
     /// displacements are authored to the posture animation, including its uneven steps;
     /// right-facing movement reflects their horizontal sign rather than storing a second table.
@@ -17,8 +17,7 @@ internal static class BombTorizoMovementDefinitions
         [0, -6, -6, -7, 0, 0, 0, 0];
 
     /// <summary>
-    /// The twenty velocities duplicated and
-    /// <c>$AA:C532-$AA:C559</c> by the normal and faceless walking instructions.
+    /// The twenty velocities used by the normal and faceless walking steps.
     /// These ten authored stride magnitudes share one table because facing only changes their sign.
     /// </summary>
     internal static readonly short[] LeftWalkVelocities = [-5, 0, -5, -19, -16, -7, 0, -7, -17, -18];

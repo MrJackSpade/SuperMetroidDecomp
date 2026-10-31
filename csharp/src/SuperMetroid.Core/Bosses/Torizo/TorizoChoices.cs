@@ -220,7 +220,7 @@ internal sealed class TorizoChoices
             return null;
         }
 
-        // $AA:C22D launches away from the currently faced direction at 3 px/frame and
+        // The jump-back launches away from the currently faced direction at 3 px/frame and
         // starts with -4.5 px/frame vertical speed, adding 40/256 px/frame each tick.
         state.Velocity = new EightEightVector<RoomPixels>(
             _access.FacesRight(torizo) ? -768 : 768, -1152);
@@ -231,16 +231,16 @@ internal sealed class TorizoChoices
 
     /// <summary>
     /// Compares the facing bit with Samus-X minus enemy-X for walking branches; the
-    /// cartridge's other facing helper deliberately uses the inverse subtraction.
+    /// game's other facing helper deliberately uses the inverse subtraction.
     /// </summary>
     private bool BombTorizoParameterMatchesSamusDelta(
         RoomEnemySlot torizo,
         SamusState samus)
     {
-        // Instructions $C470/$C4E5/$C567 compare the facing bit against the sign of SamusX-enemyX.
+        // The walking steps compare the facing bit against the sign of SamusX-enemyX.
         // Keep that subtraction direction explicit: Torizo_Func_12 below deliberately uses
         // the inverse delta, and collapsing both tests into one "faces Samus" helper silently
-        // reverses one family of ROM branches.
+        // reverses one family of the game's branches.
         return _access.FacesRight(torizo) == CoordinateAxis.Difference(samus.Position.X.Whole, torizo.Position.X.Whole) < 0;
     }
 }

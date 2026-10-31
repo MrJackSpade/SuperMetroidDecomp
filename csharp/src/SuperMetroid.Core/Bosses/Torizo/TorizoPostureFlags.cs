@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// A Bomb or Golden Torizo's posture. The stepping commands replace all three latches and the turning command sets its
-/// latch alone, so they compose. The cartridge keeps them in the top three bits of enemy parameter 1; where, is the
+/// latch alone, so they compose. The original game keeps them in the top three bits of enemy parameter 1; where, is the
 /// checks' knowledge, and the values here are arbitrary bits (#1413).
 /// </summary>
 [Flags]

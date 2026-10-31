@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Ordered physical components and touch/shot rectangles for all 106 Torizo frames selected
-/// by the compiled bank-$AA instruction lists. OAM composition and pixels are not stored here.
-/// The native blank frame has an empty hitbox list, rather than invented collision.
+/// by the compiled animation scripts. Sprite composition and pixels are not stored here.
+/// The blank frame has an empty hitbox list, rather than invented collision.
 /// </summary>
 /// <remarks>
-/// Reviewed for #1165; the single owner of the bank-$AA Torizo collision space. Frame records
-/// are contiguous within four runs ($87D0 blank, $A4F0 turning plus 42 left-facing frames,
-/// $AA12 seven awakening frames, $AA98 right-facing frames), so every pointer derives from its
-/// run start and the preceding record sizes (a count word plus eight bytes per component).
+/// Reviewed for #1165; the single owner of the Torizo collision space. Frame records
+/// are contiguous within four runs (the blank frame, turning plus 42 left-facing frames,
+/// seven awakening frames, right-facing frames), so every frame derives from its
+/// run start and the preceding record sizes (a count plus one entry per component).
 /// The first 49 right-facing frames are the exact X mirrors, in order, of the 49 left-facing
 /// frames: X negates and each hitbox list is replaced by its separately fitted right-facing
 /// counterpart (<see cref="TorizoHitboxList.RightFacing"/>); every list without collision is
@@ -68,10 +68,10 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Left-facing standing body, extending to Y 18.</summary>
     private static readonly TorizoHitboxList StandingBody = new([new(-18, -37, 7, 18, EnemyReaction.BombTorizoTouch, EnemyReaction.BombTorizoShot)], StandingBodyRight);
 
-    /// <summary>Single origin component used by the native blank and shared turning frames.</summary>
+    /// <summary>Single origin component used by the blank and shared turning frames.</summary>
     private static readonly GoldenTorizoCollisionComponent[] SingleEmpty = [new(new(0, 0), Empty)];
 
-    /// <summary>The 42 left-facing frames, in native order.</summary>
+    /// <summary>The 42 left-facing frames, in authored order.</summary>
     internal static readonly GoldenTorizoCollisionComponent[][] LeftFrames =
     [
         [new(new(-15, -30), Empty), new(new(-5, -24), Empty), new(new(0, 0), StandingBody), new(new(-5, -24), Empty)],
@@ -118,7 +118,7 @@ internal static class TorizoCollisionDefinitions
         [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
     ];
 
-    /// <summary>The seven awakening frames, in native order.</summary>
+    /// <summary>The seven awakening frames, in authored order.</summary>
     internal static readonly GoldenTorizoCollisionComponent[][] AwakeningFrames =
     [
         [new(new(0, 0), AwakeningSteps[0])],

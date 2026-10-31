@@ -1,134 +1,134 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed projectile programs (#641), one per bank-$86 list a spawn, pre-instruction, branch
-/// or resumed sleep enters, in authored order. Generated from the verified native lists; see
+/// Bomb and Golden Torizo's typed projectile programs (#641), one per list a spawn, pre-instruction, branch
+/// or resumed sleep enters, in authored order. Generated from the verified lists; see
 /// <see cref="TorizoProjectileAnimations"/>.
 /// </summary>
 internal enum TorizoProjectileProgram
 {
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     ExplosionLowHealthInitial,
-    /// <summary>The loop.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ExplosionLowHealthInitialLoop,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     ExplosionDeathInitial,
-    /// <summary>The loop.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ExplosionDeathInitialLoop,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     ExplosionDeathSmokeSetup,
-    /// <summary>The loop.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ExplosionDeathSmokeSetupLoop,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolFourFrameDelay,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolTwoFrameDelay,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolNoDelay,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolFallingLoop,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolWallImpact,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     DroolFloorImpact,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SwipeInitial,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment0,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment1,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment2,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment3,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment4,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment5,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment6,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment7,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment8,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment9,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment10,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment11,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment12,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment13,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment14,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     StatueFragment15,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     ChozoOrbMovingLeft,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     ChozoOrbMovingRight,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     ChozoOrbWallImpact,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     ChozoOrbFloorImpact,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     ChozoOrbShot,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomFiredLeft,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomMovingLeft,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomFiredRight,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomMovingRight,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomWallImpact,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SonicBoomWallImpactLoop,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     LandingDustRightFoot,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     LandingDustLeftFoot,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBouncingLeft,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBouncingLeftHatching,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBouncingRight,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBouncingRightHatching,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggHatch,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggHatchedLeft,
-    /// <summary>The loop.</summary>
+    /// <summary>The animation's repeating part.</summary>
     EggHatchedLeftLoop,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggHatchedRight,
-    /// <summary>The loop.</summary>
+    /// <summary>The animation's repeating part.</summary>
     EggHatchedRightLoop,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBreakLeft,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EggBreakRight,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SuperMissileRightInitial,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SuperMissileRightLoop,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SuperMissileLeftInitial,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SuperMissileLeftLoop,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     SuperMissileImpact,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EyeBeamWallImpact,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EyeBeamFloorImpact,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EyeBeamFloorImpactLoop,
-    /// <summary>The native list.</summary>
+    /// <summary>Where the animation starts.</summary>
     EyeBeamNormal,
 }

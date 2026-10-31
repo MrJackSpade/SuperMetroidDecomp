@@ -6,8 +6,8 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed projectile programs (#641), in place of their bank-$86 lists. Generated from the
-/// verified native lists: each frame is a <see cref="TorizoProjectileFrame"/> pose of its program, and each command
+/// Bomb and Golden Torizo's typed projectile programs (#641), in place of their lists. Generated from the
+/// verified lists: each frame is a <see cref="TorizoProjectileFrame"/> pose of its program, and each command
 /// a <see cref="TorizoProjectileCue"/> with its typed operands.
 /// </summary>
 internal static class TorizoProjectileAnimations
@@ -678,7 +678,7 @@ internal static class TorizoProjectileAnimations
     private static AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue> FallInto(TorizoProjectileProgram program) =>
         AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep and deletion do.</summary>
+    /// <summary>Holds the last frame, as the script's sleep and deletion do.</summary>
     private static AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue> Hold =>
         AnimationProgramStep<TorizoProjectileProgram, TorizoProjectileFrame, TorizoProjectileCue>.Hold;
 }

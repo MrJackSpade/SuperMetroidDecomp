@@ -21,7 +21,7 @@ internal sealed class TorizoMovement
     private readonly EnemyTerrain _terrain;
     /// <summary>Receives the impact quake when a falling or jumping statue lands.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Exposes the two live CGRAM rows occupied by Torizo's body.</summary>
+    /// <summary>Exposes the two live palette rows occupied by Torizo's body.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Bomb and Golden Torizo's body: its behaviour flags, palette, program start and the low-health drool it triggers.</summary>
     private readonly TorizoBody _body;
@@ -41,7 +41,7 @@ internal sealed class TorizoMovement
 
     /// <summary>
     /// Ports shared <c>Torizo_Init</c> for the area-zero Bomb and area-two
-    /// Golden definitions. The cartridge indexes parallel two-word tables by area; using
+    /// Golden definitions. The original game indexes parallel two-word tables by area; using
     /// the concrete definition here is equivalent and prevents an unrelated host area enum
     /// from becoming a second authority for actor identity.
     /// </summary>
@@ -94,7 +94,7 @@ internal sealed class TorizoMovement
             {
                 if (samus is null)
                     throw new InvalidOperationException("The Golden Torizo code requires the live Samus owner.");
-                // Native initialization overwrites both inventory words, even if
+                // Initialization overwrites both inventory words, even if
                 // this reduces capacity or equips normally incompatible beams.
                 samus.Health = samus.MaxHealth = GoldenTorizoCodeDefinitions.Energy;
                 samus.ReserveEnergy = samus.MaxReserveEnergy = GoldenTorizoCodeDefinitions.ReserveEnergy;
@@ -119,7 +119,7 @@ internal sealed class TorizoMovement
 
     /// <summary>
     /// Installs Golden Torizo's initial body colors before hurt frames begin using the
-    /// health-indexed bank-$84 gradient.
+    /// health-indexed gradient.
     /// </summary>
     private void LoadGoldenTorizoBasePalette() =>
         _body.LoadTorizoBodyColours(TorizoPaletteDefinitions.GoldenInitial);
@@ -273,7 +273,7 @@ internal sealed class TorizoMovement
         int fallingSpeed = Math.Min(Math.Abs(state.Velocity.X.SignedRawValue) + 1, 15);
         if (!_terrain.MoveEnemyVertically(level, torizo, SixteenSixteen.FromWhole(fallingSpeed)))
         {
-            // $AA:C752 swaps to the authored in-air list while the downward probe remains
+            // Bomb Torizo's fall swaps to the authored in-air list while the downward probe remains
             // clear. Landing itself is handled by the list-installed gravity/jump callback.
             TorizoBody.StartTorizoBodyProgram(torizo, _access.RequireBombTorizoState(torizo), AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(torizo)
                 ? TorizoBodyProgram.FacingRightFalling0
@@ -288,7 +288,7 @@ internal sealed class TorizoMovement
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        // $AA:D5F1 is the Golden analogue of $C752. Its only behavioral difference is the
+        // Golden Torizo's fall is the Golden analogue of Bomb Torizo's. Its only behavioral difference is the
         // sixteen-frame facing transition and Golden landing lists selected when it expires.
         if (!state.AirTransitionTimer.IsZero)
         {

@@ -13,7 +13,7 @@ internal static class TorizoInitializationDefinitions
     internal static TorizoInitializationDefinition Bomb => new(new(219, 179), TorizoBodyProgram.BombTorizoInitial0, EnemyProperties.RunsAnimationScript | EnemyProperties.ProcessOffScreen, new(18, 48));
 
     /// <summary>
-    /// Second entries of $AA:C95F..C976 select Golden Torizo, including
+    /// The second initialization entries select Golden Torizo, including
     /// InstList_GoldenTorizo_Initial_0. Its shorter Y radius is authored data.
     /// </summary>
     internal static TorizoInitializationDefinition Golden => new(new(424, 144), TorizoBodyProgram.GoldenInitial0, EnemyProperties.RunsAnimationScript | EnemyProperties.ProcessOffScreen, new(18, 41));

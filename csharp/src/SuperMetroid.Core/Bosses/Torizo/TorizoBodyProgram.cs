@@ -1,250 +1,250 @@
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
-/// Bomb and Golden Torizo's typed body programs (#641), one per native bank-$AA list and per segment a goto, call,
-/// link or resumed sleep enters, in authored order. Generated from the verified native lists; see
+/// Bomb and Golden Torizo's typed body programs (#641), one per list and per segment a goto, call,
+/// link or resumed sleep enters, in authored order. Generated from the verified lists; see
 /// <see cref="TorizoAnimations"/>.
 /// </summary>
 internal enum TorizoBodyProgram
 {
-    /// <summary><c>InstList_Torizo_SpecialCallable_BlowUpBombTorizosGut</c>.</summary>
+    /// <summary>Torizo animation script: special callable, blow up Bomb torizos gut.</summary>
     SpecialCallableBlowUpBombTorizosGut,
-    /// <summary><c>InstList_Torizo_Callable_BlowUpBombTorizosFace</c>.</summary>
+    /// <summary>Torizo animation script: callable, blow up Bomb torizos face.</summary>
     CallableBlowUpBombTorizosFace,
-    /// <summary><c>InstList_Torizo_DeathSequence_0</c>.</summary>
+    /// <summary>Torizo animation script: death sequence, part 0.</summary>
     DeathSequence0,
-    /// <summary><c>InstList_Torizo_DeathSequence_1</c>.</summary>
+    /// <summary>Torizo animation script: death sequence, part 1.</summary>
     DeathSequence1,
-    /// <summary><c>InstList_Torizo_DeathSequence_2</c>.</summary>
+    /// <summary>Torizo animation script: death sequence, part 2.</summary>
     DeathSequence2,
-    /// <summary><c>InstList_Torizo_BombTorizo_Initial_0</c>.</summary>
+    /// <summary>Torizo animation script: Bomb Torizo, initial, part 0.</summary>
     BombTorizoInitial0,
     /// <summary>The code after the preceding list's sleep, which the AI resumes.</summary>
     BombTorizoInitial0Resumed,
-    /// <summary><c>InstList_Torizo_BombTorizo_Initial_1</c>.</summary>
+    /// <summary>Torizo animation script: Bomb Torizo, initial, part 1.</summary>
     BombTorizoInitial1,
-    /// <summary><c>InstList_Torizo_BombTorizo_Initial_2</c>.</summary>
+    /// <summary>Torizo animation script: Bomb Torizo, initial, part 2.</summary>
     BombTorizoInitial2,
-    /// <summary><c>InstList_Torizo_FacingLeft_TurningLeft</c>.</summary>
+    /// <summary>Torizo animation script: facing left, turning left.</summary>
     FacingLeftTurningLeft,
-    /// <summary><c>InstList_Torizo_FacingLeft_Walking_RightLegMoving</c>.</summary>
+    /// <summary>Torizo animation script: facing left, walking, right leg moving.</summary>
     FacingLeftWalkingRightLegMoving,
-    /// <summary><c>InstList_Torizo_FacingLeft_Walking_LeftLegMoving</c>.</summary>
+    /// <summary>Torizo animation script: facing left, walking, left leg moving.</summary>
     FacingLeftWalkingLeftLegMoving,
-    /// <summary><c>InstList_Torizo_FacingLeft_SpewingChozoOrbs_RightFootFwd_0</c>.</summary>
+    /// <summary>Torizo animation script: facing left, spewing Chozo orbs, right foot fwd, part 0.</summary>
     FacingLeftSpewingChozoOrbsRightFootFwd0,
-    /// <summary><c>InstList_Torizo_FacingLeft_SpewingChozoOrbs_RightFootFwd_1</c>.</summary>
+    /// <summary>Torizo animation script: facing left, spewing Chozo orbs, right foot fwd, part 1.</summary>
     FacingLeftSpewingChozoOrbsRightFootFwd1,
-    /// <summary><c>InstList_Torizo_FacingLeft_SpewingChozoOrbs_LeftFootFwd_0</c>.</summary>
+    /// <summary>Torizo animation script: facing left, spewing Chozo orbs, left foot fwd, part 0.</summary>
     FacingLeftSpewingChozoOrbsLeftFootFwd0,
-    /// <summary><c>InstList_Torizo_FacingLeft_SpewingChozoOrbs_LeftFootFwd_1</c>.</summary>
+    /// <summary>Torizo animation script: facing left, spewing Chozo orbs, left foot fwd, part 1.</summary>
     FacingLeftSpewingChozoOrbsLeftFootFwd1,
-    /// <summary><c>InstList_Torizo_FacingLeft_SonicBooms_RightFootForward_0</c>.</summary>
+    /// <summary>Torizo animation script: facing left, sonic booms, right foot forward, part 0.</summary>
     FacingLeftSonicBoomsRightFootForward0,
-    /// <summary><c>InstList_Torizo_FacingLeft_SonicBooms_RightFootForward_1</c>.</summary>
+    /// <summary>Torizo animation script: facing left, sonic booms, right foot forward, part 1.</summary>
     FacingLeftSonicBoomsRightFootForward1,
-    /// <summary><c>InstList_Torizo_FacingLeft_SonicBooms_LeftFootForward_0</c>.</summary>
+    /// <summary>Torizo animation script: facing left, sonic booms, left foot forward, part 0.</summary>
     FacingLeftSonicBoomsLeftFootForward0,
-    /// <summary><c>InstList_Torizo_FacingLeft_SonicBooms_LeftFootForward_1</c>.</summary>
+    /// <summary>Torizo animation script: facing left, sonic booms, left foot forward, part 1.</summary>
     FacingLeftSonicBoomsLeftFootForward1,
-    /// <summary><c>InstList_Torizo_FacingLeft_ExplosiveSwipe_RightFootForward</c>.</summary>
+    /// <summary>Torizo animation script: facing left, explosive swipe, right foot forward.</summary>
     FacingLeftExplosiveSwipeRightFootForward,
-    /// <summary><c>InstList_Torizo_FacingLeft_ExplosiveSwipe_LeftFootForward</c>.</summary>
+    /// <summary>Torizo animation script: facing left, explosive swipe, left foot forward.</summary>
     FacingLeftExplosiveSwipeLeftFootForward,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingForwards_0</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping forwards, part 0.</summary>
     FacingLeftJumpingForwards0,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingForwards_1</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping forwards, part 1.</summary>
     FacingLeftJumpingForwards1,
-    /// <summary><c>InstList_Torizo_FacingLeft_Falling_0</c>.</summary>
+    /// <summary>Torizo animation script: facing left, falling, part 0.</summary>
     FacingLeftFalling0,
-    /// <summary><c>InstList_Torizo_FacingLeft_Falling_1</c>.</summary>
+    /// <summary>Torizo animation script: facing left, falling, part 1.</summary>
     FacingLeftFalling1,
-    /// <summary><c>InstList_Torizo_FacingLeft_Falling_2</c>.</summary>
+    /// <summary>Torizo animation script: facing left, falling, part 2.</summary>
     FacingLeftFalling2,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_LandLeftFootFwd_0</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping backward, land left foot fwd, part 0.</summary>
     FacingLeftJumpingBackwardLandLeftFootFwd0,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_LandLeftFootFwd_1</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping backward, land left foot fwd, part 1.</summary>
     FacingLeftJumpingBackwardLandLeftFootFwd1,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_LandLeftFootFwd_2</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping backward, land left foot fwd, part 2.</summary>
     FacingLeftJumpingBackwardLandLeftFootFwd2,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_LandLeftFootFwd_3</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping backward, land left foot fwd, part 3.</summary>
     FacingLeftJumpingBackwardLandLeftFootFwd3,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_LandLeftFootFwd_4</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping backward, land left foot fwd, part 4.</summary>
     FacingLeftJumpingBackwardLandLeftFootFwd4,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_RightFootFwd_0</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping backward, right foot fwd, part 0.</summary>
     FacingLeftJumpingBackwardRightFootFwd0,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_RightFootFwd_1</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping backward, right foot fwd, part 1.</summary>
     FacingLeftJumpingBackwardRightFootFwd1,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_RightFootFwd_2</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping backward, right foot fwd, part 2.</summary>
     FacingLeftJumpingBackwardRightFootFwd2,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_RightFootFwd_3</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping backward, right foot fwd, part 3.</summary>
     FacingLeftJumpingBackwardRightFootFwd3,
-    /// <summary><c>InstList_Torizo_FacingLeft_JumpingBackward_RightFootFwd_4</c>.</summary>
+    /// <summary>Torizo animation script: facing left, jumping backward, right foot fwd, part 4.</summary>
     FacingLeftJumpingBackwardRightFootFwd4,
-    /// <summary><c>InstList_Torizo_FacingLeft_Faceless_TurningLeft</c>.</summary>
+    /// <summary>Torizo animation script: facing left, faceless, turning left.</summary>
     FacingLeftFacelessTurningLeft,
-    /// <summary><c>InstList_Torizo_FacingLeft_Faceless_Walking_RightLegMoving</c>.</summary>
+    /// <summary>Torizo animation script: facing left, faceless, walking, right leg moving.</summary>
     FacingLeftFacelessWalkingRightLegMoving,
-    /// <summary><c>InstList_Torizo_FacingLeft_Faceless_Walking_LeftLegMoving</c>.</summary>
+    /// <summary>Torizo animation script: facing left, faceless, walking, left leg moving.</summary>
     FacingLeftFacelessWalkingLeftLegMoving,
-    /// <summary>The unlabeled native list.</summary>
+    /// <summary>An unnamed animation entry.</summary>
     FacingLeftFacelessWalkingLeftLegMovingTrailing,
     /// <summary>The code after the preceding list's sleep, which the AI resumes.</summary>
     FacingLeftFacelessWalkingLeftLegMovingTrailingResumed,
-    /// <summary><c>InstList_Torizo_FacingRight_TurningRight</c>.</summary>
+    /// <summary>Torizo animation script: facing right, turning right.</summary>
     FacingRightTurningRight,
-    /// <summary><c>InstList_Torizo_FacingRight_Walking_LeftLegMoving</c>.</summary>
+    /// <summary>Torizo animation script: facing right, walking, left leg moving.</summary>
     FacingRightWalkingLeftLegMoving,
-    /// <summary><c>InstList_Torizo_FacingRight_Walking_RightLegMoving</c>.</summary>
+    /// <summary>Torizo animation script: facing right, walking, right leg moving.</summary>
     FacingRightWalkingRightLegMoving,
-    /// <summary><c>InstList_Torizo_FacingRight_SpewingChozoOrbs_LeftFootFwd_0</c>.</summary>
+    /// <summary>Torizo animation script: facing right, spewing Chozo orbs, left foot fwd, part 0.</summary>
     FacingRightSpewingChozoOrbsLeftFootFwd0,
-    /// <summary><c>InstList_Torizo_FacingRight_SpewingChozoOrbs_LeftFootFwd_1</c>.</summary>
+    /// <summary>Torizo animation script: facing right, spewing Chozo orbs, left foot fwd, part 1.</summary>
     FacingRightSpewingChozoOrbsLeftFootFwd1,
-    /// <summary><c>InstList_Torizo_FacingRight_SpewingChozoOrbs_RightFootFwd_0</c>.</summary>
+    /// <summary>Torizo animation script: facing right, spewing Chozo orbs, right foot fwd, part 0.</summary>
     FacingRightSpewingChozoOrbsRightFootFwd0,
-    /// <summary><c>InstList_Torizo_FacingRight_SpewingChozoOrbs_RightFootFwd_1</c>.</summary>
+    /// <summary>Torizo animation script: facing right, spewing Chozo orbs, right foot fwd, part 1.</summary>
     FacingRightSpewingChozoOrbsRightFootFwd1,
-    /// <summary><c>InstList_Torizo_FacingRight_SonicBooms_LeftFootForward_0</c>.</summary>
+    /// <summary>Torizo animation script: facing right, sonic booms, left foot forward, part 0.</summary>
     FacingRightSonicBoomsLeftFootForward0,
-    /// <summary><c>InstList_Torizo_FacingRight_SonicBooms_LeftFootForward_1</c>.</summary>
+    /// <summary>Torizo animation script: facing right, sonic booms, left foot forward, part 1.</summary>
     FacingRightSonicBoomsLeftFootForward1,
-    /// <summary><c>InstList_Torizo_FacingRight_SonicBooms_RightFootForward_0</c>.</summary>
+    /// <summary>Torizo animation script: facing right, sonic booms, right foot forward, part 0.</summary>
     FacingRightSonicBoomsRightFootForward0,
-    /// <summary><c>InstList_Torizo_FacingRight_SonicBooms_RightFootForward_1</c>.</summary>
+    /// <summary>Torizo animation script: facing right, sonic booms, right foot forward, part 1.</summary>
     FacingRightSonicBoomsRightFootForward1,
-    /// <summary><c>InstList_Torizo_FacingRight_ExplosiveSwipe_LeftFootForward</c>.</summary>
+    /// <summary>Torizo animation script: facing right, explosive swipe, left foot forward.</summary>
     FacingRightExplosiveSwipeLeftFootForward,
-    /// <summary><c>InstList_Torizo_FacingRight_ExplosiveSwipe_RightFootForward</c>.</summary>
+    /// <summary>Torizo animation script: facing right, explosive swipe, right foot forward.</summary>
     FacingRightExplosiveSwipeRightFootForward,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpingForwards_0</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jumping forwards, part 0.</summary>
     FacingRightJumpingForwards0,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpingForwards_1</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jumping forwards, part 1.</summary>
     FacingRightJumpingForwards1,
-    /// <summary><c>InstList_Torizo_FacingRight_Falling_0</c>.</summary>
+    /// <summary>Torizo animation script: facing right, falling, part 0.</summary>
     FacingRightFalling0,
-    /// <summary><c>InstList_Torizo_FacingRight_Falling_1</c>.</summary>
+    /// <summary>Torizo animation script: facing right, falling, part 1.</summary>
     FacingRightFalling1,
-    /// <summary><c>InstList_Torizo_FacingRight_Falling_2</c>.</summary>
+    /// <summary>Torizo animation script: facing right, falling, part 2.</summary>
     FacingRightFalling2,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpBackward_LandRightFootFwd_0</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jump backward, land right foot fwd, part 0.</summary>
     FacingRightJumpBackwardLandRightFootFwd0,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpBackward_LandRightFootFwd_1</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jump backward, land right foot fwd, part 1.</summary>
     FacingRightJumpBackwardLandRightFootFwd1,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpBackward_LandRightFootFwd_2</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jump backward, land right foot fwd, part 2.</summary>
     FacingRightJumpBackwardLandRightFootFwd2,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpBackward_LandRightFootFwd_3</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jump backward, land right foot fwd, part 3.</summary>
     FacingRightJumpBackwardLandRightFootFwd3,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpBackward_LandRightFootFwd_4</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jump backward, land right foot fwd, part 4.</summary>
     FacingRightJumpBackwardLandRightFootFwd4,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpBackwards_LandLeftFootFwd_0</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jump backwards, land left foot fwd, part 0.</summary>
     FacingRightJumpBackwardsLandLeftFootFwd0,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpBackwards_LandLeftFootFwd_1</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jump backwards, land left foot fwd, part 1.</summary>
     FacingRightJumpBackwardsLandLeftFootFwd1,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpBackwards_LandLeftFootFwd_2</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jump backwards, land left foot fwd, part 2.</summary>
     FacingRightJumpBackwardsLandLeftFootFwd2,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpBackwards_LandLeftFootFwd_3</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jump backwards, land left foot fwd, part 3.</summary>
     FacingRightJumpBackwardsLandLeftFootFwd3,
-    /// <summary><c>InstList_Torizo_FacingRight_JumpBackwards_LandLeftFootFwd_4</c>.</summary>
+    /// <summary>Torizo animation script: facing right, jump backwards, land left foot fwd, part 4.</summary>
     FacingRightJumpBackwardsLandLeftFootFwd4,
-    /// <summary><c>InstList_Torizo_FacingRight_Faceless_TurningRight</c>.</summary>
+    /// <summary>Torizo animation script: facing right, faceless, turning right.</summary>
     FacingRightFacelessTurningRight,
-    /// <summary><c>InstList_Torizo_FacingRight_Faceless_Walking_LeftLegMoving</c>.</summary>
+    /// <summary>Torizo animation script: facing right, faceless, walking, left leg moving.</summary>
     FacingRightFacelessWalkingLeftLegMoving,
-    /// <summary><c>InstList_Torizo_FacingRight_Faceless_Walking_RightLegMoving</c>.</summary>
+    /// <summary>Torizo animation script: facing right, faceless, walking, right leg moving.</summary>
     FacingRightFacelessWalkingRightLegMoving,
-    /// <summary><c>InstList_GoldenTorizo_Initial_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: initial, part 0.</summary>
     GoldenInitial0,
     /// <summary>The code after the preceding list's sleep, which the AI resumes.</summary>
     GoldenInitial0Resumed,
-    /// <summary><c>InstList_GoldenTorizo_Initial_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: initial, part 1.</summary>
     GoldenInitial1,
-    /// <summary><c>InstList_GoldenTorizo_Initial_2</c>.</summary>
+    /// <summary>Golden Torizo animation script: initial, part 2.</summary>
     GoldenInitial2,
-    /// <summary><c>InstList_GoldenTorizo_Initial_3</c>.</summary>
+    /// <summary>Golden Torizo animation script: initial, part 3.</summary>
     GoldenInitial3,
-    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrbs_FaceLeft_RightFootFwd_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: spew Chozo orbs, face left, right foot fwd, part 0.</summary>
     GoldenSpewChozoOrbsFaceLeftRightFootFwd0,
-    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrbs_FaceLeft_RightFootFwd_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: spew Chozo orbs, face left, right foot fwd, part 1.</summary>
     GoldenSpewChozoOrbsFaceLeftRightFootFwd1,
-    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrbs_FacingLeft_LeftFootFwd_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: spew Chozo orbs, facing left, left foot fwd, part 0.</summary>
     GoldenSpewChozoOrbsFacingLeftLeftFootFwd0,
-    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrbs_FacingLeft_LeftFootFwd_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: spew Chozo orbs, facing left, left foot fwd, part 1.</summary>
     GoldenSpewChozoOrbsFacingLeftLeftFootFwd1,
-    /// <summary><c>InstList_GoldenTorizo_SonicBooms_FacingLeft_RightFootFwd_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: sonic booms, facing left, right foot fwd, part 0.</summary>
     GoldenSonicBoomsFacingLeftRightFootFwd0,
-    /// <summary><c>InstList_GoldenTorizo_SonicBooms_FacingLeft_RightFootFwd_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: sonic booms, facing left, right foot fwd, part 1.</summary>
     GoldenSonicBoomsFacingLeftRightFootFwd1,
-    /// <summary><c>InstList_GoldenTorizo_SonicBooms_FacingLeft_LeftFootFwd_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: sonic booms, facing left, left foot fwd, part 0.</summary>
     GoldenSonicBoomsFacingLeftLeftFootFwd0,
-    /// <summary><c>InstList_GoldenTorizo_SonicBooms_FacingLeft_LeftFootFwd_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: sonic booms, facing left, left foot fwd, part 1.</summary>
     GoldenSonicBoomsFacingLeftLeftFootFwd1,
-    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_LeftFootFwd_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: spew Chozo orb, facing left, left foot fwd, part 0.</summary>
     GoldenSpewChozoOrbFacingLeftLeftFootFwd0,
-    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_LeftFootFwd_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: spew Chozo orb, facing left, left foot fwd, part 1.</summary>
     GoldenSpewChozoOrbFacingLeftLeftFootFwd1,
-    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_RightFootFwd_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: spew Chozo orb, facing left, right foot fwd, part 0.</summary>
     GoldenSpewChozoOrbFacingLeftRightFootFwd0,
-    /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_RightFootFwd_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: spew Chozo orb, facing left, right foot fwd, part 1.</summary>
     GoldenSpewChozoOrbFacingLeftRightFootFwd1,
-    /// <summary><c>InstList_GoldenTorizo_SonicBooms_FacingRight_LeftFootFwd_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: sonic booms, facing right, left foot fwd, part 0.</summary>
     GoldenSonicBoomsFacingRightLeftFootFwd0,
-    /// <summary><c>InstList_GoldenTorizo_SonicBooms_FacingRight_LeftFootFwd_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: sonic booms, facing right, left foot fwd, part 1.</summary>
     GoldenSonicBoomsFacingRightLeftFootFwd1,
-    /// <summary><c>InstList_GoldenTorizo_SonicBooms_FacingRight_RightFootFwd_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: sonic booms, facing right, right foot fwd, part 0.</summary>
     GoldenSonicBoomsFacingRightRightFootFwd0,
-    /// <summary><c>InstList_GoldenTorizo_SonicBooms_FacingRight_RightFootFwd_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: sonic booms, facing right, right foot fwd, part 1.</summary>
     GoldenSonicBoomsFacingRightRightFootFwd1,
-    /// <summary><c>InstList_GT_LandedFromBackwardsJump_FacingLeft_LeftFootFwd</c>.</summary>
+    /// <summary>Golden Torizo animation script: landed from backwards jump, facing left, left foot fwd.</summary>
     GoldenLandedFromBackwardsJumpFacingLeftLeftFootFwd,
-    /// <summary><c>InstList_GT_LandedFromBackwardsJump_FacingLeft_RightFootFwd</c>.</summary>
+    /// <summary>Golden Torizo animation script: landed from backwards jump, facing left, right foot fwd.</summary>
     GoldenLandedFromBackwardsJumpFacingLeftRightFootFwd,
-    /// <summary><c>InstList_GT_LandedFromBackwardsJump_FacingRight_RightFootFwd</c>.</summary>
+    /// <summary>Golden Torizo animation script: landed from backwards jump, facing right, right foot fwd.</summary>
     GoldenLandedFromBackwardsJumpFacingRightRightFootFwd,
-    /// <summary><c>InstList_GT_LandedFromBackwardsJump_FacingRight_LeftFootFwd</c>.</summary>
+    /// <summary>Golden Torizo animation script: landed from backwards jump, facing right, left foot fwd.</summary>
     GoldenLandedFromBackwardsJumpFacingRightLeftFootFwd,
-    /// <summary><c>InstList_GoldenTorizo_CaughtSuper_FacingLeft_LeftLegFwd</c>.</summary>
+    /// <summary>Golden Torizo animation script: caught super, facing left, left leg fwd.</summary>
     GoldenCaughtSuperFacingLeftLeftLegFwd,
-    /// <summary><c>InstList_GoldenTorizo_CaughtSuper_FacingLeft_RightLegFwd</c>.</summary>
+    /// <summary>Golden Torizo animation script: caught super, facing left, right leg fwd.</summary>
     GoldenCaughtSuperFacingLeftRightLegFwd,
-    /// <summary><c>InstList_GoldenTorizo_CaughtSuper_FacingRight_RightLegFwd</c>.</summary>
+    /// <summary>Golden Torizo animation script: caught super, facing right, right leg fwd.</summary>
     GoldenCaughtSuperFacingRightRightLegFwd,
-    /// <summary><c>InstList_GoldenTorizo_CaughtSuper_FacingRight_LeftLegFwd</c>.</summary>
+    /// <summary>Golden Torizo animation script: caught super, facing right, left leg fwd.</summary>
     GoldenCaughtSuperFacingRightLeftLegFwd,
-    /// <summary><c>InstList_GoldenTorizo_SitDownAttack_FacingLeft</c>.</summary>
+    /// <summary>Golden Torizo animation script: sit down attack, facing left.</summary>
     GoldenSitDownAttackFacingLeft,
-    /// <summary><c>InstList_GoldenTorizo_SitDownAttack_FacingRight</c>.</summary>
+    /// <summary>Golden Torizo animation script: sit down attack, facing right.</summary>
     GoldenSitDownAttackFacingRight,
-    /// <summary><c>InstList_GoldenTorizo_ReleaseGoldenTorizoEggs_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: release Golden Torizo eggs, part 0.</summary>
     GoldenReleaseGoldenTorizoEggs0,
-    /// <summary><c>InstList_GoldenTorizo_ReleaseGoldenTorizoEggs_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: release Golden Torizo eggs, part 1.</summary>
     GoldenReleaseGoldenTorizoEggs1,
-    /// <summary><c>InstList_GoldenTorizo_ReleaseGoldenTorizoEggs_2</c>.</summary>
+    /// <summary>Golden Torizo animation script: release Golden Torizo eggs, part 2.</summary>
     GoldenReleaseGoldenTorizoEggs2,
-    /// <summary><c>InstList_GoldenTorizo_EyeBeamAttack_0</c>.</summary>
+    /// <summary>Golden Torizo animation script: eye beam attack, part 0.</summary>
     GoldenEyeBeamAttack0,
-    /// <summary><c>InstList_GoldenTorizo_EyeBeamAttack_1</c>.</summary>
+    /// <summary>Golden Torizo animation script: eye beam attack, part 1.</summary>
     GoldenEyeBeamAttack1,
-    /// <summary><c>InstList_GoldenTorizo_EyeBeamAttack_2</c>.</summary>
+    /// <summary>Golden Torizo animation script: eye beam attack, part 2.</summary>
     GoldenEyeBeamAttack2,
-    /// <summary><c>InstList_Torizo_Stunned_0</c>.</summary>
+    /// <summary>Torizo animation script: stunned, part 0.</summary>
     Stunned0,
-    /// <summary><c>InstList_Torizo_Stunned_1</c>.</summary>
+    /// <summary>Torizo animation script: stunned, part 1.</summary>
     Stunned1,
-    /// <summary><c>InstList_GoldenTorizo_Dodge_TurningLeft</c>.</summary>
+    /// <summary>Golden Torizo animation script: dodge, turning left.</summary>
     GoldenDodgeTurningLeft,
-    /// <summary><c>InstList_GoldenTorizo_TurningLeft</c>.</summary>
+    /// <summary>Golden Torizo animation script: turning left.</summary>
     GoldenTurningLeft,
-    /// <summary><c>InstList_GoldenTorizo_WalkingLeft_RightLegMoving</c>.</summary>
+    /// <summary>Golden Torizo animation script: walking left, right leg moving.</summary>
     GoldenWalkingLeftRightLegMoving,
-    /// <summary><c>InstList_GoldenTorizo_WalkingLeft_LeftLegMoving</c>.</summary>
+    /// <summary>Golden Torizo animation script: walking left, left leg moving.</summary>
     GoldenWalkingLeftLeftLegMoving,
-    /// <summary><c>InstList_GoldenTorizo_Dodge_TurningRight</c>.</summary>
+    /// <summary>Golden Torizo animation script: dodge, turning right.</summary>
     GoldenDodgeTurningRight,
-    /// <summary><c>InstList_GoldenTorizo_TurningRight</c>.</summary>
+    /// <summary>Golden Torizo animation script: turning right.</summary>
     GoldenTurningRight,
-    /// <summary><c>InstList_GoldenTorizo_WalkingRight_LeftLegMoving</c>.</summary>
+    /// <summary>Golden Torizo animation script: walking right, left leg moving.</summary>
     GoldenWalkingRightLeftLegMoving,
-    /// <summary><c>InstList_GoldenTorizo_WalkingRight_RightLegMoving</c>.</summary>
+    /// <summary>Golden Torizo animation script: walking right, right leg moving.</summary>
     GoldenWalkingRightRightLegMoving,
 }

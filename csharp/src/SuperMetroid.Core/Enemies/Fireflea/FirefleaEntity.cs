@@ -1,14 +1,13 @@
 namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>One Fireflea occupant: its own AI handlers, with the shared reactions.</summary>
-/// <param name="species">The Fireflea species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class FirefleaEntity(FirefleaBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+internal sealed class FirefleaEntity(RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeFireflea;
+    public EnemyInitializationAiHandler? FindInitialization() => FirefleaBehavior.InitializeFireflea;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => FirefleaBehavior.RunFirefleaMainAi;

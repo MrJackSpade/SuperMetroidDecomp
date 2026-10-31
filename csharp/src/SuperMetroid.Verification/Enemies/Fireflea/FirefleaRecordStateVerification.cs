@@ -15,7 +15,7 @@ internal static class FirefleaRecordStateVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var state = new FirefleaEnemyState(slot, new FirefleaExtensionWords());
+        var state = new FirefleaEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.AngularSpeed = SignedSixteenSixteen.FromParts(1, 0);
         state.Radius = 1;

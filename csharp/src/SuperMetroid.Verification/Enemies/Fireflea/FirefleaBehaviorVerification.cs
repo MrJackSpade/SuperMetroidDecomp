@@ -20,7 +20,7 @@ internal static class FirefleaBehaviorVerification
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
         slot.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
-        enemies.FirefleaBehavior.InitializeFireflea(slot);
+        FirefleaBehavior.InitializeFireflea(slot);
         AssertEqual(AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop), (enemies.SlotTable.Slots[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Program,
             "Fireflea initializer animation");
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -49,7 +49,7 @@ internal static class FirefleaBehaviorVerification
             slot.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
             slot.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
             slot.Position = slot.Position.WithWhole(new(128, 4));
-            enemies.FirefleaBehavior.InitializeFireflea(slot);
+            FirefleaBehavior.InitializeFireflea(slot);
             FirefleaEnemyState state = slot.RequireSpeciesState<FirefleaEnemyState>();
             AssertEqual(new Position16<RoomPixels>(0, 65532), state.MinimumYExtent, "the upper extent wraps past the room's top edge");
             AssertEqual(new Position16<RoomPixels>(0, 12), state.MaximumYExtent, "the lower extent is the spawn Y plus the radius");

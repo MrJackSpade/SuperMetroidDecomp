@@ -163,8 +163,8 @@ internal sealed class AcceptedFrameBoundary
     }
 
     /// <summary>
-    /// The room's part of the scene: the room's blending (<c>$88:8000</c>), and the sky's layer-2 map and vertical scroll
-    /// (<c>$88:AFB2</c>).
+    /// The room's part of the scene: the room's blending, and the sky's layer-2 map and vertical scroll
+    /// .
     /// </summary>
     private GameplayLatchedScene CaptureScene()
     {
@@ -329,7 +329,7 @@ internal sealed class AcceptedFrameBoundary
     /// is active; otherwise the displayed BG2 is the room's own.
     /// </summary>
     private ImmutableArray<RevealedBlock?>? CaptureXrayReveal(GameplayLatchedScene scene) =>
-        // Where X-ray preserves the backgrounds ($91:D143) its setup copies no blocks: the tiles are another room's.
+        // Where X-ray preserves the backgrounds its setup copies no blocks: the tiles are another room's.
         _player.Samus?.Xray.IsActive == true && scene.Room is { } room && XrayBlockRevealRules.RevealsBlocks(room, scene.Boss)
             ? ImmutableArray.Create(_xray.RevealedBlocks)
             : null;

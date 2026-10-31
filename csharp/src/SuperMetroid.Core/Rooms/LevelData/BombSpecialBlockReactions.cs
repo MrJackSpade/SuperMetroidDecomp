@@ -2,16 +2,16 @@ using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Rooms.LevelData;
 
-/// <summary>Named bomb-special reactions selected through native bank-$94 PLM headers.</summary>
+/// <summary>Named bomb-special reactions selected through their PLM headers.</summary>
 public static class BombSpecialBlockReactions
 {
-    /// <summary>$94:9DA4..9E43: sixteen normal entries followed by eight area tables.
+    /// <summary>Sixteen normal entries followed by eight area tables.
     /// The bounded normal-behaviour view includes all eighty entries.</summary>
     public const int Count = 80;
 
-    /// <summary>Selects crumble reveal, speed reveal, or the $84:B62F no-op PLM's
-    /// deletion list. Normal indices $10..4F alias adjacent area tables;
-    /// $1A..1D therefore select Brinstar's four speed-block entries.</summary>
+    /// <summary>Selects crumble reveal, speed reveal, or the no-op PLM's
+    /// deletion list. Normal indices 16 through 79 alias adjacent area tables;
+    /// indices 26 through 29 therefore select Brinstar's four speed-block entries.</summary>
     internal static PlmProgramStart ProgramAt(int index)
     {
         if ((uint)index >= Count)

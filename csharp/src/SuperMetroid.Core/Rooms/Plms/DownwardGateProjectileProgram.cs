@@ -3,31 +3,31 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// The downward shot gate's moving and closed programs (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="DownwardGateProjectileAnimations"/>.
+/// The downward shot gate's moving and closed programs (#641), one per list a spawn, branch or family routine enters, in authored order.
+/// Generated from the verified lists; see <see cref="DownwardGateProjectileAnimations"/>.
 /// </summary>
 internal enum DownwardGateProjectileProgram
 {
-    /// <summary><c>InstList_EnemyProjectile_ShotGate_SpawnedDownwards</c> at $86:E53C.</summary>
+    /// <summary>Enemy projectile animation script: shot gate, spawned downwards.</summary>
     Moving,
-    /// <summary>The loop at $86:E54A.</summary>
+    /// <summary>The animation's repeating part.</summary>
     MovingStep2,
-    /// <summary>The loop at $86:E550.</summary>
+    /// <summary>The animation's repeating part.</summary>
     MovingStep3,
-    /// <summary>The loop at $86:E556.</summary>
+    /// <summary>The animation's repeating part.</summary>
     MovingStep4,
-    /// <summary>The loop at $86:E55C.</summary>
+    /// <summary>The animation's repeating part.</summary>
     MovingStep5,
-    /// <summary><c>InstList_EnemyProjectile_ShotGate_InitialClosedDownwards</c> at $86:E55E.</summary>
+    /// <summary>Enemy projectile animation script: shot gate, initial closed downwards.</summary>
     Closed,
-    /// <summary>The loop at $86:E568.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ClosedStep2,
-    /// <summary>The loop at $86:E572.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ClosedStep3,
-    /// <summary>The loop at $86:E578.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ClosedStep4,
-    /// <summary>The loop at $86:E57E.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ClosedStep5,
-    /// <summary>The loop at $86:E584.</summary>
+    /// <summary>The animation's repeating part.</summary>
     ClosedStep6,
 }

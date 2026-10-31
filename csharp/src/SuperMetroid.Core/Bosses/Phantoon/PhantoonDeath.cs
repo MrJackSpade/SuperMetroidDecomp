@@ -61,7 +61,7 @@ internal sealed class PhantoonDeath
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingFadeInOut;
     }
 
-    /// <summary>Alternates five fade-outs and five fade-ins at $A7:D948.</summary>
+    /// <summary>Alternates five fade-outs and five fade-ins.</summary>
     internal void RunPhantoonDyingFadeCycles(
         RoomEnemySlot body,
         PhantoonEnemyState state)

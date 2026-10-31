@@ -24,7 +24,7 @@ internal sealed class MotherBrainAttacks
         _rainbowAndDeath = rainbowAndDeath;
     }
 
-    /// <summary>Ports the four-entry body dispatcher at <c>$A9:B87D-B8EA</c>.</summary>
+    /// <summary>Ports the four-entry body dispatcher.</summary>
     internal static void RunMotherBrainHandBeamAttack(MotherBrainEnemyState state)
     {
         switch (state.HandBeamPhase)
@@ -47,7 +47,7 @@ internal sealed class MotherBrainAttacks
                 return;
 
             case MotherBrainHandBeamPhase.Firing:
-                // `$A9:B8C8` is intentionally just RTS. Body bytecode at $9A42 owns the
+                // `$A9:B8C8` is intentionally just RTS. Body bytecode owns the
                 // charge effects, projectile emission, 240-frame hold, and phase advance.
                 return;
 
@@ -133,7 +133,7 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Ports the three-entry body dispatcher at <c>$A9:B64B-B780</c>. The selected head
+    /// Ports the three-entry body dispatcher. The selected head
     /// list is ordinary enemy bytecode, so attacks remain synchronized with native map
     /// durations instead of being represented by host timers.
     /// </summary>
@@ -292,7 +292,7 @@ internal sealed class MotherBrainAttacks
     }
 
     /// <summary>
-    /// Ports the fallthrough at <c>$A9:B7B7</c>. This routine advances the global RNG—unlike
+    /// Ports the fallthrough. This routine advances the global RNG—unlike
     /// attack selection—and fires immediately on the lower half; the upper half enters the
     /// ordinary slow-crouch body list before firing.
     /// </summary>
@@ -315,7 +315,7 @@ internal sealed class MotherBrainAttacks
             FireMotherBrainBomb(state);
     }
 
-    /// <summary>Ports the unstored firing tail at <c>$A9:B7CB</c>.</summary>
+    /// <summary>Ports the unstored firing tail.</summary>
     private static void FireMotherBrainBomb(MotherBrainEnemyState state)
     {
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.BombPhase2);
@@ -456,7 +456,7 @@ internal sealed class MotherBrainAttacks
     /// <summary>
     /// Ports <c>$A9:B863</c>, including its same-frame jump back into thinking. The attack
     /// phase/cooldown words intentionally remain as selected: the laser body state replaces
-    /// `$B64B`, so the native chain does not pass through that dispatcher's end phase.
+    /// So the native chain does not pass through that dispatcher's end phase.
     /// </summary>
     internal void FinishMotherBrainLaserAttack(
         MotherBrainEnemyState state,

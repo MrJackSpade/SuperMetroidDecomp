@@ -2,7 +2,7 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Complete bank-$84 draw lists selected by station animation programs. The native
+/// Complete draw lists selected by station animation programs. The drawn
 /// block are physical room mutations; replaceable artwork remains separate.
 /// </summary>
 internal static class RoomPlmStationDrawDefinitions

@@ -15,7 +15,7 @@ public sealed class KraidEnemyState
         .ToArray();
 
     /// <summary>
-    /// An unresolved encounter value: mouth-reopen continuations set it to two ($A7:AF24/$BC58) and nothing reads it.
+    /// An unresolved encounter value: mouth-reopen continuations set it to two and nothing reads it.
     /// It holds zero or two.
     /// </summary>
     public int Unknown2 { get; internal set; }
@@ -107,7 +107,7 @@ public sealed class KraidEnemyState
     public bool ShowsBodyLayer { get; internal set; }
 
     /// <summary>
-    /// Kraid's body is ready to show (<c>$A7:AAC6</c>): his body appears behind the room's sprites, which his installed
+    /// Kraid's body is ready to show: his body appears behind the room's sprites, which his installed
     /// body sheet pictures, and his body layer is shown from here (#1352, #1466).
     /// </summary>
     internal void InitializeBodyLayer()

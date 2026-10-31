@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// Crocomire's fight-AI function, held in body variable C. Each member names the entry of the
-/// 21-entry table at <c>$A4:86B3</c> it ports; the slot stores the member, not the table offset.
+/// 21-entry table it ports; the slot stores the member, not the table offset.
 /// </summary>
 public enum CrocomireFightFunction
 {

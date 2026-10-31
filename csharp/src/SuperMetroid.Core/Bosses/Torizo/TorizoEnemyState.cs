@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>
 /// Debugger-visible state that extends Bomb Torizo's ordinary $40-byte enemy slot. The
-/// original actor aliases the bank-$AA boss variable arrays at $7800-$781F; spelling those
+/// original actor aliases the bank-$AA boss variable arrays; spelling those
 /// words out here keeps the state inspectable without pretending unrelated common slot
 /// fields have the same meaning.
 /// </summary>
@@ -27,7 +27,7 @@ public sealed class TorizoEnemyState
 
     /// <summary>The behaviour latches: a caught Super Missile, a stun, and Bomb Torizo's blown-up face and gut.</summary>
     internal TorizoBehaviorFlags Behavior { get; set; }
-    /// <summary>Whether the owning definition is Golden Torizo ($EF7F), rather than Bomb Torizo ($EEFF); fixed at initialization.</summary>
+    /// <summary>Whether the owning definition is Golden Torizo, rather than Bomb Torizo; fixed at initialization.</summary>
     public bool IsGolden { get; }
 
     /// <summary>Persistent target colors and numerator shared by awakening and death fades.</summary>

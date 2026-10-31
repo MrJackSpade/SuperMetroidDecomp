@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmBlueDoorVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmBlueDoorVisuals), content =>
     {
         Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[4];
@@ -27,7 +27,7 @@ public sealed class InstalledRoomPlmBlueDoorVisuals
     private readonly PlmVisualOverrides customBlocks;
 
     /// <summary>Validates complete canonical blue-door frame coverage and retains owned copies only for visual appearances differing from the compiled draw shapes.</summary>
-    /// <param name="entries">Exactly one entry for every editable frame, each retaining the native four-block run geometry.</param>
+    /// <param name="entries">Exactly one entry for every editable frame, each retaining the four-block run geometry.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is null, changes an identity/shape, has invalid visual appearances, repeats a frame, or leaves coverage incomplete.</exception>
     public InstalledRoomPlmBlueDoorVisuals(IEnumerable<RoomPlmVisualEntry> entries)
@@ -38,7 +38,7 @@ public sealed class InstalledRoomPlmBlueDoorVisuals
 
     /// <summary>Resolves a selected blue-door appearance, normalizing physical alias pointers to their shared editable frame without changing collision or door timing.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="blockIndex">Zero-based block index 0..3 within the native cap/clear run, not a room-block coordinate.</param>
+    /// <param name="blockIndex">Zero-based block index 0..3 within the cap/clear run, not a room-block coordinate.</param>
     /// <returns>The visual metatile reference and flips, with physical collision bits excluded.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported blue-door frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The block index is outside 0..3.</exception>

@@ -9,10 +9,10 @@ using SuperMetroid.Core.Enemies.SpacePirates;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The bank-$A1 placement lists of the Tourian room-header region, in native table order.</summary>
+/// <summary>The placement lists of the Tourian room-header region, in authored order.</summary>
 internal static class TourianRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's lists, in native table order.</summary>
+    /// <summary>The region's lists, in authored order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.TourianEscape4),

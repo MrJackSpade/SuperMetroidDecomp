@@ -31,7 +31,7 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// <c>MainAI_Crocomire_DeathSequence_10_Hop_3_LoadMeltingTilemap</c> ($A4:9341). Only
+    /// <c>MainAI_Crocomire_DeathSequence_10_Hop_3_LoadMeltingTilemap</c>. Only
     /// this first melt hands the tongue its melting program and moves it onto the body.
     /// </summary>
     internal void ShowFirstCrocomireMeltImage(CrocomireEnemyState state)
@@ -58,7 +58,7 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// <c>MainAI_Crocomire_DeathSequence_2C_Hop_6_LoadMeltingTilemap</c> ($A4:93ED). It
+    /// <c>MainAI_Crocomire_DeathSequence_2C_Hop_6_LoadMeltingTilemap</c>. It
     /// first refills the melt's per-line BG2 vertical scroll and leaves the tongue alone.
     /// </summary>
     internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
@@ -100,7 +100,7 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// Begins <paramref name="pass"/>'s melt (<c>$A4:943D</c>): resets the BG2 scroll table and the distortion, and starts
+    /// Begins <paramref name="pass"/>'s melt: resets the BG2 scroll table and the distortion, and starts
     /// the pass with no column erased and its first band to show. Each band keeps the previous pass's picture until this
     /// pass shows its own.
     /// </summary>
@@ -208,7 +208,7 @@ internal sealed class CrocomireMelting
     }
 
     /// <summary>
-    /// Takes the dissolve's next step (<c>$A4:96C8</c>): erases the next column of the melt image and shows the pass's next
+    /// Takes the dissolve's next step: erases the next column of the melt image and shows the pass's next
     /// band at the new step, starting the bands over after the last. Once every column is erased it shows nothing more,
     /// while the distortion runs on to its end.
     /// </summary>

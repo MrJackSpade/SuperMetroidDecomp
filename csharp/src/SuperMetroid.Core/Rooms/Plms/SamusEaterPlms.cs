@@ -8,7 +8,7 @@ internal sealed class SamusEaterPlms
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
-    /// <summary>Descending native PLM slot allocation table.</summary>
+    /// <summary>Descending PLM slot allocation table.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Binds the active room and its PLM slot population.</summary>
@@ -17,17 +17,17 @@ internal sealed class SamusEaterPlms
         _samus = samus;
         _slotTable = slotTable;
     }
-    /// <summary>Runs the native feet/head alignment gate and allocates the ordinary ROM coroutine.</summary>
+    /// <summary>Runs the feet/head alignment gate and allocates the ordinary plant PLM.</summary>
     internal void TrySpawnSamusEater(RoomLevelData level,
         RoomCollisionBlock block, PlmHeaderId header, IRoomSamus samus)
     {
         SamusEaterPlmDefinition definition = Plant(header);
-        // Rejected native setups clear their just-allocated slot without changing
+        // Rejected setups clear their just-allocated slot without changing
         // the trigger. Alignment is tested against Samus, not the sampled block row.
         int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Radius.Y
             : samus.Position.Y.Whole + samus.Radius.Y - 1;
         if ((edge & 15) != (definition.Ceiling ? 0 : 15)) return;
-        // Native descending allocation simply returns when all slots are occupied.
+        // Descending allocation simply returns when all slots are occupied.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return;
 
@@ -40,7 +40,7 @@ internal sealed class SamusEaterPlms
         return;
     }
 
-    /// <summary>The plant one supported header places, without interpreting adjacent bank-$84 data.</summary>
+    /// <summary>The plant one supported header places, without interpreting adjacent data.</summary>
     internal static SamusEaterPlmDefinition Plant(PlmHeaderId header) =>
         SamusEaterPlmDefinitions.ByHeader.TryGetValue(header, out SamusEaterPlmDefinition plant)
             ? plant
@@ -50,20 +50,20 @@ internal sealed class SamusEaterPlms
     internal IRoomSamus RequirePlantSamus() => _samus?.Current
         ?? throw new InvalidOperationException("Samus Eater PLM requires the live Samus owner.");
 
-    /// <summary>Repositions held Samus after normal movement and ORs in the native invincibility bit.</summary>
+    /// <summary>Repositions held Samus after normal movement and ORs in the invincibility bit.</summary>
     internal void RunSamusEaterFrameBehavior(PlmSlot slot)
     {
         var samus = RequirePlantSamus();
         samus.Position = samus.Position.WithWhole(new(slot.PlantHeldPosition.X, slot.PlantHeldPosition.Y));
-        // Native TSB is bitwise OR, not a clamp or an input lock. Samus's normal
-        // movement runs before this placement, preserving cartridge interactions.
+        // TSB is bitwise OR, not a clamp or an input lock. Samus's normal
+        // movement runs before this placement, preserving interactions.
         samus.InvincibilityTimer = samus.InvincibilityTimer.MergedWith(SamusEaterPlmDefinitions.HeldInvincibilityBit);
     }
 
-    /// <summary><c>$84:AC9D</c>: one chew's periodic damage to the held Samus.</summary>
+    /// <summary>One chew's periodic damage to the held Samus.</summary>
     internal void DamageSamus() => RequirePlantSamus().TakePeriodicDamage(0, SamusEaterPlmDefinitions.ChewDamage);
 
-    /// <summary><c>$84:ACB1</c>: gives the released Samus her release immunity.</summary>
+    /// <summary>Gives the released Samus her release immunity.</summary>
     internal void ReleaseSamus() =>
         RequirePlantSamus().InvincibilityTimer = WrappingCountdown.Start(SamusEaterPlmDefinitions.ReleaseInvincibilityFrames);
 }

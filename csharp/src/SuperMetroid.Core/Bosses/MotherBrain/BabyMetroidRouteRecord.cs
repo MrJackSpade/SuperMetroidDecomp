@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// One leg of the Baby Metroid's ceiling-to-Samus route (<c>$A9:CA24-$CA63</c>).
+/// One leg of the Baby Metroid's ceiling-to-Samus route.
 /// </summary>
 /// <param name="Target">The waypoint the Baby steers toward.</param>
 /// <param name="AccelerationDivisorIndex">Index 0 through 15 into the gradual-acceleration divisor table.</param>

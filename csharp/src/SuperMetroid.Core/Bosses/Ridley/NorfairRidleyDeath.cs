@@ -165,7 +165,7 @@ internal sealed class NorfairRidleyDeath
         state.Function = RidleyAiFunction.NorfairDeathComplete;
     }
 
-    /// <summary>Ports $A6:C623 and its ten signed X/Y offset pairs at $A6:C66E.</summary>
+    /// <summary>Ports $A6:C623 and its ten signed X/Y offset pairs.</summary>
     internal void SpawnSmallExplosionNearNorfairRidley(
         RoomEnemySlot body,
         RidleyEnemyState state)
@@ -210,7 +210,7 @@ internal sealed class NorfairRidleyDeath
                     EnemyProperties.IgnoreSamusCollision,
                 ExtraProperties: EnemyExtraProperties.None,
                 SpawnSettings: new RidleyExplosionSpawnSettings(part));
-            // The explosion's initialization AI ($A6:C696) starts each part from the still-live shared Ridley joints.
+            // The explosion's initialization AI starts each part from the still-live shared Ridley joints.
             if (_dispatch.SpawnEnemy(population) is null)
             {
                 throw new InvalidOperationException(

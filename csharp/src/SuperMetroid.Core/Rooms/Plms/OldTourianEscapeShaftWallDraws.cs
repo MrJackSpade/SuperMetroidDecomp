@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class OldTourianEscapeShaftWallDraws
 {
     /// <summary>
-    /// $84:9283: a vertical run of three $00FF air words at the PLM, then another one block to
+    /// A vertical run of three air blocks at the PLM, then another one block to
     /// its right.
     /// </summary>
     internal static bool TryGetDraw(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)

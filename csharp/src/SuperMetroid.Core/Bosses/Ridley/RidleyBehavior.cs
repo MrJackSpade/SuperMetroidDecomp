@@ -62,7 +62,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
     /// <summary>
-    /// Ports <c>Ridley_Main</c> at $A6:B227 and the area-two half of the shared reveal
+    /// Ports <c>Ridley_Main</c> and the area-two half of the shared reveal
     /// dispatcher. Composition is advanced after the selected function, exactly like the
     /// cartridge, so a velocity change affects the same rendered frame.
     /// </summary>

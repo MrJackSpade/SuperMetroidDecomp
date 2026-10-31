@@ -31,9 +31,9 @@ internal sealed class CeresRidleyFloorPaint
             if (Calculate(step, color) != steps[step][color]) edits.Add(new ColourCell(step, color), steps[step][color]);
     }
 
-    /// <summary>$A6:B123 (also header E16D) equals the canonical Golden low contour at $84:8050; no duplicate grey input.</summary>
+    /// <summary>$A6:B123 (also header E16D) equals the canonical Golden low contour; no duplicate grey input.</summary>
     private static RgbColor Neutral => GoldenTorizoHealthPaint.Color(0, 15, rear: false);
-    /// <summary>$A6:A9FF: the same neutral endpoint at retreat exposure1/15.</summary>
+    /// <summary>The same neutral endpoint at retreat exposure1/15.</summary>
     internal static RgbColor RetreatNeutral => CeresRidleyFade.Scale(Neutral, 1);
 
     /// <summary>Uses a reviewed native color override when present, otherwise scales the shared contour for this zoom step.</summary>

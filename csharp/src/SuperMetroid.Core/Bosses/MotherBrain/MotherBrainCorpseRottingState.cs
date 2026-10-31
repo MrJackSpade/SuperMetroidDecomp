@@ -61,7 +61,7 @@ public sealed class MotherBrainCorpseRottingState
                 DustRequests: dustRequests);
         }
 
-        // Carry set from `$DBDF` reaches `$B1DD`, which shows every row each time.
+        // Carry set reaches `$B1DD`, which shows every row each time.
         return new MotherBrainCorpseRottingStepResult(
             StillRotting: true,
             ShownRotStep: checked((int)ProcessCallCount),

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>The collision of Ridley's body: whether it is inside the interaction window, and the components of the body frame it shows.</summary>
 internal static class RidleyCollision
 {
-    /// <summary>$A6:DE7A, CheckIfRidleyIsOffScreen: signed world coordinates and the
+    /// <summary>CheckIfRidleyIsOffScreen: signed world coordinates and the
     /// camera-relative origin plus 32 must be inside 320 by 288 pixels.</summary>
     internal static bool IsOutsideInteractionWindow(Position16<RoomPixels> position, Position16<RoomPixels> camera)
     {

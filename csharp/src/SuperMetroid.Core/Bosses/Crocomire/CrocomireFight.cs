@@ -62,7 +62,7 @@ internal sealed class CrocomireFight
         _access = dependencies.Access;
     }
 
-    /// <summary>Ports <c>InitAI_Crocomire</c> at $A4:8A5A.</summary>
+    /// <summary>Ports <c>InitAI_Crocomire</c>.</summary>
     internal void InitializeCrocomire(RoomEnemySlot slot)
     {
         _roomStatus.Boss = AreaBoss.Crocomire;
@@ -78,7 +78,7 @@ internal sealed class CrocomireFight
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
             // The dead-room state keeps only Crocomire's skeleton display actor. Property
-            // mask $7BFF and these radii/coordinates are literal writes at $A4:8AEA-$8B35.
+            // mask $7BFF and these radii/coordinates are literal writes.
             slot.Properties = slot.Properties.Replace(
                 EnemyProperties.SolidToSamus |
                     EnemyProperties.IgnoreSamusCollision,
@@ -101,7 +101,7 @@ internal sealed class CrocomireFight
         state.DeathSequenceIndex = CrocomireDeathPhase.Fighting;
         state.ReactionTimer = 0;
         state.FightFunction = CrocomireFightFunction.Sleeping;
-        // $A4:8ABA-8ABD, on the living branch only.
+        // On the living branch only.
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.BossTracking;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.Initial);
         slot.ExtraProperties = slot.ExtraProperties.With(
@@ -116,7 +116,7 @@ internal sealed class CrocomireFight
             "Crocomire requires installed color artwork.")).ApplyInitial(_presentation.Colours);
     }
 
-    /// <summary>Ports <c>InitAI_CrocomireTongue</c> at $A4:F67A.</summary>
+    /// <summary>Ports <c>InitAI_CrocomireTongue</c>.</summary>
     internal void InitializeCrocomireTongue(RoomEnemySlot slot)
     {
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
@@ -594,7 +594,7 @@ internal sealed class CrocomireFight
             throw new InvalidOperationException("Crocomire movement requires room level data.");
     }
 
-    /// <summary>Ports <c>EprojInit_CrocomireProjectile</c> at $86:9023.</summary>
+    /// <summary>Ports <c>EprojInit_CrocomireProjectile</c>.</summary>
     internal void SpawnCrocomireProjectile(RoomEnemySlot body, int spawnParameter)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>
 /// Stock Kraid colors for the five native sources (room backdrop $A7:86C7, initial target
-/// $A7:AAA6, health $A7:B3D3, death arm $A7:B4F3, secondary $A7:B513). Shared structure
+/// Health $A7:B3D3, death arm $A7:B4F3, secondary $A7:B513). Shared structure
 /// calculates in <see cref="KraidPaint"/>: the white hit flash, the backdrop-blue transparent slot, the endpoint band's
 /// eight-shade hide ramp, the death arm's reuse of the first health band and the secondary
 /// copy of health. Health bands two through seven interpolate in <see cref="KraidHealthBands"/>.

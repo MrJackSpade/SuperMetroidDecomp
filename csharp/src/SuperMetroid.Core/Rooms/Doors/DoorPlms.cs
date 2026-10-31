@@ -17,7 +17,7 @@ internal sealed class DoorPlms : IPlmFamilySource
 
     /// <summary>The room's system and event state.</summary>
     private readonly SharedGameState? _system;
-    /// <summary>Allocates fallback closing and blue-door actors from the native PLM pool.</summary>
+    /// <summary>Allocates fallback closing and blue-door actors from the PLM pool.</summary>
     private readonly PlmSlotTable _slotTable;
     /// <summary>Queues the library-two response to rejected colored-door hits.</summary>
     private readonly PlmSoundQueue _sounds;
@@ -30,19 +30,19 @@ internal sealed class DoorPlms : IPlmFamilySource
         _sounds = sounds;
     }
     /// <summary>
-    /// Executes <c>$82:E8EB Spawn_Door_Closing_PLM</c> after destination room PLMs and
+    /// Spawns the closing PLM for the door Samus entered through, after destination room PLMs and
     /// door/setup code have been constructed.
     /// </summary>
     /// <remarks>
-    /// The cartridge first looks for any resident PLM at the door-cap block. If that
+    /// The game first looks for any resident PLM at the door-cap block. If that
     /// actor's nonnegative persistence bit is not already set, its header's second list is
     /// selected in place. Otherwise the twelve-entry direction table may spawn a separate
-    /// blue-door or escape-gate closer. Allocation always uses the highest free native
-    /// slot, exactly like <c>Spawn_Room_PLM</c>.
+    /// blue-door or escape-gate closer. Allocation always uses the highest free
+    /// slot, exactly like an ordinary room PLM spawn.
     /// </remarks>
     /// <returns>
     /// True when an existing cap was redirected or a fallback closer was spawned; false
-    /// for non-closing directions or native pool exhaustion.
+    /// for non-closing directions or an exhausted PLM pool.
     /// </returns>
     public bool TrySpawnDoorClosingPlm(
         RoomLevelData level,
@@ -59,8 +59,8 @@ internal sealed class DoorPlms : IPlmFamilySource
             if (!resident.Active || resident.BlockIndex != blockIndex)
                 continue;
 
-            // `$82:E951-$E963` treats a negative room argument as explicitly
-            // nonpersistent. C8CA uses $8000, so the escape entrance always selects its
+            // A negative room argument is explicitly
+            // nonpersistent. The escape entrance's argument is negative, so it always selects its
             // closing list. Ordinary colored caps consult the same opened-door bit array.
             if (resident.Argument is DoorBitArgument { Persists: true } residentDoorBit &&
                 system.HasOpenedDoorBit(residentDoorBit.DoorBit))
@@ -69,8 +69,8 @@ internal sealed class DoorPlms : IPlmFamilySource
             }
 
             // Header+4 is definition metadata, not active memory: a typed cap restarts at its own closing program,
-            // and the other resident closers resolve their closing start by identity. Native retains every scalar
-            // the resident slot owns while replacing only its instruction pointer.
+            // and the other resident closers resolve their closing start by identity. The game retains every scalar
+            // the resident slot owns while replacing only its animation script.
             if (resident.Animation is IResidentDoorAnimation residentDoor)
                 residentDoor.StartClosing();
             else
@@ -112,7 +112,7 @@ internal sealed class DoorPlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// Setup <c>$84:C7B1</c> for a coloured cap: installs its shootable collision and starts its waiting program.
+    /// Sets up a coloured cap: installs its shootable collision and starts its waiting program.
     /// </summary>
     internal static void SetupColoredDoorSlot(
         RoomLevelData level,
@@ -126,7 +126,7 @@ internal sealed class DoorPlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// The coloured cap's shot wake (<c>$84:BD26</c>, <c>$BD50</c>, <c>$BD88</c>): a hit by the colour's projectile wakes
+    /// The coloured cap's shot wake: a hit by the colour's projectile wakes
     /// the cap at its hit program; any other hit queues the dud sound. Either way the hit is consumed.
     /// </summary>
     internal void RunColoredDoorWake(PlmSlot slot, ColoredDoorFrameBehavior frameBehavior)
@@ -143,7 +143,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             ColoredDoorFrameBehavior.None => throw new InvalidOperationException("An inert coloured cap reached its shot test."),
             _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorFrameBehavior)} {frameBehavior}."),
         };
-        // $BD50 seeds a red cap's counter for a Super Missile: the next count passes its threshold.
+        // The Super Missile frame behaviour seeds a red cap's counter: the next count passes its threshold.
         if (frameBehavior == ColoredDoorFrameBehavior.WakeOnMissile && family == SamusProjectileFamily.SuperMissile)
             door.HitCounter = ColoredDoorPlmProgramDefinitions.RedSuperMissileHitCounter;
         if (accepted)
@@ -164,14 +164,14 @@ internal sealed class DoorPlms : IPlmFamilySource
     private static readonly SoundRequestPriority DudSoundPriority = SoundRequestPriority.Normal;
 
     /// <summary>
-    /// <c>$84:8A72</c>: whether this cap's door bit records it as opened before; a negative room argument never does.
+    /// Whether this cap's door bit records it as opened before; a negative room argument never does.
     /// </summary>
     internal bool IsDoorOpened(PlmSlot slot) =>
         slot.Argument is DoorBitArgument { Persists: true } cap && RequireSystem().HasOpenedDoorBit(cap.DoorBit);
 
     /// <summary>
-    /// <c>$84:8A91</c> at its threshold: records the door as opened, leaves the opened doors of its window as the argument and
-    /// replaces the shot wake with the inert pre-instruction.
+    /// The opened-door step at its threshold: records the door as opened, leaves the opened doors of its window as the argument and
+    /// replaces the shot wake with the inert frame behaviour.
     /// </summary>
     internal void MarkDoorOpened(PlmSlot slot)
     {
@@ -186,7 +186,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.FrameBehavior = PlmFrameBehaviors.Inert;
     }
 
-    /// <summary><c>$84:8A91</c>: counts a hit on a coloured cap; true when it opens the door.</summary>
+    /// <summary>Counts a hit on a coloured cap; true when it opens the door.</summary>
     internal bool CountColoredDoorHit(PlmSlot slot)
     {
         ColoredDoorPlmState door = (slot.Family as ColoredDoorPlmState)
@@ -204,7 +204,7 @@ internal sealed class DoorPlms : IPlmFamilySource
 
     /// <summary>
     /// Names the color and facing of a colored-door PLM (#1414: each of the twelve doors is matched by member, replacing
-    /// the color ranges and six-byte header stride the cartridge's header words implied).
+    /// the color ranges and six-byte header stride the PLM headers implied).
     /// </summary>
     internal static bool TryIdentifyColoredDoor(
         PlmHeaderId header,
@@ -265,7 +265,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.OpeningPrograms[orientation]));
         slot.FrameHold = WrappingCountdown.Start(1);
         slot.FrameBehavior = PlmFrameBehaviors.Inert;
-        // The native spawn leaves the argument zero: door bit zero, which a later closing check reads.
+        // The spawn leaves the argument zero: door bit zero, which a later closing check reads.
         slot.Argument = new DoorBitArgument(0, DoorOpeningPersistence.Persistent);
         slot.LoopTimer = WrappingCountdown.Start(0);
         slot.Family = null;

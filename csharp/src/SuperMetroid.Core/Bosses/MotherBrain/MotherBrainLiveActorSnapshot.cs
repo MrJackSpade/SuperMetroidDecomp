@@ -30,7 +30,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Second brain property word cleared when the rot animation completes.</summary>
     public required SuperMetroid.Core.Enemies.EnemyExtraProperties BrainExtraProperties { get; init; }
 
-    /// <summary>Lower neck angle updated by the brain-slot handler at <c>$A9:9072</c>. The final beam has already lowered it to <c>$3000</c> before the Baby interrupts the body.</summary>
+    /// <summary>Lower neck angle updated by the brain-slot handler. The final beam has already lowered it to <c>$3000</c> before the Baby interrupts the body.</summary>
     public required RotationAngle LowerNeckAngle { get; init; }
 
     /// <summary>Upper neck angle, correspondingly lowered to <c>$2000</c>.</summary>

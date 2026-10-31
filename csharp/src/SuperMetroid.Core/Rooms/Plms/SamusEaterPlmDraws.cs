@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>How each Samus Eater draw is described, found and named.</summary>
 internal static class SamusEaterPlmDraws
 {
-    /// <summary>Decodes one of eight bank-$84 plant draw pointers into its orientation and chew phase.</summary>
+    /// <summary>Decodes one of eight plant draw pointers into its orientation and chew phase.</summary>
     internal static bool TryDescribe(PlmDraw request, out Draw draw)
     {
         if (request is not PlmFrameDraw<SamusEaterDraw>)
@@ -30,7 +30,7 @@ internal static class SamusEaterPlmDraws
         return true;
     }
 
-    /// <summary>Maps a validated native draw pointer to the artwork catalog's orientation and phase ID.</summary>
+    /// <summary>Maps a validated draw pointer to the artwork catalog's orientation and phase ID.</summary>
     internal static string VisualId(PlmDraw request) =>
         VisualId(PlmDraw.FrameOf<SamusEaterDraw>(request, "Samus Eater draw with a visual ID"));
 
@@ -48,12 +48,12 @@ internal static class SamusEaterPlmDraws
         _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {frame}."),
     };
 
-    /// <summary>Finds the native layout matching an artwork catalog ID by searching the eight supported lists.</summary>
+    /// <summary>Finds the layout matching an artwork catalog ID by searching the eight supported lists.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out list);
 
-    /// <summary>Builds the three native signed runs for a supported plant draw pointer from its phase and orientation.</summary>
+    /// <summary>Builds the three signed runs for a supported plant draw pointer from its phase and orientation.</summary>
     internal static bool TryGet(PlmDraw request,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -73,7 +73,7 @@ internal static class SamusEaterPlmDraws
         return true;
     }
 
-    /// <summary>Materializes the eight native plant layouts as temporary DTOs for artwork import and export.</summary>
+    /// <summary>Materializes the eight plant layouts as temporary DTOs for artwork import and export.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -86,7 +86,7 @@ internal static class SamusEaterPlmDraws
         }
     }
 
-    /// <summary>Floor or ceiling orientation and one of four mouth animation phases for a native draw list.</summary>
+    /// <summary>Floor or ceiling orientation and one of four mouth animation phases for a draw list.</summary>
     [IndependentFlag("whether the eater draw hangs from the ceiling, a fact of the decoded draw list")]
     internal readonly record struct Draw(bool Ceiling, [property: IntegerQuantity("animation frame index within the eater's draw cycle")] int Phase)
     {
@@ -127,7 +127,7 @@ internal static class SamusEaterPlmDraws
             }
             else
             {
-                // Right mouth half precedes the left half in native draw order.
+                // Right mouth half precedes the left half in draw order.
                 tile = MouthFirstBlock + Phase * 2 + (run == 0 ? 1 - block : block);
                 flips = run == 0 ? BlockMirroring.Horizontal : BlockMirroring.None;
                 collision = new SamusEaterBlock(run, block) switch

@@ -115,7 +115,7 @@ internal static class SporeSpawnColors
     }
 
     /// <summary>
-    /// $A5:E3F9..E4F8, Palette_SporeSpawn_DeathSequence_0..7: interpolate each RGB5
+    /// Palette_SporeSpawn_DeathSequence_0..7: interpolate each RGB5
     /// channel between the first and last rows, rounding to the nearest integer over
     /// seven intervals. The first endpoint repeats critical-health row3 (..E3F8);
     /// its sixteen colors remain required under health. Sixteen final colors also remain required.

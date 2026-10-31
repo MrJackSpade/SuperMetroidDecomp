@@ -3,24 +3,24 @@
 /// <summary>What a cue of Ridley's body programs does: one per bank-$A6 Ridley instruction its lists use.</summary>
 internal enum RidleyBodyCueKind
 {
-    /// <summary>Raises the roaring flag and queues the roar (<c>Instruction_Ridley_Roar</c>, $A6:E4BE).</summary>
+    /// <summary>Raises the roaring flag and queues the roar.</summary>
     Roar,
-    /// <summary>Clears the roaring flag (<c>Instruction_Ridley_ClearRoaringFlag</c>, $A6:E4CA).</summary>
+    /// <summary>Clears the roaring flag.</summary>
     ClearRoaringFlag,
-    /// <summary>Faces forward while turning (<c>Instruction_Ridley_FaceRidleyForward</c>, $A6:E727).</summary>
+    /// <summary>Faces forward while turning.</summary>
     FaceForward,
-    /// <summary>Faces left and mirrors the tail (<c>Instruction_Ridley_FlipRidleyLeft</c>, $A6:E71C).</summary>
+    /// <summary>Faces left and mirrors the tail.</summary>
     FlipLeft,
-    /// <summary>Faces right and mirrors the tail (<c>Instruction_Ridley_FlipRidleyRight</c>, $A6:E72F).</summary>
+    /// <summary>Faces right and mirrors the tail.</summary>
     FlipRight,
-    /// <summary>Aims the next fireball at Samus (<c>Instruction_Ridley_CalculateFireballXYVelocities</c>, $A6:E84D).</summary>
+    /// <summary>Aims the next fireball at Samus.</summary>
     AimFireball,
-    /// <summary>Spawns a fireball with its afterburn (<c>Instruction_Ridley_SpawnRidleysFireballWithAfterburn</c>, $A6:E904).</summary>
+    /// <summary>Spawns a fireball with its afterburn.</summary>
     SpawnFireballWithAfterburn,
-    /// <summary>Spawns a fireball without an afterburn (<c>Instruction_Ridley_SpawnRidleysFireballWithoutAfterburn</c>, $A6:E909).</summary>
+    /// <summary>Spawns a fireball without an afterburn.</summary>
     SpawnFireballWithoutAfterburn,
-    /// <summary>Starts Ceres Ridley's lift-off (<c>Instruction_RidleyCeres_StartLiftoff</c>, $A6:E969).</summary>
+    /// <summary>Starts Ceres Ridley's lift-off.</summary>
     CeresStartLiftoff,
-    /// <summary>Starts Lower Norfair Ridley's lift-off into the fight (<c>Instruction_Ridley_StartLiftoff</c>, $A6:E976).</summary>
+    /// <summary>Starts Lower Norfair Ridley's lift-off into the fight.</summary>
     StartLiftoff,
 }

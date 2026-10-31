@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <summary>Compiled spawn geometry and movement mechanics for Spore Spawn projectiles.</summary>
 internal static class SporeSpawnProjectileDefinitions
 {
-    /// <summary>The 256-byte wrapped signed movement stream at <c>$86:DD6C-$DE6B</c>.</summary>
+    /// <summary>The 256-byte wrapped signed movement stream.</summary>
     internal static readonly sbyte[] Movement =
     [
         0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,

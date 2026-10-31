@@ -738,7 +738,7 @@ internal sealed class BossRoomMutationPlms
     }
 
     /// <summary>
-    /// Spawns Shitroid's hardcoded ten-block vertical wall mutation at `$84:B763/$B767`.
+    /// Spawns Shitroid's hardcoded ten-block vertical wall mutation.
     /// Setup executes synchronously inside <c>SpawnHardcodedPLM</c>: `$B763` makes each block
     /// air and `$B767` makes it solid, preserving every authored block's appearance.
     /// </summary>

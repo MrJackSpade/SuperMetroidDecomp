@@ -37,7 +37,7 @@ internal sealed class StationPlms : IPlmFamilySource
     }
     /// <summary>Frames spent extending or retracting the station access arm.</summary>
     private const int StationAccessMovementFrames = 6;
-    /// <summary>Native hold before a fully extended arm publishes station activation.</summary>
+    /// <summary>Hold before a fully extended arm publishes station activation.</summary>
     private const int StationAccessExtendedHoldFrames = 96;
     /// <summary>Messages and frontend actions produced in the current PLM handler pass.</summary>
     private readonly List<StationActivationEvent> _stationActivationEvents = [];
@@ -45,7 +45,7 @@ internal sealed class StationPlms : IPlmFamilySource
     internal bool SaveStationLockedOut { get; private set; }
 
     /// <summary>
-    /// The saving sound <c>$84:AFF4</c> queued when the save was accepted, until the frontend publishes it. The
+    /// The saving sound queued when the save was accepted, until the frontend publishes it. The
     /// acceptance runs at the message-close boundary, which completes no gameplay audio publication, so the sound
     /// cannot ride the PLM sound list: the next PLM pass would clear it unheard.
     /// </summary>
@@ -63,7 +63,7 @@ internal sealed class StationPlms : IPlmFamilySource
     internal void BeginFrame() => _stationActivationEvents.Clear();
 
     /// <summary>
-    /// The map station's side of gameplay resume ($82:A2E3). Map access-list deletion does
+    /// The map station's side of gameplay resume. Map access-list deletion does
     /// not restore the normal Samus handlers; leaving the automatically opened map does,
     /// through command $0C (<see cref="SuperMetroid.Core.Samus.SamusControl.ReleaseRefillStationOnUnpause"/>).
     /// </summary>
@@ -91,10 +91,9 @@ internal sealed class StationPlms : IPlmFamilySource
     public void LockSaveStationForCurrentRoomEntry() => SaveStationLockedOut = true;
 
     /// <summary>
-    /// Resumes the sleeping save-station PLM after bank $85 returns its YES/NO result.
-    /// The accepted route executes `$84:8CF1` and continues through `$AFF2-$AFFA` within
-    /// the same PLM pass: it centres Samus, queues the saving sound and draws the first
-    /// animation frame. The declined route jumps to `$B008`, which still installs the
+    /// Resumes the sleeping save-station PLM after the save message returns its YES/NO result.
+    /// The accepted route centres Samus, queues the saving sound and draws the first
+    /// animation frame within the same PLM pass. The declined route still installs the
     /// once-per-room-entry lockout. Returns whether the station is saving.
     /// </summary>
     public bool ResolveSaveStationConfirmation(StationActivationEvent activation, bool accepted, RoomLevelData level)
@@ -126,13 +125,13 @@ internal sealed class StationPlms : IPlmFamilySource
         station.AnimationFrame = 0;
         station.SaveAnimationLoopsRemaining =
             WrappingCountdown.Start(SaveStationAnimationDefinitions.SaveAnimationLoops);
-        // `$84:AFF4` queues library-one sound $2E right after centring Samus.
+        // The accepted route queues the saving sound right after centring Samus.
         _pendingSavingSound = _sounds.CreateSoundRequest(Library1Sound.Saving, Priority: SoundRequestPriority.Normal);
         DrawSaveStationFrame(level, activation.BlockIndex, station);
         return true;
     }
 
-    /// <summary>Completes `$84:B030` after message $18 has closed.</summary>
+    /// <summary>Completes the save after the saved-game message has closed.</summary>
     public void CompleteSaveStation(StationActivationEvent activation)
     {
         StationPlmState station = FindSaveStation(activation);
@@ -652,7 +651,7 @@ internal sealed class StationPlms : IPlmFamilySource
                     axis == Axis.Horizontal && movingPositive &&
                     collisionPose == SamusCollisionPose.RanIntoWallRight,
                 // A foot can touch the floor trigger before the body's biased center
-                // reaches its column. Native accepts only the latter, narrower range.
+                // reaches its column. Accepts only the latter, narrower range.
                 StationAccessBehavior.SaveFloor => axis == Axis.Vertical && movingPositive &&
                     collisionPose == SamusCollisionPose.StandingNormal &&
                     IsSaveStationTriggerCentered(slot.BlockIndex, roomWidthInBlocks),
@@ -684,7 +683,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 // before the common PLM handler advances the resident access list. This
                 // distinction is observable in G-Mode: the disabled handler cannot start
                 // or finish the animation, but Samus is already movement-locked and the
-                // station therefore softlocks. Save trigger $B590 only advances its
+                // station therefore softlocks. The save trigger only advances its
                 // resident list and does not execute command six at this setup seam.
                 if (station.Kind != StationKind.Save)
                 {
@@ -699,7 +698,7 @@ internal sealed class StationPlms : IPlmFamilySource
         return false;
     }
 
-    /// <summary>Applies the cartridge's wrapping coordinate test before queuing any save side effect.</summary>
+    /// <summary>Applies the game's wrapping coordinate test before queuing any save side effect.</summary>
     private bool IsSaveStationTriggerCentered(int blockIndex, int roomWidthInBlocks)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
@@ -753,7 +752,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 // Access lists draw their first extension frame for six ticks, hold the
                 // fully inserted arm for $60, then execute the activation opcode. Command
                 // six locked Samus in setup; this pass does not lock her again, so one an
-                // intervening unpause freed ($90:F2A2) stays free.
+                // intervening unpause freed stays free.
                 station.OperationPhase = StationOperationPhase.Extending;
                 station.OperationTimer = WrappingCountdown.Start(StationAccessMovementFrames);
                 operationStartedThisPass = true;
@@ -782,7 +781,7 @@ internal sealed class StationPlms : IPlmFamilySource
                         break;
                     case StationOperationPhase.Extended:
                         PublishStationActivation(station, slot, samus);
-                        // $84:8CC6/$8CE7: the recharge activations run Samus command one
+                        // The recharge activations run Samus command one
                         // right after their message box, before the access retracts. The
                         // map activation leaves input locked for pause teardown's command.
                         if (station.Kind != StationKind.Map)
@@ -818,7 +817,7 @@ internal sealed class StationPlms : IPlmFamilySource
             }
         }
 
-        // Save station $AFE8 draws once and then sleeps until its behaviour-$4D trigger advances
+        // The save station draws once and then sleeps until its save-floor trigger advances
         // it. Its confirmation/save coroutine is published above for the frontend owner.
         if (station.Kind == StationKind.Save && station.InitialDrawCompleted)
             return true;
@@ -865,8 +864,8 @@ internal sealed class StationPlms : IPlmFamilySource
         if (!station.AnimationTimer.IsZero)
             return true;
 
-        // `$84:B002` runs when the second frame's four frames expire. After the last of
-        // the 21 loops it falls through to `$84:B006`, the saved-game message, instead of
+        // The loop step runs when the second frame's four frames expire. After the last of
+        // the 21 loops it falls through to the saved-game message, instead of
         // returning to the first frame. (The loop is counted at the second draw here.)
         if (station.AnimationFrame == 0 && station.SaveAnimationLoopsRemaining.IsZero)
         {
@@ -883,7 +882,7 @@ internal sealed class StationPlms : IPlmFamilySource
         return true;
     }
 
-    /// <summary>Draws the next of the two four-frame electricity frames (`$84:AFFA`/`$AFFE`).</summary>
+    /// <summary>Draws the next of the two four-frame electricity frames.</summary>
     private void DrawSaveStationFrame(RoomLevelData level, int blockIndex, StationPlmState station)
     {
         StationAnimationList list = station.AnimationFrame == 0

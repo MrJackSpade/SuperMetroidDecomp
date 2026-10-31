@@ -24,7 +24,7 @@ internal static class MotherBrainNeckKinematics
     /// <summary>How far the upper neck's raised limit leads the lower neck's angle, in 8.8 angle units.</summary>
     private const int UpperLeadOverLower = 2048;
 
-    /// <summary>Advances the lower and upper neck angles through bobbing or one-way raise/lower movement at <c>$A9:9072-$91B7</c>.</summary>
+    /// <summary>Advances the lower and upper neck angles through bobbing or one-way raise/lower movement.</summary>
     /// <remarks>The upper dispatcher runs second and observes the lower angle and movement state changed in the same frame.</remarks>
     internal static void StepAngles(
         ref RotationAngle lowerAngle,
@@ -157,7 +157,7 @@ internal static class MotherBrainNeckKinematics
         }
     }
 
-    /// <summary>Ports all five signed sine/cosine position writes at $A9:91B8-$92AA: each joint's room-pixel position, indexed by joint.</summary>
+    /// <summary>Ports all five signed sine/cosine position writes: each joint's room-pixel position, indexed by joint.</summary>
     /// <param name="body">The body's position.</param>
     /// <param name="lowerAngle">The angle the lower joints hang at.</param>
     /// <param name="upperAngle">The angle the upper joints hang at.</param>

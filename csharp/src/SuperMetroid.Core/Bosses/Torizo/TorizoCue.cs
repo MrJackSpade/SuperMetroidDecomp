@@ -38,16 +38,16 @@ internal abstract record TorizoCue
 
     /// <summary>
     /// Spawns the low-health explosions and flashes; the program then waits forty updates
-    /// (<c>Instruction_Torizo_Spawn5LowHealthExplosion_SleepFor28Frames</c>, $AA:C303).
+    /// .
     /// </summary>
     /// <param name="Site">Where the explosions burst.</param>
     internal sealed record LowHealthExplosions(BombTorizoExplosionSite Site) : TorizoCue;
 
-    /// <summary>Selects the main-AI function (<c>Instruction_Torizo_FunctionInY</c>, $AA:B09C).</summary>
+    /// <summary>Selects the main-AI function.</summary>
     /// <param name="Function">The main-AI function a <see cref="SetFunction"/> cue selects.</param>
     internal sealed record SetFunction(TorizoFunction Function) : TorizoCue;
 
-    /// <summary>Installs the body's pre-instruction (<c>Instruction_CommonAA_Enemy0FB2_InY</c>, $AA:806B).</summary>
+    /// <summary>Installs the body's pre-instruction.</summary>
     /// <param name="FrameBehavior">The pre-instruction a <see cref="SetFrameBehavior"/> cue installs.</param>
     internal sealed record SetFrameBehavior(TorizoFrameBehavior FrameBehavior) : TorizoCue;
 

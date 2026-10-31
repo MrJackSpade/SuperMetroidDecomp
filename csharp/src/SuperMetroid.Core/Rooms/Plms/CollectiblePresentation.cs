@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The three parallel item presentations encoded by bank-$84 header ranges.</summary>
+/// <summary>The three parallel item presentations encoded by header ranges.</summary>
 public enum CollectiblePresentation
 {
     /// <summary>The item begins visible and can be acquired by Samus contact.</summary>

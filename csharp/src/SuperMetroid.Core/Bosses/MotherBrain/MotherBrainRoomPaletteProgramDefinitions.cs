@@ -9,9 +9,9 @@ internal static class MotherBrainRoomPaletteProgramDefinitions
     /// <summary>The flash's fourteen two-tick frames, each showing one color row.</summary>
     internal const int PresentationWordCount = 14;
 
-    /// <summary>$A9:D046-D07C, reviewed two-tick visual cadence for the fourteen-image flash performance; only the private palette timer consumes it.</summary>
+    /// <summary>Reviewed two-tick visual cadence for the fourteen-image flash performance; only the private palette timer consumes it.</summary>
     internal const int FlashImageTicks = 2;
 
-    /// <summary>Reviewed visual strength sequence in thirds for the fourteen events at $A9:D046-$D07C; each returns a paint image without gameplay callbacks.</summary>
+    /// <summary>Reviewed visual strength sequence in thirds for the fourteen events; each returns a paint image without gameplay callbacks.</summary>
     internal static readonly int[] FlashStrengths = [0, 1, 2, 3, 0, 1, 0, 3, 1, 0, 3, 2, 0, 2];
 }

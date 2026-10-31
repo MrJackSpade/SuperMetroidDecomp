@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The retail routine does not use floating point, a spline, or a host physics engine. It
 /// carries an 8.8 velocity, updates only byte <c>+1</c> of each enemy subposition, and lets
 /// the carry from that byte addition enter the whole-pixel position. The curved entrance
-/// also reads the cartridge's signed sine table at <c>$A0:B443</c>. Keeping those details
+/// also reads the cartridge's signed sine table. Keeping those details
 /// here is important: replacing them with visually similar interpolation changes the exact
 /// frame on which the Baby's native collision rectangle reaches Mother Brain's brain slot.
 /// </remarks>
@@ -32,12 +32,12 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Places the latched Baby 20 pixels above Samus's center.</summary>
     private static readonly Offset16<RoomPixels> SamusLatchOffset = new(0, -20);
 
-    /// <summary>Horizontal collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c> at $A0:ECBF.</summary>
+    /// <summary>Horizontal collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c>.</summary>
     /// <remarks>Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's friendly names,
     /// `$A0:8AFF/$8B05` copy those words directly into the enemy slot's X/Y *radius* fields; there is no
     /// diameter-to-radius division anywhere in between.</remarks>
     public const int XHitboxRadius = 36;
-    /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c> at $A0:ECBF.</summary>
+    /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c>.</summary>
     public const int YHitboxRadius = 36;
 
     /// <summary>Current native function-pointer equivalent.</summary>
@@ -112,7 +112,7 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public WrappingCountdown OnionRingHitFlashTimer { get; private set; }
 
-    /// <summary>Saved whole-pixel origin used by the fatal-blow shake at <c>$A9:CC3E</c>.</summary>
+    /// <summary>Saved whole-pixel origin used by the fatal-blow shake.</summary>
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
     /// <summary>Reload-eight timer producing the native nine-call black-palette cadence.</summary>
@@ -131,7 +131,7 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public int DeathExplosionPatternIndex { get; private set; }
 
-    /// <summary>How many attack pages the cutscene has shown again (<c>$A9:8FC7</c>), which is also the next to show.</summary>
+    /// <summary>How many attack pages the cutscene has shown again, which is also the next to show.</summary>
     public int AttackPagesShown { get; private set; }
 
     /// <summary>Palette-table argument used while restoring the phase-three room lights, 0 through 8.</summary>
@@ -208,7 +208,7 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>
     /// Executes one complete main-AI call: function first, then the unconditional enemy
-    /// velocity mover at <c>$A9:C782</c>. Flash/palette presentation is intentionally kept
+    /// velocity mover. Flash/palette presentation is intentionally kept
     /// as inspectable state because it does not alter this entrance's coordinates.
     /// Every Baby routine reads the physical head enemy <c>Enemy[1]</c>'s coordinates, which
     /// the head AI has already moved this frame; <paramref name="head"/> carries them.
@@ -242,7 +242,7 @@ public sealed class BabyMetroidCutsceneState
         MotherBrainSpritePage? attackPage = null;
         int? recoveryLightsFrame = null;
 
-        // EnemyCollisionHandling ($A0:903E) runs touch AI before main AI, against the Baby's
+        // EnemyCollisionHandling runs touch AI before main AI, against the Baby's
         // position from the previous frame. `$CF03` is active only during `$CA66`; broad
         // Samus/enemy hitboxes gate it, then its own acceleration-$10 helper decides when
         // both axes have reached the latch point. Main AI and its mover follow this frame.
@@ -529,9 +529,9 @@ public sealed class BabyMetroidCutsceneState
                 goto case BabyMetroidCutscenePhase.StareDownMotherBrain;
 
             case BabyMetroidCutscenePhase.StareDownMotherBrain:
-                // Literal target from `$CB2D`: four pixels left of Samus and Y `$60`.
+                // Literal target: four pixels left of Samus and Y `$60`.
                 // The helper's Y index zero means divisor `$10`. This leg and the next two
-                // enter at `$A9:F466`, which stores a `$10` wrong-way off-screen X extra,
+                // enter, which stores a `$10` wrong-way off-screen X extra,
                 // not the `$400` of the entrance helpers.
             {
                 var target = new Position16<RoomPixels>(CoordinateAxis.Wrap(samus.Position.X.Whole - 4), 96);
@@ -614,7 +614,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidCutscenePhase.TakeFinalBlow:
             {
-                // `ShakeBabyMetroidCutscene` ($A9:CEDB) first adds `$FFFF` to the Y velocity,
+                // `ShakeBabyMetroidCutscene` first adds `$FFFF` to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
                 Velocity = Velocity.WithY(SignedEightEight.Wrapped(Velocity.Y.RawValue - 1));
@@ -714,7 +714,7 @@ public sealed class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.FinalCutscene:
             {
                 // `$CCF0` increments the shared counter, passes its previous value to
-                // `$AD:F24B`, and treats pointer-table entry seven as the carry-set end.
+                // And treats pointer-table entry seven as the carry-set end.
                 int paletteIndex = RoomLightsTransitionCounter;
                 RoomLightsTransitionCounter++;
                 if (paletteIndex < 7)
@@ -766,7 +766,7 @@ public sealed class BabyMetroidCutsceneState
             recoveryLightsFrame);
     }
 
-    /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision handler at $86:C381–C3A8: a living Baby gets a $0010 flash timer and health subtraction saturated at zero.</summary>
+    /// <summary>Applies the Baby's health/flash mutation from the blue-ring collision handler: a living Baby gets a $0010 flash timer and health subtraction saturated at zero.</summary>
     /// <param name="damage">Unsigned health units to subtract, defaulting to the native $0050 (80); even zero damage refreshes the flash timer when health is nonzero.</param>
     /// <returns>An empty compatibility result; the effects are written directly to <see cref="Health"/> and <see cref="OnionRingHitFlashTimer"/>.</returns>
     /// <remarks>Zero health leaves all state unchanged. The caller must establish overlap and owns the Baby cry request, physical enemy-slot synchronization, and ring explosion/deletion.</remarks>
@@ -934,7 +934,7 @@ public sealed class BabyMetroidCutsceneState
     }
 
     /// <summary>
-    /// <c>Enemy_vs_Samus_CollisionHandling</c> ($A0:A07A-$A0FE) for the Baby's radius hitbox.
+    /// <c>Enemy_vs_Samus_CollisionHandling</c> for the Baby's radius hitbox.
     /// A non-zero contact-damage index clears Samus's invincibility and proceeds; otherwise an
     /// invincible Samus is not touched. Each axis then requires
     /// <c>|delta| - SamusRadius &lt; enemy radius</c> (a delta inside Samus's own radius
@@ -987,7 +987,7 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Checks the generous signed camera rectangle used by the Baby's wrong-way movement recovery.</summary>
     private bool IsVaguelyOffScreen(Position16<RoomPixels> layer1)
     {
-        // This is the signed-branch sequence at `$A9:F57A`; its generous rectangle extends
+        // This is the signed-branch sequence; its generous rectangle extends
         // 16 pixels left/right and 96 pixels vertically beyond the ordinary 256x224 view.
         if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)
             return true;
@@ -1054,7 +1054,7 @@ public sealed class BabyMetroidCutsceneState
         else
         {
             // Native deliberately sends exact equality through the left branch; unlike Y,
-            // there is no BEQ before BPL at `$A9:F619-$F61B`.
+            // there is no BEQ before BPL.
             int velocity = Math.Max(Velocity.X.SignedRawValue - acceleration, -1280);
             Velocity = Velocity.WithX(SignedEightEight.Wrapped(velocity));
             int prediction = CoordinateAxis.Wrap(Position.X.Whole + WordWrap.SignedLowByte(EightEight.WholeOf(Velocity.X.RawValue)));

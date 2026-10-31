@@ -74,7 +74,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Presentation, dependencies.Collision, Parts, Grab, _bossArtwork);
     }
 
-    /// <summary>Ports <c>MainAI_DraygonBody</c> at <c>$A5:86FC</c>.</summary>
+    /// <summary>Ports <c>MainAI_DraygonBody</c>.</summary>
     private void RunDraygonBodyMain(RoomEnemySlot body, SamusState? samus, int frameCounterLow)
     {
         DraygonEnemyState state = Combat.RequireCompleteDraygonState(body);
@@ -196,16 +196,16 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonProgram ArmsNearApex, DraygonProgram ArmsIdle,
         DraygonAiFunction Apex, DraygonAiFunction Ascending);
 
-    /// <summary>The swoop from the left edge to the right, $A5:88B1-$8951.</summary>
+    /// <summary>The swoop from the left edge to the right.</summary>
     internal static readonly DraygonSwoopSide RightSwoop = new(HorizontalDirection.Right, DraygonProgram.ArmsFacingRightNearSwoopApex,
         DraygonProgram.ArmsFacingRightIdle, DraygonAiFunction.SwoopRightApex, DraygonAiFunction.SwoopRightAscending);
 
-    /// <summary>The mirrored swoop from the right edge to the left, $A5:8A00-$8A90.</summary>
+    /// <summary>The mirrored swoop from the right edge to the left.</summary>
     internal static readonly DraygonSwoopSide LeftSwoop = new(HorizontalDirection.Left, DraygonProgram.ArmsFacingLeftNearSwoopApex,
         DraygonProgram.ArmsFacingLeftIdle, DraygonAiFunction.SwoopLeftApex, DraygonAiFunction.SwoopLeftAscending);
 
     /// <summary>
-    /// <c>$FFB0</c>: the X Draygon parks at off the left edge (-80 as a signed word); a goop pass leftwards ends once
+    /// The X Draygon parks at off the left edge (-80 as a signed word); a goop pass leftwards ends once
     /// the body crosses it.
     /// </summary>
     internal static readonly int DraygonOffscreenLeftX = CoordinateAxis.Wrap(-80);

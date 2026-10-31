@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// A retail room and the state its selection chose: the room's fixed header and the settings of that state.
 /// </summary>
 /// <remarks>
-/// The engine calls <c>HandleRoomDefStateSelect</c> at $8F:E5D2 immediately after reading
+/// The engine calls <c>HandleRoomDefStateSelect</c> immediately after reading
 /// the fixed header. State selection is data-driven and can depend on events, bosses, or
 /// inventory. This first reusable loader accepts those facts explicitly; a fresh Ceres
 /// start supplies an all-clear context and therefore follows the exact default branch.
@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// </remarks>
 public sealed record SelectedRoom(RoomHeaderDefinition Definition, RoomStateSettings State)
 {
-    /// <summary>The room's native per-area index, 0 through 255.</summary>
+    /// <summary>The room's per-area index, 0 through 255.</summary>
     public int RoomIndex => Definition.RoomIndex;
 
     /// <summary>The room's validated retail world area.</summary>

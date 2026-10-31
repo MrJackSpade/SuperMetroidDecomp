@@ -6,21 +6,21 @@ public enum TorizoFunction
     /// <summary><c>RTS_AAC6AB</c>: dormant.</summary>
     Idle = 1,
 
-    /// <summary><c>Function_Torizo_SimpleMovement</c> at $AA:C6BF.</summary>
+    /// <summary><c>Function_Torizo_SimpleMovement</c>.</summary>
     Falling,
 
-    /// <summary><c>Function_Torizo_WakeWhenBombTorizoChozoFinishesCrumbling</c> at $AA:C6C6.</summary>
+    /// <summary><c>Function_Torizo_WakeWhenBombTorizoChozoFinishesCrumbling</c>.</summary>
     WaitForHandTrigger,
 
-    /// <summary><c>Function_Torizo_NormalMovement</c> at $AA:C6FF.</summary>
+    /// <summary><c>Function_Torizo_NormalMovement</c>.</summary>
     Active,
 
-    /// <summary><c>Function_GoldenTorizo_WakeIfSamusIsBelowAndRightOfTargetPos</c> at $AA:D5C2.</summary>
+    /// <summary><c>Function_GoldenTorizo_WakeIfSamusIsBelowAndRightOfTargetPos</c>.</summary>
     GoldenWaitForSamus,
 
-    /// <summary><c>Function_GoldenTorizo_SimpleMovement</c> at $AA:D5DF.</summary>
+    /// <summary><c>Function_GoldenTorizo_SimpleMovement</c>.</summary>
     GoldenGravity,
 
-    /// <summary><c>Function_GoldenTorizo_NormalMovement</c> at $AA:D5E6.</summary>
+    /// <summary><c>Function_GoldenTorizo_NormalMovement</c>.</summary>
     GoldenFrameBehavior,
 }

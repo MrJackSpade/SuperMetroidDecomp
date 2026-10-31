@@ -8,30 +8,30 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <summary>Spore Spawn's typed body programs (#641), in place of its bank-$A5 lists.</summary>
 internal static class SporeSpawnAnimations
 {
-    /// <summary>How long the living room waits before the descent ($A5:E6C7).</summary>
+    /// <summary>How long the living room waits before the descent.</summary>
     private const int DescentWait = 256;
-    /// <summary>The fight's first sway before the head opens ($A5:E6DF).</summary>
+    /// <summary>The fight's first sway before the head opens.</summary>
     private const int FirstSway = 768;
-    /// <summary>The closed sway with spores stopped ($A5:E74F).</summary>
+    /// <summary>The closed sway with spores stopped.</summary>
     private const int ClosedSway = 512;
-    /// <summary>The closed sway with spores falling, before the head opens again ($A5:E757).</summary>
+    /// <summary>The closed sway with spores falling, before the head opens again.</summary>
     private const int SporingSway = 208;
     /// <summary>Each closing and open-pulse pose's dwell.</summary>
     private const int PoseDuration = 8;
-    /// <summary>The open head's pulse repeats ($A5:E711).</summary>
+    /// <summary>The open head's pulse repeats.</summary>
     private const int OpenPulseRepeats = 5;
-    /// <summary>The dying explosions and hardening dust clouds ($A5:E789/E7B9).</summary>
+    /// <summary>The dying explosions and hardening dust clouds.</summary>
     private const int DeathBurstRepeats = 10;
-    /// <summary>The wait between death bursts ($A5:E793/E7BF).</summary>
+    /// <summary>The wait between death bursts.</summary>
     private const int DeathBurstWait = 8;
-    /// <summary>Each death-palette fade step's dwell ($A5:E7CD..E809).</summary>
+    /// <summary>Each death-palette fade step's dwell.</summary>
     private const int FadeStepDuration = 16;
     /// <summary>The death palette's fade steps; the husk's palette is the last.</summary>
     internal const int DeathPaletteSteps = 7;
-    /// <summary>The sway's maximum X radius as the fight starts ($A5:E6D7).</summary>
+    /// <summary>The sway's maximum X radius as the fight starts.</summary>
     private const int FirstMaximumXRadius = 64;
 
-    /// <summary>The opening poses' dwells, closed through fully open ($A5:E6EB..E707).</summary>
+    /// <summary>The opening poses' dwells, closed through fully open.</summary>
     private static readonly int[] OpeningDurations = [8, 8, 8, 7, 7, 6, 1];
 
     /// <summary>Every body program.</summary>

@@ -26,7 +26,7 @@ internal sealed class DraygonSwoops
         _movement = movement;
     }
 
-    /// <summary>Ports swoop-right setup and table construction at <c>$A5:87F4-$88B0</c>.</summary>
+    /// <summary>Ports swoop-right setup and table construction.</summary>
     internal void SetupDraygonRightSwoop(
         DraygonEnemyState state,
         SamusState? samus,
@@ -78,7 +78,7 @@ internal sealed class DraygonSwoops
         state.SwoopEntry = frameCount;
     }
 
-    /// <summary>Ports the descending half at <c>$A5:88B1</c> (right) and <c>$A5:8A00</c> (left).</summary>
+    /// <summary>Ports the descending half (right) and <c>$A5:8A00</c> (left).</summary>
     internal void DescendDraygonSwoop(
         DraygonEnemyState state,
         SamusState? samus,
@@ -102,7 +102,7 @@ internal sealed class DraygonSwoops
         DraygonMovement.MoveDraygonHorizontally(state, side.Direction == HorizontalDirection.Right);
     }
 
-    /// <summary>Ports the velocity recalculation at the bottom of the swoop, $A5:8922.</summary>
+    /// <summary>Ports the velocity recalculation at the bottom of the swoop.</summary>
     internal void CrossDraygonRightSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
@@ -119,7 +119,7 @@ internal sealed class DraygonSwoops
     }
 
     /// <summary>
-    /// Ports the ascending half and random next-attack choice at $A5:8951 (right) and $A5:8A90 (left). Only the leftward
+    /// Ports the ascending half and random next-attack choice (right) and $A5:8A90 (left). Only the leftward
     /// ascent emits breath bubbles. At the top the rightward swoop chooses the left swoop or goop; the leftward one
     /// returns to the left reset point first and chooses the right swoop, at the reset height, or goop.
     /// </summary>
@@ -169,7 +169,7 @@ internal sealed class DraygonSwoops
         }
     }
 
-    /// <summary>Ports the mirrored left-swoop setup at <c>$A5:89B3</c>.</summary>
+    /// <summary>Ports the mirrored left-swoop setup.</summary>
     internal void SetupDraygonLeftSwoop(
         DraygonEnemyState state,
         SamusState? samus,
@@ -191,7 +191,7 @@ internal sealed class DraygonSwoops
         state.SwoopEntry = state.SwoopPathEntryCount;
     }
 
-    /// <summary>Ports the mirrored velocity calculation at <c>$A5:8A50</c>.</summary>
+    /// <summary>Ports the mirrored velocity calculation.</summary>
     internal void CrossDraygonLeftSwoopApex(
         DraygonEnemyState state,
         SamusState? samus,
@@ -225,7 +225,7 @@ internal sealed class DraygonSwoops
     private static void SetDraygonSwoopVelocity(DraygonEnemyState state, int distance, int frameCount) =>
         state.SwoopVelocity = SixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
 
-    /// <summary>Ports the regional four-pixel upward retreat at <c>$A5:9154</c>.</summary>
+    /// <summary>Ports the regional four-pixel upward retreat.</summary>
     internal void FlyDraygonStraightUp(
         DraygonEnemyState state,
         SamusState? samus,

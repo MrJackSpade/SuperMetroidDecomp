@@ -6,41 +6,41 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal enum RidleyBodyProgram
 {
-    /// <summary>The standing pose (<c>InstList_Ridley_FacingLeft_Initial</c>, $A6:E538).</summary>
+    /// <summary>The standing pose.</summary>
     Initial,
-    /// <summary>The right-facing standing pose ($A6:E542).</summary>
+    /// <summary>The right-facing standing pose.</summary>
     InitialFacingRight,
-    /// <summary>Ceres Ridley's lunge (<c>InstList_RidleyCeres_FacingLeft_Lunging</c>, $A6:E548).</summary>
+    /// <summary>Ceres Ridley's lunge.</summary>
     CeresLunge,
-    /// <summary>The right-facing lunge ($A6:E576).</summary>
+    /// <summary>The right-facing lunge.</summary>
     CeresLungeFacingRight,
-    /// <summary>Ceres Ridley reaching for the Baby Metroid (<c>InstList_RidleyCeres_RetrieveBabyMetroid</c>, $A6:E658).</summary>
+    /// <summary>Ceres Ridley reaching for the Baby Metroid.</summary>
     RetrieveBabyMetroid,
-    /// <summary>The right-facing reach ($A6:E676).</summary>
+    /// <summary>The right-facing reach.</summary>
     RetrieveBabyMetroidFacingRight,
-    /// <summary>The opening roar (<c>InstList_Ridley_FacingLeft_OpeningRoar</c>, $A6:E690).</summary>
+    /// <summary>The opening roar.</summary>
     OpeningRoar,
-    /// <summary>The right-facing opening roar ($A6:E6AE).</summary>
+    /// <summary>The right-facing opening roar.</summary>
     OpeningRoarFacingRight,
-    /// <summary>The death roar (<c>InstList_Ridley_FacingLeft_DeathRoar</c>, $A6:E6C8).</summary>
+    /// <summary>The death roar.</summary>
     DeathRoar,
-    /// <summary>The right-facing death roar ($A6:E6DE).</summary>
+    /// <summary>The right-facing death roar.</summary>
     DeathRoarFacingRight,
-    /// <summary>Turning to face right (<c>InstList_Ridley_TurnFromLeftToRight</c>, $A6:E6F0).</summary>
+    /// <summary>Turning to face right.</summary>
     TurnFromLeftToRight,
-    /// <summary>Turning to face left (<c>InstList_Ridley_TurnFromRightToLeft</c>, $A6:E706).</summary>
+    /// <summary>Turning to face left.</summary>
     TurnFromRightToLeft,
-    /// <summary>Two fireball bursts (<c>InstList_Ridley_FacingLeft_Fireballing_0</c>, $A6:E73A).</summary>
+    /// <summary>Two fireball bursts.</summary>
     Fireballing,
-    /// <summary>The fireballing tail that closes the mouth (<c>InstList_Ridley_FacingLeft_Fireballing_1</c>, $A6:E7AC).</summary>
+    /// <summary>The fireballing tail that closes the mouth.</summary>
     FireballingEnd,
-    /// <summary>The right-facing fireball bursts (<c>InstList_Ridley_FacingRight_Fireballing_0</c>, $A6:E7B4).</summary>
+    /// <summary>The right-facing fireball bursts.</summary>
     FireballingFacingRight,
-    /// <summary>The right-facing fireballing tail (<c>InstList_Ridley_FacingRight_Fireballing_1</c>, $A6:E820).</summary>
+    /// <summary>The right-facing fireballing tail.</summary>
     FireballingEndFacingRight,
-    /// <summary>Taking off (<c>InstList_RidleyCeres_FacingLeft_TransitionToFlying</c>, $A6:E91D).</summary>
+    /// <summary>Taking off.</summary>
     TransitionToFlying,
-    /// <summary>The right-facing take-off (<c>InstList_RidleyCeres_FacingRight_TransitionToFlying</c>, $A6:E945).</summary>
+    /// <summary>The right-facing take-off.</summary>
     /// <remarks>It calls the Lower Norfair lift-off, as the native list does.</remarks>
     TransitionToFlyingFacingRight,
 }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainTurretDefinitions
 {
     /// <summary>
-    /// Graphics installed by both projectile initializers at $86:BE58/$86:BF5F: character zero in the Rinkas' colours,
+    /// Graphics installed by both projectile initializers: character zero in the Rinkas' colours,
     /// which Mother Brain's room loads beside her. The turrets and their bullets exist only in the first phase, before
     /// the second phase's attack colours replace the Rinkas' (#1464).
     /// </summary>

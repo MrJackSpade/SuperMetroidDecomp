@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The scripted room PLMs' programs (#1296), in place of their bank-$84 lists.</summary>
+/// <summary>The scripted room PLMs' programs (#1296), in place of their lists.</summary>
 internal enum ScriptedRoomPlmProgram
 {
     /// <summary>The elevator platform's idle loop.</summary>

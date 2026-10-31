@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class GreyDoorCaps
 {
-    /// <summary>One of twenty twelve-byte records at $84:A677..A766.</summary>
+    /// <summary>One of twenty twelve-byte records.</summary>
     internal readonly record struct Draw(ColoredDoorOrientation Orientation, [property: IntegerQuantity("cap animation frame index")] int Frame) : IPlmCapDrawShape
     {
         /// <summary>Left and right caps use a vertical four-cell run.</summary>
@@ -29,7 +29,7 @@ internal static class GreyDoorCaps
     internal static bool TryDescribe(PlmDraw request, out Draw draw) =>
         PlmDraw.TryFrame(request, static (Draw cap) => cap.Frame is >= GreyDoorPlmDrawDefinitions.ClearFrame and < 4, out draw);
 
-    /// <summary>Enumerates all twenty native cap records for artwork import and export.</summary>
+    /// <summary>Enumerates all twenty authored cap records for artwork import and export.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get

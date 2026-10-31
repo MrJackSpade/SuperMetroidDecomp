@@ -12,7 +12,7 @@ internal static class GreyDoorPlmDrawDefinitions
     internal const int ClearFrame = -1;
 
     /// <summary>
-    /// The four cells of each of the twenty grey-cap draws at $84:A677..A766, in native run order. The clear frame
+    /// The four cells of each of the twenty grey-cap draws, in authored run order. The clear frame
     /// has no collision; frame zero carries the shootable and extension types; opening frames are solid except the
     /// middle cells of final left and down frames, which are air. Vertical tiles advance one per frame with a 32-tile
     /// inner-row stride; horizontal tiles alternate tileset rows, advancing two every two frames. Mirrors follow the

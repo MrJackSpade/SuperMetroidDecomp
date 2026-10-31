@@ -109,8 +109,8 @@ internal sealed class KraidCombat
     }
 
     /// <summary>
-    /// Ports Kraid arm helper <c>SpawnExplosionProjectile</c> at `$A7:B0CB`, called by the
-    /// arm hitbox callback at `$A7:94B6`. Super Missiles select native dust animation `$1D`;
+    /// Ports Kraid arm helper <c>SpawnExplosionProjectile</c>, called by the
+    /// arm hitbox callback. Super Missiles select native dust animation `$1D`;
     /// beams, missiles, and family-$0500 normal bombs select `$06`. The effect uses the
     /// shared room-graphics projectile allocator and queues sound-library-one effect `$3D`.
     /// </summary>
@@ -129,13 +129,13 @@ internal sealed class KraidCombat
     }
 
     /// <summary>
-    /// Both passes return immediately once Kraid has begun sinking ($A7:AFAD/$B182).
+    /// Both passes return immediately once Kraid has begun sinking.
     /// </summary>
     private bool KraidSinkingSkipsProjectileCollision(RoomEnemySlot body) =>
         !KraidFunctionGroups.BeforeSinking.Contains(_access.Part(body).Function);
 
     /// <summary>
-    /// Ports <c>KraidsMouth_vs_Projectile_CollisionHandling</c> ($A7:AFAA). Projectile
+    /// Ports <c>KraidsMouth_vs_Projectile_CollisionHandling</c>. Projectile
     /// removal is deferred to the projectile pre-instruction.
     /// </summary>
     internal int ResolveKraidMouthProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidBehavior.KraidShotSlots shots)
@@ -212,7 +212,7 @@ internal sealed class KraidCombat
     }
 
     /// <summary>
-    /// Ports <c>KraidBody_vs_Projectile_CollisionHandling</c> ($A7:B181), the independent
+    /// Ports <c>KraidBody_vs_Projectile_CollisionHandling</c>, the independent
     /// outer mouth/body pass.
     /// </summary>
     internal int ResolveKraidBodyProjectileHits(RoomEnemySlot body, KraidEnemyState state, KraidBehavior.KraidShotSlots shots)

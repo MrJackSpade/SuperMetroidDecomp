@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>The placement each area's load station selects.</summary>
 public static class LoadStations
 {
-    /// <summary>Native list length of <paramref name="area"/>, including inert placeholders.</summary>
+    /// <summary>List length of <paramref name="area"/>, including inert placeholders.</summary>
     public static int Count(AreaId area) =>
         Counts.TryGetValue(area, out int count) ? count : throw new ArgumentOutOfRangeException(nameof(area), area, "Unknown retail area ID.");
 
-    /// <summary>Constructs one exact native placement after validating area and station bounds.</summary>
+    /// <summary>Constructs one exact placement after validating area and station bounds.</summary>
     public static LoadStationEntry Get(AreaId areaIndex, int stationIndex)
     {
         int area = AreaIds.ToIndex(areaIndex);
@@ -28,7 +28,7 @@ public static class LoadStations
         return new LoadStationEntry(entry.Room, entry.Door, entry.CameraPosition, entry.SamusOffset);
     }
 
-    /// <summary>Selects a validated non-Ceres station; unused slots receive the native inert record.</summary>
+    /// <summary>Selects a validated non-Ceres station; unused slots receive the inert record.</summary>
     private static LoadStationDefinition Placement(AreaId area, int station) =>
         Placements.GetValueOrDefault(new LoadStationKey(area, station), Placeholder);
 }

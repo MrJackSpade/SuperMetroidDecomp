@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainEscapeGatePlmDrawDefinitions
 {
     /// <summary>
-    /// $84:9473..9496: each gate image's four vertical cells, always solid. Open uses blank FF; half adds end caps
+    /// Each gate image's four vertical cells, always solid. Open uses blank FF; half adds end caps
     /// 30F; closed fills the middle with tile 2E8, vertically flipped for the upper half. Collision nibble 8 is
     /// unchanged even for the visually open frame.
     /// </summary>

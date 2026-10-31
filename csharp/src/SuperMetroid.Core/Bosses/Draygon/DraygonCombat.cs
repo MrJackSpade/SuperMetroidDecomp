@@ -132,7 +132,7 @@ internal sealed class DraygonCombat
             state.SwoopAcceleration = candidate;
     }
 
-    /// <summary>Ports the common post-touch/shot/power-bomb reaction at <c>$A5:960D</c>.</summary>
+    /// <summary>Ports the common post-touch/shot/power-bomb reaction.</summary>
     internal void ResolveDraygonReaction(RoomEnemySlot body, SamusState? samus)
     {
         DraygonEnemyState state = RequireCompleteDraygonState(body);
@@ -146,7 +146,7 @@ internal sealed class DraygonCombat
     }
 
     /// <remarks>
-    /// `DraygonReaction_Common`'s dead branch ($A5:9618) has no "already dying" test. Every
+    /// `DraygonReaction_Common`'s dead branch has no "already dying" test. Every
     /// touch, shot or power-bomb reaction on a zero-health body runs it again: the dying
     /// arm and eye lists restart, the drift function is reinstalled and Samus is released.
     /// </remarks>

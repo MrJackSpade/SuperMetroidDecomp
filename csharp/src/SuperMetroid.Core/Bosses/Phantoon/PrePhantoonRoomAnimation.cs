@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed class PrePhantoonRoomAnimation()
     : EnemyProjectileProgramAnimation<PrePhantoonRoomProgram, PrePhantoonRoomFrame, PrePhantoonRoomCue>(PrePhantoonRoomProgram.BlankThenDelete)
 {
-    /// <summary>How long the blank frame lasts ($86:A3AA).</summary>
+    /// <summary>How long the blank frame lasts.</summary>
     private const int HoldDuration = 32;
 
     /// <summary>The blank frame, its deletion, and the hold that follows it.</summary>

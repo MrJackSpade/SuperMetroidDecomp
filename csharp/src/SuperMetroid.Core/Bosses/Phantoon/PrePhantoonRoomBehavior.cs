@@ -35,7 +35,7 @@ internal sealed class PrePhantoonRoomBehavior
 
     /// <summary>
     /// Runs setup ASM $8F:C8C8: spawns projectile $A3B0 with room graphics. Its
-    /// initialization AI ($86:A3A3) zeroes BG2YOffset immediately.
+    /// initialization AI zeroes BG2YOffset immediately.
     /// </summary>
     public void SpawnPrePhantoonRoomProjectile(BackgroundScrollState backgroundScroll)
     {

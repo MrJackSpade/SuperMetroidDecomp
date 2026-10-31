@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// what the slot shows, have a picture for each collectible that can show there, and for the room's load where a block
 /// shows it until a collectible does.
 /// </summary>
-/// <param name="Slot">The slot, among those instruction <c>$84:8764</c> rotates through.</param>
+/// <param name="Slot">The slot, among those the collectible-rotation animation step rotates through.</param>
 public sealed record CollectibleSlotAppearance(int Slot) : AppearanceInput
 {
     /// <summary>The slot.</summary>

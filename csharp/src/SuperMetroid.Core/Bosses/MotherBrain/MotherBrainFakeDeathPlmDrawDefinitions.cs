@@ -2,7 +2,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain fake-death room physical PLM draws at $84:94A3..9716.</summary>
+/// <summary>Mother Brain fake-death room physical PLM draws.</summary>
 internal static class MotherBrainFakeDeathPlmDrawDefinitions
 {
     /// <summary>The stable visual document name of each draw in the closed bank-$84 draw domain.</summary>

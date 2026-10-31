@@ -11,7 +11,7 @@ internal sealed class BlockReactionPlms
     private readonly AreaId _area;
     /// <summary>Handles the animal-escape reaction reserved among the shot-block behaviours.</summary>
     private readonly ICrittersEscapeReaction _escapeAnimals;
-    /// <summary>Allocates reaction PLMs in descending native slot order.</summary>
+    /// <summary>Allocates reaction PLMs in descending slot order.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Connects block reactions to the active room, escape-animal branch, and shared PLM pool.</summary>
@@ -32,7 +32,7 @@ internal sealed class BlockReactionPlms
         if (!behavior.IsBreakableGrappleReaction)
             throw new ArgumentOutOfRangeException(nameof(behavior), "Breakable grapple behaviour must be one or two.");
 
-        // Spawn_PLM at $84:84E7 probes $4E,$4C,...,$00. Matching it matters if multiple
+        // Spawn_PLM probes $4E,$4C,...,$00. Matching it matters if multiple
         // PLMs mutate the same room on one frame because the handler uses the same order.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
@@ -63,11 +63,11 @@ internal sealed class BlockReactionPlms
         {
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
-                "Collision bomb-block behaviour must be in the native table range zero through seven.");
+                "Collision bomb-block behaviour must be one of the eight bomb-block behaviours, zero through seven.");
         }
 
-        // `$84:84ED-$84F7` searches the same descending slot order used by every other
-        // gameplay-spawned PLM. Do not coalesce neighboring pieces: a native collision scan
+        // The reaction spawn searches the same descending slot order used by every other
+        // gameplay-spawned PLM. Do not coalesce neighboring pieces: one collision scan
         // can allocate more than one independently timed object in a single movement call.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
@@ -105,7 +105,7 @@ internal sealed class BlockReactionPlms
         {
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
-                "Samus-contact crumble behaviour must be in the native table range zero through seven.");
+                "Samus-contact crumble behaviour must be one of the eight crumble behaviours, zero through seven.");
         }
 
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
@@ -134,7 +134,7 @@ internal sealed class BlockReactionPlms
     /// PLM handler draws the first crumble frame. Rejected contact deletes the temporary
     /// slot synchronously and remains solid in the caller.
     /// </remarks>
-    /// <returns>True when contact passes: accepted setup, or an exhausted native pool.</returns>
+    /// <returns>True when contact passes: accepted setup, or an exhausted PLM pool.</returns>
     public bool TrySpawnSamusSpeedBoosterBlock(
         RoomLevelData level,
         int blockIndex,
@@ -187,7 +187,7 @@ internal sealed class BlockReactionPlms
         {
             throw new ArgumentOutOfRangeException(
                 nameof(behavior),
-                "Bomb-reaction behaviour must be in the native table range zero through fifteen.");
+                "Bomb-reaction behaviour must be one of the sixteen bomb reactions, zero through fifteen.");
         }
 
         SamusProjectileFamily projectileFamily = projectileType.Family;
@@ -243,7 +243,7 @@ internal sealed class BlockReactionPlms
         {
             throw new UnsupportedShotBlockReactionException(
                 nameof(behavior),
-                "Area-dependent shootable behaviour must address one of its eight native entries.");
+                "Area-dependent shootable behaviour must name one of its area's eight shootable entries.");
         }
         if (!areaDependent &&
             !behavior.IsNormalReactionIndex(16) &&
@@ -264,7 +264,7 @@ internal sealed class BlockReactionPlms
         // The power-bomb and Super Missile setups clear the newly allocated PLM when the weapon family is wrong.
         // Observably that is identical to returning with no active slot: setup never changes the live block, and the
         // next handler has nothing to process. Perform this
-        // gate before the host allocation loop while preserving every accepted native path.
+        // gate before the host allocation loop while preserving every accepted path.
         if (behavior.RequiresPowerBombReaction && projectileFamily is not (
             SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
             return false;
@@ -389,7 +389,7 @@ internal sealed class BlockReactionPlms
         {
             if (!behavior.IsNormalReactionIndex(BombSpecialBlockReactions.Count))
                 throw new ArgumentOutOfRangeException(nameof(behavior),
-                    "Area-independent special-block behaviour is outside the cartridge reaction table.");
+                    "Area-independent special-block behaviour has no special-block reaction.");
 
             program = BombSpecialBlockReactions.ProgramAt(behavior.NormalReactionIndex);
         }
@@ -400,7 +400,7 @@ internal sealed class BlockReactionPlms
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(behavior),
-                    "Area-dependent bomb-special behaviour must address one of its eight native entries.");
+                    "Area-dependent bomb-special behaviour must name one of its area's eight bomb-special entries.");
             }
 
             program = areaIndex == AreaId.Brinstar && areaBehavior is >= 2 and <= 5

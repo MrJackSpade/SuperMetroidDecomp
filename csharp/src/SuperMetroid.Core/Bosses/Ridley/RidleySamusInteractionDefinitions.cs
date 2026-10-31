@@ -2,7 +2,7 @@ using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Movement policies selected by CheckIfSamusMorphedSpinJumpingDamageBoosting at $A6:BCF1.</summary>
+/// <summary>Movement policies selected by CheckIfSamusMorphedSpinJumpingDamageBoosting.</summary>
 /// <remarks>
 /// The BIT operand uses the high byte of $A6:BD04..BD1F: bit7 controls grab eligibility,
 /// bit6 controls morphed release timing. Those are the only consumed fields in the two

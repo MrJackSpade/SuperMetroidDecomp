@@ -21,7 +21,7 @@ public sealed class MotherBrainRainbowBeamEffect
     public int ColorIndex { get; private set; }
     /// <summary>
     /// Last geometry resolved by a right, up or down dispatcher. Null until the first such
-    /// update; a leftward-straddling beam ($AD:DE5E RTS) and deactivation both keep it.
+    /// update; a leftward-straddling beam and deactivation both keep it.
     /// </summary>
     public MotherBrainRainbowBeamGeometry? Geometry { get; private set; }
     /// <summary>Value-only render input for the current state; taking it never advances the beam.</summary>

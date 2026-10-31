@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonHealthPaletteDefinitions
 {
 
-    /// <summary>Draygon body's authored enemy-header health at $A0:DE43.</summary>
+    /// <summary>Draygon body's authored enemy-header health.</summary>
     public const int MaximumAuthoredHealth = 6000;
 
     /// <summary>The health between successive band thresholds: threshold(i) = 750 * (7 - i).</summary>

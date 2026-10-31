@@ -101,7 +101,7 @@ internal sealed class EnemyFramePhase
             }
             if (result.DraygonDiscardedSamusPoseRequests)
             {
-                // The grab (`$90:E289-$E295`) and release (`$90:E329-$E332`) discard the transitions
+                // The grab and release discard the transitions
                 // alpha chose for the old pose, including the no-input fallback that shares the
                 // prospective-pose slot.
                 _player.ProspectiveSamusPose = null;

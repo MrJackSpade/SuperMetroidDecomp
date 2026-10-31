@@ -3,19 +3,19 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Compiled sound selections owned by Phantoon's bank-$A7 instruction callbacks.</summary>
 internal static class PhantoonSoundDefinitions
 {
-    /// <summary>$A7:D4BA-D4BD, fight-intro starting-flame spawn: library-three blue-flame sound.</summary>
+    /// <summary>Fight-intro starting-flame spawn: library-three blue-flame sound.</summary>
     internal static SoundEffectId StartingFlame => Library3Sound.PhantoonFlame;
 
     /// <summary>The request priority of the sound each starting-flame spawn makes.</summary>
     internal static readonly SoundRequestPriority StartingFlamePriority = SoundRequestPriority.Normal;
 
-    /// <summary>$A7:CF68, SpawnCasualFlame: blue flame launch sound in library three.</summary>
+    /// <summary>SpawnCasualFlame: blue flame launch sound in library three.</summary>
     internal static SoundEffectId CasualFlame => Library3Sound.PhantoonFlame;
 
-    /// <summary>Library-2 sound $73, queued when a shot hurts or kills Phantoon (<c>Phantoon_Shot</c>, $A7:DD9B).</summary>
+    /// <summary>Library-2 sound $73, queued when a shot hurts or kills Phantoon.</summary>
     internal static readonly SoundEffectId ShotCry = Library2Sound.PhantoonCry;
 
-    /// <summary>Library-2 sound $7E, queued as the dying Phantoon turns wavy (<c>Phantoon_WavyDyingPhantoonAndCry</c>, $A7:DA51).</summary>
+    /// <summary>Library-2 sound $7E, queued as the dying Phantoon turns wavy.</summary>
     internal static readonly SoundEffectId DyingCry = Library2Sound.MotherBrainHighCry;
 
     /// <summary>Library-2 sound $24, queued after a big death explosion.</summary>
@@ -28,7 +28,7 @@ internal static class PhantoonSoundDefinitions
     internal static readonly SoundRequestPriority CasualFlamePriority = SoundRequestPriority.Normal;
 
     /// <summary>
-    /// <c>Phantoon_MaterializationSFX</c> at <c>$A7:CDED-$A7:CDF2</c>: the library-two sounds queued in a repeating
+    /// <c>Phantoon_MaterializationSFX</c>: the library-two sounds queued in a repeating
     /// three-callback cycle.
     /// </summary>
     internal static readonly SoundEffectId[] MaterializationSounds =

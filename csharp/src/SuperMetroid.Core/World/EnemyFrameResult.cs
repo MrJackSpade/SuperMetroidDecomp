@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.World;
 /// code performs it; see <see cref="EnemyFramePhase"/>.
 /// </summary>
 /// <param name="Elevator">The elevator lifecycle event, if any.</param>
-/// <param name="ElevatorClearedProjectileData">The elevator called <c>ResetProjectileData</c> ($A3:9548); the bomb owner completes it.</param>
-/// <param name="DraygonDiscardedSamusPoseRequests">Draygon grabbed or released Samus ($90:E23B/$90:E2DE), discarding alpha's pose requests.</param>
-/// <param name="CeresEscapeStarted">Ceres Ridley started the escape ($A6:C117) on this EnemyMain call.</param>
-/// <param name="LayerOneXOverride">The Shitroid's direct layer-one X write ($A9:EFE6) in room pixels, if any.</param>
+/// <param name="ElevatorClearedProjectileData">The elevator called <c>ResetProjectileData</c>; the bomb owner completes it.</param>
+/// <param name="DraygonDiscardedSamusPoseRequests">Draygon grabbed or released Samus, discarding alpha's pose requests.</param>
+/// <param name="CeresEscapeStarted">Ceres Ridley started the escape on this EnemyMain call.</param>
+/// <param name="LayerOneXOverride">The Shitroid's direct layer-one X write in room pixels, if any.</param>
 /// <param name="StopLiquidMotion">Mother Brain's tube landed, stopping the liquid surface's motion from the next frame.</param>
 /// <param name="Gunship">The gunship lifecycle event, if any.</param>
 /// <param name="RoomEffects">The hardcoded PLMs and room writes enemy AI requested.</param>

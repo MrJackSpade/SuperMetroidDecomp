@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// $86:C550-C563, the Mother Brain bomb's per-bounce Y acceleration selected by its bounce stage.
+/// The Mother Brain bomb's per-bounce Y acceleration selected by its bounce stage.
 /// Stage zero uses the ordinary fall gravity of 7; each later bounce's gravity grows by sixteen
 /// times the bounce number, capped at 64 per bounce (16, 32, 64, 112, 176, 240, 304, 368); the
 /// stage after the eighth bounce is the zero expiry sentinel.

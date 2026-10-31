@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Index into Mother Brain's four-entry hand-beam dispatcher at <c>$A9:B887</c>. Phase two
+/// Index into Mother Brain's four-entry hand-beam dispatcher. Phase two
 /// is deliberately bytecode-owned: the body list advances it only after its complete
 /// charge/fire/hold animation has elapsed.
 /// </summary>

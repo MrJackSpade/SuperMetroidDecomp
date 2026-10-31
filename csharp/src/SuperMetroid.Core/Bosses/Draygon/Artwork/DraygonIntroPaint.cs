@@ -4,9 +4,9 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
-/// $A5:A217-A248, copied uniformly to CGRAM144..168 by InitAI_DraygonBody
-/// ($A5:8687). First16 words alias the primary material, the next is its clear
-/// target, and the final8 alias escape-door surface paint ($A6:F50E-F51D).
+/// Copied uniformly to CGRAM144..168 by InitAI_DraygonBody
+/// . First16 words alias the primary material, the next is its clear
+/// target, and the final8 alias escape-door surface paint.
 /// These existing source identities introduce no new independent paint inputs.
 /// Installed occurrences retain independent edits, including the copied clear target.
 /// </summary>

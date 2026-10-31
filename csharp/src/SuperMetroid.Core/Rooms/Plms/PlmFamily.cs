@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The PLM families whose semantic state a slot carries beside its native words.</summary>
+/// <summary>The PLM families whose semantic state a slot carries beside its words.</summary>
 internal enum PlmFamily
 {
-    /// <summary>One of bank $84's permanent-item headers.</summary>
+    /// <summary>One's permanent-item headers.</summary>
     Collectible,
 
     /// <summary>The resident scroll trigger.</summary>

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public static class KraidPlmDefinitions
 {
     /// <summary>
-    /// <c>$A7:C3F0</c>, the final SpawnHardcodedPLM call in KraidDeath_Initialisation:
+    /// The final SpawnHardcodedPLM call in KraidDeath_Initialisation:
     /// start the animated spike sweep at (5,27), independently of defeated-room clearing.
     /// </summary>
     public static readonly PlmSpawnRequest LiveDeathSpikes = new(new(5, 27), PlmHeaderId.CrumbleKraidSpikes);
@@ -41,8 +41,8 @@ public static class KraidPlmDefinitions
 
     /// <summary>
     /// The hardcoded PLMs spawned by defeated-room initialization at
-    /// <c>$A7:C168</c> (<c>Kraid_SpawnPlmToClearCeiling</c>) and <c>$A7:C171</c>
-    /// (<c>Kraid_ClearSomeSpikes</c>), in native call order.
+    /// <c>$A7:C168</c> and <c>$A7:C171</c>
+    /// , in native call order.
     /// </summary>
     public static IReadOnlyList<PlmSpawnRequest> DefeatedRoom { get; } = [ClearCeiling, ClearSpikes];
 

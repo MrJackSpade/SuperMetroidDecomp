@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 
 /// <summary>
-/// $A5:E379..E3F8, the four health rows. The healthy and critical rows are authored paint.
+/// The four health rows. The healthy and critical rows are authored paint.
 /// In the two intermediate rows the shell and glow colors nine to fifteen interpolate those
 /// rows to nearest integer over three intervals and the transparent slot repeats the
 /// critical row's; colors one to eight are painted per row. Only supplied deviations from

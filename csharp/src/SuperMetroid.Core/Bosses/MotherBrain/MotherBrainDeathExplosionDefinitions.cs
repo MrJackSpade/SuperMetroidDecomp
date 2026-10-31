@@ -8,11 +8,11 @@ internal static class MotherBrainDeathExplosionDefinitions
     /// <summary>Seven four-anchor groups selected in reverse order by $A9:B03E.</summary>
     internal const int GroupCount = 7;
 
-    /// <summary>Four interleaved X/Y pairs per group at $A9:B099-$B108.</summary>
+    /// <summary>Four interleaved X/Y pairs per group.</summary>
     internal const int AnchorsPerGroup = 4;
 
     /// <summary>
-    /// Twenty-eight authored decorative positions read at $A9:B03E before RNG selects
+    /// Twenty-eight authored decorative positions read before RNG selects
     /// explosion type. $86:C8F5/$C914 adds these offsets to the moving body without
     /// velocity integration; the $86:CB13 projectile has zero hitbox radii and cannot
     /// damage Samus. Only these coordinates are chosen visual scatter, not the group
@@ -33,7 +33,7 @@ internal static class MotherBrainDeathExplosionDefinitions
     internal static Offset16<RoomPixels> Anchor(int index) => DecorativeAnchors[index];
 
     /// <summary>
-    /// The three programs the native table at <c>$86:C929-$86:C92E</c> selects by projectile parameter zero through two:
+    /// The three programs the native table selects by projectile parameter zero through two:
     /// the shared misc-dust small explosion, smoke and big explosion.
     /// </summary>
     internal static readonly MiscDustProjectileProgram[] Programs =

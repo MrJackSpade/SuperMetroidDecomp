@@ -4,8 +4,8 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.R
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The grey door caps' PLM programs (#1296), in place of their bank-$84 instruction lists at $84:BE59..BFFC and Bomb
-/// Torizo's at $84:BA4C..BAD0. A grey cap sleeps until its unlock condition holds, then flashes blue until shot.
+/// The grey door caps' PLM programs (#1296), and Bomb
+/// Torizo's. A grey cap sleeps until its unlock condition holds, then flashes blue until shot.
 /// </summary>
 internal static class GreyDoorPlmProgramDefinitions
 {

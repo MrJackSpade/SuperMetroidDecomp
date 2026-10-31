@@ -57,6 +57,6 @@ internal interface IRoomPlms
     /// <summary>What scripted room programs call on the families that own them.</summary>
     IScriptedRoomPlmHooks ScriptedHooks { get; }
 
-    /// <summary><c>$84:86BC Instruction_PLM_Delete</c>: releases the slot.</summary>
+    /// <summary>Releases the slot.</summary>
     void DeletePlm(PlmSlot slot);
 }

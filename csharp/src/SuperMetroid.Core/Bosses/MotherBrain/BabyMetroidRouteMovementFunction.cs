@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal enum BabyMetroidRouteMovementFunction
 {
-    /// <summary><c>$A9:F45F</c>, gradual acceleration with wrong-way extra <c>$0008</c>.</summary>
+    /// <summary>Gradual acceleration with wrong-way extra <c>$0008</c>.</summary>
     GradualAccelerationExtraEight = 1,
 
-    /// <summary><c>$A9:F466</c>, gradual acceleration with wrong-way extra <c>$0010</c>.</summary>
+    /// <summary>Gradual acceleration with wrong-way extra <c>$0010</c>.</summary>
     GradualAccelerationExtraSixteen,
 }

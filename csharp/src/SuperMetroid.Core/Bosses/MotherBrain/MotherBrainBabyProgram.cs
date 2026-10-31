@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The cutscene Baby Metroid's programs, in bank $A9 order.</summary>
+/// <summary>The cutscene Baby Metroid's programs, order.</summary>
 public enum MotherBrainBabyProgram
 {
-    /// <summary><c>InstList_BabyMetroid_Initial</c> (<c>$A9:CFA2</c>): the slow idle pulse.</summary>
+    /// <summary><c>InstList_BabyMetroid_Initial</c>: the slow idle pulse.</summary>
     Initial,
-    /// <summary><c>InstList_BabyMetroid_DrainingMotherBrain</c> (<c>$A9:CFB8</c>): the quick draining pulse.</summary>
+    /// <summary><c>InstList_BabyMetroid_DrainingMotherBrain</c>: the quick draining pulse.</summary>
     DrainingMotherBrain,
-    /// <summary><c>InstList_BabyMetroid_TakingFatalBlow</c> (<c>$A9:CFCE</c>).</summary>
+    /// <summary><c>InstList_BabyMetroid_TakingFatalBlow</c>.</summary>
     TakingFatalBlow,
 }

@@ -7,7 +7,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.R
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The scripted room PLMs' programs (#1296), step for step their bank-$84 lists.</summary>
+/// <summary>The scripted room PLMs' programs (#1296), step for step their lists.</summary>
 internal static class ScriptedRoomPlmProgramDefinitions
 {
     /// <summary>Every scripted room program.</summary>

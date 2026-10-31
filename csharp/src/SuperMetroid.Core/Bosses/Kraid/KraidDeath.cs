@@ -50,7 +50,7 @@ internal sealed class KraidDeath
     }
 
     /// <summary>
-    /// <c>$A7:C715</c>: once the body has sunk, his body is hidden: the upper half of his body layer shows his blank on
+    /// Once the body has sunk, his body is hidden: the upper half of his body layer shows his blank on
     /// this update and the lower half on the next. His body layer stays shown in place of the room's background layer:
     /// on the cartridge his body overwrote the room's, so showing it again draws a stale strip of it across the top of
     /// the screen (#1427). A defeated room's reload hides his body here too. The one update in which the cartridge's
@@ -120,7 +120,7 @@ internal sealed class KraidDeath
                 return;
             case KraidAiFunction.DeathHideLowerBody:
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathWaitBeforeFadeIn1;
-                // `$A7:C751`: the lower half shows his hidden body, so his layer shows nothing for the rest of the visit.
+                // The lower half shows his hidden body, so his layer shows nothing for the rest of the visit.
                 state.ShowLowerBody();
                 return;
             // The death waits four updates before the room fades back in.

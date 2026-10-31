@@ -262,7 +262,7 @@ internal sealed class MotherBrainCombat
         if (state.Form == MotherBrainForm.Glass)
             return;
 
-        // `$A9:B57C`: a bomb is reaction type zero, which spends one step and empties the credit when the result is
+        // A bomb is reaction type zero, which spends one step and empties the credit when the result is
         // negative as a signed word.
         state.WalkCounter = state.WalkCounter.SpendForShot(MotherBrainWalkCredit.StepCredit);
         if (state.Form == MotherBrainForm.FakeDeath)

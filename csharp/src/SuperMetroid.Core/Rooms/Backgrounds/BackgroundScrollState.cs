@@ -3,25 +3,25 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// Bank-$80 layer-position and PPU scroll-register state.
+/// Layer positions and the background scroll offsets derived from them.
 /// </summary>
 /// <remarks>
-/// This is a direct behavioral port of the scroll half of <c>$80:A2F9-$80:A527</c>. The cartridge's row and column
+/// This reproduces how the game derives background scroll from layer positions. The original row and column
 /// tilemap streaming is not ported: backgrounds render from level data through the offsets here (#1346).
-/// No desktop camera interpolation is hidden in this class. Every native routine below
+/// No desktop camera interpolation is hidden in this class. Every calculation below
 /// computes its two axes independently, so whole-value updates preserve its results.
 /// </remarks>
 public sealed class BackgroundScrollState
 {
-    /// <summary>World-space BG1/camera position (<c>$0911/$0915</c>).</summary>
+    /// <summary>World-space BG1/camera position.</summary>
     public Position16<RoomPixels> Layer1Position { get; set; }
 
-    /// <summary>Parallax-derived BG2 position (<c>$0917/$0919</c>).</summary>
+    /// <summary>Parallax-derived BG2 position.</summary>
     public Position16<BackgroundPixels> Layer2Position { get; set; }
 
     /// <summary>
     /// The room state's per-axis layer-2 scroll. Before a room state sets it, both axes copy layer one and stream,
-    /// as the cartridge's cleared mode bytes select.
+    /// as the game's cleared mode bytes select.
     /// </summary>
     public Layer2ScrollModes Layer2Scroll { get; set; } = Layer2ScrollModes.CopiesLayer1;
 
@@ -32,14 +32,14 @@ public sealed class BackgroundScrollState
     /// <summary>Wrapped delta added to <see cref="Layer2Position"/> to form BG2HOFS/BG2VOFS.</summary>
     public Offset16<BackgroundPixels> Bg2Offset { get; set; }
 
-    /// <summary>Modeled BG1HOFS/BG1VOFS mirrors in direct-page words <c>$00B1/$00B3</c>.</summary>
+    /// <summary>Background 1's scroll position.</summary>
     public Position16<RoomPixels> Bg1Scroll { get; private set; }
 
-    /// <summary>Modeled BG2HOFS/BG2VOFS mirrors in direct-page words <c>$00B5/$00B7</c>.</summary>
+    /// <summary>Background 2's scroll position.</summary>
     public Position16<BackgroundPixels> Bg2Scroll { get; private set; }
 
     /// <summary>
-    /// Publishes a room actor's direct writes to the PPU BG2 scroll mirrors. Mother Brain
+    /// Publishes a room actor's direct writes to the background 2 scroll. Mother Brain
     /// uses fixed layer-two room modes, so the ordinary scrolling pass intentionally leaves
     /// these values untouched after the actor supplies them.
     /// </summary>
@@ -59,12 +59,12 @@ public sealed class BackgroundScrollState
     {
         // State $0B preserves BG1's source-room mirrors (with the down-door one-pixel
         // adjustment already supplied by the caller) and clears both BG2 mirrors before
-        // `$80:AE29` derives the four offsets. Keeping the register writes here makes the
-        // returned offset state and the block snapshot one indivisible cartridge action.
+        // the four offsets are derived. Keeping the scroll writes here makes the
+        // returned offset state and the block snapshot one indivisible action.
         Bg1Scroll = retainedBg1Scroll;
         Bg2Scroll = Position16<BackgroundPixels>.Zero;
         Bg1Offset = retainedBg1Scroll - stagedLayer1;
-        // `$80:AE3B-$80:AE4A` deliberately subtracts layer 1 for both BG2 offsets: the
+        // The derivation deliberately subtracts layer 1 for both BG2 offsets: the
         // BG2 offset words are the negated staged layer-one origin. This is not a typo:
         // layer 2's own position is combined with these words later.
         Bg2Offset = new Offset16<BackgroundPixels>(
@@ -73,14 +73,14 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
-    /// Implements the two <c>CalculateLayer2*pos</c> calls made by each directional door
-    /// setup after bank $82 installs the destination layer-one coordinates. Fixed mode one
-    /// deliberately retains its old layer-two word, exactly like the native early return.
+    /// Implements the two layer-two position calculations made by each directional door
+    /// setup after the door installs the destination layer-one coordinates. Fixed mode one
+    /// deliberately retains its old layer-two position, exactly like the original early return.
     /// </summary>
     /// <param name="destination">The layer-one destination published to <see cref="Layer1Position"/>.</param>
     /// <param name="parallaxBasis">
     /// The layer-one words the parallax calculation reads. An upward door calculates BG2 from
-    /// destination+$1F before the scroll's layer-one endpoint becomes destination+$20.
+    /// destination+31 before the scroll's layer-one endpoint becomes destination+32.
     /// </param>
     public void PrepareDoorOpeningDestination(Position16<RoomPixels> destination, Position16<RoomPixels> parallaxBasis)
     {
@@ -92,7 +92,7 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
-    /// Implements the gameplay entry point at <c>$80:A3AB</c>: the scroll registers and layer-two parallax follow
+    /// Implements the gameplay entry point: the scroll registers and layer-two parallax follow
     /// layer one. A frozen frame changes nothing.
     /// </summary>
     public void StepScrolling(bool timeIsFrozen = false)
@@ -111,7 +111,7 @@ public sealed class BackgroundScrollState
         Bg1Scroll = Layer1Position + Bg1Offset;
 
         // Mode one means "do not scroll BG2 on this axis". The 65C816 subroutine returns
-        // carry set, so the caller skips both the layer-2 position write and PPU mirror.
+        // carry set, so the caller skips both the layer-2 position write and the BG2 scroll.
         if (TryCalculateLayer2Position(Layer1Position.X, Layer2Scroll.Horizontal, out int layer2X))
         {
             Layer2Position = Layer2Position.WithX(layer2X);
@@ -126,8 +126,8 @@ public sealed class BackgroundScrollState
     }
 
     /// <summary>
-    /// Implements <c>$80:A37B</c>'s register half, used by door transitions that already own the layer positions:
-    /// recomputes all four PPU scroll mirrors without changing BG2 parallax state.
+    /// Recomputes all four background scroll positions, for door transitions that already own the layer positions,
+    /// without changing BG2 parallax state.
     /// </summary>
     public void CalculateLayerScrolls()
     {

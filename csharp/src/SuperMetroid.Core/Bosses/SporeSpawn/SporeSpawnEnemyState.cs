@@ -25,7 +25,7 @@ public sealed class SporeSpawnEnemyState
     internal AnimationProgramCursor<SporeSpawnBodyProgram> BodyProgram { get; set; }
     /// <summary>
     /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y 72 pixels
-    /// above it; native <c>stalkXOrigin</c>/<c>stalkYOrigin</c> at $7E:7808/$7E:780A.
+    /// above it; native <c>stalkXOrigin</c>/<c>stalkYOrigin</c>.
     /// </summary>
     public Position16<RoomPixels> StalkAnchor { get; internal set; }
     /// <summary>

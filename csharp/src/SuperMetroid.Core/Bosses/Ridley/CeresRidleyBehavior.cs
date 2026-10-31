@@ -51,7 +51,7 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>
-    /// Ports the Ceres dispatcher reached from $A6:A288 through the end of the battle. The
+    /// Ports the Ceres dispatcher reached through the end of the battle. The
     /// reveal, liftoff, hover, two cartridge-authored termination conditions, upward retreat,
     /// palette handoff, and <c>ceres_status = 1</c> publication all retain their ROM addresses.
     /// Ridley's later Mode-7 getaway presentation remains a room-main concern, not enemy AI.
@@ -109,7 +109,7 @@ internal sealed class CeresRidleyBehavior
                 {
                     state.FadeStep = 0;
                     CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
-                    // Function_Ridley_RoarBeforeFly at $A6:A4B4-A4CB primes the wing
+                    // Function_Ridley_RoarBeforeFly primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
                     // the same transition that installs instruction list $E91D.
                     state.WingAnimationTimer = WrappingCountdown.Start(8);

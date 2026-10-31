@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class ColoredDoorCaps
 {
-    /// <summary>Color, direction, and animation phase decoded from one native cap pointer.</summary>
+    /// <summary>Color, direction, and animation phase of one cap draw.</summary>
     internal readonly record struct Draw(ColoredDoorColor Color, ColoredDoorOrientation Orientation, [property: IntegerQuantity("cap animation frame index")] int Frame) : IPlmCapDrawShape
     {
-        /// <summary>Left and right caps draw a vertical four-cell run in native list orientation.</summary>
+        /// <summary>Left and right caps draw a vertical four-cell run in authored list orientation.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
         /// <summary>The direction the cap's four-block run writes in.</summary>
         public PlmRunDirection Direction => Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal;
@@ -37,7 +37,7 @@ internal static class ColoredDoorCaps
         return false;
     }
 
-    /// <summary>Enumerates yellow, green, and red cap frames in their native pointer order.</summary>
+    /// <summary>Enumerates yellow, green, and red cap frames in their authored order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get

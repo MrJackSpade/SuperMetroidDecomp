@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 public static class DoorDirections
 {
     /// <summary>
-    /// True for down and up: the bit-1 test of <c>$82:DE55</c> and <c>$80:AF89</c>. Horizontal
+    /// True for down and up, as the door transition and room loader test it. Horizontal
     /// doors align camera Y and step X; vertical doors align camera X and step Y.
     /// </summary>
     public static bool IsVertical(this DoorDirection direction) => direction switch

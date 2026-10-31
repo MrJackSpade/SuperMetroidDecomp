@@ -38,8 +38,8 @@ internal sealed class RidleyTail
     }
 
     /// <summary>
-    /// Ports the neutral-tail controller at $A6:CBC0-$CCBC, the segment update at $D09F,
-    /// and the position/distance chains at $CEBA/$CF5A. The retail routine deliberately
+    /// Ports the neutral-tail controller, the segment update,
+    /// and the position/distance chains. The retail routine deliberately
     /// adds the preceding segment's low-byte angle when deriving every later offset;
     /// retaining that documented anomaly is why the tail curls and rotates at the same
     /// rate as the cartridge.
@@ -318,7 +318,7 @@ internal sealed class RidleyTail
         segment.Clockwise = !segment.Clockwise;
     }
 
-    /// <summary>Ports the six extend/shrink records at <c>$A6:CF5A-$D09E</c>.</summary>
+    /// <summary>Ports the six extend/shrink records.</summary>
     internal static void UpdateRidleyTailDistances(RidleyEnemyState state)
     {
         for (int index = 1; index < state.TailSegments.Length; index++)
@@ -360,7 +360,7 @@ internal sealed class RidleyTail
     }
 
     /// <summary>
-    /// <c>RandomlyUpdateRidleyTailCurliness</c> ($A6:A2BD): when the live RNG word is at
+    /// <c>RandomlyUpdateRidleyTailCurliness</c>: when the live RNG word is at
     /// least $FF00 (sampled, not advanced), the ideal inter-segment tail angle becomes its
     /// low nibble plus seven plus the compare's set carry, so $08..$17.
     /// </summary>

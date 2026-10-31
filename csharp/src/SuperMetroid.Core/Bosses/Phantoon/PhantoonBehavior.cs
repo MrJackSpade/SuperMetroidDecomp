@@ -70,7 +70,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Per-update phase increment for the wavy BG2 distortion.</summary>
     internal const int PhantoonWavyPhaseDelta = 8;
 
-    /// <summary>Ports <c>InitAI_PhantoonBody</c> at $A7:CDF3.</summary>
+    /// <summary>Ports <c>InitAI_PhantoonBody</c>.</summary>
     internal void InitializePhantoonBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
@@ -97,7 +97,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         InitializePhantoonPart(body, PhantoonPartProgram.InvulnerableBody);
     }
 
-    /// <summary>Ports the shared part initializer at $A7:CE55.</summary>
+    /// <summary>Ports the shared part initializer.</summary>
     internal void InitializePhantoonPart(RoomEnemySlot part)
     {
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
@@ -148,7 +148,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>MainAI_Phantoon</c> at $A7:CEA6.</summary>
+    /// <summary>Ports <c>MainAI_Phantoon</c>.</summary>
     private void RunPhantoonMain(
         RoomEnemySlot body,
         SamusState? samus,
@@ -295,7 +295,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
     internal const int PhantoonDamageThreshold = 300;
 
-    /// <summary>Ports Phantoon's palette-only hurt AI at $A7:DD3F.</summary>
+    /// <summary>Ports Phantoon's palette-only hurt AI.</summary>
     internal void ApplyPhantoonHurt(RoomEnemySlot body, PhantoonEnemyState state)
     {
         PhantoonPartState tentacles = state.Parts[state.Tentacles.SlotIndex];

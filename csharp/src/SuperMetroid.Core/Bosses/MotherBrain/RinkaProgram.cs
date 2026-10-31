@@ -6,12 +6,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal enum RinkaProgram
 {
-    /// <summary>The native list at $A2:B9E0.</summary>
+    /// <summary>The native list.</summary>
     Ordinary,
-    /// <summary>The loop at $A2:B9E8.</summary>
+    /// <summary>The loop.</summary>
     OrdinaryLoop,
-    /// <summary>The native list at $A2:BA0C.</summary>
+    /// <summary>The native list.</summary>
     Special,
-    /// <summary>The loop at $A2:BA14.</summary>
+    /// <summary>The loop.</summary>
     SpecialLoop,
 }

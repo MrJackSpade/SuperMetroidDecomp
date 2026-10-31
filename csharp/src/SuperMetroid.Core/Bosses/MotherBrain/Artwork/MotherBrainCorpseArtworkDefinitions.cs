@@ -9,7 +9,7 @@ public static class MotherBrainCorpseArtworkDefinitions
     /// <summary>Indexed four-bit tile sheet independent of the ordinary ED7F enemy sheet.</summary>
     public const string FileName = "mother-brain-corpse-tiles.png";
 
-    /// <summary>Each of the six corpse pages shows $1C0 bytes, leaving out its source page's last two tile rows ($A9:9003-$902E).</summary>
+    /// <summary>Each of the six corpse pages shows $1C0 bytes, leaving out its source page's last two tile rows.</summary>
     public const int PageByteCount = 448;
 
     /// <summary>$A9:E08B-$E130 extracts six tile rows of the right-hand corpse frame.</summary>
@@ -22,7 +22,7 @@ public static class MotherBrainCorpseArtworkDefinitions
     public const int TileBytes = 32;
     /// <summary>$A9:E262 advances seven tiles ($E0 bytes) per corpse tile row.</summary>
     public const int RowBytes = ColumnCount * TileBytes;
-    /// <summary>$A9:E08B reads six-tile-offset right-hand artwork, beginning at $B7:CEC0.</summary>
+    /// <summary>$A9:E08B reads six-tile-offset right-hand artwork, beginning.</summary>
     public const int RightFrameColumn = 6;
     /// <summary>$A9:E08B source artwork advances one sixteen-tile ($200-byte) page per row.</summary>
     public const int SourcePageBytes = 16 * TileBytes;
@@ -32,7 +32,7 @@ public static class MotherBrainCorpseArtworkDefinitions
     public const int CharactersPerPage = SourcePageBytes / TileBytes;
 
     /// <summary>
-    /// The part of each corpse row that shows while the corpse rots, top row first ($A9:E1F4-$E225): a row's outer
+    /// The part of each corpse row that shows while the corpse rots, top row first: a row's outer
     /// transparent columns are left out, so each shows only the columns its outline reaches.
     /// </summary>
     public static IReadOnlyList<MotherBrainCorpseRotRow> RotRows { get; } =

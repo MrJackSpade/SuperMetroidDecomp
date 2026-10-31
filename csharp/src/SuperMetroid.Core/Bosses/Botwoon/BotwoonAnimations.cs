@@ -24,7 +24,7 @@ internal static class BotwoonAnimations
     private const int MouthClosedBeforeSpit = 32;
     /// <summary>The usual open-mouth hold after a spit volley.</summary>
     private const int MouthOpenAfterSpit = 16;
-    /// <summary>The longer left-facing open-mouth hold at $B3:93B9.</summary>
+    /// <summary>The longer left-facing open-mouth hold.</summary>
     private const int MouthOpenAfterSpitLeft = 25;
     /// <summary>Duration of each of a body link's four cycling frames.</summary>
     private const int BodyFrameDuration = 8;

@@ -22,18 +22,18 @@ public sealed class SporeSpawnColorCatalog
             SporeSpawnColors.DeathBackgroundEdits(deathBackground));
 
     /// <summary>
-    /// $A5:E359..E378 repeats the healthy body/spawner row at $E379..E398 in sprite
+    /// $A5:E359..E378 repeats the healthy body/spawner row in sprite
     /// palette7. The chosen healthy colors remain required under the health payload.
     /// Independently supplied spore colors override this original shared coloring.
     /// </summary>
     public RgbColor ResolveSpore(int color) => SporeSpawnColors.Spore(this, color);
-    /// <summary>Gets packed RGB5 ink 0–15 from health row 0–3 at $A5:E379–$E3F8, selected by boss health and copied to OBJ palette 1 at CGRAM 144–159.</summary>
+    /// <summary>Gets packed RGB5 ink 0–15 from health row 0–3, selected by boss health and copied to OBJ palette 1 at CGRAM 144–159.</summary>
     public RgbColor ResolveHealth(int frame, int color) => SporeSpawnColors.Health(selection.Health, frame, color);
-    /// <summary>Gets packed RGB5 ink 0–15 from sprite-death phase 0–7 at $A5:E3F9–$E4F8; independently supplied samples override the calculated fade from critical-health colors to the final row.</summary>
+    /// <summary>Gets packed RGB5 ink 0–15 from sprite-death phase 0–7; independently supplied samples override the calculated fade from critical-health colors to the final row.</summary>
     public RgbColor ResolveDeathSprite(int frame, int color) => SporeSpawnColors.DeathSprite(this, frame, color);
-    /// <summary>Gets packed RGB5 ink 0–15 from level-graphics death phase 0–6 at $A5:E4F9–$E5D8, assigned to BG palette 4 at CGRAM 64–79 by the death-script owner.</summary>
+    /// <summary>Gets packed RGB5 ink 0–15 from level-graphics death phase 0–6, assigned to BG palette 4 at CGRAM 64–79 by the death-script owner.</summary>
     public RgbColor ResolveDeathLevel(int frame, int color) => SporeSpawnColors.DeathLevel(selection.DeathLevel, frame, color);
-    /// <summary>Gets packed RGB5 ink 0–15 from background death phase 0–6 at $A5:E5D9–$E6B8, assigned to BG palette 7 at CGRAM 112–127 by the death-script owner.</summary>
+    /// <summary>Gets packed RGB5 ink 0–15 from background death phase 0–6, assigned to BG palette 7 at CGRAM 112–127 by the death-script owner.</summary>
     public RgbColor ResolveDeathBackground(int frame, int color) => SporeSpawnColors.DeathBackground(selection.DeathBackground, frame, color);
 
     /// <summary>Resolves one death-script layer's packed RGB5 ink without writing a palette; the caller chooses current CGRAM or target-image ownership.</summary>

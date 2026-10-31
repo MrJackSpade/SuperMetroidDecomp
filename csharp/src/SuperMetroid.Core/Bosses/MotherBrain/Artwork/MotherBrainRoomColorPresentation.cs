@@ -105,7 +105,7 @@ public sealed class MotherBrainRoomColorPresentation
         }
     }
 
-    /// <summary>$AD:F209, FadeOutBackgroundForBabyMetroidDeathSequence: immediately blacks
+    /// <summary>FadeOutBackgroundForBabyMetroidDeathSequence: immediately blacks
     /// out colors 1..E of BG palettes 3 and 5, the same slices later restored by $AD:F24B.</summary>
     /// <param name="gameplayColours">Destination color memory; all entries outside indices 49..62 and 81..94 remain unchanged.</param>
     /// <exception cref="ArgumentNullException"><paramref name="gameplayColours"/> is null.</exception>

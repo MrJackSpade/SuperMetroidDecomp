@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.World;
 /// <summary>
 /// UpdateSamusPose after normal beta's animation: animation command three, the interruptions, the collision
 /// transitions, the input transition alpha selected or its lookup-failure command, and the pose-history commit
-/// ($91:EB88).
+/// .
 /// </summary>
 internal sealed class SamusPoseTransitionPhase
 {
@@ -83,7 +83,7 @@ internal sealed class SamusPoseTransitionPhase
             samus.HorizontalSpeed.ApplyStoppedInputFallback(SamusPoseMetadata.ReadFacingDirection(samus));
 
         // Windup still runs the ordinary type-$1B input lookup. Its unmatched
-        // chord selects command two at $91:8304, just like crouching. Skipping
+        // chord selects command two, just like crouching. Skipping
         // this loses the one-frame momentum cancellation before a delayed
         // midair launch. A selected launch or timeout must win instead.
         if (!animationTransitionApplied && frame.UsePoseDefinitionFallback &&
@@ -133,7 +133,7 @@ internal sealed class SamusPoseTransitionPhase
         bool animationTransitionApplied = alreadyApplied;
         // C8C5 queues a transitional pose rather than replacing beta movement.
         // Commit after animation, suppressing the lower-priority input/grounding
-        // pose. Its speed clears already happened before movement in bank $9B.
+        // pose. Its speed clears already happened before movement.
         if (!animationTransitionApplied && _player.LastGrappleMovement is { PendingDropPose: SamusPoseId dropPose })
         {
             SamusAerialPoseTransitions.ApplyGrappleDropTransition(samus, 
@@ -350,7 +350,7 @@ internal sealed class SamusPoseTransitionPhase
             SamusGroundedPoseTransitions.ApplyRanIntoWallPoseChange(samus, wallCollisionPose);
             animationTransitionApplied = true;
             // `$91:EADE` replaces only ProspectivePose. When alpha's table lookup
-            // failed, UpdateSamusPose ($91:EBF0) still runs the command `$91:8304`
+            // failed, UpdateSamusPose still runs the command `$91:8304`
             // selected for the pre-wall movement type.
             if (_player.ProspectiveSamusPose is null && _player.ProspectiveSamusFallbackPose is not null)
             {
@@ -437,11 +437,11 @@ internal sealed class SamusPoseTransitionPhase
         }
 
         // An unobstructed DOWNWARD grounding probe publishes result two. An
-        // unobstructed upward platform carry publishes result zero at `$90:E606`
+        // unobstructed upward platform carry publishes result zero
         // and must leave the pose alone; treating every non-collision as result two
         // made rising Kamers repeatedly alternate falling and landing. For admitted
         // standing (including landing art), running, and stable crouching types,
-        // data zero at `$90:E65A`
+        // data zero
         // selects airborne family zero and `$91:E8F2` chooses falling art.
         // Turn types `$0E/$17` contain `$04` (no pose change) in that literal table;
         // they finish `$F8`, then the destination pose detects the missing floor.
@@ -929,7 +929,7 @@ internal sealed class SamusPoseTransitionPhase
     }
 
     /// <summary>
-    /// Applies the command alpha's lookup failure selected ($91:82D9 and $91:8304) when no transition won: hurt and
+    /// Applies the command alpha's lookup failure selected when no transition won: hurt and
     /// boost releases, grabbed, wall-jump and ball fallbacks, running deceleration and stops, and the aim, turn and
     /// aerial definition fallbacks.
     /// </summary>
@@ -970,8 +970,8 @@ internal sealed class SamusPoseTransitionPhase
         {
             // Definition byte two leaves the launch animation for ordinary spin
             // art. Type $14 selects command six in $91:8304. HandleSamusPoseChange
-            // ($91:F426) sets carry only when InitializeSamusPose itself replaces the
-            // installed pose; then UpdateSamusPose ($91:EBEE) skips the command. So
+            //  sets carry only when InitializeSamusPose itself replaces the
+            // installed pose; then UpdateSamusPose skips the command. So
             // a spin jump keeps its launch speed only when initialization promotes it
             // to Space Jump or Screw Attack; otherwise EC85 clears base/extra speed.
             SamusPoseId spinFallback = unchecked(_player.ProspectiveSamusFallbackPose.Value);

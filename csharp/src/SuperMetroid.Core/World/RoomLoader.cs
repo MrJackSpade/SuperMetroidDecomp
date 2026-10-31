@@ -1062,7 +1062,7 @@ internal sealed class RoomLoader
 
     /// <summary>
     /// Applies the two ROM-owned OBJ rows written by
-    /// <c>LoadColorsForSpritesBeamsAndEnemies</c> at <c>$82:E139</c>.
+    /// <c>LoadColorsForSpritesBeamsAndEnemies</c>.
     /// </summary>
     /// <remarks>
     /// OBJ palette five is not an enemy-specific palette. The cartridge restores it from
@@ -1110,7 +1110,7 @@ internal sealed class RoomLoader
     }
 
     /// <summary>
-    /// Replays the position arithmetic from <c>$80:AD30-$AF89</c> and <c>$82:E3C0/E6A2</c>
+    /// Replays the position arithmetic and <c>$82:E3C0/E6A2</c>
     /// to obtain the final camera/Samus coordinates after the native scrolling phase.
     /// </summary>
     private static DoorTransitionPlacement CalculateDoorTransitionPlacement(
@@ -1175,7 +1175,7 @@ internal sealed class RoomLoader
         // blue value from `Initial_Palette_spritePalette5` in that one entry makes the
         // elevator landing recess appear pre-filled; the cartridge's zero makes it black
         // until the moving pad reaches it and both projectiles delete themselves.
-        // The concealer's colour is Samus's grapple flare colour, which the cartridge's zero clears ($82:8190).
+        // The concealer's colour is Samus's grapple flare colour, which the cartridge's zero clears.
         _player.Colours.GrappleFlare.Fill(RgbColor.Black);
 
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
@@ -1185,7 +1185,7 @@ internal sealed class RoomLoader
         _player.PreviousMovementTypeForXray = SamusPoseMetadata.ReadMovementType(_player.Samus);
 
         // `$90:F21B/$90:F226` use SpawnEprojWithGfx and thus briefly seed both objects
-        // from enemy slot zero. Their shared initializer at `$86:A301`, however, runs
+        // from enemy slot zero. Their shared initializer, however, runs
         // before the first draw and explicitly clears that graphics index. The specialized
         // arrival model owns that native post-initialization value; passing the transient
         // enemy word here previously recolored the level-data concealer teal.

@@ -96,7 +96,7 @@ internal sealed class MotherBrainBody
         }
     }
 
-    /// <summary>Ports <c>InitAI_MotherBrainBody</c> at <c>$A9:8687</c>.</summary>
+    /// <summary>Ports <c>InitAI_MotherBrainBody</c>.</summary>
     internal void InitializeMotherBrainBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
@@ -155,7 +155,7 @@ internal sealed class MotherBrainBody
             state.BrainMainShakeTimer = _earthquake.EarthquakeTimer;
             if (samus is not null && samus.Position.X.Whole < 236 && state.Head.Health == 0)
             {
-                // This is the exact first-phase exit at `$A9:87FE-$8814`. The following
+                // This is the exact first-phase exit. The following
                 // function remains represented by its native pointer so the next frame
                 // enters the real timed descent rather than jumping to standing form.
                 state.DeleteTurretsAndRinkas = true;
@@ -165,7 +165,7 @@ internal sealed class MotherBrainBody
                 state.Form = MotherBrainForm.FakeDeath;
                 _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
 
-                // MotherBrain_SealWall at `$AD:E396` creates both dust puffs before its
+                // MotherBrain_SealWall creates both dust puffs before its
                 // two identical hardcoded PLMs. Requests remain ordered because the bank
                 // $84 allocator searches the same descending pool for each call.
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
@@ -417,7 +417,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Literal body/BG2 movement helper at <c>$A9:9579</c>. The signed Y operand is added
+    /// Literal body/BG2 movement helper. The signed Y operand is added
     /// to the actor and subtracted from the background, keeping the large BG2 body art
     /// rigidly attached to its small OBJ hitbox record. X movement happens before this call
     /// in the cartridge, so the derived scroll must sample the already-updated body X.
@@ -433,7 +433,7 @@ internal sealed class MotherBrainBody
     }
 
     /// <summary>
-    /// Posture-transition variant at <c>$A9:9552</c>. Its X register is a scroll bias, not
+    /// Posture-transition variant. Its X register is a scroll bias, not
     /// actor displacement; only Y changes the physical body coordinate.
     /// </summary>
     private void MoveMotherBrainBodyWithScrollBias(
@@ -480,7 +480,7 @@ internal sealed class MotherBrainBody
             SpawnMotherBrainTurret(parameter);
     }
 
-    /// <summary>Ports <c>InitAI_EnemyProjectile_MotherBrainsTurrets</c> at $86:BE4F.</summary>
+    /// <summary>Ports <c>InitAI_EnemyProjectile_MotherBrainsTurrets</c>.</summary>
     internal void SpawnMotherBrainTurret(int parameter)
     {
         if (parameter is < 0 or >= 12)

@@ -45,8 +45,8 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>
-    /// Ports the Ceres branch of <c>CeresRidley_Init</c> at $A6:A0F5. The shared routine also
-    /// initializes Norfair Ridley ($E17F), but selecting that branch here would be fiction:
+    /// Ports the Ceres branch of <c>CeresRidley_Init</c>. The shared routine also
+    /// initializes Norfair Ridley, but selecting that branch here would be fiction:
     /// this loader currently has no saved boss-bit input and the playable path is fresh Ceres.
     /// </summary>
     internal void InitializeCeresRidley(RoomEnemySlot slot)
@@ -108,7 +108,7 @@ internal sealed class CeresRidleyFlight
         // `$A6:A280` ends Ceres Ridley's initialization by queuing music zero (stop).
         _audio.RequestRoomEnemyStartMusic(MusicRequest.Stop);
 
-        // WriteColorsToTargetPalette($140, $A6:E16F, $20) installs the Ceres door and Baby
+        // WriteColorsToTargetPalette($140, $20) installs the Ceres door and Baby
         // Metroid container palettes. This runtime exposes the final target directly in
         // CGRAM, matching the established Ceres-door palette seam.
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
@@ -163,7 +163,7 @@ internal sealed class CeresRidleyFlight
         }
 
         // A6:A763 is the shared cooldown/return-to-hover movement: accelerate toward
-        // ($00C0,$0064) using divisor table entry zero.
+        //  using divisor table entry zero.
         AccelerateRidleyToward(slot, state, target: new(192, 100), divisorIndex: 0);
         if (!IsWithinRidleyRectangle(slot, new(192, 100), new(8, 8)))
         {
@@ -371,7 +371,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Accelerates Ridley toward the offscreen retreat point and begins the 64-frame getaway delay.</summary>
     internal void TickCeresRidleyRetreat(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        // $A6:A971 accelerates toward the off-screen point ($00C0,$FF80). The signed test
+        // $A6:A971 accelerates toward the off-screen point. The signed test
         // is performed before the common movement pass; once the origin is above Y=-128
         // the 64-frame delay is installed and $A6:A99D falls through into its first tick.
         AccelerateRidleyToward(slot, state, new(192, WordWrap.Unsigned(-128)), 1);
@@ -383,7 +383,7 @@ internal sealed class CeresRidleyFlight
         }
     }
 
-    /// <summary><c>Function_RidleyCeres_RealRetreat_WritePalettesSpawnWalls</c> ($A6:A9A0).</summary>
+    /// <summary><c>Function_RidleyCeres_RealRetreat_WritePalettesSpawnWalls</c>.</summary>
     internal void TickCeresRidleyRetreatDelay(RidleyEnemyState state)
     {
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
@@ -405,7 +405,7 @@ internal sealed class CeresRidleyFlight
             "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_presentation.Colours);
     }
 
-    /// <summary>The retrieval steering target relative to the falling Baby (<c>$BE03</c>).</summary>
+    /// <summary>The retrieval steering target relative to the falling Baby.</summary>
     private static Offset16<RoomPixels> CeresRidleyHandToBaby => new(10, 56);
 
     /// <summary>Steers both 8.8 velocity axes toward a target, promoting zero hardware quotients to one.</summary>
@@ -595,7 +595,7 @@ internal sealed class CeresRidleyFlight
     private void SpawnCeresRidleyGetawayWalls()
     {
         // SpawnEnemy consumes the first two free slots and initializes the literal
-        // population records embedded at $A6:AA2F/$AA3F. Keeping these as real slots makes
+        // population records embedded. Keeping these as real slots makes
         // their layer-two OAM order, off-screen processing, and $F7A5 visibility dispatcher
         // flow through the same scheduler as the cartridge instead of painting host panels.
         SpawnCeresRidleyGetawayWall(new(8, 127), CeresDoorVariant.RidleyEscapeFloorLeftWall);

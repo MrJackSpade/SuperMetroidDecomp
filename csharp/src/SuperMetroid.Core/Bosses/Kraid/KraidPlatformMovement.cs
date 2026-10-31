@@ -5,12 +5,12 @@ internal static class KraidPlatformMovement
 {
     /// <summary>
     /// Negative 16.16 displacement from KraidLint_XSubSpeed / KraidLint_XSpeed
-    /// at $A7:A926/A928, subtracted by $A7:B89B and the riding branch at $A7:B8EB.
+    /// at $A7:A926/A928, subtracted by $A7:B89B and the riding branch.
     /// </summary>
     public const int FiringDisplacement = -229376;
 
     /// <summary>
-    /// Minimum whole-pixel extra Samus X displacement at $A7:B8FB-B903. Native
+    /// Minimum whole-pixel extra Samus X displacement. Native
     /// clamps the whole word to -16 without changing the fractional word.
     /// </summary>
     public const int MinimumCarryWholePixels = -16;

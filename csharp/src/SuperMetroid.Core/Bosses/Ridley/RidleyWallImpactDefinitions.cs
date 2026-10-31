@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Cartridge wall-impact request made by Ridley_Func_113 at $A6:D914.</summary>
+/// <summary>Cartridge wall-impact request made by Ridley_Func_113.</summary>
 internal static class RidleyWallImpactDefinitions
 {
     /// <summary>$A6:D914 compares the larger absolute 8.8 velocity against $0280 (2.5 pixels/frame).</summary>

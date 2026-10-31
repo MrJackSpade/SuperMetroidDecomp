@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>Structural bounds of the native room-population parser and decoded input.</summary>
+/// <summary>Structural bounds of the room-population parser and decoded input.</summary>
 public static class RoomPlmPopulationFormat
 {
     /// <summary>The bounded parser admits at most 256 reads, including the zero header.</summary>

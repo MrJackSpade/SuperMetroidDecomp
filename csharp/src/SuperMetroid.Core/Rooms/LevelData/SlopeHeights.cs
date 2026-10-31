@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public static class SlopeHeights
 {
 
-    /// <summary>Returns the native five-bit height for shape 0..31 and column 0..15.</summary>
+    /// <summary>Returns the five-bit height for shape 0..31 and column 0..15.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_94.asm.
+    /// Independently reviewed for #1165 against the NTSC J/U v1.0 release and its pinned disassembly.
     /// Flat, half-block, V, stair and rational-slope families below reproduce all 512
     /// original bytes. Integer division floors nonnegative profile coordinates; the
     /// third-height family carries its division phase across tile seams. Steep slopes
@@ -41,6 +41,6 @@ public static class SlopeHeights
         return WordWrap.LowByte(height);
     }
 
-    /// <summary>Preserves the cartridge's encoded twenty-height overhang above a full block while clipping negative steep-slope heights to zero.</summary>
+    /// <summary>Preserves the encoded twenty-height overhang above a full block while clipping negative steep-slope heights to zero.</summary>
     private static int EncodeSteepHeight(int height) => height > 16 ? 20 : Math.Max(0, height);
 }

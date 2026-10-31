@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Ports the walk-counter arithmetic of Mother Brain's phase-two/three shot reaction
-/// <c>$A9:B562-$B5C4</c>, independent of which object currently owns the counter.
+/// Independent of which object currently owns the counter.
 /// </summary>
 internal static class MotherBrainShotReaction
 {
@@ -31,7 +31,7 @@ internal static class MotherBrainShotReaction
         };
         if (form == MotherBrainForm.ThirdPhase && reactionType == 2)
         {
-            // `$B5A9`: BPL keeps the nonnegative remainder without recoil, which is why
+            // BPL keeps the nonnegative remainder without recoil, which is why
             // sustained Hyper Beam fire first consumes accumulated walk credit. On underflow
             // the counter is replaced by zero, not the wrapped subtraction.
             return walkCredit.CoversShot(MotherBrainWalkCredit.HyperBeamShotCost)

@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Mother Brain's glass PLM ($D6DE): its setup, shatter projectiles and the room argument it keeps after deletion.</summary>
+/// <summary>Mother Brain's glass PLM: its setup, shatter projectiles and the room argument it keeps after deletion.</summary>
 [RoomLifetime]
 internal sealed class MotherBrainGlassPlms
 {
@@ -111,7 +111,7 @@ internal sealed class MotherBrainGlassPlms
     internal bool IsGlassDestroyed() => _events?.Has(EventNumber.MotherBrainGlassDestroyed) == true;
 
     /// <summary>
-    /// <c>$84:D30B</c>: queues the shatter sound and spawns a burst of four shard projectiles at the glass's block.
+    /// Queues the shatter sound and spawns a burst of four shard projectiles at the glass's block.
     /// </summary>
     internal void SpawnShards(PlmSlot slot, IReadOnlyList<MotherBrainGlassShard> shards)
     {

@@ -21,7 +21,7 @@ public sealed class CrocomireDeathState
     /// </summary>
     public int BridgeFragmentsSpawned { get; internal set; }
 
-    /// <summary>Six-frame acid smoke cadence at $7E:9018.</summary>
+    /// <summary>Six-frame acid smoke cadence.</summary>
     public WrappingCountdown AcidSmokeTimer { get; internal set; }
 
     /// <summary>Thirty-two-frame acid damage sound cadence (Crocomire var $20).</summary>

@@ -78,8 +78,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     public int PaletteChangeNumber { get; set; }
 
     /// <summary>
-    /// <c>CameraDistanceIndex</c> ($0941), shared by every boss that retargets the camera.
-    /// <c>Initialise_Special_Effects_for_New_Room</c> ($88:8347) clears it on each room load.
+    /// <c>CameraDistanceIndex</c>, shared by every boss that retargets the camera.
+    /// <c>Initialise_Special_Effects_for_New_Room</c> clears it on each room load.
     /// </summary>
     public CameraDistanceMode CameraDistanceIndex { get; internal set; }
 
@@ -96,7 +96,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Ports <c>Zebetites_Init</c> at <c>$A6:FB72</c>.</summary>
+    /// <summary>Ports <c>Zebetites_Init</c>.</summary>
     internal void InitializeZebetite(RoomEnemySlot slot)
     {
         var state = new ZebetiteEnemyState(slot.Spawn.Population);
@@ -140,7 +140,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWholeY(Zebetites.YPosition(definition, state.IsSecondaryHalf));
     }
 
-    /// <summary>Ports the indirect main dispatcher at <c>$A6:FC33</c>.</summary>
+    /// <summary>Ports the indirect main dispatcher.</summary>
     private void RunZebetiteMain(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
         if (_earthquake.EarthquakeTimer.IsZero)
@@ -264,7 +264,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         return spawned;
     }
 
-    /// <summary>Ports the private tail of <c>Zebetites_Shot</c> at <c>$A6:FDAC</c>.</summary>
+    /// <summary>Ports the private tail of <c>Zebetites_Shot</c>.</summary>
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
         // Every Zebetite shares one source: a second hit in the same update replaces the first hit's request

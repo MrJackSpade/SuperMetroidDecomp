@@ -28,12 +28,12 @@ public sealed class PhantoonColorCatalog
     /// </summary>
     public RgbColor ResolveHealth(int band, int color) => PhantoonColors.Health(selection.HealthEdits, band, color);
     /// <summary>
-    /// $A7:CA41..CA60, Palette_Phantoon_FadeOutTarget: $A7:DBB1 fades every
+    /// $A7:DBB1 fades every
     /// body palette component to black. Independent supplied target edits override it.
     /// </summary>
     public RgbColor ResolveFadeOut(int color) => PhantoonColors.FadeOut(selection.FadeOutEdits, color);
     /// <summary>
-    /// $A7:CA61-CB40: the powered ship's target colour <paramref name="color"/> of background set <paramref name="set"/>,
+    /// The powered ship's target colour <paramref name="color"/> of background set <paramref name="set"/>,
     /// one of the sets the power-on fades. Every set's colours calculate; supplied colours remain independently editable.
     /// </summary>
     public RgbColor ResolvePowerOn(BackgroundColourSet set, int color) => PhantoonColors.PowerOn(selection.PowerEdits, set, color);

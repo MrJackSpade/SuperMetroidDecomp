@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>Mirrored horizontal orientation of an eye-door component.</summary>
 public enum EyeDoorOrientation
 {
-    /// <summary>Left-facing native component set $84:DB56/$DB5A/$DB60, selecting mirrored artwork, projectile operands, and the left-facing blue-door replacement.</summary>
+    /// <summary>Left-facing component set, selecting mirrored artwork, projectile operands, and the left-facing blue-door replacement.</summary>
     Left,
-    /// <summary>Right-facing native component set $84:DB48/$DB4C/$DB52, selecting mirrored artwork, projectile operands, and the right-facing blue-door replacement.</summary>
+    /// <summary>Right-facing component set, selecting mirrored artwork, projectile operands, and the right-facing blue-door replacement.</summary>
     Right,
 }

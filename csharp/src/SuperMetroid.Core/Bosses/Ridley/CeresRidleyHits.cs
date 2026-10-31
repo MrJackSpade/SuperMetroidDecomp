@@ -82,7 +82,7 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Executes the non-area-two half of <c>EnemyShot_Ridley</c> at $A6:DF8A after bank
+    /// Executes the non-area-two half of <c>EnemyShot_Ridley</c> after bank
     /// $A0 has accepted and marked an overlapping projectile. Both the ordinary-shot and
     /// physical normal-bomb walkers dispatch this exact callback; keeping the reaction here
     /// prevents those two collision owners from acquiring subtly different cinematic rules.
@@ -117,8 +117,8 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// Ports <c>RidleyHurtFlashHandling</c> at $A6:D4DA and the common extended-enemy
-    /// palette override at $A0:9497. Ridley's composite is split between those two writers:
+    /// Ports <c>RidleyHurtFlashHandling</c> and the common extended-enemy
+    /// palette override. Ridley's composite is split between those two writers:
     /// the ordinary body uses the current execution counter, while the manual tail/wings
     /// deliberately test the counter after an increment.
     /// </summary>

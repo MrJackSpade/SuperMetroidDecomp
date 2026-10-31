@@ -120,7 +120,7 @@ internal sealed class MotherBrainLateFightState
     /// <summary>Sets the NTSC neck angle and opposed raise/lower indices for retreat after the attack.</summary>
     internal void RetractHead()
     {
-        // NTSC takes `$0050` from the regional `$0050/$0063` constant at `$A9:BB51`.
+        // NTSC takes `$0050` from the regional `$0050/$0063` constant.
         NeckAngleDelta = 80;
         NeckMovementEnabled = true;
         LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;

@@ -37,9 +37,9 @@ internal static class CrocomireAnimations
         });
 
     /// <summary>
-    /// The projectile programs, one per projectile kind: <c>InstList_EnemyProjectile_CrocomiresProjectile</c> ($86:8FCF)
-    /// loops six three-update frames; the bridge fragment ($86:8FEB) and spike-wall piece ($86:8FF3) loop one still frame;
-    /// <c>InstList_EnemyProjectile_Shot_CrocomiresProjectile</c> ($86:9007) shows five four-update explosion frames, then a
+    /// The projectile programs, one per projectile kind: <c>InstList_EnemyProjectile_CrocomiresProjectile</c>
+    /// loops six three-update frames; the bridge fragment and spike-wall piece loop one still frame;
+    /// <c>InstList_EnemyProjectile_Shot_CrocomiresProjectile</c> shows five four-update explosion frames, then a
     /// drop with Crocomire's chances and deletion.
     /// </summary>
     internal static AnimationProgramSet<CrocomireProjectileFrameKind, CrocomireProjectileFrame, CrocomireProjectileCue> ProjectilePrograms { get; } = new(

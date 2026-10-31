@@ -3,9 +3,9 @@ using static SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonHealthPaintDefiniti
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
 /// <summary>
-/// Four belly-material shades across eight health bands at $A5:96AF-96EE.
+/// Four belly-material shades across eight health bands.
 /// Native $A5:9701-9735 selects a band by health and copies its four colors
-/// unchanged; hurt restoration at $A5:958C-959A copies the same shades.
+/// unchanged; hurt restoration copies the same shades.
 /// </summary>
 internal sealed class DraygonHealthPaint
 {

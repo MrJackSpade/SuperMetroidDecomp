@@ -51,7 +51,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// Ports the area-two branch of the shared initializer at $A6:A0F5. A defeated Ridley
+    /// Ports the area-two branch of the shared initializer. A defeated Ridley
     /// is deleted before any shared workspace or palette side effects, matching the native
     /// boss-bit gate; a live fight begins in layer five below the visible arena.
     /// </summary>
@@ -108,7 +108,7 @@ internal sealed class NorfairRidleyCombat
         };
         CeresRidleyFlight.StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
 
-        // WriteColorsToTargetPalette($140, $A6:E1CF, $20) installs both body and manual
+        // WriteColorsToTargetPalette($140, $20) installs both body and manual
         // tail/wing source palettes. The following loops clear the two fifteen-color OBJ
         // ranges that the reveal gradually fills; color zero remains transparent.
         (_bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
@@ -536,7 +536,7 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>
-    /// <c>LungeIfPowerBombActiveAndNotHoldingSamus</c> at $A6:BD2C, run before the function on
+    /// <c>LungeIfPowerBombActiveAndNotHoldingSamus</c>, run before the function on
     /// every main and even hurt frame. It reads $0CEE, which is set as soon as a power bomb is
     /// laid, so Ridley lunges in the same frame Samus lays one.
     /// </summary>

@@ -13,7 +13,7 @@ internal interface IEnemyRoomMainHooks
     /// <summary>Crocomire's death sequence, if it has begun.</summary>
     CrocomireDeathState? CrocomireDeath { get; }
 
-    /// <summary>Runs Spore Spawn's scrolling-finished hook ($90:9589) when it is installed.</summary>
+    /// <summary>Runs Spore Spawn's scrolling-finished hook when it is installed.</summary>
     void RunSporeSpawnScrollingFinishedHook(ScrollBoundaryCamera camera);
 
     /// <summary>The Zebetites' camera-distance index.</summary>

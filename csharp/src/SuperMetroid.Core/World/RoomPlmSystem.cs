@@ -210,7 +210,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
     }
 
     /// <summary>
-    /// <c>$84:86BC Instruction_PLM_Delete</c>: releases the slot. Native lists and typed programs end a PLM the same way.
+    /// Releases the slot. Native lists and typed programs end a PLM the same way.
     /// </summary>
     internal void DeletePlm(PlmSlot slot)
     {

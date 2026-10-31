@@ -7,7 +7,7 @@ public static class RoomVisualLayoutSourceDefinitions
 {
     /// <summary>
     /// Distinct room levels, including alternate event/boss states' shared ones, in the order the room-state catalogs
-    /// first use them. These are installation keys, not ROM-reading capabilities or editable collision data.
+    /// first use them. These are installation keys, not data-reading capabilities or editable collision data.
     /// </summary>
     /// Enumerating projects each state's level and removes duplicates. No persistent lookup or generated cache is retained.
     public static IEnumerable<RoomLevelId> All => RoomStateDefinitions.All

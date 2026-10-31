@@ -25,7 +25,7 @@ internal sealed class CeresRidleyAlarmColors
                 edits.Add(new ColourCell(step, color), steps[step][color]);
     }
 
-    /// <summary>$A6:C1DF-C23E: the reflected phase of alarm step <paramref name="step"/>: sixteen steps ascend through phase eight, then revisit phases seven to one.</summary>
+    /// <summary>The reflected phase of alarm step <paramref name="step"/>: sixteen steps ascend through phase eight, then revisit phases seven to one.</summary>
     internal static int Phase(int step)
     {
         if ((uint)step >= CeresRidleyPaletteDefinitions.AlarmStepCount)

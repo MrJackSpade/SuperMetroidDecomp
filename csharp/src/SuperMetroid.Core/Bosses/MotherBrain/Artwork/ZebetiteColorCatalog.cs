@@ -15,7 +15,7 @@ public sealed class ZebetiteColorCatalog
     /// <param name="frames">The eight selected two-colour pulse rows.</param>
     internal ZebetiteColorCatalog(RgbColor[][] frames) => edits = ZebetitePulse.Edits(frames);
 
-    /// <summary>Writes the selected pulse row's two colors without advancing the shared palette counter or testing fade/linkage conditions; native <c>HandleZebetitePaletteAnimation</c> at <c>$A6:FD5E</c> targets CGRAM entries 172 and 173 (OBJ palette 2 colors 12 and 13).</summary>
+    /// <summary>Writes the selected pulse row's two colors without advancing the shared palette counter or testing fade/linkage conditions; native <c>HandleZebetitePaletteAnimation</c> targets CGRAM entries 172 and 173 (OBJ palette 2 colors 12 and 13).</summary>
     /// <param name="destination">The two pulsing colours.</param>
     /// <param name="frame">Zero-based pulse row from 0 through 7.</param>
     public void Apply(ColourRun destination, int frame) => ZebetitePulse.Apply(edits, destination, frame);

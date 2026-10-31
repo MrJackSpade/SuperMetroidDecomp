@@ -850,7 +850,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
     /// <summary>
     /// Ports the data-producing parts of <c>LoadEnemies</c>,
-    /// <c>ProcessEnemyTilesets</c>, and <c>InitializeEnemies</c> at $A0:8A1E-$8C6C.
+    /// <c>ProcessEnemyTilesets</c>, and <c>InitializeEnemies</c>.
     /// </summary>
     public void Load(IRoomEnemyLoad request)
     {
@@ -1055,7 +1055,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 slot.SlotIndex,
                 slot.Position.Whole,
                 new(slot.Radius.X, slot.Radius.Y),
-                // `$A0:A9D2-$A0:A9E8`: a frozen enemy blocks Samus whatever its properties say.
+                // A frozen enemy blocks Samus whatever its properties say.
                 !slot.FrozenTimer.IsZero || slot.Properties.HasAny(EnemyProperties.SolidToSamus)));
         }
         FrameContext.AdvanceRandomEnemyCounter();
@@ -1069,7 +1069,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         return BuildFrameResult();
     }
 
-    /// <summary>Ports <c>Handle_Room_Shaking</c> at $A0:8687-$8711: the earthquake's frame step, then the actor shake it selects.</summary>
+    /// <summary>Ports <c>Handle_Room_Shaking</c>: the earthquake's frame step, then the actor shake it selects.</summary>
     public RoomShakeFrameResult HandleRoomShaking(bool timeIsFrozen)
     {
         Room.EnsureLoaded();

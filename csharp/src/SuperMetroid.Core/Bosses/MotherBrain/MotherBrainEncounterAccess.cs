@@ -25,7 +25,7 @@ internal sealed class MotherBrainEncounterAccess
     internal void RequestMotherBrainPlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
         _frameResults.MotherBrainPlms.Add(new PlmSpawnRequest(block, header));
 
-    /// <summary>Ports <c>SetMotherBrainHeadInstList</c> ($A9:C447): restarts the brain on <paramref name="program"/>.</summary>
+    /// <summary>Ports <c>SetMotherBrainHeadInstList</c>: restarts the brain on <paramref name="program"/>.</summary>
     internal static void SetMotherBrainBrainProgram(MotherBrainEnemyState state, MotherBrainHeadProgram program)
     {
         state.BrainCursor = AnimationProgramCursor<MotherBrainHeadProgram>.Start(program);

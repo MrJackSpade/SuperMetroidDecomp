@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmEyeDoorVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmEyeDoorVisuals), content =>
     {
         Span<RoomBlockAppearance> buffer = stackalloc RoomBlockAppearance[4];
@@ -41,9 +41,9 @@ public sealed class InstalledRoomPlmEyeDoorVisuals
             EyeDoorDraws.Editable.Count());
     }
 
-    /// <summary>Resolves an eye-door visual block, sharing and horizontally mirroring the selected clearing artwork for the native opening-clear alias.</summary>
+    /// <summary>Resolves an eye-door visual block, sharing and horizontally mirroring the selected clearing artwork for the opening-clear alias.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="blockIndex">Zero-based block ordinal within the component's single native run: two eye blocks, one middle or bottom block, or four clearing blocks.</param>
+    /// <param name="blockIndex">Zero-based block ordinal within the component's single run: two eye blocks, one middle or bottom block, or four clearing blocks.</param>
     /// <returns>The selected appearance with the horizontal flip toggled for the opening-clear alias; unchanged art derives from compiled stock appearances.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported eye-door frame or clearing alias.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside the selected component's draw shape.</exception>

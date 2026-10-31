@@ -8,7 +8,7 @@ public enum PhantoonFlameSpawnType
 {
     /// <summary>$00: a casual flame that falls from Phantoon and bounces.</summary>
     Casual = 0,
-    /// <summary>$02: an enraged wave flame ($A7:D8C0/$D8D5), indexed by direction.</summary>
+    /// <summary>$02: an enraged wave flame, indexed by direction.</summary>
     Enraged = 2,
     /// <summary>$04: a rain flame, indexed by packed column and fall delay.</summary>
     Rain = 4,

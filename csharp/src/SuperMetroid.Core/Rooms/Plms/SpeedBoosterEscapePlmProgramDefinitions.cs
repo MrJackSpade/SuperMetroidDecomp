@@ -4,7 +4,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.R
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// The Speed Booster lavaquake's PLM program (#1296), in place of its bank-$84 list at $84:B88A: three phases, each
+/// The Speed Booster lavaquake's PLM program (#1296), in place of its list: three phases, each
 /// installing the pre-instruction that watches for its end and sleeping until that pre-instruction wakes it.
 /// </summary>
 internal static class SpeedBoosterEscapePlmProgramDefinitions

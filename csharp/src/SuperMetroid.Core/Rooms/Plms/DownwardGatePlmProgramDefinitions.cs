@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// The downward gate's PLM programs (#1296), in place of its bank-$84 instruction lists. The resident gate alternates
+/// The downward gate's PLM programs (#1296), in place of its instruction lists. The resident gate alternates
 /// between an open and a closed sleep; a shot (or, when closed, Samus below it) wakes it past the sleep into the
-/// lowering or raising images while its bank-$86 projectile carries the collision. Each trigger draws its shot block
+/// lowering or raising images while its projectile carries the collision. Each trigger draws its shot block
 /// once and deletes.
 /// </summary>
 internal static class DownwardGatePlmProgramDefinitions

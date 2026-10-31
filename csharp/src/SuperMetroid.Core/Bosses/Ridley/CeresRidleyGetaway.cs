@@ -51,7 +51,7 @@ internal sealed class CeresRidleyGetaway
 
     /// <summary>
     /// Ports $A6:AA54. Every value below is a literal PPU/actor word installed by the retail
-    /// setup routine; in particular B and C intentionally begin at $0100 before the first
+    /// setup routine; in particular B and C intentionally begin before the first
     /// getaway-table entry replaces the matrix.
     /// </summary>
     internal static void SetupCeresRidleyGetawayFloor(RidleyEnemyState state)
@@ -72,8 +72,8 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Room main <c>MainASM_HandleCeresRidleyGetawayCutscene</c> ($8F:E571) and
-    /// <c>HandleCeresRidleyGetawayCutsceneIfActive</c> ($A6:AAAF). It runs after the
+    /// Room main <c>MainASM_HandleCeresRidleyGetawayCutscene</c> and
+    /// <c>HandleCeresRidleyGetawayCutsceneIfActive</c>. It runs after the
     /// frame's enemy AI and Samus processing, so the getaway's first step shares the frame
     /// in which Ridley's escape handoff publishes Ceres status one.
     /// </summary>
@@ -102,7 +102,7 @@ internal sealed class CeresRidleyGetaway
         state.GetawayFrameIndex = tableIndex + 1;
 
         // HandleCeresRidleyGetawayCutscene requests the departure sound on the first table
-        // entry only ($A6:AABD). Tying the request to the native
+        // entry only. Tying the request to the native
         // table index preserves the same one-shot behavior after saves/replays and pauses.
         if (tableIndex == 0)
             _audio.QueueEnemySound(Library2Sound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
@@ -217,7 +217,7 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Ports the shared Ridley function at $A6:C04E for the Ceres branch: the warning runs through its phases
+    /// Ports the shared Ridley function for the Ceres branch: the warning runs through its phases
     /// (<see cref="CeresSelfDestructPhase"/>, the C062/C08E/C09F/C0BB/C0F5/C104/C117 entries) in order. English skips
     /// only the Japanese subtitle phase and types the cartridge's three-line English warning. Japanese runs the
     /// subtitle phase first, installs its subtitle tilemap, and then uses the same typewriter.
@@ -274,7 +274,7 @@ internal sealed class CeresRidleyGetaway
                     ? new(presentation.Get(EscapeTypewriterProgramId.Ceres))
                     : null;
 
-                // `$A6:C0E3-$A6:C0F1`: English goes straight to typing the warning; Japanese
+                // English goes straight to typing the warning; Japanese
                 // first runs the subtitle phase. An earlier translation skipped the typing
                 // phase for English, suppressing every character below "EMERGENCY".
                 state.CeresSelfDestructPhase = _roomStatus.JapaneseText
@@ -313,7 +313,7 @@ internal sealed class CeresRidleyGetaway
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 // $A6:C131 sets the area-boss bit inside Ridley's AI, so later slots (the
-                // room's exit door at $A6:F562) observe it in this same EnemyMain pass.
+                // room's exit door) observe it in this same EnemyMain pass.
                 _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
                 _frameResults.CeresEscapeStarted = true;
                 return;
@@ -323,14 +323,14 @@ internal sealed class CeresRidleyGetaway
         }
     }
 
-    /// <summary>$A6:C062: colours one and three of <paramref name="source"/> replace those of <paramref name="destination"/>.</summary>
+    /// <summary>Colours one and three of <paramref name="source"/> replace those of <paramref name="destination"/>.</summary>
     private static void CopyCeresWarningColors(ColourRun source, ColourRun destination)
     {
         destination.Write(1, source[1]);
         destination.Write(3, source[3]);
     }
 
-    /// <summary>Ports DrawEmergencyText at $A6:C136: the EMERGENCY title is written over the room's BG1.</summary>
+    /// <summary>Ports DrawEmergencyText: the EMERGENCY title is written over the room's BG1.</summary>
     internal void DrawCeresEmergencyText()
     {
         DrawCeresOverlay(CeresEscapeOverlayTilemapDefinitions.Emergency);
@@ -341,7 +341,7 @@ internal sealed class CeresRidleyGetaway
         _room.Services.WriteBg1Picture(new WrittenPicture(page.Picture, page.Cell));
 
     /// <summary>
-    /// Ports ProcessSpriteTilesTransfers at $A6:C26E (#1406): shows the list's next page, one an update. A page of the
+    /// Ports ProcessSpriteTilesTransfers (#1406): shows the list's next page, one an update. A page of the
     /// timer-sprite list shows over the OBJ characters from this update's frame, as the cartridge's copy, made at this
     /// update's displayed frame, shows in it; the background list's pages show nowhere, so each of its updates shows nothing.
     /// </summary>
@@ -362,7 +362,7 @@ internal sealed class CeresRidleyGetaway
         return state.CeresEscapePages.IsFinished;
     }
 
-    /// <summary>Writes every row half of the one-shot Japanese overlay list at $A6:C3B8 over the room's BG1.</summary>
+    /// <summary>Writes every row half of the one-shot Japanese overlay list over the room's BG1.</summary>
     internal void DrawCeresJapaneseOverlay()
     {
         foreach (CeresEscapeOverlayTilemapDefinition page in CeresEscapeOverlayTilemapDefinitions.Japanese)
@@ -384,7 +384,7 @@ internal sealed class CeresRidleyGetaway
         return completed;
     }
 
-    /// <summary>Ports the three-color alarm palette cycle at $A6:C19C.</summary>
+    /// <summary>Ports the three-color alarm palette cycle.</summary>
     internal void UpdateCeresSelfDestructPalette(RidleyEnemyState state, int frameCounter)
     {
         if ((frameCounter & 3) != 0)

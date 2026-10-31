@@ -6,7 +6,7 @@ public static class GreyDoorConditions
     /// <summary>The number of conditions in the grey-door condition table.</summary>
     internal const int Count = 7;
 
-    /// <summary>The condition at <paramref name="index"/> of <c>$84:BE4B</c>'s seven-entry table.</summary>
+    /// <summary>The condition at <paramref name="index"/> of the seven-entry grey-door condition table.</summary>
     public static GreyDoorCondition AtTableIndex(int index) => index switch
     {
         0 => GreyDoorCondition.AreaBossDefeated,

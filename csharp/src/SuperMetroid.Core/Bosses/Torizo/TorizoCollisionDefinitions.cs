@@ -71,7 +71,7 @@ internal static class TorizoCollisionDefinitions
     /// <summary>Single origin component used by the native blank and shared turning frames.</summary>
     private static readonly GoldenTorizoCollisionComponent[] SingleEmpty = [new(new(0, 0), Empty)];
 
-    /// <summary>The 42 left-facing frames from $AA:A4FA, in native order.</summary>
+    /// <summary>The 42 left-facing frames, in native order.</summary>
     internal static readonly GoldenTorizoCollisionComponent[][] LeftFrames =
     [
         [new(new(-15, -30), Empty), new(new(-5, -24), Empty), new(new(0, 0), StandingBody), new(new(-5, -24), Empty)],
@@ -118,7 +118,7 @@ internal static class TorizoCollisionDefinitions
         [new(new(-4, -25), Empty), new(new(-15, -31), Empty), new(new(0, 0), StandingBody), new(new(-4, -25), Empty)],
     ];
 
-    /// <summary>The seven awakening frames from $AA:AA12, in native order.</summary>
+    /// <summary>The seven awakening frames, in native order.</summary>
     internal static readonly GoldenTorizoCollisionComponent[][] AwakeningFrames =
     [
         [new(new(0, 0), AwakeningSteps[0])],

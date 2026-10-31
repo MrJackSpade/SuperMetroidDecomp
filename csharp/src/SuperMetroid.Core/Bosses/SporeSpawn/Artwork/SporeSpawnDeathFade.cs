@@ -16,7 +16,7 @@ internal static class SporeSpawnDeathFade
     };
 
     /// <summary>
-    /// $A5:E4F9..E5D8, Palette_SporeSpawn_DeathSequence_Level_0..6: twelve color
+    /// Palette_SporeSpawn_DeathSequence_Level_0..6: twelve color
     /// columns follow the original-room seven-step fade. All seven words in each
     /// of columns0,7,11,15 remain required unresolved trajectories, without exemption.
     /// </summary>
@@ -39,7 +39,7 @@ internal static class SporeSpawnDeathFade
     };
 
     /// <summary>
-    /// $A5:E5D9..E6B8, Palette_SporeSpawn_DeathSequence_Background_0..6:
+    /// Palette_SporeSpawn_DeathSequence_Background_0..6:
     /// seven equally spaced, rounded RGB5 steps from the original room color to the
     /// final death color. The first stored row is step1, not the initial endpoint.
     /// </summary>

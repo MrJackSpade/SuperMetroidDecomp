@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Phantoon's typed body, eye, tentacle and mouth programs (#641), in place of their bank-$A7 lists.</summary>
 internal static class PhantoonAnimations
 {
-    /// <summary>The eyelid's dwell on each of its two moving poses ($A7:CC53/CC57/CC85/CC95).</summary>
+    /// <summary>The eyelid's dwell on each of its two moving poses.</summary>
     private const int EyelidFrameDuration = 10;
-    /// <summary>The tentacles' dwell on each of their four sway poses ($A7:CCD7..CCE3).</summary>
+    /// <summary>The tentacles' dwell on each of their four sway poses.</summary>
     private const int TentacleFrameDuration = 8;
-    /// <summary>The mouth's dwell on each of its two opening poses ($A7:CCEB/CCEF).</summary>
+    /// <summary>The mouth's dwell on each of its two opening poses.</summary>
     private const int MouthFrameDuration = 5;
 
     /// <summary>Every body, eye, tentacle and mouth program.</summary>

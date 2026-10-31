@@ -5,15 +5,14 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 public static class RoomScrollDefinitions
 {
     /// <summary>
-    /// The byte bank $80's scroll handlers (<c>$80:A802</c>, <c>$80:A823</c>, <c>$80:A903</c>) read past the 50 scroll
-    /// cells, where <c>$7E:CD52</c> onward holds the saved explored-map planes. With the clamped camera the reachable
-    /// indexes are $32-$37, Crateria's padding row and two cells no room marks, all zero (#1336). The port has never
-    /// mirrored the explored maps into that image, so every such read has always returned zero; the 100% movie also
-    /// reads index $03FE (update 101214) and matches the cartridge with it.
+    /// The byte the camera's scroll checks read past the 50 scroll cells, where the saved explored-map planes
+    /// follow. With the clamped camera the reachable indexes are 50-55, Crateria's padding row and two cells no room
+    /// marks, all zero (#1336). The explored maps have never been mirrored after the scroll cells, so every such read has
+    /// always returned zero; the 100% movie also reads index 1022 (update 101214) and matches the original game with it.
     /// </summary>
     internal const int ExploredMapOverreadByte = 0;
 
-    /// <summary>Retail explicit allocations in the cartridge's order, including native trailing storage beyond logical screen cells.</summary>
+    /// <summary>Retail explicit allocations in their authored order, including trailing storage beyond logical screen cells.</summary>
     private static readonly RoomScrollDefinition[] Definitions =
     [
         new(nameof(LandingSite), Convert.FromHexString("0000020202020202020000020202020202020100020202020202020000020202020202020101010101010101011301800100")),

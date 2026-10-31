@@ -79,7 +79,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
 
-    /// <summary>Ports the common body main/hurt entry at <c>$A9:873E</c>.</summary>
+    /// <summary>Ports the common body main/hurt entry.</summary>
     internal void RunMotherBrainBodyMain(
         RoomEnemySlot body,
         SamusState? samus,
@@ -261,7 +261,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         new Position16<RoomPixels>(138, 72),
         new Position16<RoomPixels>(120, 206),
     ];
-    /// <summary>$A9:8C61: authored smoke puff X offsets cycled while a tube lands.</summary>
+    /// <summary>Authored smoke puff X offsets cycled while a tube lands.</summary>
     internal static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
 
     /// <summary>Dispatches the body pointer after the phase-one function changes to $881D.</summary>
@@ -294,7 +294,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock:
                 if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
                     return;
-                // $A9:8874: Samus command one restores the normal handler pair.
+                // Samus command one restores the normal handler pair.
                 samus?.Control.Unlock();
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash;
                 state.FunctionTimer = WrappingCountdown.Start(8);
@@ -492,7 +492,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Runs Mother Brain's room flash ($A9:D192): each of its fourteen frames stays two updates, the timer counting
+    /// Runs Mother Brain's room flash: each of its fourteen frames stays two updates, the timer counting
     /// up from one, and the last loops to the first.
     /// </summary>
     internal void RunMotherBrainRoomPalette(MotherBrainEnemyState state)

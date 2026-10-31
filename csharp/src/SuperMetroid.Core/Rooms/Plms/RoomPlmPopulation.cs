@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Immutable, ordered input to the room PLM allocator. Native pointers survive only
+/// Immutable, ordered input to the room PLM allocator. Pointers survive only
 /// as identities and diagnostic context; construction never reads a CPU bus.
 /// </summary>
 public sealed class RoomPlmPopulation
@@ -13,28 +13,28 @@ public sealed class RoomPlmPopulation
 
     /// <summary>The population's name, the disassembly's label for it without its prefix, or a fixture's description.</summary>
     public string Name { get; }
-    /// <summary>Validated placement records in native allocation order, excluding the zero header terminator; scroll programs are owned copies.</summary>
+    /// <summary>Validated placement records in allocation order, excluding the zero header terminator; scroll programs are owned copies.</summary>
     public ReadOnlyMemory<RoomPlmPlacement> Placements => placements;
 
     /// <summary>Copies an ordered, bounded decoded population and validates scroll programs before any PLM slots are allocated.</summary>
     /// <param name="name">The population's name, used in diagnostics.</param>
-    /// <param name="records">Placement sequence without a native zero terminator; at most 255 records may be supplied.</param>
+    /// <param name="records">Placement sequence without a zero terminator; at most 255 records may be supplied.</param>
     /// <exception cref="ArgumentNullException">The sequence or one of its placements is null.</exception>
     /// <exception cref="InvalidDataException">The record limit is exceeded, a header is the zero terminator, or a setup-specific payload is invalid.</exception>
     public RoomPlmPopulation(string name, IEnumerable<RoomPlmPlacement> records)
     {
         Ensure.NotNull(records);
         Name = Ensure.NotNull(name);
-        // A native population is bounded by its 256-record parser. Never enumerate
+        // A population is bounded by its 256-record parser. Never enumerate
         // an unbounded caller sequence before enforcing that same upper limit.
         placements = records.Take(RoomPlmPopulationFormat.MaximumParserIterations).Select(CopyPlacement).ToArray();
         if (placements.Length > RoomPlmPopulationFormat.MaximumRecordCount)
-            throw new InvalidDataException($"PLM population {name} exceeds the bounded native record count.");
+            throw new InvalidDataException($"PLM population {name} exceeds the most placements a room can hold.");
     }
 
     /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled program identities.</summary>
     /// <param name="name">The population's name.</param>
-    /// <param name="records">Each record's PLM header, block coordinates and room argument, in native order.</param>
+    /// <param name="records">Each record's PLM header, block coordinates and room argument, in authored order.</param>
     internal static RoomPlmPopulation FromRecords(string name, RoomPlmPlacementDefinition[] records) =>
         new(name, Ensure.NotNull(records).Select(record => new RoomPlmPlacement(
             RoomPlmHeaders.Get(record.Header), record.Block, record.Argument, Cannon: record.Cannon)
@@ -45,7 +45,7 @@ public sealed class RoomPlmPopulation
     {
         Ensure.NotNull(placement);
         if (placement.Header.Header == PlmHeaderId.None)
-            throw new InvalidDataException("A decoded PLM placement cannot contain the native zero terminator.");
+            throw new InvalidDataException("A decoded PLM placement cannot be an empty placement.");
         byte[] program = placement.ScrollProgram.ToArray();
         RoomScrollProgram? compiledProgram = program.Length == 0 ? placement.CompiledScrollProgram : null;
         if (compiledProgram is not null)

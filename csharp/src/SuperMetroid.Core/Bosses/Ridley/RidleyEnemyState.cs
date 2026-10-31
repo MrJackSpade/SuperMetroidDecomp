@@ -116,7 +116,7 @@ public sealed class RidleyEnemyState
     public Position16<RoomPixels> FireballBasePosition { get; internal set; }
     /// <summary>Gets the signed 8.8 velocity computed from the clamped fireball aim angle.</summary>
     public EightEightVector<RoomPixels> FireballVelocity { get; internal set; }
-    /// <summary>$7E:7800, independent swoop phase countdown used by $A6:B441-$B594.</summary>
+    /// <summary>Independent swoop phase countdown used by $A6:B441-$B594.</summary>
     public WrappingCountdown SwoopPhaseTimer { get; internal set; }
     /// <summary>Gets the swoop's heading, which wraps around the full turn; its table index selects the sine sample.</summary>
     public RotationAngle SwoopAngleAccumulator { get; internal set; }

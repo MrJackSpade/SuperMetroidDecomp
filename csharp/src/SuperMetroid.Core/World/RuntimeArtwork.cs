@@ -163,14 +163,14 @@ internal sealed class RuntimeArtwork
     public HyperBeamFxColours? HyperBeamFxColors { get; set; }
 
     /// <summary>
-    /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> ($90:AC8D) last loaded. The
+    /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> last loaded. The
     /// projectile sheets show this beam's characters until the next update, even when code changes the equipment in
     /// between: the Golden Torizo code grants beams during room initialization, after the entering beam was loaded.
     /// </summary>
     public SuperMetroid.Core.Progression.SamusBeamFlags LoadedBeams { get; private set; }
 
     /// <summary>
-    /// Ports <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D: latches the beam whose characters the projectile sheets
+    /// Ports <c>Update_Beam_Tiles_and_Palette</c>: latches the beam whose characters the projectile sheets
     /// show and loads its palette.
     /// </summary>
     internal void UpdateBeamTilesAndPalette(SamusColours colours, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)

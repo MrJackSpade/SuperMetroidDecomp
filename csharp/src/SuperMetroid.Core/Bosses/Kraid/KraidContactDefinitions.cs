@@ -17,20 +17,20 @@ internal static class KraidContactDefinitions
     /// </summary>
     internal const int ShotLeftBoundAfterDud = 6;
 
-    /// <summary>$A7:B97C-B983: Hitbox_KraidLint.left ($92B7, -24) minus two.</summary>
+    /// <summary>Hitbox_KraidLint.left ($92B7, -24) minus two.</summary>
     internal const int LintLeadingEdge = -26;
-    /// <summary>$A7:B99F-B9A6: Hitbox_KraidLint.top ($92B9, -4) plus two.</summary>
+    /// <summary>Hitbox_KraidLint.top ($92B9, -4) plus two.</summary>
     internal const int LintTop = -2;
-    /// <summary>$A7:B9B7-B9BE: Hitbox_KraidLint.bottom ($92BD, 6) minus two.</summary>
+    /// <summary>Hitbox_KraidLint.bottom ($92BD, 6) minus two.</summary>
     internal const int LintBottom = 4;
-    /// <summary>$A7:B9CF-B9DE: added lint push width and signed upper clamp.</summary>
+    /// <summary>Added lint push width and signed upper clamp.</summary>
     internal const int LintPush = 16;
-    /// <summary>$A7:B12D: X threshold below which body contact does not subtract eight.</summary>
+    /// <summary>X threshold below which body contact does not subtract eight.</summary>
     internal const int MinimumBodyEjectionX = 40;
-    /// <summary>$A7:B133/B140: whole-pixel body ejection on both axes.</summary>
+    /// <summary>Whole-pixel body ejection on both axes.</summary>
     internal const int BodyEjection = 8;
-    /// <summary>$A7:94A4: PushSamusBack horizontal extra displacement.</summary>
+    /// <summary>PushSamusBack horizontal extra displacement.</summary>
     internal const int ExtraX = 4;
-    /// <summary>$A7:94AA: PushSamusBack vertical extra displacement.</summary>
+    /// <summary>PushSamusBack vertical extra displacement.</summary>
     internal const int ExtraY = -8;
 }

@@ -53,7 +53,7 @@ internal sealed class TorizoCombat
         if (selectedShotAi == EnemyReaction.TorizoStandUpSitDownShot)
         {
             // `$C9C2` is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
-            // `$D658`, which accepts common damage only outside the active flash and while
+            // Which accepts common damage only outside the active flash and while
             // `toriz_var_04` is zero. This transitional callback never arms the later
             // counterattack bits or captures a projectile family.
             if (isBombTorizo || !torizo.FlashTimer.IsZero || state.AnimationLocked)

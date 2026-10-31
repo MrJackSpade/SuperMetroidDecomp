@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
-/// <summary>Draygon's four belly-material shades across eight health bands at $A5:96AF-96EE: the selected gold and critical-red channels <see cref="DraygonHealthPaint"/> calculates them from.</summary>
+/// <summary>Draygon's four belly-material shades across eight health bands: the selected gold and critical-red channels <see cref="DraygonHealthPaint"/> calculates them from.</summary>
 internal static class DraygonHealthPaintDefinitions
 {
     /// <summary>Four belly shades are copied in each health band.</summary>
@@ -10,7 +10,7 @@ internal static class DraygonHealthPaintDefinitions
     /// <summary>Five-bit red channel ceiling used by the critical endpoint.</summary>
     internal const int Maximum = (1 << 5) - 1;
     /// <summary>
-    /// $A5:96AF-96B6 (also normal palette slots9..12 at $A5:A289-A290):
+    /// $A5:96AF-96B6 (also normal palette slots9..12):
     /// selected gold material steps red5/green6. Red leads green by one shade,
     /// producing red25..10 and green24..6; blue is zero. These material choices
     /// describe categorical belly paint. Replacing these gold-channel choices,

@@ -42,7 +42,7 @@ internal sealed class CrocomireBridgeCollapse
     public bool CrocomireBridgeCollapseStarted { get; private set; }
 
     /// <summary>
-    /// Ports the state transition at $A4:8D5E. The individual bridge PLMs and subsequent
+    /// Ports the state transition. The individual bridge PLMs and subsequent
     /// melting sequence remain a separate translation boundary, but the actor/tongue state
     /// changes occur on the exact native X threshold.
     /// </summary>
@@ -77,7 +77,7 @@ internal sealed class CrocomireBridgeCollapse
 
     /// <summary>
     /// Ports the bridge effects in $A4:8D5E, staged at Crocomire X $0600, $0610 and $0620.
-    /// Each stage's dust lands one block ahead, at $0600, $0620 and $0630.
+    /// Each stage's dust lands one block ahead, and $0630.
     /// </summary>
     private void HandleCrocomireBridgeApproach(RoomEnemySlot body)
     {
@@ -100,8 +100,8 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        // $A4:8DA4-8DDB: one block deep crumbles the first bridge block. The flag
-        // resets at $8DDC and $8E2D sit behind comparisons these ranges already passed
+        // One block deep crumbles the first bridge block. The flag
+        // resets and $8E2D sit behind comparisons these ranges already passed
         // and never execute.
         if (CoordinateAxis.Difference(body.Position.X.Whole, 1568) < 0)
         {
@@ -115,7 +115,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        // $A4:8DED-8E2C: two blocks deep crumbles the next pair.
+        // Two blocks deep crumbles the next pair.
         if (CoordinateAxis.Difference(body.Position.X.Whole, 1584) < 0 &&
             !death.BridgeBlocksAt1584Crumbling)
         {
@@ -130,7 +130,7 @@ internal sealed class CrocomireBridgeCollapse
 
     /// <summary>
     /// Ports <c>Crocomire_8EE5</c>: clear all ten bridge blocks and burst dust.
-    /// The ten native PLM operand records at $A4:8EE9 + 8*i exactly use
+    /// The ten native PLM operand records + 8*i exactly use
     /// block X=$61+i, block Y=$0B, and header $B74F for i=0..9. The
     /// inclusive production loop preserves their ascending publication
     /// order; $A4:8F35 starts dust setup, not an eleventh clear record.
@@ -220,7 +220,7 @@ internal sealed class CrocomireBridgeCollapse
         state.VerticalSpeed = EightEight.FromWhole(CrocomireBehavior.MaximumSinkSpeedWhole);
     }
 
-    /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c> at $A4:91C1.</summary>
+    /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c>.</summary>
     internal void RunCrocomireSink(CrocomireEnemyState state)
     {
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
@@ -265,7 +265,7 @@ internal sealed class CrocomireBridgeCollapse
         EightEight.FromWhole(Math.Min(EightEight.WholeOf(value), maximumWhole)) +
         EightEight.FractionOf(value);
 
-    /// <summary>Byte-for-byte fixed-point rise from $A4:92D8.</summary>
+    /// <summary>Byte-for-byte fixed-point rise.</summary>
     internal void RunCrocomireRise(CrocomireEnemyState state)
     {
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);

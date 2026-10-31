@@ -58,7 +58,7 @@ internal sealed class RidleyBodyAnimation
                 }
                 if (samus.Health >= 30)
                     return null;
-                // $A6:E4E2 stores 8 to the Ridley timer at $7E:7800 before the goto,
+                // $A6:E4E2 stores 8 to the Ridley timer before the goto,
                 // cutting the fireball hover short.
                 state.FunctionTimer = WrappingCountdown.Start(8);
                 return goToIfCeresAndSamusLowEnergy.Target;

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// The gameplay messages a message box shows: item acquisitions, station notices and the save prompts. Its values are
-/// arbitrary; the import pipeline knows each message's cartridge number.
+/// arbitrary; the import pipeline knows each message's original number.
 /// </summary>
 public enum GameplayMessageId
 {

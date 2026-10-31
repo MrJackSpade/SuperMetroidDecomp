@@ -55,7 +55,7 @@ internal sealed class DraygonParts
     /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
     public DraygonEnemyState? Draygon { get; internal set; }
 
-    /// <summary>Ports <c>InitAI_DraygonBody</c> at <c>$A5:8687</c>.</summary>
+    /// <summary>Ports <c>InitAI_DraygonBody</c>.</summary>
     internal void InitializeDraygonBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
@@ -85,7 +85,7 @@ internal sealed class DraygonParts
         Draygon.DisabledCannons.Add(DraygonWallCannon.UnusedBottom);
     }
 
-    /// <summary>Ports the independent initializers at <c>$A5:C46B/C599/C5AD</c>.</summary>
+    /// <summary>Ports the independent initializers.</summary>
     internal void InitializeDraygonPart(RoomEnemySlot part)
     {
         DraygonEnemyState state = Draygon ??
@@ -116,7 +116,7 @@ internal sealed class DraygonParts
                 if (part.SlotIndex != 3)
                     throw new InvalidDataException("Draygon's arms must own native slot $00C0.");
                 // Body init briefly writes $9813 before this record exists. Retail part init
-                // clears that lost write and installs the ordinary idle loop at $97E7.
+                // clears that lost write and installs the ordinary idle loop.
                 part.Colouring = new EncounterSpriteColouring(BossColourDefinitions.DraygonSprite);
                 part.Layer = 2;
                 state.Arms = part;
@@ -286,7 +286,7 @@ internal sealed class DraygonParts
     internal void RequestDraygonMusic(MusicRequest request) =>
         _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Draygon, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Ports the eye direction partition at <c>$A5:C48D/C513</c>.</summary>
+    /// <summary>Ports the eye direction partition.</summary>
     internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, HorizontalDirection facing)
     {
         // Native emission precedes the angle-change early return, so a stationary
@@ -375,7 +375,7 @@ internal sealed class DraygonParts
             graphics: default);
     }
 
-    /// <summary>Ports the two body instruction producers at <c>$A5:9F7C/9FAE</c>.</summary>
+    /// <summary>Ports the two body instruction producers.</summary>
     internal void SpawnDraygonGoop(DraygonEnemyState state, bool movingRight)
     {
         RoomEnemyProjectileSlot? goop = _projectiles.AllocateEnemyProjectile();

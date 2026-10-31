@@ -18,11 +18,11 @@ internal static class PhantoonFlameAnimations
     /// <summary>Poses a shot flame shows while bursting.</summary>
     internal const int ShotPoseCount = 4;
 
-    /// <summary>Each flame pose's dwell ($86:975C..9806).</summary>
+    /// <summary>Each flame pose's dwell.</summary>
     private const int PoseDuration = 5;
-    /// <summary>The rain flame's impact dwell ($86:97AC).</summary>
+    /// <summary>The rain flame's impact dwell.</summary>
     private const int RainImpactDuration = 8;
-    /// <summary>How many times each falling phase repeats its two poses ($86:97B6/97C6/97D6).</summary>
+    /// <summary>How many times each falling phase repeats its two poses.</summary>
     private const int FallingRepeatCount = 4;
 
     /// <summary>Every flame program.</summary>

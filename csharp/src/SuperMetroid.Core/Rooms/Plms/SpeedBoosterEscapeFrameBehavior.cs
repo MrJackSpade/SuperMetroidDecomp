@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Pre-instructions the Speed Booster escape PLM installs. The values are arbitrary (#1452); verification's native view
+/// Pre-instructions the Speed Booster escape PLM installs. The values are arbitrary (#1452); verification's view
 /// names each member's routine word.
 /// </summary>
 public enum SpeedBoosterEscapeFrameBehavior

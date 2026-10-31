@@ -119,7 +119,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Ports <c>SporeSpawn_Init</c> at $A5:EA2A.</summary>
+    /// <summary>Ports <c>SporeSpawn_Init</c>.</summary>
     internal void InitializeSporeSpawn(RoomEnemySlot body)
     {
         if (SporeSpawn is not null)
@@ -171,7 +171,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(state);
     }
 
-    /// <summary>Dispatches <c>SporeSpawn_Main</c> at $A5:EB13.</summary>
+    /// <summary>Dispatches <c>SporeSpawn_Main</c>.</summary>
     private void RunSporeSpawnMain(
         RoomEnemySlot body,
         SporeSpawnEnemyState state)
@@ -203,7 +203,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>SporeSpawn_Func_1</c> at $A5:EB1B.</summary>
+    /// <summary>Ports <c>SporeSpawn_Func_1</c>.</summary>
     private void RunSporeSpawnDescent(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(state);
@@ -219,7 +219,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Angle = RotationAngle.ThreeQuarterTurn;
     }
 
-    /// <summary>Ports the table-backed ellipse in <c>SporeSpawn_Func_2</c> at $A5:EB52.</summary>
+    /// <summary>Ports the table-backed ellipse in <c>SporeSpawn_Func_2</c>.</summary>
     private void RunSporeSpawnMovement(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(state);
@@ -236,7 +236,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Angle = state.Angle.AddTableUnits(state.AngleDelta);
     }
 
-    /// <summary>Ports <c>SporeSpawn_Func_3</c> at $A5:EB9B.</summary>
+    /// <summary>Ports <c>SporeSpawn_Func_3</c>.</summary>
     private static void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         ByteAngle direction = EnemyMath.CalculateBearing(
@@ -247,7 +247,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             SignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 128)));
     }
 
-    /// <summary>Ports <c>SporeSpawn_Func_4</c> at $A5:EBEE.</summary>
+    /// <summary>Ports <c>SporeSpawn_Func_4</c>.</summary>
     private void RunSporeSpawnDying(
         RoomEnemySlot body,
         SporeSpawnEnemyState state)
@@ -279,7 +279,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the raw slot interpolation in <c>SporeSpawn_Func_5</c> at $A5:EC49.</summary>
+    /// <summary>Ports the raw slot interpolation in <c>SporeSpawn_Func_5</c>.</summary>
     private void UpdateSporeSpawnStalks(SporeSpawnEnemyState state)
     {
         RoomEnemySlot body = state.Body;
@@ -477,7 +477,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         !projectileType.IsFamily(SamusProjectileFamily.Beam) && !projectileType.IsFamily(SamusProjectileFamily.MissileExplosion) ||
         projectileType.IsChargedBeam;
 
-    /// <summary>Ports the post-common body of <c>SporeSpawn_Shot</c> at $A5:ED5A.</summary>
+    /// <summary>Ports the post-common body of <c>SporeSpawn_Shot</c>.</summary>
     private void ResolveSporeSpawnShotAfterCommon(RoomEnemySlot body)
     {
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
@@ -519,7 +519,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveSporeSpawnDeathAfterCommon(body, state);
     }
 
-    /// <summary>Ports <c>SporeSpawn_Func_6</c> at $A5:EDF3.</summary>
+    /// <summary>Ports <c>SporeSpawn_Func_6</c>.</summary>
     private void ResolveSporeSpawnDeathAfterCommon(
         RoomEnemySlot body,
         SporeSpawnEnemyState? suppliedState = null)
@@ -601,7 +601,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>SporeSpawn_Func_7</c> at $A5:EE4A: shows health-stage body image <paramref name="frame"/>.</summary>
+    /// <summary>Ports <c>SporeSpawn_Func_7</c>: shows health-stage body image <paramref name="frame"/>.</summary>
     internal void LoadSporeSpawnHealthPalette(int frame)
     {
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
@@ -757,7 +757,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spore.State = new SporeSpawnSporeState(mirrored: RoomGridConversions.OffsetWithinScreen(position.X) >= 128);
     }
 
-    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_Spores</c> at $86:DCEE.</summary>
+    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_Spores</c>.</summary>
     internal static void RunSporeSpawnSporeFrameBehavior(RoomEnemyProjectileSlot spore)
     {
         SporeSpawnSporeState drift = spore.StateOf<SporeSpawnSporeState>();
@@ -776,7 +776,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         drift.AdvancePath();
     }
 
-    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_SporeSpawner</c> at $86:DD46.</summary>
+    /// <summary>Ports <c>FrameBehavior_EnemyProjectile_SporeSpawner</c>.</summary>
     internal void RunSporeSpawnSpawnerFrameBehavior(RoomEnemyProjectileSlot spawner)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(

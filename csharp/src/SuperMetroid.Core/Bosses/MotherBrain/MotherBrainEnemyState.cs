@@ -85,13 +85,13 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame
-    /// being shown, as <c>MotherBrainBody.brainInstListPointer</c> ($7E:8002) does. Null means the brain is not live
-    /// and not drawn. Only the program setter (<c>$A9:C447</c>) and the draw-time runner (<c>$A9:92AF</c>) write it.
+    /// being shown, as <c>MotherBrainBody.brainInstListPointer</c> does. Null means the brain is not live
+    /// and not drawn. Only the program setter and the draw-time runner write it.
     /// </summary>
     internal AnimationProgramCursor<MotherBrainHeadProgram>? BrainCursor { get; set; }
 
     /// <summary>
-    /// <c>MotherBrainBody.brainFrameHold</c> ($7E:8000). It counts draws up from one
+    /// <c>MotherBrainBody.brainFrameHold</c>. It counts draws up from one
     /// and the program advances once it exceeds the frame's duration, so each frame shows for
     /// its duration plus one draw.
     /// </summary>
@@ -118,7 +118,7 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public bool DrawBrain { get; internal set; }
 
-    /// <summary>Byte cursor at $7E:7842 into Mother Brain's rainbow palette list: an even offset from zero to two bytes per rainbow frame.</summary>
+    /// <summary>Byte cursor into Mother Brain's rainbow palette list: an even offset from zero to two bytes per rainbow frame.</summary>
     public int RainbowPaletteCursor { get; internal set; }
 
     /// <summary>Whether the active bank-$A9 draw hook appends five articulated neck joints.</summary>
@@ -207,8 +207,8 @@ public sealed class MotherBrainEnemyState
     public bool SmallPurpleBreathGenerationEnabled { get; internal set; }
 
     /// <summary>
-    /// <c>MotherBrainBody.smallPurpleBreathActiveFlag</c> ($7E:786A): set by the small breath's
-    /// initializer ($86:CA9B) and cleared by its last instruction ($86:CAEE), so at most one
+    /// <c>MotherBrainBody.smallPurpleBreathActiveFlag</c>: set by the small breath's
+    /// initializer and cleared by its last instruction, so at most one
     /// small breath is alive.
     /// </summary>
     public bool SmallPurpleBreathActive { get; internal set; }

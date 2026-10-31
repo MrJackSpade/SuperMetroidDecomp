@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyExplosionDefinitions
 {
     /// <summary>
-    /// The breakup initializer ($A6:C696) draws a fragment's horizontal speed from one random word as the sum of two
+    /// The breakup initializer draws a fragment's horizontal speed from one random word as the sum of two
     /// selections: this one, 0 to 3 sixteenths of a pixel per frame, and <see cref="FragmentSpeedWholePixel"/>.
     /// </summary>
     internal static readonly RandomSampleField FragmentSpeedSixteenths = new(4, 2);
@@ -72,7 +72,7 @@ internal static class RidleyExplosionDefinitions
 
     /// <summary>
     /// Returns one of the ten body-relative positions consumed cyclically by
-    /// <c>SpawnSmallExplosionNearRidley</c> at <c>$A6:C623</c> (words $A6:C66E-$A6:C695,
+    /// <c>SpawnSmallExplosionNearRidley</c> (words $A6:C66E-$A6:C695,
     /// shared with the Baby Metroid death).
     /// </summary>
     public static Offset16<RoomPixels> DeathExplosionPlacement(int index) =>

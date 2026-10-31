@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Doors;
 
-/// <summary>The blue door caps' PLM programs (#1296), three per facing, in place of their lists at $84:C489..C54C.</summary>
+/// <summary>The blue door caps' PLM programs (#1296), three per facing, in place of their lists.</summary>
 internal enum BlueDoorProgram
 {
     /// <summary>A shot opens the left-facing cap.</summary>

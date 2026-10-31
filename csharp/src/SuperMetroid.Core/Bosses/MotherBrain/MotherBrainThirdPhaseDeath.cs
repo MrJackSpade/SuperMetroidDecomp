@@ -46,14 +46,14 @@ internal sealed class MotherBrainThirdPhaseDeath
 
     /// <summary>
     /// Native word <c>$0FF0</c>: the explosion interval timer of <c>$A9:B03E</c> and
-    /// <c>$A9:B346</c>, aliased with the body sub-function pointer.
+    /// Aliased with the body sub-function pointer.
     /// </summary>
     public WrappingCountdown DeathExplosionIntervalTimer { get; internal set; }
 
     /// <summary>
     /// Native word <c>$0FF2</c>, one word under three names: the ascent dust's body
-    /// sub-function timer, the seven-record death-explosion index (<c>$A9:B046</c>) and the
-    /// four-record escape-door dust index (<c>$A9:B355</c>). Each effect inherits the value
+    /// sub-function timer, the seven-record death-explosion index and the
+    /// four-record escape-door dust index. Each effect inherits the value
     /// the previous one left unless native code explicitly clears it.
     /// </summary>
     public WrappingCountdown DeathAndEscapeExplosionIndex { get; internal set; }
@@ -61,22 +61,22 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// <summary>The brain's colours, forced to the corpse colours when the dying brain effects shut down (#1464).</summary>
     public SpriteColouring BrainColouring { get; internal set; } = SharedSpriteColouring.Common;
 
-    /// <summary>Number of calls made to the body flicker producer at `$A9:AFB6`.</summary>
+    /// <summary>Number of calls made to the body flicker producer.</summary>
     public uint BodyFlickerCallCount { get; private set; }
 
     /// <summary>Whether the death has reached the point where the start of Mother Brain's body is cleared (#1466).</summary>
     public bool BodyClearRequested { get; private set; }
 
-    /// <summary>How many of the six corpse pages have shown (<c>$A9:9003</c>), which is also the next to show.</summary>
+    /// <summary>How many of the six corpse pages have shown, which is also the next to show.</summary>
     public int CorpsePagesShown { get; private set; }
 
     /// <summary>
-    /// How many pages of the escape sequence's list have shown (<c>$A6:C4CB</c>): the two escape-timer digit pages, then
+    /// How many pages of the escape sequence's list have shown: the two escape-timer digit pages, then
     /// the five escape-message pages.
     /// </summary>
     public int EscapePagesShown { get; private set; }
 
-    /// <summary>How many of the two exploded-door pages have shown (<c>$A9:902F</c>).</summary>
+    /// <summary>How many of the two exploded-door pages have shown.</summary>
     public int ExplodedDoorPagesShown { get; private set; }
 
     /// <summary>The pages the escape sequence shows one per call: the escape timer's digits, then the escape message.</summary>
@@ -514,7 +514,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (corpseRotting.StillRotting)
             return false;
 
-        // Carry clear at `$B1DB` makes the brain invisible/non-solid, clears its
+        // Carry clear makes the brain invisible/non-solid, clears its
         // second property word, and queues stop + escape music through the ordinary
         // eight-frame-delay music queue. `$14` is loaded and immediately decremented
         // by the fallthrough into `$B211`, leaving observable timer `$13` now.
@@ -557,7 +557,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (EscapePagesShown == EscapePageCount)
         {
             // Carry set after entry six clears the shared list cursor, installs
-            // `$B26D`, and falls through far enough to emit exploded-door entry zero
+            // And falls through far enough to emit exploded-door entry zero
             // during this same enemy AI call.
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStartEscape;
             return true;
@@ -579,7 +579,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // `$B275-$B2CD` handoff on that call: copy fourteen colors (palette zero is
         // skipped), start escape music, hold the quake indefinitely, create four
         // palette-FX objects, disable the old unpause hook, and initialize text.
-        requests.ExplodedDoorPaletteRequested = true; // `$A9:9534`, 14 colors -> target `$0122`.
+        requests.ExplodedDoorPaletteRequested = true; // 14 colors -> target `$0122`.
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay music value `$0007`.
         _state.EarthquakeType = 5;
         _state.EarthquakeTimer = WrappingCountdown.Start(ushort.MaxValue);

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Literal inventory writes in InitAI_Torizo.GTCode at $AA:C917-C95A.</summary>
+/// <summary>Literal inventory writes in InitAI_Torizo.GTCode.</summary>
 internal static class GoldenTorizoCodeDefinitions
 {
     /// <summary>$AA:C919 CMP operand: exactly held A+B+X+Y, with no other controller bits.</summary>

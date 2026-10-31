@@ -3,13 +3,13 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>The horizontal launch speeds of rocks spat by Kraid.</summary>
 public static class KraidRockLaunchDefinitions
 {
-    /// <summary>$A7:BC67/BC73: leftward 3.75-pixel/frame launch.</summary>
+    /// <summary>Leftward 3.75-pixel/frame launch.</summary>
     private static SignedEightEight SlowLeft { get; } = SignedEightEight.FromSignedRaw(-15 * 64);
-    /// <summary>$A7:BC65/BC6F: leftward 4-pixel/frame launch.</summary>
+    /// <summary>Leftward 4-pixel/frame launch.</summary>
     private static SignedEightEight NormalLeft { get; } = SignedEightEight.FromSignedRaw(-4 * 256);
-    /// <summary>$A7:BC6B/BC71: leftward 4.5-pixel/frame launch.</summary>
+    /// <summary>Leftward 4.5-pixel/frame launch.</summary>
     private static SignedEightEight FastLeft { get; } = SignedEightEight.FromSignedRaw(-18 * 64);
-    /// <summary>$A7:BC69/BC6D: leftward 4.75-pixel/frame launch.</summary>
+    /// <summary>Leftward 4.75-pixel/frame launch.</summary>
     private static SignedEightEight FastestLeft { get; } = SignedEightEight.FromSignedRaw(-19 * 64);
 
     /// <summary>

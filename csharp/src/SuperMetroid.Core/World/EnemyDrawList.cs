@@ -218,7 +218,7 @@ internal sealed class EnemyDrawList
         ReadOnlyMemory<EnemyExtendedComponentPlacement>? Components);
 
     /// <summary>
-    /// Ports the palette selection at <c>$A0:9473-$A0:949A</c>, immediately before
+    /// Ports the palette selection, immediately before
     /// <c>WriteEnemyOams</c> emits either an ordinary or extended enemy spritemap.
     /// </summary>
     /// <remarks>

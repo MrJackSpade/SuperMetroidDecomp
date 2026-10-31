@@ -105,7 +105,7 @@ internal static class EyeDoorDraws
     internal static bool TryDescribe(PlmDraw request, out Draw draw) =>
         PlmDraw.TryFrame(request, static (Draw frame) => (uint)frame.Frame < (uint)EyeDoorPlmDrawDefinitions.FrameCounts[frame.Part], out draw);
 
-    /// <summary>Materializes a native-shaped run for artwork tooling from the physical draw.</summary>
+    /// <summary>Materializes an authored-shape run for artwork tooling from the physical draw.</summary>
     internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         if (!TryDescribe(request, out var draw)) { list = default; return false; }

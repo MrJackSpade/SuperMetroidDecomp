@@ -13,7 +13,7 @@ internal sealed class CeresRidleyFade
     /// <summary>Selected body endpoint paints used only for body fade rows.</summary>
     private readonly CeresRidleyBodyPaint? bodyPaint;
 
-    /// <summary>Source eye paint at $A6:E2AA..E2AE (also Ridley palette slots 12..14 at $A6:E167..E16B). The selected warm highlight/middle/shadow paint uses saturated red, a shared red step, three green levels and no blue. Regenerating these categorical material choices without the source inputs would select different eye paint. Initial/explosion palette aliases are evidence only; their independent containers are not exempted.</summary>
+    /// <summary>Source eye paint (also Ridley palette slots 12..14). The selected warm highlight/middle/shadow paint uses saturated red, a shared red step, three green levels and no blue. Regenerating these categorical material choices without the source inputs would select different eye paint. Initial/explosion palette aliases are evidence only; their independent containers are not exempted.</summary>
     internal readonly record struct EyePaint(int RedStep, int HighlightGreen, int MiddleGreen, int ShadowGreen)
     {
         /// <summary>Highest SNES five-bit color channel value used to derive the eye reds.</summary>

@@ -16,7 +16,7 @@ public static class CrocomireProjectileDefinitions
 
     /// <summary>
     /// The tenth shot's gradient: the cartridge reads it one word past the table, from the first two bytes of the
-    /// setup instruction that follows ($86:906B), as a signed word.
+    /// setup instruction that follows, as a signed word.
     /// </summary>
     public const int FinalShotOverreadGradient = -18912;
 }

@@ -88,7 +88,7 @@ internal sealed class NoobTubePlms
     /// <summary>Spawns the crack projectile at the tube.</summary>
     internal void SpawnCrack(PlmSlot slot) => SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Crack, 0);
 
-    /// <summary>Spawns the ten glass shards and six released-air bubbles, each with its even native parameter.</summary>
+    /// <summary>Spawns the ten glass shards and six released-air bubbles, each with its even parameter.</summary>
     internal void SpawnShardsAndBubbles(PlmSlot slot)
     {
         for (int shard = 0; shard < NoobTubePlmDefinitions.ShardCount; shard++)

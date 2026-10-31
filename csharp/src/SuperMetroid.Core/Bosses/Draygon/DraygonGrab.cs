@@ -37,7 +37,7 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Ports <c>Function_DraygonBody_ChaseSamus</c> at <c>$A5:8E19</c>. The speed-divisor
+    /// Ports <c>Function_DraygonBody_ChaseSamus</c>. The speed-divisor
     /// test is the real communication channel from bank-$86 goop; no host-only encounter
     /// flag or proximity shortcut is used to start this branch.
     /// </summary>
@@ -92,7 +92,7 @@ internal sealed class DraygonGrab
 
         samus.DraygonGrabbed.Begin(samus, state.FacingRight);
         _frameResults.DraygonDiscardedSamusPoseRequests = true;
-        // `$A5:8EDB-$8EE5` set the whole spiral center only; the Y fraction (`$7E:7814`) carries over from
+        // `$A5:8EDB-$8EE5` set the whole spiral center only; the Y fraction carries over from
         // the previous spiral of this fight, so the first lift after a re-grab borrows on the native frame.
         state.SpiralCenter = state.SpiralCenter.WithWhole(DraygonBehavior.DraygonSpiralTarget);
         state.SpiralXRadius = SignedSixteenSixteen.Zero;
@@ -102,7 +102,7 @@ internal sealed class DraygonGrab
         state.SuccessfulGrabs++;
     }
 
-    /// <summary>Ports the one-frame grapple rejection at <c>$A5:8F10</c>.</summary>
+    /// <summary>Ports the one-frame grapple rejection.</summary>
     internal static void RepelDraygonWithGrapple(DraygonEnemyState state, SamusState? samus)
     {
         if (samus is null)
@@ -146,7 +146,7 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Ports the expanding, rising spiral at <c>$A5:8FD6</c>. Radius growth, angular
+    /// Ports the expanding, rising spiral. Radius growth, angular
     /// deceleration, and center lift stay as separate native fixed-point word pairs.
     /// </summary>
     internal void CarrySamusInDraygonSpiral(DraygonEnemyState state, SamusState? samus)
@@ -202,7 +202,7 @@ internal sealed class DraygonGrab
         MoveSamusWithDraygon(state, activeSamus);
     }
 
-    /// <summary>Ports the incidental 64-frame tail-whip pause at <c>$A5:90D4</c>.</summary>
+    /// <summary>Ports the incidental 64-frame tail-whip pause.</summary>
     internal void RunDraygonTailWhip(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
@@ -223,7 +223,7 @@ internal sealed class DraygonGrab
         }
     }
 
-    /// <summary>Installs the four-repeat finishing whip list at <c>$A5:9105</c>.</summary>
+    /// <summary>Installs the four-repeat finishing whip list.</summary>
     internal void BeginDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus)
     {
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
@@ -242,7 +242,7 @@ internal sealed class DraygonGrab
     internal void WaitForDraygonFinalTailWhips(DraygonEnemyState state, SamusState? samus) =>
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
 
-    /// <summary>Ports release, collision-bit cleanup, and tail flail at <c>$A5:9128</c>.</summary>
+    /// <summary>Ports release, collision-bit cleanup, and tail flail.</summary>
     internal void ReleaseSamusFromDraygon(DraygonEnemyState state, SamusState? samus)
     {
         if (samus is null)
@@ -269,7 +269,7 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// <c>MoveSamusWithDraygon</c> ($A5:94A9). It places Samus without checking that she is
+    /// <c>MoveSamusWithDraygon</c>. It places Samus without checking that she is
     /// still held, and only then tests the escape bit bank $90 publishes. The first carry
     /// call after an escape therefore drags the released Samus once more before Draygon
     /// switches to flying straight up.
@@ -329,7 +329,7 @@ internal sealed class DraygonGrab
     }
 
     /// <summary>
-    /// Runs <c>ReleaseSamusFromDraygon</c> ($90:E2DE) from Draygon's AI and publishes it so the
+    /// Runs <c>ReleaseSamusFromDraygon</c> from Draygon's AI and publishes it so the
     /// runtime clears the prospective poses alpha already chose, as the grab does.
     /// </summary>
     internal void ReleaseSamusDuringEnemyMain(SamusState samus)

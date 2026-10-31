@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmGreyDoorVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmGreyDoorVisuals), content =>
     {
         Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[4];
@@ -38,7 +38,7 @@ public sealed class InstalledRoomPlmGreyDoorVisuals
 
     /// <summary>Resolves one selected cap block without changing its collision or door mechanics.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="blockIndex">Zero-based block ordinal 0..3 along the frame's native run.</param>
+    /// <param name="blockIndex">Zero-based block ordinal 0..3 along the frame's run.</param>
     /// <returns>The authored appearance, or the compiled stock appearance when unchanged.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside 0..3.</exception>

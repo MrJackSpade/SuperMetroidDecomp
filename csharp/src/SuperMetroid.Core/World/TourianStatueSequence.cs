@@ -153,7 +153,7 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>
-    /// Translates the four LDY/JSL calls at $8F:91D7..91F2 directly. Native allocation
+    /// Translates the four LDY/JSL calls directly. Native allocation
     /// and handler traversal both descend through slots, so insertion order also
     /// preserves execution order and which statue can acquire the shared busy bit.
     /// </summary>
@@ -260,7 +260,7 @@ public sealed class TourianStatueSequence
         }
     }
 
-    /// <summary>$88:DBD7/DC23/DC69/DCBA, including the authored delay and quarter-pixel descent.</summary>
+    /// <summary>Including the authored delay and quarter-pixel descent.</summary>
     public void StepDescent(RoomPlmSystem plms)
     {
         if (!Enabled) return;

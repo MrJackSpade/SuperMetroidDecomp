@@ -78,7 +78,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RequestShitroidMusic(MusicRequest request) =>
         _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Shitroid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Ports <c>Shitroid_Init</c> at <c>$A9:EF37</c>.</summary>
+    /// <summary>Ports <c>Shitroid_Init</c>.</summary>
     internal void InitializeShitroid(RoomEnemySlot slot, int cameraX)
     {
         if (slot.SlotIndex != 0)
@@ -142,7 +142,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports <c>Shitroid_Main</c> at <c>$A9:EFC5</c>.</summary>
+    /// <summary>Ports <c>Shitroid_Main</c>.</summary>
     internal void RunShitroidMain(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -506,7 +506,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         sharedProjectiles?.SetSharedCooldown(8);
         sharedProjectiles?.SetSharedBombCounter(5);
         samus.XSpeedDivisor = 2;
-        // CMP #4 ($A9:F238) leaves carry = (Y speed >= 4, unsigned) through the clamp and
+        // CMP #4 leaves carry = (Y speed >= 4, unsigned) through the clamp and
         // the shake-table loads; $A9:F24D adds Samus's X with no CLC, so that carry is one
         // extra pixel. BMI reads only the sign of the difference.
         int ySpeed = samus.Kinematics.YSpeed.Whole;
@@ -573,7 +573,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if ((uint)divisorTableIndex >= 16)
             throw new ArgumentOutOfRangeException(nameof(divisorTableIndex));
-        // GradualAccelerationDivisorTable ($A9:F56A) holds $10 down to $01.
+        // GradualAccelerationDivisorTable holds $10 down to $01.
         int divisor = 16 - divisorTableIndex;
         state.Velocity = state.Velocity.WithX(BabyMetroidGradualAcceleration.AccelerateHorizontally(
             slot.Position.X.Whole, target.X, state.Velocity.X, divisor, offscreenReversalKick,
@@ -657,7 +657,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         CoordinateAxis.Distance(center.X, slot.Position.X.Whole) < slot.Radius.X + radius.X + 1 &&
         CoordinateAxis.Distance(center.Y, slot.Position.Y.Whole) < slot.Radius.Y + radius.Y + 1;
 
-    /// <summary>Ports the private touch callback at <c>$A9:F789</c>.</summary>
+    /// <summary>Ports the private touch callback.</summary>
     private void ResolveShitroidTouch(RoomEnemySlot slot, SamusState samus)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
@@ -702,7 +702,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the recoil-only shot callback at <c>$A9:F842</c>.</summary>
+    /// <summary>Ports the recoil-only shot callback.</summary>
     private void ResolveShitroidShot(
         RoomEnemySlot slot,
         int collisionDamage,
@@ -727,7 +727,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()));
     }
 
-    /// <summary>Ports <c>Shitroid_Powerbomb</c> at <c>$A9:EFBA</c>.</summary>
+    /// <summary>Ports <c>Shitroid_Powerbomb</c>.</summary>
     private void ResolveShitroidPowerBomb(RoomEnemySlot slot, SamusState? samus)
     {
         ShitroidEnemyState state = RequireShitroidState(slot);

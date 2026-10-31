@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
-/// <summary>Presentation geometry of Zebetite palette records at $A6:FD87..FDA6.</summary>
+/// <summary>Presentation geometry of Zebetite palette records.</summary>
 public static class ZebetiteColorFormat
 {
     /// <summary>Asset filename for the editable Zebetite barrier pulse colors.</summary>

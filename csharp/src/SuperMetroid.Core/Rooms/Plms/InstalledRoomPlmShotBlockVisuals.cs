@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>Complete, immutable presentation selection for the 19 ordinary shot-block lists.</summary>
 public sealed class InstalledRoomPlmShotBlockVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmShotBlockVisuals), content =>
     {
         Span<RoomBlockAppearance> row = stackalloc RoomBlockAppearance[2];

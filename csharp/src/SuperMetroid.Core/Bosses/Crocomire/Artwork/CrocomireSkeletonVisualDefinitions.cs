@@ -8,7 +8,7 @@ internal static class CrocomireSkeletonVisualDefinitions
 {
     /// <summary>Thirty-three corpse roots selected by the compiled bank-$A4 programs.</summary>
     internal const int FrameCount = 33;
-    /// <summary>The collapse poses at $A4:E46A..E53E contain thirteen OAM components, not eight.</summary>
+    /// <summary>The collapse poses contain thirteen OAM components, not eight.</summary>
     internal const int MaximumComponents = 13;
 
 

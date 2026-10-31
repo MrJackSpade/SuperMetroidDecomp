@@ -32,7 +32,7 @@ internal sealed class RoomMainRoutines
         _room = dependencies.Room;
         _system = dependencies.System;
     }
-    /// <summary>The hidden-wall branch of MainASM_CrocomiresRoomShaking at $8F:E8CD/$E942.</summary>
+    /// <summary>The hidden-wall branch of MainASM_CrocomiresRoomShaking.</summary>
     internal void RunCrocomireComebackRoomMain(RoomScope room)
     {
         if (_room.ActiveRoom?.State.MainCallback != RoomMainCallback.CrocomireRoomShaking ||
@@ -62,9 +62,9 @@ internal sealed class RoomMainRoutines
     public CeresElevatorShaftRoomMainResult LastCeresElevatorShaftRoomMain { get; internal set; }
 
     /// <summary>
-    /// <c>AnimatedTilesObject_Handler</c> ($87:8064): gameplay ($82:8B75) and the door
+    /// <c>AnimatedTilesObject_Handler</c>: gameplay and the door
     /// transition's $82:E659 and every $82:E737 fade step call it. XraySetup's
-    /// Disable_AnimatedTilesObjects ($91:E239) freezes every object until the scope ends.
+    /// Disable_AnimatedTilesObjects freezes every object until the scope ends.
     /// </summary>
     internal void RunAnimatedTilesObjectHandler(RoomScope room)
     {
@@ -123,7 +123,7 @@ internal sealed class RoomMainRoutines
     }
 
     /// <summary>
-    /// $8F:E551: sixteen debris columns, sixteen pixels apart from X $50 through $F0, then
+    /// Sixteen debris columns, sixteen pixels apart from X $50 through $F0, then
     /// thirty-two pixels apart through $190.
     /// </summary>
     internal static int CeresFallingDebrisX(int column) => (uint)column < 16

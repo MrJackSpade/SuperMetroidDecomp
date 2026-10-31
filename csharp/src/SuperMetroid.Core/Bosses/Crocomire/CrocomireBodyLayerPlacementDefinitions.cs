@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Fixed placement data of his body layer, used by <c>Update Crocomire BG2 scroll</c> at $A4:8B5B.
+/// Fixed placement data of his body layer, used by <c>Update Crocomire BG2 scroll</c>.
 /// The cartridge searches 17 body frames in reverse order and, on a match, adds that frame's fourth-component Y
 /// offset.
 /// This is camera/presentation alignment, not editable boss artwork.

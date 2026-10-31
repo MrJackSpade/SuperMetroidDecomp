@@ -5,10 +5,10 @@ using SuperMetroid.Core.Areas.Ceres.Artwork;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Initial Ridley OBJ targets at $A6:E1CF-E20E. The first material is the escape
+/// Initial Ridley OBJ targets. The first material is the escape
 /// door's grey-blue paint; the second is the Baby/container initial material.
 /// Each occurrence owns its supplied channel edits. The two copied clear-slot
-/// blue14 targets specify the exact copied metadata at $A6:E1CF/E1EF, shared
+/// blue14 targets specify the exact copied metadata, shared
 /// across the two clear slots. $A6:A1C7-A1D0 uniformly copies these observable
 /// targets; transparency does not choose their value. Replacing that datum would
 /// invent different source content. Independent supplied clear-slot edits survive.

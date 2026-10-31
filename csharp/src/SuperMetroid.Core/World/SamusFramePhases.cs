@@ -66,7 +66,7 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Runs <c>Update_Beam_Tiles_and_Palette</c> at <c>$90:AC8D</c> for the live beam word supplied by pause teardown.
+    /// Runs <c>Update_Beam_Tiles_and_Palette</c> for the live beam word supplied by pause teardown.
     /// Unpausing performs this restore while the screen is dark, so the first resumed gameplay frame uses the newly
     /// equipped combination.
     /// </summary>
@@ -74,8 +74,8 @@ internal sealed class SamusFramePhases
         _artwork.UpdateBeamTilesAndPalette(_player.Colours, equippedBeams);
 
     /// <summary>
-    /// <c>GrappleBeamHandler</c> ($9B:C490), reached from the HUD-selection dispatch of
-    /// <c>HandleHUDSpecificBehaviorAndProjectiles</c> ($90:DCDD) in Samus's alpha pass.
+    /// <c>GrappleBeamHandler</c>, reached from the HUD-selection dispatch of
+    /// <c>HandleHUDSpecificBehaviorAndProjectiles</c> in Samus's alpha pass.
     /// It therefore runs before Samus's projectiles and before <c>Main_Enemy_Routine</c>,
     /// so enemies see the beam endpoint and Samus position it leaves this frame. Only
     /// connected and release functions own Samus's movement; an extending or cancelling
@@ -258,7 +258,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     }
 
     /// <summary>
-    /// Runs the frame handler's alpha (SamusCurrentStateHandler, $0A42): the head, then, when Samus movement is enabled,
+    /// Runs the frame handler's alpha (SamusCurrentStateHandler): the head, then, when Samus movement is enabled,
     /// the tail. The enable flag is captured once here for every later gate of the frame.
     /// </summary>
     internal void RunAlpha(SamusHandlerFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
@@ -271,7 +271,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     }
 
     /// <summary>
-    /// Runs the frame handler's beta (SamusNewStateHandler, $0A44): beta movement when Samus movement is enabled, then
+    /// Runs the frame handler's beta (SamusNewStateHandler): beta movement when Samus movement is enabled, then
     /// the tail.
     /// </summary>
     internal void RunBeta(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, ISamusFrameAudio audio, RoomScope room)
@@ -283,7 +283,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
 
     /// <summary>
     /// Runs alpha's tail once movement is enabled: environment gravity, terrain hazards, inside-block reactions, HUD
-    /// selection, X-ray admission, bombs, grapple and projectiles, then the end-of-alpha movement snapshot ($90:EB30).
+    /// selection, X-ray admission, bombs, grapple and projectiles, then the end-of-alpha movement snapshot.
     /// </summary>
     private void RunAlphaTail(SamusHandlerFrame frame, SuperMetroid.Core.Progression.SuperMetroidGameState gameState, SamusState samus,
         ScrollBoundaryCamera camera, RoomScope room)
@@ -326,7 +326,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // In particular its draw-only zero input must not release a held charge.
         // X-ray's freeze leaves the normal state handler installed, so `$90:DCDD`
         // still runs cooldown, HUD switching and the HUD handler; only its
-        // Handle_Projectiles tail stops (`$90:DCFB`), which both projectile owners
+        // Handle_Projectiles tail stops, which both projectile owners
         // apply themselves. A selection cancel during X-ray therefore takes effect.
         frame.SampleAlphaRuns(!_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !room.Enemies.Elevator.ElevatorDoorTransitionActive);
         if (frame.AlphaRuns)
@@ -338,7 +338,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // The switched-to handler of the item the loop settles on runs on every
             // cancel or select edge, even one that leaves the selection unchanged.
             // Each clears the charge and restores suit colors, except grapple's
-            // while a grapple is already active ($90:C59A), which changes nothing.
+            // while a grapple is already active, which changes nothing.
             if (!frame.AlphaInputLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.HudSelection.HandleHudSelection(samus, _controller1.Current, _controller1.NewlyPressed).ItemHandlerAccepted &&
                 (samus.SelectedHudItem != HudItem.Grapple ||
@@ -406,7 +406,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             samus.ProjectileFlareCounter = room.Projectiles.Charge.FlareCounter;
         }
 
-        // Samus_Func10 ($90:EB30) snapshots movement at the end of alpha,
+        // Samus_Func10 snapshots movement at the end of alpha,
         // before beta applies animation/input transitions. Admission reads the
         // preceding snapshot; a newly queued X-ray pose is not installed yet.
         _player.PreviousMovementTypeForXray = frame.XrayActivatedThisFrame
@@ -414,7 +414,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     }
 
     /// <summary>
-    /// Re-samples what EnemyMain can change before beta dispatches: a cancelled prospective pose ($90:F093), the
+    /// Re-samples what EnemyMain can change before beta dispatches: a cancelled prospective pose, the
     /// stationary-script lock, updated beam hits and the contact-damage index beta clears.
     /// </summary>
     internal void RunPostEnemyMainResample(SamusHandlerFrame frame, SamusState samus, SamusBombProjectileSystem bombProjectiles, SamusProjectileSystem projectiles, RoomScope room)
@@ -422,7 +422,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         if (!frame.MovementEnabled)
             return;
         // A carry-set Samus command issued by enemy AI cleared alpha's prospective
-        // poses and commands ($90:F093), so nothing pending is committed this frame.
+        // poses and commands, so nothing pending is committed this frame.
         if (samus.ConsumePendingPoseTransitionCancellation())
         {
             _player.ProspectiveSamusPose = null;
@@ -441,7 +441,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     }
 
     /// <summary>
-    /// Runs beta's movement ($90:E725): clears the frame's movement results, runs the grapple-release mover, publishes
+    /// Runs beta's movement: clears the frame's movement results, runs the grapple-release mover, publishes
     /// grapple's corrected camera point and the dispatch pose, then runs the installed movement owner.
     /// </summary>
     private void RunBetaMovement(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomScope room)
@@ -506,7 +506,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// <summary>
     /// Runs the installed movement owner in priority order: the empty and command betas, grapple, Draygon's grab,
     /// X-ray, Ceres Ridley's ejection, knockback, bomb jump, Crystal Flash, drained, Shinespark, the locked beta, frozen
-    /// time and the special type, and otherwise the pose's normal movement-table entry ($90:A337).
+    /// time and the special type, and otherwise the pose's normal movement-table entry.
     /// </summary>
     private void RunBetaMovementOwner(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, RoomScope room)
     {
@@ -538,7 +538,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             }
         }
         // The real grabbed route uses the explicit RTS handler installed at
-        // `$90:E262`, not the otherwise reachable type-$1A normal dispatcher. Keep
+        // Not the otherwise reachable type-$1A normal dispatcher. Keep
         // the latter in the pose switch below for direct/diagnostic dispatcher use.
         else if (samus.DraygonGrabbed.OwnsMovement)
         {
@@ -559,7 +559,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         else if (samus.CeresRidleyEjection.IsActive)
         {
             // `$90:E12E` installs the hurt pose and clears every prospective pose and
-            // command (`$90:E1A5-$E1B7`). Afterwards `$90:E1C8` suppresses only a
+            // command. Afterwards `$90:E1C8` suppresses only a
             // damage-boost result `$4F/$50` selected from pose `$53/$54`; it does not
             // replace the complete input handler. A lookup failure there keeps the
             // knockback pose and its Stop command, which clears the X acceleration
@@ -652,7 +652,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // with `$90:94CB`; the other phases stay motionless while enemy AI controls
         // pose/timing. This branch is reached only when no independently retained
         // Crystal Flash pointer still owns the physical movement-handler word.
-        // Controller zero ($91:E4F8) changes only the pose, so a crashing spark keeps
+        // Controller zero changes only the pose, so a crashing spark keeps
         // its handler and finishes below; `$F7` relinquishes the spark itself.
         // The rainbow-beam lock is beta `$E8D9` itself: once command one restores
         // `$E725` during enemy AI, this same frame's beta dispatches the knockback
@@ -739,7 +739,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     }
 
     /// <summary>
-    /// Runs the pose's normal movement-table entry ($90:A337). Every pose the retail producers reach has a branch; any
+    /// Runs the pose's normal movement-table entry. Every pose the retail producers reach has a branch; any
     /// other pose is corrupt state.
     /// </summary>
     private void RunPoseMovement(SamusState samus, ISamusRoomPlms plms, RoomScope room)
@@ -973,7 +973,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             case SamusPoseId.DraygonGrabbedFiringRightPose:
             case SamusPoseId.DraygonGrabbedAimDownRightPose:
             case SamusPoseId.DraygonGrabbedMovingRightPose:
-                // This is the normal dispatcher at `$90:A7D2`, which only clears
+                // This is the normal dispatcher, which only clears
                 // the vertical solid-collision result. The actual boss grab above
                 // runs its separately installed RTS handler instead.
                 _player.LastDraygonGrabbedMovement =
@@ -1132,7 +1132,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         }
     }
 
-    /// <summary>Runs knockback's normal type-$0A entry ($90:A5FC): the one-frame grounding tail before bank $91's target.</summary>
+    /// <summary>Runs knockback's normal type-$0A entry: the one-frame grounding tail before bank $91's target.</summary>
     private void StepKnockbackEndingMovement(SamusState samus, ISamusRoomPlms plms)
     {
         if (_room.LevelData is null)
@@ -1160,7 +1160,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
 
     /// <summary>
     /// Runs alpha's head: X-ray's beam object, the frame's camera point, the frame-start captures, the live radius
-    /// refresh, pose-input lookup and the lookup-failure pose ($91:82D9).
+    /// refresh, pose-input lookup and the lookup-failure pose.
     /// </summary>
     private void RunAlphaHead(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera,
         FixedPosition<RoomPixels>? cameraPointAtFrameStart, ISamusRoomPlms plms, RoomScope room)
@@ -1197,7 +1197,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // Ordinary alpha publishes the current pose's live radius before input
         // and collision. Prospective transitions later in beta can retain the
         // previous radius until this point in the following frame. The locked
-        // alpha ($90:E713) has no SetSamusRadius, so e.g. an elevator ride keeps
+        // alpha has no SetSamusRadius, so e.g. an elevator ride keeps
         // the boarding pose's radius.
         if (_player.GroundedSamusMovementEnabled && !_freeze.TimeIsFrozen && !frame.AlphaInputLocked(samus) &&
             !samus.DeathSequence.IsActive && !room.Enemies.Elevator.ElevatorDoorTransitionActive)
@@ -1231,7 +1231,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 _controller1.Current);
         }
 
-        // The native type-$0F input dispatcher is an RTS ($91:8146). Transition
+        // The native type-$0F input dispatcher is an RTS. Transition
         // poses can still have table entries, but reading them here prematurely
         // interrupts crouch/morph animations before their animation command wins.
         frame.SamplePoseInputLocks(samus,
@@ -1269,8 +1269,8 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     }
 
     /// <summary>
-    /// Runs normal beta's tail after movement: the speed echo ($90:EEE7), landing effects, the timer/hack handler
-    /// ($90:E738) with Draygon's escape, animation or the death sequence, the pose transitions, and periodic damage with
+    /// Runs normal beta's tail after movement: the speed echo, landing effects, the timer/hack handler
+    ///  with Draygon's escape, animation or the death sequence, the pose transitions, and periodic damage with
     /// the low-energy check.
     /// </summary>
     private void RunBetaTail(SamusHandlerFrame frame, SamusState samus, ISamusFrameAudio audio, ISamusRoomPlms plms, RoomScope room)
@@ -1336,7 +1336,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // pose-transition handler, draw handler, and next frame's tile selection.
         // Animation sees the same held-input word as movement. Ordinary Dash uses B
         // both to accumulate `$0B42.$0B44` and to intercept the running delay-list
-        // command at `$90:852C`; passing a reconstructed input later would skew art.
+        // command; passing a reconstructed input later would skew art.
         if (frame.Mode.Beta == SamusBetaHandler.Fatal)
         {
             _player.LastDeathSequenceStep = samus.DeathSequence.Step(
@@ -1345,7 +1345,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 _player.Colours,
                 _artwork.SamusBodyArt?.DeathPalettes);
         }
-        // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
+        // Command six's bare RTL beta skips animation like the locked beta.
         else if (frame.Mode.Beta is not (SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation or SamusBetaHandler.SuitPickup))
         {
             SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.Boss is not null, ControllerInput = _controller1.Current, FrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
@@ -1356,9 +1356,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
 
         if (frame.Mode.Beta is not (SamusBetaHandler.Fatal or SamusBetaHandler.TitleDemo or SamusBetaHandler.SuitPickup))
         {
-            // Normal beta ends with HandlePeriodicDamageToSamus ($90:E9CE), PauseCheck and
+            // Normal beta ends with HandlePeriodicDamageToSamus, PauseCheck and
             // LowEnergyCheck, before the enemy-projectile and PLM handlers. Damage those
-            // handlers accumulate this frame (e.g. $84:AC9D) therefore lands next frame.
+            // handlers accumulate this frame therefore lands next frame.
             // Demo beta omits these calls, and so does suit command $15's empty beta
             // (RTL_90E8CD): damage pending during the transformation stays accumulated
             // until the first ordinary beta after it, which divides it by the new suit.

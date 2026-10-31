@@ -279,8 +279,8 @@ internal sealed class CrocomireSkeleton
     }
 
     /// <summary>
-    /// Ports the eight descending allocations at $A4:99B6 and initializer
-    /// $86:90CF. Its Y-position table at $86:9105-$9114 has eight unsigned
+    /// Ports the eight descending allocations and initializer
+    /// $86:90CF. Its Y-position table has eight unsigned
     /// words, all exactly $0038 + $0010*i for i=0..7 in the pinned NTSC
     /// J/U v1.0 ROM. Native even byte offsets 0..14 correspond to physical
     /// projectile slots 10..17; the checked managed index is slot minus 10.

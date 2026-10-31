@@ -7,6 +7,6 @@ public enum MotherBrainTurretProgram
     TurretPose,
     /// <summary>A bullet's pose for one of the eight directions ($86:C143, six bytes a direction).</summary>
     BulletPose,
-    /// <summary>The smoke of a bullet that touches Samus or is shot ($86:C19A).</summary>
+    /// <summary>The smoke of a bullet that touches Samus or is shot.</summary>
     BulletImpact,
 }

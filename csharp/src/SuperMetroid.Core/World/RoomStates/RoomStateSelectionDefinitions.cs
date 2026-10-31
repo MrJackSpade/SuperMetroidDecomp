@@ -4,14 +4,14 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Direct ordered state-selection branches for every retail room.</summary>
-/// <remarks>Native bank-$8F inline programs test named events, boss flags and
+/// <remarks>The room headers' state-selection programs test named events, boss flags and
 /// equipment predicates in order; the first successful condition wins
 /// (<see cref="RoomStateSelection"/>). Each of the 54 conditional programs lists
-/// its branches in native order after its default state. Unconditional rooms
+/// its branches in authored order after its default state. Unconditional rooms
 /// name their single state. Only the 262 retail rooms are listed.</remarks>
 public static class RoomStateSelectionDefinitions
 {
-    /// <summary>Each retail room's state-selection program, in native room order.</summary>
+    /// <summary>Each retail room's state-selection program, in authored room order.</summary>
     internal static readonly Dictionary<RoomHeaderDefinition, RoomStateProgram> Programs = new()
     {
         [RoomHeaderDefinitions.LandingSite] = new(CrateriaRoomStateDefinitions.LandingSite0,

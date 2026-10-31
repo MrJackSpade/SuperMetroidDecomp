@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed class InstalledRoomPlmLinkedRestoreVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmLinkedRestoreVisuals), content =>
     {
         Span<RoomBlockAppearance> appearances = stackalloc RoomBlockAppearance[4];
@@ -30,7 +30,7 @@ public sealed class InstalledRoomPlmLinkedRestoreVisuals
     private readonly PlmVisualOverrides customBlocks;
 
     /// <summary>Validates all six linked restoration layouts and copies visual differences without changing linked parent/child collision or restoration programs.</summary>
-    /// <param name="entries">One visual-only entry per compiled layout with two appearances per native run and complete identity coverage.</param>
+    /// <param name="entries">One visual-only entry per compiled layout with two appearances per run and complete identity coverage.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public InstalledRoomPlmLinkedRestoreVisuals(IEnumerable<RoomPlmVisualEntry> entries)
@@ -39,9 +39,9 @@ public sealed class InstalledRoomPlmLinkedRestoreVisuals
             RoomPlmLinkedRestoreDrawDefinitions.All.Count());
     }
 
-    /// <summary>Resolves one linked restoration block by native run and block ordinal, leaving its physical collision link compiled.</summary>
+    /// <summary>Resolves one linked restoration block by run and block ordinal, leaving its physical collision link compiled.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Zero-based native run ordinal; square layouts have two runs and the other layouts one.</param>
+    /// <param name="runIndex">Zero-based run ordinal; square layouts have two runs and the other layouts one.</param>
     /// <param name="blockIndex">Block ordinal within the run, zero or one, not a flattened entry index.</param>
     /// <returns>The authored appearance, or the layout's common compiled appearance when unchanged.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported linked restoration layout.</exception>

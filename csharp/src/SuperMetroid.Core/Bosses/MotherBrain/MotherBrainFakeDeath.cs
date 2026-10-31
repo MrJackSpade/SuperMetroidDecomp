@@ -53,7 +53,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>
-    /// $A9:8B5D/8B67/8B71: collision radii and landing floor selected by piece role. The two
+    /// Collision radii and landing floor selected by piece role. The two
     /// outer and two inner pieces share their values; the main tube has its own floor.
     /// </summary>
     internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(int tubeIndex) =>
@@ -129,7 +129,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Schedules glass and tube collapse phases with their authored waits.</summary>
-    /// <remarks>Every spawn after the first ($A9:8983-$8ACB) begins with DEC timer : BPL return, so each waits out the
+    /// <remarks>Every spawn after the first begins with DEC timer : BPL return, so each waits out the
     /// $20 (or $02) its preceding clear step set.</remarks>
     internal void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {

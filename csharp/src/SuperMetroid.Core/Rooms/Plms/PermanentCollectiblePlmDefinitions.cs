@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// The permanent-item PLMs: one per collectible kind for each of the exposed, Chozo-orb and concealed shot-block
-/// presentations (#1414: named by member, replacing the three header runs and four-byte stride the cartridge's header
+/// presentations (#1414: named by member, replacing the three header runs and four-byte stride the game's header
 /// words implied).
 /// </summary>
 internal static class PermanentCollectiblePlmDefinitions

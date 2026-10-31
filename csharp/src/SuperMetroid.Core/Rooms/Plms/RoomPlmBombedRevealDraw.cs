@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>The three bombed-reveal draw lists.</summary>
 internal enum RoomPlmBombedRevealDraw
 {
-    /// <summary>DrawInst_1x1RespawningCrumbleBlock; intact type-B parent $B0BC.</summary>
+    /// <summary>A bombed respawning one-block crumble block; its intact parent is a crumble block.</summary>
     CrumbleSingle,
-    /// <summary>DrawInst_PowerBombBlockBombed; intact type-C parent $C057.</summary>
+    /// <summary>A bombed Power Bomb block; its intact parent is a shot block.</summary>
     PowerBomb,
-    /// <summary>DrawInst_SuperMissileBlockBombed; intact type-C parent $C09F.</summary>
+    /// <summary>A bombed Super Missile block; its intact parent is a shot block.</summary>
     SuperMissile,
 }

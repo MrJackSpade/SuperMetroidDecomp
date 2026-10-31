@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonPatternDefinitions
 {
     /// <summary>
-    /// $A7:CDAD, Phantoon_FlameRain_PositionTable: the figure-eight cursor and world X/Y of each of the eight native
+    /// The figure-eight cursor and world X/Y of each of the eight native
     /// random buckets; each native record also has an unused zero word. Patterns zero and four share the same body
     /// placement.
     /// </summary>
@@ -24,7 +24,7 @@ public static class PhantoonPatternDefinitions
     internal const int RainColumnCount = 9;
 
     /// <summary>
-    /// $A7:CDA5, Phantoon_Unknown0FEAValues: the shot reaction at $A7:DE5C-DE6A
+    /// The shot reaction
     /// indexes these eight bytes with RNG &amp; 7 and writes the selected marker to eye variable B.
     /// </summary>
     /// <remarks>
@@ -38,7 +38,7 @@ public static class PhantoonPatternDefinitions
     public static ReadOnlySpan<byte> ShotEyeMarkers => [6, 6, 8, 8, 6, 8, 6, 8];
 
     /// <summary>
-    /// $A7:D40D-$D41E: the eye program of each relative-octant selector 0..8. The unused code 5 retains the native
+    /// The eye program of each relative-octant selector 0..8. The unused code 5 retains the native
     /// downward selection; all other values name a direction.
     /// </summary>
     internal static readonly PhantoonPartProgram[] EyePrograms =

@@ -27,7 +27,7 @@ internal sealed class MotherBrainThirdPhaseFight
     private MotherBrainWalkCounter _walk = new();
 
     /// <summary>
-    /// Mother Brain's walk credit (<c>$7E:780E</c>) as the sequence uses it. Ordinary projectiles subtract
+    /// Mother Brain's walk credit as the sequence uses it. Ordinary projectiles subtract
     /// <c>$0100</c>; Hyper Beam subtracts <c>$010A</c>; the walking function adds
     /// <c>$0020</c> whenever it gets a standing AI call.
     /// </summary>
@@ -37,7 +37,7 @@ internal sealed class MotherBrainThirdPhaseFight
         internal set => _walk.Credit = value;
     }
 
-    /// <summary>Current phase-three walking target X in room pixels (<c>$7E:803A</c>), within a pixel of the body's walking range.</summary>
+    /// <summary>Current phase-three walking target X in room pixels, within a pixel of the body's walking range.</summary>
     public int Phase3TargetXPosition { get; private set; }
 
     /// <summary>Phase-three neck function selected through native long word <c>$7E:801A</c>.</summary>
@@ -48,7 +48,7 @@ internal sealed class MotherBrainThirdPhaseFight
     public WrappingCountdown Phase3NeckFunctionTimer { get; private set; }
 
     /// <summary>
-    /// Whether phase-three attacks are suspended (<c>$7E:803E</c>). Hyper Beam recoil sets it
+    /// Whether phase-three attacks are suspended. Hyper Beam recoil sets it
     /// and the recoil timer clears it before the recovery pose begins.
     /// </summary>
     public bool Phase3DisableAttacks { get; private set; }

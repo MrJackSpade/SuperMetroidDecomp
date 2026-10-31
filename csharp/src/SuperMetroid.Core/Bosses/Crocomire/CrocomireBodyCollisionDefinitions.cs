@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// Engine-owned collision data for Crocomire's fifty selected body frames at
-/// $A4:BFC4..CAC4 and their fifteen distinct hitbox lists at $A4:CB07..CC2D.
+/// $A4:BFC4..CAC4 and their fifteen distinct hitbox lists.
 /// OAM and BG2 art are deliberately absent: installed visual overrides cannot
 /// alter the cartridge's component offsets, rectangles, or callback identities.
 /// Values are pinned to the project's NTSC J/U v1.0 retail cartridge.

@@ -553,7 +553,7 @@ internal sealed class MotherBrainProjectiles
         CoordinateAxis.Difference(beam.Position.X.Whole, 2) < 0 ||
         CoordinateAxis.Difference(beam.Position.X.Whole, 238) >= 0;
 
-    /// <summary>Exact six-position mouth attachment table at <c>$86:C86E-C885</c>.</summary>
+    /// <summary>Exact six-position mouth attachment table.</summary>
     internal void RunMotherBrainAttachedDroolFrameBehavior(
         RoomEnemyProjectileSlot drool)
     {
@@ -752,7 +752,7 @@ internal sealed class MotherBrainProjectiles
         }
     }
 
-    /// <summary>Ports the signed direction-delta and allowed-rotation test at $86:C050.</summary>
+    /// <summary>Ports the signed direction-delta and allowed-rotation test.</summary>
     internal static void SelectNextMotherBrainTurretDirection(RoomEnemyProjectileSlot turret)
     {
         MotherBrainTurretState state = turret.StateOf<MotherBrainTurretState>();
@@ -791,7 +791,7 @@ internal sealed class MotherBrainProjectiles
         turret.StateOf<MotherBrainTurretState>().FiringWait = WrappingCountdown.Start(Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown));
     }
 
-    /// <summary>Ports the asymmetric viewport bounds at $86:C0B4.</summary>
+    /// <summary>Ports the asymmetric viewport bounds.</summary>
     private static bool MotherBrainTurretIsOnScreen(
         RoomEnemyProjectileSlot turret,
         Position16<RoomPixels> camera)
@@ -808,7 +808,7 @@ internal sealed class MotherBrainProjectiles
             CoordinateAxis.Wrap(turret.Position.X.Whole + 4 - camera.X) < 264;
     }
 
-    /// <summary>Ports turret-bullet initialization at $86:BF59.</summary>
+    /// <summary>Ports turret-bullet initialization.</summary>
     internal void SpawnMotherBrainTurretBullet(RoomEnemyProjectileSlot turret)
     {
         RoomEnemyProjectileSlot? bullet = _projectiles.AllocateEnemyProjectile();
@@ -825,7 +825,7 @@ internal sealed class MotherBrainProjectiles
             MotherBrainTurrets.ForDirection(direction);
         bullet.Velocity = definition.BulletVelocity;
         bullet.Position = bullet.Position.WithWhole(turret.Position.Whole + definition.BulletOffset);
-        // The bullet list's first instruction (`$86:C173`) jumps to the pose for this direction.
+        // The bullet list's first instruction jumps to the pose for this direction.
         bullet.StartAnimation(new MotherBrainTurretAnimation(MotherBrainTurretProgram.BulletPose, direction));
     }
 

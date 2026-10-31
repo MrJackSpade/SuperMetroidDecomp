@@ -18,7 +18,7 @@ internal static class RidleyBreakup
 
     /// <summary>
     /// Selects the tail pose loaded by <c>$A6:C6FE-$A6:C7B9</c>; the tip's comes from its orientation, as the sixteen
-    /// tip lists selected at $A6:C7BA do. <paramref name="tailTipOrientation"/> is ignored for the first six segments.
+    /// tip lists selected do. <paramref name="tailTipOrientation"/> is ignored for the first six segments.
     /// </summary>
     public static RidleyBreakupFrame SelectTailFrame(RidleyExplosionPart parameter, int tailTipOrientation)
     {

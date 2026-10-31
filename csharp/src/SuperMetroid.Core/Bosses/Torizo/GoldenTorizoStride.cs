@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class GoldenTorizoStride
 {
     /// <summary>
-    /// $AA:D59A-D5C1: each phase transition cancels the existing planted foot's local displacement. At the double-plant
+    /// Each phase transition cancels the existing planted foot's local displacement. At the double-plant
     /// phase opening each half, the outgoing foot moves to the departing origin; otherwise the current support strip
     /// remains fixed. No independent speed is stored.
     /// </summary>

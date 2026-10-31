@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// elevator pseudo-door and two the Maridia/Tourian one, which consume no physical door record.</remarks>
 public static class RoomDoorListDefinitions
 {
-    /// <summary>Each retail room's door list, in the cartridge's list order.</summary>
+    /// <summary>Each retail room's door list, in its authored list order.</summary>
     public static IReadOnlyDictionary<RoomHeaderDefinition, IReadOnlyList<DoorListEntry>> ByRoom { get; } =
         new Dictionary<RoomHeaderDefinition, IReadOnlyList<DoorListEntry>>
     {

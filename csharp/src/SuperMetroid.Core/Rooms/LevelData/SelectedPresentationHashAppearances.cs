@@ -10,7 +10,7 @@ internal static class SelectedPresentationHashAppearances
     {
         /// <summary>
         /// Block appearances hash as each block number followed by the mirroring's name, so the hash names what a
-        /// block shows rather than how a file or the cartridge stores it.
+        /// block shows rather than how a file or the original game stores it.
         /// </summary>
         public void AppendAppearances(string label, ReadOnlySpan<RoomBlockAppearance> appearances)
         {

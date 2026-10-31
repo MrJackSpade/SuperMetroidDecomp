@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Values written by Mother Brain's body instruction opcodes at $A9:9700-$972F.</summary>
+/// <summary>Values written by Mother Brain's body instruction opcodes.</summary>
 public enum MotherBrainBodyPose
 {
     /// <summary>Native pose 0, written by $A9:9700; standing allows posture changes and ordinary attack/walking decisions.</summary>

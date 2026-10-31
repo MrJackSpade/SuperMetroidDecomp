@@ -223,7 +223,7 @@ internal sealed class TorizoAttacks
             int liftCarry = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
             projectile.Position = projectile.Position.WithWrappedWholeY(jitteredY - TorizoMotionDefinitions.InitialDroolLift);
             projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + liftCarry));
-            // $86:A68D-$A6C3: a jitter that carries the drool past the last pixel of the coordinate space moves
+            // A jitter that carries the drool past the last pixel of the coordinate space moves
             // its side offset one pixel further right. Every branch stores a zero X velocity.
             int jitteredX = (_room.Random.Generate() & 3) + torizo.Position.X.Whole;
             int pastLastPixel = jitteredX > ushort.MaxValue ? 1 : 0;
@@ -237,7 +237,7 @@ internal sealed class TorizoAttacks
         }
         projectile.Position = projectile.Position.WithWrappedWholeY(torizo.Position.Y.Whole - 5);
 
-        // The recurring low-health drool chooses a random direction ($86:A5F9-$A62C). The
+        // The recurring low-health drool chooses a random direction. The
         // turning branch's word index is random & $1FE; the X velocity is the sign-extended
         // sine and the Y velocity the negative cosine of that angle.
         int angle;
@@ -781,7 +781,7 @@ internal sealed class TorizoAttacks
 
     /// <summary>
     /// Allocates the room-graphics enemy projectile requested by PLM instruction
-    /// <c>$84:D357</c>, then runs initializer <c>$86:A764</c> against the publishing PLM's
+    /// Then runs initializer <c>$86:A764</c> against the publishing PLM's
     /// block coordinates.
     /// </summary>
     public RoomEnemyProjectileSlot? SpawnBombTorizoStatueBreakingProjectile(

@@ -11,7 +11,7 @@ public sealed class DraygonColorCatalog
     /// <summary>Canonical selected RGB5 colors and ordered rows, independent of JSON encoding.</summary>
     public string ContentIdentity => DraygonPalette.ContentIdentity(this);
 
-    /// <summary><c>Palette_Draygon_WhiteFlash</c> at $A5:A297: every visible flash ink is white.</summary>
+    /// <summary><c>Palette_Draygon_WhiteFlash</c>: every visible flash ink is white.</summary>
     internal static readonly RgbColor FlashInk = new(31, 31, 31);
 
     /// <summary>The selected opening, material, flash and health-band colours.</summary>

@@ -155,7 +155,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     {
         // `$BF41` does not reload Y before the shared walk helper. The surrounding
         // sequence's final painful-animation selector is `$000A`, so the observable
-        // retail list is the really-slow backward program at `$993A`.
+        // retail list is the really-slow backward program.
         MotherBrainWalkResult moveToBack = _state.RequestWalkBackwardReallySlow(targetX: 40);
         requests.BodyWalkRequested = moveToBack.Requested;
         if (moveToBack.ReachedTarget)

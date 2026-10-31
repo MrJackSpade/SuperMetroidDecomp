@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// A PLM animation that runs the programs of an <see cref="AnimationProgramSet{TProgram, TFrame, TCue}"/> (#1296). A
-/// shown frame is a timed bank-$84 draw, the counter steps run the slot's native loop timer, a hold is the native
+/// shown frame is a timed draw, the counter steps run the slot's loop timer, a hold is the script's
 /// sleep and a stop deletes the PLM. Each cue goes to the family, which may continue at another of its programs.
 /// </summary>
 /// <typeparam name="TProgram">The family's program identity.</typeparam>
@@ -30,10 +30,10 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
     /// <summary>The program set this animation runs.</summary>
     private protected abstract AnimationProgramSet<TProgram, TFrame, TCue> Programs { get; }
 
-    /// <summary>The bank-$84 draw list <paramref name="frame"/> draws.</summary>
+    /// <summary>The draw list <paramref name="frame"/> draws.</summary>
     private protected abstract PlmDraw DrawList(TFrame frame);
 
-    /// <summary>Draws <paramref name="frame"/> at the slot's block: its bank-$84 draw list unless the family draws it otherwise.</summary>
+    /// <summary>Draws <paramref name="frame"/> at the slot's block: its draw list unless the family draws it otherwise.</summary>
     private protected virtual void Draw(TFrame frame, PlmSlot slot, PlmStepContext context) =>
         context.Draw(slot, DrawList(frame));
 
@@ -43,13 +43,13 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
     /// <summary>Carries out <paramref name="cue"/>; returns a program to continue at, or null to continue in place.</summary>
     private protected abstract TProgram? Publish(TCue cue, PlmSlot slot, PlmStepContext context);
 
-    /// <summary>Continues at the start of <paramref name="program"/> on the next advance, as a native wake does.</summary>
+    /// <summary>Continues at the start of <paramref name="program"/> on the next advance, as a wake does.</summary>
     internal void Restart(TProgram program) => Cursor = AnimationProgramCursor<TProgram>.Start(program);
 
-    /// <summary>The program a wake continues at (the native link instruction), or null before a program links one.</summary>
+    /// <summary>The program a wake continues at (the link instruction), or null before a program links one.</summary>
     internal TProgram? Link { get; private set; }
 
-    /// <summary>Links <paramref name="program"/> for a later wake, as the native link instruction stores its target.</summary>
+    /// <summary>Links <paramref name="program"/> for a later wake, as the link instruction stores its target.</summary>
     private protected void SetLink(TProgram program) => Link = program;
 
     /// <inheritdoc/>
@@ -57,7 +57,7 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
         Restart(Link ?? throw new InvalidOperationException($"PLM program {Cursor.Program} woke before linking a program."));
 
     /// <summary>
-    /// The program the native list continues with after <paramref name="program"/>'s closing sleep, or null when a
+    /// The program the list continues with after <paramref name="program"/>'s closing sleep, or null when a
     /// wake never steps past that sleep. A typed program ends at its sleep, so the family names the continuation.
     /// </summary>
     private protected virtual TProgram? ProgramAfterSleep(TProgram program) => null;
@@ -93,7 +93,7 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
                     Cursor = next;
                     TProgram? redirect = Publish(cue.Cue, slot, context);
                     // A cue that deletes the PLM ends this pass. One that hands the slot to another family's program
-                    // continues there on this pass, as a native goto into another list does.
+                    // continues there on this pass, as a goto into another list does.
                     if (!slot.Active)
                         return;
                     if (slot.Animation != this)
@@ -114,7 +114,7 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
                     Cursor = counted.IsZero ? next : AnimationProgramCursor<TProgram>.Start(repeat.Target);
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep:
-                    // The native sleep rewinds onto itself and runs again on the next pass.
+                    // The script's sleep rewinds onto itself and runs again on the next pass.
                     slot.FrameHold = WrappingCountdown.Start(1);
                     return;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.StopStep:

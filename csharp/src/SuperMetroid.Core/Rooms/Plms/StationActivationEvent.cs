@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// confirmation or message-close results to the same resident room owner.
 /// </summary>
 /// <param name="Kind">The station family whose activation produced this event.</param>
-/// <param name="MessageBoxIndex">The native gameplay message identity: map/refill completion, save confirmation, or save completion.</param>
+/// <param name="MessageBoxIndex">The gameplay message identity: map/refill completion, save confirmation, or save completion.</param>
 /// <param name="AreaIndex">The room's area, used for map acquisition and save-station identity.</param>
 /// <param name="StationIndex">The number the station was placed with, 0 through 65535, used with the area to identify a resident save
 /// station; null for a station placed without one (a map station).</param>

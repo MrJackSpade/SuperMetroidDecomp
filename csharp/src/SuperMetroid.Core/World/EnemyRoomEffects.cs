@@ -51,7 +51,7 @@ internal sealed class EnemyRoomEffects
     /// Applies the hardcoded PLMs and room effects that enemy AI requested during its pass.
     /// </summary>
     /// <remarks>
-    /// Native actors call <c>Spawn_Hardcoded_PLM</c> ($84:83D7) and their other room writes
+    /// Native actors call <c>Spawn_Hardcoded_PLM</c> and their other room writes
     /// inside EnemyMain, and each PLM's setup edits the level at once. Applying them right
     /// after the enemy pass lets Samus's movement later in the frame meet the edited
     /// terrain; Baby Metroid clears its invisible wall this way just before Samus runs

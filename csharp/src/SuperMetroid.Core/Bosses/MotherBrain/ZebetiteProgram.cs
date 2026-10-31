@@ -1,29 +1,29 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// The Zebetites' health-tier programs, in bank $A6 order: five for the large barrier, then five for the halves of
+/// The Zebetites' health-tier programs, order: five for the large barrier, then five for the halves of
 /// a split pair. Each shows its tier's pose once and sleeps.
 /// </summary>
 public enum ZebetiteProgram
 {
-    /// <summary><c>InstList_Big_HealthGreaterThanEqualTo800</c> (<c>$A6:FDCC</c>): large barrier, health 800 or more.</summary>
+    /// <summary><c>InstList_Big_HealthGreaterThanEqualTo800</c>: large barrier, health 800 or more.</summary>
     LargeAtLeast800,
-    /// <summary>Large barrier, health 600 to 799 (<c>$A6:FDD2</c>).</summary>
+    /// <summary>Large barrier, health 600 to 799.</summary>
     LargeAtLeast600,
-    /// <summary>Large barrier, health 400 to 599 (<c>$A6:FDD8</c>).</summary>
+    /// <summary>Large barrier, health 400 to 599.</summary>
     LargeAtLeast400,
-    /// <summary>Large barrier, health 200 to 399 (<c>$A6:FDDE</c>).</summary>
+    /// <summary>Large barrier, health 200 to 399.</summary>
     LargeAtLeast200,
-    /// <summary>Large barrier, health below 200 (<c>$A6:FDE4</c>).</summary>
+    /// <summary>Large barrier, health below 200.</summary>
     LargeBelow200,
-    /// <summary>Split pair, health 800 or more (<c>$A6:FDEA</c>).</summary>
+    /// <summary>Split pair, health 800 or more.</summary>
     SplitAtLeast800,
-    /// <summary>Split pair, health 600 to 799 (<c>$A6:FDF0</c>).</summary>
+    /// <summary>Split pair, health 600 to 799.</summary>
     SplitAtLeast600,
-    /// <summary>Split pair, health 400 to 599 (<c>$A6:FDF6</c>).</summary>
+    /// <summary>Split pair, health 400 to 599.</summary>
     SplitAtLeast400,
-    /// <summary>Split pair, health 200 to 399 (<c>$A6:FDFC</c>).</summary>
+    /// <summary>Split pair, health 200 to 399.</summary>
     SplitAtLeast200,
-    /// <summary>Split pair, health below 200 (<c>$A6:FE02</c>).</summary>
+    /// <summary>Split pair, health below 200.</summary>
     SplitBelow200,
 }

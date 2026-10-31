@@ -51,7 +51,7 @@ internal sealed class MotherBrainHead
         _access = dependencies.Access;
     }
 
-    /// <summary>Ports <c>InitAI_MotherBrainHead</c> at <c>$A9:8705</c>.</summary>
+    /// <summary>Ports <c>InitAI_MotherBrainHead</c>.</summary>
     internal void InitializeMotherBrainHead(RoomEnemySlot head)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
@@ -65,7 +65,7 @@ internal sealed class MotherBrainHead
         head.Health = 3000;
         // `$A9:8714` gives the head enemy the dummy program for life (the encounter state's
         // head-slot cursor starts there): its $A320 frame is the head's collision hitbox.
-        // The visible brain runs a separate program (`$A9:8734`).
+        // The visible brain runs a separate program.
         head.FrameHold = WrappingCountdown.Start(1);
         head.TileIndexBase = EnemyTileBaseDefinitions.Fixed[EnemyDefinitionId.MotherBrainHead];
         head.Properties = head.Properties.With(
@@ -235,7 +235,7 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Ports <c>GetMotherBrainHeadSpritemapPointerInY</c> ($A9:92AF): returns the brain frame
+    /// Ports <c>GetMotherBrainHeadSpritemapPointerInY</c>: returns the brain frame
     /// to draw, or null when the brain is not live. With time frozen it only reads the current
     /// frame. Otherwise a frame holds while its duration minus the timer is not negative
     /// (CMP/BPL), the timer counting up; past it, cues run until the next frame, which
@@ -359,7 +359,7 @@ internal sealed class MotherBrainHead
         }
     }
 
-    /// <summary>Fires the mouth laser at <c>$A9:9F46</c>, freezing the neck.</summary>
+    /// <summary>Fires the mouth laser, freezing the neck.</summary>
     private void SpawnMotherBrainMouthLaser(MotherBrainEnemyState state)
     {
         RoomEnemySlot head = state.Head;
@@ -503,7 +503,7 @@ internal sealed class MotherBrainHead
         breath.Position = breath.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 6), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
     }
 
-    /// <summary>Ports the small-breath spawn at <c>$A9:9368</c> and initializer <c>$86:CA83</c>.</summary>
+    /// <summary>Ports the small-breath spawn and initializer <c>$86:CA83</c>.</summary>
     private void SpawnMotherBrainPurpleBreathSmall(MotherBrainEnemyState state)
     {
         RoomEnemyProjectileSlot? breath = _projectiles.AllocateEnemyProjectile();

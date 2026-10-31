@@ -9,7 +9,7 @@ internal static class SpeedBoosterBlocks
 {
     /// <summary>
     /// Resolves precisely the two area-independent and four Brinstar area-table entries
-    /// that point at setup <c>$84:CDEA</c>. Other areas' negative behaviour entries are unrelated.
+    /// that select the Speed Booster block setup. Other areas' negative behaviour entries are unrelated.
     /// </summary>
     public static bool TryResolve(
         RoomBlockBehavior bts,

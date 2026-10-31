@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// The PLM headers that install coloured and grey doors, and the door each installs (#1414: named by member, replacing
-/// the header range and six-byte stride the cartridge's header words implied). A header absent here installs no
+/// the header range and six-byte stride the PLM headers implied). A header absent here installs no
 /// coloured or grey door.
 /// </summary>
 internal static class DoorPlmHeaderDefinitions

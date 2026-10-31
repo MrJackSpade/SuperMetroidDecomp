@@ -4,7 +4,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.R
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// The Brinstar plants' PLM programs (#1296), in place of their bank-$84 instruction lists. The floor and ceiling
+/// The Brinstar plants' PLM programs (#1296), in place of their instruction lists. The floor and ceiling
 /// plants run the same chew with their own artwork; the ceiling plant chews twice as many times.
 /// </summary>
 internal static class SamusEaterPlmProgramDefinitions

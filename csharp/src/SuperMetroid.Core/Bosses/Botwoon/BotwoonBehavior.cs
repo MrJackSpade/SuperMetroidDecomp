@@ -85,7 +85,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Wall-explosion update from which the explosion timers run.</summary>
     private const int BotwoonWallExplosionsBegin = 64;
 
-    /// <summary>Ports <c>Botwoon_Init</c> at <c>$B3:9583</c>.</summary>
+    /// <summary>Ports <c>Botwoon_Init</c>.</summary>
     internal void InitializeBotwoon(RoomEnemySlot head)
     {
         var state = new BotwoonEnemyState();
@@ -137,8 +137,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.HeadHistory[history] = head.Position.Whole;
         }
-        // BotwoonPositionHistory ($7E:9000-$93FF) is never seeded by InitAI_Botwoon. It
-        // lies inside the $7E:7000-$97FF range Initialise_Enemies ($A0:8AA9) zeroes on room
+        // BotwoonPositionHistory is never seeded by InitAI_Botwoon. It
+        // lies inside the $7E:7000-$97FF range Initialise_Enemies zeroes on room
         // load, so body segments read (0,0) until the ring has been written that far; the
         // freshly constructed state's arrays are that zeroed RAM.
     }
@@ -722,7 +722,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameResults.BotwoonWall = PlmHeaderId.CrumbleBotwoonWall;
         state.WallCrumbleRequested = true;
 
-        // `Enemy_ItemDrop_Botwoon` at `$A0:BA3E` emits sixteen independent pickup
+        // `Enemy_ItemDrop_Botwoon` emits sixteen independent pickup
         // requests. Each position uses both bytes of one RNG result: X samples low seven
         // bits and Y samples bits 8..13. Each pickup is materialized immediately as
         // a real $F337 actor from the head definition's item chances.
@@ -901,7 +901,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResolveBotwoonCombatAfterCommon(context.Slot);
             });
     }
-    /// <summary>Ports <c>EprojInit_BotwoonsBody</c> at <c>$86:EA31</c>.</summary>
+    /// <summary>Ports <c>EprojInit_BotwoonsBody</c>.</summary>
     /// <param name="head">Botwoon's head, whose position and graphics the segment starts with.</param>
     /// <param name="state">Botwoon's state, which records the segment.</param>
     /// <param name="segmentIndex">The segment's place in the body, zero (the tail) through twelve (behind the head).</param>
@@ -1044,7 +1044,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.LastBodySegmentLanded = true;
     }
 
-    /// <summary>Ports <c>EprojInit_BotwoonsSpit</c> at <c>$86:EBC6</c>.</summary>
+    /// <summary>Ports <c>EprojInit_BotwoonsSpit</c>.</summary>
     /// <param name="head">Botwoon's head.</param>
     /// <param name="angle">The spit's direction.</param>
     /// <param name="speed">The spit speed, 0 through 65535.</param>
@@ -1066,7 +1066,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         spit.State = AngledFlightState.Launch(angle, speed);
     }
 
-    /// <summary>Ports <c>EprojPreInstr_BotwoonsSpit</c> at <c>$86:EC05</c>.</summary>
+    /// <summary>Ports <c>EprojPreInstr_BotwoonsSpit</c>.</summary>
     internal static void RunBotwoonSpitFrameBehavior(
         RoomEnemyProjectileSlot spit,
         Position16<RoomPixels> camera)

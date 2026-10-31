@@ -16,7 +16,7 @@ public readonly record struct BabyMetroidCutsceneStepResult(
     MotherBrainSpritePage? AttackPage,
     int? RecoveryLightsFrame)
 {
-    /// <summary>The one-call fatal-impact edge at $A9:CBF2-CC3D, before the ongoing shake phase.</summary>
+    /// <summary>The one-call fatal-impact edge, before the ongoing shake phase.</summary>
     public bool FatalBlowStarted => PhaseBefore == BabyMetroidCutscenePhase.FinalCharge &&
         PhaseAfter == BabyMetroidCutscenePhase.TakeFinalBlow;
 

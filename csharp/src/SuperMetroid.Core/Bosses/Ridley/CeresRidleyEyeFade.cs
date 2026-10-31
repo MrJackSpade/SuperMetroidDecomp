@@ -12,7 +12,7 @@ internal static class CeresRidleyEyeFade
     /// <remarks>
     /// #625 / #651 exact NTSC J/U v1.0 algorithm: offset 0..15 selects shade
     /// 15-offset, offset 16..63 selects shade zero, and offset 64 is the $FF
-    /// completion marker. All 65 bytes at $A6:E269-$E2A9 match the pinned ROM
+    /// completion marker. All 65 bytes match the pinned ROM
     /// and bank-A6 disassembly. Native code reads a word at each byte offset
     /// and masks its low byte; the overlapping high byte is discarded. Offset
     /// 65 would read the adjacent eye-palette byte and is outside this schedule.

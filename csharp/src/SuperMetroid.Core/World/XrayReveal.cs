@@ -38,7 +38,7 @@ internal sealed class XrayReveal
     public InstalledXrayReveals? XrayRevealVisuals { get; set; }
 
     /// <summary>
-    /// Setup call four's reveal construction (<c>$91:CB8E</c>), run before the setup stage advances. The reveal map is
+    /// Setup call four's reveal construction, run before the setup stage advances. The reveal map is
     /// owned state, so state saves retain it and rendering never reruns game logic to synthesize a replacement. Its base
     /// copy reads the BG1 plane's blocks the room shows from level data (#1351, #1431), where the cartridge read two BG1
     /// screens back out of VRAM on the two setup calls before; time is frozen across them.

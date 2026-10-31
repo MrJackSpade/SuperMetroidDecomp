@@ -35,13 +35,13 @@ public static class BossColourDefinitions
 
     /// <summary>
     /// Crocomire initial wall: the wall's sixteen colours, then the third enemy store's clear colour, onto which the
-    /// cartridge's transfer runs.
+    /// original transfer runs.
     /// </summary>
     public static readonly ImmutableArray<SpriteColourRun> CrocomireInitialWall =
         [CrocomireWall, new(SpriteColourStore.EnemiesThird, 0, 1)];
 
     /// <summary>
-    /// Crocomire initial projectile: the enemy projectiles' store. The cartridge's transfer runs one colour further, onto
+    /// Crocomire initial projectile: the enemy projectiles' store. The original transfer runs one colour further, onto
     /// the Samus beams store's clear colour, which no draw shows, so the port does not carry it (#1436).
     /// </summary>
     public static readonly SpriteColourRun CrocomireInitialProjectile = new(SpriteColourStore.EnemyProjectiles, 0, 16);

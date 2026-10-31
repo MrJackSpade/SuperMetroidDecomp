@@ -43,7 +43,7 @@ public sealed class MotherBrainDeathColorCatalog
     public RgbColor CorpseColor(int frame, int color) =>
         selection.CorpseFade.Checked(frame, color, nameof(CorpseColor));
 
-    /// <summary>Returns a color from the $A9:9534 exploded escape-door palette, installed at CGRAM 145..158 when the escape sequence opens the door.</summary>
+    /// <summary>Returns a color exploded escape-door palette, installed at CGRAM 145..158 when the escape sequence opens the door.</summary>
     /// <param name="color">Zero-based palette color 0..13, corresponding to native sprite-palette-one colors 1..14.</param>
     /// <returns>Packed SNES BGR555 color from the selected fourteen-color image.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The color index is outside 0..13.</exception>

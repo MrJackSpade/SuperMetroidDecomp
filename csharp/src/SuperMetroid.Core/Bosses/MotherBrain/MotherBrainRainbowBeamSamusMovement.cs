@@ -3,12 +3,12 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// Literal translation of the four Samus-position helpers at <c>$A9:BBB5-$BC75</c>
+/// Literal translation of the four Samus-position helpers
 /// used by Mother Brain's phase-two rainbow beam.
 /// </summary>
 /// <remarks>
 /// This state belongs to Mother Brain, not to Samus's movement-type dispatcher. Pose type
-/// <c>$1B</c> deliberately returns without moving at <c>$90:A7DA</c>; the enemy AI calls
+/// <c>$1B</c> deliberately returns without moving; the enemy AI calls
 /// these helpers separately after it has locked Samus. Keeping that ownership explicit
 /// prevents a future runtime from accidentally applying both ordinary and forced movement.
 ///

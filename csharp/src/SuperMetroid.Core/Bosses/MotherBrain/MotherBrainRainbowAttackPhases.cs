@@ -24,7 +24,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         frame.CameraCheckpoint ?? throw new InvalidOperationException(
             "Mother Brain's rainbow-beam push requires the session's camera checkpoint.");
 
-    /// <summary>Rainbow-beam angular width in 8.8 table units, initialized and floored at <c>$0200</c> and capped at <c>$0C00</c>.</summary>
+    /// <summary>Rainbow-beam angular width in 8.8 table units, initialized and floored and capped.</summary>
     public int AngularWidth { get; internal set; }
 
     /// <summary>Native signed SFX queue countdown. Six produces seven queue attempts.</summary>
@@ -43,7 +43,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     public WrappingCountdown SamusProjectileCooldownTimer { get; private set; }
 
     /// <summary>
-    /// Starts at `$A9:B983`, immediately after the power-bomb gate and charge countdown.
+    /// Starts, immediately after the power-bomb gate and charge countdown.
     /// </summary>
     public void StartActiveBeam(SamusState samus)
     {
@@ -409,7 +409,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             BeamActive = false;
             _state.EarthquakeTimer = WrappingCountdown.Start(0);
             _state.RainbowBeamSoundPlaying = false;
-            samus.Control.Unlock(); // Samus command one at `$90:F117`.
+            samus.Control.Unlock(); // Samus command one.
             SamusProjectileCooldownTimer = WrappingCountdown.Start(8);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall;
         }

@@ -56,7 +56,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int RinkaMaximumSpecialActors = 3;
 
     /// <summary>
-    /// The eleven authored Japan/USA spawn points at <c>$A2:B75B</c>. Mother Brain's
+    /// The eleven authored Japan/USA spawn points. Mother Brain's
     /// three special actors compete for these resources and may rewrite their spawn snapshots
     /// when the original point is outside the current screen. The even extra-RAM token is
     /// derived from each point's position in this table.
@@ -106,7 +106,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         _rinkaCamera = camera;
     }
 
-    /// <summary>Ports <c>Rinka_Init</c> at $A2:B602.</summary>
+    /// <summary>Ports <c>Rinka_Init</c>.</summary>
     internal void InitializeRinka(RoomEnemySlot slot)
     {
         var state = new RinkaEnemyState();
@@ -148,7 +148,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         InitializeRinkaLife(slot, state);
     }
 
-    /// <summary>Ports <c>Rinka_Init2</c> and <c>Rinka_Init3</c> at $A2:B63E-$B69A.</summary>
+    /// <summary>Ports <c>Rinka_Init2</c> and <c>Rinka_Init3</c>.</summary>
     private void ReinitializeRinka(RoomEnemySlot slot, RinkaEnemyState state)
     {
         if (IsSpecialRinka(slot))
@@ -547,7 +547,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
         => _projectiles.SpawnRoomGraphicsDustExplosion(position, RinkaDustAnimationIndex);
 
-    /// <summary>Ports <c>RinkasDeathAnimation(0)</c> at $A0:A410.</summary>
+    /// <summary>Ports <c>RinkasDeathAnimation(0)</c>.</summary>
     internal void RunRinkaDeathAnimation(RoomEnemySlot slot)
     {
         _deathsAndDrops.RecordKill(slot);

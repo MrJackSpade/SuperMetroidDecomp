@@ -58,7 +58,7 @@ internal sealed class RidleyProjectiles
                 angle = new(80);
         }
 
-        // Math_MultBySin/Cos at $86:C26C reads signed words from the shared table at
+        // Math_MultBySin/Cos reads signed words from the shared table at
         // $A0:B443. The apparently relevant $94:A957 address is executable grapple
         // code, not table data; treating that code as samples produces enormous bogus
         // velocities. The native index is `angle * 2` because X is a byte offset into

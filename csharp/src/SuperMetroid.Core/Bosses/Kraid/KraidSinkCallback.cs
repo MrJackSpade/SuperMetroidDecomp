@@ -6,26 +6,26 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public enum KraidSinkCallback
 {
     /// <summary>
-    /// <c>RTS_A7C6A6</c> at $A7:C6A6. Rows that only clear another strip of his body
+    /// <c>RTS_A7C6A6</c>. Rows that only clear another strip of his body
     /// select this callback so the indirect JSR returns without spawning rocks or PLMs.
     /// </summary>
     NoOperation,
 
-    /// <summary><c>CrumbleLeftPlatform_Left</c> at $A7:C691.</summary>
+    /// <summary><c>CrumbleLeftPlatform_Left</c>.</summary>
     CrumbleLeftPlatformLeft,
 
-    /// <summary><c>CrumbleRightPlatform_Middle</c> at $A7:C6A7.</summary>
+    /// <summary><c>CrumbleRightPlatform_Middle</c>.</summary>
     CrumbleRightPlatformMiddle,
 
-    /// <summary><c>CrumbleRightPlatform_Left</c> at $A7:C6BD.</summary>
+    /// <summary><c>CrumbleRightPlatform_Left</c>.</summary>
     CrumbleRightPlatformLeft,
 
-    /// <summary><c>CrumbleLeftPlatform_Right</c> at $A7:C6D3.</summary>
+    /// <summary><c>CrumbleLeftPlatform_Right</c>.</summary>
     CrumbleLeftPlatformRight,
 
-    /// <summary><c>CrumbleLeftPlatform_Middle</c> at $A7:C6E9.</summary>
+    /// <summary><c>CrumbleLeftPlatform_Middle</c>.</summary>
     CrumbleLeftPlatformMiddle,
 
-    /// <summary><c>CrumbleRightPlatform_Right</c> at $A7:C6FF.</summary>
+    /// <summary><c>CrumbleRightPlatform_Right</c>.</summary>
     CrumbleRightPlatformRight,
 }

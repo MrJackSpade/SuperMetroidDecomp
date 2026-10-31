@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class CeresRidleyAttackDefinitions
 {
     /// <summary>
-    /// $A6:A743: sixteen function pointers indexed by the low nibble of RandomNumberSeed
+    /// Sixteen function pointers indexed by the low nibble of RandomNumberSeed
     /// ($A6:A72D reads the seed; it does not generate another number). Six entries start a
     /// fireball route, five a lunge and five a swoop.
     /// </summary>

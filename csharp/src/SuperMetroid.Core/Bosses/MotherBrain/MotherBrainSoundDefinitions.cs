@@ -21,10 +21,10 @@ internal static class MotherBrainSoundDefinitions
     /// <summary>Library-2 sound $29: floor dust bursts as Mother Brain rises.</summary>
     internal static SoundEffectId AscentDust { get; } = Library2Sound.HeavyRumble;
 
-    /// <summary>Library-1 sound $02: the rainbow drain's looping voice stops ($A9:BE96).</summary>
+    /// <summary>Library-1 sound $02: the rainbow drain's looping voice stops.</summary>
     internal static SoundEffectId StopRainbowDrain { get; } = Library1Sound.Silence;
 
-    /// <summary>Library-1 sound $40: the rainbow drain's looping voice starts, also when the Baby begins draining Mother Brain ($A9:C889).</summary>
+    /// <summary>Library-1 sound $40: the rainbow drain's looping voice starts, also when the Baby begins draining Mother Brain.</summary>
     internal static SoundEffectId StartRainbowDrain { get; } = Library1Sound.MotherBrainRainbowBeam;
 
     /// <summary>Library-2 sound $7F: the rainbow beam starts charging.</summary>

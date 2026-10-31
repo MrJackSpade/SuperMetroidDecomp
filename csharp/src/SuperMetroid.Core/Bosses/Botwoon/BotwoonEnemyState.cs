@@ -124,7 +124,7 @@ public sealed class BotwoonEnemyState
     public bool WallCrumbleRequested { get; internal set; }
     /// <summary>Whether defeat persistence has been recognized or written; live death sets the area miniboss bit only after the complete wall-explosion phase.</summary>
     public bool BossBitSet { get; internal set; }
-    /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null (native $FFFF) means no crossing remains pending.</summary>
+    /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>
     public int? SavedHoleRingIndex { get; internal set; }
 
     /// <summary>Thirteen actors, indexed by native spawn argument 0,2,...24 divided by two.</summary>

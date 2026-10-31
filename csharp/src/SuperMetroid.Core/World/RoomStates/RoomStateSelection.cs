@@ -3,12 +3,12 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
-/// Runs a retail room's state-selection program (<see cref="RoomStateSelectionDefinitions"/>) with native first-match
+/// Runs a retail room's state-selection program (<see cref="RoomStateSelectionDefinitions"/>) with first-match
 /// precedence, and lists the states a room can select. Only the 262 retail rooms are accepted.
 /// </summary>
 public static class RoomStateSelection
 {
-    /// <summary>Selects a state with native first-match precedence.</summary>
+    /// <summary>Selects a state with first-match precedence.</summary>
     public static RoomStateSettings Select(RoomHeaderDefinition room, RoomStateSelectionContext selection)
     {
         RoomStateProgram program = Program(Ensure.NotNull(room));
@@ -20,7 +20,7 @@ public static class RoomStateSelection
         return program.Default;
     }
 
-    /// <summary>Returns the default first, then every alternative in native order.</summary>
+    /// <summary>Returns the default first, then every alternative in authored order.</summary>
     public static IReadOnlyList<RoomStateSettings> GetStates(RoomHeaderDefinition room)
     {
         RoomStateProgram program = Program(Ensure.NotNull(room));

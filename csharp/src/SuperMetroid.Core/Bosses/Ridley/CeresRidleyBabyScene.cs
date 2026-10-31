@@ -213,7 +213,7 @@ internal sealed class CeresRidleyBabyScene
         if (door.Entity is IDrawnByCeresRidleyScene { HandsDrawingToRidley: true })
         {
             // The private Ceres hook does not call WriteEnemyOAM and therefore owns a
-            // second, cartridge-authored quake adjustment at `$A6:A2F2-$A314`. Its `Y`
+            // second, cartridge-authored quake adjustment. Its `Y`
             // index is the low two bits of the earthquake timer, but the table contains
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
@@ -259,9 +259,9 @@ internal sealed class CeresRidleyBabyScene
         switch (cue)
         {
             case CeresBabyCue.CryOrGoTo cryOrGoTo:
-                // $A6:BFC9: while the baby is falling ($880C nonzero) it always cries and
+                // While the baby is falling ($880C nonzero) it always cries and
                 // continues. Otherwise it samples the live RNG word's low bit without
-                // calling GenerateRandomNumber; a set bit jumps silently ($A6:BFD5).
+                // calling GenerateRandomNumber; a set bit jumps silently.
                 if (state.BabyVerticalVelocity == 0 && (_room.Random.Read() & 1) != 0)
                     return cryOrGoTo.Target;
                 _audio.QueueEnemySound(Library3Sound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>Ports $AD:E3D5's strict health comparisons and three palette copies.</summary>
 public static class MotherBrainHealthPalette
 {
-    /// <summary>Selects the damage band from <c>MotherBrainHealthBasedPaletteHandling</c> at $AD:E3D5 and writes installed body, brain, and rear-leg colors to CGRAM.</summary>
+    /// <summary>Selects the damage band from <c>MotherBrainHealthBasedPaletteHandling</c> and writes installed body, brain, and rear-leg colors to CGRAM.</summary>
     /// <param name="gameplayColours">Mutable destination: body/brain colors replace indices 65 through 79 and 145 through 159, and rear-leg colors replace 177 through 191; transparent slots are preserved.</param>
     /// <param name="health">Unsigned health from Mother Brain's head slot: bands are at least 9000, 5400 through 8999, 1800 through 5399, and below 1800.</param>
     /// <param name="presentation">Required installed four-band palette artwork; the optional signature does not supply a fallback when this is <see langword="null"/>.</param>

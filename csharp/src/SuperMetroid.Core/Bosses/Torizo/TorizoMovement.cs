@@ -40,7 +40,7 @@ internal sealed class TorizoMovement
     }
 
     /// <summary>
-    /// Ports shared <c>Torizo_Init</c> at $AA:C87F for the area-zero Bomb and area-two
+    /// Ports shared <c>Torizo_Init</c> for the area-zero Bomb and area-two
     /// Golden definitions. The cartridge indexes parallel two-word tables by area; using
     /// the concrete definition here is equivalent and prevents an unrelated host area enum
     /// from becoming a second authority for actor identity.

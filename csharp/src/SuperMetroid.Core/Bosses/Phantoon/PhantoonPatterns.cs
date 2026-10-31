@@ -259,7 +259,7 @@ internal sealed class PhantoonPatterns
             SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Spiral, WordWrap.LowByte(direction));
     }
 
-    /// <summary>Ports the eye-open vulnerable window at $A7:D60D.</summary>
+    /// <summary>Ports the eye-open vulnerable window.</summary>
     internal static void RunPhantoonEyeTracking(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -291,7 +291,7 @@ internal sealed class PhantoonPatterns
         PointPhantoonEyeAtSamus(body, state, samus);
     }
 
-    /// <summary>Ports the one-frame opaque-swoop setup at $A7:D65C.</summary>
+    /// <summary>Ports the one-frame opaque-swoop setup.</summary>
     internal static void BeginPhantoonVulnerableSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -303,7 +303,7 @@ internal sealed class PhantoonPatterns
         PhantoonPresentation.InstallPhantoonProgram(state, body, PhantoonPartProgram.FullHitboxBody);
     }
 
-    /// <summary>Ports the 360-frame opaque swoop at $A7:D678.</summary>
+    /// <summary>Ports the 360-frame opaque swoop.</summary>
     internal static void RunPhantoonSwoop(
         RoomEnemySlot body,
         PhantoonEnemyState state,
@@ -346,7 +346,7 @@ internal sealed class PhantoonPatterns
             body.Function = PhantoonAiFunction.PickNextAppearance;
     }
 
-    /// <summary>Ports the hidden left/right placement and round-two picker at $A7:D6E2.</summary>
+    /// <summary>Ports the hidden left/right placement and round-two picker.</summary>
     internal void PlacePhantoonForNextFigureEight(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -385,7 +385,7 @@ internal sealed class PhantoonPatterns
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
     }
 
-    /// <summary>Ports the visible setup for every flame-rain window at $A7:D73F.</summary>
+    /// <summary>Ports the visible setup for every flame-rain window.</summary>
     internal static void BeginPhantoonFlameRainVulnerableWindow(
         RoomEnemySlot body,
         PhantoonEnemyState state)
@@ -523,7 +523,7 @@ internal sealed class PhantoonPatterns
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
     }
 
-    /// <summary>Ports all eight alternating radial flame waves at $A7:D8AC.</summary>
+    /// <summary>Ports all eight alternating radial flame waves.</summary>
     internal void RunPhantoonRage(RoomEnemySlot body, PhantoonEnemyState state)
     {
         if (!PhantoonPresentation.TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
@@ -747,7 +747,7 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>
-    /// Initializes a destroyable flame ($86:9C29) from the casual, rage or spiral producer; rain flames spawn through
+    /// Initializes a destroyable flame from the casual, rage or spiral producer; rain flames spawn through
     /// <see cref="SpawnPhantoonRainFlame"/>.
     /// </summary>
     /// <param name="body">Phantoon's body.</param>

@@ -55,7 +55,7 @@ internal static class StationPlmDraws
     /// <summary>
     /// Published ordinal artwork IDs: three numbered frames per map/resource
     /// station, and named save/access states. These are identity selections,
-    /// independent of the terrain. Only complete native lists have IDs.
+    /// independent of the terrain. Only complete lists have IDs.
     /// </summary>
     internal static string VisualId(PlmDraw request) =>
         PlmDraw.FrameOf<StationDraw>(request, "station draw list") switch
@@ -83,7 +83,7 @@ internal static class StationPlmDraws
             _ => throw new InvalidOperationException($"Undefined station draw list {request}."),
         };
 
-    /// <summary>Finds a station draw list by its stable artwork identity rather than native pointer.</summary>
+    /// <summary>Finds a station draw list by its stable artwork identity rather than pointer.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -99,7 +99,7 @@ internal static class StationPlmDraws
         return false;
     }
 
-    /// <summary>Calculates the twenty complete native station lists in published enumeration order.</summary>
+    /// <summary>Calculates the twenty complete station lists in published enumeration order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -113,11 +113,11 @@ internal static class StationPlmDraws
     }
 
     /// <summary>
-    /// One native station draw list's geometry. Station runs are horizontal and every continuation is an absolute
+    /// One station draw list's geometry. Station runs are horizontal and every continuation is an absolute
     /// origin-relative offset, not accumulated. Each layout is its own sealed record holding only what it needs; these
-    /// rules cover only the twenty native owned draw pointers.
+    /// rules cover only the twenty owned draw pointers.
     /// </summary>
-    /// <param name="Id">The native draw list.</param>
+    /// <param name="Id">The draw list.</param>
     internal abstract record Draw(StationDraw Id) : IPlmRunDrawShape
     {
         /// <inheritdoc/>
@@ -167,7 +167,7 @@ internal static class StationPlmDraws
         private protected static RoomTerrainBlock Terrain(RoomCollisionType collision, BlockMirroring flips, int block) =>
             RoomTerrainBlock.Of(block, flips, collision);
 
-        /// <summary>Rejects a run outside this layout's native command count.</summary>
+        /// <summary>Rejects a run outside this layout's command count.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new ArgumentOutOfRangeException(nameof(run));
@@ -175,7 +175,7 @@ internal static class StationPlmDraws
     }
 
     /// <summary>Two horizontal display cells written origin then left; the art advances 32 tiles per frame.</summary>
-    /// <param name="Id">The native draw list.</param>
+    /// <param name="Id">The draw list.</param>
     /// <param name="Frame">The display frame, zero through two.</param>
     internal sealed record MapDisplay(StationDraw Id, int Frame) : Draw(Id)
     {
@@ -194,7 +194,7 @@ internal static class StationPlmDraws
     /// A vertical refill or ammunition display written origin then above; the art advances one tile per frame and its upper
     /// cell, a slope, is 32 tiles earlier.
     /// </summary>
-    /// <param name="Id">The native draw list.</param>
+    /// <param name="Id">The draw list.</param>
     /// <param name="FirstTile">The display's tile at frame zero.</param>
     /// <param name="Frame">The display frame, zero through two.</param>
     internal sealed record ResourceDisplay(StationDraw Id, int FirstTile, int Frame) : Draw(Id)
@@ -216,7 +216,7 @@ internal static class StationPlmDraws
     /// Six two-cell save-pod rows from floor to cap. The art mirrors horizontally, the floor also vertically, and the
     /// active pose advances one tile. Floor and cap are solid except the idle floor-left trigger; the shaft is air.
     /// </summary>
-    /// <param name="Id">The native draw list.</param>
+    /// <param name="Id">The draw list.</param>
     internal sealed record SavePod(StationDraw Id) : Draw(Id)
     {
         /// <inheritdoc/>
@@ -242,7 +242,7 @@ internal static class StationPlmDraws
     }
 
     /// <summary>Map access cells, mirrored by side; the retracted pose writes a second cell beside the first.</summary>
-    /// <param name="Id">The native draw list.</param>
+    /// <param name="Id">The draw list.</param>
     /// <param name="Side">The side of its station the arm sits on.</param>
     /// <param name="Pose">Whether the arm is extended.</param>
     internal sealed record MapAccess(StationDraw Id, HorizontalDirection Side, StationAccessPose Pose) : Draw(Id)
@@ -262,7 +262,7 @@ internal static class StationPlmDraws
     }
 
     /// <summary>A resource access cell, mirrored by side, whose extension turns its trigger solid.</summary>
-    /// <param name="Id">The native draw list.</param>
+    /// <param name="Id">The draw list.</param>
     /// <param name="Side">The side of its station the arm sits on.</param>
     /// <param name="Pose">Whether the arm is extended.</param>
     internal sealed record ResourceAccess(StationDraw Id, HorizontalDirection Side, StationAccessPose Pose) : Draw(Id)

@@ -83,7 +83,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>
-    /// $88:E833-E8C7, Set_RainbowBeam_ColorMathSubscreenBackdropColor.table:
+    /// Set_RainbowBeam_ColorMathSubscreenBackdropColor.table:
     /// five linear hue legs sampled every other word. The native blue-to-magenta leg
     /// delays red by one step and adds a one-step green tint in its upper half.
     /// Falling green/blue changes its rounding bias after local step eight.

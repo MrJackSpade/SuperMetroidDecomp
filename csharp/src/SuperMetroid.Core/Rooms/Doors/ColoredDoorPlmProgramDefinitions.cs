@@ -4,7 +4,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.R
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
-/// The coloured door caps' PLM programs (#1296), in place of their bank-$84 instruction lists at $84:BFFD..C488. Every
+/// The coloured door caps' PLM programs (#1296). Every
 /// colour and facing runs the same shape; the yellow caps keep their own timings, and the red cap sounds each hit.
 /// </summary>
 internal static class ColoredDoorPlmProgramDefinitions

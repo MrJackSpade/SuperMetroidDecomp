@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <summary>Phantoon's flame rain: where the body appears for each random bucket and where the rain begins.</summary>
 public static class PhantoonFlameRain
 {
-    /// <summary>$A7:CDAD, Phantoon_FlameRain_PositionTable: figure-eight cursor and world X/Y.</summary>
+    /// <summary>Figure-eight cursor and world X/Y.</summary>
     /// <param name="pattern">Native random-bucket index, 0..7; patterns zero and four share the same body placement.</param>
     /// <returns>The body variable-A path cursor and whole-pixel room coordinates; does not draw RNG or move the boss.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The pattern is outside 0..7.</exception>

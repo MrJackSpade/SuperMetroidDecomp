@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Editable elevatube presentation. The physical block, hold, sound, and
-/// deletion continue to use compiled cartridge definitions.
+/// deletion continue to use compiled definitions.
 /// </summary>
 public sealed class InstalledRoomPlmMaridiaElevatubeVisuals
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(InstalledRoomPlmMaridiaElevatubeVisuals),
         content => content.AppendAppearances("block", [appearance]));
 
@@ -37,9 +37,9 @@ public sealed class InstalledRoomPlmMaridiaElevatubeVisuals
         appearance = blocks[0];
     }
 
-    /// <summary>Resolves the installed elevatube appearance for its sole draw cell; the Kraid crumble that shares its cartridge draw does not share this catalog's selection.</summary>
+    /// <summary>Resolves the installed elevatube appearance for its sole draw cell; the Kraid crumble that shares its draw does not share this catalog's selection.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Native run ordinal; must be zero.</param>
+    /// <param name="runIndex">Run ordinal; must be zero.</param>
     /// <param name="blockIndex">Block ordinal within the run; must be zero.</param>
     /// <returns>The selected appearance.</returns>
     /// <exception cref="InvalidDataException">The draw pointer, run ordinal, or block ordinal does not identify the sole elevatube cell.</exception>

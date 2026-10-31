@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The Speed Booster blocks' PLM programs (#1296), in place of their bank-$84 lists at $84:C928..C9F8.</summary>
+/// <summary>The Speed Booster blocks' PLM programs (#1296), in place of their lists.</summary>
 internal enum SpeedBoosterBlockProgram
 {
     /// <summary>Crumbles slowly and grows back (<c>InstList_PLM_RespawningSpeedBlock_SlowerCrumbleAnimation</c>).</summary>

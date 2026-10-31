@@ -110,7 +110,7 @@ public sealed class DraygonEnemyState
 
     /// <summary>Count of wall-turret projectiles admitted to the shared pool; disabled cannons and exhausted allocations do not increment it.</summary>
     public int WallTurretsSpawned { get; internal set; }
-    /// <summary>Count of goop projectiles admitted by the facing-specific body-list producers at $A5:9F7C/$9FAE.</summary>
+    /// <summary>Count of goop projectiles admitted by the facing-specific body-list producers.</summary>
     public int GoopProjectilesSpawned { get; internal set; }
 
     /// <summary>

@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// </summary>
 internal static class BombTorizoHandPlmDrawDefinitions
 {
-    /// <summary>$84:989D: a cleared cell, air with blank tile FF.</summary>
+    /// <summary>A cleared cell, air with blank tile FF.</summary>
     private static readonly RoomTerrainBlock ClearedCell = RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.Air);
 
     /// <summary>
-    /// Each draw's horizontal strips in native run order. Intact ($84:9877) is four strips of solid blocks whose tiles are
+    /// Each draw's horizontal strips in native run order. Intact is four strips of solid blocks whose tiles are
     /// consecutive within each spatial role: origin pair 65..66, left singleton 64, upper pair 45..46, lower triple
-    /// 47..49. Cleared ($84:989D) splits the origin row into two halves, then clears the lower, top and upper rows of a
+    /// 47..49. Cleared splits the origin row into two halves, then clears the lower, top and upper rows of a
     /// four-by-four area.
     /// </summary>
     internal static readonly Dictionary<BombTorizoHandDraw, BombTorizoHandStrip[]> Strips = new()

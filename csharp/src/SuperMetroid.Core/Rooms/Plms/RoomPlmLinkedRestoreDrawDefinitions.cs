@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>
 /// The six compiled linked-block restoration layouts. Bomb and Samus-contact
 /// crumble blocks share a presentation resource, while their distinct
-/// collision classes and restoration programs remain in their native catalogs.
+/// collision classes and restoration programs remain in their catalogs.
 /// </summary>
 internal static class RoomPlmLinkedRestoreDrawDefinitions
 {

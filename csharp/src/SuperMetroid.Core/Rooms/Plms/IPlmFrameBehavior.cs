@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// The pre-instruction a PLM slot runs before its timer on each handler pass (native <c>$1CD7,x</c>, which
-/// <c>PLM_Handler</c> calls through <c>JSR ($1CD7,x)</c>). A slot holds one shared behavior object; installs and clears
+/// The frame behaviour a PLM slot runs before its frame hold on each handler pass. A slot holds one shared
+/// behavior object; installs and clears
 /// replace it, and "is it X?" compares against the shared instance.
 /// </summary>
 internal interface IPlmFrameBehavior

@@ -125,7 +125,7 @@ internal sealed class KraidRise
     internal void ShowKraidRoomBackdrop() => _presentation.Appearance.ShowKraidBackdrop();
 
     /// <summary>
-    /// <c>$A7:AD3A</c>: brings Kraid's grown body in front of the room's sprites before his second phase. Only a risen
+    /// Brings Kraid's grown body in front of the room's sprites before his second phase. Only a risen
     /// body grows; a defeated room's hidden body never reaches growth.
     /// </summary>
     /// <exception cref="InvalidOperationException">His body is not behind the sprites.</exception>
@@ -469,7 +469,7 @@ internal sealed class KraidRise
     }
 
     /// <summary>
-    /// Ports <c>RestrictSamusXPositionToFirstScreen</c> ($A7:C9EE). It writes the integer X
+    /// Ports <c>RestrictSamusXPositionToFirstScreen</c>. It writes the integer X
     /// and previous X words only, so the camera's $90:95A0 compare sees Samus's subsequent
     /// movement away from $100 as a scroll.
     /// </summary>

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
-/// <c>GradduallyAccelerateTowardsPoint</c> ($A9:F46B) and <c>GraduallyAccelerateHorizontally</c>
-/// ($A9:F4E6), shared by the Tourian Shitroid and the Mother Brain baby-Metroid cutscene.
+/// <c>GradduallyAccelerateTowardsPoint</c> and <c>GraduallyAccelerateHorizontally</c>
+/// , shared by the Tourian Shitroid and the Mother Brain baby-Metroid cutscene.
 /// Each axis accelerates in runs of steps (<see cref="SeekingVelocityRun"/>): a step that carries
 /// the velocity across zero makes the run's next step a unit larger, and a step taken while already
 /// moving toward the target is a unit larger when the distance to the target wraps around the

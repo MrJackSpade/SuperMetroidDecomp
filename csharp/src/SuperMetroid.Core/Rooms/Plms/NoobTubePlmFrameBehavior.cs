@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Pre-instructions the n00b-tube PLM installs. The values are arbitrary (#1452); verification's native view names each
+/// Pre-instructions the n00b-tube PLM installs. The values are arbitrary (#1452); verification's catalog names each
 /// member's routine word.
 /// </summary>
 public enum NoobTubePlmFrameBehavior

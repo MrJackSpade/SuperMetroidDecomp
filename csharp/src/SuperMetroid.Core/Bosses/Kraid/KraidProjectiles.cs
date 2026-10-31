@@ -58,9 +58,9 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>
-    /// Ports <c>InitAI_KraidNail_Common</c> ($A7:BCF2). Unlike the other parts it has no
+    /// Ports <c>InitAI_KraidNail_Common</c>. Unlike the other parts it has no
     /// dead-room branch: in a defeated Kraid's room the fingernails initialize and run,
-    /// deleting themselves only once slot zero's health reads below one ($A7:BD34).
+    /// deleting themselves only once slot zero's health reads below one.
     /// </summary>
     internal void InitializeKraidNail(RoomEnemySlot nail, int expectedSlot)
     {
@@ -322,7 +322,7 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>
-    /// Native horizontal wall/contour reflections at $A7:BE9E and BEE2 negate
+    /// Native horizontal wall/contour reflections and BEE2 negate
     /// each word independently. Do not propagate fractional borrow as a normal
     /// fixed-point negation would; the resulting nonzero-fraction quirk is native.
     /// </summary>

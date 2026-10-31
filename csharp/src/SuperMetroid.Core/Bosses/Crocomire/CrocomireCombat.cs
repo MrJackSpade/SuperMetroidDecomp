@@ -41,7 +41,7 @@ internal sealed class CrocomireCombat
         _access = access;
     }
 
-    /// <summary>Ports Crocomire's eight-color body hurt flash at $A4:8CCB.</summary>
+    /// <summary>Ports Crocomire's eight-color body hurt flash.</summary>
     internal void ApplyCrocomireHurtPalette(RoomEnemySlot body)
     {
         bool white = !body.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0;
@@ -190,7 +190,7 @@ internal sealed class CrocomireCombat
         throw new InvalidOperationException($"Crocomire hitbox shot reaction {reaction?.ToString() ?? "(none)"} is not translated.");
     }
 
-    /// <summary>Ports Crocomire's mouth reaction at $A4:BA05.</summary>
+    /// <summary>Ports Crocomire's mouth reaction.</summary>
     private void ResolveCrocomireMouthShot(
         CrocomireEnemyState state,
         RoomEnemySlot body,
@@ -234,7 +234,7 @@ internal sealed class CrocomireCombat
             int hitCount = CrocomireMouthHits.Next(state.HitCount);
             if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == CrocomireFightFlags.None)
             {
-                // Both regional constants at $A4:8692/$8694 are eight. Keep the branch
+                // Both regional constants are eight. Keep the branch
                 // explicit because the source distinguishes projectile-attack state even
                 // though this ROM revision stores identical delay values.
                 body.FrameHold = body.FrameHold.AddFrames(
@@ -292,7 +292,7 @@ internal sealed class CrocomireCombat
             ? CrocomirePowerBombReactions.ForFrame(frame)
             : CrocomireBodyProgram.PowerBombReactionMouthNotOpen;
 
-    /// <summary>Ports the one-frame vector setup at $86:906B.</summary>
+    /// <summary>Ports the one-frame vector setup.</summary>
     internal void StartCrocomireProjectileFlight(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
@@ -342,7 +342,7 @@ internal sealed class CrocomireCombat
     /// <summary>The gravity a falling spike-wall piece gains each update.</summary>
     private static readonly SignedSixteenSixteen SpikeWallPieceGravity = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
 
-    /// <summary>Ports the byte-precise slot-dependent shard motion at $86:9115.</summary>
+    /// <summary>Ports the byte-precise slot-dependent shard motion.</summary>
     internal void RunCrocomireSpikeWallPiece(RoomEnemyProjectileSlot projectile)
     {
         int slot = projectile.SlotIndex;
@@ -392,7 +392,7 @@ internal sealed class CrocomireCombat
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
     }
 
-    /// <summary>Ports bridge-fragment vertical collision and gravity at $86:92BA.</summary>
+    /// <summary>Ports bridge-fragment vertical collision and gravity.</summary>
     internal static void RunCrocomireBridgeFragment(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)

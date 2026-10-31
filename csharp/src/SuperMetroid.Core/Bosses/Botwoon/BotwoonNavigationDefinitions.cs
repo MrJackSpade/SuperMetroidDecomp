@@ -6,7 +6,7 @@ internal static class BotwoonNavigationDefinitions
 {
 
     /// <summary>
-    /// <c>$B3:989D</c>: the random selection of one of eight actions when Botwoon leaves a hole outside its health
+    /// The random selection of one of eight actions when Botwoon leaves a hole outside its health
     /// phases; the first <see cref="AuthoredPathActions"/> follow an authored path and the rest spit from the hole.
     /// </summary>
     internal static readonly RandomSampleField ActionChoice = new(1, 3);

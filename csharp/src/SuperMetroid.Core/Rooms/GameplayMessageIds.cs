@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// One-based indices into the cartridge's bank-$85 gameplay-message definition table.
-/// Keeping the native identities here makes callers describe the message they request
+/// One-based indices into the gameplay-message definition table.
+/// Keeping the identities here makes callers describe the message they request
 /// instead of scattering otherwise opaque byte literals through PLM and frontend code.
 /// </summary>
 public static class GameplayMessageIds
@@ -59,6 +59,6 @@ public static class GameplayMessageIds
     public const GameplayMessageId ReserveTank = GameplayMessageId.ReserveTank;
     /// <summary>Requests the Gravity Suit acquisition panel.</summary>
     public const GameplayMessageId GravitySuit = GameplayMessageId.GravitySuit;
-    /// <summary>$85:873D definition; $A2:AB1F requests the gunship save/completion coroutine.</summary>
+    /// <summary>The gunship's save prompt, which the gunship's save/completion sequence requests.</summary>
     public const GameplayMessageId GunshipSaveConfirmation = GameplayMessageId.GunshipSaveConfirmation;
 }

@@ -75,7 +75,7 @@ public sealed class CrocomireColorCatalog
     /// <summary>Installs the native initialization transfers in order: seventeen wall words at CGRAM 160–176, then sixteen projectile words at 208–223.</summary>
     public void ApplyInitial(GameplayColours colours) => CrocomirePalette.ApplyInitial(this, new BossColours(colours));
 
-    /// <summary>Restores the eight selected body/head BG inks from the $A4:B89D role at CGRAM 112–119; the actor separately decides whether a hurt update should show white instead.</summary>
+    /// <summary>Restores the eight selected body/head BG inks role at CGRAM 112–119; the actor separately decides whether a hurt update should show white instead.</summary>
     public void ApplyFightBody(GameplayColours colours) =>
         CrocomirePalette.Apply(this, new BossColours(colours).CrocomireFightBody, Band.FightBody);
 

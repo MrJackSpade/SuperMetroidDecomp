@@ -25,13 +25,13 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         const int crateriaFootstepTypes = 0x90edc9;
         const int crateriaLandingTypes = 0x91f0f3;
 
-        for (int movement = 0; movement < SamusMovementTypeNativeWords.Count; movement++)
+        for (int movement = 0; movement < SamusMovementTypeNumbers.Count; movement++)
         {
             WaterSplashKind expected = rom.ReadCartridgeByte(waterSplashTypes + movement) == 0
                 ? WaterSplashKind.Diving
                 : WaterSplashKind.GroundedPair;
             AssertEqual(expected,
-                SamusAtmosphericEffects.WaterSplashFor(SamusMovementTypeNativeWords.Of(movement)),
+                SamusAtmosphericEffects.WaterSplashFor(SamusMovementTypeNumbers.Of(movement)),
                 $"water-splash movement selector ${movement:X2}");
         }
 
@@ -78,17 +78,17 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
     /// <summary>Invokes the production splash spawner for every movement type and checks grounded-pair versus diving slots.</summary>
     private static void VerifyProductionWaterSplashSelection()
     {
-        for (int movement = 0; movement < SamusMovementTypeNativeWords.Count; movement++)
+        for (int movement = 0; movement < SamusMovementTypeNumbers.Count; movement++)
         {
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            samus.LiquidPhysics.SpawnWaterSplash(samus, SamusMovementTypeNativeWords.Of(movement), samus.Kinematics.BottomPixel.Y);
+            samus.LiquidPhysics.SpawnWaterSplash(samus, SamusMovementTypeNumbers.Of(movement), samus.Kinematics.BottomPixel.Y);
 
             WaterSplashKind expected =
-                SamusAtmosphericEffects.WaterSplashFor(SamusMovementTypeNativeWords.Of(movement));
+                SamusAtmosphericEffects.WaterSplashFor(SamusMovementTypeNumbers.Of(movement));
             AssertEqual(expected == WaterSplashKind.GroundedPair ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.DivingSplash,
                 samus.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
                 $"production water-splash type ${movement:X2}");

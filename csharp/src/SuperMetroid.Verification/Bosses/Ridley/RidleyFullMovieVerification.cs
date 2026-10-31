@@ -1174,7 +1174,7 @@ internal static class RidleyFullMovieVerification
             Check("Samus X fraction", samus.Kinematics.Position.X.Fraction, NativeSnapshotMemory.XFraction);
             Check("Samus Y", samus.Position.Y.Whole, NativeSnapshotMemory.Y);
             Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, NativeSnapshotMemory.YFraction);
-            Check("Samus pose", (ushort)SamusPoseNumbering.Number(samus.Pose), NativeSnapshotMemory.Pose);
+            Check("Samus pose", SamusPoseNumbering.Number(samus.Pose), NativeSnapshotMemory.Pose);
             Check("PreviousDrawHeldInput", (ushort)samus.InputSnapshot.PreviousDrawHeldInput, NativeSnapshotMemory.SamusFilteredHeld);
             Check("PreviousDrawNewInput", (ushort)samus.InputSnapshot.PreviousDrawNewInput, NativeSnapshotMemory.SamusFilteredNew);
             Check("AutoJumpTimer", samus.InputSnapshot.AutoJumpTimer, NativeSnapshotMemory.SamusAutoJumpTimer);
@@ -1185,10 +1185,10 @@ internal static class RidleyFullMovieVerification
                 ? NativeSnapshotMemory.SamusAutoJumpInputHandler : NativeSnapshotMemory.SamusNormalInputHandler,
                 NativeSnapshotMemory.SamusInputHandler);
 
-            Check("Samus previous pose", (ushort)SamusPoseNumbering.Number(samus.PoseHistory.PreviousPose), NativeSnapshotMemory.PreviousPose);
+            Check("Samus previous pose", SamusPoseNumbering.Number(samus.PoseHistory.PreviousPose), NativeSnapshotMemory.PreviousPose);
             CheckValue("Samus previous movement", SamusMovementTypeNativeWords.Byte(samus.PoseHistory.PreviousMovement),
                 SamusMovementTypeNativeWords.Byte(SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection))));
-            Check("Samus last different pose", (ushort)SamusPoseNumbering.Number(samus.PoseHistory.LastDifferentPose), NativeSnapshotMemory.LastDifferentPose);
+            Check("Samus last different pose", SamusPoseNumbering.Number(samus.PoseHistory.LastDifferentPose), NativeSnapshotMemory.LastDifferentPose);
             CheckValue("Samus last different movement", SamusMovementTypeNativeWords.Byte(samus.PoseHistory.LastDifferentMovement),
                 SamusMovementTypeNativeWords.Byte(SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection))));
             Check("Samus animation", samus.AnimationFrame, NativeSnapshotMemory.Animation);

@@ -41,12 +41,6 @@ internal static class SamusMovementTypeNativeWords
         [SamusMovementType.Special] = 0x1b,
     });
 
-    /// <summary>The number of movement bytes the per-movement tables cover: one per movement type.</summary>
-    internal static int Count => Types.Word(SamusMovementType.Special) + 1;
-
-    /// <summary>The movement type <paramref name="number"/> names.</summary>
-    internal static SamusMovementType Of(int number) => Types.Decode(number, "Samus movement byte");
-
     /// <summary>The movement byte of <paramref name="movement"/>.</summary>
     internal static byte Byte(SamusMovementType movement) => checked((byte)Types.Word(movement));
 }

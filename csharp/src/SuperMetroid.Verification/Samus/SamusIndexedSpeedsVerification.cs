@@ -24,7 +24,7 @@ internal static class SamusIndexedSpeedsVerification
             .RejectWrites(_ => "Unexpected indexed-speed write.");
         int compiledCount = 0;
         // The table entries lie in movement-byte order from the entry of the movement byte zero names.
-        SamusMovementType byteZero = SamusMovementTypeNativeWords.Of(0);
+        SamusMovementType byteZero = SamusMovementTypeNumbers.Of(0);
         foreach (SamusLiquidMedium medium in Enum.GetValues<SamusLiquidMedium>())
         {
             speed.SelectEnvironmentSpeedTable(medium);

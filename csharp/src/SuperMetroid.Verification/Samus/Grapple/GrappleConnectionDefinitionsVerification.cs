@@ -202,7 +202,7 @@ internal static class GrappleConnectionDefinitionsVerification
         for (byte movement = 0; movement < 28; movement++)
         {
             bool banned = GrappleCancellationAndDropRomByte(rom, 0x9bb8b8 + movement) != 0;
-            AssertEqual(banned, GrappleConnections.CancelsFiring(SamusMovementTypeNativeWords.Of(movement)), "Every native cancellation byte");
+            AssertEqual(banned, GrappleConnections.CancelsFiring(SamusMovementTypeNumbers.Of(movement)), "Every native cancellation byte");
         }
 
         for (byte movement = 0; movement < 28; movement++)

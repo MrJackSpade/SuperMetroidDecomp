@@ -719,7 +719,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RotationAngle angle = RotationAngle.NormalizeRaw(-sourceAngle.RawValue);
         // The recoil strength is eight times the damage, kept to sixteen bits as the damage word's
         // multiple is, and capped at 240.
-        int magnitude = Math.Min((int)WordWrap.Unsigned(8 * collisionDamage), 240);
+        int magnitude = Math.Min(WordWrap.Unsigned(8 * collisionDamage), 240);
         state.Velocity += new EightEightVector<RoomPixels>(
             EnemyMath.MultiplySineSample(WordWrap.Unsigned(magnitude), angle.ToByteAngle()),
             EnemyMath.MultiplySineSample(

@@ -89,7 +89,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
                             expectedEdited.SequenceEqual(changed.Shown()), "termination emits no tilemap upload");
                         break;
                     }
-                    AssertEqual((ushort)1, stockResult, "frame admission result");
+                    AssertEqual(1, stockResult, "frame admission result");
                     nextEvent += admission.Opcode;
                     physical = admission.Tilemap; outer = admission.OuterShape; inner = admission.InnerShape;
                     frames++;

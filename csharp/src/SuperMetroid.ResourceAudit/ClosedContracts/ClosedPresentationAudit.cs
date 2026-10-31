@@ -190,10 +190,17 @@ internal sealed class ClosedPresentationAudit
             else if (value is IObjectCreationOperation creation)
                 foreach (IArgumentOperation component in creation.Arguments)
                     if (component.Value.ConstantValue is { HasValue: true, Value: not null } part)
-                        yield return new ConstantSelection(parameter + "." + (component.Parameter ?? throw new InvalidOperationException(
-                            "Verification requires component.Parameter.")).Name, part.Value);
+                        yield return new ConstantSelection(parameter + "." + ComponentName((component.Parameter ?? throw new InvalidOperationException(
+                            "Verification requires component.Parameter.")).Name), part.Value);
         }
     }
+
+    /// <summary>
+    /// A constructor argument named as the component property it sets: a positional record's parameter already is (X),
+    /// and an ordinary constructor's parameter (x) names the same component (#1480).
+    /// </summary>
+    private static string ComponentName(string parameter) =>
+        parameter.Length == 0 ? parameter : char.ToUpperInvariant(parameter[0]) + parameter[1..];
 
     /// <summary>Rejects literal arguments outside the reviewed finite identities or numeric index ranges.</summary>
     private static string? InvalidConstantIndex(IInvocationOperation operation, string provider)

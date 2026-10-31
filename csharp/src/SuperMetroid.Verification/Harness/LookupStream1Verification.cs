@@ -1037,7 +1037,7 @@ internal static class LookupStream1Verification
             AssertTrue(!stock.TryLandingYOffset(index, out _), "Landing reader original word bounds");
         foreach (int index in new[] { -1, 24, int.MaxValue })
             AssertTrue(!stock.TryPostureYOffset(index, out _), "Posture reader original bounds");
-        AssertEqual((ushort)0xab, landing[16], "Adjacent native PLB byte is the exact retained instruction observation");
+        AssertEqual(0xab, landing[16], "Adjacent native PLB byte is the exact retained instruction observation");
         Console.WriteLine("Body facing offsets:17 direct landing defaults with zero overrides,24 posture bytes,41 independent edits,16 unaligned windows and content identities pass.");
     }
 

@@ -104,7 +104,7 @@ internal static class ChargeFlarePlacementVerification
             {
                 target.Charge.FlareCounter = 30;
                 var frames = target.Charge.FlareFrames;
-                Array.Fill(frames, (ushort)2);
+                Array.Fill(frames, 2);
             }
             subject.HyperBeamEnabled = hyper;
             var guarded = new FlarePlacementGuard(bus, subject.Pose, 2, true);

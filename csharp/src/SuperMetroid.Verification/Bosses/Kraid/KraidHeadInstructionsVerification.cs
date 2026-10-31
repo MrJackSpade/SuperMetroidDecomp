@@ -59,7 +59,7 @@ internal static class KraidHeadInstructionsVerification
                 KraidHeadNativeRecord displayed = record.IsPose
                     ? record
                     : native.RecordAt(native.CursorAt(unchecked((ushort)(record.Pointer + 2))));
-                AssertEqual((ushort)1, result, $"Kraid command ${record.Pointer:X4} reaches timed frame");
+                AssertEqual(1, result, $"Kraid command ${record.Pointer:X4} reaches timed frame");
                 AssertEqual(displayed.Opcode, state.Parts[0].HeadTimer.RawValue, $"Kraid command ${record.Pointer:X4} installs duration");
                 KraidHeadFrame shown = state.DisplayedHeadFrame
                     ?? throw new InvalidOperationException("Verification requires a displayed Kraid head pose.");

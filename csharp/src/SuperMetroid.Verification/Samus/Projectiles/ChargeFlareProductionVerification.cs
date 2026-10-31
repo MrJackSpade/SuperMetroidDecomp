@@ -128,7 +128,7 @@ internal static class ChargeFlareProductionVerification
             var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             system.Charge.FlareCounter = 30;
             var frames = system.Charge.FlareFrames;
-            Array.Fill(frames, (ushort)3);
+            Array.Fill(frames, 3);
             Array.Fill(system.Charge.FlareTimers, WrappingCountdown.Start(3));
             return system;
         }

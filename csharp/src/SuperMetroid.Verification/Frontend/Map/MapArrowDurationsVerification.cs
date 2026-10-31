@@ -61,7 +61,7 @@ internal static class MapArrowDurationsVerification
             var visual = Load(entries).Get(MapScrollDirection.Left);
             AssertEqual(length, visual.PhaseCount, "custom cycle length");
             AssertEqual(length, visual.StoredDurationCount, "fully authored cycle captured");
-            for (int phase = 0; phase < length; phase++) AssertEqual((byte)254, visual.Duration(phase), "custom duration");
+            for (int phase = 0; phase < length; phase++) AssertEqual(254, visual.Duration(phase), "custom duration");
         }
         Suite(nameof(VerifyMapArrowDurationTicks), () => VerifyMapArrowDurationTicks(rom, stock));
         MapArrowPresentation Load(Dictionary<string, MapArrowEntry> entries)

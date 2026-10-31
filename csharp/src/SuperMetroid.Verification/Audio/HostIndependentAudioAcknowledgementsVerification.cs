@@ -64,7 +64,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
             game.AudioForVerification.QueueSound(Library2Sound.DudShotOnDoor, SoundRequestPriority.Normal);
         StepAll();
         foreach (SuperMetroidGame game in sessions)
-            AssertEqual((byte)1, game.AudioForVerification.SoundQueueForVerification(1).State,
+            AssertEqual(1, game.AudioForVerification.SoundQueueForVerification(1).State,
                 "library 2 waits for its echo before the door");
 
         foreach (SuperMetroidGame game in sessions)

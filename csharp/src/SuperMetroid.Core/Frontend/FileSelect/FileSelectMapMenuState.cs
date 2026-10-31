@@ -249,7 +249,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         if (window.IsComplete) return window.IsReturning ? areaScene : roomScene;
         Position16<ScreenPixels> topLeft = window.TopLeft, bottomRight = window.BottomRight;
         int top = WordWrap.LowByte(topLeft.Y);
-        int bottom = Math.Min(ScreenGeometry.ScreenHeightPixels, top + Math.Max(1, (int)WordWrap.LowByte(bottomRight.Y - topLeft.Y)));
+        int bottom = Math.Min(ScreenGeometry.ScreenHeightPixels, top + Math.Max(1, WordWrap.LowByte(bottomRight.Y - topLeft.Y)));
         int left = WordWrap.LowByte(topLeft.X), right = WordWrap.LowByte(bottomRight.X);
         // A window whose edges have crossed, or that covers no line, shows none of the room: the area scene shows whole.
         if (left > right || top >= bottom) return areaScene;

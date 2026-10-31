@@ -34,13 +34,13 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(0x3000, QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue, "stationary surface probe limit");
         AssertEqual(0x28000, QuicksandReactions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit.RawValue, "upward cap without Gravity");
         AssertEqual(0x10000, QuicksandReactions.SurfacePhysics(gravitySuit: true).StationaryDisplacement.RawValue, "stationary sink with Gravity");
-        AssertEqual((short)2, ConveyorBlockDefinitions.RightwardCarry, "rightward conveyor carry");
-        AssertEqual((short)-2, ConveyorBlockDefinitions.LeftwardCarry, "leftward conveyor carry");
+        AssertEqual(2, ConveyorBlockDefinitions.RightwardCarry, "rightward conveyor carry");
+        AssertEqual(-2, ConveyorBlockDefinitions.LeftwardCarry, "leftward conveyor carry");
 
         // The Fireflea shades are the high bytes of the former shade words.
-        AssertEqual((byte)0xc2, FirefleaShades.DarknessShade(12), "darkness level past the ramp");
-        AssertEqual((byte)25, FirefleaShades.DarknessShade(10), "last ramp darkness level");
-        AssertEqual((byte)6, FirefleaShades.FlashingShade(6), "brightest flash level");
+        AssertEqual(0xc2, FirefleaShades.DarknessShade(12), "darkness level past the ramp");
+        AssertEqual(25, FirefleaShades.DarknessShade(10), "last ramp darkness level");
+        AssertEqual(6, FirefleaShades.FlashingShade(6), "brightest flash level");
 
         // The atlas is keyed by picture; the import reads each picture from the address it was keyed by.
         AssertEqual(34, RoomFxAnimatedTileAtlasFormat.Segments.Count(), "atlas segments");
@@ -64,9 +64,9 @@ internal static class FxDefinitionMigrationVerification
         AssertEqual(10, WaterWaveDefinitions.Bg3WavePhaseDuration, "water layer-three wave step");
         AssertEqual(0x40, WaterWaveDefinitions.HorizontalSubscrollVelocity, "water drift");
         AssertEqual(16, WaterWaveDefinitions.WaveDisplacementCount, "water wave steps");
-        AssertEqual((short)-1, LiquidEffects.WaterWaveDisplacement(5), "water wave sample 5");
-        AssertEqual((short)1, LiquidEffects.HeatHorizontalWaveDisplacement(2), "horizontal heat-haze sample 2");
-        AssertEqual((short)-1, LiquidEffects.HeatHorizontalWaveDisplacement(8), "horizontal heat-haze sample 8");
+        AssertEqual(-1, LiquidEffects.WaterWaveDisplacement(5), "water wave sample 5");
+        AssertEqual(1, LiquidEffects.HeatHorizontalWaveDisplacement(2), "horizontal heat-haze sample 2");
+        AssertEqual(-1, LiquidEffects.HeatHorizontalWaveDisplacement(8), "horizontal heat-haze sample 8");
         AssertEqual(4, LavaAcidWaveDefinitions.VerticalWavePhaseDuration, "vertical heat-haze step");
         AssertEqual(0x70, LavaAcidWaveDefinitions.AmbientSoundPeriod, "lava sound period");
         AssertEqual(288, LiquidTideDefinitions.SmallTidePositivePhaseDelta, "small tide rising phase step");

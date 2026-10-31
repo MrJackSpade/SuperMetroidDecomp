@@ -8,11 +8,11 @@ public static class LiquidEffects
     /// <summary>One period of the water wave, sixteen samples (#1468): the waveform a water surface's waves and the
     /// vertical heat haze are drawn from.</summary>
     public static ImmutableArray<int> WaterWaveform { get; } =
-        [.. Enumerable.Range(0, WaterWaveDefinitions.WaveDisplacementCount).Select(index => (int)WaterWaveDisplacement(index))];
+        [.. Enumerable.Range(0, WaterWaveDefinitions.WaveDisplacementCount).Select(index => WaterWaveDisplacement(index))];
 
     /// <summary>One period of the horizontal heat haze, sixteen samples (#1468).</summary>
     public static ImmutableArray<int> HeatHorizontalWaveform { get; } =
-        [.. Enumerable.Range(0, LavaAcidWaveDefinitions.WaveDisplacementCount).Select(index => (int)HeatHorizontalWaveDisplacement(index))];
+        [.. Enumerable.Range(0, LavaAcidWaveDefinitions.WaveDisplacementCount).Select(index => HeatHorizontalWaveDisplacement(index))];
 
     /// <summary>Calculates the signed scanline displacement for a water wave index 0..15.</summary>
     /// <remarks>The original $88:C46E waveform consists of two identical eight-sample

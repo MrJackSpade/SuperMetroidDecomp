@@ -1623,7 +1623,7 @@ internal static class LookupStream4Verification
             int nativeSource = CartridgeImportSource.Require(rom).ReadCartridgeLong((0x8b0001 + transfer));
             int firstSource = CartridgeImportSource.Require(rom).ReadCartridgeLong(0x8ba338);
             AssertEqual((nativeSource - firstSource) / 256,
-                (int)TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[frame], "native title baby source page");
+                TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[frame], "native title baby source page");
             AssertEqual((ushort)256, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0004 + transfer)), "native baby transfer size");
             AssertEqual((ushort)0x3800, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8b0006 + transfer)), "native baby transfer destination");
         }

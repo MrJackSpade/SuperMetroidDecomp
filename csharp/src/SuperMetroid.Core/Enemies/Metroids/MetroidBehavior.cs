@@ -193,7 +193,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Sign-extend the 13-bit shifted byte difference.
         shifted = (shifted << 19) >> 19;
         return Math.Clamp(
-            (int)WordWrap.Signed(shifted),
+            WordWrap.Signed(shifted),
             -MetroidMaximumVelocity,
             MetroidMaximumVelocity);
     }

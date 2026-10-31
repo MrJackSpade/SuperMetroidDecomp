@@ -131,7 +131,7 @@ public static class PcmWaveFile
         writer.Write(sampleRate);
         writer.Write(sampleRate * channelCount * sizeof(short));
         writer.Write(unchecked((ushort)(channelCount * sizeof(short))));
-        writer.Write(PcmSampleFormat.BitsPerSample);
+        writer.Write(checked((ushort)PcmSampleFormat.BitsPerSample));
         writer.Write(Encoding.ASCII.GetBytes("data"));
         writer.Write(dataBytes);
         foreach (short sample in samples)

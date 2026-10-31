@@ -68,7 +68,7 @@ internal static class EnemyQuadraticSpeedsVerification
         for (int index = 0; index < EnemyQuadraticSpeedDefinitions.RowCount; index++)
         for (int low = 0; low < 256; low++)
         foreach (EnemySpeedSign sign in signs)
-            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), (int)wings((ushort)(index * 256 + low), sign),
+            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, index, sign), wings((ushort)(index * 256 + low), sign),
                 "KiHunter high-byte index and coarse angle delta");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);

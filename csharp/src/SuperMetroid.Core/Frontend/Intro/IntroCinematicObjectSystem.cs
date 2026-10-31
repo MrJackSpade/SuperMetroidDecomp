@@ -179,7 +179,7 @@ internal sealed class IntroCinematicObjectSystem
         textGlow?.Step(text);
 
         // UpdateCinematicBgTilemap uploads the staging map's visible rows to the narration plane each update; showing
-        // them now is the desktop equivalent of observing the following NMI.
+        // them now matches what the next displayed frame shows.
         text.Publish();
     }
 

@@ -282,7 +282,7 @@ public sealed class HudState
             }
         }
 
-        // Every eight NMI frames the native code turns the center cell to the Samus-location
+        // Every eight frames the minimap turns the center cell to the Samus-location
         // shade. The other half-cycle leaves its explored shade intact, producing the
         // familiar blinking Samus location without a separate sprite. The center is always
         // the explored cell Samus stands in, so it is always a revealed map cell.

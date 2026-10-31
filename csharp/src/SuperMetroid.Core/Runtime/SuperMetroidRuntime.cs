@@ -156,11 +156,13 @@ internal sealed class SuperMetroidRuntime
     /// <param name="floorQueueResidue">The session's floor update residue, which outlives each runtime.</param>
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
     /// <param name="earthquakeSoundDelay">The frame the save file found at power-on adds to every earthquake rumble's delay.</param>
+    /// <param name="saveChoiceInput">The session's cadence of an open save confirmation's controller reads.</param>
     internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
         FrameClock clock, SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue, SharedRandom random,
-        PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
+        PowerOnEarthquakeSoundDelay earthquakeSoundDelay, SaveChoiceInputCadence saveChoiceInput)
     {
         Ensure.NotNull(artwork);
+        MessageBox = new GameplayMessageBoxState(saveChoiceInput);
         SamusOverreads = artwork.SamusOverreads ?? throw new InvalidOperationException(
             "Gameplay requires the installed Samus overread services.");
         System = new SharedGameState(random, earthquakeSoundDelay);
@@ -415,7 +417,7 @@ internal sealed class SuperMetroidRuntime
     /// <see cref="StepFrame"/> calls advance the box's updates without running gameplay
     /// until the box has closed.
     /// </summary>
-    public GameplayMessageBoxState MessageBox { get; } = new();
+    public GameplayMessageBoxState MessageBox { get; }
 
     /// <summary>
     /// Shared post-message Varia/Gravity light-beam transformation from banks $88/$91.

@@ -53,7 +53,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
             case SuperMetroidGameState.PlayingDemo:
                 if (session.Demo.Holding)
                 {
-                    // Native is suspended in WaitForNMI here: no actor, animation, or
+                    // The final image holds: no actor, animation, or
                     // script advances during the ninety-frame final-image hold.
                     session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                     if (session.GameplayRuntime.Controller1.NewlyPressed != ControllerButton.None)
@@ -112,7 +112,6 @@ internal sealed class AttractGamePhases(FrontendSession session)
             case SuperMetroidGameState.Reset:
             case SuperMetroidGameState.OpeningCinematic:
             case SuperMetroidGameState.GameOptionsMenu:
-            case SuperMetroidGameState.Unused03:
             case SuperMetroidGameState.FileSelectMenus:
             case SuperMetroidGameState.FileSelectMap:
             case SuperMetroidGameState.LoadingGameData:
@@ -137,8 +136,6 @@ internal sealed class AttractGamePhases(FrontendSession session)
             case SuperMetroidGameState.DeathFinalBlackOut:
             case SuperMetroidGameState.GameOverMenu:
             case SuperMetroidGameState.ReserveTanksAuto:
-            case SuperMetroidGameState.Unused1c:
-            case SuperMetroidGameState.DebugGameOverMenu:
             case SuperMetroidGameState.IntroCinematic:
             case SuperMetroidGameState.SetUpNewGame:
             case SuperMetroidGameState.MadeItToCeresElevator:

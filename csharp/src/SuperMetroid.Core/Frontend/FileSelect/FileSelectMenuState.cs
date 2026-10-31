@@ -79,8 +79,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         BuildSaveTilemap();
 
-        // Host-side loading above is atomic, but the native dispatches are not: indices
-        // zero and two each wait for an NMI inside their dispatch before returning.
+        // Loading above is atomic, but the menu's opening steps are not: the
+        // blanking and unblanking steps each wait out one more update.
         Phase = FileSelectPhase.EnterBlankScreen;
         brightness = ScreenBrightness.Blanked;
     }
@@ -109,8 +109,8 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     public bool SaveRamChangedThisFrame { get; private set; }
 
     /// <summary>
-    /// True when the next update resumes a native dispatch after its internal NMI wait
-    /// rather than entering a new main-loop dispatch, so the main loop's RNG call is absent.
+    /// True when the next update continues a step that waits out a frame of the display
+    /// rather than starting a new update of the menu, so the per-update random advance is absent.
     /// </summary>
     internal bool ResumesAfterFrameWait => Phase is
         FileSelectPhase.EnterBlankScreenAfterFrameWait or FileSelectPhase.InitializeMainAfterFrameWait;
@@ -126,7 +126,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         switch (Phase)
         {
             case FileSelectPhase.EnterBlankScreen:
-                // $81:944E: finish any fade-out, then SetForceBlankAndWaitForNMI.
+                // Finish any fade-out, then blank the display and wait out one update.
                 screenFade.FadeOut(ref brightness);
                 if (brightness.Level != 0)
                     break;
@@ -144,7 +144,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
                 break;
 
             case FileSelectPhase.InitializeMain:
-                // $81:9ED6 sets both fade words to one, then ClearForceBlankAndWaitForNMI.
+                // Set both fade timings to one, then unblank the display and wait out one update.
                 screenFade.SetTiming(1, 1);
                 brightness = brightness.Unblanked();
                 Phase = FileSelectPhase.InitializeMainAfterFrameWait;
@@ -376,7 +376,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
     private void MoveMainSelection(VerticalDirection direction) =>
         SelectedItem = FileSelectMainNavigation.Move(SelectedItem, HasAnySave, direction);
 
-    /// <summary>Swaps main and data pages only at forced blank, then enters the saved phase after fade-in.</summary>
+    /// <summary>Swaps main and data pages only once the screen is black, then enters the saved phase after fade-in.</summary>
     private void StepDataManagementFade()
     {
         if (Phase is FileSelectPhase.FadeOutToDataManagement or FileSelectPhase.FadeOutToMain)

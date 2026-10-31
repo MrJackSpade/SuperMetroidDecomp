@@ -269,7 +269,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         SamusProjectileSystem.LoadBeamPalette(palette.Colours(ScreenColourGroup.SamusBeams), equippedBeams: 0, beamPalettes);
         characterArtwork.Palette.LoadTo(palette);
 
-        // The PPU loads above are invisible: the intro stays in forced blank until its fade.
+        // The loads above are invisible: the intro stays black until its fade.
         // $8B:A395 itself runs as the next dispatch's cinematic function.
         Phase = IntroCinematicPhase.Initial;
     }
@@ -492,7 +492,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.IntroFadeOut:
-                // $8B:B72F fades through HandleFadingOut and finishes once forced blank is set.
+                // $8B:B72F fades through HandleFadingOut and finishes once the screen is black.
                 fade.FadeOut(ref brightness);
                 if (brightness.IsBlanked)
                 {
@@ -632,8 +632,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);
         CurrentFlashbackSamus.CommitPoseHistory();
         CurrentFlashbackSamus.Presentation.PrimeGraphics(CurrentFlashbackSamus);
-        // The native NMI consumes the freshly selected top/bottom definitions before the
-        // next displayed OAM image. Apply that dedicated DMA now so the first host-rendered
+        // The next displayed frame shows the freshly selected top and bottom definitions;
+        // apply them now so the first rendered
         // flashback frame names initialized OBJ characters rather than stale intro art.
         CurrentFlashbackMotherBrain = new IntroMotherBrainSpriteState();
         FlashbackMotherBrainExplosions = null;
@@ -970,7 +970,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         RoomLevelData level = FlashbackLevel;
         ControllerButton demoInput = CurrentFlashbackDemoInput?.Held ?? 0;
 
-        // Accepted NMI transfers the definitions selected by the previous Samus draw. This
+        // Each frame shows the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding ROM graphics rather than
         // interpreting stale standing tiles as a hurt body on the next visible frame.
 

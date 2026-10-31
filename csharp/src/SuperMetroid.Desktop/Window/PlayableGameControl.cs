@@ -555,7 +555,7 @@ public sealed class PlayableGameControl : UserControl
                     lastRecoverableError = errorReporter?.Report(exception, new GitHubErrorContext(
                         Boundary: "audio submission after completed gameplay frame",
                         FrameNumber: checked((ushort)game.FrameNumber),
-                        GameState: $"${(ushort)game.GameState:X2} {game.GameState}",
+                        GameState: game.GameState.ToString(),
                         Phase: game.CurrentFrame.Phase,
                         ControllerInput: input,
                         Room: game.GameplayActiveRoom?.Name,
@@ -625,7 +625,7 @@ public sealed class PlayableGameControl : UserControl
                 new GitHubErrorContext(
                     Boundary: "playable emulated-frame boundary",
                     FrameNumber: checked((ushort)game.FrameNumber),
-                    GameState: $"${(ushort)game.GameState:X2} {game.GameState}",
+                    GameState: game.GameState.ToString(),
                     Phase: game.CurrentFrame.Phase,
                     ControllerInput: input,
                     Room: game.GameplayActiveRoom?.Name,
@@ -692,7 +692,7 @@ public sealed class PlayableGameControl : UserControl
         }
 
         string gameStatus =
-            $"state ${((ushort)frame.GameState):X2} {frame.GameState}  |  {frame.Phase}  |  frame {frame.FrameNumber}" +
+            $"state {frame.GameState}  |  {frame.Phase}  |  frame {frame.FrameNumber}" +
             (gamepad.DeviceName is null ? string.Empty : $"  |  pad: {gamepad.DeviceName}") +
             (replay is null
                 ? string.Empty

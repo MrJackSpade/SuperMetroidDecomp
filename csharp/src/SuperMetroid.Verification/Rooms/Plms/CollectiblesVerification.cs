@@ -526,7 +526,7 @@ internal static class CollectiblesVerification
     {
         var bus = new TestAddressSpace();
         GameplayMessageArtwork messages = CreatePermanentMessageFixture();
-        var message = new GameplayMessageBoxState();
+        var message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
 
         message.Begin(GameplayMessageIds.EnergyTank, 0);
         // $85:808D-$8096 spend eight lag frames before Open_MessageBox; the first ends the
@@ -617,7 +617,7 @@ internal static class CollectiblesVerification
         // small-border drawing routine but delimits three complete content rows. This
         // verifies the native variable-length copy instead of inferring height from the
         // border routine's name.
-        message = new GameplayMessageBoxState();
+        message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
         message.Begin(GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);

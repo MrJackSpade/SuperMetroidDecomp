@@ -25,7 +25,7 @@ internal sealed record PauseMenuEntry
     /// <summary>Audio.</summary>
     public AudioQueues? Audio { get; init; } = null;
 
-    /// <summary>The HUD gameplay displayed at its last NMI (#1351, #1466), which pause keeps resident.</summary>
+    /// <summary>The HUD gameplay displayed at its last frame (#1351, #1466), which pause keeps resident.</summary>
     public ShownHud? GameplayHud { get; init; } = null;
 
     /// <summary>Map reveal mode.</summary>

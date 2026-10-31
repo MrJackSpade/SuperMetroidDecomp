@@ -20,7 +20,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
             !StepHitDoorBlockFunction(controllerInput))
             return;
         // State $0A ($82:E1B7) follows in the same dispatch and publishes state $0B.
-        // MainGameLoop's HDMA pass ($88:84B9) runs before this state handler. A rising
+        // The update's per-line effect pass runs before this phase. A rising
         // liquid's rumble or ambient sound it requests is admitted ahead of the cancels.
         session.GameplayRuntime.DoorTransition.RunDoorSoundWaitPrologue(controllerInput, session.GameplayRuntime.Room.LoadedScope.Plms, session.GameplayRuntime.Room.LoadedScope.BombProjectiles, session.GameplayRuntime.Room.LoadedScope);
         PublishDoorEntryRoomFxSounds(session.GameplayRuntime);
@@ -83,7 +83,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         }
     }
 
-    /// <summary>Queues the entry frame's HDMA-pass room-FX sounds while sounds are still enabled.</summary>
+    /// <summary>Queues the sounds the entry update's per-line effect pass requested while sounds are still enabled.</summary>
     private void PublishDoorEntryRoomFxSounds(SuperMetroidRuntime source)
     {
         if (source.AttractDemo.IsAttractDemo)

@@ -78,8 +78,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     public GameOverMenuPhase Phase { get; internal set; }
 
     /// <summary>
-    /// True when the current menu index stopped at its own NMI wait (<c>$81:8D1D</c> or
-    /// <c>$81:9260</c>); the next update finishes that index instead of entering MainGameLoop.
+    /// True when the current menu step waits out a frame of the display (after blanking or
+    /// unblanking); the next update finishes that step instead of starting a new update of the menu.
     /// </summary>
     public bool ResumesAfterFrameWait { get; internal set; }
 
@@ -135,8 +135,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                     GameOverMenuPhase.FadeIn or
                     GameOverMenuPhase.Main or
                     GameOverMenuPhase.FadeOutToContinue or
-                    GameOverMenuPhase.FadeOutToTitle => throw new InvalidOperationException($"Game-over phase {Phase} has no NMI wait."),
-                _ => throw new InvalidOperationException($"Game-over phase {Phase} has no NMI wait."),
+                    GameOverMenuPhase.FadeOutToTitle => throw new InvalidOperationException($"Game-over phase {Phase} has no frame wait."),
+                _ => throw new InvalidOperationException($"Game-over phase {Phase} has no frame wait."),
             };
             return;
         }
@@ -150,8 +150,8 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         switch (Phase)
         {
             case GameOverMenuPhase.ConfigureGraphics:
-                // State $19 hands over at brightness zero, so HandleFadingOut leaves the screen
-                // black and $81:8D1D blanks it and waits for NMI before configuring the menu.
+                // The death black-out hands over at brightness zero, so the fade leaves the screen
+                // black; the menu blanks it and waits out one update before configuring itself.
                 if (brightness != 0)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
                 audio.QueueSound(Library3Sound.Silence, maximumQueued: GameOverMenuDefinitions.MaximumQueuedSounds);
@@ -166,7 +166,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 StepBabyMetroid();
                 SelectedItem = YesNoChoice.Yes;
                 brightness = 0;
-                // $81:9260 unblanks and waits for NMI before advancing the index.
+                // Unblank, then wait out one update before advancing the step.
                 ResumesAfterFrameWait = true;
                 break;
 

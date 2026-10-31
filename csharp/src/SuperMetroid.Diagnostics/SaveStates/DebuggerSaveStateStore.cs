@@ -198,7 +198,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
                 WriteContentIdentity(writer, contentIdentity.ToSnapshot());
                 writer.Write(metadata.SavedUtc.UtcTicks);
                 writer.Write(metadata.FrameNumber);
-                writer.Write((ushort)metadata.GameState);
+                writer.Write(metadata.GameState.ToString());
                 WriteNullableString(writer, metadata.Room);
                 WriteNullableString(writer, metadata.RoomState);
                 writer.Flush();
@@ -265,7 +265,7 @@ internal sealed class DebuggerSaveStateStore : IDisposable
 
         DateTimeOffset savedUtc = new(reader.ReadInt64(), TimeSpan.Zero);
         ushort frame = reader.ReadUInt16();
-        SuperMetroidGameState gameState = (SuperMetroidGameState)reader.ReadUInt16();
+        SuperMetroidGameState gameState = Enum.Parse<SuperMetroidGameState>(reader.ReadString());
         string? room = ReadNullableString(reader);
         string? roomState = ReadNullableString(reader);
         using var compressed = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: true);

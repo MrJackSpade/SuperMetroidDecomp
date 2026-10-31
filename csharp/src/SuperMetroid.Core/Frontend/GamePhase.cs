@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="randomStep">The random generator's step before the dispatch.</param>
 /// <param name="step">One dispatch.</param>
 /// <param name="name">The current status.</param>
-/// <param name="resumesFrameWait">Whether the next update resumes inside the dispatch's NMI wait; never when omitted.</param>
+/// <param name="resumesFrameWait">Whether the next update continues a step that waits out a frame of the display; never when omitted.</param>
 /// <param name="audio">The prologue and epilogue audio handling.</param>
 internal sealed class GamePhase(
     SuperMetroidGameState state,

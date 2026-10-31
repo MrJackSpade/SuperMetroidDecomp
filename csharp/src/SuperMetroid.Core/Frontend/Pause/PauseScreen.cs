@@ -85,7 +85,7 @@ internal sealed class PauseScreen
     /// <summary>The retained HUD's pictures last resolved, while neither the HUD nor the sheets have changed.</summary>
     [NonSerialized] private PicturedHud? pictured;
 
-    /// <summary>Keeps <paramref name="gameplay"/>, the HUD gameplay displayed at its last NMI, resident.</summary>
+    /// <summary>Keeps <paramref name="gameplay"/>, the HUD gameplay displayed at its last frame, resident.</summary>
     internal void RetainHud(ShownHud gameplay)
     {
         Hud = Ensure.NotNull(gameplay);

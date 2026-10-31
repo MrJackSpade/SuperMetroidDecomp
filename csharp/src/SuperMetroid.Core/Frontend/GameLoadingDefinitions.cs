@@ -1,31 +1,30 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Native NMI waits inside the single game-loading dispatch of states $06/$1F
-/// (<c>$82:8000</c>). Each wait is one accepted NMI with no main-loop dispatch.
+/// The authored waits after a game load: the updates the game holds a black screen, running no phase, before the
+/// gameplay fade begins. How long loading takes decides which update gameplay resumes on.
 /// </summary>
 internal static class GameLoadingDefinitions
 {
     /// <summary>
-    /// <c>StartGameplay</c> ($80:A07B) calls <c>HandleMusicQueueFor20Frames</c> ($80:A12B)
-    /// from $80:A0A7, $80:A0D2 and $80:A117; each call waits for $14 NMIs.
+    /// Starting gameplay lets the music queue settle three times, twenty updates each.
     /// </summary>
-    public const int MusicQueueWaits = 3 * 0x14;
+    public const int MusicQueueWaits = 3 * 20;
 
     /// <summary>
-    /// Frames a load spends setting up the room's enemies before gameplay starts ($82:80F6: enemy initialization plus
-    /// one frame's wait while its counter runs from six to zero), used by every load except the Zebes landing. The
-    /// frames themselves are kept because how long loading takes decides which frame gameplay resumes on; the
-    /// enemies' pictures need no time to appear.
+    /// Updates a load spends setting up the room's enemies before gameplay starts (enemy setup plus one update's wait
+    /// while its counter runs from six to zero), used by every load except the Zebes landing. The updates themselves
+    /// are kept because how long loading takes decides which update gameplay resumes on; the enemies' pictures need
+    /// no time to appear.
     /// </summary>
     public const int EnemySetupWaits = 7;
 
-    /// <summary>Frames the Zebes landing ($82:80C3, state $22) spends setting up enemies: its counter runs from fifteen to zero.</summary>
+    /// <summary>Updates the Zebes landing spends setting up enemies: its counter runs from fifteen to zero.</summary>
     public const int ZebesLandingEnemySetupWaits = 16;
 
-    /// <summary>Total NMI continuations following an ordinary or Ceres loading dispatch.</summary>
+    /// <summary>Total waiting updates following an ordinary or Ceres load.</summary>
     public const int OrdinaryLoadWaits = MusicQueueWaits + EnemySetupWaits;
 
-    /// <summary>Total NMI continuations following the post-Ceres Zebes-landing dispatch.</summary>
+    /// <summary>Total waiting updates following the post-Ceres Zebes landing's load.</summary>
     public const int ZebesLandingLoadWaits = MusicQueueWaits + ZebesLandingEnemySetupWaits;
 }

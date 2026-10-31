@@ -21,8 +21,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         // `Vector_RESET_Async` ultimately stores state one and initializes
         // `cinematic_function` to `CinematicFunctionOpening` at $8B:9B68.
         session.audio.Reset();
-        // CommonBootSection clears bank $7E on a soft reset, discarding every gameplay
-        // owner. The reseeded RNG and NMI counters already live in the menu owners.
+        // A soft reset discards every gameplay
+        // owner. The reseeded random generator and the frame clock already live in the session.
         session.DiscardRuntime();
         session.Show(new TitleSequenceState(
             session.audio,
@@ -222,8 +222,8 @@ internal sealed class MenuGamePhases(FrontendSession session)
         {
             if (session.ScreenAs<FileSelectMapMenuState>() is { LoadRequested: true })
             {
-                // $81:AF8C forced blank and waited for this NMI inside the previous map
-                // dispatch; returning, it raises the dispatcher to state six. The map runs no more.
+                // The previous map update blanked the display and waited out this frame;
+                // continuing, it enters the game load. The map runs no more.
                 session.Close<FileSelectMapMenuState>();
                 session.RouteLoading(SaveLoadingGameState.MainGame);
                 session.GameState = SuperMetroidGameState.LoadingGameData;
@@ -250,7 +250,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 session.display.PublishMenu(session.ActiveOptions);
                 return;
             }
-            // A latched load request waits for the next NMI before state six (see above).
+            // A latched load request waits out the next frame before the game load (see above).
             return;
         }
         // Ceres has no world-map entry; preserve its checkpoint arrival path.

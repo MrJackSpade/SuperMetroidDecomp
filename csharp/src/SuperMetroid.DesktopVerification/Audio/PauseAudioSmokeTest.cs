@@ -45,8 +45,9 @@ public static class PauseAudioSmokeTest
             commandCount += game.AudioEventsForVerification.Count(audioEvent => audioEvent is not AudioEvent.ClockStep);
             continuity.Observe(samples);
             frames++;
-            if (next.GameState is >= SuperMetroidGameState.PausingDarkening and
-                <= SuperMetroidGameState.Unpausing)
+            if (next.GameState is SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Pausing or
+                SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or SuperMetroidGameState.UnpausingA or
+                SuperMetroidGameState.UnpausingB or SuperMetroidGameState.Unpausing)
             {
                 pauseFrames++;
                 // The driver starts the cancellations at a poll after the CPU writes them, so

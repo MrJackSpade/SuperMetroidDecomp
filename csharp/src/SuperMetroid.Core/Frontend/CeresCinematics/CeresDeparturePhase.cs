@@ -9,6 +9,6 @@ public enum CeresDeparturePhase
     HoldingOnElevator,
     /// <summary>GameState_21_BlackoutFromCeres: gameplay continues, then one brightness step fades the screen per call with the native fade-delay words zero.</summary>
     FadingToBlack,
-    /// <summary>Forced blank has been reached; the outer game owner may save the Ceres departure checkpoint and enter the destruction cinematic, without restarting this timer.</summary>
+    /// <summary>The screen has gone black; the outer game owner may save the Ceres departure checkpoint and enter the destruction cinematic, without restarting this timer.</summary>
     Complete,
 }

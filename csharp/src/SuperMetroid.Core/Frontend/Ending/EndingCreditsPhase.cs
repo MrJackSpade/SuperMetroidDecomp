@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Bank-$8B cinematic coroutine positions, from setup waits to the terminal result display.</summary>
 internal enum EndingCreditsPhase
 {
-    /// <summary>Performs setup NMI waits before loading the first cloud scene.</summary>
+    /// <summary>Waits out the setup updates before loading the first cloud scene.</summary>
     SetupEscapeFromZebes,
     /// <summary>Holds the cloud scene until the queued escape music finishes loading.</summary>
     WaitForEscapeMusic,
@@ -23,7 +23,7 @@ internal enum EndingCreditsPhase
     FadeInZebesExplosion,
     /// <summary>Completes the explosion palette interpolation after brightness reaches full.</summary>
     ZebesExplosionPaletteCrossfade,
-    /// <summary>Uploads Ceres-derived flyaway Mode-7 art over sixteen NMI calls.</summary>
+    /// <summary>Loads the Ceres-derived flyaway floor art over sixteen updates.</summary>
     ZebesExplosionTileUpload,
     /// <summary>Lets the explosion actor's private instruction list control the finale.</summary>
     ZebesExplosionAnimation,

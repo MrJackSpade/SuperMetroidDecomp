@@ -11,7 +11,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend;
@@ -86,12 +85,66 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             BeginTimeUp();
         if (session.StepScreenFadeOut() == 0)
         {
-            // $82:8CEA increments the state written by gameplay, including a
-            // door hit on this final fade frame ($09 becomes $0A).
+            // The finished fade moves on from the state gameplay left: into the pause
+            // preparation, or into the next step of a door hit or time-up written on
+            // this final fade frame.
             session.screenFade.Clear();
-            session.GameState = session.GameState.Next();
+            session.GameState = StateAfterPauseDarkening(session.GameState);
         }
     }
+
+    /// <summary>
+    /// The state the finished pause darkening enters from <paramref name="state"/>, the state gameplay left on its final
+    /// fade update: the pause preparation, or the step after a door hit or time-up that update wrote.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Gameplay left a state the darkening cannot continue from.</exception>
+    private static SuperMetroidGameState StateAfterPauseDarkening(SuperMetroidGameState state) => state switch
+    {
+        SuperMetroidGameState.PausingDarkening => SuperMetroidGameState.Pausing,
+        SuperMetroidGameState.HitDoorBlock => SuperMetroidGameState.LoadingNextRoomA,
+        SuperMetroidGameState.TimeUp => SuperMetroidGameState.WhitingOutFromTimeUp,
+        SuperMetroidGameState.Reset or
+        SuperMetroidGameState.OpeningCinematic or
+        SuperMetroidGameState.GameOptionsMenu or
+        SuperMetroidGameState.FileSelectMenus or
+        SuperMetroidGameState.FileSelectMap or
+        SuperMetroidGameState.LoadingGameData or
+        SuperMetroidGameState.MainGameplayFadeIn or
+        SuperMetroidGameState.MainGameplay or
+        SuperMetroidGameState.LoadingNextRoomA or
+        SuperMetroidGameState.LoadingNextRoomB or
+        SuperMetroidGameState.Pausing or
+        SuperMetroidGameState.PausedA or
+        SuperMetroidGameState.PausedB or
+        SuperMetroidGameState.UnpausingA or
+        SuperMetroidGameState.UnpausingB or
+        SuperMetroidGameState.Unpausing or
+        SuperMetroidGameState.DeathSequenceStart or
+        SuperMetroidGameState.DeathBlackOutSurroundings or
+        SuperMetroidGameState.DeathWaitForMusic or
+        SuperMetroidGameState.DeathPreFlashing or
+        SuperMetroidGameState.DeathFlashing or
+        SuperMetroidGameState.DeathExplosionWhiteOut or
+        SuperMetroidGameState.DeathFinalBlackOut or
+        SuperMetroidGameState.GameOverMenu or
+        SuperMetroidGameState.ReserveTanksAuto or
+        SuperMetroidGameState.IntroCinematic or
+        SuperMetroidGameState.SetUpNewGame or
+        SuperMetroidGameState.MadeItToCeresElevator or
+        SuperMetroidGameState.BlackoutFromCeres or
+        SuperMetroidGameState.CeresGoesBoom or
+        SuperMetroidGameState.WhitingOutFromTimeUp or
+        SuperMetroidGameState.CeresGoesBoomWithSamus or
+        SuperMetroidGameState.SamusEscapesFromZebes or
+        SuperMetroidGameState.EndingAndCredits or
+        SuperMetroidGameState.TransitionToDemoA or
+        SuperMetroidGameState.TransitionToDemoB or
+        SuperMetroidGameState.PlayingDemo or
+        SuperMetroidGameState.TransitionFromDemoA or
+        SuperMetroidGameState.TransitionFromDemoB =>
+            throw new InvalidOperationException($"The pause darkening cannot finish from {state}."),
+        _ => throw new InvalidOperationException($"Undefined game state {state}."),
+    };
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Unpausing"/>.</summary>
     internal void DispatchUnpausing(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
@@ -112,9 +165,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
-        bool ceresReachedForcedBlank = session.ceresDeparture.StepFadeAfterGameplay();
+        bool ceresFadeFinished = session.ceresDeparture.StepFadeAfterGameplay();
         session.SetDisplayBrightness(checked((byte)session.ceresDeparture.Brightness));
-        if (ceresReachedForcedBlank)
+        if (ceresFadeFinished)
         {
             // GameState_33 saves the live area-six/station-zero slot only after
             // the screen is blanked. This is the durable post-Ridley Ceres
@@ -227,9 +280,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// </summary>
     private void RunMainGameplayState(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        // DisplayMessageBox is a nested NMI-waiting coroutine inside gameplay
-        // state eight. Its final acknowledgement returns below the normal bank-$90
-        // pause-check call site, so Start may neither enter pause while the box is
+        // A message box is shown inside ordinary gameplay, which waits for it to close.
+        // Its final acknowledgement returns after the point where gameplay checks
+        // for pause, so Start may neither enter pause while the box is
         // visible nor on the exact frame it closes. Preserve entry state before
         // StepFrame consumes the acknowledgement; checking IsActive afterward alone
         // misses that final suspended frame.

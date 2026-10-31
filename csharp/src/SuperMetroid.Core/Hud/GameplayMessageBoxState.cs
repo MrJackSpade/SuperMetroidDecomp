@@ -4,26 +4,27 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>
-/// Frame-steppable owner of bank-$85's gameplay message-box coroutine. Permanent item
-/// PLMs all enter this shared path; the message identity changes ROM data, not behavior.
+/// The gameplay message box, advanced one update at a time. Every permanent item pickup, station and save prompt shows
+/// its message through this one box; the message changes what is shown, not how the box behaves.
 /// </summary>
 /// <remarks>
 /// <para>
-/// <c>$85:8080-$85:8619</c> shows a message over gameplay, opens a scanline window
-/// around Y=124, blocks gameplay for a fixed interval, waits for input, and closes the
-/// same window. What it shows is a <see cref="ShownMessage"/>: the message, the button its
-/// panel names and the highlighted save choice, whose installed image the backend draws. Keeping the wait as explicit state lets the desktop host
-/// remain responsive and debuggable without pretending the synchronous 65816 routine
-/// returned while its lag-frame loops were running.
+/// The box pauses gameplay, opens a window around Y=124, holds the message for a fixed interval, waits for input, and
+/// closes the same window before gameplay resumes. What it shows is a <see cref="ShownMessage"/>: the message, the
+/// button its panel names and the highlighted save choice, whose installed image the backend draws.
 /// </para>
 /// <para>
-/// This type handles definitions 1-26 and the gunship's ID-28 confirmation. On YES the
-/// ship branch retains gameplay ownership through the saving sound and completion notice.
+/// This type handles the ordinary messages and the gunship's save confirmation. On YES the gunship branch keeps gameplay
+/// paused through the saving sound and the completion notice.
 /// </para>
 /// </remarks>
-public sealed class GameplayMessageBoxState
+/// <param name="saveChoiceInput">When an open save confirmation reads the controller; the session creates it.</param>
+public sealed class GameplayMessageBoxState(SaveChoiceInputCadence saveChoiceInput)
 {
-    /// <summary>Preserves controller edges across the message routine's own input polls.</summary>
+    /// <summary>When an open save confirmation reads the controller.</summary>
+    private readonly SaveChoiceInputCadence _saveChoiceInput = Ensure.NotNull(saveChoiceInput);
+
+    /// <summary>Preserves controller edges across the box's own controller reads.</summary>
     private readonly ControllerInputState _controller = new();
     /// <summary>Radius to publish on the next opening frame, after the current frame's window is drawn.</summary>
     private int _nextOpeningRadiusPixels;
@@ -37,16 +38,10 @@ public sealed class GameplayMessageBoxState
     private bool _savingSoundRequested;
     /// <summary>Remaining frames before the gunship's SAVE COMPLETED notice reopens the box.</summary>
     private int _savingFramesRemaining;
-    /// <summary>Lag frames left in preparation, restoration, or before the save selector's next controller read.</summary>
-    private int _lagFramesRemaining;
+    /// <summary>Updates left in the pause before the window opens or after it closes.</summary>
+    private int _pauseUpdatesRemaining;
 
-    /// <summary>
-    /// Toggle_Save_Confirmation_Selection's own <c>Wait_for_Lag_Frame</c> ($85:8532) is due:
-    /// one frame, without the audio handlers, before the redrawn row uploads and $37 queues.
-    /// </summary>
-    private bool _selectionRedrawWaitPending;
-
-    /// <summary>The bank-$85 audio and HDMA-object calls made by the frame <see cref="Step"/> just ran.</summary>
+    /// <summary>The audio processing and per-line effect advance of the update <see cref="Step"/> just ran.</summary>
     [field: NonSerialized]
     public MessageBoxFrameAudio LastFrameAudio { get; private set; }
     /// <summary>Current Shoot binding used when panel artwork includes a button glyph.</summary>
@@ -54,7 +49,7 @@ public sealed class GameplayMessageBoxState
     /// <summary>Current Run binding used when panel artwork includes a button glyph.</summary>
     private ControllerButton _runBinding = ControllerButton.B;
 
-    /// <summary>Consumes $85:811B's one-shot saving sound, independently of gameplay publication.</summary>
+    /// <summary>Consumes the accepted gunship save's one-shot saving sound, independently of gameplay publication.</summary>
     public bool ConsumeSavingSoundRequest()
     {
         bool requested = _savingSoundRequested;
@@ -66,10 +61,10 @@ public sealed class GameplayMessageBoxState
     private bool IsSaveConfirmation => MessageId is GameplayMessageId.SaveConfirmation or
         GameplayMessageId.GunshipSaveConfirmation;
 
-    /// <summary>Whether bank-$85 currently owns the gameplay main loop and BG3 window.</summary>
+    /// <summary>Whether the box currently pauses gameplay and owns the message window.</summary>
     public bool IsActive => Phase != GameplayMessageBoxPhase.Inactive;
 
-    /// <summary>One-based index into <c>$85:869B</c>, matching WRAM <c>$1C1F</c>.</summary>
+    /// <summary>The message the box shows, or <see cref="GameplayMessageId.None"/> while none has begun.</summary>
     public GameplayMessageId MessageId { get; private set; }
 
     /// <summary>Current coroutine segment, exposed so frame-by-frame debugging is useful.</summary>
@@ -77,7 +72,7 @@ public sealed class GameplayMessageBoxState
 
     /// <summary>
     /// Half-height of the scanline window visible in the most recently completed frame.
-    /// The native 8.8 word advances by <c>$0200</c>, so host pixels advance by exactly two.
+    /// The radius grows and shrinks by exactly two pixels per update.
     /// </summary>
     public int RadiusPixels { get; private set; }
 
@@ -91,31 +86,31 @@ public sealed class GameplayMessageBoxState
     public ShownMessage? Shown => MessageId == GameplayMessageId.None ? null
         : new ShownMessage(MessageId, PanelButton(MessageId), IsSaveConfirmation ? ConfirmationSelectionYes : null);
 
-    /// <summary>Current yes/no choice for save confirmation message $17.</summary>
+    /// <summary>Current yes/no choice for save confirmation message.</summary>
     public bool ConfirmationSelectionYes { get; private set; } = true;
 
     /// <summary>
-    /// Result published after confirmation $17 has completely closed. Consumers clear it
+    /// Result published after confirmation has completely closed. Consumers clear it
     /// through <see cref="ConsumeConfirmationResult"/> at the suspended PLM return seam.
     /// </summary>
     public bool? CompletedConfirmationResult { get; private set; }
 
     /// <summary>
-    /// True only on the accepted NMI where bank $85 toggled the save cursor. The runtime
+    /// True only on the update that shows a moved save choice. The runtime
     /// consumes this to queue the cartridge's menu-move sound through the ordinary audio
     /// owner instead of giving the message renderer an unrelated sound dependency.
     /// </summary>
     public bool ConfirmationSelectionChangedThisFrame { get; private set; }
 
     /// <summary>
-    /// Starts one ordinary gameplay message using its native config record.
+    /// Starts one ordinary gameplay message with its authored layout.
     /// Bindings are parameters because the options menu may remap them; their defaults are
     /// the words installed by <c>NewSaveFile</c>.
     /// </summary>
-    /// <param name="messageId">One-based native message identity 1..26 or gunship save confirmation 28.</param>
+    /// <param name="messageId">The ordinary message or the gunship save confirmation to show.</param>
     /// <param name="controllerRead">
-    /// The controller held at the dispatch's last ReadControllerInput. During the box the
-    /// NMI handler runs in lag mode, so the save selector's presses are relative to this.
+    /// The controller held at the update's last controller read. While the box is shown only
+    /// the box itself reads the controller, so the save choice's presses are relative to this.
     /// </param>
     /// <param name="shootBinding">Current binding for Shoot, whose button the applicable item panels name.</param>
     /// <param name="runBinding">Current binding for Run, whose button the applicable item panels name.</param>
@@ -148,20 +143,19 @@ public sealed class GameplayMessageBoxState
         _gunshipCompletion = false;
         CompletedConfirmationResult = null;
         ConfirmationSelectionYes = true;
-        _selectionRedrawWaitPending = false;
         _controller.Latch(controllerRead);
-        // The routine's first lag wait belongs to the dispatch that opened the box.
-        BeginPreparing(GameplayMessageBoxDefinitions.Timing.PreOpenLagFrames - 1);
+        // The pause's first update is the gameplay update that opened the box.
+        BeginPreparing(GameplayMessageBoxDefinitions.Timing.OpeningPauseUpdates - 1);
     }
 
-    /// <summary>Enters the PPU preparation stretch with the number of waits left at this dispatch boundary.</summary>
-    private void BeginPreparing(int lagFrames)
+    /// <summary>Enters the pause before the window opens, with <paramref name="pauseUpdates"/> updates of it left.</summary>
+    private void BeginPreparing(int pauseUpdates)
     {
-        _lagFramesRemaining = lagFrames;
+        _pauseUpdatesRemaining = pauseUpdates;
         Phase = GameplayMessageBoxPhase.Preparing;
     }
 
-    /// <summary>Consumes the completed result of save confirmation message $17.</summary>
+    /// <summary>Consumes the completed result of the save confirmation.</summary>
     public bool? ConsumeConfirmationResult()
     {
         bool? result = CompletedConfirmationResult;
@@ -170,13 +164,13 @@ public sealed class GameplayMessageBoxState
     }
 
     /// <summary>
-    /// Runs one frame of the bank-$85 routine, which waits on lag frames: the NMI handler
-    /// reads no controller while it runs, so only the routine's own reads see input.
+    /// Runs one update of the box. Gameplay does not run and does not read the controller while the box is shown, so
+    /// only the box's own reads see input.
     /// </summary>
     public void Step(ControllerButton controllerInput)
     {
         ConfirmationSelectionChangedThisFrame = false;
-        // Each routine calls HandleMusicQueue and HandleSounds after its lag wait returns.
+        // Each update of the box processes music and sound once, unless noted below.
         LastFrameAudio = MessageBoxFrameAudio.MusicAndSounds;
 
         switch (Phase)
@@ -186,45 +180,45 @@ public sealed class GameplayMessageBoxState
                 return;
 
             case GameplayMessageBoxPhase.Preparing:
-                // Initialise_PPU_for_MessageBoxes waits twice before its audio calls.
-                if (_lagFramesRemaining == GameplayMessageBoxDefinitions.Timing.PreOpenLagFrames - 1)
+                // The first update of the screen preparation processes no audio.
+                if (_pauseUpdatesRemaining == GameplayMessageBoxDefinitions.Timing.OpeningPauseUpdates - 1)
                     LastFrameAudio = default;
-                if (--_lagFramesRemaining == 0)
+                if (--_pauseUpdatesRemaining == 0)
                     Phase = GameplayMessageBoxPhase.Opening;
                 return;
 
             case GameplayMessageBoxPhase.Restoring:
-                LastFrameAudio = _lagFramesRemaining switch
+                LastFrameAudio = _pauseUpdatesRemaining switch
                 {
-                    // Restore_PPU's first wait; its second ends in $88:84B9 (HDMA objects
-                    // and music), then HandleSounds.
+                    // Restoring the screen takes two updates: the first processes no
+                    // audio, the second advances the per-line effects and processes music
+                    // and sound.
                     3 => default,
                     2 => MessageBoxFrameAudio.MusicAndSounds with { AdvancesPerLineEffects = true },
-                    // The routine returns into the dispatch, whose own HandleSounds follows.
+                    // The box returns to gameplay, whose own sound processing follows.
                     0 => MessageBoxFrameAudio.MusicAndSounds with { SoundHandlerCalls = 2 },
                     _ => MessageBoxFrameAudio.MusicAndSounds,
                 };
-                if (_lagFramesRemaining-- == 0)
+                if (_pauseUpdatesRemaining-- == 0)
                     Finish();
                 return;
 
             case GameplayMessageBoxPhase.Opening:
-                // OpenMessageBox_Async waits for NMI first, then publishes the current
-                // radius before the for-loop increment. Radius zero is consequently a
-                // real accepted frame, even though it exposes no pixels.
+                // Each opening update shows the current radius before it grows. Radius
+                // zero is consequently a real update, even though it shows nothing.
                 RadiusPixels = _nextOpeningRadiusPixels;
                 if (RadiusPixels == GameplayMessageBoxDefinitions.Timing.MaximumRadiusPixels)
                 {
                     if (IsSaveConfirmation)
                     {
                         MinimumDisplayFramesRemaining = 0;
-                        _lagFramesRemaining = GameplayMessageBoxDefinitions.Timing.SaveSelectionReadLagFrames;
+                        _saveChoiceInput.Begin();
                         Phase = GameplayMessageBoxPhase.AwaitingInput;
                     }
                     else
                     {
-                        // `$85:847A-$8490` gives the four completion notices only ten
-                        // lag frames. Equipment descriptions use $0168 (360). Treating
+                        // The four completion notices hold for only ten updates;
+                        // equipment descriptions hold for 360. Treating
                         // every ordinary message as equipment left Samus locked in a map
                         // station while its access-loop sound continued for six seconds.
                         MinimumDisplayFramesRemaining = MessageId is
@@ -249,27 +243,24 @@ public sealed class GameplayMessageBoxState
             case GameplayMessageBoxPhase.AwaitingInput:
                 if (IsSaveConfirmation)
                 {
-                    if (_selectionRedrawWaitPending)
+                    switch (_saveChoiceInput.Advance())
                     {
-                        // The toggle's wait precedes the loop's two waits, so a cursor move
-                        // delays the next ReadControllerInput by one frame. The selection
-                        // sound ($85:84EC) is queued after this wait.
-                        _selectionRedrawWaitPending = false;
-                        LastFrameAudio = default;
-                        ConfirmationSelectionChangedThisFrame = true;
-                        return;
-                    }
-                    // $85:84BA waits two lag frames, then calls ReadControllerInput. The
-                    // read's frame also holds the next iteration's first wait.
-                    if (_lagFramesRemaining > 0)
-                    {
-                        _lagFramesRemaining--;
-                        return;
+                        case SaveChoiceInputCadence.Update.ShowsMovedChoice:
+                            // The update showing a moved choice processes no audio; the move
+                            // sound is queued on it.
+                            LastFrameAudio = default;
+                            ConfirmationSelectionChangedThisFrame = true;
+                            return;
+                        case SaveChoiceInputCadence.Update.Waits:
+                            return;
+                        case SaveChoiceInputCadence.Update.ReadsController:
+                            break;
+                        default:
+                            throw new InvalidOperationException("Undefined save-choice update.");
                     }
                     _controller.Latch(controllerInput);
-                    _lagFramesRemaining = GameplayMessageBoxDefinitions.Timing.SaveSelectionReadLagFrames - 1;
-                    // $85:84D8: A confirms the highlighted choice, then B cancels; only a
-                    // press with neither moves the two-choice cursor.
+                    // A confirms the highlighted choice, then B cancels; only a press with
+                    // neither moves the two-choice cursor.
                     ControllerButton newlyPressed = _controller.NewlyPressed;
                     if ((newlyPressed & ControllerButton.A) != ControllerButton.None)
                     {
@@ -284,13 +275,13 @@ public sealed class GameplayMessageBoxState
                     ControllerButton horizontal = newlyPressed & (ControllerButton.Left | ControllerButton.Right | ControllerButton.Select);
                     if (horizontal != ControllerButton.None)
                     {
-                        // The redrawn row shows the other choice from this frame on.
+                        // The redrawn row shows the other choice from this update on.
                         ConfirmationSelectionYes = !ConfirmationSelectionYes;
-                        _selectionRedrawWaitPending = true;
+                        _saveChoiceInput.ChoiceMoved();
                     }
                     return;
                 }
-                // $85:84A3 polls the joypad registers for any held key, not a new edge.
+                // An ordinary message closes on any held button, not a new press.
                 // This is observable when a player begins holding a button during the
                 // mandatory 360-frame item fanfare.
                 if (controllerInput != ControllerButton.None)
@@ -300,13 +291,13 @@ public sealed class GameplayMessageBoxState
             case GameplayMessageBoxPhase.GunshipSavingSound:
                 if (--_savingFramesRemaining == 0)
                 {
-                    // $85:80D9 opens the ordinary completion notice only after the
-                    // saving sound's synchronous wait. Preserve YES across that message.
+                    // The completion notice opens only after the saving sound's wait.
+                    // Preserve YES across that message.
                     Phase = GameplayMessageBoxPhase.Inactive;
                     Begin(GameplayMessageIds.SaveCompleted, _controller.Current);
-                    // The second box skips Initialise_PPU_for_MessageBoxes and the clear,
-                    // which preceded the saving sound.
-                    BeginPreparing(GameplayMessageBoxDefinitions.Timing.ReopenLagFrames);
+                    // The second box needs no screen preparation or clearing, which
+                    // preceded the saving sound.
+                    BeginPreparing(GameplayMessageBoxDefinitions.Timing.SecondBoxOpeningPauseUpdates);
                     _gunshipCompletion = true;
                 }
                 return;
@@ -320,7 +311,7 @@ public sealed class GameplayMessageBoxState
         }
     }
 
-    /// <summary>Accepts the interaction; Close_MessageBox's first step runs in the same frame.</summary>
+    /// <summary>Accepts the interaction; the window's first closing step runs in the same update.</summary>
     private void BeginClosing(bool? confirmationResult)
     {
         _closingConfirmationResult = confirmationResult;
@@ -338,19 +329,19 @@ public sealed class GameplayMessageBoxState
             return;
         if (MessageId == GameplayMessageIds.GunshipSaveConfirmation && _closingConfirmationResult == true)
         {
-            // $85:80D3 clears the tilemap, then waits out the saving sound.
+            // The accepted gunship save clears the box, then waits out the saving sound.
             Phase = GameplayMessageBoxPhase.GunshipSavingSound;
-            _savingFramesRemaining = GameplayMessageBoxDefinitions.Timing.ClearTilemapLagFrames +
+            _savingFramesRemaining = GameplayMessageBoxDefinitions.Timing.ClearingUpdates +
                 GameplayMessageBoxDefinitions.Timing.GunshipSavingSoundFrames;
             _savingSoundRequested = true;
             return;
         }
-        // $85:80AA-$80B4: clear the tilemap, restore the PPU, two music/sound frames.
-        _lagFramesRemaining = GameplayMessageBoxDefinitions.Timing.RestoreLagFrames;
+        // Clear the box, restore the screen, then two updates of music and sound.
+        _pauseUpdatesRemaining = GameplayMessageBoxDefinitions.Timing.ClosingPauseUpdates;
         Phase = GameplayMessageBoxPhase.Restoring;
     }
 
-    /// <summary>The routine returns into the suspended gameplay dispatch.</summary>
+    /// <summary>The box returns to the paused gameplay update.</summary>
     private void Finish()
     {
         Phase = GameplayMessageBoxPhase.Inactive;

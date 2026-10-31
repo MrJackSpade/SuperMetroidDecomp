@@ -17,7 +17,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
             StepGameLoadingWait(controllerInput);
             return;
         }
-        // $82:8000 performs the whole load in one dispatch, then waits for NMIs.
+        // The whole load happens in one update, then the black screen holds for its waits.
         bool usesCeresArrival = session.SetupSelectedGame();
         BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits, usesCeresArrival
             ? GameLoadingCompletion.CeresArrivalFadeIn
@@ -37,15 +37,15 @@ internal sealed class LoadingGamePhases(FrontendSession session)
         {
             case SaveLoadingGameState.MainGame:
                 // A save continued from the file-select map: the ordinary branch loads the
-                // game in one dispatch, then waits for the same NMIs as state $1F.
+                // game in one update, then holds for the same waits as a new game.
                 if (session.SetupSelectedGame())
                     throw new InvalidOperationException("A save continued from the area map cannot use the Ceres arrival.");
                 BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
                 break;
             case SaveLoadingGameState.CeresDestruction:
-                // The `$22` Zebes-landing branch, followed by its NMI waits. The dispatch's
-                // own accepted NMI counts in the gameplay owner kept from Ceres.
+                // The Zebes landing, followed by its waits. The update's
+                // own frame counts in the gameplay owner kept from Ceres.
                 session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 session.GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
                 BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
@@ -70,7 +70,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// Records the NMI waits the native loading dispatch performs after the host has
+    /// Records the waits the game holds after it has
     /// completed the loading work itself.
     /// </summary>
     private void BeginGameLoadingWaits(int waits, GameLoadingCompletion completion)
@@ -80,8 +80,8 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     }
 
     /// <summary>
-    /// One native loading wait: the accepted NMI reads the controller and performs its
-    /// transfers; no dispatcher runs. The last wait returns into the state store.
+    /// One loading wait: the controller is read and the display
+    /// updated; no phase runs. The last wait enters the load's completion state.
     /// </summary>
     private void StepGameLoadingWait(ControllerButton controllerInput)
     {

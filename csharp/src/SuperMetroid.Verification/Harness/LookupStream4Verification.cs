@@ -1885,7 +1885,7 @@ internal static class LookupStream4Verification
             for (int cell = 0; cell < notice.RowCount * 32; cell++) expected[32 + cell] = CartridgeImportSource.Require(rom).ReadCartridgeWord((source + cell * 2));
             AssertTrue(expected.SequenceEqual(BackgroundTileWordBytes.Words(stock.Build(id))), "Derived notice export reproduces every native border/content word encoded through the codec");
             var stockMessages = new GameplayMessageArtwork(null, null, stock);
-            var state = new GameplayMessageBoxState();
+            var state = new GameplayMessageBoxState(new SaveChoiceInputCadence());
             state.Begin(id, 0);
             if (GameplayMessageNotices.IsSaveConfirmation(id))
                 for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8595c1 + column * 2));
@@ -1906,7 +1906,7 @@ internal static class LookupStream4Verification
         var editedJson = RequiredJson.Parse(bytes);
         editedJson.Required("notices").Required(GameplayMessageId.MapDataAccessCompleted.ToString()).Required("text").Required(0)["text"] = "MAP TEST";
         var edited = GameplayMessageNoticePresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(editedJson.ToJsonString())));
-        var active = new GameplayMessageBoxState();
+        var active = new GameplayMessageBoxState(new SaveChoiceInputCadence());
         active.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
         active.Step(0);
         ushort[] original = BackgroundTileWordBytes.Words(active.Tilemap(new GameplayMessageArtwork(null, null, stock)));

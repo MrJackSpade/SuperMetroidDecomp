@@ -32,18 +32,16 @@ public static class GameplayMessageBoxDefinitions
         /// <summary>The gunship's saving sound waits 160 updates.</summary>
         public const int GunshipSavingSoundFrames = 160;
         /// <summary>
-        /// Updates before the box opens: preparing the screen 2, clearing the box 1, writing the message 1, setting up
-        /// the active box and its window 2, and two updates of music and sound.
+        /// Updates gameplay pauses before the box starts to open: preparing the screen 2, clearing the box 1, writing the
+        /// message 1, setting up the box and its window 2, and two more updates of music and sound.
         /// </summary>
-        public const int PreOpenLagFrames = 8;
-        /// <summary>Updates before the gunship's second box opens, without screen setup or clearing.</summary>
-        public const int ReopenLagFrames = 5;
-        /// <summary>Clearing the box waits one update.</summary>
-        public const int ClearTilemapLagFrames = 1;
-        /// <summary>Updates restoring the screen after the box closes: clearing 1, restoring 2, music and sound 2.</summary>
-        public const int RestoreLagFrames = 5;
-        /// <summary>The save selector waits two updates per controller read.</summary>
-        public const int SaveSelectionReadLagFrames = 2;
+        public const int OpeningPauseUpdates = 8;
+        /// <summary>Updates before the gunship's second box starts to open, which needs no screen preparation or clearing.</summary>
+        public const int SecondBoxOpeningPauseUpdates = 5;
+        /// <summary>Clearing the closed box takes one update.</summary>
+        public const int ClearingUpdates = 1;
+        /// <summary>Updates gameplay stays paused after the box closes: clearing 1, restoring the screen 2, music and sound 2.</summary>
+        public const int ClosingPauseUpdates = 5;
         /// <summary>Maximum half-height reached by the expanding message window.</summary>
         public const int MaximumRadiusPixels = 24;
         /// <summary>Per-step change in message-window radius.</summary>

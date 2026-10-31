@@ -354,7 +354,7 @@ internal static class NativeSnapshotImportVerification
         var game = CreateRetailGameFixture(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
-        game.GameState = (SuperMetroidGameState)W(NativeSnapshotMemory.GameState);
+        game.GameState = GameStateNumberCodec.Decode(W(NativeSnapshotMemory.GameState));
         if (game.GameState == SuperMetroidGameState.PausedB)
             ImportNativePauseMenu(game, runtime, W, memory);
         return new ImportNativeSnapshotResult(bus, runtime, samus, game);

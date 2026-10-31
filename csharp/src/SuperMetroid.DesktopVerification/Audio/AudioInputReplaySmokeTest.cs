@@ -110,7 +110,7 @@ public static class AudioInputReplaySmokeTest
             throw new InvalidDataException(
                 $"Replay did not complete its first ordinary door: began={firstDoorBegan}, " +
                 $"source={sourceRoom?.Name}, destination={destinationRoom?.Name}, " +
-                $"state=${(ushort)game.GameState:X2} ({game.GameState}).");
+                $"state={game.GameState}.");
         }
 
         if (!string.IsNullOrWhiteSpace(captureDirectory))
@@ -160,7 +160,7 @@ public static class AudioInputReplaySmokeTest
             {
                 throw new InvalidDataException(
                     $"Replay with managed audio failed on recorded call {frameIndex}, " +
-                    $"state=${(ushort)game.GameState:X2}, " +
+                    $"state={game.GameState}, " +
                     $"room={game.GameplayActiveRoom?.Name}.",
                     exception);
             }
@@ -199,8 +199,9 @@ public static class AudioInputReplaySmokeTest
         for (int frameIndex = 0; frameIndex < framesToReplay; frameIndex++)
         {
             FrontendFrame frame = game.Step(recording.InputAt(frameIndex));
-            bool pauseOwned = frame.GameState is >= SuperMetroidGameState.PausingDarkening and
-                <= SuperMetroidGameState.Unpausing;
+            bool pauseOwned = frame.GameState is SuperMetroidGameState.PausingDarkening or SuperMetroidGameState.Pausing or
+                SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or SuperMetroidGameState.UnpausingA or
+                SuperMetroidGameState.UnpausingB or SuperMetroidGameState.Unpausing;
             game.CopyAudioFrame(samples);
 
             if (pauseOwned && active is null)

@@ -90,8 +90,8 @@ internal sealed class DeathGamePhases(FrontendSession session)
         {
             session.GameplayRuntime.Freeze.GameplayTimeFrozen = false;
             // The game-over menu runs no gameplay owner: every exit reloads SRAM or
-            // soft resets. Releasing the runtime hands the accepted-NMI counters to the
-            // frontend, which keeps counting them, and the session's RNG word, through the menu.
+            // soft resets. Releasing the runtime leaves the frame clock with the
+            // frontend, which keeps counting it, and the session's random generator, through the menu.
             session.ReleaseRuntime();
             session.GameState = SuperMetroidGameState.GameOverMenu;
         }

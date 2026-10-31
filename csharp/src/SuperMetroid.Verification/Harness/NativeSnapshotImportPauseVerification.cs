@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
@@ -22,7 +23,7 @@ internal static class NativeSnapshotImportPauseVerification
     internal static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
         Func<int, ushort> W, byte[] memory)
     {
-        AssertEqual((ushort)SuperMetroidGameState.PausedB, W(NativeSnapshotMemory.GameState),
+        AssertEqual(SuperMetroidGameState.PausedB, GameStateNumberCodec.Decode(W(NativeSnapshotMemory.GameState)),
             "pause import covers the stable pause menu");
         AssertEqual((ushort)0, W(PauseMemory.MenuIndex), "imported pause menu is on its map page");
         AssertEqual((ushort)0, W(PauseMemory.ButtonLabelMode), "imported pause menu shows map labels");

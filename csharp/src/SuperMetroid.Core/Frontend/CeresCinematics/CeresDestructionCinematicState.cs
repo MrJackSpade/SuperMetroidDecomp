@@ -110,7 +110,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private int phaseTimer;
     /// <summary>Fallback music wait when no shared audio queue is present.</summary>
     private int musicQueueTimer = 14;
-    /// <summary>Completed <c>$8B:C11B</c> NMI waits; setup follows the last wait.</summary>
+    /// <summary>Completed waiting updates before the scene is set up; setup follows the last wait.</summary>
     private int initialFrameWaits;
     /// <summary>
     /// Cinematic updates elapsed, incremented after phase dispatch and before actor handling. Only its phase
@@ -158,8 +158,8 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     }
 
     /// <summary>
-    /// True when the next update resumes the initializer after one of its NMI waits, rather
-    /// than entering MainGameLoop.
+    /// True when the next update continues the scene's opening wait, rather
+    /// than starting a new update of the cinematic.
     /// </summary>
     internal bool ResumesAfterFrameWait =>
         initialFrameWaits is > 0 and <= CeresDestructionSceneDefinitions.InitialFrameWaits;
@@ -201,9 +201,9 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Executes one call through the native state-$22 cinematic dispatcher.</summary>
     public void Step()
     {
-        // $8B:C11B waits for nine NMIs within its first dispatch; each wait is one update
-        // that resumes it. After the last it sets up the scene and returns to the state-$22
-        // wrapper, whose object handling and frame-counter tail ($8B:A367) then run once.
+        // The cinematic first waits nine updates with the screen black; each wait is one update
+        // that continues it. After the last it sets up the scene and returns to the cinematic
+        // phase, whose object handling and frame-counter tail then run once.
         if (initialFrameWaits < CeresDestructionSceneDefinitions.InitialFrameWaits)
         {
             initialFrameWaits++;
@@ -230,10 +230,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         StepWrapperTail();
     }
 
-    /// <summary>Runs one native cinematic phase after the initial NMI waits and advances the station blast.</summary>
+    /// <summary>Runs one cinematic step after the opening waits and advances the station blast.</summary>
     private void StepPhase()
     {
-        // The global bank-$82 frame dispatcher runs HDMA before the cinematic. A
+        // The update's per-line effects run before the cinematic. A
         // newly spawned blast therefore cannot advance until the following call.
         stationExplosion.StepFrame();
         switch (Phase)
@@ -299,7 +299,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FadeOutCeres:
-                // $8B:C627 installs $C699 once forced blank is reached; it runs next dispatch.
+                // Once the screen is black the next step is installed; it runs next update.
                 // State $25 instead stops the music and ends at the death black-out ($C64E).
                 if (StepSlowFadeOut())
                 {
@@ -418,7 +418,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         cinematicFrameCounter++;
     }
 
-    /// <summary>Stages Ceres Mode-7 and OBJ transfers, palettes, and three initial actors after the ninth NMI wait.</summary>
+    /// <summary>Sets up the Ceres floor, sprites, colours, and three initial actors after the ninth opening wait.</summary>
     private void SetupCeresDestruction()
     {
         IntroCinematicArtwork content = Artwork ?? throw new InvalidOperationException(

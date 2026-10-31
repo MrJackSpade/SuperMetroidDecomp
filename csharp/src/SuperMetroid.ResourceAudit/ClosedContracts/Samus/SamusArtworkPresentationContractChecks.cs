@@ -24,16 +24,16 @@ internal static class SamusArtworkPresentationContractChecks
             class SamusArtConsumer {
                 void Inspect(InstalledSamusBodyArtwork body, InstalledSamusSpritemaps sprites, SamusSpritemapSources compositions,
                     SamusAtmosphericSourceArtwork atmosphere, SamusArmCannonSourceArtwork arm) {
-                    body.GraphicsYOffset(SuperMetroid.Core.Samus.Poses.SamusPoseNumbering.FromNumber(252));
-                    body.GraphicsYOffset(SuperMetroid.Core.Samus.Poses.SamusPoseNumbering.FromNumber(253));
+                    body.GraphicsYOffset(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
+                    body.GraphicsYOffset(SuperMetroid.Core.Samus.Poses.SamusPoseId.AdjacentCodePoseFD);
                     body.TryLandingYOffset(int.MaxValue, out _);
                     body.TryPostureYOffset(-1, out _);
                     body.TryDrainedYOffset(int.MaxValue, out _);
                     body.Frame(0, 0);
-                    sprites.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseNumbering.FromNumber(252), SamusBodyHalf.Top, 0), out _);
-                    sprites.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseNumbering.FromNumber(253), SamusBodyHalf.Top, 0), out _);
-                    sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseNumbering.FromNumber(252), SamusBodyHalf.Bottom, 0), default, out _);
-                    sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseNumbering.FromNumber(253), SamusBodyHalf.Bottom, 0), default, out _);
+                    sprites.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
+                    sprites.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.AdjacentCodePoseFD, SamusBodyHalf.Top, 0), out _);
+                    sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Bottom, 0), default, out _);
+                    sprites.TryGetFrameKey(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.AdjacentCodePoseFD, SamusBodyHalf.Bottom, 0), default, out _);
                     compositions.TryGet(SamusSpritemapSources.EntryCount - 1, out _);
                     compositions.TryGet(SamusSpritemapSources.EntryCount, out _);
                     atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);

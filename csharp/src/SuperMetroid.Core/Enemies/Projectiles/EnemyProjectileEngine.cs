@@ -225,16 +225,16 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>How many passes the standalone clock counts before it returns to zero, as the byte-wide frame counter does.</summary>
-    private const int StandaloneFrameCounter8Period = 256;
+    private const int StandaloneShortCounterPeriod = 256;
 
     /// <summary>Fallback frame clock for standalone calls without a supplied frame counter, 0 through 255.</summary>
-    private int _standaloneFrameCounter8;
+    private int _standaloneShortCounter;
 
     /// <summary>Returns the standalone clock's current frame and advances it, wrapping after 255.</summary>
-    private int AdvanceStandaloneFrameCounter8()
+    private int AdvanceStandaloneShortCounter()
     {
-        int frame = _standaloneFrameCounter8;
-        _standaloneFrameCounter8 = (frame + 1) % StandaloneFrameCounter8Period;
+        int frame = _standaloneShortCounter;
+        _standaloneShortCounter = (frame + 1) % StandaloneShortCounterPeriod;
         return frame;
     }
 
@@ -262,7 +262,7 @@ internal sealed class EnemyProjectileEngine
         // pass after the pre-instruction returns. Reading each array entry at loop time
         // preserves all three cases and prevents host collection semantics from inventing a
         // universal one-frame spawn delay.
-        int projectileFrame = frameCounterByte ?? AdvanceStandaloneFrameCounter8();
+        int projectileFrame = frameCounterByte ?? AdvanceStandaloneShortCounter();
         CurrentFrame8 = projectileFrame;
         // Standalone audits seed both counters from the same projectile clock.
         CurrentFrame16 = frameCounter ?? projectileFrame;

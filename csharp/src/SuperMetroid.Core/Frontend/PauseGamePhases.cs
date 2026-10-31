@@ -57,8 +57,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
             session.GameplayRuntime.PhysicalController1.NewlyPressed,
             session.GameplayRuntime.PhysicalController1.Current,
             session.GameplayRuntime.Clock.ShortCounter);
-        // State $0F runs the HUD writer after pause input. The next accepted NMI
-        // latches its rows, including on the first unpause fade frame.
+        // The paused update writes the HUD after reading pause input; the next displayed frame shows
+        // its rows, including the first frame of the unpause fade.
         if (previousReserveMode == ReserveTankMode.Auto &&
             session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode == ReserveTankMode.Manual)
             session.GameplayRuntime.Hud.ClearAutoReserveIndicator();

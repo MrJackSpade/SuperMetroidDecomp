@@ -49,7 +49,6 @@ service only when it has its own timing contract; coherent responsibilities shar
 | `SoundAcceptanceClock`, with `SoundClockStep`, `SoundRequestCheck(s)` and `SoundAcknowledgements` | when each sound library accepts a request, and what it reports back as acknowledged | every update, after the update's sound requests |
 | `ISoundAcknowledgementTiming` / `ClockedSoundAcknowledgements` | the acknowledgements an update's sound handlers read (the clock's own, or a recording's) | at the start of each update |
 | `TickAccumulator`, `TickAdvance` | a phase that wraps at a fixed period and carries its remainder, pacing the clock's checks and the music tempo | on every clock step |
-| `IDoorMusicLoadFrames` / `InstantDoorMusicLoad` | frames counted while a door's new music loads | once per door transition |
 | `IRoomLoadProgress` / `InstantRoomLoad` | how far room loading has progressed when each enemy initializes | each door-scroll update |
 | `WrappingCountdown`, `CountdownStep`, `LowByteCountdownStep`, `WrappingCounter` | timers and counters that wrap at their width, tested as the original tested them | where each timer is advanced |
 | `WordCarry` | the carry or borrow out of a byte or word that moves the next part of a multi-part value (#1420) | at each chained addition or subtraction |
@@ -72,14 +71,10 @@ service only when it has its own timing contract; coherent responsibilities shar
 | `ChargeFlareDelaysBelowPrograms` | a charge-flare frame wrapping below its programs reads the table naming them as delays (a bounded over-read, #1411, #1474) | when a flare component's countdown expires on a frame below its programs |
 | `PostureAdmissionBeyondTransitions<TPose>` | the posture-transition weapon admission for a pose outside its table reads the code stored around the table (a bounded over-read, #1411, #1474) | the beam producer's posture-transition dispatch and the Grapple admission |
 | `SpeedBoosterOverrunColours<TPhase, TColour>` | Gravity Speed Booster's two steps past its cycle copy black and the Grapple handler's code as suit colours (a bounded over-read, #1411, #1474) | when the active Speed Booster palette timer expires on one of those steps |
-<<<<<<< HEAD
-| `IDoorMusicLoadFrames` / `InstantDoorMusicLoad` (changed, #1477) | frames that pass on both frame counters while a door's new music loads, without a gameplay update; the frame clock counts them itself (`FrameClock.CountDoorMusicLoad`), replacing its hardware-wait frame count | once per door transition, when the door's update starts the destination's music data set |
+| `IDoorMusicLoadFrames` / `InstantDoorMusicLoad` (#1477) | frames that pass on both frame counters while a door's new music loads, without a gameplay update; the frame clock counts them itself (`FrameClock.CountDoorMusicLoad`), replacing its hardware-wait frame count | once per door transition, when the door's update starts the destination's music data set |
 | `DoorTransitionFrameCounting` (#1477) | a door's scroll restarts the short frame counter on every update from Samus's placement for the new room's tiles through the update that hands the screen back, while the long counter keeps counting, so the first destination update sees one | started when the transition places Samus for tile loading; consulted after the frame counters advance on each blank and scrolling update; ended when the transition returns the screen; created with each runtime and injected into its room loader |
 | `EffectPhaseRandomOrder` (#1477) | the room's per-line effects (the liquid's wave, the Tourian statues' descent) advance before each update draws its random number, and stop from a door's header update until its destination loads, so the statues' rumble and every later draw see the original random sequence | at the start of every update that draws a random number, before the draw; stopped and resumed by the door transition; created with each runtime and injected into its per-line effect phase |
-||||||| 6d8b134374
-=======
 | `SaveChoiceInputCadence` | an open save or gunship-save confirmation reads the controller two updates after opening and then every second update, presses counted from the previous read; a moved choice spends the next update showing it, delaying the following read by one (#1477) | advanced once per update while the confirmation awaits its answer, restarted when the box finishes opening; created once per session in `FrontendSession` and handed to each runtime's message box |
->>>>>>> w/1477-b-frontend-messages
 
 The Samus over-read services are decoded by the import pipeline (`SamusOverreadFiles`) and reach the session with the
 installed content as `SamusOverreadServices`; the gameplay runtime hands each to the owner that consults it as it builds

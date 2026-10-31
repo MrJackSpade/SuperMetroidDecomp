@@ -10,6 +10,9 @@
 // Build the analyzer first, since projects load it from its output:
 //   dotnet build csharp/src/SuperMetroid.EnsureAnalyzer -c Release
 //   dotnet run tools/sme-census/SmeCensus.cs -- csharp/SuperMetroid.Full.slnx <output.tsv>
+// With a third argument, --all-errors, it instead runs every analyzer each project references (the SDK's CA and IDE
+// rules too) and writes every unsuppressed error-severity finding: the whole set a build would report, across every
+// project at once rather than one dependency layer per build.
 // Each TSV row: rule, severity, project, repository path:line, message.
 
 using System.Runtime.InteropServices;
@@ -37,9 +40,10 @@ internal static class Census
             _ = SetErrorMode(NoDialogs);
         try
         {
-            if (args.Length != 2)
-                throw new ArgumentException("usage: SmeCensus <solution.slnx> <output.tsv>");
-            await AnalyzeAsync(args[0], args[1]);
+            bool allErrors = args.Length == 3 && args[2] == "--all-errors";
+            if (args.Length != 2 && !allErrors)
+                throw new ArgumentException("usage: SmeCensus <solution.slnx> <output.tsv> [--all-errors]");
+            await AnalyzeAsync(args[0], args[1], allErrors);
             return 0;
         }
         catch (Exception exception)
@@ -50,7 +54,7 @@ internal static class Census
     }
 
     /// <summary>Loads the solution, analyzes each project, and writes the findings and their tallies.</summary>
-    private static async Task AnalyzeAsync(string solutionPath, string outputPath)
+    private static async Task AnalyzeAsync(string solutionPath, string outputPath, bool allErrors)
     {
         string solutionDirectory = Path.GetDirectoryName(Path.GetFullPath(solutionPath))!;
         using var workspace = MSBuildWorkspace.Create(new Dictionary<string, string> { ["Configuration"] = "Release" });
@@ -90,6 +94,7 @@ internal static class Census
                 .Where(reference => reference.Display?.Contains("SuperMetroid.EnsureAnalyzer", StringComparison.Ordinal) == true &&
                     !reference.Display.Contains("CodeFixes", StringComparison.Ordinal))
                 .ToArray();
+            var otherReferences = allErrors ? project.AnalyzerReferences.Except(analyzerReferences).ToArray() : [];
             if (analyzerReferences.Length == 0)
             {
                 Console.WriteLine($"{project.Name}: no EnsureAnalyzer reference");
@@ -101,10 +106,13 @@ internal static class Census
                 throw new InvalidOperationException(
                     $"{project.Name} references {string.Join(", ", analyzerReferences.Select(reference => reference.FullPath))}, " +
                     "which loads no analyzers; build csharp/src/SuperMetroid.EnsureAnalyzer -c Release first.");
-            var withAnalyzers = compilation.WithAnalyzers([.. analyzers], project.AnalyzerOptions);
+            var withAnalyzers = compilation.WithAnalyzers(
+                [.. analyzers, .. otherReferences.SelectMany(reference => reference.GetAnalyzers(project.Language))], project.AnalyzerOptions);
             var result = await withAnalyzers.GetAnalysisResultAsync(CancellationToken.None);
             var diagnostics = result.GetAllDiagnostics()
-                .Where(d => d.Id.StartsWith("SME", StringComparison.Ordinal) || d.Id == "AD0001")
+                .Where(d => allErrors
+                    ? d.Severity == DiagnosticSeverity.Error
+                    : d.Id.StartsWith("SME", StringComparison.Ordinal) || d.Id == "AD0001")
                 .Where(d => !d.IsSuppressed && d.Severity != DiagnosticSeverity.Hidden)
                 .ToList();
             foreach (Diagnostic diagnostic in diagnostics)

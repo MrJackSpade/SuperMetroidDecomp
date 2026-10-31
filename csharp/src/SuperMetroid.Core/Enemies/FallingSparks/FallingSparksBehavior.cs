@@ -143,7 +143,7 @@ internal sealed class FallingSparksBehavior
     {
         table.AddPreInstruction(context =>
         {
-            RunFallingSparkPreInstruction(context.Projectile, context.Level, context.FrameCounter8);
+            RunFallingSparkPreInstruction(context.Projectile, context.Level, context.ShortCounter);
         }, EnemyProjectilePreInstruction.FallingSpark);
     }
 }

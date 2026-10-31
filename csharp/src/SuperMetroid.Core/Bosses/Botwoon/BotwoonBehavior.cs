@@ -852,7 +852,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         table.AddPreInstruction(context =>
         {
-            RunBotwoonBodyPreInstruction(context.Projectile, context.FrameCounter8);
+            RunBotwoonBodyPreInstruction(context.Projectile, context.ShortCounter);
         }, EnemyProjectilePreInstruction.BotwoonsBody);
 
         table.AddPreInstruction(context =>

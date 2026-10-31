@@ -12,5 +12,5 @@ internal readonly record struct EnemyProjectilePreInstructionContext(
     RoomLevelData Level,
     SamusState? Samus,
     Position16<RoomPixels> Camera,
-    int FrameCounter8,
+    int ShortCounter,
     SamusBombProjectileSystem? SamusBombs);

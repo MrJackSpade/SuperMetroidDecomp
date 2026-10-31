@@ -118,7 +118,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
                 return null;
             case CeresDoorCueKind.PlayOpeningSound:
-                _audio.QueueEnemySound(Library3Sound.CeresDoorOpening, maximumQueued: SoundQueueLimit.Max6);
+                _audio.QueueEnemySound(Library3Sound.CeresDoorOpening, priority: SoundRequestPriority.Normal);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(CeresDoorCueKind)} {cue.Kind}.");
@@ -305,7 +305,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // could not allocate the visual effect, so publish the request unconditionally.
         // The request list carries the sound to the audio queue; this property is its debugger and test view.
         LastCeresDoorSoundEffect = Library2Sound.BigExplosion;
-        _audio.QueueEnemySound(Library2Sound.BigExplosion, maximumQueued: SoundQueueLimit.Max6);
+        _audio.QueueEnemySound(Library2Sound.BigExplosion, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Cycles door colors and the room's Mode-7 elevator frame from slot zero's frame counter.</summary>

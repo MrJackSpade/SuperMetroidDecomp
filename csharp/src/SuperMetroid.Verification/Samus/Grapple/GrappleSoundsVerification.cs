@@ -25,13 +25,13 @@ internal static class GrappleSoundsVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         PrepareRetailSamusFixture(samus);
         SamusGrappleMovement.BeginFiring(samus);
-        AssertEqual(new SoundRequest(Library1Sound.GrappleStart, SoundQueueLimit.Max1),
+        AssertEqual(new SoundRequest(Library1Sound.GrappleStart, SoundRequestPriority.WhenIdle),
             samus.LiquidPhysics.SoundRequests.Single(), "grapple firing starts native library-one sound five once");
         samus.LiquidPhysics.BeginFrameSoundRequests();
         SamusGrappleMovement.StepFiring(air, samus, ControllerButton.X);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "extending does not restart grapple sound");
         SamusGrappleMovement.StepFiring(anchors, samus, ControllerButton.X);
-        AssertEqual(new SoundRequest(Library1Sound.Grappling, SoundQueueLimit.Max6),
+        AssertEqual(new SoundRequest(Library1Sound.Grappling, SoundRequestPriority.Normal),
             samus.LiquidPhysics.SoundRequests.Single(), "accepted connection replaces firing sound with attached sound");
         foreach (GrapplePhase phase in new[] { GrapplePhase.CancelPending, GrapplePhase.ReleaseFromSwing, GrapplePhase.Dropped })
         {
@@ -43,7 +43,7 @@ internal static class GrappleSoundsVerification
                 SamusGrappleMovement.CompleteFiringCancellation(air, samus);
             else
                 SamusGrappleMovement.Step(new SamusTerrain { Level = air }, samus, 0, 0);
-            AssertEqual(new SoundRequest(Library1Sound.GrappleEnd, SoundQueueLimit.Max15),
+            AssertEqual(new SoundRequest(Library1Sound.GrappleEnd, SoundRequestPriority.Essential),
                 samus.LiquidPhysics.SoundRequests.Single(), $"{phase} emits native grapple stop command once");
         }
         Console.WriteLine("  Grapple sounds: fire, silent extension, attachment, cancellation, swing release and drop queues agree.");
@@ -51,7 +51,7 @@ internal static class GrappleSoundsVerification
         {
             var audio = new AudioQueues();
             audio.AdvanceFrame(default);
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSound(request.SoundEffect, request.Priority);
             AssertEqual(new AudioRequest.RequestSound(request.SoundEffect),
                 audio.AdvanceFrame(default).Single(), "grapple command reaches the actual APU sound port");
         }

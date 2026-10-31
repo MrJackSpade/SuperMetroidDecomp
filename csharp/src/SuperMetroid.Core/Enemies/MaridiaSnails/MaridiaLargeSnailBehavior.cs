@@ -603,7 +603,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastMaridiaLargeSnailSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>

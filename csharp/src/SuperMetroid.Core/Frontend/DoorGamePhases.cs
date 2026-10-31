@@ -43,17 +43,17 @@ internal sealed class DoorGamePhases(FrontendSession session)
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             session.audio.QueueSound(Library1Sound.SpinJumpEnd,
-                maximumQueued: SoundQueueLimit.Max15, soundSuppressed: doorSoundsSuppressed);
+                priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
         }
         // `$90:F48A` tests $8B against the shot binding; the action latch holds it as X.
         else if ((session.GameplayRuntime.Controller1.Current & ControllerButton.X) == ControllerButton.None &&
             session.GameplayRuntime.BeamCharge.FlareCounter < 16)
         {
             session.audio.QueueSound(Library1Sound.Silence,
-                maximumQueued: SoundQueueLimit.Max15, soundSuppressed: doorSoundsSuppressed);
+                priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
         }
         session.audio.QueueSound(Library2Sound.Silence,
-            maximumQueued: SoundQueueLimit.Max15, soundSuppressed: doorSoundsSuppressed);
+            priority: SoundRequestPriority.Essential, soundSuppressed: doorSoundsSuppressed);
         // $82:E279 follows both entry cancellation commands, not precedes them.
         session.audio.DoorTransitionSoundsDisabled = true;
         // State $09 calls state $0A synchronously for ordinary doors; state $0A
@@ -77,7 +77,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
             // The cartridge resumes spin audio only after sound admission is
             // restored at the final fade boundary, not on each fade frame.
             if (SamusSpinSoundCommand.Select(session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
-                session.audio.QueueSound(spinSound, maximumQueued: SoundQueueLimit.Max9,
+                session.audio.QueueSound(spinSound, priority: SoundRequestPriority.High,
                     soundSuppressed: session.GameplayRuntime.AttractDemo.IsAttractDemo || session.GameplayRuntime.PowerBombExplosionSuppressesSounds);
             session.GameState = SuperMetroidGameState.MainGameplay;
         }

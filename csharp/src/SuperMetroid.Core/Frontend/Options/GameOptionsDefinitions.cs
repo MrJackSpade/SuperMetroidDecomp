@@ -18,7 +18,7 @@ public static class GameOptionsDefinitions
     /// <summary>Rows in each options page, including rows outside the visible screen.</summary>
     public const int MenuTilemapHeight = 32;
     /// <summary>The queue limit options navigation and confirmation sounds are requested under.</summary>
-    public static readonly SoundQueueLimit MaximumQueuedMenuSounds = SoundQueueLimit.Max6;
+    public static readonly SoundRequestPriority MaximumQueuedMenuSounds = SoundRequestPriority.Normal;
     /// <summary>Two tilemap rows for each of the two language labels.</summary>
     public const int LanguagePaletteRegionCount = 4;
 

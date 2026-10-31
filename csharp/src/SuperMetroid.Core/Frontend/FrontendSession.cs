@@ -253,18 +253,18 @@ internal sealed class FrontendSession
         // publication generation below. It has explicit consume semantics so its one-shot
         // request remains audible without making stale enemy/PLM lists eligible again.
         if (runtime?.MessageBoxes.ConsumeMessageBoxSelectionSoundRequest() == true)
-            audio.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
         if (runtime?.MessageBox.ConsumeSavingSoundRequest() == true)
-            audio.QueueSound(Library1Sound.Saving, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueSound(Library1Sound.Saving, priority: SoundRequestPriority.Normal);
         if (runtime?.MessageBoxes.ConsumeGunshipExitSoundRequest() == true)
-            audio.QueueSound(Library3Sound.GunshipPadOpening, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueSound(Library3Sound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
         // An accepted save station resumes from the message close boundary too.
         if (runtime?.Room.Scope?.Plms.Stations.ConsumeSavingSoundRequest() is { } saving)
             audio.QueueSound(saving);
         // Suit setup resumes from the message close boundary, outside normal gameplay
         // publication generations. Consume once so updates without gameplay cannot repeat it.
         if (runtime?.SuitPickup.ConsumeTransformationSoundRequest() == true)
-            audio.QueueSound(Library2Sound.SuitAcquired, maximumQueued: SoundQueueLimit.Max6,
+            audio.QueueSound(Library2Sound.SuitAcquired, priority: SoundRequestPriority.Normal,
                 soundSuppressed: runtime.SuitPickup.TransformationSoundSuppressed);
 
         // Frontend states sometimes run updates without running gameplay.
@@ -290,31 +290,31 @@ internal sealed class FrontendSession
             // These state machines predate the shared SoundRequest list. Consume their
             // one-shot publications here, retaining the exact native library and MaxN entry.
             if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
-                audio.QueueSound(Library3Sound.SpeedBooster, maximumQueued: SoundQueueLimit.Max6);
+                audio.QueueSound(Library3Sound.SpeedBooster, priority: SoundRequestPriority.Normal);
             if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
-                audio.QueueSound(Library3Sound.StoredShinespark, SoundQueueLimit.Max9,
+                audio.QueueSound(Library3Sound.StoredShinespark, SoundRequestPriority.High,
                     soundSuppressed: samus.Shinespark.StoredShineWarningSoundSuppressed);
             if (samus.Shinespark.ConsumeChargeCancellationSoundRequest())
-                audio.QueueSound(Library1Sound.Silence, SoundQueueLimit.Max9,
+                audio.QueueSound(Library1Sound.Silence, SoundRequestPriority.High,
                     soundSuppressed: samus.Shinespark.ChargeCancellationSoundSuppressed);
             if (samus.Shinespark.ConsumeLaunchSoundRequest())
-                audio.QueueSound(Library3Sound.Shinespark, SoundQueueLimit.Max9,
+                audio.QueueSound(Library3Sound.Shinespark, SoundRequestPriority.High,
                     soundSuppressed: samus.Shinespark.LaunchSoundSuppressed);
             if (samus.Shinespark.ConsumeCrashSoundRequest())
             {
-                audio.QueueSound(Library1Sound.SamusDamaged, SoundQueueLimit.Max6,
+                audio.QueueSound(Library1Sound.SamusDamaged, SoundRequestPriority.Normal,
                     soundSuppressed: samus.Shinespark.CrashSoundSuppressed);
-                audio.QueueSound(Library3Sound.ShinesparkEnd, SoundQueueLimit.Max6,
+                audio.QueueSound(Library3Sound.ShinesparkEnd, SoundRequestPriority.Normal,
                     soundSuppressed: samus.Shinespark.CrashSoundSuppressed);
             }
             if (samus.CrystalFlash.ConsumeActivationSoundRequest())
-                audio.QueueSound(Library3Sound.Silence, maximumQueued: SoundQueueLimit.Max15);
+                audio.QueueSound(Library3Sound.Silence, priority: SoundRequestPriority.Essential);
             if (samus.Xray.ConsumeActivationSoundRequest())
-                audio.QueueSound(Library1Sound.XrayStart, maximumQueued: SoundQueueLimit.Max6);
+                audio.QueueSound(Library1Sound.XrayStart, priority: SoundRequestPriority.Normal);
             if (samus.Xray.ConsumeDeactivationSoundRequest())
-                audio.QueueSound(Library1Sound.XrayEnd, maximumQueued: SoundQueueLimit.Max6);
+                audio.QueueSound(Library1Sound.XrayEnd, priority: SoundRequestPriority.Normal);
             if (samus.DeathSequence.ConsumeSpinJumpSoundRequest())
-                audio.QueueSound(Library1Sound.SpinJumpEnd, maximumQueued: SoundQueueLimit.Max6);
+                audio.QueueSound(Library1Sound.SpinJumpEnd, priority: SoundRequestPriority.Normal);
         }
 
         if (runtime.Room.LoadedScope.Projectiles.LastFrameResult.QueuedSoundEffect is { } projectileSound)

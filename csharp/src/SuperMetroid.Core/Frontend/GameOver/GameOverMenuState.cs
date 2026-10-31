@@ -154,7 +154,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 // black; the menu blanks it and waits out one update before configuring itself.
                 if (brightness != 0)
                     throw new InvalidOperationException("Game-over menu must begin from a black screen.");
-                audio.QueueSound(Library3Sound.Silence, maximumQueued: GameOverMenuDefinitions.MaximumQueuedSounds);
+                audio.QueueSound(Library3Sound.Silence, priority: GameOverMenuDefinitions.MaximumQueuedSounds);
                 ResumesAfterFrameWait = true;
                 break;
 
@@ -193,7 +193,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 {
                     audio.QueueSound(
                         Library1Sound.MenuCursor,
-                        maximumQueued: GameOverMenuDefinitions.MaximumQueuedSounds);
+                        priority: GameOverMenuDefinitions.MaximumQueuedSounds);
                     SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
                 }
                 else if ((pressed & ControllerButton.A) != ControllerButton.None)
@@ -286,7 +286,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
     /// <summary>Queues a Baby animation sound marker's cry on the retail sound queue.</summary>
     private void QueueCompiledBabySound(GameOverBabySound sound) =>
-        audio.QueueSound(CrySound(sound), maximumQueued: GameOverMenuDefinitions.MaximumQueuedSounds);
+        audio.QueueSound(CrySound(sound), priority: GameOverMenuDefinitions.MaximumQueuedSounds);
 
     /// <summary>The cry a Baby animation sound marker queues.</summary>
     /// <exception cref="InvalidDataException">The marker queues no cry.</exception>

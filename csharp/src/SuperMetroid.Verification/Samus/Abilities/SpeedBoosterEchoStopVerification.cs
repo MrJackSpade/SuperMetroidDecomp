@@ -33,7 +33,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
         int animation = 0;
         speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
-            0, ref animation, out _, () => queue.QueueSound(Library3Sound.SpeedBooster, SoundQueueLimit.Max6));
+            0, ref animation, out _, () => queue.QueueSound(Library3Sound.SpeedBooster, SoundRequestPriority.Normal));
         var words = new RoomTerrainBlock[256];
         for (int index = 160; index < 176; index++) words[index] = RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new RoomBlockBehavior[256], new RoomBlockAppearance[256]));
@@ -52,7 +52,7 @@ internal static class SpeedBoosterEchoStopVerification
                 if (request.SoundEffect == Library3Sound.SpeedBoosterEnd)
                 {
                     AssertEqual(40, frame, "echo stop occurs on the wall-cancellation frame");
-                    AssertEqual(15, request.MaximumQueued.Requests, "echo stop uses native Max15");
+                    AssertEqual(15, request.Priority.Requests, "echo stop uses native Max15");
                     stopRequests++;
                 }
                 queue.QueueSound(request);

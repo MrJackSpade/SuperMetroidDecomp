@@ -127,7 +127,7 @@ internal sealed class StationPlms : IPlmFamilySource
         station.SaveAnimationLoopsRemaining =
             WrappingCountdown.Start(SaveStationAnimationDefinitions.SaveAnimationLoops);
         // `$84:AFF4` queues library-one sound $2E right after centring Samus.
-        _pendingSavingSound = _sounds.CreateSoundRequest(Library1Sound.Saving, MaximumQueued: SoundQueueLimit.Max6);
+        _pendingSavingSound = _sounds.CreateSoundRequest(Library1Sound.Saving, Priority: SoundRequestPriority.Normal);
         DrawSaveStationFrame(level, activation.BlockIndex, station);
         return true;
     }
@@ -757,7 +757,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 station.OperationPhase = StationOperationPhase.Extending;
                 station.OperationTimer = WrappingCountdown.Start(StationAccessMovementFrames);
                 operationStartedThisPass = true;
-                _sounds.Queue(Library2Sound.StationEngaged, MaximumQueued: SoundQueueLimit.Max6);
+                _sounds.Queue(Library2Sound.StationEngaged, Priority: SoundRequestPriority.Normal);
                 DrawStationAccess(level, station, pose: StationAccessPose.Retracted);
             }
         }
@@ -791,7 +791,7 @@ internal sealed class StationPlms : IPlmFamilySource
                         station.OperationTimer = WrappingCountdown.Start(StationAccessMovementFrames);
                         break;
                     case StationOperationPhase.PostActivationHold:
-                        _sounds.Queue(Library2Sound.StationDisengaged, MaximumQueued: SoundQueueLimit.Max6);
+                        _sounds.Queue(Library2Sound.StationDisengaged, Priority: SoundRequestPriority.Normal);
                         station.OperationPhase = StationOperationPhase.Retracting;
                         station.OperationTimer = WrappingCountdown.Start(StationAccessMovementFrames);
                         break;

@@ -88,7 +88,7 @@ internal sealed class BeamFiring
             (int? slot, SoundEffectId? sound) = (controllerInput & shoot) != ControllerButton.None
                 ? TryFireHyperBeam(level, samus, sharedProjectiles, roomPlms)
                 : new BeamShot(null, null);
-            return new(slot, sound, sound is null ? null : SoundQueueLimit.Max15);
+            return new(slot, sound, sound is null ? null : SoundRequestPriority.Essential);
         }
 
         bool chargeEquipped = samus.EquippedBeams.HasAny(SamusBeamFlags.Charge);
@@ -106,7 +106,7 @@ internal sealed class BeamFiring
                     roomPlms,
                     charged: false)
                 : new BeamShot(null, null);
-            return new(slot, sound, sound is null ? null : SoundQueueLimit.Max15);
+            return new(slot, sound, sound is null ? null : SoundRequestPriority.Essential);
         }
 
         if (samus.PendingTransitionShot is not null)
@@ -146,7 +146,7 @@ internal sealed class BeamFiring
                         sharedProjectiles,
                         roomPlms,
                         charged: false);
-                    return new(slot, sound, sound is null ? null : SoundQueueLimit.Max15);
+                    return new(slot, sound, sound is null ? null : SoundRequestPriority.Essential);
                 }
 
                 // `$90:BAFC` owns both flare graphics and their audio. Its draw-time call
@@ -155,7 +155,7 @@ internal sealed class BeamFiring
                 // here, on the alpha pass that advances the counter to sixteen.
                 if (_charge.FlareCounter == BeamChargeDefinitions.ChargeSoundStartCounter)
                 {
-                    return new(null, Library1Sound.ChargingBeam, MaximumQueued: SoundQueueLimit.Max9);
+                    return new(null, Library1Sound.ChargingBeam, Priority: SoundRequestPriority.High);
                 }
             }
             else if (_combos.TryActivateCombo(samus, sharedProjectiles, out SoundEffectId? comboSound))
@@ -166,7 +166,7 @@ internal sealed class BeamFiring
                 _charge.FlareCounter = 0;
                 _animation.ClearFlareAnimationState();
                 samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
-                return new(null, comboSound, SoundQueueLimit.Max6);
+                return new(null, comboSound, SoundRequestPriority.Normal);
             }
             return new(null, null, null);
         }
@@ -202,11 +202,11 @@ internal sealed class BeamFiring
         // tail which cancels an audible charge. Murder Beam is the observable index-15
         // case: it allocates a persistent projectile while requesting no new sound.
         if (firing.Slot is not null)
-            return new(firing.Slot, firing.Sound, MaximumQueued: SoundQueueLimit.Max15);
+            return new(firing.Slot, firing.Sound, Priority: SoundRequestPriority.Essential);
 
         return _charge.PreviousBeamChargeCounter >=
             BeamChargeDefinitions.ChargeSoundStartCounter
-            ? new(null, Library1Sound.Silence, MaximumQueued: SoundQueueLimit.Max15)
+            ? new(null, Library1Sound.Silence, Priority: SoundRequestPriority.Essential)
             : new(null, null, null);
     }
 

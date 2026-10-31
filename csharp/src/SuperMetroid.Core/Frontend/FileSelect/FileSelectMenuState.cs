@@ -347,7 +347,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
         if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
         {
-            audio?.QueueSound(Library1Sound.FileSelected, maximumQueued: SoundQueueLimit.Max6);
+            audio?.QueueSound(Library1Sound.FileSelected, priority: SoundRequestPriority.Normal);
             // `menu_index += 27` enters index 31 and enables only the selected helmet.
             HelmetAnimationFrame = 0;
             helmetAnimationTimer = 1;
@@ -568,7 +568,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         if ((pressed & (ControllerButton.Start | ControllerButton.A)) == ControllerButton.None)
             return;
 
-        audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
+        audio?.QueueSound(Library1Sound.MenuConfirm, priority: SoundRequestPriority.Normal);
         if (confirmationSelection != YesNoChoice.Yes)
         {
             ReturnFromConfirmation(mode);
@@ -693,7 +693,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
 
     /// <summary>Queues the menu cursor sound with the native six-request limit.</summary>
     private void QueueCursorSound() =>
-        audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
+        audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
 
     /// <summary>Rebinds host-owned file-select visuals after debugger-state restoration.</summary>
     public void BindMapPresentation([NotNull] AreaMapPresentation? catalog)

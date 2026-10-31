@@ -15,5 +15,5 @@ internal static class DownwardGatePlmProgramDefinitions
     /// <summary>How long the last lowering or raising image shows.</summary>
     internal const int LastMovementFrameDuration = 24;
     /// <summary>The movement sound's native queue cap.</summary>
-    internal static readonly SoundQueueLimit MovementSoundMaximumQueued = SoundQueueLimit.Max6;
+    internal static readonly SoundRequestPriority MovementSoundMaximumQueued = SoundRequestPriority.Normal;
 }

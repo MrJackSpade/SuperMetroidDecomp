@@ -7,7 +7,7 @@ public sealed class SamusHealthWarningState
     private const int HealthyThreshold = 31;
 
     /// <summary>Queued sounds at which the warning's start or stop request is refused.</summary>
-    private static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
+    private static readonly SoundRequestPriority MaximumQueuedSounds = SoundRequestPriority.Normal;
 
     /// <summary>The library-three sound that starts the critical-energy warning.</summary>
     private static readonly SoundEffectId Start = Library3Sound.LowHealthBeep;

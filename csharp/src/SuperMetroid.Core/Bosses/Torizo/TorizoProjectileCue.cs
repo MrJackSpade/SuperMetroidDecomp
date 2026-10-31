@@ -30,8 +30,8 @@ internal abstract record TorizoProjectileCue
 
     /// <summary>Queues a sound (the <c>QueueSoundInY</c> commands).</summary>
     /// <param name="Sound">The sound a <see cref="PlaySound"/> cue queues.</param>
-    /// <param name="MaximumQueued">How many sounds may already be queued for the cue's sound still to be queued: one or six.</param>
-    internal sealed record PlaySound(SoundEffectId Sound, SoundQueueLimit MaximumQueued) : TorizoProjectileCue;
+    /// <param name="Priority">How many sounds may already be queued for the cue's sound still to be queued: one or six.</param>
+    internal sealed record PlaySound(SoundEffectId Sound, SoundRequestPriority Priority) : TorizoProjectileCue;
 
     /// <summary>Scatters the projectile randomly about its position ($86:81DF).</summary>
     /// <param name="Spread">The random scatter a <see cref="Scatter"/> cue applies.</param>

@@ -820,6 +820,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastMagdolliteSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

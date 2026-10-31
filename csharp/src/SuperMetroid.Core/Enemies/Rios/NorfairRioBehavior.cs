@@ -345,6 +345,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueEnemySoundIfAny(LastNorfairRioSoundEffect, maximumQueued: SoundQueueLimit.Max6);
+        audio.QueueEnemySoundIfAny(LastNorfairRioSoundEffect, priority: SoundRequestPriority.Normal);
     }
 }

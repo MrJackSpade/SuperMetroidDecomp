@@ -258,7 +258,7 @@ internal sealed class IntroCinematicObjectSystem
             {
                 audio?.QueueSound(
                     IntroCinematicDefinitions.Objects.Typewriter,
-                    maximumQueued: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
+                    priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
             }
             text.Type(character);
             narrationCharacterIndex++;

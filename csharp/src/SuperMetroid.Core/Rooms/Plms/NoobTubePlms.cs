@@ -58,7 +58,7 @@ internal sealed class NoobTubePlms
                 {
                     _sounds.Queue(
                         NoobTubePlmDefinitions.IneffectiveShotSound,
-                        MaximumQueued: SoundQueueLimit.Max6);
+                        Priority: SoundRequestPriority.Normal);
                 }
                 slot.ProjectileHit = null;
                 return;

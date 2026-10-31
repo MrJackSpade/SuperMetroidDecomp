@@ -59,7 +59,7 @@ public static class CartridgeAudioSmokeTest
         // library-one power-beam program instead of merely proving that the mixer is alive.
         var soundQueue = new AudioQueues();
         SoundEffectId powerBeam = SoundEffectCommands.Decode(SoundEffectLibrary.Library1, powerBeamSound);
-        soundQueue.QueueSound(powerBeam, maximumQueued: SoundQueueLimit.Max15);
+        soundQueue.QueueSound(powerBeam, priority: SoundRequestPriority.Essential);
         SoundAcknowledgements<SoundEffectId> acknowledgements = default;
         bool requestAcknowledged = false;
         bool clearAcknowledgedAfterRequest = false;

@@ -339,7 +339,7 @@ public sealed class SamusProjectileSystem
 
         int? firedSlot = null;
         SoundEffectId? queuedSound = null;
-        SoundQueueLimit? queuedSoundMaximum = null;
+        SoundRequestPriority? queuedSoundMaximum = null;
         bool soundSuppressedAtProduction = producerSoundSuppressed ?? sharedProjectiles.PowerBombExplosion.IsActive;
 
         // Humanoid projectile dispatch is selected by the live HUD item. Indices zero/three
@@ -394,7 +394,7 @@ public sealed class SamusProjectileSystem
                     buttons.ControllerPreviousNewInput,
                     sharedProjectiles);
                 if (queuedSound is not null)
-                    queuedSoundMaximum = SoundQueueLimit.Max6;
+                    queuedSoundMaximum = SoundRequestPriority.Normal;
             }
         }
 
@@ -438,7 +438,7 @@ public sealed class SamusProjectileSystem
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound is SoundEffectId sound)
                     (comboSounds ??= []).Add(new SoundRequest(
-                        sound, SoundQueueLimit.Max6,
+                        sound, SoundRequestPriority.Normal,
                         SoundSuppressed: sharedProjectiles.PowerBombExplosion.IsActive));
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.NoWaveBeam)

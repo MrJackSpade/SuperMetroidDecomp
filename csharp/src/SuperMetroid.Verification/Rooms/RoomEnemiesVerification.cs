@@ -654,14 +654,14 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     SoundEffectId expectedHurtCry = Library2Sound.ShotRipper;
     AssertEqual<SoundEffectId?>(expectedHurtCry, ripper.Definition.HurtSoundEffect, "Ripper header cry decodes to the Ripper hit sound");
     int criesBefore = enemies.Audio.SoundRequests.Count(request =>
-        request.SoundEffect == expectedHurtCry && request.MaximumQueued.Requests == 3);
+        request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3);
     for (int hit = 0; hit < 2; hit++)
     {
         ArmProjectile(shot, ripper, type: 0x0200, damage: 100);
         AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(projectiles, sharedProjectiles),
             $"Ripper Super Missile hit {hit + 1}");
         AssertEqual(criesBefore + hit + 1, enemies.Audio.SoundRequests.Count(request =>
-            request.SoundEffect == expectedHurtCry && request.MaximumQueued.Requests == 3),
+            request.SoundEffect == expectedHurtCry && request.Priority.Requests == 3),
             "common shot queues the header cry for surviving and lethal hits");
     }
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
@@ -1007,7 +1007,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         observedRoarSound |= enemies.Audio.SoundRequests.Contains(
-            new SoundRequest(Library2Sound.RidleyRoar, MaximumQueued: SoundQueueLimit.Max6));
+            new SoundRequest(Library2Sound.RidleyRoar, Priority: SoundRequestPriority.Normal));
         battleEntryFrames++;
     }
     AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
@@ -1192,7 +1192,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley retreat copies OBJ palette-seven colors");
 
     AssertTrue(enemies.Audio.SoundRequests.Contains(
-            new SoundRequest(Library2Sound.CeresRidleyGetaway, MaximumQueued: SoundQueueLimit.Max6)),
+            new SoundRequest(Library2Sound.CeresRidleyGetaway, Priority: SoundRequestPriority.Normal)),
         "handoff frame's first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
     void GetawayFrame()
     {

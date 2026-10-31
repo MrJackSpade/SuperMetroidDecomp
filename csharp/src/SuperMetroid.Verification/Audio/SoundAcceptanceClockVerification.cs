@@ -173,10 +173,10 @@ internal static class SoundAcceptanceClockVerification
         switch (frame)
         {
             case 2:
-                audio.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
+                audio.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
                 break;
             case 4:
-                audio.QueueSound(Library2Sound.Silence, maximumQueued: SoundQueueLimit.Max6);
+                audio.QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Normal);
                 break;
             case 10:
                 audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.GreenBrinstar));
@@ -185,11 +185,11 @@ internal static class SoundAcceptanceClockVerification
             case 24:
                 // Sent on the first call after the upload's downtime, one call before the
                 // track select starts another downtime that zeroes the port again.
-                audio.QueueSound(Library3Sound.SpeedBooster, maximumQueued: SoundQueueLimit.Max6);
+                audio.QueueSound(Library3Sound.SpeedBooster, priority: SoundRequestPriority.Normal);
                 break;
             case 30:
                 // Queued during the track select's downtime; sent once it ends.
-                audio.QueueSound(Library3Sound.HardLanding, maximumQueued: SoundQueueLimit.Max6);
+                audio.QueueSound(Library3Sound.HardLanding, priority: SoundRequestPriority.Normal);
                 break;
             default:
                 break;

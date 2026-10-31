@@ -9,7 +9,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
     /// <summary>The break sound, library 2.</summary>
     internal static readonly SoundEffectId BreakSoundId = Library2Sound.ContactBlockBreak;
     /// <summary>The break sound's native queue cap.</summary>
-    internal static readonly SoundQueueLimit BreakSoundMaximumQueued = SoundQueueLimit.Max1;
+    internal static readonly SoundRequestPriority BreakSoundMaximumQueued = SoundRequestPriority.WhenIdle;
     /// <summary>How long each crumble image shows on Brinstar's slow blocks.</summary>
     internal const int SlowCrumbleDuration = 2;
     /// <summary>How long each crumble image shows on the other blocks.</summary>

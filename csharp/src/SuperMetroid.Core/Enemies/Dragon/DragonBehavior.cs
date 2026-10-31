@@ -182,7 +182,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
         SpawnDragonFireball(body, bodyState);
         // $A2:E70F queues one sound per fireball; two Dragons attacking in one frame queue two.
-        _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, maximumQueued: SoundQueueLimit.Max6);
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
         bodyState.AttackCounter = bodyState.AttackCounter.Decrement().Remaining;
         if (!bodyState.AttackCounter.IsZero)
             return;

@@ -640,7 +640,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastYappingMawSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Routes frozen palette updates to all body links and the root sprite object.</summary>

@@ -373,7 +373,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 item.Phase = CollectiblePhase.ShotBlockReveal;
                 item.AnimationIndex = 0;
                 DrawCollectible(level, slot, CollectiblePlmDraws.ShotRevealFrame(0));
-                _sounds.Queue(Library2Sound.BlockCrumble, SoundQueueLimit.Max6);
+                _sounds.Queue(Library2Sound.BlockCrumble, SoundRequestPriority.Normal);
                 item.Timer = 4;
                 return true;
 

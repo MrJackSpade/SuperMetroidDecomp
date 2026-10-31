@@ -99,7 +99,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (Ridley?.LastDeathSoundEffect is { } ridleyDeath)
-            audio.QueueEnemySound(ridleyDeath, maximumQueued: SoundQueueLimit.Max3);
+            audio.QueueEnemySound(ridleyDeath, priority: SoundRequestPriority.Low);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>

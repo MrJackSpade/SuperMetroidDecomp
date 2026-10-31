@@ -285,7 +285,7 @@ internal static class RoomPlmProgramsVerification
         if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct)
             return false;
         AssertEqual(SpeedBoosterBlockPlmProgramDefinitions.BreakSoundId, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "speed block break sound");
-        AssertEqual(SoundQueueLimit.Max1, SpeedBoosterBlockPlmProgramDefinitions.BreakSoundMaximumQueued, "speed block break sound queue cap");
+        AssertEqual(SoundRequestPriority.WhenIdle, SpeedBoosterBlockPlmProgramDefinitions.BreakSoundMaximumQueued, "speed block break sound queue cap");
         return true;
     }
 
@@ -418,7 +418,7 @@ internal static class RoomPlmProgramsVerification
         if (cue == DownwardGateCue.QueueMovementSound)
         {
             AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2)), "downward gate movement sound");
-            AssertEqual(SoundQueueLimit.Max6, DownwardGatePlmProgramDefinitions.MovementSoundMaximumQueued, "downward gate movement sound queue cap");
+            AssertEqual(SoundRequestPriority.Normal, DownwardGatePlmProgramDefinitions.MovementSoundMaximumQueued, "downward gate movement sound queue cap");
         }
         return true;
     }
@@ -1102,7 +1102,7 @@ internal static class RoomPlmProgramsVerification
         if (cue == SamusEaterCue.QueueChewSound)
         {
             AssertEqual(SamusEaterPlmDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "plant chew sound");
-            AssertEqual(SoundQueueLimit.Max6, SamusEaterPlmProgramDefinitions.ChewSoundMaximumQueued, "plant chew sound queue cap");
+            AssertEqual(SoundRequestPriority.Normal, SamusEaterPlmProgramDefinitions.ChewSoundMaximumQueued, "plant chew sound queue cap");
         }
         return true;
     }
@@ -1191,7 +1191,7 @@ internal static class RoomPlmProgramsVerification
                 break;
             case NoobTubeCue.QueueBreakSound:
                 AssertEqual(NoobTubePlmDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "n00b tube break sound");
-                AssertEqual(SoundQueueLimit.Max6, NoobTubePlmProgramDefinitions.BreakSoundMaximumQueued, "n00b tube break sound queue cap");
+                AssertEqual(SoundRequestPriority.Normal, NoobTubePlmProgramDefinitions.BreakSoundMaximumQueued, "n00b tube break sound queue cap");
                 break;
             case NoobTubeCue.SetBrokenEvent:
                 AssertEqual((ushort)NoobTubePlmDefinitions.BrokenEvent, Operand(2), "n00b tube broken event");

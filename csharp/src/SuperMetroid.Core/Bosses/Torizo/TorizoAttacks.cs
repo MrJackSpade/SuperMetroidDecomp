@@ -128,7 +128,7 @@ internal sealed class TorizoAttacks
                     projectile.Depth = clearedDepth;
                 return null;
             case TorizoProjectileCue.PlaySound playSound:
-                _audio.QueueEnemySound(playSound.Sound, playSound.MaximumQueued);
+                _audio.QueueEnemySound(playSound.Sound, playSound.Priority);
                 return null;
             case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.Delete }:
                 projectile.Clear();

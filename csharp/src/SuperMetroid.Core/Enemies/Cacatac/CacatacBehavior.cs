@@ -260,6 +260,6 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastCacatacSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

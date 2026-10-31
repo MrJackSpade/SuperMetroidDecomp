@@ -202,7 +202,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues <paramref name="sound"/> through the shared enemy queue.</summary>
     private void PlayTorizoSound(SoundEffectId sound)
     {
-        _audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
+        _audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Ports BombTorizo's main AI.</summary>

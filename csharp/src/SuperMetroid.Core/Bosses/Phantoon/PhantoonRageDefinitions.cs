@@ -16,5 +16,5 @@ internal static class PhantoonRageDefinitions
     /// <summary>$A7:D8E6: library-three sound emitted once after each complete wave.</summary>
     internal static SoundEffectId WaveSound => Library3Sound.PhantoonSuperMissiled;
     /// <summary>$A7:D8E9: QueueSound_Lib3_Max6 handoff capacity.</summary>
-    internal static readonly SoundQueueLimit WaveSoundQueueCapacity = SoundQueueLimit.Max6;
+    internal static readonly SoundRequestPriority WaveSoundQueueCapacity = SoundRequestPriority.Normal;
 }

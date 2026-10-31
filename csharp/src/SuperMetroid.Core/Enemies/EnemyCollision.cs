@@ -362,7 +362,7 @@ internal sealed class EnemyCollision
                     // including lethal hits. Frozen targets suppress this cry; death
                     // explosion instructions retain their separate, later sound owner.
                     if (enemy.FrozenTimer.IsZero && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
-                        _audio.QueueEnemySound(cry, SoundQueueLimit.Max3);
+                        _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
                     // `$A0:A79E` gives every plasma-family hit sixteen invincibility frames.
                     // The packed beam type uses bit three for Plasma; other families do not
                     // set that low bit in their ordinary projectile words.
@@ -753,7 +753,7 @@ internal sealed class EnemyCollision
         // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution
         // reaches this helper only with an initially zero clock.
         if (enemy.FrozenTimer.IsZero)
-            _audio.QueueEnemySound(Library3Sound.EnemyFrozen, maximumQueued: SoundQueueLimit.Max3);
+            _audio.QueueEnemySound(Library3Sound.EnemyFrozen, priority: SoundRequestPriority.Low);
         enemy.FrozenTimer = WrappingCountdown.FromRaw(samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
             ? (ushort)300
             : (ushort)400);
@@ -936,7 +936,7 @@ internal sealed class EnemyCollision
         enemy.Health = damage >= enemy.Health
             ? 0
             : enemy.Health - damage;
-        _audio.QueueEnemySound(Library2Sound.ContactKill, maximumQueued: SoundQueueLimit.Max1);
+        _audio.QueueEnemySound(Library2Sound.ContactKill, priority: SoundRequestPriority.WhenIdle);
         if (enemy.Health != 0)
             return;
 

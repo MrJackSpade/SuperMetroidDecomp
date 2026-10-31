@@ -507,7 +507,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if ((_frameContext.RandomEnemyCounter & 7) == 7 && samus.Health >= 30)
-            _audio.QueueEnemySound(Library3Sound.IncrementalEnergy, maximumQueued: SoundQueueLimit.Max6);
+            _audio.QueueEnemySound(Library3Sound.IncrementalEnergy, priority: SoundRequestPriority.Normal);
 
         // Unlike ordinary touch damage, the once-per-64-frame drain explicitly cancels the
         // invincibility and knockback installed by common AI. Apply the suit-scaled health

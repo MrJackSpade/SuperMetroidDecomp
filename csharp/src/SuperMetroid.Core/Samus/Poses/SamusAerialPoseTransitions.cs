@@ -321,7 +321,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
 
         // SolidVerticalCollision_WallJumpTriggered queues library-three sound five with a
         // six-entry threshold after clearing the base-speed words and before pose setup.
-        samus.LiquidPhysics.QueueMovementSound(Library3Sound.Landing, maximumQueued: SoundQueueLimit.Max6);
+        samus.LiquidPhysics.QueueMovementSound(Library3Sound.Landing, priority: SoundRequestPriority.Normal);
 
         SamusAerialMovement.InitializeWallJump(samus);
         samus.LiquidPhysics.SpawnWallJumpDust(samus);
@@ -362,7 +362,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         // `$9B:C9CE` uses generic QueueSound: library one, sound seven, maximum fifteen.
         // It also tears down the active beam flare so the wall-jump's charged-contact path
         // cannot inherit charge accumulated before grapple became active.
-        samus.LiquidPhysics.QueueMovementSound(GrappleBeamDefinitions.Sounds.Stop.SoundEffect, GrappleBeamDefinitions.Sounds.Stop.MaximumQueued);
+        samus.LiquidPhysics.QueueMovementSound(GrappleBeamDefinitions.Sounds.Stop.SoundEffect, GrappleBeamDefinitions.Sounds.Stop.Priority);
         samus.ProjectileFlareCounter = 0;
 
         SamusAerialMovement.InitializeWallJump(samus);
@@ -753,17 +753,17 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
         {
             if (start != SpinPoseStart.SkipFirstFrame)
-                samus.LiquidPhysics.QueueMovementSound(Library1Sound.ScrewAttack, maximumQueued: SoundQueueLimit.Max6);
+                samus.LiquidPhysics.QueueMovementSound(Library1Sound.ScrewAttack, priority: SoundRequestPriority.Normal);
             return facingLeft ? SamusPoseId.ScrewAttackLeftPose : SamusPoseId.ScrewAttackRightPose;
         }
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump))
         {
             // Unlike ordinary/Screw Attack spins, native also queues this on reversal.
-            samus.LiquidPhysics.QueueMovementSound(Library1Sound.SpaceJump, maximumQueued: SoundQueueLimit.Max6);
+            samus.LiquidPhysics.QueueMovementSound(Library1Sound.SpaceJump, priority: SoundRequestPriority.Normal);
             return facingLeft ? SamusPoseId.SpaceJumpLeftPose : SamusPoseId.SpaceJumpRightPose;
         }
         if (start != SpinPoseStart.SkipFirstFrame && !samus.LiquidPhysics.CinematicFunctionActive)
-            samus.LiquidPhysics.QueueMovementSound(Library1Sound.SpinJump, maximumQueued: SoundQueueLimit.Max6);
+            samus.LiquidPhysics.QueueMovementSound(Library1Sound.SpinJump, priority: SoundRequestPriority.Normal);
         return genericPose;
     }
 

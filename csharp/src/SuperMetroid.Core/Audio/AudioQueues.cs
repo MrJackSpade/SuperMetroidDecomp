@@ -226,33 +226,33 @@ public sealed class AudioQueues
     /// </summary>
     public void QueueCancelSoundEffects()
     {
-        QueueSound(Library1Sound.Silence, maximumQueued: SoundQueueLimit.Max6);
-        QueueSound(Library2Sound.Silence, maximumQueued: SoundQueueLimit.Max6);
-        QueueSound(Library3Sound.Silence, maximumQueued: SoundQueueLimit.Max6);
+        QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Normal);
+        QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Normal);
+        QueueSound(Library3Sound.Silence, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Queues <paramref name="request"/> and returns what the queue did with it (see the overload taking the request's parts).</summary>
     public SoundQueueAdmission QueueSound(SoundRequest request) =>
-        QueueSound(request.SoundEffect, request.MaximumQueued, request.SoundSuppressed);
+        QueueSound(request.SoundEffect, request.Priority, request.SoundSuppressed);
     /// <summary>
     /// Executes bank $80's sound-queue call: a request is rejected when its library's ring already holds
-    /// <paramref name="maximumQueued"/> unread requests, and otherwise queued unless sounds are suppressed. The
+    /// <paramref name="priority"/> unread requests, and otherwise queued unless sounds are suppressed. The
     /// outcome says which happened and how full the ring was; the Speed Booster's stage selection reads it after the
     /// library-three call at $90:85A6.
     /// </summary>
     /// <param name="soundEffect">The sound, whose library selects one of the three independent rings.</param>
-    /// <param name="maximumQueued">Admission threshold: an occupancy at or above its unread requests rejects the request before suppression is tested.</param>
+    /// <param name="priority">Admission threshold: an occupancy at or above its unread requests rejects the request before suppression is tested.</param>
     /// <param name="soundSuppressed">
     /// The native disable-sounds, demo-state, or active Power Bomb guard, evaluated
     /// after the occupancy threshold. Suppression leaves the queue unchanged.
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="soundEffect"/> names no library.</exception>
     public SoundQueueAdmission QueueSound(
-        SoundEffectId soundEffect, SoundQueueLimit maximumQueued, bool soundSuppressed = false)
+        SoundEffectId soundEffect, SoundRequestPriority priority, bool soundSuppressed = false)
     {
         int queue = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
         int occupancy = UnreadSounds(queue);
-        if (occupancy >= maximumQueued.Requests)
+        if (occupancy >= priority.Requests)
             return SoundQueueAdmission.Rejected(occupancy);
 
         if (soundSuppressed || DoorTransitionSoundsDisabled)

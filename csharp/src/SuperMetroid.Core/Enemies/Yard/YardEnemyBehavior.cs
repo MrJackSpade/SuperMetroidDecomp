@@ -696,6 +696,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastYardSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max3);
+            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Low);
     }
 }

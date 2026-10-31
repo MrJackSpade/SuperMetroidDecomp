@@ -7,7 +7,7 @@ public static class GameOverMenuDefinitions
     public const int MaximumBrightness = 15;
 
     /// <summary>The queue policy of the selection missile's sound and all three Baby cries: at most six queued.</summary>
-    public static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
+    public static readonly SoundRequestPriority MaximumQueuedSounds = SoundRequestPriority.Normal;
 
     /// <summary>The pre-statue-hall track of the title music set, requested once the initial music queue drains.</summary>
     public const byte MusicTrack = 4;

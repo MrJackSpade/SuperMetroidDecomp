@@ -312,7 +312,7 @@ internal static void VerifySamusPowerBeamProjectiles()
                 (SoundEffectId?)Library1Sound.ChargingBeam,
                 chargeFrame.QueuedSoundEffect,
                 "charge counter sixteen queues the cartridge startup sound");
-            AssertEqual<SoundQueueLimit?>(SoundQueueLimit.Max9, chargeFrame.QueuedSoundMaximum,
+            AssertEqual<SoundRequestPriority?>(SoundRequestPriority.High, chargeFrame.QueuedSoundMaximum,
                 "charge startup uses QueueSfx1_Max9");
         }
         else
@@ -364,7 +364,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual((SoundEffectId?)Library1Sound.Silence,
         rejectedRelease.QueuedSoundEffect,
         "rejected post-sound charge release queues cartridge cancellation");
-    AssertEqual<SoundQueueLimit?>(SoundQueueLimit.Max15, rejectedRelease.QueuedSoundMaximum,
+    AssertEqual<SoundRequestPriority?>(SoundRequestPriority.Essential, rejectedRelease.QueuedSoundMaximum,
         "rejected charge release uses QueueSfx1_Max15 cancellation");
 
     // Build two identical fifteen-call charge states so their central flare frame and
@@ -1282,7 +1282,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(residentDoorPlms.TryNotifyColoredDoorHit(residentDoorBlock, SamusProjectileType.None),
         "resident red door receives power-beam family for native rejection");
     residentDoorPlms.Step(residentDoorLevel);
-    AssertTrue(residentDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundQueueLimit.Max6)),
+    AssertTrue(residentDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundRequestPriority.Normal)),
         "wrong colored-door weapon queues native dud sound");
     AssertEqual(0, residentDoorPlms.ColoredDoors.Single().HitCounter,
         "wrong colored-door weapon does not advance threshold counter");
@@ -1356,7 +1356,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertTrue(greyDoorPlms.TryNotifyColoredDoorHit(greyDoorBlock, SamusProjectileType.None),
         "shared BTS $44 collision publishes power-beam hit to grey door");
     greyDoorPlms.Step(greyDoorLevel, enemyDeaths: 1, enemyDeathQuota: 2);
-    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundQueueLimit.Max6)),
+    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.DudShotOnDoor, SoundRequestPriority.Normal)),
         "locked enemy-quota grey door consumes shot with native dud sound");
     AssertTrue(!greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
         "below-quota grey door does not publish Zebes-awake event");
@@ -1380,7 +1380,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "post-unlock shot selects cartridge opening list");
     AssertTrue(greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
         "grey-door one-hit instruction persists sanitized room argument");
-    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library3Sound.DoorOpened, SoundQueueLimit.Max6)),
+    AssertTrue(greyDoorPlms.Sounds.SoundRequests.Contains(new SoundRequest(Library3Sound.DoorOpened, SoundRequestPriority.Normal)),
         "grey-door opening stream queues native library-three sound seven");
 
     var reloadedGreyWords = new RoomTerrainBlock[16 * 16];
@@ -1462,7 +1462,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     blueDoorPlms.Step(blueDoor);
     AssertTrue(blueDoorPlms.Sounds.SoundRequests.Any(request =>
-            request == new SoundRequest(Library3Sound.DoorOpened, SoundQueueLimit.Max6)),
+            request == new SoundRequest(Library3Sound.DoorOpened, SoundRequestPriority.Normal)),
         "blue-door list queues library-three opening sound seven");
     for (int frame = 1; frame < 19; frame++)
         blueDoorPlms.Step(blueDoor);

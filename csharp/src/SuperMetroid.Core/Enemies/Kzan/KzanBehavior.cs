@@ -251,6 +251,6 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastKzanSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

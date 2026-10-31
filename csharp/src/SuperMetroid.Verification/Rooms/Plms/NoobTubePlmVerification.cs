@@ -110,7 +110,7 @@ internal static class NoobTubePlmVerification
         AssertEqual(null, plms.PopulationSlots.Single().ProjectileHit, "resident consumes grapple notification once");
         AssertTrue(!brokenEvent && projectiles.Count == 0, "grapple must not shatter the power-bomb-only tube");
         AssertTrue(plms.Sounds.SoundRequests.Contains(new SoundRequest(
-            NoobTubePlmDefinitions.IneffectiveShotSound, SoundQueueLimit.Max6)),
+            NoobTubePlmDefinitions.IneffectiveShotSound, SoundRequestPriority.Normal)),
             "resident emits its cartridge ineffective-shot response to grapple");
 
         // A non-power-bomb hit is consumed by the same resident collision dispatcher but
@@ -120,7 +120,7 @@ internal static class NoobTubePlmVerification
         StepNoobTube(plms, level);
         AssertTrue(plms.Sounds.SoundRequests.Contains(new SoundRequest(
                 NoobTubePlmDefinitions.IneffectiveShotSound,
-                SoundQueueLimit.Max6)),
+                SoundRequestPriority.Normal)),
             "ordinary shot queues the cartridge rejection sound");
         AssertEqual(null, plms.PopulationSlots.Single().ProjectileHit,
             "projectile notification is consumed exactly once");

@@ -72,9 +72,9 @@ internal static class TorizoProjectileAnimationsVerification
     /// <summary>The library and queue limit of each sound command Torizo's lists use; its one operand byte is the sound.</summary>
     private static readonly Dictionary<NativeEnemyProjectileInstruction, SoundCommand> SoundCommands = new()
     {
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new SoundCommand(SoundEffectLibrary.Library2, SoundQueueLimit.Max6),
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = new SoundCommand(SoundEffectLibrary.Library3, SoundQueueLimit.Max6),
-        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = new SoundCommand(SoundEffectLibrary.Library2, SoundQueueLimit.Max1),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6] = new SoundCommand(SoundEffectLibrary.Library2, SoundRequestPriority.Normal),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6] = new SoundCommand(SoundEffectLibrary.Library3, SoundRequestPriority.Normal),
+        [NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1] = new SoundCommand(SoundEffectLibrary.Library2, SoundRequestPriority.WhenIdle),
     };
 
     /// <summary>Every projectile program matches its native list.</summary>
@@ -219,7 +219,7 @@ internal static class TorizoProjectileAnimationsVerification
         {
             var playSound = AssertIs<TorizoProjectileCue.PlaySound>(cue, $"{at}: cue");
             AssertEqual(SoundEffectCommands.Decode(sound.Library, OperandByte(cartridge, address + 2)), playSound.Sound, $"{at}: sound");
-            AssertEqual(sound.MaximumQueued, playSound.MaximumQueued, $"{at}: sound queue limit");
+            AssertEqual(sound.Priority, playSound.Priority, $"{at}: sound queue limit");
             return 1;
         }
         switch (cue)

@@ -677,6 +677,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastSpacePirateSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

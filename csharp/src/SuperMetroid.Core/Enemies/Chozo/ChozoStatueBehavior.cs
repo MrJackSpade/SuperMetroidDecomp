@@ -267,12 +267,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.PlayGrabSound }:
                 LastChozoStatueSoundEffect = ChozoGrabsSamusSound;
-                _audio.QueueEnemySound(ChozoGrabsSamusSound, maximumQueued: SoundQueueLimit.Max6);
+                _audio.QueueEnemySound(ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal);
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.PlayFootstepSound }:
                 LastChozoStatueSoundEffect = ChozoFootstepsSound;
-                _audio.QueueEnemySound(ChozoFootstepsSound, maximumQueued: SoundQueueLimit.Max6);
+                _audio.QueueEnemySound(ChozoFootstepsSound, priority: SoundRequestPriority.Normal);
                 return null;
 
             case ChozoStatueCue.Footstep footstep:

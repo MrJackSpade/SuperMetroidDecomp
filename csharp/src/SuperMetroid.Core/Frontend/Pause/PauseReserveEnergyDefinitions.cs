@@ -26,5 +26,5 @@ internal static class PauseReserveEnergyDefinitions
     /// <summary>The sound each refill interval plays.</summary>
     internal static readonly SoundEffectId RefillSound = Library3Sound.IncrementalEnergy;
     /// <summary>The queue limit the refill sound is requested under.</summary>
-    internal static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
+    internal static readonly SoundRequestPriority MaximumQueuedSounds = SoundRequestPriority.Normal;
 }

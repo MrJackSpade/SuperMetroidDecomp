@@ -31,13 +31,13 @@ internal sealed class BlockReactionPlmAnimation(BlockReactionPlmProgram program)
         switch (cue.Kind)
         {
             case BlockReactionPlmCueKind.QueueSoundLibrary2Maximum1:
-                context.QueueSound(cue.QueuedSound, SoundQueueLimit.Max1);
+                context.QueueSound(cue.QueuedSound, SoundRequestPriority.WhenIdle);
                 break;
             case BlockReactionPlmCueKind.QueueSoundLibrary2Maximum3:
-                context.QueueSound(cue.QueuedSound, SoundQueueLimit.Max3);
+                context.QueueSound(cue.QueuedSound, SoundRequestPriority.Low);
                 break;
             case BlockReactionPlmCueKind.QueueSoundLibrary2Maximum6:
-                context.QueueSound(cue.QueuedSound, SoundQueueLimit.Max6);
+                context.QueueSound(cue.QueuedSound, SoundRequestPriority.Normal);
                 break;
             case BlockReactionPlmCueKind.RestoreRespawningGrappleBehavior:
                 context.Level.SetBehavior(slot.BlockIndex, BlockReactionPlmDefinitions.RespawningGrappleBehavior);

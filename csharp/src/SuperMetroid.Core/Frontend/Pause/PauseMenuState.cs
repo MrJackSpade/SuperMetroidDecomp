@@ -197,7 +197,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             // the same frame's scroll pulse.
             if ((delayedPressed & ControllerButton.R) != ControllerButton.None)
             {
-                audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
+                audio?.QueueSound(Library1Sound.MenuConfirm, priority: SoundRequestPriority.Normal);
                 SetPauseButtonLabelMode(PauseButtonHighlight.EquipmentPage);
                 Transition = PauseMenuTransition.MapToEquipmentFadeOut;
                 TransitionBrightness = 15;
@@ -206,7 +206,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             // Map arrows read the ordinary held controller word, not the delayed chrome
             // input. An accepted pulse keeps running after release, as on the cartridge.
             if (MapScrollBounds.Step(heldInput ?? delayedHeldInput, ref mapScrollPosition))
-                audio?.QueueSound(Library1Sound.MapScroll, maximumQueued: SoundQueueLimit.Max6);
+                audio?.QueueSound(Library1Sound.MapScroll, priority: SoundRequestPriority.Normal);
             return mapStart;
         }
 
@@ -222,7 +222,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         UploadEquipmentTilemap();
         if ((delayedPressed & ControllerButton.L) != ControllerButton.None)
         {
-            audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
+            audio?.QueueSound(Library1Sound.MenuConfirm, priority: SoundRequestPriority.Normal);
             SetPauseButtonLabelMode(PauseButtonHighlight.MapPage);
             Transition = PauseMenuTransition.EquipmentToMapFadeOut;
             TransitionBrightness = 15;
@@ -239,7 +239,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     {
         if ((delayedPressed & ControllerButton.Start) == ControllerButton.None)
             return false;
-        audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
+        audio?.QueueSound(Library1Sound.MenuConfirm, priority: SoundRequestPriority.Normal);
         SetPauseButtonLabelMode(PauseButtonHighlight.Unpausing);
         return true;
     }
@@ -263,7 +263,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // $82:90E8 calls the palette handler after stable pause dispatch. The
         // outer pause/unpause fades draw sprites without advancing this owner.
         if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step(screen.Palette))
-            audio?.QueueSound(Library3Sound.PauseBeep, maximumQueued: SoundQueueLimit.Max6);
+            audio?.QueueSound(Library3Sound.PauseBeep, priority: SoundRequestPriority.Normal);
         if (ScreenMode == PauseScreenMode.Map)
             StepMapIndicatorAnimation();
         else
@@ -684,7 +684,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         samus.EquippedBeams ^= mask.Beam;
         samus.EquippedItems ^= mask.Item;
 
-        audio?.QueueSound(Library1Sound.MenuConfirm, maximumQueued: SoundQueueLimit.Max6);
+        audio?.QueueSound(Library1Sound.MenuConfirm, priority: SoundRequestPriority.Normal);
         UpdateEquipmentLabel(SelectedCategory, SelectedItem,
             PauseEquipmentCategories.Get(dispatchedCategory).LabelWordCount, wasEquipped);
         if (dispatchedCategory == PauseEquipmentCategory.Beams)
@@ -739,7 +739,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             }
             SelectedCategory = categoryIndex;
             SelectedItem = item;
-            audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
+            audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
             return true;
         }
         return false;
@@ -751,7 +751,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         if (samus.MaxReserveEnergy == 0) return false;
         SelectedCategory = PauseEquipmentCategory.Reserves;
         SelectedItem = 0;
-        audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
+        audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
         return true;
     }
 
@@ -799,7 +799,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     if (SelectedReserveItem != PauseReserveItem.Mode)
                     {
                         SelectedItem--;
-                        audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
+                        audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
                     }
                 }
                 else if (down)
@@ -811,7 +811,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
                     {
                         SelectedItem++;
                         if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, 0, 1);
-                        else audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
+                        else audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
                     }
                 }
                 break;
@@ -954,7 +954,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         {
             case PauseReserveItem.Mode:
                 if ((pressed & ControllerButton.A) == ControllerButton.None || samus.MaxReserveEnergy == 0) return;
-                audio?.QueueSound(Library1Sound.MenuCursor, maximumQueued: SoundQueueLimit.Max6);
+                audio?.QueueSound(Library1Sound.MenuCursor, priority: SoundRequestPriority.Normal);
                 samus.ReserveTankMode = samus.ReserveTankMode == ReserveTankMode.Auto
                     ? ReserveTankMode.Manual : ReserveTankMode.Auto;
                 WriteReserveLabels();

@@ -32,7 +32,7 @@ internal sealed class EscapeExplosionsBehavior
         {
             inheritedX = (ushort)choice;
             if (ZebesEscapeExplosions.ForIndex(choice).SoundEffect is SoundEffectId sound)
-                _audio.QueueEnemySound(sound, SoundQueueLimit.Max6);
+                _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
         }
         RoomSpriteObjectKind kind =
             ZebesEscapeExplosions.ForIndex(inheritedX & 7).SpriteKind;

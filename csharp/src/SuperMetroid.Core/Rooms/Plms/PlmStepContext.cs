@@ -23,9 +23,9 @@ internal readonly record struct PlmStepContext(
     internal void DrawRestoredBlock(PlmSlot slot) =>
         PlmLevelWrites.DrawTerrain(Level, slot.BlockIndex, slot.RestoreTerrain);
 
-    /// <summary>Queues <paramref name="sound"/> under the native queue cap <paramref name="maximumQueued"/>.</summary>
-    internal void QueueSound(SoundEffectId sound, SoundQueueLimit maximumQueued) =>
-        Plms.Sounds.Queue(sound, MaximumQueued: maximumQueued);
+    /// <summary>Queues <paramref name="sound"/> under the native queue cap <paramref name="priority"/>.</summary>
+    internal void QueueSound(SoundEffectId sound, SoundRequestPriority priority) =>
+        Plms.Sounds.Queue(sound, Priority: priority);
 
     /// <summary>Moves the slot's origin by whole blocks, as the cartridge's move-PLM instructions do.</summary>
     internal void MoveOrigin(PlmSlot slot, int columns, int rows) =>

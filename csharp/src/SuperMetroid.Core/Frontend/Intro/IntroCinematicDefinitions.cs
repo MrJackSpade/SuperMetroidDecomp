@@ -88,7 +88,7 @@ public static class IntroCinematicDefinitions
     public static class Objects
     {
         /// <summary>The queue limit the opening's sounds are requested under.</summary>
-        public static readonly SoundQueueLimit MaximumQueuedSounds = SoundQueueLimit.Max6;
+        public static readonly SoundRequestPriority MaximumQueuedSounds = SoundRequestPriority.Normal;
         /// <summary>The Baby Metroid's first cry.</summary>
         public static readonly SoundEffectId BabyCry1 = Library3Sound.BabyMetroidCry1;
         /// <summary>The typewriter sound while narration characters appear.</summary>

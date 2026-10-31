@@ -46,7 +46,7 @@ internal static class BabyMetroidDeathCryVerification
         var request = enemies.Audio.SoundRequests.Single();
         AssertEqual(SoundEffectLibrary.Library3, request.SoundEffect.Library, "Death cry belongs to library three");
         AssertEqual<SoundEffectId>(Library3Sound.BabyMetroidDeath, request.SoundEffect, "Death cry is the Baby Metroid's death (native sequence 19)");
-        AssertEqual(6, request.MaximumQueued.Requests, "Death cry uses native Max6");
+        AssertEqual(6, request.Priority.Requests, "Death cry uses native Max6");
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.BeginEnemySoundRequestFrame();
@@ -72,7 +72,7 @@ internal static class BabyMetroidDeathCryVerification
         var renderer = AudioSessionAccess.CreateSynthesizing(installation.LoadAudio());
         renderer.RenderFrame(audio.AdvanceFrame(renderer.Acknowledgements));
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.MotherBrain)]);
-        audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+        audio.QueueSound(request.SoundEffect, request.Priority);
         // The CPU rewrites the port each update until the SPC echoes it ($82:8A55); the SPC starts a
         // sound only when its poll latches a changed value, so the starts it publishes are what it received.
         var starts = new List<SoundEffectId>();

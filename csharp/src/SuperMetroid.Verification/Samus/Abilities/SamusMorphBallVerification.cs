@@ -703,7 +703,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(1, (explosion.SoundRequests ?? throw new InvalidOperationException("Verification requires explosion.SoundRequests.")).Count,
         "normal bomb fuse expiry publishes exactly one sound request");
     AssertEqual(
-        new SoundRequest(Library2Sound.BombExplosion, SoundQueueLimit.Max6),
+        new SoundRequest(Library2Sound.BombExplosion, SoundRequestPriority.Normal),
         explosion.SoundRequests[0],
         "normal bomb fuse expiry queues cartridge library-two sound eight with Max6");
 
@@ -739,7 +739,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(1, (spreadReleased.SoundRequests ?? throw new InvalidOperationException("Verification requires spreadReleased.SoundRequests.")).Count,
         "bomb spread publishes one charge-cancellation sound request");
     AssertEqual(
-        new SoundRequest(Library1Sound.Silence, SoundQueueLimit.Max9),
+        new SoundRequest(Library1Sound.Silence, SoundRequestPriority.High),
         spreadReleased.SoundRequests[0],
         "bomb spread queues cartridge library-one sound two with Max9");
     AssertEqual(5, spreadBombs.BombCounter,
@@ -916,7 +916,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertTrue(powerBombs.PowerBombExplosion.IsActive,
         "normal explosion becomes active at its spawn");
     AssertEqual(
-        new SoundRequest(Library1Sound.PowerBombExplosion, SoundQueueLimit.Max15),
+        new SoundRequest(Library1Sound.PowerBombExplosion, SoundRequestPriority.Essential),
         (powerBombFuse.SoundRequests ?? throw new InvalidOperationException("Verification requires powerBombFuse.SoundRequests.")).Single(),
         "power-bomb spawn queues cartridge library-one explosion sound");
     OamBuffer detonatedPowerBombOam = SpriteFrameBuffer.DrawnOam(frame =>
@@ -1192,7 +1192,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         "shot-block head queues one sound request");
     AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, 0x0a), shotPlms.Sounds.SoundRequests[0].SoundEffect,
         "shot-block head queues crumble sound $0A");
-    AssertEqual(1, shotPlms.Sounds.SoundRequests[0].MaximumQueued.Requests,
+    AssertEqual(1, shotPlms.Sounds.SoundRequests[0].Priority.Requests,
         "$84:8C79 uses sound-library-two maximum one");
     StepFrames(12, _ => shotPlms.Step(shotLevel));
     AssertEqual(RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
@@ -1229,7 +1229,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
     AssertEqual(RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
         powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "power-bomb block begins with retail air frame");
-    AssertEqual(new SoundRequest(Library2Sound.BlockCrumble, SoundQueueLimit.Max1), powerBombShotPlms.Sounds.SoundRequests[0],
+    AssertEqual(new SoundRequest(Library2Sound.BlockCrumble, SoundRequestPriority.WhenIdle), powerBombShotPlms.Sounds.SoundRequests[0],
         "$8C7C queues power-bomb breakup sound with maximum one");
     StepFrames(12 + 384 + 12, _ =>
         powerBombShotPlms.Step(powerBombShotLevel));
@@ -1334,7 +1334,7 @@ empty, spring, controllerInput: 0, frameCounter: 0);
         superShotLevel.GetCollisionBlockByIndex(shotIndex).Terrain,
         "CF67 installs synthesized temporary Super Missile word");
     superShotPlms.Step(superShotLevel);
-    AssertEqual(new SoundRequest(Library2Sound.BlockCrumble, SoundQueueLimit.Max6), superShotPlms.Sounds.SoundRequests[0],
+    AssertEqual(new SoundRequest(Library2Sound.BlockCrumble, SoundRequestPriority.Normal), superShotPlms.Sounds.SoundRequests[0],
         "$CB71 queues Super Missile breakup sound with maximum six");
     StepFrames(12 + 384 + 12, _ =>
         superShotPlms.Step(superShotLevel));

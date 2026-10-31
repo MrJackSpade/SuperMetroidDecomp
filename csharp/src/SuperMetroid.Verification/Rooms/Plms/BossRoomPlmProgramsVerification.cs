@@ -77,7 +77,7 @@ internal static class BossRoomPlmProgramsVerification
                 if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.QueueSoundLibrary2Maximum6)
                     return false;
                 AssertEqual(SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundId, SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)), "Spore Spawn ceiling sound");
-                AssertEqual(SoundQueueLimit.Max6, SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundMaximumQueued, "Spore Spawn ceiling sound queue cap");
+                AssertEqual(SoundRequestPriority.Normal, SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundMaximumQueued, "Spore Spawn ceiling sound queue cap");
                 return true;
             }, "Spore Spawn ceiling");
         Console.WriteLine($"  Spore Spawn ceiling programs: {steps} typed steps match bank $84.");
@@ -389,7 +389,7 @@ internal static class BossRoomPlmProgramsVerification
             AssertEqual(BotwoonWallPlmProgramDefinitions.CrumbleSound,
                 SoundEffectCommands.Decode(SoundEffectLibrary.Library2, ReadOperandByte(cartridge, cursor + 2)),
                 "Botwoon wall crumble sound");
-            AssertEqual(SoundQueueLimit.Max6, BotwoonWallPlmProgramDefinitions.CrumbleSoundMaximumQueued, "Botwoon wall crumble sound queue cap");
+            AssertEqual(SoundRequestPriority.Normal, BotwoonWallPlmProgramDefinitions.CrumbleSoundMaximumQueued, "Botwoon wall crumble sound queue cap");
             cue = BotwoonWallCue.QueueCrumbleSound;
             length = 3;
             return true;

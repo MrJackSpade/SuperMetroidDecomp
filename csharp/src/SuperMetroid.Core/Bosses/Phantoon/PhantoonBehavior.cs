@@ -426,9 +426,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (Combat.Phantoon?.LastMaterializationSound is { } phantoonMaterialization)
-            audio.QueueEnemySound(phantoonMaterialization, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(phantoonMaterialization, priority: SoundRequestPriority.Normal);
         if (Combat.Phantoon?.LastCombatSoundEffect is { } phantoonCombat)
-            audio.QueueEnemySound(phantoonCombat, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(phantoonCombat, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>

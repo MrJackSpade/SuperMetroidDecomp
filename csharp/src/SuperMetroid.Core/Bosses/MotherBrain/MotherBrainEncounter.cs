@@ -42,15 +42,15 @@ internal sealed class MotherBrainEncounter
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (MotherBrain?.LastSoundEffect is SoundEffectId motherBrainLibrary2)
-            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary2, SoundEffectLibrary.Library2), maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary2, SoundEffectLibrary.Library2), priority: SoundRequestPriority.Normal);
         if (MotherBrain?.LastSoundEffectLibrary1 is SoundEffectId motherBrainLibrary1)
-            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary1, SoundEffectLibrary.Library1), maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary1, SoundEffectLibrary.Library1), priority: SoundRequestPriority.Normal);
         if (MotherBrain?.LastSoundEffectLibrary3 is SoundEffectId motherBrainLibrary3)
         {
             // Explosion instruction $13 is QueueSfx3_Max3; the other translated library-
             // three Mother Brain instructions use Max6.
-            SoundQueueLimit maximumQueued = motherBrainLibrary3 == MotherBrainSoundDefinitions.Explosion ? SoundQueueLimit.Max3 : SoundQueueLimit.Max6;
-            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary3, SoundEffectLibrary.Library3), maximumQueued);
+            SoundRequestPriority priority = motherBrainLibrary3 == MotherBrainSoundDefinitions.Explosion ? SoundRequestPriority.Low : SoundRequestPriority.Normal;
+            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary3, SoundEffectLibrary.Library3), priority);
         }
     }
 

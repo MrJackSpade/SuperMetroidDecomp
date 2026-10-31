@@ -7,6 +7,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="QueuedSoundSuppressed">Whether the primary sound request was deliberately suppressed.</param>
 public readonly record struct SamusProjectileFrameResult(
     SoundEffectId? QueuedSoundEffect,
-    SoundQueueLimit? QueuedSoundMaximum,
+    SoundRequestPriority? QueuedSoundMaximum,
     IReadOnlyList<SoundRequest>? AdditionalSoundRequests = null,
     bool QueuedSoundSuppressed = false);

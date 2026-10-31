@@ -210,7 +210,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         Part(bottom).EngineSoundTimer = bottomTimer.Value;
         if (bottomTimer.IsZeroOrNegative)
         {
-            _audio.QueueEnemySound(Library2Sound.GunshipHover, maximumQueued: SoundQueueLimit.Max6);
+            _audio.QueueEnemySound(Library2Sound.GunshipHover, priority: SoundRequestPriority.Normal);
             Part(bottom).EngineSoundTimer = 70;
         }
 
@@ -357,7 +357,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
         Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.LandingPadOpened;
-        _audio.QueueEnemySound(Library3Sound.GunshipPadOpening, maximumQueued: SoundQueueLimit.Max6);
+        _audio.QueueEnemySound(Library3Sound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Raises Samus from the landed ship and closes its pad at the exit height.</summary>
@@ -460,7 +460,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
             Part(top).FunctionTimer = 144;
             _frameResults.Gunship = GunshipFrameEvent.EntryStarted;
-            _audio.QueueEnemySound(Library3Sound.GunshipPadOpening, maximumQueued: SoundQueueLimit.Max6);
+            _audio.QueueEnemySound(Library3Sound.GunshipPadOpening, priority: SoundRequestPriority.Normal);
         }
     }
 
@@ -537,7 +537,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         Part(top).FunctionTimer = 144;
         _frameResults.Gunship = GunshipFrameEvent.ExitPadClosing;
-        _audio.QueueEnemySound(Library3Sound.GunshipPadClosing, maximumQueued: SoundQueueLimit.Max6);
+        _audio.QueueEnemySound(Library3Sound.GunshipPadClosing, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>

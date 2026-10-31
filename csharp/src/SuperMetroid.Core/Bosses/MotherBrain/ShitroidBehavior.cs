@@ -929,7 +929,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         if (LastShitroidSoundEffectLibrary2 is SoundEffectId sound)
-            audio.QueueEnemySound(sound, maximumQueued: SoundQueueLimit.Max6);
+            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>

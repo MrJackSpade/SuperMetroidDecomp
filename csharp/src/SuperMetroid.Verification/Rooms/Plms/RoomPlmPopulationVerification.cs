@@ -308,7 +308,7 @@ internal static class RoomPlmPopulationVerification
         plms.Step(level);
         AssertTrue(samus.Control.AlphaLocked,
             "station access command locks Samus during six-plus-$60 insertion");
-        AssertTrue(plms.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.StationEngaged, SoundQueueLimit.Max6)),
+        AssertTrue(plms.Sounds.SoundRequests.Contains(new SoundRequest(Library2Sound.StationEngaged, SoundRequestPriority.Normal)),
             "station access begins with cartridge extension sound $37");
         // The triggering pass installs the six-frame timer without decrementing it, so the
         // activation opcode runs on pass 1 + 6 + $60 = 103.
@@ -1166,7 +1166,7 @@ internal static class RoomPlmPopulationVerification
         AssertTrue(saving, "accepted save resumes the sleeping cartridge PLM");
         // #1269: $84:AFF4-$AFFA run in the PLM pass the message returned into. That pass resumes at the message-close
         // boundary, so the sound is a one-shot request the frontend publishes there (#1390).
-        AssertEqual(new SoundRequest(Library1Sound.Saving, SoundQueueLimit.Max6),
+        AssertEqual(new SoundRequest(Library1Sound.Saving, SoundRequestPriority.Normal),
             plms.Stations.ConsumeSavingSoundRequest(), "the confirming pass queues cartridge library-one sound $2E");
         AssertTrue(Enumerable.Range(0, levelBeforeSave.Length).Any(block => levelBeforeSave[block] !=
                 level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).Terrain),

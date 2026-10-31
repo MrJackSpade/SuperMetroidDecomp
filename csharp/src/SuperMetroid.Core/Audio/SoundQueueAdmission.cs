@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// What one sound-queue call did: whether its library's ring was below the call's threshold, and how many unread
-/// requests the ring held when it was called (<see cref="AudioQueues.QueueSound(SoundEffectId, SoundQueueLimit, bool)"/>). A request below the
+/// requests the ring held when it was called (<see cref="AudioQueues.QueueSound(SoundEffectId, SoundRequestPriority, bool)"/>). A request below the
 /// threshold counts as admitted even when sounds are suppressed and nothing is queued.
 /// </summary>
 public readonly record struct SoundQueueAdmission

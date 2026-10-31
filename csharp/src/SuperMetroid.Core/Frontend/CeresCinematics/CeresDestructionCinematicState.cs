@@ -650,7 +650,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole)),
             unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole))));
         audio?.QueueSound(SuperMetroid.Core.Audio.Library1Sound.PowerBombExplosion,
-            maximumQueued: SoundQueueLimit.Max15);
+            priority: SoundRequestPriority.Essential);
         var cinematicExplosion = new IntroDiscoverySprite(
             new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole)),
                 unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole))),

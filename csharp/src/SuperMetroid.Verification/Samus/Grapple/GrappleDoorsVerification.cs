@@ -56,7 +56,7 @@ internal static class GrappleDoorsVerification
             {
                 plms.Step(level);
                 heardOpening |= plms.Sounds.SoundRequests.Any(r => r == new SoundRequest(
-                    Library3Sound.DoorOpened, SoundQueueLimit.Max6));
+                    Library3Sound.DoorOpened, SoundRequestPriority.Normal));
             }
             AssertTrue(heardOpening, "grapple-opened blue door emits its native opening sound");
             for (int offset = 0; offset < 4; offset++)

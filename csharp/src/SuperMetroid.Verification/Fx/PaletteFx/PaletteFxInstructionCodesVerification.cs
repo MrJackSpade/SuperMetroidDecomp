@@ -901,7 +901,7 @@ internal static class PaletteFxInstructionCodesVerification
                     request.SoundEffect,
                     "retail Norfair heat owner publishes native library-three sound");
                 AssertEqual(PaletteFxHeatData.DamageSoundMaximumQueued,
-                    request.MaximumQueued,
+                    request.Priority,
                     "retail Norfair heat owner uses native Max6 queue");
             }
             if (frame == 16)
@@ -1580,7 +1580,7 @@ internal static class PaletteFxInstructionCodesVerification
             "$F781 beacon sound uses library two");
         AssertEqual<SoundEffectId>(Library2Sound.Beacon, soundRequest.SoundEffect,
             "$F781 beacon sound is the beacon (operand $18)");
-        AssertEqual(PaletteFxAudioQueueLimits.SoundEffects, soundRequest.MaximumQueued,
+        AssertEqual(PaletteFxAudioQueueLimits.SoundEffects, soundRequest.Priority,
             "$F781 beacon sound uses QueueSfx2_Max6");
 
         // The next call must parse the timed palette record immediately after the byte

@@ -230,7 +230,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueEnemySoundIfAny(LastMetareeSoundEffect, maximumQueued: SoundQueueLimit.Max6);
+        audio.QueueEnemySoundIfAny(LastMetareeSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Spawns four metal debris actors with the dying Metaree's graphics indexes before common shot death clears them.</summary>

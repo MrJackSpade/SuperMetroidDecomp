@@ -134,8 +134,8 @@ public sealed class SamusLiquidPhysicsState
     /// of exact queue calls—most notably underwater Space Jump's library-one sound $2F—and
     /// the runtime already begins one shared publication window before movement.
     /// </remarks>
-    public void QueueMovementSound(SoundEffectId soundEffect, SoundQueueLimit maximumQueued) =>
-        QueueSound(soundEffect, maximumQueued);
+    public void QueueMovementSound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
+        QueueSound(soundEffect, priority);
 
     /// <summary>WRAM <c>$0A4E</c>, the fractional half of pending periodic damage, 0 through 65535.</summary>
     public int PeriodicSubDamage
@@ -337,7 +337,7 @@ public sealed class SamusLiquidPhysicsState
             samus.AnimationFrameBuffer = 3;
             if (enteredWater)
             {
-                QueueSound(Library2Sound.SplashIn, maximumQueued: SoundQueueLimit.Max6);
+                QueueSound(Library2Sound.SplashIn, priority: SoundRequestPriority.Normal);
                 SpawnWaterSplash(samus, movementType, bottom);
             }
 
@@ -383,7 +383,7 @@ public sealed class SamusLiquidPhysicsState
                 : SamusLiquidDamageDefinitions.Acid;
             AccumulatePeriodicDamage(checked((ushort)damageRate.SubDamage), checked((ushort)damageRate.WholeDamage));
             if ((frameCounter & 7) == 0 && samus.Health >= 71)
-                QueueSound(Library3Sound.IncrementalEnergy, maximumQueued: SoundQueueLimit.Max3);
+                QueueSound(Library3Sound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
             // Both lava and acid now share `$90:824C`'s delay-two submerged path.
             LiquidPhysicsType = SamusLiquidMedium.LavaOrAcid;
@@ -402,10 +402,10 @@ public sealed class SamusLiquidPhysicsState
         LiquidPhysicsType = SamusLiquidMedium.Air;
         if (exitedWater)
         {
-            QueueSound(Library2Sound.SplashOut, maximumQueued: SoundQueueLimit.Max6);
+            QueueSound(Library2Sound.SplashOut, priority: SoundRequestPriority.Normal);
             if (!gravitySuit && movementType is
                 SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
-                QueueSound(Library1Sound.ResumedSpinJump, maximumQueued: SoundQueueLimit.Max6);
+                QueueSound(Library1Sound.ResumedSpinJump, priority: SoundRequestPriority.Normal);
             SpawnWaterSplash(samus, movementType, bottom);
             TrySpawnAirBubbles(
                 samus,
@@ -438,7 +438,7 @@ public sealed class SamusLiquidPhysicsState
                     SamusPoseId.ScrewAttackLeftPose
                         ? Library1Sound.ScrewAttackEnd
                         : Library1Sound.SpinJumpEnd,
-                maximumQueued: SoundQueueLimit.Max6);
+                priority: SoundRequestPriority.Normal);
         }
 
         // `$91:F078-$F085`: a nonzero whole speed passing CMP #$0005/BPL, a signed test, is a hard
@@ -454,7 +454,7 @@ public sealed class SamusLiquidPhysicsState
             QueueSound(hardLanding
                     ? Library3Sound.HardLanding
                     : Library3Sound.Landing,
-                maximumQueued: SoundQueueLimit.Max6);
+                priority: SoundRequestPriority.Normal);
         }
 
         HandleLandingGraphics(samus);
@@ -705,7 +705,7 @@ public sealed class SamusLiquidPhysicsState
             2, SamusAtmosphericEffectType.Bubbles, animationFrame: 0, animationTimer: 3,
             new(samus.Position.X.Whole, unchecked((ushort)(top + 6))));
         int sample = random.Generate();
-        QueueSound((sample & 1) != 0 ? Library2Sound.LowBubbles : Library2Sound.HighBubbles, maximumQueued: SoundQueueLimit.Max6);
+        QueueSound((sample & 1) != 0 ? Library2Sound.LowBubbles : Library2Sound.HighBubbles, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Starts the four-slot lava spray while Samus's top is above the surface and the previous spray has cleared.</summary>
@@ -738,7 +738,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         if ((frameCounter & 1) == 0)
-            QueueSound(Library2Sound.LiquidDamage, maximumQueued: SoundQueueLimit.Max6);
+            QueueSound(Library2Sound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Emits room-dependent wet or boosted footstep art at running contact frames and applies native sound suppression.</summary>
@@ -790,7 +790,7 @@ public sealed class SamusLiquidPhysicsState
             SamusInputSnapshot.SharedShineTimer(samus) == 0 &&
             !samus.HorizontalSpeed.SpeedBoostCounter.IsAtFullStage)
         {
-            QueueSound(Library3Sound.Footsteps, maximumQueued: SoundQueueLimit.Max6);
+            QueueSound(Library3Sound.Footsteps, priority: SoundRequestPriority.Normal);
         }
     }
 
@@ -810,8 +810,8 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Publishes a bounded sound request marked for suppression while a Power Bomb is active.</summary>
-    private void QueueSound(SoundEffectId soundEffect, SoundQueueLimit maximumQueued) =>
-        _soundRequests.Add(new SoundRequest(soundEffect, maximumQueued,
+    private void QueueSound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
+        _soundRequests.Add(new SoundRequest(soundEffect, priority,
             SoundSuppressed: _audioPowerBomb?.IsActive == true));
 
     /// <summary>

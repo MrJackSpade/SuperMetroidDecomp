@@ -69,7 +69,7 @@ internal static class GrappleHurtFeedbackVerification
         runtime.StepFrame(ControllerButton.X);
         AssertEqual(3, samus.HurtFlashCounter, "active hurt feedback does not restart");
         AssertEqual(1, samus.LiquidPhysics.SoundRequests.Count(request =>
-            request.SoundEffect == Library1Sound.SamusDamaged && request.MaximumQueued.Requests == 6),
+            request.SoundEffect == Library1Sound.SamusDamaged && request.Priority.Requests == 6),
             "counter two queues exactly one native gasp with Max6");
         runtime.StepFrame(ControllerButton.X);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count(request =>

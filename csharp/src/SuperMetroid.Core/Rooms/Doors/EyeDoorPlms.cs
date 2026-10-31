@@ -400,7 +400,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
                 {
                     _sounds.Queue(
                         EyeDoorDefinitions.RejectedShotSound,
-                        MaximumQueued: SoundQueueLimit.Max6);
+                        Priority: SoundRequestPriority.Normal);
                     return;
                 }
 
@@ -430,7 +430,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         SpawnEyeDoorProjectile(slot, EyeDoorProjectileDefinition.Projectile, facing);
         _sounds.Queue(
             EyeDoorDefinitions.ProjectileSound,
-            MaximumQueued: SoundQueueLimit.Max6);
+            Priority: SoundRequestPriority.Normal);
     }
 
     /// <summary><c>$84:D790</c>: the eye facing <paramref name="facing"/> sweats.</summary>

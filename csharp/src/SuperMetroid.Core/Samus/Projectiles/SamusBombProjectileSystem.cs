@@ -175,7 +175,7 @@ public sealed class SamusBombProjectileSystem
             {
                 soundRequests.Add(new SoundRequest(
                     Library1Sound.Silence,
-                    MaximumQueued: SoundQueueLimit.Max9,
+                    Priority: SoundRequestPriority.High,
                     SoundSuppressed: PowerBombExplosion.IsActive));
             }
         }
@@ -212,7 +212,7 @@ public sealed class SamusBombProjectileSystem
                 // bombs can expire during one Samus projectile pass.
                 soundRequests.Add(new SoundRequest(
                     Library2Sound.BombExplosion,
-                    MaximumQueued: SoundQueueLimit.Max6,
+                    Priority: SoundRequestPriority.Normal,
                     SoundSuppressed: PowerBombExplosion.IsActive));
             }
             else if (slotExplosionStarted)
@@ -223,7 +223,7 @@ public sealed class SamusBombProjectileSystem
                 // Spawn installs the explosion's owner.
                 soundRequests.Add(new SoundRequest(
                     Library1Sound.PowerBombExplosion,
-                    MaximumQueued: SoundQueueLimit.Max15,
+                    Priority: SoundRequestPriority.Essential,
                     SoundSuppressed: soundSuppressedBeforePreInstruction));
             }
 
@@ -330,11 +330,11 @@ public sealed class SamusBombProjectileSystem
         if (SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             if (SamusSpinSoundCommand.Select(samus) is { } spinSound)
-                samus.LiquidPhysics.QueueMovementSound(spinSound, maximumQueued: SoundQueueLimit.Max9);
+                samus.LiquidPhysics.QueueMovementSound(spinSound, priority: SoundRequestPriority.High);
             return;
         }
         if (samus.ProjectileFlareCounter >= ChargeSoundFlareThreshold)
-            samus.LiquidPhysics.QueueMovementSound(Library1Sound.ResumeChargingBeam, maximumQueued: SoundQueueLimit.Max9);
+            samus.LiquidPhysics.QueueMovementSound(Library1Sound.ResumeChargingBeam, priority: SoundRequestPriority.High);
     }
 
     /// <summary>$90:F4C2: the flare count from which a charging beam's loop is audible.</summary>

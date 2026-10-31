@@ -7,5 +7,5 @@ public static class PaletteFxAudioQueueLimits
     /// All three palette-FX SFX opcodes call the corresponding bank-$80
     /// <c>QueueSfxN_Max6</c> routine.
     /// </summary>
-    public static readonly SoundQueueLimit SoundEffects = SoundQueueLimit.Max6;
+    public static readonly SoundRequestPriority SoundEffects = SoundRequestPriority.Normal;
 }

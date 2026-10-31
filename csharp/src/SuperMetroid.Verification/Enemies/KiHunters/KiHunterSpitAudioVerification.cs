@@ -65,7 +65,7 @@ internal static class KiHunterSpitAudioVerification
         }
         Step();
         AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpitRight), "staged attack spawns one real acid projectile");
-        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.MaximumQueued.Requests == 6), "spit calls library two Max6");
+        AssertTrue(runtime.Enemies.Audio.SoundRequests.Any(request => request.SoundEffect == spit && request.Priority.Requests == 6), "spit calls library two Max6");
         // Remain in the post-spit waiting state without introducing another attack.
         // The right spit animation's final sleep.
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 8);

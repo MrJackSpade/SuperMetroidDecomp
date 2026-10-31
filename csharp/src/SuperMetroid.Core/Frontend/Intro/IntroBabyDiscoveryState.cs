@@ -229,7 +229,7 @@ internal sealed class IntroBabyDiscoveryState
                     eggParticles.Add(new IntroEggParticle(index));
                 audio?.QueueSound(
                     IntroCinematicDefinitions.Objects.EggHatch,
-                    maximumQueued: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
+                    priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
                 return;
 
             case CinematicSpriteCueKind.StartIntroPage3:
@@ -372,7 +372,7 @@ internal sealed class IntroBabyDiscoveryState
             // that creates the four egg-slime drops.
             audio?.QueueSound(
                 IntroCinematicDefinitions.Objects.BabyCry1,
-                maximumQueued: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
+                priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
         }
 
         // $BA73 accelerates toward 32 pixels above Samus, clamping to +/-$220 in 8.8.
@@ -413,7 +413,7 @@ internal sealed class IntroBabyDiscoveryState
             if (confusedBaby.GeneralTimer % 64 == 0)
                 audio?.QueueSound(
                     IntroCinematicDefinitions.Objects.BabyCry1,
-                    maximumQueued: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
+                    priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
         }
 
         BabyVelocity = BabyVelocity.WithX(AccelerateToward(

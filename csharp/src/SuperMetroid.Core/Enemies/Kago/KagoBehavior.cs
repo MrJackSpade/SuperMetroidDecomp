@@ -395,6 +395,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueEnemySoundIfAny(LastKagoBugSoundEffect, maximumQueued: SoundQueueLimit.Max6);
+        audio.QueueEnemySoundIfAny(LastKagoBugSoundEffect, priority: SoundRequestPriority.Normal);
     }
 }

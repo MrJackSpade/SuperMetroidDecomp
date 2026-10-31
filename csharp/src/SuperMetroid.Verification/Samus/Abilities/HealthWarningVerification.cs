@@ -26,7 +26,7 @@ internal static class HealthWarningVerification
         foreach (bool suppressed in new[] { false, true })
         {
             audio.Reset();
-            if (!suppressed) for (int i = 0; i < 6; i++) audio.QueueSound(Library3Sound.Silence, SoundQueueLimit.Max6);
+            if (!suppressed) for (int i = 0; i < 6; i++) audio.QueueSound(Library3Sound.Silence, SoundRequestPriority.Normal);
             warning.Update(30, audio, suppressed);
             AssertTrue(warning.IsActive, "rejected start still sets native latch");
             AssertEqual(suppressed ? 0 : 6, positions[2], "rejected start does not add a command");

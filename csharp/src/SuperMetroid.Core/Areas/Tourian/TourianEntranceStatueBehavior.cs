@@ -101,7 +101,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Tracks the BG2 statue's vertical displacement and publishes the base decoration's completion latch.</summary>
     internal void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.PreInstruction == EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess &&
+        if (projectile.PreInstruction == EnemyProjectilePreInstruction.TourianStatueRevealFollow &&
             TourianEntranceStatueAnimationState == TourianStatueAnimationState.None)
         {
             TourianEntranceStatueFinished = true;
@@ -122,7 +122,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         table.AddPreInstruction(context =>
         {
             PositionTourianEntranceStatueProjectile(context.Projectile);
-        }, EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess, EnemyProjectilePreInstruction.TourianStatue_Ridley_Phantoon_BaseDecor);
+        }, EnemyProjectilePreInstruction.TourianStatueRevealFollow, EnemyProjectilePreInstruction.TourianStatueDecorationSettled);
     }
 
     /// <summary>Advances TourianEntranceStatue's typed animation.</summary>

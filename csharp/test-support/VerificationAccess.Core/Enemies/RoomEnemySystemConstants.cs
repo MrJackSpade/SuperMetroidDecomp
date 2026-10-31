@@ -10,17 +10,17 @@ internal static class RoomEnemySystemConstants
     /// <summary>Bank-$AA instruction pointer at $B879 used on Bomb Torizo initialization.</summary>
     public const ushort BombTorizoInitialInstruction = 0xb879;
     /// <summary>Pre-instruction selected for the Cacatac spike enemy projectile.</summary>
-    public const EnemyProjectilePreInstruction CacatacSpikePreInstruction = EnemyProjectilePreInstruction.CacatacSpike;
+    public const EnemyProjectilePreInstruction CacatacSpikePreInstruction = EnemyProjectilePreInstruction.CacatacSpikeFlight;
     /// <summary>Initial leftward Ki Hunter acid pre-instruction pointer.</summary>
-    public const EnemyProjectilePreInstruction KiHunterAcidInitialLeftPreInstruction = EnemyProjectilePreInstruction.KiHunterAcid_Left;
+    public const EnemyProjectilePreInstruction KiHunterAcidInitialLeftPreInstruction = EnemyProjectilePreInstruction.KiHunterAcidLaunchLeft;
     /// <summary>Initial rightward Ki Hunter acid pre-instruction pointer.</summary>
-    public const EnemyProjectilePreInstruction KiHunterAcidInitialRightPreInstruction = EnemyProjectilePreInstruction.KiHunterAcid_Right;
+    public const EnemyProjectilePreInstruction KiHunterAcidInitialRightPreInstruction = EnemyProjectilePreInstruction.KiHunterAcidLaunchRight;
     /// <summary>Normal Ninja Pirate OBJ palette slot value before its alternate coloring.</summary>
     public const ushort NinjaPiratePaletteNormal = 0x0200;
     /// <summary>Sound effect queued for the Ninja Pirate's claw kick or dive.</summary>
     public const ushort NinjaPirateSoundClawKickOrDive = 0x0066;
     /// <summary>Pre-instruction selected for Stoke's fireball projectile.</summary>
-    public const EnemyProjectilePreInstruction StokeProjectilePreInstruction = EnemyProjectilePreInstruction.StokeFireball;
+    public const EnemyProjectilePreInstruction StokeProjectilePreInstruction = EnemyProjectilePreInstruction.StokeFireballFlight;
 
     /// <summary>Provides native room-enemy AI, instruction, palette, sound, and hitbox references for verification.</summary>
     extension(RoomEnemySystem)

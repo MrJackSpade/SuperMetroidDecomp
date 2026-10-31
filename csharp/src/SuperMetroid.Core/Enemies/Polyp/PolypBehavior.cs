@@ -129,7 +129,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Polyp rock: quadratic rise/fall and viewport cull.
             RunPolypRockPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.PolypRock);
+        }, EnemyProjectilePreInstruction.PolypRockFlight);
     }
 
     /// <summary>Advances Polyp's typed animation.</summary>
@@ -145,7 +145,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Native projectile pre-instruction installed on each launched rock.</summary>
     private const EnemyProjectilePreInstruction PolypRockPreInstruction =
-        EnemyProjectilePreInstruction.PolypRock;
+        EnemyProjectilePreInstruction.PolypRockFlight;
     /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>
     private const int PolypRockGravityStep = 2;
     /// <summary>Falling rocks stop accelerating at the native $0040 speed index.</summary>

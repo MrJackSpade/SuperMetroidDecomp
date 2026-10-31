@@ -75,7 +75,7 @@ internal static class MotherBrainEffectAnimations
             Show(29, 10),
             Show(30, 10),
             Show(31, 10),
-            Cue(new MotherBrainEffectCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.MotherBrainsDrool_Falling)),
+            Cue(new MotherBrainEffectCue.SetPreInstruction(PreInstruction: EnemyProjectilePreInstruction.MotherBrainDroolFall)),
             Cue(new MotherBrainEffectCue.Command(K.DropDrool)),
             Show(32, 10),
             Hold,

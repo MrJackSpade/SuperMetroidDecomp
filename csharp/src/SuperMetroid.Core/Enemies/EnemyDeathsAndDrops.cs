@@ -41,7 +41,7 @@ internal sealed class EnemyDeathsAndDrops
     }
     /// <summary>Bank-$86 callback that checks pickup lifetime, Grapple, and Samus contact.</summary>
     private const EnemyProjectilePreInstruction EnemyPickupPreInstruction =
-        EnemyProjectilePreInstruction.Pickup;
+        EnemyProjectilePreInstruction.PickupLifetime;
     /// <summary>Frames a newly spawned enemy pickup remains collectible.</summary>
     private const int EnemyPickupLifetime = 400;
     /// <summary>Initial pickup frames during which a Grapple endpoint cannot collect it.</summary>
@@ -279,7 +279,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         // The blank map lasts 64 frames before $EF10 handles a retained respawning enemy
         // and $8154 deletes the actor. Collection and natural expiry use this same tail.
-        projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86EFDF;
+        projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
@@ -579,7 +579,7 @@ internal sealed class EnemyDeathsAndDrops
         {
             // Lifetime, grapple endpoint, then Samus body.
             RunEnemyPickupPreInstruction(context.Projectile, context.Samus);
-        }, EnemyProjectilePreInstruction.Pickup);
+        }, EnemyProjectilePreInstruction.PickupLifetime);
     }
 
     /// <summary>Queues the library-two enemy-killed sound 9, as <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) does.</summary>

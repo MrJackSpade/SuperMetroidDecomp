@@ -51,12 +51,12 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                      new VerifySpacePirateProjectileInstructionProgramDefinitionsCase(false,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeft,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserLeftLoop,
-                         EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left,
+                         EnemyProjectilePreInstruction.LaserFlightLeft,
                          124),
                      new VerifySpacePirateProjectileInstructionProgramDefinitionsCase(true,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRight,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.LaserRightLoop,
-                         EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right,
+                         EnemyProjectilePreInstruction.LaserFlightRight,
                          132),
                  })
         {
@@ -67,7 +67,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemyProjectileSlot laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
             AssertEqual(program, NativePointer(laser),
                 "real Pirate/Mother Brain laser producer selects its facing program");
-            AssertEqual(EnemyProjectilePreInstruction.RTS_86A05B, laser.PreInstruction,
+            AssertEqual(EnemyProjectilePreInstruction.Stationary, laser.PreInstruction,
                 "laser initializer keeps muzzle frames stationary");
             RunForcedTicks(enemies, laser, 3);
             AssertEqual((ushort)128, laser.Position.X.Whole,
@@ -87,11 +87,11 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                      new SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(0,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeftLoop,
-                         EnemyProjectilePreInstruction.PirateClaw_Left),
+                         EnemyProjectilePreInstruction.PirateClawThrownLeft),
                      new SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(1,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRight,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawRightLoop,
-                         EnemyProjectilePreInstruction.PirateClaw_Right),
+                         EnemyProjectilePreInstruction.PirateClawThrownRight),
                  })
         {
             RoomEnemySystem enemies = NewSystem();

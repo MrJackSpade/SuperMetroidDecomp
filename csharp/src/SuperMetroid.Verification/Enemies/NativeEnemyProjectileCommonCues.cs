@@ -14,7 +14,7 @@ internal static class NativeEnemyProjectileCommonCues
     {
         [(ushort)NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Command(EnemyProjectileCommonCueKind.Delete)),
         [(ushort)NativeEnemyProjectileInstruction.PreInstructionInY] = NativeCueCommand<EnemyProjectileCommonCue>.Of<EnemyProjectileCommonCue.SetPreInstruction>(2, (operands, cue, at) =>
-            AssertEqual(LittleEndianBytes.Word(operands[0], operands[1]), EnemyProjectilePreInstructionAccess.Word(cue.PreInstruction), $"{at}: pre-instruction")),
+            AssertEqual(cue.PreInstruction, EnemyProjectilePreInstructionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction")),
         [(ushort)NativeEnemyProjectileInstruction.ClearPreInstruction] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Command(EnemyProjectileCommonCueKind.ClearPreInstruction)),
         [(ushort)NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = NativeCueCommand<EnemyProjectileCommonCue>.Of<EnemyProjectileCommonCue.Scatter>(4, (operands, cue, at) =>
         {

@@ -72,22 +72,22 @@ internal sealed class CrocomireCombat
         table.AddPreInstruction(context =>
         {
             StartCrocomireProjectileFlight(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.CrocomiresProjectile_Setup);
+        }, EnemyProjectilePreInstruction.CrocomireShotAiming);
 
         table.AddPreInstruction(context =>
         {
             RunCrocomireProjectileFlight(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.CrocomiresProjectile_Fired);
+        }, EnemyProjectilePreInstruction.CrocomireShotFlight);
 
         table.AddPreInstruction(context =>
         {
             RunCrocomireSpikeWallPiece(context.Projectile);
-        }, EnemyProjectilePreInstruction.CrocomireSpikeWallPieces);
+        }, EnemyProjectilePreInstruction.CrocomireSpikeWallCollapse);
 
         table.AddPreInstruction(context =>
         {
             RunCrocomireBridgeFragment(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.CrocomireBridgeCrumbling);
+        }, EnemyProjectilePreInstruction.CrocomireBridgeFragmentFall);
     }
 
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
@@ -435,7 +435,7 @@ internal sealed class CrocomireCombat
         projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(
             new(-64, CrocomireVolley.GradientForSpawnParameter(projectile.StateOf<CrocomireProjectileState>().VolleyParameter))));
         projectile.PreInstruction =
-            EnemyProjectilePreInstruction.CrocomiresProjectile_Fired;
+            EnemyProjectilePreInstruction.CrocomireShotFlight;
     }
 
     /// <summary>Ports <c>sub_8690B3</c>: delete on the first horizontal/vertical wall hit.</summary>

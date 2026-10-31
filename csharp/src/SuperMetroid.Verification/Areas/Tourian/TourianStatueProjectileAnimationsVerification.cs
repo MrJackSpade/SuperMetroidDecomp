@@ -61,7 +61,7 @@ internal static class TourianStatueProjectileAnimationsVerification
                     AssertEqual((short)(operands[0] | operands[1] << 8), moveDown.Pixels, $"{at}: Y offset");
                     break;
                 case TourianStatueProjectileCue.StartMoving startMoving:
-                    AssertEqual((ushort)(operands[0] | operands[1] << 8), EnemyProjectilePreInstructionAccess.Word(startMoving.Movement), $"{at}: movement");
+                    AssertEqual(startMoving.Movement, EnemyProjectilePreInstructionAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
                     break;
                 case TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Delete } or TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.Earthquake } or TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnParticle } or TourianStatueProjectileCue.Command { Kind: TourianStatueProjectileCueKind.SpawnTail }:
                     break;

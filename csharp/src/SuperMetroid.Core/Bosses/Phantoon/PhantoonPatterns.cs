@@ -766,7 +766,7 @@ internal sealed class PhantoonPatterns
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
                 flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualFalling0));
                 flame.PreInstruction =
-                    EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Falling;
+                    EnemyProjectilePreInstruction.PhantoonCasualFlameFall;
 
                 // $86:985F changes the spawn definition's $8028 properties to $2028.
                 // The falling flame therefore cannot hurt Samus and cannot be shot until
@@ -782,7 +782,7 @@ internal sealed class PhantoonPatterns
                 };
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
                 flame.PreInstruction =
-                    EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged;
+                    EnemyProjectilePreInstruction.PhantoonRageFlameOrbit;
                 break;
 
             case PhantoonFlameSpawnType.Rain:
@@ -794,7 +794,7 @@ internal sealed class PhantoonPatterns
                 flame.State = new PhantoonOrbitingFlameState(new ByteAngle(PhantoonFlameSpawns.SpiralAngle(index)));
                 flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 16)));
                 flame.PreInstruction =
-                    EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral;
+                    EnemyProjectilePreInstruction.PhantoonSpiralFlameOrbit;
                 break;
 
             default:
@@ -816,7 +816,7 @@ internal sealed class PhantoonPatterns
         flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawns.RainX(column));
         flame.Position = flame.Position.WithWholeY(40);
         flame.PreInstruction =
-            EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain;
+            EnemyProjectilePreInstruction.PhantoonFlameRainFall;
         return true;
     }
 

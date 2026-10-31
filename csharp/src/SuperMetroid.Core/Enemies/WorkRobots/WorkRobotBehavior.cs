@@ -392,7 +392,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             RunWorkRobotLaserPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.WreckedShipRobotLaser);
+        }, EnemyProjectilePreInstruction.WorkRobotLaserFlight);
     }
 
     /// <summary>Ports WorkRobot's main AI.</summary>

@@ -193,7 +193,7 @@ internal sealed class DraygonGoop
         table.AddPreInstruction(context =>
         {
             RunAttachedDraygonGoop(context.Projectile, context.Samus);
-        }, EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus);
+        }, EnemyProjectilePreInstruction.DraygonGoopStuckToSamus);
 
         table.AddPreInstruction(context =>
         {
@@ -201,12 +201,12 @@ internal sealed class DraygonGoop
             DeleteEnemyProjectileIfPowerBombed(context.Projectile, context.Samus);
             MoveDraygonProjectile(context.Projectile);
             DeleteDraygonProjectileOutsideRoom(context.Projectile);
-        }, EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired);
+        }, EnemyProjectilePreInstruction.DraygonTurretShotFlight);
 
         table.AddPreInstruction(context =>
         {
             RunFlyingDraygonGoop(context.Projectile, context.Samus);
-        }, EnemyProjectilePreInstruction.DraygonGoop);
+        }, EnemyProjectilePreInstruction.DraygonGoopFlight);
 
         // A shot wall turret runs the shared misc-dust small explosion, the list its definition names.
         table.AddShotAnimation(RoomEnemyProjectileKind.DraygonWallTurret,
@@ -232,7 +232,7 @@ internal sealed class DraygonGoop
                     projectile.Clear();
                     return;
                 case DraygonProjectileCue.Fire:
-                    projectile.PreInstruction = EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.DraygonTurretShotFlight;
                     return;
                 default:
                     throw new InvalidOperationException($"Undefined {nameof(DraygonProjectileCue)} {cue}.");
@@ -293,7 +293,7 @@ internal sealed class DraygonGoop
         samus.XSpeedDivisor = nextDivisor;
         goop.State = new DraygonGoopAttachedState(nextDivisor);
         goop.PreInstruction =
-            EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus;
+            EnemyProjectilePreInstruction.DraygonGoopStuckToSamus;
         goop.BlocksSamusProjectiles = false;
         goop.CanDamageSamus = false;
         goop.PersistsOnSamusContact = true;

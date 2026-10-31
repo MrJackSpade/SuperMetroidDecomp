@@ -525,7 +525,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             RunPowampSpikePreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.PowampSpike);
+        }, EnemyProjectilePreInstruction.PowampSpikeFlight);
         // A shot spike runs the same private delete program its definition names as its shot list.
         table.AddShotAnimation(RoomEnemyProjectileKind.PowampSpike, () => new PowampSpikeAnimation(PowampSpikeProgram.Delete));
     }

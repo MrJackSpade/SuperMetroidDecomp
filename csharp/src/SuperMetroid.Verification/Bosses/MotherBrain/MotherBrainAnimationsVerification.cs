@@ -206,7 +206,7 @@ internal static class MotherBrainAnimationsVerification
             if (native.PaletteCleared)
                 AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.Emptied, projectile.Graphics, $"{at}: the cleared graphics word, in the common colours");
             if (native.PreInstructionCleared)
-                AssertEqual(EnemyProjectilePreInstruction.RTS_868170, projectile.PreInstruction, $"{at}: pre-instruction cleared");
+                AssertEqual(EnemyProjectilePreInstruction.Stationary, projectile.PreInstruction, $"{at}: pre-instruction cleared");
         }
         return update;
     }

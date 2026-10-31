@@ -225,7 +225,7 @@ internal static class TorizoProjectileAnimationsVerification
         switch (cue)
         {
             case TorizoProjectileCue.SetPreInstruction setPreInstruction:
-                AssertEqual(first, EnemyProjectilePreInstructionAccess.Word(setPreInstruction.PreInstruction), $"{at}: movement routine");
+                AssertEqual(setPreInstruction.PreInstruction, EnemyProjectilePreInstructionAccess.FromWord(first), $"{at}: movement routine");
                 return 2;
             case TorizoProjectileCue.SetProperties setProperties:
                 // The cue's behaviours, encoded by the import's property-word bits, are the OR operand the cartridge stores;

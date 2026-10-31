@@ -351,12 +351,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             RunSporeSpawnSporePreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.Spores);
+        }, EnemyProjectilePreInstruction.SporeDrift);
 
         table.AddPreInstruction(context =>
         {
             RunSporeSpawnSpawnerPreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.SporeSpawner);
+        }, EnemyProjectilePreInstruction.SporeSpawnerCadence);
 
         table.AddShotAnimation(RoomEnemyProjectileKind.SporeSpawnSpore,
             () => new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SporeShot));

@@ -524,12 +524,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             RunShaktoolFrontCirclePreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.ShaktoolsAttack_Front);
+        }, EnemyProjectilePreInstruction.ShaktoolFrontCircleFlight);
 
         table.AddPreInstruction(context =>
         {
             RunShaktoolLinkedCirclePreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving);
+        }, EnemyProjectilePreInstruction.ShaktoolTrailingCircleFlight);
     }
 
     /// <summary>Ports Shaktool's main AI.</summary>

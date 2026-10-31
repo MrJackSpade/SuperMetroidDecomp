@@ -425,10 +425,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             ? SpacePirateProjectileProgram.LaserRight
             : SpacePirateProjectileProgram.LaserLeft));
 
-        // Although the definition names A05C as its pre-instruction, initializer A009
-        // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
-        // stationary until list opcode A050 installs and immediately executes movement.
-        projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86A05B;
+        // Although the definition starts the laser flying left, the initializer holds it still: the three two-frame
+        // muzzle maps are stationary until the program installs the flight and runs it at once.
+        projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
         projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
 
         // A009 replaces the projectile definition's property word with enemy damage OR
@@ -441,132 +440,18 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         return projectile;
     }
 
-    /// <summary>Runs pre-instructions $86:A05C/$A07A and exact 256x256 camera deletion.</summary>
-    internal static void RunPirateMotherBrainLaserPreInstruction(
+    /// <summary>Flies a laser one step in <paramref name="direction"/>, deleting it once it leaves the 256x256 camera square.</summary>
+    private static void FlyPirateLaser(
         RoomEnemyProjectileSlot projectile,
-        Position16<RoomPixels> camera)
+        Position16<RoomPixels> camera,
+        HorizontalDirection direction)
     {
         int pixels = projectile.StateOf<PirateLaserState>().Slow
             ? WalkingPirateSlowLaserPixelsPerFrame
             : WalkingPirateFastLaserPixelsPerFrame;
-        projectile.Position = projectile.Position.WithWholeX(projectile.PreInstruction switch
-        {
-            EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left => CoordinateAxis.Wrap(projectile.Position.X.Whole - pixels),
-            EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right => CoordinateAxis.Wrap(projectile.Position.X.Whole + pixels),
-            EnemyProjectilePreInstruction.None or
-                EnemyProjectilePreInstruction.PrePhantoonRoom or
-                EnemyProjectilePreInstruction.RTS_868170 or
-                EnemyProjectilePreInstruction.RTS_86A327 or
-                EnemyProjectilePreInstruction.RTS_8684FB or
-                EnemyProjectilePreInstruction.RTS_86EC94 or
-                EnemyProjectilePreInstruction.RTS_86D0EB or
-                EnemyProjectilePreInstruction.RTS_86CFF7 or
-                EnemyProjectilePreInstruction.RTS_86B4B0 or
-                EnemyProjectilePreInstruction.RTS_868D54 or
-                EnemyProjectilePreInstruction.RTS_86950C or
-                EnemyProjectilePreInstruction.RTS_869A44 or
-                EnemyProjectilePreInstruction.RTS_86BBC6 or
-                EnemyProjectilePreInstruction.RTS_86A05B or
-                EnemyProjectilePreInstruction.RTS_86EFDF or
-                EnemyProjectilePreInstruction.RTS_86A919 or
-                EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped or
-                EnemyProjectilePreInstruction.RTS_86DD44 or
-                EnemyProjectilePreInstruction.RTS_86CAA3 or
-                EnemyProjectilePreInstruction.RTS_86C76D or
-                EnemyProjectilePreInstruction.RTS_86E6D1 or
-                EnemyProjectilePreInstruction.DownwardGateInertPreInstruction or
-                EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction or
-                EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction or
-                EnemyProjectilePreInstruction.EyeDoorProjectilePreInstruction or
-                EnemyProjectilePreInstruction.EyeDoorSweatPreInstruction or
-                EnemyProjectilePreInstruction.BombTorizoChozoBreaking_Falling or
-                EnemyProjectilePreInstruction.Pickup or
-                EnemyProjectilePreInstruction.MotherBrainsTurrets or
-                EnemyProjectilePreInstruction.MotherBrainsTurretBullets or
-                EnemyProjectilePreInstruction.MotherBrainGlassShattering_Shard or
-                EnemyProjectilePreInstruction.MotherBrainsTubeFalling or
-                EnemyProjectilePreInstruction.MotherBrainsDrool or
-                EnemyProjectilePreInstruction.MotherBrainsDrool_Falling or
-                EnemyProjectilePreInstruction.MotherBrainsOnionRings or
-                EnemyProjectilePreInstruction.MotherBrainsBomb or
-                EnemyProjectilePreInstruction.MotherBrainRainbowBeam_Charging or
-                EnemyProjectilePreInstruction.MotherBrainsRainbowBeamExplosion or
-                EnemyProjectilePreInstruction.MotherBrainDeathExplosionPreInstruction or
-                EnemyProjectilePreInstruction.MotherBrainDeathDoorFragmentPreInstruction or
-                EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction or
-                EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus or
-                EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired or
-                EnemyProjectilePreInstruction.DraygonGoop or
-                EnemyProjectilePreInstruction.Spores or
-                EnemyProjectilePreInstruction.SporeSpawner or
-                EnemyProjectilePreInstruction.BotwoonsBody or
-                EnemyProjectilePreInstruction.BotwoonsSpit or
-                EnemyProjectilePreInstruction.BombTorizosChozoOrbs or
-                EnemyProjectilePreInstruction.GoldenTorizosChozoOrbs or
-                EnemyProjectilePreInstruction.TorizoSonicBoom or
-                EnemyProjectilePreInstruction.BombTorizoLowHealthDrool_Falling or
-                EnemyProjectilePreInstruction.GoldenTorizoEgg_Bouncing or
-                EnemyProjectilePreInstruction.GoldenTorizoEgg_Hatched or
-                EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall or
-                EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Held or
-                EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Thrown or
-                EnemyProjectilePreInstruction.GoldenTorizoEyeBeam or
-                EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess or
-                EnemyProjectilePreInstruction.TourianStatue_Ridley_Phantoon_BaseDecor or
-                EnemyProjectilePreInstruction.ShaktoolsAttack_Front or
-                EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving or
-                EnemyProjectilePreInstruction.MiscDust or
-                EnemyProjectilePreInstruction.DragonFireball or
-                EnemyProjectilePreInstruction.RidleyFireball or
-                EnemyProjectilePreInstruction.NoobTubeCrackFlickering or
-                EnemyProjectilePreInstruction.NoobTubeCrackFalling or
-                EnemyProjectilePreInstruction.NoobTubeShardFlying or
-                EnemyProjectilePreInstruction.NoobTubeShardFalling or
-                EnemyProjectilePreInstruction.NoobTubeBubbleFalling or
-                EnemyProjectilePreInstruction.NoobTubeBubbleFlying or
-                EnemyProjectilePreInstruction.HorizontalAfterburn or
-                EnemyProjectilePreInstruction.VerticalAfterburn or
-                EnemyProjectilePreInstruction.MetalSkreeParticle or
-                EnemyProjectilePreInstruction.CrocomiresProjectile_Setup or
-                EnemyProjectilePreInstruction.CrocomiresProjectile_Fired or
-                EnemyProjectilePreInstruction.CrocomireSpikeWallPieces or
-                EnemyProjectilePreInstruction.KraidRocks or
-                EnemyProjectilePreInstruction.KraidCeilingRocks or
-                EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0 or
-                EnemyProjectilePreInstruction.PhantoonStartingFlames or
-                EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated or
-                EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Falling or
-                EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround or
-                EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing or
-                EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged or
-                EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain or
-                EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral or
-                EnemyProjectilePreInstruction.CrocomireBridgeCrumbling or
-                EnemyProjectilePreInstruction.AlcoonFireball or
-                EnemyProjectilePreInstruction.KiHunterAcid_Moving or
-                EnemyProjectilePreInstruction.KiHunterAcid_Left or
-                EnemyProjectilePreInstruction.KiHunterAcid_Right or
-                EnemyProjectilePreInstruction.PowampSpike or
-                EnemyProjectilePreInstruction.WreckedShipRobotLaser or
-                EnemyProjectilePreInstruction.StokeFireball or
-                EnemyProjectilePreInstruction.CacatacSpike or
-                EnemyProjectilePreInstruction.PolypRock or
-                EnemyProjectilePreInstruction.NamiFuneFireball or
-                EnemyProjectilePreInstruction.MagdolliteLava or
-                EnemyProjectilePreInstruction.KagoBug_Idle or
-                EnemyProjectilePreInstruction.KagoBug_Jumping or
-                EnemyProjectilePreInstruction.KagoBug_Falling or
-                EnemyProjectilePreInstruction.FallingSpark or
-                EnemyProjectilePreInstruction.CeresFallingTile or
-                EnemyProjectilePreInstruction.MiniKraidSpit or
-                EnemyProjectilePreInstruction.MiniKraidSpikes or
-                EnemyProjectilePreInstruction.PirateClaw_Left or
-                EnemyProjectilePreInstruction.PirateClaw_Right or
-                EnemyProjectilePreInstruction.TourianStatueSplashMotion or
-                EnemyProjectilePreInstruction.TourianStatueParticleMotion or
-                EnemyProjectilePreInstruction.TourianStatueSoulMotion => throw new InvalidOperationException($"{projectile.Kind} has no laser pre-instruction {projectile.PreInstruction}."),
-            _ => throw new InvalidOperationException($"{projectile.Kind} has no laser pre-instruction {projectile.PreInstruction}."),
-        });
+        projectile.Position = projectile.Position.WithWholeX(direction == HorizontalDirection.Right
+            ? CoordinateAxis.Wrap(projectile.Position.X.Whole + pixels)
+            : CoordinateAxis.Wrap(projectile.Position.X.Whole - pixels));
 
         int right = CoordinateAxis.Wrap(camera.X + 256);
         int bottom = CoordinateAxis.Wrap(camera.Y + 256);
@@ -578,6 +463,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             projectile.Clear();
     }
 
+    /// <summary>The direction a laser mover flies.</summary>
+    private static HorizontalDirection LaserFlightDirection(EnemyProjectilePreInstruction movement) =>
+        movement == EnemyProjectilePreInstruction.LaserFlightRight ? HorizontalDirection.Right
+        : movement == EnemyProjectilePreInstruction.LaserFlightLeft ? HorizontalDirection.Left
+        : throw new InvalidOperationException($"{movement} is not a laser flight.");
+
     /// <summary>Requires the physical slot to have been initialized as a walking pirate.</summary>
     internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
         RoomEnemySlot slot) =>
@@ -587,12 +478,12 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Registers laser movement and the opcode that immediately runs its installed pre-instruction.</summary>
     internal static void AddWalkingSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
-        {
-            RunPirateMotherBrainLaserPreInstruction(
-                context.Projectile,
-                context.Camera);
-        }, EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left, EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right);
+        table.AddPreInstruction(
+            context => FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Left),
+            EnemyProjectilePreInstruction.LaserFlightLeft);
+        table.AddPreInstruction(
+            context => FlyPirateLaser(context.Projectile, context.Camera, HorizontalDirection.Right),
+            EnemyProjectilePreInstruction.LaserFlightRight);
 
         table.AddCue<SpacePirateProjectileCue>((context, cue) =>
         {
@@ -600,7 +491,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // A050 returns the argument cursor unchanged, so the common interpreter dispatches the installed
             // movement once at once: the laser moves on the update it starts and may leave the screen then.
             if (cue.Kind == SpacePirateProjectileCueKind.StartMovingNow)
-                RunPirateMotherBrainLaserPreInstruction(context.Projectile, context.Camera);
+                FlyPirateLaser(context.Projectile, context.Camera, LaserFlightDirection(cue.Movement));
         });
     }
 

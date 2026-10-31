@@ -183,7 +183,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Cacatac spike: ten direction-table movers.
             RunCacatacSpikePreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.CacatacSpike);
+        }, EnemyProjectilePreInstruction.CacatacSpikeFlight);
     }
 
     /// <summary>Ports Cacatac's main AI.</summary>

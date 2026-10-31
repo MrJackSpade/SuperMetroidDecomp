@@ -606,7 +606,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             CullMiscDustOutsideCamera(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.MiscDust);
+        }, EnemyProjectilePreInstruction.DustCameraCull);
     }
 
     /// <summary>Runs the Rinka viewport and termination check before common frozen AI.</summary>

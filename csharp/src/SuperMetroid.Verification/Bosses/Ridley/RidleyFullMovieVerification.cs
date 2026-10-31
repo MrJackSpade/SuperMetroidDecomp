@@ -1609,7 +1609,9 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " Graphics", NativeSpriteGraphicsWords.GraphicsWord(projectile.Graphics, projectile.Graphics.PaletteRowIn(runtime.Enemies)),
                     NativeSnapshotMemory.EnemyProjectileGraphics + index);
                 Check(owner + " Timer", projectile.GeneralTimer, NativeSnapshotMemory.EnemyProjectileTimer + index);
-                Check(owner + " PreInstruction", projectile.PreInstructionWord, NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
+                EnemyProjectilePreInstruction nativePreInstruction = EnemyProjectilePreInstructionAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index));
+                if (projectile.PreInstruction != nativePreInstruction)
+                    mismatches.Add($"{owner} PreInstruction: native={nativePreInstruction} port={projectile.PreInstruction}");
                 Check(owner + " XFraction", projectile.Position.X.Fraction, NativeSnapshotMemory.EnemyProjectileXFraction + index);
                 Check(owner + " YFraction", projectile.Position.Y.Fraction, NativeSnapshotMemory.EnemyProjectileYFraction + index);
                 Check(owner + " XVelocity", projectile.Velocity.X.RawValue, NativeSnapshotMemory.EnemyProjectileXVelocity + index);

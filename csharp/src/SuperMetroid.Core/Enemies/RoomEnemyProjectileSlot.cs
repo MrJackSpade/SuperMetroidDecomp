@@ -33,7 +33,7 @@ public sealed class RoomEnemyProjectileSlot
     public WrappingCountdown InstructionTimer { get; internal set; }
     /// <summary>The frame the projectile shows: the blank frame from allocation until its program shows one, none once freed.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
-    /// <summary>Gets the bank-$86 routine offset dispatched before this slot's instruction-list processing.</summary>
+    /// <summary>How the projectile moves itself on each pass, before its program advances.</summary>
     internal EnemyProjectilePreInstruction PreInstruction { get; set; }
     /// <summary>Gets the sheet characters and colours the projectile draws with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; } = SpriteGraphics.Emptied;
@@ -133,7 +133,7 @@ public sealed class RoomEnemyProjectileSlot
         // $86:8016/8154 release identity only. SpawnEprojInner clears fractions,
         // but leaves whole coordinates and velocities for the family initializer.
         Position = Position.WithFractionX(0).WithFractionY(0);
-        PreInstruction = 0;
+        PreInstruction = EnemyProjectilePreInstruction.Stationary;
         Frame = null;
         InstructionTimer = WrappingCountdown.Start(0);
         Animation = null;

@@ -16,7 +16,7 @@ internal static class SpacePirateProjectileAnimations
             Show(0, 2),
             Show(1, 2),
             Show(2, 2),
-            Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left),
+            Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectilePreInstruction.LaserFlightLeft),
             Show(3, 1),
             Show(4, 1),
             Show(5, 1),
@@ -38,7 +38,7 @@ internal static class SpacePirateProjectileAnimations
             Show(13, 2),
             Show(14, 2),
             Show(15, 2),
-            Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right),
+            Cue(SpacePirateProjectileCueKind.StartMovingNow, EnemyProjectilePreInstruction.LaserFlightRight),
             Show(16, 1),
             Show(17, 1),
             Show(18, 1),
@@ -57,7 +57,7 @@ internal static class SpacePirateProjectileAnimations
         ],
         [P.ClawLeft] =
         [
-            Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectilePreInstruction.PirateClaw_Left),
+            Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectilePreInstruction.PirateClawThrownLeft),
             FallInto(P.ClawLeftLoop),
         ],
         [P.ClawLeftLoop] =
@@ -74,7 +74,7 @@ internal static class SpacePirateProjectileAnimations
         ],
         [P.ClawRight] =
         [
-            Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectilePreInstruction.PirateClaw_Right),
+            Cue(SpacePirateProjectileCueKind.StartMoving, EnemyProjectilePreInstruction.PirateClawThrownRight),
             FallInto(P.ClawRightLoop),
         ],
         [P.ClawRightLoop] =

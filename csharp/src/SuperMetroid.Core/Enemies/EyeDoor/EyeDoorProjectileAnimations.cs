@@ -22,7 +22,7 @@ internal static class EyeDoorProjectileAnimations
             Show(1, 3),
             Show(2, 2),
             Cue(new(K.AimAtSamus)),
-            Cue(new(K.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.EyeDoorProjectilePreInstruction)),
+            Cue(new(K.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.EyeDoorShotFlight)),
             FallInto(P.FlyingLoop),
         ],
         [P.FlyingLoop] =

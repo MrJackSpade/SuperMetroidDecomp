@@ -398,7 +398,7 @@ internal static class NativeSnapshotImportVerification
             var graphics = new SnesObjAttributeWord(W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             FamilyProjectileStarts.Initialize(
                 projectile, kind, new SpriteGraphics(graphics.TileNumber, graphicsSet.ColouringInRow(graphics.PaletteIndex)));
-            projectile.PreInstructionWord = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
+            projectile.PreInstruction = EnemyProjectilePreInstructionAccess.FromWord(W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index));
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);
             // The typed family resumes at the step the recorded native pointer stands for.
             EnemyProjectileAnimation typed = projectile.Animation ?? throw new InvalidOperationException(

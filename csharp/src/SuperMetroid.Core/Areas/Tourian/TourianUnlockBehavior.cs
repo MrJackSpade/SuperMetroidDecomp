@@ -102,164 +102,47 @@ internal sealed class TourianUnlockBehavior
         projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(4 * Trigonometry.SignedNegativeCosineWord(angle)));
     }
 
-    /// <summary>Runs native splash, soul, or particle motion and requests deletion at their exit boundaries.</summary>
-    internal bool TryStepTourianUnlockEffect(RoomEnemyProjectileSlot projectile)
+    /// <summary>Holds a splash at the water surface.</summary>
+    private void HoldTourianStatueSplash(RoomEnemyProjectileSlot projectile) =>
+        projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
+
+    /// <summary>Raises a soul, accelerating upward, and deletes it once it leaves the room.</summary>
+    internal static void RaiseTourianStatueSoul(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.PreInstruction is not (EnemyProjectilePreInstruction.TourianStatueSplashMotion or
-            EnemyProjectilePreInstruction.TourianStatueParticleMotion or EnemyProjectilePreInstruction.TourianStatueSoulMotion))
-            return false;
-        switch (projectile.PreInstruction)
+        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+        // The soul is deleted while its Y lies in an odd 256-pixel screen row. Rising from the statues'
+        // top screen row, that first happens when it wraps above the room's top edge.
+        int soulScreenRow = RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole);
+        if (soulScreenRow % 2 != 0)
         {
-            case EnemyProjectilePreInstruction.TourianStatueSplashMotion:
-                projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
-                return true;
-            case EnemyProjectilePreInstruction.TourianStatueSoulMotion:
-                projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-                // The soul is deleted while its Y lies in an odd 256-pixel screen row. Rising from the statues'
-                // top screen row, that first happens when it wraps above the room's top edge.
-                int soulScreenRow = RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole);
-                if (soulScreenRow % 2 != 0)
-                {
-                    projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
-                }
-                projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue - 128));
-                return true;
-            case EnemyProjectilePreInstruction.TourianStatueParticleMotion:
-                // A splash marks the update the particle crosses the surface in either direction: the wrapped
-                // signed distance from the particle down to the surface changes sign.
-                bool submergedBefore = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
-                projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
-                bool submergedAfter = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
-                if (submergedBefore != submergedAfter)
-                    SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash);
-                if (RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole) == 1)
-                {
-                    projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
-                }
-                else projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + (16)));
-                return true;
-            case EnemyProjectilePreInstruction.None:
-            case EnemyProjectilePreInstruction.PrePhantoonRoom:
-            case EnemyProjectilePreInstruction.RTS_868170:
-            case EnemyProjectilePreInstruction.RTS_86A327:
-            case EnemyProjectilePreInstruction.RTS_8684FB:
-            case EnemyProjectilePreInstruction.RTS_86EC94:
-            case EnemyProjectilePreInstruction.RTS_86D0EB:
-            case EnemyProjectilePreInstruction.RTS_86CFF7:
-            case EnemyProjectilePreInstruction.RTS_86B4B0:
-            case EnemyProjectilePreInstruction.RTS_868D54:
-            case EnemyProjectilePreInstruction.RTS_86950C:
-            case EnemyProjectilePreInstruction.RTS_869A44:
-            case EnemyProjectilePreInstruction.RTS_86BBC6:
-            case EnemyProjectilePreInstruction.RTS_86A05B:
-            case EnemyProjectilePreInstruction.RTS_86EFDF:
-            case EnemyProjectilePreInstruction.RTS_86A919:
-            case EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped:
-            case EnemyProjectilePreInstruction.RTS_86DD44:
-            case EnemyProjectilePreInstruction.RTS_86CAA3:
-            case EnemyProjectilePreInstruction.RTS_86C76D:
-            case EnemyProjectilePreInstruction.RTS_86E6D1:
-            case EnemyProjectilePreInstruction.DownwardGateInertPreInstruction:
-            case EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction:
-            case EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction:
-            case EnemyProjectilePreInstruction.EyeDoorProjectilePreInstruction:
-            case EnemyProjectilePreInstruction.EyeDoorSweatPreInstruction:
-            case EnemyProjectilePreInstruction.BombTorizoChozoBreaking_Falling:
-            case EnemyProjectilePreInstruction.Pickup:
-            case EnemyProjectilePreInstruction.MotherBrainsTurrets:
-            case EnemyProjectilePreInstruction.MotherBrainsTurretBullets:
-            case EnemyProjectilePreInstruction.MotherBrainGlassShattering_Shard:
-            case EnemyProjectilePreInstruction.MotherBrainsTubeFalling:
-            case EnemyProjectilePreInstruction.MotherBrainsDrool:
-            case EnemyProjectilePreInstruction.MotherBrainsDrool_Falling:
-            case EnemyProjectilePreInstruction.MotherBrainsOnionRings:
-            case EnemyProjectilePreInstruction.MotherBrainsBomb:
-            case EnemyProjectilePreInstruction.MotherBrainRainbowBeam_Charging:
-            case EnemyProjectilePreInstruction.MotherBrainsRainbowBeamExplosion:
-            case EnemyProjectilePreInstruction.MotherBrainDeathExplosionPreInstruction:
-            case EnemyProjectilePreInstruction.MotherBrainDeathDoorFragmentPreInstruction:
-            case EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction:
-            case EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus:
-            case EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired:
-            case EnemyProjectilePreInstruction.DraygonGoop:
-            case EnemyProjectilePreInstruction.Spores:
-            case EnemyProjectilePreInstruction.SporeSpawner:
-            case EnemyProjectilePreInstruction.BotwoonsBody:
-            case EnemyProjectilePreInstruction.BotwoonsSpit:
-            case EnemyProjectilePreInstruction.BombTorizosChozoOrbs:
-            case EnemyProjectilePreInstruction.GoldenTorizosChozoOrbs:
-            case EnemyProjectilePreInstruction.TorizoSonicBoom:
-            case EnemyProjectilePreInstruction.BombTorizoLowHealthDrool_Falling:
-            case EnemyProjectilePreInstruction.GoldenTorizoEgg_Bouncing:
-            case EnemyProjectilePreInstruction.GoldenTorizoEgg_Hatched:
-            case EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall:
-            case EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Held:
-            case EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Thrown:
-            case EnemyProjectilePreInstruction.GoldenTorizoEyeBeam:
-            case EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess:
-            case EnemyProjectilePreInstruction.TourianStatue_Ridley_Phantoon_BaseDecor:
-            case EnemyProjectilePreInstruction.ShaktoolsAttack_Front:
-            case EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving:
-            case EnemyProjectilePreInstruction.MiscDust:
-            case EnemyProjectilePreInstruction.DragonFireball:
-            case EnemyProjectilePreInstruction.RidleyFireball:
-            case EnemyProjectilePreInstruction.NoobTubeCrackFlickering:
-            case EnemyProjectilePreInstruction.NoobTubeCrackFalling:
-            case EnemyProjectilePreInstruction.NoobTubeShardFlying:
-            case EnemyProjectilePreInstruction.NoobTubeShardFalling:
-            case EnemyProjectilePreInstruction.NoobTubeBubbleFalling:
-            case EnemyProjectilePreInstruction.NoobTubeBubbleFlying:
-            case EnemyProjectilePreInstruction.HorizontalAfterburn:
-            case EnemyProjectilePreInstruction.VerticalAfterburn:
-            case EnemyProjectilePreInstruction.MetalSkreeParticle:
-            case EnemyProjectilePreInstruction.CrocomiresProjectile_Setup:
-            case EnemyProjectilePreInstruction.CrocomiresProjectile_Fired:
-            case EnemyProjectilePreInstruction.CrocomireSpikeWallPieces:
-            case EnemyProjectilePreInstruction.KraidRocks:
-            case EnemyProjectilePreInstruction.KraidCeilingRocks:
-            case EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0:
-            case EnemyProjectilePreInstruction.PhantoonStartingFlames:
-            case EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Falling:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral:
-            case EnemyProjectilePreInstruction.CrocomireBridgeCrumbling:
-            case EnemyProjectilePreInstruction.AlcoonFireball:
-            case EnemyProjectilePreInstruction.KiHunterAcid_Moving:
-            case EnemyProjectilePreInstruction.KiHunterAcid_Left:
-            case EnemyProjectilePreInstruction.KiHunterAcid_Right:
-            case EnemyProjectilePreInstruction.PowampSpike:
-            case EnemyProjectilePreInstruction.WreckedShipRobotLaser:
-            case EnemyProjectilePreInstruction.StokeFireball:
-            case EnemyProjectilePreInstruction.CacatacSpike:
-            case EnemyProjectilePreInstruction.PolypRock:
-            case EnemyProjectilePreInstruction.NamiFuneFireball:
-            case EnemyProjectilePreInstruction.MagdolliteLava:
-            case EnemyProjectilePreInstruction.KagoBug_Idle:
-            case EnemyProjectilePreInstruction.KagoBug_Jumping:
-            case EnemyProjectilePreInstruction.KagoBug_Falling:
-            case EnemyProjectilePreInstruction.FallingSpark:
-            case EnemyProjectilePreInstruction.CeresFallingTile:
-            case EnemyProjectilePreInstruction.MiniKraidSpit:
-            case EnemyProjectilePreInstruction.MiniKraidSpikes:
-            case EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left:
-            case EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right:
-            case EnemyProjectilePreInstruction.PirateClaw_Left:
-            case EnemyProjectilePreInstruction.PirateClaw_Right:
-            default:
-                throw new InvalidOperationException(
-                    $"Undefined Tourian statue pre-instruction {projectile.PreInstruction}.");
+            projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
         }
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue - 128));
     }
 
-    /// <summary>Registers statue-specific pre-instruction and instruction interceptors.</summary>
+    /// <summary>Drops a particle under gravity, splashing as it crosses the water surface and deleting it below the room.</summary>
+    private void DropTourianStatueParticle(RoomEnemyProjectileSlot projectile)
+    {
+        // A splash marks the update the particle crosses the surface in either direction: the wrapped
+        // signed distance from the particle down to the surface changes sign.
+        bool submergedBefore = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
+        projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
+        bool submergedAfter = (TourianStatueWaterSurface - projectile.Position.Whole).Y < 0;
+        if (submergedBefore != submergedAfter)
+            SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueSplash);
+        if (RoomGridConversions.PixelToScreen(projectile.Position.Y.Whole) == 1)
+        {
+            projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
+        }
+        else projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + (16)));
+    }
+
+    /// <summary>Registers the statue effects' movers and program cues.</summary>
     internal void AddTourianUnlockProjectiles(EnemyProjectileHandlerTable table)
     {
-        // The Tourian statue effects use words outside the closed bank-$86 sets.
-        table.InterceptPreInstructions(TryStepTourianUnlockEffect);
+        table.AddPreInstruction(context => HoldTourianStatueSplash(context.Projectile), EnemyProjectilePreInstruction.TourianStatueSplashMotion);
+        table.AddPreInstruction(context => DropTourianStatueParticle(context.Projectile), EnemyProjectilePreInstruction.TourianStatueParticleMotion);
+        table.AddPreInstruction(context => RaiseTourianStatueSoul(context.Projectile), EnemyProjectilePreInstruction.TourianStatueSoulMotion);
         table.AddCue<TourianStatueProjectileCue>((context, cue) =>
         {
             RoomEnemyProjectileSlot projectile = context.Projectile;

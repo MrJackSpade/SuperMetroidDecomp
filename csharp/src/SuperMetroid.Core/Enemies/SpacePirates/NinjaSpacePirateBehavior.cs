@@ -564,21 +564,21 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         projectile.StartAnimation(new SpacePirateProjectileAnimation(throwsRight
             ? SpacePirateProjectileProgram.ClawRight
             : SpacePirateProjectileProgram.ClawLeft));
-        projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86A05B;
+        projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
         projectile.State = new NinjaPirateClawState(NinjaPirateClawLaunchSpeed);
         state.SpawnedClawCount++;
     }
 
-    /// <summary>Runs claw pre-instructions $86:A0D1/$A124 and exact camera culling.</summary>
-    internal static void RunNinjaPirateClawPreInstruction(
+    /// <summary>Flies a claw thrown toward <paramref name="thrown"/> out and back, with exact camera culling.</summary>
+    private static void FlyNinjaPirateClaw(
         RoomEnemyProjectileSlot projectile,
-        Position16<RoomPixels> camera)
+        Position16<RoomPixels> camera,
+        HorizontalDirection thrown)
     {
         NinjaPirateClawState claw = projectile.StateOf<NinjaPirateClawState>();
         int pixels = UnsignedEightEight.Whole(claw.Speed);
         bool outbound = claw.Outbound;
-        bool thrownRight = projectile.PreInstruction == EnemyProjectilePreInstruction.PirateClaw_Right;
-        int direction = thrownRight ? 1 : -1;
+        int direction = thrown == HorizontalDirection.Right ? 1 : -1;
 
         // Outbound motion follows the throw direction while decelerating to zero; inbound
         // motion reverses direction and accelerates indefinitely until the 256x256 camera
@@ -661,13 +661,15 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
-    /// <summary>Binds both claw directions to the same outbound-and-return pre-instruction.</summary>
+    /// <summary>Binds both claw throws to the outbound-and-return flight in their direction.</summary>
     internal static void AddNinjaSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
-        {
-            RunNinjaPirateClawPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.PirateClaw_Left, EnemyProjectilePreInstruction.PirateClaw_Right);
+        table.AddPreInstruction(
+            context => FlyNinjaPirateClaw(context.Projectile, context.Camera, HorizontalDirection.Left),
+            EnemyProjectilePreInstruction.PirateClawThrownLeft);
+        table.AddPreInstruction(
+            context => FlyNinjaPirateClaw(context.Projectile, context.Camera, HorizontalDirection.Right),
+            EnemyProjectilePreInstruction.PirateClawThrownRight);
     }
 
     /// <summary>Ports NinjaSpacePirate's main AI.</summary>

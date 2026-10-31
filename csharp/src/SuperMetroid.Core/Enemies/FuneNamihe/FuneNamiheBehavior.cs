@@ -186,7 +186,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Fune/Namihe: directional 8.8 flight and cull.
             RunFuneNamiheFireballPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.NamiFuneFireball);
+        }, EnemyProjectilePreInstruction.FuneNamiheFireballFlight);
     }
 
     /// <summary>Ports FuneNamihe's main AI.</summary>
@@ -203,7 +203,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Shared projectile movement callback installed for both Fune and Namihe fireballs.</summary>
     private const EnemyProjectilePreInstruction NamiFuneFireballPreInstruction =
-        EnemyProjectilePreInstruction.NamiFuneFireball;
+        EnemyProjectilePreInstruction.FuneNamiheFireballFlight;
 
     /// <summary>
     /// Ports the shared projectile initializer at $86:DED6. The source population's low

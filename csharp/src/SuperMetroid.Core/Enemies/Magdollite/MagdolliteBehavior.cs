@@ -690,7 +690,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             RunMagdolliteLavaPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.MagdolliteLava);
+        }, EnemyProjectilePreInstruction.MagdolliteLavaFlight);
 
         table.AddCue<MagdolliteLavaCue>((context, cue) => ApplyMagdolliteLavaCue(context.Projectile, cue));
         table.AddShotAnimation(RoomEnemyProjectileKind.LavaThrownByMagdollite, () => new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
@@ -783,7 +783,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             SignedEightEight.FromSignedRaw(throwsRight ? MagdolliteLavaHorizontalSpeed : -MagdolliteLavaHorizontalSpeed),
             new SignedEightEight(0));
         projectile.PreInstruction =
-            EnemyProjectilePreInstruction.MagdolliteLava;
+            EnemyProjectilePreInstruction.MagdolliteLavaFlight;
         projectile.InstallAnimation(new MagdolliteLavaAnimation(throwsRight ? MagdolliteLavaProgram.Right : MagdolliteLavaProgram.Left));
     }
 

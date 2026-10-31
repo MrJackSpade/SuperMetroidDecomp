@@ -150,7 +150,7 @@ internal static class NativeSnapshotImportVerification
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
         samus.Kinematics.PositionAdjustedBySlope = W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0;
         for (int direction = 0; direction < 4; direction++)
-            samus.Kinematics.RecordSolidEnemyCollision((SamusCollisionDirection)direction,
+            samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirectionNativeWords.Directions.Decode(direction, "solid-enemy collision direction"),
                 SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.SlotOrNoneOf(W(NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2)));
         samus.HorizontalSpeed.ActiveSpeedTableBaseAddress = W(NativeSnapshotMemory.HorizontalSpeedTable);
         samus.HorizontalSpeed.DecelerationMultiplier = memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier];

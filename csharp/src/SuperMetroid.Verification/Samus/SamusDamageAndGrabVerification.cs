@@ -606,8 +606,8 @@ airRoom, integrated, null, signedDistance: 1 << 16);
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusSolidEnemyCollision.Probe(
-            samus, [], (SamusCollisionDirection)4, distance: 0, distanceSubposition: 0),
-        "invalid solid-enemy direction rejected");
+            samus, [], SamusCollisionDirection.NonDirectionalProbe, distance: 0, distanceSubposition: 0),
+        "non-directional solid-enemy probe rejected");
 
     Console.WriteLine("  Solid enemies: eligibility, native rounding, overlap, gaps, order, and touching quirk agree.");
 }

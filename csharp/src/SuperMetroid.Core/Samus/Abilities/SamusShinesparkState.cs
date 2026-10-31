@@ -1037,15 +1037,15 @@ false,             CrashSequenceFinished: true);
         RotationAngle angle,
         int radius)
     {
-        int x = LookupSignedComponent(angle, radius);
+        int x = LookupSignedComponent(angle, radius).SignedRawValue;
         int y = LookupSignedComponent(
             angle.AddRaw(-RotationAngle.QuarterTurn.RawValue),
-            radius);
-        return new(unchecked((short)x), unchecked((short)y));
+            radius).SignedRawValue;
+        return new(x, y);
     }
 
     /// <summary>Multiplies a positive sine half-wave and restores its sign after truncation, matching the projectile table routine.</summary>
-    private static ushort LookupSignedComponent(
+    private static SignedEightEight LookupSignedComponent(
         RotationAngle angle,
         int radius)
     {

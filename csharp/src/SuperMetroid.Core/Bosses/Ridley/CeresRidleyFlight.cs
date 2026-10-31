@@ -309,8 +309,8 @@ internal sealed class CeresRidleyFlight
             angle = RotationAngle.NormalizeRaw(targetAngle);
         state.SwoopAngleAccumulator = angle;
         ByteAngle phase = angle.ToByteAngle();
-        state.Velocity = state.Velocity.WithX(new SignedEightEight(Trigonometry.MultiplySignedSine((ushort)magnitude, phase)));
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(Trigonometry.MultiplySignedSine((ushort)magnitude, phase.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
+        state.Velocity = state.Velocity.WithX(Trigonometry.MultiplySignedSine((ushort)magnitude, phase));
+        state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine((ushort)magnitude, phase.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
     }
 
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>

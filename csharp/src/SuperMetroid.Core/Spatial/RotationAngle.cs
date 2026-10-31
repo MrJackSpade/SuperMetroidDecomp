@@ -43,22 +43,22 @@ public readonly record struct RotationAngle : IComparable<RotationAngle>
     public static RotationAngle ThreeQuarterTurn { get; } = new(0xc000);
 
     /// <summary>Preserves a native 8.8 angle word exactly.</summary>
-    public static RotationAngle FromRaw(ushort rawValue) => new(rawValue);
+    public static RotationAngle FromRaw(int rawValue) => new(checked((ushort)rawValue));
 
     /// <summary>Promotes a 256-unit turn value into the high byte of native angle state.</summary>
-    public static RotationAngle FromTableIndex(byte tableIndex) =>
-        new(unchecked((ushort)(tableIndex << 8)));
+    public static RotationAngle FromTableIndex(int tableIndex) =>
+        new(checked((ushort)(checked((byte)tableIndex) << 8)));
 
     /// <summary>A 256-unit turn value with a fractional low byte, in 1/256 table units.</summary>
-    public static RotationAngle FromTableIndex(byte tableIndex, byte fraction) =>
-        new(unchecked((ushort)(tableIndex << 8 | fraction)));
+    public static RotationAngle FromTableIndex(int tableIndex, int fraction) =>
+        new(checked((ushort)(checked((byte)tableIndex) << 8 | checked((byte)fraction))));
 
     /// <summary>Normalizes an arbitrary raw angle through native 16-bit wraparound.</summary>
     public static RotationAngle NormalizeRaw(int rawValue) => new(unchecked((ushort)rawValue));
 
     /// <summary>Normalizes an arbitrary 256-unit turn value through native byte wraparound.</summary>
     public static RotationAngle NormalizeTableIndex(int tableIndex) =>
-        FromTableIndex(unchecked((byte)tableIndex));
+        FromTableIndex(unchecked((byte)tableIndex), 0);
 
     /// <summary>Adds a signed native 8.8 delta with cartridge word wraparound.</summary>
     public RotationAngle AddRaw(int delta) => NormalizeRaw(RawValue + delta);

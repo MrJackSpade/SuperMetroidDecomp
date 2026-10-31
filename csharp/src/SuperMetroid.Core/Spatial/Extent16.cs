@@ -11,9 +11,26 @@ namespace SuperMetroid.Core.Spatial;
 /// <typeparam name="TSpace">The coordinate space the extent is measured in.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y extents.")]
 [EncodingOwner("sixteen-bit wrapping size")]
-public readonly record struct Extent16<TSpace>([property: IntegerQuantity("width in pixels")] ushort X, [property: IntegerQuantity("height in pixels")] ushort Y)
+public readonly record struct Extent16<TSpace>
     where TSpace : ISpatialSpace
 {
+    /// <summary>The extent of two sizes that must already be sixteen-bit words, 0 through 65535.</summary>
+    /// <param name="x">The width.</param>
+    /// <param name="y">The height.</param>
+    public Extent16(int x, int y)
+    {
+        X = checked((ushort)x);
+        Y = checked((ushort)y);
+    }
+
+    /// <summary>The width, 0 through 65535.</summary>
+    [IntegerQuantity("width in pixels")]
+    public ushort X { get; init; }
+
+    /// <summary>The height, 0 through 65535.</summary>
+    [IntegerQuantity("height in pixels")]
+    public ushort Y { get; init; }
+
     /// <summary>No extent.</summary>
     public static Extent16<TSpace> Zero => default;
 
@@ -34,5 +51,5 @@ public readonly record struct Extent16<TSpace>([property: IntegerQuantity("width
     public int RowMajorIndex(Position16<TSpace> cell) => cell.Y * X + cell.X;
 
     /// <summary>The cell at a row-major index in a grid of this width.</summary>
-    public Position16<TSpace> CellAtRowMajorIndex(int index) => new(checked((ushort)(index % X)), checked((ushort)(index / X)));
+    public Position16<TSpace> CellAtRowMajorIndex(int index) => new(index % X, index / X);
 }

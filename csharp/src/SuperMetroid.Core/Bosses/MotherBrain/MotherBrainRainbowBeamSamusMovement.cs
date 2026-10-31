@@ -49,7 +49,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         {
             // `$86:C272` adds $40 before indexing the sine table. Its multiplication returns
             // product bits 8..23, i.e. a signed 8.8 component for the supplied 8.8 speed.
-            MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, new SignedEightEight(CalculateYVelocity(speed: 4096, RainbowBeamAngle)));
+            MoveVerticallyTowardCeilingOrFloor(samus, cameraCheckpoint, CalculateYVelocity(speed: 4096, RainbowBeamAngle));
 
             // `$A9:BBCD` unconditionally clears carry after the vertical helper. The caller
             // can therefore observe only the wall result; keep the clamp witness separately
@@ -128,14 +128,14 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// <summary>Projects an 8.8 beam speed onto the vertical axis using the native quarter-turn sine lookup.</summary>
     /// <param name="speed">The unsigned 8.8 beam speed, 0 through 65535.</param>
     /// <param name="angle">The live beam angle.</param>
-    internal static ushort CalculateYVelocity(
+    internal static SignedEightEight CalculateYVelocity(
         int speed,
         RotationAngle angle)
     {
         // `$86:C27A` multiplies unsigned speed by the magnitude, selects product bits 8..23,
         // then reapplies the table entry's sign with 16-bit two's-complement negation.
         return Trigonometry.MultiplySignedSine(
-            checked((ushort)speed), angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle());
+            speed, angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle());
     }
 
     /// <summary>Applies native 8.8 Y movement, mirrors previous-position words, and clamps to arena Y=$30..$C0.</summary>

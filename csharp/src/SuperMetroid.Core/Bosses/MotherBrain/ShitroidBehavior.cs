@@ -675,10 +675,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
             RotationAngle angle = RotationAngle.NormalizeRaw(-sourceAngle.RawValue);
             state.Velocity += new EightEightVector<RoomPixels>(
-                new SignedEightEight(EnemyMath.MultiplySineSample(64, angle.ToByteAngle())),
-                new SignedEightEight(EnemyMath.MultiplySineSample(
+                EnemyMath.MultiplySineSample(64, angle.ToByteAngle()),
+                EnemyMath.MultiplySineSample(
                     64,
-                    angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle())));
+                    angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()));
             return;
         }
 
@@ -721,10 +721,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // multiple is, and capped at 240.
         int magnitude = Math.Min((int)unchecked((ushort)(8 * collisionDamage)), 240);
         state.Velocity += new EightEightVector<RoomPixels>(
-            new SignedEightEight(EnemyMath.MultiplySineSample((ushort)magnitude, angle.ToByteAngle())),
-            new SignedEightEight(EnemyMath.MultiplySineSample(
+            EnemyMath.MultiplySineSample((ushort)magnitude, angle.ToByteAngle()),
+            EnemyMath.MultiplySineSample(
                 (ushort)magnitude,
-                angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle())));
+                angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()));
     }
 
     /// <summary>Ports <c>Shitroid_Powerbomb</c> at <c>$A9:EFBA</c>.</summary>

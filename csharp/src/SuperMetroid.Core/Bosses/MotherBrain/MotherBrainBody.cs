@@ -410,8 +410,8 @@ internal sealed class MotherBrainBody
             .ToTableAngle().AddTableUnits(ByteAngle.QuarterTurn.RawValue);
         state.HandBeamNextAngle = angle.RawValue;
         state.HandBeamNextVelocity = new EightEightVector<RoomPixels>(
-            new SignedEightEight(EnemyMath.MultiplySineSample(3072, angle)),
-            new SignedEightEight(EnemyMath.MultiplySineSample(3072, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
+            EnemyMath.MultiplySineSample(3072, angle),
+            EnemyMath.MultiplySineSample(3072, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
 
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
     }

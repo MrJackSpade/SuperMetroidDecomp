@@ -191,8 +191,8 @@ internal sealed class CeresRidleyGetaway
     private static void UpdateCeresRidleyFloorMatrix(RidleyEnemyState state)
     {
         ByteAngle angle = state.FloorAngle.ToByteAngle();
-        var diagonal = new SignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
-        var offDiagonal = new SignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle));
+        var diagonal = EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue));
+        var offDiagonal = EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle);
         state.FloorMatrixA = diagonal;
         state.FloorMatrixB = offDiagonal;
         state.FloorMatrixC = NegateFloorCoefficient(offDiagonal);

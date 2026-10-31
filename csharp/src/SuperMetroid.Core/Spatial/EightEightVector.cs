@@ -23,20 +23,20 @@ public readonly record struct EightEightVector<TSpace>(SignedEightEight X, Signe
     public EightEightVector<TSpace> WithY(SignedEightEight y) => this with { Y = y };
 
     /// <summary>Negates the raw X word (wrapping at sixteen bits); Y is unchanged.</summary>
-    public EightEightVector<TSpace> ReversedX() => WithX(new SignedEightEight(unchecked((ushort)-X.RawValue)));
+    public EightEightVector<TSpace> ReversedX() => WithX(X.Negated());
 
     /// <summary>Negates the raw Y word (wrapping at sixteen bits); X is unchanged.</summary>
-    public EightEightVector<TSpace> ReversedY() => WithY(new SignedEightEight(unchecked((ushort)-Y.RawValue)));
+    public EightEightVector<TSpace> ReversedY() => WithY(Y.Negated());
 
     /// <summary>Adds the raw 8.8 words of each axis, wrapping at sixteen bits.</summary>
     public static EightEightVector<TSpace> operator +(EightEightVector<TSpace> left, EightEightVector<TSpace> right) =>
-        new(new SignedEightEight(unchecked((ushort)(left.X.RawValue + right.X.RawValue))),
-            new SignedEightEight(unchecked((ushort)(left.Y.RawValue + right.Y.RawValue))));
+        new(SignedEightEight.Wrapped(left.X.RawValue + right.X.RawValue),
+            SignedEightEight.Wrapped(left.Y.RawValue + right.Y.RawValue));
 
     /// <summary>Scales the signed raw 8.8 words of each axis, wrapping at sixteen bits.</summary>
     public static EightEightVector<TSpace> operator *(EightEightVector<TSpace> vector, int factor) =>
-        new(unchecked((short)(unchecked((short)vector.X.RawValue) * factor)),
-            unchecked((short)(unchecked((short)vector.Y.RawValue) * factor)));
+        new(SignedEightEight.Wrapped(vector.X.SignedRawValue * factor),
+            SignedEightEight.Wrapped(vector.Y.SignedRawValue * factor));
 
     /// <summary>The same velocity as the native 16.16 displacement used by position adders.</summary>
     public FixedVector<TSpace> ToSixteenSixteen() => new(X.ToSixteenSixteenDelta(), Y.ToSixteenSixteenDelta());

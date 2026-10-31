@@ -522,10 +522,10 @@ internal sealed class MotherBrainProjectiles
         int speedRandom = _room.Random.Generate();
         // Three bits of the sample's upper random byte: a whole speed of zero to seven.
         int scatterSpeed = UnsignedEightEight.FromParts(whole: (byte)(SharedRandomState.UpperByte(speedRandom) & 7), fraction: 0);
-        beam.Velocity = beam.Velocity.WithX(new SignedEightEight(EnemyMath.MultiplySineSample((ushort)scatterSpeed, scatterAngle)));
-        beam.Velocity = beam.Velocity.WithY(new SignedEightEight(EnemyMath.MultiplySineSample(
+        beam.Velocity = beam.Velocity.WithX(EnemyMath.MultiplySineSample((ushort)scatterSpeed, scatterAngle));
+        beam.Velocity = beam.Velocity.WithY(EnemyMath.MultiplySineSample(
             (ushort)scatterSpeed,
-            scatterAngle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
+            scatterAngle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
 
         if (IsMotherBrainHandBeamOutsideArena(beam))

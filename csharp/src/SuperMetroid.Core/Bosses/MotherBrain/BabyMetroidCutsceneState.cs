@@ -907,20 +907,20 @@ public sealed class BabyMetroidCutsceneState
 
         ByteAngle angle = new(Angle.TableIndex);
         Velocity = new(
-            new SignedEightEight(CalculateVelocityComponent(Speed, angle)),
-            new SignedEightEight(CalculateVelocityComponent(Speed, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
+            CalculateVelocityComponent(Speed, angle),
+            CalculateVelocityComponent(Speed, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
     }
 
     /// <summary>Multiplies speed by a signed sine-table entry with the cartridge's bit-8-to-23 result.</summary>
     /// <param name="speed">The unsigned 8.8 speed, 0 through 65535.</param>
     /// <param name="angle">The sine-table angle.</param>
-    internal static ushort CalculateVelocityComponent(
+    internal static SignedEightEight CalculateVelocityComponent(
         int speed,
         ByteAngle angle)
     {
         // Bank `$86:C27A` multiplies unsigned speed by the absolute signed-table value,
         // returns product bits 8..23, then reapplies the original sign.
-        return Trigonometry.MultiplySignedSine(checked((ushort)speed), angle);
+        return Trigonometry.MultiplySignedSine(speed, angle);
     }
 
     /// <summary>Advances native 16.16 position from 8.8 velocity while leaving the low subposition byte untouched.</summary>

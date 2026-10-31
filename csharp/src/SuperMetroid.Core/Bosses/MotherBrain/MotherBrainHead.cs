@@ -451,10 +451,10 @@ internal sealed class MotherBrainHead
             RoomEnemyProjectileKind.MotherBrainOnionRing,
             graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack)));
         ring.State = new MotherBrainOnionRingState(MotherBrainOnionRingAttachDelay);
-        ring.Velocity = ring.Velocity.WithX(new SignedEightEight(EnemyMath.MultiplySineSample(1104, angle)));
-        ring.Velocity = ring.Velocity.WithY(new SignedEightEight(EnemyMath.MultiplySineSample(
+        ring.Velocity = ring.Velocity.WithX(EnemyMath.MultiplySineSample(1104, angle));
+        ring.Velocity = ring.Velocity.WithY(EnemyMath.MultiplySineSample(
             1104,
-            angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
+            angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
 
         // `$C2F3` falls through into `$C320`, making the mouth position observable before
         // the projectile scheduler performs the first of eight delayed attachment frames.

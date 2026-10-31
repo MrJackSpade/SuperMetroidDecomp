@@ -39,6 +39,18 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
     /// <summary>Replaces only the Y whole word, as cartridge routines that store one half do.</summary>
     public FixedPosition<TSpace> WithWholeY(int whole) => WithY(Y.WithWhole(whole));
 
+    /// <summary>
+    /// Replaces only the X whole word with a computed coordinate, which wraps at sixteen bits
+    /// (<see cref="CoordinateAxis.Wrap"/>), as cartridge routines that store one half of a moved position do.
+    /// </summary>
+    public FixedPosition<TSpace> WithWrappedWholeX(int whole) => WithX(X.WithWrappedWhole(whole));
+
+    /// <summary>
+    /// Replaces only the Y whole word with a computed coordinate, which wraps at sixteen bits
+    /// (<see cref="CoordinateAxis.Wrap"/>), as cartridge routines that store one half of a moved position do.
+    /// </summary>
+    public FixedPosition<TSpace> WithWrappedWholeY(int whole) => WithY(Y.WithWrappedWhole(whole));
+
     /// <summary>Replaces only the X subpixel word, as cartridge routines that store one half do.</summary>
     public FixedPosition<TSpace> WithFractionX(int fraction) => WithX(X.WithFraction(fraction));
 

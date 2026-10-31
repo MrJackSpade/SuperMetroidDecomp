@@ -12,7 +12,7 @@ internal static class EnemyMath
     /// </summary>
     internal static int ClampWholeVelocity(int velocity, int maximum)
     {
-        int whole = unchecked((short)SixteenSixteen.WholeOf(velocity));
+        int whole = WordWrap.Signed(SixteenSixteen.WholeOf(velocity));
         if (whole >= maximum)
             return SixteenSixteen.FromWhole(maximum);
         if (whole < -maximum)
@@ -40,22 +40,22 @@ internal static class EnemyMath
             // The octant is chosen from the full distances; the slope keeps the original's limits, so offsets
             // beyond 255 pixels bend the angle (AimAngleSlope).
             int divided = AimAngleSlope.Of(absoluteY, absoluteX);
-            return new Bearing(quadrant switch
+            return Bearing.Wrapped(quadrant switch
             {
-                0 => unchecked((byte)((divided >> 3) + RotationAngle.QuarterTurn.TableIndex)),
-                1 => unchecked((byte)(RotationAngle.QuarterTurn.TableIndex - (divided >> 3))),
-                2 => unchecked((byte)(-RotationAngle.QuarterTurn.TableIndex - (divided >> 3))),
-                _ => unchecked((byte)((divided >> 3) - RotationAngle.QuarterTurn.TableIndex)),
+                0 => (divided >> 3) + RotationAngle.QuarterTurn.TableIndex,
+                1 => RotationAngle.QuarterTurn.TableIndex - (divided >> 3),
+                2 => -RotationAngle.QuarterTurn.TableIndex - (divided >> 3),
+                _ => (divided >> 3) - RotationAngle.QuarterTurn.TableIndex,
             });
         }
 
         int inverseDivided = AimAngleSlope.Of(absoluteX, absoluteY);
-        return new Bearing(quadrant switch
+        return Bearing.Wrapped(quadrant switch
         {
-            0 => unchecked((byte)(RotationAngle.HalfTurn.TableIndex - (inverseDivided >> 3))),
-            1 => unchecked((byte)(inverseDivided >> 3)),
-            2 => unchecked((byte)((inverseDivided >> 3) + RotationAngle.HalfTurn.TableIndex)),
-            _ => unchecked((byte)(-(inverseDivided >> 3))),
+            0 => RotationAngle.HalfTurn.TableIndex - (inverseDivided >> 3),
+            1 => inverseDivided >> 3,
+            2 => (inverseDivided >> 3) + RotationAngle.HalfTurn.TableIndex,
+            _ => -(inverseDivided >> 3),
         });
     }
 
@@ -77,8 +77,7 @@ internal static class EnemyMath
     /// unchecked host operation. Alcoon, Beetom, Work Robot, Polyp, and Namihe all consume
     /// this exact bank-$A0 distance convention. <paramref name="value"/> is a word, 0 through 65535.
     /// </summary>
-    internal static ushort WrappedMagnitude(int value) =>
-        unchecked((short)value) < 0 ? unchecked((ushort)-value) : unchecked((ushort)value);
+    internal static int WrappedMagnitude(int value) => Math.Abs(WordWrap.Signed(value));
 
     /// <summary>
     /// Implements the shared bank-$A0 proximity helpers' strict <c>magnitude &lt; limit</c>
@@ -88,7 +87,7 @@ internal static class EnemyMath
         int firstCoordinate,
         int secondCoordinate,
         int limit) =>
-        WrappedMagnitude(unchecked((ushort)(firstCoordinate - secondCoordinate))) < limit;
+        CoordinateAxis.Distance(firstCoordinate, secondCoordinate) < limit;
 
     /// <summary>
     /// Ports the integer result of <c>EightBitSineMultiplication</c> at $A0:B0DA. The SNES
@@ -116,9 +115,9 @@ internal static class EnemyMath
     /// The point on a circle at an eight-bit angle: the cosine product as X and the negative-sine
     /// product as Y, each truncated to its native sixteen-bit word.
     /// </summary>
-    internal static Offset16<RoomPixels> CircleOffset(ByteAngle angle, int radius) => new(
-        unchecked((short)ReadEightBitCosineProduct(angle, radius)),
-        unchecked((short)ReadEightBitNegativeSineProduct(angle, radius)));
+    internal static Offset16<RoomPixels> CircleOffset(ByteAngle angle, int radius) => Offset16<RoomPixels>.Wrapped(
+        ReadEightBitCosineProduct(angle, radius),
+        ReadEightBitNegativeSineProduct(angle, radius));
 
     /// <summary>
     /// Returns the complete signed 16.16 result produced by the native eight-bit sine
@@ -133,15 +132,15 @@ internal static class EnemyMath
         int sample = Trigonometry.EightBitHalfWave(angle.HalfWaveIndex);
         int product = sample * RadiusMultiplierOperand(radius);
         int whole = EightEight.WholeOf(product);
-        int fraction = unchecked((ushort)SixteenSixteen.FromEightEight(product));
+        int fraction = WordWrap.Unsigned(SixteenSixteen.FromEightEight(product));
         if (angle.IsInSecondHalf)
         {
             // $A0:B11B and $B125 negate each word independently instead of carrying the
             // fractional increment into the whole word. Preserve that documented ROM bug.
             whole = -whole;
-            fraction = unchecked((ushort)-fraction);
+            fraction = WordWrap.Unsigned(-fraction);
         }
-        return SignedSixteenSixteen.FromParts(unchecked((short)whole), fraction);
+        return SignedSixteenSixteen.FromParts(WordWrap.Signed(whole), fraction);
     }
 
     /// <summary>Rotates the native fixed sine multiplication by a quarter turn for cosine, retaining its negative-fraction behavior.</summary>
@@ -190,25 +189,25 @@ internal static class EnemyMath
     internal static bool SineIsNegative(ByteAngle angle) => angle.AddTableUnits(ByteAngle.HalfTurn.RawValue).RawValue >= ByteAngle.HalfTurn.RawValue;
 
     /// <summary>Multiplies a signed sine-table sample by speed with the cartridge's fixed-point rounding.</summary>
-    internal static ushort MultiplySineSample(int speed, ByteAngle angle) =>
-        Trigonometry.MultiplySignedSine(checked((ushort)speed), angle);
+    internal static SignedEightEight MultiplySineSample(int speed, ByteAngle angle) =>
+        Trigonometry.MultiplySignedSine(speed, angle);
 
     /// <summary>
     /// The cartridge's sign extension of a word's low byte (<c>Sign_Extend_A</c>): a negative low byte fills the high byte
     /// with ones; a positive one leaves whatever high byte the word already had, so a borrowed one survives (#1412).
     /// </summary>
-    internal static ushort SignExtendLowByte(int word) =>
-        unchecked((sbyte)(byte)word) < 0 ? FillHighByte(word) : checked((ushort)word);
+    internal static int SignExtendLowByte(int word) =>
+        WordWrap.SignedLowByte(word) < 0 ? FillHighByte(word) : Ensure.BetweenInclusive(0, ushort.MaxValue, word);
 
     /// <summary>The word whose low byte is <paramref name="value"/>'s and whose high byte is all ones: a negative 8-bit result (#1412).</summary>
-    internal static ushort FillHighByte(int value) => unchecked((ushort)(value | ~byte.MaxValue));
+    internal static int FillHighByte(int value) => WordWrap.Unsigned(value | ~byte.MaxValue);
 
     /// <summary>
     /// The eight-bit multiplier operand a radius word, 0 through 65535, supplies: the eight-bit sine multiplication
     /// takes only its low eight bits, so a radius of 256 or more wraps.
     /// </summary>
-    private static int RadiusMultiplierOperand(int radius) => unchecked((byte)Ensure.BetweenInclusive(0, ushort.MaxValue, radius));
+    private static int RadiusMultiplierOperand(int radius) => WordWrap.LowByte(Ensure.BetweenInclusive(0, ushort.MaxValue, radius));
 
     /// <summary>Tests the sign of the low sixteen bits as a 65816 word, ignoring higher host bits.</summary>
-    internal static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
+    internal static bool IsNegative16(int value) => WordWrap.IsNegative(value);
 }

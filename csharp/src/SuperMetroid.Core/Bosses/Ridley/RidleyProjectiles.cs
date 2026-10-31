@@ -67,8 +67,8 @@ internal sealed class RidleyProjectiles
         // shifts by eight, then reapplies the sign. Speed $0500 therefore remains a
         // signed 8.8 velocity whose magnitude never exceeds $0500.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
-            new SignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, angle)),
-            new SignedEightEight(EnemyMath.MultiplySineSample(FireballSpeed, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
+            EnemyMath.MultiplySineSample(FireballSpeed, angle),
+            EnemyMath.MultiplySineSample(FireballSpeed, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
     }
 
     /// <summary>Allocates projectile $86:9642 at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>

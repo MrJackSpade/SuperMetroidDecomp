@@ -6,10 +6,23 @@ namespace SuperMetroid.Core.Spatial;
 /// convention, <see cref="ByteAngle"/>; <see cref="ToTableAngle"/> converts between them.
 /// </summary>
 [EncodingOwner("clockwise byte bearing")]
-public readonly record struct Bearing(byte RawValue)
+public readonly record struct Bearing
 {
+    /// <summary>The bearing of <paramref name="rawValue"/> units clockwise from up, 0 through 255.</summary>
+    /// <param name="rawValue">The bearing in units of a 256th of a turn, 0 through 255.</param>
+    public Bearing(int rawValue) => RawValue = checked((byte)rawValue);
+
+    /// <summary>The bearing in units of a 256th of a turn, 0 through 255.</summary>
+    public byte RawValue { get; init; }
+
+    /// <summary>
+    /// The bearing a computation lands on: a bearing past a full turn, or below zero, continues around the circle.
+    /// </summary>
+    /// <param name="units">The computed bearing, which may lie outside one turn.</param>
+    public static Bearing Wrapped(int units) => new(unchecked((byte)units));
+
     /// <summary>The same direction in the sine-table convention: a quarter turn minus the bearing.</summary>
-    public ByteAngle ToTableAngle() => new(unchecked((byte)(ByteAngle.QuarterTurn.RawValue - RawValue)));
+    public ByteAngle ToTableAngle() => ByteAngle.Wrapped(ByteAngle.QuarterTurn.RawValue - RawValue);
 
     /// <summary>
     /// The bearing's byte read unconverted as a table angle, as several cartridge routines do. The direction this names

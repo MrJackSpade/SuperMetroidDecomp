@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Map.Artwork;
 /// </summary>
 public sealed class AreaMapPresentationAsset : IAreaMapView
 {
-    /// <summary>Validated cells in logical 64-column row order, independent of native page layout.</summary>
+    /// <summary>Validated cells in logical 64-column row order, independent of how the map's pages are laid out.</summary>
     private readonly MapCell[] cells;
     /// <summary>Snapshot of stock discoverability rules, unaffected by visual tile edits.</summary>
     private readonly bool[] discoverable;

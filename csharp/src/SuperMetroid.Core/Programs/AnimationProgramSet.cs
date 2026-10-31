@@ -3,8 +3,8 @@
 /// <summary>
 /// A family of typed animation programs that jump into one another (#641): frames with durations, cues whose
 /// handlers may redirect to another program, gotos, fall-through into the next authored program, waits, counted
-/// repeats, holds and stops. Owners keep the cartridge's timer gate themselves, so a frame shown here lasts exactly
-/// as long as the native frame did. A self-contained looping animation is one program that goes to its own start.
+/// repeats, holds and stops. Owners keep the frame hold themselves, so a frame shown here lasts exactly
+/// as long as the original animation's frame did. A self-contained looping animation is one program that goes to its own start.
 /// </summary>
 /// <typeparam name="TProgram">
 /// The family's program identity: an enum, whose every member must be a program, or a value type naming its programs
@@ -97,7 +97,7 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
 
     /// <summary>
     /// The program a cursor belongs to: a cursor resting on a fall-through already belongs to the next
-    /// program, as the cartridge's instruction pointer then points at it.
+    /// program, as the running animation script then rests on it.
     /// </summary>
     internal TProgram ResidentProgram(AnimationProgramCursor<TProgram> cursor)
     {
@@ -125,7 +125,7 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
     /// <summary>
     /// Runs from <paramref name="cursor"/> until a frame is shown, a wait begins, or a program holds or stops. Each
     /// cue goes to <paramref name="publish"/> with the cursor just past it; a program it returns starts at once.
-    /// Counter steps load and count down <paramref name="counter"/>, the owner's native loop timer. On return
+    /// Counter steps load and count down <paramref name="counter"/>, the owner's loop timer. On return
     /// <paramref name="cursor"/> is where the next advance resumes.
     /// </summary>
     internal AnimationProgramAdvance<TFrame> Advance(
@@ -140,7 +140,7 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
 
     /// <summary>
     /// Like <see cref="Advance(ref AnimationProgramCursor{TProgram}, ref WrappingCountdown, Func{TCue, AnimationProgramCursor{TProgram}, TProgram?})"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the
-    /// program continues at, as a native return to a saved instruction pointer does, or null to run on.
+    /// program continues at, as a return to a saved script position does, or null to run on.
     /// </summary>
     internal AnimationProgramAdvance<TFrame> AdvanceTo(
         ref AnimationProgramCursor<TProgram> cursor,

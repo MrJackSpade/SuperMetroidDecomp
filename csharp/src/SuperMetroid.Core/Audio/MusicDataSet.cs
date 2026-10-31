@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Audio;
 /// <see cref="SoundAcceptanceClock{TSound}.PauseForMusicLoad"/>). Before any is loaded only the shared sounds play,
 /// which is represented as no data set (null).
 /// </summary>
-/// <remarks>Values are arbitrary; the import pipeline decodes the cartridge's data set numbering into these names once.</remarks>
+/// <remarks>Values are arbitrary; the import pipeline decodes the game's data set numbering into these names once.</remarks>
 public enum MusicDataSet
 {
     /// <summary>The title-sequence music data set.</summary>

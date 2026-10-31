@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Map;
 
-/// <summary>Combines persistent cartridge map state with a nonpersistent host reveal mode.</summary>
+/// <summary>Combines persistent map state with a nonpersistent host reveal mode.</summary>
 public static class AreaMapVisibility
 {
     /// <summary>

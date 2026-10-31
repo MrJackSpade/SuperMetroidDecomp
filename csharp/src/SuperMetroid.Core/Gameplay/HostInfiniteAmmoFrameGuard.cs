@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Gameplay;
 /// Frame-local host guard which prevents unlocked ammunition from reaching observable zero.
 /// </summary>
 /// <remarks>
-/// Cartridge firing routines decrement their counters and immediately use zero to cancel the
+/// Firing routines decrement their counters and immediately use zero to cancel the
 /// selected HUD item. Merely repairing zero at the end of the frame would therefore require
 /// the player to reselect the weapon after every final shot. This guard lends a one-unit
-/// buffer to an unlocked counter that begins at one, lets the complete cartridge frame run,
+/// buffer to an unlocked counter that begins at one, lets the complete game frame run,
 /// then removes that loan. Locked counters are identified solely by their zero maximum and
 /// are never changed.
 /// </remarks>
@@ -130,7 +130,7 @@ internal sealed class HostInfiniteAmmoFrameGuard
             return current == 0 ? 1 : current;
 
         // Removing the loan from a count of one would recreate the forbidden zero. This is
-        // the final-shot case: the cartridge consumed the borrowed unit during this frame.
+        // // the final-shot case: the game consumed the borrowed unit during this frame.
         return current <= 1 ? 1 : current - 1;
     }
 }

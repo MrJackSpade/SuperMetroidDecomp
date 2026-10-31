@@ -36,7 +36,7 @@ public class GameplayHudPresentation
     public static PlacedHudImage Template => new(HudTemplateImage.Instance, Drawn(Position16<TilemapCells>.Zero));
 
     /// <summary>
-    /// Whether item <paramref name="itemIndex"/>'s icon draws when the HUD adds it: the cartridge draws an icon only over
+    /// Whether item <paramref name="itemIndex"/>'s icon draws when the HUD adds it: the game draws an icon only over
     /// a blank anchor, and nothing but the template ever sits under an icon.
     /// </summary>
     /// <param name="itemIndex">The zero-based item icon index.</param>
@@ -80,7 +80,7 @@ public class GameplayHudPresentation
             2 => new HudAmmoField(parts.PowerBombAmmoAnchor, 2),
             _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
         };
-        // The digits divide the stored word, so a count the cartridge has drained below zero draws as its word.
+        // The digits divide the stored word, so a count the game has drained below zero draws as its word.
         return Digits(SamusQuantity.Encode(value), anchor, digits).Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Cell));
     }
 

@@ -13,6 +13,6 @@ public interface IAreaMapView
     bool IsDiscoverable(Position16<MapTiles> cell);
     /// <summary>Returns whether downloading the area's map reveals the logical cell, without changing exploration state.</summary>
     bool IsRevealedByMapStation(Position16<MapTiles> cell);
-    /// <summary>Native slope rule; replacing its artwork must not change exploration.</summary>
+    /// <summary>The game's slope rule; replacing its artwork must not change exploration.</summary>
     bool RevealsCellAbove(Position16<MapTiles> cell);
 }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Gameplay;
 
-/// <summary>Whether an actor pass advances Samus's bank-$91 palette effects.</summary>
+/// <summary>Whether an actor pass advances Samus's palette effects.</summary>
 internal enum SamusPaletteEffects
 {
     /// <summary>The palette effects advance.</summary>

@@ -20,7 +20,7 @@ internal sealed class MotherBrainFakeDeath
     private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
     private readonly IEnemyDispatch _dispatch;
-    /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;

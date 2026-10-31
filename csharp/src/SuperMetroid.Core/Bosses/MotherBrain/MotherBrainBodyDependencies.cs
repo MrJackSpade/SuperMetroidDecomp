@@ -13,7 +13,7 @@ internal sealed record MotherBrainBodyDependencies
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
-    /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>

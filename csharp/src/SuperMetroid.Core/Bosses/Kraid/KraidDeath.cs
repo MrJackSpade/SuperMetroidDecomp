@@ -14,7 +14,7 @@ internal sealed class KraidDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
+    /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;

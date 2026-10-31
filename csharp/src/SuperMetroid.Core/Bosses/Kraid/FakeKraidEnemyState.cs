@@ -3,7 +3,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The state of Fake Kraid, with its deliberately aliased bank-$7E:7800 scratch area. “Mini-Kraid” is the name used by
+/// The state of Fake Kraid. “Mini-Kraid” is the name used by
 /// the item-drop and projectile routines; both names refer to definition <c>$E0FF</c>. The values the cartridge keeps
 /// in the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
@@ -28,13 +28,13 @@ public sealed class FakeKraidEnemyState
     public WrappingCountdown SpitDecisionTimer { get; internal set; }
 
     /// <summary>
-    /// Three independent spike clocks stored at scratch words three through five. Main AI
+    /// Three independent spike clocks. Main AI
     /// visits exactly one clock per frame in the native order 0, 1, 2, 0..., counting a running clock down to zero
     /// without wrapping and reloading it when it is found at zero.
     /// </summary>
     public WrappingCountdown[] SpikeTimers { get; } = new WrappingCountdown[3];
 
-    /// <summary>Index 0-2 of the spike clock visited this frame (native byte offset twice this).</summary>
+    /// <summary>Index 0-2 of the spike clock visited this frame.</summary>
     public int SpikeTimerIndex { get; internal set; }
 
 

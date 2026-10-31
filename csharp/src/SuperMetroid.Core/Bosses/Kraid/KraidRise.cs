@@ -19,7 +19,7 @@ internal sealed class KraidRise
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
+    /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;

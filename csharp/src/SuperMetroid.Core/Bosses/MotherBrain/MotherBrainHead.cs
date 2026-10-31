@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainHead
 {
-    /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;

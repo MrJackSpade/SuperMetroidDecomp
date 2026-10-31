@@ -148,23 +148,22 @@ internal sealed class KraidCombat
         KraidMouthHitbox? innerMouth = lastSlot == 0 ? null : KraidHeadAnimations.InnerMouthAt(state.HeadProgram);
         if (innerMouth is { } inner)
         {
-            KraidBehavior.KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, inner);
+            KraidPassBounds bounds = PlaceKraidPassBounds(body, inner);
             for (int index = lastSlot; index >= 0; index--)
             {
                 KraidBehavior.KraidCollisionShot shot = shots.Read(index);
                 SamusProjectileType type = shot.Type;
-                if (!scratch.OverlapsMouth(shot) ||
+                if (!OverlapsKraidMouth(bounds, shot) ||
                     (type.Family == SamusProjectileFamily.Beam && !type.IsChargedBeam))
                     continue;
 
                 if (type.Family == SamusProjectileFamily.Beam)
                     state.MouthFlags |= KraidMouthFlags.Hit;
-                // The common shot callback leaves the mouth's bounds as the hit's leftovers.
-                // In particular, a Super Missile's leftover changes the next shot's signed
-                // compare; rebuilding a clean rectangle here doubles close-range damage.
-                scratch.Bottom = unchecked((ushort)KraidMouthHitBound.After(shot.Type.Family.TableRow,
-                    shot.Type.BeamCombination.TableIndex, MouthHit(shot)));
-                scratch.Top = unchecked((ushort)KraidContactDefinitions.ShotUpperBoundAfterHit);
+                // A Super Missile's leftover changes the next shot's signed compare; rebuilding a clean rectangle here
+                // doubles close-range damage.
+                bounds.LeaveAfterMouthHit(
+                    KraidMouthHitBound.After(shot.Type.Family.TableRow, shot.Type.BeamCombination.TableIndex, MouthHit(shot)),
+                    KraidContactDefinitions.ShotUpperBoundAfterHit);
                 // Every beam takes Kraid's charged-beam multiplier; the other families take their own.
                 int multiplier = type.Family switch
                 {
@@ -190,10 +189,7 @@ internal sealed class KraidCombat
                 {
                     RoomSpriteObjectSlot? dud = _spriteObjects.SpawnRoomSpriteObject(
                         shot.Position, RoomSpriteObjectKind.EnemyProjectileDud, graphics: default);
-                    // Create_Sprite_Object returns its native word-array index, twice the slot, in $12 only on success.
-                    scratch.Bottom = dud is { } created ? checked((ushort)(created.SlotIndex * sizeof(ushort))) : shot.Position.X;
-                    scratch.Top = shot.Position.Y;
-                    scratch.Left = KraidContactDefinitions.ShotLeftBoundAfterDud;
+                    bounds.LeaveAfterDud(dud?.SlotIndex, shot.Position.X, shot.Position.Y, KraidContactDefinitions.ShotLeftBoundAfterDud);
                     _audio.QueueEnemySound(Library1Sound.DudShot, maximumQueued: SoundQueueLimit.Max3);
                 }
                 shots.MarkCollision(index);
@@ -230,15 +226,14 @@ internal sealed class KraidCombat
         if (lastSlot != 0)
         {
             KraidMouthHitbox outerMouth = KraidHeadAnimations.OuterMouthAt(state.HeadProgram);
-            KraidBehavior.KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, outerMouth);
+            KraidPassBounds bounds = PlaceKraidPassBounds(body, outerMouth);
             for (int index = lastSlot; index >= 0; index--)
             {
                 KraidBehavior.KraidCollisionShot shot = shots.Read(index);
-                if (!scratch.OverlapsBody(body, shot))
+                if (!OverlapsKraidBody(ref bounds, body, shot))
                     continue;
                 SpawnKraidArmShotExplosion(shot.Type, shot.Position);
-                scratch.Bottom = shot.Position.X;
-                scratch.Top = shot.Position.Y;
+                bounds.LeaveAfterBodyHit(shot.Position.X, shot.Position.Y);
                 shots.MarkCollision(index);
                 if (shot.Type.IsChargedBeam)
                     state.MouthFlags |= KraidMouthFlags.Hit;
@@ -258,20 +253,36 @@ internal sealed class KraidCombat
         return bodyHits;
     }
 
-    /// <summary>Converts a mouth shape into wrapped world-space collision bounds.</summary>
-    internal static KraidBehavior.KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, KraidMouthHitbox shape) =>
-        LoadKraidCollisionScratch(body, KraidMouthHitboxes.ResolveCollision(shape));
+    /// <summary>Places a mouth shape at Kraid's body position as the bounds a collision pass starts from.</summary>
+    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemySlot body, KraidMouthHitbox shape) =>
+        PlaceKraidPassBounds(body, KraidMouthHitboxes.ResolveCollision(shape));
 
-    /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position, wrapping as the cartridge does.</summary>
-    internal static KraidBehavior.KraidCollisionScratch LoadKraidCollisionScratch(
-        RoomEnemySlot body, KraidMouthCollisionEdges shape)
+    /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position.</summary>
+    internal static KraidPassBounds PlaceKraidPassBounds(RoomEnemySlot body, KraidMouthCollisionEdges shape) =>
+        KraidPassBounds.Placed(
+            body.Position.X.Whole + shape.Left,
+            body.Position.Y.Whole + shape.Top,
+            body.Position.Y.Whole + shape.Bottom);
+
+    /// <summary>Whether a projectile overlaps the pass's bounds as the mouth pass tests them.</summary>
+    internal static bool OverlapsKraidMouth(KraidPassBounds bounds, KraidBehavior.KraidCollisionShot shot) =>
+        bounds.Overlaps(
+            shot.Position.Y - shot.Radius.Y,
+            shot.Position.Y + shot.Radius.Y,
+            shot.Position.X + shot.Radius.X);
+
+    /// <summary>
+    /// Whether a projectile overlaps Kraid's body: inside the pass's bounds when it reaches above their bottom, and
+    /// otherwise left of the body's contour at its height, which leaves the projectile's right edge as the bottom.
+    /// </summary>
+    internal static bool OverlapsKraidBody(ref KraidPassBounds bounds, RoomEnemySlot body, KraidBehavior.KraidCollisionShot shot)
     {
-        return new()
-        {
-            Left = unchecked((ushort)(body.Position.X.Whole + shape.Left)),
-            Top = unchecked((ushort)(body.Position.Y.Whole + shape.Top)),
-            Bottom = unchecked((ushort)(body.Position.Y.Whole + shape.Bottom)),
-        };
+        if (bounds.IsAboveBottom(shot.Position.Y - shot.Radius.Y))
+            return bounds.ReachesTopAndLeft(shot.Position.Y + shot.Radius.Y, shot.Position.X + shot.Radius.X);
+
+        bounds.LeaveRightEdgeAsBottom(shot.Position.X + shot.Radius.X);
+        int relativeY = unchecked((short)(shot.Position.Y - body.Position.Y.Whole));
+        return unchecked((short)(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) - bounds.Bottom)) < 0;
     }
 
     /// <summary>Switches the body from combat to its scripted death function.</summary>

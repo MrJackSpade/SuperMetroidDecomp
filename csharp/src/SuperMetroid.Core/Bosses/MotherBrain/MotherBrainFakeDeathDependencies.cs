@@ -16,7 +16,7 @@ internal sealed record MotherBrainFakeDeathDependencies
     /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
     public required IEnemyDispatch Dispatch { get; init; }
 
-    /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>

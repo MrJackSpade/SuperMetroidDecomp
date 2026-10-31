@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The named reactions an enemy has to Samus's touch, to her shots and bombs, and to her Power Bombs. A header names one
 /// for each kind of contact, and an extended hitbox names one for touch and one for shot; the import decides each from
-/// the cartridge once. The values are arbitrary.
+/// the game once. The values are arbitrary.
 /// </summary>
 public enum EnemyReaction
 {

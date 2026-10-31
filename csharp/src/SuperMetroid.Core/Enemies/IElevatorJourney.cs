@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal interface IElevatorJourney
 {
-    /// <summary>WRAM $0E16, the elevator's journey status.</summary>
+    /// <summary>The elevator's journey status.</summary>
     ElevatorActorStatus ElevatorStatus { get; }
 
     /// <summary>What has armed the elevator's pseudo-door.</summary>
@@ -20,13 +20,13 @@ internal interface IElevatorJourney
     /// <summary>Whether the elevator, not Samus's handlers, moves Samus this frame.</summary>
     bool ElevatorRunsSamusMovement { get; }
 
-    /// <summary>WRAM $0795, the door-transition gate that suppresses actor movement.</summary>
+    /// <summary>The door-transition gate that suppresses actor movement.</summary>
     bool ElevatorDoorTransitionActive { get; set; }
 
     /// <summary>Returns and clears the slot of the arriving elevator that placed Samus during the room load.</summary>
     int? ConsumeElevatorArrivalPlacementSlot();
 
-    /// <summary>Publishes bank-$94's type-$9 pseudo-door collision.</summary>
+    /// <summary>Publishes type-$9 pseudo-door collision.</summary>
     void PublishElevatorDoorContact();
 
     /// <summary>Clears the flags when gameplay resumes.</summary>

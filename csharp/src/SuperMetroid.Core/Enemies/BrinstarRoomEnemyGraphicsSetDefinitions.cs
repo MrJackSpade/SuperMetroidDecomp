@@ -1,9 +1,9 @@
 ﻿namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The bank-$B4 graphics sets of the Brinstar room-header region, in native table order. It holds the Tourian statue rooms, whose headers lie in this region.</summary>
+/// <summary>The graphics sets of the Brinstar room-header region, in table order. It holds the Tourian statue rooms, whose headers lie in this region.</summary>
 internal static class BrinstarRoomEnemyGraphicsSetDefinitions
 {
-    /// <summary>The region's lists, in native table order.</summary>
+    /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetDefinition[] Build() =>
     [
         new(nameof(RoomEnemyGraphicsSetDefinitions.BrinstarPreMap), [

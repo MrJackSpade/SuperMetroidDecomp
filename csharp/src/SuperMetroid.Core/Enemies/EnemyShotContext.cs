@@ -35,7 +35,7 @@ internal readonly record struct EnemyShotContext(
     internal bool Froze { get; init; }
 
     /// <summary>
-    /// The bank-$A0 rule for marking the projectile as collided: a non-plasma shot, or any shot when the enemy
+    /// The rule for marking the projectile as collided: a non-plasma shot, or any shot when the enemy
     /// blocks plasma.
     /// </summary>
     internal bool MarksCollision =>

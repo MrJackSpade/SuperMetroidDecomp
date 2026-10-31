@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Typed, immutable enemy definitions referenced by all 323 retail room states.</summary>
 /// <remarks>
-/// Compiled from the pinned NTSC J/U v1.0 cartridge, with no generator in the repository. The 148 definitions are
-/// enumerated from every room population and enemy graphics set, not inferred from a contiguous ROM range. These are
+/// Compiled once from the game's definitions, with no generator in the repository. The 148 definitions are
+/// enumerated from every room population and enemy graphics set, not inferred from a contiguous range. These are
 /// engine definitions, never editable art data. Each RoomEnemyDefinition constructor follows its named field order.
 /// </remarks>
 public static class RoomEnemyDefinitionCatalog

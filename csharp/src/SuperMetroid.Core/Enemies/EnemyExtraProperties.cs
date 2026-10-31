@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The enemy's additional engine properties: how it draws and whether its animation just installed a frame. The
-/// cartridge treats them as independently composable bits.
+/// game treats them as independently composable bits.
 /// </summary>
 [Flags]
 public enum EnemyExtraProperties

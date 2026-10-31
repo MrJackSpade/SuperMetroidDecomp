@@ -43,7 +43,7 @@ public sealed class RoomEnemySlot
     private readonly Dictionary<string, object> _speciesStates = new(StringComparer.Ordinal);
 
     /// <summary>
-    /// For each installed species state that keeps values the cartridge stores in this record's common words, the
+    /// For each installed species state that keeps values the game stores in this record's common words, the
     /// operation that empties those values, keyed like the states. <see cref="Clear"/> runs them: emptying the record
     /// empties those values, while the state itself outlives the occupant.
     /// </summary>
@@ -85,7 +85,7 @@ public sealed class RoomEnemySlot
 
     /// <summary>
     /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
-    /// here, at the statement that changes the header pointer, because the cartridge re-reads the header each dispatch.
+    /// here, at the statement that changes the header pointer, because the game re-reads the header each dispatch.
     /// </summary>
     /// <param name="definitionId">The occupant's header pointer.</param>
     /// <param name="definition">The occupant's header.</param>

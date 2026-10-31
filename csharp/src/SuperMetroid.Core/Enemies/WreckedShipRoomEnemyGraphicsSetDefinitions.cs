@@ -1,9 +1,9 @@
 ﻿namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The bank-$B4 graphics sets of the Wrecked Ship room-header region, in native table order.</summary>
+/// <summary>The graphics sets of the Wrecked Ship room-header region, in table order.</summary>
 internal static class WreckedShipRoomEnemyGraphicsSetDefinitions
 {
-    /// <summary>The region's lists, in native table order.</summary>
+    /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetDefinition[] Build() =>
     [
         new(nameof(RoomEnemyGraphicsSetDefinitions.SpongeBath1), [

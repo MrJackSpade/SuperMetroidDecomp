@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the whole transition; the destination's enemy population initializes with them clear, and the load re-asserts them
 /// once the enemies are loaded (#1329).
 /// </summary>
-/// <param name="EnemyDoorTransitionActive">WRAM $0797, door_transition_flag_enemies.</param>
-/// <param name="ElevatorDoorTransitionActive">WRAM $0795, the gate that suppresses elevator and Zebetite movement.</param>
+/// <param name="EnemyDoorTransitionActive">Whether enemies see a door transition in progress.</param>
+/// <param name="ElevatorDoorTransitionActive">The gate that suppresses elevator and Zebetite movement.</param>
 [IndependentFlag("independent gates: an enemy door transition and an elevator door transition")]
 public readonly record struct EnemyDoorTransitionGates(bool EnemyDoorTransitionActive, bool ElevatorDoorTransitionActive);

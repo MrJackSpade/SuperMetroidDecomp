@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// Enemy species: the enemy definition a room population entry or spawn names. Every labelled enemy definition of
 /// the pinned disassembly is a member. The values are arbitrary and nothing reads them; the import pipeline translates
-/// the cartridge's header pointers to these members (#1412).
+/// the game's header pointers to these members (#1412).
 /// </summary>
 public enum EnemyDefinitionId
 {

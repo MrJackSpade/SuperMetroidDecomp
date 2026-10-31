@@ -1,9 +1,9 @@
 ﻿namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The bank-$B4 graphics sets of the Crateria room-header region, in native table order. It opens with the set Draygon and Mother Brain share.</summary>
+/// <summary>The graphics sets of the Crateria room-header region, in table order. It opens with the set Draygon and Mother Brain share.</summary>
 internal static class CrateriaRoomEnemyGraphicsSetDefinitions
 {
-    /// <summary>The region's lists, in native table order.</summary>
+    /// <summary>The region's lists, in table order.</summary>
     internal static RoomEnemyGraphicsSetDefinition[] Build() =>
     [
         new(nameof(RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2), [

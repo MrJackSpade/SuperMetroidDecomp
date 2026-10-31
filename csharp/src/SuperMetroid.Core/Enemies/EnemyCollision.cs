@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyCollision
 {
-    /// <summary>Dispatches bank-local enemy callbacks selected by touch or projectile contact.</summary>
+    /// <summary>Dispatches enemy callbacks selected by touch or projectile contact.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Queues the enemy sounds produced by hits, freezes, and deaths.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -32,7 +32,7 @@ internal sealed class EnemyCollision
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies the active room's area and environment to collision logic.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Defines native enemy iteration order for the collision passes.</summary>
+    /// <summary>Defines enemy iteration order for the collision passes.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Resizes a power bomb's sweep after each kill it makes.</summary>
     private readonly PowerBombRadiusAfterKill _powerBombRadius;
@@ -80,7 +80,7 @@ internal sealed class EnemyCollision
         {
             if (onlyEnemy is not null && slot != onlyEnemy)
                 continue;
-            // Native collision entry rejects a zero sprite map before resetting Samus's
+            // Collision entry rejects a zero sprite map before resetting Samus's
             // invulnerability. Keep this per enemy: an empty interactive list or an actor
             // not yet publishing its map must not erase the timer. The reset still precedes
             // overlap testing, so a distant actor with a map can legitimately clear it.
@@ -94,7 +94,7 @@ internal sealed class EnemyCollision
             if (contactDamageIndex != SamusContactDamageIndex.None)
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
 
-            // Native touch collision does not interpret property $0100 as a collision bit;
+            // Touch collision does not interpret property 0x0100 as a collision bit;
             // it suppresses rendering only. Hibashi relies on that distinction: its second
             // slot remains invisible while its instruction stream moves a live hitbox.
             // Both Ridley definitions use a hand-authored extended body plus a separately
@@ -131,7 +131,7 @@ internal sealed class EnemyCollision
             if (!overlapsSamus)
                 continue;
 
-            // $A0:A10E-A11F: on the ordinary radius path a frozen enemy never runs its touch
+            // On the ordinary radius path a frozen enemy never runs its touch
             // AI, except the respawn placeholder. The extended-hitbox path has no such gate.
             if (!usesExtendedHitboxes && !slot.FrozenTimer.IsZero &&
                 slot.DefinitionId != EnemyDefinitionId.Respawn)
@@ -154,7 +154,7 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Runs common normal-enemy shot AI for ordinary radius-based translated actors. One
-    /// projectile may resolve per enemy per pass, matching the native collision-handler exit.
+    /// projectile may resolve per enemy per pass, matching the collision-handler exit.
     /// </summary>
     /// <param name="projectiles">Live Samus beam and missile slots whose enemy collisions may consume, reflect, or transition their projectiles.</param>
     /// <param name="sharedProjectiles">Shared bomb-projectile owner passed to projectile impact handling.</param>
@@ -177,8 +177,8 @@ internal sealed class EnemyCollision
                 continue;
 
             // The shot pass likewise admits visually invisible actors, but rejects the
-            // engine's explicit empty spritemap sentinel $804D and property $0400. Keeping
-            // these meanings separate mirrors the bank-$A0 list/collision machinery. An actor
+            // engine's explicit empty frame and property 0x0400. Keeping
+            // these meanings separate mirrors the list/collision machinery. An actor
             // with no translated shot reaction is skipped.
             if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
                 CommonEnemyEmptyFrames.DrawsNothing(enemy.Frame) ||
@@ -221,7 +221,7 @@ internal sealed class EnemyCollision
                 }
 
                 bool usesExtendedHitboxes = UsesExtendedProjectileHitboxes(enemy);
-                // `$A0:9BA6` returns before testing any projectile while the enemy shows
+                // The extended shot walker returns before testing any projectile while the enemy shows
                 // the empty extended frame. Its point hitbox remains live for Samus and
                 // bombs, whose extended passes have no such check.
                 if (usesExtendedHitboxes &&
@@ -308,13 +308,13 @@ internal sealed class EnemyCollision
                 if (reaction.AlwaysUsesCollisionPrelude || family is SamusProjectileFamily.Beam or
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
                 {
-                    // The bank-$A0 collision walker marks the direction word, not a
+                    // The collision walker marks the direction word, not a
                     // terrain impact. Projectile pre-instructions consume that marker
                     // on the next alpha pass; normal shot AI owns its separate hit graphic.
                     // Super Missiles must retain their handler so it also clears their
                     // collision links. Terrain conversion strands a live link that can
                     // damage the enemy again after its flash timer expires.
-                    // $A0:A184 and $A0:9C39 do not reject the removal marker: later
+                    // Neither the beam nor the missile damage path rejects the removal marker: later
                     // overlapping enemies in this pass still receive the live payload.
                     projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(
                         projectile.SlotIndex,
@@ -348,7 +348,7 @@ internal sealed class EnemyCollision
                 int damage = (projectileDamage >> 1) * shotVulnerability.Multiplier;
                 if (damage == 0)
                 {
-                    // $A0:A75B enters the dud branch even for Plasma: immunity removes
+                    // A zero-damage hit enters the dud branch even for Plasma: immunity removes
                     // the projectile instead of letting its ordinary piercing rule win.
                     _projectiles.CreateEnemyProjectileDudShot(projectile);
                 }
@@ -361,7 +361,7 @@ internal sealed class EnemyCollision
                     // explosion instructions retain their separate, later sound owner.
                     if (enemy.FrozenTimer.IsZero && enemy.Definition.HurtSoundEffect is SoundEffectId cry)
                         _audio.QueueEnemySound(cry, SoundRequestPriority.Low);
-                    // `$A0:A79E` gives every plasma-family hit sixteen invincibility frames.
+                    // Every plasma-family hit gives sixteen invincibility frames.
                     // The packed beam type uses bit three for Plasma; other families do not
                     // set that low bit in their ordinary projectile words.
                     if (projectileType.BeamCombination.HasPlasma)
@@ -410,12 +410,12 @@ internal sealed class EnemyCollision
         stage is not null && stage(in context);
 
     /// <summary>
-    /// Ports the ordinary-radius half of <c>EnemyBombCollHandler</c> at $A0:A236.
+    /// Ports the ordinary-radius half of <c>EnemyBombCollHandler</c>.
     /// </summary>
     /// <remarks>
     /// Normal bombs occupy physical projectile slots five through nine. They are not part
-    /// of the five-slot beam/missile walk above: bank $A0 waits for the shared bomb-variable
-    /// word to reach zero, marks the overlapping bomb with direction bit $10, and dispatches
+    /// of the five-slot beam/missile walk above: the bomb pass waits for the shared bomb-variable
+    /// word to reach zero, marks the overlapping bomb with direction bit 0x10, and dispatches
     /// the enemy's shot reaction with that physical slot selected. The original translation
     /// implemented only Metroid's private detach/recoil reaction, which meant ordinary bombs
     /// could never damage the many enemies that install common shot AI.
@@ -464,8 +464,8 @@ internal sealed class EnemyCollision
             {
                 SamusProjectileFamily family = bomb.Type.Family;
 
-                // `$A0:A24E-$A265` admits an exploding normal bomb. The ordinary-radius
-                // handler also admits a spread bomb. `$A0:9D23`'s extended-spritemap
+                // The ordinary-radius bomb pass admits an exploding normal bomb. The ordinary-radius
+                // handler also admits a spread bomb. The extended-frame
                 // handler is narrower: it requires a bomb and a nonzero X word.
                 if (bomb.Type.IsNone ||
                     !bomb.BombTimer.IsZero ||
@@ -508,7 +508,7 @@ internal sealed class EnemyCollision
 
                 // EnemyBombCollHandler marks the physical bomb before dispatch. Unlike an
                 // ordinary beam impact, the bomb is already running its explosion program;
-                // common shot AI must not replace it with a bank-$93 impact animation.
+                // common shot AI must not replace it with an impact animation.
                 bomb.IsSpent = true;
                 var bombContext = new EnemyBombContext(
                     enemy,
@@ -530,7 +530,7 @@ internal sealed class EnemyCollision
                     }
                     else
                     {
-                        // A private reaction that rejects the bomb returns before common damage; bank $A0 has
+                        // A private reaction that rejects the bomb returns before common damage; the bomb pass has
                         // already marked the bomb, so rejection belongs here rather than in collision admission.
                         EnemyBombReaction? reaction = bombReactions?.FindBombCommon(bombContext);
                         if (reaction?.Rejects?.Invoke(bombContext) != true)
@@ -562,8 +562,8 @@ internal sealed class EnemyCollision
         owner.OwnsPrivateShotReaction(reaction);
 
     /// <summary>
-    /// Executes the family-$0500 branch of <c>NormalEnemyShotAiSkipDeathAnim</c> at
-    /// $A0:A6DE, followed by <c>NormalEnemyShotAi</c>'s ordinary death tail.
+    /// Executes the family-0x0500 branch of the shot AI that skips the death animation,
+    /// followed by the ordinary shot AI's death tail.
     /// </summary>
     internal void ApplyCommonNormalBombDamage(
         RoomEnemySlot enemy,
@@ -574,7 +574,7 @@ internal sealed class EnemyCollision
         int damage = (bomb.Damage >> 1) * vulnerability.Multiplier;
 
         // A zero multiplier still consumes the collision and leaves direction bit $10 on
-        // the bomb. Native emits a dud sprite/sound here; those presentation queues are not
+        // the bomb. Emits a dud sprite/sound here; those presentation queues are not
         // yet shared by the host bomb system, so enemy state correctly remains untouched.
         if (damage == 0)
             return;
@@ -593,8 +593,8 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Ports <c>Process_Enemy_PowerBomb_Interaction</c> at $A0:A306 for one expansion
-    /// sample. The caller supplies the high byte of the live power-bomb radius; native code
+    /// Runs the power-bomb interaction for one expansion
+    /// sample. The caller supplies the high byte of the live power-bomb radius; the game
     /// uses it as the horizontal radius and derives a three-quarter-height vertical ellipse.
     /// </summary>
     public int ResolveOrdinaryPowerBombHits(
@@ -607,8 +607,8 @@ internal sealed class EnemyCollision
             return 0;
 
         int horizontalRadius = explosionRadius;
-        // `$A0:A31A-$A31D` retains carry from the first LSR through ADC. Expressing each
-        // step makes odd-radius rounding agree with the 65C816 rather than using 0.75f.
+        // The vertical radius keeps the carry from the first halving through the addition. Expressing each
+        // step makes odd-radius rounding agree with the game rather than using 0.75f.
         int carry = horizontalRadius & 1;
         int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + carry) >> 1;
         int reactionCount = 0;
@@ -649,7 +649,7 @@ internal sealed class EnemyCollision
                     $"Enemy {enemy.DefinitionId} power-bomb reaction {named} is not translated.");
             }
 
-            // Private callbacks replace common power-bomb damage, but still receive the native
+            // Private callbacks replace common power-bomb damage, but still receive the
             // process-off-screen bit after a qualifying ellipse overlap.
             if (reaction?.ReplacesCommon is { } privateReaction)
             {
@@ -687,7 +687,7 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Selects the exact multiplier used by `$A0:A6DE` for an ordinary shot: the beam combination's response, with a
+    /// Selects the exact multiplier the damage calculation uses for an ordinary shot: the beam combination's response, with a
     /// charged shot taking the charged-beam multiplier unless the beam freezes; missile, Super Missile, bomb and Power
     /// Bomb families take their own responses.
     /// </summary>
@@ -778,7 +778,7 @@ internal sealed class EnemyCollision
         bool PreventsLethalFreeze);
 
     /// <summary>
-    /// Walks `$A0:9A5A/$A0:9B7F`'s bank-local extended-spritemap structure and returns the
+    /// Walks the extended-frame structure and returns the
     /// reaction belonging to the first overlapping hitbox. One displayed enemy frame may
     /// contain several independently offset ordinary spritemaps; every component has a
     /// hitbox list whose records are signed bounds plus touch and shot reactions.
@@ -792,7 +792,7 @@ internal sealed class EnemyCollision
     {
         reaction = null;
 
-        // Native multibox collision walks every frame an actor shows, and only an actor that has
+        // Multibox collision walks every frame an actor shows, and only an actor that has
         // shown none is skipped. The common visually empty extended frame still owns a point
         // hitbox, so it enters the same collision walker as other extended frames.
         if (enemy.Frame is null)
@@ -811,7 +811,7 @@ internal sealed class EnemyCollision
         if (CommonEnemyEmptyFrames.IsFrame(enemy.Frame))
         {
             // The shared empty frame has a single zero-radius point at the
-            // enemy origin. Run the same asymmetric native overlap test before
+            // enemy origin. Run the same asymmetric overlap test before
             // selecting its common touch/shot reaction.
             if (!target.Overlaps(enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))
                 return false;
@@ -830,7 +830,7 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Identifies actors whose ordinary Samus-contact collision actually enters
-    /// <c>$A0:9A5A</c>'s extended-spritemap walker. This differs deliberately from the shot
+    /// the extended-frame touch walker. This differs deliberately from the shot
     /// set: Phantoon uses authored component rectangles for touch, while its weapon collision
     /// is owned by the encounter-specific projectile resolver.
     /// </summary>
@@ -840,12 +840,12 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Identifies actors whose ordinary projectile collision actually enters
-    /// <c>$A0:9B7F</c>'s extended-spritemap walker. Extra-property bit $0004 alone is not
+    /// the extended-frame shot walker. Extra-property bit 0x0004 alone is not
     /// sufficient: Mother Brain and several custom-drawn actors set it for scheduling or
     /// rendering while their shot paths use a header radius or encounter-specific geometry.
-    /// Keeping this predicate beside the dispatcher gives ROM-backed probes the same boundary
+    /// Keeping this predicate beside the dispatcher gives data-backed probes the same boundary
     /// as gameplay and prevents them from interpreting unrelated component metadata as a
-    /// bank-local hitbox pointer.
+    /// hitbox pointer.
     /// </summary>
     internal static bool UsesExtendedProjectileHitboxes(RoomEnemySlot enemy) =>
         enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
@@ -856,7 +856,7 @@ internal sealed class EnemyCollision
         enemy.Entity?.Capabilities ?? EnemyCapabilities.None;
 
     /// <summary>
-    /// Ports $A0:A477-$A531 for one already-overlapping ordinary actor. A zero contact index
+    /// Handles Samus touching one already-overlapping ordinary actor. A zero contact index
     /// damages Samus; Speed Booster, shinespark, Screw Attack, and pseudo-Screw instead read
     /// their dedicated bytes from the enemy's vulnerability record and damage the actor.
     /// </summary>
@@ -890,7 +890,7 @@ internal sealed class EnemyCollision
                 vulnerability = contact.ScrewAttack;
                 break;
             case SamusContactDamageIndex.PseudoScrew:
-                // The cartridge consumes charge before checking vulnerability. Even immune
+                // The game consumes charge before checking vulnerability. Even immune
                 // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
                 SamusProjectileSystem projectiles = _frameContext.SamusProjectiles
                     ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
@@ -929,7 +929,7 @@ internal sealed class EnemyCollision
         _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.SamusContact);
     }
 
-    /// <summary>Uses the native strict radius test, excluding contact where either axis is only tangent.</summary>
+    /// <summary>Uses the strict radius test, excluding contact where either axis is only tangent.</summary>
     internal static bool RadiusBoxesOverlap(
         Position16<RoomPixels> firstPosition,
         Extent16<RoomPixels> firstRadius,
@@ -938,7 +938,7 @@ internal sealed class EnemyCollision
         CoordinateAxis.Distance(firstPosition.X, secondPosition.X) < firstRadius.X + secondRadius.X &&
         CoordinateAxis.Distance(firstPosition.Y, secondPosition.Y) < firstRadius.Y + secondRadius.Y;
 
-    /// <summary>Applies suit reduction and health loss, then publishes the native hurt direction and invincibility window.</summary>
+    /// <summary>Applies suit reduction and health loss, then publishes the hurt direction and invincibility window.</summary>
     internal static void ApplyNormalEnemyTouchDamage(
         SamusState samus,
         int damageBeforeSuit,
@@ -952,7 +952,7 @@ internal sealed class EnemyCollision
             : samus.Health - damage;
         samus.InvincibilityTimer = WrappingCountdown.Start(96);
         KnockbackHorizontalDirection direction = samus.Position.X.Whole >= damageSourceX ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
-        // $A0:A4A1 publishes a hit request; $90:DDE9 admits it only when no
+        // The contact publishes a hit request; Samus admits it only when no
         // knockback direction is installed. Damage can recur after invincibility
         // expires even if the old movement handler remains active (e.g. a boss grab).
         samus.KnockbackTimer = WrappingCountdown.Start(5);
@@ -962,8 +962,8 @@ internal sealed class EnemyCollision
     }
 
     /// <summary>
-    /// Exact asymmetric support test from CheckIfEnemyIsTouchingSamusFromBelow,
-    /// $A0:ABE7. Horizontal tangency is excluded; vertical tangency after the
+    /// Exact asymmetric support test for an enemy touching Samus from below.
+    /// Horizontal tangency is excluded; vertical tangency after the
     /// three-pixel bias is included. Both Kraid platforms and work robots call it.
     /// </summary>
     internal static bool IsEnemyTouchingSamusFromBelow(RoomEnemySlot enemy, SamusState samus)

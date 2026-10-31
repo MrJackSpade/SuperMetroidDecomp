@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// A species reaction to a normal bomb that enters common bomb damage. The bomb pass runs its stages around the
-/// common damage at the cartridge's positions; a reaction sets only the stages it has.
+/// common damage at the game's positions; a reaction sets only the stages it has.
 /// </summary>
 /// <param name="matches">Whether the overlap uses this reaction (definition and selected callback).</param>
 internal sealed class EnemyBombReaction(Func<EnemyBombContext, bool> matches)

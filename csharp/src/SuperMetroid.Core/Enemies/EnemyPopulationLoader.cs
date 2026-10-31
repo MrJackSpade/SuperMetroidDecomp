@@ -3,7 +3,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Room enemy population loading: the bank-$A1 population and kill quota, and resolution of enemy definitions,
+/// Room enemy population loading: the population and kill quota, and resolution of enemy definitions,
 /// populations and graphics sets from the room state.
 /// </summary>
 internal sealed class EnemyPopulationLoader
@@ -25,14 +25,14 @@ internal sealed class EnemyPopulationLoader
         _slotTable = slotTable;
         _dispatch = dispatch;
     }
-    /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota. 0 through 255.</summary>
+    /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; empty-population initialization retains the previous quota. 0 through 255.</summary>
     public int DeathQuota
     {
         get => _room.Session.DeathQuota;
         private set => _room.Session.DeathQuota = value;
     }
 
-    /// <summary>Initializes each bank-$A1 population slot, runs its AI, and publishes count and kill quota for nonempty populations.</summary>
+    /// <summary>Initializes each population slot, runs its AI, and publishes count and kill quota for nonempty populations.</summary>
     internal void LoadPopulation(
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyPopulationDefinition populationDefinition,
@@ -58,7 +58,7 @@ internal sealed class EnemyPopulationLoader
 
             // InitializeEnemies deliberately clears the init routine's immediate map.
             // Disable-Samus-collision actors receive the canonical empty map until their
-            // first instruction-list tick replaces it. Gunship properties contain $2000.
+            // first animation tick replaces it. Gunship properties contain 0x2000.
             slot.Frame = slot.Properties.HasAny(EnemyProperties.RunsAnimationScript)
                 ? slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)
                     ? EnemyFrameId.EmptyExtended

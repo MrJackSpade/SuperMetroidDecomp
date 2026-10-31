@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The engine properties of an enemy, which its population entry starts and its behaviour toggles: how the common
-/// passes draw, process and collide with it. The cartridge treats them as independently composable bits.
+/// passes draw, process and collide with it. The game treats them as independently composable bits.
 /// </summary>
 [Flags]
 public enum EnemyProperties

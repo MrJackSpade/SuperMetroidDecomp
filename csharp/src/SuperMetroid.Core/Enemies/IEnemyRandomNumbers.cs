@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>The cartridge random-number word as enemy AI uses it (#633).</summary>
+/// <summary>The game random-number word as enemy AI uses it (#633).</summary>
 public interface IEnemyRandomNumbers
 {
     /// <summary>Advances the RNG (<c>GenerateRandomNumber</c>) and returns the new state as a sample, 0 through 65535.</summary>

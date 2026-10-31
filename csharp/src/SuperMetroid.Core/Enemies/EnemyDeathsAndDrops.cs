@@ -39,7 +39,7 @@ internal sealed class EnemyDeathsAndDrops
         _dispatch = dispatch;
         _powerBombRadius = powerBombRadius;
     }
-    /// <summary>Bank-$86 callback that checks pickup lifetime, Grapple, and Samus contact.</summary>
+    /// <summary>Callback that checks pickup lifetime, Grapple, and Samus contact.</summary>
     private const EnemyProjectileFrameBehavior EnemyPickupFrameBehavior =
         EnemyProjectileFrameBehavior.PickupLifetime;
     /// <summary>Frames a newly spawned enemy pickup remains collectible.</summary>
@@ -64,7 +64,7 @@ internal sealed class EnemyDeathsAndDrops
     private void RequestDeathSound(SoundEffectId sound) =>
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyDeath, sound, priority: SoundRequestPriority.WhenIdle);
 
-    /// <summary>The library-two enemy-killed cry that <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) queues.</summary>
+    /// <summary>The library-two enemy-killed cry that <c>EprojInstr_QueueSfx2_9</c> queues.</summary>
     internal static readonly SoundEffectId EnemyKilledSound = Library2Sound.EnemyKilled;
 
     /// <summary>Tells a power bomb's sweep in progress of each kill, which resizes its horizontal reach.</summary>
@@ -78,16 +78,16 @@ internal sealed class EnemyDeathsAndDrops
         _powerBombRadius.RecordKill(enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled));
 
     /// <summary>
-    /// Ports <c>EnemyDeathAnimation</c> at $A0:A3AF. The enemy is cleared immediately,
-    /// while projectile $F345 retains the header, position, and optional respawn index until
-    /// its ROM animation reaches opcode $EEAF and becomes a pickup.
+    /// Starts an enemy's generic death. The enemy is cleared immediately,
+    /// while the death explosion retains the header, position, and optional respawn index until
+    /// its authored animation reaches its become-pickup cue.
     /// </summary>
     internal void StartGenericEnemyDeath(
         RoomEnemySlot enemy,
         EnemyDeathExplosion deathAnimation)
     {
         RecordKill(enemy);
-        // $A0:A3AF installs the dropped-grapple function before clearing the enemy.
+        // The death installs the dropped-grapple function before clearing the enemy.
         // Equality is deliberate: this is not a general test for any set grapple bit.
         if (enemy.AiStates == EnemyAiStates.Grappled)
         {
@@ -114,8 +114,8 @@ internal sealed class EnemyDeathsAndDrops
         enemy.Spawn = survivingSpawn;
         if (respawns)
         {
-            // The native post-memset marker keeps the physical slot unavailable until the
-            // projectile's $EF10 instruction reconstructs it from the population record.
+            // The post-memset marker keeps the physical slot unavailable until the
+            // explosion's respawn cue reconstructs it from the population record.
             InstallRespawnPlaceholder(enemy);
         }
         _roomStatus.RecordKill();
@@ -124,7 +124,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Keeps a killed respawning slot occupied by replacing its header with the respawn placeholder.</summary>
     internal void InstallRespawnPlaceholder(RoomEnemySlot enemy)
     {
-        // The cartridge reads the header through the new pointer on every dispatch.
+        // The game reads the header through the new pointer on every dispatch.
         // Our cached definition must follow that pointer even during the death frame.
         enemy.Bind(EnemyDefinitionId.Respawn, _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.Respawn));
     }
@@ -144,9 +144,9 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Shared implementation of the twelve <c>Enemy_ItemDrop_*</c> routines at
-    /// $A0:B8EE-$BB9A. Each iteration advances RNG once for both coordinates; allocation
-    /// and drop selection then advance it independently inside pickup $F337. The X scatter
+    /// Shared implementation of the twelve item-drop routines.
+    /// Each iteration advances RNG once for both coordinates; allocation
+    /// and drop selection then advance it independently inside the pickup. The X scatter
     /// masks the sample's lower random byte and the Y scatter its upper one.
     /// </summary>
     internal void SpawnEnemyDropScatter(
@@ -182,7 +182,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Allocates pickup projectile $F337 using an ordinary bank-$A0 enemy header. The
+    /// Allocates a pickup projectile using an ordinary enemy header. The
     /// allocation search, slot-zero failure, random selection, and no-drop tail all match
     /// <c>SpawnEprojWithRoomGfx</c> followed by <c>InitAI_EnemyProjectile_Pickup</c>.
     /// </summary>
@@ -207,7 +207,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Allocates pickup $F337 from a bank-$B4 chance table already selected by specialized
+    /// Allocates a pickup from a chance table already selected by specialized
     /// boss code. This represents routines such as Botwoon's Draygon-eye drop instruction
     /// without manufacturing a fake enemy header solely to get back to the same six bytes.
     /// </summary>
@@ -247,7 +247,7 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>
     /// Converts a completed enemy-death explosion in place and returns the program it continues at: its drop's, or the
     /// respawn tail's. Keeping the actor in its existing slot preserves both the slot-zero bug and the retained respawn
-    /// index: $86:EEAF branches on the restored projectile index, so slot zero never converts.
+    /// index: the become-pickup cue branches on the restored projectile index, so slot zero never converts.
     /// </summary>
     internal EnemyDeathProjectileProgram ConvertEnemyDeathExplosionToPickup(RoomEnemyProjectileSlot projectile)
     {
@@ -264,7 +264,7 @@ internal sealed class EnemyDeathsAndDrops
         projectile.State = new EnemyPickupState(kind, EnemyPickupLifetime);
         projectile.FrameBehavior = EnemyPickupFrameBehavior;
 
-        // $86:EEAF clears property $4000 but retains the other definition bits. The typed
+        // Becoming a pickup clears the persists-on-contact property but retains the other definition bits. The typed
         // representation stores the three collision flags separately from the low damage.
         projectile.PersistsOnSamusContact = false;
         return animation.Program ?? throw new InvalidOperationException($"Enemy pickup kind {kind} has no drop program.");
@@ -277,8 +277,8 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Makes the projectile a blank, non-interactive drop and returns the deletion tail it runs.</summary>
     private static EnemyDeathProjectileProgram ConfigureDormantPickup(RoomEnemyProjectileSlot projectile)
     {
-        // The blank map lasts 64 frames before $EF10 handles a retained respawning enemy
-        // and $8154 deletes the actor. Collection and natural expiry use this same tail.
+        // The blank frame lasts 64 frames before the respawn cue handles a retained respawning enemy
+        // and the actor is deleted. Collection and natural expiry use this same tail.
         projectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
@@ -287,7 +287,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>
-    /// Exact byte-accumulator translation of $86:F106. Minor drops are renormalized into
+    /// Exact byte-accumulator translation of the random drop selection. Minor drops are renormalized into
     /// the budget left after enabled super/PB chances; the two major drops retain their raw
     /// table probabilities. All additions which occurred in eight-bit accumulator mode are
     /// explicitly wrapped here.
@@ -314,7 +314,7 @@ internal sealed class EnemyDeathsAndDrops
             _room.Session.CriticalEnergyDropBias = true;
         else if (combinedEnergy >= 50)
             _room.Session.CriticalEnergyDropBias = false;
-        // Values 30..49 deliberately retain the previous flag: this is the cartridge's
+        // Values 30..49 deliberately retain the previous flag: this is the game's
         // hysteresis/grace period, not an omitted assignment.
 
         int pooledMinorWeight;
@@ -364,7 +364,7 @@ internal sealed class EnemyDeathsAndDrops
                 if (!enabled)
                     continue;
 
-                // The SNES multiply result is sixteen bits and division truncates toward
+                // The multiply result is sixteen bits and division truncates toward
                 // zero. Inputs are bytes, so ordinary integer arithmetic is identical.
                 accumulated = CoordinateAxis.Wrap(accumulated +
                     majorAdjustedBudget * table.Of(EnemyDropTables.ForProbabilityColumn(accumulatorIndex)) / pooledMinorWeight);
@@ -397,10 +397,10 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>
     /// Uses an explicit boss chance table, a saved enemy header's, or none. A death explosion from a cleared enemy slot
-    /// drops nothing: <c>EnemyHeaders_dropChances</c> (<c>$86:F120</c>) indexed by header zero reads <c>$A0:003A</c>,
-    /// which LoROM mirrors to the unnamed direct-page word <c>$003A</c>. The boot clears it (<c>$80:844E</c>) and the
-    /// pinned revision never writes it; only the 16-bit <c>STA.B DP_BlocksToUpdate+2</c> at <c>$80:AA0E</c>/<c>$80:ABA8</c>
-    /// touches the neighbouring <c>$39</c>, with zero.
+    /// drops nothing: the drop-chance table indexed by header zero reads a word
+    /// the boot clears and the
+    /// game never writes except for a neighbouring 16-bit store that
+    /// writes zero.
     /// </summary>
     private EnemyDropChances? ResolveEnemyDropChances(RoomEnemyProjectileSlot projectile)
     {
@@ -439,8 +439,8 @@ internal sealed class EnemyDeathsAndDrops
             return;
         }
 
-        // $86:F057's subtract/borrow formulation is exactly strict radius-sum overlap for
-        // valid actor radii. Equality is not contact, matching the BCS exits in both axes.
+        // The overlap test's subtract/borrow formulation is exactly strict radius-sum overlap for
+        // valid actor radii. Equality is not contact in either axis.
         if (AbsoluteWrappedDelta(samus.Position.X.Whole, projectile.Position.X.Whole) >=
                 samus.Kinematics.Radius.X + projectile.Radius.X ||
             AbsoluteWrappedDelta(samus.Position.Y.Whole, projectile.Position.Y.Whole) >=
@@ -544,12 +544,12 @@ internal sealed class EnemyDeathsAndDrops
         }
     }
 
-    /// <summary>Measures the absolute distance between native 16-bit coordinates.</summary>
+    /// <summary>Measures the absolute distance between 16-bit coordinates.</summary>
     private static int AbsoluteWrappedDelta(int left, int right) =>
         Math.Abs(WordWrap.Signed(left - right));
 
     /// <summary>
-    /// Executes instruction $86:EF10 for the respawning enemy a death actor retains.
+    /// Runs the respawn cue for the respawning enemy a death actor retains.
     /// The method is deliberately population/snapshot based so later respawning families can
     /// share it without acquiring a Rinka-specific reconstruction path.
     /// </summary>
@@ -564,10 +564,10 @@ internal sealed class EnemyDeathsAndDrops
         }
 
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
-        // Unlike Initialise_Enemies ($A0:8B93) and Spawn_Enemy ($A0:93D9), Respawn_Enemy
-        // ($86:F264) never writes the spritemap: the actor keeps EnemyDeath's cleared word,
+        // Unlike Initialise_Enemies and Spawn_Enemy, Respawn_Enemy
+        // never writes the spritemap: the actor keeps EnemyDeath's cleared word,
         // or what its init AI wrote, until its first instruction. A zero spritemap is also
-        // $A0:A08C's contact gate, so the respawned actor cannot touch Samus before then.
+        // the contact gate, so the respawned actor cannot touch Samus before then.
         _dispatch.InitializeSlotFromDefinition(slot, spawn.Population, definition);
         _dispatch.RunInitializationAi(slot, EnemySpawnSurroundings.None);
     }
@@ -582,7 +582,7 @@ internal sealed class EnemyDeathsAndDrops
         }, EnemyProjectileFrameBehavior.PickupLifetime);
     }
 
-    /// <summary>Queues the library-two enemy-killed sound 9, as <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) does.</summary>
+    /// <summary>Queues the library-two enemy-killed sound 9, as <c>EprojInstr_QueueSfx2_9</c> does.</summary>
     internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);
 
     /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
@@ -618,7 +618,7 @@ internal sealed class EnemyDeathsAndDrops
                 return null;
             case EnemyDeathProjectileCueKind.BecomePickup:
                 if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
-                    throw new InvalidDataException($"Enemy projectile {projectile.Kind} reached the death-drop command $EEAF.");
+                    throw new InvalidDataException($"Enemy projectile {projectile.Kind} reached the become-pickup cue, which only a death explosion runs.");
                 return ConvertEnemyDeathExplosionToPickup(projectile);
             case EnemyDeathProjectileCueKind.HandleRespawningEnemy:
                 if (projectile.KilledEnemy.Respawns)

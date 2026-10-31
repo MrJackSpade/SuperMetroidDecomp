@@ -4,9 +4,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Runs an enemy's typed program (#641) where the enemy instruction interpreter would run its native list: the
-/// frame expires on the update its native timer would, a newly shown frame raises the new-frame flag, a wait reloads
-/// the timer without changing the frame, and a hold is the native sleep, whose timer wraps from zero. Owners keep
+/// Runs an enemy's typed program (#641) where the enemy instruction interpreter would run its list: the
+/// frame expires on the update its timer would, a newly shown frame raises the new-frame flag, a wait reloads
+/// the timer without changing the frame, and a hold is the sleep, whose timer wraps from zero. Owners keep
 /// the cursor and carry out their cues: <c>if (Expire(slot)) { ...; Run(...); }</c>.
 /// </summary>
 internal static class EnemyProgramAnimation
@@ -28,7 +28,7 @@ internal static class EnemyProgramAnimation
 
     /// <summary>
     /// Runs <paramref name="slot"/>'s program after its frame expired, until it shows a frame, waits or holds. Each
-    /// cue goes to <paramref name="publish"/>; a program it returns starts at once, as a native goto does.
+    /// cue goes to <paramref name="publish"/>; a program it returns starts at once, as a goto does.
     /// </summary>
     /// <param name="slot">The enemy the program animates.</param>
     /// <param name="programs">The owner's program set.</param>
@@ -138,7 +138,7 @@ internal static class EnemyProgramAnimation
 
     /// <summary>
     /// Like <see cref="Run{TProgram, TFrame, TCue}"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the program
-    /// continues at, as a native return to a saved instruction pointer does, or null to run on.
+    /// continues at, as a return to a saved position in the animation does, or null to run on.
     /// </summary>
     internal static void RunTo<TProgram, TFrame, TCue>(
         RoomEnemySlot slot,
@@ -153,7 +153,7 @@ internal static class EnemyProgramAnimation
         Ensure.NotNull(slot);
         Ensure.NotNull(programs);
         Ensure.NotNull(frame);
-        // A counting set keeps its loop counter in the enemy's timer word, as the native timer-load and countdown
+        // A counting set keeps its loop counter in the enemy's timer word, as the timer-load and countdown
         // commands do; a set that never counts leaves that word to its owner.
         WrappingCountdown loopCounter = programs.CountsLoops ? slot.Timer : WrappingCountdown.Start(0);
         AnimationProgramAdvance<TFrame> advance = programs.AdvanceTo(ref cursor, ref loopCounter, publish);

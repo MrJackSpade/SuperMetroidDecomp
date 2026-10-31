@@ -16,15 +16,15 @@ internal sealed class EnemyRoomStatus
     private readonly EnemySession _session;
 
     /// <summary>
-    /// WRAM $0797, door_transition_flag_enemies. Ridley's shared A35B wait
+    /// Whether enemies see a door transition in progress. Ridley's shared wait
     /// remains active while destination enemy visuals run during the room fade.
-    /// This is distinct from the elevator/Zebetite gate at $0795.
+    /// This is distinct from the elevator/Zebetite gate.
     /// </summary>
     public bool EnemyDoorTransitionActive { get; set; }
     /// <summary>
     /// The room's kill count, 0 through 65535: reset at load and incremented by death paths through
     /// <see cref="RecordKill"/>; it counts their publications rather than enumerating remaining or uniquely defeated
-    /// slots. The count returns to zero after 65535, as the cartridge's does.
+    /// slots. The count returns to zero after 65535, as the game's does.
     /// </summary>
     public int EnemiesKilled { get; internal set => field = Ensure.BetweenInclusive(0, KillCountPeriod - 1, value); }
 
@@ -48,7 +48,7 @@ internal sealed class EnemyRoomStatus
     /// <summary>Counts one more enemy death in the room's kill count, which wraps from 65535 to zero.</summary>
     internal void RecordKill() => EnemiesKilled = (EnemiesKilled + 1) % KillCountPeriod;
 
-    /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
+    /// <summary>Language flag sampled when the Ceres warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText
     {
         get => _session.JapaneseText;

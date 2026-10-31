@@ -10,7 +10,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy presentation state: the bound VRAM and CGRAM, boss and gradual palette effects, the
+/// Enemy presentation state: the bound tiles and palette, boss and gradual palette effects, the
 /// host-installed color and artwork catalogs, and drawing from the installed sheets.
 /// </summary>
 [RoomLifetime]
@@ -47,10 +47,10 @@ internal sealed class EnemyPresentation
     /// <summary>The sprite colour set holding the colours <paramref name="slot"/> draws in (#1405, #1464).</summary>
     internal ColourRun ColourSetOf(RoomEnemySlot slot) => ColourSetOf(slot.Colouring);
 
-    /// <summary>The room's bound CGRAM; enemy palette writes require the room's video memory to be bound.</summary>
+    /// <summary>The room's bound palette; enemy palette writes require the room's palette to be bound.</summary>
     internal GameplayColours Colours
     {
-        get => field ?? throw new InvalidOperationException("Enemy presentation has no bound CGRAM; the room's video memory must be bound first.");
+        get => field ?? throw new InvalidOperationException("Enemy presentation has no bound palette; the room's palette must be bound first.");
         private set;
     }
     /// <summary>What gameplay shows over the room's load (#1466), as Kraid's rise shows his backdrop.</summary>
@@ -90,7 +90,7 @@ internal sealed class EnemyPresentation
     internal BossBodyCanvas RequireBossBody() =>
         BossBody ?? throw new InvalidOperationException("No boss has attached its body layer.");
 
-    /// <summary>Room load: binds the CGRAM the room's enemy palettes write.</summary>
+    /// <summary>Room load: binds the palette the room's enemy palettes write.</summary>
     internal void BindColours(GameplayColours colours) => Colours = Ensure.NotNull(colours);
     /// <summary>The session's shown sprite looks, which enemy frames select their pictures from (#1463).</summary>
     internal ShownSpriteArtwork SpriteLooks => _room.Session.SpriteLooks;
@@ -107,7 +107,7 @@ internal sealed class EnemyPresentation
 
     /// <summary>
     /// The session's shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
-    /// fades advance this one counter, as the cartridge's fades all advance one WRAM word.
+    /// fades advance this one counter, as the game's fades all advance one shared counter.
     /// </summary>
     public GradualColorChangeCounter GradualColorChange => _room.Session.GradualColorChange;
 

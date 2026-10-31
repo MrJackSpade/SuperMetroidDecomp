@@ -6,7 +6,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The enemy-side words that outlive each room, as the cartridge's WRAM does across enemy loading (#1329): the
+/// The enemy-side words that outlive each room, as the game keeps them across enemy loading (#1329): the
 /// elevator journey, the shared fade counter, Ceres's escape progress, the critical-energy drop bias, the language
 /// flag, the random enemy counter, the death quota an empty population keeps, the staging surfaces and the sprite looks
 /// shown; the session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves behind; and the
@@ -22,12 +22,12 @@ public sealed class EnemySession : ISpriteObjectPage
     /// <summary>The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway wing frames leave behind.</summary>
     internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
 
-    /// <summary>The elevator journey words ($0E16, $0E18 and the travel direction) carried through an elevator door.</summary>
+    /// <summary>The elevator journey state carried through an elevator door.</summary>
     internal ElevatorJourneyState Elevator { get; } = new();
 
     /// <summary>
     /// The shared <c>PaletteChangeNumerator</c>. Enemies and the runtime's door and death
-    /// fades advance this one counter, as the cartridge's fades all advance one WRAM word.
+    /// fades advance this one counter, as the game's fades all advance one shared counter.
     /// </summary>
     public GradualColorChangeCounter GradualColorChange { get; } = new();
 
@@ -39,22 +39,22 @@ public sealed class EnemySession : ISpriteObjectPage
     public CeresEscapeStatus CeresStatus { get; set; }
 
     /// <summary>
-    /// WRAM $7E:0E1E biases drops in the 30..49 energy grace band; room transitions
-    /// retain it, and false is the cartridge's cleared initial value.
+    /// Biases drops in the 30..49 energy grace band; room transitions
+    /// retain it, and false is the game's cleared initial value.
     /// </summary>
     internal bool CriticalEnergyDropBias { get; set; }
 
-    /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
+    /// <summary>Language flag sampled when the Ceres warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText { get; set; }
 
     /// <summary>
-    /// Enemy-pass random counter read by native AI and projectile routines, 0 through 65535. Its one advance wraps
+    /// Enemy-pass random counter read by AI and projectile routines, 0 through 65535. Its one advance wraps
     /// from 65535 back to zero, and every reader takes its low bits or copies it whole, so a wider store holds exactly
-    /// the counter the cartridge keeps.
+    /// the counter the game keeps.
     /// </summary>
     internal int RandomEnemyCounter { get; set; }
 
-    /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota. 0 through 255.</summary>
+    /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; empty-population initialization retains the previous quota. 0 through 255.</summary>
     internal int DeathQuota { get; set; }
 
     /// <summary>The session's record of what Mother Brain's rainbow-beam push hides from the camera; the runtime binds it.</summary>
@@ -69,7 +69,7 @@ public sealed class EnemySession : ISpriteObjectPage
 
     /// <summary>
     /// Installed enemy presentation. Drawing or a named artwork transfer requires its corresponding catalog; null
-    /// does not enable a cartridge-backed fallback. The host reinstalls it after a debugger restore.
+    /// does not enable a fallback. The host reinstalls it after a debugger restore.
     /// </summary>
     [field: NonSerialized]
     internal EnemyTileArtworkCatalog? TileArtwork { get; set; }

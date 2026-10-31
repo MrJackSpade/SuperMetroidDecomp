@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
-/// Verification's native view of <see cref="SamusMovementType"/> (#1481): the movement byte of a pose definition, which
+/// The tools' and checks' native view of <see cref="SamusMovementType"/> (#1481): the movement byte of a pose definition, which
 /// indexes the cartridge's per-movement tables. Core's values are arbitrary.
 /// </summary>
 internal static class SamusMovementTypeNativeWords

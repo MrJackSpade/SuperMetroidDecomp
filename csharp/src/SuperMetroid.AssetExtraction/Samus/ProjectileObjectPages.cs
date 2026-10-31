@@ -39,7 +39,7 @@ public sealed class ProjectileObjectPages
     /// <summary>Places the combination's beam characters and both trail sheets over the base page.</summary>
     private SpriteArtwork Compose(SamusBeamCombination beam)
     {
-        var id = new SpriteArtworkId(SpriteArtworkKind.ProjectileObjects, (int)beam);
+        var id = new SpriteArtworkId(SpriteArtworkKind.ProjectileObjects, beam.TableIndex);
         SpriteArtwork page = ObjCharacterPage.With(id, basePage, beams.Resolve(BeamTileCatalog.AssetFor(beam)).Span,
             ProjectileObjectPageDefinitions.BeamFirstCharacter);
         page = ObjCharacterPage.With(id, page, trails.IceAndWave.Span, ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter);

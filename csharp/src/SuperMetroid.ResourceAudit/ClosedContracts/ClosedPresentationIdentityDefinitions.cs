@@ -27,7 +27,11 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts;
 /// <summary>Sparse identities whose ownership cannot be expressed as a contiguous index range.</summary>
 internal static class ClosedPresentationIdentityDefinitions
 {
-    /// <summary>Returns audited finite argument identities for a presentation call, or null when no closed set applies.</summary>
+    /// <summary>
+    /// Returns audited finite argument identities for a presentation call, or null when no closed set applies. An enum
+    /// identity is listed by its own value, not a cartridge number: the audit compares it with the constant value the
+    /// compiler binds for an enum-member argument.
+    /// </summary>
     internal static int[]? Get(string type, string method, string parameter) => new PresentationParameter(type, method, parameter) switch
     {
         ("GameplayMessageTitlePresentation", "Build", "messageId") =>

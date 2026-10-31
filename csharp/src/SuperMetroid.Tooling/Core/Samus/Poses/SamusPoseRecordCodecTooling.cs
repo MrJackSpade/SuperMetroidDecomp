@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
@@ -15,9 +16,9 @@ internal static class SamusPoseRecordCodecTooling
         [SamusPoseId.AdjacentCodePoseFF] = 0x38,
     }.ToFrozenDictionary();
 
-    /// <summary>Record byte one, the pose's movement type as the cartridge's movement dispatcher indexes it: the movement types are declared in dispatcher order.</summary>
+    /// <summary>Record byte one, the pose's movement type as the cartridge's movement dispatcher indexes it: the movement byte that names the pose's movement type.</summary>
     internal static byte MovementByte(SamusPoseId pose) =>
         IrregularMovementBytes.TryGetValue(pose, out byte irregular)
             ? irregular
-            : (byte)SamusPoseDispatch.ReadMovement(pose);
+            : SamusMovementTypeNativeWords.Byte(SamusPoseDispatch.ReadMovement(pose));
 }

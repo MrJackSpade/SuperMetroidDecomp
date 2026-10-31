@@ -216,7 +216,7 @@ internal static class CeresEscapeHandoffVerification
         // definition and first delay byte are consumed by this focused handler fixture.
         WritePoseDefinition(
             bus,
-            (int)SamusPoseId.KnockbackRightPose,
+            (int)SamusPoseNumbering.Number(SamusPoseId.KnockbackRightPose),
             [0x08, 0x0a, 0xff, 0xff, 0x00, 0x00, 0x15, 0x00]);
         SeedSyntheticAnimationDelay(bus, SamusPoseId.KnockbackRightPose, 0xc000, 4);
 
@@ -225,11 +225,11 @@ internal static class CeresEscapeHandoffVerification
         // observable part of the shared knockback-finish path rather than just a pose ID.
         WritePoseDefinition(
             bus,
-            (int)SamusPoseId.FallingRightPose,
+            (int)SamusPoseNumbering.Number(SamusPoseId.FallingRightPose),
             [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
         WriteTestWord(
             bus,
-            0x91b010 + (int)SamusPoseId.FallingRightPose * sizeof(ushort),
+            0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.FallingRightPose) * sizeof(ushort),
             0xc010);
         bus.WriteBytes(0x91c010, [0x01, 0xff]);
         return bus;

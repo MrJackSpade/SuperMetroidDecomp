@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
@@ -14,14 +16,22 @@ internal static class SamusPoseNumbering
     /// <summary>The number of poses with records in the cartridge's pose tables.</summary>
     internal const int RecordCount = 253;
 
+    /// <summary>Each pose's number: its position in <see cref="SamusPoseNumberDefinitions.ByNumber"/>.</summary>
+    private static readonly FrozenDictionary<SamusPoseId, byte> Numbers = Enumerable
+        .Range(0, SamusPoseNumberDefinitions.ByNumber.Length)
+        .ToFrozenDictionary(number => SamusPoseNumberDefinitions.ByNumber[number], number => checked((byte)number));
+
     /// <summary>The pose's number.</summary>
-    internal static byte Number(SamusPoseId pose) => (byte)pose;
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pose"/> is not a pose.</exception>
+    internal static byte Number(SamusPoseId pose) => Numbers.TryGetValue(pose, out byte number)
+        ? number
+        : throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined pose.");
 
     /// <summary>The pose a number names.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The number is outside a byte.</exception>
     internal static SamusPoseId FromNumber(int number) =>
-        (uint)number <= byte.MaxValue
-            ? (SamusPoseId)number
+        (uint)number < (uint)SamusPoseNumberDefinitions.ByNumber.Length
+            ? SamusPoseNumberDefinitions.ByNumber[number]
             : throw new ArgumentOutOfRangeException(nameof(number), number, "A pose number is one byte.");
 
     /// <summary>

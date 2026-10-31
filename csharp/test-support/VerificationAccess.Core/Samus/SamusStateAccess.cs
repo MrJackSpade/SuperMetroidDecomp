@@ -33,7 +33,7 @@ internal static class SamusStateAccess
             if (targetPose is not (SamusPoseId.NormalJumpGunExtendedRightPose or SamusPoseId.NormalJumpGunExtendedLeftPose))
             {
                 throw new InvalidOperationException(
-                    $"Spin-fire compatibility route requires pose $13/$14, not ${(int)targetPose:X2}.");
+                    $"Spin-fire compatibility route requires pose $13/$14, not ${(int)SamusPoseNumbering.Number(targetPose):X2}.");
             }
             return SamusAerialPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(self, 
 
@@ -56,7 +56,7 @@ internal static class SamusStateAccess
             if (!SamusPoseMetadata.IsStableBallPose(self.Pose))
             {
                 throw new InvalidOperationException(
-                    $"The morphed bomb-jump fixture requires a stable ball pose, not ${(int)self.Pose:X2}.");
+                    $"The morphed bomb-jump fixture requires a stable ball pose, not ${(int)SamusPoseNumbering.Number(self.Pose):X2}.");
             }
 
             SamusPoseMetadata.PublishBombJumpDirection(self, direction);

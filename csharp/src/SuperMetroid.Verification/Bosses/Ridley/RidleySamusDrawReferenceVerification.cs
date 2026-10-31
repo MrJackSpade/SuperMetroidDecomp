@@ -73,8 +73,8 @@ internal static class RidleySamusDrawReferenceVerification
         if ((W(NativeSnapshotMemory.CeresStatus) & 0x8000) != 0)
             throw new InvalidDataException("Movie body oracle requires a native Mode 7 transform mapping.");
         ushort pose = W(NativeSnapshotMemory.Pose), frame = W(NativeSnapshotMemory.Animation);
-        SamusPoseId poseId = (SamusPoseId)pose;
-        var movement = (SamusMovementType)checkpoint[NativeSnapshotMemory.SamusMovementType];
+        SamusPoseId poseId = SamusPoseNumbering.FromNumber(pose);
+        SamusMovementType movement = SamusMovementTypeNativeWords.Of(checkpoint[NativeSnapshotMemory.SamusMovementType]);
         int yOffset = -unchecked((sbyte)rom.ReadCartridgeByte(NativeSnapshotMemory.PoseDefinitions + pose * 8 + 4));
         if (movement == SamusMovementType.Standing)
         {
@@ -82,14 +82,15 @@ internal static class RidleySamusDrawReferenceVerification
             {
                 if (frame >= 2) yOffset = -1;
             }
-            else if (poseId is >= SamusPoseId.NormalLandingRightPose and <= SamusPoseId.SpinLandingLeftPose)
+            else if (SamusPoseNumbering.InRange(poseId, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
                 yOffset = -CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.LandingDrawOffsets +
-                    (poseId - SamusPoseId.NormalLandingRightPose) * 4 + frame));
+                    SamusPoseNumbering.Offset(poseId, SamusPoseId.NormalLandingRightPose) * 4 + frame));
         }
         else if (movement == SamusMovementType.PostureTransition &&
-            poseId >= SamusPoseId.CrouchingTransitionRightPose && poseId < SamusPoseId.MorphBallGroundLeftPose)
+            !SamusPoseNumbering.Precedes(poseId, SamusPoseId.CrouchingTransitionRightPose) &&
+            SamusPoseNumbering.Precedes(poseId, SamusPoseId.MorphBallGroundLeftPose))
             yOffset = unchecked((sbyte)rom.ReadCartridgeByte(NativeSnapshotMemory.PostureDrawOffsets +
-                (poseId - SamusPoseId.CrouchingTransitionRightPose) * 2 + frame));
+                SamusPoseNumbering.Offset(poseId, SamusPoseId.CrouchingTransitionRightPose) * 2 + frame));
         else if (movement == SamusMovementType.Special)
         {
             if (poseId is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
@@ -109,9 +110,9 @@ internal static class RidleySamusDrawReferenceVerification
                     SamusPoseId.ScrewAttackRightPose or SamusPoseId.ScrewAttackLeftPose,
             SamusMovementType.Knockback => frame >= 3 ||
                 poseId is not (SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose),
-            SamusMovementType.PostureTransition => poseId >= SamusPoseId.CrouchingTransitionAimUpRightPose ||
-                (poseId >= SamusPoseId.UnusedPoseDd ? frame == 2 :
-                 poseId >= SamusPoseId.UnusedPoseDb ? frame == 0 :
+            SamusMovementType.PostureTransition => !SamusPoseNumbering.Precedes(poseId, SamusPoseId.CrouchingTransitionAimUpRightPose) ||
+                (!SamusPoseNumbering.Precedes(poseId, SamusPoseId.UnusedPoseDd) ? frame == 2 :
+                 !SamusPoseNumbering.Precedes(poseId, SamusPoseId.UnusedPoseDb) ? frame == 0 :
                  poseId is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or
                     SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose),
             SamusMovementType.Unused0D => frame == 0 || poseId is not (SamusPoseId.UnusedPose65 or SamusPoseId.UnusedPose66),
@@ -120,7 +121,7 @@ internal static class RidleySamusDrawReferenceVerification
             SamusMovementType.Special =>
                 poseId is not (SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose) &&
                 (frame >= 2 || poseId is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)),
-            _ when (ushort)movement < 28 => true,
+            _ when Enum.IsDefined(movement) => true,
             SamusMovementType.Standing or
                 SamusMovementType.Running or
                 SamusMovementType.NormalJumping or

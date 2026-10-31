@@ -1,22 +1,25 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>Exclusive shootable-block behaviour identities used by downward gate shot blocks.</summary>
+/// <summary>
+/// The downward-gate trigger a shootable block's behaviour selects (decoded by <c>RoomBlockBehaviorCodec</c>): the
+/// trigger's colour, and whether it sits left or right of its gate.
+/// </summary>
 public enum DownwardGateTriggerBehavior
 {
-    /// <summary><c>$84:C610 Setup_LeftBlueGateTrigger</c>.</summary>
-    BlueLeft = 70,
-    /// <summary><c>$84:C627 Setup_RightBlueGateTrigger</c>.</summary>
-    BlueRight = 71,
-    /// <summary><c>$84:C58B Setup_LeftRedGateTrigger</c>.</summary>
-    RedLeft = 72,
-    /// <summary><c>$84:C5AF Setup_RightRedGateTrigger</c>.</summary>
-    RedRight = 73,
-    /// <summary><c>$84:C54D Setup_LeftGreenGateTrigger</c>.</summary>
-    GreenLeft = 74,
-    /// <summary><c>$84:C56C Setup_RightGreenGateTrigger</c>.</summary>
-    GreenRight = 75,
-    /// <summary><c>$84:C5D3 Setup_LeftYellowGateTrigger</c>.</summary>
-    YellowLeft = 76,
-    /// <summary><c>$84:C5F1 RightYellowGateTrigger</c>.</summary>
-    YellowRight = 77,
+    /// <summary>The blue trigger left of its gate.</summary>
+    BlueLeft,
+    /// <summary>The blue trigger right of its gate.</summary>
+    BlueRight,
+    /// <summary>The red trigger left of its gate.</summary>
+    RedLeft,
+    /// <summary>The red trigger right of its gate.</summary>
+    RedRight,
+    /// <summary>The green trigger left of its gate.</summary>
+    GreenLeft,
+    /// <summary>The green trigger right of its gate.</summary>
+    GreenRight,
+    /// <summary>The yellow trigger left of its gate.</summary>
+    YellowLeft,
+    /// <summary>The yellow trigger right of its gate.</summary>
+    YellowRight,
 }

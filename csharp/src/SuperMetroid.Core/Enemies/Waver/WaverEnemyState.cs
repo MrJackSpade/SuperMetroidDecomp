@@ -14,8 +14,8 @@ public sealed class WaverEnemyState
     /// <summary>Signed 16.16 horizontal displacement per update, one and a half pixels either way; a wall negates it.</summary>
     public SignedSixteenSixteen XVelocity { get; internal set; }
 
-    /// <summary>The animation selection currently installed.</summary>
-    public WaverAnimationSelector CurrentInstructionListIndex { get; internal set; }
+    /// <summary>The animation currently installed; a request for it installs nothing.</summary>
+    internal WaverProgram InstalledAnimation { get; set; }
 
     /// <summary>
     /// The vertical wave's phase; only its table index is read, so it wraps after a full turn. It advances two table
@@ -26,8 +26,8 @@ public sealed class WaverEnemyState
     /// <summary>Set by the spin animation's last cue after the four-frame spin completes.</summary>
     public bool SpinFinished { get; internal set; }
 
-    /// <summary>Requested animation selection: one flag selects facing, the other the temporary spin family.</summary>
-    public WaverAnimationSelector RequestedInstructionListIndex { get; internal set; }
+    /// <summary>The animation main AI asks for: steady or spinning, facing left or right.</summary>
+    internal WaverProgram RequestedAnimation { get; set; }
 
     /// <summary>Advances the wave phase two table units, wrapping after a full turn.</summary>
     internal void AdvanceWave() => Angle = Angle.AddTableUnits(2);
@@ -39,9 +39,9 @@ public sealed class WaverEnemyState
     internal void ClearWithRecord()
     {
         XVelocity = SignedSixteenSixteen.Zero;
-        CurrentInstructionListIndex = WaverAnimationSelector.None;
+        InstalledAnimation = WaverProgram.SteadyFacingLeft;
         Angle = RotationAngle.Zero;
         SpinFinished = false;
-        RequestedInstructionListIndex = WaverAnimationSelector.None;
+        RequestedAnimation = WaverProgram.SteadyFacingLeft;
     }
 }

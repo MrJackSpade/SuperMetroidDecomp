@@ -1647,7 +1647,7 @@ internal static class LookupStream4Verification
         int kinds = 0;
         foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Where(kind => kind != RoomSpriteObjectKind.None).Distinct())
         {
-            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * (ushort)kind));
+            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomSpriteObjectNativeWords.Kinds.Word(kind)));
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.CharacterZeroIn(SpriteColouring.InFixtureSet(3)));
@@ -1662,9 +1662,11 @@ internal static class LookupStream4Verification
             kinds++;
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
-            AssertThrows<KeyNotFoundException>(
-                () => _ = RoomSpriteObjectDefinitions.Programs[(RoomSpriteObjectKind)invalid],
+            AssertEqual(false, RoomSpriteObjectNativeWords.Kinds.TryDecode(invalid, out _),
                 "room sprite native kind domain rejects invalid selector");
+        AssertThrows<KeyNotFoundException>(
+            () => _ = RoomSpriteObjectDefinitions.Programs[RoomSpriteObjectKind.None],
+            "room sprite cleared kind starts no program");
         Console.WriteLine($"Room sprite dispatch: {kinds} spawned kinds' native entries and actual spawns, initial timing/visuals and invalid selectors pass.");
     }
 
@@ -1757,13 +1759,13 @@ internal static class LookupStream4Verification
     private static void VerifyLookupStream4RidleyMovementPolicy(ISnesAddressSpace rom)
     {
         ushort morphedFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc99), ordinaryFrames = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6bc9e);
+        // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
+        AssertThrows<InvalidOperationException>(() => RidleyGrabs.CanGrab((SamusMovementType)(-1)), "Undefined movement types fail loudly");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
-            var movement = (SamusMovementType)raw;
-            if (!Enum.IsDefined(movement))
+            if (!SamusMovementTypeNativeWords.Types.TryDecode(raw, out SamusMovementType movement))
             {
-                // No pose selects a movement type past the 28-entry table; one is a defect, not a policy.
-                AssertThrows<InvalidOperationException>(() => RidleyGrabs.CanGrab(movement), "Undefined movement types fail loudly");
+                AssertTrue(raw >= SamusMovementTypeNativeWords.Count, "Movement bytes name every movement type in the 28-entry table");
                 continue;
             }
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + raw);
@@ -1776,7 +1778,7 @@ internal static class LookupStream4Verification
         Action<RidleyEnemyState, SamusState?> release = NorfairRidleyDeath.ReleaseNorfairRidleyGrab;
         for (int pose = 0; pose <= 0xfc; pose++)
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = (SamusPoseId)pose };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseNumbering.FromNumber(pose) };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
             var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = WrappingCountdown.Start(99) };
@@ -1877,7 +1879,7 @@ internal static class LookupStream4Verification
                 "Calculated notice rectangles preserve every original row/column/width");
             AssertTrue(notice.Text.All(region => region.Alignment == GameplayMessageTextAlignment.Left),
                 "Calculated notice regions retain left alignment");
-            int source = 0x850000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x85869f + ((byte)id - 1) * 6));
+            int source = 0x850000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x85869f + GameplayMessageNumbers.DefinitionEntry(id) * 6));
             var expected = new ushort[(notice.RowCount + 2) * 32];
             for (int column = 0; column < 32; column++)
                 expected[column] = expected[expected.Length - 32 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858040 + column * 2));
@@ -1939,12 +1941,18 @@ internal static class LookupStream4Verification
         }
         GameplayMessagePanelPresentation panels = GameplayMessagePanelPresentation.Load(new MemoryStream(GameplayMessagePanelExtractor.Extract(rom)));
         var panelMessages = new GameplayMessageArtwork(null, panels);
+        AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(GameplayMessageId.None),
+            "Message button patch rejects no message");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
-            var id = (GameplayMessageId)raw;
             // The native table lists messages one through twenty-seven; its last entry is a dummy no message selects.
-            // No message, the gunship's save prompt beyond the table and every undefined identity are rejected.
-            if (raw is < 1 or > 27 || !Enum.IsDefined(id))
+            // The gunship's save prompt beyond the table is rejected, and other numbers name no message.
+            if (!GameplayMessageNumbers.Numbers.TryDecode(raw, out GameplayMessageId id))
+            {
+                AssertTrue(raw is 0 or 27 or > 28, "Message numbers name every message one through twenty-six and the gunship's");
+                continue;
+            }
+            if (raw > 27)
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
                 continue;

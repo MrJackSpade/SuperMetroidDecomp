@@ -124,7 +124,7 @@ internal static class ChozoStatuePlmProgramDefinitions
                 return offset switch
                 {
                     0 => (ushort)RoomPlmInstruction.GotoIfEventSet,
-                    2 => (ushort)EventNumber.LowerNorfairChozoLoweredAcid,
+                    2 => (ushort)EventNumber.LowerNorfairChozoLoweredAcid.ToEventNumber(),
                     4 => RestoreLoweredAcid,
                     6 => (ushort)RoomPlmInstruction.InstallPreInstruction,
                     8 => ChozoStatuePlmNativeRoutines.WaitForLowerNorfairHand,

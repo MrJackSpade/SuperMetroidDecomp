@@ -27,11 +27,17 @@ public sealed class DragonEnemyState
     /// <summary>The current behaviour; none once a kill has emptied the record.</summary>
     public DragonEnemyFunction? Function { get; internal set; }
 
-    /// <summary>The requested entry of the six-entry animation table.</summary>
-    public DragonAnimationSelector RequestedInstructionListIndex { get; internal set; }
+    /// <summary>The animation main AI asks for.</summary>
+    public DragonAnimationSelector RequestedAnimation { get; internal set; }
 
-    /// <summary>The animation table entry already installed.</summary>
-    public DragonAnimationSelector InstalledInstructionListIndex { get; internal set; }
+    /// <summary>The animation already installed; a request for it installs nothing unless <see cref="ReinstallRequested"/>.</summary>
+    public DragonAnimationSelector InstalledAnimation { get; internal set; }
+
+    /// <summary>
+    /// Whether the next install restarts the requested animation even when it is already installed: each fireball
+    /// restarts the attack, which spaces the three fireballs by a whole attack animation.
+    /// </summary>
+    public bool ReinstallRequested { get; internal set; }
 
     /// <summary>Set by the attack animation's finishing cue.</summary>
     public bool AnimationFinished { get; internal set; }

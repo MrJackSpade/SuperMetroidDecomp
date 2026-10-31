@@ -94,7 +94,7 @@ internal static class IntroPoseHistoryVerification
             {
                 transitions++;
                 terminal |= ended;
-                context = ended ? "terminal demo command" : $"flashback pose {(int?)oldPose:X2}->{(int)after.Pose:X2}";
+                context = ended ? "terminal demo command" : $"flashback pose {(oldPose is { } previousPose ? SamusPoseNumbering.Number(previousPose) : (int?)null):X2}->{(int)SamusPoseNumbering.Number(after.Pose):X2}";
             }
             else if (after is not null && hurtExpiry)
                 context = "same-pose hurt expiry command";

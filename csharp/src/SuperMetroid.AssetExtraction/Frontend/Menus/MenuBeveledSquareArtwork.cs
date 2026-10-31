@@ -15,18 +15,24 @@ internal sealed class MenuBeveledSquareArtwork
     internal const int TileCount = 2;
     /// <summary>Only source pixels differing from the calculated square are retained.</summary>
     internal readonly Dictionary<int, byte>? edits;
+    /// <summary>The menu atlas tile holding each cell of the beveled square.</summary>
+    private static readonly MenuAtlasCells<MenuBeveledSquareCell> AtlasCells = new(new Dictionary<MenuBeveledSquareCell, int>
+    {
+        [MenuBeveledSquareCell.Light] = 0x98,
+        [MenuBeveledSquareCell.Dark] = 0x99,
+    });
     /// <summary>Restricts lookup to the menu's $98 and $99 square cells.</summary>
-    internal static bool Contains(int tile) => Enum.IsDefined((MenuBeveledSquareCell)tile);
+    internal static bool Contains(int tile) => AtlasCells.Contains(tile);
 
     /// <summary>Scans both source cells and keeps independent pixel edits outside the stock role-based colors.</summary>
     internal MenuBeveledSquareArtwork(IndexedPngImage image)
     {
-        foreach (int tile in Enum.GetValues<MenuBeveledSquareCell>().Select(cell => (int)cell))
+        foreach (int tile in AtlasCells.Tiles)
         for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
         {
             int pixel = image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
-            if (pixel != Basis((MenuBeveledSquareCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
+            if (pixel != Basis(AtlasCells.Cell(tile), new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, (byte)pixel);
         }
     }
 
@@ -34,7 +40,7 @@ internal sealed class MenuBeveledSquareArtwork
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
-        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis((MenuBeveledSquareCell)tile, point);
+        return edits is not null && edits.ContainsKey(tile * 64 + point.Y * 8 + point.X) ? edits[tile * 64 + point.Y * 8 + point.X] : Basis(AtlasCells.Cell(tile), point);
     }
 
     /// <summary>Calculates the six-by-six inset with bottom/right shadow precedence at the corners.</summary>

@@ -1153,18 +1153,15 @@ internal static class LookupStream3Verification
         AssertThrows<InvalidDataException>(() => GrappleTileSelection.TransferFor((InstalledArtworkId)(-1)),
             "stream 3 invalid grapple asset");
 
-        for (int parameter = 0; parameter <= ushort.MaxValue; parameter++)
+        for (int parameter = 0; parameter < 3; parameter++)
         {
-            int offset = 2 * (parameter & 3);
+            int offset = 2 * parameter;
             ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
             var function = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
-            SparkMovementDefinition definition = SparkStarts.InitialState((ushort)parameter);
-            // Selector three's list word is the following main-AI function pointer, which starts no animation.
-            AssertEqual(list, definition.Program is { } program
-                    ? NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, program)
-                    : SparksNativeWords.SparkEnemyFunctions.Word(SparkEnemyFunction.AlwaysActive),
-                "stream 3 native Spark list selector including adjacent-word case");
-            AssertEqual(function, definition.Function, "stream 3 native Spark function selector including adjacent-word case");
+            SparkMovementDefinition definition = SparkStarts.InitialState(parameter);
+            AssertEqual(list, NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Program),
+                "stream 3 native Spark list selector");
+            AssertEqual(function, definition.Function, "stream 3 native Spark function selector");
         }
         for (int bucket = 0; bucket <= ushort.MaxValue; bucket++)
         {

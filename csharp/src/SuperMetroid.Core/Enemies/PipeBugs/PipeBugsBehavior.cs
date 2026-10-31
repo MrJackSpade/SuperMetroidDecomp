@@ -54,11 +54,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.EmergenceTop = state.SpawnPosition + new Offset16<RoomPixels>(0, -BrinstarPipeBugEmergenceHeight);
         state.Function = PipeBugEnemyFunction.BrinstarWaitUntilOnScreen;
         state.RespawnDelay = WrappingCountdown.Start(BrinstarPipeBugRespawnFrames);
-        state.AnimationState = PipeBugAnimationSelector.None;
-        state.InstalledAnimationState = PipeBugAnimationSelector.None;
+        state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
+        state.InstalledAnimation = PipeBugAnimationSelector.RisingFacingLeft;
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
             strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong,
-            PipeBugAnimationSelector.None));
+            PipeBugAnimationSelector.RisingFacingLeft));
     }
 
     /// <summary>Ports <c>NorfairPipeBug_Init</c> at $B3:8B61.</summary>
@@ -225,9 +225,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = PipeBugEnemyFunction.BrinstarEmerge;
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
         slot.Timer = WrappingCountdown.Start(0);
-        state.AnimationState = state.BrinstarFliesLeft
-            ? PipeBugAnimationSelector.None
-            : PipeBugAnimationSelector.FacingRight;
+        state.RequestedAnimation = PipeBugPrograms.Rising(
+            state.BrinstarFliesLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
         SelectBrinstarPipeBugAnimation(slot, state);
     }
 
@@ -251,7 +250,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.AnimationState |= PipeBugAnimationSelector.Shooting;
+        state.RequestedAnimation = PipeBugPrograms.ShootingWithSameFacing(state.RequestedAnimation);
         SelectBrinstarPipeBugAnimation(slot, state);
         state.Function = PipeBugEnemyFunction.BrinstarFlyHorizontally;
     }
@@ -272,7 +271,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // This apparently strange assignment is literal $B3:8958 behavior: the original
         // stores the integer spawn Y into both halves rather than clearing the fraction.
         slot.Position = slot.Position.WithFractionY(state.SpawnPosition.Y);
-        state.AnimationState = PipeBugAnimationSelector.None;
+        state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
         SelectBrinstarPipeBugAnimation(slot, state);
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         state.RespawnDelay = WrappingCountdown.Start(BrinstarPipeBugRespawnFrames);
@@ -284,12 +283,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         PipeBugEnemyState state)
     {
-        if (state.AnimationState == state.InstalledAnimationState)
+        if (state.RequestedAnimation == state.InstalledAnimation)
             return;
-        state.InstalledAnimationState = state.AnimationState;
+        state.InstalledAnimation = state.RequestedAnimation;
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
             strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Kind == BrinstarPipeBugKind.Strong,
-            state.AnimationState));
+            state.RequestedAnimation));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }

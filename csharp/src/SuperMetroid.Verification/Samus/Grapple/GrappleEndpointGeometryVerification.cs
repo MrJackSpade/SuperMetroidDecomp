@@ -45,7 +45,7 @@ internal static class GrappleEndpointGeometryVerification
             bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
             ushort relativeY = unchecked((ushort)(endpointY - camera));
             bool visible = swinging || (LittleEndianBytes.HighByteInPlace(relativeY)) == 0;
-            string context = $"pose {(int)pose:X2}, camera {camera}, offsets {offsetX}/{offsetY}";
+            string context = $"pose {(int)SamusPoseNumbering.Number(pose):X2}, camera {camera}, offsets {offsetX}/{offsetY}";
             AssertEqual(visible ? 4 : 0, (oam.LastFinalizedSpriteCount * 4), "Native endpoint vertical gate: " + context);
             if (!visible) continue;
             // Connected code omits the second SEC. Preserve the borrow from the
@@ -86,7 +86,7 @@ internal static class GrappleEndpointGeometryVerification
             runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             runtime.Sprites.FinalizeFrame();
             int endpoints = runtime.Sprites.Draws.Count(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint);
-            AssertEqual((int)pose == 1 ? 0 : 1, endpoints, $"Actual gameplay actor passes endpoint pose {(int)pose:X2}");
+            AssertEqual((int)SamusPoseNumbering.Number(pose) == 1 ? 0 : 1, endpoints, $"Actual gameplay actor passes endpoint pose {(int)SamusPoseNumbering.Number(pose):X2}");
         }
     }
 }

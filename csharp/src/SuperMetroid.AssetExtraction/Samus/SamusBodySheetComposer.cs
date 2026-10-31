@@ -78,8 +78,8 @@ internal static class SamusBodySheetComposer
         {
             for (int animationFrame = 0; animationFrame < SamusBodySheetDefinitions.AnimationFrames; animationFrame++)
             {
-                if (body.TryFrame((SamusPoseId)pose, animationFrame, out SamusBodyFramePictures pictures))
-                    yield return new SelectedFrame((SamusPoseId)pose, animationFrame, pictures);
+                if (body.TryFrame(SamusPoseNumbering.FromNumber(pose), animationFrame, out SamusBodyFramePictures pictures))
+                    yield return new SelectedFrame(SamusPoseNumbering.FromNumber(pose), animationFrame, pictures);
             }
         }
     }

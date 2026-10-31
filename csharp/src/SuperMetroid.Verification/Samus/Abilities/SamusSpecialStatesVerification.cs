@@ -40,19 +40,19 @@ static void SeedCrystalFlashCartridge(TestAddressSpace bus)
     // Only bytes zero, one, and six matter to this fixture: facing, movement type, and Y
     // radius. The production implementation still reads them through the actual ROM table
     // addresses instead of receiving test-only pose metadata.
-    WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.FacingLeftNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingLeftNormalPose),
         [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.CrystalFlashRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.CrystalFlashRightPose),
         [0x08, 0x1b, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.CrystalFlashLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.CrystalFlashLeftPose),
         [0x04, 0x1b, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
 
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingRightNormalPose * 2, 0xb600);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.FacingLeftNormalPose * 2, 0xb601);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.CrystalFlashRightPose * 2, 0xb545);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.CrystalFlashLeftPose * 2, 0xb556);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose) * 2, 0xb600);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.FacingLeftNormalPose) * 2, 0xb601);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.CrystalFlashRightPose) * 2, 0xb545);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseNumbering.Number(SamusPoseId.CrystalFlashLeftPose) * 2, 0xb556);
     bus.WriteBytes(0x91b600, [0x05, 0x05]);
     bus.WriteBytes(0x91b545, [
         0x03, 0x03, 0x01, 0x01, 0xfe, 0x02,
@@ -360,7 +360,7 @@ static void SeedXrayCartridge(TestAddressSpace bus)
         new SamusSpecialStatesPose(SamusPoseId.XrayingCrouchingLeftPose, [0x04, 0x05, 0xff, 0x07, 0x00, 0x00, 0x10, 0x00]),
     ];
     foreach ((SamusPoseId pose, byte[] definition) in poses)
-        WritePoseDefinition(bus, (int)pose, definition);
+        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose), definition);
 
     // Animation pointers and delays are compiled cartridge mechanics. In particular,
     // pose $25 uses three two-tick frames; fake-bus writes to $91:B010 no longer
@@ -521,7 +521,7 @@ internal static void VerifySamusXray()
     AssertEqual(2, standing.AnimationFrame, "X-ray turn reaches frame two");
     AssertEqual(1, standing.AnimationFrameTimer.RawValue, "X-ray turn reaches timer one");
     standing.Xray.HandlePoseInput(standing, 0);
-    AssertTrue((int)standing.Pose != 0x25, "X-ray completes standing turn");
+    AssertTrue((int)SamusPoseNumbering.Number(standing.Pose) != 0x25, "X-ray completes standing turn");
     AssertEqual(SamusPoseId.TurningRightToLeftPose, standing.PoseHistory.LastDifferentPose, "X-ray completion shifts turning pose");
     AssertEqual(SamusMovementType.TurningOnGround, standing.PoseHistory.LastDifferentMovement, "X-ray completion shifts turning metadata");
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray completion publishes stable pose");
@@ -638,9 +638,9 @@ internal static void VerifySamusXray()
     }
 
     // Seed excluded landing `$A4` and falling `$29` definitions/animations only for gates.
-    WritePoseDefinition(bus, (int)SamusPoseId.NormalLandingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.NormalLandingRightPose),
         [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.FallingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FallingRightPose),
         [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.NormalLandingRightPose, 0xc700, [0x01, 0xff]);
     WritePoseAnimationDelays(bus, SamusPoseId.FallingRightPose, 0xc710, [0x01, 0xff]);
@@ -671,15 +671,15 @@ static void SeedSamusDeathSequenceCartridge(TestAddressSpace bus, ushort[] shade
     // Source standing/morph/spin records prove three distinct `$9B:B420` decisions. The
     // death records are literal `$91:BCE1/BCE9`: type `$0A`, ordinary humanoid radii, and
     // right/left direction bytes. Their delay stream is exactly 2,2,2,2,2,2,FE,01.
-    WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.MorphBallGroundLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.MorphBallGroundLeftPose),
         [0x04, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.SpinJumpRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.SpinJumpRightPose),
         [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0b, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.DeathSequenceRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.DeathSequenceRightPose),
         [0x08, 0x0a, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.DeathSequenceLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.DeathSequenceLeftPose),
         [0x04, 0x0a, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
     WritePoseAnimationDelayPointer(bus, SamusPoseId.FacingRightNormalPose, 0xc000);
     WritePoseAnimationDelayPointer(bus, SamusPoseId.MorphBallGroundLeftPose, 0xc010);

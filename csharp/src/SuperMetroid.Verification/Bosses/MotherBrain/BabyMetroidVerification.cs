@@ -48,9 +48,9 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // Controller one reads the current `$E9` direction byte, then rebinds the new `$EB`
     // animation pointer without refreshing radii. These are the only Samus ROM fields the
     // entrance consumes; the dedicated drained-controller suite proves their animation.
-    WritePoseDefinition(bus, (int)SamusPoseId.DrainedCrouchingLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.DrainedCrouchingLeftPose),
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.DrainedStandingLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.DrainedStandingLeftPose),
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
     SeedSyntheticAnimationDelay(bus, SamusPoseId.DrainedStandingLeftPose, 0xc100, 0x10);
 

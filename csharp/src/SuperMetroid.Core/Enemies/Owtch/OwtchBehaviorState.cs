@@ -1,22 +1,25 @@
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
-/// Values stored in Owtch's native <c>$0FB0,x</c> direction/state word. Unlike a simple
-/// facing enum, this word also dispatches the underground animation. The all-ones value is
-/// a real one-frame table-underflow state produced by retail code at the left patrol bound.
+/// What Owtch is doing this AI update. Besides the walking, burrowing and surfacing states, the original game spends one
+/// update turning around at the left patrol bound before it walks right again; that frame is observable (Owtch accepts
+/// ordinary shots during it and restarts its right-facing animation), so it is a state of its own.
 /// </summary>
 public enum OwtchBehaviorState
 {
-    /// <summary>Index 0, $A2:A4B0 Function_Owtch_0_MovingLeft: applies the negative 16.16 patrol velocity, then samples the burial gate; crossing the minimum X bound decrements the index to $FFFF.</summary>
-    MovingLeft = 0,
-    /// <summary>Index 1, $A2:A4D9 Function_Owtch_1_MovingRight: applies the positive 16.16 patrol velocity and samples the burial gate, returning to index 0 at the maximum X bound.</summary>
-    MovingRight = 1,
-    /// <summary>Index 2, $A2:A502 Function_Owtch_2_Underground: remains buried while the wrapping 16-bit timer decrements; reaching zero selects the rising state.</summary>
-    Underground = 2,
-    /// <summary>Index 3, $A2:A517 Function_Owtch_3_Sinking: moves down one world pixel per AI update to depth sixteen, then reloads the parameter-selected underground timer.</summary>
-    Sinking = 3,
-    /// <summary>Index 4, $A2:A53E Function_Owtch_4_Rising: moves up one world pixel per AI update until burial depth reaches zero, then chooses left or right from RNG bit $0100.</summary>
-    Rising = 4,
-    /// <summary>Retail index -1 produced at the left patrol bound; table underflow calls $A2:A49D SetOwtchInitialInstListPointer_MovingRight, whose animation instruction restores index 1.</summary>
-    LeftBoundaryUnderflow = 65535,
+    /// <summary>Walks left at the patrol speed and may start sinking; crossing the minimum X bound turns it at the left bound.</summary>
+    MovingLeft,
+    /// <summary>Walks right at the patrol speed and may start sinking; reaching the maximum X bound turns it left.</summary>
+    MovingRight,
+    /// <summary>Stays buried while the underground timer counts down; reaching zero starts rising.</summary>
+    Underground,
+    /// <summary>Moves down one pixel per AI update to depth sixteen, then reloads the parameter-selected underground timer.</summary>
+    Sinking,
+    /// <summary>Moves up one pixel per AI update until the burial depth reaches zero, then picks a walking direction at random.</summary>
+    Rising,
+    /// <summary>
+    /// The one update spent at the left patrol bound: Owtch does not move, restarts its right-facing animation (whose
+    /// first cue then sets <see cref="MovingRight"/>) and, like <see cref="MovingLeft"/>, accepts ordinary shots.
+    /// </summary>
+    TurningAtLeftBound,
 }

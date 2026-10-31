@@ -27,17 +27,17 @@ internal static class PoseDispatchDefinitionsVerification
             int address = SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount;
             byte facing = rom.ReadCartridgeByte(address), movement = rom.ReadCartridgeByte(address + 1), fallback = rom.ReadCartridgeByte(address + 2);
             ISnesAddressSpace source = forbidden;
-            samus.Pose = (SamusPoseId)pose;
+            samus.Pose = SamusPoseNumbering.FromNumber(pose);
             byte aim = rom.ReadCartridgeByte(address + 3);
             AssertEqual(aim, SamusPoseMetadata.ReadShotDirection(samus), "Live aim and restrictions retain the full native byte without authored ROM reads");
-            AssertEqual(aim, SamusPoseMetadata.ReadShotDirection((SamusPoseId)pose), "Prospective aim retains native byte and adjacent indexes");
+            AssertEqual(aim, SamusPoseMetadata.ReadShotDirection(SamusPoseNumbering.FromNumber(pose)), "Prospective aim retains native byte and adjacent indexes");
             AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection(samus), "Live pose facing retains native value");
-            AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection((SamusPoseId)pose), "Prospective pose facing retains native value");
-            AssertEqual(fallback, (byte)SamusPoseMetadata.ReadNoInputFallbackPose(samus), "No-input fallback retains native pose or sentinel");
-            if (movement <= (byte)SamusMovementType.Special)
+            AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection(SamusPoseNumbering.FromNumber(pose)), "Prospective pose facing retains native value");
+            AssertEqual(fallback, SamusPoseNumbering.Number(SamusPoseMetadata.ReadNoInputFallbackPose(samus)), "No-input fallback retains native pose or sentinel");
+            if (movement < SamusMovementTypeNativeWords.Count)
             {
-                AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType(samus), "Live movement discriminator matches native");
-                AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType((SamusPoseId)pose), "Prospective movement discriminator matches native");
+                AssertEqual(movement, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(samus)), "Live movement discriminator matches native");
+                AssertEqual(movement, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(SamusPoseNumbering.FromNumber(pose))), "Prospective movement discriminator matches native");
                 commit(samus, source);
                 AssertEqual(SamusSnapshotWords.DecodeHistoryMovement(LittleEndianBytes.Word(facing, movement)), samus.PoseHistory.PreviousMovement,
                     "Actual history publisher retains native facing/movement word");
@@ -67,10 +67,10 @@ internal static class PoseDispatchDefinitionsVerification
         long before = GC.GetAllocatedBytesForCurrentThread();
         for (int index = 0; index < 65536; index++)
         {
-            SamusPoseId pose = unchecked((SamusPoseId)(index % 253));
+            SamusPoseId pose = unchecked(SamusPoseNumbering.FromNumber((index % 253)));
             checksum += SamusPoseMetadata.ReadPoseXDirection(pose);
             checksum += (byte)SamusPoseMetadata.ReadMovementType(pose);
-            checksum += (int)SamusPoseDispatch.ReadNoInputPose(pose);
+            checksum += (int)SamusPoseNumbering.Number(SamusPoseDispatch.ReadNoInputPose(pose));
         }
         return GC.GetAllocatedBytesForCurrentThread() - before;
     }

@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.PipeBugs;
@@ -15,7 +14,6 @@ internal static class PipeBugAnimationDefinitionsVerification
     {
         const int normalTable = 0xb3882b;
         const int strongTable = 0xb38833;
-        var guarded = NewPipeBugAnimationReadGuard(rom);
 
         foreach (bool strong in new[] { false, true })
         {
@@ -29,19 +27,18 @@ internal static class PipeBugAnimationDefinitionsVerification
             PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
             AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
                     strong,
-                    PipeBugAnimationSelector.None)),
+                    PipeBugAnimationSelector.RisingFacingLeft)),
                 (initializedEnemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires a Pipe Bug state.")).Program,
                 $"production {(strong ? "strong" : "normal")} Pipe Bug initialization");
 
             for (int index = 0; index < 4; index++)
             {
-                var selector = (PipeBugAnimationSelector)index;
+                PipeBugAnimationSelector selector = PipeBugsNativeWords.BrinstarAnimations.Decode(index, "Pipe Bug animation index");
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(((strong ? strongTable : normalTable) + index * 2));
                 AssertEqual(expected,
                     NativeEnemyProgramOracle.EntryOf(PipeBugNativeListAddresses.Entries, PipeBugPrograms.BrinstarProgram(strong, selector)),
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
-                var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
                 var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
                 {
                     InstructionTimer = WrappingCountdown.Start(0x2222),
@@ -50,13 +47,13 @@ internal static class PipeBugAnimationDefinitionsVerification
                 slot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
                 var state = new PipeBugEnemyState(slot)
                 {
-                    AnimationState = selector,
-                    InstalledAnimationState = selector == PipeBugAnimationSelector.None
-                        ? PipeBugAnimationSelector.Shooting
-                        : PipeBugAnimationSelector.None,
+                    RequestedAnimation = selector,
+                    InstalledAnimation = selector == PipeBugAnimationSelector.RisingFacingLeft
+                        ? PipeBugAnimationSelector.ShootingFacingLeft
+                        : PipeBugAnimationSelector.RisingFacingLeft,
                 };
                 PipeBugsBehavior.SelectBrinstarPipeBugAnimation(slot, state);
-                AssertEqual(selector, state.InstalledAnimationState,
+                AssertEqual(selector, state.InstalledAnimation,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug selector {selector}");
                 AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(strong, selector)), state.Program,
                     $"production {(strong ? "strong" : "normal")} Pipe Bug animation {selector}");
@@ -67,17 +64,20 @@ internal static class PipeBugAnimationDefinitionsVerification
             }
         }
 
-        AssertThrows<InvalidDataException>(
-            () => PipeBugPrograms.BrinstarProgram(
-                strong: false,
-                (PipeBugAnimationSelector)4),
-            "Pipe Bug animation selector past table");
+        AssertEqual(false, PipeBugsNativeWords.BrinstarAnimations.TryDecode(4, out _), "Pipe Bug animation index past table");
+        // The requests main AI makes keep the cartridge's bit arithmetic on its animation index: the emergence sets the
+        // facing bit from Samus's side, and the switch to horizontal flight sets the shooting bit.
+        AssertEqual(PipeBugsNativeWords.BrinstarAnimations.Decode(2, "Pipe Bug animation index"),
+            PipeBugPrograms.Rising(HorizontalDirection.Right), "Pipe Bug rising facing right");
+        AssertEqual(PipeBugsNativeWords.BrinstarAnimations.Decode(0, "Pipe Bug animation index"),
+            PipeBugPrograms.Rising(HorizontalDirection.Left), "Pipe Bug rising facing left");
+        for (int index = 0; index < 4; index++)
+        {
+            PipeBugAnimationSelector selector = PipeBugsNativeWords.BrinstarAnimations.Decode(index, "Pipe Bug animation index");
+            AssertEqual(PipeBugsNativeWords.BrinstarAnimations.Decode(index | 1, "Pipe Bug animation index"),
+                PipeBugPrograms.ShootingWithSameFacing(selector), $"Pipe Bug {selector} shooting");
+        }
         Console.WriteLine(
-            "Pipe Bug animation definitions: eight native selectors and all eight production handoffs pass with both pointer tables forbidden.");
+            "Pipe Bug animation definitions: eight native selectors, all eight production handoffs and the named animation requests pass.");
     }
-
-    /// <summary>Forbids runtime reads from both compiled bank B3 animation pointer tables.</summary>
-    private static CartridgeReadGuard NewPipeBugAnimationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xb3882b and < 0xb3883b,
-            address => $"Pipe Bug attempted migrated animation read ${address:X6}.");
 }

@@ -53,14 +53,14 @@ internal static class GrappleFlarePlacementVerification
         var authoredPoses = Enumerable.Range(0, 253)
             .Select(pose => new
             {
-                Pose = (SamusPoseId)pose,
+                Pose = SamusPoseNumbering.FromNumber(pose),
                 Movement = CpuBusRegionRead.Read(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1),
                 Direction = CpuBusRegionRead.Read(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3),
             })
             .Where(row => row.Direction < 10)
-            .GroupBy(row => new AuthoredPose(Running:row.Movement == (byte)SamusMovementType.Running, row.Direction))
+            .GroupBy(row => new AuthoredPose(Running:row.Movement == SamusMovementTypeNativeWords.Byte(SamusMovementType.Running), row.Direction))
             .Select(group => group.First())
-            .OrderBy(row => row.Movement == (byte)SamusMovementType.Running)
+            .OrderBy(row => row.Movement == SamusMovementTypeNativeWords.Byte(SamusMovementType.Running))
             .ThenBy(row => row.Direction)
             .ToArray();
         foreach (var authored in authoredPoses)

@@ -67,8 +67,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The wing begins on table index two (left-facing wings) and never runs body AI.
             // Property $0400 keeps the cosmetic record out of touch/shot collision passes.
-            state.RequestedInstructionListIndex = DragonAnimationSelector.WingsFacingLeft;
-            state.InstalledInstructionListIndex = DragonAnimationSelector.WingsFacingLeft;
+            state.RequestedAnimation = DragonAnimationSelector.WingsFacingLeft;
+            state.InstalledAnimation = DragonAnimationSelector.WingsFacingLeft;
             state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
                 DragonAnimationSelector.WingsFacingLeft));
             slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -76,8 +76,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.RequestedInstructionListIndex = DragonAnimationSelector.IdleFacingLeft;
-        state.InstalledInstructionListIndex = DragonAnimationSelector.IdleFacingLeft;
+        state.RequestedAnimation = DragonAnimationSelector.IdleFacingLeft;
+        state.InstalledAnimation = DragonAnimationSelector.IdleFacingLeft;
         state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
             DragonAnimationSelector.IdleFacingLeft));
         state.Function = DragonEnemyFunction.WaitToRise;
@@ -138,11 +138,11 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         // edits use that sign to select even/odd left/right table entries for both physical records.
         bool facingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0;
         bodyState.FacingLeft = facingLeft;
-        bodyState.RequestedInstructionListIndex = DragonPhases.WithFacing(
-            bodyState.RequestedInstructionListIndex,
+        bodyState.RequestedAnimation = DragonPhases.WithFacing(
+            bodyState.RequestedAnimation,
             facingLeft);
-        wingState.RequestedInstructionListIndex = DragonPhases.WithFacing(
-            wingState.RequestedInstructionListIndex,
+        wingState.RequestedAnimation = DragonPhases.WithFacing(
+            wingState.RequestedAnimation,
             facingLeft);
         InstallDragonInstructionList(body, bodyState);
         InstallDragonInstructionList(wing, wingState);
@@ -154,9 +154,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
         if (bodyState.FunctionTimer.IsNegative)
         {
-            bodyState.RequestedInstructionListIndex =
+            bodyState.RequestedAnimation =
                 DragonPhases.AttackingWithSameFacing(
-                    bodyState.RequestedInstructionListIndex);
+                    bodyState.RequestedAnimation);
             bodyState.AttackCounter = WrappingCountdown.Start(DragonShotCount);
             bodyState.Function = DragonEnemyFunction.Attacking;
         }
@@ -177,9 +177,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bodyState.AnimationFinished = false;
 
-        // $FFFF forces the same attack list to reinstall after each animation reaches its
-        // sleep opcode. That restart is what spaces the three fireballs by a full ROM list.
-        bodyState.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
+        // The attack restarts after each animation reaches its sleep; that restart is what spaces the three fireballs
+        // by a whole attack animation.
+        bodyState.ReinstallRequested = true;
         SpawnDragonFireball(body, bodyState);
         // $A2:E70F queues one sound per fireball; two Dragons attacking in one frame queue two.
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.DragonFireballSound, priority: SoundRequestPriority.Normal);
@@ -187,9 +187,9 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!bodyState.AttackCounter.IsZero)
             return;
 
-        bodyState.RequestedInstructionListIndex =
+        bodyState.RequestedAnimation =
             DragonPhases.IdleWithSameFacing(
-                bodyState.RequestedInstructionListIndex);
+                bodyState.RequestedAnimation);
         bodyState.FunctionTimer = WrappingCountdown.Start(DragonWaitBeforeSinkFrames);
         bodyState.Function = DragonEnemyFunction.WaitToSink;
     }
@@ -272,11 +272,12 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         DragonEnemyState state)
     {
-        if (state.RequestedInstructionListIndex == state.InstalledInstructionListIndex)
+        if (!state.ReinstallRequested && state.RequestedAnimation == state.InstalledAnimation)
             return;
-        state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
+        state.InstalledAnimation = state.RequestedAnimation;
+        state.ReinstallRequested = false;
         state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(
-            state.RequestedInstructionListIndex));
+            state.RequestedAnimation));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }

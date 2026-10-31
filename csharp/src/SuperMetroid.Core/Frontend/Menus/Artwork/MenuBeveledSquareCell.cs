@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
-/// <summary>The menu atlas cells of the 6x6 beveled square's two colorways ($B6:D300..D33F).</summary>
+/// <summary>The menu atlas cells of the 6x6 beveled square's two colorways; the import pipeline knows which atlas tile holds each.</summary>
 internal enum MenuBeveledSquareCell
 {
-    /// <summary>$98: the light colorway.</summary>
-    Light = 152,
+    /// <summary>The light colorway.</summary>
+    Light,
 
-    /// <summary>$99: the dark colorway.</summary>
-    Dark = 153,
+    /// <summary>The dark colorway.</summary>
+    Dark,
 }

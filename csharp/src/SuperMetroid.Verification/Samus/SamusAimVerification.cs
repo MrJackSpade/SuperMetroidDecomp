@@ -54,7 +54,7 @@ internal static void VerifySamusStandingAimMovement()
     for (int pose = 1; pose <= 0x12; pose++)
     {
         ushort stream = unchecked((ushort)(0xc100 + pose * 0x10));
-        WritePoseAnimationDelays(bus, (SamusPoseId)pose, stream, [0x0a, 0xf6]);
+        WritePoseAnimationDelays(bus, SamusPoseNumbering.FromNumber(pose), stream, [0x0a, 0xf6]);
     }
 
     const int width = 8;
@@ -88,7 +88,7 @@ level, samus, frameCounter: 0, controllerInput: 0);
         AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, $"right aim pose ${(int)target:X2} clears base speed");
     }
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.StandingAimUpRightPose);
-    AssertEqual(0x01, (byte)SamusPoseMetadata.ReadNoInputFallbackPose(samus), "right aimed no-input fallback");
+    AssertEqual(0x01, SamusPoseNumbering.Number(SamusPoseMetadata.ReadNoInputFallbackPose(samus)), "right aimed no-input fallback");
 
     // The aimed running records execute the same movement-type-one dispatcher while their
     // own animation and shot-direction metadata remain selected. Cross the post-movement
@@ -131,7 +131,7 @@ level, leftSamus, frameCounter: 1, controllerInput: 0);
         AssertTrue(result.Vertical.Collided, $"left aim pose ${(int)target:X2} remains grounded");
     }
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.StandingAimUpLeftPose);
-    AssertEqual(0x02, (byte)SamusPoseMetadata.ReadNoInputFallbackPose(leftSamus), "left aimed no-input fallback");
+    AssertEqual(0x02, SamusPoseNumbering.Number(SamusPoseMetadata.ReadNoInputFallbackPose(leftSamus)), "left aimed no-input fallback");
 
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.RunningAimDiagonalUpLeftPose);
     ushort leftXBefore = leftSamus.Position.X.Whole;
@@ -488,7 +488,7 @@ boxedLevel, SamusPoseId.NormalJumpAimDiagonalDownRightPose, frameCounter: 0),
     AssertEqual(16, samus.AnimationFrameTimer.RawValue, "post-F0 frame loads literal delay");
 
     SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, SamusPoseId.FallingAimDiagonalDownRightPose);
-    AssertEqual(0x29, (byte)SamusPoseMetadata.ReadNoInputFallbackPose(samus), "aimed fall fallback target");
+    AssertEqual(0x29, SamusPoseNumbering.Number(SamusPoseMetadata.ReadNoInputFallbackPose(samus)), "aimed fall fallback target");
     SamusAerialPoseTransitions.ApplyAerialAimTransition(samus, SamusPoseId.FallingRightPose);
     AssertEqual(SamusPoseId.FallingRightPose, samus.Pose, "aimed fall applies unaimed fallback");
 
@@ -534,7 +534,7 @@ internal static void VerifySamusGunExtendedMovement()
         new SamusSpecialStatesPose(SamusPoseId.FiringLandingLeftPose, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]),
     ];
     foreach ((SamusPoseId pose, byte[] definition) in definitions)
-        WritePoseDefinition(bus, (int)pose, definition);
+        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose), definition);
 
     // Synthetic storage keeps the tests compact, but each stream's bytes reproduce the
     // relevant retail control flow: running loops ten frames; jump/fall loop; firing
@@ -622,9 +622,9 @@ internal static void VerifySamusGunExtendedMovement()
         (SamusPoseTransitionTable.Find(SamusPoseId.NormalJumpForwardRightPose, ControllerButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)Snes...."));
     SamusPoseTransition forwardLeftRelease =
         (SamusPoseTransitionTable.Find(SamusPoseId.NormalJumpForwardLeftPose, ControllerButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesB...."));
-    AssertEqual(0x4d, (byte)forwardRightRelease.ProspectivePose,
+    AssertEqual(0x4d, SamusPoseNumbering.Number(forwardRightRelease.ProspectivePose),
         "held Jump without Right selects neutral right jump");
-    AssertEqual(0x4e, (byte)forwardLeftRelease.ProspectivePose,
+    AssertEqual(0x4e, SamusPoseNumbering.Number(forwardLeftRelease.ProspectivePose),
         "held Jump without Left selects neutral left jump");
 
     // Apply both winners through the exact helper used by the runtime switch. Pose and
@@ -755,13 +755,13 @@ internal static void VerifySamusGunExtendedMovement()
         {
             AssertTrue(
                 SamusPoseMetadata.IsLandingToNormalJumpTransition(sourcePose, targetPose),
-                $"right landing ${(int)sourcePose:X2} admits jump ${(int)targetPose:X2}");
+                $"right landing ${(int)SamusPoseNumbering.Number(sourcePose):X2} admits jump ${(int)SamusPoseNumbering.Number(targetPose):X2}");
         }
         foreach (SamusPoseId targetPose in leftLandingJumpTargets)
         {
             AssertTrue(
                 !SamusPoseMetadata.IsLandingToNormalJumpTransition(sourcePose, targetPose),
-                $"right landing ${(int)sourcePose:X2} rejects mirrored jump ${(int)targetPose:X2}");
+                $"right landing ${(int)SamusPoseNumbering.Number(sourcePose):X2} rejects mirrored jump ${(int)SamusPoseNumbering.Number(targetPose):X2}");
         }
     }
     foreach (SamusPoseId sourcePose in leftLandingFamily)
@@ -770,13 +770,13 @@ internal static void VerifySamusGunExtendedMovement()
         {
             AssertTrue(
                 SamusPoseMetadata.IsLandingToNormalJumpTransition(sourcePose, targetPose),
-                $"left landing ${(int)sourcePose:X2} admits jump ${(int)targetPose:X2}");
+                $"left landing ${(int)SamusPoseNumbering.Number(sourcePose):X2} admits jump ${(int)SamusPoseNumbering.Number(targetPose):X2}");
         }
         foreach (SamusPoseId targetPose in rightLandingJumpTargets)
         {
             AssertTrue(
                 !SamusPoseMetadata.IsLandingToNormalJumpTransition(sourcePose, targetPose),
-                $"left landing ${(int)sourcePose:X2} rejects mirrored jump ${(int)targetPose:X2}");
+                $"left landing ${(int)SamusPoseNumbering.Number(sourcePose):X2} rejects mirrored jump ${(int)SamusPoseNumbering.Number(targetPose):X2}");
         }
     }
 

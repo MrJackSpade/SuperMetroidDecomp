@@ -61,7 +61,7 @@ internal static class SamusLandingDrawVerification
             AssertTrue(body.Length > 0, $"{name} update {update} ({samus.Pose}) draws Samus's body");
             AssertTrue(body.Any(OverlapsScreen),
                 $"{name} update {update} ({samus.Pose}) draws Samus's body on screen, not at {string.Join(", ", body.Select(draw => draw.ToString()))}");
-            if (samus.Pose is >= SamusPoseId.NormalLandingRightPose and <= SamusPoseId.SpinLandingLeftPose)
+            if (SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
                 landingUpdates++;
         }
         AssertTrue(landingUpdates > 0, $"{name} reaches a landing pose");

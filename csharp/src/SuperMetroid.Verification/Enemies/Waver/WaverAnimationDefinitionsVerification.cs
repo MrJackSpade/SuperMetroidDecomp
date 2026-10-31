@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Waver;
@@ -15,15 +14,15 @@ internal static class WaverAnimationDefinitionsVerification
     {
         for (int index = 0; index < 4; index++)
         {
-            var selector = (WaverAnimationSelector)index;
+            WaverProgram selector = WaverNativeWords.Animations.Decode(index, "Waver animation index");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa386db + index * 2)),
-                NativeEnemyProgramOracle.EntryOf(WaverNativeListAddresses.Entries, WaverPrograms.Program(selector)),
+                NativeEnemyProgramOracle.EntryOf(WaverNativeListAddresses.Entries, selector),
                 $"Waver animation selector {selector}");
         }
 
         for (int index = 0; index < 4; index++)
         {
-            var selector = (WaverAnimationSelector)index;
+            WaverProgram selector = WaverNativeWords.Animations.Decode(index, "Waver animation index");
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 InstructionTimer = WrappingCountdown.Start(0x2222),
@@ -31,15 +30,15 @@ internal static class WaverAnimationDefinitionsVerification
             };
             var state = new WaverEnemyState
             {
-                CurrentInstructionListIndex = selector == WaverAnimationSelector.None
-                    ? WaverAnimationSelector.FacingRight
-                    : WaverAnimationSelector.None,
-                RequestedInstructionListIndex = selector,
+                InstalledAnimation = selector == WaverProgram.SteadyFacingLeft
+                    ? WaverProgram.SteadyFacingRight
+                    : WaverProgram.SteadyFacingLeft,
+                RequestedAnimation = selector,
             };
             WaverBehavior.SetWaverProgram(slot, state);
-            AssertEqual(selector, state.CurrentInstructionListIndex,
+            AssertEqual(selector, state.InstalledAnimation,
                 $"production Waver current selector {selector}");
-            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(WaverPrograms.Program(selector)),
+            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(selector),
                 state.Program,
                 $"production Waver animation {selector}");
             AssertEqual(1, slot.InstructionTimer.RawValue,
@@ -48,7 +47,6 @@ internal static class WaverAnimationDefinitionsVerification
                 $"production Waver loop timer {selector}");
         }
 
-        var guarded = NewWaverAnimationReadGuard(rom);
         for (ushort parameter = 0; parameter < 2; parameter++)
         {
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -56,26 +54,38 @@ internal static class WaverAnimationDefinitionsVerification
             slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
             slot.SetSpawnParameter1(EnemyDefinitionId.Waver, parameter);
             WaverBehavior.InitializeWaver(slot);
-            var expected = (WaverAnimationSelector)parameter;
+            WaverProgram expected = WaverNativeWords.Animations.Decode(parameter, "Waver spawn facing");
             WaverEnemyState waver = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
-            AssertEqual(expected, waver.RequestedInstructionListIndex,
+            AssertEqual(expected, waver.RequestedAnimation,
                 $"production Waver initial requested selector {parameter}");
-            AssertEqual(expected, waver.CurrentInstructionListIndex,
+            AssertEqual(expected, waver.InstalledAnimation,
                 $"production Waver initial current selector {parameter}");
-            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(WaverPrograms.Program(expected)),
+            AssertEqual(AnimationProgramCursor<WaverProgram>.Start(expected),
                 waver.Program,
                 $"production Waver initial animation {parameter}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => WaverPrograms.Program((WaverAnimationSelector)4),
-            "Waver animation selector past table");
+        AssertEqual(false, WaverNativeWords.Animations.TryDecode(4, out _), "Waver animation index past table");
+        VerifyWaverAnimationRequests();
         Console.WriteLine(
-            "Waver animation definitions: four native selectors, all four real handoffs, and both production initial facing paths pass with the pointer table forbidden.");
+            "Waver animation definitions: four native selectors, all four real handoffs, and both production initial facing paths and the named animation requests pass.");
     }
 
-    /// <summary>Rejects runtime reads of the compiled bank A3 animation pointer table.</summary>
-    private static CartridgeReadGuard NewWaverAnimationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa386db and < 0xa386e3,
-            address => $"Waver attempted migrated animation-selector read ${address:X6}.");
+    /// <summary>
+    /// The requests main AI makes keep the cartridge's bit arithmetic on its animation index: a wall toggles the facing
+    /// bit and clears the spin bit, a spin sets the spin bit, and a finished spin clears it.
+    /// </summary>
+    private static void VerifyWaverAnimationRequests()
+    {
+        for (int index = 0; index < 4; index++)
+        {
+            WaverProgram animation = WaverNativeWords.Animations.Decode(index, "Waver animation index");
+            AssertEqual(WaverNativeWords.Animations.Decode((index ^ 1) & 1, "Waver animation index"),
+                WaverPrograms.TurnedAround(animation), $"Waver {animation} turned around by a wall");
+            AssertEqual(WaverNativeWords.Animations.Decode(index | 2, "Waver animation index"),
+                WaverPrograms.Spinning(animation), $"Waver {animation} spinning");
+            AssertEqual(WaverNativeWords.Animations.Decode(index & 1, "Waver animation index"),
+                WaverPrograms.SteadyWithSameFacing(animation), $"Waver {animation} after a spin");
+        }
+    }
 }

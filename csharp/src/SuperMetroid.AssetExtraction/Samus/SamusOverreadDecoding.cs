@@ -284,6 +284,7 @@ internal static class SamusOverreadDecoding
         Enum.GetValues<SamusPoseId>()
             .Where(pose => SamusPoseNumbering.Precedes(pose, SamusHudDefinitions.NonFiringTransitionStart) &&
                 !SamusPoseNumbering.InRange(pose, SamusHudDefinitions.FirstTransitionPose, SamusPoseId.UnusedPose40))
+            .OrderBy(SamusPoseNumbering.Number)
             .ToDictionary(pose => pose.ToString(), pose =>
                 cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.HudPostureFlagsForPoseZero + SamusPoseNumbering.Number(pose)) == 0);
 

@@ -2,6 +2,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
@@ -40,12 +41,16 @@ internal static class StationAccessPlmDefinitionsVerification
         AssertEqual(6, entries.Length, "Station access original record count");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
-            var behavior = (StationAccessBehavior)raw;
+            bool decodes = new RoomBlockBehavior(raw).TryGetStationAccess(out StationAccessBehavior behavior);
             if (raw is < 0x47 or > 0x4c)
             {
-                AssertThrows<InvalidDataException>(() => StationAccessPlms.Resolve(behavior), "Station access full rejected BTS domain");
+                // Outside the six accesses only the save floor decodes, and it selects no access PLM.
+                AssertEqual(raw == 0x4d, decodes, "Station access full rejected BTS domain");
+                if (decodes)
+                    AssertThrows<InvalidDataException>(() => StationAccessPlms.Resolve(behavior), "Station access save floor selects no access PLM");
                 continue;
             }
+            AssertTrue(decodes, $"Station access BTS ${raw:X2} decodes");
             var selected = StationAccessPlms.Resolve(behavior);
             AssertEqual(selected, entries[raw - 0x47], "Station access original enumeration order");
             ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x9491c7 + (raw - 0x47) * 2));

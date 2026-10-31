@@ -17,20 +17,21 @@ internal static class DragonAnimationDefinitionsVerification
     {
         for (int index = 0; index < 6; index++)
         {
-            var selector = (DragonAnimationSelector)index;
+            // The cartridge pairs its six ordinals as facing left (even) and right (odd) within each phase.
+            DragonAnimationSelector selector = Selector(index);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2e5ef + index * 2)),
                 NativeEnemyProgramOracle.EntryOf(DragonNativeListAddresses.Entries, DragonPhases.Program(selector)),
                 $"Dragon animation selector {selector}");
-            AssertEqual((DragonAnimationSelector)(index & ~1),
+            AssertEqual(Selector(index & ~1),
                 DragonPhases.WithFacing(selector, facingLeft: true),
                 $"Dragon left-facing mapping {selector}");
-            AssertEqual((DragonAnimationSelector)(index | 1),
+            AssertEqual(Selector(index | 1),
                 DragonPhases.WithFacing(selector, facingLeft: false),
                 $"Dragon right-facing mapping {selector}");
-            AssertEqual((DragonAnimationSelector)(4 | (index & 1)),
+            AssertEqual(Selector(4 | (index & 1)),
                 DragonPhases.AttackingWithSameFacing(selector),
                 $"Dragon attack mapping {selector}");
-            AssertEqual((DragonAnimationSelector)(index & 1),
+            AssertEqual(Selector(index & 1),
                 DragonPhases.IdleWithSameFacing(selector),
                 $"Dragon idle mapping {selector}");
         }
@@ -39,17 +40,32 @@ internal static class DragonAnimationDefinitionsVerification
         Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(facingLeft: false));
         Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(facingLeft: true));
 
-        AssertThrows<InvalidDataException>(
-            () => DragonPhases.Program(
-                DragonAnimationSelector.ForceReinstall),
-            "Dragon reinstall sentinel cannot select a list");
-        AssertThrows<InvalidDataException>(
-            () => DragonPhases.WithFacing(
-                DragonAnimationSelector.ForceReinstall,
-                facingLeft: true),
-            "Dragon reinstall sentinel has no facing mapping");
+        Suite(nameof(VerifyDragonReinstallRequest), () => VerifyDragonReinstallRequest());
         Console.WriteLine(
-            "Dragon animation definitions: six native selectors, phase/facing mappings, all six installs, and both live body/wing facing and attack handoffs pass with the pointer table forbidden.");
+            "Dragon animation definitions: six native selectors, phase/facing mappings, all six installs, the reinstall request, and both live body/wing facing and attack handoffs pass with the pointer table forbidden.");
+    }
+
+    /// <summary>The animation the cartridge's table ordinal <paramref name="index"/> names.</summary>
+    private static DragonAnimationSelector Selector(int index) =>
+        DragonNativeWords.AnimationSelectors.Decode(index, "Dragon animation ordinal");
+
+    /// <summary>
+    /// A request for the installed animation installs nothing, unless a reinstall was requested: then the animation
+    /// restarts and the request is spent.
+    /// </summary>
+    private static void VerifyDragonReinstallRequest()
+    {
+        RoomEnemySlot slot = NewDragonAnimationSlot(0);
+        DragonEnemyState state = NewDragonAnimationState();
+        state.RequestedAnimation = DragonAnimationSelector.AttackingFacingLeft;
+        state.InstalledAnimation = DragonAnimationSelector.AttackingFacingLeft;
+        DragonBehavior.InstallDragonInstructionList(slot, state);
+        AssertEqual(0x2222, slot.InstructionTimer.RawValue, "Dragon installs nothing for the installed animation");
+
+        state.ReinstallRequested = true;
+        DragonBehavior.InstallDragonInstructionList(slot, state);
+        AssertDragonAnimationHandoff(slot, state, DragonAnimationSelector.AttackingFacingLeft, "Dragon reinstall request");
+        AssertEqual(false, state.ReinstallRequested, "Dragon reinstall request is spent by the install");
     }
 
     /// <summary>Forces each selector into a fresh slot to confirm pointer and timer installation.</summary>
@@ -57,11 +73,11 @@ internal static class DragonAnimationDefinitionsVerification
     {
         for (int index = 0; index < 6; index++)
         {
-            var requested = (DragonAnimationSelector)index;
+            DragonAnimationSelector requested = Selector(index);
             var slot = NewDragonAnimationSlot(0);
             DragonEnemyState state = NewDragonAnimationState();
-            state.RequestedInstructionListIndex = requested;
-            state.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
+            state.RequestedAnimation = requested;
+            state.ReinstallRequested = true;
             DragonBehavior.InstallDragonInstructionList(slot, state);
             AssertDragonAnimationHandoff(slot, state, requested, $"Dragon {requested}");
         }
@@ -143,9 +159,9 @@ internal static class DragonAnimationDefinitionsVerification
         string context,
         ushort expectedInstructionTimer = 1)
     {
-        AssertEqual(expected, state.RequestedInstructionListIndex,
+        AssertEqual(expected, state.RequestedAnimation,
             $"{context} requested selector");
-        AssertEqual(expected, state.InstalledInstructionListIndex,
+        AssertEqual(expected, state.InstalledAnimation,
             $"{context} installed selector");
         AssertEqual(AnimationProgramCursor<DragonProgram>.Start(DragonPhases.Program(expected)),
             state.Program,

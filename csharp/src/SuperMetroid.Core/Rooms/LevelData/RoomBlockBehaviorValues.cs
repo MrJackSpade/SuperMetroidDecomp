@@ -24,6 +24,12 @@ public static class RoomBlockBehaviorValues
     /// <summary>Resident scroll-trigger PLM collision seam.</summary>
     public static readonly RoomBlockBehavior ScrollTrigger = new(70);
 
+    /// <summary>On a special-solid block, the first of the seven station accesses, in their parameter order.</summary>
+    public static readonly RoomBlockBehavior FirstStationAccess = new(71);
+
+    /// <summary>On a shootable block, the first of the eight downward-gate triggers, in their parameter order.</summary>
+    public static readonly RoomBlockBehavior FirstDownwardGateTrigger = new(70);
+
     /// <summary>Entry 16 on a shootable block: the collision probe's no-op sentinel.</summary>
     public static readonly RoomBlockBehavior ShootableCollisionProbe = new(16);
 }

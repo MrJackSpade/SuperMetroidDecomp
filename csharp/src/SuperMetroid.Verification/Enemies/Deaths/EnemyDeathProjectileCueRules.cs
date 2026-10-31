@@ -29,7 +29,9 @@ internal static class EnemyDeathProjectileCueRules
         {
             var command = Commands[(NativeEnemyProjectileInstruction)word];
             AssertEqual(command.Kind, cue.Kind, $"{at}: cue");
-            RoomSpriteObjectKind spriteObject = command.OperandBytes == 2 ? (RoomSpriteObjectKind)LittleEndianBytes.Word(operands[0], operands[1]) : default;
+            RoomSpriteObjectKind spriteObject = command.OperandBytes == 2
+                ? RoomSpriteObjectNativeWords.Kinds.Decode(LittleEndianBytes.Word(operands[0], operands[1]), "death sprite object")
+                : default;
             AssertEqual(spriteObject, cue.SpriteObject, $"{at}: sprite object");
         },
         cue => cue.Kind is EnemyDeathProjectileCueKind.Delete or EnemyDeathProjectileCueKind.BecomePickup);

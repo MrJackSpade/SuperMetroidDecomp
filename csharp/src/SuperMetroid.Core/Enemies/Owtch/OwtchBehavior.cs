@@ -143,10 +143,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 return;
 
-            case OwtchBehaviorState.LeftBoundaryUnderflow:
-                // The moving-left routine decrements zero instead of incrementing it. On
-                // the next frame, direction $FFFF indexes two bytes before the function
-                // table and accidentally calls the right-list initializer at $A2:A49D.
+            case OwtchBehaviorState.TurningAtLeftBound:
+                // Owtch does not move this update; it restarts the right-facing animation, whose first cue sets it
+                // walking right.
                 SetOwtchProgram(slot, state, OwtchProgram.MovingRight);
                 return;
 
@@ -170,9 +169,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             if ((slot.Position.Whole - state.MinimumPosition).X >= 0)
                 return;
 
-            // This DEC is an original-game bug. Zero wraps to $FFFF; main AI then indexes
-            // the preceding initializer pointer rather than a declared function entry.
-            state.Behavior = OwtchBehaviorState.LeftBoundaryUnderflow;
+            // Unlike the right bound, the left bound does not turn Owtch at once: it spends the next update turning.
+            state.Behavior = OwtchBehaviorState.TurningAtLeftBound;
             return;
         }
 
@@ -194,11 +192,11 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Behavior = moving;
 
     /// <summary>
-    /// Enemy-shot callback $A2:A579 calls common damage only when signed(state - 1) is
-    /// negative. In shipped states that means moving left (plus the transient $FFFF bug).
+    /// Owtch's shell takes common damage only while it walks left or turns at the left bound; every other state is
+    /// immune.
     /// </summary>
     private static bool OwtchAcceptsOrdinaryShot(OwtchEnemyState state) =>
-        state.Behavior is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.LeftBoundaryUnderflow;
+        state.Behavior is OwtchBehaviorState.MovingLeft or OwtchBehaviorState.TurningAtLeftBound;
 
     /// <summary>Restarts the selected facing animation at its first step.</summary>
     private static void SetOwtchProgram(RoomEnemySlot slot, OwtchEnemyState state, OwtchProgram program)

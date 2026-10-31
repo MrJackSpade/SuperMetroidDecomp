@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
-/// <summary>The menu atlas cells of the 32x16 L/R highlight ($82:C465).</summary>
+/// <summary>The menu atlas cells of the 32x16 L/R highlight; the import pipeline knows which atlas tile holds each.</summary>
 internal enum MenuShoulderHighlightCell
 {
-    /// <summary>$3C: the top-left quarter.</summary>
-    TopLeft = 60,
+    /// <summary>The top-left quarter.</summary>
+    TopLeft,
 
-    /// <summary>$3D: the top-right quarter.</summary>
-    TopRight = 61,
+    /// <summary>The top-right quarter.</summary>
+    TopRight,
 
-    /// <summary>$43: the bottom-right quarter.</summary>
-    BottomRight = 67,
+    /// <summary>The bottom-right quarter.</summary>
+    BottomRight,
 
-    /// <summary>$51: the bottom-left quarter.</summary>
-    BottomLeft = 81,
+    /// <summary>The bottom-left quarter.</summary>
+    BottomLeft,
 }

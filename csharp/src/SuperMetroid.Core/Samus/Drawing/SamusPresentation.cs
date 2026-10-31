@@ -464,7 +464,7 @@ internal sealed class SamusPresentation
             // retain ordinary crouch/morph/stand/unmorph values and the four
             // valid-but-unused zero records `$39/$3A/$3F/$40`. An out-of-range
             // selection rejects; neighboring cartridge bytes are not a runtime fallback.
-            int postureIndex = (samus.Pose - SamusPoseId.CrouchingTransitionRightPose) * 2 + samus.AnimationFrame;
+            int postureIndex = SamusPoseNumbering.Offset(samus.Pose, SamusPoseId.CrouchingTransitionRightPose) * 2 + samus.AnimationFrame;
             if (BodyFrames.Artwork is not { } postureArt ||
                 !postureArt.TryPostureYOffset(postureIndex, out int transitionOffset))
                 throw new InvalidDataException($"Samus posture offset {postureIndex} lacks installed art.");

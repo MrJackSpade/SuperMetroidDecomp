@@ -56,11 +56,11 @@ internal static void VerifySamusStoredShineAndShinespark()
         SamusPoseId.ShinesparkDiagonalLeftPose,
     })
     {
-        WritePoseDefinition(bus, (int)pose,
-            [(byte)(((int)pose & 1) != 0 ? 0x08 : 0x04), 0x1b, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
-        WritePoseAnimationDelays(bus, pose, unchecked((ushort)(0xc600 + (int)pose)), [4]);
+        WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(pose),
+            [(byte)(((int)SamusPoseNumbering.Number(pose) & 1) != 0 ? 0x08 : 0x04), 0x1b, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
+        WritePoseAnimationDelays(bus, pose, unchecked((ushort)(0xc600 + (int)SamusPoseNumbering.Number(pose))), [4]);
     }
-    WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0xff, 0x02, 0x00, 0x00, 0x15, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.FacingRightNormalPose, 0xc500, [4]);
 
@@ -166,30 +166,30 @@ internal static void VerifySamusStoredShineAndShinespark()
         directional.Shinespark.BeginWindup(directional);
         directional.Shinespark.BeginDirectionalLaunch(directional, targetPose);
         AssertTrue(directional.Shinespark.ConsumeLaunchSoundRequest(),
-            $"pose ${(int)targetPose:X2} publishes one launch sound");
+            $"pose ${(int)SamusPoseNumbering.Number(targetPose):X2} publishes one launch sound");
         AssertTrue(!directional.Shinespark.ConsumeLaunchSoundRequest(),
-            $"pose ${(int)targetPose:X2} launch sound is one-shot");
+            $"pose ${(int)SamusPoseNumbering.Number(targetPose):X2} launch sound is one-shot");
         directional.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x2800);
         uint directionalXBefore = directional.Kinematics.Position.X.RawValue;
         uint directionalYBefore = directional.Kinematics.Position.Y.RawValue;
         directional.Shinespark.Step(new SamusTerrain { Level = directionLevel }, directional, new ShinesparkFrame { FrameCounter = 0 });
         AssertEqual(expectedPhase, directional.Shinespark.Phase,
-            $"pose ${(int)targetPose:X2} installs expected shinespark handler");
+            $"pose ${(int)SamusPoseNumbering.Number(targetPose):X2} installs expected shinespark handler");
         AssertEqual(expectsHorizontal, directional.Kinematics.Position.X.RawValue != directionalXBefore,
-            $"pose ${(int)targetPose:X2} horizontal-axis dispatch moves X");
+            $"pose ${(int)SamusPoseNumbering.Number(targetPose):X2} horizontal-axis dispatch moves X");
         AssertEqual(expectsVertical, directional.Kinematics.Position.Y.RawValue != directionalYBefore,
-            $"pose ${(int)targetPose:X2} vertical-axis dispatch moves Y");
+            $"pose ${(int)SamusPoseNumbering.Number(targetPose):X2} vertical-axis dispatch moves Y");
         if (expectsHorizontal)
         {
             AssertEqual(targetPose is SamusPoseId.ShinesparkHorizontalLeftPose or
                 SamusPoseId.ShinesparkDiagonalLeftPose,
                 directional.Position.X.Whole < 160,
-                $"pose ${(int)targetPose:X2} follows ROM X-direction metadata");
+                $"pose ${(int)SamusPoseNumbering.Number(targetPose):X2} follows ROM X-direction metadata");
         }
         if (expectsVertical)
         {
             AssertTrue(directional.Position.Y.Whole < 160,
-                $"pose ${(int)targetPose:X2} moves upward through block collision");
+                $"pose ${(int)SamusPoseNumbering.Number(targetPose):X2} moves upward through block collision");
         }
     }
 
@@ -259,7 +259,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         invincible.Shinespark.BeginDirectionalLaunch(invincible, targetPose);
         invincible.Shinespark.Step(new SamusTerrain { Level = directionLevel }, invincible, new ShinesparkFrame { FrameCounter = 0, PlayerInvincibilityEnabled = true });
         AssertTrue(invincible.Shinespark.Phase is not ShinesparkPhase.Crash,
-            $"invincible pose {(int)targetPose:X2} continues at {energy} energy");
+            $"invincible pose {(int)SamusPoseNumbering.Number(targetPose):X2} continues at {energy} energy");
         AssertTrue(invincible.Position.X.Whole != 160 || invincible.Position.Y.Whole != 160,
             "invincible spark actually advances");
         AssertEqual(Math.Max(1, energy - 1), invincible.Health,

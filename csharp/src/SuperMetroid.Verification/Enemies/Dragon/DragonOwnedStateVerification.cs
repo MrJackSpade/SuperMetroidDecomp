@@ -34,7 +34,7 @@ internal static class DragonOwnedStateVerification
         AssertTrue(!bodyState.FacingLeft, "a kill empties the facing");
         AssertEqual((ushort)0, bodyState.AttackCounter.RawValue, "a kill empties the shot counter");
         AssertEqual(null, bodyState.Function, "a kill empties the function");
-        AssertEqual(DragonAnimationSelector.IdleFacingLeft, bodyState.InstalledInstructionListIndex, "the installed animation outlives the kill");
+        AssertEqual(DragonAnimationSelector.IdleFacingLeft, bodyState.InstalledAnimation, "the installed animation outlives the kill");
         Console.WriteLine("Dragon owned state: the body/wing selection and the cleared record match.");
     }
 

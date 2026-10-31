@@ -33,23 +33,23 @@ internal static void VerifySamusDrainedController()
 
     // These are the literal direction/type/graphics-offset/radius fields for the source,
     // four drained records, and their eventual ordinary-standing destinations.
-    WritePoseDefinition(bus, (int)SamusPoseId.CrouchingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.CrouchingRightPose),
         [0x08, 0x05, 0xff, 0x02, 0x03, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.CrouchingLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.CrouchingLeftPose),
         [0x04, 0x05, 0xff, 0x07, 0x03, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.KnockbackLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.KnockbackLeftPose),
         [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.DrainedCrouchingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.DrainedCrouchingRightPose),
         [0x08, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.DrainedCrouchingLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.DrainedCrouchingLeftPose),
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.DrainedStandingRightPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.DrainedStandingRightPose),
         [0x08, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.DrainedStandingLeftPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.DrainedStandingLeftPose),
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.FacingLeftNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingLeftNormalPose),
         [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
 
     WritePoseAnimationDelayPointer(bus, SamusPoseId.CrouchingRightPose, 0xc000);
@@ -606,8 +606,8 @@ airRoom, integrated, null, signedDistance: 1 << 16);
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusSolidEnemyCollision.Probe(
-            samus, [], (SamusCollisionDirection)4, distance: 0, distanceSubposition: 0),
-        "invalid solid-enemy direction rejected");
+            samus, [], SamusCollisionDirection.NonDirectionalProbe, distance: 0, distanceSubposition: 0),
+        "non-directional solid-enemy probe rejected");
 
     Console.WriteLine("  Solid enemies: eligibility, native rounding, overlap, gaps, order, and touching quirk agree.");
 }
@@ -675,9 +675,9 @@ internal static void VerifySamusGrabbedByDraygon()
     }
 
     // Ordinary release destinations need real metadata and a harmless initial delay.
-    WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, (int)SamusPoseId.FacingLeftNormalPose,
+    WritePoseDefinition(bus, (int)SamusPoseNumbering.Number(SamusPoseId.FacingLeftNormalPose),
         [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
     WritePoseAnimationDelayPointer(bus, SamusPoseId.FacingRightNormalPose, 0xc000);
     WritePoseAnimationDelayPointer(bus, SamusPoseId.FacingLeftNormalPose, 0xc001);

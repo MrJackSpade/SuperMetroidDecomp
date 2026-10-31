@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Bosses;
@@ -518,10 +519,10 @@ internal static class FrontendRomFreeVerification
                     $"({first % FrontendFrame.Width},{first / FrontendFrame.Width}): " +
                     $"native={expectedPixels[first]}, installed={actualPixels[first]}; " +
                     $"Samus native=({native.GameplaySamusX},{native.GameplaySamusY}) " +
-                    $"pose ${(int)native.GameplaySamusPose:X2}/frame {nativeSamus.AnimationFrame}/" +
+                    $"pose ${(int)SamusPoseNumbering.Number(native.GameplaySamusPose):X2}/frame {nativeSamus.AnimationFrame}/" +
                     $"top {nativeSamus.Presentation.TopSpritemap}/bottom {nativeSamus.Presentation.BottomSpritemap}, installed=" +
                     $"({installed.GameplaySamusX},{installed.GameplaySamusY}) " +
-                    $"pose ${(int)installed.GameplaySamusPose:X2}/frame {installedSamus.AnimationFrame}/" +
+                    $"pose ${(int)SamusPoseNumbering.Number(installed.GameplaySamusPose):X2}/frame {installedSamus.AnimationFrame}/" +
                     $"top {installedSamus.Presentation.TopSpritemap}/bottom {installedSamus.Presentation.BottomSpritemap}; " +
                     $"first VRAM diff={firstVram}, first sprite part diff={firstPart}.");
             }

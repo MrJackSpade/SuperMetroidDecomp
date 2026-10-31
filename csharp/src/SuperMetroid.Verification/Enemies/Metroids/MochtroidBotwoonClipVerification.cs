@@ -131,7 +131,7 @@ internal static class MochtroidBotwoonClipVerification
                 AssertEqual(expected.LandingY, samus.Position.Y.Whole,
                     $"{expected.Case} frozen-Mochtroid landing Y");
                 AssertEqual(mochtroid.SlotIndex,
-                    samus.Kinematics.SolidEnemyCollisions[(int)SamusCollisionDirection.Down],
+                    samus.Kinematics.SolidEnemyCollisions[SamusCollisionDirectionNativeWords.Directions.Word(SamusCollisionDirection.Down)],
                     $"{expected.Case} landing collision owner");
             }
             if (frame == expected.StandFrame)
@@ -175,9 +175,9 @@ internal static class MochtroidBotwoonClipVerification
             ParseU16(fields[1]), new Position16<RoomPixels>(ParseU16(fields[2]), ParseU16(fields[3])),
             new Position16<RoomPixels>(ParseU16(fields[4]), ParseU16(fields[5])),
             ParseInt(fields[6]), ParseInt(fields[7]), ParseInt(fields[8]), ParseInt(fields[9]),
-            ParseU16(fields[10]), (SamusPoseId)ParseByte(fields[11]), ParseU16(fields[12]), ParseU16(fields[13]),
-            ParseU16(fields[14]), (SamusPoseId)ParseByte(fields[15]), ParseU16(fields[16]), ParseU16(fields[17]),
-            (SamusPoseId)ParseByte(fields[18]));
+            ParseU16(fields[10]), SamusPoseNumbering.FromNumber(ParseByte(fields[11])), ParseU16(fields[12]), ParseU16(fields[13]),
+            ParseU16(fields[14]), SamusPoseNumbering.FromNumber(ParseByte(fields[15])), ParseU16(fields[16]), ParseU16(fields[17]),
+            SamusPoseNumbering.FromNumber(ParseByte(fields[18])));
 
         static ushort ParseU16(string value) =>
             ushort.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture);

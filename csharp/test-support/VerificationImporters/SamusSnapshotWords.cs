@@ -98,8 +98,8 @@ internal static class SamusSnapshotWords
     internal static SamusMovementType DecodeHistoryMovement(int word)
     {
         int movement = (word >> HistoryFacingBits) & byte.MaxValue;
-        return movement <= (int)SamusMovementType.Special
-            ? (SamusMovementType)movement
+        return SamusMovementTypeNativeWords.Types.TryDecode(movement, out SamusMovementType type)
+            ? type
             : throw new InvalidDataException($"Pose-history word ${word:X4} records movement byte ${movement:X2}, which no movement type has.");
     }
 }

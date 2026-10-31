@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
-/// <summary>The menu atlas cells of the thin border ($B6:D5A0..D5DF).</summary>
+/// <summary>The menu atlas cells of the thin border; the import pipeline knows which atlas tile holds each.</summary>
 internal enum MenuThinBorderCell
 {
-    /// <summary>$AD: the horizontal line.</summary>
-    Line = 173,
+    /// <summary>The horizontal line.</summary>
+    Line,
 
-    /// <summary>$AE: the left corner.</summary>
-    Corner = 174,
+    /// <summary>The left corner.</summary>
+    Corner,
 }

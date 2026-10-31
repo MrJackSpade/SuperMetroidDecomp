@@ -75,8 +75,9 @@ internal static class EnemyHeaderTables
         int multiplier = entry & ~PreventsLethalFreezeBit;
         if ((multiplier & ~MultiplierBits) != 0)
             throw new InvalidDataException($"Vulnerability byte ${entry:X2} at ${address:X6} has a multiplier past the low nibble.");
-        return new EnemyWeaponVulnerability(multiplier, FreezesWithoutDamage: false,
-            PreventsLethalFreeze: (entry & PreventsLethalFreezeBit) != 0);
+        return new EnemyWeaponVulnerability(multiplier, (entry & PreventsLethalFreezeBit) != 0
+            ? EnemyIceResponse.DiesOnLethalHit
+            : EnemyIceResponse.FreezesOnLethalHit);
     }
 
     /// <summary>The long address of the table at <paramref name="word"/> among <paramref name="count"/> tables.</summary>

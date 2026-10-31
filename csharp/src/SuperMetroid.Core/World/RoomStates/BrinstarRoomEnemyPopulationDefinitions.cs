@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -20,21 +21,17 @@ using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.YappingMaws;
 
-using SuperMetroid.Core.Enemies.Boulder;
-using SuperMetroid.Core.Enemies.Crawlers;
-using SuperMetroid.Core.Enemies.Shutters;
+namespace SuperMetroid.Core.World.RoomStates;
 
-namespace SuperMetroid.Core.Enemies;
-
-/// <summary>The enemy populations of the Brinstar room-header region, in the original list order. It holds the Tourian statue rooms, whose headers lie in this region.</summary>
+/// <summary>The bank-$A1 placement lists of the Brinstar room-header region, in native table order. It holds the Tourian statue rooms, whose headers lie in this region.</summary>
 internal static class BrinstarRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's populations, in the original list order.</summary>
+    /// <summary>The region's lists, in native table order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.BrinstarPreMap),
         [
-            new(EnemyDefinitionId.Sidehopper, new(580, 59), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
+            new(EnemyDefinitionId.Sidehopper, new(580, 59), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
             new(EnemyDefinitionId.Zeela, new(376, 88), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 1, SurfaceTableOffset: 2)),
             new(EnemyDefinitionId.Zeela, new(424, 88), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 1, SurfaceTableOffset: 2)),
             new(EnemyDefinitionId.Zeela, new(73, 64), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 0, SurfaceTableOffset: 2)),
@@ -47,11 +44,11 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.SporeSpawnKihunters),
         [
-            new(EnemyDefinitionId.KihunterGreen, new(217, 104), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterGreen, new(217, 104), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterGreenWings, new(217, 104), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(725, 98), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterGreen, new(725, 98), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterGreenWings, new(725, 98), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(983, 104), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterGreen, new(983, 104), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterGreenWings, new(983, 104), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.EtecoonSuper),
@@ -62,9 +59,9 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.SporeSpawnFarming),
         [
-            new(EnemyDefinitionId.Zeb, new(384, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
-            new(EnemyDefinitionId.Zeb, new(272, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
-            new(EnemyDefinitionId.Zeb, new(224, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
+            new(EnemyDefinitionId.Zeb, new(384, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+            new(EnemyDefinitionId.Zeb, new(272, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+            new(EnemyDefinitionId.Zeb, new(224, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
             new(EnemyDefinitionId.Zeela, new(128, 66), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 255, SurfaceTableOffset: 2)),
             new(EnemyDefinitionId.Zeela, new(176, 66), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 255, SurfaceTableOffset: 2)),
         ], 5),
@@ -82,17 +79,17 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.YappingMaw, new(368, 208), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new YappingMawSpawnSettings(ActivationDistance: 54, Attack: VerticalDirection.Up)),
             new(EnemyDefinitionId.YappingMaw, new(240, 208), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new YappingMawSpawnSettings(ActivationDistance: 54, Attack: VerticalDirection.Up)),
-            new(EnemyDefinitionId.SidehopperLarge, new(240, 88), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
-            new(EnemyDefinitionId.SidehopperLarge, new(368, 88), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
-            new(EnemyDefinitionId.SidehopperLarge, new(120, 88), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
+            new(EnemyDefinitionId.SidehopperLarge, new(240, 88), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
+            new(EnemyDefinitionId.SidehopperLarge, new(368, 88), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
+            new(EnemyDefinitionId.SidehopperLarge, new(120, 88), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.WaterwayETank),
         [
-            new(EnemyDefinitionId.Skultera, new(320, 174), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 1, AngleDelta: 16)),
+            new(EnemyDefinitionId.Skultera, new(320, 174), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 1, AngleDelta: 16)),
             new(EnemyDefinitionId.Puyo, new(361, 179), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
             new(EnemyDefinitionId.Puyo, new(503, 179), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
             new(EnemyDefinitionId.Puyo, new(548, 181), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PuyoSpawnSettings(HopCooldown: 2, HopDistance: 1)),
-            new(EnemyDefinitionId.Skultera, new(587, 174), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 1, AngleDelta: 16)),
+            new(EnemyDefinitionId.Skultera, new(587, 174), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 1, AngleDelta: 16)),
             new(EnemyDefinitionId.Zero, new(1072, 184), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 0, SurfaceTableOffset: 0)),
             new(EnemyDefinitionId.Zero, new(1520, 88), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 0, SurfaceTableOffset: 0)),
         ], 7),
@@ -121,10 +118,10 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.NoobBridge),
         [
-            new(EnemyDefinitionId.Cacatac, new(192, 179), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, UpsideUp: true, DistanceIndex: 1, SpeedIndex: 3)),
-            new(EnemyDefinitionId.Cacatac, new(432, 179), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, UpsideUp: true, DistanceIndex: 1, SpeedIndex: 3)),
-            new(EnemyDefinitionId.Cacatac, new(1392, 179), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, UpsideUp: true, DistanceIndex: 1, SpeedIndex: 3)),
-            new(EnemyDefinitionId.Cacatac, new(976, 179), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, UpsideUp: true, DistanceIndex: 1, SpeedIndex: 3)),
+            new(EnemyDefinitionId.Cacatac, new(192, 179), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, DistanceIndex: 1, SpeedIndex: 3)),
+            new(EnemyDefinitionId.Cacatac, new(432, 179), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, DistanceIndex: 1, SpeedIndex: 3)),
+            new(EnemyDefinitionId.Cacatac, new(1392, 179), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, Mounting: CacatacMounting.Floor, DistanceIndex: 1, SpeedIndex: 3)),
+            new(EnemyDefinitionId.Cacatac, new(976, 179), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, DistanceIndex: 1, SpeedIndex: 3)),
             new(EnemyDefinitionId.Zeela, new(584, 118), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 0, SurfaceTableOffset: 2)),
             new(EnemyDefinitionId.Zeela, new(680, 118), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 0, SurfaceTableOffset: 2)),
             new(EnemyDefinitionId.Zeela, new(768, 118), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 0, SurfaceTableOffset: 2)),
@@ -133,9 +130,9 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.MorphBall1),
         [
             new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 1, ArrivalY: 24)),
-            new(EnemyDefinitionId.SidehopperLarge, new(152, 678), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.SidehopperLarge, new(380, 678), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.SidehopperLarge, new(263, 620), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
+            new(EnemyDefinitionId.SidehopperLarge, new(152, 678), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.SidehopperLarge, new(380, 678), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.SidehopperLarge, new(263, 620), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
             new(EnemyDefinitionId.FaceBlock, new(1352, 576), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(1464, 576), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(1160, 696), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
@@ -146,8 +143,8 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.MorphBall0),
         [
-            new(EnemyDefinitionId.Eye, new(1032, 584), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, IsBeamMount: true, MountDirection: 0)),
-            new(EnemyDefinitionId.Eye, new(1032, 584), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Left, IsBeamMount: false, MountDirection: 0)),
+            new(EnemyDefinitionId.Eye, new(1032, 584), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountDirection: 0)),
+            new(EnemyDefinitionId.Eye, new(1032, 584), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Left, Part: MorphBallEyePart.Eye, MountDirection: 0)),
             new(EnemyDefinitionId.Elevator, new(1408, 706), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ElevatorSpawnSettings(DirectionIndex: 1, ArrivalY: 24)),
             new(EnemyDefinitionId.FaceBlock, new(1352, 576), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Right)),
             new(EnemyDefinitionId.FaceBlock, new(1464, 576), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 64, Facing: HorizontalDirection.Left)),
@@ -191,13 +188,13 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Rio, new(744, 1144), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Rio, new(808, 1144), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Rio, new(821, 1449), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Sidehopper, new(569, 252), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
-            new(EnemyDefinitionId.Sidehopper, new(760, 237), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
-            new(EnemyDefinitionId.Sidehopper, new(592, 1048), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.Sidehopper, new(688, 1048), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.Zeb, new(704, 152), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
-            new(EnemyDefinitionId.Zeb, new(688, 552), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
-            new(EnemyDefinitionId.Zeb, new(800, 1353), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
+            new(EnemyDefinitionId.Sidehopper, new(569, 252), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
+            new(EnemyDefinitionId.Sidehopper, new(760, 237), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
+            new(EnemyDefinitionId.Sidehopper, new(592, 1048), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.Sidehopper, new(688, 1048), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.Zeb, new(704, 152), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+            new(EnemyDefinitionId.Zeb, new(688, 552), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+            new(EnemyDefinitionId.Zeb, new(800, 1353), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
         ], 10),
         new(nameof(RoomEnemyPopulationDefinitions.EtecoonSave),
         [
@@ -206,7 +203,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.YappingMaw, new(400, 456), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
             new(EnemyDefinitionId.YappingMaw, new(128, 456), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new YappingMawSpawnSettings(ActivationDistance: 48, Attack: VerticalDirection.Up)),
-            new(EnemyDefinitionId.Cacatac, new(264, 403), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, UpsideUp: true, DistanceIndex: 0, SpeedIndex: 2)),
+            new(EnemyDefinitionId.Cacatac, new(264, 403), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, DistanceIndex: 0, SpeedIndex: 2)),
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarSave),
         [
@@ -218,8 +215,8 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         [
             new(EnemyDefinitionId.ShutterShootable, new(56, 400), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new ShutterSpawnSettings(SpeedIndex: 8, PrimaryDirection: ShutterHeading.LeftOrUp, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 96, ProximityOrWaitTime: 0, FirstRestUnits: 255, SecondRestUnits: 255)),
             new(EnemyDefinitionId.ShutterShootable, new(408, 496), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new ShutterSpawnSettings(SpeedIndex: 8, PrimaryDirection: ShutterHeading.LeftOrUp, TriggerMode: ShutterTriggerMode.RepeatableReaction, TravelDistance: 64, ProximityOrWaitTime: 0, FirstRestUnits: 255, SecondRestUnits: 255)),
-            new(EnemyDefinitionId.SidehopperLarge, new(241, 166), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.SidehopperLarge, new(104, 100), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
+            new(EnemyDefinitionId.SidehopperLarge, new(241, 166), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.SidehopperLarge, new(104, 100), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
         ], 2),
         new(nameof(RoomEnemyPopulationDefinitions.RedTowerRefill),
         [
@@ -235,8 +232,8 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarETank0),
         [
-            new(EnemyDefinitionId.Eye, new(552, 616), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, IsBeamMount: true, MountDirection: 1)),
-            new(EnemyDefinitionId.Eye, new(552, 616), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, IsBeamMount: false, MountDirection: 0)),
+            new(EnemyDefinitionId.Eye, new(552, 616), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountDirection: 1)),
+            new(EnemyDefinitionId.Eye, new(552, 616), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.Eye, MountDirection: 0)),
             new(EnemyDefinitionId.FaceBlock, new(56, 552), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(56, 680), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.FaceBlock, new(744, 696), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new FaceBlockSpawnSettings(TriggerDistance: 0, Facing: HorizontalDirection.Left)),
@@ -245,11 +242,11 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarFirefleas),
         [
-            new(EnemyDefinitionId.Fireflea, new(384, 95), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Circular: true, PositiveSpeed: false, InitialAngle: 0, SpeedIndex: 16, RadiusIndex: 2)),
-            new(EnemyDefinitionId.Fireflea, new(225, 106), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Circular: true, PositiveSpeed: true, InitialAngle: 0, SpeedIndex: 16, RadiusIndex: 2)),
-            new(EnemyDefinitionId.Fireflea, new(69, 91), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Circular: true, PositiveSpeed: false, InitialAngle: 0, SpeedIndex: 16, RadiusIndex: 2)),
-            new(EnemyDefinitionId.Fireflea, new(112, 280), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Circular: false, PositiveSpeed: false, InitialAngle: 0, SpeedIndex: 8, RadiusIndex: 3)),
-            new(EnemyDefinitionId.Fireflea, new(160, 312), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Circular: false, PositiveSpeed: false, InitialAngle: 0, SpeedIndex: 8, RadiusIndex: 4)),
+            new(EnemyDefinitionId.Fireflea, new(384, 95), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Path: FirefleaPath.Circling, SpeedSign: EnemySpeedSign.Negative, InitialAngle: 0, SpeedIndex: 16, RadiusIndex: 2)),
+            new(EnemyDefinitionId.Fireflea, new(225, 106), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Path: FirefleaPath.Circling, SpeedSign: EnemySpeedSign.Positive, InitialAngle: 0, SpeedIndex: 16, RadiusIndex: 2)),
+            new(EnemyDefinitionId.Fireflea, new(69, 91), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Path: FirefleaPath.Circling, SpeedSign: EnemySpeedSign.Negative, InitialAngle: 0, SpeedIndex: 16, RadiusIndex: 2)),
+            new(EnemyDefinitionId.Fireflea, new(112, 280), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Path: FirefleaPath.Bobbing, SpeedSign: EnemySpeedSign.Negative, InitialAngle: 0, SpeedIndex: 8, RadiusIndex: 3)),
+            new(EnemyDefinitionId.Fireflea, new(160, 312), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Path: FirefleaPath.Bobbing, SpeedSign: EnemySpeedSign.Negative, InitialAngle: 0, SpeedIndex: 8, RadiusIndex: 4)),
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarBeetoms),
         [
@@ -260,9 +257,9 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.EtecoonETank),
         [
-            new(EnemyDefinitionId.Zebbo, new(592, 472), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
-            new(EnemyDefinitionId.Zebbo, new(752, 472), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
-            new(EnemyDefinitionId.Zebbo, new(1072, 472), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
+            new(EnemyDefinitionId.Zebbo, new(592, 472), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+            new(EnemyDefinitionId.Zebbo, new(752, 472), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+            new(EnemyDefinitionId.Zebbo, new(1072, 472), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
             new(EnemyDefinitionId.Beetom, new(472, 408), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Beetom, new(632, 408), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Beetom, new(864, 424), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
@@ -271,9 +268,9 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 8),
         new(nameof(RoomEnemyPopulationDefinitions.PinkBrinstarHoppers),
         [
-            new(EnemyDefinitionId.SidehopperLarge, new(181, 437), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.Sidehopper, new(248, 416), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.Sidehopper, new(106, 449), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
+            new(EnemyDefinitionId.SidehopperLarge, new(181, 437), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.Sidehopper, new(248, 416), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.Sidehopper, new(106, 449), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
             new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new ShutterSpawnSettings(SpeedIndex: 8, PrimaryDirection: ShutterHeading.LeftOrUp, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 64, ProximityOrWaitTime: 0, FirstRestUnits: 255, SecondRestUnits: 0)),
             new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new ShutterSpawnSettings(SpeedIndex: 8, PrimaryDirection: ShutterHeading.LeftOrUp, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 128, ProximityOrWaitTime: 0, FirstRestUnits: 255, SecondRestUnits: 0)),
             new(EnemyDefinitionId.ShutterShootable, new(344, 480), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new ShutterSpawnSettings(SpeedIndex: 8, PrimaryDirection: ShutterHeading.LeftOrUp, TriggerMode: ShutterTriggerMode.OneShotReaction, TravelDistance: 192, ProximityOrWaitTime: 0, FirstRestUnits: 255, SecondRestUnits: 0)),
@@ -294,13 +291,13 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.WarehouseKihunter),
         [
-            new(EnemyDefinitionId.KihunterGreen, new(361, 112), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterGreen, new(361, 112), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterGreenWings, new(361, 112), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(649, 89), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterGreen, new(649, 89), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterGreenWings, new(649, 89), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(510, 99), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterGreen, new(510, 99), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterGreenWings, new(510, 99), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(578, 122), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterGreen, new(578, 122), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterGreenWings, new(578, 122), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.GreenBrinstarMainShaft),
@@ -319,12 +316,12 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 7),
         new(nameof(RoomEnemyPopulationDefinitions.SporeSpawnSuper),
         [
-            new(EnemyDefinitionId.Zeb, new(192, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
+            new(EnemyDefinitionId.Zeb, new(192, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.EarlySupers),
         [
-            new(EnemyDefinitionId.Sidehopper, new(442, 424), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.Sidehopper, new(512, 424), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
+            new(EnemyDefinitionId.Sidehopper, new(442, 424), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.Sidehopper, new(512, 424), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
             new(EnemyDefinitionId.ShutterGrowing, new(408, 296), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: GrowingShutterGrowth.Down, ActivationDistance: 144, GrowthSpeedIndex: 16)),
             new(EnemyDefinitionId.ShutterGrowing, new(552, 296), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: GrowingShutterGrowth.Down, ActivationDistance: 144, GrowthSpeedIndex: 16)),
             new(EnemyDefinitionId.ShutterGrowing, new(648, 296), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new GrowingShutterSpawnSettings(Wait: GrowingShutterWait.SamusNear, Growth: GrowingShutterGrowth.Down, ActivationDistance: 144, GrowthSpeedIndex: 16)),
@@ -332,18 +329,18 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Waver, new(264, 107), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
             new(EnemyDefinitionId.Waver, new(529, 101), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
             new(EnemyDefinitionId.Waver, new(321, 86), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
-            new(EnemyDefinitionId.Zeb, new(144, 440), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
-            new(EnemyDefinitionId.Sidehopper, new(322, 133), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.Sidehopper, new(451, 132), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.Sidehopper, new(387, 61), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
+            new(EnemyDefinitionId.Zeb, new(144, 440), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+            new(EnemyDefinitionId.Sidehopper, new(322, 133), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.Sidehopper, new(451, 132), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.Sidehopper, new(387, 61), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
         ], 10),
         new(nameof(RoomEnemyPopulationDefinitions.RedBrinstarFirefleas),
         [
-            new(EnemyDefinitionId.Fireflea, new(1744, 144), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Circular: false, PositiveSpeed: false, InitialAngle: 0, SpeedIndex: 6, RadiusIndex: 3)),
-            new(EnemyDefinitionId.Fireflea, new(1808, 112), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Circular: true, PositiveSpeed: false, InitialAngle: 0, SpeedIndex: 24, RadiusIndex: 5)),
-            new(EnemyDefinitionId.Fireflea, new(1672, 96), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Circular: true, PositiveSpeed: true, InitialAngle: 0, SpeedIndex: 24, RadiusIndex: 4)),
-            new(EnemyDefinitionId.Fireflea, new(1248, 168), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Circular: true, PositiveSpeed: false, InitialAngle: 0, SpeedIndex: 16, RadiusIndex: 2)),
-            new(EnemyDefinitionId.Fireflea, new(1584, 128), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Circular: true, PositiveSpeed: true, InitialAngle: 0, SpeedIndex: 32, RadiusIndex: 2)),
+            new(EnemyDefinitionId.Fireflea, new(1744, 144), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Path: FirefleaPath.Bobbing, SpeedSign: EnemySpeedSign.Negative, InitialAngle: 0, SpeedIndex: 6, RadiusIndex: 3)),
+            new(EnemyDefinitionId.Fireflea, new(1808, 112), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Path: FirefleaPath.Circling, SpeedSign: EnemySpeedSign.Negative, InitialAngle: 0, SpeedIndex: 24, RadiusIndex: 5)),
+            new(EnemyDefinitionId.Fireflea, new(1672, 96), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Path: FirefleaPath.Circling, SpeedSign: EnemySpeedSign.Positive, InitialAngle: 0, SpeedIndex: 24, RadiusIndex: 4)),
+            new(EnemyDefinitionId.Fireflea, new(1248, 168), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Path: FirefleaPath.Circling, SpeedSign: EnemySpeedSign.Negative, InitialAngle: 0, SpeedIndex: 16, RadiusIndex: 2)),
+            new(EnemyDefinitionId.Fireflea, new(1584, 128), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new FirefleaSpawnSettings(Path: FirefleaPath.Circling, SpeedSign: EnemySpeedSign.Positive, InitialAngle: 0, SpeedIndex: 32, RadiusIndex: 2)),
             new(EnemyDefinitionId.Waver, new(1861, 80), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.Waver, new(1680, 96), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new WaverSpawnSettings(Facing: HorizontalDirection.Left)),
             new(EnemyDefinitionId.Waver, new(1536, 96), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new WaverSpawnSettings(Facing: HorizontalDirection.Right)),
@@ -371,16 +368,16 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.GreenHillZone),
         [
-            new(EnemyDefinitionId.Sidehopper, new(1024, 672), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.Sidehopper, new(1280, 768), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
-            new(EnemyDefinitionId.Sidehopper, new(1671, 950), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
+            new(EnemyDefinitionId.Sidehopper, new(1024, 672), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.Sidehopper, new(1280, 768), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
+            new(EnemyDefinitionId.Sidehopper, new(1671, 950), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
             new(EnemyDefinitionId.Geega, new(368, 288), EnemyProperties.Invisible | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, SpeedIndex: 36)),
             new(EnemyDefinitionId.Geega, new(560, 480), EnemyProperties.Invisible | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Right, SpeedIndex: 36)),
             new(EnemyDefinitionId.Geega, new(896, 544), EnemyProperties.Invisible | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, SpeedIndex: 36)),
             new(EnemyDefinitionId.Geega, new(1376, 736), EnemyProperties.Invisible | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Left, SpeedIndex: 36)),
             new(EnemyDefinitionId.Geega, new(1280, 832), EnemyProperties.Invisible | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new YellowPipeBugSpawnSettings(Facing: HorizontalDirection.Right, SpeedIndex: 36)),
-            new(EnemyDefinitionId.Sidehopper, new(1744, 848), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
-            new(EnemyDefinitionId.Sidehopper, new(1816, 848), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
+            new(EnemyDefinitionId.Sidehopper, new(1744, 848), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
+            new(EnemyDefinitionId.Sidehopper, new(1816, 848), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
         ], 10),
         new(nameof(RoomEnemyPopulationDefinitions.Dachora),
         [
@@ -392,11 +389,11 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Rio, new(304, 96), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Rio, new(432, 96), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Rio, new(744, 96), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Echo: false)),
-            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Echo: true)),
-            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Echo: true)),
-            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Echo: true)),
-            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Echo: true)),
+            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.Runner)),
+            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
+            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
+            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
+            new(EnemyDefinitionId.Dachora, new(96, 1704), EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen, EnemyExtraProperties.None, new DachoraSpawnSettings(Facing: HorizontalDirection.Right, Role: DachoraRole.SpeedBoostEcho)),
         ], 8),
         new(nameof(RoomEnemyPopulationDefinitions.Hellway),
         [
@@ -404,10 +401,10 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Zeela, new(295, 136), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 2, SurfaceTableOffset: 2)),
             new(EnemyDefinitionId.Zeela, new(368, 152), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 2, SurfaceTableOffset: 2)),
             new(EnemyDefinitionId.Zeela, new(447, 152), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 2, SurfaceTableOffset: 2)),
-            new(EnemyDefinitionId.Zebbo, new(416, 216), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
-            new(EnemyDefinitionId.Zebbo, new(256, 216), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
-            new(EnemyDefinitionId.Zebbo, new(480, 216), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
-            new(EnemyDefinitionId.Zebbo, new(128, 216), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
+            new(EnemyDefinitionId.Zebbo, new(416, 216), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+            new(EnemyDefinitionId.Zebbo, new(256, 216), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+            new(EnemyDefinitionId.Zebbo, new(480, 216), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+            new(EnemyDefinitionId.Zebbo, new(128, 216), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
         ], 8),
         new(nameof(RoomEnemyPopulationDefinitions.FirstMissile),
         [
@@ -443,7 +440,7 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.KraidEyeDoor),
         [
-            new(EnemyDefinitionId.Zeb, new(144, 456), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
+            new(EnemyDefinitionId.Zeb, new(144, 456), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
             new(EnemyDefinitionId.Sbug, new(310, 413), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: 200, ActivationRadius: 48, Behavior: 0)),
             new(EnemyDefinitionId.Sbug, new(311, 420), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 3, InitialAngle: 186, ActivationRadius: 48, Behavior: 0)),
             new(EnemyDefinitionId.Sbug, new(317, 427), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SbugSpawnSettings(Speed: 2, InitialAngle: 168, ActivationRadius: 48, Behavior: 0)),
@@ -461,8 +458,8 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Zero, new(95, 1928), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 0, SurfaceTableOffset: 0)),
             new(EnemyDefinitionId.Zero, new(23, 1758), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideDown, SpeedIndex: 0, SurfaceTableOffset: 0)),
             new(EnemyDefinitionId.Zero, new(120, 1679), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideLeft, BlockSide: CrawlerSurfaceOrientation.UpsideDown, SpeedIndex: 0, SurfaceTableOffset: 0)),
-            new(EnemyDefinitionId.Cacatac, new(113, 1139), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, UpsideUp: true, DistanceIndex: 0, SpeedIndex: 3)),
-            new(EnemyDefinitionId.Cacatac, new(192, 1283), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, UpsideUp: true, DistanceIndex: 0, SpeedIndex: 3)),
+            new(EnemyDefinitionId.Cacatac, new(113, 1139), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, Mounting: CacatacMounting.Floor, DistanceIndex: 0, SpeedIndex: 3)),
+            new(EnemyDefinitionId.Cacatac, new(192, 1283), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, DistanceIndex: 0, SpeedIndex: 3)),
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.MiniKraid),
         [

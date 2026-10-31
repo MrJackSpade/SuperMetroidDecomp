@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Yard;
@@ -28,7 +27,7 @@ internal static class YardDirectionDefinitionsVerification
             int record = directionAddress + direction * 8;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingProgram),
                 $"Yard direction {direction} crawling list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), CrawlerAnimationDefinitions.Orientations.PositionOf(definition.BlockSide),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.PositionOf(definition.BlockSide),
                 $"Yard direction {direction} block side");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
                 $"Yard direction {direction} hiding list");
@@ -76,7 +75,7 @@ internal static class YardDirectionDefinitionsVerification
                 throw new InvalidDataException("Yard initializer produced no typed state.");
             YardDirectionDefinition initial =
                 YardDirections.ForDirection(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
-            AssertYardDirectionState(slot, state, initial,
+            AssertYardDirectionState(state, initial,
                 $"Yard initializer direction {direction}",
                 assertMovementFunction: false);
             AssertEqual(YardMovementFunction.InstructionPending, state.MovementFunction,
@@ -87,13 +86,13 @@ internal static class YardDirectionDefinitionsVerification
             // eight legal bytecode values to exercise the production turn dispatcher.
             state.Direction = SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction);
             state.MovementFunction = initial.MovementFunction;
-            bool turned = YardEnemyBehavior.TurnYardAround(slot, state);
+            bool turned = YardEnemyBehavior.TurnYardAround(state);
             AssertTrue(turned, $"Yard direction {direction} production turn");
             YardDirectionDefinition opposite =
                 YardDirections.ForDirection(initial.OppositeDirection);
             AssertEqual(initial.OppositeDirection, state.Direction,
                 $"Yard direction {direction} production opposite");
-            AssertYardDirectionState(slot, state, opposite,
+            AssertYardDirectionState(state, opposite,
                 $"Yard turn direction {direction}",
                 assertMovementFunction: true);
         }
@@ -138,7 +137,6 @@ internal static class YardDirectionDefinitionsVerification
 
     /// <summary>Checks the instruction, property, hiding, facing, and optionally movement values installed for a Yard direction.</summary>
     private static void AssertYardDirectionState(
-        RoomEnemySlot slot,
         YardEnemyState state,
         YardDirectionDefinition expected,
         string name,

@@ -23,7 +23,7 @@ internal static class RidleyExplosionDefinitionsVerification
             0xc933, 0xc93a, 0xc941, 0xc948, 0xc94f, 0xc956,
             0xc95d, 0xc964, 0xc96b, 0xc972, 0xc979, 0xc980,
         ];
-        var spawnOrder = new List<int>();
+        var spawnOrder = new List<RidleyExplosionPart>();
         RidleyBreakup.SpawnInBreakupOrder(spawnOrder.Add);
         AssertEqual(spawnPointerOperands.Length, spawnOrder.Count,
             "Ridley breakup spawn count");
@@ -31,14 +31,14 @@ internal static class RidleyExplosionDefinitionsVerification
         {
             ushort populationPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | spawnPointerOperands[index]));
             ushort parameter = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | unchecked((ushort)(populationPointer + 12))));
-            AssertEqual(parameter, spawnOrder[index],
+            AssertEqual(parameter, SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionParameter(spawnOrder[index]),
                 $"Ridley breakup native spawn order {index}");
         }
 
         for (ushort parameter = 0; parameter <= SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionParameter(RidleyExplosionPart.Claw); parameter += 2)
         {
             RidleyExplosionPartDefinition definition =
-                RidleyExplosionDefinitions.GetPart(parameter);
+                RidleyExplosionDefinitions.GetPart(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(parameter));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c6ce + parameter)), definition.Lifetime,
                 $"Ridley breakup lifetime ${parameter:X2}");
         }

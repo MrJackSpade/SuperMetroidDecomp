@@ -62,7 +62,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         // words. Keep the byte offset visible; treating it as an array index is a common
         // source of subtly wrong half-pixel speeds in ports of this AI.
         SkulteraSpawnSettings settings = slot.SpawnSettings<SkulteraSpawnSettings>();
-        bool startsLeft = settings.StartsLeft;
+        bool startsLeft = settings.StartDirection == HorizontalDirection.Left;
         state.Program = AnimationProgramCursor<SkulteraProgram>.Start(startsLeft
             ? SkulteraProgram.SwimmingLeft
             : SkulteraProgram.SwimmingRight);

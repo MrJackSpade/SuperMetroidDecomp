@@ -149,8 +149,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>CeresDoor_Init</c> at $A6:F6C5 for every retail population variant.</summary>
     internal void InitializeCeresDoor(RoomEnemySlot slot)
     {
-        CeresDoorInitializationDefinition initialization =
-            CeresDoorInitializations.For(slot.Spawn.Population.SpawnSettingsOf<CeresDoorSpawnSettings>().Variant);
+        CeresDoorVariant variant = slot.Spawn.Population.SpawnSettingsOf<CeresDoorSpawnSettings>().Variant;
+        CeresDoorInitializationDefinition initialization = CeresDoorInitializations.For(variant);
 
         slot.Frame = EnemyFrameId.CeresDoorInitial;
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -161,14 +161,14 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
         DoorPrograms[slot.SlotIndex] = AnimationProgramCursor<CeresDoorProgram>.Start(initialization.Program);
 
-        // CeresDoor_Func_1 copies the door's characters over the OBJ characters only for variant two (#1406).
-        if (variant == 2)
+        // CeresDoor_Func_1 copies the door's characters over the OBJ characters only for the pre-explosion overlay (#1406).
+        if (variant == CeresDoorVariant.RotatingElevatorPreExplosionOverlay)
         {
             _ = SelectedCeresDoorVisual;
             _presentation.ShowLook(CeresDoorCharacters.Shown);
         }
 
-        if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped && variant == 3)
+        if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped && variant == CeresDoorVariant.RidleyRoomFacingRight)
         {
             // The native destination $142 is a byte offset into target_palettes: colors
             // 161..175. This runtime exposes the final fade target directly in CGRAM.

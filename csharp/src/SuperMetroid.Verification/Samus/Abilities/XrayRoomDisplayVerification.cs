@@ -34,7 +34,7 @@ internal static class XrayRoomDisplayVerification
             AssertEqual(excluded ? XrayRoomBlendMode.PreserveBackgrounds : XrayRoomBlendMode.RevealBlocks,
                 XrayRoomDisplayRules.Select(RoomHeaderDefinitions.LandingSite, 0, boss), "native boss reveal admission");
             AssertEqual(XrayRoomBlendMode.Fireflea,
-                XrayRoomDisplayRules.Select(RoomHeaderDefinitions.GlassTunnel, (RoomFxType)0x24, boss), "Fireflea mode takes precedence over exclusions");
+                XrayRoomDisplayRules.Select(RoomHeaderDefinitions.GlassTunnel, RoomFxType.Fireflea, boss), "Fireflea mode takes precedence over exclusions");
         }
         AssertEqual(3171, XrayRoomDisplayRules.ActiveBackdrop, "native stage-eight backdrop");
         const ColorBlend revealLayers = ColorBlend.Bg1 | ColorBlend.Bg2 | ColorBlend.Sprites | ColorBlend.Backdrop;

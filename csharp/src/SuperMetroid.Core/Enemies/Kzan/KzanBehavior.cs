@@ -60,7 +60,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
         // on its first DEC rather than triggering immediately.
         var spawn = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
-        state.FallingTarget = spawn + new Offset16<RoomPixels>(0, slot.SpawnSettings<KzanSpawnSettings>().FallDistance);
+        state.FallingTarget = spawn + new Offset16<RoomPixels>(0, checked((short)slot.SpawnSettings<KzanSpawnSettings>().FallDistance));
         state.RisingTarget = spawn;
         state.FallWaitTimerResetValue = slot.SpawnSettings<KzanSpawnSettings>().FallWait;
         state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);

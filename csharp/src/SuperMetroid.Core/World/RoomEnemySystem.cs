@@ -965,9 +965,12 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     else
                     {
                         slot.AiStates = slot.AiStates & ~EnemyAiStates.Frozen;
-                        slot.FrozenTimer = WrappingCountdown.Start(ThawedFreezeLeftover.Of(
-                            (slot.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None,
-                            (slot.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None));
+                        bool stillGrappled = (slot.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None;
+                        bool stillHurt = (slot.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None;
+                        ThawedFreezeLeftover.Hold hold = stillGrappled
+                            ? stillHurt ? ThawedFreezeLeftover.Hold.GrappledAndHurt : ThawedFreezeLeftover.Hold.Grappled
+                            : stillHurt ? ThawedFreezeLeftover.Hold.Hurt : ThawedFreezeLeftover.Hold.None;
+                        slot.FrozenTimer = WrappingCountdown.Start(ThawedFreezeLeftover.Of(hold));
                     }
                     foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
                         handler(slot);

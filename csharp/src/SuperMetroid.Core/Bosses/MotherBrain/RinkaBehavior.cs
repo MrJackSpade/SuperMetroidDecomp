@@ -471,7 +471,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>
-    private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Spawn.Population.SpawnSettingsOf<RinkaSpawnSettings>().Special;
+    private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Spawn.Population.SpawnSettingsOf<RinkaSpawnSettings>().Placement == RinkaPlacement.FreeSpawnPoint;
 
     /// <summary>Runs the private lethal-health tail after common bomb damage without generic death.</summary>
     internal void AddRinkaBombReactions(EnemySharedReactions table)

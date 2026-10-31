@@ -364,7 +364,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                     source.Position.X.Whole +
                     (movingRight ? WalkingPirateLaserMuzzleXOffset : -WalkingPirateLaserMuzzleXOffset))),
                 unchecked((ushort)(source.Position.Y.Whole - laserHeight))),
-            movingRight);
+            movingRight,
+            LaserSpeedOf(source));
         if (projectile is null)
             return false;
 
@@ -373,15 +374,37 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>
+    /// The speed of a pirate's laser: the initializer reads the firing pirate's first parameter, where walking and wall
+    /// pirates author the slow laser.
+    /// </summary>
+    private static PirateLaserSpeed LaserSpeedOf(RoomEnemySlot pirate)
+    {
+        bool slow = pirate.Spawn.Population.SpawnSettings switch
+        {
+            WalkingSpacePirateSpawnSettings walking =>
+                (walking.Options & WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != WalkingSpacePirateParameterFlags.None,
+            WallSpacePirateSpawnSettings wall =>
+                (wall.Options & WallSpacePirateParameterFlags.SlowJumpAndLaser) != WallSpacePirateParameterFlags.None,
+            _ => throw new InvalidOperationException($"{pirate.DefinitionId} is not a pirate that fires lasers."),
+        };
+        return slow ? PirateLaserSpeed.Slow : PirateLaserSpeed.Fast;
+    }
+
+    /// <summary>
     /// Ports the common projectile initializer <c>$86:A009</c> after the caller has chosen
     /// its muzzle coordinate. Walking Pirates, wall Pirates, and Mother Brain enter through
     /// different actor opcodes, but the cartridge deliberately funnels all of them through
     /// this definition so animation, speed flags, collision damage, and disposal agree.
     /// </summary>
+    /// <param name="source">The enemy firing the laser, whose damage the laser takes.</param>
+    /// <param name="muzzle">Where the laser starts.</param>
+    /// <param name="movingRight">Whether the laser travels right.</param>
+    /// <param name="speed">The laser's speed, which the firing enemy's first parameter authors.</param>
     internal RoomEnemyProjectileSlot? SpawnPirateMotherBrainLaser(
         RoomEnemySlot source,
         Position16<RoomPixels> muzzle,
-        bool movingRight)
+        bool movingRight,
+        PirateLaserSpeed speed)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -401,8 +424,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
         // stationary until list opcode A050 installs and immediately executes movement.
         projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86A05B;
-        projectile.State = new PirateLaserState((source.SpawnSettings<WalkingSpacePirateSpawnSettings>().Options &
-            WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != WalkingSpacePirateParameterFlags.None);
+        projectile.State = new PirateLaserState(speed == PirateLaserSpeed.Slow);
 
         // A009 replaces the projectile definition's property word with enemy damage OR
         // $1000. The source palette/VRAM are *not* copied: SpawnEprojWithRoomGfx passes a

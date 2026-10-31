@@ -27,6 +27,7 @@ internal static class PowampBehaviorVerification
         RoomEnemySlot body = enemies.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);
         body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+        body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
         enemies.PowampBehavior.InitializePowamp(body);
         AssertEqual(AnimationProgramCursor<PowampProgram>.Start(PowampProgram.BalloonDeflated), balloon.RequireSpeciesState<PowampEnemyState>().Program,
             "the balloon starts deflated");

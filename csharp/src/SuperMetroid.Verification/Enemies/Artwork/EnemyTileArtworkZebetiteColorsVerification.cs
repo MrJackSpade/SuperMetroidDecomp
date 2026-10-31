@@ -127,6 +127,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             SamusColourRig cgram = SeedColors();
             enemies.Presentation.BindColours(cgram.Gameplay);
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];
+            primarySlot.SetSpawnSettings(new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
             var primary = new ZebetiteEnemyState(primarySlot.Spawn.Population);
             primarySlot.SetSpeciesState(primary, primary.ClearWithRecord);
             return new CreateResult(enemies, cgram);

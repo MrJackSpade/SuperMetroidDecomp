@@ -62,6 +62,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
         parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
+        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
         AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Idle), enemies.SlotTable.Slots[0].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Program,
             "Lower Norfair Rio parent initializer selects idle");
@@ -99,6 +100,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
+        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);

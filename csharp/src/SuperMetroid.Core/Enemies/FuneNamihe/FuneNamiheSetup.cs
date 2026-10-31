@@ -13,5 +13,5 @@ internal readonly record struct FuneNamiheSetup(int Variant, bool FacesRight)
 
     /// <summary>The setup a placement's spawn settings name.</summary>
     internal static FuneNamiheSetup Of(FuneNamiheSpawnSettings settings) =>
-        new(Ensure.NotNull(settings).Variant, settings.FacesRight);
+        new(Ensure.NotNull(settings).Variant, settings.Facing == HorizontalDirection.Right);
 }

@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Choot;
@@ -18,15 +19,12 @@ using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Waver;
 using SuperMetroid.Core.Enemies.YappingMaws;
 
-using SuperMetroid.Core.Enemies.Crawlers;
-using SuperMetroid.Core.Enemies.Ripper;
+namespace SuperMetroid.Core.World.RoomStates;
 
-namespace SuperMetroid.Core.Enemies;
-
-/// <summary>The enemy populations of the Crateria room-header region, in the original list order. It opens with the list Draygon and Mother Brain share.</summary>
+/// <summary>The bank-$A1 placement lists of the Crateria room-header region, in native table order. It opens with the list Draygon and Mother Brain share.</summary>
 internal static class CrateriaRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's populations, in the original list order.</summary>
+    /// <summary>The region's lists, in native table order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.DraygonState1MotherBrainState2),
@@ -39,11 +37,11 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Choot, new(532, 1340), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 2, PatternLoops: 3, JumpDelay: 16)),
             new(EnemyDefinitionId.Choot, new(1480, 1470), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 2, PatternLoops: 3, JumpDelay: 16)),
             new(EnemyDefinitionId.Choot, new(176, 1308), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 2, PatternLoops: 3, JumpDelay: 16)),
-            new(EnemyDefinitionId.Skultera, new(252, 1379), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: true, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(469, 1393), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(788, 1415), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: true, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(964, 1387), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(1237, 1399), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(252, 1379), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(469, 1393), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(788, 1415), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(964, 1387), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(1237, 1399), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
             new(EnemyDefinitionId.Kamer2, new(1216, 1264), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 0, MaximumYSpeedIndex: 40)),
             new(EnemyDefinitionId.Kamer2, new(960, 1264), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 0, MaximumYSpeedIndex: 40)),
             new(EnemyDefinitionId.Kamer2, new(712, 1264), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 0, MaximumYSpeedIndex: 40)),
@@ -156,8 +154,8 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.FinalMissile0),
         [
-            new(EnemyDefinitionId.Eye, new(50, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, IsBeamMount: true, MountDirection: 0)),
-            new(EnemyDefinitionId.Eye, new(50, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, IsBeamMount: false, MountDirection: 0)),
+            new(EnemyDefinitionId.Eye, new(50, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.BeamMount, MountDirection: 0)),
+            new(EnemyDefinitionId.Eye, new(50, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MorphBallEyeSpawnSettings(Facing: HorizontalDirection.Right, Part: MorphBallEyePart.Eye, MountDirection: 0)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.CrateriaMap),
         [
@@ -194,9 +192,9 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.WestOcean),
         [
-            new(EnemyDefinitionId.Skultera, new(1188, 1392), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(971, 1402), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: true, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Zeb, new(632, 704), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
+            new(EnemyDefinitionId.Skultera, new(1188, 1392), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(971, 1402), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Zeb, new(632, 704), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
             new(EnemyDefinitionId.GRipper, new(1424, 1072), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new GRipperSpawnSettings(SpeedIndex: 16, Direction: GRipperStartDirection.Right, MinimumX: 1376, MaximumX: 1472)),
             new(EnemyDefinitionId.Tripper, new(336, 216), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 16, MaximumYSpeedIndex: 0)),
             new(EnemyDefinitionId.Tripper, new(904, 88), EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 16, MaximumYSpeedIndex: 0)),
@@ -228,8 +226,8 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.LandingSite012),
         [
             new(EnemyDefinitionId.ShipTop, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.ShipBottomEntrance, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new GunshipSpawnSettings(EntrancePad: false)),
-            new(EnemyDefinitionId.ShipBottomEntrance, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new GunshipSpawnSettings(EntrancePad: true)),
+            new(EnemyDefinitionId.ShipBottomEntrance, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new GunshipSpawnSettings(Part: GunshipBottomPiece.Hull)),
+            new(EnemyDefinitionId.ShipBottomEntrance, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new GunshipSpawnSettings(Part: GunshipBottomPiece.EntrancePad)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.CrateriaSuper),
         [
@@ -272,7 +270,7 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.GauntletETank),
         [
             new(EnemyDefinitionId.YappingMaw, new(136, 56), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new YappingMawSpawnSettings(ActivationDistance: 112, Attack: VerticalDirection.Down)),
-            new(EnemyDefinitionId.Zebbo, new(136, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
+            new(EnemyDefinitionId.Zebbo, new(136, 184), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.Pit0),
         [
@@ -331,8 +329,8 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.LandingSite3),
         [
             new(EnemyDefinitionId.ShipTop, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.ShipBottomEntrance, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new GunshipSpawnSettings(EntrancePad: false)),
-            new(EnemyDefinitionId.ShipBottomEntrance, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new GunshipSpawnSettings(EntrancePad: true)),
+            new(EnemyDefinitionId.ShipBottomEntrance, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new GunshipSpawnSettings(Part: GunshipBottomPiece.Hull)),
+            new(EnemyDefinitionId.ShipBottomEntrance, new(1152, 1144), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new GunshipSpawnSettings(Part: GunshipBottomPiece.EntrancePad)),
             new(EnemyDefinitionId.Steam, new(81, 1194), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
             new(EnemyDefinitionId.Steam, new(128, 1212), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
             new(EnemyDefinitionId.Steam, new(161, 1232), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CeresSteamSpawnSettings(Variant: CeresSteamVariant.Up)),
@@ -390,9 +388,9 @@ internal static class CrateriaRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.CrateriaKihunter),
         [
-            new(EnemyDefinitionId.KihunterGreen, new(612, 115), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterGreen, new(612, 115), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterGreenWings, new(612, 115), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterGreen, new(168, 135), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterGreen, new(168, 135), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterGreenWings, new(168, 135), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
             new(EnemyDefinitionId.Sciser, new(408, 472), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 1, SurfaceTableOffset: 0)),
             new(EnemyDefinitionId.Sciser, new(357, 538), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 1, SurfaceTableOffset: 0)),

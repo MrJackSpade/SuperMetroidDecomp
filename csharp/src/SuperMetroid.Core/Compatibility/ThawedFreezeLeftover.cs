@@ -19,8 +19,29 @@ public static class ThawedFreezeLeftover
     /// <summary>The freeze updates left while the thawing enemy is still hurt.</summary>
     private const int WhileHurt = 2;
 
-    /// <summary>The freeze updates a thawing enemy is left with.</summary>
-    /// <param name="grappled">Whether the grapple beam still holds the enemy.</param>
-    /// <param name="hurt">Whether the enemy is still hurt.</param>
-    public static int Of(bool grappled, bool hurt) => (grappled ? WhileGrappled : 0) + (hurt ? WhileHurt : 0);
+    /// <summary>What still holds a thawing enemy.</summary>
+    public enum Hold
+    {
+        /// <summary>Nothing holds it.</summary>
+        None,
+
+        /// <summary>The grapple beam holds it.</summary>
+        Grappled,
+
+        /// <summary>It is still hurt.</summary>
+        Hurt,
+
+        /// <summary>The grapple beam holds it and it is still hurt.</summary>
+        GrappledAndHurt,
+    }
+
+    /// <summary>The freeze updates a thawing enemy <paramref name="hold"/> holds is left with.</summary>
+    public static int Of(Hold hold) => hold switch
+    {
+        Hold.None => 0,
+        Hold.Grappled => WhileGrappled,
+        Hold.Hurt => WhileHurt,
+        Hold.GrappledAndHurt => WhileGrappled + WhileHurt,
+        _ => throw new ArgumentOutOfRangeException(nameof(hold), hold, "Undefined thaw hold."),
+    };
 }

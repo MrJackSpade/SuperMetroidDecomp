@@ -78,7 +78,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new EvirEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        if (slot.SpawnSettings<EvirSpawnSettings>().IsArms)
+        if (slot.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
         {
             // The second record is not a second creature. It is the arms, which always
             // reads facing and position from the immediately prior
@@ -92,7 +92,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // The body's row in the shared linear-speed table: its positive half is the downward velocity and its
             // negative half the upward one.
-            EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<EvirSpawnSettings>().SpeedIndex);
+            int speedRecord = slot.SpawnSettings<EvirSpawnSettings>().SpeedIndex;
+            EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedRecord);
             state.DownVelocity = speeds.Positive;
             state.UpVelocity = speeds.Negative;
             state.MovementTimer = ReadFirstHalfCycle(speedRecord);
@@ -169,7 +170,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Evir body/arms function {state.Function} is not translated.");
         }
 
-        if (slot.SpawnSettings<EvirSpawnSettings>().IsArms)
+        if (slot.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
         {
             PositionEvirArms(slot, state);
             return;
@@ -583,7 +584,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // Evir's bank-$A8 shot tail runs after every accepted common shot, including the $FF ice result. That is
         // where the body copies the newly installed frozen timer to its arms and attached (idle) spit.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
-                                                     !enemy.SpawnSettings<EvirSpawnSettings>().IsArms &&
+                                                     enemy.SpawnSettings<EvirSpawnSettings>().Part != EvirBodyPart.Arms &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.EvirShot)
         {
             AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
@@ -594,7 +595,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddEvirTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Evir &&
-                               !slot.SpawnSettings<EvirSpawnSettings>().IsArms &&
+                               slot.SpawnSettings<EvirSpawnSettings>().Part != EvirBodyPart.Arms &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.EvirTouch,
             context =>
             {

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Atomic;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.KiHunters;
@@ -9,12 +10,12 @@ using SuperMetroid.Core.Enemies.Skultera;
 using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Enemies.WorkRobots;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The enemy populations of the Wrecked Ship room-header region, in the original list order.</summary>
+/// <summary>The bank-$A1 placement lists of the Wrecked Ship room-header region, in native table order.</summary>
 internal static class WreckedShipRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's populations, in the original list order.</summary>
+    /// <summary>The region's lists, in native table order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.SpongeBath1),
@@ -23,8 +24,8 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.WreckedShipETank1),
         [
-            new(EnemyDefinitionId.Skultera, new(173, 374), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(576, 300), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: true, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(173, 374), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(576, 300), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
             new(EnemyDefinitionId.Kamer2, new(280, 168), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 0, MaximumYSpeedIndex: 32)),
             new(EnemyDefinitionId.Kamer2, new(384, 168), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 0, MaximumYSpeedIndex: 32)),
             new(EnemyDefinitionId.Kamer2, new(496, 168), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.SolidToSamus, EnemyExtraProperties.None, new PlatformSpawnSettings(Movement: PlatformHorizontalMovement.Left, SpeedIndex: 0, MaximumYSpeedIndex: 32)),
@@ -89,17 +90,17 @@ internal static class WreckedShipRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.Attic1),
         [
-            new(EnemyDefinitionId.KihunterYellow, new(1049, 200), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: true)),
+            new(EnemyDefinitionId.KihunterYellow, new(1049, 200), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Wingless)),
             new(EnemyDefinitionId.KihunterYellowWings, new(1049, 200), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterYellow, new(511, 142), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterYellow, new(511, 142), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterYellowWings, new(511, 142), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
-            new(EnemyDefinitionId.KihunterYellow, new(1493, 118), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: false)),
+            new(EnemyDefinitionId.KihunterYellow, new(1493, 118), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Winged)),
             new(EnemyDefinitionId.KihunterYellowWings, new(1493, 118), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
             new(EnemyDefinitionId.Atomic, new(1423, 90), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: 1, SpeedIndex: 8)),
             new(EnemyDefinitionId.Atomic, new(850, 97), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: 1, SpeedIndex: 8)),
             new(EnemyDefinitionId.Atomic, new(556, 96), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: 1, SpeedIndex: 8)),
             new(EnemyDefinitionId.Atomic, new(147, 124), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new AtomicSpawnSettings(Spin: 0, SpeedIndex: 8)),
-            new(EnemyDefinitionId.KihunterYellow, new(1256, 200), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wingless: true)),
+            new(EnemyDefinitionId.KihunterYellow, new(1256, 200), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterSpawnSettings(Wings: KiHunterWings.Wingless)),
             new(EnemyDefinitionId.KihunterYellowWings, new(1256, 200), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new KiHunterWingsSpawnSettings(DetachHealth: 32)),
             new(EnemyDefinitionId.Spark, new(224, 88), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SparkSpawnSettings(InitialState: 2, BaseFunctionTime: 144)),
             new(EnemyDefinitionId.Spark, new(304, 184), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SparkSpawnSettings(InitialState: 1, BaseFunctionTime: 80)),

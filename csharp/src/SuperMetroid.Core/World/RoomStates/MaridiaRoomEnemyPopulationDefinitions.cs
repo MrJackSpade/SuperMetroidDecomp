@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Boulder;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Boulder;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Enemies.Bull;
 using SuperMetroid.Core.Enemies.Cacatac;
@@ -18,26 +19,22 @@ using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Enemies.Yard;
 
-using SuperMetroid.Core.Enemies.Boulder;
-using SuperMetroid.Core.Enemies.Crawlers;
-using SuperMetroid.Core.Enemies.Yard;
+namespace SuperMetroid.Core.World.RoomStates;
 
-namespace SuperMetroid.Core.Enemies;
-
-/// <summary>The enemy populations of the Maridia room-header region, in the original list order.</summary>
+/// <summary>The bank-$A1 placement lists of the Maridia room-header region, in native table order.</summary>
 internal static class MaridiaRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's populations, in the original list order.</summary>
+    /// <summary>The region's lists, in native table order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.MtEverest),
         [
-            new(EnemyDefinitionId.Powamp, new(512, 384), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(IsBalloon: true, GrappleTravelDistance: 112)),
-            new(EnemyDefinitionId.Powamp, new(512, 384), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(IsBalloon: false, GrappleTravelDistance: 0)),
-            new(EnemyDefinitionId.Powamp, new(776, 512), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(IsBalloon: true, GrappleTravelDistance: 288)),
-            new(EnemyDefinitionId.Powamp, new(776, 512), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(IsBalloon: false, GrappleTravelDistance: 0)),
-            new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(IsBalloon: true, GrappleTravelDistance: 48)),
-            new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(IsBalloon: false, GrappleTravelDistance: 0)),
+            new(EnemyDefinitionId.Powamp, new(512, 384), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(Part: PowampPart.Balloon, GrappleTravelDistance: 112)),
+            new(EnemyDefinitionId.Powamp, new(512, 384), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(Part: PowampPart.Body, GrappleTravelDistance: 0)),
+            new(EnemyDefinitionId.Powamp, new(776, 512), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(Part: PowampPart.Balloon, GrappleTravelDistance: 288)),
+            new(EnemyDefinitionId.Powamp, new(776, 512), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(Part: PowampPart.Body, GrappleTravelDistance: 0)),
+            new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(Part: PowampPart.Balloon, GrappleTravelDistance: 48)),
+            new(EnemyDefinitionId.Powamp, new(1024, 560), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new PowampSpawnSettings(Part: PowampPart.Body, GrappleTravelDistance: 0)),
             new(EnemyDefinitionId.Sciser, new(752, 903), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 1, SurfaceTableOffset: 0)),
             new(EnemyDefinitionId.Sciser, new(552, 15200), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 4, SurfaceTableOffset: 0)),
             new(EnemyDefinitionId.Sciser, new(360, 576), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideRight, BlockSide: CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 2, SurfaceTableOffset: 0)),
@@ -57,8 +54,8 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.WateringHole),
         [
             new(EnemyDefinitionId.Choot, new(120, 480), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 0, PatternLoops: 5, JumpDelay: 8)),
-            new(EnemyDefinitionId.Zeb, new(272, 204), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
-            new(EnemyDefinitionId.Zeb, new(400, 204), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: false)),
+            new(EnemyDefinitionId.Zeb, new(272, 204), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
+            new(EnemyDefinitionId.Zeb, new(400, 204), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Weak)),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.CrabShaft),
         [
@@ -161,10 +158,10 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         ], 5),
         new(nameof(RoomEnemyPopulationDefinitions.RedFish),
         [
-            new(EnemyDefinitionId.Skultera, new(704, 432), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 8, StartsLeft: false, Radius: 1, AngleDelta: 16)),
-            new(EnemyDefinitionId.Zebbo, new(136, 204), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
-            new(EnemyDefinitionId.Zebbo, new(136, 212), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
-            new(EnemyDefinitionId.Zebbo, new(136, 220), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
+            new(EnemyDefinitionId.Skultera, new(704, 432), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 8, StartDirection: HorizontalDirection.Right, Radius: 1, AngleDelta: 16)),
+            new(EnemyDefinitionId.Zebbo, new(136, 204), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+            new(EnemyDefinitionId.Zebbo, new(136, 212), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+            new(EnemyDefinitionId.Zebbo, new(136, 220), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.Plasma),
         [
@@ -213,9 +210,9 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Boyon, new(728, 208), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplierIndex: 6, JumpHeightIndex: 3, TriggerDistance: 8)),
             new(EnemyDefinitionId.Boyon, new(776, 208), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplierIndex: 4, JumpHeightIndex: 3, TriggerDistance: 8)),
             new(EnemyDefinitionId.Boyon, new(872, 208), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoyonSpawnSettings(SpeedMultiplierIndex: 4, JumpHeightIndex: 0, TriggerDistance: 8)),
-            new(EnemyDefinitionId.Zebbo, new(184, 200), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
-            new(EnemyDefinitionId.Zebbo, new(680, 200), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
-            new(EnemyDefinitionId.Zebbo, new(584, 200), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Strong: true)),
+            new(EnemyDefinitionId.Zebbo, new(184, 200), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+            new(EnemyDefinitionId.Zebbo, new(680, 200), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
+            new(EnemyDefinitionId.Zebbo, new(584, 200), EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new BrinstarPipeBugSpawnSettings(Kind: BrinstarPipeBugKind.Strong)),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.MamaTurtle),
         [
@@ -257,8 +254,8 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Choot, new(680, 316), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 1, PatternLoops: 2, JumpDelay: 16)),
             new(EnemyDefinitionId.Choot, new(784, 220), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 0, PatternLoops: 2, JumpDelay: 8)),
             new(EnemyDefinitionId.Choot, new(872, 156), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 0, PatternLoops: 2, JumpDelay: 4)),
-            new(EnemyDefinitionId.Skultera, new(112, 600), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(448, 640), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: true, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(112, 600), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(448, 640), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
             new(EnemyDefinitionId.Choot, new(952, 480), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 0, PatternLoops: 5, JumpDelay: 8)),
         ], 9),
         new(nameof(RoomEnemyPopulationDefinitions.WestSandHallTunnel),
@@ -303,8 +300,8 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Choot, new(768, 932), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 2, PatternLoops: 7, JumpDelay: 0)),
             new(EnemyDefinitionId.Choot, new(480, 172), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 0, PatternLoops: 1, JumpDelay: 16)),
             new(EnemyDefinitionId.Choot, new(624, 236), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ChootSpawnSettings(PatternIndex: 0, PatternLoops: 1, JumpDelay: 16)),
-            new(EnemyDefinitionId.Skultera, new(768, 1056), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(624, 1160), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: true, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(768, 1056), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(624, 1160), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
         ], 11),
         new(nameof(RoomEnemyPopulationDefinitions.Toilet),
         [
@@ -314,14 +311,14 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.WestSandHall),
         [
-            new(EnemyDefinitionId.Evir, new(504, 160), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: false, SpeedIndex: 8, DirectionChangePeriod: 248)),
-            new(EnemyDefinitionId.Evir, new(504, 160), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: true, SpeedIndex: 0, DirectionChangePeriod: 0)),
+            new(EnemyDefinitionId.Evir, new(504, 160), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Body, SpeedIndex: 8, DirectionChangePeriod: 248)),
+            new(EnemyDefinitionId.Evir, new(504, 160), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Arms, SpeedIndex: 0, DirectionChangePeriod: 0)),
             new(EnemyDefinitionId.EvirProjectile, new(504, 160), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Evir, new(736, 120), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: false, SpeedIndex: 12, DirectionChangePeriod: 208)),
-            new(EnemyDefinitionId.Evir, new(736, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: true, SpeedIndex: 0, DirectionChangePeriod: 0)),
+            new(EnemyDefinitionId.Evir, new(736, 120), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Body, SpeedIndex: 12, DirectionChangePeriod: 208)),
+            new(EnemyDefinitionId.Evir, new(736, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Arms, SpeedIndex: 0, DirectionChangePeriod: 0)),
             new(EnemyDefinitionId.EvirProjectile, new(736, 120), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Evir, new(832, 160), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: false, SpeedIndex: 8, DirectionChangePeriod: 248)),
-            new(EnemyDefinitionId.Evir, new(832, 160), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: true, SpeedIndex: 0, DirectionChangePeriod: 0)),
+            new(EnemyDefinitionId.Evir, new(832, 160), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Body, SpeedIndex: 8, DirectionChangePeriod: 248)),
+            new(EnemyDefinitionId.Evir, new(832, 160), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Arms, SpeedIndex: 0, DirectionChangePeriod: 0)),
             new(EnemyDefinitionId.EvirProjectile, new(832, 160), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.Oasis),
@@ -329,14 +326,14 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.EastSandHall),
         [
-            new(EnemyDefinitionId.Evir, new(168, 160), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: false, SpeedIndex: 8, DirectionChangePeriod: 248)),
-            new(EnemyDefinitionId.Evir, new(168, 160), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: true, SpeedIndex: 0, DirectionChangePeriod: 0)),
+            new(EnemyDefinitionId.Evir, new(168, 160), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Body, SpeedIndex: 8, DirectionChangePeriod: 248)),
+            new(EnemyDefinitionId.Evir, new(168, 160), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Arms, SpeedIndex: 0, DirectionChangePeriod: 0)),
             new(EnemyDefinitionId.EvirProjectile, new(168, 160), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Evir, new(256, 120), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: false, SpeedIndex: 12, DirectionChangePeriod: 208)),
-            new(EnemyDefinitionId.Evir, new(256, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: true, SpeedIndex: 0, DirectionChangePeriod: 0)),
+            new(EnemyDefinitionId.Evir, new(256, 120), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Body, SpeedIndex: 12, DirectionChangePeriod: 208)),
+            new(EnemyDefinitionId.Evir, new(256, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Arms, SpeedIndex: 0, DirectionChangePeriod: 0)),
             new(EnemyDefinitionId.EvirProjectile, new(256, 120), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
-            new(EnemyDefinitionId.Evir, new(544, 120), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: false, SpeedIndex: 12, DirectionChangePeriod: 208)),
-            new(EnemyDefinitionId.Evir, new(544, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(IsArms: true, SpeedIndex: 0, DirectionChangePeriod: 0)),
+            new(EnemyDefinitionId.Evir, new(544, 120), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Body, SpeedIndex: 12, DirectionChangePeriod: 208)),
+            new(EnemyDefinitionId.Evir, new(544, 120), EnemyProperties.IgnoreSamusCollision | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new EvirSpawnSettings(Part: EvirBodyPart.Arms, SpeedIndex: 0, DirectionChangePeriod: 0)),
             new(EnemyDefinitionId.EvirProjectile, new(544, 120), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, EnemySpawnSettings.None),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.WestAqueductQuicksand),
@@ -426,11 +423,11 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.MainStreet),
         [
-            new(EnemyDefinitionId.Skultera, new(256, 416), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(240, 984), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(288, 1264), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(208, 1440), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(256, 1828), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(256, 416), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(240, 984), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(288, 1264), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(208, 1440), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(256, 1828), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
             new(EnemyDefinitionId.Sciser, new(144, 280), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 2, SurfaceTableOffset: 0)),
             new(EnemyDefinitionId.Sciser, new(240, 664), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideUp, BlockSide: CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 3, SurfaceTableOffset: 0)),
             new(EnemyDefinitionId.Sciser, new(248, 1159), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CrawlerSpawnSettings(Orientation: CrawlerSurfaceOrientation.UpsideDown, BlockSide: CrawlerSurfaceOrientation.UpsideLeft, SpeedIndex: 1, SurfaceTableOffset: 0)),
@@ -460,30 +457,30 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.WestCactusAlley),
         [
-            new(EnemyDefinitionId.Cacatac, new(72, 180), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, UpsideUp: true, DistanceIndex: 0, SpeedIndex: 0)),
-            new(EnemyDefinitionId.Cacatac, new(176, 308), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, UpsideUp: true, DistanceIndex: 0, SpeedIndex: 0)),
-            new(EnemyDefinitionId.Cacatac, new(104, 436), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, UpsideUp: true, DistanceIndex: 0, SpeedIndex: 0)),
-            new(EnemyDefinitionId.Cacatac, new(160, 74), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, UpsideUp: false, DistanceIndex: 0, SpeedIndex: 0)),
+            new(EnemyDefinitionId.Cacatac, new(72, 180), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, Mounting: CacatacMounting.Floor, DistanceIndex: 0, SpeedIndex: 0)),
+            new(EnemyDefinitionId.Cacatac, new(176, 308), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, Mounting: CacatacMounting.Floor, DistanceIndex: 0, SpeedIndex: 0)),
+            new(EnemyDefinitionId.Cacatac, new(104, 436), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, DistanceIndex: 0, SpeedIndex: 0)),
+            new(EnemyDefinitionId.Cacatac, new(160, 74), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Ceiling, DistanceIndex: 0, SpeedIndex: 0)),
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.EastCactusAlley),
         [
-            new(EnemyDefinitionId.Cacatac, new(384, 148), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, UpsideUp: true, DistanceIndex: 0, SpeedIndex: 0)),
-            new(EnemyDefinitionId.Cacatac, new(656, 164), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, UpsideUp: true, DistanceIndex: 0, SpeedIndex: 0)),
-            new(EnemyDefinitionId.Cacatac, new(912, 260), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, UpsideUp: true, DistanceIndex: 0, SpeedIndex: 0)),
-            new(EnemyDefinitionId.Cacatac, new(720, 436), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, UpsideUp: true, DistanceIndex: 0, SpeedIndex: 0)),
-            new(EnemyDefinitionId.Cacatac, new(240, 346), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, UpsideUp: false, DistanceIndex: 0, SpeedIndex: 0)),
-            new(EnemyDefinitionId.Cacatac, new(720, 362), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, UpsideUp: false, DistanceIndex: 1, SpeedIndex: 2)),
+            new(EnemyDefinitionId.Cacatac, new(384, 148), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, Mounting: CacatacMounting.Floor, DistanceIndex: 0, SpeedIndex: 0)),
+            new(EnemyDefinitionId.Cacatac, new(656, 164), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, DistanceIndex: 0, SpeedIndex: 0)),
+            new(EnemyDefinitionId.Cacatac, new(912, 260), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, Mounting: CacatacMounting.Floor, DistanceIndex: 0, SpeedIndex: 0)),
+            new(EnemyDefinitionId.Cacatac, new(720, 436), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Floor, DistanceIndex: 0, SpeedIndex: 0)),
+            new(EnemyDefinitionId.Cacatac, new(240, 346), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Right, Mounting: CacatacMounting.Ceiling, DistanceIndex: 0, SpeedIndex: 0)),
+            new(EnemyDefinitionId.Cacatac, new(720, 362), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new CacatacSpawnSettings(Direction: CacatacDirection.Left, Mounting: CacatacMounting.Ceiling, DistanceIndex: 1, SpeedIndex: 2)),
         ], 6),
         new(nameof(RoomEnemyPopulationDefinitions.FishTank),
         [
-            new(EnemyDefinitionId.Skultera, new(112, 152), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: true, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(184, 680), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
-            new(EnemyDefinitionId.Skultera, new(400, 240), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(112, 152), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Left, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(184, 680), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(400, 240), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
             new(EnemyDefinitionId.PirateMagentaWalking, new(424, 672), EnemyProperties.ProcessInstructions, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch, PatrolReach: 24)),
             new(EnemyDefinitionId.PirateMagentaWalking, new(400, 320), EnemyProperties.ProcessInstructions, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateParameterFlags.StartsFacingRight | WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch, PatrolReach: 8)),
             new(EnemyDefinitionId.PirateMagentaWalking, new(672, 208), EnemyProperties.ProcessInstructions, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch, PatrolReach: 8)),
             new(EnemyDefinitionId.PirateMagentaWalking, new(888, 432), EnemyProperties.ProcessInstructions, EnemyExtraProperties.UsesExtendedSpritemap, new WalkingSpacePirateSpawnSettings(Options: WalkingSpacePirateParameterFlags.StartsFacingRight | WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch, PatrolReach: 40)),
-            new(EnemyDefinitionId.Skultera, new(872, 184), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartsLeft: false, Radius: 16, AngleDelta: 2)),
+            new(EnemyDefinitionId.Skultera, new(872, 184), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new SkulteraSpawnSettings(SpeedIndex: 16, StartDirection: HorizontalDirection.Right, Radius: 16, AngleDelta: 2)),
         ], 8),
     ];
 }

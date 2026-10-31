@@ -23,6 +23,7 @@ internal static class PowampOwnedStateVerification
         enemies.PowampBehavior.InitializePowamp(balloon);
         RoomEnemySlot body = enemies.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);
+        body.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0));
         enemies.PowampBehavior.InitializePowamp(body);
 
         PowampEnemyState balloonState = balloon.RequireSpeciesState<PowampEnemyState>();

@@ -7,7 +7,7 @@ internal static class TorizoParameterWords
     internal static ushort ToParameterWord(TorizoPostureFlags posture, int lowBits)
     {
         int word = Ensure.BetweenInclusive(0, TorizoParameterFlagCodec.PostureLowBitsMask, lowBits);
-        foreach ((TorizoPostureFlags flag, int bit) in TorizoParameterFlagCodec.PostureBits)
+        foreach ((TorizoPostureFlags flag, int bit) in TorizoParameterFlagWords.PostureBits)
             if ((posture & flag) != 0)
                 word |= bit;
         return checked((ushort)word);

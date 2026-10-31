@@ -49,7 +49,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // circle angle. Parameter two (`init1`) packs speed index low and radius index high.
         FirefleaSpawnSettings settings = slot.SpawnSettings<FirefleaSpawnSettings>();
         state.SpeedRow = settings.SpeedIndex;
-        state.SpeedSign = settings.PositiveSpeed ? EnemySpeedSign.Positive : EnemySpeedSign.Negative;
+        state.SpeedSign = settings.SpeedSign;
         state.AngularSpeed = EnemyLinearSpeeds.Row(state.SpeedRow).Toward(state.SpeedSign);
 
         int radiusIndex = settings.RadiusIndex;
@@ -58,7 +58,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.UsesCircularMovement)
         {
             state.Center = slot.Position.Whole;
-            state.Angle = RotationAngle.FromTableIndex(settings.InitialAngle);
+            state.Angle = RotationAngle.FromTableIndex(checked((byte)settings.InitialAngle));
 
             // The initializer passes the complete 8.8 angle word to an eight-bit routine,
             // which reads its low byte. That is the retail missing-division bug; main AI
@@ -122,7 +122,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // EnemyDeath clamps values above four to the small explosion. Queue that real
         // death program before clearing the actor so its artwork and sound can run.
         if (slot.DefinitionId != EnemyDefinitionId.None)
-            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosions.ForFirefleaHealth(slot.Health));
+            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosions.ForLeftoverNumber(slot.Health));
         else
         {
             // Common attacking contact already ran EnemyDeath ($A0:A48F), which returns A = 0

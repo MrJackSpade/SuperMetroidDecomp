@@ -76,7 +76,7 @@ public sealed class FirefleaEnemyState
     }
 
     /// <summary>Native init0/parameter-one bit $0002 selects circular motion; otherwise the actor moves vertically between its saved extrema.</summary>
-    public bool UsesCircularMovement => _slot.SpawnSettings<FirefleaSpawnSettings>().Circular;
+    public bool UsesCircularMovement => _slot.SpawnSettings<FirefleaSpawnSettings>().Path == FirefleaPath.Circling;
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

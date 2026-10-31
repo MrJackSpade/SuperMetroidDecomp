@@ -49,6 +49,7 @@ internal static class EnemyLinearSpeedsVerification
             var o = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires o.");
             AssertEqual(expected, new EnemyLinearSpeedRow(o.RightVelocity, o.LeftVelocity), "Owtch native speed setup");
             slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
+            slot.SetSpawnSettings(new StokeSpawnSettings(StokeDirection.Left, index));
             stoke(slot);
             var s = enemies.StokeStates[0] ?? throw new InvalidOperationException("Verification requires s.");
             AssertEqual(expected, new EnemyLinearSpeedRow(s.RightVelocity, s.LeftVelocity), "Stoke native speed setup");

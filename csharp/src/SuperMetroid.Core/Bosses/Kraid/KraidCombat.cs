@@ -168,7 +168,7 @@ internal sealed class KraidCombat
                 // Every beam takes Kraid's charged-beam multiplier; the other families take their own.
                 int multiplier = type.Family switch
                 {
-                    SamusProjectileFamily.Beam => body.Definition.Vulnerabilities.ChargedBeam.Multiplier,
+                    SamusProjectileFamily.Beam => EnemyVulnerabilities.Of(body.Definition).ChargedBeam.Multiplier,
                     SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile or
                     SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb =>
                         EnemyCollision.ReadProjectileVulnerability(body, type).Multiplier,

@@ -14,8 +14,8 @@ internal static class BombTorizoFixtureState
     {
         var state = new TorizoEnemyState(torizo, isGolden)
         {
-            Posture = TorizoParameterFlagCodec.PostureOf(parameter1),
-            PostureParameterLowBits = TorizoParameterFlagCodec.PostureLowBitsOf(parameter1),
+            Posture = TorizoParameterFlagWords.PostureOf(parameter1),
+            PostureParameterLowBits = TorizoParameterFlagWords.PostureLowBitsOf(parameter1),
         };
         behavior.Access.TorizoState = state;
         return state;

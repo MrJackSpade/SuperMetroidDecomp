@@ -108,6 +108,7 @@ internal static class HopperAnimationDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.SidehopperTourian, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { VariantIndex = 1 });
+        slot.SetSpawnSettings(new HopperSpawnSettings(HopperMounting.Floor));
         enemies.HoppersBehavior.InitializeHopper(slot);
         EnemyInstructionRunner.ShownFrames(slot, 1);
         AssertEqual((SoundEffectId?)Library2Sound.SidehopperLanding, enemies.HoppersBehavior.LastHopperSoundEffect,

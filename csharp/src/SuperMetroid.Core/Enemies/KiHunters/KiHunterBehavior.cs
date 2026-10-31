@@ -112,7 +112,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // A wingless Ki-Hunter is the permanently ground-bound form. Its following wing
         // record starts deleted and the body skips every later detachment side effect.
-        if (body.SpawnSettings<KiHunterSpawnSettings>().Wingless)
+        if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
         {
             state.HasLostWings = true;
             state.Function = KiHunterEnemyFunction.FallingAfterWingLoss;
@@ -132,7 +132,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = KiHunterEnemyFunction.FollowBody;
         wings.Colouring = body.Colouring;
         wings.TileIndexBase = body.TileIndexBase;
-        if (body.SpawnSettings<KiHunterSpawnSettings>().Wingless)
+        if (body.SpawnSettings<KiHunterSpawnSettings>().Wings == KiHunterWings.Wingless)
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
     }
 

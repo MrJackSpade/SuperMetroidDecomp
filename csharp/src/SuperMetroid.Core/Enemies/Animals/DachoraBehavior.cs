@@ -89,7 +89,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraSpawnSettings settings = slot.SpawnSettings<DachoraSpawnSettings>();
         var state = new DachoraEnemyState
         {
-            FacingRight = settings.Facing == HorizontalDirection.Right || settings.Echo,
+            FacingRight = settings.Facing == HorizontalDirection.Right || settings.Role == DachoraRole.SpeedBoostEcho,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -100,7 +100,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        if (settings.Echo)
+        if (settings.Role == DachoraRole.SpeedBoostEcho)
         {
             // An echo faces the way the body does, while variable D later becomes its eight-frame life.
             state.Program = AnimationProgramCursor<DachoraProgram>.Start(settings.Facing == HorizontalDirection.Right

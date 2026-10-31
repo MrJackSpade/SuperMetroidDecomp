@@ -49,6 +49,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
+        slot.SetSpawnSettings(new PuyoSpawnSettings(HopCooldown: 0, HopDistance: 0));
         PuyoBehavior.InitializePuyo(slot);
         return new PuyoInstructionProgramDefinitionsCreateResult(enemies, slot, enemies.PuyoStates[0] ?? throw new InvalidOperationException("Puyo has no state."));
     }

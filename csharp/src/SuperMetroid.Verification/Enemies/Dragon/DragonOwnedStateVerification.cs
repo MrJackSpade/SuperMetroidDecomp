@@ -16,6 +16,7 @@ internal static class DragonOwnedStateVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
+        body.SetSpawnSettings(new DragonSpawnSettings(DragonPart.Body));
         DragonBehavior.InitializeDragon(body);
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];
         wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);

@@ -69,7 +69,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Cacatac linear-speed index {speedIndex} is outside the NTSC retail table.");
         }
 
-        bool upsideUp = settings.UpsideUp;
+        bool upsideUp = settings.Mounting == CacatacMounting.Floor;
         slot.Frame = EnemyFrameId.Empty;
 
         var travel = new Offset16<RoomPixels>(checked((short)CacatacPatrol.TravelDistance((byte)distanceIndex)), 0);

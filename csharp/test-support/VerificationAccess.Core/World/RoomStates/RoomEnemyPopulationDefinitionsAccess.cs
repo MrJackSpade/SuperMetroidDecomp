@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
+
+namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>
 /// The import oracle's map between the compiled populations and the cartridge pointers that address them; production knows

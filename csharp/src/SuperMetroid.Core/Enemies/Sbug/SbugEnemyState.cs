@@ -48,7 +48,7 @@ public sealed class SbugEnemyState
     /// <summary>
     /// Parameter one's high byte as a heading: a table index of zero points right, 64 up, 128 left and 192 down.
     /// </summary>
-    public RotationAngle InitialAngle => RotationAngle.FromTableIndex(_slot.SpawnSettings<SbugSpawnSettings>().InitialAngle);
+    public RotationAngle InitialAngle => RotationAngle.FromTableIndex(checked((byte)_slot.SpawnSettings<SbugSpawnSettings>().InitialAngle));
 
     /// <summary>Parameter two's low byte, 0 through 255: the pixel distance Samus must be within on both axes for activation.</summary>
     public int ActivationRadius => _slot.SpawnSettings<SbugSpawnSettings>().ActivationRadius;

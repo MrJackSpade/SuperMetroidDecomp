@@ -128,6 +128,7 @@ internal static class EnemySpritemapArtworkVerification
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
         bull.Bind(bull.DefinitionId, default(RoomEnemyDefinition));
+        bull.SetSpawnWords(EnemyDefinitionId.Bull, words => words);
         new Action<RoomEnemySlot>(enemies.BullBehavior.InitializeBull)(bull);
         object?[] arguments =
             [bull, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];

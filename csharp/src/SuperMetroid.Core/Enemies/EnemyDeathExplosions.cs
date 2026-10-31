@@ -29,12 +29,13 @@ internal static class EnemyDeathExplosions
     };
 
     /// <summary>
-    /// The explosion a Fireflea's contact death starts. The cartridge passes the Fireflea's remaining health as the
-    /// explosion, so health zero through four selects the explosions in their authored order and any higher health
-    /// the small explosion.
+    /// The explosion a death started with a leftover number selects. A few deaths pass whatever number their routine
+    /// ends with as the explosion: a Fireflea its remaining health, Kraid's spit rock the shared health accumulator
+    /// and Powamp its spike count. Zero through four select the explosions in their authored order and any higher
+    /// number the small explosion.
     /// </summary>
-    internal static EnemyDeathExplosion ForFirefleaHealth(int health) =>
-        (uint)health < (uint)EnemyDeathExplosionDefinitions.ByFirefleaHealth.Length
-            ? EnemyDeathExplosionDefinitions.ByFirefleaHealth[health]
+    internal static EnemyDeathExplosion ForLeftoverNumber(int number) =>
+        (uint)number < (uint)EnemyDeathExplosionDefinitions.ByLeftoverNumber.Length
+            ? EnemyDeathExplosionDefinitions.ByLeftoverNumber[number]
             : EnemyDeathExplosion.Small;
 }

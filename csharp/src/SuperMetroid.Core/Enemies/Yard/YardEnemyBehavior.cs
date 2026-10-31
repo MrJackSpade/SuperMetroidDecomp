@@ -498,11 +498,11 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         bool shouldTurn = state.AirborneFacingDirection == YardAirborneFacing.Right
             ? slot.Position.X.Whole >= samus.Position.X.Whole
             : slot.Position.X.Whole < samus.Position.X.Whole;
-        return shouldTurn && TurnYardAround(slot, state);
+        return shouldTurn && TurnYardAround(state);
     }
 
     /// <summary>Reverses Yard's crawl direction and associated graphics, property bits, and velocities unless it is hidden or instruction-pending.</summary>
-    internal static bool TurnYardAround(RoomEnemySlot slot, YardEnemyState state)
+    internal static bool TurnYardAround(YardEnemyState state)
     {
         if (state.Behavior == YardBehavior.Hiding ||
             state.MovementFunction == YardMovementFunction.InstructionPending)
@@ -600,7 +600,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         _collision.ResolveNormalEnemyTouch(slot, samus);
         state.CrawlingSpeedIndex = state.IdleCrawlingSpeedIndex;
         if (state.Behavior != YardBehavior.NormalCrawling)
-            TurnYardAround(slot, state);
+            TurnYardAround(state);
         state.Behavior = YardBehavior.NormalCrawling;
     }
 

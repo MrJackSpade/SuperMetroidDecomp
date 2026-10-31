@@ -24,7 +24,7 @@ internal static class IdentityTableVerification
         SequenceMatchesValues(BabyMetroidInitialPalette.ColorOrder, 15, value => (BabyMetroidInitialColorSlot)value, "Baby Metroid colour order");
         SequenceMatchesValues(MotherBrainTurretDefinitions.Ring, 8, value => (MotherBrainTurretDirection)value, "Mother Brain turret ring");
         SequenceMatchesValues(MotherBrainFallingTubePopulationDefinitions.Pieces, 5, value => (MotherBrainTubePiece)value, "Mother Brain tube pieces");
-        SequenceMatchesValues(CrawlerAnimationDefinitions.Orientations, 4, value => (CrawlerSurfaceOrientation)value, "crawler orientations");
+        SequenceMatchesValues(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations, 4, value => (CrawlerSurfaceOrientation)value, "crawler orientations");
         SequenceMatchesValues(SbugMovementDefinitions.ActivationBehaviors, 7, value => (SbugActivationBehavior)value, "Sbug activation behaviours");
 
         int[] breakupOrder = [12, 10, 8, 6, 4, 2, 0, 14, 16, 20, 18, 22];

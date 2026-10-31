@@ -64,7 +64,7 @@ public sealed class YardEnemyState
     /// The side of its block the Yard holds, which signs the crawl velocity the shared crawler reset gives it after a
     /// landing; emptied with the record.
     /// </summary>
-    public CrawlerSurfaceOrientation BlockSide { get; internal set; }
+    internal CrawlerSurfaceOrientation BlockSide { get; set; }
     /// <summary>Native extension offset $10: mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>
     public YardBehavior Behavior { get; internal set; }
     /// <summary>Native parallel $7E:8000 flag: set by a horizontal airborne collision and cleared by a vertical bounce; a record of bounce state rather than a per-frame event.</summary>

@@ -10,5 +10,5 @@ internal readonly record struct MorphBallEyePlacement(bool IsBeamMount, int Moun
 {
     /// <summary>The placement a placement's spawn settings name.</summary>
     internal static MorphBallEyePlacement Of(MorphBallEyeSpawnSettings settings) =>
-        new(Ensure.NotNull(settings).IsBeamMount, settings.MountDirection);
+        new(Ensure.NotNull(settings).Part == MorphBallEyePart.BeamMount, settings.MountDirection);
 }

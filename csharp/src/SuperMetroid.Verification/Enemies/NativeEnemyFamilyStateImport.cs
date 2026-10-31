@@ -86,13 +86,10 @@ internal static class NativeEnemyFamilyStateImport
             phantoonPartRecord.FunctionTimer = words.E;
             phantoonPartRecord.WavyPhaseDelta = words.F;
             // The cartridge numbers the body zero and the eye, tentacles and mouth one through three.
-            int partNumber = slot.DefinitionId switch
-            {
-                EnemyDefinitionId.PhantoonEye => 1,
-                EnemyDefinitionId.PhantoonTentacles => 2,
-                EnemyDefinitionId.PhantoonMouth => 3,
-                _ => 0,
-            };
+            int partNumber = slot.DefinitionId == EnemyDefinitionId.PhantoonEye ? 1
+                : slot.DefinitionId == EnemyDefinitionId.PhantoonTentacles ? 2
+                : slot.DefinitionId == EnemyDefinitionId.PhantoonMouth ? 3
+                : 0;
             PhantoonNativeWords.Import(phantoonPartRecord, partNumber, words.C, words.E, words.F);
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
@@ -523,7 +520,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             holtz.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
             holtz.Function = words.F == 0 ? null : RiosNativeWords.LowerNorfairRioEnemyFunctions.Decode(words.F, "recorded LowerNorfairRioEnemyFunction");
-            holtz.IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().FollowsParent;
+            holtz.IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower;
         }
         if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {

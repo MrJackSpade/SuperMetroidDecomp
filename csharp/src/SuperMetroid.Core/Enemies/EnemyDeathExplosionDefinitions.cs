@@ -12,7 +12,7 @@ internal static class EnemyDeathExplosionDefinitions
     /// The explosion a Fireflea's contact death starts for each remaining health from zero: the explosions in their
     /// authored order.
     /// </summary>
-    internal static readonly EnemyDeathExplosion[] ByFirefleaHealth =
+    internal static readonly EnemyDeathExplosion[] ByLeftoverNumber =
     [
         EnemyDeathExplosion.Small,
         EnemyDeathExplosion.SamusContact,

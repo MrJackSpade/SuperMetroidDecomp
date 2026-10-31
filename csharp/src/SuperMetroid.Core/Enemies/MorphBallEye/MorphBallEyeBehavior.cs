@@ -292,7 +292,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = MorphBallEyeBeam.Body
             ?? throw new InvalidDataException("Morph-ball eye beam has no eye body.");
         if (body.DefinitionId != EnemyDefinitionId.Eye ||
-            body.SpawnSettings<MorphBallEyeSpawnSettings>().IsBeamMount)
+            body.SpawnSettings<MorphBallEyeSpawnSettings>().Part == MorphBallEyePart.BeamMount)
         {
             throw new InvalidDataException(
                 $"Morph-ball eye beam lost its body in enemy slot {body.SlotIndex}.");

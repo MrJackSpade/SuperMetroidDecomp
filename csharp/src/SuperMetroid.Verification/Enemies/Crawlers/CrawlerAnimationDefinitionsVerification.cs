@@ -63,9 +63,9 @@ internal static class CrawlerAnimationDefinitionsVerification
             if (family == CrawlerAnimationFamily.Viola)
             {
                 // InitAI_Viola ($A3:B678) selects with its block side, not its surface.
-                slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation ^ 1], orientations[orientation], SpeedIndex: 0, SurfaceTableOffset: 0));
+                slot.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], SpeedIndex: 0, SurfaceTableOffset: 0));
             }
-            slot.SetSpawnParameter1(EnemyDefinitionId.Zoomer, 0);
+            slot.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
             if (family == CrawlerAnimationFamily.HZoomer)
             {
                 new Action<RoomEnemySlot>(CrawlersBehavior.InitializeHZoomer)(slot);

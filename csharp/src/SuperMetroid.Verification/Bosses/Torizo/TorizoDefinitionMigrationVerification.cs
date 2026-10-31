@@ -23,10 +23,10 @@ internal static class TorizoDefinitionMigrationVerification
         AssertEqual(0xb234, TorizoParameterWords.ToParameterWord(TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward, 0x1234),
             "posture word facing right, opposite leg forward");
         AssertEqual(TorizoPostureFlags.OppositeLegForward | TorizoPostureFlags.TurningAround | TorizoPostureFlags.FacingRight,
-            TorizoParameterFlagCodec.PostureOf(0xe123), "posture of an authored word");
-        AssertEqual(0x0123, TorizoParameterFlagCodec.PostureLowBitsOf(0xe123), "low bits of an authored word");
-        AssertEqual(TorizoBehaviorFlags.CaughtSuperMissile, TorizoParameterFlagCodec.BehaviorOf(0x1000), "caught Super Missile bit");
-        AssertEqual(TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp, TorizoParameterFlagCodec.BehaviorOf(0xc00f), "blown-up bits");
+            TorizoParameterFlagWords.PostureOf(0xe123), "posture of an authored word");
+        AssertEqual(0x0123, TorizoParameterFlagWords.PostureLowBitsOf(0xe123), "low bits of an authored word");
+        AssertEqual(TorizoBehaviorFlags.CaughtSuperMissile, TorizoParameterFlagWords.BehaviorOf(0x1000), "caught Super Missile bit");
+        AssertEqual(TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp, TorizoParameterFlagWords.BehaviorOf(0xc00f), "blown-up bits");
 
         // The random decisions test the masks the cartridge does.
         AssertEqual(0x8142, TorizoRandomDefinitions.LowHealthDrool.Mask, "low-health drool mask");

@@ -59,7 +59,7 @@ internal static class MamaTurtleShellContourVerification
             {
                 AssertEqual((ushort)0, mama.Radius.Y,
                     $"sleeping Mama ignores out-of-contour difference {difference}");
-                AssertEqual((ushort)0, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(mama.Properties),
+                AssertEqual(0, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(mama.Properties),
                     $"sleeping Mama remains nonsolid outside contour at {difference}");
             }
             else

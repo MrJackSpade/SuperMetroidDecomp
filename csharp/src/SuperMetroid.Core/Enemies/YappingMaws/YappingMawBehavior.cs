@@ -233,7 +233,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 checked((ushort)(state.SegmentRadius / 2)))));
 
         // Eight 32-unit sectors, each centred on its direction: the aim is turned a half sector before quantizing.
-        YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(unchecked((byte)(state.AimAngle.RawValue + 16)) / 32);
+        int direction = unchecked((byte)(state.AimAngle.RawValue + 16)) / 32;
+        YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(direction);
         state.Aim = aim;
         state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawBites.AttackForDirection(aim));
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -325,7 +326,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 YappingMawAim.Right => YappingMawProgram.CooldownUpRight,
                 YappingMawAim.Left => YappingMawProgram.CooldownUpLeft,
-                _ => YappingMawProgram.CooldownUp,
+                YappingMawAim.Up or YappingMawAim.UpRight or YappingMawAim.DownRight or YappingMawAim.Down or
+                    YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawProgram.CooldownUp,
+                _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
             });
         }
         else
@@ -334,7 +337,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 YappingMawAim.Right => YappingMawProgram.CooldownDownRight,
                 YappingMawAim.Left => YappingMawProgram.CooldownDownLeft,
-                _ => YappingMawProgram.CooldownDown,
+                YappingMawAim.Up or YappingMawAim.UpRight or YappingMawAim.DownRight or YappingMawAim.Down or
+                    YappingMawAim.DownLeft or YappingMawAim.UpLeft => YappingMawProgram.CooldownDown,
+                _ => throw new InvalidOperationException($"Yapping Maw aim {state.Aim} is not an aim."),
             });
             skipHeldPlacement = state.Aim is not (YappingMawAim.Right or YappingMawAim.Left);
         }

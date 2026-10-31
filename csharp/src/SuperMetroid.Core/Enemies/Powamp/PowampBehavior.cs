@@ -63,7 +63,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new PowampEnemyState
         {
-            IsBalloon = slot.SpawnSettings<PowampSpawnSettings>().IsBalloon,
+            IsBalloon = slot.SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Balloon,
             RefusesContact = slot.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance != 0,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -347,7 +347,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         balloon.Slot.Health = 0;
         balloon.Slot.Properties = balloon.Slot.Properties.With(EnemyProperties.Deleted);
         int accumulator = SpawnPowampSpikeBurst(body);
-        _deathsAndDrops.StartGenericEnemyDeath(body, accumulator);
+        _deathsAndDrops.StartGenericEnemyDeath(body, EnemyDeathExplosions.ForLeftoverNumber(accumulator));
     }
 
     /// <summary>Ports the body-only private tail of <c>EnemyTouch_Powamp</c>.</summary>
@@ -500,7 +500,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.SlotIndex == 0)
             throw new InvalidDataException("A Powamp body has no preceding balloon slot.");
         RoomEnemySlot balloon = _slotTable.Slots[body.SlotIndex - 1];
-        if (balloon.DefinitionId != EnemyDefinitionId.Powamp || !balloon.SpawnSettings<PowampSpawnSettings>().IsBalloon)
+        if (balloon.DefinitionId != EnemyDefinitionId.Powamp || balloon.SpawnSettings<PowampSpawnSettings>().Part != PowampPart.Balloon)
         {
             throw new InvalidDataException(
                 $"Powamp body slot {body.SlotIndex} is not preceded by its balloon half.");
@@ -549,7 +549,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = (enemy, _) =>
             {
-                if (!enemy.SpawnSettings<PowampSpawnSettings>().IsBalloon)
+                if (enemy.SpawnSettings<PowampSpawnSettings>().Part != PowampPart.Balloon)
                     ResolvePowampPowerBombAfterCommon(enemy);
             },
         });

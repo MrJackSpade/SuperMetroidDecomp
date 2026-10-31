@@ -25,7 +25,8 @@ internal sealed class MotherBrainRoomActors(
 
     /// <inheritdoc/>
     public RoomEnemyProjectileSlot? SpawnPirateLaser(RoomEnemySlot source, Position16<RoomPixels> muzzle, HorizontalDirection direction) =>
-        pirates.SpawnPirateMotherBrainLaser(source, muzzle, direction == HorizontalDirection.Right);
+        // Mother Brain's head authors no slow laser in its first parameter.
+        pirates.SpawnPirateMotherBrainLaser(source, muzzle, direction == HorizontalDirection.Right, PirateLaserSpeed.Fast);
 
     /// <inheritdoc/>
     public void SpawnAfterburnCenter(RoomEnemyProjectileKind kind, Position16<RoomPixels> position, int remaining) =>

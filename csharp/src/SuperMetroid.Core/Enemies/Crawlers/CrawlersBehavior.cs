@@ -55,26 +55,43 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerAnimationFamily animationFamily,
         int? speciesInstructionOffset = null)
     {
-        CrawlerSpawnSettings settings = slot.SpawnSettings<CrawlerSpawnSettings>();
+        // The population entry names the starting surface. InitAI_Viola ($A3:B678) alone takes its block side
+        // instead, and a Viola's entry names no surface.
+        CrawlerSurfaceOrientation orientation;
+        CrawlerSurfaceOrientation blockSide;
+        int speedIndex;
+        int surfaceTableOffset;
+        if (animationFamily == CrawlerAnimationFamily.Viola)
+        {
+            ViolaSpawnSettings viola = slot.SpawnSettings<ViolaSpawnSettings>();
+            orientation = viola.BlockSide;
+            blockSide = viola.BlockSide;
+            speedIndex = viola.SpeedIndex;
+            surfaceTableOffset = viola.SurfaceTableOffset;
+        }
+        else
+        {
+            CrawlerSpawnSettings settings = slot.SpawnSettings<CrawlerSpawnSettings>();
+            orientation = settings.Orientation;
+            blockSide = settings.BlockSide;
+            speedIndex = settings.SpeedIndex;
+            surfaceTableOffset = settings.SurfaceTableOffset;
+        }
+
         var state = new CrawlerEnemyState
         {
-            SpeedParameter = settings.SpeedIndex,
-            SurfaceTableOffset = speciesInstructionOffset ?? settings.SurfaceTableOffset,
+            SpeedParameter = speedIndex,
+            SurfaceTableOffset = speciesInstructionOffset ?? surfaceTableOffset,
         };
         Bind(slot, state);
 
-        // The population entry names the starting surface. InitAI_Viola ($A3:B678) alone
-        // takes its block side instead.
-        CrawlerSurfaceOrientation orientation = animationFamily == CrawlerAnimationFamily.Viola
-            ? settings.BlockSide
-            : settings.Orientation;
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
             animationFamily, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
-        state.Velocity = ResetCrawlerVelocities(settings.BlockSide, state.SpeedParameter, state.Velocity);
+        state.Velocity = ResetCrawlerVelocities(blockSide, state.SpeedParameter, state.Velocity);
     }
 
     /// <summary>Shared $A3:E67A velocity reset, also called by Yard after landing.</summary>

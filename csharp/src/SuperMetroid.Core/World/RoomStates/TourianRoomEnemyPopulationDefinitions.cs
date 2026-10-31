@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Hoppers;
@@ -6,14 +7,12 @@ using SuperMetroid.Core.Enemies.Metroids;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Enemies.SpacePirates;
 
-using SuperMetroid.Core.Enemies.Shutters;
+namespace SuperMetroid.Core.World.RoomStates;
 
-namespace SuperMetroid.Core.Enemies;
-
-/// <summary>The enemy populations of the Tourian room-header region, in the original list order.</summary>
+/// <summary>The bank-$A1 placement lists of the Tourian room-header region, in native table order.</summary>
 internal static class TourianRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's populations, in the original list order.</summary>
+    /// <summary>The region's lists, in native table order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.TourianEscape4),
@@ -41,10 +40,10 @@ internal static class TourianRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Metroid, new(637, 116), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
             new(EnemyDefinitionId.Metroid, new(877, 146), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
             new(EnemyDefinitionId.Metroid, new(1197, 140), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
-            new(EnemyDefinitionId.Rinka, new(40, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(536, 216), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(1176, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(1128, 216), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
+            new(EnemyDefinitionId.Rinka, new(40, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(536, 216), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(1176, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(1128, 216), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
         ], 4),
         new(nameof(RoomEnemyPopulationDefinitions.DustTorizo),
         [
@@ -69,17 +68,17 @@ internal static class TourianRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.MotherBrainBody, new(129, 111), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.UsesExtendedSpritemap, EnemySpawnSettings.None),
             new(EnemyDefinitionId.MotherBrainHead, new(129, 111), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.UsesExtendedSpritemap, EnemySpawnSettings.None),
             new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ZebetiteSpawnSettings(Half: ZebetiteHalf.Primary)),
-            new(EnemyDefinitionId.Rinka, new(823, 54), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: true)),
-            new(EnemyDefinitionId.Rinka, new(823, 166), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: true)),
-            new(EnemyDefinitionId.Rinka, new(631, 28), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: true)),
+            new(EnemyDefinitionId.Rinka, new(823, 54), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.FreeSpawnPoint)),
+            new(EnemyDefinitionId.Rinka, new(823, 166), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.FreeSpawnPoint)),
+            new(EnemyDefinitionId.Rinka, new(631, 28), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.FreeSpawnPoint)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.TourianEyeDoor),
         [
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.BlueHopper),
         [
-            new(EnemyDefinitionId.SidehopperTourian, new(248, 97), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: true)),
-            new(EnemyDefinitionId.SidehopperTourian, new(134, 169), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(UpsideDown: false)),
+            new(EnemyDefinitionId.SidehopperTourian, new(248, 97), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Ceiling)),
+            new(EnemyDefinitionId.SidehopperTourian, new(134, 169), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new HopperSpawnSettings(Mounting: HopperMounting.Floor)),
         ], 2),
         new(nameof(RoomEnemyPopulationDefinitions.TourianEscape1),
         [
@@ -99,35 +98,35 @@ internal static class TourianRoomEnemyPopulationDefinitions
         new(nameof(RoomEnemyPopulationDefinitions.Metroids20),
         [
             new(EnemyDefinitionId.Metroid, new(152, 277), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
-            new(EnemyDefinitionId.Rinka, new(152, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(216, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(216, 440), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(8, 328), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
+            new(EnemyDefinitionId.Rinka, new(152, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(216, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(216, 440), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(8, 328), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Metroid, new(86, 394), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         ], 2),
         new(nameof(RoomEnemyPopulationDefinitions.Metroids40),
         [
             new(EnemyDefinitionId.Metroid, new(196, 338), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
             new(EnemyDefinitionId.Metroid, new(62, 251), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
-            new(EnemyDefinitionId.Rinka, new(152, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(152, 392), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(104, 296), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(248, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
+            new(EnemyDefinitionId.Rinka, new(152, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(152, 392), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(104, 296), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(248, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
             new(EnemyDefinitionId.Metroid, new(70, 446), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.Metroids11),
         [
-            new(EnemyDefinitionId.Rinka, new(40, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(536, 216), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(1176, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(1128, 216), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
+            new(EnemyDefinitionId.Rinka, new(40, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(536, 216), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(1176, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(1128, 216), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.Metroids21),
         [
-            new(EnemyDefinitionId.Rinka, new(152, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(216, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(216, 440), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(8, 328), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
+            new(EnemyDefinitionId.Rinka, new(152, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(216, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(216, 440), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(8, 328), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.TourianEscape2),
         [
@@ -136,22 +135,22 @@ internal static class TourianRoomEnemyPopulationDefinitions
         ], 2),
         new(nameof(RoomEnemyPopulationDefinitions.Metroids31),
         [
-            new(EnemyDefinitionId.Rinka, new(264, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(24, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(40, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(232, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(440, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(616, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(616, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(1496, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(1464, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
+            new(EnemyDefinitionId.Rinka, new(264, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(24, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(40, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(232, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(440, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(616, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(616, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(1496, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(1464, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.Metroids41),
         [
-            new(EnemyDefinitionId.Rinka, new(152, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(152, 392), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(104, 296), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(248, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
+            new(EnemyDefinitionId.Rinka, new(152, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(152, 392), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(104, 296), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(248, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.TourianEscape3),
         [
@@ -177,21 +176,21 @@ internal static class TourianRoomEnemyPopulationDefinitions
             new(EnemyDefinitionId.Metroid, new(394, 129), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
             new(EnemyDefinitionId.Metroid, new(871, 119), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
             new(EnemyDefinitionId.Metroid, new(1130, 115), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new MetroidSpawnSettings(IceDamageToFreeze: 5)),
-            new(EnemyDefinitionId.Rinka, new(264, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(24, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(40, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(232, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(440, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(616, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(616, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(1496, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(1464, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
+            new(EnemyDefinitionId.Rinka, new(264, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(24, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(40, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(232, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(440, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(616, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(616, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(1496, 72), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(1464, 184), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
         ], 3),
         new(nameof(RoomEnemyPopulationDefinitions.RinkaShaft),
         [
-            new(EnemyDefinitionId.Rinka, new(232, 440), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(232, 520), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
-            new(EnemyDefinitionId.Rinka, new(8, 584), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Special: false)),
+            new(EnemyDefinitionId.Rinka, new(232, 440), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(232, 520), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
+            new(EnemyDefinitionId.Rinka, new(8, 584), EnemyProperties.ProcessInstructions | EnemyProperties.RespawnIfKilled, EnemyExtraProperties.None, new RinkaSpawnSettings(Placement: RinkaPlacement.OwnPlacement)),
         ], 0),
     ];
 }

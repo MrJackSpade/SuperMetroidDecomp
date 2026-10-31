@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
+
+namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>Application-owned ordered enemy placements selected by all retail room states.</summary>
 /// <remarks>

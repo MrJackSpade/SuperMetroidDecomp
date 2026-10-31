@@ -586,7 +586,7 @@ internal sealed class EnemyCollision
         SamusBombProjectileSlot bomb,
         bool runGenericDeath = true)
     {
-        EnemyWeaponVulnerability vulnerability = enemy.Definition.Vulnerabilities.Ordnance.Bomb;
+        EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.Definition).Ordnance.Bomb;
         int damage = (bomb.Damage >> 1) * vulnerability.Multiplier;
 
         // A zero multiplier still consumes the collision and leaves direction bit $10 on
@@ -649,7 +649,7 @@ internal sealed class EnemyCollision
 
             // The radius actor takes the Power Bomb response, not the ordinary bomb's: every
             // enemy whose bomb and Power Bomb vulnerabilities differ depends on it.
-            EnemyWeaponVulnerability vulnerability = enemy.Definition.Vulnerabilities.Ordnance.PowerBomb;
+            EnemyWeaponVulnerability vulnerability = EnemyVulnerabilities.Of(enemy.Definition).Ordnance.PowerBomb;
             if (vulnerability.Multiplier == 0)
                 continue;
 
@@ -714,7 +714,7 @@ internal sealed class EnemyCollision
         RoomEnemySlot enemy,
         SamusProjectileType projectileType)
     {
-        EnemyVulnerabilities vulnerabilities = enemy.Definition.Vulnerabilities;
+        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(enemy.Definition);
         SamusProjectileFamily family = projectileType.Family;
         if (family != SamusProjectileFamily.Beam)
         {
@@ -765,7 +765,7 @@ internal sealed class EnemyCollision
         RoomEnemySlot enemy,
         SamusProjectileType projectileType)
     {
-        EnemyVulnerabilities vulnerabilities = enemy.Definition.Vulnerabilities;
+        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(enemy.Definition);
         SamusProjectileFamily family = projectileType.Family;
         return family == SamusProjectileFamily.Beam
             ? vulnerabilities.ForBeam(projectileType.BeamCombination)
@@ -886,7 +886,7 @@ internal sealed class EnemyCollision
     {
         SamusContactDamageIndex contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
         int baseDamage;
-        EnemyContactVulnerability contact = enemy.Definition.Vulnerabilities.Contact;
+        EnemyContactVulnerability contact = EnemyVulnerabilities.Of(enemy.Definition).Contact;
         EnemyWeaponVulnerability vulnerability;
         switch (contactDamageIndex)
         {

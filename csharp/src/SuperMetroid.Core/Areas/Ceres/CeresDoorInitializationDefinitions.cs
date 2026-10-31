@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Areas.Ceres;
 

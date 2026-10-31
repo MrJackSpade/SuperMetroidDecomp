@@ -102,26 +102,24 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
         // Each part is its own enemy, so the part's identity selects its program and its place in the state.
-        PhantoonPartProgram program = part.DefinitionId switch
+        if (part.DefinitionId == EnemyDefinitionId.PhantoonEye)
         {
-            EnemyDefinitionId.PhantoonEye => PhantoonPartProgram.EyeClosed,
-            EnemyDefinitionId.PhantoonTentacles => PhantoonPartProgram.Tentacles,
-            EnemyDefinitionId.PhantoonMouth => PhantoonPartProgram.MouthInitial,
-            _ => throw new InvalidDataException($"Phantoon part slot {part.SlotIndex} holds {part.DefinitionId}, not a Phantoon part."),
-        };
-        InitializePhantoonPart(part, program);
-
-        switch (part.DefinitionId)
+            InitializePhantoonPart(part, PhantoonPartProgram.EyeClosed);
+            state.Eye = part;
+        }
+        else if (part.DefinitionId == EnemyDefinitionId.PhantoonTentacles)
         {
-            case EnemyDefinitionId.PhantoonEye:
-                state.Eye = part;
-                break;
-            case EnemyDefinitionId.PhantoonTentacles:
-                state.Tentacles = part;
-                break;
-            default:
-                state.Mouth = part;
-                break;
+            InitializePhantoonPart(part, PhantoonPartProgram.Tentacles);
+            state.Tentacles = part;
+        }
+        else if (part.DefinitionId == EnemyDefinitionId.PhantoonMouth)
+        {
+            InitializePhantoonPart(part, PhantoonPartProgram.MouthInitial);
+            state.Mouth = part;
+        }
+        else
+        {
+            throw new InvalidDataException($"Phantoon part slot {part.SlotIndex} holds {part.DefinitionId}, not a Phantoon part.");
         }
     }
 

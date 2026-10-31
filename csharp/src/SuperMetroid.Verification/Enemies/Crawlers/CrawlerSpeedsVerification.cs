@@ -28,7 +28,7 @@ internal static class CrawlerSpeedsVerification
             for (ushort property = 0; property < 4; property++)
             {
                 // The block side is the crawler's two low property bits in the cartridge.
-                EightEightVector<RoomPixels> velocity = reset(CrawlerAnimationDefinitions.Orientations.At(property), speedParameter, new(new SignedEightEight(123), new SignedEightEight(456)));
+                EightEightVector<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), speedParameter, new(new SignedEightEight(123), new SignedEightEight(456)));
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue, "Real crawler X reset without bus");
                 AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue, "Real crawler Y reset without bus");
             }
@@ -46,7 +46,7 @@ internal static class CrawlerSpeedsVerification
         {
             for (ushort property = 0; property < 4; property++)
             {
-                EightEightVector<RoomPixels> velocity = reset(CrawlerAnimationDefinitions.Orientations.At(property), speedParameter,
+                EightEightVector<RoomPixels> velocity = reset(SuperMetroid.AssetExtraction.Enemies.CrawlerOrientationOrder.Orientations.At(property), speedParameter,
                     new(new SignedEightEight((ushort)magnitude), new SignedEightEight((ushort)~magnitude)));
                 AssertEqual(property == 0 ? unchecked((ushort)-magnitude) : (ushort)magnitude, velocity.X.RawValue, "Crawler sentinel X sign");
                 AssertEqual(property == 2 ? unchecked((ushort)-(ushort)~magnitude) : (ushort)~magnitude, velocity.Y.RawValue, "Crawler sentinel Y sign");

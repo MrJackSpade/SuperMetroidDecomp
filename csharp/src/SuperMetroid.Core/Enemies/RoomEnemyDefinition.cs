@@ -31,7 +31,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Layer">The drawing layer the enemy starts on, 0 through 7, lower layers drawn first.</param>
 /// <param name="DropChances">The item-drop chances, or null when the enemy drops nothing.</param>
 /// <param name="Vulnerability">
-/// The enemy's own vulnerabilities, or null when it takes the standard ones; <see cref="Vulnerabilities"/> resolves it.
+/// The enemy's own vulnerabilities, or null when it takes the standard ones; <see cref="EnemyVulnerabilities.Of"/> resolves it.
 /// </param>
 public readonly record struct RoomEnemyDefinition(
     int TileByteCount,
@@ -57,8 +57,4 @@ public readonly record struct RoomEnemyDefinition(
     EnemyCallbackBody NoOpCallbackBody,
     int Layer,
     EnemyDropChances? DropChances,
-    EnemyVulnerabilities? Vulnerability)
-{
-    /// <summary>How the enemy takes every weapon's hits: its own vulnerabilities, or the standard ones.</summary>
-    public EnemyVulnerabilities Vulnerabilities => Vulnerability ?? EnemyVulnerabilityDefinitions.Standard;
-}
+    EnemyVulnerabilities? Vulnerability);

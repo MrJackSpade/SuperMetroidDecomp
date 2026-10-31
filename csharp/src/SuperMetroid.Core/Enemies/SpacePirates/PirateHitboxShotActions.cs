@@ -42,7 +42,7 @@ internal static class PirateHitboxShotActions
         if (!IsBeamOrMissile(family))
             return PirateHitboxShotAction.Ignore;
 
-        EnemyVulnerabilities vulnerabilities = enemy.Definition.Vulnerabilities;
+        EnemyVulnerabilities vulnerabilities = EnemyVulnerabilities.Of(enemy.Definition);
         EnemyWeaponVulnerability vulnerability = family switch
         {
             SamusProjectileFamily.Beam => vulnerabilities.ForBeam(projectile.Type.BeamCombination),

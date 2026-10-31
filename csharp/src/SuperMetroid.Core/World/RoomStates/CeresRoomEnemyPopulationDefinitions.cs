@@ -1,11 +1,12 @@
 ﻿using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>The enemy populations of the Ceres room-header region, in the original list order.</summary>
+/// <summary>The bank-$A1 placement lists of the Ceres room-header region, in native table order.</summary>
 internal static class CeresRoomEnemyPopulationDefinitions
 {
-    /// <summary>The region's populations, in the original list order.</summary>
+    /// <summary>The region's lists, in native table order.</summary>
     internal static RoomEnemyPopulationDefinition[] Build() =>
     [
         new(nameof(RoomEnemyPopulationDefinitions.CeresElev0),

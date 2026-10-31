@@ -967,9 +967,9 @@ internal static class RidleyFullMovieVerification
             // The cartridge parks an unaimed whip target at $FFFF.
             static ushort WhipTargetWord(int? target) => target is int angle ? checked((ushort)angle) : ushort.MaxValue;
 
-            void Check(string name, int actual, int address)
+            void Check(string name, int actual, int address) => CheckValue(name, actual, W(address));
+            void CheckValue(string name, int actual, int expected)
             {
-                ushort expected = W(address);
                 if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");
             }
             void CheckBytes(string name, int count, Func<int, byte> read, int address)
@@ -1306,8 +1306,14 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " instruction timer", actor.InstructionTimer.RawValue, address + 28);
                 Check(owner + " XRadius", actor.Radius.X, address + 10);
                 Check(owner + " YRadius", actor.Radius.Y, address + 12);
-                Check(owner + " Properties", SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(actor.Properties), address + 14);
-                Check(owner + " ExtraProperties", SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(actor.ExtraProperties), address + 16);
+                // The native words also hold species bits that species code writes and nothing reads (#1472); the port
+                // keeps the engine flags, which are compared.
+                CheckValue(owner + " Properties", SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(actor.Properties),
+                    SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(
+                        SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EngineFlagsOf(W(address + 14))));
+                CheckValue(owner + " ExtraProperties", SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(actor.ExtraProperties),
+                    SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(
+                        SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.ExtraFlagsOf(W(address + 16))));
                 Check(owner + " AiStates", SuperMetroid.AssetExtraction.Enemies.EnemyAiStatesWordCodec.Encode(actor.AiStates), address + 18);
                 Check(owner + " Timer", actor.Timer.RawValue, address + 24);
                 // The port holds the colouring; the row holding it is compared as the native palette word that row is stored as.

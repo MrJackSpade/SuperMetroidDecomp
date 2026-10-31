@@ -357,7 +357,7 @@ internal static class EnemyDropsVerification
         enemy.Properties = (EnemyProperties.RespawnIfKilled);
 
         // A Fireflea with health nine proves health above four selects the small explosion.
-        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosions.ForFirefleaHealth(9));
+        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosions.ForLeftoverNumber(9));
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId,
             "respawning death leaves native DAFF placeholder in physical enemy slot");
         AssertEqual((byte)0xa3, enemy.NativeHeader.Bank,

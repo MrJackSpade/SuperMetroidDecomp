@@ -288,8 +288,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException("Dragon body occupies the final physical enemy slot.");
 
         RoomEnemySlot wing = _slotTable.Slots[body.SlotIndex + 1];
-        if (body.SpawnSettings<DragonSpawnSettings>().IsWing || wing.DefinitionId != EnemyDefinitionId.Dragon ||
-            !wing.SpawnSettings<DragonSpawnSettings>().IsWing)
+        if (body.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing || wing.DefinitionId != EnemyDefinitionId.Dragon ||
+            wing.SpawnSettings<DragonSpawnSettings>().Part != DragonPart.Wing)
         {
             throw new InvalidDataException(
                 $"Dragon body slot {body.SlotIndex} is not followed by its retail wing record.");
@@ -300,7 +300,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates one Dragon slot's state, selecting body or wing from population parameter one.</summary>
     private static DragonEnemyState CreateDragonState(RoomEnemySlot slot)
     {
-        var state = new DragonEnemyState { IsWing = slot.SpawnSettings<DragonSpawnSettings>().IsWing };
+        var state = new DragonEnemyState { IsWing = slot.SpawnSettings<DragonSpawnSettings>().Part == DragonPart.Wing };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }

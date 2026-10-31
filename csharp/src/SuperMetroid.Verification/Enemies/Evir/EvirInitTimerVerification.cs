@@ -26,7 +26,7 @@ internal static class EvirInitTimerVerification
         int checkedBodies = 0;
         foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots)
         {
-            if (slot.DefinitionId != EnemyDefinitionId.Evir || slot.SpawnSettings<EvirSpawnSettings>().IsArms)
+            if (slot.DefinitionId != EnemyDefinitionId.Evir || slot.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
                 continue;
             int speedOffset = slot.SpawnSettings<EvirSpawnSettings>().SpeedIndex * 8;
             int relative = 0x0fb7 + speedOffset - 0x0f78;

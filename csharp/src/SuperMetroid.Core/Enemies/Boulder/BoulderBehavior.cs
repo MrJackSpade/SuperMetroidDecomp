@@ -108,8 +108,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.VerticalCompensation = new Offset16<RoomPixels>(0, settings.Landing switch
         {
-            BoulderLanding.Standard => (short)2,
-            BoulderLanding.Deep => (short)5,
+            BoulderLanding.Standard => 2,
+            BoulderLanding.Deep => 5,
             _ => throw new InvalidOperationException($"Undefined {nameof(BoulderLanding)} {settings.Landing}."),
         });
     }

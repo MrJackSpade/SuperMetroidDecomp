@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.World;
 public static class DoorTransitionColourDefinitions
 {
     /// <summary>The ordinary green visor colour $82:E52B loads when door scrolling completes.</summary>
-    public static readonly RgbColor DoorCompletionVisorGreen = RgbColor.FromWord(0x3be0);
+    public static readonly RgbColor DoorCompletionVisorGreen = new(0, 31, 14);
 
     /// <summary>The minimap's explored colours and its explored feature colour, always kept.</summary>
     public static readonly BackgroundColourRun MinimapExplored = new(BackgroundColourSet.Hud, 9, 2);

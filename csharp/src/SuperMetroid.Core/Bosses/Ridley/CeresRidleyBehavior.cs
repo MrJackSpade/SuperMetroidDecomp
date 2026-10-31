@@ -52,9 +52,9 @@ internal sealed class CeresRidleyBehavior
 
     /// <summary>
     /// Ports the Ceres dispatcher reached through the end of the battle. The
-    /// reveal, liftoff, hover, two cartridge-authored termination conditions, upward retreat,
-    /// palette handoff, and <c>ceres_status = 1</c> publication all retain their ROM addresses.
-    /// Ridley's later Mode-7 getaway presentation remains a room-main concern, not enemy AI.
+    /// reveal, liftoff, hover, two authored termination conditions, upward retreat,
+    /// palette handoff, and <c>ceres_status = 1</c> publication all retain their original order.
+    /// Ridley's later rotating getaway presentation remains a room-main concern, not enemy AI.
     /// </summary>
     internal void RunCeresRidleyMain(
         RoomEnemySlot slot,
@@ -63,7 +63,7 @@ internal sealed class CeresRidleyBehavior
         RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(slot);
         slot.Health = short.MaxValue;
 
-        // $A6:A29F runs after the boss dispatcher and before movement. None of the
+        // The palette selection runs after the boss dispatcher and before movement. None of the
         // translated dispatcher branches mutate the flash timer, so selecting the two
         // draw palettes here is equivalent while keeping their decision ahead of the
         // shared movement/composition continuation below.
@@ -111,7 +111,7 @@ internal sealed class CeresRidleyBehavior
                     CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
                     // Function_Ridley_RoarBeforeFly primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
-                    // the same transition that installs instruction list $E91D.
+                    // the same transition that installs the flying animation script.
                     state.WingAnimationTimer = WrappingCountdown.Start(8);
                     state.WingAnimationTimerDelta = 8;
                     foreach (RidleyTailSegment segment in state.TailSegments)
@@ -126,7 +126,7 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyAiFunction.CeresLiftoffAccelerating:
-                // $A6:A6AF adds -16 to the 8.8 Y velocity before the common movement pass.
+                // The rising step adds -16 to the 8.8 Y velocity before the common movement pass.
                 state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue - 16));
                 if (CoordinateAxis.Difference(slot.Position.Y.Whole, 112) < 0)
                 {
@@ -194,7 +194,7 @@ internal sealed class CeresRidleyBehavior
                     nextTimer: 28);
                 if (state.Function == RidleyAiFunction.CeresSwoopAscendingAimingUp)
                 {
-                    // `$A6:A91B-$A91E` requests one aimed tail fling at the exact bottom
+                    // The swoop requests one aimed tail fling at the exact bottom
                     // of the swoop. Neutral tail AI consumes and clears it later this same
                     // enemy-main pass; treating it as a persistent animation mode makes the
                     // tail lag an entire attack behind Ridley.
@@ -255,9 +255,9 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyAiFunction.CeresPublishEscapeHandoff:
-                // $A6:AA11 installs a null dispatcher and publishes the room-main cutscene
-                // state. The native renderer stops emitting Ridley's ordinary composite at
-                // this point because Mode 7 owns his departure; hide the ordinary actor so
+                // The getaway handoff installs a null dispatcher and publishes the room-main cutscene
+                // state. The renderer stops emitting Ridley's ordinary composite at
+                // this point because the rotating view owns his departure; hide the ordinary actor so
                 // it cannot remain parked over that separately scoped presentation seam.
                 state.Function = RidleyAiFunction.CeresInactive;
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
@@ -266,7 +266,7 @@ internal sealed class CeresRidleyBehavior
                 break;
 
             case RidleyAiFunction.CeresInactive:
-                // $A6:AA4F is an RTS; room main owns the getaway.
+                // The inactive function is empty; room main owns the getaway.
                 return;
 
             case RidleyAiFunction.CeresActivateSelfDestruct:
@@ -332,14 +332,14 @@ internal sealed class CeresRidleyBehavior
 
     /// <summary>The fastest 8.8 speed the acceleration clamps to toward a lower target: five pixels per update.</summary>
     internal const int CeresRidleyMaximumSpeed = 1280;
-    /// <summary>The fastest 8.8 speed toward a higher target, as the native two's-complement word.</summary>
+    /// <summary>The fastest 8.8 speed toward a higher target, as the two's-complement word.</summary>
     internal static readonly int CeresRidleyMinimumSpeed = WordWrap.Unsigned(-1280);
 
     /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
     internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunCeresRidleyMain(slot, frame.Samus);
 
-    /// <summary>Native wing frame deltas selected from Ridley's movement speed.</summary>
+    /// <summary>Wing frame deltas selected from Ridley's movement speed.</summary>
     internal static readonly ushort[] CeresRidleyWingAnimationDeltas =
         [12, 14, 16, 18, 28, 32, 40, 48];
 

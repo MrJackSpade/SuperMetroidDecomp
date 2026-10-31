@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class RidleyBodyAnimation
 {
-    /// <summary>Queues roars, tail impacts, and other enemy-bank sounds.</summary>
+    /// <summary>Queues roars, tail impacts, and other enemy sounds.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>Owns fight state shared with cutscenes and room transitions.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
@@ -27,7 +27,7 @@ internal sealed class RidleyBodyAnimation
 
     /// <summary>
     /// Runs Ridley's body program where the enemy instruction interpreter would: the frame expires on the update its
-    /// native timer would, and a newly shown frame raises the new-frame flag.
+    /// timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvanceRidleyBodyAnimation(RoomEnemySlot slot, SamusState? samus)
     {
@@ -58,7 +58,7 @@ internal sealed class RidleyBodyAnimation
                 }
                 if (samus.Health >= 30)
                     return null;
-                // $A6:E4E2 stores 8 to the Ridley timer before the goto,
+                // The fireball list stores 8 to the Ridley timer before the goto,
                 // cutting the fireball hover short.
                 state.FunctionTimer = WrappingCountdown.Start(8);
                 return goToIfCeresAndSamusLowEnergy.Target;
@@ -111,7 +111,7 @@ internal sealed class RidleyBodyAnimation
             case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.StartLiftoff }:
             {
                 // The shared roar/liftoff list hands control to the real fight at
-                // $B2F3 and supplies the initial upward 8.8 velocity in the same tick.
+                // the fight's start and supplies the initial upward 8.8 velocity in the same tick.
                 RidleyEnemyState norfairLiftoff = _ridleyEncounter.RequireNorfairRidley(slot);
                 norfairLiftoff.Function = RidleyAiFunction.NorfairEnterArena;
                 norfairLiftoff.Velocity = norfairLiftoff.Velocity.WithY(SignedEightEight.FromSignedRaw(-352));
@@ -122,7 +122,7 @@ internal sealed class RidleyBodyAnimation
         }
     }
 
-    /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed programs in place of their bank-$A6 lists (#641).</summary>
+    /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed programs in place of their lists (#641).</summary>
     internal void AdvanceRidleyBodyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
         AdvanceRidleyBodyAnimation(slot, context.Samus);
 

@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodyProgram;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ridley's typed body programs (#641), shared by Ceres and Lower Norfair, in place of their bank-$A6 lists.</summary>
+/// <summary>Ridley's typed body programs (#641), shared by Ceres and Lower Norfair, in place of their lists.</summary>
 internal static class RidleyAnimations
 {
     /// <summary>How long the standing pose lasts before the program sleeps.</summary>
@@ -205,7 +205,7 @@ internal static class RidleyAnimations
     private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> FallInto(RidleyBodyProgram program) =>
         AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the script's sleep does.</summary>
     private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> Hold =>
         AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>.Hold;
 }

@@ -8,9 +8,9 @@ internal static class RidleyTailDefinitions
     /// <summary>InitializeTailParts writes this bound before the live tail controller adjusts it.</summary>
     internal static RotationAngle InitialMaximumCounterClockwise { get; } = RotationAngle.FromRaw(16448);
 
-    /// <summary>$A6:BC0A sets ideal tail spacing while releasing Samus.</summary>
+    /// <summary>The carry's release sets the ideal tail spacing while releasing Samus.</summary>
     internal const int CarryReleaseInterSegmentSpacing = 8;
-    /// <summary>$A6:BC11/$BC54 restores tail extension speed on carry phase expiry.</summary>
+    /// <summary>The carry restores tail extension speed on carry phase expiry.</summary>
     internal const int CarryReleaseExtensionSpeed = 240;
     /// <summary>Straight-down target angle.</summary>
     internal static RotationAngle DownAngle { get; } = RotationAngle.QuarterTurn;
@@ -24,9 +24,9 @@ internal static class RidleyTailDefinitions
     internal const int ForbiddenForwardStart = 24;
     /// <summary>The byte angle past the forbidden forward interval; a left-facing target clamps here.</summary>
     internal const int ForbiddenForwardEnd = 232;
-    /// <summary>The bank-$3F expansion of a left-facing whip target's byte angle.</summary>
+    /// <summary>The expansion of a left-facing whip target's byte angle.</summary>
     internal const int LeftWhipTargetBase = 16128;
-    /// <summary>The bank-$40 expansion of a right-facing whip target's byte angle.</summary>
+    /// <summary>The expansion of a right-facing whip target's byte angle.</summary>
     internal const int RightWhipTargetBase = 16384;
 
     /// <summary>The longest each segment may extend while whipping, base through tip.</summary>
@@ -50,22 +50,22 @@ internal static class RidleyTailDefinitions
         [RidleyFacing.Right] = RotationAngle.FromRaw(16400),
     };
 
-    /// <summary>$A6:D38A begins InitializeTailParts.angles, one quarter of the 16-bit full turn.</summary>
+    /// <summary>InitializeTailParts begins its angles at one quarter of the 16-bit full turn.</summary>
     private const int InitialBaseAngle = 65536 / 4;
-    /// <summary>$A6:D2FD loads $0010 into Ridley.idealInterSegmentTailAngle; the initial angles advance by that separation.</summary>
+    /// <summary>Tail initialization loads 16 into Ridley.idealInterSegmentTailAngle; the initial angles advance by that separation.</summary>
     internal const int IdealInterSegmentSpacing = 16;
-    /// <summary>$A6:D37C initial base separation, in8.8 pixels. The two-pixel length is an authored scalar (see residualScalarInputsReview).</summary>
+    /// <summary>The initial base separation, in8.8 pixels. The two-pixel length is an authored scalar (see residualScalarInputsReview).</summary>
     private const int BaseRestDistance = 2 << 8;
-    /// <summary>$A6:D37E..D387 initial shaft separation and $CF7F/$CFB5/$CFEB/$D021/$D057 shrink thresholds. The eight-pixel length is an authored scalar.</summary>
+    /// <summary>The initial shaft separation and its shrink thresholds. The eight-pixel length is an authored scalar.</summary>
     private const int ShaftRestDistance = 8 << 8;
-    /// <summary>$A6:D388 initial tip separation and $D08D shrink threshold. The five-pixel length is an authored scalar.</summary>
+    /// <summary>The initial tip separation and its shrink threshold. The five-pixel length is an authored scalar.</summary>
     private const int TipRestDistance = 5 << 8;
 
     /// <summary>The tail returns to its initialized rest geometry: base, five shaft links, then tip.</summary>
     internal static readonly ushort[] RestDistances =
         [BaseRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, ShaftRestDistance, TipRestDistance];
 
-    /// <summary>$A6:D38A..D397 contains seven successive initial link angles, base through tip.</summary>
+    /// <summary>The seven successive initial link angles, base through tip.</summary>
     internal static readonly ushort[] InitialAngles =
     [
         InitialBaseAngle, InitialBaseAngle + IdealInterSegmentSpacing, InitialBaseAngle + 2 * IdealInterSegmentSpacing,

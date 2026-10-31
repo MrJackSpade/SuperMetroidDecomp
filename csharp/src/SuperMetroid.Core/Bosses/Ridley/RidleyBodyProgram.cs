@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Ridley's typed body programs (#641), in the authored order of their bank-$A6 lists. Each entry program first
-/// redirects to its right-facing counterpart unless Ridley faces left, as the native lists do.
+/// Ridley's typed body programs (#641), in the authored order of their lists. Each entry program first
+/// redirects to its right-facing counterpart unless Ridley faces left, as the lists do.
 /// </summary>
 internal enum RidleyBodyProgram
 {
@@ -41,6 +41,6 @@ internal enum RidleyBodyProgram
     /// <summary>Taking off.</summary>
     TransitionToFlying,
     /// <summary>The right-facing take-off.</summary>
-    /// <remarks>It calls the Lower Norfair lift-off, as the native list does.</remarks>
+    /// <remarks>It calls the Lower Norfair lift-off, as the list does.</remarks>
     TransitionToFlyingFacingRight,
 }

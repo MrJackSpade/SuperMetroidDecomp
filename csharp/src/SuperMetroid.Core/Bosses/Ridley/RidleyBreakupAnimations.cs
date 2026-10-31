@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// Ridley's breakup fragment programs (#641), one per <see cref="RidleyBreakupFrame"/>: each shows its pose for one
-/// update and then holds, as the native one-frame lists do.
+/// update and then holds, as the one-frame lists do.
 /// </summary>
 internal static class RidleyBreakupAnimations
 {

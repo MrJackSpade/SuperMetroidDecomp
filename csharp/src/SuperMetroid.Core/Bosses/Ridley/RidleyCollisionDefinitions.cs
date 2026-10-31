@@ -2,14 +2,14 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// All eleven bank-$A6 extended body frames selected by Ceres and Lower Norfair
-/// Ridley's instruction programs, and their seventeen distinct hitbox lists.
-/// The original $A0:9A5A/$9B7F collision walker consumes these offsets and
+/// All eleven extended body frames selected by Ceres and Lower Norfair
+/// Ridley's animation programs, and their seventeen distinct hitbox lists.
+/// The original contact and shot collision walkers consume these offsets and
 /// rectangles independently of the displayed sprite composition.
 /// </summary>
 internal static class RidleyCollisionDefinitions
 {
-    /// <summary>The 32-pixel margin $A6:DE7A adds on each axis before the camera-relative test.</summary>
+    /// <summary>The 32-pixel margin Ridley's interaction check adds on each axis before the camera-relative test.</summary>
     internal static readonly Offset16<RoomPixels> InteractionWindowMargin = new(32, 32);
 
     /// <summary>Every body rectangle's touch reaction: Ridley's extended-body contact.</summary>
@@ -18,36 +18,36 @@ internal static class RidleyCollisionDefinitions
     /// <summary>Every body rectangle's shot reaction: Ridley's own shot reaction.</summary>
     internal const EnemyReaction BodyShotReaction = EnemyReaction.RidleyShot;
 
-    /// <summary>Native extended body maps for both Ridley encounters, selected by facing, mouth, and leg pose.</summary>
+    /// <summary>Extended body maps for both Ridley encounters, selected by facing, mouth, and leg pose.</summary>
     internal enum BodyFrame
     {
-        /// <summary>ExtendedSpritemap_Ridley_FacingLeft.</summary>
+        /// <summary>Ridley facing left frame.</summary>
         Left,
-        /// <summary>ExtendedSpritemap_Ridley_FacingRight.</summary>
+        /// <summary>Ridley facing right frame.</summary>
         Right,
-        /// <summary>ExtendedSpritemap_Ridley_FacingLeft_MouthHalfOpen.</summary>
+        /// <summary>Ridley facing left, mouth half open frame.</summary>
         LeftMouthHalfOpen,
-        /// <summary>ExtendedSpritemap_Ridley_FacingLeft_MouthOpen.</summary>
+        /// <summary>Ridley facing left, mouth open frame.</summary>
         LeftMouthOpen,
-        /// <summary>ExtendedSpritemap_Ridley_FacingRight_MouthHalfOpen.</summary>
+        /// <summary>Ridley facing right, mouth half open frame.</summary>
         RightMouthHalfOpen,
-        /// <summary>ExtendedSpritemap_Ridley_FacingRight_MouthOpen.</summary>
+        /// <summary>Ridley facing right, mouth open frame.</summary>
         RightMouthOpen,
-        /// <summary>ExtendedSpritemap_Ridley_FacingLeft_LegsHalfExtended.</summary>
+        /// <summary>Ridley facing left, legs half extended frame.</summary>
         LeftLegsHalfExtended,
-        /// <summary>ExtendedSpritemap_Ridley_FacingLeft_LegsExtended.</summary>
+        /// <summary>Ridley facing left, legs extended frame.</summary>
         LeftLegsExtended,
-        /// <summary>ExtendedSpritemap_Ridley_FacingRight_LegsHalfExtended.</summary>
+        /// <summary>Ridley facing right, legs half extended frame.</summary>
         RightLegsHalfExtended,
-        /// <summary>ExtendedSpritemap_Ridley_FacingRight_LegsExtended.</summary>
+        /// <summary>Ridley facing right, legs extended frame.</summary>
         RightLegsExtended,
-        /// <summary>ExtendedSpritemap_Ridley_FacingForward.</summary>
+        /// <summary>Ridley facing forward frame.</summary>
         Forward,
     }
     /// <summary>The forward frame's single component Y offset, authored for its drawing.</summary>
     internal const int ForwardYOffset = -6;
 
-    /// <summary>Hitbox_Ridley_FacingLeft_MouthClosed: the closed-mouth head of left-facing Ridley.</summary>
+    /// <summary>The closed-mouth head of left-facing Ridley.</summary>
     internal static readonly EnemyHitboxRectangle[] LeftHeadMouthClosed =
         [new(-12, -26, 11, 13), new(-24, 3, -13, 21)];
     /// <summary>The half-open-mouth head of left-facing Ridley.</summary>
@@ -56,17 +56,17 @@ internal static class RidleyCollisionDefinitions
     /// <summary>The open-mouth head of left-facing Ridley.</summary>
     internal static readonly EnemyHitboxRectangle[] LeftHeadMouthOpen =
         [new(-37, -40, -14, -31), new(-25, -31, 9, 6)];
-    /// <summary>Hitbox_Ridley_FacingLeft_LegsNotExtended: left-facing standing legs.</summary>
+    /// <summary>Left-facing standing legs.</summary>
     internal static readonly EnemyHitboxRectangle[] LeftLegsNotExtended = [new(-15, -10, 7, 2)];
     /// <summary>Left-facing legs half extended.</summary>
     internal static readonly EnemyHitboxRectangle[] LeftLegsHalfExtended = [new(-17, -9, 6, 15)];
     /// <summary>Left-facing legs extended.</summary>
     internal static readonly EnemyHitboxRectangle[] LeftLegsExtended = [new(-14, -1, 10, 23)];
-    /// <summary>Hitbox_Ridley_FacingLeft_Hand.</summary>
+    /// <summary>Ridley hitbox: facing left, hand.</summary>
     internal static readonly EnemyHitboxRectangle[] LeftHand = [new(-15, -2, -1, 8)];
-    /// <summary>Hitbox_Ridley_FacingLeft_Torso.</summary>
+    /// <summary>Ridley hitbox: facing left, torso.</summary>
     internal static readonly EnemyHitboxRectangle[] LeftTorso = [new(-16, -20, 12, 21)];
-    /// <summary>Hitbox_Ridley_FacingForward: the whole body of the front-facing turn pose.</summary>
+    /// <summary>The whole body of the front-facing turn pose.</summary>
     internal static readonly EnemyHitboxRectangle[] Forward =
         [new(-16, -32, 16, 34), new(-8, -45, 8, -33)];
     /// <summary>The closed-mouth head of right-facing Ridley, fitted to the right-facing drawing rather than mirrored.</summary>

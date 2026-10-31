@@ -56,7 +56,7 @@ public static class RidleyMovementTargets
         return WordWrap.Unsigned(Math.Min(10, (1 << (stage + 1)) - 1));
     }
 
-    /// <summary>Limits health-stage selection to the four entries represented by the native movement tables.</summary>
+    /// <summary>Limits health-stage selection to the four entries represented by the movement tables.</summary>
     private static void ValidateStage(int stage)
     {
         if ((uint)stage >= 4) throw new ArgumentOutOfRangeException(nameof(stage));

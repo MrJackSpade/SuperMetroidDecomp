@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// The shapes of Ceres Ridley's palettes and the rules that select their steps (#1413). Where each palette sits in the
-/// cartridge is the import's knowledge (<c>AssetExtraction/CartridgeTables/RidleySourceDefinitions</c>).
+/// is the import's knowledge (<c>AssetExtraction/CartridgeTables/RidleySourceDefinitions</c>).
 /// </summary>
 public static class CeresRidleyPaletteDefinitions
 {
@@ -31,7 +31,7 @@ public static class CeresRidleyPaletteDefinitions
     /// <summary>The health band Ceres Ridley shows from his fiftieth to his sixty-ninth accepted hit while fighting.</summary>
     public const int HealthMidBand = 0;
     /// <summary>
-    /// The health band Ceres Ridley shows from his seventieth accepted hit on: the cartridge omits the branch after its
+    /// The health band Ceres Ridley shows from his seventieth accepted hit on: the original game omits the branch after its
     /// ninety-hit comparison, so the middle band is never shown in Ceres.
     /// </summary>
     public const int HealthLateBand = 2;

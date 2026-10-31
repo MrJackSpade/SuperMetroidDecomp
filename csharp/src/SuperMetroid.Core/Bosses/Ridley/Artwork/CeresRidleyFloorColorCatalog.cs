@@ -11,7 +11,7 @@ public sealed class CeresRidleyFloorColorCatalog
     /// <summary>Copies validated RGB5 steps into the fixed zoom-shade selector.</summary>
     internal CeresRidleyFloorColorCatalog(RgbColor[][] steps) => this.steps = new(steps);
 
-    /// <summary>Reproduces $A6:B0EF's fifteen-color zoom shade write to CGRAM 81..95, preserving BG palette 5 color zero and leaving zoom/rotation mechanics unchanged.</summary>
+    /// <summary>Reproduces the getaway's fifteen-color zoom shade write to colours 81..95, preserving background palette 5 color zero and leaving zoom/rotation mechanics unchanged.</summary>
     /// <param name="colours">The colours to update.</param>
     /// <param name="zoomStep">The getaway zoom step: the whole part of the current zoom, 0..8; not a frame timer or byte offset into the stored steps.</param>
     /// <exception cref="ArgumentOutOfRangeException">The zoom step is outside 0..8.</exception>

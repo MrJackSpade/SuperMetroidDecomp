@@ -21,7 +21,7 @@ internal static class NorfairRidleyColors
             content.AppendColorFrames("reveal", revealWords);
         });
 
-    /// <summary>Installs the 32 initial RGB5 colors in CGRAM entries 160..191.</summary>
+    /// <summary>Installs the 32 initial RGB5 colors in colours 160..191.</summary>
     internal static void ApplyInitial(NorfairRidleyInitialPaint initial, GameplayColours colours)
     {
         Ensure.NotNull(colours);
@@ -29,7 +29,7 @@ internal static class NorfairRidleyColors
             new RidleyColours(colours).NorfairInitial.Write(color, initial.ColorAt(color));
     }
 
-    /// <summary>Copies one arena-reveal step to CGRAM entries 113..126.</summary>
+    /// <summary>Copies one arena-reveal step to colours 113..126.</summary>
     internal static void ApplyReveal(NorfairRidleyRevealPaint reveal, GameplayColours colours, int step)
     {
         NorfairRidleyRevealPaint.ValidateStep(step);

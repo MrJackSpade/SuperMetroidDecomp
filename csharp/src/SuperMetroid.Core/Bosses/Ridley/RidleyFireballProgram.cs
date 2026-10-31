@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ridley's typed fireball and afterburn programs (#641), in the authored order of their bank-$86 lists.</summary>
+/// <summary>Ridley's typed fireball and afterburn programs (#641), in the authored order of their lists.</summary>
 internal enum RidleyFireballProgram
 {
     /// <summary>The launching fireball.</summary>

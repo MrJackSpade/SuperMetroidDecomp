@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>One cue of Ridley's body programs, with the operands its native instruction carries.</summary>
+/// <summary>One cue of Ridley's body programs, with the operands its instruction carries.</summary>
 internal abstract record RidleyBodyCue
 {
     /// <summary>Closes the hierarchy to the cues declared here.</summary>

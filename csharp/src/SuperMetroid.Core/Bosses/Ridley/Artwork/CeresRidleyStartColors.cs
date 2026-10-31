@@ -6,9 +6,9 @@ using static SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyStartColorDefini
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Additional OBJ palettes, copied together by $A6:A245-A24E.
-/// The first palette repeats the reviewed normal door/container material at
-/// $A6:F4EC. The second repeats the Baby initial colors; their paint
+/// Additional sprite palettes, copied together by Ceres Ridley's initialization.
+/// The first palette repeats the reviewed normal door/container material. The
+/// second repeats the Baby initial colors; their paint
 /// inputs remain owned by the separately reviewed CeresBabyPaint.
 /// Both transparent entries retain the selected copied clear-black target value;
 /// transparency itself does not require RGB zero. Independent supplied edits,

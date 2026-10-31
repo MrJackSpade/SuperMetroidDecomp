@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Ridley health colors $A6:E46A-E4BD, uniformly copied by $A6:D495-D4B4.
+/// Ridley health colors, uniformly copied by the health-palette update.
 /// The selected armor/eye color composition tints toward the existing middle
 /// membrane paint, with strengths2/20,3/20,4/20. Recessed armor green
 /// holds its healthy shade in the first band; middle plate blue holds the preceding

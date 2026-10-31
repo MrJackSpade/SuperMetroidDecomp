@@ -22,7 +22,7 @@ internal static class RidleyCollision
             CoordinateAxis.Difference(relativeY, 288) >= 0;
     }
 
-    /// <summary>Each body frame's components in native order: one for forward Ridley, four for each side-facing pose.</summary>
+    /// <summary>Each body frame's components in authored order: one for forward Ridley, four for each side-facing pose.</summary>
     private static readonly Dictionary<BodyFrame, ImmutableArray<RidleyCollisionComponent>> FrameComponents =
         Enum.GetValues<BodyFrame>().ToDictionary(frame => frame, frame => Enumerable.Range(0, frame == BodyFrame.Forward ? 1 : 4)
             .Select(component => ComponentAt(frame, component)).ToImmutableArray());

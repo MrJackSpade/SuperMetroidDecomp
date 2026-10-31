@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.Ridley.RidleyFireballProgram;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Ridley's typed fireball and afterburn programs (#641), in place of their bank-$86 lists.</summary>
+/// <summary>Ridley's typed fireball and afterburn programs (#641), in place of their lists.</summary>
 internal static class RidleyFireballAnimations
 {
     /// <summary>Poses in the flight loop.</summary>

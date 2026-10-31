@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 [RoomLifetime]
 internal sealed class RidleyBehavior : IEnemySpecies
 {
-    /// <summary>Room services, level state, and native RNG for the Norfair fight.</summary>
+    /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns fight state shared with cutscenes and room transitions.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
@@ -64,7 +64,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>
     /// Ports <c>Ridley_Main</c> and the area-two half of the shared reveal
     /// dispatcher. Composition is advanced after the selected function, exactly like the
-    /// cartridge, so a velocity change affects the same rendered frame.
+    /// original game, so a velocity change affects the same rendered frame.
     /// </summary>
     private void RunNorfairRidleyMain(
         RoomEnemySlot slot,
@@ -80,7 +80,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
         RidleyInteractions.UpdateNorfairRidleyIntangibility(slot, state, camera);
         NorfairRidleyCombat.PrepareNorfairRidleyCombatFrame(state, sharedProjectiles ?? throw new InvalidOperationException(
-            "Ridley's power-bomb check ($A6:BD2C) requires the shared projectile owner."));
+            "Ridley's power-bomb check requires the shared projectile owner."));
 
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
 
@@ -92,7 +92,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             _ridleyTail.TickRidleyTail(slot, state, samus);
             if (samusProjectiles is not null)
                 _ridleyTail.ResolveRidleyTailProjectileHits(slot, state, samusProjectiles);
-            // Native Main places carried Samus after body/tail movement.
+            // Main places carried Samus after body/tail movement.
             if (state.GrabState != RidleyGrabState.Released && samus is not null)
                 NorfairRidleyCombat.UpdateNorfairRidleyGrabbedSamus(slot, state, samus);
         }
@@ -387,7 +387,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Chooses a native attack table by Samus movement, Ridley health, and arena position.</summary>
+    /// <summary>Chooses an attack table by Samus movement, Ridley health, and arena position.</summary>
     internal void SelectNorfairRidleyAttack(
         RoomEnemySlot slot,
         RidleyEnemyState state,
@@ -425,7 +425,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         int choice = _room.Random.Generate() & 7;
         state.Function = RidleyAttackChoices.Resolve(situation, choice);
 
-        // The native selector tail-calls the chosen routine. Retain that same-frame setup
+        // The selector tail-calls the chosen routine. Retain that same-frame setup
         // so timers, instruction changes, and velocity all begin on the selected frame.
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
     }
@@ -442,7 +442,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             frame.Camera);
 
     /// <summary>
-    /// Ports hurt AI $A6:B297. Function, movement, wing, and tail updates execute only on
+    /// Runs Ridley's hurt AI. Function, movement, wing, and tail updates execute only on
     /// even actor frames; tail armor, flash/palette work, and the grabbed-Samus lag counter
     /// remain active on every hurt frame.
     /// </summary>
@@ -480,7 +480,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
     /// <summary>Adds Ridley's hurt callback for the post-hit AI window.</summary>
-    /// <remarks>$A6:B297 owns hurt frames instead of falling back to ordinary main AI. Movement/function work runs only
+    /// <remarks>Ridley's hurt AI owns hurt frames instead of falling back to ordinary main AI. Movement/function work runs only
     /// on even actor frames, while tail projectile armor and hurt palettes remain live on every frame.</remarks>
     internal void AddRidleyHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.Ridley, (slot, frame) => RunNorfairRidleyHurt(
@@ -490,6 +490,6 @@ internal sealed class RidleyBehavior : IEnemySpecies
             frame.Level,
             frame.SamusProjectiles,
             frame.SharedProjectiles ?? throw new InvalidOperationException(
-                "Ridley's power-bomb check ($A6:BD2C) requires the shared projectile owner."),
+                "Ridley's power-bomb check requires the shared projectile owner."),
             frame.Camera));
 }

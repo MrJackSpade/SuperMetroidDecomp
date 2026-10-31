@@ -13,14 +13,14 @@ internal sealed class NorfairRidleyMovement
     {
     }
 
-    /// <summary>Decrements a native word timer and reports signed underflow.</summary>
+    /// <summary>Decrements a word timer and reports signed underflow.</summary>
     internal static bool TickRidleyFunctionTimer(RidleyEnemyState state)
     {
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
         return state.FunctionTimer.IsNegative;
     }
 
-    /// <summary>Accelerates both 8.8 velocity axes toward a target using native inertia divisors.</summary>
+    /// <summary>Accelerates both 8.8 velocity axes toward a target using inertia divisors.</summary>
     internal static void MoveNorfairRidleyToward(
         RoomEnemySlot slot,
         RidleyEnemyState state,

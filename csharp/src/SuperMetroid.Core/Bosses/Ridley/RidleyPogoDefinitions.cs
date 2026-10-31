@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Native pogo launch velocities and asymmetric accelerations, not presentation data.</summary>
+/// <summary>Pogo launch velocities and asymmetric accelerations, not presentation data.</summary>
 public static class RidleyPogoDefinitions
 {
     /// <summary>
-    /// $A6:B94D..B9D4 SetRidleyPogoSpeeds, by pattern then stage: pattern selects four increasing launch magnitudes;
+    /// SetRidleyPogoSpeeds, by pattern then stage: pattern selects four increasing launch magnitudes;
     /// stage selects acceleration and bounce height. The first two stages remain addressable although ordinary health
     /// selects stages two to five. Each faster pattern adds 1/8 pixel per frame horizontally; the ordinary four health
     /// stages add 1/32 per stage, and the two unused lead-in stages begin below that progression. Later bounce stages

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>Cartridge thresholds for aborting and recovering from a Norfair Ridley lunge.</summary>
+/// <summary>Thresholds for aborting and recovering from a Norfair Ridley lunge.</summary>
 public static class RidleyLungeDefinitions
 {
     /// <summary>RidleyLungeMissedSamus: ten zero-health lunges end in the death roar.</summary>

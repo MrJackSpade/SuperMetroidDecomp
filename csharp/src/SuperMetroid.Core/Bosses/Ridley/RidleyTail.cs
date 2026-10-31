@@ -9,7 +9,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// Ridley's bank-$A6 tail: the segment chain, its flight and pogo controllers, whip aiming,
+/// Ridley's tail: the segment chain, its flight and pogo controllers, whip aiming,
 /// terrain probing, Samus contact, and the projectile-blocking joints shared by the Ceres and
 /// Lower Norfair encounters.
 /// </summary>
@@ -18,7 +18,7 @@ internal sealed class RidleyTail
 {
     /// <summary>Exposes the five ordinary Samus projectile slots checked by Ceres whip aiming.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>Replaces shots blocked by tail joints with cartridge dust or dud effects.</summary>
+    /// <summary>Replaces shots blocked by tail joints with dust or dud effects.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies the current Ridley body and tail state for post-solve Samus contact.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
@@ -42,7 +42,7 @@ internal sealed class RidleyTail
     /// and the position/distance chains. The retail routine deliberately
     /// adds the preceding segment's low-byte angle when deriving every later offset;
     /// retaining that documented anomaly is why the tail curls and rotates at the same
-    /// rate as the cartridge.
+    /// rate as the original game.
     /// </summary>
     internal void TickRidleyTail(
         RoomEnemySlot slot,
@@ -50,7 +50,7 @@ internal sealed class RidleyTail
         SamusState? samus)
     {
         if (state.TailSegments.Length != 7)
-            throw new InvalidDataException("Ceres Ridley requires seven native tail segments.");
+            throw new InvalidDataException("Ceres Ridley requires seven tail segments.");
 
         if (state.TailFunctionIndex != RidleyTailFunction.None)
         {
@@ -67,7 +67,7 @@ internal sealed class RidleyTail
                 TickRidleyPogoTail(slot, state, samus);
         }
 
-        // $CAF5 always composes positions, but only the selected tail controller
+        // The tail composition always composes positions, but only the selected tail controller
         // updates offsets. Function zero and stagger/stop returns retain them.
         RidleyTailSegment first = state.TailSegments[0];
         Position16<RoomPixels> tailRoot = slot.Position.Whole + new Offset16<RoomPixels>(0, 16);
@@ -115,7 +115,7 @@ internal sealed class RidleyTail
             }
             else if (state.IdleTailWhipEnabled)
             {
-                // Read the existing seed; this branch never advances the cartridge RNG.
+                // Read the existing seed; this branch never advances the original game RNG.
                 if (SharedRandomState.LowerByte(_room.Random.Read()) >= 240)
                     AimCeresRidleyTailWhip(state, samus, unchecked(new ByteAngle(WordWrap.LowByte(state.TailWhipRequest - 1))));
                 else if (samus is not null && CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128)
@@ -130,7 +130,7 @@ internal sealed class RidleyTail
 
         // Once a wave/whip has propagated through all seven parts, neutral AI starts the
         // next wave at the base and retires both old targets. Samus's X half selects the
-        // exact one- or two-unit angular delta used by `$A6:CC6B-$CC79`.
+        // exact one- or two-unit angular delta the neutral tail uses.
         state.TailSegments[0].Active = true;
         state.ClockwiseWhipTarget = null;
         state.CounterClockwiseWhipTarget = null;
@@ -143,7 +143,7 @@ internal sealed class RidleyTail
         SamusState? samus,
         ByteAngle additionalAngle)
     {
-        // Facing direction one is the front-facing transition art. `$A6:D1A4` returns
+        // Facing direction one is the front-facing transition art. The tail attack returns
         // without installing a target in that state, and fight mode zero likewise blocks
         // the attack before liftoff.
         if (samus is null || state.FacingDirection == RidleyFacing.Turning || state.FightMode == RidleyFightMode.NotFighting)
@@ -151,7 +151,7 @@ internal sealed class RidleyTail
 
         RidleyTailSegment root = state.TailSegments[0];
         Position16<RoomPixels> aim = samus.Position.Whole + new Offset16<RoomPixels>(0, 24);
-        // $D242 scans only the five ordinary projectile slots, first match wins.
+        // The tail-attack check scans only the five ordinary projectile slots, first match wins.
         if (_frameContext.SamusProjectiles is { } projectiles && projectiles.SlotTable.ProjectileCounter > 0)
         {
             RidleyTailSegment tip = state.TailSegments[6];
@@ -170,7 +170,7 @@ internal sealed class RidleyTail
         if (state.FacingDirection == RidleyFacing.Left)
         {
             // Facing-left Ridley cannot aim through his own body. Angles inside the
-            // forbidden forward interval clamp to $E8 before bank-$3F expansion.
+            // forbidden forward interval clamp to $E8 before expansion.
             if (targetByte is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
                 targetByte = RidleyTailDefinitions.ForbiddenForwardEnd;
             int target = CoordinateAxis.Wrap(RidleyTailDefinitions.LeftWhipTargetBase + targetByte - additional);
@@ -293,7 +293,7 @@ internal sealed class RidleyTail
 
     /// <summary>
     /// Converts one segment's current polar angle/distance into the relative Cartesian
-    /// offset consumed by $A6:CEBA. This is deliberately independent of the segment's active
+    /// offset the tail composition consumes. This is deliberately independent of the segment's active
     /// flag: inactive tail pieces keep their established pose rather than collapsing.
     /// </summary>
     private static void UpdateRidleyTailSegmentOffset(RidleyEnemyState state, int index)
@@ -303,7 +303,7 @@ internal sealed class RidleyTail
         if (index != 0)
             angle = angle.AddTableUnits(state.TailSegments[index - 1].Angle);
         int distanceInPixels = EightEight.WholeOf(segment.Distance);
-        // $A9:C46C reads the middle/high bytes of the signed Mode 7 product.
+        // The tail composition reads the middle/high bytes of the signed rotation product.
         // An arithmetic shift preserves its floor for negative fractional pixels.
         segment.Offset = new Offset16<RoomPixels>(
             CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle))),
@@ -361,8 +361,8 @@ internal sealed class RidleyTail
 
     /// <summary>
     /// <c>RandomlyUpdateRidleyTailCurliness</c>: when the live RNG word is at
-    /// least $FF00 (sampled, not advanced), the ideal inter-segment tail angle becomes its
-    /// low nibble plus seven plus the compare's set carry, so $08..$17.
+    /// least 65,280 (sampled, not advanced), the ideal inter-segment tail angle becomes its
+    /// low nibble plus seven plus the compare's set carry, so 8..23.
     /// </summary>
     internal void RandomlyUpdateCeresRidleyTailCurliness(RidleyEnemyState state)
     {
@@ -377,7 +377,7 @@ internal sealed class RidleyTail
     {
         RoomEnemySlot body = _slotTable.Slots[0];
         RidleyEnemyState? state = _ridleyEncounter.Ridley;
-        // $A6:CAF5 checks the newly solved tail, independently of the earlier
+        // The tail composition checks the newly solved tail, independently of the earlier
         // extended-body contact pass, and never damages Samus while carrying her.
         if (state is null || state.GrabState != RidleyGrabState.Released || !samus.InvincibilityTimer.IsZero ||
             body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
@@ -392,7 +392,7 @@ internal sealed class RidleyTail
         return true;
     }
 
-    /// <summary>Probes the tip and four inner joints at their native downward offsets for solid room blocks.</summary>
+    /// <summary>Probes the tip and four inner joints at their downward offsets for solid room blocks.</summary>
     internal static bool RidleyTailTouchesTerrain(
         RidleyEnemyState state,
         RoomLevelData? level)
@@ -400,7 +400,7 @@ internal sealed class RidleyTail
         if (level is null || state.TailSegments.Length != 7)
             return false;
 
-        // $B7E7 samples the tip and the next four joints with the exact +16/+18 Y probes.
+        // The tail's floor check samples the tip and the next four joints with the exact +16/+18 Y probes.
         int tipIndex = state.TailSegments.Length - 1;
         for (int index = tipIndex; index >= 2; index--)
         {
@@ -415,8 +415,8 @@ internal sealed class RidleyTail
     }
 
     /// <summary>
-    /// Ports $A6:D3F9. A facing instruction restores the seven rest distances before
-    /// reflecting angles around $8000 and setting clockwise movement. The offset words
+    /// Mirrors the tail. A facing step restores the seven rest distances before
+    /// reflecting angles around a half turn and setting clockwise movement. The offset words
     /// remain untouched until the following tail controller update.
     /// </summary>
     internal static void MirrorRidleyTail(RidleyEnemyState state)
@@ -431,9 +431,9 @@ internal sealed class RidleyTail
     }
 
     /// <summary>
-    /// Ports $A6:E088. Only the final two solved tail joints are live in retail code: a
+    /// Resolves shots against the tail. Only the final two solved tail joints are live in retail code: a
     /// radius-14 tip followed by a radius-10 inner segment. A hit is snapped to the joint,
-    /// marked consumed, and replaced by the cartridge's dust/dud actor; Ridley's health is
+    /// marked consumed, and replaced by the game's dust/dud actor; Ridley's health is
     /// never consulted because the tail is armor rather than another body hitbox.
     /// </summary>
     internal void ResolveRidleyTailProjectileHits(
@@ -489,7 +489,7 @@ internal sealed class RidleyTail
             projectile.IsSpent = true;
 
             // A missile gets the tiny dud and library-one sound $3D. Beams and supers
-            // use the larger smoke variant, exactly as $A6:E126 selects it.
+            // use the larger smoke variant, exactly as the tail's shot reaction selects it.
             bool missile = projectile.Type.Family == SamusProjectileFamily.Missile;
             MiscDustAnimation dustVariant = missile ? MiscDustAnimation.DudShotTinyExplosion : MiscDustAnimation.Smoke;
             _projectiles.SpawnRoomGraphicsDustExplosion(joint.Position, dustVariant);
@@ -501,7 +501,7 @@ internal sealed class RidleyTail
         return false;
     }
 
-    /// <summary>Live pogo tail controllers $A6:CB33..CBD3 and $CD24..CE64.</summary>
+    /// <summary>Live pogo tail controllers.</summary>
     internal void TickRidleyPogoTail(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
         RidleyTailFunction function = state.TailFunctionIndex;
@@ -557,7 +557,7 @@ internal sealed class RidleyTail
         }
         state.ClockwiseWhipTarget = null;
         state.CounterClockwiseWhipTarget = null;
-        // Native pogoTailActivationTimer is initialized to zero and never assigned
+        // PogoTailActivationTimer is initialized to zero and never assigned
         // a nonzero value by any live routine; CD90/CE61 therefore write zero here.
         state.TailAngleDelta = 0;
     }

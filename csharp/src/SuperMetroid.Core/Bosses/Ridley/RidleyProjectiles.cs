@@ -34,7 +34,7 @@ internal sealed class RidleyProjectiles
     /// <summary>The fireball's 8.8 speed: five pixels per update.</summary>
     private const int FireballSpeed = 1280;
 
-    /// <summary>Ports Ridley instruction $A6:E84D and retains its asymmetric aim clamps.</summary>
+    /// <summary>Runs Ridley's fireball aim step and retains its asymmetric aim clamps.</summary>
     internal void CalculateRidleyFireballVelocity(RoomEnemySlot ridley, SamusState samus)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(ridley);
@@ -58,20 +58,19 @@ internal sealed class RidleyProjectiles
                 angle = new(80);
         }
 
-        // Math_MultBySin/Cos reads signed words from the shared table at
-        // $A0:B443. The apparently relevant $94:A957 address is executable grapple
+        // Math_MultBySin/Cos reads signed values from the shared sine table.
+        // An apparently relevant grapple table is
         // code, not table data; treating that code as samples produces enormous bogus
-        // velocities. The native index is `angle * 2` because X is a byte offset into
-        // 16-bit entries; callers add $40 themselves when they want cosine. Its multiply
-        // takes the absolute table word,
-        // shifts by eight, then reapplies the sign. Speed $0500 therefore remains a
-        // signed 8.8 velocity whose magnitude never exceeds $0500.
+        // velocities. Callers add a quarter turn themselves when they want cosine. Its multiply
+        // takes the absolute table value,
+        // shifts by eight, then reapplies the sign. Speed 1280 therefore remains a
+        // signed 8.8 velocity whose magnitude never exceeds 1280.
         state.FireballVelocity = new EightEightVector<RoomPixels>(
             EnemyMath.MultiplySineSample(FireballSpeed, angle),
             EnemyMath.MultiplySineSample(FireballSpeed, angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
     }
 
-    /// <summary>Allocates projectile $86:9642 at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>
+    /// <summary>Allocates Ridley's fireball at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>
     internal void SpawnRidleyFireball(RoomEnemySlot ridley, int afterburns)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -91,7 +90,7 @@ internal sealed class RidleyProjectiles
         projectile.RemainingAfterburns = afterburns;
     }
 
-    /// <summary>Selects the native damage row from Samus's current area, or Crateria for an unbound fixture.</summary>
+    /// <summary>Selects the damage row from Samus's current area, or Crateria for an unbound fixture.</summary>
     private void ApplyRidleyProjectileAreaDamage(RoomEnemyProjectileSlot projectile)
     {
         // EnemyMain binds live Samus before dispatch, including her current room
@@ -100,7 +99,7 @@ internal sealed class RidleyProjectiles
         projectile.Damage = RidleyProjectileDamage.ForArea(area);
     }
 
-    /// <summary>Allocates enemy projectile $E509 with one ROM-authored dust variant.</summary>
+    /// <summary>Allocates the dust enemy projectile with one authored dust variant.</summary>
     internal void SpawnRidleyDust(Position16<RoomPixels> position, MiscDustAnimation animation)
     {
         RoomEnemyProjectileSlot? dust = _projectiles.AllocateEnemyProjectile();
@@ -126,7 +125,7 @@ internal sealed class RidleyProjectiles
             return;
         RidleyProjectileStarts.Initialize(center, kind, FireballGraphicsIndex);
         center.Position = center.Position.WithWhole(position);
-        // $86:9499/$949C explicitly stop the center; allocation retains prior velocities.
+        // The afterburn centre's steps explicitly stop the center; allocation retains prior velocities.
         center.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         center.RemainingAfterburns = remaining;
     }
@@ -164,7 +163,7 @@ internal sealed class RidleyProjectiles
         afterburn.NextAfterburnKind = kind;
     }
 
-    /// <summary>Decrements the native low-byte chain counter and repeats the branch while its sign bit remains clear.</summary>
+    /// <summary>Decrements the low-byte chain counter and repeats the branch while its sign bit remains clear.</summary>
     internal void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
     {
         LowByteCountdownStep step = WrappingCounter.DecrementLowByte(source.RemainingAfterburns);
@@ -181,7 +180,7 @@ internal sealed class RidleyProjectiles
     internal static void BeginAfterburnFinalAnimation(RoomEnemyProjectileSlot projectile)
     {
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.AfterburnFinal));
-        // $86:950D/$9522 replace the list; its clear-pre-instruction stops motion.
+        // The afterburns replace the list; its clear-frame-behaviour step stops motion.
         // Velocity words and contact properties remain unchanged. The final list
         // clears movement, draws five frames, then deletes; it never disables damage.
     }
@@ -213,7 +212,7 @@ internal sealed class RidleyProjectiles
 
         table.AddFrameBehavior(context =>
         {
-            // $86:950D first uses the raw 8.8 horizontal adder, not the room-collision
+            // The horizontal afterburn first uses the raw 8.8 horizontal adder, not the room-collision
             // helper. Only the perpendicular vertical move may end this afterburn.
             context.Projectile.Position = context.Projectile.Position.AdvanceX(context.Projectile.Velocity.X.ToSixteenSixteenDelta());
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
@@ -222,7 +221,7 @@ internal sealed class RidleyProjectiles
 
         table.AddFrameBehavior(context =>
         {
-            // $86:9522 is the transposed path: unrestricted vertical travel followed
+            // The vertical afterburn is the transposed path: unrestricted vertical travel followed
             // by a horizontal room-collision test.
             context.Projectile.Position = context.Projectile.Position.AdvanceY(context.Projectile.Velocity.Y.ToSixteenSixteenDelta());
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Horizontal))

@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
 /// The running delays each of the getaway's wing frames leaves behind for Samus's unauthored Speed Booster cadence
-/// (<see cref="UnauthoredBoostCadence"/>, #1338). The import decodes them once from the player's cartridge, from what the
-/// wing frame's floor update leaves where the unauthored cadence reads, so Core holds no floor update, queue position or
-/// cartridge address. The capsule's frames leave nothing the cadence reads.
+/// (<see cref="UnauthoredBoostCadence"/>, #1338). The import decodes them once from the player's game data, from what the
+/// wing frame's floor update leaves where the unauthored cadence reads, so Core holds no floor update or queue position.
+/// The capsule's frames leave nothing the cadence reads.
 /// </summary>
 public sealed class CeresRidleyGetawayBoostDelays
 {

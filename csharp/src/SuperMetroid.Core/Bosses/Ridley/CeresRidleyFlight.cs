@@ -54,17 +54,17 @@ internal sealed class CeresRidleyFlight
         if (slot.SlotIndex != 0)
         {
             throw new InvalidDataException(
-                $"Ceres Ridley requires native enemy slot zero, not slot {slot.SlotIndex}.");
+                $"Ceres Ridley requires the first enemy slot, not slot {slot.SlotIndex}.");
         }
 
-        // $A6:A10B-A12E clears the shared boss tilemap workspace, disables the minimap, and
+        // Ceres Ridley's initialization clears the shared boss tilemap workspace, disables the minimap, and
         // marks the room explored. Those consumers are not yet represented by RoomEnemySystem;
         // every actor-owned write that follows is retained below.
         slot.Colouring = RidleyEnemyState.OwnColours;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
-        // Native bits $1000 and $0400 are proven by the initializer, but $1000 has not yet
-        // been given a cross-enemy semantic name. Preserve it raw; $0400 already has the
+        // Two property bits are proven by the initializer, but the first has not yet
+        // been given a cross-enemy semantic name. Preserve it raw; the intangible bit already has the
         // verified IgnoreSamusCollision identity used by the scheduler.
         slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -105,16 +105,16 @@ internal sealed class CeresRidleyFlight
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
         };
         StartRidleyProgram(_ridleyEncounter.Ridley, slot, RidleyBodyProgram.Initial);
-        // `$A6:A280` ends Ceres Ridley's initialization by queuing music zero (stop).
+        // Ceres Ridley's initialization ends by queuing music zero (stop).
         _audio.RequestRoomEnemyStartMusic(MusicRequest.Stop);
 
-        // WriteColorsToTargetPalette($140, $20) installs the Ceres door and Baby
+        // WriteColorsToTargetPalette installs the Ceres door and Baby
         // Metroid container palettes. This runtime exposes the final target directly in
-        // CGRAM, matching the established Ceres-door palette seam.
+        // the live colours, matching the established Ceres-door palette seam.
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley requires installed start colors.")).ApplyStart(_presentation.Colours);
 
-        // The native loop clears target-palette byte offsets $1E2..$1FE: OBJ palette seven,
+        // The loop clears target-palette byte offsets $1E2..$1FE: OBJ palette seven,
         // colors one through fifteen. Color zero belongs to the shared transparent backdrop
         // and is intentionally left untouched.
         _presentation.BossColours().CeresRidleyRevealedObjects.Fill(RgbColor.Black);
@@ -153,7 +153,7 @@ internal sealed class CeresRidleyFlight
 
         // The other original termination route is Samus energy below 30. A synthetic room
         // fixture may omit Samus, in which case only the shot-counter route is meaningful.
-        // $A6:A706 jumps into the real retreat, so its first acceleration runs this call.
+        // The low-energy check jumps into the real retreat, so its first acceleration runs this call.
         if (samus is not null && samus.Health < 30)
         {
             state.FightMode = RidleyFightMode.NotFighting;
@@ -167,8 +167,8 @@ internal sealed class CeresRidleyFlight
         AccelerateRidleyToward(slot, state, target: new(192, 100), divisorIndex: 0);
         if (!IsWithinRidleyRectangle(slot, new(192, 100), new(8, 8)))
         {
-            // Shitroid_Func_2 returns zero on rectangle overlap. $A6:A6E8 therefore waits
-            // only while Ridley is still outside the hover box, with $7C as the authentic
+            // Shitroid_Func_2 returns zero on rectangle overlap. The hover wait therefore waits
+            // only while Ridley is still outside the hover box, with 124 as the authentic
             // timeout. The previous translation inverted this branch and selected attacks
             // while he was still above the arena, making every fireball route hit its
             // intentional 48-frame bailout before the mouth animation could begin.
@@ -200,8 +200,8 @@ internal sealed class CeresRidleyFlight
             return;
 
         state.FireballBasePosition = slot.Position.Whole;
-        // Function $A782 installs the complete retail mouth/fireball instruction stream.
-        // Its $E84D/$E904/$E909 commands calculate and spawn bank-$86 actors; leaving this
+        // The fireball function installs the complete retail mouth/fireball animation script.
+        // Its fireball commands calculate and spawn actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
         StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
         state.Function = RidleyAiFunction.CeresFireballShooting;
@@ -212,7 +212,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Selects the next fireball target from the base position and a jitter drawn from the current random number.</summary>
     internal void TickCeresRidleyFireballShooting(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        // $A6:A7F9 reads RandomNumberSeed without generating a number.
+        // The attack choice reads RandomNumberSeed without generating a number.
         int random = _room.Random.Read();
         int jitter = WordWrap.Signed(random) < 0 ? -(random & 7) : random & 7;
         // Both targets add the jitter, read as a word, to the base position. When the X sum passes the end of the
@@ -287,7 +287,7 @@ internal sealed class CeresRidleyFlight
         }
     }
 
-    /// <summary>Applies native signed-word comparisons while reversing Ridley's swoop velocity.</summary>
+    /// <summary>Applies signed-word comparisons while reversing Ridley's swoop velocity.</summary>
     internal static void UpdateRidleySwoopVelocity(
         RidleyEnemyState state,
         int angleDelta,
@@ -302,7 +302,7 @@ internal sealed class CeresRidleyFlight
         state.SwoopSpeedMagnitude = magnitude;
 
         RotationAngle angle = state.SwoopAngleAccumulator.AddRaw(angleDelta);
-        // Native CMP branches on N, not signed less-than (N xor V). The heading wraps around the
+        // CMP branches on N, not signed less-than (N xor V). The heading wraps around the
         // turn, particularly onto the half-turn recovery target after a rightward swoop.
         bool negativeDifference = CoordinateAxis.Difference(angle.RawValue, targetAngle) < 0;
         if (angleDelta < 0 ? negativeDifference : !negativeDifference)
@@ -325,7 +325,7 @@ internal sealed class CeresRidleyFlight
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {
-        // Shared Ridley function $BD9A steers toward ($C0,$80). Ceres uses this only for
+        // Shared Ridley function steers toward (192,128). Ceres uses this only for
         // the 100-shot "fake retreat"; the low-energy branch bypasses the Baby retrieval.
         AccelerateRidleyToward(slot, state, new(192, 128), 1);
         if (CoordinateAxis.Difference(slot.Position.X.Whole, 192) >= 0)
@@ -353,7 +353,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>Steers Ridley's hand toward the falling Baby and accepts overlapping radius-four grasp rectangles.</summary>
     internal static void TickCeresRidleyRetrieveBaby(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        // $BE03 flies Ridley's hand toward the falling Baby. The native collision compares
+        // The Baby grab flies Ridley's hand toward the falling Baby. The collision compares
         // two radius-four rectangles centered on the hand and Baby points.
         AccelerateRidleyToward(slot, state, state.BabyPosition.Whole - CeresRidleyHandToBaby, 12);
 
@@ -371,9 +371,9 @@ internal sealed class CeresRidleyFlight
     /// <summary>Accelerates Ridley toward the offscreen retreat point and begins the 64-frame getaway delay.</summary>
     internal void TickCeresRidleyRetreat(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        // $A6:A971 accelerates toward the off-screen point. The signed test
+        // The retreat accelerates toward the off-screen point. The signed test
         // is performed before the common movement pass; once the origin is above Y=-128
-        // the 64-frame delay is installed and $A6:A99D falls through into its first tick.
+        // the 64-frame delay is installed and the delay falls through into its first tick.
         AccelerateRidleyToward(slot, state, new(192, WordWrap.Unsigned(-128)), 1);
         if (CoordinateAxis.AsSigned(slot.Position.Y.Whole + 128) < 0)
         {
@@ -383,24 +383,24 @@ internal sealed class CeresRidleyFlight
         }
     }
 
-    /// <summary><c>Function_RidleyCeres_RealRetreat_WritePalettesSpawnWalls</c>.</summary>
+    /// <summary>Ridley Ceres behaviour: real retreat, write palettes Spawn walls.</summary>
     internal void TickCeresRidleyRetreatDelay(RidleyEnemyState state)
     {
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
         if (!state.FunctionTimer.IsNegative)
             return;
 
-        // $A6:A9A5 spawns the two $E23F wall actors before the following
-        // dispatcher switches BG mode. They are not decorative bookkeeping:
-        // Mode 7 has no BG2, so these OBJ strips are what keep the chamber
+        // The retreat spawns the two chamber-wall actors before the following
+        // dispatcher switches to the rotating view. They are not decorative bookkeeping:
+        // the rotating view has no second background, so these sprite strips are what keep the chamber
         // visible around the rotating Ridley/Baby image.
         SpawnCeresRidleyGetawayWalls();
         state.Velocity = new EightEightVector<RoomPixels>(0, 0);
         state.TailFunctionIndex = RidleyTailFunction.None;
         state.Function = RidleyAiFunction.CeresPublishEscapeHandoff;
 
-        // $A6:A9E3 replaces colors 1..15 of BG palette five. $A6:AA01 is
-        // copied to colors 1..8 of BG palette two and OBJ palette seven.
+        // The retreat replaces colors 1..15 of background palette five. The shared colours are
+        // copied to colors 1..8 of background palette two and sprite palette seven.
         (_bossArtwork.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley retreat requires installed colors.")).ApplyRetreat(_presentation.Colours);
     }
@@ -415,7 +415,7 @@ internal sealed class CeresRidleyFlight
         Position16<RoomPixels> target,
         int divisorIndex)
     {
-        // Division truncates like the SNES hardware quotient and a zero quotient is promoted
+        // Division truncates like the original quotient and a zero quotient is promoted
         // to one, ensuring that even a one-pixel error continues to change velocity.
         int divisor = RidleyInertia.Divisor(divisorIndex);
 
@@ -425,7 +425,7 @@ internal sealed class CeresRidleyFlight
     }
 
     /// <summary>
-    /// One axis of <c>$A6:D62F</c> (Y) / <c>$A6:D6A6</c> (X): one run of steps toward the target, three while reversing
+    /// One axis of Ridley's seek (Y and X): one run of steps toward the target, three while reversing
     /// and one otherwise, in which a step that crosses zero makes the next one a unit larger
     /// (<see cref="SeekingVelocityRun"/>).
     /// </summary>
@@ -452,7 +452,7 @@ internal sealed class CeresRidleyFlight
             }
             run.Raise(step);
             word = run.Velocity.RawValue;
-            // CMP #$0500 : BMI keeps any value whose signed difference is negative.
+            // The compare against 1280 keeps any value whose signed difference is negative.
             if (WordWrap.Signed(word - CeresRidleyBehavior.CeresRidleyMaximumSpeed) >= 0)
                 word = CeresRidleyBehavior.CeresRidleyMaximumSpeed;
         }
@@ -465,20 +465,20 @@ internal sealed class CeresRidleyFlight
             }
             run.Lower(step);
             word = run.Velocity.RawValue;
-            // CMP #$FB00 : BPL keeps any value whose signed difference is non-negative.
+            // The compare against -1280 keeps any value whose signed difference is non-negative.
             if (WordWrap.Signed(word - CeresRidleyBehavior.CeresRidleyMinimumSpeed) < 0)
                 word = CeresRidleyBehavior.CeresRidleyMinimumSpeed;
         }
         return new SignedEightEight(word);
     }
 
-    /// <summary>Applies Ridley's 8.8 motion and native arena clamps, invoking impact only at the strict left bound.</summary>
+    /// <summary>Applies Ridley's 8.8 motion and arena clamps, invoking impact only at the strict left bound.</summary>
     internal void IntegrateRidleyMovement(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         RidleyWallImpact wallImpact = RidleyWallImpact.None)
     {
-        // $A6:D86B calls the impact routine only when proposed X is strictly below the
+        // The bounds clamp calls the impact routine only when proposed X is strictly below the
         // left bound, before zeroing X velocity. Vertical speed can meet its threshold
         // even when horizontal motion is slow; the right and vertical clamps do not call it.
         FixedCoordinate proposedX = IntegrateUnclampedAxis(slot.Position.X, state.Velocity.X);
@@ -528,7 +528,7 @@ internal sealed class CeresRidleyFlight
         return new CeresRidleyAxisMotion(moved, velocity.RawValue);
     }
 
-    /// <summary>Adds an 8.8 velocity to a native position before boundary checks.</summary>
+    /// <summary>Adds an 8.8 velocity to a position before boundary checks.</summary>
     private static FixedCoordinate IntegrateUnclampedAxis(FixedCoordinate position, SignedEightEight velocity) =>
         position.AddEightEightToHighFraction(velocity.RawValue);
 
@@ -537,7 +537,7 @@ internal sealed class CeresRidleyFlight
         RoomEnemySlot slot,
         Position16<RoomPixels> center,
         Extent16<RoomPixels> radius) =>
-        // $A9:EF06 tests overlap with the actor's rectangle, including its boundary.
+        // The hover check tests overlap with the actor's rectangle, including its boundary.
         // A center-only test delays flight and attack handoffs until Ridley gets too close.
         CoordinateAxis.Distance(slot.Position.X.Whole, center.X) < CoordinateAxis.Wrap(slot.Radius.X + radius.X + 1) &&
             CoordinateAxis.Distance(slot.Position.Y.Whole, center.Y) < CoordinateAxis.Wrap(slot.Radius.Y + radius.Y + 1);
@@ -554,7 +554,7 @@ internal sealed class CeresRidleyFlight
         state.FunctionTimer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Restarts Ridley's native enemy instruction cursor and frame timer at a selected list.</summary>
+    /// <summary>Restarts Ridley's enemy instruction cursor and frame timer at a selected list.</summary>
     internal static void StartRidleyProgram(RidleyEnemyState state, RoomEnemySlot slot, RidleyBodyProgram program)
     {
         state.BodyProgram = AnimationProgramCursor<RidleyBodyProgram>.Start(program);
@@ -562,7 +562,7 @@ internal sealed class CeresRidleyFlight
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports $A6:D97D-$D9EC after the common Ridley movement pass.</summary>
+    /// <summary>Animates Ridley's wings after the common Ridley movement pass.</summary>
     internal static void TickRidleyWingAnimation(RidleyEnemyState state)
     {
         int absoluteXVelocity = Math.Abs(state.Velocity.X.SignedRawValue);
@@ -574,8 +574,8 @@ internal sealed class CeresRidleyFlight
         }
         else
         {
-            // $A6:D9CF isolates bits 8..11 after multiplying the 8.8 velocity by four,
-            // converts the resulting word-table byte index, and clamps that index to $E.
+            // The wing animation isolates bits 8..11 after multiplying the 8.8 velocity by four,
+            // converts the result to a table index, and clamps that index to 14.
             int tableIndex = Math.Min(7, EightEight.WholeOf(largestAxisVelocity << 2) % 16);
             int delta = CeresRidleyBehavior.CeresRidleyWingAnimationDeltas[tableIndex];
             if (state.Velocity.Y.SignedRawValue >= 0)
@@ -596,8 +596,8 @@ internal sealed class CeresRidleyFlight
     {
         // SpawnEnemy consumes the first two free slots and initializes the literal
         // population records embedded. Keeping these as real slots makes
-        // their layer-two OAM order, off-screen processing, and $F7A5 visibility dispatcher
-        // flow through the same scheduler as the cartridge instead of painting host panels.
+        // their layer-two sprite order, off-screen processing, and visibility dispatcher
+        // flow through the same scheduler as the original game instead of painting host panels.
         SpawnCeresRidleyGetawayWall(new(8, 127), CeresDoorVariant.RidleyEscapeFloorLeftWall);
         SpawnCeresRidleyGetawayWall(new(248, 127), CeresDoorVariant.RidleyEscapeFloorRightWall);
     }

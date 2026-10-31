@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// The phases of Ridley's AI shared by both encounters. Each member names the bank-$A6 routine it ports; the state
-/// stores the member, not the routine's address, and a native trace translates through verification's native-word
+/// The phases of Ridley's AI shared by both encounters. Each member names the routine it ports; the state
+/// stores the member, not the routine, and a trace translates through verification's word
 /// table (#1413).
 /// </summary>
 /// <remarks>
@@ -69,9 +69,9 @@ public enum RidleyAiFunction
     NorfairEnterArena,
     /// <summary>Selects Lower Norfair Ridley's next action from combat state.</summary>
     NorfairSelectAttack,
-    /// <summary>The native missed-lunge setup entry, preparing the translated hover recovery.</summary>
+    /// <summary>The missed-lunge setup entry, preparing the translated hover recovery.</summary>
     NorfairHoverSetup,
-    /// <summary>The native missed-lunge move-to-position entry, advancing translated hover recovery.</summary>
+    /// <summary>The missed-lunge move-to-position entry, advancing translated hover recovery.</summary>
     NorfairHover,
     /// <summary>Initializes the Lower Norfair swoop phase countdown and motion.</summary>
     NorfairSwoopSetup,
@@ -87,23 +87,23 @@ public enum RidleyAiFunction
     NorfairSwoopClimb,
     /// <summary>Decelerates the swoop and chooses attack selection or grab approach.</summary>
     NorfairSwoopRecover,
-    /// <summary>The native hover-action entry used by the translated pogo setup dispatcher.</summary>
+    /// <summary>The hover-action entry used by the translated pogo setup dispatcher.</summary>
     NorfairPogoSetup,
-    /// <summary>The native hover move-to-wall-behind entry used by the translated descending pogo phase.</summary>
+    /// <summary>The hover move-to-wall-behind entry used by the translated descending pogo phase.</summary>
     NorfairPogoDescending,
-    /// <summary>The native hover move-to-wall-in-front entry used by the translated ascending pogo phase.</summary>
+    /// <summary>The hover move-to-wall-in-front entry used by the translated ascending pogo phase.</summary>
     NorfairPogoAscending,
-    /// <summary>The native pogo fly-to-position entry, initializing the translated ground-attack sequence.</summary>
+    /// <summary>The pogo fly-to-position entry, initializing the translated ground-attack sequence.</summary>
     NorfairFireballSetup,
     /// <summary>The translated ground-attack side-position phase.</summary>
     NorfairFireballMoveToSide,
     /// <summary>The translated ground-attack height-position phase.</summary>
     NorfairFireballMoveToHeight,
-    /// <summary>The native pogo descending entry used by the translated ground-attack dispatcher.</summary>
+    /// <summary>The pogo descending entry used by the translated ground-attack dispatcher.</summary>
     NorfairFireballAttack,
     /// <summary>The translated ground-attack recovery phase before choosing the next action.</summary>
     NorfairFireballRecover,
-    /// <summary>The native lunge action used to approach and grab Samus.</summary>
+    /// <summary>The lunge action used to approach and grab Samus.</summary>
     NorfairGrabApproach,
     /// <summary>Initializes the Lower Norfair carry state after grabbing Samus.</summary>
     NorfairCarrySetup,
@@ -139,6 +139,6 @@ public enum RidleyAiFunction
     NorfairDeathWait,
     /// <summary>Completes the terminal wait, publishes boss persistence, scatters drops, requests music, and deletes the body.</summary>
     NorfairDeathFinish,
-    /// <summary>Terminal RTS selected by $C5FD after drops, music and deletion.</summary>
+    /// <summary>Terminal empty function selected after drops, music and deletion.</summary>
     NorfairDeathComplete,
 }

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// Launch velocities of the directional afterburns a Ridley fireball's impact centre spawns
-/// (<c>$86:966C</c>/<c>$86:967A</c> horizontal, <c>$86:9688</c>/<c>$86:9696</c> vertical): each
+/// (two horizontal and two vertical): each
 /// moves fourteen pixels per frame along one axis and keeps it for its continuation chain.
 /// </summary>
 internal static class CeresRidleyAfterburnDefinitions

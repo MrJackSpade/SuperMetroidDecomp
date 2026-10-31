@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
 /// Body-fade endpoint paint. First eight words exactly alias
-/// Golden Torizo low-front armor $84:8034-8043; use its immutable stock provider.
+/// Golden Torizo's low-front armor colours; use its immutable stock provider.
 /// Three remaining wing membrane paints share saturated red and
 /// blue-minus-green tint5. Selected green18/1 and dark red20/blue4 (dark green zero)
 /// define categorical membrane highlight/middle/shadow; replacing these levels

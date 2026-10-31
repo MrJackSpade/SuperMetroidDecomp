@@ -50,7 +50,7 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Ports $A6:AA54. Every value below is a literal PPU/actor word installed by the retail
+    /// Sets up the getaway floor. Every value below is a literal display/actor value installed by the retail
     /// setup routine; in particular B and C intentionally begin before the first
     /// getaway-table entry replaces the matrix.
     /// </summary>
@@ -89,7 +89,7 @@ internal sealed class CeresRidleyGetaway
     }
 
     /// <summary>
-    /// Ports room-main function $A6:AABD through its $FFFF table terminator. This routine
+    /// Runs the getaway room main through its table terminator. This routine
     /// owns presentation only: ordinary Ridley has already been hidden, while Samus remains
     /// in room-world coordinates exactly as she does during the boss-room getaway.
     /// </summary>
@@ -102,12 +102,12 @@ internal sealed class CeresRidleyGetaway
         state.GetawayFrameIndex = tableIndex + 1;
 
         // HandleCeresRidleyGetawayCutscene requests the departure sound on the first table
-        // entry only. Tying the request to the native
+        // entry only. Tying the request to the
         // table index preserves the same one-shot behavior after saves/replays and pauses.
         if (tableIndex == 0)
             _audio.QueueEnemySound(Library2Sound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);
 
-        // At frame $68 (byte index $D0), `$90:E119` replaces Samus's movement/hack handlers so the
+        // At frame 104, Samus's grab handler replaces Samus's movement/hack handlers so the
         // rotating boss image cannot overlap her from the following frame onward.
         if (tableIndex == 104 && samus is not null)
             samus.CeresRidleyEjection.Request(samus);
@@ -116,9 +116,9 @@ internal sealed class CeresRidleyGetaway
         int zoom = frame.Zoom;
         if (frame.IsFinished)
         {
-            // $A6:AB2E restores fake BGMODE=$09 and clears all Mode 7/scroll registers.
+            // The getaway's end restores the ordinary view and clears all rotation and scroll values.
             // Preserve that clean handoff explicitly so the renderer cannot accidentally
-            // keep sampling Mode 7 VRAM for the self-destruct text scene.
+            // keep sampling the rotating floor for the self-destruct text scene.
             state.GetawayFinished = true;
             state.GetawayActive = false;
             state.FloorOffset = Offset16<FloorPixels>.Zero;
@@ -127,9 +127,9 @@ internal sealed class CeresRidleyGetaway
             state.FloorMatrixC = default;
             state.FloorMatrixD = default;
             state.FloorCenter = Position16<FloorPixels>.Zero;
-            // $A6:AB55 hands the same extended actor workspace to $A6:C04E. Samus's
+            // The getaway's end hands the same extended actor workspace to the escape-text sequence. Samus's
             // special push/fall handler remains responsible for restoring normal input;
-            // ending Mode 7 itself does not unlock her in the cartridge.
+            // ending the rotating view itself does not unlock her in the original game.
             state.Function = RidleyAiFunction.CeresActivateSelfDestruct;
             state.CeresSelfDestructPhase = CeresSelfDestructPhase.Start;
             return;
@@ -203,7 +203,7 @@ internal sealed class CeresRidleyGetaway
     /// <param name="zoom">The floor's zoom, 0 through 65535.</param>
     internal void UpdateCeresRidleyFloorPalette(int zoom)
     {
-        // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped bank-$A6 expression.
+        // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
         int zoomStep = UnsignedEightEight.Whole(zoom);
         if (_bossArtwork.CeresRidleyFloorColors is { } installed &&
@@ -219,7 +219,7 @@ internal sealed class CeresRidleyGetaway
     /// <summary>
     /// Ports the shared Ridley function for the Ceres branch: the warning runs through its phases
     /// (<see cref="CeresSelfDestructPhase"/>, the C062/C08E/C09F/C0BB/C0F5/C104/C117 entries) in order. English skips
-    /// only the Japanese subtitle phase and types the cartridge's three-line English warning. Japanese runs the
+    /// only the Japanese subtitle phase and types the game's three-line English warning. Japanese runs the
     /// subtitle phase first, installs its subtitle tilemap, and then uses the same typewriter.
     /// </summary>
     internal void TickCeresRidleySelfDestruct(RidleyEnemyState state)
@@ -227,7 +227,7 @@ internal sealed class CeresRidleyGetaway
         switch (state.CeresSelfDestructPhase)
         {
             case CeresSelfDestructPhase.Start:
-                // $A6:C062 copies four already-live colors before the warning graphics
+                // The warning setup copies four already-live colors before the warning graphics
                 // replace their tiles. These are palette indices, not byte offsets.
                 CopyCeresWarningColors(_presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningFirstSource),
                     _presentation.BackgroundSets.Set(RidleyColourDefinitions.CeresWarningFirstDestination));
@@ -249,14 +249,14 @@ internal sealed class CeresRidleyGetaway
             case CeresSelfDestructPhase.ShowingBackgroundPages:
                 if (ShowNextCeresEscapePage(state))
                 {
-                    // `$A6:C0AA` calls DrawEmergencyText immediately after the final
-                    // BG1/BG2 graphics record. The word was missing from the earlier
+                    // The warning setup calls DrawEmergencyText immediately after the final
+                    // graphics record. The call was missing from the earlier
                     // translation, so the newly uploaded letter tiles existed but no
                     // tilemap entries ever referenced them on screen.
                     DrawCeresEmergencyText();
-                    // $A6:C09F also queues music track seven after installing the final
+                    // The warning setup also queues music track seven after installing the final
                     // static warning tilemap page. The frontend consumes this typed request
-                    // through the same bank-$80 queue used by every other music producer.
+                    // through the same queue used by every other music producer.
                     _audio.RequestRidleyMusic(MusicRequest.SelectTrack(7));
                     state.CeresSelfDestructPhase = CeresSelfDestructPhase.HoldingTitle;
                     state.CeresEscapeTextDelayTimer = WrappingCountdown.Start(128);
@@ -312,7 +312,7 @@ internal sealed class CeresRidleyGetaway
                 state.Velocity = new EightEightVector<RoomPixels>(0, 0);
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
-                // $A6:C131 sets the area-boss bit inside Ridley's AI, so later slots (the
+                // The escape-text sequence sets the area-boss bit inside Ridley's AI, so later slots (the
                 // room's exit door) observe it in this same EnemyMain pass.
                 _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
                 _frameResults.CeresEscapeStarted = true;
@@ -342,7 +342,7 @@ internal sealed class CeresRidleyGetaway
 
     /// <summary>
     /// Ports ProcessSpriteTilesTransfers (#1406): shows the list's next page, one an update. A page of the
-    /// timer-sprite list shows over the OBJ characters from this update's frame, as the cartridge's copy, made at this
+    /// timer-sprite list shows over the OBJ characters from this update's frame, as the game's copy, made at this
     /// update's displayed frame, shows in it; the background list's pages show nowhere, so each of its updates shows nothing.
     /// </summary>
     /// <returns>True once every page of the list has been shown.</returns>
@@ -369,7 +369,7 @@ internal sealed class CeresRidleyGetaway
             DrawCeresOverlay(page);
     }
 
-    /// <summary>Ports the byte-oriented command stream consumed by $A6:C2A7.</summary>
+    /// <summary>Runs the byte-oriented escape-text command stream.</summary>
     private bool StepCeresEscapeTypewriter(RidleyEnemyState state)
     {
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(

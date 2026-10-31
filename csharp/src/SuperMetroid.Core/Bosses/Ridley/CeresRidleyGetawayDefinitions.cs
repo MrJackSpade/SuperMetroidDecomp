@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public static class CeresRidleyGetawayDefinitions
 {
     /// <summary>
-    /// The getaway's zoom and translation at each serialized native byte index, then its terminal entry. Zoom holds,
+    /// The getaway's zoom and translation at each serialized byte index, then its terminal entry. Zoom holds,
     /// shrinks in two ramps around two held steps, then shrinks to its floor; the drift rises, holds, then falls away
     /// ever faster.
     /// </summary>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Movement policies selected by CheckIfSamusMorphedSpinJumpingDamageBoosting.</summary>
 /// <remarks>
-/// The BIT operand uses the high byte of $A6:BD04..BD1F: bit7 controls grab eligibility,
+/// The movement table's high byte holds the flags: bit7 controls grab eligibility,
 /// bit6 controls morphed release timing. Those are the only consumed fields in the two
 /// managed callers. No lower flag bits or adjacent-table reads are exposed by their contract.
 /// </remarks>
@@ -21,7 +21,7 @@ internal static class RidleySamusInteractionDefinitions
         Morphed
     }
 
-    /// <summary>$A6:BD04..BD1F classifies each of the 28 Samus movement types by grab policy.</summary>
+    /// <summary>Classifies each of the 28 Samus movement types by grab policy.</summary>
     internal static readonly Dictionary<SamusMovementType, GrabPolicy> GrabPolicies = new()
     {
         [SamusMovementType.MorphBallGround] = GrabPolicy.Morphed,
@@ -54,9 +54,9 @@ internal static class RidleySamusInteractionDefinitions
         [SamusMovementType.DraygonHeld] = GrabPolicy.Immune,
     };
 
-    /// <summary>$A6:BC98 loads6 frames for morphed overflow.</summary>
+    /// <summary>The release loads6 frames for morphed overflow.</summary>
     internal const int MorphedReleaseIntangibilityFrames = 6;
 
-    /// <summary>$A6:BC9D otherwise loads10.</summary>
+    /// <summary>The release otherwise loads10.</summary>
     internal const int OrdinaryReleaseIntangibilityFrames = 10;
 }

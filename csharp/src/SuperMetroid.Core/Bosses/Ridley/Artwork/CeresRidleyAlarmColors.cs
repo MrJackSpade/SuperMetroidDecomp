@@ -4,11 +4,11 @@ using static SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyAlarmColorDefini
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>
-/// Native $A6:C1DF-C23E EMERGENCY colors, uniformly copied to CGRAM97..99 by
-/// $A6:C19C-C1DE. The reflected gold-to-muted-red trajectory calculates every
+/// The EMERGENCY colors, uniformly copied to colours 97..99 by
+/// the alarm-palette update. The reflected gold-to-muted-red trajectory calculates every
 /// sample. The five initial paint magnitudes and these specific channel rates are
 /// selected text-color composition: replacing them invents different paint.
-/// The middle shade is copied target data, absent from the nine $A6:C164 glyphs.
+/// The middle shade is copied target data, absent from the nine EMERGENCY glyphs.
 /// The separate frame-counter cadence and glyph pixels are not defined here.
 /// </summary>
 internal sealed class CeresRidleyAlarmColors

@@ -55,7 +55,7 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
         slot.BlockIndex = level.GetBlockIndex(
             new(CrateriaMainstreetEscapePassagePlmDefinitions.BlockX, CrateriaMainstreetEscapePassagePlmDefinitions.BlockY));
         slot.Header = PlmHeaderId.CrateriaMainstreetEscapePassage;
-        slot.LoopTimer = 0;
+        slot.LoopTimer = WrappingCountdown.Start(0);
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.CrateriaPassage));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         return true;

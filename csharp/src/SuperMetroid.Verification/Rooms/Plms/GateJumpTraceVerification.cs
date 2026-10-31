@@ -53,8 +53,8 @@ internal static class GateJumpTraceVerification
                 if (frame == shootFrame) input |= ControllerButton.X;
                 runtime.StepFrame(input);
                 var gate = runtime.Plms.PopulationSlots.Single(s => s.HeaderPointer == PlmHeaderId.DownwardGate);
-                activated |= gate.LoopTimer != 0;
-                string actual = $"{frame},{(ushort)input:X4},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)samus.Pose:X2},{gate.LoopTimer},{NativeGateInstruction(bus, gate):X4}";
+                activated |= !gate.LoopTimer.IsZero;
+                string actual = $"{frame},{(ushort)input:X4},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)samus.Pose:X2},{gate.LoopTimer.RawValue},{NativeGateInstruction(bus, gate):X4}";
                 AssertEqual(expected[frame + 60], actual, $"Native gate jump shot={shootFrame}, frame={frame}");
             }
             AssertEqual(shootFrame == 8 && aimFrame == 0, samus.Position.X.Whole < 112, "Only native successful timing crosses opened gate");

@@ -113,7 +113,7 @@ internal sealed class SpeedBoosterEscapePlms
         IRoomFxMotion fx)
     {
         SpeedBoosterEscapeStageDefinition? stage =
-            SpeedBoosterEscapeStages.Resolve(checked((ushort)slot.LoopTimer));
+            SpeedBoosterEscapeStages.Resolve(slot.LoopTimer.RemainingFrames);
         if (stage is null)
         {
             (_events ?? throw new InvalidOperationException(
@@ -131,8 +131,7 @@ internal sealed class SpeedBoosterEscapePlms
                 ? stage.Value.MaximumFxY
                 : null,
             packedYVelocity: stage.Value.YVelocity.RawValue);
-        slot.LoopTimer = unchecked((ushort)(
-            slot.LoopTimer + SpeedBoosterEscapeStageDefinitions.RecordByteCount));
+        slot.LoopTimer = slot.LoopTimer.AddFrames(SpeedBoosterEscapeStageDefinitions.RecordByteCount);
     }
 
     /// <summary>
@@ -143,6 +142,6 @@ internal sealed class SpeedBoosterEscapePlms
     private static void WakeAtNextInstruction(PlmSlot slot)
     {
         slot.WakePastSleep();
-        slot.LoopTimer = 0;
+        slot.LoopTimer = WrappingCountdown.Start(0);
     }
 }

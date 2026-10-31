@@ -267,7 +267,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.PreInstruction = PlmPreInstructions.Inert;
         // The native spawn leaves the argument zero: door bit zero, which a later closing check reads.
         slot.Argument = new DoorBitArgument(0, DoorOpeningPersistence.Persistent);
-        slot.LoopTimer = 0;
+        slot.LoopTimer = WrappingCountdown.Start(0);
         slot.Family = null;
 
         // This is a direct terrain write, not a PLM draw. The first animated draw occurs on this actor's next handler

@@ -214,7 +214,7 @@ internal static class RoomPlmSystemAccess
                     RoomArgument: entry.Slot.NativeRoomArgument,
                     PreInstruction: PlmPreInstructionNativeRoutines.Of(entry.Slot.PreInstruction),
                     InstructionTimer: entry.Slot.InstructionTimer.RawValue,
-                    LoopTimer: checked((ushort)entry.Slot.LoopTimer),
+                    LoopTimer: entry.Slot.LoopTimer.RawValue,
                     ProjectileHit: entry.Slot.ProjectileHit,
                     Animation: entry.Slot.Animation)),
         ];

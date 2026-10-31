@@ -69,7 +69,7 @@ internal sealed class TourianPlms
         slot.BlockIndex = blockIndex;
         slot.RestoreTerrain = PlmSlotDefinitions.ClearedRestoreTerrain;
         slot.Header = PlmHeaderId.OldTourianEscapeShaftFakeWall;
-        slot.LoopTimer = 0;
+        slot.LoopTimer = WrappingCountdown.Start(0);
         DoorPlms.SetupDoorTransitionDeactivatedSlot(level, slot);
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.OldTourianWallWait));
         slot.InstructionTimer = WrappingCountdown.Start(1);

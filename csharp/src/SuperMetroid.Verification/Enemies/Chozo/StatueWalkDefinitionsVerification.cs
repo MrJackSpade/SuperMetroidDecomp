@@ -13,11 +13,12 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 /// <summary>Checks compiled Golden Torizo walking and Chozo statue carry motion against native tables.</summary>
 internal static class StatueWalkDefinitionsVerification
 {
-    /// <summary>Compares overlapping Torizo velocity windows and Chozo carry words, then checks production movement and Samus offsets without a bus.</summary>
+    /// <summary>Compares Torizo walking steps and Chozo carry words, then checks production movement and Samus offsets without a bus.</summary>
     internal static void VerifyCompiledStatueWalking(SuperMetroidAddressSpace rom)
     {
-        for (ushort offset = 0; offset <= 38; offset++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalk.Velocity(offset), "Torizo all complete native byte windows");
+        // The cartridge's walking table holds one signed word per step; every walking cue reads a whole entry.
+        for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaad59a + step * 2)), GoldenTorizoWalk.Velocity(step), "Torizo walking step velocity");
         var enemies = new RoomEnemySystem(new EnemySession());
         Func<RoomEnemySlot, TorizoEnemyState, SamusState?, RoomLevelData, int, AnimationProgramCursor<TorizoBodyProgram>?> walk = enemies.BombTorizoBehavior.Choices.ProcessGoldenTorizoWalkInstruction;
         Action<RoomEnemySlot, ChozoStatueState, SamusState, RoomLevelData, int> carry = enemies.ChozoStatueBehavior.ProcessChozoStatueMovement;
@@ -27,10 +28,11 @@ internal static class StatueWalkDefinitionsVerification
         var torizo = new TorizoEnemyState(slot, true);
         var statue = new ChozoStatueState();
         var samus = new SamusState();
-        for (ushort offset = 0; offset < 40; offset += 2)
+        for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
         {
+            int offset = step * 2;
             slot.Position = slot.Position.WithWholeY(256).WithWholeX(256).WithFractionX(123);
-            AnimationProgramCursor<TorizoBodyProgram>? next = walk(slot, torizo, null, level, offset);
+            AnimationProgramCursor<TorizoBodyProgram>? next = walk(slot, torizo, null, level, step);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), torizo.Velocity.X.RawValue, "Torizo actual walking velocity without bus");
             AssertEqual(unchecked((ushort)(256 + (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)))), slot.Position.X.Whole, "Torizo real whole-pixel movement");
             AssertEqual((ushort)123, slot.Position.X.Fraction, "Torizo preserves subpixel state");
@@ -59,9 +61,10 @@ internal static class StatueWalkDefinitionsVerification
             AssertEqual(unchecked((ushort)(slot.Position.X.Whole + xOffset)), samus.Position.X.Whole, "Chozo actual carried Samus X");
             AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + yOffset)), samus.Position.Y.Whole, "Chozo actual carried Samus Y");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalk.Velocity(39), "Torizo incomplete byte window");
+        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalk.Velocity(GoldenTorizoWalk.StepCount), "Torizo step past the walk");
+        AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalk.Velocity(-1), "Torizo negative walking step");
         AssertThrows<InvalidDataException>(() => ChozoCarry.Read(ChozoCarryMotionDefinitions.RecordCount), "Chozo record past the table remains invalid");
         AssertThrows<InvalidDataException>(() => ChozoCarry.Read(-1), "Chozo negative record remains invalid");
-        Console.WriteLine("Statue walking: 39 Torizo byte windows, 96 Chozo words and 52 real movement/carry calls match without a bus.");
+        Console.WriteLine("Statue walking: 20 Torizo walking steps, 96 Chozo words and 52 real movement/carry calls match without a bus.");
     }
 }

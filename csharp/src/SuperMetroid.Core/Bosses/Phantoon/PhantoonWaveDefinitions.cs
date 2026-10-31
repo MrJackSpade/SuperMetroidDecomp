@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>The shapes of Phantoon's wave: its modes, its sine phase cycle and its periods.</summary>
+/// <summary>The shapes of Phantoon's wave: its lengths, its sine phase cycle and its periods.</summary>
 public static class PhantoonWaveDefinitions
 {
     /// <summary>
@@ -9,11 +9,11 @@ public static class PhantoonWaveDefinitions
     /// </summary>
     public const int InitialPhase = -2;
 
-    /// <summary>The mode the introduction's 64-line wave starts with.</summary>
-    public const ushort IntroMode = 2;
+    /// <summary>The length of the wave the introduction starts.</summary>
+    public const PhantoonWaveLength IntroLength = PhantoonWaveLength.Short;
 
-    /// <summary>The mode the final death's 128-line wave starts with.</summary>
-    public const ushort DeathMode = 1;
+    /// <summary>The length of the wave the final death starts.</summary>
+    public const PhantoonWaveLength DeathLength = PhantoonWaveLength.Long;
 
     /// <summary>The phases in one whole cycle of the wave: two for each of the sine's 256 angle steps.</summary>
     public const int PhaseCycle = 512;

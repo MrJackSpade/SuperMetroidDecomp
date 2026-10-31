@@ -2,7 +2,7 @@ using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Verification.Areas.Escape;
 
-/// <summary>The state and is active of one verify escape timer floor case.</summary>
-/// <param name="State">The state.</param>
-/// <param name="IsActive">The is active.</param>
-internal readonly record struct VerifyEscapeTimerFloorCase(EscapeTimerState State, bool IsActive);
+/// <summary>The phase and activity of one escape timer in the floor check.</summary>
+/// <param name="Phase">The timer's phase.</param>
+/// <param name="IsActive">Whether the timer is running.</param>
+internal readonly record struct VerifyEscapeTimerFloorCase(EscapeTimerPhase Phase, bool IsActive);

@@ -22,10 +22,10 @@ internal static class PhantoonWaveVerification
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
         var wave = boss.Wave;
-        wave.Begin(PhantoonWaveDefinitions.IntroMode);
+        wave.Begin(PhantoonWaveDefinitions.IntroLength);
         AssertTrue(!wave.Active, "a requested wave waits for its setup update");
         wave.Step(boss);
-        AssertEqual(2, boss.Parts[boss.Eye.SlotIndex].WaveMode, "the wave's setup copies the pending mode to the eye");
+        AssertEqual<PhantoonWaveLength?>(PhantoonWaveLength.Short, boss.Parts[boss.Eye.SlotIndex].WaveLength, "the wave's setup copies the pending length to the eye");
         AssertEqual(PhantoonWaveDefinitions.InitialPhase, wave.Phase, "the setup update only seeds the phase");
         // The setup does not run the scroll pre-instruction: the wave is flat at the scroll it was last built from.
         AssertEqual(new PhantoonWave(0, 0, new ByteAngle(0), PhantoonWaveDefinitions.ShortPeriod),
@@ -52,7 +52,7 @@ internal static class PhantoonWaveVerification
         AssertEqual(wave.Phase, restored.Phase, "wave phase survives exact debugger state");
         AssertEqual(wave.CurrentWave, restored.CurrentWave, "wave data survives exact debugger state");
         AssertEqual(savedDisplay, restored.DisplayedWave, "latched wave survives debugger state");
-        boss.Parts[boss.Eye.SlotIndex].WaveMode = 0;
+        boss.Parts[boss.Eye.SlotIndex].WaveLength = null;
         PhantoonWave? retained = wave.CurrentWave;
         wave.Step(boss);
         AssertTrue(!wave.Active && retained == wave.CurrentWave, "native deletion retains data");

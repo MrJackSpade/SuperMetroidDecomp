@@ -48,7 +48,7 @@ internal sealed class PhantoonPatterns
             return;
 
         RoomEnemySlot eye = state.Eye;
-        state.Parts[eye.SlotIndex].WaveMode = 0;
+        state.Parts[eye.SlotIndex].WaveLength = null;
         state.Parts[eye.SlotIndex].ClosedTimer = PhantoonTimerDefinitions.EyeClosed[(_frameContext.FrameCounter >> 1) & 3];
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         state.Parts[body.SlotIndex].SpeedFraction = 0;
@@ -697,19 +697,18 @@ internal sealed class PhantoonPatterns
         state.Parts[eye.SlotIndex].FadeNumerator = numerator + 1;
     }
 
-    /// <summary>Places eight delayed rain flames in rotating room columns.</summary>
-    /// <remarks>Eight flames start sixteen updates apart, so the delay reaches at most 128 and packs beside the column.</remarks>
+    /// <summary>Places eight delayed rain flames in rotating room columns, each falling eight updates after the last.</summary>
     private void SpawnPhantoonFlameRain(RoomEnemySlot body, int pattern)
     {
         int column = PhantoonFlameRain.FirstRainColumns[pattern];
-        int delay = 16;
+        int fallDelay = 8;
         for (int flame = 0; flame < 8; flame++)
         {
-            SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Rain, delay | column);
+            SpawnPhantoonRainFlame(body, column, fallDelay);
             column++;
             if (column >= 9)
                 column = 0;
-            delay += 16;
+            fallDelay += 8;
         }
     }
 
@@ -748,25 +747,18 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>
-    /// Initializes destroyable flame $86:9C29. The high parameter byte chooses one of the
-    /// four native producers: casual fall, rage split, vertical rain, or spiral.
+    /// Initializes a destroyable flame ($86:9C29) from the casual, rage or spiral producer; rain flames spawn through
+    /// <see cref="SpawnPhantoonRainFlame"/>.
     /// </summary>
     /// <param name="body">Phantoon's body.</param>
     /// <param name="type">Which producer spawns the flame.</param>
-    /// <param name="index">The producer's flame index, 0 through 255.</param>
+    /// <param name="index">The producer's flame index: a rage flame's 0 through 15, a spiral flame's direction 0 through 7.</param>
+    /// <exception cref="ArgumentException"><paramref name="type"/> is the rain producer.</exception>
     internal bool SpawnPhantoonDestroyableFlame(RoomEnemySlot body, PhantoonFlameSpawnType type, int index)
     {
-        RoomEnemyProjectileSlot? flame = _projectiles.AllocateEnemyProjectile();
+        RoomEnemyProjectileSlot? flame = AllocateDestroyableFlame(body);
         if (flame is null)
             return false;
-
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            flame,
-            RoomEnemyProjectileKind.PhantoonDestroyableFlame,
-            body.Graphics);
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableIdle));
-        flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
-        flame.Velocity = flame.Velocity.WithY(new SignedEightEight(0));
         switch (type)
         {
             case PhantoonFlameSpawnType.Casual:
@@ -794,17 +786,7 @@ internal sealed class PhantoonPatterns
                 break;
 
             case PhantoonFlameSpawnType.Rain:
-                // The index byte is packed as dx: the low nibble is a column and the high
-                // nibble is the delayed-fall timer divided by eight.
-                int column = index % 16;
-                if (column > 8)
-                    throw new InvalidDataException($"Phantoon rain column {column} exceeds eight.");
-                flame.State = new PhantoonRainFlameState(fallDelay: index / 16 * 8);
-                flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawns.RainX(column));
-                flame.Position = flame.Position.WithWholeY(40);
-                flame.PreInstruction =
-                    EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain;
-                break;
+                throw new ArgumentException("A rain flame spawns by its column and fall delay.", nameof(type));
 
             case PhantoonFlameSpawnType.Spiral:
                 if (index > 7)
@@ -819,5 +801,40 @@ internal sealed class PhantoonPatterns
                 throw new InvalidOperationException($"Undefined Phantoon flame spawn type {type}.");
         }
         return true;
+    }
+
+    /// <summary>Initializes a rain flame ($86:9C29's rain producer) over a room column, falling after a delay.</summary>
+    /// <param name="body">Phantoon's body.</param>
+    /// <param name="column">The room column the flame falls in, 0 through 8.</param>
+    /// <param name="fallDelay">The updates the flame waits before it falls.</param>
+    internal bool SpawnPhantoonRainFlame(RoomEnemySlot body, int column, int fallDelay)
+    {
+        RoomEnemyProjectileSlot? flame = AllocateDestroyableFlame(body);
+        if (flame is null)
+            return false;
+        flame.State = new PhantoonRainFlameState(fallDelay);
+        flame.Position = flame.Position.WithWholeX(PhantoonFlameSpawns.RainX(column));
+        flame.Position = flame.Position.WithWholeY(40);
+        flame.PreInstruction =
+            EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain;
+        return true;
+    }
+
+    /// <summary>Allocates a destroyable flame and gives it the idle program and a still, whole-pixel start.</summary>
+    /// <returns>The flame, or null when every enemy projectile slot is in use.</returns>
+    private RoomEnemyProjectileSlot? AllocateDestroyableFlame(RoomEnemySlot body)
+    {
+        RoomEnemyProjectileSlot? flame = _projectiles.AllocateEnemyProjectile();
+        if (flame is null)
+            return null;
+
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            flame,
+            RoomEnemyProjectileKind.PhantoonDestroyableFlame,
+            body.Graphics);
+        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.DestroyableIdle));
+        flame.Position = flame.Position.WithFractionX(0).WithFractionY(0);
+        flame.Velocity = flame.Velocity.WithY(new SignedEightEight(0));
+        return flame;
     }
 }

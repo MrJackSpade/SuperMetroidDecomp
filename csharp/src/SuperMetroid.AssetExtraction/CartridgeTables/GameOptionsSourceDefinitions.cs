@@ -10,6 +10,10 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// </summary>
 internal static class GameOptionsSourceDefinitions
 {
+    /// <summary>Bytes of one stored options page: its tilemap of two-byte cells.</summary>
+    internal const int TilemapByteCount =
+        GameOptionsDefinitions.MenuTilemapWidth * GameOptionsDefinitions.MenuTilemapHeight * sizeof(ushort);
+
     /// <summary>Bank $82, in which the options screen's sixteen-bit label pointers resolve.</summary>
     internal const int MenuBank = 0x820000;
 

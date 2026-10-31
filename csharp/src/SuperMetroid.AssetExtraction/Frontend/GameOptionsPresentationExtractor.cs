@@ -33,7 +33,7 @@ public static class GameOptionsPresentationExtractor
         {
             [GameOptionsPresentationDefinitions.BackgroundPageName] = Cells(
                 RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.Background,
-                    GameOptionsDefinitions.TilemapByteCount)),
+                    GameOptionsSourceDefinitions.TilemapByteCount)),
             [GameOptionsNames.TilemapName(GameOptionsScreen.Primary)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Primary]),
             [GameOptionsNames.TilemapName(GameOptionsScreen.ControllerEnglish)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerEnglish]),
             [GameOptionsNames.TilemapName(GameOptionsScreen.ControllerJapanese)] = Page(GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerJapanese]),
@@ -128,12 +128,12 @@ public static class GameOptionsPresentationExtractor
         MapPresentationCell[] Page(GameOptionsPageResource resource)
         {
             byte[] bytes = RomDataReader.Decompress(CartridgeImportSource.Require(bus), resource.Address,
-                maximumOutputBytes: GameOptionsDefinitions.TilemapByteCount);
-            if (bytes.Length != GameOptionsDefinitions.TilemapByteCount)
+                maximumOutputBytes: GameOptionsSourceDefinitions.TilemapByteCount);
+            if (bytes.Length != GameOptionsSourceDefinitions.TilemapByteCount)
             {
                 throw new InvalidDataException(
                     $"The {resource.Description} options screen expanded to " +
-                    $"${bytes.Length:X} bytes, expected ${GameOptionsDefinitions.TilemapByteCount:X}.");
+                    $"${bytes.Length:X} bytes, expected ${GameOptionsSourceDefinitions.TilemapByteCount:X}.");
             }
             return Cells(bytes);
         }

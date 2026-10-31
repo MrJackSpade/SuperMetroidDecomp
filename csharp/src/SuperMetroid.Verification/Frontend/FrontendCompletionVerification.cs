@@ -76,27 +76,27 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     WriteRepeatedCompressedStream(
         rom,
         GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Primary].Address,
-        GameOptionsDefinitions.TilemapByteCount,
+        GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
         GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerEnglish].Address,
-        GameOptionsDefinitions.TilemapByteCount,
+        GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
         GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerJapanese].Address,
-        GameOptionsDefinitions.TilemapByteCount,
+        GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
         GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialEnglish].Address,
-        GameOptionsDefinitions.TilemapByteCount,
+        GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
         GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialJapanese].Address,
-        GameOptionsDefinitions.TilemapByteCount,
+        GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()));
     StepOptionsUntil(options, GameOptionsPhase.Main);

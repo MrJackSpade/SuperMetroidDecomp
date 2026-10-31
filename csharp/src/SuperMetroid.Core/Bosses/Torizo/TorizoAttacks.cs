@@ -272,9 +272,9 @@ internal sealed class TorizoAttacks
         };
 
     /// <summary>Places a swipe explosion at the attack-table hand offset, mirroring it for right-facing Torizo.</summary>
-    internal void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, int parameter)
+    internal void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, int swipe)
     {
-        Offset16<RoomPixels> placement = BombTorizoAttacks.Swipe(parameter);
+        Offset16<RoomPixels> placement = BombTorizoAttacks.Swipe(swipe);
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -290,12 +290,12 @@ internal sealed class TorizoAttacks
             (_access.FacesRight(torizo) ? placement.MirroredX() : placement));
     }
 
-    /// <summary>Places a body-break explosion at the facing-adjusted table offset and records its impact coordinates.</summary>
-    internal void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, int parameter)
+    /// <summary>Places a body-break explosion at the gut or face for Torizo's facing and records its impact coordinates.</summary>
+    internal void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, int site)
     {
         Offset16<RoomPixels> placement =
             BombTorizoAttacks.LowHealthExplosion(
-                parameter,
+                site,
                 facingRight: _access.FacesRight(torizo));
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

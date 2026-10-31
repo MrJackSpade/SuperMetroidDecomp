@@ -26,8 +26,11 @@ internal static class PhantoonFlameSpawnsVerification
         foreach (ushort parameter in parameters)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            // A rain parameter's index byte packs the column in its low nibble and the fall delay over eight above it.
             Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool> spawn = (flameBody, flameType, flameIndex) =>
-                enemies.PhantoonBehavior.Patterns.SpawnPhantoonDestroyableFlame(flameBody, flameType, flameIndex);
+                flameType == PhantoonFlameSpawnType.Rain
+                    ? enemies.PhantoonBehavior.Patterns.SpawnPhantoonRainFlame(flameBody, flameIndex & 15, (flameIndex & 240) >> 1)
+                    : enemies.PhantoonBehavior.Patterns.SpawnPhantoonDestroyableFlame(flameBody, flameType, flameIndex);
             var body = enemies.SlotTable.Slots[0];
             body.Position = body.Position.WithWhole(new(origin, origin));
             PhantoonFlameSpawnType type = ClosedEnumWords.Decode<PhantoonFlameSpawnType>(

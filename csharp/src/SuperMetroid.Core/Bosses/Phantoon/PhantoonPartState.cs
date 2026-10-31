@@ -33,9 +33,6 @@ public sealed class PhantoonPartState
     /// </summary>
     private PhantoonAiFunction? _function;
 
-    /// <summary>The first spawn-parameter word: the eye's wave mode or the tentacles' requested wave mode.</summary>
-    private int _parameterOne;
-
     /// <summary>The eye's death-mosaic block size (<see cref="DeathMosaicSize"/>).</summary>
     private int _deathMosaicSize = PhantoonDeathDefinitions.InitialMosaicSize;
 
@@ -194,14 +191,10 @@ public sealed class PhantoonPartState
         : throw new InvalidOperationException($"Phantoon word F holds the function {_function}, not a number.");
 
     /// <summary>
-    /// The eye's wavy-distortion mode, which the wave owner reads every pass: zero ends the channel and lets the body
-    /// synchronize BG2 scrolling; bit zero of a nonzero mode selects the long cycle.
+    /// The length of the eye's wave, which the wave owner reads every pass; null ends the wave and lets the body
+    /// synchronize its layer's scroll.
     /// </summary>
-    [PackedFields("eye parameter word: zero ends the wave channel and bit zero of a nonzero word selects the long cycle")]
-    public int WaveMode { get => _parameterOne; internal set => _parameterOne = Word(value); }
-
-    /// <summary>The tentacles' record of the wave mode last requested for the intro or the death fade; nothing reads it back.</summary>
-    public int RequestedWaveMode { get => _parameterOne; internal set => _parameterOne = Word(value); }
+    public PhantoonWaveLength? WaveLength { get; internal set; }
 
     /// <summary>
     /// The mouth's control of Phantoon's layer while Phantoon is not semi-transparent. The cartridge keeps it in the
@@ -240,7 +233,7 @@ public sealed class PhantoonPartState
     /// </summary>
     internal void StartPart()
     {
-        _parameterOne = 0;
+        WaveLength = null;
         _parameterTwo = 0;
     }
 
@@ -254,7 +247,7 @@ public sealed class PhantoonPartState
         _wordE = 0;
         _wordF = 0;
         _function = null;
-        _parameterOne = 0;
+        WaveLength = null;
         _parameterTwo = 0;
         _swoopTargetX = 0;
         SwoopReturning = false;

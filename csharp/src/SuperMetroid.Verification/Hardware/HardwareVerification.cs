@@ -285,110 +285,79 @@ internal static void VerifyVramWriteQueue()
 }
 
 /// <summary>
-/// Checks every valid two-digit BCD input against ordinary decimal subtraction for the two
-/// correction values the ROM table uses.
-/// </summary>
-internal static void VerifyEscapeTimerBcd()
-{
-    for (int decimalValue = 0; decimalValue <= 99; decimalValue++)
-    {
-        byte packed = PackBcd(decimalValue);
-        for (byte decrement = 1; decrement <= 2; decrement++)
-        {
-            byte actual = new PackedDecimal(packed).Subtract(new PackedDecimal(decrement), out bool actualBorrow).Raw;
-            int decimalResult = decimalValue - decrement;
-            bool expectedBorrow = decimalResult < 0;
-            if (expectedBorrow)
-                decimalResult += 100;
-
-            AssertEqual(PackBcd(decimalResult), actual, $"BCD {decimalValue:D2} - {decrement}");
-            AssertEqual(expectedBorrow, actualBorrow, $"BCD borrow {decimalValue:D2} - {decrement}");
-        }
-    }
-
-    Console.WriteLine("  Timer: all valid BCD decrements and borrows agree.");
-}
-
-/// <summary>
-/// Walks the Ceres timer from request through all animation phases, then isolates second,
-/// minute, expiration, correction-table, and Mother Brain initialization boundaries.
+/// Walks the Ceres timer from request through all its phases, then isolates the second, minute, expiry and Mother Brain
+/// start boundaries of its centisecond countdown.
 /// </summary>
 internal static void VerifyEscapeTimerStateMachine()
 {
     var timer = new EscapeTimer();
     timer.RequestCeresStart();
     AssertTrue(!timer.Process(0), "Ceres initialization does not report expiration");
-    AssertEqual(EscapeTimerState.InitialDelay, timer.State, "Ceres enters initial delay");
-    AssertEqual(0x01, timer.Minutes.Raw, "Ceres starts at one minute");
-    AssertEqual(0x8000, timer.Position.X, "timer starts at X $80.00");
-    AssertEqual(0x8000, timer.Position.Y, "timer starts at Y $80.00");
+    AssertEqual(EscapeTimerPhase.InitialDelay, timer.Phase, "Ceres enters initial delay");
+    AssertEqual(EscapeTimerClock.Time(1, 0, 0), timer.RemainingCentiseconds, "Ceres starts at one minute");
+    AssertEqual(0x8000, timer.Position.X, "timer starts at X 128.0");
+    AssertEqual(0x8000, timer.Position.Y, "timer starts at Y 128.0");
 
-    // State 3 increments the low X byte from $00 through $10 without decrementing time.
-    for (ushort frame = 1; frame <= 16; frame++)
+    // The initial delay lasts sixteen updates and never counts down.
+    for (int frame = 1; frame < 16; frame++)
         AssertTrue(!timer.Process(frame), $"initial-delay frame {frame}");
-    AssertEqual(EscapeTimerState.RunningMovementDelayed, timer.State, "initial delay advances at counter $10");
-    AssertEqual(0x8010, timer.Position.X, "X subpixel byte contains delay counter $10");
-    AssertEqual(0x00, timer.Seconds.Raw, "initial delay did not decrement seconds");
+    AssertEqual(EscapeTimerPhase.InitialDelay, timer.Phase, "the initial delay holds through its fifteenth update");
+    AssertTrue(!timer.Process(16), "initial-delay frame 16");
+    AssertEqual(EscapeTimerPhase.CountingAtCentre, timer.Phase, "the initial delay ends on its sixteenth update");
+    AssertEqual(EscapeTimerClock.Time(1, 0, 0), timer.RemainingCentiseconds, "the initial delay did not count down");
+    AssertEqual(0x8000, timer.Position.X, "the timer waits at the centre");
 
-    // State 4 continues the same aliased counter to $60, then zeroes only its low byte.
-    for (ushort frame = 17; frame <= 96; frame++)
+    // Counting at the centre continues until the ninety-sixth update since the start.
+    for (int frame = 17; frame < 96; frame++)
         timer.Process(frame);
-    AssertEqual(EscapeTimerState.RunningMovingIntoPlace, timer.State, "movement delay advances at counter $60");
-    AssertEqual(0x8000, timer.Position.X, "movement transition clears X fraction only");
+    AssertEqual(EscapeTimerPhase.CountingAtCentre, timer.Phase, "the centre delay holds through the ninety-fifth update");
+    timer.Process(96);
+    AssertEqual(EscapeTimerPhase.MovingIntoPlace, timer.Phase, "the centre delay ends on the ninety-sixth update");
+    AssertEqual(0x8000, timer.Position.X, "the timer leaves the centre from X 128.0");
 
-    // X reaches its clamp in 106 frames; Y requires 107, so the state advances on 107.
-    for (ushort frame = 97; frame <= 203; frame++)
+    // X reaches its clamp in 106 frames; Y requires 107, so the phase advances on 107.
+    for (int frame = 97; frame <= 203; frame++)
         timer.Process(frame);
-    AssertEqual(EscapeTimerState.RunningInPlace, timer.State, "timer reaches stationary running state");
+    AssertEqual(EscapeTimerPhase.InPlace, timer.Phase, "timer reaches its corner");
     AssertEqual(0xdc00, timer.Position.X, "timer X clamps at pixel 220");
     AssertEqual(0x3000, timer.Position.Y, "timer Y clamps at pixel 48");
 
-    var borrowSecond = CreateRunningTimer(0x00, 0x01, 0x00);
-    AssertTrue(!borrowSecond.Process(1), "00:01.00 remains nonzero after decrement");
-    AssertEqual(0x00, borrowSecond.Seconds.Raw, "centisecond borrow decrements seconds");
-    AssertEqual(0x98, borrowSecond.Centiseconds.Raw, "table value two wraps centiseconds to 98");
+    var borrowSecond = CreateRunningTimer(EscapeTimerClock.Time(0, 1, 0));
+    AssertTrue(!borrowSecond.Process(1), "00:01.00 remains nonzero after a step");
+    AssertEqual(new EscapeTimeReadout(0, 0, 98), borrowSecond.Readout, "a two-centisecond step from one second shows 00:00.98");
 
-    var borrowMinute = CreateRunningTimer(0x01, 0x00, 0x00);
-    AssertTrue(!borrowMinute.Process(0), "01:00.00 remains nonzero after decrement");
-    AssertEqual(0x00, borrowMinute.Minutes.Raw, "second borrow decrements minutes");
-    AssertEqual(0x59, borrowMinute.Seconds.Raw, "minute borrow reloads seconds to 59");
-    AssertEqual(0x99, borrowMinute.Centiseconds.Raw, "table value one wraps centiseconds to 99");
+    var borrowMinute = CreateRunningTimer(EscapeTimerClock.Time(1, 0, 0));
+    AssertTrue(!borrowMinute.Process(0), "01:00.00 remains nonzero after a step");
+    AssertEqual(new EscapeTimeReadout(0, 59, 99), borrowMinute.Readout, "a one-centisecond step from one minute shows 00:59.99");
 
-    var expiration = CreateRunningTimer(0x00, 0x00, 0x01);
-    AssertTrue(expiration.Process(0), "00:00.01 expires on a decrement of one");
-    AssertEqual(0, expiration.Centiseconds.Raw, "expiration saturates centiseconds");
+    var expiration = CreateRunningTimer(EscapeTimerClock.Time(0, 0, 1));
+    AssertTrue(expiration.Process(0), "00:00.01 expires on a step of one");
+    AssertEqual(0, expiration.RemainingCentiseconds, "expiry leaves no time");
 
-    var underflow = CreateRunningTimer(0x00, 0x00, 0x00);
-    AssertTrue(underflow.Process(1), "zero timer remains expired after attempted decrement");
-    AssertEqual(0, underflow.Minutes.Raw, "underflow saturates minutes");
-    AssertEqual(0, underflow.Seconds.Raw, "underflow saturates seconds");
-    AssertEqual(0, underflow.Centiseconds.Raw, "underflow saturates centiseconds");
+    var underflow = CreateRunningTimer(0);
+    AssertTrue(underflow.Process(1), "zero timer remains expired after a further step");
+    AssertEqual(0, underflow.RemainingCentiseconds, "counting below zero stops at zero");
 
     var motherBrain = new EscapeTimer();
     motherBrain.RequestMotherBrainStart();
     motherBrain.Process(0);
-    AssertEqual(0x03, motherBrain.Minutes.Raw, "Mother Brain starts at three minutes");
-    AssertTrue(motherBrain.IsActive && motherBrain.State == EscapeTimerState.InitialDelay, "a started timer runs from its initial delay");
+    AssertEqual(EscapeTimerClock.Time(3, 0, 0), motherBrain.RemainingCentiseconds, "Mother Brain starts at three minutes");
+    AssertTrue(motherBrain.IsActive && motherBrain.Phase == EscapeTimerPhase.InitialDelay, "a started timer runs from its initial delay");
 
-    Console.WriteLine("  Timer: initialization, animation, BCD borrow, and expiration agree.");
+    Console.WriteLine("  Timer: initialization, animation, countdown steps, and expiration agree.");
 }
 
-/// <summary>Reaches the timer's running state through its real startup path before setting BCD time.</summary>
-static EscapeTimer CreateRunningTimer(byte minutes, byte seconds, byte centiseconds)
+/// <summary>Reaches the timer's in-place phase through its real startup path before setting its remaining time.</summary>
+static EscapeTimer CreateRunningTimer(int remainingCentiseconds)
 {
-    // Advancing the startup path is preferable to adding a production-only raw status
-    // setter: this fixture reaches the real state-$8006 path exactly as gameplay does.
     var timer = new EscapeTimer();
     timer.RequestCeresStart();
     timer.Process(0);
-    for (ushort frame = 1; timer.State != EscapeTimerState.RunningInPlace; frame++)
+    for (int frame = 1; timer.Phase != EscapeTimerPhase.InPlace; frame++)
         timer.Process(frame);
-    timer.SetTime(new PackedDecimal(minutes), new PackedDecimal(seconds), new PackedDecimal(centiseconds));
+    timer.SetRemaining(remainingCentiseconds);
     return timer;
 }
-
-/// <summary>Packs a decimal value into the two-digit BCD form used by the escape timer.</summary>
-static byte PackBcd(int decimalValue) => (byte)(((decimalValue / 10) << 4) | (decimalValue % 10));
 
 /// <summary>
 /// Exercises rising edges, releases, multi-frame holds, and the otherwise-unused repeat
@@ -529,7 +498,7 @@ internal static void VerifyFrameRuntime()
     runtime.StepFrame(ControllerButton.Start);
     AssertEqual(1, runtime.Clock.Counter, "first accepted runtime frame");
     AssertEqual(ControllerButton.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
-    AssertEqual(EscapeTimerState.InitialDelay, runtime.EscapeTimer.State, "runtime dispatches timer after NMI");
+    AssertEqual(EscapeTimerPhase.InitialDelay, runtime.EscapeTimer.Phase, "runtime dispatches timer after NMI");
     AssertEqual(CeresPerspectiveFloors.ElevatorShaft(firstMode7, runtime.Display.DisplayedGameplayScrolls.Bg1Scroll),
         runtime.Display.DisplayedPerspectiveFloor, "the accepted frame shows the shaft's transform");
 
@@ -815,11 +784,10 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
         return 0;
     }
 
-    /// <summary>Checks BCD timer behavior, state transitions, floor timing, and input recording.</summary>
+    /// <summary>Checks the escape timer's phases and countdown, floor timing, and input recording.</summary>
     [VerificationCommand("--escape-timer")]
     internal static int EscapeTimerCommand()
     {
-        Suite(nameof(VerifyEscapeTimerBcd), () => VerifyEscapeTimerBcd());
         Suite(nameof(VerifyEscapeTimerStateMachine), () => VerifyEscapeTimerStateMachine());
         Suite(nameof(VerifyEscapeTimerFloor), () => VerifyEscapeTimerFloor());
         Suite(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording());

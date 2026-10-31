@@ -48,8 +48,9 @@ internal static class CrocomireDefinitionMigrationVerification
         AssertEqual(0xcaf6, CrocomireNativeWords.TongueFrames.Word(CrocomireTongueFrame.MeltingPose4), "last tongue frame");
         AssertEqual(0xcbb3, CrocomireNativeWords.TongueHitboxLists.Word(CrocomireTongueHitboxList.Fight), "fight tongue hitbox list");
 
-        // The rumble's end marker is still the word the cartridge's table ends with.
-        AssertEqual(0x8080, unchecked((ushort)CrocomireRumbleDefinitions.All[^1].TargetYOffset), "rumble end marker");
+        // The last oscillation's timing is still the end-marker word the cartridge's table ends with.
+        AssertEqual(0x8080, CrocomireRumbleDefinitions.All[^1].Cooldown, "rumble end marker cooldown");
+        AssertEqual(0x8080, CrocomireRumbleDefinitions.All[^1].Delta, "rumble end marker delta");
         Console.WriteLine("Crocomire definition migration: colours, melting, skeleton, volley, latches and tongue identities keep their values.");
     }
 

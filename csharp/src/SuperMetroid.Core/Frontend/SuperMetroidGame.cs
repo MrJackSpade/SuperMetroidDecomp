@@ -497,7 +497,7 @@ public sealed class SuperMetroidGame
             $"animationList={samus.AnimationDelayList}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
             $"input=${Session.Runtime.Controller1.Current:X}; newlyPressed=${Session.Runtime.Controller1.NewlyPressed:X}; inputLocked={samus.Control.AlphaLocked}; " +
             $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +
-            $"escapeTimer={Session.Runtime.EscapeTimer.State}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidPhysicsType}; " +
+            $"escapeTimer={Session.Runtime.EscapeTimer.Phase}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidPhysicsType}; " +
             $"waterY=${samus.LiquidPhysics.FxYPosition:X4}; acidY=${samus.LiquidPhysics.LavaAcidYPosition:X4}";
     }
 

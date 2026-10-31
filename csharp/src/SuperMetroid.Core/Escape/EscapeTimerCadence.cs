@@ -13,7 +13,7 @@ internal static class EscapeTimerCadence
     /// floor, split each quarter with its odd unit first, then difference a fractional
     /// accumulator at consecutive frames. No sampled per-frame corrections are stored.
     /// </summary>
-    internal static byte Centiseconds(int frameCounter)
+    internal static int Centiseconds(int frameCounter)
     {
         int frame = frameCounter & (PeriodFrames - 1);
         int quarterFrames = PeriodFrames / QuarterCount;
@@ -28,7 +28,7 @@ internal static class EscapeTimerCadence
             (QuarterCount * HalvesPerQuarter);
         int phase = budget == highRateBudget ? HigherBudgetPhase : LowerBudgetPhase;
         int localFrame = frame % halfFrames;
-        return (byte)((budget * (localFrame + 1) + phase) / halfFrames -
-            (budget * localFrame + phase) / halfFrames);
+        return (budget * (localFrame + 1) + phase) / halfFrames -
+            (budget * localFrame + phase) / halfFrames;
     }
 }

@@ -52,7 +52,7 @@ internal static class PhantoonBodyPublicationVerification
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(40, 0);
         state.Parts[state.Mouth.SlotIndex].WaveAmplitude = 3072;
         state.Parts[state.Mouth.SlotIndex].WavyPhaseDelta = 8;
-        state.Wave.Begin(PhantoonWaveDefinitions.IntroMode);
+        state.Wave.Begin(PhantoonWaveDefinitions.IntroLength);
         state.Wave.Step(state);
         state.Wave.Step(state);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -68,7 +68,7 @@ internal static class PhantoonBodyPublicationVerification
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the body image on BG2");
 
         // Swooping fade-out: the wave channel is deleted, the body stays.
-        state.Parts[state.Eye.SlotIndex].WaveMode = 0;
+        state.Parts[state.Eye.SlotIndex].WaveLength = null;
         state.Wave.Step(state);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         PhantoonDisplaySnapshot fadingOut = runtime.Display.Latched.Phantoon

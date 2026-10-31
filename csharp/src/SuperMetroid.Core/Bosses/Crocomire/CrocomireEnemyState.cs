@@ -97,10 +97,10 @@ public sealed class CrocomireEnemyState
     }
 
     /// <summary>
-    /// While the hidden wall rumbles: the cursor of the current target in the authored rumble schedule, between zero
-    /// and the schedule's terminator cursor, stepping by the schedule's two-byte targets.
+    /// While the hidden wall rumbles: the step of the current target in <see cref="CrocomireRumbleDefinitions.All"/>,
+    /// up to the schedule's length once its last target completes.
     /// </summary>
-    public int RumbleTableOffset
+    public int RumbleStep
     {
         get => checked((ushort)_stepsDelayRumbleOrAccelerationWord);
         internal set => _stepsDelayRumbleOrAccelerationWord = checked((ushort)value);

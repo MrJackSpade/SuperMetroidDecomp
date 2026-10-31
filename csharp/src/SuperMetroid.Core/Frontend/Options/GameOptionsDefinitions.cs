@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// </summary>
 public static class GameOptionsDefinitions
 {
-    /// <summary>Bytes of one options page: a 32-by-32 tilemap of two-byte cells.</summary>
-    public const int TilemapByteCount = MenuTilemapWidth * MenuTilemapHeight * sizeof(ushort);
     /// <summary>The fully lit brightness level the options fade-in reaches, which scales rendered colours.</summary>
     public const int MaximumBrightness = 15;
     /// <summary>How far, in pixels, the controller page scrolls down to show its Exit and Reset rows.</summary>

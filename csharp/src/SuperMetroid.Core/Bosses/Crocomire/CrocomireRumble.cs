@@ -1,21 +1,25 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Resolves a cursor into Crocomire's hidden-wall rumble schedule to the target it names.</summary>
+/// <summary>Steps through Crocomire's hidden-wall rumble schedule.</summary>
 internal static class CrocomireRumble
 {
-    /// <summary>Rejects the timing operands while resolving every native target cursor.</summary>
-    internal static CrocomireRumbleDefinition AtOffset(int tableOffset)
+    /// <summary>The step the rumble starts at: the first oscillation's return target.</summary>
+    internal const int FirstStep = 0;
+
+    /// <summary>Whether <paramref name="step"/> has passed the schedule's last target, which ends the rumble.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="step"/> lies outside the schedule.</exception>
+    internal static bool IsComplete(int step)
     {
-        var all = CrocomireRumbleDefinitions.All;
-        if (tableOffset is 0 or 2) return all[tableOffset / 2];
-        int terminatorOffset = CrocomireRumbleDefinitions.FirstPhaseOffset +
-            CrocomireRumbleDefinitions.PhaseCount * CrocomireRumbleDefinitions.PhaseBytes;
-        if (tableOffset == terminatorOffset || tableOffset == terminatorOffset + 2)
-            return all[all.Length - 2 + (tableOffset - terminatorOffset) / 2];
-        int offset = tableOffset - CrocomireRumbleDefinitions.FirstPhaseOffset;
-        if (offset >= 0 && offset < CrocomireRumbleDefinitions.PhaseCount * CrocomireRumbleDefinitions.PhaseBytes &&
-            offset % CrocomireRumbleDefinitions.PhaseBytes is 0 or 2)
-            return all[2 + offset / CrocomireRumbleDefinitions.PhaseBytes * 2 + offset % CrocomireRumbleDefinitions.PhaseBytes / 2];
-        throw new InvalidDataException("Crocomire rumble offset $" + tableOffset.ToString("X4") + " is not an authored target word.");
+        int count = CrocomireRumbleDefinitions.All.Length;
+        if ((uint)step > (uint)count)
+            throw new InvalidDataException($"Crocomire rumble step {step} is outside its {count} targets.");
+        return step == count;
     }
+
+    /// <summary>The target at <paramref name="step"/>, which has not completed the schedule.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="step"/> is not one of the schedule's targets.</exception>
+    internal static CrocomireRumbleDefinition At(int step) =>
+        (uint)step < (uint)CrocomireRumbleDefinitions.All.Length
+            ? CrocomireRumbleDefinitions.All[step]
+            : throw new InvalidDataException($"Crocomire rumble step {step} is not one of its targets.");
 }

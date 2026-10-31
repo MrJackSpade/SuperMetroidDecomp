@@ -22,7 +22,7 @@ internal static class CrocomireRecordStateVerification
         tongue.SetSpeciesState(tongueState, tongueState.ClearWithRecord);
 
         state.StepCounter = 5;
-        AssertEqual(5, state.RumbleTableOffset, "the queued steps and the rumble cursor are one record word");
+        AssertEqual(5, state.RumbleStep, "the queued steps and the rumble step are one record word");
         state.ReactionTimer = 10;
         AssertEqual(10, state.VerticalSpeed, "the reaction timer and the vertical speed are one record word");
 

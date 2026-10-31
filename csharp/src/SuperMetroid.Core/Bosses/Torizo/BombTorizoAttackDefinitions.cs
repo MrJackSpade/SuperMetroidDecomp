@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class BombTorizoAttackDefinitions
 {
     /// <summary>
-    /// The eleven paired X/Y placements at <c>$86:A738-$86:A763</c>. Native swipe
-    /// parameters are even byte offsets <c>$00..$14</c>.
+    /// The eleven paired X/Y placements at <c>$86:A738-$86:A763</c>, for a left-facing Torizo; a swipe cue selects
+    /// one by its index.
     /// </summary>
     internal static readonly Offset16<RoomPixels>[] SwipePlacements =
     [
@@ -26,12 +26,12 @@ internal static class BombTorizoAttackDefinitions
     ];
 
     /// <summary>
-    /// $86:A859/$A865: gut and face explosion offsets, each with an unused centered row followed by right/left facing
-    /// rows. Gut offsets are 12 pixels horizontally and 8 up; face offsets are 16 horizontally and 20 up.
+    /// $86:A859/$A865: the gut's and then the face's explosion placements, facing right then left. Gut placements are
+    /// 12 pixels horizontally and 8 up; face placements are 16 horizontally and 20 up.
     /// </summary>
-    internal static readonly Offset16<RoomPixels>[] ExplosionRows =
+    internal static readonly Offset16<RoomPixels>[] ExplosionPlacements =
     [
-        new(0, -8), new(12, -8), new(-12, -8),
-        new(0, -20), new(16, -20), new(-16, -20),
+        new(12, -8), new(-12, -8),
+        new(16, -20), new(-16, -20),
     ];
 }

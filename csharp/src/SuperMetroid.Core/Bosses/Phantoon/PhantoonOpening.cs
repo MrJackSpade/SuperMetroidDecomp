@@ -76,8 +76,7 @@ internal sealed class PhantoonOpening
         state.Parts[state.Eye.SlotIndex].FadeComplete = false;
         state.MusicRequest = MusicRequest.SelectTrack(5);
         state.Parts[state.Mouth.SlotIndex].WavyPhaseDelta = PhantoonBehavior.PhantoonWavyPhaseDelta;
-        state.Parts[state.Tentacles.SlotIndex].RequestedWaveMode = PhantoonWaveDefinitions.IntroMode;
-        state.Wave.Begin(PhantoonWaveDefinitions.IntroMode);
+        state.Wave.Begin(PhantoonWaveDefinitions.IntroLength);
     }
 
     /// <summary>Raises intro wave amplitude and reveals the body palette.</summary>

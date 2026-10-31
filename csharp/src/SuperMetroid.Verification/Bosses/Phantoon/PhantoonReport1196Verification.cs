@@ -57,11 +57,11 @@ internal static class PhantoonReport1196Verification
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta = 8;
         var wave = boss.Wave;
-        wave.Begin(PhantoonWaveDefinitions.IntroMode);
+        wave.Begin(PhantoonWaveDefinitions.IntroLength);
         wave.Step(boss);
         wave.Step(boss);
         AssertTrue(wave.CurrentWave is { Amplitude: 3072 }, "fixture retains a used introductory wave");
-        boss.Parts[boss.Eye.SlotIndex].WaveMode = 0;
+        boss.Parts[boss.Eye.SlotIndex].WaveLength = null;
         wave.Step(boss);
         boss.BodyLayerPlacement = boss.BodyLayerPlacement.WithX(13);
         boss.Body.Health = 0;

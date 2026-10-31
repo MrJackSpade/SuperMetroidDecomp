@@ -169,14 +169,13 @@ internal sealed class KraidRise
                 body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole +
                     ((body.Position.Y.Whole & 2) == 0 ? 1 : -1))));
                 body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 1)));
-                if ((body.Position.Y.Whole & 3) == 0 && state.Parts[body.SlotIndex].CeilingRockOffset < 18)
+                if ((body.Position.Y.Whole & 3) == 0 && state.Parts[body.SlotIndex].CeilingRock < KraidCeilingRocks.Count)
                 {
-                    int ceilingIndex = state.Parts[body.SlotIndex].CeilingRockOffset / 2;
-                    int rockX = KraidCeilingRocks.AtByteOffset(state.Parts[body.SlotIndex].CeilingRockOffset);
-                    if (_background.SpawnKraidCeilingRock(rockX))
+                    int rock = state.Parts[body.SlotIndex].CeilingRock;
+                    if (_background.SpawnKraidCeilingRock(KraidCeilingRocks.X(rock)))
                         state.CeilingRockSpawnCount++;
-                    _frameResults.KraidPlms.Add(KraidPlmDefinitions.GrowthCeiling[ceilingIndex]);
-                    state.Parts[body.SlotIndex].CeilingRockOffset = unchecked((ushort)(state.Parts[body.SlotIndex].CeilingRockOffset + 2));
+                    _frameResults.KraidPlms.Add(KraidPlmDefinitions.GrowthCeiling[rock]);
+                    state.Parts[body.SlotIndex].CeilingRock = rock + 1;
                 }
                 if (unchecked((short)(body.Position.Y.Whole - 296)) < 0)
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowBringBodyInFront;
@@ -204,7 +203,7 @@ internal sealed class KraidRise
 
             case KraidAiFunction.GrowDrawRoomBackground:
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowFadeInRoomBackground;
-                state.Parts[body.SlotIndex].CeilingRockOffset = 0;
+                state.Parts[body.SlotIndex].CeilingRock = 0;
                 // $A7:ADB0 DrawKraidsRoomBackground zeroes the shared numerator.
                 _presentation.GradualColorChange.Reset();
                 // `$A7:AD9A` queues this character upload on the same frame that it

@@ -19,7 +19,7 @@ internal static class KraidRecordStateVerification
         slot.SetSpeciesState(part, part.ClearWithRecord);
 
         part.FunctionTimer = 18;
-        AssertEqual(18, part.CeilingRockOffset, "the function timer and the ceiling-rock offset are one record word");
+        AssertEqual(18, part.CeilingRock, "the function timer and the next ceiling rock are one record word");
         part.HeadTimer = 64;
         AssertEqual((ushort)64, part.NailVelocity.X.WholeWord, "the head timer and a nail's horizontal whole word are one record word");
         part.LintTravel = 32;

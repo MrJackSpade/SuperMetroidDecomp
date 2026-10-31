@@ -59,21 +59,7 @@ internal sealed class KraidHead
     /// <summary>Updates Kraid body and background colors from the current health band.</summary>
     internal void UpdateKraidHealthPalettes(RoomEnemySlot body, KraidEnemyState state)
     {
-        int thresholdWordOffset = 14;
-        if ((state.HurtFrame & 1) != 0)
-        {
-            thresholdWordOffset = -2;
-        }
-        else
-        {
-            while (thresholdWordOffset != 0 &&
-                unchecked((short)(
-                    body.Health - state.HealthEighthThreshold(thresholdWordOffset / 2))) < 0)
-            {
-                thresholdWordOffset -= 2;
-            }
-        }
-        int sourceColor = 8 * (thresholdWordOffset + 2);
+        int sourceColor = BandColorStart((state.HurtFrame & 1) != 0 ? HurtBand : HealthBand(body, state));
         for (int color = 0; color < 16; color++)
         {
             _presentation.BossColours().KraidBody.Write(
@@ -84,6 +70,26 @@ internal sealed class KraidHead
                 _background.ReadKraidColor(KraidPaletteSource.Secondary, sourceColor + color));
         }
     }
+
+    /// <summary>The band a hurt flash shows, before the health bands in the health colours.</summary>
+    private const int HurtBand = -1;
+
+    /// <summary>
+    /// The health band Kraid's colours show: the highest of the eight bands whose threshold his health has reached,
+    /// or the lowest band.
+    /// </summary>
+    private static int HealthBand(RoomEnemySlot body, KraidEnemyState state)
+    {
+        int band = KraidHealthThresholdDefinitions.EighthCount - 1;
+        while (band != 0 && unchecked((short)(body.Health - state.HealthEighthThreshold(band))) < 0)
+            band--;
+        return band;
+    }
+
+    /// <summary>
+    /// The first of a band's colours in the health colours: the hurt flash's sixteen, then each health band's sixteen.
+    /// </summary>
+    private static int BandColorStart(int band) => KraidPalettes.BandColors * (band + 1);
 
     /// <summary>Restores the small-body thinking state after an attack.</summary>
     internal void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
@@ -274,14 +280,7 @@ internal sealed class KraidHead
     /// <summary>Restores the eye palette after the reaction completes.</summary>
     internal void UnglowKraidEye(RoomEnemySlot body, KraidEnemyState state)
     {
-        int thresholdWordOffset = 14;
-        while (thresholdWordOffset != 0 &&
-            unchecked((short)(
-                body.Health - state.HealthEighthThreshold(thresholdWordOffset / 2))) < 0)
-        {
-            thresholdWordOffset -= 2;
-        }
-        int sourceColor = 8 * (thresholdWordOffset + 2) + 1;
+        int sourceColor = BandColorStart(HealthBand(body, state)) + 1;
         int changedChannels = 0;
         ColourRun eyeColors = _presentation.BossColours().KraidEye;
         for (int eye = 0; eye < eyeColors.Count; eye++)

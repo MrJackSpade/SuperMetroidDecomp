@@ -1,6 +1,5 @@
 using SuperMetroid.Diagnostics.Configuration;
 using SuperMetroid.Core.Escape;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Areas.Escape;
 
@@ -33,30 +32,21 @@ internal static class EscapeTimerFloorVerification
                 bool expired = guarded.Process(frame, preventEscapeTimeout: true);
                 retail.Process(frame);
                 AssertTrue(!expired, "guarded escape never publishes expiration");
-                AssertEqual(new VerifyEscapeTimerFloorCase(retail.State, retail.IsActive), new VerifyEscapeTimerFloorCase(guarded.State, guarded.IsActive), "escape state unchanged by floor");
+                AssertEqual(new VerifyEscapeTimerFloorCase(retail.Phase, retail.IsActive), new VerifyEscapeTimerFloorCase(guarded.Phase, guarded.IsActive), "escape phase unchanged by floor");
                 AssertEqual(retail.Position, guarded.Position, "timer animation unchanged");
-                if (guarded.Minutes.Raw == 0 && guarded.Seconds.Raw == 1 && guarded.Centiseconds.Raw == 0)
+                if (guarded.RemainingCentiseconds == EscapeTimerClock.Time(0, 1, 0))
                     reachedFloor = true;
                 if (reachedFloor)
-                {
-                    AssertEqual((byte)0, guarded.Minutes.Raw, "floor minutes");
-                    AssertEqual((byte)1, guarded.Seconds.Raw, "floor seconds");
-                    AssertEqual((byte)0, guarded.Centiseconds.Raw, "floor centiseconds");
-                }
+                    AssertEqual(EscapeTimerClock.Time(0, 1, 0), guarded.RemainingCentiseconds, "floor holds one second");
                 else
-                {
-                    AssertEqual(retail.Minutes.Raw, guarded.Minutes.Raw, "normal minutes countdown");
-                    AssertEqual(retail.Seconds.Raw, guarded.Seconds.Raw, "normal seconds countdown");
-                    AssertEqual(retail.Centiseconds.Raw, guarded.Centiseconds.Raw, "normal fractional countdown");
-                }
+                    AssertEqual(retail.RemainingCentiseconds, guarded.RemainingCentiseconds, "normal countdown");
             }
             AssertTrue(reachedFloor, "both escape starts reach one second");
             for (ushort frame = 0; frame < 128; frame++)
             {
-                guarded.SetTime(PackedDecimal.FromDecimal(0), PackedDecimal.FromDecimal(1), PackedDecimal.FromDecimal(1));
+                guarded.SetRemaining(EscapeTimerClock.Time(0, 1, 1));
                 AssertTrue(!guarded.Process(frame, true), "either correction crossing floor cannot expire");
-                AssertEqual((byte)1, guarded.Seconds.Raw, "crossing stops at one second");
-                AssertEqual((byte)0, guarded.Centiseconds.Raw, "crossing stops at zero fractional seconds");
+                AssertEqual(EscapeTimerClock.Time(0, 1, 0), guarded.RemainingCentiseconds, "crossing stops at one second");
             }
             bool didExpire = false;
             for (ushort frame = 0; frame < 100; frame++)
@@ -64,7 +54,7 @@ internal static class EscapeTimerFloorVerification
             AssertTrue(didExpire, "disabling option restores countdown and expiration");
             guarded.Clear();
             guarded.Process(0, true);
-            AssertEqual((byte)0, guarded.Seconds.Raw, "inactive timer remains cleared");
+            AssertEqual(0, guarded.RemainingCentiseconds, "inactive timer remains cleared");
         }
         Console.WriteLine("Escape countdown floor verified for Ceres and Mother Brain.");
     }

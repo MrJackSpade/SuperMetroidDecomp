@@ -97,7 +97,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(512, ZebesEscapeDefinitions.LightChance, "light diagonal chance");
         AssertEqual(255, ZebesEscapeDefinitions.BlankTile, "blank explosion tile");
         AssertEqual(6, ZebesEscapeDefinitions.LandingQuake, "landing site quake");
-        AssertEqual(0x8000, EscapeTimerStatusDefinitions.ClearedOrigin, "timer cleared origin");
+        AssertEqual(128, EscapeTimerDefinitions.ClearedPixel, "timer cleared origin");
         var earthquake = new RoomEarthquake();
         earthquake.KeepShaking();
         AssertEqual(0x8000, earthquake.EarthquakeTimer.RawValue, "continuous shake sets the timer's top bit, as the deleted catalog's bit did");

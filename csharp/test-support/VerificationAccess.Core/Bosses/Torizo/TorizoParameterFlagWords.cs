@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 [EncodingOwner("Torizo spawn parameter latch words, as checks read them")]
 internal static class TorizoParameterFlagWords
 {
+    /// <summary>The bits of parameter 1 below the posture latches, which name no behaviour.</summary>
+    internal const int PostureLowBitsMask = (1 << 13) - 1;
+
     /// <summary>One latch and the parameter-word bit that holds it.</summary>
     internal readonly record struct LatchBit<TFlags>(TFlags Flag, int Bit) where TFlags : struct, Enum;
 
@@ -38,7 +41,7 @@ internal static class TorizoParameterFlagWords
     }
 
     /// <summary>The low thirteen bits of an authored parameter-1 word.</summary>
-    internal static int PostureLowBitsOf(int parameterWord) => parameterWord & TorizoParameterFlagCodec.PostureLowBitsMask;
+    internal static int PostureLowBitsOf(int parameterWord) => parameterWord & PostureLowBitsMask;
 
     /// <summary>The behaviour latches of an authored parameter-2 word.</summary>
     internal static TorizoBehaviorFlags BehaviorOf(int parameterWord)

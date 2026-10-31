@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// What an actor that takes over a slot inherits from the slot's previous occupant of its kind (#1476). In the original
 /// game the values an actor's setup does not write stay as the slot's previous occupant left them, so a new occupant
 /// starts those values where the last one stopped: a fresh Beetom touched before it first moves attaches facing the way
-/// the previous Beetom in its slot last faced, and a re-spawned Bull keeps its predecessor's flight angle and shot guard.
+/// the previous Beetom in its slot last faced.
 /// Each occupant keeps its own state; this service only remembers, per slot, the occupant a successor inherits from.
 /// </summary>
 /// <remarks>

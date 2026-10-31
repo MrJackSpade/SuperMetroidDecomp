@@ -198,7 +198,7 @@ public sealed class InstalledSamusDeathPalettes
         Span<RgbColor> whiteoutColors = stackalloc RgbColor[SamusPaletteDefinitions.Death.WhiteoutShadeCount];
         for (int index = 0; index < whiteoutColors.Length; index++) whiteoutColors[index] = WhiteoutColor(index);
         content.AppendColors("whiteout", whiteoutColors);
-        Span<ushort> selectors = stackalloc ushort[SamusDeathExplosionTimingDefinitions.RecordCount];
+        Span<int> selectors = stackalloc int[SamusDeathExplosionTimingDefinitions.RecordCount];
         for (int frame = 0; frame < selectors.Length; frame++) selectors[frame] = ExplosionPaletteIndex(frame);
         content.AppendWords("explosion palette indices", selectors);
     });

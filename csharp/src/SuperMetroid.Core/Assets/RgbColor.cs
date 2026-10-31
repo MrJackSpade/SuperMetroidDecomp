@@ -119,7 +119,7 @@ public readonly record struct RgbColor
     /// colour step that carries out of the blue channel, and a stored word loaded as a palette, show this colour, as the
     /// original palette hardware kept only fifteen bits.
     /// </summary>
-    public static RgbColor FromWordIgnoringTopBit(ushort word) => new((ushort)(word & ColorBits));
+    public static RgbColor FromWordIgnoringTopBit(int word) => new((ushort)(word & ColorBits));
 
     /// <summary>The packed 15-bit word, for ROM, memory, CGRAM and serialization boundaries.</summary>
     public ushort ToWord() => channels;

@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -31,7 +30,7 @@ public sealed class ProjectileInheritanceRecords
     /// </summary>
     internal int CameraYSubspeed
     {
-        set => WriteWord(CameraYSubspeedOffset, Ensure.BetweenInclusive(0, ushort.MaxValue, Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
+        set => WriteWord(CameraYSubspeedOffset, value);
     }
 
     /// <summary>Stores one movement call's signed 16.16 distance: the integer word, then the fraction word.</summary>
@@ -77,13 +76,10 @@ public sealed class ProjectileInheritanceRecords
     private int LaunchVelocityWord(SamusCollisionDirection direction) => ReadWord(RecordOffset(direction) - 1);
 
     /// <summary>Reads the little-endian word whose low byte is at <paramref name="offset"/>.</summary>
-    private int ReadWord(int offset) => BinaryPrimitives.ReadUInt16LittleEndian(Bytes.AsSpan(offset));
+    private int ReadWord(int offset) => LittleEndianWord.Unsigned(Bytes[offset], Bytes[offset + 1]);
 
     /// <summary>Writes <paramref name="value"/> little-endian at <paramref name="offset"/>.</summary>
-    private void WriteWord(int offset, int value)
-    {
-        BinaryPrimitives.WriteUInt16LittleEndian(Bytes.AsSpan(offset), Ensure.BetweenInclusive(0, ushort.MaxValue, Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
-    }
+    private void WriteWord(int offset, int value) => LittleEndianWord.Write(Bytes.AsSpan(offset), value);
 
     /// <summary>Maps left, right, up, or down to its native 16.16 record offset.</summary>
     private static int RecordOffset(SamusCollisionDirection direction) => direction switch

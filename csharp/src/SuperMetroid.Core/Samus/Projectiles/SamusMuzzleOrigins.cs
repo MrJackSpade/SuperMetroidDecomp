@@ -1,5 +1,3 @@
-using System.Buffers.Binary;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Where each firing direction's projectile leaves the arm cannon.</summary>
@@ -53,6 +51,6 @@ internal static class SamusMuzzleOrigins
             var muzzle = Muzzle(word >= 20, SamusProjectileDirections.At(word % 10));
             return word % 20 < 10 ? muzzle.X : muzzle.Y;
         }
-        return CoordinateAxis.AsSigned(BinaryPrimitives.ReadUInt16LittleEndian([SamusProjectileCooldowns.ReadByte(offset), SamusProjectileCooldowns.ReadByte(offset + 1)]));
+        return CoordinateAxis.AsSigned(LittleEndianWord.Unsigned(SamusProjectileCooldowns.ReadByte(offset), SamusProjectileCooldowns.ReadByte(offset + 1)));
     }
 }

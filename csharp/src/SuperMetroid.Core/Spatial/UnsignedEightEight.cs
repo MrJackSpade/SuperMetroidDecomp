@@ -23,7 +23,12 @@ public static class UnsignedEightEight
     public static ushort WithoutFraction(int value) => WithoutFraction(RequireWord(value));
 
     /// <summary>The unsigned 8.8 word with <paramref name="whole"/> units and <paramref name="fraction"/> 1/256ths.</summary>
-    public static ushort FromParts(byte whole, byte fraction) => (ushort)(whole << FractionBits | fraction);
+    /// <param name="whole">The whole units, 0 through 255; other values are rejected.</param>
+    /// <param name="fraction">The 1/256ths, 0 through 255; other values are rejected.</param>
+    public static int FromParts(int whole, int fraction) => RequirePart(whole) << FractionBits | RequirePart(fraction);
+
+    /// <summary>A whole or fraction part held as an int, checked to lie in 0 through 255.</summary>
+    private static int RequirePart(int value) => Ensure.BetweenInclusive(0, byte.MaxValue, value);
 
     /// <summary>A word held as an int, checked to lie in 0 through 65535.</summary>
     private static ushort RequireWord(int value) => checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value));

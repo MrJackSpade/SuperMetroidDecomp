@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// Canonical identity of decoded, selected presentation data, not its path or file encoding.
 /// Length framing keeps labels, dimensions, and payload boundaries unambiguous.
 /// </summary>
+[EncodingOwner("length-framed bytes of a selected-presentation content identity")]
 internal sealed class SelectedPresentationHash
 {
     /// <summary>The running SHA-256 digest of length-framed selected content.</summary>
@@ -78,6 +79,17 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
+    /// <summary>Adds a sequence of eight-bit values, one byte each.</summary>
+    /// <param name="label">The field's label.</param>
+    /// <param name="values">The values, each 0 through 255; any other value is rejected.</param>
+    public void AppendBytes(string label, ReadOnlySpan<int> values)
+    {
+        var bytes = new byte[values.Length];
+        for (int index = 0; index < values.Length; index++)
+            bytes[index] = checked((byte)Ensure.BetweenInclusive(0, byte.MaxValue, values[index]));
+        Append(label, bytes);
+    }
+
     /// <summary>Adds a sequence of 16-bit values in little-endian order.</summary>
     public void AppendWords(string label, ReadOnlySpan<ushort> words)
     {
@@ -87,7 +99,19 @@ internal sealed class SelectedPresentationHash
         Append(label, bytes);
     }
 
-    /// <summary>Colors hash as their 15-bit CGRAM words, identical to <see cref="AppendWords"/> of the encoded words.</summary>
+    /// <summary>Adds a sequence of 16-bit values in little-endian order, identical to <see cref="AppendWords(string, ReadOnlySpan{ushort})"/> of the same words.</summary>
+    /// <param name="label">The field's label.</param>
+    /// <param name="words">The values, each 0 through 65535; any other value is rejected.</param>
+    public void AppendWords(string label, ReadOnlySpan<int> words)
+    {
+        var bytes = new byte[checked(words.Length * sizeof(ushort))];
+        for (int index = 0; index < words.Length; index++)
+            BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(index * sizeof(ushort)),
+                checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, words[index])));
+        Append(label, bytes);
+    }
+
+    /// <summary>Colors hash as their 15-bit CGRAM words, identical to <see cref="AppendWords(string, ReadOnlySpan{ushort})"/> of the encoded words.</summary>
     public void AppendColors(string label, ReadOnlySpan<RgbColor> colors)
     {
         var bytes = new byte[checked(colors.Length * sizeof(ushort))];

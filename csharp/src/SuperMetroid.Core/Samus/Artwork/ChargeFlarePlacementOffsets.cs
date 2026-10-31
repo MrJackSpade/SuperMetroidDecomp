@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Projectiles;
 using static SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementDefinitions;
@@ -80,8 +79,8 @@ public static class ChargeFlarePlacementOffsets
         if (direction < GrappleBeamDefinitions.Firing.DirectionCount) return BeamOffset(running, direction);
         int adjacent = direction - GrappleBeamDefinitions.Firing.DirectionCount;
         return Offset16<RoomPixels>.Of(BeamOffset(running, adjacent).Y,
-            running ? BinaryPrimitives.ReadInt16LittleEndian([WordWrap.LowByte(SwingSelectorByte(adjacent * 2)), WordWrap.LowByte(SwingSelectorByte(adjacent * 2 + 1))])
-                : GrappleFiring.Origin(WordWrap.LowByte(adjacent), true).X);
+            running ? LittleEndianWord.Signed(SwingSelectorByte(adjacent * 2), SwingSelectorByte(adjacent * 2 + 1))
+                : GrappleFiring.Origin(adjacent, true).X);
     }
 
     /// <summary>$9B:C1C2 GrappleSwingSamusXYOffsets: nearest eight-angle bucket, modulo32; its first twelve bytes bound the running-flare Y alias.</summary>

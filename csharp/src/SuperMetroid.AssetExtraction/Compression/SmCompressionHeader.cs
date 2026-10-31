@@ -7,6 +7,14 @@ namespace SuperMetroid.AssetExtraction.Compression;
 [EncodingOwner("Super Metroid compression command header")]
 public readonly record struct SmCompressionHeader
 {
+    /// <summary>The commands by their three-bit command number.</summary>
+    private static readonly SmCompressionCommand[] commandsByNumber =
+    [
+        SmCompressionCommand.Literal, SmCompressionCommand.RepeatByte, SmCompressionCommand.AlternatePair,
+        SmCompressionCommand.IncrementingSequence, SmCompressionCommand.AbsoluteCopy, SmCompressionCommand.AbsoluteCopyInverted,
+        SmCompressionCommand.RelativeCopy, SmCompressionCommand.RelativeCopyInverted,
+    ];
+
     /// <summary>Decodes the short, long, or terminator header.</summary>
     private SmCompressionHeader(int firstByte, int? secondByte)
     {
@@ -21,10 +29,10 @@ public readonly record struct SmCompressionHeader
 
         bool isLong = SmCompressionCodes.IsLongHeader(firstByte);
         // Masking to bits 5-7 yields one of the eight defined commands.
-        Command = isLong
-            ? (SmCompressionCommand)((firstByte <<
-                SmCompressionCodes.LongCommandShift) & SmCompressionCodes.CommandMask)
-            : (SmCompressionCommand)(firstByte & SmCompressionCodes.CommandMask);
+        int normalizedCommand = isLong
+            ? (firstByte << SmCompressionCodes.LongCommandShift) & SmCompressionCodes.CommandMask
+            : firstByte & SmCompressionCodes.CommandMask;
+        Command = CommandOfNumber(normalizedCommand >> SmCompressionCodes.CommandFieldShift);
         Length = isLong
             ? LittleEndianBytes.Word(
                 checked((byte)(secondByte ?? throw new InvalidDataException("Long compression header is missing its length byte."))),
@@ -80,7 +88,14 @@ public readonly record struct SmCompressionHeader
 
     /// <summary>Reports an encoded command value outside the eight supported compression operations.</summary>
     private static ArgumentOutOfRangeException UndefinedCommand(SmCompressionCommand command) =>
-        new(nameof(command), command, $"Undefined compression command ${(byte)command:X2}.");
+        new(nameof(command), command, $"Undefined compression command {command}.");
+
+    /// <summary>The command a three-bit command number, 0-7, selects.</summary>
+    /// <param name="number">The command field's value.</param>
+    /// <returns>The command the number selects.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> is outside 0-7.</exception>
+    public static SmCompressionCommand CommandOfNumber(int number) =>
+        commandsByNumber[Ensure.BetweenInclusive(0, commandsByNumber.Length - 1, number)];
 
     /// <summary>Decodes the command and expanded run length without consuming or validating its payload.</summary>
     /// <param name="firstByte">The first encoded header byte, including the optional <c>$FF</c> terminator.</param>

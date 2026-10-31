@@ -108,9 +108,9 @@ public static class GameOverPresentationExtractor
             {
                 int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
                 sourceAddress = GameOverSourceDefinitions.TextBank | (SnesAddressMath.OffsetInBank(sourceAddress + 2));
-                if (Enum.IsDefined((GameOverTextControl)word))
+                if (GameOverSourceDefinitions.TextControls.TryGetValue(word, out GameOverTextControl control))
                 {
-                    switch ((GameOverTextControl)word)
+                    switch (control)
                     {
                         case GameOverTextControl.End:
                             return;
@@ -119,7 +119,7 @@ public static class GameOverPresentationExtractor
                             destinationByteOffset = initialColumn;
                             continue;
                         default:
-                            throw new InvalidOperationException($"Undefined {nameof(GameOverTextControl)} {word}.");
+                            throw new InvalidOperationException($"Undefined {nameof(GameOverTextControl)} {control}.");
                     }
                 }
 

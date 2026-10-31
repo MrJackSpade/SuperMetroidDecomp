@@ -1,5 +1,5 @@
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core;
-
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -18,6 +18,13 @@ internal static class GameOverSourceDefinitions
 
     /// <summary>The bytes between consecutive page rows in a text stream's destination: 32 two-byte tilemap entries.</summary>
     internal const int TextRowBytes = 32 * sizeof(ushort);
+
+    /// <summary>The words that control a text stream instead of naming a tilemap cell.</summary>
+    internal static IReadOnlyDictionary<int, GameOverTextControl> TextControls { get; } = new Dictionary<int, GameOverTextControl>
+    {
+        [0xffff] = GameOverTextControl.End,
+        [0xfffe] = GameOverTextControl.NextLine,
+    };
 
     /// <summary>The $FFFF word after the final Baby record that restarts the stream at its first record ($82:BC27).</summary>
     internal const ushort BabyAnimationEnd = 0xffff;

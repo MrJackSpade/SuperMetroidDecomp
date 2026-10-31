@@ -82,11 +82,14 @@ types delegate to it and never re-derive it.
 Sixteen-bit storage is a property of the owner types above, not of the values that flow through gameplay code.
 Non-spatial gameplay quantities follow `docs/cartridge-encoding.md`'s "Narrow storage" rule.
 
-Integer arithmetic that builds a coordinate wraps explicitly where the game wraps it: `unchecked((ushort)…)` where
-native code works in 16-bit words and a later bounds check rejects the wrapped value (collision and PLM grid probes),
-or a stepped coordinate decremented or incremented through the compatibility counter (`WrappingCounter`). The result
-is held as an `int` until it reaches its owner, whose `int` operations (`Position16.Of`, `Offset16.Of`,
-`Extent16.Of`, `FixedCoordinate.Of`, `WithX`/`WithY`, `WithWhole`) check that it already fits the word, so a value
+Integer arithmetic that builds a coordinate wraps explicitly where the game wraps it, through the one coordinate rule
+(#1480): `CoordinateAxis.Wrap` where native code works in 16-bit words and a later bounds check rejects the wrapped value
+(collision and PLM grid probes), `CoordinateAxis.Difference`/`Distance` for the signed wrapped distance between two
+coordinates, `CoordinateAxis.AsSigned` for a coordinate read as a signed offset, `Position16.Wrapped`,
+`Offset16.Wrapped` and `FixedPosition.WithWrappedWholeX/Y` for whole positions, or a stepped coordinate decremented or
+incremented through the compatibility counter (`WrappingCounter`). No inline narrowing cast reproduces the wrap
+(SME6453). The result is held as an `int` until it reaches its owner, whose `int` constructors and operations
+(`new Position16(x, y)`, `Offset16`, `Extent16`, `FixedCoordinate`, `SignedEightEight`, `WithX`/`WithY`, `WithWhole`) check that it already fits the word, so a value
 left unwrapped fails where it is stored instead of being truncated there.
 
 ## Operations

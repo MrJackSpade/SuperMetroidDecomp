@@ -1117,7 +1117,7 @@ public sealed class SamusBombProjectileSystem
 
         // Consistent state cannot underflow, but the clamp is real.
         CountdownStep remaining = WrappingCounter.Decrement(BombCounter);
-        BombCounter = remaining.IsNegative ? (ushort)0 : remaining.Value;
+        BombCounter = remaining.IsNegative ? 0 : remaining.Remaining.RemainingFrames;
     }
 
 }

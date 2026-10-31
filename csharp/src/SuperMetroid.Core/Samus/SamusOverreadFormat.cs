@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus;
 public static class SamusOverreadFormat
 {
     /// <summary>Supported Samus overread schema revision.</summary>
-    public const int Version = 6;
+    public const int Version = 7;
     /// <summary>JSON filename holding the overread byte ranges.</summary>
     public const string FileName = "samus-overreads.json";
     /// <summary>Manifest filename recording the overread file's cartridge identity and digest.</summary>

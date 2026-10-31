@@ -92,7 +92,6 @@ internal sealed class RuntimeArtwork
         _player.Samus.Presentation.SuitColors = MapPresentation?.SamusSuitColors;
         _player.Samus.Presentation.FullBodyCycleColors = MapPresentation?.SamusFullBodyCycleColors;
         _player.Samus.Presentation.ChargeColors = MapPresentation?.SamusChargeColors;
-        _player.Samus.Presentation.AnimationWindows = SamusOverreads?.AnimationWindows;
         // All Samus constructors call this rebind before priming the first visual DMA.
         _player.Samus.Presentation.BodyFrames.BindArtwork(SamusBodyArt);
         _player.Samus.Presentation.BodyFrames.BindSheets(SpriteSheets);
@@ -135,16 +134,7 @@ internal sealed class RuntimeArtwork
 
     /// <summary>The installed cartridge bytes Samus's glitch paths read; the projectile system binds them.</summary>
     [field: NonSerialized]
-    public InstalledSamusOverreads? SamusOverreads
-    {
-        get;
-        set
-        {
-            field = value;
-            if (_player.Samus is { } samus)
-                samus.Presentation.AnimationWindows = value?.AnimationWindows;
-        }
-    }
+    public InstalledSamusOverreads? SamusOverreads { get; set; }
 
     /// <summary>The installed pre-coloured sprite sheets drawn families select their frames from.</summary>
     [field: NonSerialized]

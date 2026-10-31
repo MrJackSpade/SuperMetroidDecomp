@@ -47,7 +47,7 @@ public sealed class InstalledSamusOverreads
     /// <summary>Where each projectile program's list stands, which the glitch paths' list arithmetic and fresh trails read.</summary>
     internal InstalledProjectileListPositions ProjectileLists { get; }
 
-    /// <summary>Where the animation regions sit in their banks, which a restored index reading past its program needs.</summary>
+    /// <summary>Where the charge flare's programs sit in their bank, which a flare index wrapping below its program needs.</summary>
     internal SamusAnimationWindows AnimationWindows { get; }
 
     /// <summary>The SpaceTime palette-copy overrun's source byte <paramref name="offset"/> bytes past the first one it reads.</summary>
@@ -131,14 +131,14 @@ public sealed class InstalledSamusOverreads
         return result.ToFrozenDictionary();
     }
 
-    /// <summary>Decodes the animation regions' window positions, each a sixteen-bit position in its bank's window.</summary>
+    /// <summary>Decodes the charge flare's window position, a sixteen-bit position in its bank's window.</summary>
     private static SamusAnimationWindows DecodeAnimationWindows(SamusAnimationWindows? windows)
     {
         if (windows is null)
             throw new InvalidDataException("Samus overread file has no animation windows.");
-        foreach (int position in new[] { windows.ChargeFlarePrograms, windows.PoseDelayPrograms, windows.RunningCadences })
-            if ((uint)position > ushort.MaxValue)
-                throw new InvalidDataException($"Samus overread animation window position {position} lies outside a sixteen-bit window.");
+        if ((uint)windows.ChargeFlarePrograms > ushort.MaxValue)
+            throw new InvalidDataException(
+                $"Samus overread animation window position {windows.ChargeFlarePrograms} lies outside a sixteen-bit window.");
         return windows;
     }
 

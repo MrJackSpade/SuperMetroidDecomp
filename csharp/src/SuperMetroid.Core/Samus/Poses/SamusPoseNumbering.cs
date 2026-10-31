@@ -3,10 +3,10 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>
 /// The cartridge's pose numbering: pose <c>n</c> is the <c>n</c>th record of the 253-record pose tables, and the
 /// three numbers past them read adjacent code. Core keeps the numbers only where the cartridge's arithmetic on them
-/// is gameplay-observable or an installed table is laid out by them: the animation delay streams name their
-/// transition poses by number, the HUD's posture admission and the adjacent-code poses' delay programs over-read
-/// tables by number, and the installed Samus artwork holds one entry per numbered pose. This is the one place a pose
-/// becomes its number or a number its pose.
+/// is gameplay-observable or an installed table is laid out by them: pose families tested as ranges of numbers, the
+/// HUD's posture admission over-reading its table by number, and the installed Samus artwork holding one entry per
+/// numbered pose. The animation programs name their transition poses by identity (#1473). This is the one place a
+/// pose becomes its number or a number its pose.
 /// </summary>
 [EncodingOwner("pose numbers of the installed Samus pose tables")]
 internal static class SamusPoseNumbering

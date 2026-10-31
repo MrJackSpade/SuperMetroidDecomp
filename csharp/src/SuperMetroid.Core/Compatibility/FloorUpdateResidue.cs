@@ -4,24 +4,17 @@ namespace SuperMetroid.Core.Compatibility;
 /// The descriptors the Ceres Ridley getaway's floor updates leave behind, owned for the session (#1338, #1406). The
 /// cartridge queues each floor update as a nine-byte descriptor in WRAM <c>$02D0-$032F</c> (<c>QueueMode7Transfers</c>,
 /// <c>$80:8B8B</c>), each followed by a cleared byte, and the NMI handler (<c>$80:8BBA</c>) clears only the first two
-/// bytes after copying them, so the rest outlive the update. Samus's running stage five (<c>$91:0303</c>) and the invalid
-/// poses' delay programs (<c>$91:0302</c>) read those bytes as delays: the running cadence's stage-five reads in the
-/// Ceres SMV established it. The getaway records each update's floor updates here at the point it queued them; the
-/// readers consult it whenever Samus's animation reads past its tables.
+/// bytes after copying them, so the rest outlive the update. The Speed Booster cadence the game never authored
+/// (<see cref="UnauthoredBoostCadence"/>, <c>$91:0303</c>) reads those bytes as delays: the running cadence's stage-five
+/// reads in the Ceres SMV established it. The getaway records each update's floor updates here at the point it queued
+/// them; the unauthored cadence consults it whenever Samus runs on it.
 /// </summary>
-[CompatibilityService("bounded over-read: the delays Samus's running stage five and the invalid poses read past their tables")]
+[CompatibilityService("bounded over-read: the delays Samus's unauthored Speed Booster cadence reads past the authored cadences")]
 [EncodingOwner("the floor update descriptors' residue bytes Samus's animation reads as delays")]
 public sealed class FloorUpdateResidue : IFloorUpdateResidue
 {
     /// <summary>The residue's bytes.</summary>
     public const int ByteCount = 96;
-
-    /// <summary>
-    /// Where the half of an animation window that aliases the residue ends: a delay over-read at a window position below
-    /// this reads the residue, and one at or past it reads the installed animation data: the upper half of a
-    /// sixteen-bit window position.
-    /// </summary>
-    public const int ResidueWindowEnd = 32768;
 
     /// <summary>The bits of one descriptor byte: a word field's high byte follows its low byte.</summary>
     private const int DescriptorByteBits = 8;

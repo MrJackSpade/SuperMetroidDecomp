@@ -87,4 +87,19 @@ internal static class SamusSnapshotWords
         >= 1 << 15 => ResumeChargingBeamSoundLatch.SignedLatch,
         _ => throw new InvalidDataException($"Resume-charging-beam sound word ${word:X4} is not a native latch state."),
     };
+
+    /// <summary>The bits of a pose-history word's facing byte, below its movement byte.</summary>
+    private const int HistoryFacingBits = 8;
+
+    /// <summary>
+    /// Decodes a pose-history word (<c>$0A22</c>/<c>$0A26</c>, #1473): the facing byte, then the movement byte, the
+    /// movement type's dispatcher index. The port keeps only the movement; a movement byte the dispatcher lacks is rejected.
+    /// </summary>
+    internal static SamusMovementType DecodeHistoryMovement(int word)
+    {
+        int movement = (word >> HistoryFacingBits) & byte.MaxValue;
+        return movement <= (int)SamusMovementType.Special
+            ? (SamusMovementType)movement
+            : throw new InvalidDataException($"Pose-history word ${word:X4} records movement byte ${movement:X2}, which no movement type has.");
+    }
 }

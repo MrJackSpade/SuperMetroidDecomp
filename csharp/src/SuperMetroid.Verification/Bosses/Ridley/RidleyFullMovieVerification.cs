@@ -342,15 +342,14 @@ internal static class RidleyFullMovieVerification
             samus.EquippedItems = (SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.ScrewAttack);
             SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
             samus.PoseHistory.PreviousPose = pose;
-            ushort direction = SamusPoseMetadata.ReadPoseXDirection(samus);
-            ushort spinMovement = LittleEndianBytes.Word(unchecked((byte)direction), (byte)SamusMovementType.SpinJumping);
-            samus.PoseHistory.PreviousDirectionAndMovement = spinMovement;
+            SamusMovementType spinMovement = SamusMovementType.SpinJumping;
+            samus.PoseHistory.PreviousMovement = spinMovement;
             samus.PoseHistory.LastDifferentPose = SamusPoseId.RunningAimUpRightPose;
-            samus.PoseHistory.LastDifferentDirectionAndMovement = LittleEndianBytes.Word(unchecked((byte)direction), (byte)SamusMovementType.Running);
+            samus.PoseHistory.LastDifferentMovement = SamusMovementType.Running;
             runtime.StepFrame(0);
             AssertEqual(pose, samus.PoseHistory.PreviousPose, "fallback retains spin pose");
             AssertEqual(pose, samus.PoseHistory.LastDifferentPose, "fallback commits same-pose history");
-            AssertEqual(spinMovement, samus.PoseHistory.LastDifferentDirectionAndMovement, "fallback publishes older spin movement");
+            AssertEqual(spinMovement, samus.PoseHistory.LastDifferentMovement, "fallback publishes older spin movement");
             AssertTrue(samus.PoseHistory.AllowsWallJumpProbe, "next update admits native wall observation");
         }
         Console.WriteLine("Spin fallback history: ordinary, Space Jump and Screw Attack both facings retain pose and admit wall probe.");
@@ -1163,9 +1162,11 @@ internal static class RidleyFullMovieVerification
                 NativeSnapshotMemory.SamusInputHandler);
 
             Check("Samus previous pose", (ushort)samus.PoseHistory.PreviousPose, NativeSnapshotMemory.PreviousPose);
-            Check("Samus previous movement", samus.PoseHistory.PreviousDirectionAndMovement, NativeSnapshotMemory.PreviousDirection);
+            CheckValue("Samus previous movement", (int)samus.PoseHistory.PreviousMovement,
+                (int)SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection)));
             Check("Samus last different pose", (ushort)samus.PoseHistory.LastDifferentPose, NativeSnapshotMemory.LastDifferentPose);
-            Check("Samus last different movement", samus.PoseHistory.LastDifferentDirectionAndMovement, NativeSnapshotMemory.LastDifferentDirection);
+            CheckValue("Samus last different movement", (int)samus.PoseHistory.LastDifferentMovement,
+                (int)SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection)));
             Check("Samus animation", samus.AnimationFrame, NativeSnapshotMemory.Animation);
             Check("Samus animation timer", samus.AnimationFrameTimer.RawValue, NativeSnapshotMemory.AnimationTimer);
             Check("Samus base speed", samus.HorizontalSpeed.BaseSpeed.Whole, NativeSnapshotMemory.BaseSpeed);
@@ -1774,7 +1775,7 @@ internal static class RidleyFullMovieVerification
             if (mismatches.Count != 0)
             {
                 RoomLevelData level = runtime.Room.LevelData ?? throw new InvalidDataException("Missing active room collision data.");
-                Console.Error.WriteLine($"Pose history: port={(int)samus.PoseHistory.PreviousPose:X4}/{samus.PoseHistory.PreviousDirectionAndMovement:X4}/{(int)samus.PoseHistory.LastDifferentPose:X4}/{samus.PoseHistory.LastDifferentDirectionAndMovement:X4}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
+                Console.Error.WriteLine($"Pose history: port={(int)samus.PoseHistory.PreviousPose:X4}/{samus.PoseHistory.PreviousMovement}/{(int)samus.PoseHistory.LastDifferentPose:X4}/{samus.PoseHistory.LastDifferentMovement}, native={W(NativeSnapshotMemory.PreviousPose):X4}/{W(NativeSnapshotMemory.PreviousDirection):X4}/{W(NativeSnapshotMemory.LastDifferentPose):X4}/{W(NativeSnapshotMemory.LastDifferentDirection):X4}");
                 Console.Error.WriteLine($"Liquid diagnostic: Y={samus.Position.Y.Whole:X4}, surface={samus.LiquidPhysics.LavaAcidYPosition:X4}, pose={(int)samus.Pose:X2}, radius={samus.Kinematics.Radius.Y}");
                 Console.Error.WriteLine($"Shot diagnostic: locked={samus.Control.AlphaLocked}, HUD={samus.SelectedHudItem}, grappleDebug={runtime.Player.DebugGrappleItemSelected}, charge={runtime.Projectiles.Charge.FlareCounter}, cooldown={runtime.BombProjectiles.CooldownTimer.RawValue}, held={runtime.Controller1.Current:X}, new={runtime.Controller1.NewlyPressed:X}");
                 Console.Error.WriteLine($"Room width={level.Size.X}, Samus radius={samus.Kinematics.Radius.X}/{samus.Kinematics.Radius.Y}, speed={samus.HorizontalSpeed.BaseSpeed.Whole:X4}.{samus.HorizontalSpeed.BaseSpeed.Fraction:X4}+{samus.HorizontalSpeed.ExtraRunSpeed.Whole:X4}.{samus.HorizontalSpeed.ExtraRunSpeed.Fraction:X4}");

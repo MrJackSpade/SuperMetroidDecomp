@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Verification.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -366,10 +367,10 @@ internal static void VerifySavedGameLoadAppearance()
 
     var appearanceHistory = runtime.Player.IntroducedSamus.PoseHistory;
     SamusPoseId appearancePose = appearanceHistory.PreviousPose;
-    int appearanceMetadata = appearanceHistory.PreviousDirectionAndMovement;
+    SamusMovementType appearanceMetadata = appearanceHistory.PreviousMovement;
     // Distinct older sample exposes the otherwise invisible same-pose shift.
     appearanceHistory.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
-    appearanceHistory.LastDifferentDirectionAndMovement = 0x0308;
+    appearanceHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
     for (int frame = 0; frame < 0x0167; frame++)
         runtime.StepFrame(0);
     AssertTrue(runtime.SamusLoadAppearanceActive,
@@ -378,10 +379,10 @@ internal static void VerifySavedGameLoadAppearance()
         "appearance does not commit history before its completion call");
     runtime.StepFrame(0);
     AssertEqual(appearancePose, appearanceHistory.LastDifferentPose, "appearance completion shifts prior pose");
-    AssertEqual(appearanceMetadata, appearanceHistory.LastDifferentDirectionAndMovement, "appearance completion shifts prior metadata");
+    AssertEqual(appearanceMetadata, appearanceHistory.LastDifferentMovement, "appearance completion shifts prior metadata");
     AssertEqual(runtime.Player.IntroducedSamus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
-    AssertEqual(LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(runtime.Player.IntroducedSamus), (byte)SamusPoseMetadata.ReadMovementType(runtime.Player.IntroducedSamus)),
-        appearanceHistory.PreviousDirectionAndMovement, "appearance completion commits current metadata");
+    AssertEqual(SamusPoseMetadata.ReadMovementType(runtime.Player.IntroducedSamus),
+        appearanceHistory.PreviousMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
         runtime.Player.Samus is { Control.AlphaLocked: false },
         "saved-game appearance restores ordinary input on call 360");

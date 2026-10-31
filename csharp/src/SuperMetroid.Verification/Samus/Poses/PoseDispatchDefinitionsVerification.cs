@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using static SuperMetroid.Verification.Samus.Poses.PoseCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseProjectileOriginVerification;
@@ -37,7 +38,7 @@ internal static class PoseDispatchDefinitionsVerification
                 AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType(samus), "Live movement discriminator matches native");
                 AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType((SamusPoseId)pose), "Prospective movement discriminator matches native");
                 commit(samus, source);
-                AssertEqual(LittleEndianBytes.Word(facing, movement), samus.PoseHistory.PreviousDirectionAndMovement,
+                AssertEqual(SamusSnapshotWords.DecodeHistoryMovement(LittleEndianBytes.Word(facing, movement)), samus.PoseHistory.PreviousMovement,
                     "Actual history publisher retains native facing/movement word");
             }
             else

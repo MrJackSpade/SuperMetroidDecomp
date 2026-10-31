@@ -704,24 +704,24 @@ internal static void VerifySamusGrabbedByDraygon()
         var historySamus = new SamusState();
         var history = historySamus.PoseHistory;
         history.PreviousPose = SamusPoseId.SpinJumpRightPose;
-        history.PreviousDirectionAndMovement = 0x0308;
+        history.PreviousMovement = SamusMovementType.SpinJumping;
         history.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
-        history.LastDifferentDirectionAndMovement = 0x1404;
+        history.LastDifferentMovement = SamusMovementType.WallJumping;
         SamusPoseId grabbedPose = facingRight ? SamusPoseId.DraygonGrabbedNeutralRightPose : SamusPoseId.DraygonGrabbedNeutralLeftPose;
-        ushort grabbedMetadata = (ushort)(facingRight ? 0x1a08 : 0x1a04);
+        SamusMovementType grabbedMetadata = SamusMovementType.DraygonHeld;
         historySamus.DraygonGrabbed.Begin(historySamus, facingRight);
         AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "Draygon grab shifts previous pose");
-        AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "Draygon grab shifts previous metadata");
+        AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "Draygon grab shifts previous metadata");
         AssertEqual(grabbedPose, history.PreviousPose, "Draygon grab commits grabbed pose");
-        AssertEqual(grabbedMetadata, history.PreviousDirectionAndMovement, "Draygon grab commits grabbed metadata");
+        AssertEqual(grabbedMetadata, history.PreviousMovement, "Draygon grab commits grabbed metadata");
         historySamus.DraygonGrabbed.Begin(historySamus, facingRight);
         AssertEqual(grabbedPose, history.LastDifferentPose, "repeated Draygon grab still shifts history");
-        AssertEqual(grabbedMetadata, history.LastDifferentDirectionAndMovement, "repeated grab shifts metadata");
+        AssertEqual(grabbedMetadata, history.LastDifferentMovement, "repeated grab shifts metadata");
         historySamus.DraygonGrabbed.Release(historySamus);
         AssertEqual(grabbedPose, history.LastDifferentPose, "Draygon release retains prior grabbed pose");
-        AssertEqual(grabbedMetadata, history.LastDifferentDirectionAndMovement, "Draygon release retains prior grabbed metadata");
+        AssertEqual(grabbedMetadata, history.LastDifferentMovement, "Draygon release retains prior grabbed metadata");
         AssertEqual(historySamus.Pose, history.PreviousPose, "Draygon release commits standing pose");
-        AssertEqual(facingRight ? 8 : 4, history.PreviousDirectionAndMovement, "Draygon release commits standing metadata");
+        AssertEqual(SamusMovementType.Standing, history.PreviousMovement, "Draygon release commits standing metadata");
         AssertTrue(!history.AllowsWallJumpProbe, "Draygon release cannot retain pre-grab spin eligibility");
     }
 

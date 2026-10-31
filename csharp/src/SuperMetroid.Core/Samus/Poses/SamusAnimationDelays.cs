@@ -1,31 +1,16 @@
-using System.Buffers.Binary;
 using static SuperMetroid.Core.Samus.Poses.SamusAnimationDelayDefinitions;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>How a pose's animation delay list is found and read: the one reader of a delay-stream byte's command bit (#1461).</summary>
-[EncodingOwner("Samus animation delay stream bytes")]
+/// <summary>Which animation program each Samus pose animates by (#1473).</summary>
 internal static class SamusAnimationDelays
 {
-    /// <summary>Bit 7 of a delay-stream byte: set for an animation command (<c>$80-$FF</c>), clear for a frame delay.</summary>
-    private const byte CommandBit = 0x80;
-
-    /// <summary>Whether a delay-stream byte is an animation command rather than a frame delay (the handler's <c>BMI</c>).</summary>
-    internal static bool IsCommand(int delayOrCommand) => (delayOrCommand & CommandBit) != 0;
-
-    /// <summary>The delay program any pose byte animates by.</summary>
-    /// <remarks>
-    /// The three invalid pose bytes overread the pose table into the first delay bytes, whose words name a start in the
-    /// floor update residue.
-    /// </remarks>
-    internal static SamusAnimationDelayList ListForPose(SamusPoseId pose)
+    /// <summary>The animation program <paramref name="pose"/> animates by.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// The pose is one of the three numbers past the pose records, which no gameplay path gives Samus.
+    /// </exception>
+    internal static SamusAnimationProgram ProgramForPose(SamusPoseId pose)
     {
-        if (!SamusPoseNumbering.HasRecord(pose))
-        {
-            int position = (SamusPoseNumbering.Number(pose) - SamusPoseNumbering.RecordCount) * sizeof(ushort);
-            return new(null, BinaryPrimitives.ReadUInt16LittleEndian([SamusAnimationDelayPrograms.ByteAt(position),
-                SamusAnimationDelayPrograms.ByteAt(position + 1)]));
-        }
         return pose switch
         {
             SamusPoseId.ForwardFacingPowerSuitPose or
@@ -287,44 +272,4 @@ internal static class SamusAnimationDelays
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
     }
-
-    /// <summary>Read an immutable delay/command byte, retaining the reads that land in the transfer queue residue.</summary>
-    /// <remarks>
-    /// An index wraps within sixteen bits, so a program index past its end reads the following programs. An invalid pose's
-    /// program starts at a window position in the bank's low half, which aliases the floor update residue.
-    /// </remarks>
-    /// <param name="floorUpdateResidue">The session's floor update residue, which a read in the bank's low half reads.</param>
-    /// <param name="list">The program read.</param>
-    /// <param name="byteIndex">The index into the program, which wraps within sixteen bits.</param>
-    /// <param name="windows">Where the programs sit in their bank, which a read leaving them needs; null when none can.</param>
-    internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
-        SamusAnimationDelayList list, int byteIndex, SamusAnimationWindows? windows)
-    {
-        int position;
-        if (list.Segment is { } segment)
-        {
-            int offset = unchecked((ushort)(SamusAnimationDelayPrograms.segments[segment].Offset + byteIndex));
-            if (offset < ProgramsByteCount)
-                return SamusAnimationDelayPrograms.ByteAt(offset);
-            position = unchecked((ushort)(RequireWindows(windows).PoseDelayPrograms + offset));
-        }
-        else
-        {
-            // Invalid pose bytes $FD-$FF start their programs in the Mode 7 transfer queue's residue.
-            position = unchecked((ushort)(list.ResidueStart + byteIndex));
-        }
-        if (position < SuperMetroid.Core.Compatibility.FloorUpdateResidue.ResidueWindowEnd)
-            return (floorUpdateResidue ?? throw new InvalidOperationException(
-                "An invalid pose's delay overread reads the floor update residue; bind the session's to this Samus."))
-                .ByteAt(position - FloorUpdateResidueOffset);
-        int programOffset = position - RequireWindows(windows).PoseDelayPrograms;
-        if ((uint)programOffset < ProgramsByteCount)
-            return SamusAnimationDelayPrograms.ByteAt(programOffset);
-        throw new InvalidDataException(
-            $"Samus animation delay read at window position ${position:X4} is outside the compiled pose programs.");
-    }
-
-    /// <summary>The installed window positions a read leaving the pose programs needs.</summary>
-    private static SamusAnimationWindows RequireWindows(SamusAnimationWindows? windows) => windows ?? throw new InvalidOperationException(
-        "An animation delay read leaving the compiled pose programs needs the installed Samus overread catalog's animation windows.");
 }

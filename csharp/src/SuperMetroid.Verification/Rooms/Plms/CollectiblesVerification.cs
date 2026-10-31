@@ -888,26 +888,26 @@ internal static class CollectiblesVerification
             samus.Presentation.SuitColors = suitColors;
             var history = samus.PoseHistory;
             history.PreviousPose = SamusPoseId.SpinJumpRightPose;
-            history.PreviousDirectionAndMovement = 0x0308;
+            history.PreviousMovement = SamusMovementType.SpinJumping;
             history.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
-            history.LastDifferentDirectionAndMovement = 0x1404;
+            history.LastDifferentMovement = SamusMovementType.WallJumping;
             var pickup = new SamusSuitPickupState();
             pickup.Begin(samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
-            ushort initialMetadata = LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus));
+            SamusMovementType initialMetadata = SamusPoseMetadata.ReadMovementType(samus);
             AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
-            AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "suit entry shifts prior metadata");
+            AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "suit entry shifts prior metadata");
             AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");
-            AssertEqual(initialMetadata, history.PreviousDirectionAndMovement, "suit entry commits front metadata");
+            AssertEqual(initialMetadata, history.PreviousMovement, "suit entry commits front metadata");
             int frames = 0;
             var cgram = new SamusColourRig();
             while (pickup.Stage != SamusSuitPickupStage.LightBeamShrinks && frames++ < 2000) pickup.Step(samus, cgram.Samus);
             AssertEqual(SamusSuitPickupStage.LightBeamShrinks, pickup.Stage, "suit history fixture reaches reveal");
             AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
-            AssertEqual(initialMetadata, history.LastDifferentDirectionAndMovement, "suit reveal shifts initial metadata");
+            AssertEqual(initialMetadata, history.LastDifferentMovement, "suit reveal shifts initial metadata");
             AssertEqual(SamusPoseId.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");
-            AssertEqual(LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
-                history.PreviousDirectionAndMovement, "suit reveal commits suited metadata");
+            AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
+                history.PreviousMovement, "suit reveal commits suited metadata");
             AssertTrue(!history.AllowsWallJumpProbe, "suit reveal clears pre-acquisition spin eligibility");
         }
     }

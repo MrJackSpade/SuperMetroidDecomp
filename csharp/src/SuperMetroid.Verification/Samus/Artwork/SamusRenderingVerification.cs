@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Movement;
@@ -94,41 +93,19 @@ internal static void VerifySamusRenderingSlice()
         SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new SharedRandom() });
     AssertEqual(5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
 
-    // Pose $FD overreads the native pointer table and selects $91:0302, a mutable
-    // low-bank WRAM alias. This is the cartridge-faithful way to supply otherwise
-    // unreachable `$FA/$FC` command bytes after pose delay streams became compiled
-    // mechanics: editing the bank-$91 pointer table no longer changes its definition.
-    // Advance through the production death-animation entry point, which shares the
-    // delay interpreter but does not require valid gameplay movement metadata for $FD.
-    const SamusPoseId unusedInstructionPose = (SamusPoseId)0xfd;
-    var unusedInstructionResidue = new SuperMetroid.Core.Compatibility.RecordedFloorUpdateResidue();
-    var unusedInstructionSamus = new SamusState { Pose = unusedInstructionPose, FloorQueueResidue = unusedInstructionResidue };
-
-    // `$FA gg aa` selects `gg` only when both vertical speed halves are zero.
-    WriteUnusedPoseDelayInstruction(unusedInstructionResidue, [0x01, 0xfa, 0x31, 0x32]);
-    SamusPresentation.InitializeAnimation(unusedInstructionSamus);
-    SamusPresentation.AnimateDeathFrame(unusedInstructionSamus);
-    AssertEqual(SamusPoseId.MorphBallFallingRightPose, unusedInstructionSamus.PendingTransitionalPose,
-        "$FA` zero Y speed selects first pose byte");
-    unusedInstructionSamus.Kinematics.YSpeed = unusedInstructionSamus.Kinematics.YSpeed.WithFraction(1);
-    SamusPresentation.InitializeAnimation(unusedInstructionSamus);
-    SamusPresentation.AnimateDeathFrame(unusedInstructionSamus);
-    AssertEqual(SamusPoseId.MorphBallFallingLeftPose, unusedInstructionSamus.PendingTransitionalPose,
-        "$FA` nonzero Y subspeed selects second pose byte");
-
-    // `$FC eeee gg aa` uses a little-endian equipment word and distinct pose bytes.
-    WriteUnusedPoseDelayInstruction(unusedInstructionResidue, [0x01, 0xfc, 0x02, 0x00, 0x41, 0x42]);
-    unusedInstructionSamus.Kinematics.YSpeed = unusedInstructionSamus.Kinematics.YSpeed.WithFraction(0);
-    unusedInstructionSamus.EquippedItems = 0;
-    SamusPresentation.InitializeAnimation(unusedInstructionSamus);
-    SamusPresentation.AnimateDeathFrame(unusedInstructionSamus);
-    AssertEqual(SamusPoseId.MorphBallGroundLeftPose, unusedInstructionSamus.PendingTransitionalPose,
-        "$FC` unequipped branch selects first pose byte");
-    unusedInstructionSamus.EquippedItems = SamusEquipmentFlags.SpringBall;
-    SamusPresentation.InitializeAnimation(unusedInstructionSamus);
-    SamusPresentation.AnimateDeathFrame(unusedInstructionSamus);
-    AssertEqual(SamusPoseId.UnusedPose42, unusedInstructionSamus.PendingTransitionalPose,
-        "$FC` equipped branch selects second pose byte");
+    // The item transition's two poses, chosen by equipment (#1473). Only the unused poses $3F/$40 hold one in retail;
+    // pose $3F's run is one zero-tick frame, so the death-animation entry point, which shares the interpreter but needs no
+    // gameplay movement metadata, reaches the transition on its first tick.
+    var itemTransitionSamus = new SamusState { Pose = SamusPoseId.UnusedPose3F };
+    SamusPresentation.InitializeAnimation(itemTransitionSamus);
+    SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
+    AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.PendingTransitionalPose,
+        "an item transition without Spring Ball selects its unequipped pose");
+    itemTransitionSamus.EquippedItems = SamusEquipmentFlags.SpringBall;
+    SamusPresentation.InitializeAnimation(itemTransitionSamus);
+    SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
+    AssertEqual(SamusPoseId.SpringBallGroundRightPose, itemTransitionSamus.PendingTransitionalPose,
+        "an item transition with Spring Ball selects its equipped pose");
 
     // Restore the ordinary debugger scenario before verifying frame-zero drawing below.
     samus.Health = 99;
@@ -205,9 +182,9 @@ internal static void VerifySamusRenderingSlice()
     samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
     samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
     samus.PoseHistory.PreviousPose = SamusPoseId.SpinJumpRightPose;
-    samus.PoseHistory.PreviousDirectionAndMovement = 0x0308;
+    samus.PoseHistory.PreviousMovement = SamusMovementType.SpinJumping;
     samus.PoseHistory.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
-    samus.PoseHistory.LastDifferentDirectionAndMovement = 0x1404;
+    samus.PoseHistory.LastDifferentMovement = SamusMovementType.WallJumping;
     // A $18 live radius takes MakeSamusFaceForward's no-lift branch, so the drawing
     // checks below keep Samus at the seeded Y.
     samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(0x18);
@@ -215,11 +192,11 @@ internal static void VerifySamusRenderingSlice()
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
     AssertEqual(SamusPoseId.SpinJumpRightPose, samus.PoseHistory.LastDifferentPose,
         "forward setup shifts previous pose, not stale older walljump history");
-    AssertEqual(0x0308, samus.PoseHistory.LastDifferentDirectionAndMovement,
+    AssertEqual(SamusMovementType.SpinJumping, samus.PoseHistory.LastDifferentMovement,
         "forward setup shifts packed direction/movement metadata");
     AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "forward setup commits new pose");
-    AssertEqual(LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
-        samus.PoseHistory.PreviousDirectionAndMovement, "forward setup commits new metadata");
+    AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
+        samus.PoseHistory.PreviousMovement, "forward setup commits new metadata");
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
     AssertEqual(samus.Pose, samus.PoseHistory.LastDifferentPose,
         "same-pose forward setup still shifts native history");
@@ -1034,16 +1011,6 @@ static void SeedPoseNineSamusData(TestAddressSpace bus)
     // zero choose the same top set/position and bottom set/position record.
     WriteTestWord(bus, 0x92d960, 0xdc48);
     bus.WriteBytes(0x92dc48, [0x07, 0x0c, 0x00, 0x06]);
-}
-
-/// <summary>
-/// Installs a delay stream at <c>$91:0302</c>, the Mode 7 transfer queue residue byte that pose
-/// <c>$FD</c>'s overread of the bank-$91 delay pointer table selects.
-/// </summary>
-static void WriteUnusedPoseDelayInstruction(SuperMetroid.Core.Compatibility.RecordedFloorUpdateResidue residue, ReadOnlySpan<byte> stream)
-{
-    for (int index = 0; index < stream.Length; index++)
-        residue.Write(0x0302 - SamusAnimationDelayDefinitions.FloorUpdateResidueOffset + index, stream[index]);
 }
 
 /// <summary>

@@ -243,7 +243,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     AssertTrue(releasedWallJump.Kinematics.Position.X.RawValue > beforeReleasedWallX,
         "walljump movement bypasses held-direction gate before pose fallback is applied");
     var ineligibleHistory = CreateSpinSamus(animationFrame: 0);
-    ineligibleHistory.PoseHistory.LastDifferentDirectionAndMovement = 0;
+    ineligibleHistory.PoseHistory.LastDifferentMovement = SamusMovementType.Standing;
     ineligibleHistory.Kinematics.Position = ineligibleHistory.Kinematics.Position.WithFractionX(0x4321);
     var rejectedContact = SamusAerialMovement.StepSpinJump(
 level, ineligibleHistory, (ControllerButton.Left | ControllerButton.A), 0, 0);
@@ -412,7 +412,7 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
     {
         var samus = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(52, 48)) };
         // This fixture begins mid-spin after a spin-direction transition.
-        samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
+        samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, 0);
         samus.AnimationFrame = animationFrame;
@@ -429,7 +429,7 @@ level, heldOnly, (ControllerButton.Left | ControllerButton.A), 0, 0);
             Pose = SamusPoseId.SpinJumpLeftPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(92, 48)),
         };
-        samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0308;
+        samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus, 0);
         samus.AnimationFrame = animationFrame;

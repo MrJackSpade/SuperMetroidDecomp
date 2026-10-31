@@ -494,7 +494,7 @@ public sealed class SuperMetroidGame
         if (Session.Runtime?.Player.Samus is not { } samus)
             return location + "; Samus=not initialized";
         return location + $"; pose={samus.Pose}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RawValue}; " +
-            $"animationList={samus.AnimationDelayList}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
+            $"animatedPose={samus.AnimatedPose}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
             $"input=${Session.Runtime.Controller1.Current:X}; newlyPressed=${Session.Runtime.Controller1.NewlyPressed:X}; inputLocked={samus.Control.AlphaLocked}; " +
             $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +
             $"escapeTimer={Session.Runtime.EscapeTimer.Phase}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidPhysicsType}; " +

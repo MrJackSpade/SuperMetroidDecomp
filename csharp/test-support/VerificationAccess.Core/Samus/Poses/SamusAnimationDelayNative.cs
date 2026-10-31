@@ -1,63 +1,12 @@
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>Verification's native view of Samus's pose delay programs: the bank-$91 address of each.</summary>
+/// <summary>Verification's native view of Samus's pose animation programs: where the cartridge's table of them sits.</summary>
 internal static class SamusAnimationDelayNative
 {
-    /// <summary>$91:B20A: where the pose delay programs start in bank $91.</summary>
-    private const ushort DelayStreamsStart = 0xb20a;
-
-    /// <summary>The bank-$91 address of <paramref name="list"/>'s first byte.</summary>
-    internal static ushort Address(SamusAnimationDelayList list) => list.Segment is { } segment
-        ? (ushort)(DelayStreamsStart + SamusAnimationDelayPrograms.segments[segment].Offset)
-        : checked((ushort)list.ResidueStart);
-
-    /// <summary>The pose delay programs by their bank-$91 addresses.</summary>
+    /// <summary>The cartridge place of the pose animation program table, which sparse cartridge fixtures still seed.</summary>
     extension(SamusAnimationDelayDefinitions)
     {
-        /// <summary>$91:B010: the table of 253 pose animation pointers.</summary>
+        /// <summary>$91:B010: the table of 253 pose animation program words.</summary>
         internal static int PointerTableAddress => 0x91B010;
-        /// <summary>$91:B20A: the first delay-program byte, immediately after the pose pointer table.</summary>
-        internal static int DelayStreamsAddress => 0x91B20A;
-        /// <summary>$91:B5D1: the end of the pose delay programs, before the running cadences.</summary>
-        internal static int DelayStreamsEndExclusive => 0x91B5D1;
-
-        /// <summary>The bank-$91 address of the program <paramref name="pose"/> animates by.</summary>
-        internal static ushort PointerForPose(SamusPoseId pose) => Address(SamusAnimationDelays.ListForPose(pose));
-
-        /// <summary>Read the bounded native table image for byte-for-byte verification.</summary>
-        internal static byte ReadCompiledByte(int address)
-        {
-            if (address is >= 0x91B010 and < 0x91B20A)
-            {
-                int byteIndex = address - 0x91B010;
-                ushort pointer = Address(SamusAnimationDelays.ListForPose((SamusPoseId)(byteIndex / 2)));
-                return unchecked((byte)(pointer >> ((byteIndex & 1) * 8)));
-            }
-            if (address is >= 0x91B20A and < 0x91B5D1)
-                return SamusAnimationDelayPrograms.ByteAt(address - 0x91B20A);
-            throw new ArgumentOutOfRangeException(nameof(address), address,
-                "Address is outside the compiled Samus animation definition catalog.");
-        }
-    }
-
-    /// <summary>Reads pose delay bytes by the bank-$91 address their program starts at.</summary>
-    extension(SamusAnimationDelays)
-    {
-        /// <summary>Reads a delay byte from the program starting at bank-$91 <paramref name="pointer"/>.</summary>
-        internal static byte ReadAnimationByte(SuperMetroid.Core.Compatibility.IFloorUpdateResidue? floorUpdateResidue,
-            ushort pointer, int byteIndex) =>
-            SamusAnimationDelays.ReadAnimationByte(floorUpdateResidue, List(pointer), byteIndex, InstalledFixtures.SamusOverreads.AnimationWindows);
-    }
-
-    /// <summary>The program starting at bank-$91 <paramref name="pointer"/>.</summary>
-    private static SamusAnimationDelayList List(ushort pointer)
-    {
-        if (pointer < 0x8000)
-            return new(null, pointer);
-        for (int segment = 0; segment < SamusAnimationDelayPrograms.segments.Length; segment++)
-            if (Address(new(segment, 0)) == pointer)
-                return new(segment, 0);
-        throw new InvalidDataException($"No pose delay program starts at $91:{pointer:X4}.");
     }
 }

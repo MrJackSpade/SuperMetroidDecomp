@@ -45,9 +45,9 @@ internal static class CeresEscapeHandoffVerification
         RoomLevelData emptyRoom = CreateEmptyRoom(new(32, 32));
 
         samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseHistory.PreviousDirectionAndMovement = 8;
+        samus.PoseHistory.PreviousMovement = SamusMovementType.Standing;
         samus.PoseHistory.LastDifferentPose = SamusPoseId.SpinJumpLeftPose;
-        samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
+        samus.PoseHistory.LastDifferentMovement = SamusMovementType.SpinJumping;
         samus.CeresRidleyEjection.Request(samus);
         AssertEqual(SamusPoseId.SpinJumpLeftPose, samus.PoseHistory.LastDifferentPose,
             "installing the ejection handler does not publish pose history early");
@@ -67,9 +67,9 @@ internal static class CeresEscapeHandoffVerification
         AssertTrue(initializationWasPending && !samus.CeresRidleyEjection.InitializationPending,
             "first ejection gamma initializes state");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "ejection initialization shifts prior pose");
-        AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "ejection initialization shifts prior metadata");
+        AssertEqual(SamusMovementType.Standing, samus.PoseHistory.LastDifferentMovement, "ejection initialization shifts prior metadata");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.PoseHistory.PreviousPose, "ejection initialization publishes hurt pose");
-        AssertEqual(0x0a08, samus.PoseHistory.PreviousDirectionAndMovement, "ejection initialization publishes hurt metadata");
+        AssertEqual(SamusMovementType.Knockback, samus.PoseHistory.PreviousMovement, "ejection initialization publishes hurt metadata");
         AssertEqual(xBeforeInitialization, samus.Kinematics.Position.X.RawValue, "first gamma performs no horizontal movement");
         AssertEqual(yBeforeInitialization, samus.Kinematics.Position.Y.RawValue, "first gamma performs no vertical movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");

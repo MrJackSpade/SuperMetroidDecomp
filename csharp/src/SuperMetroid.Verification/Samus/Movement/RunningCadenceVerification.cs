@@ -1,73 +1,65 @@
-using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.AssetExtraction.Samus;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Input;
-using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
 
 namespace SuperMetroid.Verification.Samus.Movement;
 
-/// <summary>Checks compiled Samus running-animation cadence and speed-booster stage selection against native bytes.</summary>
+/// <summary>Checks Samus's typed running cadences and the Speed Booster stage selection against the cartridge's (#1473).</summary>
 internal static class RunningCadenceVerification
 {
-    /// <summary>Checks authored delay streams, queue-selected aliases, and the production animation-stage interceptor.</summary>
+    /// <summary>The delay the residue holds where the unauthored cadence's first frame reads it.</summary>
+    private const byte ResidueDelay = 0x35;
+
+    /// <summary>
+    /// Checks every authored cadence's delays and restart countdowns against the cartridge's, the unauthored cadence's
+    /// residue reads, and the production stage interceptor over every counter it can hold.
+    /// </summary>
     internal static void VerifyRunningCadence(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        var bus = new RunningCadenceReadGuard(rom);
-        // Stage five's delay list aliases the Mode 7 queue residue; it mirrors the guard's mutable delay byte.
-        var residue = new SuperMetroid.Core.Compatibility.RecordedFloorUpdateResidue();
-        int stageFiveOffset = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(
-            SamusRunningCadenceDefinitions.MaximumSoundQueueSelection) - SamusAnimationDelayDefinitions.FloorUpdateResidueOffset;
-        residue.Write(stageFiveOffset, bus.MutableDelay);
-        Suite(nameof(VerifyOrdinaryRunningPointer), () => VerifyOrdinaryRunningPointer(rom));
-        Suite(nameof(VerifyOrdinaryRunningStream), () => VerifyOrdinaryRunningStream(rom));
-        Suite(nameof(VerifyBoostRunningPointers), () => VerifyBoostRunningPointers(rom));
-        Suite(nameof(VerifyBoostRunningStream0), () => VerifyBoostRunningStream0(rom));
-        Suite(nameof(VerifyBoostRunningStream1), () => VerifyBoostRunningStream1(rom));
-        Suite(nameof(VerifyBoostRunningStream2), () => VerifyBoostRunningStream2(rom));
-        Suite(nameof(VerifyBoostRunningStream3), () => VerifyBoostRunningStream3(rom));
-        Suite(nameof(VerifyBoostRunningStream4), () => VerifyBoostRunningStream4(rom));
-        Suite(nameof(VerifyBoostRunningResets), () => VerifyBoostRunningResets(rom));
-        var ordinary = new Func<SuperMetroid.Core.Compatibility.IFloorUpdateResidue?, int, byte>(
-            (residue, index) => SamusPresentation.ReadDefaultRunningAnimationByte(residue, index, InstalledFixtures.SamusOverreads.AnimationWindows));
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        AssertSequenceEqual(SamusRunningCadenceCodec.OrdinaryDelays(cartridge), SamusRunningCadenceDefinitions.OrdinaryDelays, "ordinary running delays");
+        IReadOnlyList<int>[] stages =
+        [
+            SamusRunningCadenceDefinitions.BoostStage0Delays,
+            SamusRunningCadenceDefinitions.BoostStage1Delays,
+            SamusRunningCadenceDefinitions.BoostStage2Delays,
+            SamusRunningCadenceDefinitions.BoostStage3Delays,
+            SamusRunningCadenceDefinitions.BoostStage4Delays,
+        ];
+        for (int stage = 0; stage < stages.Length; stage++)
+            AssertSequenceEqual(SamusRunningCadenceCodec.BoostDelays(cartridge, stage), stages[stage], $"boost stage {stage} delays");
+        for (int selection = 0; selection <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; selection++)
+            AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), SamusRunningCadences.CountdownAfterAdvance(selection),
+                $"restart countdown after selection {selection}");
+        AssertThrows<InvalidDataException>(() => SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadenceDefinitions.MaximumSoundQueueSelection + 1),
+            "no selection lies past what the echo's queue request reports");
+
+        // The unauthored cadence reads the residue byte the cartridge's stage-five stream word names.
+        int firstResidueByte = SamusRunningCadenceCodec.UnauthoredFirstResidueByte(cartridge);
+        var residue = new RecordedFloorUpdateResidue();
+        for (int frame = 0; frame < UnauthoredBoostCadence.FrameCount; frame++)
+            residue.Write(firstResidueByte + frame, (byte)(ResidueDelay + frame));
+        for (int frame = 0; frame < UnauthoredBoostCadence.FrameCount; frame++)
+            AssertEqual(ResidueDelay + frame, SamusRunningCadences.Delay(residue, SamusRunningCadence.UnauthoredBoost, frame),
+                $"unauthored cadence frame {frame} reads the residue");
+        AssertThrows<ArgumentOutOfRangeException>(() => SamusRunningCadences.Delay(residue, SamusRunningCadence.Ordinary, SamusRunningCadenceCodec.FrameCount),
+            "a running frame past the tenth has no delay");
+
         var speed = new SamusHorizontalSpeedState();
-
-        // Every authored frame and loop command remains byte-exact. Reads may cross into
-        // another member of this bounded catalog or wrap to the genuine mutable alias,
-        // but unrelated high-bank code is not accepted as animation cadence.
-        for (ushort index = 0; index <= 10; index++)
-            AssertEqual(rom.ReadCartridgeByte(0x91b5d3 + index), ordinary(residue, index), "Ordinary authored cadence");
-        AssertEqual(rom.ReadCartridgeByte(0x91b5de), ordinary(residue, 11), "Ordinary restored index can reach the next compiled definition");
-        AssertEqual(bus.MutableDelay, ordinary(residue, 0x4d30), "Ordinary restored index retains low-bank wrapping");
-        AssertThrows<InvalidDataException>(
-            () => ordinary(residue, 0x0100),
-            "Ordinary restored index cannot parse unrelated high-bank ROM");
-
-        // The counter's own stage reaches full boost; the sound-queue selection five is read below through the echo.
         for (int stage = 0; stage <= SamusSpeedBoostCounter.FullStage; stage++)
         {
             speed.SpeedBoostCounter = new SamusSpeedBoostCounter(stage, 0);
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + stage * 2));
-            for (ushort index = 0; index <= 10; index++)
-            {
-                int address = 0x910000 | unchecked((ushort)(pointer + index));
-                byte expected = (SnesAddressMath.OffsetInBank(address)) < 0x8000
-                    ? bus.ReadUncompiledByte(address)
-                    : rom.ReadCartridgeByte(address);
-                AssertEqual(expected, speed.ReadSpeedBoosterAnimationByte(residue, index, InstalledFixtures.SamusOverreads.AnimationWindows), "Native Max6 cadence byte selection");
-            }
+            for (int frame = 0; frame < SamusRunningCadenceCodec.FrameCount; frame++)
+                AssertEqual(stages[stage][frame], speed.SpeedBoosterDelay(residue, frame), "the counter's stage selects its cadence");
         }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => new SamusSpeedBoostCounter(SamusSpeedBoostCounter.FullStage + 2, 0),
-            "A stage past full boost is not a Speed Booster stage, so it cannot reinterpret adjacent code as a pointer");
 
         if (definitionsOnly) return;
 
-        // Exercise every stored counter word through the real command interceptor.
-        // For the sound-call case, A=$0500 deliberately selects the adjacent-data bug.
+        // Exercise every stored counter through the real command interceptor. A sound call reporting occupancy five
+        // selects the unauthored cadence.
         foreach (bool momentum in new[] { false, true })
         foreach (bool running in new[] { false, true })
         foreach (bool dash in new[] { false, true })
@@ -81,11 +73,13 @@ internal static class RunningCadenceVerification
             ushort next = admitted ? decremented : (ushort)raw;
             bool sound = intercept && (next & 0x0400) == 0 && ((next + 0x0100) & 0x0400) != 0;
             if (intercept && (next & 0x0400) == 0) next = unchecked((ushort)(next + 0x0100));
-            int selection = sound ? 5 : LittleEndianBytes.HighByte(next);
-            ushort expectedTimer = intercept
-                ? unchecked((ushort)(raw + (selection == 5 ? bus.MutableDelay : rom.ReadCartridgeByte(0x910000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + selection * 2))))))
-                : (ushort)0;
-            if (intercept) next = (ushort)((LittleEndianBytes.HighByteInPlace(next)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + selection * 2)));
+            int selection = sound ? SamusRunningCadenceCodec.UnauthoredSelection : LittleEndianBytes.HighByte(next);
+            int firstDelay = selection == SamusRunningCadenceCodec.UnauthoredSelection
+                ? ResidueDelay
+                : SamusRunningCadenceCodec.BoostDelays(cartridge, selection)[0];
+            ushort expectedTimer = intercept ? unchecked((ushort)(raw + firstDelay)) : (ushort)0;
+            if (intercept)
+                next = (ushort)(LittleEndianBytes.HighByteInPlace(next) | SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection));
             int calls = 0;
             speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(stage, low);
             speed.EchoSoundRequested = false; speed.ContactDamageIndex = SamusContactDamageIndex.None;
@@ -101,7 +95,7 @@ internal static class RunningCadenceVerification
             }
             bool actual = speed.TryAdvanceSpeedBoosterAnimationStage(residue,
                 running ? SamusMovementType.Running : SamusMovementType.Standing,
-                dash ? ControllerButton.B : 0, (ushort)raw, ref frame, out int timer,
+                dash ? ControllerButton.B : 0, raw, ref frame, out int timer,
                 () => { calls++; return SoundQueueAdmission.Admitted(5); });
             AssertEqual(intercept, actual, "Native boost interception gates and low-byte countdown");
             AssertEqual(SamusSnapshotWords.DecodeSpeedBoostCounter(next), speed.SpeedBoostCounter, "Native counter decrement, stage advance and cadence reset");
@@ -112,25 +106,21 @@ internal static class RunningCadenceVerification
             AssertEqual(SamusContactDamageIndex.None, speed.ContactDamageIndex, "Animation cannot publish movement-owned boost contact damage");
         }
 
-        // The queue's admission, not the already-published stage word, selects both reads.
-        // Exhaust the six occupancies Max6 can admit with every frame buffer low byte;
-        // selection five must retain the live WRAM delay alias.
-        for (int stage = 0; stage <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; stage++)
+        // The queue's report, not the already-published stage, selects both the restart countdown and the first delay.
+        for (int selection = 0; selection <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; selection++)
         for (int low = 0; low <= byte.MaxValue; low++)
         {
-            int accumulator = LittleEndianBytes.Word(unchecked((byte)low), unchecked((byte)stage));
-            bus.MutableDelay = (byte)accumulator;
-            residue.Write(stageFiveOffset, bus.MutableDelay);
+            int buffer = LittleEndianBytes.Word(unchecked((byte)low), unchecked((byte)selection));
             speed.HasRunningMomentum = true; speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
             int frame = 9;
             speed.TryAdvanceSpeedBoosterAnimationStage(residue, SamusMovementType.Running, ControllerButton.B,
-                (ushort)accumulator, ref frame, out int timer, () => SoundQueueAdmission.Admitted(stage));
-            AssertEqual(SamusSnapshotWords.DecodeSpeedBoostCounter(checked((ushort)(0x0400 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + stage * 2))))), speed.SpeedBoostCounter, "All returned queue words retain native reset selection");
-            byte expectedDelay = stage == 5
-                ? bus.MutableDelay
-                : rom.ReadCartridgeByte(0x910000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + stage * 2)));
-            AssertEqual(unchecked((ushort)(accumulator + expectedDelay)), timer,
-                "Queue-selected delay includes live mutable aliases");
+                buffer, ref frame, out int timer, () => SoundQueueAdmission.Admitted(selection));
+            AssertEqual(new SamusSpeedBoostCounter(SamusSpeedBoostCounter.FullStage, SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection)),
+                speed.SpeedBoostCounter, "All reported selections restart the countdown the cartridge's restart word holds");
+            int expectedDelay = selection == SamusRunningCadenceCodec.UnauthoredSelection
+                ? ResidueDelay
+                : SamusRunningCadenceCodec.BoostDelays(cartridge, selection)[0];
+            AssertEqual(unchecked((ushort)(buffer + expectedDelay)), timer, "Queue-selected first delay, including the residue's");
         }
 
         speed.HasRunningMomentum = true;
@@ -145,7 +135,7 @@ internal static class RunningCadenceVerification
                 ref invalidFrame,
                 out _,
                 () => SoundQueueAdmission.Admitted(6)),
-            "An occupancy Max6 cannot admit fails before adjacent code becomes cadence metadata");
+            "An occupancy the queue cannot admit selects no cadence");
 
         speed = new SamusHorizontalSpeedState();
         speed.HandleExtraRunSpeed(SamusMovementType.Running, ControllerButton.B, true);
@@ -156,101 +146,6 @@ internal static class RunningCadenceVerification
         AssertEqual(new SamusSpeedBoostCounter(0, 1), speed.SpeedBoostCounter, "Pause equipment reconciliation seeds native countdown");
         AssertEqual(0, speed.SpecialPaletteTimer.RawValue, "Pause reconciliation palette timer differs from initial run");
         AssertEqual(0, speed.CyclePaletteStep, "Pause reconciliation palette frame reset");
-        Console.WriteLine("Running cadence: 90 bounded bytes, all native Max6 selections, 10240 command/gate cases, 1536 sound-return words, mutable stage-five alias, and loud non-native rejection pass.");
-    }
-
-    /// <summary>Compares the ordinary running-list pointer with its native bank-$91 word.</summary>
-    private static void VerifyOrdinaryRunningPointer(SuperMetroidAddressSpace rom)
-    {
-        Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5d1, 2));
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91b5d1),
-            SamusRunningCadenceDefinitions.DefaultRunningDelayListPointer, "Original ordinary pointer");
-    }
-
-    /// <summary>Checks the eleven ordinary running delay and loop bytes.</summary>
-    private static void VerifyOrdinaryRunningStream(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5d3, 11);
-    /// <summary>Checks the first speed-booster stage's eleven cadence bytes.</summary>
-    private static void VerifyBoostRunningStream0(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5e8, 11);
-    /// <summary>Checks the second speed-booster stage's eleven cadence bytes.</summary>
-    private static void VerifyBoostRunningStream1(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5f3, 11);
-    /// <summary>Checks the third speed-booster stage's eleven cadence bytes.</summary>
-    private static void VerifyBoostRunningStream2(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b5fe, 11);
-    /// <summary>Checks the fourth speed-booster stage's eleven cadence bytes.</summary>
-    private static void VerifyBoostRunningStream3(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b609, 11);
-    /// <summary>Checks the fifth speed-booster stage's eleven cadence bytes.</summary>
-    private static void VerifyBoostRunningStream4(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b614, 11);
-
-    /// <summary>Checks all five stage pointers and the sixth sound-queue alias against native words.</summary>
-    private static void VerifyBoostRunningPointers(SuperMetroidAddressSpace rom)
-    {
-        Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5de, 10));
-        for (byte selection = 0; selection <= 5; selection++)
-        {
-            int address = 0x91b5de + 2 * selection;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(selection), "Original pointer including stage5 alias");
-        }
-        for (int selection = 6; selection <= byte.MaxValue; selection++)
-            AssertThrows<InvalidDataException>(() => SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer((byte)selection), "Pointer unsupported stage");
-    }
-
-    /// <summary>Checks stage reset words, including the adjacent pose-zero alias, and rejects unsupported selections.</summary>
-    private static void VerifyBoostRunningResets(SuperMetroidAddressSpace rom)
-    {
-        Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b61f, 12));
-        for (byte selection = 0; selection <= 5; selection++)
-        {
-            int address = 0x91b61f + 2 * selection;
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
-                SamusRunningCadenceBytes.ReadResetWord(selection), "Original reset including pose0 alias");
-        }
-        for (int selection = 6; selection <= byte.MaxValue; selection++)
-            AssertThrows<InvalidDataException>(() => SamusRunningCadenceBytes.ReadResetWord((byte)selection), "Reset unsupported stage");
-    }
-
-    /// <summary>Compares one bounded compiled cadence byte range with retail cartridge bytes.</summary>
-    private static void VerifyCadenceBytes(SuperMetroidAddressSpace rom, int start, int count)
-    {
-        for (int address = start; address < start + count; address++)
-            AssertEqual(rom.ReadCartridgeByte(address), SamusRunningCadenceDefinitions.ReadCompiledByte(address), "Original bounded cadence byte");
-    }
-    /// <summary>Forbids compiled cadence ROM reads while exposing the live WRAM delay alias and fallback address signature.</summary>
-    internal sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
-        ISnesWritableAddressSpace, IImportCartridgeSource, ISnesMutableMemory
-    {
-        /// <summary>Mutable delay byte observed when the native stage-five pointer wraps into low-bank memory.</summary>
-        public byte MutableDelay = 0x35;
-        /// <summary>Routes cartridge reads through the compiled-range guard.</summary>
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        /// <summary>Rejects native cadence bytes and delegates other addresses to the source or constructed alias.</summary>
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x91b5d1 and < 0x91b62b)
-                throw new InvalidOperationException($"Compiled running cadence read ROM ${address:X6}.");
-            return ReadUncompiledByte(address);
-        }
-        /// <summary>Uses a constructed signature for unimplemented hardware addresses reached by restored indexes, and preserves the mutable delay alias.</summary>
-        public byte ReadUncompiledByte(int address) => address == 0x910303 ? MutableDelay :
-            address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ LittleEndianBytes.HighByte(unchecked((ushort)address)))) : ReadSourceByte(address);
-        /// <summary>Exposes the mutable delay alias and otherwise forwards WRAM reads.</summary>
-        public byte ReadWorkRamByte(int address) => address == 0x7e0303 ? MutableDelay : SourceMemory.ReadWorkRamByte(address);
-        /// <summary>Forwards writes without changing the constructed read behavior.</summary>
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        /// <summary>Requires the source to expose WRAM and SRAM for low-bank fallback reads.</summary>
-        private ISnesMutableMemory SourceMemory => source as ISnesMutableMemory ??
-            throw new InvalidOperationException("Running-cadence guard requires WRAM and SRAM.");
-
-        /// <summary>The source byte the CPU maps at <paramref name="address"/>: its cartridge ROM, WRAM or SRAM.</summary>
-        private byte ReadSourceByte(int address) => SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
-        {
-            SnesDmaSourceKind.WorkRam => SourceMemory.ReadWorkRamByte(address),
-            SnesDmaSourceKind.Cartridge => source.ReadCartridgeByte(address),
-            SnesDmaSourceKind.Unmapped => throw new InvalidOperationException(
-                $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
-            _ => throw new InvalidOperationException(
-                $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
-        };
+        Console.WriteLine("Running cadence: six typed cadences and six restarts match the cartridge, the unauthored cadence reads the residue, and 10240 command/gate cases and 1536 queue reports pass.");
     }
 }

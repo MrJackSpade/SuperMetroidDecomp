@@ -195,9 +195,9 @@ internal static class NativeSnapshotImportVerification
         SamusPresentation.InitializeAnimation(samus);
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
         samus.PoseHistory.PreviousPose = (SamusPoseId)W(NativeSnapshotMemory.PreviousPose);
-        samus.PoseHistory.PreviousDirectionAndMovement = W(NativeSnapshotMemory.PreviousDirection);
+        samus.PoseHistory.PreviousMovement = SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection));
         samus.PoseHistory.LastDifferentPose = (SamusPoseId)W(NativeSnapshotMemory.LastDifferentPose);
-        samus.PoseHistory.LastDifferentDirectionAndMovement = W(NativeSnapshotMemory.LastDifferentDirection);
+        samus.PoseHistory.LastDifferentMovement = SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection));
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.BaseSpeed), W(NativeSnapshotMemory.BaseFraction));
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.ExtraSpeed), W(NativeSnapshotMemory.ExtraFraction));
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationModeImport.FromNative(W(NativeSnapshotMemory.AccelerationMode));

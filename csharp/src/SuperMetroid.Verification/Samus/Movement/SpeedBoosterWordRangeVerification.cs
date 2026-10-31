@@ -42,7 +42,7 @@ internal static class SpeedBoosterWordRangeVerification
         int advancingFrame = 7;
         AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, ControllerButton.B,
             animationFrameBuffer: 0, ref advancingFrame, out _), "cadence one expires and advances the stage");
-        AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadenceBytes.ReadResetWord(2)), advancing.SpeedBoostCounter,
+        AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadences.CountdownAfterAdvance(2)), advancing.SpeedBoostCounter,
             "stage two with its reloaded cadence");
 
         var range = new SamusHorizontalSpeedState();

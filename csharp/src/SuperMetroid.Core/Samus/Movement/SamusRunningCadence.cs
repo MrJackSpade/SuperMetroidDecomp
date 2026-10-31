@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>The running delay stream Samus animates by: ordinary running, or one Speed Booster stage.</summary>
+/// <summary>The running cadence Samus animates by: ordinary running, or one Speed Booster stage.</summary>
 internal enum SamusRunningCadence
 {
     /// <summary>Ordinary running: ten two-tick frames.</summary>
@@ -15,6 +15,9 @@ internal enum SamusRunningCadence
     BoostStage3,
     /// <summary>Speed Booster stage four: one tick a frame.</summary>
     BoostStage4,
-    /// <summary>The fifth selection a full sound queue returns: a stream read from the floor update residue.</summary>
-    SoundQueueClobber,
+    /// <summary>
+    /// The cadence a full sound queue selects, which the game never authored
+    /// (<see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/>).
+    /// </summary>
+    UnauthoredBoost,
 }

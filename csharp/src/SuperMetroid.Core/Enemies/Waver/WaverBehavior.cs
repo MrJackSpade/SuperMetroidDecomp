@@ -47,23 +47,22 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Waver</c> at <c>$A3:86ED</c>.</summary>
     internal static void InitializeWaver(RoomEnemySlot slot)
     {
-        bool facingRight = slot.SpawnSettings<WaverSpawnSettings>().Facing == HorizontalDirection.Right;
-        int signedSpeed = facingRight
+        HorizontalDirection facing = slot.SpawnSettings<WaverSpawnSettings>().Facing;
+        int signedSpeed = facing == HorizontalDirection.Right
             ? WaverHorizontalSpeedFixed
             : -WaverHorizontalSpeedFixed;
         var state = new WaverEnemyState
         {
             XVelocity = SignedSixteenSixteen.FromRaw(signedSpeed),
-            CurrentInstructionListIndex = WaverAnimationSelector.None,
+            InstalledAnimation = WaverProgram.SteadyFacingLeft,
             Angle = RotationAngle.Zero,
             SpinFinished = false,
-            RequestedInstructionListIndex = facingRight ? WaverAnimationSelector.FacingRight : WaverAnimationSelector.None,
+            RequestedAnimation = WaverPrograms.Steady(facing),
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // The native initializer first installs the left steady animation and then invokes the
-        // change detector. Parameter bit zero therefore changes only right-facing spawns;
-        // left-facing spawns intentionally observe current==requested and keep this one.
+        // The initializer first installs the left steady animation and then asks for the spawn's facing. Only
+        // right-facing spawns therefore change it; left-facing spawns ask for the installed one and keep it.
         state.Program = AnimationProgramCursor<WaverProgram>.Start(WaverProgram.SteadyFacingLeft);
         SetWaverProgram(slot, state);
     }
@@ -87,9 +86,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             // as two words. For every initialized Waver this is exactly a signed 16.16
             // negation; expressing that value directly preserves the native ±1.5 px/frame.
             state.XVelocity = SignedSixteenSixteen.FromRaw(unchecked(-horizontalDisplacement));
-            state.RequestedInstructionListIndex =
-                (state.RequestedInstructionListIndex ^ WaverAnimationSelector.FacingRight) &
-                WaverAnimationSelector.FacingRight;
+            // A wall turns Waver around and ends any spin.
+            state.RequestedAnimation = WaverPrograms.TurnedAround(state.RequestedAnimation);
             SetWaverProgram(slot, state);
         }
         else
@@ -108,10 +106,10 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Once per half-wave, the phase's position within its half-turn equals $38. Waver temporarily swaps to
-        // the four-map spin list without changing the facing bit.
+        // the four-map spin without changing its facing.
         if (state.Angle.ToByteAngle().HalfWaveIndex == 56)
         {
-            state.RequestedInstructionListIndex |= WaverAnimationSelector.Spinning;
+            state.RequestedAnimation = WaverPrograms.Spinning(state.RequestedAnimation);
             SetWaverProgram(slot, state);
         }
 
@@ -120,7 +118,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.SpinFinished)
         {
             state.SpinFinished = false;
-            state.RequestedInstructionListIndex &= WaverAnimationSelector.FacingRight;
+            state.RequestedAnimation = WaverPrograms.SteadyWithSameFacing(state.RequestedAnimation);
             SetWaverProgram(slot, state);
         }
     }
@@ -128,12 +126,12 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a changed facing or spin animation and restarts its instruction and loop timers.</summary>
     internal static void SetWaverProgram(RoomEnemySlot slot, WaverEnemyState state)
     {
-        WaverAnimationSelector requested = state.RequestedInstructionListIndex;
-        if (requested == state.CurrentInstructionListIndex)
+        WaverProgram requested = state.RequestedAnimation;
+        if (requested == state.InstalledAnimation)
             return;
 
-        state.CurrentInstructionListIndex = requested;
-        state.Program = AnimationProgramCursor<WaverProgram>.Start(WaverPrograms.Program(requested));
+        state.InstalledAnimation = requested;
+        state.Program = AnimationProgramCursor<WaverProgram>.Start(requested);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }

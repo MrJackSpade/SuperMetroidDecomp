@@ -20,7 +20,7 @@ internal static class WaverOwnedStateVerification
         WaverBehavior.InitializeWaver(slot);
         WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("The initialized Waver has no state.");
         AssertEqual(SignedSixteenSixteen.FromParts(1, 0x8000), state.XVelocity, "a right-facing Waver moves one and a half pixels per update");
-        AssertEqual(WaverAnimationSelector.FacingRight, state.RequestedInstructionListIndex, "parameter one's low bit faces right");
+        AssertEqual(WaverProgram.SteadyFacingRight, state.RequestedAnimation, "parameter one's low bit faces right");
 
         state.Angle = RotationAngle.FromTableIndex(0xff);
         state.AdvanceWave();
@@ -32,7 +32,7 @@ internal static class WaverOwnedStateVerification
         slot.Clear();
         AssertEqual(SignedSixteenSixteen.Zero, state.XVelocity, "a kill empties the velocity");
         AssertEqual(RotationAngle.Zero, state.Angle, "a kill empties the phase");
-        AssertEqual(WaverAnimationSelector.None, state.RequestedInstructionListIndex, "a kill empties the requested animation");
+        AssertEqual(WaverProgram.SteadyFacingLeft, state.RequestedAnimation, "a kill empties the requested animation");
         Console.WriteLine("Waver owned state: the velocity, phase wraps and cleared record match.");
     }
 

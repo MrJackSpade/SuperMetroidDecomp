@@ -679,11 +679,11 @@ internal static class NativeEnemyFamilyStateImport
         if (enemies.WaverStates[index] is { } waver)
         {
             waver.XVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
-            waver.CurrentInstructionListIndex = (WaverAnimationSelector)words.C;
+            waver.InstalledAnimation = WaverNativeWords.Animations.Decode(words.C, "recorded Waver installed animation");
             // Only the phase word's low byte is ever read.
             waver.Angle = RotationAngle.FromTableIndex(LittleEndianBytes.LowByte(words.D));
             waver.SpinFinished = words.E != 0;
-            waver.RequestedInstructionListIndex = (WaverAnimationSelector)words.F;
+            waver.RequestedAnimation = WaverNativeWords.Animations.Decode(words.F, "recorded Waver requested animation");
         }
         if (slot.EntityState<FliesEntity, FlyEnemyState>() is { } fly)
         {

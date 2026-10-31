@@ -18,8 +18,7 @@ internal static class KraidBodyContourVerification
     {
         // Enter the body-contour branch at its exact Y threshold. The surrounding
         // mouth/body dispatch is covered by the encounter collision fixtures.
-        var bounds = default(KraidPassBounds);
-        scratch.Bottom = unchecked((ushort)(shot.Position.Y.Whole - shot.Radius.Y - 1));
+        var bounds = KraidPassBounds.Placed(left: 0, top: 0, bottom: unchecked((ushort)(shot.Position.Y.Whole - shot.Radius.Y - 1)));
         return KraidCombat.OverlapsKraidBody(ref bounds, body, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false));
     };
 

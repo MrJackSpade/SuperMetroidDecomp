@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Movement;
@@ -183,9 +182,9 @@ internal static void VerifySamusRenderingSlice()
     samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
     samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
     samus.PoseHistory.PreviousPose = SamusPoseId.SpinJumpRightPose;
-    samus.PoseHistory.PreviousDirectionAndMovement = 0x0308;
+    samus.PoseHistory.PreviousMovement = SamusMovementType.SpinJumping;
     samus.PoseHistory.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
-    samus.PoseHistory.LastDifferentDirectionAndMovement = 0x1404;
+    samus.PoseHistory.LastDifferentMovement = SamusMovementType.WallJumping;
     // A $18 live radius takes MakeSamusFaceForward's no-lift branch, so the drawing
     // checks below keep Samus at the seeded Y.
     samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(0x18);
@@ -193,11 +192,11 @@ internal static void VerifySamusRenderingSlice()
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
     AssertEqual(SamusPoseId.SpinJumpRightPose, samus.PoseHistory.LastDifferentPose,
         "forward setup shifts previous pose, not stale older walljump history");
-    AssertEqual(0x0308, samus.PoseHistory.LastDifferentDirectionAndMovement,
+    AssertEqual(SamusMovementType.SpinJumping, samus.PoseHistory.LastDifferentMovement,
         "forward setup shifts packed direction/movement metadata");
     AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "forward setup commits new pose");
-    AssertEqual(LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
-        samus.PoseHistory.PreviousDirectionAndMovement, "forward setup commits new metadata");
+    AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
+        samus.PoseHistory.PreviousMovement, "forward setup commits new metadata");
     SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
     AssertEqual(samus.Pose, samus.PoseHistory.LastDifferentPose,
         "same-pose forward setup still shifts native history");

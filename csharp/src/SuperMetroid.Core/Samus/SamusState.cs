@@ -915,6 +915,6 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// </summary>
     internal void CommitPoseHistory()
     {
-        PoseHistory.CommitTransition(Pose, SamusPoseRecordCodec.HistoryWord(InitializedPose));
+        PoseHistory.CommitTransition(Pose, SamusPoseDispatch.ReadMovement(InitializedPose));
     }
 }

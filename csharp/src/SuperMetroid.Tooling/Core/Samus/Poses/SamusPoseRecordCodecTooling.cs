@@ -15,9 +15,9 @@ internal static class SamusPoseRecordCodecTooling
         [SamusPoseId.AdjacentCodePoseFF] = 0x38,
     }.ToFrozenDictionary();
 
-    /// <summary>Record byte one, the pose's movement type as the cartridge's movement dispatcher indexes it.</summary>
+    /// <summary>Record byte one, the pose's movement type as the cartridge's movement dispatcher indexes it: the movement types are declared in dispatcher order.</summary>
     internal static byte MovementByte(SamusPoseId pose) =>
         IrregularMovementBytes.TryGetValue(pose, out byte irregular)
             ? irregular
-            : SamusPoseRecordCodec.MovementByte(SamusPoseDispatch.ReadMovement(pose));
+            : (byte)SamusPoseDispatch.ReadMovement(pose);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Runtime.Attract.AttractCaptureTestsVerification;
@@ -32,29 +33,29 @@ internal static class IntroPoseHistoryVerification
         var history = samus.PoseHistory;
         var random = new SharedRandom();
         history.PreviousPose = samus.Pose;
-        history.PreviousDirectionAndMovement = 4;
+        history.PreviousMovement = SamusMovementType.Standing;
         history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
-        history.LastDifferentDirectionAndMovement = 0x0308;
+        history.LastDifferentMovement = SamusMovementType.SpinJumping;
         IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 0, random);
         AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "idle intro frame does not shift history");
-        AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "idle intro retains older metadata");
+        AssertEqual(SamusMovementType.SpinJumping, history.LastDifferentMovement, "idle intro retains older metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "idle intro retains previous pose");
-        AssertEqual(4, history.PreviousDirectionAndMovement, "idle intro retains previous metadata");
+        AssertEqual(SamusMovementType.Standing, history.PreviousMovement, "idle intro retains previous metadata");
         IntroSamusDemoMovement.StepGroundedLeft(room, samus, ControllerButton.Left, ControllerButton.Left, 1, random);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro fixture starts running left");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, history.LastDifferentPose, "intro run transition shifts prior pose");
-        AssertEqual(4, history.LastDifferentDirectionAndMovement, "intro run transition shifts prior metadata");
+        AssertEqual(SamusMovementType.Standing, history.LastDifferentMovement, "intro run transition shifts prior metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "intro run transition commits current pose");
-        AssertEqual(0x0104, history.PreviousDirectionAndMovement, "intro run transition commits running metadata");
+        AssertEqual(SamusMovementType.Running, history.PreviousMovement, "intro run transition commits running metadata");
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(2);
         history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
-        history.LastDifferentDirectionAndMovement = 0x0308;
+        history.LastDifferentMovement = SamusMovementType.SpinJumping;
         IntroSamusDemoMovement.StepGroundedLeft(room, samus, 0, 0, 2, random);
         AssertEqual(SamusPoseId.MovingLeftNormalPose, samus.Pose, "intro release fixture retains running during deceleration");
         AssertEqual(samus.Pose, history.LastDifferentPose, "intro same-pose fallback shifts history");
-        AssertEqual(0x0104, history.LastDifferentDirectionAndMovement, "intro same-pose fallback shifts running metadata");
+        AssertEqual(SamusMovementType.Running, history.LastDifferentMovement, "intro same-pose fallback shifts running metadata");
         AssertEqual(samus.Pose, history.PreviousPose, "intro same-pose fallback commits current pose");
-        AssertEqual(0x0104, history.PreviousDirectionAndMovement, "intro same-pose fallback commits current metadata");
+        AssertEqual(SamusMovementType.Running, history.PreviousMovement, "intro same-pose fallback commits current metadata");
     }
 
     /// <summary>Tracks flashback transitions, collision-radius handoff, and preservation of the persistent Samus owner.</summary>
@@ -70,9 +71,9 @@ internal static class IntroPoseHistoryVerification
             SamusState? before = intro.CurrentFlashbackSamus;
             SamusPoseId? oldPose = before?.Pose;
             SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
-            int priorMetadata = before?.PoseHistory.PreviousDirectionAndMovement ?? 0;
+            SamusMovementType priorMetadata = before?.PoseHistory.PreviousMovement ?? SamusMovementType.Standing;
             SamusPoseId olderPose = before?.PoseHistory.LastDifferentPose ?? 0;
-            int olderMetadata = before?.PoseHistory.LastDifferentDirectionAndMovement ?? 0;
+            SamusMovementType olderMetadata = before?.PoseHistory.LastDifferentMovement ?? SamusMovementType.Standing;
             bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
             bool hurtExpiry = before is { KnockbackTimer.IsZero: true, KnockbackDirection: not 0 };
             intro.Render();
@@ -111,15 +112,15 @@ internal static class IntroPoseHistoryVerification
             if (context is null)
             {
                 var unchanged = after.PoseHistory;
-                if (unchanged.PreviousPose != priorPose || unchanged.PreviousDirectionAndMovement != priorMetadata ||
-                    unchanged.LastDifferentPose != olderPose || unchanged.LastDifferentDirectionAndMovement != olderMetadata)
+                if (unchanged.PreviousPose != priorPose || unchanged.PreviousMovement != priorMetadata ||
+                    unchanged.LastDifferentPose != olderPose || unchanged.LastDifferentMovement != olderMetadata)
                     failures.Add($"tick {tick}: ordinary flashback frame unexpectedly shifted history");
                 continue;
             }
             var history = after.PoseHistory;
-            ushort metadata = LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(after), (byte)SamusPoseMetadata.ReadMovementType(after));
-            if (history.LastDifferentPose != priorPose || history.LastDifferentDirectionAndMovement != priorMetadata ||
-                history.PreviousPose != after.Pose || history.PreviousDirectionAndMovement != metadata)
+            SamusMovementType metadata = SamusPoseMetadata.ReadMovementType(after);
+            if (history.LastDifferentPose != priorPose || history.LastDifferentMovement != priorMetadata ||
+                history.PreviousPose != after.Pose || history.PreviousMovement != metadata)
                 failures.Add($"tick {tick}: {context} did not perform the native four-word history shift");
         }
         AssertTrue(setup && terminal && handoff && transitions == 9, $"intro history fixture covers hurt recovery, return run/jump/landing, terminal and discovery; transitions={transitions}");

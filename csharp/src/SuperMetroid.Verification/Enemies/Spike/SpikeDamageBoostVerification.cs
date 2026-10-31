@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -158,8 +157,8 @@ internal static class SpikeDamageBoostVerification
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.PoseHistory.PreviousPose = retainedPose;
-            samus.PoseHistory.PreviousDirectionAndMovement =
-                LittleEndianBytes.Word((byte)(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? 4 : 8), (byte)SamusPoseMetadata.ReadMovementType(samus));
+            samus.PoseHistory.PreviousMovement =
+                SamusPoseMetadata.ReadMovementType(samus);
             samus.PoseHistory.LastDifferentPose = SamusPoseId.NormalLandingRightPose;
             // Standing must have floor support; spin stays above that floor. Held Jump
             // without a new edge selects definition fallback rather than a fresh jump.

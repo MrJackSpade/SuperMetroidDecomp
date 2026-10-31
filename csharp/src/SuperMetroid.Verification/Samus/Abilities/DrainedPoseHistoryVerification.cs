@@ -1,4 +1,4 @@
-using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Abilities;
@@ -14,9 +14,9 @@ internal static class DrainedPoseHistoryVerification
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var history = samus.PoseHistory;
             history.PreviousPose = source;
-            history.PreviousDirectionAndMovement = LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus));
+            history.PreviousMovement = SamusPoseMetadata.ReadMovementType(samus);
             history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
-            history.LastDifferentDirectionAndMovement = 0x0308;
+            history.LastDifferentMovement = SamusMovementType.SpinJumping;
             DrainedPoseHistoryCommand[] commands =
             [
                 new DrainedPoseHistoryCommand("fall", () => samus.Drained.LetFall(samus)),
@@ -29,23 +29,23 @@ internal static class DrainedPoseHistoryVerification
             foreach (var command in commands)
             {
                 SamusPoseId previousPose = history.PreviousPose;
-                int previousMetadata = history.PreviousDirectionAndMovement;
+                SamusMovementType previousMetadata = history.PreviousMovement;
                 command.Apply();
                 AssertEqual(previousPose, history.LastDifferentPose, $"drain {command.Name} shifts previous pose");
-                AssertEqual(previousMetadata, history.LastDifferentDirectionAndMovement, $"drain {command.Name} shifts metadata");
+                AssertEqual(previousMetadata, history.LastDifferentMovement, $"drain {command.Name} shifts metadata");
                 AssertEqual(samus.Pose, history.PreviousPose, $"drain {command.Name} publishes current pose");
-                AssertEqual(LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
-                    history.PreviousDirectionAndMovement, $"drain {command.Name} publishes current metadata");
+                AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
+                    history.PreviousMovement, $"drain {command.Name} publishes current metadata");
             }
             SamusPoseId olderPose = history.LastDifferentPose;
-            int olderMetadata = history.LastDifferentDirectionAndMovement;
+            SamusMovementType olderMetadata = history.LastDifferentMovement;
             SamusPoseId currentPose = history.PreviousPose;
-            int currentMetadata = history.PreviousDirectionAndMovement;
+            SamusMovementType currentMetadata = history.PreviousMovement;
             samus.Drained.EnableHyperBeam(samus);
             AssertEqual(olderPose, history.LastDifferentPose, "Hyper command does not shift older pose");
-            AssertEqual(olderMetadata, history.LastDifferentDirectionAndMovement, "Hyper command retains older metadata");
+            AssertEqual(olderMetadata, history.LastDifferentMovement, "Hyper command retains older metadata");
             AssertEqual(currentPose, history.PreviousPose, "Hyper command retains previous pose");
-            AssertEqual(currentMetadata, history.PreviousDirectionAndMovement, "Hyper command retains previous metadata");
+            AssertEqual(currentMetadata, history.PreviousMovement, "Hyper command retains previous metadata");
         }
     }
 }

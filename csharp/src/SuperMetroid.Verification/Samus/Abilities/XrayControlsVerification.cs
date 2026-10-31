@@ -1,4 +1,4 @@
-using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -50,7 +50,7 @@ internal static class XrayControlsVerification
                 "selected inactive X-ray falls through to ordinary beam producer when Run is released");
             for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
             SamusPoseId poseBeforeActivation = samus.PoseHistory.PreviousPose;
-            int metadataBeforeActivation = samus.PoseHistory.PreviousDirectionAndMovement;
+            SamusMovementType metadataBeforeActivation = samus.PoseHistory.PreviousMovement;
             // Construct an already-placed bomb, far from Samus, to isolate the shared
             // ten-slot update gate. Its long instruction delay avoids consuming data.
             var pendingBomb = runtime.BombProjectiles.Slots[0];
@@ -66,10 +66,10 @@ internal static class XrayControlsVerification
             AssertTrue(samus.Xray.IsActive && runtime.Freeze.TimeIsFrozen,
                 "configured Run takes priority over Shoot and activates scanning");
             AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "X-ray activation commits interrupted pose");
-            AssertEqual(LittleEndianBytes.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
-                samus.PoseHistory.PreviousDirectionAndMovement, "X-ray activation commits interrupted metadata");
+            AssertEqual(SamusPoseMetadata.ReadMovementType(samus),
+                samus.PoseHistory.PreviousMovement, "X-ray activation commits interrupted metadata");
             AssertEqual(poseBeforeActivation, samus.PoseHistory.LastDifferentPose, "X-ray activation shifts prior pose exactly once");
-            AssertEqual(metadataBeforeActivation, samus.PoseHistory.LastDifferentDirectionAndMovement,
+            AssertEqual(metadataBeforeActivation, samus.PoseHistory.LastDifferentMovement,
                 "X-ray activation shifts prior metadata exactly once");
             AssertTrue(runtime.Projectiles.LastFrameResult.QueuedSoundEffect is null,
                 "Run+Shoot does not allocate a beam on the activation frame");
@@ -80,7 +80,7 @@ internal static class XrayControlsVerification
                     "active scanning does not fire ordinary beams");
                 AssertEqual(poseBeforeActivation, samus.PoseHistory.LastDifferentPose,
                     "holding X-ray does not repeatedly commit activation history");
-                AssertEqual(metadataBeforeActivation, samus.PoseHistory.LastDifferentDirectionAndMovement,
+                AssertEqual(metadataBeforeActivation, samus.PoseHistory.LastDifferentMovement,
                     "holding X-ray retains prior transition metadata");
             }
             AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "configured Run keeps scan fully expanded");

@@ -65,7 +65,7 @@ internal static class FamilyTrigonometryVerification
         }
 
         var bull = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-        var bullState = new BullEnemyState(new BullExtensionWords());
+        var bullState = new BullEnemyState(previous: null);
         static uint BullReference(uint initial, short sample, int speed)
         {
             int product = (Math.Abs((int)sample) / 256) * speed;

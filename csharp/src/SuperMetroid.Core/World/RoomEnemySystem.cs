@@ -692,7 +692,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         CeresSteamBehavior = new CeresSteamBehavior(Room, Collision);
         CeresDoorBehavior = new CeresDoorBehavior(new CeresDoorBehaviorDependencies { Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, Projectiles = Projectiles, CeresEscape = RidleyEncounter, AreaArtwork = AreaArtworkBinding });
         CacatacBehavior = new CacatacBehavior(Room, Projectiles);
-        BullBehavior = new BullBehavior();
+        BullBehavior = new BullBehavior(new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity));
         BoyonBehavior = new BoyonBehavior();
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles);
         BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });

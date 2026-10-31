@@ -134,13 +134,13 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         part.Colouring = state.Body.Colouring;
         part.TileIndexBase = state.Body.TileIndexBase;
         state.PartProgram(part) = AnimationProgramCursor<PhantoonPartProgram>.Start(program);
-        PhantoonPartState words = state.Parts[part.SlotIndex];
-        words.StartPart();
-        part.SetSpeciesState(words, words.ClearWithRecord);
+        PhantoonPartState partState = state.Parts[part.SlotIndex];
+        partState.StartPart();
+        part.SetSpeciesState(partState, partState.ClearWithRecord);
         state.Parts[part.SlotIndex].Function = PhantoonAiFunction.SpawnStartingFlames;
 
-        // Every call writes these shared aliases, including the body fallthrough. Slot three
-        // owns the casual-flame pattern index/control words used much later in the fight.
+        // Every part setup writes the mouth's layer control and casual-flame count, including the body's. Slot three
+        // owns the casual-flame schedule used much later in the fight.
         if (_slotTable.Slots.Count > 3)
         {
             state.Parts[3].LayerControl = PhantoonLayerControl.Hidden;

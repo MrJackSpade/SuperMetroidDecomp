@@ -688,6 +688,6 @@ internal sealed class PhantoonCombat
     
     }
 
-    /// <summary>The record words of the Phantoon part in <paramref name="slot"/>.</summary>
+    /// <summary>The record values of the Phantoon part in <paramref name="slot"/>.</summary>
     internal PhantoonPartState Part(RoomEnemySlot slot) => RequirePhantoonState(slot).Parts[slot.SlotIndex];
 }

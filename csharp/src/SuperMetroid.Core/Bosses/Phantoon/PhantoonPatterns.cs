@@ -89,28 +89,28 @@ internal sealed class PhantoonPatterns
     }
 
     /// <summary>Advances the body and eye on their native figure-eight path.</summary>
-    internal static void StepPhantoonFigureEight(RoomEnemySlot body, PhantoonPartState bodyWords, PhantoonPartState eyeWords)
+    internal static void StepPhantoonFigureEight(RoomEnemySlot body, PhantoonPartState bodyPart, PhantoonPartState eyePart)
     {
-        if (eyeWords.FigureEightReversed)
-            AdjustPhantoonReverseFigureEightSpeed(bodyWords);
+        if (eyePart.FigureEightReversed)
+            AdjustPhantoonReverseFigureEightSpeed(bodyPart);
         else
-            AdjustPhantoonForwardFigureEightSpeed(bodyWords);
+            AdjustPhantoonForwardFigureEightSpeed(bodyPart);
 
-        int steps = eyeWords.FigureEightReversed
-            ? unchecked((ushort)-bodyWords.SpeedWhole)
-            : bodyWords.SpeedWhole;
+        int steps = eyePart.FigureEightReversed
+            ? unchecked((ushort)-bodyPart.SpeedWhole)
+            : bodyPart.SpeedWhole;
         for (int step = 0; step < steps; step++)
         {
-            Offset16<RoomPixels> pathStep = PhantoonPath.Step(bodyWords.PathCursor);
-            if (eyeWords.FigureEightReversed)
+            Offset16<RoomPixels> pathStep = PhantoonPath.Step(bodyPart.PathCursor);
+            if (eyePart.FigureEightReversed)
             {
                 body.Position -= pathStep;
-                bodyWords.PathCursor = bodyWords.PathCursor == 0 ? PhantoonPathDefinitions.Length - 1 : bodyWords.PathCursor - 1;
+                bodyPart.PathCursor = bodyPart.PathCursor == 0 ? PhantoonPathDefinitions.Length - 1 : bodyPart.PathCursor - 1;
             }
             else
             {
                 body.Position += pathStep;
-                bodyWords.PathCursor = bodyWords.PathCursor >= PhantoonPathDefinitions.Length - 1 ? 0 : bodyWords.PathCursor + 1;
+                bodyPart.PathCursor = bodyPart.PathCursor >= PhantoonPathDefinitions.Length - 1 ? 0 : bodyPart.PathCursor + 1;
             }
         }
     }
@@ -592,23 +592,23 @@ internal sealed class PhantoonPatterns
         PhantoonSwoopTarget target)
     {
         RoomEnemySlot tentacles = state.Tentacles;
-        PhantoonPartState tentacleWords = state.Parts[tentacles.SlotIndex];
+        PhantoonPartState tentaclePart = state.Parts[tentacles.SlotIndex];
         // The target sweeps two pixels an update out to its turn and back to zero, where it starts out again.
-        if (tentacleWords.SwoopReturning)
+        if (tentaclePart.SwoopReturning)
         {
-            tentacleWords.SwoopTargetX -= 2;
-            if (tentacleWords.SwoopTargetX == 0)
-                tentacleWords.SwoopReturning = false;
+            tentaclePart.SwoopTargetX -= 2;
+            if (tentaclePart.SwoopTargetX == 0)
+                tentaclePart.SwoopReturning = false;
         }
         else
         {
-            tentacleWords.SwoopTargetX += 2;
-            if (tentacleWords.SwoopTargetX >= PhantoonMotionDefinitions.SwoopTargetTurnX)
-                tentacleWords.SwoopReturning = true;
+            tentaclePart.SwoopTargetX += 2;
+            if (tentaclePart.SwoopTargetX >= PhantoonMotionDefinitions.SwoopTargetTurnX)
+                tentaclePart.SwoopReturning = true;
         }
-        int targetX = tentacleWords.SwoopTargetX;
+        int targetX = tentaclePart.SwoopTargetX;
 
-        int swoopX = tentacleWords.SwoopVelocity.X.RawValue;
+        int swoopX = tentaclePart.SwoopVelocity.X.RawValue;
         if (unchecked((short)(targetX - body.Position.X.Whole)) < 0)
         {
             if (unchecked((short)(swoopX - PhantoonMotionDefinitions.SwoopNegativeXThreshold)) >= 0)
@@ -618,15 +618,15 @@ internal sealed class PhantoonPatterns
         {
             swoopX = unchecked((ushort)(swoopX + 32));
         }
-        tentacleWords.SwoopVelocity = tentacleWords.SwoopVelocity.WithX(new SignedEightEight(checked((ushort)swoopX)));
-        body.Position = body.Position.AdvanceX(tentacleWords.SwoopVelocity.X.ToSixteenSixteenDelta());
+        tentaclePart.SwoopVelocity = tentaclePart.SwoopVelocity.WithX(new SignedEightEight(checked((ushort)swoopX)));
+        body.Position = body.Position.AdvanceX(tentaclePart.SwoopVelocity.X.ToSixteenSixteenDelta());
         if (unchecked((short)(body.Position.X.Whole - PhantoonMotionDefinitions.SwoopMinimumX)) < 0)
             body.Position = body.Position.WithWholeX(unchecked((ushort)PhantoonMotionDefinitions.SwoopMinimumX));
         else if (unchecked((short)(body.Position.X.Whole - PhantoonMotionDefinitions.SwoopMaximumX)) >= 0)
             body.Position = body.Position.WithWholeX(PhantoonMotionDefinitions.SwoopMaximumX);
 
         int targetY = target == PhantoonSwoopTarget.DeathHeight ? 112 : unchecked((ushort)(samus.Position.Y.Whole - 48));
-        int swoopY = tentacleWords.SwoopVelocity.Y.RawValue;
+        int swoopY = tentaclePart.SwoopVelocity.Y.RawValue;
         if (unchecked((short)(targetY - body.Position.Y.Whole)) < 0)
         {
             if (unchecked((short)(swoopY - PhantoonMotionDefinitions.SwoopNegativeYThreshold)) >= 0)
@@ -636,8 +636,8 @@ internal sealed class PhantoonPatterns
         {
             swoopY = unchecked((ushort)(swoopY + 64));
         }
-        tentacleWords.SwoopVelocity = tentacleWords.SwoopVelocity.WithY(new SignedEightEight(checked((ushort)swoopY)));
-        body.Position = body.Position.AdvanceY(tentacleWords.SwoopVelocity.Y.ToSixteenSixteenDelta());
+        tentaclePart.SwoopVelocity = tentaclePart.SwoopVelocity.WithY(new SignedEightEight(checked((ushort)swoopY)));
+        body.Position = body.Position.AdvanceY(tentaclePart.SwoopVelocity.Y.ToSixteenSixteenDelta());
         if (unchecked((short)(body.Position.Y.Whole - 64)) < 0)
             body.Position = body.Position.WithWholeY(64);
         else if (unchecked((short)(body.Position.Y.Whole - 216)) >= 0)

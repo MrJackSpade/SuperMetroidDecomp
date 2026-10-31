@@ -6,14 +6,14 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's encounter-wide state: its bank-$A5 extension words and the values the cartridge keeps in the body's common
+/// Draygon's encounter-wide state and the values the cartridge keeps in the body's common
 /// record, which are emptied with the record when the body is killed (<see cref="ClearWithRecord"/>). The four visible
 /// enemy records remain physical <see cref="RoomEnemySlot"/> instances; the eye's record values live in its own
 /// <see cref="DraygonEyeState"/>.
 /// </summary>
 public sealed class DraygonEnemyState
 {
-    /// <summary>Anchors encounter-wide extension words to Draygon's physical body slot.</summary>
+    /// <summary>Anchors the encounter-wide state to Draygon's physical body slot.</summary>
     internal DraygonEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Native enemy slot $0000, which owns encounter movement, health, and the body-function dispatcher.</summary>

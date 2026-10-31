@@ -5,13 +5,13 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Visible animation core of cinematic sprite definition $8B:CE55 (intro Mother Brain).
+/// Visible animation core of the intro Mother Brain's cinematic sprite definition.
 /// </summary>
 /// <remarks>
-/// The definition's initializer fixes the actor at (56,111) with OAM attribute/palette
-/// word $0E00. Its $CB05 instruction list cycles four ROM-authored bank-$8C spritemaps at
-/// sixteen frames apiece. The actor also retains $B786's hit counter, eight-frame palette
-/// flash, and $B80F's 128-frame exploding state and BG1 screen shake.
+/// The definition's initializer fixes the actor at (56,111) with sprite palette seven and
+/// priority three. Its animation cycles four authored spritemaps at
+/// sixteen frames apiece. The actor also retains the hit counter, eight-frame palette
+/// flash, and the 128-frame exploding state and BG1 screen shake.
 /// </remarks>
 internal sealed class IntroMotherBrainSpriteState
 {
@@ -32,7 +32,7 @@ internal sealed class IntroMotherBrainSpriteState
     private bool CrossfadingToPageTwo =>
         actor.ListFrameBehavior == CinematicSpriteFrameBehavior.IntroMotherBrainCrossFading;
 
-    /// <summary>Fixed cinematic screen origin from definition $8B:CE55.</summary>
+    /// <summary>Fixed cinematic screen origin from Mother Brain's definition.</summary>
     public static Position16<ScreenPixels> Position => IntroMotherBrainDefinitions.MotherBrainOrigin;
 
     /// <summary>The screen colours Mother Brain draws in, which her hurt flash animates.</summary>
@@ -41,20 +41,20 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>The pose Mother Brain's program shows; null before its first frame and after deletion.</summary>
     public CinematicSpritePose? Pose => actor.Pose;
 
-    /// <summary>Number of missiles consumed by <c>$8B:B786</c>; the fourth starts the explosion.</summary>
+    /// <summary>Number of missiles consumed by Mother Brain's hit test; the fourth starts the explosion.</summary>
     public int HitCount { get; private set; }
 
-    /// <summary>True once the fourth hit switches this actor to <c>$8B:B80F</c>.</summary>
+    /// <summary>True once the fourth hit switches this actor to its exploding behaviour.</summary>
     public bool ExplosionStarted { get; private set; }
 
-    /// <summary>The flashback room's BG1 scroll, shaken vertically by $8B:B877 while Mother Brain explodes.</summary>
+    /// <summary>The flashback room's BG1 scroll, shaken vertically while Mother Brain explodes.</summary>
     public Position16<RoomPixels> Background { get; private set; } =
         new(0, IntroCinematicState.GameplayFlashbackBg1VerticalScroll);
 
-    /// <summary>True when $B80F switches the actor to its page-two instruction list.</summary>
+    /// <summary>True when the exploding behaviour switches the actor to its page-two animation.</summary>
     public bool PageTwoRequested { get; private set; }
 
-    /// <summary>Whether the actor still contributes its spritemap to cinematic OAM.</summary>
+    /// <summary>Whether the actor still contributes its spritemap to the cinematic sprites.</summary>
     public bool IsVisible { get; private set; } = true;
 
     /// <summary>
@@ -69,7 +69,7 @@ internal sealed class IntroMotherBrainSpriteState
         if (CrossfadingToPageTwo)
         {
             ApplyScreenShake(cinematicFrameCounter);
-            // $8B:B82E observes the timer after the cinematic function has decremented it.
+            // // The cross-fade behaviour observes the timer after the cinematic function has decremented it.
             // At zero it redirects this actor to delete and clears Samus's intro display.
             if (introCrossfadeTimer == 0)
                 IsVisible = false;
@@ -85,15 +85,15 @@ internal sealed class IntroMotherBrainSpriteState
         explodingTimer++;
         if (explodingTimer >= 128)
         {
-            // $B80F starts the page-two program. The generic handler below runs its page request and
-            // pre-instruction install during this same cinematic-object call.
+            // // The exploding behaviour starts the page-two program. The generic handler below runs its page request and
+            // // frame behaviour install during this same cinematic-object call.
             actor.Start(CinematicSpriteProgram.IntroMotherBrainStartPage2);
             pageTwoInstructionStarted = true;
         }
     }
 
     /// <summary>
-    /// Eight-frame white/normal alternation loaded into OBJ palette seven by <c>$8B:B846</c>.
+    /// Eight-frame white/normal alternation loaded into sprite palette seven.
     /// </summary>
     public void ApplyHurtFlash(ScreenPalette colours, ScreenColours introPalette)
     {
@@ -112,8 +112,8 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>
-    /// Pre-instruction <c>$8B:B786</c>'s missile test: the highest missile left of X=$54 is killed and counted as a hit.
-    /// The fourth hit installs <c>$B80F</c>, which tests no missiles, so from then on every missile passes through.
+    /// Mother Brain's hit test: the highest missile left of X=84 is killed and counted as a hit.
+    /// The fourth hit installs the exploding behaviour, which tests no missiles, so from then on every missile passes through.
     /// </summary>
     /// <param name="impacts">The flashback projectile system's enemy impacts, which kill the missile.</param>
     /// <param name="sharedProjectiles">The flashback's bombs and power-bomb explosion, which the kill consults.</param>
@@ -134,14 +134,14 @@ internal sealed class IntroMotherBrainSpriteState
         if (HitCount != 4)
             return false;
 
-        // $8B:B7BD clears the actor timer before selecting pre-instruction $B80F. The
-        // explosion pre-instruction does not run until the next cinematic-object frame.
+        // // The fourth hit clears the actor timer before selecting the exploding behaviour. The
+        // // explosion behaviour does not run until the next cinematic-object frame.
         explodingTimer = 0;
         ExplosionStarted = true;
         return true;
     }
 
-    /// <summary>Runs the generic cinematic sprite handler ($8B:9409) for definition $CE55.</summary>
+    /// <summary>Runs the generic cinematic sprite handler for Mother Brain's definition.</summary>
     public void Step() => actor.Step(cue =>
     {
         if (cue != CinematicSpriteCueKind.StartIntroPage2)
@@ -152,9 +152,9 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Alternates BG1 scroll by four pixels from the inherited flashback offset.</summary>
     private void ApplyScreenShake(int cinematicFrameCounter)
     {
-        // $8B:B877 adds four on even cinematic frames and subtracts four on odd frames.
-        // The inherited $0008 value therefore alternates $000C/$0008; starting this host
-        // field at zero would produce $0004/$0000 and shift the whole room down one tile.
+        // // The shake adds four on even cinematic frames and subtracts four on odd frames.
+        // // The inherited scroll of 8 therefore alternates 12/8; starting this host
+        // // field at zero would produce 4/0 and shift the whole room down one tile.
         // The scroll wraps at sixteen bits, as every room scroll does.
         Background += (cinematicFrameCounter & 1) == 0
             ? new Offset16<RoomPixels>(0, 4)

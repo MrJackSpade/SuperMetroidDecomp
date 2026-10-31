@@ -177,6 +177,6 @@ internal static class IntroCinematicPaint
     }
     /// <summary>Uses one RGB5 intensity across all three channels for neutral paint.</summary>
     private static RgbColor Neutral(int value) => Pack(value, value, value);
-    /// <summary>Converts three calculated five-bit channels into a CGRAM color.</summary>
+    /// <summary>Converts three calculated five-bit channels into a packed colour.</summary>
     private static RgbColor Pack(int red, int green, int blue) => new RgbColor(red, green, blue);
 }

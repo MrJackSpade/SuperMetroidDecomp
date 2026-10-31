@@ -3,25 +3,25 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Fixed actor and explosion-layout definitions for the intro Mother Brain scene.</summary>
 internal static class IntroMotherBrainDefinitions
 {
-    /// <summary><c>$8B:CE55</c>, intro Mother Brain initialization, pre-instruction, and initial list.</summary>
+    /// <summary>The intro Mother Brain's initialization, frame behaviour, and initial animation.</summary>
     public static IntroMotherBrainActorDefinition MotherBrain =>
         new(CinematicSpriteProgram.IntroMotherBrain);
 
-    /// <summary><c>$8B:CF15</c>, large explosion initialization, pre-instruction, and initial list.</summary>
+    /// <summary>A large explosion's initialization, frame behaviour, and initial animation.</summary>
     public static IntroMotherBrainActorDefinition BigExplosionActor =>
         new(CinematicSpriteProgram.IntroMotherBrainExplosionBig);
 
-    /// <summary><c>$8B:CF1B</c>, small explosion initialization, pre-instruction, and initial list.</summary>
+    /// <summary>A small explosion's initialization, frame behaviour, and initial animation.</summary>
     public static IntroMotherBrainActorDefinition SmallExplosionActor =>
         new(CinematicSpriteProgram.IntroMotherBrainExplosionSmall);
 
-    /// <summary><c>$8B:B773</c> fixes Mother Brain's cinematic origin at (56,111).</summary>
+    /// <summary>Mother Brain's initializer fixes her cinematic origin at (56,111).</summary>
     public static Position16<ScreenPixels> MotherBrainOrigin => new(56, 111);
 
-    /// <summary>Number of records in the <c>$8B:B9B6-$B9D3</c> large-explosion tables.</summary>
+    /// <summary>Number of records in the large-explosion tables.</summary>
     public const int BigExplosionCount = 5;
 
-    /// <summary>Number of records in the <c>$8B:B9FD-$BA0E</c> small-explosion tables.</summary>
+    /// <summary>Number of records in the small-explosion tables.</summary>
     public const int SmallExplosionCount = 3;
 
     /// <summary>The values <see cref="IntroMotherBrainExplosionPlacements.BigExplosion"/> selects, in index order.</summary>

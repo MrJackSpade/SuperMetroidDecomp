@@ -71,11 +71,11 @@ public enum IntroCinematicPhase
     IntroFadeOut,
     /// <summary>Runs the SPACE COLONY Ceres approach sequence.</summary>
     CeresFlight,
-    /// <summary>$8B:A395: the setup dispatch that queues the opening music.</summary>
+    /// <summary>The setup dispatch that queues the opening music.</summary>
     /// <remarks>Debugger states store phases numerically, so this follows the existing members.</remarks>
     Initial,
-    /// <summary>$8B:A66F: the dispatch after the first narration's fade-out that sets up page one.</summary>
+    /// <summary>The dispatch after the first narration's fade-out that sets up page one.</summary>
     SetupPageOne,
-    /// <summary>$8B:B207: with Japanese text, the dispatch after page five's input that starts page six.</summary>
+    /// <summary>With Japanese text, the dispatch after page five's input that starts page six.</summary>
     StartPageSix,
 }

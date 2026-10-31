@@ -22,7 +22,7 @@ public sealed class CinematicPaletteFader
     /// <summary>Each screen colour's fade level, from zero (black) to <see cref="Levels"/> (its target).</summary>
     private readonly PerScreenColour<int> levels = new();
 
-    /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09: every colour starts at its target.</summary>
+    /// <summary>Ports <c>DecomposePaletteDataForFading</c>: every colour starts at its target.</summary>
     /// <param name="target">The screen colours the fade reaches.</param>
     public CinematicPaletteFader(ScreenColours target)
     {
@@ -33,11 +33,11 @@ public sealed class CinematicPaletteFader
         levels.Sprites.Fill(Levels);
     }
 
-    /// <summary>Ports <c>ClearYColorsFromIndexX</c> at $8B:8C5E: the group's colours become black.</summary>
+    /// <summary>Ports <c>ClearYColorsFromIndexX</c>: the group's colours become black.</summary>
     /// <param name="group">The colours to clear.</param>
     internal void Clear(ScreenColourGroup group) => ScreenColourGroups.In(levels, group).Clear();
 
-    /// <summary>Ports <c>FadeOutYColorsFromIndexX</c> at $8B:8C83: the group's colours take one step toward black.</summary>
+    /// <summary>Ports <c>FadeOutYColorsFromIndexX</c>: the group's colours take one step toward black.</summary>
     /// <param name="group">The colours to fade.</param>
     internal void FadeOut(ScreenColourGroup group)
     {
@@ -46,7 +46,7 @@ public sealed class CinematicPaletteFader
             groupLevels[color]--;
     }
 
-    /// <summary>Ports <c>FadeInYColorsFromIndexX</c> at $8B:8CB2: the group's colours take one step toward their target.</summary>
+    /// <summary>Ports <c>FadeInYColorsFromIndexX</c>: the group's colours take one step toward their target.</summary>
     /// <param name="group">The colours to fade.</param>
     internal void FadeIn(ScreenColourGroup group)
     {
@@ -55,7 +55,7 @@ public sealed class CinematicPaletteFader
             groupLevels[color]++;
     }
 
-    /// <summary>Ports <c>ComposeFadingPalettes</c> at $8B:8CEA into the screen's colours.</summary>
+    /// <summary>Ports <c>ComposeFadingPalettes</c> into the screen's colours.</summary>
     /// <exception cref="InvalidOperationException">A colour was faded past black or past its target.</exception>
     public void ComposeInto(ScreenPalette colours)
     {

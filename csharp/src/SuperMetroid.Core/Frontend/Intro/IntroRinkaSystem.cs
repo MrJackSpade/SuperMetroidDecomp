@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The four Rinkas (the ring-shaped “Cheerios”) fired during the Mother Brain flashback.
 /// </summary>
 /// <remarks>
-/// This translates definition $8B:CF21, spawner $CF27, and their bank-$8B instruction
+/// This translates the Rinka and spawner definitions and their animation
 /// lists. Only Rinka zero is scripted to strike Samus; the other three deliberately miss.
 /// The hit routine does not subtract health in the retail cinematic. It publishes eleven
 /// frames of invincibility and knockback, which makes Samus flash and visibly react.
@@ -17,21 +17,21 @@ internal sealed class IntroRinkaSystem
 {
     /// <summary>Highest freeable cinematic slot; the invisible spawner starts here while Mother Brain owns slot zero.</summary>
     private const int SpawnerSlot = 14;
-    /// <summary>Lowest slot available to Rinkas; the native pass visits slots 14 down through one.</summary>
+    /// <summary>Lowest slot available to Rinkas; the pass visits slots 14 down through one.</summary>
     private const int LowestSlot = 1;
 
-    /// <summary>Native cinematic slots shared by the spawner and its four Rinkas.</summary>
+    /// <summary>Cinematic slots shared by the spawner and its four Rinkas.</summary>
     internal readonly IntroDiscoverySprite?[] slots = new IntroDiscoverySprite?[SpawnerSlot + 1];
     /// <summary>Invisible actor whose instruction list schedules the two spawn pairs.</summary>
     internal readonly IntroDiscoverySprite spawner;
     /// <summary>Prevents allocating Rinkas after Mother Brain's explosions occupy the shared slot range.</summary>
     private bool spawnsForbidden;
 
-    /// <summary>Creates the invisible spawner in the highest free native slot before its timed instruction list runs.</summary>
+    /// <summary>Creates the invisible spawner in the highest free slot before its timed animation runs.</summary>
     public IntroRinkaSystem()
     {
-        // $8B:AEB8 spawns the invisible spawner while slots 1..14 are all free. Reusing the
-        // focused ROM-list interpreter preserves its exact $4A then $80 frame waits.
+        // // The flashback's setup spawns the invisible spawner while slots 1..14 are all free. Reusing the
+        // // focused animation interpreter preserves its exact 74 then 128 frame waits.
         spawner = new(new(0, 0), 0, IntroRinkaDefinitions.SpawnerActor.Program);
         slots[SpawnerSlot] = spawner;
     }
@@ -77,7 +77,7 @@ internal sealed class IntroRinkaSystem
         }
     }
 
-    /// <summary>Adds each visible Rinka in the native descending slot order.</summary>
+    /// <summary>Adds each visible Rinka in descending slot order.</summary>
     public void Draw(ScreenSprites objects,
         IIntroCinematicSpritePresentation? installedArt = null)
     {
@@ -201,7 +201,7 @@ internal sealed class IntroRinkaSystem
                 MoveHalfPixelX(rinka, IntroRinkaLaunches.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
 
-                // $B90B compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
+                // // The Rinka compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding routine.
                 if (CoordinateAxis.AsSigned(rinka.WholePosition.X + 8) <
                     CoordinateAxis.Difference(samus.Position.X.Whole, 5))

@@ -3,74 +3,74 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>What a cue of a cinematic sprite program does: the shared pre-instruction install and each owner instruction the lists use.</summary>
 internal enum CinematicSpriteCueKind
 {
-    /// <summary>Installs <see cref="CinematicSpriteCue.FrameBehavior"/> (the shared pre-instruction install at $8B:944C).</summary>
+    /// <summary>Installs <see cref="CinematicSpriteCue.FrameBehavior"/> (the shared pre-instruction install).</summary>
     SetFrameBehavior,
-    /// <summary>Ends the Zebes explosion (<c>Instruction_EndZebesExplosion</c>, $8B:F32B).</summary>
+    /// <summary>Ends the Zebes explosion.</summary>
     EndZebesExplosion,
-    /// <summary>Starts the explosion finale (<c>Instruction_ZebesExplosionFinale</c>, $8B:F2FA).</summary>
+    /// <summary>Starts the explosion finale.</summary>
     ExplosionFinale,
-    /// <summary>Fades the exploding planet's palette (<c>Instruction_FadeOutZoomedOutExplodingZebes</c>, $8B:F284).</summary>
+    /// <summary>Fades the exploding planet's palette.</summary>
     FadeExplosionPalette,
-    /// <summary>Fades the PLANET ZEBES title in (<c>Instruction_FadeInPlanetZebesText</c>, $8B:C9A5).</summary>
+    /// <summary>Fades the PLANET ZEBES title in.</summary>
     FadeInZebesText,
-    /// <summary>Fades the PLANET ZEBES title out (<c>Instruction_FadeOutPlanetZebesText</c>, $8B:C9BD).</summary>
+    /// <summary>Fades the PLANET ZEBES title out.</summary>
     FadeOutZebesText,
-    /// <summary>Requests the icon's grey-out crossfade (<c>Instruction_GreyOutSuperMetroidIcon</c>, $8B:F25E).</summary>
+    /// <summary>Requests the icon's grey-out crossfade.</summary>
     GreyOut,
-    /// <summary>Launches Samus's jump (<c>Instruction_CinematicSpriteObject_MakeEndingSamusJump</c>, $8B:F651).</summary>
+    /// <summary>Launches Samus's jump.</summary>
     Launch,
-    /// <summary>Launches the suited Samus's head (<c>Instruction_CinematicSpriteObject_PositionSamusHeadToJump</c>, $8B:F5BA).</summary>
+    /// <summary>Launches the suited Samus's head.</summary>
     LaunchHead,
-    /// <summary>Prepares the suited Samus's separate head (<c>Instruction_CineSpriteObject_PositionSuitedHeadToPrepareJump</c>, $8B:F597).</summary>
+    /// <summary>Prepares the suited Samus's separate head.</summary>
     PrepareHead,
-    /// <summary>Fires Samus's post-credits shot (<c>Instruction_CinematicSpriteObject_SamusShootsScreen</c>, $8B:F604).</summary>
+    /// <summary>Fires Samus's post-credits shot.</summary>
     Shoot,
-    /// <summary>Spawns CLEAR TIME (<c>Instruction_CinematicSpriteObject_SpawnClearTime</c>, $8B:F3CE).</summary>
+    /// <summary>Spawns CLEAR TIME.</summary>
     SpawnClearTime,
-    /// <summary>Spawns the clear time's colon (<c>Instruction_CinematicSpriteObject_SpawnClearTime_Colon</c>, $8B:F42D).</summary>
+    /// <summary>Spawns the clear time's colon.</summary>
     SpawnColon,
-    /// <summary>Spawns COMPLETED SUCCESSFULLY (<c>Instruction_CinematicSpriteObject_SpawnCompletedSuccessfully</c>, $8B:F3B0).</summary>
+    /// <summary>Spawns COMPLETED SUCCESSFULLY.</summary>
     SpawnCompletedText,
-    /// <summary>Spawns the explosion silhouette (<c>Instruction_CineSpriteObjectSpawnZebesExplosionSilhouette</c>, $8B:F295).</summary>
+    /// <summary>Spawns the explosion silhouette.</summary>
     SpawnExplosionSilhouette,
-    /// <summary>Spawns Ceres's final large-burst explosion wave ($8B:C50C).</summary>
+    /// <summary>Spawns Ceres's final large-burst explosion wave.</summary>
     SpawnFinalExplosionWave,
-    /// <summary>Spawns the clear time's hours tens digit (<c>Instruction_CineSpriteObject_SpawnClearTime_Hours_TensDigit</c>, $8B:F41B).</summary>
+    /// <summary>Spawns the clear time's hours tens digit.</summary>
     SpawnHoursTens,
-    /// <summary>Spawns the clear time's hours ones digit (<c>Instruction_CineSpriteObject_SpawnClearTime_Hours_OnesDigit</c>, $8B:F424).</summary>
+    /// <summary>Spawns the clear time's hours ones digit.</summary>
     SpawnHoursUnits,
-    /// <summary>Spawns Ceres's initial square-and-center explosion wave ($8B:C404).</summary>
+    /// <summary>Spawns Ceres's initial square-and-center explosion wave.</summary>
     SpawnInitialExplosionWave,
-    /// <summary>Spawns the Japanese title when Japanese text is selected (<c>Instruction_SpawnPlanetZebesSubtitleIfNeeded</c>, $8B:C9AF).</summary>
+    /// <summary>Spawns the Japanese title when Japanese text is selected.</summary>
     SpawnJapaneseZebesTextIfNeeded,
-    /// <summary>Spawns the clear time's minutes tens digit (<c>Inst_CineSpriteObject_SpawnClearTime_Minutes_TensDigit</c>, $8B:F436).</summary>
+    /// <summary>Spawns the clear time's minutes tens digit.</summary>
     SpawnMinutesTens,
-    /// <summary>Spawns the clear time's minutes ones digit (<c>Inst_CineSpriteObject_SpawnClearTime_Minutes_OnesDigit</c>, $8B:F43F).</summary>
+    /// <summary>Spawns the clear time's minutes ones digit.</summary>
     SpawnMinutesUnits,
-    /// <summary>Spawns the hatching egg's particles (<c>Instruction_SpawnMetroidEggParticles</c>, $8B:A918).</summary>
+    /// <summary>Spawns the hatching egg's particles.</summary>
     SpawnParticles,
-    /// <summary>Spawns the first pair of intro Rinkas (<c>Instruction_Spawn_IntroRinkas_0_1</c>, $8B:BA21).</summary>
+    /// <summary>Spawns the first pair of intro Rinkas.</summary>
     SpawnRinkas0And1,
-    /// <summary>Spawns the second pair of intro Rinkas (<c>Instruction_Spawn_IntroRinkas_2_3</c>, $8B:BA36).</summary>
+    /// <summary>Spawns the second pair of intro Rinkas.</summary>
     SpawnRinkas2And3,
-    /// <summary>Hands the suited gesture off to its jump (<c>Instruction_CinematicSpriteObject_SpawnSuitedSamusJump</c>, $8B:F554).</summary>
+    /// <summary>Hands the suited gesture off to its jump.</summary>
     SpawnSuitedJump,
-    /// <summary>Hands the suitless gesture off to its jump (<c>Instruction_CinematicSpriteObject_SpawnSuitlessSamusJump</c>, $8B:F51D).</summary>
+    /// <summary>Hands the suitless gesture off to its jump.</summary>
     SpawnSuitlessJump,
-    /// <summary>Starts the flight to Zebes (<c>Instruction_StartFlyingToZebes</c>, $8B:C9C7).</summary>
+    /// <summary>Starts the flight to Zebes.</summary>
     StartFlyingToZebes,
-    /// <summary>Starts the intro's second page (<c>Instruction_StartIntroPage2</c>, $8B:B336).</summary>
+    /// <summary>Starts the intro's second page.</summary>
     StartIntroPage2,
-    /// <summary>Starts the intro's third page (<c>Instruction_StartIntroPage3</c>, $8B:B33E).</summary>
+    /// <summary>Starts the intro's third page.</summary>
     StartIntroPage3,
-    /// <summary>Starts the intro's fourth page (<c>Instruction_StartIntroPage4</c>, $8B:B346).</summary>
+    /// <summary>Starts the intro's fourth page.</summary>
     StartIntroPage4,
-    /// <summary>Starts the intro's fifth page (<c>Instruction_StartIntroPage5</c>, $8B:B34E).</summary>
+    /// <summary>Starts the intro's fifth page.</summary>
     StartIntroPage5,
-    /// <summary>Starts an intro Rinka moving (<c>Instruction_StartMoving_IntroRinka</c>, $8B:B8C5).</summary>
+    /// <summary>Starts an intro Rinka moving.</summary>
     StartRinkaMoving,
-    /// <summary>Starts the Zebes explosion (<c>Instruction_CinematicSpriteObject_StartZebesExplosion</c>, $8B:F2B7).</summary>
+    /// <summary>Starts the Zebes explosion.</summary>
     StartZebesExplosion,
-    /// <summary>Moves on to the credits (<c>Instruction_CinematicSpriteObject_TransitionToCredits</c>, $8B:F448).</summary>
+    /// <summary>Moves on to the credits.</summary>
     TransitionToCredits,
 }

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 /// <remarks>
 /// The narration types letters and its glows recolour cells in staging; the cinematic shows the staged rows when it
-/// publishes them, once each update after the objects run and whenever it clears the page, as the cartridge uploads its
+/// publishes them, once each update after the objects run and whenever it clears the page, as the game copies its
 /// staging map to the narration plane. Letters only ever lie in the text rows between the top border and the final line.
 /// </remarks>
 internal sealed class IntroNarrationText

@@ -9,13 +9,13 @@ internal static class IntroEggParticleActors
 {
     /// <summary>
     /// Returns one of the six adjacent shell-fragment definitions. All share initializer
-    /// <c>$A958</c> and pre-instruction <c>$A994</c>; each owns a distinct eight-byte list.
+    /// an initializer and the fragment motion; each owns a distinct eight-byte animation.
     /// </summary>
     /// <remarks>
-    /// Issues #625 and #981: for fragment i=0..5, the definition starts at
-    /// $8B:CECD+6*i and contains initializer $A958, pre-instruction $A994,
-    /// and instruction-list pointer $CD39+8*i, in that order. All 18 words
-    /// at $8B:CECD..CEF0 match pinned NTSC J/U v1.0 ROM and bank_8B.asm.
+    /// Issues #625 and #981: for fragments i=0..5,
+    /// the six definitions are six bytes apart and contain the shared initializer, the fragment motion,
+    /// and an animation eight bytes after the previous one's, in that order. All 18 words
+    /// match the original data.
     /// Each referenced eight-byte list starts with duration one and loops
     /// to itself. The egg spawn opcode creates exactly indices 0..5; the
     /// method rejects negative and one-past-end indices. The shared callback
@@ -24,20 +24,20 @@ internal static class IntroEggParticleActors
     /// physical definition reads forbidden.
     ///
     /// Issues #625 and #982: the six selected lists are a separate logical
-    /// table at $8B:CD39..CD68. For i=0..5, list $CD39+8*i contains duration
-    /// one, bank-$8C spritemap pointer $8F7E+7*i, Goto opcode $94BC, and its
-    /// own list address. All 24 words match pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm; bank_8C.asm and ROM confirm one sprite entry at each
+    /// table. For i=0..5, animation i contains duration
+    /// one, a spritemap seven bytes after the previous one's, a goto, and its
+    /// own start. All 24 words match the original data,
+    /// which also confirms one sprite entry at each
     /// selected pointer. IntroDiscoverySprite reads the frame, then follows
     /// the self-loop, so the bounded strides preserve every selected list.
     ///
-    /// Issues #625 and #983: the six referenced visual spritemaps at
-    /// $8C:8F7E+7*i, i=0..5, each encode one five-byte sprite entry after
-    /// a count word of one. All 42 bytes match pinned NTSC J/U v1.0 ROM
-    /// and bank_8C.asm: encoded X=$01FC, Y=$FC, and OBJ attributes
-    /// $3E00 | tile, where tile=$105+$10*(i/2)+(i%2). Thus the six tile
+    /// Issues #625 and #983: of the six referenced visual spritemaps,
+    /// i=0..5, each encodes one five-byte sprite entry after
+    /// a count word of one. All 42 bytes match the original data:
+    /// encoded X=508, Y=252, and sprite attributes
+    /// palette seven, priority three, and a tile, where tile=$105+$10*(i/2)+(i%2). Thus the six tile
     /// identities are $105/$106, $115/$116, and $125/$126 in three pairs.
-    /// The generic OAM reader consumes the count, X, Y, and attribute word
+    /// The generic sprite reader consumes the count, X, Y, and attribute word
     /// in that order; the bounded selector reaches only these six records.
     /// </remarks>
     public static CinematicActorDefinition Particle(int index) =>

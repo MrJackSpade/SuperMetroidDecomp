@@ -62,33 +62,33 @@ internal sealed class IntroCinematicObjectSystem
         this.narrationPresentation = narrationPresentation;
     }
 
-    /// <summary>Set when opcode $8B:AE5B reaches the English page-one input marker.</summary>
+    /// <summary>Set when the narration reaches the English page-one input marker.</summary>
     public bool PageOneAwaitingInput { get; private set; }
 
-    /// <summary>Set when opcode $8B:AE91 reaches the English page-two input marker.</summary>
+    /// <summary>Set when the narration reaches the English page-two input marker.</summary>
     public bool PageTwoAwaitingInput { get; private set; }
 
-    /// <summary>Set when opcode $8B:B08C completes English page three.</summary>
+    /// <summary>Set when the narration completes English page three.</summary>
     public bool PageThreeAwaitingInput { get; private set; }
 
-    /// <summary>Set when opcode $8B:B0CB completes English page four.</summary>
+    /// <summary>Set when the narration completes English page four.</summary>
     public bool PageFourAwaitingInput { get; private set; }
 
-    /// <summary>Set when opcode $8B:B1B3 completes English page five.</summary>
+    /// <summary>Set when the narration completes English page five.</summary>
     public bool PageFiveAwaitingInput { get; private set; }
 
-    /// <summary>Set by $8B:B240 after page six's final 128-frame hold.</summary>
+    /// <summary>Set after page six's final 128-frame hold.</summary>
     public bool IntroFinishRequested { get; private set; }
 
     /// <summary>The pose the text caret's program shows; null before its first frame.</summary>
     internal CinematicSpritePose? CaretPose => caretSprite.Pose;
 
-    /// <summary>Current native screen position of the persistent text caret object; Y=$F8 deliberately hides it below the viewport.</summary>
+    /// <summary>Current screen position of the persistent text caret object; Y=248 deliberately hides it below the viewport.</summary>
     public Position16<ScreenPixels> Caret { get; private set; } =
         new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
 
     /// <summary>
-    /// Implements <c>PlaceIntroTextCaretOffScreen</c> at $8B:ADE1. The retail game keeps
+    /// Implements <c>PlaceIntroTextCaretOffScreen</c>. The retail game keeps
     /// the same object slot alive between narration pages and visibly moves it to Y=$F8
     /// while a gameplay or scientist illustration owns the screen.
     /// </summary>
@@ -98,8 +98,8 @@ internal sealed class IntroCinematicObjectSystem
     }
 
     /// <summary>
-    /// Starts the letter-by-letter narration stream from definition $8B:CF3F. The eye-blink
-    /// stream from $8B:CF63 and the portrait-border sprite are already active at page setup.
+    /// Starts the letter-by-letter narration stream. The eye-blink
+    /// stream and the portrait-border sprite are already active at page setup.
     /// </summary>
     public void StartEnglishPageOne()
     {
@@ -108,7 +108,7 @@ internal sealed class IntroCinematicObjectSystem
     }
 
     /// <summary>
-    /// Spawns definition $8B:CF45 and restores the existing caret object as $8B:B35F/B3F0 do.
+    /// Spawns page two's narration and restores the existing caret object.
     /// </summary>
     public void StartEnglishPageTwo()
     {
@@ -119,7 +119,7 @@ internal sealed class IntroCinematicObjectSystem
     }
 
     /// <summary>
-    /// Spawns definition $8B:CF4B after the egg actor requests page three at $8B:B33E.
+    /// Spawns page three's narration after the egg actor requests page three.
     /// </summary>
     public void StartEnglishPageThree()
     {
@@ -129,7 +129,7 @@ internal sealed class IntroCinematicObjectSystem
         ResetCaret();
     }
 
-    /// <summary>Spawns the page-four text definition at $8B:CF51 / $8C:CE33.</summary>
+    /// <summary>Spawns the page-four text definition.</summary>
     public void StartEnglishPageFour()
     {
         StartNarration(
@@ -138,7 +138,7 @@ internal sealed class IntroCinematicObjectSystem
         ResetCaret();
     }
 
-    /// <summary>Spawns the page-five text definition at $8B:CF57 / $8C:D15D.</summary>
+    /// <summary>Spawns the page-five text definition.</summary>
     public void StartEnglishPageFive()
     {
         StartNarration(
@@ -147,7 +147,7 @@ internal sealed class IntroCinematicObjectSystem
         ResetCaret();
     }
 
-    /// <summary>Clears pages one-through-five and starts final text definition $8C:D511.</summary>
+    /// <summary>Clears pages one-through-five and starts the final text.</summary>
     public void StartEnglishPageSix()
     {
         text.ClearText();
@@ -288,7 +288,7 @@ internal sealed class IntroCinematicObjectSystem
             IntroFinishRequested = true;
             return;
         }
-        // Instruction_SpawnBlinkingMarkers_WaitForInput_PageN ($8B:AE5B and siblings) first
+        // // Instruction_SpawnBlinkingMarkers_WaitForInput_PageN first
         // sets the caret blinking. Japanese pages two to five then wait for the press that
         // shows their second subtitle, whose object selects the page's input wait.
         SetCaretBlinking();
@@ -337,7 +337,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Moves the persistent caret onscreen and restarts its non-blinking sprite list.</summary>
     private void ResetCaret()
     {
-        // RestIntroTextCaret ($8B:ADEE) moves the persistent slot back from Y=$F8 before
+        // RestIntroTextCaret moves the persistent slot back from Y=$F8 before
         // restoring its non-blinking list. Position is state, not a renderer constant.
         Caret = new(IntroCinematicDefinitions.ObjectSystem.CaretLeftX, IntroCinematicDefinitions.ObjectSystem.CaretFirstTextY);
         caretSprite.Start(CinematicSpriteProgram.IntroTextCaret);

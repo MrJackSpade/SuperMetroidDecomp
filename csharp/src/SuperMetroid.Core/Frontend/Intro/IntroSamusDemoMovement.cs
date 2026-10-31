@@ -12,13 +12,13 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 /// <remarks>
 /// The shared movement and pose classes remain the authorities. This coordinator preserves
-/// their native frame order—sample prospective pose, move in the old pose, animate, then
+/// their frame order—sample prospective pose, move in the old pose, animate, then
 /// commit the prospective/fallback pose—without pulling the unrelated HUD, enemy, FX, and
 /// camera owners from the full gameplay runtime into a cinematic.
 /// </remarks>
 internal static class IntroSamusDemoMovement
 {
-    /// <summary>Runs the left-facing intro demo's alpha/beta movement, then animation and native prospective-pose commit in gameplay order.</summary>
+    /// <summary>Runs the left-facing intro demo's alpha/beta movement, then animation and prospective-pose commit in gameplay order.</summary>
     public static void StepGroundedLeft(
 
         RoomLevelData level,
@@ -39,7 +39,7 @@ internal static class IntroSamusDemoMovement
         {
             if (SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose))
             {
-                // $91:82D9 preserves the running pose during deceleration and consults
+                // // Running deceleration preserves the running pose and consults
                 // definition byte two only once both base-speed halves reach exact zero.
                 fallback = samus.HorizontalSpeed.BaseFixed != 0
                     ? samus.Pose
@@ -67,7 +67,7 @@ internal static class IntroSamusDemoMovement
         else if (SamusPoseMetadata.IsLeftFacingStandingPose(poseAtFrameStart))
         {
             // The demo handler has written its held word into the controller input that
-            // $90:A3BA tests, so a held shot holds the standing animation here too.
+            // // the standing animation tests, so a held shot holds the standing animation here too.
             movement = SamusGroundedMovement.StepStanding(level, samus, frameCounter,
                 heldInput);
         }
@@ -81,7 +81,7 @@ internal static class IntroSamusDemoMovement
 
         SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = heldInput, FrameCounter = frameCounter, Random = random });
 
-        // Native pose commit probes a proposed run before installing it. The clear
+        // // The pose commit probes a proposed run before installing it. The clear
         // probe retains its movement; this is shared gameplay behavior, not cosmetic
         // alignment. No-input running fallbacks use the same prospective slot.
         SamusPoseId? candidate = prospective is { } proposed
@@ -116,7 +116,7 @@ internal static class IntroSamusDemoMovement
             ApplyPoseTransition(samus, poseAtFrameStart, fallbackPose);
         }
 
-        // The native transition epilogue shifts history for an accepted slot even
+        // // The transition epilogue shifts history for an accepted slot even
         // when deceleration retains the same pose. Idle frames have no slot and
         // must preserve the older history used by subsequent movement decisions.
         if (fallback.HasValue)

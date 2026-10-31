@@ -10,7 +10,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// Cartridge-backed setup and first actor phase of the SR388 baby-Metroid discovery scene.
+/// Setup and first actor phase of the SR388 baby-Metroid discovery scene.
 /// </summary>
 [RoomScopeBoundary("A cinematic scene that owns its own level for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class IntroBabyDiscoveryState
@@ -31,7 +31,7 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
     internal readonly IntroDiscoverySprite confusedBaby;
 
-    /// <summary>Sets up the native scene's Samus state, partial room collision map, actors, and demo input list.</summary>
+    /// <summary>Sets up the scene's Samus state, partial room collision map, actors, and demo input list.</summary>
     /// <param name="random">The session's random-number word, which the demo's Samus animation draws from.</param>
     /// <param name="audio">The audio owner the scene's sounds publish to, or null for none.</param>
     /// <param name="existingSamus">The flashback's Samus the scene carries on with.</param>
@@ -44,13 +44,13 @@ internal sealed class IntroBabyDiscoveryState
         egg = CreateActor(IntroBabyActorDefinitions.Egg);
         confusedBaby = CreateActor(IntroBabyActorDefinitions.ConfusedBaby);
 
-        // Native scene setup reuses Samus WRAM, including transition history: the intro carries the flashback's Samus forward.
+        // // Scene setup reuses Samus's state, including transition history: the intro carries the flashback's Samus forward.
         Samus = Ensure.NotNull(existingSamus);
         Samus.Pose = SamusPoseId.FacingLeftNormalPose;
         Samus.Position = Samus.Position.WithWhole(new(376, 147));
         Samus.SelectedHudItem = HudItem.Beam;
         SamusPoseMetadata.RefreshCollisionRadii(Samus);
-        // $8B:AF95-$AF99: the flashback leaves Samus in pose two already, so her animation
+        // // The flashback leaves Samus in pose two already, so her animation
         // keeps running rather than restarting.
         SamusPresentation.SetAnimationFrameIfPoseChanged(Samus);
         Samus.CommitPoseHistory();
@@ -68,7 +68,7 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Samus' scene state, carried from the earlier intro when supplied.</summary>
     public SamusState Samus { get; }
 
-    /// <summary>The 32 by 16 discovery room with the cartridge's partial foreground copy.</summary>
+    /// <summary>The 32 by 16 discovery room with the game's partial foreground copy.</summary>
     public RoomLevelData Level { get; }
 
     /// <summary>Signals the egg actor's permanent switch to its hatching list.</summary>
@@ -78,28 +78,28 @@ internal sealed class IntroBabyDiscoveryState
     public bool PageThreeRequested { get; private set; }
 
     /// <summary>
-    /// $1A57 for this scene. $8B:B00F sets it positive; the egg and dancing-baby
-    /// pre-instructions later reorder or clear it.
+    /// The Samus display flag for this scene. Scene setup sets it positive; the egg and dancing-baby
+    /// frame behaviours later reorder or clear it.
     /// </summary>
     public IntroSamusDisplay SamusDisplay { get; private set; } = IntroSamusDisplay.ObjectsFirst;
 
-    /// <summary>True once $91:8682 has pointed both Samus state handlers at an RTL.</summary>
+    /// <summary>True once the scene's end has pointed both Samus state handlers at handlers that do nothing.</summary>
     private bool samusHandlersEnded;
 
     /// <summary>
     /// Samus, her demo input and the cinematic sprite objects for one dispatch. All run after
-    /// the cinematic function, so $8B:AF6C's setup dispatch already plays the demo's first
+    /// the cinematic function, so the setup dispatch already plays the demo's first
     /// entry, moves Samus and steps the egg and baby.
     /// </summary>
     public void Step(int frameCounter, int introCrossfadeTimer)
     {
-        // $8B:8E0D runs Samus's handlers, ahead of the sprite pass, only while $1A57 is set.
+        // // The cinematic dispatcher runs Samus's handlers, ahead of the sprite pass, only while the display flag is set.
         if (SamusDisplay != IntroSamusDisplay.Hidden && !samusHandlersEnded)
         {
-            // $90:E91D: the demo pose-input handler runs DemoInputObjectHandler inside Samus's
+            // // The demo pose-input handler runs DemoInputObjectHandler inside Samus's
             // current-state handler, ahead of her pose input and movement.
             demo.Step((_, frameBehavior) => RunDemoFrameBehavior(frameBehavior, introCrossfadeTimer), HandleDemoCue);
-            // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
+            // // The current-state handler ends with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
             SamusAerialPoseTransitions.DropPendingTransitionShot(Samus);
             Samus.ProjectileInheritance.ClearMovement();
@@ -108,7 +108,7 @@ internal sealed class IntroBabyDiscoveryState
             // dispatch skips Samus's movement and animation.
             if (!samusHandlersEnded)
             {
-                // The native intro-demo alpha publishes the current pose's collision radius
+                // // The intro-demo alpha publishes the current pose's collision radius
                 // before input/movement, rather than requiring pose setters to publish early.
                 SamusPoseMetadata.RefreshCollisionRadii(Samus);
                 IntroSamusDemoMovement.StepGroundedLeft(
@@ -122,8 +122,8 @@ internal sealed class IntroBabyDiscoveryState
             }
         }
 
-        // The egg's $A8E8 pre-instruction tests Samus's post-movement X during the later
-        // cinematic-sprite pass. It permanently redirects the list once X is below $A9.
+        // // The egg's frame behaviour tests Samus's post-movement X during the later
+        // // cinematic-sprite pass. It permanently redirects the animation once X is below 169.
         if (egg.FrameBehavior == IntroBabyActorDefinitions.Egg.FrameBehavior &&
             CoordinateAxis.Difference(Samus.Position.X.Whole, 169) < 0)
         {
@@ -133,19 +133,19 @@ internal sealed class IntroBabyDiscoveryState
             EggHatchingStarted = true;
         }
 
-        // $A903 replaces the egg with the shared delete list only when page three's reverse
+        // // The egg's delete behaviour replaces the egg with the shared delete animation only when page three's reverse
         // crossfade reaches zero. The egg's program installs it after starting page three.
         if (egg.ListFrameBehavior == CinematicSpriteFrameBehavior.MetroidEggDeleteAfterCrossFade &&
             introCrossfadeTimer == 0)
         {
             egg.Start(CinematicSpriteProgram.Delete);
-            // $8B:A914: page three's text hides Samus.
+            // // Page three's text hides Samus.
             SamusDisplay = IntroSamusDisplay.Hidden;
         }
         egg.Step(HandleEggCue);
 
-        // The baby slot follows the egg slot in the native descending actor traversal, so
-        // it observes the egg's freshly advanced list pointer in this same frame.
+        // // The baby slot follows the egg slot in the descending actor traversal, so
+        // // it observes the egg's freshly advanced animation position in this same frame.
         StepConfusedBaby(introCrossfadeTimer);
         confusedBaby.Step();
 
@@ -160,7 +160,7 @@ internal sealed class IntroBabyDiscoveryState
         IIntroCinematicSpritePresentation? eggEffectArt = null,
         IIntroCinematicSpritePresentation? actorArt = null)
     {
-        // IntroSamusDisplayFlag=+1 makes cinematic objects enter OAM before Samus. The egg
+        // // IntroSamusDisplayFlag=+1 makes cinematic objects draw before Samus. The egg
         // was spawned before the confused-baby object and retains its own list and timer.
         egg.Draw(objects, installedArt: actorArt);
         confusedBaby.Draw(objects, installedArt: actorArt);
@@ -209,7 +209,7 @@ internal sealed class IntroBabyDiscoveryState
         if (cue != DemoInputCue.EndIntroBabyDiscovery)
             throw new InvalidOperationException($"The Baby-discovery demo calls no {cue} routine.");
 
-        // $91:8682 replaces both Samus handlers with RTL $90:E8CD, disables demo input, and
+        // // The scene's end replaces both Samus handlers with ones that do nothing, disables demo input, and
         // returns into the following shared delete opcode. Samus is never processed again.
         demo.Disable();
         Samus.Control.LockHandlers();
@@ -222,7 +222,7 @@ internal sealed class IntroBabyDiscoveryState
         switch (cue)
         {
             case CinematicSpriteCueKind.SpawnParticles:
-                // The six JSR Spawn calls at $A918..A94C use definitions CECD through CEEB
+                // // The six particle spawns use six consecutive definitions
                 // and init parameters zero through five, in this exact order.
                 for (int index = 0; index < IntroEggEffectDefinitions.ParticleCount; index++)
                     eggParticles.Add(new IntroEggParticle(index));
@@ -281,7 +281,7 @@ internal sealed class IntroBabyDiscoveryState
         switch (confusedBaby.FrameBehavior)
         {
             case CinematicSpriteFrameBehavior.ConfusedBabyWaitingForHatch:
-                // $BA5E watches the egg's *next* instruction pointer reach CB79, the first fully-hatched frame list:
+                // // The confused baby watches the egg's *next* animation step reach the first fully-hatched frame:
                 // the egg's program is then MetroidEggHatchedFrame2 or a later one, so the baby starts moving on that
                 // exact handoff.
                 if (egg.CurrentProgram is CinematicSpriteProgram.MetroidEggHatchedFrame2 or
@@ -359,7 +359,7 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Spawns slime at the authored scanline and accelerates the baby toward its hover point.</summary>
     private void StepHatchedBaby()
     {
-        // Equality is intentional: $BA76 uses BNE, and the actor's subpixel integration
+        // // Equality is intentional: the hatched baby tests for equality, and the actor's subpixel integration
         // reaches this scanline once. Four init parameters select four distinct arcs.
         if (confusedBaby.WholePosition.Y == 145 && slimeDrops.Count == 0)
         {
@@ -367,14 +367,14 @@ internal sealed class IntroBabyDiscoveryState
             {
                 slimeDrops.Add(new IntroEggSlimeDrop(confusedBaby.WholePosition, index));
             }
-            // `$8B:BA73` publishes the first confused cry at the same equality edge
+            // // The hatched baby publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
             audio?.QueueSound(
                 IntroCinematicDefinitions.Objects.BabyCry1,
                 priority: IntroCinematicDefinitions.Objects.MaximumQueuedSounds);
         }
 
-        // $BA73 accelerates toward 32 pixels above Samus, clamping to +/-$220 in 8.8.
+        // // The hatched baby accelerates toward 32 pixels above Samus, clamping to +/-544/256 in 8.8.
         int targetY = CoordinateAxis.Wrap(Samus.Position.Y.Whole - 32);
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
             confusedBaby.WholePosition.Y,
@@ -384,8 +384,8 @@ internal sealed class IntroBabyDiscoveryState
             negativeLimit: -544));
         AddEightEightVelocity(confusedBaby, axis: Axis.Vertical, BabyVelocity.Y);
 
-        // The first non-negative velocity marks the top of the initial arc. Native code
-        // then holds for $80 frames before enabling the two-axis dance around Samus.
+        // // The first non-negative velocity marks the top of the initial arc. The game
+        // // then holds for 128 frames before enabling the two-axis dance around Samus.
         if (BabyVelocity.Y.SignedRawValue >= 0)
         {
             BabyIdleTimer = WrappingCountdown.Start(128);
@@ -400,7 +400,7 @@ internal sealed class IntroBabyDiscoveryState
         if (introCrossfadeTimer == 0)
         {
             confusedBaby.Delete();
-            // $8B:BB35.
+            // // The dancing baby's drift.
             SamusDisplay = IntroSamusDisplay.Hidden;
             return;
         }
@@ -408,7 +408,7 @@ internal sealed class IntroBabyDiscoveryState
         if (confusedBaby.GeneralTimer < 128)
         {
             confusedBaby.GeneralTimer = WrappingCounter.IncrementWord(confusedBaby.GeneralTimer);
-            // `$8B:BB24` cries when the post-increment timer reaches $40 and $80.
+            // // The dancing baby cries when the post-increment timer reaches 64 and 128.
             if (confusedBaby.GeneralTimer % 64 == 0)
                 audio?.QueueSound(
                     IntroCinematicDefinitions.Objects.BabyCry1,
@@ -421,7 +421,7 @@ internal sealed class IntroBabyDiscoveryState
             BabyVelocity.X,
             positiveLimit: 640,
             negativeLimit: -640));
-        // $8B:BB79-$BB9E: a baby moving left draws over Samus; otherwise Samus draws first.
+        // // A baby moving left draws over Samus; otherwise Samus draws first.
         SamusDisplay = WordWrap.SignedLowByte(EightEight.WholeOf(BabyVelocity.X.RawValue)) < 0
             ? IntroSamusDisplay.ObjectsFirst
             : IntroSamusDisplay.SamusFirst;

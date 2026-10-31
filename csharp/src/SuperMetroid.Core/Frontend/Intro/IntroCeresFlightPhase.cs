@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Native setup, flight, title, and handoff dispatches of the Ceres approach.</summary>
+/// <summary>Setup, flight, title, and handoff dispatches of the Ceres approach.</summary>
 /// <remarks>Debugger states store these numerically, so new members are appended.</remarks>
 internal enum IntroCeresFlightPhase
 {
@@ -14,9 +14,9 @@ internal enum IntroCeresFlightPhase
     SpaceColonyTitle,
     /// <summary>The caption and surviving actors dim every other frame toward black.</summary>
     FadeOut,
-    /// <summary>$8B:C100 has run; game state $1F follows.</summary>
+    /// <summary>The approach has ended; the Ceres game state follows.</summary>
     Finished,
-    /// <summary>$8B:BCA0: the PPU setup dispatch that queues the flight's music.</summary>
+    /// <summary>The display setup dispatch that queues the flight's music.</summary>
     Initial,
     /// <summary>The fade reached black and installed the handoff for the next update.</summary>
     StartGameAtCeres,

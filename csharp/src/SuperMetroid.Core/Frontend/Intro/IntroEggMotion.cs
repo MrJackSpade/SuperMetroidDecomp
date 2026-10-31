@@ -4,33 +4,33 @@ namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
 /// Moves the intro egg's shell fragments and slime (<see cref="IntroEggMotionDefinitions"/>): the bounded gravity curves each
-/// follows, and the shell's native overread past its curve.
+/// follows, and the shell's overread past its curve.
 /// </summary>
 internal static class IntroEggMotion
 {
-    /// <summary>$8B:AB49/AC41: 62 odd / 69 even gravity records, selected by actor parity, not frame parity.</summary>
+    /// <summary>62 odd / 69 even gravity records, selected by actor parity, not frame parity.</summary>
     /// <remarks>
-    /// Issues #625 and #979: the odd-actor table at $8B:AB49..AC40 has
-    /// 62 high-word-first signed 16.16 records; all 124 words match pinned
-    /// NTSC J/U v1.0 ROM and bank_8B.asm. For f=0..13, g=f/7 and r=f%7
-    /// give whole=g-2 and fraction=0 for r=0, otherwise $E000-$2000*r.
-    /// For f=14..61 the signed value is (f-14)*$2000, ending at 5.E000.
-    /// $8B:AAB3 chooses this table when the actor timer's low bit is one,
+    /// Issues #625 and #979: the odd-actor table has
+    /// 62 high-word-first signed 16.16 records; all 124 words match
+    /// the original data. For f=0..13, g=f/7 and r=f%7
+    /// give whole=g-2 and fraction=0 for r=0, otherwise 57344-8192*r.
+    /// For f=14..61 the signed value is (f-14)*8192, ending at 5.E000.
+    /// The slime motion chooses this table when the actor timer's low bit is one,
     /// then indexes by its high byte; ordinary odd actors are IDs 1 and 3.
-    /// In the 96-pixel start fixture, fractional starts 0, 1, $7FFF, and
-    /// $FFFF all ground at frame 51, inside the table. The method rejects
+    /// In the 96-pixel start fixture, fractional starts 0, 1, 32767, and
+    /// 65535 all ground at frame 51, inside the table. The method rejects
     /// frame 62 and negative frames instead of reading the adjacent even
     /// table; fractional addition and whole-word carry stay exact.
     ///
-    /// Issues #625 and #980: the separate even-actor table at
-    /// $8B:AC41..AD54 has 69 high-word-first signed 16.16 records; all
-    /// 138 words match pinned NTSC J/U v1.0 ROM and bank_8B.asm. For
+    /// Issues #625 and #980: the separate even-actor table
+    /// has 69 high-word-first signed 16.16 records; all
+    /// 138 words match the original data. For
     /// f=0..20, g=f/7 and r=f%7 give whole=g-3 and fraction=0 for r=0,
-    /// otherwise $E000-$2000*r. For f=21..68 the signed value is
-    /// (f-21)*$2000, ending at 5.E000. The timer's clear low bit selects
+    /// otherwise 57344-8192*r. For f=21..68 the signed value is
+    /// (f-21)*8192, ending at 5.E000. The timer's clear low bit selects
     /// this table for ordinary actor IDs 0 and 2, and its high byte indexes
-    /// the records. The 96-pixel start fixture with fractions 0, 1, $7FFF,
-    /// and $FFFF grounds at frame 62, within the table. Frame 69 and
+    /// the records. The 96-pixel start fixture with fractions 0, 1, 32767,
+    /// and 65535 grounds at frame 62, within the table. Frame 69 and
     /// negative frames throw instead of reading the adjacent routine.
     /// </remarks>
     public static SignedSixteenSixteen SlimeY(int frame, bool odd) => Curve(frame, odd ? 62 : 69, odd ? 2 : 3);
@@ -59,10 +59,10 @@ internal static class IntroEggMotion
 
     /// <summary>Returns one shell fragment's final world-space spawn position.</summary>
     /// <remarks>
-    /// Issues #625 and #975: $8B:A958 indexes six interleaved 16-bit X/Y
-    /// origin pairs at $8B:A97C..A993 with index*4, then adds $10 and $3B
-    /// respectively with native 16-bit wrap. Pinned NTSC J/U v1.0 ROM and
-    /// bank_8B.asm give source pairs ($5C,$58), ($63,$58), ($59,$5D),
+    /// Issues #625 and #975: the fragment spawn indexes six interleaved 16-bit X/Y
+    /// origin pairs with index*4, then adds $10 and $3B
+    /// respectively with sixteen-bit wrap. The original data
+    /// gives source pairs ($5C,$58), ($63,$58), ($59,$5D),
     /// ($60,$5B), ($66,$5E), and ($63,$60); all twelve words match this
     /// selector after the biases. The spawn opcode creates exactly indices
     /// 0..5, and unknown indices throw. The irregular positions compose the
@@ -71,12 +71,12 @@ internal static class IntroEggMotion
     /// </remarks>
     public static Position16<ScreenPixels> FragmentInitialPosition(int index) => Ensure.Element(FragmentInitialPositions, index);
 
-    /// <summary>$8B:A9EA: six signed 16.16 shell-fragment horizontal velocities.</summary>
+    /// <summary>Six signed 16.16 shell-fragment horizontal velocities.</summary>
     /// <remarks>
-    /// Issues #625 and #976: pinned NTSC J/U v1.0 ROM and bank_8B.asm
-    /// match all six high-word-first velocity pairs at $8B:A9EA..AA01:
+    /// Issues #625 and #976: the original data
+    /// match all six high-word-first velocity pairs:
     /// FFFF:4000, 0000:4000, FFFF:8000, FFFF:2000, 0000:8000,
-    /// 0000:2000. $8B:A994 indexes them by the immutable fragment number
+    /// 0000:2000. The fragment motion indexes them by the immutable fragment number
     /// 0..5, scaled by four bytes; the caller adds the fraction before the
     /// signed whole word and carries across. The directions and fractional
     /// speeds vary irregularly by shell piece, so retain the six authored
@@ -84,12 +84,12 @@ internal static class IntroEggMotion
     /// </remarks>
     public static SignedSixteenSixteen FragmentX(int index) => Ensure.Element(FragmentXVelocities, index);
 
-    /// <summary>$8B:AB35: five authored horizontal slime records; four actors are normally spawned.</summary>
+    /// <summary>Five authored horizontal slime records; four actors are normally spawned.</summary>
     /// <remarks>
-    /// Issues #625 and #978: pinned NTSC J/U v1.0 ROM and bank_8B.asm
-    /// match all five high-word-first signed 16.16 pairs at $8B:AB35..AB48:
+    /// Issues #625 and #978: the original data
+    /// match all five high-word-first signed 16.16 pairs:
     /// FFFF:0000, FFFF:8000, 0001:0000, 0000:8000, FFFF:8000.
-    /// $8B:AAB3 indexes by the actor timer's low byte with a four-byte
+    /// The slime motion indexes by the actor timer's low byte with a four-byte
     /// stride; the retail spawn path creates indices 0..3, while index 4 is
     /// the fifth physical table entry. The first four form opposing full-
     /// and half-pixel speeds, but the fifth repeats -0.5. Retain the five

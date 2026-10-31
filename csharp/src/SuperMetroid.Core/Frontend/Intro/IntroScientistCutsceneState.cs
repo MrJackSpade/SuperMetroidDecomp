@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Cartridge-scripted Ceres laboratory vignette between intro pages three and four.</summary>
+/// <summary>Scripted Ceres laboratory vignette between intro pages three and four.</summary>
 internal sealed class IntroScientistCutsceneState
 {
     /// <summary>Delivered or examined Baby actor whose instruction list drives scene completion.</summary>
@@ -18,7 +18,7 @@ internal sealed class IntroScientistCutsceneState
             ? IntroBabyActorDefinitions.DeliveredBaby
             : IntroBabyActorDefinitions.ExaminedBaby;
 
-        // Definitions $CE61/$CE67 use separate laboratory pages and mirrored pan axes.
+        // // The delivered and examined babies' definitions use separate laboratory pages and mirrored pan axes.
         baby = new IntroDiscoverySprite(
             definition.Position,
             definition.Colouring,
@@ -56,9 +56,9 @@ internal sealed class IntroScientistCutsceneState
         if (!baby.IsActive)
             return;
 
-        // AD68 deletes only when the *alternate* intro counter reaches zero during the
+        // // The delivery behaviour deletes only when the *alternate* intro counter reaches zero during the
         // later page-four reverse crossfade. The forward scientist fade decrements the
-        // cinematic-function counter while IntroCrossFadeTimer remains $007F.
+        // // cinematic-function counter while IntroCrossFadeTimer remains 127.
         if (introCrossfadeTimer == 0)
         {
             baby.Start(CinematicSpriteProgram.Delete);

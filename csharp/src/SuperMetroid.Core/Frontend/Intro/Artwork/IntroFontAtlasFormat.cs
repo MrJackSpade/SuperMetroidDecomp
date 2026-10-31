@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
-/// <summary>PNG and native transfer geometry for the 144-tile opening font.</summary>
+/// <summary>PNG and transfer geometry for the 144-tile opening font.</summary>
 public static class IntroFontAtlasFormat
 {
     /// <summary>Canonical opening-font PNG file name.</summary>
     public const string FileName = "intro-font.png";
-    /// <summary>SNES planar bit depth of the opening narration font.</summary>
+    /// <summary>Planar bit depth of the opening narration font.</summary>
     public const int BitsPerPixel = 2;
     /// <summary>Required number of indexed PNG colors.</summary>
     public const int ColorCount = 4;
@@ -19,6 +19,6 @@ public static class IntroFontAtlasFormat
     public const int Width = TilesPerRow * TileSize;
     /// <summary>Required PNG height in pixels.</summary>
     public const int Height = TileCount / TilesPerRow * TileSize;
-    /// <summary>Byte length of the compiled SNES two-bit planar transfer.</summary>
+    /// <summary>Byte length of the compiled two-bit planar font.</summary>
     public const int ByteCount = TileCount * BitsPerPixel * TileSize;
 }

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>One of four Baby-Metroid slime drops created by $8B:BA73.</summary>
+/// <summary>One of four Baby-Metroid slime drops created when the confused baby first cries.</summary>
 internal sealed class IntroEggSlimeDrop
 {
     /// <summary>Discovery sprite owning this drop's position, timer, and impact instruction list.</summary>
@@ -19,7 +19,7 @@ internal sealed class IntroEggSlimeDrop
 
         CinematicActorDefinition definition = IntroEggEffectDefinitions.SlimeDrop;
 
-        // $AA9A copies the confused baby's slot coordinates rather than using a separate
+        // // The slime spawn copies the confused baby's slot coordinates rather than using a separate
         // literal position table. Its low timer byte remains the horizontal trajectory ID.
         sprite = new IntroDiscoverySprite(
             babyPosition,
@@ -66,8 +66,8 @@ internal sealed class IntroEggSlimeDrop
 
             if (CoordinateAxis.Difference(sprite.WholePosition.Y, 168) >= 0)
             {
-                // $AAB3 changes both list and pre-instruction, freezing the impact point
-                // while CD71 plays four ten-frame puddle frames and deletes the actor.
+                // // Landing changes both animation and frame behaviour, freezing the impact point
+                // // while the puddle animation plays four ten-frame frames and deletes the actor.
                 sprite.Start(CinematicSpriteProgram.MetroidEggParticleHitGround);
                 sprite.InstallFrameBehavior(
                     CinematicSpriteFrameBehavior.NoOp);
@@ -87,7 +87,7 @@ internal sealed class IntroEggSlimeDrop
         IIntroCinematicSpritePresentation? installedArt = null) =>
         sprite.Draw(objects, installedArt: installedArt);
 
-    /// <summary>Adds native 16.16 motion to one screen coordinate while preserving its fractional part.</summary>
+    /// <summary>Adds 16.16 motion to one screen coordinate while preserving its fractional part.</summary>
     private void AddVelocity(Axis axis, SignedSixteenSixteen velocity)
     {
         sprite.Position = axis == Axis.Horizontal

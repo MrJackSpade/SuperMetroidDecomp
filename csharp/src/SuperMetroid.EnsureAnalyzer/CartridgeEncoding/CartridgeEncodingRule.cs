@@ -3,7 +3,7 @@ namespace SuperMetroid.EnsureAnalyzer.CartridgeEncoding;
 /// <summary>What a cartridge-encoding occurrence is, for the ratchet and the #641 inventory.</summary>
 internal enum CartridgeEncodingRule
 {
-    /// <summary>A hexadecimal literal in functional (non-catalog) code: ratcheted by SME6340.</summary>
+    /// <summary>A hexadecimal literal outside an encoding owner, catalogs included (#1480): ratcheted by SME6340.</summary>
     RawHexLiteral,
     /// <summary>
     /// A primitive compared with, offset from or switched over an address-valued code or instruction
@@ -12,8 +12,8 @@ internal enum CartridgeEncodingRule
     PointerDispatch,
     /// <summary>An integral array or collection literal holding hexadecimal words: ratcheted by SME6342.</summary>
     OpaqueWordArray,
-    /// <summary>A hexadecimal literal owned by a named definition catalog. Inventoried, not ratcheted.</summary>
-    CatalogHexLiteral,
+    /// <summary>A hexadecimal literal inside a <c>[EncodingOwner]</c> codec, which owns the encoding. Inventoried.</summary>
+    OwnedHexLiteral,
     /// <summary>A functional hexadecimal literal carrying a reviewed same-line allowance. Inventoried, not ratcheted.</summary>
     JustifiedHexLiteral,
     /// <summary>
@@ -51,4 +51,11 @@ internal enum CartridgeEncodingRule
     NarrowStorageMember,
     /// <summary>A narrow member inside a catalog or <c>[EncodingOwner]</c> type, or under a reviewed allowance. Inventoried.</summary>
     OwnedNarrowStorageMember,
+    /// <summary>
+    /// A cast to <c>byte</c>, <c>sbyte</c>, <c>short</c> or <c>ushort</c> outside a <c>[EncodingOwner]</c> type and the
+    /// Compatibility module (#1480): an inline wrap or sign reinterpretation. Ratcheted by SME6453.
+    /// </summary>
+    NarrowingCast,
+    /// <summary>A narrowing cast carrying a reviewed same-line allowance. Inventoried, not ratcheted.</summary>
+    JustifiedNarrowingCast,
 }

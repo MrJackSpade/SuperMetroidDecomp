@@ -71,9 +71,11 @@ internal static class CartridgeEncodingScanner
         CartridgeEncodingRule.CountdownSelfDecrement => "SME6349",
         CartridgeEncodingRule.FlagsPrimitiveCast => "SME6346",
         CartridgeEncodingRule.NarrowStorageMember => "SME6347",
-        CartridgeEncodingRule.CatalogHexLiteral or CartridgeEncodingRule.JustifiedHexLiteral or
+        CartridgeEncodingRule.NarrowingCast => "SME6453",
+        CartridgeEncodingRule.OwnedHexLiteral or CartridgeEncodingRule.JustifiedHexLiteral or
             CartridgeEncodingRule.OwnedWidthOperation or CartridgeEncodingRule.JustifiedWidthOperation or
-            CartridgeEncodingRule.OwnedFlagsPrimitiveCast or CartridgeEncodingRule.OwnedNarrowStorageMember => null,
+            CartridgeEncodingRule.OwnedFlagsPrimitiveCast or CartridgeEncodingRule.OwnedNarrowStorageMember or
+            CartridgeEncodingRule.JustifiedNarrowingCast => null,
         _ => throw new InvalidOperationException($"Undefined {nameof(CartridgeEncodingRule)} {rule}."),
     };
 
@@ -112,7 +114,12 @@ internal static class CartridgeEncodingScanner
     {
         SyntaxTree tree = model.SyntaxTree;
         SyntaxNode root = tree.GetRoot(cancellationToken);
-        bool catalog = IsCatalogFile(tree.FilePath);
+        // #1480: catalogs hold data (decimal quantities, typed fixed-point values, arbitrary identities), so every rule
+        // applies to them; only a catalog's own masks are its field layout, which the mask rule reads from here.
+        bool catalogFile = IsCatalogFile(tree.FilePath);
+        // #1480: inline narrowing casts are reported in the simulation, where a wrap is gameplay; checks, codecs and hosts
+        // read native words at the cartridge boundary by design.
+        bool simulation = model.Compilation.AssemblyName == SimulationAssembly;
         var occurrences = new List<CartridgeEncodingOccurrence>();
         var text = tree.GetText(cancellationToken);
 
@@ -121,8 +128,8 @@ internal static class CartridgeEncodingScanner
             if (!token.IsKind(SyntaxKind.NumericLiteralToken) || !IsHex(token.Text))
                 continue;
             string line = text.Lines.GetLineFromPosition(token.SpanStart).ToString();
-            CartridgeEncodingRule rule = catalog || IsEnumMemberValue(token) || IsInEncodingOwner(token.Parent, model, cancellationToken)
-                ? CartridgeEncodingRule.CatalogHexLiteral
+            CartridgeEncodingRule rule = IsInEncodingOwner(token.Parent, model, cancellationToken)
+                ? CartridgeEncodingRule.OwnedHexLiteral
                 : AllowanceMarkers.Any(marker => HasAllowance(line, marker)) ? CartridgeEncodingRule.JustifiedHexLiteral
                 : CartridgeEncodingRule.RawHexLiteral;
             (CartridgeEncodingClass cls, string basis) = ClassifyHex(token);
@@ -138,7 +145,7 @@ internal static class CartridgeEncodingScanner
                     !IsInsideWidthOperation(width, model, cancellationToken):
                 {
                     string line = text.Lines.GetLineFromPosition(width.SpanStart).ToString();
-                    CartridgeEncodingRule rule = catalog || IsInEncodingOwner(width, model, cancellationToken)
+                    CartridgeEncodingRule rule = IsInEncodingOwner(width, model, cancellationToken)
                         ? CartridgeEncodingRule.OwnedWidthOperation
                         : AllowanceMarkers.Any(marker => HasAllowance(line, marker)) ? CartridgeEncodingRule.JustifiedWidthOperation
                         : CartridgeEncodingRule.RawWidthOperation;
@@ -146,12 +153,12 @@ internal static class CartridgeEncodingScanner
                     break;
                 }
                 // Sign tests precede pointer dispatch: '(short)timer < 0' is a relational expression too.
-                case BinaryExpressionSyntax sign when !catalog && IsCountdownSignTest(sign, model, cancellationToken) &&
+                case BinaryExpressionSyntax sign when IsCountdownSignTest(sign, model, cancellationToken) &&
                     !IsInEncodingOwner(sign, model, cancellationToken):
                     occurrences.Add(new(CartridgeEncodingRule.CountdownSignTest, CartridgeEncodingClass.ComposableBits,
                         $"'{sign}' tests a countdown's sign bit by hand", sign.OperatorToken.GetLocation()));
                     break;
-                case BinaryExpressionSyntax mask when !catalog && CatalogMask(mask, model, cancellationToken) is { } field:
+                case BinaryExpressionSyntax mask when !catalogFile && CatalogMask(mask, model, cancellationToken) is { } field:
                 {
                     string line = text.Lines.GetLineFromPosition(mask.SpanStart).ToString();
                     CartridgeEncodingRule rule = IsInEncodingOwner(mask, model, cancellationToken)
@@ -163,17 +170,17 @@ internal static class CartridgeEncodingScanner
                         mask.OperatorToken.GetLocation()));
                     break;
                 }
-                case AssignmentExpressionSyntax assignment when !catalog && IsSelfDecrement(assignment, model, cancellationToken) &&
+                case AssignmentExpressionSyntax assignment when IsSelfDecrement(assignment, model, cancellationToken) &&
                     !IsInEncodingOwner(assignment, model, cancellationToken):
                     occurrences.Add(new(CartridgeEncodingRule.CountdownSelfDecrement, CartridgeEncodingClass.NumericQuantity,
                         $"'{assignment}' decrements narrow storage with native wraparound", assignment.OperatorToken.GetLocation()));
                     break;
-                case PostfixUnaryExpressionSyntax postfix when !catalog && postfix.IsKind(SyntaxKind.PostDecrementExpression) &&
+                case PostfixUnaryExpressionSyntax postfix when postfix.IsKind(SyntaxKind.PostDecrementExpression) &&
                     IsNarrowStorage(postfix.Operand, model, cancellationToken) && !IsInEncodingOwner(postfix, model, cancellationToken):
                     occurrences.Add(new(CartridgeEncodingRule.CountdownSelfDecrement, CartridgeEncodingClass.NumericQuantity,
                         $"'{postfix}' decrements narrow storage with native wraparound", postfix.OperatorToken.GetLocation()));
                     break;
-                case PrefixUnaryExpressionSyntax prefix when !catalog && prefix.IsKind(SyntaxKind.PreDecrementExpression) &&
+                case PrefixUnaryExpressionSyntax prefix when prefix.IsKind(SyntaxKind.PreDecrementExpression) &&
                     IsNarrowStorage(prefix.Operand, model, cancellationToken) && !IsInEncodingOwner(prefix, model, cancellationToken):
                     occurrences.Add(new(CartridgeEncodingRule.CountdownSelfDecrement, CartridgeEncodingClass.NumericQuantity,
                         $"'{prefix}' decrements narrow storage with native wraparound", prefix.OperatorToken.GetLocation()));
@@ -205,18 +212,28 @@ internal static class CartridgeEncodingScanner
                     break;
                 case CastExpressionSyntax cast when FlagsEnumCastSource(cast, model, cancellationToken) is { } flags:
                 {
-                    bool owned = catalog || IsInEncodingOwner(cast, model, cancellationToken) || HasAnyAllowance(text, cast.SpanStart);
+                    bool owned = IsInEncodingOwner(cast, model, cancellationToken) || HasAnyAllowance(text, cast.SpanStart);
                     occurrences.Add(new(owned ? CartridgeEncodingRule.OwnedFlagsPrimitiveCast : CartridgeEncodingRule.FlagsPrimitiveCast,
                         CartridgeEncodingClass.ComposableBits, $"'{cast}' casts [Flags] {flags.Name} to {cast.Type}", cast.OpenParenToken.GetLocation()));
                     break;
                 }
-                case FieldDeclarationSyntax field when IsInstanceMember(field.Modifiers) && IsNarrowType(field.Declaration.Type):
+                // #1480: a static or constant member holds a catalog quantity at a register width just as instance state does.
+                case FieldDeclarationSyntax field when IsNarrowType(field.Declaration.Type):
                     foreach (VariableDeclaratorSyntax variable in field.Declaration.Variables)
-                        occurrences.Add(NarrowMember(variable.Identifier, field.Declaration.Type.ToString(), "instance state", field, model, cancellationToken));
+                        occurrences.Add(NarrowMember(variable.Identifier, field.Declaration.Type.ToString(), MemberRole(field.Modifiers), field, model, cancellationToken));
                     break;
-                case PropertyDeclarationSyntax property when IsInstanceMember(property.Modifiers) && IsNarrowType(property.Type):
-                    occurrences.Add(NarrowMember(property.Identifier, property.Type.ToString(), "instance state", property, model, cancellationToken));
+                case PropertyDeclarationSyntax property when IsNarrowType(property.Type):
+                    occurrences.Add(NarrowMember(property.Identifier, property.Type.ToString(), MemberRole(property.Modifiers), property, model, cancellationToken));
                     break;
+                // #1480: a narrowing cast reproduces a register's wrap or sign reinterpretation inline.
+                case CastExpressionSyntax narrowing when simulation && IsNarrowType(narrowing.Type) &&
+                    !IsInEncodingOwner(narrowing, model, cancellationToken) && !IsInCompatibilityModule(narrowing, model, cancellationToken):
+                {
+                    bool justified = HasAnyAllowance(text, narrowing.SpanStart);
+                    occurrences.Add(new(justified ? CartridgeEncodingRule.JustifiedNarrowingCast : CartridgeEncodingRule.NarrowingCast,
+                        CartridgeEncodingClass.NumericQuantity, $"'{narrowing}' narrows to {narrowing.Type}", narrowing.OpenParenToken.GetLocation()));
+                    break;
+                }
                 case ParameterSyntax { Type: { } parameterType } parameter when IsNarrowType(parameterType):
                     occurrences.Add(NarrowMember(parameter.Identifier, parameterType.ToString(),
                         parameter.Parent?.Parent is RecordDeclarationSyntax ? "instance state" : "as a parameter", parameter, model, cancellationToken));
@@ -269,9 +286,11 @@ internal static class CartridgeEncodingScanner
             : null;
     }
 
-    /// <summary>Whether a member's modifiers make it per-instance storage: neither <c>static</c> nor <c>const</c>.</summary>
-    private static bool IsInstanceMember(SyntaxTokenList modifiers) =>
-        !modifiers.Any(SyntaxKind.StaticKeyword) && !modifiers.Any(SyntaxKind.ConstKeyword);
+    /// <summary>How a member holds its value, for the narrow-storage message: per instance, static, or constant.</summary>
+    private static string MemberRole(SyntaxTokenList modifiers) =>
+        modifiers.Any(SyntaxKind.ConstKeyword) ? "as a constant"
+        : modifiers.Any(SyntaxKind.StaticKeyword) ? "as static state"
+        : "instance state";
 
     /// <summary>A <c>byte</c>, <c>sbyte</c>, <c>short</c> or <c>ushort</c> type, nullable or not.</summary>
     private static bool IsNarrowType(TypeSyntax type) => (type is NullableTypeSyntax nullable ? nullable.ElementType : type) is
@@ -312,6 +331,9 @@ internal static class CartridgeEncodingScanner
         return new(owned ? CartridgeEncodingRule.OwnedNarrowStorageMember : CartridgeEncodingRule.NarrowStorageMember,
             CartridgeEncodingClass.NumericQuantity, $"'{identifier.ValueText}' {what}", identifier.GetLocation());
     }
+
+    /// <summary>The simulation assembly, the one place an inline narrowing cast is a gameplay wrap (#1480).</summary>
+    private const string SimulationAssembly = "SuperMetroid.Core";
 
     /// <summary>The namespace of Core's compatibility module, whose wrapping stubs own the widths they reproduce.</summary>
     private const string CompatibilityNamespace = "SuperMetroid.Core.Compatibility";
@@ -626,13 +648,6 @@ internal static class CartridgeEncodingScanner
         binary.IsKind(SyntaxKind.BitwiseAndExpression) ? $"'{binary}' keeps a byte, word or bank lane"
         : binary.IsKind(SyntaxKind.LeftShiftExpression) ? $"'{binary}' moves a value up by a byte, word or bank width"
         : $"'{binary}' moves a value down by a byte, word or bank width";
-
-    /// <summary>
-    /// Whether the literal is an enum member's value: an enum is a named definition set wherever its file lives, so
-    /// the value it assigns is a catalog definition rather than an encoding in functional code.
-    /// </summary>
-    private static bool IsEnumMemberValue(SyntaxToken token) =>
-        token.Parent?.FirstAncestorOrSelf<EqualsValueClauseSyntax>() is { Parent: EnumMemberDeclarationSyntax };
 
     /// <summary>Finds a containing type explicitly marked as the owner of its SNES encoding.</summary>
     private static bool IsInEncodingOwner(SyntaxNode? node, SemanticModel model, CancellationToken cancellationToken)

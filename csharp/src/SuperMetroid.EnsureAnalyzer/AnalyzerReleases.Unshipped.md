@@ -35,6 +35,7 @@ SME6342 | Design | Warning | CartridgeEncodingAnalyzer
 SME6345 | Design | Warning | CartridgeEncodingAnalyzer
 SME6346 | Design | Warning | CartridgeEncodingAnalyzer
 SME6347 | Design | Warning | CartridgeEncodingAnalyzer
+SME6453 | Design | Warning | CartridgeEncodingAnalyzer
 SME6348 | Design | Warning | CartridgeEncodingAnalyzer
 SME6349 | Design | Warning | CartridgeEncodingAnalyzer
 SME6392 | Design | Warning | SpeciesIdentityAnalyzer

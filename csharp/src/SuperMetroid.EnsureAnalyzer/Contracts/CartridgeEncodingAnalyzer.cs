@@ -38,6 +38,9 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     /// <summary>A narrow integral declaration holding gameplay state in Core (#1323, #1419).</summary>
     public const string NarrowStorageMemberId = "SME6347";
 
+    /// <summary>An inline cast to a narrow integral type outside its wrapping or encoding owner (#1480).</summary>
+    public const string NarrowingCastId = "SME6453";
+
     /// <summary>Guidance appended to each encoding diagnostic so users can find the reviewed exception policy.</summary>
     private const string Guide = "see docs/cartridge-encoding.md";
 
@@ -136,10 +139,24 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
             "never gameplay, so the declaration drops it and any native word lives in the codec (#1452) " +
             "(#1323, #1419, docs/cartridge-encoding.md).");
 
+    /// <summary>Warns on a narrowing cast that reproduces a register's wrap or sign inline (#1480).</summary>
+    private static readonly DiagnosticDescriptor NarrowingCastRule = new(
+        NarrowingCastId,
+        "Inline narrowing cast",
+        "{0}; state the wrap or sign the game observes in a named wrapping type or coordinate rule, or keep the value at its " +
+            "domain width ({1})",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A cast to byte, sbyte, short or ushort reproduces a register width inline: a 16-bit wrap or a sign " +
+            "reinterpretation spread across call sites. A wrap the game observes is stated once, in a wrapping stub of the " +
+            "Compatibility module or a coordinate rule; a width an encoding needs belongs to its [EncodingOwner] codec; " +
+            "anything else stays at its domain width (#1480, docs/cartridge-encoding.md).");
+
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         [RawHexRule, PointerDispatchRule, OpaqueWordArrayRule, RawWidthRule, CountdownSignTestRule, CountdownSelfDecrementRule,
-            FlagsPrimitiveCastRule, NarrowStorageMemberRule];
+            FlagsPrimitiveCastRule, NarrowStorageMemberRule, NarrowingCastRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -178,6 +195,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
                 CountdownSelfDecrementId => CountdownSelfDecrementRule,
                 FlagsPrimitiveCastId => FlagsPrimitiveCastRule,
                 NarrowStorageMemberId => NarrowStorageMemberRule,
+                NarrowingCastId => NarrowingCastRule,
                 null => null,
                 var id => throw new InvalidOperationException($"Unmapped cartridge-encoding rule id {id}."),
             };

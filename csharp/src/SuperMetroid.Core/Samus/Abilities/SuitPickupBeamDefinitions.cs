@@ -8,13 +8,13 @@ public static class SuitPickupBeamDefinitions
     /// <summary>Edges spanning the whole 256-pixel screen line.</summary>
     public static readonly SuitPickupBeamEdges FullScreenWindow = SuitPickupBeamEdges.Columns(0, 255);
     /// <summary>Initial unsigned 8.8 widening speed.</summary>
-    public const ushort InitialWideningSpeed = 0x0100;
+    public const ushort InitialWideningSpeed = 256;
     /// <summary>Per-frame unsigned 8.8 widening acceleration.</summary>
-    public const ushort WideningAcceleration = 0x0060;
+    public const ushort WideningAcceleration = 96;
     /// <summary>Per-frame unsigned 8.8 shrinking deceleration.</summary>
-    public const ushort ShrinkingDeceleration = 0x0020;
+    public const ushort ShrinkingDeceleration = 32;
     /// <summary>Minimum unsigned 8.8 shrinking speed.</summary>
-    public const ushort MinimumShrinkingSpeed = 0x0100;
+    public const ushort MinimumShrinkingSpeed = 256;
     /// <summary>Stage-two initial asymmetric edge pair.</summary>
     public static readonly SuitPickupBeamEdges CurvedWideningStart = SuitPickupBeamEdges.Columns(108, 132);
     /// <summary>Stage-five starting edge pair, whose left edge wraps to the screen's left on the first narrowing.</summary>

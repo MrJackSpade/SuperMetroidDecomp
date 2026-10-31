@@ -148,7 +148,7 @@ public static class SamusPaletteDefinitions
     public static class PowerBomb
     {
         /// <summary>The five-bit channel in each stored fixed-colour byte.</summary>
-        public const byte ComponentMask = 0x1f;
+        public const byte ComponentMask = 0b1_1111;
         /// <summary>Number of pre-explosion fixed-color triplets.</summary>
         public const int PreExplosionColorCount = 16;
         /// <summary>Number of explosion fixed-color triplets addressed by radius.</summary>

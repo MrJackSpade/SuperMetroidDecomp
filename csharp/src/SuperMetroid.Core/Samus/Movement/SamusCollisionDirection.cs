@@ -12,5 +12,5 @@ public enum SamusCollisionDirection
     /// <summary>Native jump-table value 3 at $A0:A917: probes toward increasing room Y using the current bottom edge.</summary>
     Down = 3,
     /// <summary>Bank-$94:96E3 pose-observation direction $F; not an actual downward contact.</summary>
-    NonDirectionalProbe = 0x0f,
+    NonDirectionalProbe = 15,
 }

@@ -10,59 +10,62 @@ internal static class SamusVerticalMotionDefinitions
     internal static UnsignedSixteenSixteen BallBounceSpeed { get; } = new(1, 0);
 
     /// <summary>$90:9EF5/9EFB InitialYSpeeds/InitialYSubSpeeds_BombJump: bomb launch is weakened equally in both liquids,
-    /// as 8.8 speeds by medium.</summary>
-    internal static readonly IReadOnlyDictionary<SamusLiquidMedium, int> BombJumpSpeeds = new Dictionary<SamusLiquidMedium, int>
+    /// as unsigned 16.16 speeds by medium.</summary>
+    internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> BombJumpSpeeds =
+        new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
     {
-        [SamusLiquidMedium.Air] = 0x02c0,
-        [SamusLiquidMedium.Water] = 0x0010,
-        [SamusLiquidMedium.LavaOrAcid] = 0x0010,
+        [SamusLiquidMedium.Air] = new(2, 49152),
+        [SamusLiquidMedium.Water] = new(0, 4096),
+        [SamusLiquidMedium.LavaOrAcid] = new(0, 4096),
     };
 
     /// <summary>$90:9EE9/9EEF InitialYSpeeds/InitialYSubSpeeds_Knockback: hurt launch ignores jump equipment and dash speed,
-    /// as 8.8 speeds by medium.</summary>
-    internal static readonly IReadOnlyDictionary<SamusLiquidMedium, int> KnockbackSpeeds = new Dictionary<SamusLiquidMedium, int>
+    /// as unsigned 16.16 speeds by medium.</summary>
+    internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> KnockbackSpeeds =
+        new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
     {
-        [SamusLiquidMedium.Air] = 0x0500,
-        [SamusLiquidMedium.Water] = 0x0200,
-        [SamusLiquidMedium.LavaOrAcid] = 0x0200,
+        [SamusLiquidMedium.Air] = new(5, 0),
+        [SamusLiquidMedium.Water] = new(2, 0),
+        [SamusLiquidMedium.LavaOrAcid] = new(2, 0),
     };
 
     /// <summary>
     /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: the launch magnitude with High Jump equipped by medium and
-    /// whether Samus kicks away from a wall, as 8.8 speeds. In lava or acid High Jump outweighs the wall kick.
+    /// whether Samus kicks away from a wall, as unsigned 16.16 speeds. In lava or acid High Jump outweighs the wall kick.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, int> HighJumpLaunchSpeeds =
-        new Dictionary<SamusLaunchSpeedKey, int>
+    internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen> HighJumpLaunchSpeeds =
+        new Dictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen>
     {
-        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = 0x0580,
-        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = 0x0600,
-        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = 0x0080,
-        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = 0x0280,
-        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = 0x0380,
-        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = 0x0380,
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = new(5, 32768),
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = new(6, 0),
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = new(0, 32768),
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = new(2, 32768),
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = new(3, 32768),
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = new(3, 32768),
     };
 
     /// <summary>
     /// $90:9EB9..9EE8 InitialYSpeeds/InitialYSubSpeeds: the launch magnitude without High Jump by medium and whether
-    /// Samus kicks away from a wall, as 8.8 speeds.
+    /// Samus kicks away from a wall, as unsigned 16.16 speeds.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, int> UnassistedLaunchSpeeds =
-        new Dictionary<SamusLaunchSpeedKey, int>
+    internal static readonly IReadOnlyDictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen> UnassistedLaunchSpeeds =
+        new Dictionary<SamusLaunchSpeedKey, UnsignedSixteenSixteen>
     {
-        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = 0x04a0,
-        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = 0x04e0,
-        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = 0x0040,
-        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = 0x01c0,
-        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = 0x02a0,
-        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = 0x02c0,
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.WallJump)] = new(4, 40960),
+        [new(SamusLiquidMedium.Air, SamusLaunchKind.Jump)] = new(4, 57344),
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.WallJump)] = new(0, 16384),
+        [new(SamusLiquidMedium.Water, SamusLaunchKind.Jump)] = new(1, 49152),
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.WallJump)] = new(2, 40960),
+        [new(SamusLiquidMedium.LavaOrAcid, SamusLaunchKind.Jump)] = new(2, 49152),
     };
 
-    /// <summary>$90:9EA1/9EA7 YSubAcceleration/YAcceleration: the fraction of each medium's gravity; the whole is zero in
+    /// <summary>$90:9EA1/9EA7 YSubAcceleration/YAcceleration: each medium's gravity, a fraction of a pixel per frame in
     /// all three media.</summary>
-    internal static readonly IReadOnlyDictionary<SamusLiquidMedium, int> GravityFractions = new Dictionary<SamusLiquidMedium, int>
+    internal static readonly IReadOnlyDictionary<SamusLiquidMedium, UnsignedSixteenSixteen> Gravities =
+        new Dictionary<SamusLiquidMedium, UnsignedSixteenSixteen>
     {
-        [SamusLiquidMedium.Air] = 0x1c00,
-        [SamusLiquidMedium.Water] = 0x0800,
-        [SamusLiquidMedium.LavaOrAcid] = 0x0900,
+        [SamusLiquidMedium.Air] = new(0, 7168),
+        [SamusLiquidMedium.Water] = new(0, 2048),
+        [SamusLiquidMedium.LavaOrAcid] = new(0, 2304),
     };
 }

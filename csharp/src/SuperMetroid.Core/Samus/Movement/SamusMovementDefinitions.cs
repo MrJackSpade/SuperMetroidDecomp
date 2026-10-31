@@ -40,14 +40,14 @@ public static class SamusMovementDefinitions
         /// $FF in pose-definition byte three: the pose has no shot direction. Hurt and
         /// damage-boost art store it, and $91:E95D lands them through the facing pair.
         /// </summary>
-        public const byte NoShotDirection = 0xff;
+        public const byte NoShotDirection = 255;
     }
 
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>
     public static class HorizontalMotion
     {
         /// <summary>Per-frame 16.16 extra-run acceleration while charging the Speed Booster: 1/16 pixel.</summary>
-        public const uint ExtraRunAcceleration = 0x00001000u;
+        public const uint ExtraRunAcceleration = 4096u;
     }
 
     /// <summary>Liquid damage, splashes, footsteps, and atmospheric-effect animation data.</summary>

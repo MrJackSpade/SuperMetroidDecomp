@@ -8,7 +8,7 @@ internal static class SamusHorizontalMotionDefinitions
     /// <summary>Deceleration of every air record, half a pixel per update per update.</summary>
     internal static SignedSixteenSixteen AirDeceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(8);
     /// <summary>Deceleration of every water record.</summary>
-    internal static SignedSixteenSixteen WaterDeceleration { get; } = SignedSixteenSixteen.FromParts(0, 0x0800);
+    internal static SignedSixteenSixteen WaterDeceleration { get; } = SignedSixteenSixteen.FromParts(0, 2048);
     /// <summary>Deceleration of every lava-or-acid record.</summary>
     internal static SignedSixteenSixteen LavaDeceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(4);
     /// <summary>Maximum running speed in air and water.</summary>
@@ -38,7 +38,7 @@ internal static class SamusHorizontalMotionDefinitions
     /// <summary>Running acceleration in air.</summary>
     internal static SignedSixteenSixteen AirRunningAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(3);
     /// <summary>Acceleration of running in a liquid and of a morph or spring ball in a liquid.</summary>
-    internal static SignedSixteenSixteen LiquidGroundAcceleration { get; } = SignedSixteenSixteen.FromParts(0, 0x0400);
+    internal static SignedSixteenSixteen LiquidGroundAcceleration { get; } = SignedSixteenSixteen.FromParts(0, 1024);
     /// <summary>Acceleration of both unused glitch balls.</summary>
     internal static SignedSixteenSixteen GlitchBallAcceleration { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(32);
     /// <summary>Knockback acceleration.</summary>
@@ -77,13 +77,13 @@ internal static class SamusHorizontalMotionDefinitions
 
     /// <summary>$90:9F25 XAccelSpeeds_DiagonalBombJump: acceleration, maximum and deceleration whole/fraction pairs.</summary>
     internal static readonly SpeedTableEntry DiagonalBombJump = new(
-        Acceleration: SignedSixteenSixteen.FromParts(0, 0x3000),
+        Acceleration: SignedSixteenSixteen.FromParts(0, 12288),
         MaximumSpeed: SignedSixteenSixteen.FromParts(3, 0),
-        Deceleration: SignedSixteenSixteen.FromParts(0, 0x0800));
+        Deceleration: SignedSixteenSixteen.FromParts(0, 2048));
 
     /// <summary>$90:9F31/$9F3D/$9F49 XAccelSpeeds_DisconnectGrappleInAir/InWater/InLavaAcid: three identical authored records.</summary>
     internal static readonly SpeedTableEntry GrappleRelease = new(
-        Acceleration: SignedSixteenSixteen.FromParts(0, 0x3000),
+        Acceleration: SignedSixteenSixteen.FromParts(0, 12288),
         MaximumSpeed: SignedSixteenSixteen.FromParts(15, 0),
-        Deceleration: SignedSixteenSixteen.FromParts(0, 0x1000));
+        Deceleration: SignedSixteenSixteen.FromParts(0, 4096));
 }

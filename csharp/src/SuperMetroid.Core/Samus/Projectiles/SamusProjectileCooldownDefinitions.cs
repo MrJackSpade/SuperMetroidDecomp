@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileCooldownDefinitions
 {
     /// <summary>The SpaceTime beam's cooldown byte.</summary>
-    internal const byte SpacetimeCooldown = 0x0D;
+    internal const byte SpacetimeCooldown = 13;
 
     /// <summary>Cooldown $0CCC that Handle_Samus_Cooldown ($90:AC32) holds while time is frozen.</summary>
-    internal const ushort FrozenTime = 0x20;
+    internal const ushort FrozenTime = 32;
 
     /// <summary>
     /// $90:C27A: the non-beam cooldowns, one row per non-beam projectile kind. The missile (row one) waits 10 frames,
@@ -16,5 +16,5 @@ internal static class SamusProjectileCooldownDefinitions
     /// </summary>
     internal static readonly byte[] NonBeamCooldownRows = [0, 10, 20, 40, 0, 16, 0, 0, 0];
     /// <summary>Native low-nibble beam bits: Plasma plus Ice without Wave or Spazer.</summary>
-    internal const int PlasmaIce = 0x0a;
+    internal const int PlasmaIce = 10;
 }

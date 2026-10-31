@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 internal static class XrayRevealDefinitions
 {
     /// <summary>Blank metatile selected by negative-coordinate extension exits at $91:CE95/$91:CED7.</summary>
-    internal const int BlankMetatile = 0x00ff;
+    internal const int BlankMetatile = 255;
 
     /// <summary>Behaviour $46 is the only special-air value admitted by the native table.</summary>
     /// <remarks>
@@ -20,7 +20,7 @@ internal static class XrayRevealDefinitions
     /// every other behaviour returns no reveal. Direct ROM words and all 256
     /// special-air cases in the independent X-ray reveal oracle agree.
     /// </remarks>
-    internal const int SpecialAirRevealBehavior = 0x46;
+    internal const int SpecialAirRevealBehavior = 70;
 
     /// <summary>Behaviour $0E is the only spike-block value admitted by the native table.</summary>
     /// <remarks>
@@ -31,7 +31,7 @@ internal static class XrayRevealDefinitions
     /// values return no reveal. Direct ROM words and all 256 spike-block
     /// cases in the independent X-ray reveal oracle agree.
     /// </remarks>
-    internal const int SpikeRevealBehavior = 0x0e;
+    internal const int SpikeRevealBehavior = 14;
 
     /// <summary>Air reveals one $00FF tile for every behaviour byte.</summary>
     /// <remarks>
@@ -42,7 +42,7 @@ internal static class XrayRevealDefinitions
     /// constant definition. Direct ROM words and the independent 256-case
     /// air slice of the X-ray reveal oracle agree; no pointer table is needed.
     /// </remarks>
-    internal static readonly XrayRevealDefinition Air = One(0x00ff);
+    internal static readonly XrayRevealDefinition Air = One(255);
     /// <summary>Horizontal extension command for every behaviour byte.</summary>
     /// <remarks>
     /// Issue #1029: pinned NTSC J/U v1.0 ROM $91:D310..D317 has wildcard
@@ -75,74 +75,74 @@ internal static class XrayRevealDefinitions
     /// <summary>The value each key selects; FindSpikeBlock looks it up.</summary>
     internal static readonly IReadOnlyDictionary<int, XrayRevealDefinition?> SpikeBlockReveals = new Dictionary<int, XrayRevealDefinition?>
     {
-        [SpikeRevealBehavior] = One(0x005f),
+        [SpikeRevealBehavior] = One(95),
     };
 
     /// <summary>The value each key selects; FindSpecialBlock looks it up.</summary>
     internal static readonly IReadOnlyDictionary<int, XrayRevealDefinition?> SpecialBlockReveals = new Dictionary<int, XrayRevealDefinition?>
     {
-        [0] = One(0x00bc),
-        [4] = One(0x00bc),
-        [8] = One(0x00bc),
-        [9] = One(0x00bc),
-        [0x0a] = One(0x00bc),
-        [0x0b] = One(0x00bc),
-        [0x0c] = One(0x00bc),
-        [0x0d] = One(0x00bc),
-        [1] = Wide(0x00bc, 0x00bc),
-        [5] = Wide(0x00bc, 0x00bc),
-        [2] = Tall(0x00bc, 0x00bc),
-        [6] = Tall(0x00bc, 0x00bc),
-        [3] = Square(0x00bc, 0x00bc, 0x00bc, 0x00bc),
-        [7] = Square(0x00bc, 0x00bc, 0x00bc, 0x00bc),
-        [0x0e] = One(0x00b6),
-        [0x0f] = One(0x00b6),
-        [0x82] = new(XrayRevealCommand.CopyBrinstar, 0x00b6, 0, 0, 0),
-        [0x83] = new(XrayRevealCommand.CopyBrinstar, 0x00b6, 0, 0, 0),
-        [0x84] = new(XrayRevealCommand.CopyBrinstar, 0x00b6, 0, 0, 0),
-        [0x85] = new(XrayRevealCommand.CopyBrinstar, 0x00b6, 0, 0, 0),
+        [0] = One(188),
+        [4] = One(188),
+        [8] = One(188),
+        [9] = One(188),
+        [10] = One(188),
+        [11] = One(188),
+        [12] = One(188),
+        [13] = One(188),
+        [1] = Wide(188, 188),
+        [5] = Wide(188, 188),
+        [2] = Tall(188, 188),
+        [6] = Tall(188, 188),
+        [3] = Square(188, 188, 188, 188),
+        [7] = Square(188, 188, 188, 188),
+        [14] = One(182),
+        [15] = One(182),
+        [130] = new(XrayRevealCommand.CopyBrinstar, 182, 0, 0, 0),
+        [131] = new(XrayRevealCommand.CopyBrinstar, 182, 0, 0, 0),
+        [132] = new(XrayRevealCommand.CopyBrinstar, 182, 0, 0, 0),
+        [133] = new(XrayRevealCommand.CopyBrinstar, 182, 0, 0, 0),
     };
 
     /// <summary>The value each key selects; FindShootableBlock looks it up.</summary>
     internal static readonly IReadOnlyDictionary<int, XrayRevealDefinition?> ShootableBlockReveals = new Dictionary<int, XrayRevealDefinition?>
     {
-        [0] = One(0x0052),
-        [4] = One(0x0052),
-        [1] = Wide(0x0096, 0x0097),
-        [5] = Wide(0x0096, 0x0097),
-        [2] = Tall(0x0098, 0x00b8),
-        [6] = Tall(0x0098, 0x00b8),
-        [3] = Square(0x0099, 0x009a, 0x00b9, 0x00ba),
-        [7] = Square(0x0099, 0x009a, 0x00b9, 0x00ba),
-        [8] = One(0x0057),
-        [9] = One(0x0057),
-        [10] = One(0x009f),
-        [11] = One(0x009f),
-        [12] = One(0x009f),
-        [13] = One(0x009f),
-        [14] = One(0x009f),
-        [15] = One(0x009f),
+        [0] = One(82),
+        [4] = One(82),
+        [1] = Wide(150, 151),
+        [5] = Wide(150, 151),
+        [2] = Tall(152, 184),
+        [6] = Tall(152, 184),
+        [3] = Square(153, 154, 185, 186),
+        [7] = Square(153, 154, 185, 186),
+        [8] = One(87),
+        [9] = One(87),
+        [10] = One(159),
+        [11] = One(159),
+        [12] = One(159),
+        [13] = One(159),
+        [14] = One(159),
+        [15] = One(159),
     };
 
     /// <summary>The value each key selects; FindGrappleBlock looks it up.</summary>
     internal static readonly IReadOnlyDictionary<int, XrayRevealDefinition?> GrappleBlockReveals = new Dictionary<int, XrayRevealDefinition?>
     {
-        [0] = One(0x009b),
-        [1] = One(0x00b7),
-        [2] = One(0x00b7),
+        [0] = One(155),
+        [1] = One(183),
+        [2] = One(183),
     };
 
     /// <summary>The value each key selects; FindBombableBlock looks it up.</summary>
     internal static readonly IReadOnlyDictionary<int, XrayRevealDefinition?> BombableBlockReveals = new Dictionary<int, XrayRevealDefinition?>
     {
-        [0] = One(0x0058),
-        [4] = One(0x0058),
-        [1] = Wide(0x0058, 0x0058),
-        [5] = Wide(0x0058, 0x0058),
-        [2] = Tall(0x0058, 0x0058),
-        [6] = Tall(0x0058, 0x0058),
-        [3] = Square(0x0058, 0x0058, 0x0058, 0x0058),
-        [7] = Square(0x0058, 0x0058, 0x0058, 0x0058),
+        [0] = One(88),
+        [4] = One(88),
+        [1] = Wide(88, 88),
+        [5] = Wide(88, 88),
+        [2] = Tall(88, 88),
+        [6] = Tall(88, 88),
+        [3] = Square(88, 88, 88, 88),
+        [7] = Square(88, 88, 88, 88),
     };
 
     /// <summary>Copies one authored tile to the X-ray overlay at the inspected block.</summary>

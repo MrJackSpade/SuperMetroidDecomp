@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class PowerBombExplosionDefinitions
 {
     /// <summary>Initial unsigned 8.8 radius.</summary>
-    public const ushort InitialRadius = 0x0400;
+    public const ushort InitialRadius = 1024;
     /// <summary>Initial pre-explosion unsigned 8.8 radial velocity.</summary>
-    public const ushort InitialPreExplosionSpeed = 0x3000;
+    public const ushort InitialPreExplosionSpeed = 12288;
     /// <summary>Pre-explosion unsigned 8.8 acceleration.</summary>
-    public const ushort PreExplosionAcceleration = 0x0080;
+    public const ushort PreExplosionAcceleration = 128;
     /// <summary>Explosion unsigned 8.8 acceleration.</summary>
-    public const ushort ExplosionAcceleration = 0x0030;
+    public const ushort ExplosionAcceleration = 48;
     /// <summary>
     /// The horizontal radius, in pixels, of each yellow oval the pre-explosion's last frames walk, one per frame. Each
     /// is the radius a blast starting at four pixels and forty-eight pixels a frame, slowing by half a pixel a frame,
@@ -35,7 +35,7 @@ public static class PowerBombExplosionDefinitions
     /// <summary>Radius at which yellow explosion switches to white shapes.</summary>
     public static readonly PowerBombRadius ExplosionYellowLimit = PowerBombRadius.FromWholePixels(134);
     /// <summary>Crystal Flash's shorter explosion radius limit.</summary>
-    public const ushort CrystalFlashRadiusLimit = 0x2000;
+    public const ushort CrystalFlashRadiusLimit = 8192;
     /// <summary>
     /// Maximum component of the first native Crystal Flash color at $88:8D85:
     /// RGB5 (14,14,10). This is a lifetime operand, not replacement artwork.

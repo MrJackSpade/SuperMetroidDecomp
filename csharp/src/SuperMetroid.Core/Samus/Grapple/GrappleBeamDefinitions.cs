@@ -17,7 +17,7 @@ public static class GrappleBeamDefinitions
         /// <summary>$9B:C67F selects beam palette two before entering the firing function.</summary>
         public const SamusBeamCombination FiringSelection = SamusBeamCombination.Ice;
         /// <summary>$9B:C686 writes $7F91 to sprite palette five, color fifteen.</summary>
-        public static RgbColor FlareColor => RgbColor.FromWord(0x7f91);
+        public static RgbColor FlareColor => new RgbColor(17, 28, 31);
     }
 
     /// <summary>Exact sound queue commands issued by bank-$9B grapple functions.</summary>
@@ -44,9 +44,9 @@ public static class GrappleBeamDefinitions
         /// <summary>Correction applied when velocity opposes the current swing direction.</summary>
         public const short VelocityCorrectionMagnitude = 5;
         /// <summary>Maximum signed angular velocity.</summary>
-        public const short MaximumAngularVelocity = 0x0480;
+        public const short MaximumAngularVelocity = 1152;
         /// <summary>Angular impulse applied by Jump during a swing.</summary>
-        public const short JumpImpulseMagnitude = 0x0300;
+        public const short JumpImpulseMagnitude = 768;
     }
 
     /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>

@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public static class KraidNailLaunchDefinitions
 {
     /// <summary>The launch's whole X word: one pixel per frame leftward.</summary>
-    public const ushort LeftwardWhole = ushort.MaxValue;
+    public const int LeftwardWhole = ushort.MaxValue;
 
     /// <summary>The launch's whole Y word when the sibling moves upward: one pixel per frame downward.</summary>
-    public const ushort DownwardWhole = 1;
+    public const int DownwardWhole = 1;
 
     /// <summary>The launch's whole Y word when the sibling moves downward or holds: one pixel per frame upward.</summary>
-    public const ushort UpwardWhole = ushort.MaxValue;
+    public const int UpwardWhole = ushort.MaxValue;
 }

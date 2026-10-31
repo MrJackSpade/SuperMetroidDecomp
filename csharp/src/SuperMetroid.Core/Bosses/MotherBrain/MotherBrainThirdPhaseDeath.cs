@@ -407,7 +407,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
         _state.FunctionTimer = _state.FunctionTimer.AddFrames(32);
         int fallingDisplacement = UnsignedEightEight.Whole(_state.FunctionTimer.RemainingFrames);
-        Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, (short)fallingDisplacement);
+        Position16<RoomPixels> candidate = _state.BrainPosition + new Offset16<RoomPixels>(0, WordWrap.Signed(fallingDisplacement));
         if (candidate.Y >= 196)
         {
             _state.EarthquakeType = 2;

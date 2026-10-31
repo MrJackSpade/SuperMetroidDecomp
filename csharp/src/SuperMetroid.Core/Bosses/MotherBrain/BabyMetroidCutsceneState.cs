@@ -36,9 +36,9 @@ public sealed class BabyMetroidCutsceneState
     /// <remarks>Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's friendly names,
     /// `$A0:8AFF/$8B05` copy those words directly into the enemy slot's X/Y *radius* fields; there is no
     /// diameter-to-radius division anywhere in between.</remarks>
-    public const ushort XHitboxRadius = 36;
+    public const int XHitboxRadius = 36;
     /// <summary>Vertical collision half-extent, 36 room pixels from the Baby's center, copied without halving from <c>EnemyHeaders_BabyMetroidCutscene</c> at $A0:ECBF.</summary>
-    public const ushort YHitboxRadius = 36;
+    public const int YHitboxRadius = 36;
 
     /// <summary>Current native function-pointer equivalent.</summary>
     public BabyMetroidCutscenePhase Phase { get; internal set; } =
@@ -534,7 +534,7 @@ public sealed class BabyMetroidCutsceneState
                 // enter at `$A9:F466`, which stores a `$10` wrong-way off-screen X extra,
                 // not the `$400` of the entrance helpers.
             {
-                var target = new Position16<RoomPixels>(unchecked((ushort)(samus.Position.X.Whole - 4)), 96);
+                var target = new Position16<RoomPixels>(CoordinateAxis.Wrap(samus.Position.X.Whole - 4), 96);
                 GraduallyAccelerateTowardsPoint(
                     target,
                     accelerationDivisor: 16,
@@ -617,7 +617,7 @@ public sealed class BabyMetroidCutsceneState
                 // `ShakeBabyMetroidCutscene` ($A9:CEDB) first adds `$FFFF` to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
-                Velocity = Velocity.WithY(new SignedEightEight(unchecked((ushort)(Velocity.Y.RawValue - 1))));
+                Velocity = Velocity.WithY(SignedEightEight.Wrapped(Velocity.Y.RawValue - 1));
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
                 Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
@@ -793,7 +793,7 @@ public sealed class BabyMetroidCutsceneState
 
             case BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow:
                 // `$CD30` uses a signed CMP/BMI after adding sixteen to the Baby's Y.
-                if (unchecked((short)(Position.Y.Whole + 16 - samus.Position.Y.Whole)) < 0)
+                if (CoordinateAxis.AsSigned(Position.Y.Whole + 16 - samus.Position.Y.Whole) < 0)
                     return;
                 samus.Drained.EnableRainbow(samus);
                 samusRainbowActivated = true;
@@ -823,15 +823,15 @@ public sealed class BabyMetroidCutsceneState
         int xVelocity = Velocity.X.SignedRawValue;
         int magnitude = Math.Max(0, Math.Abs(xVelocity) - 32);
         Velocity = new(
-            SignedEightEight.FromSignedRaw((short)(xVelocity < 0 ? -magnitude : magnitude)),
-            new SignedEightEight(unchecked((ushort)(Velocity.Y.RawValue + 2))));
+            SignedEightEight.FromSignedRaw(WordWrap.Signed(xVelocity < 0 ? -magnitude : magnitude)),
+            SignedEightEight.Wrapped(Velocity.Y.RawValue + 2));
     }
 
     /// <summary>Advances the Baby's black-fade shade every nine calls after its center reaches Y=$80, selecting the shade it shows.</summary>
     private bool StepFadeToBlack(ref int? fadeShade)
     {
         // No timer changes occur until the actor's centre reaches Y `$80`.
-        if (unchecked((short)(Position.Y.Whole - 128)) < 0)
+        if (CoordinateAxis.Difference(Position.Y.Whole, 128) < 0)
             return false;
 
         FadeToBlackPaletteTimer = FadeToBlackPaletteTimer.Decrement().Remaining;
@@ -894,13 +894,13 @@ public sealed class BabyMetroidCutsceneState
         RotationAngle candidateAngle = Angle.AddRaw(angleDelta);
         if (angleDelta < 0)
         {
-            Angle = unchecked((short)(candidateAngle.RawValue - targetAngle.RawValue)) >= 0
+            Angle = CoordinateAxis.Difference(candidateAngle.RawValue, targetAngle.RawValue) >= 0
                 ? candidateAngle
                 : targetAngle;
         }
         else
         {
-            Angle = unchecked((short)(candidateAngle.RawValue - targetAngle.RawValue)) < 0
+            Angle = CoordinateAxis.Difference(candidateAngle.RawValue, targetAngle.RawValue) < 0
                 ? candidateAngle
                 : targetAngle;
         }
@@ -951,7 +951,7 @@ public sealed class BabyMetroidCutsceneState
 
         static bool AxisTouches(int samusPosition, int enemyPosition, int samusRadius, int enemyRadius)
         {
-            int distance = Math.Abs(unchecked((short)(samusPosition - enemyPosition)));
+            int distance = CoordinateAxis.Distance(samusPosition, enemyPosition);
             return distance < samusRadius || distance - samusRadius < enemyRadius;
         }
     }
@@ -963,10 +963,10 @@ public sealed class BabyMetroidCutsceneState
     {
         // `$A9:EF06` adds both radii and one, then rejects `abs(delta) >= sum+1`.
         // In the normal room-coordinate domain that is equivalently `abs(delta) <= sum`.
-        int xDistance = Math.Abs(unchecked((short)(center.X - Position.X.Whole)));
+        int xDistance = CoordinateAxis.Distance(center.X, Position.X.Whole);
         if (xDistance > rectangleRadius.X + XHitboxRadius)
             return false;
-        int yDistance = Math.Abs(unchecked((short)(center.Y - Position.Y.Whole)));
+        int yDistance = CoordinateAxis.Distance(center.Y, Position.Y.Whole);
         return yDistance <= rectangleRadius.Y + YHitboxRadius;
     }
 
@@ -989,14 +989,14 @@ public sealed class BabyMetroidCutsceneState
     {
         // This is the signed-branch sequence at `$A9:F57A`; its generous rectangle extends
         // 16 pixels left/right and 96 pixels vertically beyond the ordinary 256x224 view.
-        if (unchecked((short)Position.Y.Whole) < 0)
+        if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)
             return true;
-        int relativeY = unchecked((short)(Position.Y.Whole + 96 - layer1.Y));
+        int relativeY = CoordinateAxis.AsSigned(Position.Y.Whole + 96 - layer1.Y);
         if (relativeY is < 0 or >= 416)
             return true;
-        if (unchecked((short)Position.X.Whole) < 0)
+        if (CoordinateAxis.AsSigned(Position.X.Whole) < 0)
             return true;
-        int relativeX = unchecked((short)(Position.X.Whole + 16 - layer1.X));
+        int relativeX = CoordinateAxis.AsSigned(Position.X.Whole + 16 - layer1.X);
         return relativeX is < 0 or >= 288;
     }
 
@@ -1013,24 +1013,24 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Accelerates Y toward its target at at most five pixels per frame and zeroes velocity on crossing.</summary>
     private bool AccelerateTowardsYPosition(int targetY, int acceleration)
     {
-        int difference = unchecked((short)(Position.Y.Whole - targetY));
+        int difference = CoordinateAxis.Difference(Position.Y.Whole, targetY);
         if (difference == 0)
             return true;
 
         if (difference < 0)
         {
             int velocity = Math.Min(Velocity.Y.SignedRawValue + acceleration, 1280);
-            Velocity = Velocity.WithY(new SignedEightEight(unchecked((ushort)velocity)));
-            int prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(EightEight.WholeOf(Velocity.Y.RawValue)))));
-            if (unchecked((short)(prediction - targetY)) < 0)
+            Velocity = Velocity.WithY(SignedEightEight.Wrapped(velocity));
+            int prediction = CoordinateAxis.Wrap(Position.Y.Whole + WordWrap.SignedLowByte(EightEight.WholeOf(Velocity.Y.RawValue)));
+            if (CoordinateAxis.Difference(prediction, targetY) < 0)
                 return false;
         }
         else
         {
             int velocity = Math.Max(Velocity.Y.SignedRawValue - acceleration, -1280);
-            Velocity = Velocity.WithY(new SignedEightEight(unchecked((ushort)velocity)));
-            int prediction = unchecked((ushort)(Position.Y.Whole + unchecked((sbyte)(EightEight.WholeOf(Velocity.Y.RawValue)))));
-            int predictedDifference = unchecked((short)(prediction - targetY));
+            Velocity = Velocity.WithY(SignedEightEight.Wrapped(velocity));
+            int prediction = CoordinateAxis.Wrap(Position.Y.Whole + WordWrap.SignedLowByte(EightEight.WholeOf(Velocity.Y.RawValue)));
+            int predictedDifference = CoordinateAxis.Difference(prediction, targetY);
             if (predictedDifference > 0)
                 return false;
         }
@@ -1042,13 +1042,13 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Accelerates X toward its target with native equality choosing the left branch and zeroes velocity on crossing.</summary>
     private bool AccelerateTowardsXPosition(int targetX, int acceleration)
     {
-        int difference = unchecked((short)(Position.X.Whole - targetX));
+        int difference = CoordinateAxis.Difference(Position.X.Whole, targetX);
         if (difference < 0)
         {
             int velocity = Math.Min(Velocity.X.SignedRawValue + acceleration, 1280);
-            Velocity = Velocity.WithX(new SignedEightEight(unchecked((ushort)velocity)));
-            int prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(EightEight.WholeOf(Velocity.X.RawValue)))));
-            if (unchecked((short)(prediction - targetX)) < 0)
+            Velocity = Velocity.WithX(SignedEightEight.Wrapped(velocity));
+            int prediction = CoordinateAxis.Wrap(Position.X.Whole + WordWrap.SignedLowByte(EightEight.WholeOf(Velocity.X.RawValue)));
+            if (CoordinateAxis.Difference(prediction, targetX) < 0)
                 return false;
         }
         else
@@ -1056,9 +1056,9 @@ public sealed class BabyMetroidCutsceneState
             // Native deliberately sends exact equality through the left branch; unlike Y,
             // there is no BEQ before BPL at `$A9:F619-$F61B`.
             int velocity = Math.Max(Velocity.X.SignedRawValue - acceleration, -1280);
-            Velocity = Velocity.WithX(new SignedEightEight(unchecked((ushort)velocity)));
-            int prediction = unchecked((ushort)(Position.X.Whole + unchecked((sbyte)(EightEight.WholeOf(Velocity.X.RawValue)))));
-            int predictedDifference = unchecked((short)(prediction - targetX));
+            Velocity = Velocity.WithX(SignedEightEight.Wrapped(velocity));
+            int prediction = CoordinateAxis.Wrap(Position.X.Whole + WordWrap.SignedLowByte(EightEight.WholeOf(Velocity.X.RawValue)));
+            int predictedDifference = CoordinateAxis.Difference(prediction, targetX);
             if (predictedDifference > 0)
                 return false;
         }

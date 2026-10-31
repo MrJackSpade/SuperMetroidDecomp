@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainBabyMetroidDefinitions
 {
     /// <summary>$A9:CC6C, Function_BabyMetroidCutscene_PlaySamusTheme: track $0005 follows the theme data upload.</summary>
-    internal const byte SamusThemeMusicTrack = 5;
+    internal const int SamusThemeMusicTrack = 5;
 
     /// <summary>
     /// The single embedded population record at <c>$A9:BE28-$A9:BE37</c>. Baby init AI

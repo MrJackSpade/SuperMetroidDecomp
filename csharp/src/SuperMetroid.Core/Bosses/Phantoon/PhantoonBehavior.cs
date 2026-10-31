@@ -64,11 +64,11 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Native per-update increase in introductory wave amplitude.</summary>
-    internal const ushort PhantoonIntroAmplitudeDelta = 64;
+    internal const int PhantoonIntroAmplitudeDelta = 64;
     /// <summary>Wave amplitude at which the intro advances to the next phase.</summary>
-    internal const ushort PhantoonIntroMaximumAmplitude = 3072;
+    internal const int PhantoonIntroMaximumAmplitude = 3072;
     /// <summary>Per-update phase increment for the wavy BG2 distortion.</summary>
-    internal const ushort PhantoonWavyPhaseDelta = 8;
+    internal const int PhantoonWavyPhaseDelta = 8;
 
     /// <summary>Ports <c>InitAI_PhantoonBody</c> at $A7:CDF3.</summary>
     internal void InitializePhantoonBody(RoomEnemySlot body)
@@ -279,8 +279,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Parts[state.Eye.SlotIndex].WaveLength is null)
         {
             state.BodyLayerPlacement = new(
-                unchecked((ushort)(camera.X - body.Position.X.Whole + 40)),
-                unchecked((ushort)(camera.Y - body.Position.Y.Whole + 40)));
+                CoordinateAxis.Wrap(camera.X - body.Position.X.Whole + 40),
+                CoordinateAxis.Wrap(camera.Y - body.Position.Y.Whole + 40));
         }
     }
 
@@ -293,7 +293,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             "Phantoon's eye and swoop programs require the active Samus actor.");
 
     /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
-    internal const ushort PhantoonDamageThreshold = 300;
+    internal const int PhantoonDamageThreshold = 300;
 
     /// <summary>Ports Phantoon's palette-only hurt AI at $A7:DD3F.</summary>
     internal void ApplyPhantoonHurt(RoomEnemySlot body, PhantoonEnemyState state)
@@ -323,9 +323,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             _presentation.BossColours().PhantoonBody.Write(color, Presentation.ReadPhantoonHealthColor(healthBand, color));
     }
     /// <summary>Per-update wave increment during the wavy mosaic death animation.</summary>
-    internal const ushort PhantoonDeathWaveDelta = 256;
+    internal const int PhantoonDeathWaveDelta = 256;
     /// <summary>Wave ceiling reached before the death animation advances.</summary>
-    internal const ushort PhantoonDeathWaveMaximum = 61440;
+    internal const int PhantoonDeathWaveMaximum = 61440;
 
     /// <summary>
     /// Runs a Phantoon part's program where the enemy instruction interpreter would: the frame expires on the update

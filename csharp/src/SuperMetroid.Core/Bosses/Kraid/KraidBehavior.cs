@@ -64,7 +64,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The native maximum timer the still lint and fingernail parts wait behind before their first frame.</summary>
-    internal const ushort KraidStillPartTimer = 32767;
+    internal const int KraidStillPartTimer = 32767;
 
     /// <summary>
     /// Ports <c>MainAI_Kraid</c> ($A7:AC21): mouth-projectile collision, palette handling,
@@ -93,8 +93,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // `$A7:AC21` places his body layer to follow Kraid rather than the room. X radius is the native
         // body's right-edge origin adjustment; 152 is the authored vertical anchor.
         state.BodyLayerPlacement = new Position16<BackgroundPixels>(
-            unchecked((ushort)(camera.X - body.Position.X.Whole + body.Radius.X)),
-            unchecked((ushort)(camera.Y - body.Position.Y.Whole + 152)));
+            CoordinateAxis.Wrap(camera.X - body.Position.X.Whole + body.Radius.X),
+            CoordinateAxis.Wrap(camera.Y - body.Position.Y.Whole + 152));
         KraidAiFunction function = state.Parts[body.SlotIndex].Function;
         if (KraidFunctionGroups.Rise.Contains(function))
         {

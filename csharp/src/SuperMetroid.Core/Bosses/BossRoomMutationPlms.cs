@@ -64,8 +64,8 @@ internal sealed class BossRoomMutationPlms
         // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
         // PLM instruction-timer allocation before returning to the enemy initializer.
         slot.InstructionTimer = WrappingCountdown.FromRaw(header == PlmHeaderId.CrumbleBotwoonWall
-            ? (ushort)64
-            : (ushort)1);
+            ? 64
+            : 1);
         return true;
     }
 
@@ -775,7 +775,7 @@ internal sealed class BossRoomMutationPlms
         // instruction timer is allowed to consume and delete this allocated slot.
         for (int rowOffset = 0; rowOffset < 10; rowOffset++)
         {
-            int blockIndex = level.GetBlockIndex(block + new Offset16<RoomBlocks>(0, checked((short)rowOffset)));
+            int blockIndex = level.GetBlockIndex(block + new Offset16<RoomBlocks>(0, rowOffset));
             RoomTerrainBlock replacement = level.GetCollisionBlockByIndex(blockIndex).Terrain.WithCollision(
                 header == PlmHeaderId.CreateBabyMetroidInvisibleWall ? RoomCollisionType.SolidBlock : RoomCollisionType.Air);
             level.SetTerrain(blockIndex, replacement);

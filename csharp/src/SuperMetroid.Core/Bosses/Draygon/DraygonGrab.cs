@@ -67,7 +67,7 @@ internal sealed class DraygonGrab
 
         int clawOffset = state.FacingRight ? 8 : -8;
         bool insideGrabWindow =
-            EnemyMath.IsWithinStrictModularDistance(unchecked((ushort)(body.Position.X.Whole + clawOffset)), samus.Position.X.Whole, 8) &&
+            EnemyMath.IsWithinStrictModularDistance(CoordinateAxis.Wrap(body.Position.X.Whole + clawOffset), samus.Position.X.Whole, 8) &&
             EnemyMath.IsWithinStrictModularDistance(body.Position.Y.Whole, samus.Position.Y.Whole, 8);
         if (!insideGrabWindow)
         {
@@ -169,21 +169,21 @@ internal sealed class DraygonGrab
 
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(state.SpiralCenter.Whole + new Offset16<RoomPixels>(
-            unchecked((short)EnemyMath.ReadEightBitCosineProduct(state.SpiralAngle.ToByteAngle(), state.SpiralXRadius.WholeWord)),
-            unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(
+            CoordinateAxis.AsSigned(EnemyMath.ReadEightBitCosineProduct(state.SpiralAngle.ToByteAngle(), state.SpiralXRadius.WholeWord)),
+            CoordinateAxis.AsSigned(EnemyMath.ReadEightBitNegativeSineProduct(
                 state.SpiralAngle.ToByteAngle(),
-                unchecked((ushort)(state.SpiralXRadius.WholeWord >> 2))))));
+                CoordinateAxis.Wrap(state.SpiralXRadius.WholeWord >> 2)))));
 
         if ((body.FrameCounter & 7) == 0)
         {
             _spriteObjects.SpawnRoomSpriteObject(
-                body.Position.Whole + new Offset16<RoomPixels>((short)(state.FacingRight ? 32 : -32), -16),
+                body.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(state.FacingRight ? 32 : -32), -16),
                 RoomSpriteObjectKind.DraygonSpiralFoam,
                 graphics: default);
         }
 
         state.SpiralXRadius += DraygonBehavior.DraygonSpiralRadiusGrowth;
-        if (unchecked((short)(state.SpiralXRadius.WholeWord - DraygonBehavior.DraygonMaximumSpiralRadius)) >= 0)
+        if (CoordinateAxis.Difference(state.SpiralXRadius.WholeWord, DraygonBehavior.DraygonMaximumSpiralRadius) >= 0)
         {
             state.Function = DraygonAiFunction.FinalTailWhips;
             return;
@@ -193,7 +193,7 @@ internal sealed class DraygonGrab
         state.SpiralAngle = state.SpiralAngle.AddTableUnits(state.SpiralAngleDelta.TableIndex);
 
         state.SpiralCenter = state.SpiralCenter.AdvanceY(DraygonBehavior.DraygonSpiralCenterLift);
-        if (unchecked((short)(state.SpiralCenter.Y.Whole - DraygonBehavior.DraygonMinimumSpiralCenterY)) < 0)
+        if (CoordinateAxis.Difference(state.SpiralCenter.Y.Whole, DraygonBehavior.DraygonMinimumSpiralCenterY) < 0)
         {
             state.Function = DraygonAiFunction.FinalTailWhips;
             return;
@@ -298,11 +298,11 @@ internal sealed class DraygonGrab
 
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
-            checked((ushort)speed),
+            Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
             angleOffset: RotationAngle.QuarterTurn.TableIndex));
         uint yMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
-            checked((ushort)speed),
+            Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
             angleOffset: RotationAngle.HalfTurn.TableIndex));
 
         body.Position = body.Position.WithX(DraygonMovement.AddDraygonAngleMagnitude(

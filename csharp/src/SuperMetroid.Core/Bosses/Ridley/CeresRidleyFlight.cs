@@ -83,7 +83,7 @@ internal sealed class CeresRidleyFlight
             IdleTailWhipEnabled = true,
             TailDamage = 15,
             Velocity = new EightEightVector<RoomPixels>(0, 0),
-            MovementMinimum = new Position16<RoomPixels>(40, unchecked((ushort)-32)),
+            MovementMinimum = new Position16<RoomPixels>(40, WordWrap.Unsigned(-32)),
             MovementMaximum = new Position16<RoomPixels>(224, 176),
             BabyProgram = AnimationProgramCursor<CeresBabyProgram>.Start(CeresBabyProgram.Initial),
             BabyInstructionTimer = 1,
@@ -127,8 +127,8 @@ internal sealed class CeresRidleyFlight
     {
         // The fallthrough from A6AF deliberately applies both -16 and +20 on the crossing
         // frame. Do not combine these into a single acceleration outside this state.
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 20))));
-        if (unchecked((short)(slot.Position.Y.Whole - 80)) < 0)
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue + 20));
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 80) < 0)
         {
             state.Function = RidleyAiFunction.CeresHovering;
             state.FightMode = RidleyFightMode.Fighting;
@@ -186,17 +186,17 @@ internal sealed class CeresRidleyFlight
     {
         int verticalVelocity = state.Velocity.Y.SignedRawValue;
         int magnitude = Math.Max(128, Math.Abs(verticalVelocity));
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(verticalVelocity < 0 ? -magnitude : magnitude))));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(verticalVelocity < 0 ? -magnitude : magnitude));
         AccelerateRidleyToward(slot, state, new(slot.Position.X.Whole, 88), 0);
 
-        if (unchecked((short)(slot.Position.Y.Whole - 80)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 80) < 0)
         {
             state.HoverCounter++;
             if (state.HoverCounter >= 48)
                 state.Function = RidleyAiFunction.CeresSwoopSetup;
             return;
         }
-        if (unchecked((short)(slot.Position.Y.Whole - 128)) >= 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 128) >= 0)
             return;
 
         state.FireballBasePosition = slot.Position.Whole;
@@ -214,16 +214,16 @@ internal sealed class CeresRidleyFlight
     {
         // $A6:A7F9 reads RandomNumberSeed without generating a number.
         int random = _room.Random.Read();
-        int jitter = unchecked((short)random) < 0 ? -(random & 7) : random & 7;
+        int jitter = WordWrap.Signed(random) < 0 ? -(random & 7) : random & 7;
         // Both targets add the jitter, read as a word, to the base position. When the X sum passes the end of the
         // coordinate word, as a negative jitter's does unless X lies within the jitter of zero, the Y target lands one
         // pixel further down.
-        int jitterWord = unchecked((ushort)jitter);
+        int jitterWord = WordWrap.Unsigned(jitter);
         int xSum = state.FireballBasePosition.X + jitterWord;
         int yNudge = xSum > ushort.MaxValue ? 1 : 0;
         Position16<RoomPixels> target = new(
-            unchecked((ushort)xSum),
-            unchecked((ushort)(state.FireballBasePosition.Y + jitterWord + yNudge)));
+            WordWrap.Unsigned(xSum),
+            CoordinateAxis.Wrap(state.FireballBasePosition.Y + jitterWord + yNudge));
         AccelerateRidleyToward(slot, state, target, 0);
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
         if (state.FunctionTimer.IsNegative)
@@ -242,7 +242,7 @@ internal sealed class CeresRidleyFlight
         if (samus is null)
             throw new InvalidOperationException("Ceres Ridley lunge requires the active Samus actor.");
 
-        Position16<RoomPixels> target = unchecked((short)(samus.Position.Y.Whole - 132)) < 0
+        Position16<RoomPixels> target = CoordinateAxis.Difference(samus.Position.Y.Whole, 132) < 0
             ? samus.Position.Whole.WithY(64)
             : samus.Position.Whole - new Offset16<RoomPixels>(0, 68);
         AccelerateRidleyToward(slot, state, target, 13);
@@ -261,7 +261,7 @@ internal sealed class CeresRidleyFlight
         RidleyEnemyState state)
     {
         AccelerateRidleyToward(slot, state, new(192, 80), 1);
-        if (unchecked((short)(slot.Position.Y.Whole - 96)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 96) < 0)
         {
             state.Function = RidleyAiFunction.CeresSwoopDescendingAimingDown;
             state.FunctionTimer = WrappingCountdown.Start(10);
@@ -304,20 +304,20 @@ internal sealed class CeresRidleyFlight
         RotationAngle angle = state.SwoopAngleAccumulator.AddRaw(angleDelta);
         // Native CMP branches on N, not signed less-than (N xor V). The heading wraps around the
         // turn, particularly onto the half-turn recovery target after a rightward swoop.
-        bool negativeDifference = unchecked((short)(angle.RawValue - targetAngle)) < 0;
+        bool negativeDifference = CoordinateAxis.Difference(angle.RawValue, targetAngle) < 0;
         if (angleDelta < 0 ? negativeDifference : !negativeDifference)
             angle = RotationAngle.NormalizeRaw(targetAngle);
         state.SwoopAngleAccumulator = angle;
         ByteAngle phase = angle.ToByteAngle();
-        state.Velocity = state.Velocity.WithX(Trigonometry.MultiplySignedSine((ushort)magnitude, phase));
-        state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine((ushort)magnitude, phase.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
+        state.Velocity = state.Velocity.WithX(Trigonometry.MultiplySignedSine(WordWrap.Unsigned(magnitude), phase));
+        state.Velocity = state.Velocity.WithY(Trigonometry.MultiplySignedSine(WordWrap.Unsigned(magnitude), phase.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
     }
 
     /// <summary>Switches the encounter into the initial scripted retreat.</summary>
     private static void BeginCeresRidleyRetreat(RidleyEnemyState state)
     {
         state.Function = RidleyAiFunction.CeresRealRetreatRising;
-        state.MovementMinimum = state.MovementMinimum.WithY(unchecked((ushort)-192));
+        state.MovementMinimum = state.MovementMinimum.WithY(WordWrap.Unsigned(-192));
     }
 
     /// <summary>Moves the 100-shot retreat toward the Baby retrieval staging point.</summary>
@@ -328,7 +328,7 @@ internal sealed class CeresRidleyFlight
         // Shared Ridley function $BD9A steers toward ($C0,$80). Ceres uses this only for
         // the 100-shot "fake retreat"; the low-energy branch bypasses the Baby retrieval.
         AccelerateRidleyToward(slot, state, new(192, 128), 1);
-        if (unchecked((short)(slot.Position.X.Whole - 192)) >= 0)
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, 192) >= 0)
             state.Function = RidleyAiFunction.CeresFakeRetreatRising;
     }
 
@@ -340,9 +340,9 @@ internal sealed class CeresRidleyFlight
         // $BD:BC raises Ridley past Y=$20 while the Baby still follows his original hand
         // anchor. Crossing that line starts the Baby's independent falling function and a
         // 21-underflow wait before Ridley changes to the retrieval pose.
-        state.MovementMinimum = state.MovementMinimum.WithY(unchecked((ushort)-192));
-        AccelerateRidleyToward(slot, state, new(192, unchecked((ushort)-128)), 1);
-        if (unchecked((short)(slot.Position.Y.Whole - 32)) < 0)
+        state.MovementMinimum = state.MovementMinimum.WithY(WordWrap.Unsigned(-192));
+        AccelerateRidleyToward(slot, state, new(192, WordWrap.Unsigned(-128)), 1);
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 32) < 0)
         {
             state.BabyFunction = CeresBabyFunction.Drop;
             state.Function = RidleyAiFunction.CeresWaitBeforeRetrievingBaby;
@@ -364,7 +364,7 @@ internal sealed class CeresRidleyFlight
         }
 
         state.BabyFunction = CeresBabyFunction.CarriedInFeet;
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)-512)));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(-512));
         BeginCeresRidleyRetreat(state);
     }
 
@@ -374,8 +374,8 @@ internal sealed class CeresRidleyFlight
         // $A6:A971 accelerates toward the off-screen point ($00C0,$FF80). The signed test
         // is performed before the common movement pass; once the origin is above Y=-128
         // the 64-frame delay is installed and $A6:A99D falls through into its first tick.
-        AccelerateRidleyToward(slot, state, new(192, unchecked((ushort)-128)), 1);
-        if (unchecked((short)(slot.Position.Y.Whole + 128)) < 0)
+        AccelerateRidleyToward(slot, state, new(192, WordWrap.Unsigned(-128)), 1);
+        if (CoordinateAxis.AsSigned(slot.Position.Y.Whole + 128) < 0)
         {
             state.Function = RidleyAiFunction.CeresRetreatDelay;
             state.FunctionTimer = WrappingCountdown.Start(64);
@@ -435,7 +435,7 @@ internal sealed class CeresRidleyFlight
     /// <param name="divisor">The inertia divisor, at least one.</param>
     private static SignedEightEight AccelerateAxis(SignedEightEight velocity, int position, int target, int divisor)
     {
-        int difference = unchecked((short)(position - target));
+        int difference = CoordinateAxis.Difference(position, target);
         if (difference == 0)
             return velocity;
         // Hardware quotient of the distance, at most 32768; a zero quotient is promoted to one.
@@ -453,7 +453,7 @@ internal sealed class CeresRidleyFlight
             run.Raise(step);
             word = run.Velocity.RawValue;
             // CMP #$0500 : BMI keeps any value whose signed difference is negative.
-            if (unchecked((short)(word - CeresRidleyBehavior.CeresRidleyMaximumSpeed)) >= 0)
+            if (WordWrap.Signed(word - CeresRidleyBehavior.CeresRidleyMaximumSpeed) >= 0)
                 word = CeresRidleyBehavior.CeresRidleyMaximumSpeed;
         }
         else
@@ -466,10 +466,10 @@ internal sealed class CeresRidleyFlight
             run.Lower(step);
             word = run.Velocity.RawValue;
             // CMP #$FB00 : BPL keeps any value whose signed difference is non-negative.
-            if (unchecked((short)(word - CeresRidleyBehavior.CeresRidleyMinimumSpeed)) < 0)
+            if (WordWrap.Signed(word - CeresRidleyBehavior.CeresRidleyMinimumSpeed) < 0)
                 word = CeresRidleyBehavior.CeresRidleyMinimumSpeed;
         }
-        return new SignedEightEight(checked((ushort)word));
+        return new SignedEightEight(word);
     }
 
     /// <summary>Applies Ridley's 8.8 motion and native arena clamps, invoking impact only at the strict left bound.</summary>
@@ -483,13 +483,13 @@ internal sealed class CeresRidleyFlight
         // even when horizontal motion is slow; the right and vertical clamps do not call it.
         FixedCoordinate proposedX = IntegrateUnclampedAxis(slot.Position.X, state.Velocity.X);
         FixedCoordinate proposedY = IntegrateUnclampedAxis(slot.Position.Y, state.Velocity.Y);
-        state.HitRoomBoundary = unchecked((short)(proposedX.Whole - state.MovementMinimum.X)) < 0 ||
-            unchecked((short)(proposedX.Whole - state.MovementMaximum.X)) >= 0 ||
-            unchecked((short)(proposedY.Whole - state.MovementMinimum.Y)) < 0 ||
-            unchecked((short)(proposedY.Whole - state.MovementMaximum.Y)) >= 0;
-        if (wallImpact == RidleyWallImpact.CeresWall && unchecked((short)(proposedX.Whole - state.MovementMinimum.X)) < 0 &&
-            Math.Max(Math.Abs((int)state.Velocity.X.SignedRawValue),
-                Math.Abs((int)state.Velocity.Y.SignedRawValue)) >= RidleyWallImpactDefinitions.MinimumSpeed)
+        state.HitRoomBoundary = CoordinateAxis.Difference(proposedX.Whole, state.MovementMinimum.X) < 0 ||
+            CoordinateAxis.Difference(proposedX.Whole, state.MovementMaximum.X) >= 0 ||
+            CoordinateAxis.Difference(proposedY.Whole, state.MovementMinimum.Y) < 0 ||
+            CoordinateAxis.Difference(proposedY.Whole, state.MovementMaximum.Y) >= 0;
+        if (wallImpact == RidleyWallImpact.CeresWall && CoordinateAxis.Difference(proposedX.Whole, state.MovementMinimum.X) < 0 &&
+            Math.Max(Math.Abs(state.Velocity.X.SignedRawValue),
+                Math.Abs(state.Velocity.Y.SignedRawValue)) >= RidleyWallImpactDefinitions.MinimumSpeed)
         {
             _earthquake.EarthquakeType = RidleyWallImpactDefinitions.EarthquakeType;
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(RidleyWallImpactDefinitions.Duration);
@@ -499,14 +499,14 @@ internal sealed class CeresRidleyFlight
             state.Velocity.X,
             state.MovementMinimum.X,
             state.MovementMaximum.X);
-        state.Velocity = state.Velocity.WithX(new SignedEightEight(checked((ushort)xVelocity)));
+        state.Velocity = state.Velocity.WithX(new SignedEightEight(xVelocity));
         slot.Position = slot.Position.WithX(x);
         (FixedCoordinate y, int yVelocity) = IntegrateAxis(
             slot.Position.Y,
             state.Velocity.Y,
             state.MovementMinimum.Y,
             state.MovementMaximum.Y);
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(checked((ushort)yVelocity)));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(yVelocity));
         slot.Position = slot.Position.WithY(y);
     }
 
@@ -521,10 +521,10 @@ internal sealed class CeresRidleyFlight
         // *high* byte of the ordinary 16-bit subposition.
         FixedCoordinate moved = position.AddEightEightToHighFraction(velocity.RawValue);
 
-        if (unchecked((short)(moved.Whole - minimum)) < 0)
-            return new CeresRidleyAxisMotion(moved.WithWhole(checked((ushort)minimum)), 0);
-        if (unchecked((short)(moved.Whole - maximum)) >= 0)
-            return new CeresRidleyAxisMotion(moved.WithWhole(checked((ushort)maximum)), 0);
+        if (CoordinateAxis.Difference(moved.Whole, minimum) < 0)
+            return new CeresRidleyAxisMotion(moved.WithWhole(minimum), 0);
+        if (CoordinateAxis.Difference(moved.Whole, maximum) >= 0)
+            return new CeresRidleyAxisMotion(moved.WithWhole(maximum), 0);
         return new CeresRidleyAxisMotion(moved, velocity.RawValue);
     }
 
@@ -539,8 +539,8 @@ internal sealed class CeresRidleyFlight
         Extent16<RoomPixels> radius) =>
         // $A9:EF06 tests overlap with the actor's rectangle, including its boundary.
         // A center-only test delays flight and attack handoffs until Ridley gets too close.
-        Math.Abs(unchecked((short)(slot.Position.X.Whole - center.X))) < unchecked((ushort)(slot.Radius.X + radius.X + 1)) &&
-            Math.Abs(unchecked((short)(slot.Position.Y.Whole - center.Y))) < unchecked((ushort)(slot.Radius.Y + radius.Y + 1));
+        CoordinateAxis.Distance(slot.Position.X.Whole, center.X) < CoordinateAxis.Wrap(slot.Radius.X + radius.X + 1) &&
+            CoordinateAxis.Distance(slot.Position.Y.Whole, center.Y) < CoordinateAxis.Wrap(slot.Radius.Y + radius.Y + 1);
 
     /// <summary>Advances the initial battle hold before Ridley's eye fade begins.</summary>
     internal static void TickCeresRidleyInitialDelay(RidleyEnemyState state)

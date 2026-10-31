@@ -78,24 +78,24 @@ internal sealed class CrocomireBodyLayer
         {
             int offset = (tongue.SpeciesState<CrocomireTongueState>()
                 ?? throw new InvalidOperationException("Crocomire's tongue has no state.")).BodyXOffset;
-            tongue.Position = tongue.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + offset)), body.Position.Y.Whole));
+            tongue.Position = tongue.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + offset), body.Position.Y.Whole));
         }
 
-        bool onScreen = unchecked((short)(body.Position.X.Whole - state.Camera.X)) >= 0
-            ? unchecked((short)(body.Position.X.Whole - 128 - (state.Camera.X + 256))) < 0
-            : unchecked((short)(body.Position.X.Whole + 128 - state.Camera.X)) >= 0;
+        bool onScreen = CoordinateAxis.Difference(body.Position.X.Whole, state.Camera.X) >= 0
+            ? CoordinateAxis.Difference(body.Position.X.Whole - 128, (state.Camera.X + 256)) < 0
+            : CoordinateAxis.AsSigned(body.Position.X.Whole + 128 - state.Camera.X) >= 0;
         Placement = Placement.WithX(onScreen
             ? OnScreenCrocomireBodyLayerX(body.Position.X.Whole, state.Camera)
-            : (ushort)256);
+            : 256);
     }
 
     /// <summary>Converts the body X position into his body layer's horizontal placement, which keeps Crocomire onscreen.</summary>
     /// <param name="bodyX">The body's whole X coordinate, 0 through 65535.</param>
     /// <param name="camera">The camera position.</param>
-    private static ushort OnScreenCrocomireBodyLayerX(int bodyX, Position16<RoomPixels> camera)
+    private static int OnScreenCrocomireBodyLayerX(int bodyX, Position16<RoomPixels> camera)
     {
-        int relative = unchecked((ushort)(camera.X - bodyX + 51));
-        return EnemyMath.WrappedMagnitude((ushort)relative) >= 284 ? (ushort)256 : (ushort)relative;
+        int relative = CoordinateAxis.Wrap(camera.X - bodyX + 51);
+        return EnemyMath.WrappedMagnitude(WordWrap.Unsigned(relative)) >= 284 ? 256 : WordWrap.Unsigned(relative);
     }
 
     /// <summary>Emits smoke at the acid surface during Crocomire's death presentation.</summary>
@@ -115,7 +115,7 @@ internal sealed class CrocomireBodyLayer
             xOffset = ~xOffset;
         int acidY = samus?.LiquidPhysics.LavaAcidYPosition ?? 224;
         _spriteObjects.SpawnRoomSpriteObject(
-            new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(acidY + 16 - (SharedRandomState.UpperByte(random) & 31)))),
+            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(acidY + 16 - (SharedRandomState.UpperByte(random) & 31))),
             RoomSpriteObjectKind.CrocomireAcidSmoke,
             graphics: default);
     }

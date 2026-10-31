@@ -125,8 +125,8 @@ internal sealed class MotherBrainCombat
         // arrives during the existing flash. The common no-death damage helper then owns
         // health, hurt-AI, and the final ROM-authored hurt duration.
         head.FlashTimer = WrappingCountdown.FromRaw(!head.FlashTimer.IsZero && head.FlashTimer.IsInAlternatePhase(1)
-            ? (ushort)14
-            : (ushort)13);
+            ? 14
+            : 13);
 
         EnemyWeaponVulnerability vulnerability = EnemyCollision.ReadProjectileVulnerability(head, projectileType);
         if (vulnerability.FreezesWithoutDamage)
@@ -284,8 +284,8 @@ internal sealed class MotherBrainCombat
                 RoomEnemySlot slot = context.Slot;
                 if (SamusPoseMetadata.ReadMovementType(context.Samus) == SamusMovementType.SpinJumping)
                     slot.FlashTimer = WrappingCountdown.FromRaw(!slot.FlashTimer.IsZero && slot.FlashTimer.IsInAlternatePhase(1)
-                        ? (ushort)14
-                        : (ushort)13);
+                        ? 14
+                        : 13);
             });
     }
 
@@ -314,10 +314,10 @@ internal sealed class MotherBrainCombat
             foreach (MotherBrainCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
-                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
                 callback = probe.SelectShotCallback
                     ? MotherBrainHitboxCallbackCodec.ToCallback(hitbox.Shot)

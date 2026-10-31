@@ -13,7 +13,7 @@ internal static class FakeKraidProjectiles
         }
 
         int horizontal = (projectile + 1) * FakeKraidProjectileDefinitions.SpitSpeedStep;
-        return new((short)(movingRight ? horizontal : -horizontal), FakeKraidProjectileDefinitions.SpitRise);
+        return new(CoordinateAxis.AsSigned(movingRight ? horizontal : -horizontal), FakeKraidProjectileDefinitions.SpitRise);
     }
 
     /// <summary>Selects a fixed body launch position from $86:9E7D..9E82.

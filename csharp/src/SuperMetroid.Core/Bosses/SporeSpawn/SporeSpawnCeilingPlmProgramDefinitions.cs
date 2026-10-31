@@ -14,7 +14,7 @@ internal static class SporeSpawnCeilingPlmProgramDefinitions
     /// <summary>The crumble sound's request priority.</summary>
     internal static readonly SoundRequestPriority CrumbleSoundPriority = SoundRequestPriority.Normal;
     /// <summary>How long each image shows.</summary>
-    internal const ushort FrameDuration = 4;
+    internal const int FrameDuration = 4;
 
     /// <summary>Both ceiling programs.</summary>
     internal static AnimationProgramSet<SporeSpawnCeilingProgram, SporeSpawnCeilingDraw, SporeSpawnCeilingCue> Programs { get; } = new(

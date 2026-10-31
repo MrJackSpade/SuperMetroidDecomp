@@ -407,7 +407,7 @@ internal sealed class PhantoonCombat
             orbit.Radius--;
             if (orbit.Radius == 0)
             {
-                flame.Position = flame.Position.WithWhole(new(state.Body.Position.X.Whole, unchecked((ushort)(state.Body.Position.Y.Whole + 16))));
+                flame.Position = flame.Position.WithWhole(new(state.Body.Position.X.Whole, CoordinateAxis.Wrap(state.Body.Position.Y.Whole + 16)));
                 flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.Delete));
                 flame.InstructionTimer = WrappingCountdown.Start(1);
                 return;
@@ -427,7 +427,7 @@ internal sealed class PhantoonCombat
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
-        flame.Velocity = flame.Velocity.WithY(new SignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
+        flame.Velocity = flame.Velocity.WithY(SignedEightEight.Wrapped(flame.Velocity.Y.RawValue + 16));
         if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
             return;
 
@@ -438,7 +438,7 @@ internal sealed class PhantoonCombat
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualHitGround));
         flame.InstructionTimer = WrappingCountdown.Start(1);
         flame.State = new PhantoonCasualFlameState();
-        flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
+        flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole + 8);
     }
 
     /// <summary>Holds the flame briefly at the floor after impact.</summary>
@@ -455,10 +455,10 @@ internal sealed class PhantoonCombat
             EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualBouncing));
         flame.InstructionTimer = WrappingCountdown.Start(1);
-        flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole - 8)));
+        flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole - 8);
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(-768));
         // The flame's drift reads the 16-bit frame counter.
-        flame.Velocity = flame.Velocity.WithX(SignedEightEight.FromSignedRaw((frameCounter & 1) == 0 ? (short)128 : (short)-128));
+        flame.Velocity = flame.Velocity.WithX(SignedEightEight.FromSignedRaw((frameCounter & 1) == 0 ? 128 : -128));
     }
 
     /// <summary>Advances the flame's post-impact bounce motion.</summary>
@@ -466,14 +466,14 @@ internal sealed class PhantoonCombat
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
-        flame.Velocity = flame.Velocity.WithY(new SignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
+        flame.Velocity = flame.Velocity.WithY(SignedEightEight.Wrapped(flame.Velocity.Y.RawValue + 16));
         if (EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
         {
             PhantoonCasualFlameState casual = flame.StateOf<PhantoonCasualFlameState>();
             casual.Bounces++;
             if (casual.Bounces < 3)
             {
-                flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(casual.Bounces == 1 ? (short)-512 : (short)-256));
+                flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(casual.Bounces == 1 ? -512 : -256));
                 return;
             }
             RestPhantoonCasualFlame(flame);
@@ -528,12 +528,12 @@ internal sealed class PhantoonCombat
             _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
         }
 
-        flame.Velocity = flame.Velocity.WithY(new SignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
+        flame.Velocity = flame.Velocity.WithY(SignedEightEight.Wrapped(flame.Velocity.Y.RawValue + 16));
         if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
             return;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.RainImpact));
         flame.InstructionTimer = WrappingCountdown.Start(1);
-        flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
+        flame.Position = flame.Position.WithWrappedWholeY(flame.Position.Y.Whole + 8);
         flame.PreInstruction = EnemyProjectilePreInstruction.RTS_869A44;
         _audio.QueueEnemySound(PhantoonFlameMotionDefinitions.RainFallSound, PhantoonFlameMotionDefinitions.RainSoundPriority);
     }
@@ -569,7 +569,7 @@ internal sealed class PhantoonCombat
         // word sample. Its high byte preserves the exact full radius at cardinal angles.
         int xOffset = ReadPhantoonFlameComponent(angle, radius);
         int yOffset = ReadPhantoonFlameComponent(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue), radius);
-        flame.Position = flame.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + xOffset)), unchecked((ushort)(body.Position.Y.Whole + 16 + yOffset))));
+        flame.Position = flame.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + xOffset), CoordinateAxis.Wrap(body.Position.Y.Whole + 16 + yOffset)));
     }
 
     /// <summary>Ports $86:9BA2/$9BF3: unsigned half-wave multiplication followed by whole-result negation.</summary>
@@ -578,16 +578,16 @@ internal sealed class PhantoonCombat
     internal static int ReadPhantoonFlameComponent(ByteAngle angle, int radius)
     {
         int byteAngle = angle.RawValue;
-        int sample = Trigonometry.SignedSine(new ByteAngle((byte)(byteAngle & 127)));
-        int magnitude = (EightEight.Multiply(unchecked((byte)sample), unchecked((byte)radius))) + EightEight.WholeOf(sample) * unchecked((byte)radius);
+        int sample = Trigonometry.SignedSine(new ByteAngle(WordWrap.LowByte(byteAngle & 127)));
+        int magnitude = (EightEight.Multiply(WordWrap.LowByte(sample), WordWrap.LowByte(radius))) + EightEight.WholeOf(sample) * WordWrap.LowByte(radius);
         return byteAngle < 128 ? magnitude : -magnitude;
     }
 
     /// <summary>Switches a flame to its delete program after leaving the room bounds.</summary>
     private static void DeletePhantoonFlameOutsideRoom(RoomEnemyProjectileSlot flame)
     {
-        if (unchecked((short)flame.Position.X.Whole) < 0 || flame.Position.X.Whole >= 256 ||
-            unchecked((short)flame.Position.Y.Whole) < 0 || flame.Position.Y.Whole >= 256)
+        if (CoordinateAxis.AsSigned(flame.Position.X.Whole) < 0 || flame.Position.X.Whole >= 256 ||
+            CoordinateAxis.AsSigned(flame.Position.Y.Whole) < 0 || flame.Position.Y.Whole >= 256)
         {
             flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.Delete));
             flame.InstructionTimer = WrappingCountdown.Start(1);
@@ -673,10 +673,10 @@ internal sealed class PhantoonCombat
             foreach (PhantoonCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
-                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
                 callback = probe.SelectShotCallback
                     ? PhantoonHitboxCallbackCodec.ToCallback(hitbox.Shot)

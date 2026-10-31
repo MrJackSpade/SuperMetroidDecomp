@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal static class MotherBrainGlassPlmProgramDefinitions
 {
     /// <summary>How many hits each stage adds to the next stage's threshold.</summary>
-    private const ushort HitsPerStage = 2;
+    private const int HitsPerStage = 2;
     /// <summary>How long a burst's in-between image shows.</summary>
     private const int BurstFrameDuration = 4;
     /// <summary>How long the final shattered image shows before the destroyed event.</summary>

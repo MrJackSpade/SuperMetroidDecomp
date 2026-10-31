@@ -171,7 +171,7 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     internal MotherBrainWalkResult MakeBodyWalkForwards(int targetX, MotherBrainBodyProgram program)
     {
-        if (unchecked((short)(targetX - Body.Position.X)) < 0)
+        if (CoordinateAxis.Difference(targetX, Body.Position.X) < 0)
             return MotherBrainWalkResult.Reached;
         if (Body.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
@@ -189,11 +189,11 @@ internal sealed class MotherBrainLateFightState
     /// </summary>
     internal MotherBrainWalkResult MakeBodyWalkBackwards(int targetX, MotherBrainBodyProgram program)
     {
-        if (unchecked((short)(targetX - Body.Position.X)) >= 0)
+        if (CoordinateAxis.Difference(targetX, Body.Position.X) >= 0)
             return MotherBrainWalkResult.Reached;
         if (Body.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
-        if (unchecked((short)(Body.Position.X - 48)) < 0)
+        if (CoordinateAxis.Difference(Body.Position.X, 48) < 0)
             return MotherBrainWalkResult.Reached;
         Body.SetProgram(program);
         return MotherBrainWalkResult.WalkInstalled;
@@ -249,7 +249,7 @@ internal sealed class MotherBrainLateFightState
 
     /// <summary>Whether <paramref name="value"/> is at least <paramref name="threshold"/> by the sign of their 16-bit difference, as the cartridge compares positions.</summary>
     internal static bool AtLeastBySignedDifference(int value, int threshold) =>
-        unchecked((short)(value - threshold)) >= 0;
+        WordWrap.Signed(value - threshold) >= 0;
 
     /// <summary>How many head instruction lists the phases have requested; a change marks a new request.</summary>
     internal uint HeadInstructionListRequestSerial { get; private set; }

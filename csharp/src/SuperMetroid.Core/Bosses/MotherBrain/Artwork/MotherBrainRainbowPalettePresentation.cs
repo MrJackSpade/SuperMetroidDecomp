@@ -439,14 +439,14 @@ public sealed class MotherBrainRainbowPalettePresentation
             this.source = source; this.red = channels.Red; this.green = channels.Green; this.blue = channels.Blue; this.redAddition = channels.RedAddition; this.greenAddition = channels.GreenAddition;
             independentCount = (channels.Red ? 0 : 1) + (channels.Green ? 0 : 1) + (channels.Blue ? 0 : 1);
             if (independentCount != 1) throw new InvalidOperationException("A rainbow shade profile requires one independently supplied channel.");
-            var samples = new byte[Length];
+            var samples = new int[Length];
             int index = 0;
             for (int color = 0; color < Length; color++)
             {
                 RgbColor word = selected[color];
-                if (!channels.Red) samples[index++] = (byte)(word.Red);
-                if (!channels.Green) samples[index++] = (byte)(word.Green);
-                if (!channels.Blue) samples[index++] = (byte)(word.Blue);
+                if (!channels.Red) samples[index++] = word.Red;
+                if (!channels.Green) samples[index++] = word.Green;
+                if (!channels.Blue) samples[index++] = word.Blue;
             }
             independent = new MotherBrainRainbowShadeChannel(samples, profile, color => source[color].Green);
         }

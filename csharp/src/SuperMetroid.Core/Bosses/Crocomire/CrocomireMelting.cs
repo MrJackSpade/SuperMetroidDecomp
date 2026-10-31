@@ -50,7 +50,7 @@ internal sealed class CrocomireMelting
                 EnemyProperties.ProcessInstructions |
                     EnemyProperties.ProcessOffScreen |
                     EnemyProperties.IgnoreSamusCollision);
-            tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, unchecked((ushort)(state.Body.Position.Y.Whole + 16))));
+            tongue.Position = tongue.Position.WithWhole(new(state.Body.Position.X.Whole, CoordinateAxis.Wrap(state.Body.Position.Y.Whole + 16)));
         }
 
         // $A4:938D-93A2 clears the first sixteen rows.
@@ -183,8 +183,8 @@ internal sealed class CrocomireMelting
         _bodyLayer.SpawnCrocomireAcidSmoke(state, samus);
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.MeltShakeCounter = death.MeltShakeCounter.Decrement().Remaining;
-        state.Body.Position = state.Body.Position.WithWholeX(unchecked((ushort)(
-            death.BodyXBeforeMelting + (death.MeltShakeCounter.IsInAlternatePhase(2) ? 4 : 0))));
+        state.Body.Position = state.Body.Position.WithWholeX(WordWrap.Unsigned(
+            death.BodyXBeforeMelting + (death.MeltShakeCounter.IsInAlternatePhase(2) ? 4 : 0)));
 
         EraseNextCrocomireMeltingColumn();
 

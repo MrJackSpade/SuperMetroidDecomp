@@ -37,7 +37,7 @@ internal static class MotherBrainTurrets
             1 => MotherBrainTurretDirection.Right,
             _ => wideSector ? MotherBrainTurretDirection.DownRight : MotherBrainTurretDirection.Down,
         };
-        return new(new((ushort)(FirstBayX - bay * BaySpacing - xInset), (ushort)(column == 0 ? 48 : 64)), initial, first, last);
+        return new(new(CoordinateAxis.Wrap(FirstBayX - bay * BaySpacing - xInset), column == 0 ? 48 : 64), initial, first, last);
     }
 
     /// <summary>Returns the bullet launch for one of the eight directions.</summary>
@@ -47,8 +47,8 @@ internal static class MotherBrainTurrets
         int index = Ring.PositionOf(direction);
         double angle = index * Math.PI / 4;
         int muzzleY = MuzzleYs.TryGetValue(direction, out int y) ? y : throw new ArgumentOutOfRangeException(nameof(direction));
-        return new(new((short)Math.Round(-MuzzleRadius * Math.Cos(angle)), (short)muzzleY),
-            new((short)Math.Round(-BulletSpeed * Math.Cos(angle)), (short)Math.Round(BulletSpeed * Math.Sin(angle))));
+        return new(new((int)Math.Round(-MuzzleRadius * Math.Cos(angle)), muzzleY),
+            new((int)Math.Round(-BulletSpeed * Math.Cos(angle)), (int)Math.Round(BulletSpeed * Math.Sin(angle))));
     }
 
     /// <summary>Whether turret <paramref name="turret"/> may rotate to <paramref name="direction"/>.</summary>

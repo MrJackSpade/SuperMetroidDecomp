@@ -141,7 +141,7 @@ internal sealed class MotherBrainRevivalPhases
         if (_state.FunctionTimer.IsNegative)
         {
             requests.BodyWalkRequested = _state.RequestWalkForward(80, 4).Requested;
-            bool reachedWalkTarget = unchecked((short)(80 - _state.Body.Position.X)) < 0 ||
+            bool reachedWalkTarget = CoordinateAxis.Difference(80, _state.Body.Position.X) < 0 ||
                 MotherBrainLateFightState.AtLeastBySignedDifference(_state.Body.Position.X, 128);
             if (reachedWalkTarget)
             {

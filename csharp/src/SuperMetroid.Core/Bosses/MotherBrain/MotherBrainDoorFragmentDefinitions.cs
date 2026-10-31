@@ -10,7 +10,7 @@ internal static class MotherBrainDoorFragmentDefinitions
     internal static ReadOnlySpan<short> YVelocities => [-512, -256, -256, -128, -128, 128, -256, 512];
 
     /// <summary>Every fragment flies right at $0500.</summary>
-    internal const short XVelocity = 1280;
+    internal const int XVelocity = 1280;
 
     /// <summary>The first fragment's Y offset, 32 pixels above the door.</summary>
     internal const int FirstY = -32;

@@ -97,7 +97,7 @@ internal sealed class PhantoonPatterns
             AdjustPhantoonForwardFigureEightSpeed(bodyPart);
 
         int steps = eyePart.FigureEightReversed
-            ? unchecked((ushort)-bodyPart.SpeedWhole)
+            ? WordWrap.Unsigned(-bodyPart.SpeedWhole)
             : bodyPart.SpeedWhole;
         for (int step = 0; step < steps; step++)
         {
@@ -124,7 +124,7 @@ internal sealed class PhantoonPatterns
                 body,
                 low: PhantoonMotionDefinitions.SlowFraction,
                 high: PhantoonMotionDefinitions.SlowWhole, direction: PhantoonSpeedChange.Accelerate);
-            if (unchecked((short)(body.SpeedWhole - PhantoonMotionDefinitions.ForwardSlowCap)) >= 0)
+            if (WordWrap.Signed(body.SpeedWhole - PhantoonMotionDefinitions.ForwardSlowCap) >= 0)
             {
                 body.SpeedWhole = unchecked(PhantoonMotionDefinitions.ForwardSlowCap - 1);
                 body.SpeedFraction = 0;
@@ -139,7 +139,7 @@ internal sealed class PhantoonPatterns
                 body,
                 PhantoonMotionDefinitions.FastFraction,
                 PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Accelerate);
-            if (unchecked((short)(body.SpeedWhole - PhantoonMotionDefinitions.ForwardFastCap)) >= 0)
+            if (WordWrap.Signed(body.SpeedWhole - PhantoonMotionDefinitions.ForwardFastCap) >= 0)
             {
                 body.SpeedWhole = PhantoonMotionDefinitions.ForwardFastCap;
                 body.SpeedFraction = 0;
@@ -153,9 +153,9 @@ internal sealed class PhantoonPatterns
             PhantoonMotionDefinitions.FastFraction,
             PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Decelerate);
         int minimum = PhantoonMotionDefinitions.ForwardMinimum;
-        if (body.SpeedWhole == minimum || unchecked((short)(body.SpeedWhole - minimum)) < 0)
+        if (body.SpeedWhole == minimum || WordWrap.Signed(body.SpeedWhole - minimum) < 0)
         {
-            body.SpeedWhole = unchecked((ushort)(minimum + 1));
+            body.SpeedWhole = WordWrap.Unsigned(minimum + 1);
             body.SpeedFraction = 0;
             body.SpeedPhase = 0;
         }
@@ -171,10 +171,10 @@ internal sealed class PhantoonPatterns
                 PhantoonMotionDefinitions.SlowFraction,
                 PhantoonMotionDefinitions.SlowWhole, direction: PhantoonSpeedChange.Decelerate);
             // The whole speed is the cartridge's word; the cap is compared as that word.
-            int cap = unchecked((ushort)PhantoonMotionDefinitions.ReverseSlowCap);
-            if (body.SpeedWhole == cap || unchecked((short)(body.SpeedWhole - cap)) < 0)
+            int cap = WordWrap.Unsigned(PhantoonMotionDefinitions.ReverseSlowCap);
+            if (body.SpeedWhole == cap || WordWrap.Signed(body.SpeedWhole - cap) < 0)
             {
-                body.SpeedWhole = unchecked((ushort)(cap + 2));
+                body.SpeedWhole = WordWrap.Unsigned(cap + 2);
                 body.SpeedFraction = 0;
                 body.SpeedPhase = 1;
             }
@@ -188,10 +188,10 @@ internal sealed class PhantoonPatterns
                 PhantoonMotionDefinitions.FastFraction,
                 PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Decelerate);
             // The whole speed is the cartridge's word; the cap is compared as that word.
-            int cap = unchecked((ushort)PhantoonMotionDefinitions.ReverseFastCap);
-            if (body.SpeedWhole == cap || unchecked((short)(body.SpeedWhole - cap)) < 0)
+            int cap = WordWrap.Unsigned(PhantoonMotionDefinitions.ReverseFastCap);
+            if (body.SpeedWhole == cap || WordWrap.Signed(body.SpeedWhole - cap) < 0)
             {
-                body.SpeedWhole = unchecked((ushort)(cap + 1));
+                body.SpeedWhole = WordWrap.Unsigned(cap + 1);
                 body.SpeedFraction = 0;
                 body.SpeedPhase = WrappingCounter.IncrementWord(body.SpeedPhase);
             }
@@ -203,7 +203,7 @@ internal sealed class PhantoonPatterns
             PhantoonMotionDefinitions.FastFraction,
             PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Accelerate);
         int maximum = PhantoonMotionDefinitions.ReverseMaximum;
-        if (unchecked((short)(body.SpeedWhole - maximum)) >= 0)
+        if (WordWrap.Signed(body.SpeedWhole - maximum) >= 0)
         {
             body.SpeedWhole = maximum;
             body.SpeedFraction = 0;
@@ -214,10 +214,10 @@ internal sealed class PhantoonPatterns
     /// <summary>Adds a native two-word speed value to the body motion accumulator, or subtracts it when slowing.</summary>
     private static void ChangePhantoonSpeed(PhantoonPartState body, int low, int high, PhantoonSpeedChange direction)
     {
-        uint value = SixteenSixteen.Compose(checked((ushort)body.SpeedWhole), checked((ushort)body.SpeedFraction));
+        uint value = SixteenSixteen.Compose(Ensure.BetweenInclusive(0, ushort.MaxValue, body.SpeedWhole), Ensure.BetweenInclusive(0, ushort.MaxValue, body.SpeedFraction));
         uint change = SixteenSixteen.Compose(high, low);
         value = direction == PhantoonSpeedChange.Decelerate ? unchecked(value - change) : unchecked(value + change);
-        body.SpeedFraction = unchecked((ushort)value);
+        body.SpeedFraction = WordWrap.Unsigned(value);
         body.SpeedWhole = FixedCoordinate.WholeOf(unchecked((int)value));
     }
 
@@ -243,7 +243,7 @@ internal sealed class PhantoonPatterns
             return;
         }
 
-        state.Parts[mouth.SlotIndex].CasualFlamePattern = unchecked((ushort)(_room.Random.Generate() & 3));
+        state.Parts[mouth.SlotIndex].CasualFlamePattern = WordWrap.Unsigned(_room.Random.Generate() & 3);
         PhantoonCasualFlameSchedule pattern = PhantoonCasualFlames.Pattern(state.Parts[mouth.SlotIndex].CasualFlamePattern);
         state.Parts[mouth.SlotIndex].CasualFlameCount = pattern[0];
         state.Parts[mouth.SlotIndex].CasualFlameHold = WrappingCountdown.Start(pattern[state.Parts[mouth.SlotIndex].CasualFlameCount + 1]);
@@ -256,7 +256,7 @@ internal sealed class PhantoonPatterns
     private void SpawnPhantoonSpiralFlames(RoomEnemySlot body)
     {
         for (int direction = 7; direction >= 0; direction--)
-            SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Spiral, (byte)direction);
+            SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Spiral, WordWrap.LowByte(direction));
     }
 
     /// <summary>Ports the eye-open vulnerable window at $A7:D60D.</summary>
@@ -483,7 +483,7 @@ internal sealed class PhantoonPatterns
 
         state.Parts[state.Tentacles.SlotIndex].SwoopRequested = false;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.BecomeSolidAfterFlameRain;
-        SpawnPhantoonFlameRain(body, body.Position.X.Whole < 128 ? (ushort)0 : (ushort)2);
+        SpawnPhantoonFlameRain(body, body.Position.X.Whole < 128 ? 0 : 2);
     }
 
     /// <summary>Hides the body before entering the enraged attack cycle.</summary>
@@ -532,19 +532,19 @@ internal sealed class PhantoonPatterns
         if ((state.Parts[state.Eye.SlotIndex].RageWaveCount & 1) == 0)
         {
             for (int direction = PhantoonRageDefinitions.EvenWaveFirstDirection; direction >= 0; direction--)
-                SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, (byte)direction);
+                SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, WordWrap.LowByte(direction));
         }
         else
         {
             // Native DEY/CPY/BPL includes direction eight: alternating waves
             // intentionally contain seven and eight flames, not seven each.
             for (int direction = PhantoonRageDefinitions.OddWaveFirstDirection; direction >= PhantoonRageDefinitions.OddWaveLastDirection; direction--)
-                SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, (byte)direction);
+                SpawnPhantoonDestroyableFlame(body, PhantoonFlameSpawnType.Enraged, WordWrap.LowByte(direction));
         }
 
         _audio.QueueEnemySound(PhantoonRageDefinitions.WaveSound, PhantoonRageDefinitions.WaveSoundPriority);
         state.Parts[state.Eye.SlotIndex].RageWaveCount = WrappingCounter.IncrementWord(state.Parts[state.Eye.SlotIndex].RageWaveCount);
-        if (unchecked((short)(state.Parts[state.Eye.SlotIndex].RageWaveCount - PhantoonRageDefinitions.WaveCount)) < 0)
+        if (WordWrap.Signed(state.Parts[state.Eye.SlotIndex].RageWaveCount - PhantoonRageDefinitions.WaveCount) < 0)
         {
             state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(PhantoonRageDefinitions.WaveInterval);
             return;
@@ -609,38 +609,38 @@ internal sealed class PhantoonPatterns
         int targetX = tentaclePart.SwoopTargetX;
 
         int swoopX = tentaclePart.SwoopVelocity.X.RawValue;
-        if (unchecked((short)(targetX - body.Position.X.Whole)) < 0)
+        if (CoordinateAxis.Difference(targetX, body.Position.X.Whole) < 0)
         {
-            if (unchecked((short)(swoopX - PhantoonMotionDefinitions.SwoopNegativeXThreshold)) >= 0)
-                swoopX = unchecked((ushort)(swoopX - 32));
+            if (CoordinateAxis.Difference(swoopX, PhantoonMotionDefinitions.SwoopNegativeXThreshold) >= 0)
+                swoopX = CoordinateAxis.Wrap(swoopX - 32);
         }
-        else if (unchecked((short)(swoopX - 2048)) < 0)
+        else if (CoordinateAxis.Difference(swoopX, 2048) < 0)
         {
-            swoopX = unchecked((ushort)(swoopX + 32));
+            swoopX = CoordinateAxis.Wrap(swoopX + 32);
         }
-        tentaclePart.SwoopVelocity = tentaclePart.SwoopVelocity.WithX(new SignedEightEight(checked((ushort)swoopX)));
+        tentaclePart.SwoopVelocity = tentaclePart.SwoopVelocity.WithX(new SignedEightEight(swoopX));
         body.Position = body.Position.AdvanceX(tentaclePart.SwoopVelocity.X.ToSixteenSixteenDelta());
-        if (unchecked((short)(body.Position.X.Whole - PhantoonMotionDefinitions.SwoopMinimumX)) < 0)
-            body.Position = body.Position.WithWholeX(unchecked((ushort)PhantoonMotionDefinitions.SwoopMinimumX));
-        else if (unchecked((short)(body.Position.X.Whole - PhantoonMotionDefinitions.SwoopMaximumX)) >= 0)
+        if (CoordinateAxis.Difference(body.Position.X.Whole, PhantoonMotionDefinitions.SwoopMinimumX) < 0)
+            body.Position = body.Position.WithWholeX(WordWrap.Unsigned(PhantoonMotionDefinitions.SwoopMinimumX));
+        else if (CoordinateAxis.Difference(body.Position.X.Whole, PhantoonMotionDefinitions.SwoopMaximumX) >= 0)
             body.Position = body.Position.WithWholeX(PhantoonMotionDefinitions.SwoopMaximumX);
 
-        int targetY = target == PhantoonSwoopTarget.DeathHeight ? 112 : unchecked((ushort)(samus.Position.Y.Whole - 48));
+        int targetY = target == PhantoonSwoopTarget.DeathHeight ? 112 : CoordinateAxis.Wrap(samus.Position.Y.Whole - 48);
         int swoopY = tentaclePart.SwoopVelocity.Y.RawValue;
-        if (unchecked((short)(targetY - body.Position.Y.Whole)) < 0)
+        if (CoordinateAxis.Difference(targetY, body.Position.Y.Whole) < 0)
         {
-            if (unchecked((short)(swoopY - PhantoonMotionDefinitions.SwoopNegativeYThreshold)) >= 0)
-                swoopY = unchecked((ushort)(swoopY - 64));
+            if (CoordinateAxis.Difference(swoopY, PhantoonMotionDefinitions.SwoopNegativeYThreshold) >= 0)
+                swoopY = CoordinateAxis.Wrap(swoopY - 64);
         }
-        else if (unchecked((short)(swoopY - 1536)) < 0)
+        else if (CoordinateAxis.Difference(swoopY, 1536) < 0)
         {
-            swoopY = unchecked((ushort)(swoopY + 64));
+            swoopY = CoordinateAxis.Wrap(swoopY + 64);
         }
-        tentaclePart.SwoopVelocity = tentaclePart.SwoopVelocity.WithY(new SignedEightEight(checked((ushort)swoopY)));
+        tentaclePart.SwoopVelocity = tentaclePart.SwoopVelocity.WithY(new SignedEightEight(swoopY));
         body.Position = body.Position.AdvanceY(tentaclePart.SwoopVelocity.Y.ToSixteenSixteenDelta());
-        if (unchecked((short)(body.Position.Y.Whole - 64)) < 0)
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, 64) < 0)
             body.Position = body.Position.WithWholeY(64);
-        else if (unchecked((short)(body.Position.Y.Whole - 216)) >= 0)
+        else if (CoordinateAxis.Difference(body.Position.Y.Whole, 216) >= 0)
             body.Position = body.Position.WithWholeY(216);
     }
 
@@ -763,7 +763,7 @@ internal sealed class PhantoonPatterns
         {
             case PhantoonFlameSpawnType.Casual:
                 flame.Velocity = flame.Velocity.WithX(new SignedEightEight(0));
-                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
+                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
                 flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualFalling0));
                 flame.PreInstruction =
                     EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Falling;
@@ -780,7 +780,7 @@ internal sealed class PhantoonPatterns
                 {
                     AngleStep = index >= 8 ? -PhantoonFlameMotionDefinitions.RageAngleStep : PhantoonFlameMotionDefinitions.RageAngleStep,
                 };
-                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 32))));
+                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 32)));
                 flame.PreInstruction =
                     EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged;
                 break;
@@ -792,7 +792,7 @@ internal sealed class PhantoonPatterns
                 if (index > 7)
                     throw new InvalidDataException($"Phantoon spiral direction {index} exceeds seven.");
                 flame.State = new PhantoonOrbitingFlameState(new ByteAngle(PhantoonFlameSpawns.SpiralAngle(index)));
-                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, unchecked((ushort)(body.Position.Y.Whole + 16))));
+                flame.Position = flame.Position.WithWhole(new(body.Position.X.Whole, CoordinateAxis.Wrap(body.Position.Y.Whole + 16)));
                 flame.PreInstruction =
                     EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral;
                 break;

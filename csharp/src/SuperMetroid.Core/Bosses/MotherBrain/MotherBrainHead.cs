@@ -100,7 +100,7 @@ internal sealed class MotherBrainHead
                     samus ?? throw new InvalidOperationException(
                         "Mother Brain's articulated neck requires the live Samus actor."));
                 Position16<RoomPixels> brainAnchor = state.NeckJoints[MotherBrainNeckJointDefinitions.BrainAnchor];
-                head.Position = head.Position.WithWhole(new(brainAnchor.X, unchecked((ushort)(brainAnchor.Y - 21))));
+                head.Position = head.Position.WithWhole(new(brainAnchor.X, CoordinateAxis.Wrap(brainAnchor.Y - 21)));
                 state.DrawBrain = true;
                 state.DrawNeck = true;
                 return;
@@ -125,7 +125,7 @@ internal sealed class MotherBrainHead
         // `$A9:9357-$936B` samples (never advances) the RNG before reading the brain frame,
         // so the small breath can spawn even on a draw that then shows no brain.
         if (state.SmallPurpleBreathGenerationEnabled && !state.SmallPurpleBreathActive &&
-            unchecked((short)_room.Random.Read()) >= 0)
+            WordWrap.Signed(_room.Random.Read()) >= 0)
             SpawnMotherBrainPurpleBreathSmall(state);
         // `$A9:936F` advances the brain list here, after every enemy's AI, and returns out
         // of the whole draw when the list is not live.
@@ -135,8 +135,8 @@ internal sealed class MotherBrainHead
         Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
         // The caller must cull before the nine-bit OAM coordinate loses world-space bits.
         // Otherwise a brain half a room to the left reappears in the approach hallway.
-        if (unchecked((short)(head.Position.X.Whole + brainShake.X +
-                MotherBrainDrawData.BrainLeftCullMargin - camera.X)) >= 0)
+        if (CoordinateAxis.AsSigned(head.Position.X.Whole + brainShake.X +
+                MotherBrainDrawData.BrainLeftCullMargin - camera.X) >= 0)
         DrawMotherBrainWorldSpritemap(
             sprites,
             new SpriteSource(SpriteSourceKind.MotherBrainBrain),
@@ -179,7 +179,7 @@ internal sealed class MotherBrainHead
         // above the screen. The generic writer intentionally wraps, so preserve that unique
         // vertical gate here before sharing its byte-exact map decoder.
         Position16<ScreenPixels> screen = frame.World.ToScreen(camera);
-        if (unchecked((short)screen.Y) < 0)
+        if (CoordinateAxis.AsSigned(screen.Y) < 0)
             return;
 
         // The head's sheet pictures each frame over what the encounter's uploads and the corpse's rot leave (#1392).
@@ -317,7 +317,7 @@ internal sealed class MotherBrainHead
                 return null;
             }
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
-                SpawnMotherBrainOnionRing(state, unchecked(new ByteAngle((byte)state.OnionRingsTargetAngle)));
+                SpawnMotherBrainOnionRing(state, unchecked(new ByteAngle(WordWrap.LowByte(state.OnionRingsTargetAngle))));
                 return null;
             case MotherBrainHeadCue.SpawnBomb bomb:
                 SpawnMotherBrainBomb(state, bomb.Afterburns);
@@ -422,12 +422,12 @@ internal sealed class MotherBrainHead
             RoomEnemyProjectileKind.MotherBrainBomb,
             graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack)));
         RoomEnemySlot head = state.Head;
-        bomb.Position = bomb.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 12)), unchecked((ushort)(head.Position.Y.Whole + 16))));
+        bomb.Position = bomb.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 12), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
 
         // The initializer's 8-bit store writes parameter LOW into the low byte of X
         // subposition. Every 8.8 motion delta has a zero low byte, so that value naturally
         // survives fractional motion and becomes the terminal Ridley-afterburn count.
-        bomb.Position = bomb.Position.WithFractionX(unchecked((byte)afterburnCount)).WithFractionY(0);
+        bomb.Position = bomb.Position.WithFractionX(WordWrap.LowByte(afterburnCount)).WithFractionY(0);
         bomb.Velocity = new(new SignedEightEight(224), new SignedEightEight(256));
         bomb.State = new MotherBrainBombState(MotherBrainBombBounceSpeed);
         state.RecordBombSpawned();
@@ -500,7 +500,7 @@ internal sealed class MotherBrainHead
             RoomEnemyProjectileKind.MotherBrainPurpleBreathBig,
             graphics: default);
         RoomEnemySlot head = state.Head;
-        breath.Position = breath.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 6)), unchecked((ushort)(head.Position.Y.Whole + 16))));
+        breath.Position = breath.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 6), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
     }
 
     /// <summary>Ports the small-breath spawn at <c>$A9:9368</c> and initializer <c>$86:CA83</c>.</summary>
@@ -515,7 +515,7 @@ internal sealed class MotherBrainHead
             RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall,
             graphics: default);
         RoomEnemySlot head = state.Head;
-        breath.Position = breath.Position.WithWhole(new(unchecked((ushort)(head.Position.X.Whole + 6)), unchecked((ushort)(head.Position.Y.Whole + 16))));
+        breath.Position = breath.Position.WithWhole(new(CoordinateAxis.Wrap(head.Position.X.Whole + 6), CoordinateAxis.Wrap(head.Position.Y.Whole + 16)));
         state.SmallPurpleBreathActive = true;
     }
 

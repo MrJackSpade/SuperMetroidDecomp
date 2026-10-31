@@ -67,8 +67,8 @@ internal sealed class CeresRidleyBabyScene
                 // The falling speed only grows from zero and the fall ends at Y=192, so it is always a
                 // nonnegative 8.8 velocity well inside the signed range the integrator accepts.
                 state.BabyPosition = state.BabyPosition.WithY(
-                    state.BabyPosition.Y.AddEightEightToHighFraction(checked((ushort)state.BabyVerticalVelocity)));
-                if (unchecked((short)(state.BabyPosition.Y.Whole - 192)) >= 0)
+                    state.BabyPosition.Y.AddEightEightToHighFraction(Ensure.BetweenInclusive(0, ushort.MaxValue, state.BabyVerticalVelocity)));
+                if (CoordinateAxis.Difference(state.BabyPosition.Y.Whole, 192) >= 0)
                 {
                     state.BabyPosition = state.BabyPosition.WithWholeY(192);
                     state.BabyFunction = CeresBabyFunction.Idle;
@@ -113,8 +113,8 @@ internal sealed class CeresRidleyBabyScene
         {
             RidleyTailSegment tip = state.TailSegments[6];
             // The tip's sixteen poses split the byte angle into sixteenths.
-            int tipIndex = unchecked((byte)(
-                tip.Angle + state.TailSegments[5].Angle + 8)) / 16;
+            int tipIndex = WordWrap.LowByte(
+                tip.Angle + state.TailSegments[5].Angle + 8) / 16;
             EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.Of(
                 tipIndex);
             DrawRidleyWorldSpritemap(
@@ -144,7 +144,7 @@ internal sealed class CeresRidleyBabyScene
         EnemyFrameId wingFrame = RidleySupplementalVisualDefinitions.WingFrames.Of(
             wingFrameIndex);
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
-            new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), state.SpritemapColouring);
+            new(CoordinateAxis.Wrap(slot.Position.X.Whole - camera.X), CoordinateAxis.Wrap(slot.Position.Y.Whole - camera.Y)), state.SpritemapColouring);
     }
 
     /// <summary>
@@ -219,7 +219,7 @@ internal sealed class CeresRidleyBabyScene
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
             int quakeXOffset = CeresDoorQuake.XOffset(_earthquake.EarthquakeTimer.RemainingFrames);
             _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.CeresDoorOverlay), CeresDoorFrameDefinitions.RidleyPrivateOverlayFrame,
-                new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))),
+                new(CoordinateAxis.Wrap(door.Position.X.Whole - camera.X + quakeXOffset), CoordinateAxis.Wrap(door.Position.Y.Whole - camera.Y)),
                 new EncounterSpriteColouring(CeresDoorColourDefinitions.Inactive));
         }
     }

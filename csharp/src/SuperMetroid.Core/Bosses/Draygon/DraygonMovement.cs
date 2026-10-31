@@ -34,7 +34,7 @@ internal sealed class DraygonMovement
         if ((state.Body.FrameCounter & 127) != 0)
             return;
         if (_spriteObjects.SpawnRoomSpriteObject(
-                new(unchecked((ushort)(state.Body.Position.X.Whole - 16)), unchecked((ushort)(state.Body.Position.Y.Whole - 16))),
+                new(CoordinateAxis.Wrap(state.Body.Position.X.Whole - 16), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)),
                 RoomSpriteObjectKind.DraygonBreathBubble,
                 graphics: default) is not null)
         {

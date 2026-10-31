@@ -127,10 +127,10 @@ internal sealed class RidleyInteractions
             foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
-                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
                 callback = RidleyHitboxCallbackCodec.ToCallback(probe.SelectShotCallback);
                 return true;

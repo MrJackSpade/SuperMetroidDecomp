@@ -84,7 +84,7 @@ internal sealed class MotherBrainBody
         switch (advance)
         {
             case AnimationProgramAdvance<MotherBrainTubeFrame>.Show shown:
-                tube.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+                tube.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 tube.Frame = MotherBrainVisualDefinitions.TubeFrames.Of(shown.Frame);
                 tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
@@ -215,7 +215,7 @@ internal sealed class MotherBrainBody
         switch (advance)
         {
             case AnimationProgramAdvance<MotherBrainBodyFrame>.Show shown:
-                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+                slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 slot.Frame = MotherBrainBodyVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
@@ -255,7 +255,7 @@ internal sealed class MotherBrainBody
                 return;
             case MotherBrainBodyCue.SpawnHandDust spawnHandDust:
                 _projectiles.SpawnRoomGraphicsDustExplosion(
-                    new(unchecked((ushort)(state.Body.Position.X.Whole + spawnHandDust.Offset.X)), unchecked((ushort)(state.Body.Position.Y.Whole + spawnHandDust.Offset.Y))),
+                    new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + spawnHandDust.Offset.X), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + spawnHandDust.Offset.Y)),
                     spawnHandDust.Dust);
                 return;
             case MotherBrainBodyCue.Command { Kind: MotherBrainBodyCueKind.FireHandBeam }:
@@ -351,16 +351,16 @@ internal sealed class MotherBrainBody
 
             // Native clamps shallow contact UP to four pixels. The resulting words are
             // consumed by Samus movement later in the frame, so overwrite rather than add.
-            samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(unchecked((short)Math.Max(xOverlap, 4)), 4));
+            samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(WordWrap.Signed(Math.Max(xOverlap, 4)), 4));
             samus.InvincibilityTimer = WrappingCountdown.Start(96);
             samus.KnockbackTimer = WrappingCountdown.Start(5);
             samus.KnockbackXDirection = KnockbackHorizontalDirection.Right;
-            if (unchecked((short)(samus.Position.Y.Whole - 192)) < 0)
+            if (CoordinateAxis.Difference(samus.Position.Y.Whole, 192) < 0)
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
 
             // Only contact to the right of body X+24 calls MotherBrain_HurtSamus. Contact
             // elsewhere still installs the displacement and timers above without damage.
-            if (unchecked((short)(state.Body.Position.X.Whole + 24 - samus.Position.X.Whole)) < 0)
+            if (CoordinateAxis.AsSigned(state.Body.Position.X.Whole + 24 - samus.Position.X.Whole) < 0)
                 DamageSamusFromMotherBrainBody(state.Body, samus);
             return true;
         }
@@ -402,7 +402,7 @@ internal sealed class MotherBrainBody
         beam.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         beam.Position = beam.Position.WithFractionX(0).WithFractionY(0);
         beam.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack));
-        beam.Position = beam.Position.WithWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + 64)), unchecked((ushort)(state.Body.Position.Y.Whole - 48))));
+        beam.Position = beam.Position.WithWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 48)));
 
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(beam.Position.Whole);
 
@@ -428,8 +428,8 @@ internal sealed class MotherBrainBody
             "Mother Brain body bytecode ran without its multipart encounter state.");
         state.Body.Position += displacement;
         PlaceMotherBrainBodyLayer(state, new(
-            unchecked((ushort)(34 - state.Body.Position.X.Whole)),
-            unchecked((ushort)(state.BodyLayerPlacement.Y - displacement.Y))));
+            CoordinateAxis.Wrap(34 - state.Body.Position.X.Whole),
+            CoordinateAxis.Wrap(state.BodyLayerPlacement.Y - displacement.Y)));
     }
 
     /// <summary>
@@ -442,10 +442,10 @@ internal sealed class MotherBrainBody
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain posture bytecode ran without its multipart encounter state.");
-        state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(state.Body.Position.Y.Whole + yDisplacement)));
+        state.Body.Position = state.Body.Position.WithWrappedWholeY(state.Body.Position.Y.Whole + yDisplacement);
         PlaceMotherBrainBodyLayer(state, new(
-            unchecked((ushort)(34 + horizontalScrollBias - state.Body.Position.X.Whole)),
-            unchecked((ushort)(state.BodyLayerPlacement.Y - yDisplacement))));
+            CoordinateAxis.Wrap(34 + horizontalScrollBias - state.Body.Position.X.Whole),
+            CoordinateAxis.Wrap(state.BodyLayerPlacement.Y - yDisplacement)));
     }
 
     /// <summary>Shared four-frame earthquake produced by each planted walking frame.</summary>

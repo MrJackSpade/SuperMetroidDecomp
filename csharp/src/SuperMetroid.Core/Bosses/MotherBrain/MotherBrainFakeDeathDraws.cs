@@ -50,10 +50,10 @@ internal static class MotherBrainFakeDeathDraws
         /// <summary>Tube clears run vertically except for a side-tube's extra centerward cell.</summary>
         internal bool Vertical(int run) => !Fill && !(Side != 0 && run == 1);
         /// <summary>Moves to the next paired tube column, using signed direction for the side clears.</summary>
-        internal sbyte NextX(int run)
+        internal int NextX(int run)
         {
             Count(run);
-            return run + 1 == RunCount ? (sbyte)0 : (sbyte)(Side == 0 ? 1 : Side);
+            return run + 1 == RunCount ? 0 : WordWrap.SignedLowByte(Side == 0 ? 1 : Side);
         }
         /// <summary>The solid fill row's cell, or a tube interior cleared between its restored endpoints.</summary>
         internal RoomTerrainBlock BlockAt(int run, int block)
@@ -165,16 +165,16 @@ internal static class MotherBrainFakeDeathDraws
             return MotherBrainFakeDeathPlmDrawDefinitions.Cells[Frame][run].Length;
         }
         /// <summary>Steps from the escape door's left column to its right air column.</summary>
-        internal sbyte NextX(int run)
+        internal int NextX(int run)
         {
             Count(run);
-            return Frame == MotherBrainFakeDeathDraw.EscapeDoor && run == 0 ? (sbyte)1 : (sbyte)0;
+            return Frame == MotherBrainFakeDeathDraw.EscapeDoor && run == 0 ? 1 : 0;
         }
         /// <summary>Raises the second wall cap above its first run's centered tile.</summary>
-        internal sbyte NextY(int run)
+        internal int NextY(int run)
         {
             Count(run);
-            return Frame == MotherBrainFakeDeathDraw.FillWall && run == 0 ? (sbyte)-1 : (sbyte)0;
+            return Frame == MotherBrainFakeDeathDraw.FillWall && run == 0 ? -1 : 0;
         }
         /// <summary>The solid wall caps or the escape door's parent, extensions and air-backed artwork.</summary>
         internal RoomTerrainBlock BlockAt(int run, int block)

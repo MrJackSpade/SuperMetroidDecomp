@@ -217,7 +217,7 @@ internal sealed class TorizoMovement
             return;
         }
 
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 40))));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue + 40));
     }
 
     /// <summary>Advances a jump across slopes; landing restores the saved list and triggers the impact quake.</summary>

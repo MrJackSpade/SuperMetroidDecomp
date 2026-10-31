@@ -6,7 +6,7 @@ internal static class TorizoMotionDefinitions
     /// <summary>
     /// A raw 8.8 speed of sixteen pixels per frame: a falling projectile at this speed and below twice it has run away.
     /// </summary>
-    internal const ushort RunawaySpeed = 4096;
+    internal const int RunawaySpeed = 4096;
 
     /// <summary>
     /// The upward raw 8.8 speed, half a pixel per frame, below which a bounced Chozo orb's rebound has settled.
@@ -32,5 +32,5 @@ internal static class TorizoMotionDefinitions
     /// Golden Torizo's egg hatch timer. $86:B001 masks the literal opcode byte $E2 rather than a random number, an
     /// authentic bug that fixes the timer at 66 updates.
     /// </summary>
-    internal const ushort EggHatchTimer = (0x00e2 & 0x001f) + 64;
+    internal const int EggHatchTimer = (0x00e2 & 0x001f) + 64;
 }

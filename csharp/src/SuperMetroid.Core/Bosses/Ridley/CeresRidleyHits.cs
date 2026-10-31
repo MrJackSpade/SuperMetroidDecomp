@@ -102,8 +102,8 @@ internal sealed class CeresRidleyHits
         // zero; testing bit one (or simply toggling the new value) changes repeated-hit
         // timing and eventually moves the escape threshold relative to the hurt palette.
         slot.FlashTimer = WrappingCountdown.FromRaw(!slot.FlashTimer.IsZero && slot.FlashTimer.IsInAlternatePhase(1)
-            ? (ushort)14
-            : (ushort)13);
+            ? 14
+            : 13);
         state.HitCounter++;
 
         // The cartridge draws the hurt palette from the enemy frame that just completed.
@@ -112,7 +112,7 @@ internal sealed class CeresRidleyHits
         UpdateRidleyHurtFlashPalettes(
             slot,
             state,
-            unchecked((ushort)(slot.FrameCounter - 1)));
+            WordWrap.Unsigned(slot.FrameCounter - 1));
         UpdateCeresRidleyHealthPalette(state);
     }
 
@@ -233,10 +233,10 @@ internal sealed class CeresRidleyHits
         Position16<RoomPixels> subject,
         Extent16<RoomPixels> subjectRadius)
     {
-        int subjectLeft = unchecked((ushort)(subject.X - subjectRadius.X));
-        int subjectRight = unchecked((ushort)(subject.X + subjectRadius.X));
-        int subjectTop = unchecked((ushort)(subject.Y - subjectRadius.Y));
-        int subjectBottom = unchecked((ushort)(subject.Y + subjectRadius.Y));
+        int subjectLeft = CoordinateAxis.Wrap(subject.X - subjectRadius.X);
+        int subjectRight = CoordinateAxis.Wrap(subject.X + subjectRadius.X);
+        int subjectTop = CoordinateAxis.Wrap(subject.Y - subjectRadius.Y);
+        int subjectBottom = CoordinateAxis.Wrap(subject.Y + subjectRadius.Y);
         var components =
             RidleyCollision.ComponentsAt(slot.Frame);
         foreach (RidleyCollisionComponent component in components)
@@ -244,18 +244,18 @@ internal sealed class CeresRidleyHits
             Position16<RoomPixels> componentOrigin = slot.Position.Whole + component.Offset;
             foreach (EnemyHitboxRectangle hitbox in component.Hitboxes)
             {
-                int left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                int top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                int right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                int bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                int left = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left);
+                int top = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top);
+                int right = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right);
+                int bottom = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom);
 
                 // $A0:9B14/$9B20/$9B2C/$9B38 use signed comparisons and treat touching
                 // right/bottom edges as non-overlap. Ceres coordinates remain in the low
                 // positive room range, so these integer comparisons are the same result.
-                if (unchecked((short)(left - subjectRight)) <= 0 &&
-                    unchecked((short)(right - subjectLeft)) > 0 &&
-                    unchecked((short)(top - subjectBottom)) <= 0 &&
-                    unchecked((short)(bottom - subjectTop)) > 0)
+                if (CoordinateAxis.Difference(left, subjectRight) <= 0 &&
+                    CoordinateAxis.Difference(right, subjectLeft) > 0 &&
+                    CoordinateAxis.Difference(top, subjectBottom) <= 0 &&
+                    CoordinateAxis.Difference(bottom, subjectTop) > 0)
                 {
                     return true;
                 }

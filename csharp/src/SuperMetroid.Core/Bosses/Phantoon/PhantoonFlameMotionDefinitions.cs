@@ -10,11 +10,11 @@ internal static class PhantoonFlameMotionDefinitions
     /// <summary>The radius, in pixels, an intro flame starts circling at; it closes by one every other update.</summary>
     internal const int IntroCircleRadius = 48;
     /// <summary>$86:9A49, enraged pre-instruction: radius increase per frame.</summary>
-    internal const ushort RageRadiusStep = 4;
+    internal const int RageRadiusStep = 4;
     /// <summary>$86:9ADE, spiral pre-instruction: radius increase per frame.</summary>
-    internal const ushort SpiralRadiusStep = 2;
+    internal const int SpiralRadiusStep = 2;
     /// <summary>$86:9AE8, spiral pre-instruction: clockwise angle increase per frame.</summary>
-    internal const ushort SpiralAngleStep = 2;
+    internal const int SpiralAngleStep = 2;
     /// <summary>$86:9AA0/$9AD2: sound requested when rain starts falling and when it hits terrain.</summary>
     internal static SoundEffectId RainFallSound => Library3Sound.PhantoonFlame;
     /// <summary>The rain sound's request priority.</summary>

@@ -76,7 +76,7 @@ internal sealed class PhantoonDeath
             return;
         state.Parts[eye.SlotIndex].FadeComplete = false;
         state.Parts[eye.SlotIndex].DyingFadeCycles = WrappingCounter.IncrementWord(state.Parts[eye.SlotIndex].DyingFadeCycles);
-        if (unchecked((short)(state.Parts[eye.SlotIndex].DyingFadeCycles - 10)) < 0)
+        if (WordWrap.Signed(state.Parts[eye.SlotIndex].DyingFadeCycles - 10) < 0)
             return;
 
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingExplosions;

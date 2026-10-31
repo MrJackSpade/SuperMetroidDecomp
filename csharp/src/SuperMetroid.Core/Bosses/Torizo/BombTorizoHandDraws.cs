@@ -21,20 +21,20 @@ internal static class BombTorizoHandDraws
         /// <summary>Gets the block count in a selected strip, rejecting an invalid run index.</summary>
         internal int BlockCount(int run) => Strip(run).Cells.Length;
         /// <summary>Gets a strip's horizontal origin relative to the hand PLM block.</summary>
-        internal sbyte OriginX(int run) => checked((sbyte)Strip(run).Origin.X);
+        internal int OriginX(int run) => Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, Strip(run).Origin.X);
         /// <summary>Gets a strip's vertical origin relative to the hand PLM block.</summary>
-        internal sbyte OriginY(int run) => checked((sbyte)Strip(run).Origin.Y);
+        internal int OriginY(int run) => Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, Strip(run).Origin.Y);
         /// <summary>Gets the next strip's relative X origin or zero at list termination.</summary>
-        internal sbyte NextX(int run)
+        internal int NextX(int run)
         {
             _ = Strip(run);
-            return run + 1 == RunCount ? (sbyte)0 : OriginX(run + 1);
+            return run + 1 == RunCount ? 0 : OriginX(run + 1);
         }
         /// <summary>Gets the next strip's relative Y origin or zero at list termination.</summary>
-        internal sbyte NextY(int run)
+        internal int NextY(int run)
         {
             _ = Strip(run);
-            return run + 1 == RunCount ? (sbyte)0 : OriginY(run + 1);
+            return run + 1 == RunCount ? 0 : OriginY(run + 1);
         }
         /// <summary>Gets one strip cell's terrain block.</summary>
         internal RoomTerrainBlock BlockAt(int run, int cell)

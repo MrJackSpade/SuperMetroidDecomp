@@ -174,7 +174,7 @@ internal sealed class KraidCombat
                     SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion => 0,
                     _ => throw new InvalidOperationException($"Undefined SamusProjectileFamily {type.Family}."),
                 };
-                int damage = unchecked((ushort)((shot.Damage >> 1) * multiplier));
+                int damage = WordWrap.Unsigned((shot.Damage >> 1) * multiplier);
                 if (damage != 0)
                 {
                     body.Health = damage >= body.Health
@@ -281,8 +281,8 @@ internal sealed class KraidCombat
             return bounds.ReachesTopAndLeft(shot.Position.Y + shot.Radius.Y, shot.Position.X + shot.Radius.X);
 
         bounds.LeaveRightEdgeAsBottom(shot.Position.X + shot.Radius.X);
-        int relativeY = unchecked((short)(shot.Position.Y - body.Position.Y.Whole));
-        return unchecked((short)(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) - bounds.Bottom)) < 0;
+        int relativeY = CoordinateAxis.Difference(shot.Position.Y, body.Position.Y.Whole);
+        return CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) - bounds.Bottom) < 0;
     }
 
     /// <summary>Switches the body from combat to its scripted death function.</summary>
@@ -308,14 +308,14 @@ internal sealed class KraidCombat
     {
         if (!KraidFunctionGroups.BeforeDeath.Contains(state.Parts[body.SlotIndex].Function))
             return;
-        int relativeY = unchecked((short)(samus.Position.Y.Whole - body.Position.Y.Whole));
-        if (unchecked((short)(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -
-            samus.Position.X.Whole - samus.Kinematics.Radius.X)) >= 0)
+        int relativeY = CoordinateAxis.Difference(samus.Position.Y.Whole, body.Position.Y.Whole);
+        if (CoordinateAxis.AsSigned(body.Position.X.Whole + KraidBodyContour.LeftEdge(relativeY) -
+            samus.Position.X.Whole - samus.Kinematics.Radius.X) >= 0)
             return;
-        if (unchecked((short)(samus.Position.X.Whole - KraidContactDefinitions.MinimumBodyEjectionX)) >= 0)
-            samus.Position -= new Offset16<RoomPixels>(unchecked((short)KraidContactDefinitions.BodyEjection), 0);
+        if (CoordinateAxis.Difference(samus.Position.X.Whole, KraidContactDefinitions.MinimumBodyEjectionX) >= 0)
+            samus.Position -= new Offset16<RoomPixels>(WordWrap.Signed(KraidContactDefinitions.BodyEjection), 0);
         Position16<RoomPixels> ejected = samus.Position.Whole -
-            new Offset16<RoomPixels>(0, unchecked((short)KraidContactDefinitions.BodyEjection));
+            new Offset16<RoomPixels>(0, WordWrap.Signed(KraidContactDefinitions.BodyEjection));
         samus.Position = samus.Position.WithWholeY((ejected - state.EjectionLimit).Y < 0
             ? state.EjectionLimit.Y : ejected.Y);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(KraidContactDefinitions.ExtraX, KraidContactDefinitions.ExtraY));
@@ -339,10 +339,10 @@ internal sealed class KraidCombat
             foreach (KraidCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
-                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
                 callback = probe.SelectShotCallback
                     ? KraidHitboxCallbackCodec.ToCallback(hitbox.Shot)
@@ -371,10 +371,10 @@ internal sealed class KraidCombat
             foreach (KraidCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
-                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
 
                 callback = probe.SelectShotCallback

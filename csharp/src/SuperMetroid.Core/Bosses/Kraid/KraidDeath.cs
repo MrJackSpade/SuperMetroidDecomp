@@ -251,8 +251,8 @@ internal sealed class KraidDeath
             state.DeathSoundTimer = WrappingCountdown.Start(30);
         }
         ProcessKraidSinkTable(body, state);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
-        if (unchecked((short)(body.Position.Y.Whole - 608)) < 0)
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, 608) < 0)
             return;
 
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);

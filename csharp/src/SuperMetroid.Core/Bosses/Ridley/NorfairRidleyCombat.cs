@@ -163,7 +163,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        Position16<RoomPixels> target = new(state.FacingDirection != RidleyFacing.Left ? (ushort)96 : (ushort)192, 256);
+        Position16<RoomPixels> target = new(state.FacingDirection != RidleyFacing.Left ? 96 : 192, 256);
         NorfairRidleyMovement.MoveNorfairRidleyToward(
             slot,
             state,
@@ -176,7 +176,7 @@ internal sealed class NorfairRidleyCombat
     /// <summary>Moves to the high side point and initializes the swoop angle timer.</summary>
     internal static void TickNorfairRidleySwoopMoveToStart(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        Position16<RoomPixels> target = new(state.FacingDirection != RidleyFacing.Left ? (ushort)64 : (ushort)192, 128);
+        Position16<RoomPixels> target = new(state.FacingDirection != RidleyFacing.Left ? 64 : 192, 128);
         NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, target, divisorIndex: 1);
         if (!CeresRidleyFlight.IsWithinRidleyRectangle(slot, target, new(8, 8)))
             return;
@@ -223,7 +223,7 @@ internal sealed class NorfairRidleyCombat
             state,
             new Position16<RoomPixels>(
                 direction == VerticalDirection.Down ? RidleyMovementTargets.DescendingPogoX(facing) : RidleyMovementTargets.AscendingPogoX(facing),
-                samus is null ? (ushort)352 : Math.Min(samus.Position.Y.Whole, (ushort)352)),
+                samus is null ? 352 : Math.Min(samus.Position.Y.Whole, 352)),
             ReadRidleyHealthMovementDivisorIndex(state));
         state.TailWhipRequest = 1;
 
@@ -262,7 +262,7 @@ internal sealed class NorfairRidleyCombat
         RidleyEnemyState state,
         SamusState? samus)
     {
-        if (unchecked((short)(slot.Position.Y.Whole - 288)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, 288) < 0)
         {
             SelectNorfairRidleyFacingInstruction(slot, state);
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
@@ -302,9 +302,9 @@ internal sealed class NorfairRidleyCombat
         if (samus is not null && SamusMovementUsesRidleyGrab(samus) &&
             RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(4, 4)))
         {
-            state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)-Math.Max(
+            state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(-Math.Max(
                 512,
-                Math.Abs((int)state.Velocity.Y.SignedRawValue)))));
+                Math.Abs(state.Velocity.Y.SignedRawValue))));
             state.TailFunctionIndex = RidleyTailFunction.Neutral;
             state.TailAngleDelta = 1;
             BeginNorfairRidleyGrab(slot, state, samus);
@@ -312,7 +312,7 @@ internal sealed class NorfairRidleyCombat
         }
 
         int nextVertical = state.Velocity.Y.SignedRawValue + state.PogoDownwardAcceleration;
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)Math.Min(nextVertical, 1536))));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(Math.Min(nextVertical, 1536)));
 
         if (!RidleyTail.RidleyTailTouchesTerrain(state, level))
             return;
@@ -361,7 +361,7 @@ internal sealed class NorfairRidleyCombat
         }
         else
         {
-            state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)nextVertical)));
+            state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(nextVertical));
         }
     }
 
@@ -380,7 +380,7 @@ internal sealed class NorfairRidleyCombat
         state.Velocity = state.Velocity.WithY(definition.Velocity.Y);
         SignedEightEight horizontal = definition.Velocity.X;
         state.Velocity = state.Velocity.WithX(state.Velocity.X.SignedRawValue < 0
-            ? SignedEightEight.FromSignedRaw(unchecked((short)-horizontal.SignedRawValue))
+            ? SignedEightEight.FromSignedRaw(WordWrap.Signed(-horizontal.SignedRawValue))
             : horizontal);
     }
 
@@ -398,11 +398,11 @@ internal sealed class NorfairRidleyCombat
 
         // The native lunge is a passing attack, not indefinite pursuit. Test the
         // previous movement's boundary result before applying another acceleration.
-        int deltaX = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
+        int deltaX = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole);
         bool passedSamus = state.FacingDirection == RidleyFacing.Right ? deltaX >= 0 : deltaX < 0;
         if (state.HitRoomBoundary ||
-            (passedSamus && unchecked((short)(Math.Abs(deltaX) - RidleyLungeDefinitions.PassDistance)) >= 0) ||
-            unchecked((short)(slot.Position.Y.Whole + RidleyLungeDefinitions.ClawHeight - samus.Position.Y.Whole)) >= 0)
+            (passedSamus && CoordinateAxis.Difference(Math.Abs(deltaX), RidleyLungeDefinitions.PassDistance) >= 0) ||
+            CoordinateAxis.AsSigned(slot.Position.Y.Whole + RidleyLungeDefinitions.ClawHeight - samus.Position.Y.Whole) >= 0)
         {
             HandleNorfairRidleyMissedLunge(slot, state);
             return;
@@ -413,13 +413,13 @@ internal sealed class NorfairRidleyCombat
         NorfairRidleyMovement.MoveNorfairRidleyToward(
             slot,
             state,
-            samus.Position.Whole + new Offset16<RoomPixels>((short)sideOffset, -4),
+            samus.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(sideOffset), -4),
             divisorIndex);
 
         if (RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(8, 12)))
         {
             // $A6:BB56-$BB5D reverses the lunge before the carry setup accelerates.
-            state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)-state.Velocity.Y.RawValue)));
+            state.Velocity = state.Velocity.WithY(state.Velocity.Y.Negated());
             BeginNorfairRidleyGrab(slot, state, samus);
         }
     }
@@ -450,9 +450,9 @@ internal sealed class NorfairRidleyCombat
     {
         state.Target = new Position16<RoomPixels>(
             RidleyMovementTargets.CarryAnchorX(state.FacingDirection),
-            unchecked((short)(slot.Position.Y.Whole - 320)) < 0
-                ? (ushort)256
-                : unchecked((ushort)(slot.Position.Y.Whole - 64)));
+            CoordinateAxis.Difference(slot.Position.Y.Whole, 320) < 0
+                ? 256
+                : CoordinateAxis.Wrap(slot.Position.Y.Whole - 64));
         state.Function = RidleyAiFunction.NorfairCarryMoveToAnchor;
         state.FunctionTimer = WrappingCountdown.Start(32);
         NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target, 0);
@@ -474,12 +474,12 @@ internal sealed class NorfairRidleyCombat
     }
 
     /// <summary>Moves one signed grab-offset component four pixels toward zero.</summary>
-    private static short DecayRidleyGrabOffset(int offset)
+    private static int DecayRidleyGrabOffset(int offset)
     {
         if (offset > 0)
-            return (short)Math.Max(0, offset - 4);
+            return CoordinateAxis.AsSigned(Math.Max(0, offset - 4));
         if (offset < 0)
-            return (short)Math.Min(0, offset + 4);
+            return CoordinateAxis.AsSigned(Math.Min(0, offset + 4));
         return 0;
     }
 
@@ -489,18 +489,18 @@ internal sealed class NorfairRidleyCombat
         RidleyEnemyState state,
         SamusState samus,
         Extent16<RoomPixels> radius) =>
-        Math.Abs(unchecked((short)(samus.Position.X.Whole - GetNorfairRidleyClawX(slot, state)))) <
+        CoordinateAxis.Distance(samus.Position.X.Whole, GetNorfairRidleyClawX(slot, state)) <
             samus.Kinematics.Radius.X + radius.X &&
-        Math.Abs(unchecked((short)(samus.Position.Y.Whole - GetNorfairRidleyClawY(slot, state)))) <
+        CoordinateAxis.Distance(samus.Position.Y.Whole, GetNorfairRidleyClawY(slot, state)) <
             samus.Kinematics.Radius.Y + radius.Y;
 
     /// <summary>Applies the facing-dependent claw X offset to Ridley's body position.</summary>
-    private static ushort GetNorfairRidleyClawX(RoomEnemySlot slot, RidleyEnemyState state) =>
-        unchecked((ushort)(slot.Position.X.Whole + RidleyClawOffsets.ReadX(state.FacingDirection)));
+    private static int GetNorfairRidleyClawX(RoomEnemySlot slot, RidleyEnemyState state) =>
+        CoordinateAxis.Wrap(slot.Position.X.Whole + RidleyClawOffsets.ReadX(state.FacingDirection));
 
     /// <summary>Applies the current feet-frame claw Y offset to Ridley's body position.</summary>
-    private static ushort GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state) =>
-        unchecked((ushort)(slot.Position.Y.Whole + RidleyClawOffsets.ReadY(state.FeetDistanceIndex)));
+    private static int GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state) =>
+        CoordinateAxis.Wrap(slot.Position.Y.Whole + RidleyClawOffsets.ReadY(state.FeetDistanceIndex));
 
     /// <summary>Starts a turn only when Ridley faces away from the arena half identified by X bit seven.</summary>
     internal static void SelectNorfairRidleyFacingInstruction(RoomEnemySlot slot, RidleyEnemyState state)
@@ -624,9 +624,9 @@ internal sealed class NorfairRidleyCombat
         }
         state.FightMode = RidleyFightMode.PowerBombDodge;
         Position16<RoomPixels> target = new(
-            unchecked((short)(bomb.Position.X - RidleyLungeDefinitions.DodgeSplitX)) >= 0
+            CoordinateAxis.Difference(bomb.Position.X, RidleyLungeDefinitions.DodgeSplitX) >= 0
                 ? RidleyLungeDefinitions.DodgeLeftX : RidleyLungeDefinitions.DodgeRightX,
-            unchecked((short)(bomb.Position.Y - RidleyLungeDefinitions.DodgeSplitY)) >= 0
+            CoordinateAxis.Difference(bomb.Position.Y, RidleyLungeDefinitions.DodgeSplitY) >= 0
                 ? RidleyLungeDefinitions.DodgeUpperY : RidleyLungeDefinitions.DodgeLowerY);
         NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, target, ReadRidleyHealthMovementDivisorIndex(state));
     }
@@ -635,16 +635,16 @@ internal sealed class NorfairRidleyCombat
     internal void SetRidleyPogoHorizontalDirection(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
         if (state.Velocity.X.RawValue == 0)
-            state.Velocity = state.Velocity.WithX(SignedEightEight.FromSignedRaw(RoomGridConversions.OffsetWithinScreen(slot.Position.X.Whole) < 128 ? (short)192 : (short)-192));
+            state.Velocity = state.Velocity.WithX(SignedEightEight.FromSignedRaw(RoomGridConversions.OffsetWithinScreen(slot.Position.X.Whole) < 128 ? 192 : -192));
         bool negative = state.Velocity.X.SignedRawValue < 0;
         bool reverse;
-        if ((short)(slot.Position.X.Whole - state.MovementMinimum.X) < 0) reverse = negative;
-        else if ((short)(slot.Position.X.Whole - state.MovementMaximum.X) >= 0) reverse = !negative;
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, state.MovementMinimum.X) < 0) reverse = negative;
+        else if (CoordinateAxis.Difference(slot.Position.X.Whole, state.MovementMaximum.X) >= 0) reverse = !negative;
         else
         {
-            bool oppositeSigns = ((ushort)(slot.Position.X.Whole - (samus?.Position.X.Whole ?? 0)) ^ state.Velocity.X.RawValue) > short.MaxValue;
+            bool oppositeSigns = (CoordinateAxis.Wrap(slot.Position.X.Whole - (samus?.Position.X.Whole ?? 0)) ^ state.Velocity.X.RawValue) > short.MaxValue;
             reverse = oppositeSigns ? _room.Random.Read() < 1365 : _room.Random.Read() >= 1365;
         }
-        if (reverse) state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.RawValue)));
+        if (reverse) state.Velocity = state.Velocity.WithX(state.Velocity.X.Negated());
     }
 }

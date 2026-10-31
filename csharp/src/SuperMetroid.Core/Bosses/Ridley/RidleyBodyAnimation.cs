@@ -73,8 +73,8 @@ internal sealed class RidleyBodyAnimation
                 state.FeetDistanceIndex = setFeetDistance.FeetDistanceIndex;
                 return null;
             case RidleyBodyCue.Move move:
-                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + move.Displacement.X)));
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + move.Displacement.Y)));
+                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + move.Displacement.X);
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + move.Displacement.Y);
                 return null;
             case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.FaceForward }:
                 state.FacingDirection = RidleyFacing.Turning;

@@ -17,7 +17,7 @@ public readonly struct PhantoonRainColumns : IReadOnlyList<byte>
             int origin = PhantoonFlameSpawns.RainX(0);
             int spacing = PhantoonFlameSpawns.RainX(1) - origin;
             int bodyColumn = (PhantoonFlameRain.RainPlacement(pattern).Position.X - origin) / spacing;
-            return (byte)((bodyColumn + 1) % PhantoonPatternDefinitions.RainColumnCount);
+            return WordWrap.LowByte((bodyColumn + 1) % PhantoonPatternDefinitions.RainColumnCount);
         }
     }
     /// <summary>Enumerates each pattern's first flame column in native pattern order, without advancing RNG or spawning flames.</summary>

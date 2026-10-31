@@ -21,5 +21,5 @@ internal static class DraygonCannonDefinitions
     internal const int SuperMissileHitCounterSeed = 119;
 
     /// <summary>The hits a shielded cannon takes before it is destroyed.</summary>
-    internal const byte HitsToDestroy = 3;
+    internal const int HitsToDestroy = 3;
 }

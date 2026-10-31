@@ -20,6 +20,6 @@ internal static class BotwoonHealthPalette
             throw new InvalidDataException($"Botwoon palette phase {phase} is outside the eight retail threshold entries.");
 
         int threshold = BotwoonHealthPaletteDefinitions.HealthPerThreshold * (BotwoonHealthPaletteDefinitions.PaletteCount - phase);
-        return unchecked((short)(health - threshold)) < 0;
+        return WordWrap.Signed(health - threshold) < 0;
     }
 }

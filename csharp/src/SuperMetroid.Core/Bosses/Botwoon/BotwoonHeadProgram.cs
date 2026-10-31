@@ -18,5 +18,5 @@ internal readonly record struct BotwoonHeadProgram(BotwoonHeadProgramKind Kind, 
     /// nearest octant (<c>InstListPointers_Botwoon_spit</c>, $B3:948B).
     /// </summary>
     internal static BotwoonHeadProgram SpittingToward(Bearing bearing) =>
-        new(BotwoonHeadProgramKind.Spitting, BotwoonAnimations.FacingOfOctant(unchecked((byte)(bearing.RawValue + 16)) >> 5));
+        new(BotwoonHeadProgramKind.Spitting, BotwoonAnimations.FacingOfOctant(WordWrap.LowByte(bearing.RawValue + 16) >> 5));
 }

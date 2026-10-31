@@ -39,18 +39,18 @@ internal static class MotherBrainGlassDraws
             return Frame != MotherBrainGlassDraw.Initial && !(Shifted && run == 0);
         }
         /// <summary>Horizontal origin adjustment before the following run.</summary>
-        internal sbyte NextX(int run)
+        internal int NextX(int run)
         {
             CheckRun(run);
             if (run == RunCount - 1) return 0;
-            return Pane ? (sbyte)-1 : (sbyte)(run - 3);
+            return Pane ? -1 : WordWrap.SignedLowByte(run - 3);
         }
         /// <summary>Vertical origin adjustment before the following run.</summary>
-        internal sbyte NextY(int run)
+        internal int NextY(int run)
         {
             CheckRun(run);
             if (run == RunCount - 1) return 0;
-            return (sbyte)(Pane || Shifted && (run != 0 || Frame != MotherBrainGlassDraw.ShiftedPane1) ||
+            return WordWrap.SignedLowByte(Pane || Shifted && (run != 0 || Frame != MotherBrainGlassDraw.ShiftedPane1) ||
                 Frame == MotherBrainGlassDraw.Shatter1 && run >= 1 ? 1 : 0);
         }
         /// <summary>The selected block's appearance and collision kind.</summary>

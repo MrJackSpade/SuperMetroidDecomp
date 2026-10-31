@@ -53,8 +53,8 @@ internal sealed class DraygonSwoops
         while (true)
         {
             speed += state.SwoopAcceleration;
-            int candidate = unchecked((ushort)(yPosition - (EightEight.WholeOf(speed.Y.RawValue))));
-            if (unchecked((short)(candidate - state.LeftSideReset.Y)) < 0)
+            int candidate = CoordinateAxis.Wrap(yPosition - (EightEight.WholeOf(speed.Y.RawValue)));
+            if (CoordinateAxis.Difference(candidate, state.LeftSideReset.Y) < 0)
                 break;
 
             yPosition = candidate;
@@ -72,8 +72,8 @@ internal sealed class DraygonSwoops
         // UnsignedDivision_32bit divides the absolute whole-pixel distance promoted to
         // 16.16 by the number of path entries. Split the quotient into the same var_D/E
         // whole/subpixel words consumed by AddToHiLo during descent.
-        int distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
-            state.LeftSideReset.X - samus.Position.X.Whole)));
+        int distance = CoordinateAxis.Distance(
+            state.LeftSideReset.X, samus.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.SwoopEntry = frameCount;
     }
@@ -113,7 +113,7 @@ internal sealed class DraygonSwoops
         int frameCount = state.SwoopPathEntryCount;
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the apex.");
-        int distance = unchecked((ushort)(672 - body.Position.X.Whole));
+        int distance = CoordinateAxis.Wrap(672 - body.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Function = DraygonBehavior.RightSwoop.Ascending;
     }
@@ -182,8 +182,8 @@ internal sealed class DraygonSwoops
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the generated swoop duration.");
 
-        int distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
-            state.RightSideReset.X - samus.Position.X.Whole)));
+        int distance = CoordinateAxis.Distance(
+            state.RightSideReset.X, samus.Position.X.Whole);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Function = DraygonAiFunction.SwoopLeftDescending;
         _parts.StartDraygonProgram(state.Body, DraygonProgram.BodyFacingLeftReset);
@@ -207,10 +207,10 @@ internal sealed class DraygonSwoops
         // negates it and adds the body's positive arena X, yielding the wrapped distance
         // from the current point back to X=$FFB0.
         int resetX = state.LeftSideReset.X;
-        int distance = unchecked((short)resetX) < 0
-            ? unchecked((ushort)(
-                unchecked((ushort)-resetX) + body.Position.X.Whole))
-            : unchecked((ushort)(body.Position.X.Whole - resetX));
+        int distance = CoordinateAxis.AsSigned(resetX) < 0
+            ? CoordinateAxis.Wrap(
+                CoordinateAxis.Wrap(-resetX) + body.Position.X.Whole)
+            : CoordinateAxis.Wrap(body.Position.X.Whole - resetX);
         SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Function = DraygonBehavior.LeftSwoop.Ascending;
     }
@@ -233,8 +233,8 @@ internal sealed class DraygonSwoops
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         RoomEnemySlot body = state.Body;
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 4)));
-        if (unchecked((short)body.Position.Y.Whole) >= 0)
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 4);
+        if (CoordinateAxis.AsSigned(body.Position.Y.Whole) >= 0)
             return;
 
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);

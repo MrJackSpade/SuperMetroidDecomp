@@ -66,7 +66,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Health ceiling applied while an active Zebetite regenerates each update.</summary>
-    private const ushort ZebetiteMaximumHealth = 1000;
+    private const int ZebetiteMaximumHealth = 1000;
     /// <summary>The sound a Zebetite makes when a shot hits it.</summary>
     private static readonly SoundEffectId ZebetiteShotSound = Library3Sound.MissileDoorHit;
 
@@ -93,7 +93,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     public int SharedPaletteCycle
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>Ports <c>Zebetites_Init</c> at <c>$A6:FB72</c>.</summary>
@@ -134,10 +134,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         ZebetiteGenerationDefinition definition = Zebetites.Generation(generation);
         state.GenerationFlags = definition.GenerationFlags;
-        slot.Radius = slot.Radius.WithY(checked((ushort)definition.YRadius));
+        slot.Radius = slot.Radius.WithY(definition.YRadius);
         state.Cursor = AnimationProgramCursor<ZebetiteProgram>.Start(definition.Program);
-        slot.Position = slot.Position.WithWholeX(checked((ushort)definition.XPosition));
-        slot.Position = slot.Position.WithWholeY(checked((ushort)Zebetites.YPosition(definition, state.IsSecondaryHalf)));
+        slot.Position = slot.Position.WithWholeX(definition.XPosition);
+        slot.Position = slot.Position.WithWholeY(Zebetites.YPosition(definition, state.IsSecondaryHalf));
     }
 
     /// <summary>Ports the indirect main dispatcher at <c>$A6:FC33</c>.</summary>
@@ -343,7 +343,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (advance)
         {
             case AnimationProgramAdvance<ZebetiteFrame>.Show shown:
-                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+                slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 slot.Frame = ZebetiteVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;

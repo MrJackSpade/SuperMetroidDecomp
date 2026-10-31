@@ -11,7 +11,7 @@ internal static class MotherBrainBombBounceDefinitions
     /// <summary>Stages zero through nine, including the expiry sentinel.</summary>
     internal const int StageCount = 10;
     /// <summary>The ordinary fall gravity, also used before the first bounce.</summary>
-    internal const ushort FallAcceleration = 0x0007;
+    internal const int FallAcceleration = 0x0007;
 
     /// <summary>The native acceleration of stages zero through eight, then zero for expiry at stage nine.</summary>
     internal static readonly ushort[] YAccelerations = [FallAcceleration, 16, 32, 64, 112, 176, 240, 304, 368, 0];

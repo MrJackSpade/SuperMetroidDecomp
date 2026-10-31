@@ -45,7 +45,7 @@ public sealed class PhantoonWaveEffect
     /// <param name="length">The wave's length.</param>
     /// <param name="shape">The phase, 0 through 511, amplitude and base scroll the wave was built from.</param>
     internal static PhantoonWave Describe(PhantoonWaveLength length, PhantoonWaveShape shape) => new(shape.BaseScroll, shape.Amplitude,
-        new ByteAngle(unchecked((byte)(PhaseInCycle(shape.Phase) / PhantoonWaveDefinitions.PhasesPerAngleStep))),
+        new ByteAngle(WordWrap.LowByte(PhaseInCycle(shape.Phase) / PhantoonWaveDefinitions.PhasesPerAngleStep)),
         Period(length));
 
     /// <summary>The screen lines of one whole cycle of a wave of <paramref name="length"/>.</summary>

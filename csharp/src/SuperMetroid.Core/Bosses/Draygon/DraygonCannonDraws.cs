@@ -32,16 +32,16 @@ internal static class DraygonCannonDraws
             return Right || run == 2 ? 2 : 1;
         }
         /// <summary>Moves left between split top-row cells and otherwise keeps the X cursor.</summary>
-        public sbyte NextX(int run)
+        public int NextX(int run)
         {
             CheckRun(run);
-            return !Right && run < 2 ? (sbyte)-1 : (sbyte)0;
+            return !Right && run < 2 ? -1 : 0;
         }
         /// <summary>Advances to the lower row after the right row or left split pair.</summary>
-        public sbyte NextY(int run)
+        public int NextY(int run)
         {
             CheckRun(run);
-            return run == (Right ? 0 : 1) ? (sbyte)1 : (sbyte)0;
+            return run == (Right ? 0 : 1) ? 1 : 0;
         }
         /// <summary>The cannon cell's collision, mirror and shield or damage tile.</summary>
         public RoomTerrainBlock BlockAt(int run, int cell)

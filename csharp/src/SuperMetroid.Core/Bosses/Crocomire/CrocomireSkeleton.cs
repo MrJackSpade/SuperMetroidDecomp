@@ -48,8 +48,8 @@ internal sealed class CrocomireSkeleton
     internal static void RunCrocomireSkeletonRiver(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole - 2)));
-        if (unchecked((short)(body.Position.X.Whole - 480)) < 0)
+        body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole - 2);
+        if (CoordinateAxis.Difference(body.Position.X.Whole, 480) < 0)
         {
             body.Position = body.Position.WithWhole(new(480, 54));
             state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;
@@ -63,7 +63,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Waits with the skeleton behind the wall before its rumble and tile-load sequence.</summary>
     internal void RunCrocomireWaitBehindWall(CrocomireEnemyState state, SamusState? samus)
     {
-        if (samus is null || unchecked((short)(samus.Position.X.Whole - 640)) >= 0)
+        if (samus is null || CoordinateAxis.Difference(samus.Position.X.Whole, 640) >= 0)
             return;
 
         _access.RequestCrocomireMusic(MusicRequest.SelectTrack(5), MusicQueueDelay.Shortest);
@@ -164,7 +164,7 @@ internal sealed class CrocomireSkeleton
     internal void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        if (unchecked((short)(state.Body.Position.X.Whole - 224)) < 0)
+        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 224) < 0)
         {
             state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 128, maximumWhole: 2);
             state.Body.Position = state.Body.Position.WithX(
@@ -189,7 +189,7 @@ internal sealed class CrocomireSkeleton
             CrocomireBehavior.SkeletonArcFallSpeed.AddTo(state.Body.Position.Y.Whole, state.Body.Position.Y.Fraction));
         state.Body.Position = state.Body.Position.WithX(
             state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
-        if (unchecked((short)(state.Body.Position.X.Whole - 576)) < 0)
+        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 576) < 0)
             return;
 
         _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
@@ -274,7 +274,7 @@ internal sealed class CrocomireSkeleton
         SignedSixteenSixteen accelerated =
             velocity + SignedSixteenSixteen.FromRaw(SixteenSixteen.FromEightEight(accelerationEightEight));
         return accelerated.WholePixels >= maximumWhole
-            ? accelerated.WithWholePixels(checked((short)maximumWhole))
+            ? accelerated.WithWholePixels(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, maximumWhole))
             : accelerated;
     }
 
@@ -313,7 +313,7 @@ internal sealed class CrocomireSkeleton
                     $"Crocomire spike wall occupied unexpected projectile slot {projectile.SlotIndex}.");
             }
 
-            projectile.Position = projectile.Position.WithWhole(new(528, unchecked((ushort)(56 + yTableIndex * 16))));
+            projectile.Position = projectile.Position.WithWhole(new(528, WordWrap.Unsigned(56 + yTableIndex * 16)));
             projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
             projectile.State = new CrocomireSpikeWallPieceState();
             projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);

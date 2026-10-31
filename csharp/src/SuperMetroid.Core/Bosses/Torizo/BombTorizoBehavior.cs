@@ -73,9 +73,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         Combat = new TorizoCombat(_room, _presentation, dependencies.Collision, Body, Access);
     }
     /// <summary>Health below which the head-break list interrupts active Bomb Torizo AI.</summary>
-    internal const ushort BombTorizoHeadExplosionHealth = 350;
+    internal const int BombTorizoHeadExplosionHealth = 350;
     /// <summary>Health below which the later core-break list interrupts active AI.</summary>
-    internal const ushort BombTorizoCoreExplosionHealth = 100;
+    internal const int BombTorizoCoreExplosionHealth = 100;
 
     /// <summary>Creates the per-statue gradual color transition against the live CGRAM image on first use.</summary>
     private GradualPaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
@@ -177,9 +177,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.BombTorizo,
             count: 16,
-            xBase: state.IsGolden ? (ushort)128 : (ushort)64,
+            xBase: state.IsGolden ? 128 : 64,
             xMask: state.IsGolden ? TorizoRandomDefinitions.GoldenDropXMask : TorizoRandomDefinitions.BombDropXMask,
-            yBase: state.IsGolden ? (ushort)288 : (ushort)96,
+            yBase: state.IsGolden ? 288 : 96,
             yMask: TorizoRandomDefinitions.DropYMask);
         state.ItemDropRequested = true;
         RequestBombTorizoMusic(MusicRequest.SelectTrack(3));
@@ -217,7 +217,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances BombTorizo's typed animation.</summary>
     internal void AdvanceBombTorizoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {
-        AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = unchecked((byte)_frameContext.FrameCounter) });
+        AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = WordWrap.LowByte(_frameContext.FrameCounter) });
     }
     /// <summary>Runs Bomb or Golden Torizo's body program where the enemy instruction interpreter would.</summary>
     internal void AdvanceTorizoAnimation(RoomEnemySlot torizo, TorizoInstructionInputs inputs)

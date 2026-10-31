@@ -77,9 +77,9 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // `CPY SamusYPosition / BPL` tests signed(YTarget-currentY). For the fight's normal
         // coordinate range this is exactly currentY <= $7C, but preserve the 16-bit branch
         // semantics instead of introducing a host integer comparison with different wraps.
-        int difference = unchecked((short)(124 - samus.Position.Y.Whole));
+        int difference = CoordinateAxis.Difference(124, samus.Position.Y.Whole);
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(
-            samus, cameraCheckpoint, SignedEightEight.FromSignedRaw((short)(difference >= 0 ? 64 : -64)));
+            samus, cameraCheckpoint, SignedEightEight.FromSignedRaw(WordWrap.Signed(difference >= 0 ? 64 : -64)));
 
         return CreateResult(
             before,
@@ -110,8 +110,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         // Native ADC wraps to 16 bits and BMI examines the resulting sign bit. As soon as
         // the negative speed crosses into $0000..$7FFF it is clamped to exact zero.
-        int acceleratedX = unchecked((short)(CustomVelocity.X.SignedRawValue + 2));
-        CustomVelocity = CustomVelocity.WithX(SignedEightEight.FromSignedRaw((short)Math.Min(acceleratedX, 0)));
+        int acceleratedX = WordWrap.Signed(CustomVelocity.X.SignedRawValue + 2);
+        CustomVelocity = CustomVelocity.WithX(SignedEightEight.FromSignedRaw(CoordinateAxis.AsSigned(Math.Min(acceleratedX, 0))));
         MoveHorizontallyTowardWall(samus, cameraCheckpoint, CustomVelocity.X);
 
         CustomVelocity += new EightEightVector<RoomPixels>(0, 24);
@@ -154,8 +154,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         // BMI/BPL are signed tests of the subtraction result, not unsigned C# comparisons.
         // This distinction is observable if a malformed/debug position wraps around zero.
-        bool aboveCeiling = unchecked((short)(moved.Whole - 48)) < 0;
-        if (aboveCeiling || unchecked((short)(moved.Whole - 192)) >= 0)
+        bool aboveCeiling = CoordinateAxis.Difference(moved.Whole, 48) < 0;
+        if (aboveCeiling || CoordinateAxis.Difference(moved.Whole, 192) >= 0)
         {
             samus.Position = samus.Position.WithWholeY(aboveCeiling ? Ceiling : Floor);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
@@ -179,7 +179,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // `$A9:BC48/$BC61/$BC6B/$BC71` hide every store from the camera's horizontal record.
         cameraCheckpoint.HideCoarseHorizontalMovement(moved.Fraction);
 
-        if (unchecked((short)(moved.Whole - 235)) >= 0)
+        if (CoordinateAxis.Difference(moved.Whole, 235) >= 0)
         {
             samus.Position = samus.Position.WithWholeX(235);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
@@ -199,10 +199,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         position.AddEightEightToHighFraction(velocity.RawValue);
 
     /// <summary>The arena's ceiling: the least whole Y the forced movement leaves Samus at.</summary>
-    private const ushort Ceiling = 48;
+    private const int Ceiling = 48;
 
     /// <summary>The arena's floor: the greatest whole Y the forced movement leaves Samus at.</summary>
-    private const ushort Floor = 192;
+    private const int Floor = 192;
 
     /// <summary>Records Samus's position before a forced movement helper mutates it.</summary>
     private static FixedPosition<RoomPixels> Capture(SamusState samus) => samus.Position;

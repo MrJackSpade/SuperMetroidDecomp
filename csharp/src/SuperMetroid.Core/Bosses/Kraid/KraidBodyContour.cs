@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 public static class KraidBodyContour
 {
     /// <summary>$A7:B161, first bottom boundary of HitboxDefinitionTable_KraidBody.</summary>
-    private const short FirstBottomBoundary = 1023;
+    private const int FirstBottomBoundary = 1023;
 
     /// <summary>
     /// $A7:B163/B165, HitboxDefinitionTable_KraidBody: each left edge is paired
@@ -19,7 +19,7 @@ public static class KraidBodyContour
     /// wrapped-sign test, rather than replacing it with ordered signed comparison.
     /// </remarks>
     /// <param name="relativeY">The signed vertical distance from Kraid's body, -32768 through 32767.</param>
-    public static short LeftEdge(int relativeY) => relativeY switch
+    public static int LeftEdge(int relativeY) => relativeY switch
     {
         <= short.MinValue + FirstBottomBoundary - 1 => -48,
         >= 0 => -48,

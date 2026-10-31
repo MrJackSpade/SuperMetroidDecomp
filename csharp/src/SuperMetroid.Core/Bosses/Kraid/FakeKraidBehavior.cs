@@ -124,7 +124,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.WalkDelta = -4;
         state.FacingDelta = -4;
         state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(FakeKraidProgram.StepForwardsFacingLeft);
-        if (unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0)
         {
             state.WalkDelta = 4;
             state.FacingDelta = 4;
@@ -197,7 +197,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (reverse)
             state.WalkDelta = -state.WalkDelta;
 
-        state.FacingDelta = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
+        state.FacingDelta = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
             ? 4
             : -4;
     }
@@ -262,7 +262,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             source.Graphics);
         projectile.StartAnimation(new FakeKraidProjectileAnimation(FakeKraidProjectilePose.Spit));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(
-            source.Position.Whole + new Offset16<RoomPixels>((short)xOffset, -16));
+            source.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(xOffset), -16));
         projectile.Velocity = velocity;
         return true;
     }
@@ -293,7 +293,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int spikePixelsPerFrame = kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
             ? -SpikePixelsPerFrame
             : SpikePixelsPerFrame;
-        projectile.Velocity = new(SignedEightEight.FromSignedRaw(checked((short)(spikePixelsPerFrame * SubpixelsPerPixel))),
+        projectile.Velocity = new(SignedEightEight.FromSignedRaw(spikePixelsPerFrame * SubpixelsPerPixel),
             new SignedEightEight(0));
         state.SpawnedSpikeCount++;
         return true;
@@ -312,10 +312,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int oldVelocity = projectile.Velocity.Y.SignedRawValue;
-        int nextVelocity = unchecked((short)(oldVelocity + 64));
+        int nextVelocity = WordWrap.Signed(oldVelocity + 64);
         if (nextVelocity >= 0 && oldVelocity >= 960)
             nextVelocity = 1024;
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)nextVelocity)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(nextVelocity));
     }
 
     /// <summary>Ports <c>EprojPreInstr_MiniKraidSpikes</c> at <c>$86:9E83</c>.</summary>
@@ -335,10 +335,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool FakeKraidOriginIsOnScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
-        unchecked((short)(slot.Position.X.Whole - camera.X)) >= 0 &&
-        unchecked((short)(camera.X + 256 - slot.Position.X.Whole)) >= 0 &&
-        unchecked((short)(slot.Position.Y.Whole - camera.Y)) >= 0 &&
-        unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) >= 0;
+        CoordinateAxis.Difference(slot.Position.X.Whole, camera.X) >= 0 &&
+        CoordinateAxis.AsSigned(camera.X + 256 - slot.Position.X.Whole) >= 0 &&
+        CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) >= 0 &&
+        CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) >= 0;
 
     /// <summary>
     /// Ports <c>Reaction_MiniKraid_Common</c> ($A6:9C50): <c>EnemyDeath</c> spawns death

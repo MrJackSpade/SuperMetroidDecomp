@@ -106,7 +106,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             Velocity = default,
             PaletteDelay = 10,
         };
-        if (unchecked((short)cameraX) < 0)
+        if (CoordinateAxis.AsSigned(cameraX) < 0)
         {
             // `$0400` removes the actor from ordinary interaction and `$0100` suppresses
             // drawing. Keep the former raw: its historical disassembly name "tangible" is
@@ -303,7 +303,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     slot,
                     state,
                     0,
-                    new(unchecked((ushort)(target.Position.X.Whole - 64)), 100),
+                    new(CoordinateAxis.Wrap(target.Position.X.Whole - 64), 100),
                     1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
@@ -321,7 +321,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     slot,
                     state,
                     0,
-                    new(unchecked((ushort)(target.Position.X.Whole + 96)), 104),
+                    new(CoordinateAxis.Wrap(target.Position.X.Whole + 96), 104),
                     1024);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
@@ -338,8 +338,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 goto case ShitroidAiFunction.Exit;
 
             case ShitroidAiFunction.Exit:
-                GraduallyAccelerateShitroid(slot, state, 0, new(unchecked((ushort)-128), 64), 1024);
-                if (ShitroidOverlapsRectangle(slot, new(unchecked((ushort)-128), 64), new(8, 8)))
+                GraduallyAccelerateShitroid(slot, state, 0, new(WordWrap.Unsigned(-128), 64), 1024);
+                if (ShitroidOverlapsRectangle(slot, new(WordWrap.Unsigned(-128), 64), new(8, 8)))
                 {
                     state.Velocity = default;
                     // `$A9:F39A` clears instruction processing and invisibility as Shitroid
@@ -381,7 +381,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the entrance after layer-one X crosses 513, locking scroll and creating invisible walls.</summary>
     private void WaitForShitroidCamera(ShitroidEnemyState state)
     {
-        if (unchecked((short)(_shitroidCamera.X - 513)) >= 0)
+        if (CoordinateAxis.Difference(_shitroidCamera.X, 513) >= 0)
             return;
 
         // Native writes layer1_x_pos directly and zero-extends scroll bytes zero and two
@@ -454,7 +454,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         UpdateShitroidHorizontalLock(state, slot.Position.X.Whole, samus.Position.X.Whole, threshold: 8);
         if (state.HorizontalLockAccumulator >= 256 ||
-            unchecked((short)(samus.Position.X.Whole - 512)) < 0)
+            CoordinateAxis.Difference(samus.Position.X.Whole, 512) < 0)
         {
             state.Function = ShitroidAiFunction.ChaseSamus;
             return;
@@ -511,12 +511,12 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // extra pixel. BMI reads only the sign of the difference.
         int ySpeed = samus.Kinematics.YSpeed.Whole;
         int xCarry = ySpeed >= 4 ? 1 : 0;
-        if (unchecked((short)unchecked((ushort)(ySpeed - 4))) >= 0)
+        if (WordWrap.Signed(WordWrap.Unsigned(ySpeed - 4)) >= 0)
             samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
 
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
         slot.Position = slot.Position.WithWhole(
-            samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>((short)xCarry, -20));
+            samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(WordWrap.Signed(xCarry), -20));
 
         // `$A9:C560-$C57C` subtracts four without Varia and two with it. The native
         // expression is written as `health + (equipped & 1) + (-4 or -3)`, so reducing
@@ -542,7 +542,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             SelectShitroidHoverTarget(state, samus.Position.Whole - new Offset16<RoomPixels>(0, 18)),
             1024);
         return state.HorizontalLockAccumulator >= 1024 ||
-            unchecked((short)(samus.Position.X.Whole - 128)) < 0;
+            CoordinateAxis.Difference(samus.Position.X.Whole, 128) < 0;
     }
 
     /// <summary>Accumulates two lock ticks within a narrow X threshold and decays by one when separated.</summary>
@@ -552,7 +552,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetX,
         int threshold)
     {
-        int distance = Math.Abs(unchecked((short)(currentX - targetX)));
+        int distance = CoordinateAxis.Distance(currentX, targetX);
         if (distance < threshold)
         {
             state.HorizontalLockAccumulator += 2;
@@ -585,14 +585,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Tests the Baby Metroid's asymmetric flight window against the current layer-one camera.</summary>
     private bool ShitroidIsOffScreen(RoomEnemySlot slot)
     {
-        if (unchecked((short)slot.Position.Y.Whole) < 0)
+        if (CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0)
             return true;
-        int screenY = unchecked((short)(slot.Position.Y.Whole + 96 - _shitroidCamera.Y));
+        int screenY = CoordinateAxis.AsSigned(slot.Position.Y.Whole + 96 - _shitroidCamera.Y);
         if (screenY is < 0 or >= 416)
             return true;
-        if (unchecked((short)slot.Position.X.Whole) < 0)
+        if (CoordinateAxis.AsSigned(slot.Position.X.Whole) < 0)
             return true;
-        int screenX = unchecked((short)(slot.Position.X.Whole + 16 - _shitroidCamera.X));
+        int screenX = CoordinateAxis.AsSigned(slot.Position.X.Whole + 16 - _shitroidCamera.X);
         return screenX is < 0 or >= 288;
     }
 
@@ -607,13 +607,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             target.X,
             state.Velocity.X.RawValue,
             acceleration);
-        state.Velocity = state.Velocity.WithX(new SignedEightEight(checked((ushort)xVelocity)));
+        state.Velocity = state.Velocity.WithX(new SignedEightEight(xVelocity));
         (bool yArrived, int yVelocity) = AccelerateShitroidAxis(
             state.Slot.Position.Y.Whole,
             target.Y,
             state.Velocity.Y.RawValue,
             acceleration);
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(checked((ushort)yVelocity)));
+        state.Velocity = state.Velocity.WithY(new SignedEightEight(yVelocity));
         return xArrived && yArrived;
     }
 
@@ -624,18 +624,18 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int velocityWord,
         int acceleration)
     {
-        int delta = unchecked((short)(current - target));
+        int delta = CoordinateAxis.Difference(current, target);
         if (delta == 0)
             return new ShitroidAxisStep(true, velocityWord);
 
-        int velocity = unchecked((short)velocityWord);
+        int velocity = WordWrap.Signed(velocityWord);
         velocity = delta >= 0
             ? Math.Max(-1280, velocity - acceleration)
             : Math.Min(1280, velocity + acceleration);
-        velocityWord = unchecked((ushort)velocity);
+        velocityWord = WordWrap.Unsigned(velocity);
 
-        int predicted = unchecked((short)(
-            current + unchecked((sbyte)(EightEight.WholeOf(velocityWord))) - target));
+        int predicted = WordWrap.Signed(
+            current + WordWrap.SignedLowByte(EightEight.WholeOf(velocityWord)) - target);
         bool crossed = delta >= 0 ? predicted <= 0 : predicted >= 0;
         if (crossed)
             velocityWord = 0;
@@ -644,9 +644,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Tests inclusive-radius overlap between two enemy rectangles using signed native coordinate deltas.</summary>
     private static bool ShitroidActorsOverlap(RoomEnemySlot left, RoomEnemySlot right) =>
-        Math.Abs(unchecked((short)(right.Position.X.Whole - left.Position.X.Whole))) <
+        CoordinateAxis.Distance(right.Position.X.Whole, left.Position.X.Whole) <
             left.Radius.X + right.Radius.X + 1 &&
-        Math.Abs(unchecked((short)(right.Position.Y.Whole - left.Position.Y.Whole))) <
+        CoordinateAxis.Distance(right.Position.Y.Whole, left.Position.Y.Whole) <
             left.Radius.Y + right.Radius.Y + 1;
 
     /// <summary>Tests Shitroid against a scripted rectangle without allocating another enemy slot.</summary>
@@ -654,8 +654,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         Position16<RoomPixels> center,
         Extent16<RoomPixels> radius) =>
-        Math.Abs(unchecked((short)(center.X - slot.Position.X.Whole))) < slot.Radius.X + radius.X + 1 &&
-        Math.Abs(unchecked((short)(center.Y - slot.Position.Y.Whole))) < slot.Radius.Y + radius.Y + 1;
+        CoordinateAxis.Distance(center.X, slot.Position.X.Whole) < slot.Radius.X + radius.X + 1 &&
+        CoordinateAxis.Distance(center.Y, slot.Position.Y.Whole) < slot.Radius.Y + radius.Y + 1;
 
     /// <summary>Ports the private touch callback at <c>$A9:F789</c>.</summary>
     private void ResolveShitroidTouch(RoomEnemySlot slot, SamusState samus)
@@ -666,13 +666,13 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         BreakReleasedShitroidFollow(state);
         if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping &&
-            unchecked((short)(samus.Position.X.Whole - 512)) >= 0)
+            CoordinateAxis.Difference(samus.Position.X.Whole, 512) >= 0)
         {
             // The native expression `$80-angle+$80`, truncated to a byte, is simply the
             // negated source angle. Magnitude $40 is added to the current 8.8 velocity.
             RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
-                unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)),
-                unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
+                CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole),
+                CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole)));
             RotationAngle angle = RotationAngle.NormalizeRaw(-sourceAngle.RawValue);
             state.Velocity += new EightEightVector<RoomPixels>(
                 EnemyMath.MultiplySineSample(64, angle.ToByteAngle()),
@@ -714,16 +714,16 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         BreakReleasedShitroidFollow(state);
         RotationAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(new(
-            unchecked((short)(slotZeroProjectile.Position.X.Whole - slot.Position.X.Whole)),
-            unchecked((short)(slotZeroProjectile.Position.Y.Whole - slot.Position.Y.Whole))));
+            CoordinateAxis.Difference(slotZeroProjectile.Position.X.Whole, slot.Position.X.Whole),
+            CoordinateAxis.Difference(slotZeroProjectile.Position.Y.Whole, slot.Position.Y.Whole)));
         RotationAngle angle = RotationAngle.NormalizeRaw(-sourceAngle.RawValue);
         // The recoil strength is eight times the damage, kept to sixteen bits as the damage word's
         // multiple is, and capped at 240.
-        int magnitude = Math.Min((int)unchecked((ushort)(8 * collisionDamage)), 240);
+        int magnitude = Math.Min((int)WordWrap.Unsigned(8 * collisionDamage), 240);
         state.Velocity += new EightEightVector<RoomPixels>(
-            EnemyMath.MultiplySineSample((ushort)magnitude, angle.ToByteAngle()),
+            EnemyMath.MultiplySineSample(WordWrap.Unsigned(magnitude), angle.ToByteAngle()),
             EnemyMath.MultiplySineSample(
-                (ushort)magnitude,
+                WordWrap.Unsigned(magnitude),
                 angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()));
     }
 
@@ -863,7 +863,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Cursor = cursor;
         if (advance is not AnimationProgramAdvance<BabyMetroidFrame>.Show shown)
             throw new InvalidOperationException($"The Shitroid's programs have no {advance} step.");
-        slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+        slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
@@ -876,7 +876,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case ShitroidCue.MaybeRemorseCry:
                 // The cue samples the existing random word; it does not generate a new one.
-                if (unchecked((short)_room.Random.Read()) >= 0)
+                if (WordWrap.Signed(_room.Random.Read()) >= 0)
                     return ShitroidProgram.Remorse;
                 RequestShitroidSound(ShitroidSoundDefinitions.RemorseCry);
                 return null;

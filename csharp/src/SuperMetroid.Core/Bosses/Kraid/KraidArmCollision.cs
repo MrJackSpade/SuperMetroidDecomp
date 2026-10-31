@@ -30,7 +30,7 @@ internal static class KraidArmCollision
     {
         if ((uint)index >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(index));
         EnemyHitboxRectangle geometry = Geometry[index];
-        return new(checked((short)geometry.Left), checked((short)geometry.Top), checked((short)geometry.Right), checked((short)geometry.Bottom),
+        return new(geometry.Left, geometry.Top, geometry.Right, geometry.Bottom,
             TouchCallback(index), ShotCallback(index));
     }
 

@@ -24,7 +24,7 @@ internal static class BombTorizoStatueFragments
         if (fragment >= 8) x = 16 - x;
         return new(
             TorizoProjectileAnimations.StatueFragment(fragment),
-            new Offset16<RoomPixels>((short)x, (short)(16 * (cell / 3) - 8)),
+            new Offset16<RoomPixels>(CoordinateAxis.AsSigned(x), WordWrap.Signed(16 * (cell / 3) - 8)),
             YVelocity,
             Acceleration);
     }

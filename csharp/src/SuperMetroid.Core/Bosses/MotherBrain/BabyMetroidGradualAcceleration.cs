@@ -135,11 +135,11 @@ internal static class BabyMetroidGradualAcceleration
     private static int Negate(int word) => Wrap(-word);
 
     /// <summary>A difference of words reduced to the word the run compares.</summary>
-    private static int Wrap(int value) => unchecked((ushort)value);
+    private static int Wrap(int value) => WordWrap.Unsigned(value);
 
     /// <summary>A velocity word as the velocity it encodes.</summary>
-    private static SignedEightEight Velocity(int word) => new(checked((ushort)word));
+    private static SignedEightEight Velocity(int word) => new(word);
 
     /// <summary>Tests the word sign bit before choosing an acceleration or reversal branch.</summary>
-    private static bool IsNegative(int word) => unchecked((short)word) < 0;
+    private static bool IsNegative(int word) => WordWrap.Signed(word) < 0;
 }

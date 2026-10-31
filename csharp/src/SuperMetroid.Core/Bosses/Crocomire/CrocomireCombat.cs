@@ -325,8 +325,8 @@ internal sealed class CrocomireCombat
         // The off-screen branch bypasses projectile-family selection and still publishes
         // the pending-hit state. This wrapped signed comparison is the cartridge's exact
         // `body left edge - (camera + 256)` test.
-        bool bodyLeftEdgeIsOnScreen = unchecked((short)(
-            body.Position.X.Whole - body.Radius.X - 256 - state.Camera.X)) < 0;
+        bool bodyLeftEdgeIsOnScreen = CoordinateAxis.Difference(
+            body.Position.X.Whole - body.Radius.X - 256, state.Camera.X) < 0;
         int stepCount = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
@@ -425,8 +425,8 @@ internal sealed class CrocomireCombat
         // than the current slot; retain that shipped indexing bug for debugger parity.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
         _projectiles.EnemyProjectiles[0].Graphics = SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles);
-        projectile.GeneralTimer = unchecked((ushort)(
-            projectile.GeneralTimer + projectile.Velocity.X.RawValue));
+        projectile.GeneralTimer = WordWrap.Unsigned(
+            projectile.GeneralTimer + projectile.Velocity.X.RawValue);
 
         // Spawn parameters are 2,4,...,18. The last index reads one word beyond the declared
         // nine-word gradient table. The compiled definition includes those exact setup
@@ -456,10 +456,10 @@ internal sealed class CrocomireCombat
         // Preserve the two native word shifts, including negative two's-complement bits. The
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
         return new(
-            unchecked((short)(Trigonometry.SignedSine(bearing.ReinterpretAsTableAngle()) *
-                CrocomireProjectileDefinitions.VelocityMultiplier)),
-            unchecked((short)(Trigonometry.SignedNegativeCosineWord(bearing.ReinterpretAsTableAngle().RawValue) *
-                CrocomireProjectileDefinitions.VelocityMultiplier)));
+            WordWrap.Signed(Trigonometry.SignedSine(bearing.ReinterpretAsTableAngle()) *
+                CrocomireProjectileDefinitions.VelocityMultiplier),
+            WordWrap.Signed(Trigonometry.SignedNegativeCosineWord(bearing.ReinterpretAsTableAngle().RawValue) *
+                CrocomireProjectileDefinitions.VelocityMultiplier));
     }
 
     /// <summary>The gravity a falling spike-wall piece gains each update.</summary>
@@ -474,8 +474,8 @@ internal sealed class CrocomireCombat
         int acceleration = piece.Acceleration;
         if (acceleration != maximumAcceleration)
         {
-            acceleration = unchecked((ushort)(
-                acceleration + CrocomireSpikeMotion.AccelerationDelta(slot)));
+            acceleration = WordWrap.Unsigned(
+                acceleration + CrocomireSpikeMotion.AccelerationDelta(slot));
             if (acceleration >= maximumAcceleration)
                 acceleration = maximumAcceleration;
         }
@@ -484,13 +484,13 @@ internal sealed class CrocomireCombat
         // The acceleration's whole part is added to the 8.8 velocity's fraction: a fraction that passes a whole
         // pixel raises the whole velocity by one, the whole velocity wraps at its byte, and it is then capped by
         // this physical slot's maximum with a signed comparison.
-        int accelerated = unchecked((ushort)(projectile.Velocity.X.RawValue + UnsignedEightEight.Whole(acceleration)));
+        int accelerated = WordWrap.Unsigned(projectile.Velocity.X.RawValue + UnsignedEightEight.Whole(acceleration));
         int velocityFraction = EightEight.FractionOf(accelerated);
         int velocityWhole = EightEight.WholeOf(accelerated);
         int maximumVelocity = CrocomireSpikeMotion.MaximumVelocity(slot);
-        if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
+        if (WordWrap.SignedLowByte(velocityWhole - maximumVelocity) >= 0)
             velocityWhole = maximumVelocity;
-        var xVelocity = new SignedEightEight(UnsignedEightEight.FromParts(whole: (byte)velocityWhole, fraction: (byte)velocityFraction));
+        var xVelocity = new SignedEightEight(UnsignedEightEight.FromParts(whole: WordWrap.LowByte(velocityWhole), fraction: WordWrap.LowByte(velocityFraction)));
         projectile.Velocity = projectile.Velocity.WithX(xVelocity);
 
         // Move X with the same split-byte math. Only the high subposition byte participates;
@@ -526,8 +526,8 @@ internal sealed class CrocomireCombat
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
-            (projectile.Velocity.Y.RawValue + 24) & 16383))));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(
+            (projectile.Velocity.Y.RawValue + 24) & 16383));
     }
 
     /// <summary>
@@ -573,10 +573,10 @@ internal sealed class CrocomireCombat
             foreach (CrocomireBodyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
-                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
                 callback = probe.SelectShotCallback ? CrocomireHitboxCallbackCodec.ToCallback(hitbox.Shot) : CrocomireHitboxCallbackCodec.ToCallback(hitbox.Touch);
                 return true;

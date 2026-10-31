@@ -23,7 +23,7 @@ internal static class BombTorizoMovement
 
         int horizontal = LeftPostureX[step % LeftPostureX.Length];
         return new Offset16<RoomPixels>(
-            (short)(step < LeftPostureX.Length ? horizontal : -horizontal), PostureY[step % PostureY.Length]);
+            CoordinateAxis.AsSigned(step < LeftPostureX.Length ? horizontal : -horizontal), PostureY[step % PostureY.Length]);
     }
 
     /// <summary>Returns the signed whole-pixel walking velocity of a walking step.</summary>

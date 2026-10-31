@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 public static class DraygonEyeEffects
 {
     /// <summary>$A5:C48D/$C513 test the eye frame counter's low seven bits before spawning.</summary>
-    public const ushort CadenceMask = 127;
+    public const int CadenceMask = 127;
     /// <summary>$A5:C48D/$C513 pass variant $18 to the shared $86:E509 dust initializer.</summary>
     public const MiscDustAnimation DustVariant = MiscDustAnimation.LongDraygonBreathBubbles;
     /// <summary>Both native eye handlers offset the particle 24 pixels toward the facing side.</summary>

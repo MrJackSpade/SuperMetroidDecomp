@@ -112,7 +112,7 @@ internal static class EnemyAnimationIsolationVerification
             if (frame == deathPublicationFrame)
             {
                 AssertEqual(new DelayedMusicRequest(MusicRequest.SelectTrack(3), MusicQueueDelay.Shortest),
-                    (stock.Enemies.BombTorizoBehavior.LastBombTorizoMusicRequest ?? throw new InvalidOperationException("Verification requires stock.Enemies.BombTorizoBehavior.LastBombTorizoMusicRequest.")), "death publishes the actual return-music command at its compiled frame");
+                    stock.Enemies.Audio.MusicRequests.Single(), "death publishes the actual return-music command at its compiled frame");
                 AssertTrue(stock.Enemies.Projectiles.EnemyProjectiles.Any(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
                     "death actually allocates pickups, rather than merely setting a debugger flag");
             }

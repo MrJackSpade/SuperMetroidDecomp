@@ -60,7 +60,7 @@ internal static class PhantoonDeathExplosionsVerification
                 AssertEqual((passes == 3 ? PhantoonAiFunction.BeginFinalWavyDeath : PhantoonAiFunction.DyingExplosions), state.Parts[body.SlotIndex].Function, "Exact final death phase handoff");
                 if (due)
                 {
-                    AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Library2, type == 0x1d ? (ushort)0x24 : (ushort)0x2b), state.LastCombatSoundEffect, "Death sound choice survives pool exhaustion");
+                    AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Library2, type == 0x1d ? (ushort)0x24 : (ushort)0x2b), enemies.Audio.PublishedSoundFrom(EnemySoundSource.PhantoonCombat), "Death sound choice survives pool exhaustion");
                     if (!full)
                     {
                         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);

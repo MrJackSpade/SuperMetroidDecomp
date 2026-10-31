@@ -238,7 +238,7 @@ internal static class BotwoonAnimationsVerification
         var native = new NativeBotwoonHead(nativeList, head.InstructionTimer.RawValue, head.Radius);
         for (int update = 0; update < 70; update++)
         {
-            enemies.BotwoonBehavior.LastBotwoonSoundEffect = null;
+            enemies.Audio.BeginFrame();
             EnemyInstructionInterpreter.ProcessInstructions(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
@@ -249,7 +249,7 @@ internal static class BotwoonAnimationsVerification
             AssertEqual(native.Radius, head.Radius, $"{at}: radius");
             AssertEqual(native.NewFrame, head.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(native.SpitFrame, state.SpitFrameReached, $"{at}: spit frame");
-            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : null, enemies.BotwoonBehavior.LastBotwoonSoundEffect, $"{at}: spit sound");
+            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : null, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Botwoon), $"{at}: spit sound");
         }
     }
 

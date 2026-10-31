@@ -66,14 +66,15 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     "Kraid head tick " + tick + " displayed head frame is not editable");
                 AssertTrue(appearance == baseline.State.BodyAppearance && appearance == changed.State.BodyAppearance,
                     "drawing the head leaves how his body appears unchanged");
-                AssertEqual(baseline.Enemies.KraidBehavior.Access.LastKraidSoundEffect, changed.Enemies.KraidBehavior.Access.LastKraidSoundEffect,
+                SoundEffectId? baselineSound = baseline.Enemies.Audio.PublishedSoundFrom(EnemySoundSource.Kraid);
+                AssertEqual(baselineSound, changed.Enemies.Audio.PublishedSoundFrom(EnemySoundSource.Kraid),
                     "head art does not alter sound publication");
                 if (tick == nextEvent)
                 {
                     while (!commands[cursor].IsPose && !commands[cursor].IsTerminator)
                     {
                         KraidHeadNativeRecord sound = commands[cursor++];
-                        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, (byte)sound.Sound), (baseline.Enemies.KraidBehavior.Access.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires baseline.Enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect,
+                        AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, (byte)sound.Sound), baselineSound ?? throw new InvalidOperationException("Verification requires a baseline Kraid sound request."),
                             "sound callback fires at the exact head admission tick");
                         if (sound.Opcode == KraidHeadNativeCursors.RoarCryCall) soundCount++;
                         callbacks++;

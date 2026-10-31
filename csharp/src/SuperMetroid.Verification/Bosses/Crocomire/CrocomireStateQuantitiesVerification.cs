@@ -350,7 +350,7 @@ internal static class CrocomireStateQuantitiesVerification
     /// <summary>Runs one body update through the production interpreter.</summary>
     private static void Pass(RoomEnemySystem enemies, CrocomireEnemyState state)
     {
-        enemies.CrocomireBehavior.BeginEnemyFrame(new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
+        enemies.Audio.BeginFrame();
         EnemyInstructionInterpreter.ProcessInstructions(state.Body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 

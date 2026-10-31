@@ -199,8 +199,7 @@ internal static class DraygonAnimationsVerification
         bool paralysed = false;
         for (int update = 0; update < 400; update++)
         {
-            state.LastSoundLibrary2 = null;
-            state.LastSoundLibrary3 = null;
+            enemies.Audio.BeginFrame();
             Pass(arms);
             List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
             string at = $"Draygon dying update {update}";
@@ -210,9 +209,9 @@ internal static class DraygonAnimationsVerification
             AssertEqual(native.Counter, arms.Timer.RawValue, $"{at}: loop counter");
             DraygonCue[] cues = [.. callbacks.Where(callback => !SelectsHudSplit(callback.Word)).Select(callback => CueOf(callback.Word, callback.Operands))];
             AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Library2)?.Sound,
-                state.LastSoundLibrary2, $"{at}: library-2 sound");
+                enemies.Audio.PublishedSoundFrom(EnemySoundSource.DraygonCombat), $"{at}: the native list's library-two sound is the combat source's request");
             AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Library3)?.Sound,
-                state.LastSoundLibrary3, $"{at}: library-3 sound");
+                enemies.Audio.PublishedSoundFrom(EnemySoundSource.DraygonDeathCry), $"{at}: the native list's library-three sound is the dying-cry source's request");
             if (cues.Any(cue => cue is DraygonCue.ParalyseTailAndArms))
             {
                 paralysed = true;

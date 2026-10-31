@@ -132,7 +132,7 @@ internal static class CrocomireAnimationsVerification
     /// <summary>Runs one body update through the production interpreter.</summary>
     private static void Pass(RoomEnemySystem enemies, CrocomireEnemyState state, SamusState? samus = null)
     {
-        enemies.CrocomireBehavior.BeginEnemyFrame(new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
+        enemies.Audio.BeginFrame();
         EnemyInstructionInterpreter.ProcessInstructions(state.Body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
@@ -154,7 +154,7 @@ internal static class CrocomireAnimationsVerification
             AssertEqual(native.Timer, state.Body.InstructionTimer.RawValue, $"{at}: timer");
             AssertEqual(native.Spritemap, state.Body.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, state.Body.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
-            AssertEqual(callbacks.Select(BodySound).LastOrDefault(sound => sound is not null), enemies.CrocomireBehavior.Access.LastCrocomireSoundEffect,
+            AssertEqual(callbacks.Select(BodySound).LastOrDefault(sound => sound is not null), enemies.Audio.PublishedSoundFrom(EnemySoundSource.Crocomire),
                 $"{at}: sound");
             AssertEqual(HasReached(native, CrocomireBodyProgram.SkeletonStable), state.BodyResidentProgram >= CrocomireBodyProgram.SkeletonStable,
                 $"{at}: the stable-skeleton test reads the native cursor");

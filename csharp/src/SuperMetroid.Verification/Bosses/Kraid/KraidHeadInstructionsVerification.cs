@@ -73,7 +73,7 @@ internal static class KraidHeadInstructionsVerification
             if (!record.IsPose && !record.IsTerminator)
             {
                 AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Library2, (byte)record.Sound),
-                    (enemies.KraidBehavior.Access.LastKraidSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.KraidBehavior.LastKraidSoundEffect.")).SoundEffect,
+                    enemies.Audio.PublishedSoundFrom(EnemySoundSource.Kraid) ?? throw new InvalidOperationException("Verification requires a Kraid sound request."),
                     $"Kraid sound command ${record.Pointer:X4} queues exact sound");
             }
             AssertEqual(0, guard.ForbiddenReadAttempts, $"Kraid command ${record.Pointer:X4} avoids compiled stream");

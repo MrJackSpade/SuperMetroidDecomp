@@ -80,7 +80,7 @@ public static class GameSaveJsonCodec
     /// Builds the save store named persistent state describes. A JSON slot that is absent is an empty slot.
     /// </summary>
     /// <param name="document">The validated named save.</param>
-    /// <param name="maps">Installed stock map rules; each slot keeps the explored bytes SRAM would.</param>
+    /// <param name="maps">Installed stock map rules; each slot keeps the explored cells a save keeps.</param>
     public static SaveSlotStore ToStore(GameSaveJsonDocument document, IAreaMapSource maps)
     {
         Ensure.NotNull(maps);

@@ -179,8 +179,8 @@ internal static class SoundAcceptanceClockVerification
                 audio.QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Normal);
                 break;
             case 10:
-                audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.GreenBrinstar));
-                audio.QueueMusicDelayed8(MusicRequest.SelectTrack(5));
+                audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.GreenBrinstar));
+                audio.QueueMusic(MusicRequest.SelectTrack(5));
                 break;
             case 24:
                 // Sent on the first call after the upload's downtime, one call before the

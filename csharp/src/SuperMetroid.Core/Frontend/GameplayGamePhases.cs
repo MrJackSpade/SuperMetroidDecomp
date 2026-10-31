@@ -65,7 +65,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.display.PublishGameplay(session.GameplayRuntime);
         // $82:DC2B invokes the external low-health check even while the
         // locked Samus beta handler omits it. Publish prior gameplay sounds
-        // first; their native queue occupancy affects this final Max6 call.
+        // first; the queue occupancy they leave decides whether this final
+        // normal-priority request joins.
         session.CollectTranslatedAudioRequests(gameplayAudio);
         session.GameplayRuntime.Player.IntroducedSamus.HealthWarning.Update(session.GameplayRuntime.Player.IntroducedSamus.Health, session.audio,
             soundSuppressed: session.GameplayRuntime.PowerBombExplosionSuppressesSounds);
@@ -177,7 +178,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.GameplayRuntime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
             session.GameplayRuntime.EscapeTimer.Clear();
             // $82:83F3-$840B: stop music and silence all three sound libraries.
-            session.audio.QueueMusicDelayed8(MusicRequest.Stop);
+            session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Essential);
             session.audio.QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Essential);
             session.audio.QueueSound(Library3Sound.Silence, priority: SoundRequestPriority.Essential);
@@ -208,7 +209,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     internal void DispatchSamusEscapesFromZebes(ControllerButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         // State $26 calls the complete state-eight gameplay coroutine before
-        // HandleFadeOut. The fleeing gunship, room animations, and APU publishers
+        // HandleFadeOut. The fleeing gunship, room animations, and sound publishers
         // therefore continue behind every darkening frame.
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
@@ -220,7 +221,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // $82:84D3-$8527 resets PPU ownership, stops the escape timer/music,
             // cancels all three SFX libraries, and publishes state $27. The new
             // state performs its own cartridge-backed setup on the following call.
-            session.audio.QueueMusicDelayed8(MusicRequest.Stop);
+            session.audio.QueueMusic(MusicRequest.Stop);
             session.audio.QueueSound(Library1Sound.Silence, priority: SoundRequestPriority.Essential);
             session.audio.QueueSound(Library2Sound.Silence, priority: SoundRequestPriority.Essential);
             session.audio.QueueSound(Library3Sound.Silence, priority: SoundRequestPriority.Essential);

@@ -221,9 +221,9 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EscapeScenes.StepSprites();
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    audio.QueueMusicDelayed8(MusicRequest.Stop);
-                    audio.QueueMusicDelayed8(MusicRequest.LoadDataSet(MusicDataSet.Credits));
-                    audio.QueueMusicDelayed(
+                    audio.QueueMusic(MusicRequest.Stop);
+                    audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Credits));
+                    audio.ScheduleMusic(
                         MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.Track),
                         MusicQueueDelay.AtLeastShortest(
                             EndingSequenceDefinitions.Music.DelayArgument));

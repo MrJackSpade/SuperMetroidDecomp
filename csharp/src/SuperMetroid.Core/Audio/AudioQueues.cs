@@ -4,8 +4,9 @@ namespace SuperMetroid.Core.Audio;
 /// The game's music queue and its three sound queues (#1410), a compatibility behaviour whose timing gameplay observes:
 /// each music request waits its delay and plays on the update the original plays it; a data set change withdraws every
 /// library's sound request for <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimeCalls"/> sound-handler calls; a
-/// full music queue drops or overwrites a request as the caller chose; and a sound queue admits a request only below its
-/// caller's limit, keeps each library's request until the library accepts it, then withdraws it.
+/// full music queue drops a request queued with the shortest delay and overwrites with a scheduled one; and a sound queue
+/// admits a request by its priority (<see cref="SoundQueueAdmission.For"/>), keeps each library's request until the
+/// library accepts it, then withdraws it.
 /// </summary>
 /// <remarks>
 /// The queues end in <see cref="AudioRequest"/>s: play or stop a track, change the music data
@@ -83,7 +84,7 @@ public sealed class AudioQueues
     /// <summary>
     /// Exact door-transition predicate at <c>$82:E2B5-$82:E2D7</c>: true while any of the
     /// three sixteen-entry SFX rings has an unread request. An already-dequeued request that
-    /// is merely waiting for SPC acknowledgement does not keep the native door wait alive.
+    /// is merely waiting for its library's acknowledgement does not keep the door wait alive.
     /// </summary>
     public bool HasQueuedSounds
     {
@@ -128,13 +129,22 @@ public sealed class AudioQueues
         _pendingPowerOnRequests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Library2));
     }
 
-    /// <summary>Implements <c>QueueMusic_Delayed8</c> at $80:8FC1.</summary>
-    public void QueueMusicDelayed8(MusicRequest request) =>
-        QueueMusic(request, MusicQueueDelay.Shortest, overflow: MusicQueueOverflow.SkipWhenFull);
+    /// <summary>
+    /// Queues <paramref name="request"/> to play after the shortest delay (<see cref="MusicQueueDelay.Shortest"/>). A
+    /// full music queue drops it.
+    /// </summary>
+    /// <param name="request">The music request.</param>
+    public void QueueMusic(MusicRequest request) =>
+        Enqueue(request, MusicQueueDelay.Shortest, overflow: MusicQueueOverflow.SkipWhenFull);
 
-    /// <summary>Implements <c>QueueMusic_DelayedY</c>, including its minimum delay of eight.</summary>
-    public void QueueMusicDelayed(MusicRequest request, MusicQueueDelay delay) =>
-        QueueMusic(request, delay, overflow: MusicQueueOverflow.Overwrite);
+    /// <summary>
+    /// Schedules <paramref name="request"/> to play after <paramref name="delay"/>. A full music queue writes it regardless,
+    /// overtaking the queue's read position.
+    /// </summary>
+    /// <param name="request">The music request.</param>
+    /// <param name="delay">How long it waits on the queue, already lengthened to the shortest delay.</param>
+    public void ScheduleMusic(MusicRequest request, MusicQueueDelay delay) =>
+        Enqueue(request, delay, overflow: MusicQueueOverflow.Overwrite);
 
     /// <summary>Queues the data set and track requests performed by ordinary room loading.</summary>
     public void QueueRoomMusic(RoomMusic music)
@@ -152,7 +162,7 @@ public sealed class AudioQueues
         // Landing Site requests the empty-Crateria set's track 5 and therefore must queue
         // track 5 again after the load instead of leaving only the gunship-engine sound.
         if (RoomTrackQueues(music.Track, changesMusicData))
-            QueueMusicDelayed(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
+            ScheduleMusic(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
     }
 
     /// <summary>
@@ -163,7 +173,7 @@ public sealed class AudioQueues
     internal void QueueRoomMusicTrack(RoomMusic music)
     {
         if (RoomTrackQueues(music.Track, music.DataSet != DataSet))
-            QueueMusicDelayed(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
+            ScheduleMusic(music.Track.Request, MusicQueueDelay.AtLeastShortest(6));
     }
 
     /// <summary>
@@ -176,8 +186,8 @@ public sealed class AudioQueues
     {
         if (dataSet is not MusicDataSet changed || changed == DataSet)
             return false;
-        QueueMusicDelayed8(MusicRequest.Stop);
-        QueueMusicDelayed8(MusicRequest.LoadDataSet(changed));
+        QueueMusic(MusicRequest.Stop);
+        QueueMusic(MusicRequest.LoadDataSet(changed));
         return true;
     }
 
@@ -213,11 +223,11 @@ public sealed class AudioQueues
         MusicTimer = default;
         _musicEntry = MusicRequest.Stop;
 
-        QueueMusicDelayed8(MusicRequest.SelectTrack(AudioQueueDefinitions.PermanentItemTrack));
-        QueueMusicDelayed(
+        QueueMusic(MusicRequest.SelectTrack(AudioQueueDefinitions.PermanentItemTrack));
+        ScheduleMusic(
             MusicRequest.Stop,
             MusicQueueDelay.AtLeastShortest(AudioQueueDefinitions.PermanentItemFanfareFrames));
-        QueueMusicDelayed8(MusicRequest.SelectTrackOrStop(roomTrack));
+        QueueMusic(MusicRequest.SelectTrackOrStop(roomTrack));
     }
 
     /// <summary>
@@ -235,30 +245,27 @@ public sealed class AudioQueues
     public SoundQueueAdmission QueueSound(SoundRequest request) =>
         QueueSound(request.SoundEffect, request.Priority, request.SoundSuppressed);
     /// <summary>
-    /// Executes bank $80's sound-queue call: a request is rejected when its library's ring already holds
-    /// <paramref name="priority"/> unread requests, and otherwise queued unless sounds are suppressed. The
-    /// outcome says which happened and how full the ring was; the Speed Booster's stage selection reads it after the
-    /// library-three call at $90:85A6.
+    /// Requests <paramref name="soundEffect"/> from its library's queue: <see cref="SoundQueueAdmission.For"/> decides
+    /// from the queue's waiting requests and the request's priority whether it joins, and an admitted request is queued
+    /// unless sounds are suppressed. The outcome says which happened and how full the queue was; the Speed Booster's
+    /// stage selection reads it after requesting its echo.
     /// </summary>
-    /// <param name="soundEffect">The sound, whose library selects one of the three independent rings.</param>
-    /// <param name="priority">Admission threshold: an occupancy at or above its unread requests rejects the request before suppression is tested.</param>
+    /// <param name="soundEffect">The sound, whose library selects one of the three independent queues.</param>
+    /// <param name="priority">How full the queue may be for the request to join it; tested before suppression.</param>
     /// <param name="soundSuppressed">
-    /// The native disable-sounds, demo-state, or active Power Bomb guard, evaluated
-    /// after the occupancy threshold. Suppression leaves the queue unchanged.
+    /// Whether sounds are suppressed (sounds disabled, a demo, or an active Power Bomb), tested after the priority.
+    /// Suppression leaves the queue unchanged.
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="soundEffect"/> names no library.</exception>
     public SoundQueueAdmission QueueSound(
         SoundEffectId soundEffect, SoundRequestPriority priority, bool soundSuppressed = false)
     {
         int queue = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
-        int occupancy = UnreadSounds(queue);
-        if (occupancy >= priority.Requests)
-            return SoundQueueAdmission.Rejected(occupancy);
+        SoundQueueAdmission admission = SoundQueueAdmission.For(UnreadSounds(queue), priority);
+        if (!admission.IsAdmitted || soundSuppressed || DoorTransitionSoundsDisabled)
+            return admission;
 
-        if (soundSuppressed || DoorTransitionSoundsDisabled)
-            return SoundQueueAdmission.Admitted(occupancy);
-
-        // The ring never fills here: a full ring holds fifteen unread requests, and every threshold is at most fifteen,
+        // The ring never fills here: a full ring holds fifteen unread requests, and every priority admits at most fifteen,
         // so the occupancy test above has already rejected the request. The cartridge's full-ring branch, which keeps
         // the higher-priority of two requests in the last free position, is unreachable.
         int write = SoundWritePositions[queue];
@@ -266,7 +273,7 @@ public sealed class AudioQueues
         SoundQueues[queue, write] = soundEffect;
         SoundWritePositions[queue] = (byte)next;
         SoundQueues[queue, next] = null;
-        return SoundQueueAdmission.Admitted(occupancy);
+        return admission;
     }
 
     /// <summary>Runs selected audio dispatch owners and returns their requests, which only the session's audio advance consumes.</summary>
@@ -295,8 +302,8 @@ public sealed class AudioQueues
         return requests.Count == 0 ? Array.Empty<AudioRequest>() : requests.ToArray();
     }
 
-    /// <summary>Enqueues a delayed music command, optionally dropping it when the native ring has no free slot.</summary>
-    private void QueueMusic(
+    /// <summary>Enqueues a delayed music request, dropping it or overtaking the read position when the queue has no free slot, as <paramref name="overflow"/> says.</summary>
+    private void Enqueue(
         MusicRequest request,
         MusicQueueDelay delay,
         MusicQueueOverflow overflow)

@@ -298,14 +298,14 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             case IntroCinematicPhase.Initial:
                 // $8B:A59B-$A5A2: stop the music, then load the opening music data.
-                audio?.QueueMusicDelayed8(MusicRequest.Stop);
-                audio?.QueueMusicDelayed8(
+                audio?.QueueMusic(MusicRequest.Stop);
+                audio?.QueueMusic(
                     MusicRequest.LoadDataSet(MusicDataSet.LastMetroidInCaptivity));
                 Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
                 break;
 
             case IntroCinematicPhase.WaitForInitialMusicQueue:
-                // QueueMusic_Delayed8 owns an eight-frame delay before HasQueuedMusic clears.
+                // A request queued with the shortest delay waits eight updates before HasQueuedMusic clears.
                 if (MusicQueueFinished())
                 {
                     // $8B:A5A7 seeds both fade words with two.
@@ -325,7 +325,7 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.LastMetroidIsInCaptivity:
                 if (--timer <= 0)
                 {
-                    audio?.QueueMusicDelayed8(MusicRequest.SelectTrack(5));
+                    audio?.QueueMusic(MusicRequest.SelectTrack(5));
                     Phase = IntroCinematicPhase.GalaxyIsAtPeace;
                     timer = 200;
                 }
@@ -334,12 +334,12 @@ public sealed class IntroCinematicState : IFrontendScreen
             case IntroCinematicPhase.GalaxyIsAtPeace:
                 if (--timer <= 0)
                 {
-                    // The next music commands wait for APU acknowledgement before the
-                    // documented four-second hold. Eight frames models their delayed slot.
-                    audio?.QueueMusicDelayed8(MusicRequest.Stop);
-                    audio?.QueueMusicDelayed8(
+                    // The next music requests wait on the music queue before the
+                    // documented four-second hold; the shortest delay is their slot.
+                    audio?.QueueMusic(MusicRequest.Stop);
+                    audio?.QueueMusic(
                         MusicRequest.LoadDataSet(MusicDataSet.GalaxyAtPeace));
-                    audio?.QueueMusicDelayed(
+                    audio?.ScheduleMusic(
                         MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.SceneTrack),
                         MusicQueueDelay.AtLeastShortest(
                             IntroCinematicDefinitions.Music.SceneTrackDelay));
@@ -376,7 +376,7 @@ public sealed class IntroCinematicState : IFrontendScreen
                 break;
 
             case IntroCinematicPhase.WaitForPageOneMusicQueue:
-                // QueueMusic_DelayedY(track 5, $0E) is the longest command issued by
+                // Track 5 scheduled fourteen updates ahead is the longest request issued by
                 // $8B:A66F, so HasQueuedMusic becomes clear after fourteen update slots.
                 if (MusicQueueFinished())
                 {
@@ -1236,10 +1236,10 @@ level, samus, FrameCounterWord(elapsedUpdates));
             subtitles,
             audio,
             NarrationPresentation);
-        audio?.QueueMusicDelayed8(MusicRequest.Stop);
-        audio?.QueueMusicDelayed8(
+        audio?.QueueMusic(MusicRequest.Stop);
+        audio?.QueueMusic(
             MusicRequest.LoadDataSet(MusicDataSet.Intro));
-        audio?.QueueMusicDelayed(
+        audio?.ScheduleMusic(
             MusicRequest.SelectTrack(IntroCinematicDefinitions.Music.SceneTrack),
             MusicQueueDelay.AtLeastShortest(
                 IntroCinematicDefinitions.Music.SceneTrackDelay));
@@ -1249,7 +1249,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
 
     /// <summary>
     /// Production follows bank $80's real HasQueuedMusic result. Standalone actor tests do
-    /// not own an APU queue, so they retain the previously explicit local countdown.
+    /// not own a music queue, so they retain the previously explicit local countdown.
     /// </summary>
     private bool MusicQueueFinished() => audio is null ? --timer <= 0 : !audio.HasQueuedMusic;
 

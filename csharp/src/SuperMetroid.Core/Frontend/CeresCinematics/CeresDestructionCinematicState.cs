@@ -214,10 +214,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             initialFrameWaits++;
             SetupCeresDestruction();
             // $8B:C2B8-$C2DF queue the cinematic bank and the state's own track last.
-            audio?.QueueMusicDelayed8(MusicRequest.Stop);
-            audio?.QueueMusicDelayed8(
+            audio?.QueueMusic(MusicRequest.Stop);
+            audio?.QueueMusic(
                 MusicRequest.LoadDataSet(MusicDataSet.Ceres));
-            audio?.QueueMusicDelayed(
+            audio?.ScheduleMusic(
                 MusicRequest.SelectTrack(WithSamus
                     ? CeresDestructionSceneDefinitions.Music.CeresWithSamusTrack
                     : CeresDestructionSceneDefinitions.Music.CeresTrack),
@@ -305,7 +305,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 {
                     if (WithSamus)
                     {
-                        audio?.QueueMusicDelayed8(MusicRequest.Stop);
+                        audio?.QueueMusic(MusicRequest.Stop);
                         Phase = CeresDestructionPhase.Finished;
                     }
                     else

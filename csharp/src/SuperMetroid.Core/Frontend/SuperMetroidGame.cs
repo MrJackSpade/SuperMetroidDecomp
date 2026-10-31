@@ -536,8 +536,7 @@ public sealed class SuperMetroidGame
                 Session.Random.Generate();
                 break;
             case DispatchRandomStep.NonGameplayLineEffectsThenAdvance:
-                // The per-line effects run before the pause preparation stops them; lava
-                // swaps the generator's live bytes.
+                // HDMA runs before $0D disables it; lava swaps the live RNG bytes.
                 Session.GameplayRuntime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, Session.GameplayRuntime.Room.LoadedScope.Plms, Session.GameplayRuntime.Room.LoadedScope);
                 break;
             case DispatchRandomStep.AdvanceUnlessResumingWait:

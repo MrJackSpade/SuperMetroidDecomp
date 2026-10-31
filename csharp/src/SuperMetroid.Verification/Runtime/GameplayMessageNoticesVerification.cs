@@ -29,7 +29,7 @@ internal static class GameplayMessageNoticesVerification
         int comparedWords = 0;
         foreach (GameplayMessageId id in GameplayMessageNoticeDefinitions.MessageIds)
         {
-            var installed = new GameplayMessageBoxState();
+            var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence());
             installed.Begin(id, 0);
             comparedWords += installed.Tilemap(stockMessages).Length;
 
@@ -38,8 +38,8 @@ internal static class GameplayMessageNoticesVerification
             while (installed.Phase != GameplayMessageBoxPhase.AwaitingInput)
                 installed.Step(0);
             BackgroundTile[] yesSelected = installed.Tilemap(stockMessages);
-            // $85:84BA's two lag waits precede each ReadControllerInput; press on the read frame.
-            for (int lag = 0; lag < GameplayMessageBoxDefinitions.Timing.SaveSelectionReadLagFrames; lag++)
+            // The confirmation waits before each controller read; press on the read update.
+            for (int wait = 0; wait < SaveChoiceInputCadence.UpdatesBeforeFirstRead; wait++)
                 installed.Step(0);
             installed.Step(ControllerButton.Right);
             BackgroundTile[] noSelected = installed.Tilemap(stockMessages);
@@ -57,7 +57,7 @@ internal static class GameplayMessageNoticesVerification
             new MemoryStream(editedBytes, writable: false));
 
         // The game names the form it shows; an edited notice changes the words the import lays that form out with.
-        var active = new GameplayMessageBoxState();
+        var active = new GameplayMessageBoxState(new SaveChoiceInputCadence());
         active.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
         active.Step(0);
         BackgroundTile[] before = active.Tilemap(stockMessages);
@@ -98,7 +98,7 @@ internal static class GameplayMessageNoticesVerification
             document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        var state = new GameplayMessageBoxState();
+        var state = new GameplayMessageBoxState(new SaveChoiceInputCadence());
         state.Begin(GameplayMessageId.SaveConfirmation, 0);
         AssertTrue(!(GameplayMessageArtwork.Of(stockCatalog).Notices ?? throw new InvalidOperationException("Stock installs the message notices."))
                 .Build(GameplayMessageId.SaveConfirmation).SequenceEqual(state.Tilemap(GameplayMessageArtwork.Of(edited))),

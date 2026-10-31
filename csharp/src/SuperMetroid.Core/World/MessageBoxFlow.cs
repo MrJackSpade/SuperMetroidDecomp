@@ -31,7 +31,7 @@ internal sealed class MessageBoxFlow
     /// <summary>Marks accepted gunship and room station saves in area progression bits.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Retains the runtime owners needed to resolve message outcomes after NMI-only execution.</summary>
+    /// <summary>Retains the runtime owners needed to resolve message outcomes once the box closes.</summary>
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)
     {
         _freeze = dependencies.Freeze;
@@ -44,7 +44,7 @@ internal sealed class MessageBoxFlow
     }
     /// <summary>Suit transformation to start when its item message returns to the PLM.</summary>
     private SamusSuitPickupKind? _pendingSuitPickup;
-    /// <summary>Station prompt waiting for a yes/no result from message box $17.</summary>
+    /// <summary>Station prompt waiting for the save confirmation's yes/no result.</summary>
     private StationActivationEvent? _pendingSaveStation;
     /// <summary>Station animation to finish after its confirmation message closes.</summary>
     private StationActivationEvent? _pendingSaveStationCompletion;
@@ -58,7 +58,7 @@ internal sealed class MessageBoxFlow
     /// <summary>Holds a suit transformation until its item message returns to the PLM.</summary>
     internal void AwaitSuitPickup(SamusSuitPickupKind suit) => _pendingSuitPickup = suit;
 
-    /// <summary>Holds a save station until message $17's yes/no answer.</summary>
+    /// <summary>Holds a save station until the save confirmation's yes/no answer.</summary>
     internal void AwaitSaveConfirmation(StationActivationEvent station) => _pendingSaveStation = station;
 
     /// <summary>Holds a save station's animation until its completion message closes.</summary>
@@ -66,14 +66,14 @@ internal sealed class MessageBoxFlow
     /// <summary>Confirmed area and station identity awaiting frontend SRAM persistence.</summary>
     private SaveStationPersistenceRequest? _completedSaveStation;
 
-    /// <summary>One-frame bank-$85 request for the save selector's library-one sound $37.</summary>
+    /// <summary>One-update request for the save choice's move sound.</summary>
     public bool MessageBoxSelectionSoundRequestedThisFrame { get; internal set; }
 
     /// <summary>
     /// Returns and clears the message selector's momentary sound publication.
     /// </summary>
     /// <remarks>
-    /// Message boxes advance through an NMI-only path and therefore do not increment
+    /// Message-box updates run no gameplay and therefore do not increment
     /// <see cref="AcceptedFrameBoundary.CompletedGameplayAudioPublication"/>. Giving this publisher explicit
     /// consume semantics keeps it audible once without reopening stale gameplay lists.
     /// </remarks>
@@ -183,7 +183,7 @@ internal sealed class MessageBoxFlow
 
     /// <summary>
     /// Consumes the $A2:AB58 entrance-pad sound queued when the suspended gunship message
-    /// returns. Message NMIs do not publish the ordinary EnemyMain sound list.
+    /// returns. Message-box updates do not publish the ordinary enemy sound list.
     /// </summary>
     public bool ConsumeGunshipExitSoundRequest()
     {

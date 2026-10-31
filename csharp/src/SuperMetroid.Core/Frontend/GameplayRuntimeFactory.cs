@@ -23,7 +23,7 @@ internal static class GameplayRuntimeFactory
 
         GameplaySessionCarryover carryover = start.Carryover;
         var runtime = new SuperMetroidRuntime(start.Overrides, start.Artwork, carryover.Clock, carryover.FloorQueueResidue,
-            carryover.Random, carryover.EarthquakeSoundDelay);
+            carryover.Random, carryover.EarthquakeSoundDelay, carryover.SaveChoiceInput);
         start.Layer1.PublishTo(runtime);
         runtime.BindArtwork(start.Artwork, previous: null);
         if (start.Selected is { } selected)

@@ -17,4 +17,7 @@ internal sealed record GameplaySessionCarryover
 
     /// <summary>The frame the save file found at power-on adds to every earthquake rumble's delay, fixed for the session.</summary>
     public required PowerOnEarthquakeSoundDelay EarthquakeSoundDelay { get; init; }
+
+    /// <summary>When an open save confirmation reads the controller; the runtime's message box consults it.</summary>
+    public required SaveChoiceInputCadence SaveChoiceInput { get; init; }
 }

@@ -63,7 +63,7 @@ internal static class MapHudDefinitionMigrationVerification
         // each message form out with moved to extraction (#1466).
         AssertEqual(32, GameplayMessageBoxDefinitions.Layout.TilemapWidth, "message tilemap width");
         AssertEqual(124, GameplayMessageBoxDefinitions.Layout.WindowCenterY, "message window centre");
-        AssertEqual(8, GameplayMessageBoxDefinitions.Timing.PreOpenLagFrames, "pre-open waits");
+        AssertEqual(8, GameplayMessageBoxDefinitions.Timing.OpeningPauseUpdates, "opening pause");
         AssertEqual(360, GameplayMessageBoxDefinitions.Timing.ItemMinimumDisplayFrames, "item message duration");
         AssertEqual(RgbColor.FromWord(0x0bb1), GameplayMessageBoxDefinitions.Palette.TemporaryLightColor, "light message colour");
         AssertEqual(0x284e, GameplayMessageTilemapDefinitions.UnknownGlyph.PackedWord, "blank button glyph encoded through the codec");

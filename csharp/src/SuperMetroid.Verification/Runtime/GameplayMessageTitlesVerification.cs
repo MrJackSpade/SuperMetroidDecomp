@@ -29,7 +29,7 @@ internal static class GameplayMessageTitlesVerification
         int width = GameplayMessageBoxDefinitions.Layout.TilemapWidth;
         foreach (GameplayMessageId id in GameplayMessageTitleDefinitions.MessageIds)
         {
-            var installed = new GameplayMessageBoxState();
+            var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence());
             installed.Begin(id, 0);
             // The title's content row is the cartridge's one-row tilemap named by the
             // message definition table; read it directly as the independent reference.
@@ -53,7 +53,7 @@ internal static class GameplayMessageTitlesVerification
             new MemoryStream(editedBytes, writable: false));
 
         // The game names the form it shows; an edited title changes the words the import lays that form out with.
-        var active = new GameplayMessageBoxState();
+        var active = new GameplayMessageBoxState(new SaveChoiceInputCadence());
         active.Begin(GameplayMessageId.EnergyTank, 0);
         active.Step(0);
         BackgroundTile[] before = active.Tilemap(stockMessages);

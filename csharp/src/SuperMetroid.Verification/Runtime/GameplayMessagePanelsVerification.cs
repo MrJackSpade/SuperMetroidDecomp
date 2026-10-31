@@ -29,7 +29,7 @@ internal static class GameplayMessagePanelsVerification
         int comparedWords = 0;
         foreach (GameplayMessageId id in GameplayMessagePanelDefinitions.MessageIds)
         {
-            var installed = new GameplayMessageBoxState();
+            var installed = new GameplayMessageBoxState(new SaveChoiceInputCadence());
             installed.Begin(id, 0,
                 shootBinding: ControllerButton.B,
                 runBinding: ControllerButton.Y);
@@ -48,7 +48,7 @@ internal static class GameplayMessagePanelsVerification
             new MemoryStream(editedBytes, writable: false));
 
         // The game names the form it shows; an edited panel changes the words the import lays that form out with.
-        var active = new GameplayMessageBoxState();
+        var active = new GameplayMessageBoxState(new SaveChoiceInputCadence());
         active.Begin(GameplayMessageId.MissileTank, 0,
             shootBinding: ControllerButton.B);
         active.Step(0);
@@ -90,7 +90,7 @@ internal static class GameplayMessagePanelsVerification
             document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentation edited = MapPresentationFiles.Load(
             stockDirectory, overrideDirectory);
-        var state = new GameplayMessageBoxState();
+        var state = new GameplayMessageBoxState(new SaveChoiceInputCadence());
         state.Begin(GameplayMessageId.GrappleBeam, 0);
         AssertTrue(!(GameplayMessageArtwork.Of(stockCatalog).Panels ?? throw new InvalidOperationException("Stock installs the message panels."))
                 .Build(GameplayMessageId.GrappleBeam).SequenceEqual(state.Tilemap(GameplayMessageArtwork.Of(edited))),

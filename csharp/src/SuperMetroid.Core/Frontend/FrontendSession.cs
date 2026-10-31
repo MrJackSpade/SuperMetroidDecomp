@@ -50,8 +50,10 @@ internal sealed class FrontendSession
     /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
     [field: NonSerialized]
     public GameArtwork Artwork { get => field ?? GameArtwork.Unbound; internal set; }
-    /// <summary>The session's floor update residue; like WRAM, it outlives each gameplay runtime.</summary>
+    /// <summary>The session's floor update residue, which outlives each gameplay runtime.</summary>
     internal readonly SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue = new();
+    /// <summary>When an open save confirmation reads the controller; every runtime's message box consults it.</summary>
+    internal readonly SaveChoiceInputCadence saveChoiceInput = new();
     /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
     public SuperMetroidGameOptions ConfiguredOptions { get; internal set; }
     /// <summary>Owns scene capture and raster publication for the current frontend frame.</summary>
@@ -397,6 +399,7 @@ internal sealed class FrontendSession
                 Random = Random,
                 FloorQueueResidue = floorQueueResidue,
                 EarthquakeSoundDelay = earthquakeSoundDelay,
+                SaveChoiceInput = saveChoiceInput,
             },
             Layer1 = menuLayer1,
             Artwork = Artwork,

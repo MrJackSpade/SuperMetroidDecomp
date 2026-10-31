@@ -1332,7 +1332,7 @@ internal static class RoomPlmPopulationVerification
         SeedSaveConfirmationMessageCartridge(bus);
 
         var messages = new GameplayMessageArtwork(null, notices: presentation);
-        var message = new GameplayMessageBoxState();
+        var message = new GameplayMessageBoxState(new SaveChoiceInputCadence());
         message.Begin(GameplayMessageIds.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;

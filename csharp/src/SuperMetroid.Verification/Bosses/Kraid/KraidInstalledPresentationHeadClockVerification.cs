@@ -49,7 +49,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             var baseline = new KraidHeadClockFixture(stock);
             var changed = new KraidHeadClockFixture(edited);
             baseline.State.HeadProgram = changed.State.HeadProgram = commands[0].Cursor;
-            baseline.State.Parts[0].HeadTimer = changed.State.Parts[0].HeadTimer = 1;
+            baseline.State.Parts[0].HeadTimer = changed.State.Parts[0].HeadTimer = WrappingCountdown.Start(1);
             int nextEvent = 0, cursor = 0, soundCount = 0;
             ushort outer = 0, inner = 0, physical = 0;
             ushort[] expectedStock = baseline.Shown();
@@ -84,7 +84,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     {
                         AssertEqual(ushort.MaxValue, stockResult, "terminator on the exact sum-of-durations tick");
                         AssertEqual(admission.Cursor, baseline.State.HeadProgram, "termination retains native cursor");
-                        AssertEqual(0, baseline.State.Parts[0].HeadTimer, "termination consumes the last timer tick");
+                        AssertEqual(0, baseline.State.Parts[0].HeadTimer.RawValue, "termination consumes the last timer tick");
                         AssertTrue(expectedStock.SequenceEqual(baseline.Shown()) &&
                             expectedEdited.SequenceEqual(changed.Shown()), "termination emits no tilemap upload");
                         break;
@@ -97,7 +97,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     KraidHeadClockFixture.ExpectedUpload(expectedEdited, (edited.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires edited.KraidBackground.")).HeadWords(physical));
                     AssertTrue(!baseline.Shown().SequenceEqual(changed.Shown()), "replacement head is actually visible");
                 }
-                AssertEqual((ushort)(nextEvent - tick), baseline.State.Parts[0].HeadTimer, "native countdown on every hold tick");
+                AssertEqual((ushort)(nextEvent - tick), baseline.State.Parts[0].HeadTimer.RawValue, "native countdown on every hold tick");
                 KraidHeadNativeRecord displayed = commands.Take(cursor).Last(item => item.IsPose);
                 AssertEqual(native.CursorAt((ushort)(displayed.Pointer + 8)), baseline.State.HeadProgram, "head cursor holds until next event");
                 KraidHeadFrame shown = baseline.State.DisplayedHeadFrame

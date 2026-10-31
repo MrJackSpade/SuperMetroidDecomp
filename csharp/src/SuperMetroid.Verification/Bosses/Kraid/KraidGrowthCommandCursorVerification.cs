@@ -48,10 +48,10 @@ internal static class KraidGrowthCommandCursorVerification
         state.Parts[5].Function = KraidAiFunction.FootPrepareFirstPhaseLunge;
         footMain(foot, 0);
         AssertEqual(native.CursorAt(0x96f4), state.HeadProgram, "native command-cursor growth resumes at the closing-mouth frame");
-        AssertEqual(64, state.Parts[0].HeadTimer, "native quick-kill growth delay is preserved");
+        AssertEqual(64, state.Parts[0].HeadTimer.RawValue, "native quick-kill growth delay is preserved");
         AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
         AssertEqual(KraidAiFunction.GrowReleaseCamera, state.Parts[0].NextFunction, "growth schedules camera release");
-        AssertEqual(180, state.Parts[0].FunctionTimer, "growth function timer");
+        AssertEqual(180, state.Parts[0].FunctionTimer.RawValue, "growth function timer");
         AssertEqual(KraidAiFunction.NoOperation, state.Parts[5].Function, "growth stops the foot lunge");
         AssertEqual(0, guard.ForbiddenReadAttempts, "growth selection does not read compiled cartridge programs");
 

@@ -9,5 +9,5 @@ internal sealed class EnemyAttractDemoHooks(KraidBehavior kraid) : IEnemyAttract
 {
     /// <inheritdoc/>
     public void SetKraidFunctionTimer(int frames) =>
-        (kraid.Access.Kraid ?? throw new InvalidDataException("The Kraid demo requires Kraid's encounter state.")).Parts[0].FunctionTimer = frames;
+        (kraid.Access.Kraid ?? throw new InvalidDataException("The Kraid demo requires Kraid's encounter state.")).Parts[0].FunctionTimer = WrappingCountdown.Start(frames);
 }

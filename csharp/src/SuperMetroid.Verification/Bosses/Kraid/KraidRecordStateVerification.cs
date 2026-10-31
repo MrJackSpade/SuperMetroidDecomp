@@ -18,13 +18,13 @@ internal static class KraidRecordStateVerification
         var part = new KraidPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
 
-        part.FunctionTimer = 18;
+        part.FunctionTimer = WrappingCountdown.Start(18);
         AssertEqual(0, part.CeilingRock, "the function timer leaves the next ceiling rock alone");
-        part.HeadTimer = 64;
+        part.HeadTimer = WrappingCountdown.Start(64);
         AssertEqual(default(FixedVector<RoomPixels>), part.NailVelocity, "the head timer and lint travel leave a nail's velocity alone");
         part.LintTravel = 32;
         part.CeilingRock = 3;
-        part.RisingRockTimer = 96;
+        part.RisingRockTimer = WrappingCountdown.Start(96);
         part.LintXOffset = 65520;
 
         part.Function = KraidAiFunction.FingernailFire;
@@ -33,11 +33,11 @@ internal static class KraidRecordStateVerification
         AssertEqual((KraidAiFunction)0, part.Function, "a kill empties the function");
         AssertEqual(0, part.LintTravel, "a kill empties the travel");
         AssertEqual(0, part.LintXOffset, "a kill empties the lint offset");
-        AssertEqual(0, part.HeadTimer, "a kill empties the head timer");
+        AssertEqual(0, part.HeadTimer.RawValue, "a kill empties the head timer");
         AssertEqual(default(FixedVector<RoomPixels>), part.NailVelocity, "a kill empties the nail velocity");
-        AssertEqual(0, part.FunctionTimer, "a kill empties the function timer");
+        AssertEqual(0, part.FunctionTimer.RawValue, "a kill empties the function timer");
         AssertEqual(0, part.CeilingRock, "a kill empties the next ceiling rock");
-        AssertEqual(0, part.RisingRockTimer, "a kill empties the rising-rock timer");
+        AssertEqual(0, part.RisingRockTimer.RawValue, "a kill empties the rising-rock timer");
         Console.WriteLine("Kraid record state: each part's values are held apart, and a kill empties the record.");
     }
 

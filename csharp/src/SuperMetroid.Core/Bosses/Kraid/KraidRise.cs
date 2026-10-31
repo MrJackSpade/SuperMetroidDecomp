@@ -99,8 +99,8 @@ internal sealed class KraidRise
         body.Position = body.Position.WithWhole(new(176, 592));
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
         state.Parts[body.SlotIndex].Function = KraidAiFunction.RestrictSamusToFirstScreen;
-        state.Parts[body.SlotIndex].FunctionTimer = 300;
-        state.Parts[body.SlotIndex].HeadTimer = 64;
+        state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(300);
+        state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(64);
         state.Parts[0].NextFunction = KraidAiFunction.RaiseKraidThroughFloor;
 
         // Background palette three's target colors are written at CGRAM palette eleven in
@@ -204,7 +204,7 @@ internal sealed class KraidRise
             case KraidAiFunction.GrowDrawRoomBackground:
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowFadeInRoomBackground;
                 // The original game clears the value it kept the ceiling rocks in, which is the function timer again.
-                state.Parts[body.SlotIndex].FunctionTimer = 0;
+                state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(0);
                 // $A7:ADB0 DrawKraidsRoomBackground zeroes the shared numerator.
                 _presentation.GradualColorChange.Reset();
                 // `$A7:AD9A` queues this character upload on the same frame that it
@@ -282,7 +282,7 @@ internal sealed class KraidRise
         {
             int slot = KraidLintInitializationDefinitions.Slot[part];
             RoomEnemySlot lint = _slotTable.Slots[slot];
-            state.Parts[lint.SlotIndex].FunctionTimer = KraidLints.InitialDelay(part);
+            state.Parts[lint.SlotIndex].FunctionTimer = WrappingCountdown.Start(KraidLints.InitialDelay(part));
             state.Parts[lint.SlotIndex].Function = KraidAiFunction.AlignPartToKraid;
             state.Parts[slot].NextFunction = KraidAiFunction.LintProduce;
             state.Parts[lint.SlotIndex].LintTravel = 0;
@@ -292,7 +292,7 @@ internal sealed class KraidRise
             RoomEnemySlot nail = _slotTable.Slots[6 + nailIndex];
             state.Parts[6 + nailIndex].NextFunction = KraidAiFunction.FingernailInitialize;
             state.Parts[nail.SlotIndex].Function = KraidAiFunction.HandleFunctionTimer;
-            state.Parts[nail.SlotIndex].FunctionTimer = unchecked((ushort)(64 + nailIndex * 64));
+            state.Parts[nail.SlotIndex].FunctionTimer = WrappingCountdown.Start(64).AddFrames(nailIndex * 64);
         }
         state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
         state.WalkTarget = new Position16<RoomPixels>(288, 0);
@@ -351,7 +351,7 @@ internal sealed class KraidRise
             case KraidAiFunction.RaiseShowLowerBody:
                 RestrictSamusToKraidFirstScreen(samus);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseRocksEvery16Frames;
-                state.Parts[body.SlotIndex].RisingRockTimer = 120;
+                state.Parts[body.SlotIndex].RisingRockTimer = WrappingCountdown.Start(120);
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(496);
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(5));
                 state.ShowLowerBody();
@@ -359,14 +359,14 @@ internal sealed class KraidRise
 
             case KraidAiFunction.RaiseRocksEvery16Frames:
                 RestrictSamusToKraidFirstScreen(samus);
-                CountdownStep slowRockStep = WrappingCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].RisingRockTimer)).Decrement();
-                state.Parts[body.SlotIndex].RisingRockTimer = slowRockStep.Remaining.RemainingFrames;
+                CountdownStep slowRockStep = state.Parts[body.SlotIndex].RisingRockTimer.Decrement();
+                state.Parts[body.SlotIndex].RisingRockTimer = slowRockStep.Remaining;
                 if (slowRockStep.IsZero)
                 {
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseRocksEvery8Frames;
-                    state.Parts[body.SlotIndex].RisingRockTimer = 96;
+                    state.Parts[body.SlotIndex].RisingRockTimer = WrappingCountdown.Start(96);
                 }
-                else if ((state.Parts[body.SlotIndex].RisingRockTimer & 15) == 0)
+                else if (state.Parts[body.SlotIndex].RisingRockTimer.IsOnMultipleOf(16))
                 {
                     RequestKraidRisingRock(body, state);
                 }
@@ -374,14 +374,14 @@ internal sealed class KraidRise
 
             case KraidAiFunction.RaiseRocksEvery8Frames:
                 RestrictSamusToKraidFirstScreen(samus);
-                CountdownStep fastRockStep = WrappingCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].RisingRockTimer)).Decrement();
-                state.Parts[body.SlotIndex].RisingRockTimer = fastRockStep.Remaining.RemainingFrames;
+                CountdownStep fastRockStep = state.Parts[body.SlotIndex].RisingRockTimer.Decrement();
+                state.Parts[body.SlotIndex].RisingRockTimer = fastRockStep.Remaining;
                 if (fastRockStep.IsZero)
                 {
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseBody;
-                    state.Parts[body.SlotIndex].FunctionTimer = 288;
+                    state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(288);
                 }
-                else if ((state.Parts[body.SlotIndex].RisingRockTimer & 7) == 0)
+                else if (state.Parts[body.SlotIndex].RisingRockTimer.IsOnMultipleOf(8))
                 {
                     RequestKraidRisingRock(body, state);
                 }
@@ -407,7 +407,7 @@ internal sealed class KraidRise
                     // Its 300-frame delay starts on the exact rise-completion frame.
                     RoomEnemySlot foot = _slotTable.Slots[5];
                     state.Parts[foot.SlotIndex].Function = KraidAiFunction.FootFirstPhaseThinking;
-                    state.Parts[foot.SlotIndex].FunctionTimer = 300;
+                    state.Parts[foot.SlotIndex].FunctionTimer = WrappingCountdown.Start(300);
                     state.Parts[5].NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
                     _access.StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmNormal);
                 }

@@ -92,7 +92,7 @@ internal sealed class KraidDeath
                 for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
                 {
                     state.Parts[_slotTable.Slots[lintSlot].SlotIndex].Function = KraidAiFunction.AlignPartToKraid;
-                    state.Parts[_slotTable.Slots[lintSlot].SlotIndex].FunctionTimer = KraidBehavior.KraidStillPartTimer;
+                    state.Parts[_slotTable.Slots[lintSlot].SlotIndex].FunctionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
                 }
                 state.ShowUpperBody();
                 return;
@@ -227,7 +227,7 @@ internal sealed class KraidDeath
         _access.StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmDyingOrPreparingToLunge);
         state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFadeOut;
         state.HeadProgram = KraidHeadAnimations.DeathAfterEntryFrame;
-        state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.DeathEntryDuration;
+        state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.DeathEntryDuration);
         // $A7:C3A8-$C3E8 clear the fingernails' respawn bit, then run EnemyDeath for the
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.

@@ -72,11 +72,11 @@ internal sealed class KraidEncounterAccess
     /// <summary>Counts a Kraid function timer down and installs its next state at zero.</summary>
     internal static void TickKraidFunctionTimer(KraidPartState part)
     {
-        WrappingCountdown functionTimer = WrappingCountdown.FromRaw(checked((ushort)part.FunctionTimer));
+        WrappingCountdown functionTimer = part.FunctionTimer;
         if (functionTimer.IsZero)
             return;
         CountdownStep step = functionTimer.Decrement();
-        part.FunctionTimer = step.Remaining.RemainingFrames;
+        part.FunctionTimer = step.Remaining;
         if (step.IsZero)
             part.Function = part.NextFunction;
     }

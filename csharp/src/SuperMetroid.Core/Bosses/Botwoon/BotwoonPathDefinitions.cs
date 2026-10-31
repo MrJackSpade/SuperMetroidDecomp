@@ -11,11 +11,9 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// </summary>
 internal static class BotwoonPathDefinitions
 {
-    /// <summary>Every authored path, by path number.</summary>
-    internal static readonly BotwoonPathStep[][] Paths =
+    /// <summary>Path 0: In the open from the left hole to the bottom hole.</summary>
+    private static readonly BotwoonPathStep[] OpenLeftToBottom =
     [
-        // Path 0: in the open from the left hole to the bottom hole.
-        [
             Right, Right, Up, Right, Right, Right, Right, Right, Up, Right, Right, Right, Right, Right, Up, Right,
             Right, Right, Right, Right, Up, Right, Right, Right, Right, UpRight, Right, Right, Right, Right, Right, Up,
             Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Down, Right,
@@ -37,9 +35,11 @@ internal static class BotwoonPathDefinitions
             Down, Left, Down, Left, Down, Left, Down, Down, Left, Down, Left, Down, Left, Down, Left, Down, Left, Down,
             Left, Down, Left, Down, Left, Down, Left, Down, Left, Down, Left, Down, Left, Down, Left, Down, Left, Down,
             Down, Left, Down, Left, Down, Down, DownLeft, Down, Down, Down, Left, Down, Down, Down, Down, Down, Down,
-        ],
-        // Path 1: in the open from the left hole to the top hole.
-        [
+    ];
+
+    /// <summary>Path 1: In the open from the left hole to the top hole.</summary>
+    private static readonly BotwoonPathStep[] OpenLeftToTop =
+    [
             Right, Down, Right, Right, Down, Right, Down, Right, Right, Down, Right, Down, Right, DownRight, Right,
             Down, Right, Down, Right, Down, Down, Right, Down, Right, Down, Down, Right, Down, Down, Down, Right, Down,
             Down, Down, Down, Right, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Left,
@@ -66,9 +66,11 @@ internal static class BotwoonPathDefinitions
             Up, Right, Right, Right, Up, Right, Right, Right, Right, Up, Right, Right, Right, Right, Right, Right, Up,
             Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Up, Right, Right, Right, Right, Right,
             Right, Right, Right, Right, Right, Right,
-        ],
-        // Path 2: in the open from the left hole to the right hole.
-        [
+    ];
+
+    /// <summary>Path 2: In the open from the left hole to the right hole.</summary>
+    private static readonly BotwoonPathStep[] OpenLeftToRight =
+    [
             Down, Right, Down, Down, Right, Down, Down, Right, Down, Down, Right, Down, Down, Right, Down, Down,
             DownRight, Down, Down, DownRight, Down, Down, Down, Right, Down, Down, Down, Down, DownRight, Down, Down,
             Down, Down, Down, Right, Down, Down, Down, Down, Down, Down, Down, Down, Left, Down, Down, Down, Left, Down,
@@ -96,9 +98,11 @@ internal static class BotwoonPathDefinitions
             UpRight, Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Down, Right, Right,
             Right, DownRight, Right, Right, Down, Right, Right, Down, Right, DownRight, Right, Down, Right, Down, Right,
             Down, Right,
-        ],
-        // Path 3: in the open from the left hole back into it.
-        [
+    ];
+
+    /// <summary>Path 3: In the open from the left hole back into it.</summary>
+    private static readonly BotwoonPathStep[] OpenLeftBackIntoItself =
+    [
             Right, Right, Right, Down, Right, Right, Right, Right, Right, Down, Right, Right, Right, DownRight, Right,
             Right, Down, Right, Right, Down, Right, Right, Down, Right, Down, Right, DownRight, DownRight, DownRight,
             Down, Right, Down, Right, Down, DownRight, Down, Right, Down, Down, Right, Down, Down, Right, Down, Down,
@@ -128,9 +132,11 @@ internal static class BotwoonPathDefinitions
             Left, Left, Left, Up, Left, Left, Left, Up, Left, Left, Up, Left, Up, Left, UpLeft, Left, Up, Left, Up,
             UpLeft, Up, Left, Up, Left, Up, Up, Left, Up, Up, Left, Up, Up, Left, Up, Up, UpLeft, Up, Up, Up, Left, Up,
             Up, Up, Up, Up, Up, Up, Up, Up, Right, Up, Up, Up, Right, Up, Up, Up, Right, Up, Up, Right, Up,
-        ],
-        // Path 4: in the open from the bottom hole to the left hole.
-        [
+    ];
+
+    /// <summary>Path 4: In the open from the bottom hole to the left hole.</summary>
+    private static readonly BotwoonPathStep[] OpenBottomToLeft =
+    [
             Right, Right, Right, Right, Up, Right, Right, Right, Right, Right, Right, Right, Up, Right, Right, Right,
             Right, Right, Right, Right, Up, Right, Right, Right, Right, Right, Right, Right, Up, Right, Right, Right,
             Right, Right, Right, Up, Right, Right, Right, Right, Right, Right, Up, Right, Right, Right, Right, Up,
@@ -155,9 +161,11 @@ internal static class BotwoonPathDefinitions
             Left, Left, Left, Left, Down, Left, Left, Left, Left, Left, Left, Down, Left, Left, Left, Left, Left, Left,
             Left, Down, Left, Left, Left, Left, Left, Left, Left, DownLeft, Left, Left, Left, Left, Left, Left, Left,
             Left, Down, Left, Left, Left, Left, Left,
-        ],
-        // Path 5: in the open from the bottom hole to the top hole.
-        [
+    ];
+
+    /// <summary>Path 5: In the open from the bottom hole to the top hole.</summary>
+    private static readonly BotwoonPathStep[] OpenBottomToTop =
+    [
             UpRight, Up, Right, Up, Right, Up, Right, Up, Right, Up, Right, Up, Right, Up, Right, Up, Up, Right, Up,
             Right, Up, Right, Up, Up, Right, Up, Up, Right, Up, Up, Right, Up, Up, Up, Right, Up, Up, Up, Up, Up, Right,
             Up, Up, Up, Up, Up, Up, Up, Up, Up, Up, Up, Up, Up, Left, Up, Up, Up, Up, Left, Up, Up, Up, Left, Up, Up,
@@ -185,9 +193,11 @@ internal static class BotwoonPathDefinitions
             Up, Up, Up, Right, Up, Up, Up, Up, Up, Up, Up, Up, Left, Up, Up, Up, Left, Up, Up, Left, Up, Left, Left, Up,
             Left, Left, Left, Left, Left, Left, Down, Left, Left, Left, Down, Left, Left, Down, Left, Down, Left, Left,
             Down, DownLeft, Down, Left, Down, Down, Left, Down, Down, Left, Down, Down, DownLeft, Down,
-        ],
-        // Path 6: in the open from the bottom hole to the right hole.
-        [
+    ];
+
+    /// <summary>Path 6: In the open from the bottom hole to the right hole.</summary>
+    private static readonly BotwoonPathStep[] OpenBottomToRight =
+    [
             Right, Up, Right, Up, UpRight, UpRight, UpRight, UpRight, Up, Right, Up, Right, Up, Right, Up, Right, Up,
             Right, Up, Right, Up, Up, Right, Up, Right, Up, Up, Right, Up, Right, Up, Up, Right, Up, Up, Right, Up, Up,
             Right, Up, Up, Right, Up, Up, Right, Up, Up, Up, Right, Up, Up, Up, Right, Up, Up, Up, Up, Right, Up, Up,
@@ -216,9 +226,11 @@ internal static class BotwoonPathDefinitions
             Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Left,
             Down, Down, Down, Down, Down, Down, Down, Left, Down, Down, Down, Left, Down, Down, Left, Down, Left, Down,
             Left, Down, Left, Left, Left, Left, Left, Left, Up, Left, Left,
-        ],
-        // Path 7: in the open from the bottom hole back into it.
-        [
+    ];
+
+    /// <summary>Path 7: In the open from the bottom hole back into it.</summary>
+    private static readonly BotwoonPathStep[] OpenBottomBackIntoItself =
+    [
             Left, Up, Left, Left, Left, Up, Left, Left, Up, Left, Left, UpLeft, Left, UpLeft, Left, UpLeft, UpLeft,
             Left, Up, Left, Up, Left, UpLeft, UpLeft, UpLeft, Up, Left, Up, UpLeft, Up, Up, UpLeft, Up, Up, Up, Up, Up,
             Up, Up, Up, Up, Up, Up, Up, Up, Up, Up, Up, Up, Left, Up, Up, Up, Up, Up, Left, Up, Up, Left, Up, Up, Left,
@@ -243,9 +255,11 @@ internal static class BotwoonPathDefinitions
             Down, Down, Down, Right, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down,
             DownLeft, Down, Down, DownLeft, Down, Down, Left, Down, Down, DownLeft, Down, Left, Down, Down, Left, Down,
             Left, Down, Left, Down, Left, DownLeft, Left, Down, Left, DownLeft, Left, Down, Left,
-        ],
-        // Path 8: in the open from the top hole to the left hole.
-        [
+    ];
+
+    /// <summary>Path 8: In the open from the top hole to the left hole.</summary>
+    private static readonly BotwoonPathStep[] OpenTopToLeft =
+    [
             Down, Down, Down, Down, Down, Down, Left, Down, Down, Down, Down, Down, Down, Down, Down, Left, Down, Down,
             Down, Down, Left, Down, Down, Down, Left, Down, Down, Down, Left, Down, Down, Down, Left, Down, Down,
             DownLeft, Down, Down, DownLeft, Down, Down, DownLeft, Down, Down, Down, DownLeft, Down, Down, Down, Down,
@@ -276,9 +290,11 @@ internal static class BotwoonPathDefinitions
             Left, Left, Up, Left, Left, Up, Left, Left, Left, Up, Left, Left, Up, Left, Left, Up, Left, Left, Up, Left,
             Left, Up, Left, Up, Left, Left, Up, Left, Up, Left, Up, Left, Up, Left, Up, Left, Up, Left, Up, Left, Up,
             UpLeft, UpLeft, Up, Left, Up, Up, Left, Up, UpLeft, Up, Left,
-        ],
-        // Path 9: in the open from the top hole to the bottom hole.
-        [
+    ];
+
+    /// <summary>Path 9: In the open from the top hole to the bottom hole.</summary>
+    private static readonly BotwoonPathStep[] OpenTopToBottom =
+    [
             Down, Down, Down, Left, Down, Down, Down, Down, Left, Down, Down, Down, Left, Down, Down, Left, Down, Down,
             Left, Down, Left, Down, Left, Down, Left, Down, Left, Down, Left, Left, Down, Left, Down, Left, Left, Down,
             Left, Left, Down, Left, Left, Down, Left, Left, Left, Down, Left, Left, Left, Down, Left, Left, Left, Left,
@@ -295,9 +311,11 @@ internal static class BotwoonPathDefinitions
             Right, Right, Up, Right, Right, Right, Right, Up, Right, Right, Right, Right, Right, Up, Right, Right,
             Right, Right, Right, Right, Right, Right, Right, DownRight, Right, Right, Down, Right, Right, Down, Right,
             Down, Right, Down, Right, Down, Right,
-        ],
-        // Path 10: in the open from the top hole to the right hole.
-        [
+    ];
+
+    /// <summary>Path 10: In the open from the top hole to the right hole.</summary>
+    private static readonly BotwoonPathStep[] OpenTopToRight =
+    [
             Right, Down, Right, Down, Right, Right, Down, Right, Down, Right, Right, Down, Right, Down, Right, Down,
             Right, Right, Down, Right, Down, Right, Down, Right, Down, Right, Down, Right, DownRight, Right, Down, Down,
             Right, Down, Right, Down, Right, Down, Right, Down, Right, Down, Down, Right, Down, Right, Down, Down,
@@ -328,9 +346,11 @@ internal static class BotwoonPathDefinitions
             Down, Right, Down, Right, DownRight, Right, DownRight, Right, Right, Right, Down, Right, Right, Right,
             Right, Right, Right, Right, Right, Up, Right, Right, UpRight, Right, Up, Right, Right, Up, Right, Up, Right,
             Up, Right, Up, Right, Up, Right, Up, Right, Up, Right, Up,
-        ],
-        // Path 11: in the open from the top hole back into it.
-        [
+    ];
+
+    /// <summary>Path 11: In the open from the top hole back into it.</summary>
+    private static readonly BotwoonPathStep[] OpenTopBackIntoItself =
+    [
             Right, Right, Right, Right, Down, Right, Right, Right, Right, Right, Right, Right, Down, Right, Right,
             Right, Right, Right, Down, Right, Right, Right, Right, Down, Right, Right, Right, Down, Right, Right, Right,
             Down, Right, Right, Down, Right, DownRight, Right, Down, Right, Down, Right, DownRight, DownRight, Down,
@@ -354,9 +374,11 @@ internal static class BotwoonPathDefinitions
             UpRight, Right, Up, Right, Up, Right, Up, Right, Up, Right, Right, Up, Right, Right, Up, Right, Right, Up,
             Right, Right, Right, Up, Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Right,
             Right, Right, Right, Right, Down, Right, Right, Right,
-        ],
-        // Path 12: in the open from the right hole to the left hole.
-        [
+    ];
+
+    /// <summary>Path 12: In the open from the right hole to the left hole.</summary>
+    private static readonly BotwoonPathStep[] OpenRightToLeft =
+    [
             Left, Up, Left, Up, Left, UpLeft, Left, Up, Left, Up, Left, Left, Up, Left, Up, Left, Left, Up, Left, Up,
             Left, Left, Up, Left, Up, Left, Left, Up, Left, UpLeft, Left, Up, Left, Left, Up, Left, Left, Up, Left, Up,
             Left, Left, Up, Left, Up, Left, Up, Left, Left, Up, Left, Up, Left, Up, Left, Up, Left, Up, Left, Left, Up,
@@ -384,9 +406,11 @@ internal static class BotwoonPathDefinitions
             Up, Up, Up, Right, Up, Up, Right, Up, Up, Up, Right, Up, Up, Right, Up, Up, Up, Up, Right, Up, Up, Up, Up,
             Up, Up, Up, Up, Up, Up, Up, Up, Left, Up, Up, Up, Left, Up, Up, Left, Up, Left, Up, Up, Left, Up, Left,
             Left, Up, Left, Left, Up, Left, Left, Left, Up, Left, Left, Left, Left, Left, Left, Left,
-        ],
-        // Path 13: in the open from the right hole to the bottom hole.
-        [
+    ];
+
+    /// <summary>Path 13: In the open from the right hole to the bottom hole.</summary>
+    private static readonly BotwoonPathStep[] OpenRightToBottom =
+    [
             Left, Up, Left, Left, Left, Up, Left, Left, Left, Up, Left, Left, Left, Up, Left, Left, Left, Up, Left,
             Left, Left, Left, Up, Left, Left, Left, Left, Up, Left, Left, Left, Left, Up, Left, Left, Left, Up, Left,
             Left, Up, Left, Left, Up, Left, Up, Left, UpLeft, UpLeft, UpLeft, Up, Left, Up, Left, Up, UpLeft, Up, Left,
@@ -411,9 +435,11 @@ internal static class BotwoonPathDefinitions
             Down, Down, Right, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down,
             Down, Down, Down, Left, Down, Down, Down, Left, Down, Down, Left, Left, Down, Left, Left, Left, Left, Left,
             Up, Left, Left, Left, Up, Left, Left, UpLeft, Left, UpLeft, Left, Up, Left, Left, Up, Left, Left, Up, Left,
-        ],
-        // Path 14: in the open from the right hole to the top hole.
-        [
+    ];
+
+    /// <summary>Path 14: In the open from the right hole to the top hole.</summary>
+    private static readonly BotwoonPathStep[] OpenRightToTop =
+    [
             Left, Down, Left, Down, Left, Left, Down, Left, Left, Down, Left, Down, Left, Left, Down, Left, Down, Left,
             Left, Down, Left, Down, Left, Left, Down, Left, Down, Left, Left, Down, Left, Down, Left, DownLeft, Left,
             Down, Left, Left, Down, Left, Down, Left, Left, Down, Left, Left, Left, Down, Left, Left, Left, Down, Left,
@@ -438,9 +464,11 @@ internal static class BotwoonPathDefinitions
             Left, Up, Up, Left, Up, Left, Up, Up, Up, Left, Up, Up, Up, Up, Up, Left, Up, Up, Up, Up, Left, Up, Up, Up,
             Up, Left, Up, Up, Up, Left, Up, Up, Up, Left, Up, Up, Up, Left, Up, Up, Left, Up, Up, UpLeft, Up, Up, Left,
             Up,
-        ],
-        // Path 15: in the open from the right hole back into it.
-        [
+    ];
+
+    /// <summary>Path 15: In the open from the right hole back into it.</summary>
+    private static readonly BotwoonPathStep[] OpenRightBackIntoItself =
+    [
             Left, Up, Left, Up, Left, UpLeft, Left, Up, Left, UpLeft, Left, Up, Left, Up, Left, Left, Up, Left, Up,
             Left, Up, Left, Left, Up, Left, Up, Left, UpLeft, Left, Up, Left, UpLeft, Left, Up, Left, Left, Up, Left,
             Left, Up, Left, Left, UpLeft, Left, Left, Left, Up, Left, Left, Left, Left, Left, UpLeft, Left, Left, Left,
@@ -471,9 +499,11 @@ internal static class BotwoonPathDefinitions
             Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, UpRight, Right, Right, Right, UpRight,
             Right, Right, Up, Right, Right, UpRight, Right, Up, Right, UpRight, UpRight, Right, Up, UpRight, Up, Right,
             Up, Up, Right, Up, Up, Up, Up, Right, Up, Up, Up, Up,
-        ],
-        // Path 16: inside the wall between the left and bottom holes, forward from the left hole.
-        [
+    ];
+
+    /// <summary>Path 16: Inside the wall between the left and bottom holes, forward from the left hole.</summary>
+    private static readonly BotwoonPathStep[] WallLeftBottom =
+    [
             Right, Down, Right, Right, Right, Down, Right, Right, Down, Right, Right, Down, Right, Down, Right, Right,
             Down, Right, Down, Right, Down, Down, Right, Down, DownRight, Down, Down, Right, Down, Down, Right, Down,
             Down, Right, Down, Down, Right, Down, Right, Down, Right, Right, Down, Right, Right, Right, Right, Down,
@@ -486,9 +516,11 @@ internal static class BotwoonPathDefinitions
             Right, Right, Right, Right, Up, Right, Right, Up, Right, Right, Up, Right, Up, Right, Up, Right, Right, Up,
             Right, Up, Right, Up, Right, Up, Right, Up, Right, Up, Right, Up, Right, Right, Right, Right, Down, Right,
             Down, Right, Down, Right, Down, Right, Down,
-        ],
-        // Path 17: inside the wall between the left and top holes, forward from the left hole.
-        [
+    ];
+
+    /// <summary>Path 17: Inside the wall between the left and top holes, forward from the left hole.</summary>
+    private static readonly BotwoonPathStep[] WallLeftTop =
+    [
             Right, Up, Right, Right, Right, Up, Right, Right, Right, Up, Right, Right, UpRight, Right, Right, Right, Up,
             Right, Right, Right, Right, Right, Up, Right, Right, Right, Right, Right, Right, Down, Right, Right, Right,
             Down, Right, Right, Down, Right, Right, Down, Right, Down, Right, Down, Right, Down, Down, Right, Down,
@@ -501,9 +533,11 @@ internal static class BotwoonPathDefinitions
             Up, Right, Up, Up, Up, Right, Up, Up, Right, Up, Up, Right, Up, Right, Up, Right, Up, Right, Right, Up,
             Right, Right, Right, Up, Right, Right, Right, Right, Down, Right, Right, Right, Right, Down, Right, Right,
             DownRight, Right, Right, Down, Right,
-        ],
-        // Path 18: inside the wall between the left and right holes, forward from the left hole.
-        [
+    ];
+
+    /// <summary>Path 18: Inside the wall between the left and right holes, forward from the left hole.</summary>
+    private static readonly BotwoonPathStep[] WallLeftRight =
+    [
             Down, Right, Right, Right, Down, Right, Right, Right, Down, Right, Right, Down, Right, Right, Down, Right,
             Right, Down, Right, Right, Down, Right, DownRight, Right, Down, Right, Down, Right, Right, Down, Right,
             Down, Right, Right, Down, Right, Down, Right, Right, Down, Right, Right, Down, Right, Right, Down, Right,
@@ -518,9 +552,11 @@ internal static class BotwoonPathDefinitions
             Right, Right, Right, Down, Right, Right, Right, Down, Right, Right, Right, Right, Down, Right, Right, Right,
             Down, Right, Right, Right, Right, DownRight, Right, Right, Right, Right, Right, Right, Right, Right, Right,
             Right, Right, Up, Right, Right, Right,
-        ],
-        // Path 19: inside the wall between the bottom and top holes, forward from the bottom hole.
-        [
+    ];
+
+    /// <summary>Path 19: Inside the wall between the bottom and top holes, forward from the bottom hole.</summary>
+    private static readonly BotwoonPathStep[] WallBottomTop =
+    [
             Right, Up, Right, Up, Right, Right, Up, Right, Up, Right, Right, Up, Right, Up, Right, Up, Right, Up, Right,
             UpRight, UpRight, UpRight, UpRight, Up, Right, Up, Right, Up, Right, Up, Up, Right, Up, UpRight, Up,
             UpRight, Up, Up, Right, Up, Up, Up, Up, Up, Up, Up, Up, Up, Up, Left, Up, Up, Left, Up, Up, Left, Up, Left,
@@ -530,9 +566,11 @@ internal static class BotwoonPathDefinitions
             Right, DownRight, Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Right, Up, Right,
             Right, Right, Up, Right, Up, Right, UpRight, Right, Up, Right, Up, Right, Up, Up, Right, Up, Right, Up,
             Right, Up, Up, Right, Up, Right, Up,
-        ],
-        // Path 20: inside the wall between the bottom and right holes, forward from the bottom hole.
-        [
+    ];
+
+    /// <summary>Path 20: Inside the wall between the bottom and right holes, forward from the bottom hole.</summary>
+    private static readonly BotwoonPathStep[] WallBottomRight =
+    [
             Right, Up, Right, Right, Up, Right, Right, Up, Right, Up, Right, Right, Up, Right, Right, Up, Right, Right,
             Up, Right, Up, Right, Right, Up, Right, Up, Right, Right, Up, Right, Up, Right, Up, Right, Up, Right, Up,
             Right, Up, Right, Up, Up, Right, Up, Up, Up, Right, Up, Up, Up, Up, Up, Up, Up, Up, Up, Left, Up, Up, Up,
@@ -543,9 +581,11 @@ internal static class BotwoonPathDefinitions
             DownRight, Right, Down, Right, Down, Right, Right, Down, Right, Right, Down, Right, Right, Right, Right,
             Down, Right, Right, Right, Right, Right, Right, Up, Right, Right, Right, Up, Right, Right, Up, Right, Right,
             Up, Right, Up, Right, Up, Right, Up, Right, Up, Right, Up, Right, Up, Right, Up, Right, Up,
-        ],
-        // Path 21: inside the wall between the top and right holes, forward from the top hole.
-        [
+    ];
+
+    /// <summary>Path 21: Inside the wall between the top and right holes, forward from the top hole.</summary>
+    private static readonly BotwoonPathStep[] WallTopRight =
+    [
             Down, Left, Down, Left, Down, Left, Down, Down, Left, Down, Left, Down, Down, Left, Down, Down, Left, Down,
             Down, Left, Down, Down, Down, Left, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down, Down,
             Right, Down, Down, Down, Right, Down, Right, Down, Down, Right, Down, Right, Down, Right, Down, Right, Down,
@@ -557,6 +597,32 @@ internal static class BotwoonPathDefinitions
             Down, DownRight, Down, Down, Right, Down, Right, Down, DownRight, Down, Right, Down, Right, Right, Down,
             Right, Down, Right, Right, Down, Right, Right, Down, Right, Right, Right, Right, Right, Up, Right, Right,
             Up, Up, Right, Up, Up, Right, Up, Up, Up, UpRight, Up, Up,
-        ],
+    ];
+
+    /// <summary>Every authored path, by path number.</summary>
+    internal static readonly BotwoonPathStep[][] Paths =
+    [
+        OpenLeftToBottom,
+        OpenLeftToTop,
+        OpenLeftToRight,
+        OpenLeftBackIntoItself,
+        OpenBottomToLeft,
+        OpenBottomToTop,
+        OpenBottomToRight,
+        OpenBottomBackIntoItself,
+        OpenTopToLeft,
+        OpenTopToBottom,
+        OpenTopToRight,
+        OpenTopBackIntoItself,
+        OpenRightToLeft,
+        OpenRightToBottom,
+        OpenRightToTop,
+        OpenRightBackIntoItself,
+        WallLeftBottom,
+        WallLeftTop,
+        WallLeftRight,
+        WallBottomTop,
+        WallBottomRight,
+        WallTopRight,
     ];
 }

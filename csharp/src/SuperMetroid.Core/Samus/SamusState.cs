@@ -471,10 +471,10 @@ public sealed class SamusState
     /// </summary>
     public SamusPoseId? AnimatedPose { get; internal set; }
 
-    /// <summary>The animation program <see cref="AnimationFrame"/> steps through.</summary>
+    /// <summary>The step of the animated pose's program that Samus's animation frame is on.</summary>
     /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
-    internal SamusAnimationProgram AnimationProgram => SamusAnimationDelays.ProgramForPose(
-        AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."));
+    internal SamusAnimationProgramStep AnimationStep => SamusAnimationDelays.StepFor(
+        AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame);
 
     /// <summary>
     /// Operand published by animation command $F8 through the native “super-special

@@ -14,8 +14,7 @@ internal readonly record struct DraygonIntroMovement(
     /// <summary>The step that ends an Evir's dance by deleting it.</summary>
     internal static DraygonIntroMovement Delete => new(Offset16<RoomPixels>.Zero, DeletesSprite: true);
 
-    /// <summary>A step that moves the Evir <paramref name="x"/> pixels right and <paramref name="y"/> pixels down.</summary>
-    /// <param name="x">The rightward movement, negative to move left.</param>
-    /// <param name="y">The downward movement, negative to move up.</param>
-    internal static DraygonIntroMovement Move(short x, short y) => new(new(x, y), DeletesSprite: false);
+    /// <summary>A step that moves the Evir by <paramref name="delta"/>: right and down are positive.</summary>
+    /// <param name="delta">The room-pixel movement the step makes.</param>
+    internal static DraygonIntroMovement Move(Offset16<RoomPixels> delta) => new(delta, DeletesSprite: false);
 }

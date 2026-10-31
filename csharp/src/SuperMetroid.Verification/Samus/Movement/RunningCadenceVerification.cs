@@ -21,15 +21,8 @@ internal static class RunningCadenceVerification
     {
         IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         AssertSequenceEqual(SamusRunningCadenceCodec.OrdinaryDelays(cartridge), SamusRunningCadenceDefinitions.OrdinaryDelays, "ordinary running delays");
-        IReadOnlyList<int>[] stages =
-        [
-            SamusRunningCadenceDefinitions.BoostStage0Delays,
-            SamusRunningCadenceDefinitions.BoostStage1Delays,
-            SamusRunningCadenceDefinitions.BoostStage2Delays,
-            SamusRunningCadenceDefinitions.BoostStage3Delays,
-            SamusRunningCadenceDefinitions.BoostStage4Delays,
-        ];
-        for (int stage = 0; stage < stages.Length; stage++)
+        IReadOnlyList<IReadOnlyList<int>> stages = SamusRunningCadenceDefinitions.BoostStageDelays;
+        for (int stage = 0; stage < stages.Count; stage++)
             AssertSequenceEqual(SamusRunningCadenceCodec.BoostDelays(cartridge, stage), stages[stage], $"boost stage {stage} delays");
         for (int selection = 0; selection <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; selection++)
             AssertEqual(SamusRunningCadenceCodec.CountdownAfterAdvance(cartridge, selection), SamusRunningCadences.CountdownAfterAdvance(selection),
@@ -74,8 +67,9 @@ internal static class RunningCadenceVerification
             bool sound = intercept && (next & 0x0400) == 0 && ((next + 0x0100) & 0x0400) != 0;
             if (intercept && (next & 0x0400) == 0) next = unchecked((ushort)(next + 0x0100));
             int selection = sound ? SamusRunningCadenceCodec.UnauthoredSelection : LittleEndianBytes.HighByte(next);
-            int firstDelay = selection == SamusRunningCadenceCodec.UnauthoredSelection
-                ? ResidueDelay
+            // Only an intercepted advance starts a cadence; without one the timer is cleared and no stream is read.
+            int firstDelay = !intercept ? 0
+                : selection == SamusRunningCadenceCodec.UnauthoredSelection ? ResidueDelay
                 : SamusRunningCadenceCodec.BoostDelays(cartridge, selection)[0];
             ushort expectedTimer = intercept ? unchecked((ushort)(raw + firstDelay)) : (ushort)0;
             if (intercept)

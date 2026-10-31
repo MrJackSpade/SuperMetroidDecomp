@@ -29,16 +29,16 @@ internal static class SamusAnimationDelayDefinitionsVerification
                 for (; nextFrame < run.FirstFrame; nextFrame++)
                 {
                     int gap = nextFrame;
-                    AssertThrows<InvalidDataException>(() => actual.StepAt(gap), $"pose {pose} frame {gap} is no step");
+                    AssertTrue(actual.TryStepAt(gap) is null, $"pose {pose} frame {gap} is no step");
                 }
                 for (int index = 0; index < run.Delays.Count; index++, nextFrame++)
-                    AssertEqual<SamusAnimationProgramStep>(new SamusAnimationDelay(run.Delays[index]), actual.StepAt(nextFrame),
+                    AssertEqual<SamusAnimationProgramStep?>(new SamusAnimationDelay(run.Delays[index]), actual.TryStepAt(nextFrame),
                         $"pose {pose} frame {nextFrame} delay");
-                AssertEqual<SamusAnimationProgramStep>(run.End, actual.StepAt(nextFrame), $"pose {pose} frame {nextFrame} instruction");
+                AssertEqual<SamusAnimationProgramStep?>(run.End, actual.TryStepAt(nextFrame), $"pose {pose} frame {nextFrame} instruction");
                 nextFrame++;
             }
             int past = nextFrame;
-            AssertThrows<InvalidDataException>(() => actual.StepAt(past), $"pose {pose} has no step past its program");
+            AssertTrue(actual.TryStepAt(past) is null, $"pose {pose} has no step past its program");
         }
 
         // The three numbers past the pose records name no program: no gameplay path gives Samus one of them.

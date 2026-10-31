@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using static SuperMetroid.Core.Samus.Movement.SamusRunningCadenceDefinitions;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -43,15 +42,21 @@ internal static class SamusRunningCadences
     /// <param name="residue">The session's floor update residue, which the unauthored cadence reads.</param>
     /// <param name="cadence">The cadence the run animates by.</param>
     /// <param name="frame">The running frame, zero through nine.</param>
-    internal static int Delay(IFloorUpdateResidue? residue, SamusRunningCadence cadence, int frame) => cadence switch
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not one of the ten running frames.</exception>
+    internal static int Delay(IFloorUpdateResidue? residue, SamusRunningCadence cadence, int frame)
     {
-        SamusRunningCadence.Ordinary => OrdinaryDelays[frame],
-        SamusRunningCadence.BoostStage0 => BoostStage0Delays[frame],
-        SamusRunningCadence.BoostStage1 => BoostStage1Delays[frame],
-        SamusRunningCadence.BoostStage2 => BoostStage2Delays[frame],
-        SamusRunningCadence.BoostStage3 => BoostStage3Delays[frame],
-        SamusRunningCadence.BoostStage4 => BoostStage4Delays[frame],
-        SamusRunningCadence.UnauthoredBoost => UnauthoredBoostCadence.Delay(residue, frame),
-        _ => throw new InvalidOperationException($"Undefined {nameof(SamusRunningCadence)} {cadence}."),
-    };
+        if ((uint)frame >= (uint)OrdinaryDelays.Count)
+            throw new ArgumentOutOfRangeException(nameof(frame), frame, "A run has ten frames.");
+        return cadence switch
+        {
+            SamusRunningCadence.Ordinary => OrdinaryDelays[frame],
+            SamusRunningCadence.BoostStage0 => BoostStageDelays[0][frame],
+            SamusRunningCadence.BoostStage1 => BoostStageDelays[1][frame],
+            SamusRunningCadence.BoostStage2 => BoostStageDelays[2][frame],
+            SamusRunningCadence.BoostStage3 => BoostStageDelays[3][frame],
+            SamusRunningCadence.BoostStage4 => BoostStageDelays[4][frame],
+            SamusRunningCadence.UnauthoredBoost => UnauthoredBoostCadence.Delay(residue, frame),
+            _ => throw new InvalidOperationException($"Undefined {nameof(SamusRunningCadence)} {cadence}."),
+        };
+    }
 }

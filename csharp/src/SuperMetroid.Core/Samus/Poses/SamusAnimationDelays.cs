@@ -9,7 +9,46 @@ internal static class SamusAnimationDelays
     /// <exception cref="ArgumentOutOfRangeException">
     /// The pose is one of the three numbers past the pose records, which no gameplay path gives Samus.
     /// </exception>
-    internal static SamusAnimationProgram ProgramForPose(SamusPoseId pose)
+    internal static SamusAnimationProgram ProgramForPose(SamusPoseId pose) => ProgramOf(pose);
+
+    /// <summary>The step of <paramref name="pose"/>'s program at frame <paramref name="frame"/>.</summary>
+    /// <exception cref="InvalidDataException">No step of the pose's program is numbered <paramref name="frame"/>.</exception>
+    /// <remarks>
+    /// A frame past the program's end reads the program laid out after it through <see cref="Continuation"/>; frame
+    /// targets that program names are shifted back to this pose's frames.
+    /// </remarks>
+    internal static SamusAnimationProgramStep StepFor(SamusPoseId pose, int frame)
+    {
+        SamusAnimationProgram program = ProgramOf(pose);
+        int readFrame = frame;
+        int shift = 0;
+        SamusAnimationProgramStep? step = program.TryStepAt(readFrame);
+        while (step is null)
+        {
+            if (readFrame < program.FrameCount)
+                throw new InvalidDataException($"Samus animation frame {frame} is not a step of pose {pose}'s program.");
+            LaidOutProgramContinuation<SamusAnimationProgram>.Read read = Continuation.ReadPast(program, readFrame)
+                ?? throw new InvalidDataException($"Samus animation frame {frame} of pose {pose} reads past every program.");
+            program = read.Program;
+            readFrame = read.Frame;
+            shift += read.Shift;
+            step = program.TryStepAt(readFrame);
+        }
+        return shift == 0 ? step : step switch
+        {
+            SamusAnimationRepeat repeat => new SamusAnimationRepeat(repeat.Frame + shift),
+            SamusAnimationWallJumpSelect select => new SamusAnimationWallJumpSelect(
+                select.OrdinaryFrame + shift, select.SpaceJumpFrame + shift, select.ScrewAttackFrame + shift),
+            _ => step,
+        };
+    }
+
+    /// <summary>What a frame past a program's end reads.</summary>
+    private static readonly LaidOutProgramContinuation<SamusAnimationProgram> Continuation =
+        new(SamusAnimationLayoutDefinitions.LaidOut);
+
+    /// <summary>The animation program of <paramref name="pose"/>.</summary>
+    private static SamusAnimationProgram ProgramOf(SamusPoseId pose)
     {
         return pose switch
         {

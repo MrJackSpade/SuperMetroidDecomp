@@ -51,7 +51,6 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Verification.Enemies;

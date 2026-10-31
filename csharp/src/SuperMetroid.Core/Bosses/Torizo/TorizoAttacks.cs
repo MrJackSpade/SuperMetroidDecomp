@@ -291,7 +291,7 @@ internal sealed class TorizoAttacks
     }
 
     /// <summary>Places a body-break explosion at the gut or face for Torizo's facing and records its impact coordinates.</summary>
-    internal void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, int site)
+    internal void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, BombTorizoExplosionSite site)
     {
         Offset16<RoomPixels> placement =
             BombTorizoAttacks.LowHealthExplosion(

@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Fx;

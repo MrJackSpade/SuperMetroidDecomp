@@ -15,7 +15,7 @@ internal static class TorizoEncounterPrograms
         [
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Idle)),
             Cue(new TorizoCue.Command(K.LockAnimation)),
-            Cue(new TorizoCue.ParameterizedSpawn(TorizoParameterizedSpawnKind.SpawnLowHealthExplosions, Parameter: 0)),
+            Cue(new TorizoCue.LowHealthExplosions(BombTorizoExplosionSite.Gut)),
             Wait(40),
             Cue(new TorizoCue.Command(K.BlowUpGut)),
             ShowArtwork(0),
@@ -31,7 +31,7 @@ internal static class TorizoEncounterPrograms
         [
             Cue(new TorizoCue.SetFunction(Function: TorizoFunction.Idle)),
             Cue(new TorizoCue.Command(K.LockAnimation)),
-            Cue(new TorizoCue.ParameterizedSpawn(TorizoParameterizedSpawnKind.SpawnLowHealthExplosions, Parameter: 1)),
+            Cue(new TorizoCue.LowHealthExplosions(BombTorizoExplosionSite.Face)),
             Wait(40),
             Cue(new TorizoCue.Command(K.MarkFaceBlownUp)),
             ShowArtwork(4),

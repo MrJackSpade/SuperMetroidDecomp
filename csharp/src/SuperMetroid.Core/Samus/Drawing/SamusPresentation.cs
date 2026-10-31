@@ -90,7 +90,7 @@ internal sealed class SamusPresentation
         // Gravity Suit takes the ordinary speed-divisor path.
         samus.AnimationFrameBuffer = samus.LiquidPhysics.DeterminePoseChangeAnimationBuffer(samus);
         samus.AnimatedPose = samus.Pose;
-        if (samus.AnimationProgram.StepAt(samus.AnimationFrame) is not SamusAnimationDelay initialDelay)
+        if (samus.AnimationStep is not SamusAnimationDelay initialDelay)
         {
             throw new InvalidOperationException(
                 $"Samus pose {samus.Pose} cannot start its animation on frame {samus.AnimationFrame}, which is not a delay.");
@@ -233,7 +233,7 @@ internal sealed class SamusPresentation
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<SoundQueueAdmission>? queueEchoSound = null)
     {
-        SamusAnimationProgramStep step = samus.AnimationProgram.StepAt(samus.AnimationFrame);
+        SamusAnimationProgramStep step = samus.AnimationStep;
         if (step is SamusAnimationDelay delay)
         {
             // While running with momentum the run's cadence, not the pose's own delays, times each frame. Releasing
@@ -345,11 +345,15 @@ internal sealed class SamusPresentation
                 samus.AnimationFrame = repeat.Frame;
                 break;
 
+            case SamusAnimationRestart:
+                samus.AnimationFrame = 0;
+                break;
+
             default:
                 throw new InvalidOperationException($"Samus animation step {step} has no handler.");
         }
 
-        if (samus.AnimationProgram.StepAt(samus.AnimationFrame) is not SamusAnimationDelay selected)
+        if (samus.AnimationStep is not SamusAnimationDelay selected)
         {
             throw new InvalidDataException(
                 $"Samus animation instruction {step} selected frame {samus.AnimationFrame}, which is not a delay.");

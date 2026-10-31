@@ -58,13 +58,13 @@ internal static class SamusRunningCadenceCodec
     internal static int UnauthoredFirstResidueByte(IImportCartridgeSource cartridge)
     {
         int position = cartridge.ReadCartridgeWord(BoostStreamWords + UnauthoredSelection * sizeof(ushort));
-        if (position >= CartridgeWindowStart || position < ResidueWindowStart)
+        if (position is >= CartridgeWindowStart or < ResidueWindowStart)
             throw new InvalidDataException($"The unauthored stage's stream word ${position:X4} does not name the floor update residue.");
         return position - ResidueWindowStart;
     }
 
     /// <summary>The ten delays of the stream at bank-$91 window position <paramref name="position"/>, checking its closing loop byte.</summary>
-    private static IReadOnlyList<int> Stream(IImportCartridgeSource cartridge, int position)
+    private static int[] Stream(IImportCartridgeSource cartridge, int position)
     {
         var delays = new int[FrameCount];
         for (int frame = 0; frame < FrameCount; frame++)

@@ -31,10 +31,9 @@ internal sealed class SamusAnimationProgram
         }
     }
 
-    /// <summary>The step at frame <paramref name="frame"/>.</summary>
-    /// <exception cref="InvalidDataException">No step of the program is numbered <paramref name="frame"/>.</exception>
-    internal SamusAnimationProgramStep StepAt(int frame) =>
-        (uint)frame < (uint)steps.Length && steps[frame] is { } step
-            ? step
-            : throw new InvalidDataException($"Samus animation frame {frame} is not a step of the pose's program.");
+    /// <summary>How many frame numbers the program spans, its last step's included.</summary>
+    internal int FrameCount => steps.Length;
+
+    /// <summary>The step at frame <paramref name="frame"/>, or null when no step of the program has that number.</summary>
+    internal SamusAnimationProgramStep? TryStepAt(int frame) => (uint)frame < (uint)steps.Length ? steps[frame] : null;
 }

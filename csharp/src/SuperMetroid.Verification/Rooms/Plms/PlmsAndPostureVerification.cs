@@ -208,11 +208,11 @@ internal static void VerifySamusPostureMovement()
     SamusPoseId[] aimedStandTargets = [SamusPoseId.StandingAimUpRightPose, SamusPoseId.StandingAimUpLeftPose, SamusPoseId.StandingAimDiagonalUpRightPose, SamusPoseId.StandingAimDiagonalUpLeftPose, SamusPoseId.StandingAimDiagonalDownRightPose, SamusPoseId.StandingAimDiagonalDownLeftPose];
     for (int index = 0; index < 6; index++)
     {
-        AssertEqual<SamusAnimationProgramStep>(new SamusAnimationDelay(3),
-            SamusAnimationDelays.ProgramForPose(aimedCrouchTransitions[index]).StepAt(0),
+        AssertEqual<SamusAnimationProgramStep?>(new SamusAnimationDelay(3),
+            SamusAnimationDelays.ProgramForPose(aimedCrouchTransitions[index]).TryStepAt(0),
             "aimed crouch starts with native three-tick delay");
-        AssertEqual<SamusAnimationProgramStep>(new SamusAnimationDelay(3),
-            SamusAnimationDelays.ProgramForPose(aimedStandTransitions[index]).StepAt(0),
+        AssertEqual<SamusAnimationProgramStep?>(new SamusAnimationDelay(3),
+            SamusAnimationDelays.ProgramForPose(aimedStandTransitions[index]).TryStepAt(0),
             "aimed stand starts with native three-tick delay");
     }
     // These poses already have compiled retail delay streams; no synthetic

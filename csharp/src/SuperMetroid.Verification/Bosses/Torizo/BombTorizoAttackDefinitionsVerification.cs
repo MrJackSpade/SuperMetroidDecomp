@@ -30,10 +30,10 @@ internal static class BombTorizoAttackDefinitionsVerification
         }
 
         // The cartridge's explosion rows: for each site an unused centred row, then the right- and left-facing rows.
-        foreach (int site in new[] { BombTorizoAttacks.GutSite, BombTorizoAttacks.FaceSite })
+        foreach (BombTorizoExplosionSite site in Enum.GetValues<BombTorizoExplosionSite>())
         foreach (bool facingRight in new[] { true, false })
         {
-            int row = site * 3 + (facingRight ? 1 : 2);
+            int row = (site == BombTorizoExplosionSite.Gut ? 0 : 3) + (facingRight ? 1 : 2);
             Offset16<RoomPixels> definition = BombTorizoAttacks.LowHealthExplosion(site, facingRight);
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((explosionXAddress + row * 2))),
                 definition.X,
@@ -73,7 +73,7 @@ internal static class BombTorizoAttackDefinitionsVerification
 
         foreach (bool facingRight in new[] { false, true })
         {
-            foreach (int parameter in new[] { BombTorizoAttacks.GutSite, BombTorizoAttacks.FaceSite })
+            foreach (BombTorizoExplosionSite parameter in Enum.GetValues<BombTorizoExplosionSite>())
             {
                 Offset16<RoomPixels> expected =
                     BombTorizoAttacks.LowHealthExplosion(parameter, facingRight);
@@ -94,10 +94,10 @@ internal static class BombTorizoAttackDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => BombTorizoAttacks.LowHealthExplosion(2, facingRight: true),
+            () => BombTorizoAttacks.LowHealthExplosion((BombTorizoExplosionSite)2, facingRight: true),
             "Bomb Torizo explosion site outside the gut and face");
         AssertThrows<InvalidDataException>(
-            () => BombTorizoAttacks.LowHealthExplosion(-1, facingRight: false),
+            () => BombTorizoAttacks.LowHealthExplosion((BombTorizoExplosionSite)(-1), facingRight: false),
             "Bomb Torizo negative explosion site");
 
         Console.WriteLine(

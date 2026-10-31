@@ -171,7 +171,7 @@ internal static class TorizoNativeListAddresses
         [0xc2ed] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.Branch>("", "Branch Link", cue => cue.Kind == TorizoBranchKind.Link), [TorizoOperand.Target]),
         [0xc2f7] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.Return)), []),
         [0xc2fd] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.ResumeInterrupted)), []),
-        [0xc303] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.ParameterizedSpawn>("", "ParameterizedSpawn SpawnLowHealthExplosions", cue => cue.Kind == TorizoParameterizedSpawnKind.SpawnLowHealthExplosions), [TorizoOperand.Value]),
+        [0xc303] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Of<TorizoCue.LowHealthExplosions>(""), [TorizoOperand.Value]),
         [0xc32f] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.SpawnDeathExplosion)), []),
         [0xc34a] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.SpawnLandingDust)), []),
         [0xc35b] = new TorizoNativeListAddressesBodyInstruction(NativeCueShape<TorizoCue>.Exactly(new TorizoCue.Command(TorizoCueKind.SpawnLowHealthDrool)), []),

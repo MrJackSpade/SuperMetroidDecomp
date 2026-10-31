@@ -123,7 +123,7 @@ internal static class SamusAnimationProgramCodec
             0xfc => new SamusAnimationItemTransition(Items(), PoseAt(3), PoseAt(4)),
             0xfd => new SamusAnimationTransition(PoseAt(1)),
             0xfe => new SamusAnimationRepeat(frame - Byte(cartridge, position + 1)),
-            0xff => new SamusAnimationRepeat(0),
+            0xff => new SamusAnimationRestart(),
             _ => throw new InvalidDataException($"Animation byte ${value:X2} at $91:{position:X4} is no instruction a retail program holds."),
         };
     }

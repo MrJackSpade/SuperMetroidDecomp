@@ -143,7 +143,7 @@ internal static class TorizoAnimationsVerification
                                 // A swipe's operand is its placement's byte offset; a low-health explosion's selects
                                 // the gut's or the face's rows, six bytes apart.
                                 TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnExplosiveSwipe } swipe => swipe.Parameter * sizeof(ushort),
-                                TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnLowHealthExplosions } explosion => explosion.Parameter * 6,
+                                TorizoCue.LowHealthExplosions explosions => (explosions.Site == BombTorizoExplosionSite.Gut ? 0 : 1) * 6,
                                 TorizoCue.ParameterizedSpawn spawn => spawn.Parameter,
                                 _ => throw new InvalidOperationException($"{at}: {cue} carries no value."),
                             })),
@@ -164,7 +164,7 @@ internal static class TorizoAnimationsVerification
                     // Two callbacks sleep after they run; every other callback runs straight on.
                     int? sleep = cue switch
                     {
-                        TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnLowHealthExplosions } => LowHealthExplosionSleep,
+                        TorizoCue.LowHealthExplosions => LowHealthExplosionSleep,
                         TorizoCue.Command { Kind: TorizoCueKind.SpawnDeathExplosion } => DeathExplosionSleep,
                         _ => null,
                     };

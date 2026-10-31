@@ -14,20 +14,17 @@ internal static class SamusRunningCadenceDefinitions
     /// <summary>The delay, in ticks, of each frame of ordinary running.</summary>
     internal static IReadOnlyList<int> OrdinaryDelays { get; } = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
 
-    /// <summary>The delay, in ticks, of each frame of boost stage zero.</summary>
-    internal static IReadOnlyList<int> BoostStage0Delays { get; } = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3];
-
-    /// <summary>The delay, in ticks, of each frame of boost stage one.</summary>
-    internal static IReadOnlyList<int> BoostStage1Delays { get; } = [2, 3, 2, 3, 2, 3, 2, 3, 2, 3];
-
-    /// <summary>The delay, in ticks, of each frame of boost stage two.</summary>
-    internal static IReadOnlyList<int> BoostStage2Delays { get; } = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
-
-    /// <summary>The delay, in ticks, of each frame of boost stage three.</summary>
-    internal static IReadOnlyList<int> BoostStage3Delays { get; } = [1, 2, 1, 2, 1, 2, 1, 2, 1, 2];
-
-    /// <summary>The delay, in ticks, of each frame of boost stage four.</summary>
-    internal static IReadOnlyList<int> BoostStage4Delays { get; } = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+    /// <summary>
+    /// The delay, in ticks, of each frame of each authored boost stage; the index is the boost stage, zero through four.
+    /// </summary>
+    internal static IReadOnlyList<IReadOnlyList<int>> BoostStageDelays { get; } =
+    [
+        [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+        [2, 3, 2, 3, 2, 3, 2, 3, 2, 3],
+        [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        [1, 2, 1, 2, 1, 2, 1, 2, 1, 2],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    ];
 
     /// <summary>
     /// The cadence countdown the boost restarts with after advancing onto each authored stage: stages zero through

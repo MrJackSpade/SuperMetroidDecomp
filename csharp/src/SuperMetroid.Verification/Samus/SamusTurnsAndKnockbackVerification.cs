@@ -12,7 +12,6 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Verification.Samus;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Audio;
 
 /// <summary>Constructed pose-stream checks for aerial turns, wall jumps, hurt movement, and damage boosts.</summary>

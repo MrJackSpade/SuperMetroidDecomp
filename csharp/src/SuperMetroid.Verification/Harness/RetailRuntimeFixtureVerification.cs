@@ -31,7 +31,7 @@ internal static class RetailRuntimeFixtureVerification
         bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None,
         bool preventEscapeTimeout = false,
-        SuperMetroid.Core.Progression.SharedRandom? random = null) =>
+        SuperMetroid.Core.Compatibility.SharedRandom? random = null) =>
         RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled,
             infiniteAmmoEnabled, mapRevealMode, preventEscapeTimeout, random);
 

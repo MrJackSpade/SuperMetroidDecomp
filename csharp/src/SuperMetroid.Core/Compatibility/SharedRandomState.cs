@@ -1,11 +1,18 @@
-namespace SuperMetroid.Core.Progression;
+namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
-/// The cartridge's shared random state (WRAM <c>$05E5</c>): one sixteen-bit value every random consumer draws from.
-/// Advancing it and exchanging its two bytes are its only operations; a sample is the state read as an int, and the
-/// game often draws two independent random bytes from one sample, one per axis or choice.
+/// The value of the game's shared random sequence: one sixteen-bit value every random consumer draws from. Advancing it
+/// and exchanging its two bytes are its only operations; a sample is the state read as an int, and the game often draws
+/// two independent random bytes from one sample, one per axis or choice. Which value each consumer draws is
+/// gameplay-observable, so the advance is the original's exactly.
 /// </summary>
+/// <remarks>
+/// Held by the session's <see cref="SharedRandom"/>, which advances it whenever a consumer draws. Evidence: the original's
+/// random routine (<c>$80:8111</c>) and the SMV replays, which compare the random value on every update (the Ridley
+/// full-movie check across door transitions).
+/// </remarks>
 [EncodingOwner("shared random state and the two random bytes of a sample")]
+[CompatibilityService("the shared random sequence's value: its advance and its byte exchange, exactly as the original computed them")]
 public readonly record struct SharedRandomState
 {
     /// <summary>The bits of the lower random byte, below the upper one.</summary>

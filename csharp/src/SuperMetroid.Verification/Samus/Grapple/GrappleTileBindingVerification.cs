@@ -9,7 +9,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

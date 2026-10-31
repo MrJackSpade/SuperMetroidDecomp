@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 
 /// <summary>
 /// The layer-one position the frontend holds while no room runtime exists. The frame counters live on the session's
-/// <see cref="Gameplay.FrameClock"/>, which every runtime shares.
+/// <see cref="FrameClock"/>, which every runtime shares.
 /// </summary>
 internal sealed class MenuLayer1Retention
 {

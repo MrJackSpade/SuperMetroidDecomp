@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Rooms.SpriteObjects;

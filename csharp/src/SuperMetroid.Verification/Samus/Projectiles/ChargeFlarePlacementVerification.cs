@@ -26,7 +26,6 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
 
 /// <summary>Checks editable charge-flare offsets against native OAM placement and the production rendering paths.</summary>

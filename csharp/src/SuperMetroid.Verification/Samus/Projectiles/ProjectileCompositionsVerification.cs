@@ -26,7 +26,6 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
 
 /// <summary>Checks imported projectile OAM against native records, production draw owners, and installed edits.</summary>

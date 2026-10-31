@@ -700,7 +700,8 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(Room, Presentation, ElevatorBehavior);
-        BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision);
+        BeetomBehavior = new BeetomBehavior(Room, Terrain, Audio, FrameContext, Collision,
+            new SlotInheritance<BeetomEnemyState>(EnemySlotOrder.Capacity));
         AtomicBehavior = new AtomicBehavior();
         AlcoonBehavior = new AlcoonBehavior(Room, Terrain, Projectiles);
         // Every species with room or frame lifecycle state, in the cartridge reset order.

@@ -30,15 +30,19 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Handles common contact before Beetom's attachment behavior.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Hands each new Beetom the previous Beetom in its slot, whose facing it inherits.</summary>
+    private readonly SlotInheritance<BeetomEnemyState> _inheritance;
 
-    /// <summary>Binds room, terrain, audio, and collision services for Beetom AI.</summary>
-    internal BeetomBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio, EnemyFrameContext frameContext, EnemyCollision collision)
+    /// <summary>Binds room, terrain, audio, collision and slot-inheritance services for Beetom AI.</summary>
+    internal BeetomBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio, EnemyFrameContext frameContext,
+        EnemyCollision collision, SlotInheritance<BeetomEnemyState> inheritance)
     {
         _room = room;
         _terrain = terrain;
         _audio = audio;
         _frameContext = frameContext;
         _collision = collision;
+        _inheritance = inheritance;
     }
 
     /// <summary>Carries out one cue of the Beetom's animations: off-screen processing, or the drain's no-op stub.</summary>
@@ -67,20 +71,13 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Input changes required to dislodge an attached draining Beetom.</summary>
     private const ushort BeetomMashCount = 64;
 
-    /// <summary>The words each physical slot keeps across Beetom occupants for the current room.</summary>
-    private readonly BeetomExtensionWords[] _extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static BeetomExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new BeetomExtensionWords())];
-
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, ControllerButton controllerInput)
     {
         if (samus is null)
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
 
-        var state = new BeetomEnemyState(_extensions[slot.SlotIndex]);
+        BeetomEnemyState state = _inheritance.Inherit(slot.SlotIndex, static previous => new BeetomEnemyState(previous));
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.FunctionTimer = WrappingCountdown.Start(0);
@@ -499,7 +496,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             state.AttachedToSamus = true;
             state.ButtonCounter = WrappingCountdown.Start(BeetomMashCount);
             slot.Layer = 2;
-            state.InitialAttachmentOffset = samus.Position.Whole - slot.Position.Whole;
         }
 
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)

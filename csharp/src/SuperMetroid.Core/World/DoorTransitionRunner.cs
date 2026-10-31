@@ -24,15 +24,15 @@ internal sealed class DoorTransitionRunner
     private readonly GameplayActorDrawing _actorDrawing;
     /// <summary>Provides scroll state to the enemy projectile pass.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
-    /// <summary>Holds active and NMI-published display transforms across transitions.</summary>
+    /// <summary>Holds the active and the shown display transforms across transitions.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Runs the enemy main phase while Samus gameplay is suspended.</summary>
     private readonly EnemyFramePhase _enemyPhase;
-    /// <summary>Advances the per-line effects during the main-loop door prologue.</summary>
+    /// <summary>Advances the per-line effects at the start of a door update.</summary>
     private readonly PerLineEffectPhase _perLineEffects;
-    /// <summary>Provides native frame counters to enemy projectile processing.</summary>
+    /// <summary>Provides the frame counters to enemy projectile processing.</summary>
     private readonly FrameClock _clock;
-    /// <summary>Runs NMI on each sound-wait dispatch before the door state handler.</summary>
+    /// <summary>Shows the previous frame and latches input at the start of each sound-wait update, before the door's step.</summary>
     private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
@@ -43,7 +43,7 @@ internal sealed class DoorTransitionRunner
     /// <summary>Provides boss bits and advances main-loop random state.</summary>
     private readonly SharedGameState _system;
 
-    /// <summary>Captures the runtime services used by native-order door setup and wait dispatch.</summary>
+    /// <summary>Captures the runtime services used by the door's setup programs and its wait updates.</summary>
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)
     {
         _actorDrawing = dependencies.ActorDrawing;
@@ -96,13 +96,11 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorSetupCode.DoorASM_FromCeresElevatorShaft:
-                // `$8F:E513` is the paired exit routine for `$8F:E4E0`. Native writes
-                // fake BGMODE `$09` (Mode 1 with BG3 priority) and clears `$0783`, the
-                // Mode-7 IRQ/transfer flag. The software renderer represents those two
-                // words by selecting its ordinary room compositor and removing both the
-                // main-loop and NMI-published transforms. Do this explicitly here rather
+                // The paired exit program of the Ceres elevator shaft's entry: it returns
+                // the screen from the turning floor to the ordinary room display, removing
+                // both the active and the shown transforms. Do this explicitly here rather
                 // than relying on the destination loader's defensive state reset: this is
-                // the cartridge routine that owns the transition back to normal rendering.
+                // the door program that owns the transition back to the ordinary display.
                 _display.ActiveTurningFloor = null;
                 _display.PublishDoorElevatorFloor(null);
                 ceresElevatorShaft.Deactivate();
@@ -256,22 +254,22 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>
-    /// The NMI and MainGameLoop HDMA/RNG prologue of a door dispatch. Both state-$09 entry
-    /// and each $E29E sound-drain dispatch return to MainGameLoop, whose prologue still
-    /// runs while Samus is locked. On the entry frame it precedes the state handler, so
-    /// its room-FX sound requests are queued before the door's cancels and DisableSounds.
+    /// The opening of a door's sound-wait update: the frame boundary, then the per-line effects and the random draw.
+    /// The door's first update and each sound-wait update open this way while Samus is locked. On the first update it
+    /// precedes the door's own step, so its room-FX sound requests are queued before the door cancels and disables
+    /// sounds.
     /// </summary>
     public void RunDoorSoundWaitPrologue(ControllerButton controllerInput, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         plms.Sounds.BindPowerBombAudio(bombProjectiles.PowerBombExplosion.Activity);
         _frameBoundary.BeginAcceptedFrame(controllerInput);
-        AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, plms, room);
+        AdvanceEffectsAndRandom(plms, room);
     }
 
-    /// <summary>Native enemy/instruction and draw pass shared by source-door waits and fading.</summary>
+    /// <summary>The enemy and draw pass shared by the source door's waits and the fades.</summary>
     /// <param name="enemyProjectiles">
-    /// True for the destination fade-in ($82:E743); the source waits ($E29E/$E2DB) run
-    /// enemies and drawing without Enemy_Projectile_Handler.
+    /// Run for the destination fade-in; the source waits run enemies and drawing without
+    /// the enemy projectiles.
     /// </param>
     /// <param name="room">The loaded room.</param>
     internal void DrawDoorTransitionActors(DoorTransitionEnemyProjectiles enemyProjectiles, RoomScope room)
@@ -293,22 +291,25 @@ internal sealed class DoorTransitionRunner
         _sprites.FinalizeFrame();
     }
     /// <summary>
-    /// <c>Enemy_Projectile_Handler</c> ($86:8104). State eight calls it unconditionally and it
-    /// checks only the enable bit X-ray clears, so its instructions keep running while time
-    /// is frozen for a reserve refill.
+    /// Runs the enemy projectiles. Gameplay runs them every update, checking only the
+    /// suspension X-ray applies, so their instructions keep running while time is frozen for
+    /// a reserve refill.
     /// </summary>
     internal void RunEnemyProjectileHandler(SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true || _room.LevelData is null || _room.Camera is null)
             return;
         room.Enemies.StepEnemyProjectileInstructions(
-            _room.LevelData, _player.Samus, _room.Camera.PixelPosition,             _clock.Counter8, bombProjectiles, _backgroundScroll, _clock.Counter);
+            _room.LevelData, _player.Samus, _room.Camera.PixelPosition, _clock.ShortCounter, bombProjectiles, _backgroundScroll, _clock.Counter);
     }
 
-    /// <summary>The per-line effect and random-number prologue of an outer dispatch without a gameplay frame.</summary>
-    internal void AdvanceNonGameplayMainLoopRandom(PerLineEffectProcessing perLineEffects, RoomPlmSystem plms, RoomScope room)
+    /// <summary>
+    /// The opening of an update without gameplay: the per-line effects, unless a door transition has stopped them
+    /// (<see cref="EffectPhaseRandomOrder"/>), then the update's random draw.
+    /// </summary>
+    internal void AdvanceEffectsAndRandom(RoomPlmSystem plms, RoomScope room)
     {
-        if (perLineEffects == PerLineEffectProcessing.Run)
+        if (_perLineEffects.RunsThisUpdate)
         {
             _perLineEffects.Advance(plms, room);
             if (_player.Samus is not null && room.Layer3Fx.MovesLiquidBeforeMainLoop)

@@ -30,15 +30,26 @@ namespace SuperMetroid.Core.Runtime;
 /// Incremental, frame-steppable C# runtime shell for translated Super Metroid systems.
 /// </summary>
 /// <remarks>
-/// This is not yet the complete game loop. It establishes the real synchronization seam:
-/// an accepted NMI drains video work and latches input, advances NMI counters, and then the
-/// currently translated main-thread logic runs. Future bank ports can be added to the logic
-/// phase without changing every tool or viewer that wants to step one frame.
+/// Each update begins at the frame boundary, which shows the previous update's frame, latches
+/// input and advances the frame counters; the update's gameplay then runs. Tools and viewers
+/// step one update at a time through the same boundary.
 /// </remarks>
 internal sealed class SuperMetroidRuntime
 {
-    /// <summary>The per-line effect phase each frame runs before its random number is drawn.</summary>
+    /// <summary>The per-line effect phase each update runs before its random number is drawn.</summary>
     internal PerLineEffectPhase PerLineEffects { get; }
+
+    /// <summary>
+    /// Where the per-line effect work falls among the random draws; created with the runtime, whose door transitions stop
+    /// and resume it.
+    /// </summary>
+    internal EffectPhaseRandomOrder EffectPhaseOrder { get; } = new();
+
+    /// <summary>
+    /// How a door transition's scroll counts frames on the short frame counter; created with the runtime, whose room
+    /// loader starts and ends it.
+    /// </summary>
+    internal DoorTransitionFrameCounting DoorFrameCounting { get; } = new();
 
     /// <summary>The <see cref="GameplayTimeFreeze"/> owner of this SuperMetroidRuntime.</summary>
     internal GameplayTimeFreeze Freeze { get; }
@@ -142,7 +153,7 @@ internal sealed class SuperMetroidRuntime
     /// are handed to the owners that consult them, and <see cref="BindArtwork"/> binds the rest.
     /// </param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
-    /// <param name="floorQueueResidue">The session's floor update residue, which outlives each runtime as WRAM does.</param>
+    /// <param name="floorQueueResidue">The session's floor update residue, which outlives each runtime.</param>
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
     /// <param name="earthquakeSoundDelay">The frame the save file found at power-on adds to every earthquake rumble's delay.</param>
     internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
@@ -178,11 +189,11 @@ internal sealed class SuperMetroidRuntime
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, Display = Display, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room, SpeedBoosterOverrunColours = SamusOverreads.SpeedBoosterColours });
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Colours = Colours, Display = Display, EscapeTimer = EscapeTimer, Player = Player, Room = Room, System = System});
         EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, Controller1 = Controller1, Display = Display, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, Clock = Clock, Sprites = Sprites, Player = Player, Room = Room});
-        PerLineEffects = new PerLineEffectPhase(Freeze, System);
+        PerLineEffects = new PerLineEffectPhase(Freeze, System, EffectPhaseOrder);
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, Display = Display, EnemyPhase = EnemyPhase, PerLineEffects = PerLineEffects, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, System = System});
         EscapeEffects = new EscapeRoomEffects(Freeze, Clock, Room, System);
         ShotBlockVisuals = new PlmShotBlockVisuals();
-        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Colours = Colours, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, SamusOverreads = SamusOverreads });
+        RoomLoader = new RoomLoader(new RoomLoaderDependencies { EnemySession = EnemySession, BossArtwork = BossArtwork, AreaArtwork = AreaArtwork, RoomFx = RoomFx, PaletteFxSession = PaletteFxSession, TourianStatueDependencies = TourianStatueDependencies, ShotBlockVisuals = ShotBlockVisuals, BeamCharge = BeamCharge, Artwork = Artwork, BackgroundScroll = BackgroundScroll, Colours = Colours, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, Clock = Clock, DoorFrameCounting = DoorFrameCounting, Options = Options, Player = Player, Room = Room, System = System, Tester = Tester, SamusOverreads = SamusOverreads });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { EnemySession = EnemySession, Artwork = Artwork, AttractSession = AttractSession, Controller1 = Controller1, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AnimationContinuation = SamusOverreads.AnimationContinuation });
         DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { Artwork = Artwork, Colours = Colours, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room});
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Room = Room, SuitPickup = SuitPickup, System = System });
@@ -201,9 +212,7 @@ internal sealed class SuperMetroidRuntime
             : throw new ArgumentOutOfRangeException(nameof(overrides.MapRevealMode));
 
 
-        // $82:82C5 copies all 512 bytes of kInitialPalette from ROM $9A:8000. The retail
-        // game stages this through WRAM before NMI uploads CGRAM; initializing the modeled
-        // PPU here produces the same starting colors while that fade pipeline is ported.
+        // Gameplay starts from the installed initial palette.
         (Artwork.InitialPaletteArt ?? throw new InvalidOperationException(
             "Gameplay requires the installed initial palette catalog.")).LoadInitial(Colours);
     }
@@ -294,19 +303,18 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Bank-$80 shared random/event/input-filter state, over the session's random-number word.</summary>
     public SharedGameState System { get; }
 
-    /// <summary>Gameplay clock mirrored at WRAM $09DA-$09E1 and in each SRAM slot.</summary>
+    /// <summary>The game time, which each save slot also records.</summary>
     public GameTimeState GameTime { get; } = new();
 
     /// <summary>
-    /// Controller-1 NMI latch from <c>$80:9459</c>, in the default action layout: the configured bindings are
-    /// applied once at the latch, so bank-$90/$91 action checks read the buttons they test natively through the
-    /// binding words at <c>$09B2-$09BE</c>.
+    /// Controller 1 as the frame boundary latched it, in the default action layout: the configured bindings are
+    /// applied once at the latch, so Samus's action checks read the buttons they test through the bindings.
     /// </summary>
     public ControllerInputState Controller1 { get; } = new();
 
     /// <summary>
-    /// The same NMI sample as physical buttons, as WRAM <c>$8B/$8F</c> hold it. Code that tests fixed button bits
-    /// rather than the binding words (the bank-$82 pause menu) reads this latch.
+    /// The same sample as physical buttons. Code that tests fixed buttons rather than the bindings (the pause menu)
+    /// reads this latch.
     /// </summary>
     public ControllerInputState PhysicalController1 { get; } = new();
 
@@ -324,10 +332,10 @@ internal sealed class SuperMetroidRuntime
     }
 
 
-    /// <summary>The HUD's images the last accepted NMI latched (#1351, #1466): the HUD as displayed.</summary>
-    /// <exception cref="InvalidOperationException">No NMI has latched the HUD yet.</exception>
+    /// <summary>The HUD's images the last frame boundary latched (#1351, #1466): the HUD as displayed.</summary>
+    /// <exception cref="InvalidOperationException">No frame boundary has latched the HUD yet.</exception>
     public ShownHud AcceptedHud =>
-        Display.Latched.Hud ?? throw new InvalidOperationException("No accepted NMI has latched the HUD.");
+        Display.Latched.Hud ?? throw new InvalidOperationException("No frame boundary has latched the HUD.");
 
     /// <summary>
     /// Gameplay's colours, initialized from the installed initial palette; the positions Samus holds are her colours
@@ -341,12 +349,12 @@ internal sealed class SuperMetroidRuntime
     /// <summary>The palette-FX handler enable bit and heat phases, which outlive each room's palette FX.</summary>
     public PaletteFxSessionState PaletteFxSession { get; } = new();
 
-    /// <summary>The sprite frame the main loop is building for the next NMI: OAM sprites plus whole-frame draws.</summary>
+    /// <summary>The sprite frame the update is building for the next frame boundary: sprites plus whole-frame draws.</summary>
     public SpriteFrameBuffer Sprites { get; } = new();
 
     /// <summary>
-    /// Sprite frame made visible by the most recent accepted NMI. Renderers use it; debugger watches
-    /// can compare it with <see cref="Sprites"/>, which the current main-loop pass is preparing.
+    /// The sprite frame the most recent frame boundary made visible. Renderers use it; debugger watches
+    /// can compare it with <see cref="Sprites"/>, which the current update is preparing.
     /// </summary>
     public SpriteFrameBuffer DisplayedSprites { get; } = new();
 
@@ -364,8 +372,8 @@ internal sealed class SuperMetroidRuntime
 
 
     /// <summary>
-    /// WRAM GameState ($0998) of the frontend dispatch now running. Samus commands such as
-    /// $90:F4A2 test it from inside the outer frame; runtime-only hosts run state eight.
+    /// The game state of the frontend dispatch now running. Samus commands test it from
+    /// inside the update; runtime-only hosts run main gameplay.
     /// </summary>
     [field: NonSerialized]
     public SuperMetroid.Core.Progression.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay;
@@ -403,9 +411,9 @@ internal sealed class SuperMetroidRuntime
 
 
     /// <summary>
-    /// Shared bank-$85 gameplay message coroutine. A permanent pickup activates this
-    /// owner and subsequent <see cref="StepFrame"/> calls advance accepted NMIs without
-    /// running gameplay until the ROM-authored box has closed.
+    /// The gameplay message box. A permanent pickup opens it, and subsequent
+    /// <see cref="StepFrame"/> calls advance the box's updates without running gameplay
+    /// until the box has closed.
     /// </summary>
     public GameplayMessageBoxState MessageBox { get; } = new();
 
@@ -414,7 +422,7 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public SamusSuitPickupState SuitPickup { get; } = new();
 
-    /// <summary>Mutable gameplay HUD tilemap at WRAM <c>$7E:C608</c>.</summary>
+    /// <summary>The gameplay HUD.</summary>
     public HudState Hud { get; } = new();
 
     /// <summary>
@@ -423,18 +431,18 @@ internal sealed class SuperMetroidRuntime
     /// </summary>
     public BackgroundScrollState BackgroundScroll { get; } = new();
 
-    /// <summary>Runs one accepted NMI and publishes an empty finalized OAM frame without advancing gameplay owners.</summary>
+    /// <summary>Runs one frame boundary and publishes an empty sprite frame without advancing gameplay owners.</summary>
     public void RunBlankGameplayFrame(ControllerButton controllerInput)
     {
         FrameBoundary.BeginAcceptedFrame(controllerInput);
         Sprites.BeginFrame();
         Sprites.FinalizeFrame();
-        RoomLoader.ClearCounter8DuringDoorScroll();
+        RoomLoader.RestartShortCounterDuringDoorScroll();
     }
 
-    /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic, as <paramref name="request"/> asks.</summary>
-    /// <param name="controller1Input">Host-provided raw SNES controller word, normalized through action bindings when the accepted NMI latches player input; attract playback publishes its independent scripted words later.</param>
-    /// <param name="request">The state policy, audio calls and post-NMI host work for this frame.</param>
+    /// <summary>Runs one frame boundary followed by the update's gameplay, as <paramref name="request"/> asks.</summary>
+    /// <param name="controller1Input">The host's controller buttons, normalized through the action bindings when the frame boundary latches player input; attract playback publishes its independent scripted buttons later.</param>
+    /// <param name="request">The state policy, audio calls and the host's work after the frame boundary.</param>
     public RuntimeFrameResult StepFrame(ControllerButton controller1Input, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
@@ -457,7 +465,7 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Advances one accepted NMI and the corresponding gameplay dispatch while the
+    /// Advances one frame boundary and the corresponding gameplay update while the
     /// frame-exit ammo guard remains active through translated callbacks.
     /// </summary>
     private RuntimeFrameResult StepFrameGuarded(
@@ -466,8 +474,8 @@ internal sealed class SuperMetroidRuntime
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
         RebindRoutingReferences();
-        // Bank $85's message routine runs on lag frames inside the suspended dispatch: the
-        // NMI accepts no input and the main loop neither calls the RNG nor any owner.
+        // An open message box runs its own updates inside the suspended gameplay update:
+        // the frame boundary latches no input and no random number is drawn nor owner run.
         if (MessageBox.IsActive)
             return StepMessageBoxFrame(controller1Input, frameRequest.Policy, infiniteAmmoGuard);
         BeginAcceptedGameplayFrame(controller1Input, frameRequest);
@@ -536,17 +544,16 @@ internal sealed class SuperMetroidRuntime
         }
     }
 
-    /// <summary>Makes the main loop's <c>GenerateRandomNumber</c> call ($82:894F).</summary>
+    /// <summary>Draws the update's random number.</summary>
     private void AdvanceMainLoopRandom()
     {
-        // The bank-$82 main loop calls GenerateRandomNumber at $82:894F on every accepted
-        // main-loop pass, immediately after the bank-$88 HDMA-object handler and before it
-        // dispatches the current game state. Several room/enemy routines deliberately only
-        // sample $05E5 instead of advancing it themselves. Falling Tile room main $8F:E525
-        // is the first visibly obvious example: without this global call, every ceiling
-        // fragment selects the same X table entry forever. Keep this unconditional and in
-        // the frame prologue; advancing only at a consumer would change the shared sequence
-        // and would be a bespoke behavioral patch rather than the cartridge call order.
+        // Every update draws a random number right after the per-line effects
+        // (EffectPhaseRandomOrder) and before the game state's own work. Several room and
+        // enemy routines only sample the random number instead of advancing it themselves;
+        // the falling-tile room is the first visibly obvious example: without this draw,
+        // every ceiling fragment selects the same X table entry forever. Keep this
+        // unconditional and at the start of the update; advancing only at a consumer would
+        // change the shared sequence.
         System.NextRandom();
     }
 
@@ -557,10 +564,10 @@ internal sealed class SuperMetroidRuntime
 
         MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
 
-        // HDMA object pre-instructions run once near the start of each ordinary gameplay
-        // pass. A transformation spawned when the preceding message returned therefore
-        // receives its first stage call on this following accepted frame, while every
-        // normal owner below continues to run around the input-locked, centered Samus.
+        // The suit transformation's light beam advances once near the start of each
+        // ordinary gameplay update. A transformation spawned when the preceding message
+        // returned therefore receives its first stage call on this following update, while
+        // every normal owner below continues to run around the input-locked, centered Samus.
         if (SuitPickup.IsActive)
         {
             if (Player.Samus is null)
@@ -568,14 +575,11 @@ internal sealed class SuperMetroidRuntime
             SuitPickup.Step(Player.Samus, Player.Colours);
         }
 
-        // DisplayMessageBox waits on NMI while retaining the already-published room OAM,
-        // music, and sound engines. Audio mixing lives in the frontend, but this translated
-        // runtime must still latch controller input and block every gameplay owner during
-        // those waits. This early seam is shared by all permanent-item identities.
-        // Room FX objects run in the ordinary gameplay owner list. In particular, they
-        // must not scroll or animate during DisplayMessageBox's NMI-only wait loop above.
-        // Keeping this after that early-return seam reproduces that native suspension and
-        // prevents rain/fog from advancing behind a station or item message.
+        // An open message box keeps the room's sprites, music and sounds while it waits,
+        // and blocks every gameplay owner. Room FX objects run in the ordinary gameplay
+        // owner list; in particular, they must not scroll or animate while a message box
+        // waits. Keeping this after the message box's early return prevents rain and fog
+        // from advancing behind a station or item message.
         if (Room.LoadedScope.Enemies.DisplaySources.Phantoon is { } waveBoss)
         {
             waveBoss.Wave.Step(waveBoss);
@@ -777,9 +781,9 @@ internal sealed class SuperMetroidRuntime
             Room.LoadedScope.Enemies.Projectiles.ResolveEnemyProjectileSamusHits(samus);
             Room.LoadedScope.Enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 Room.LoadedScope.Projectiles, Room.LoadedScope.BombProjectiles);
-            // GameState_8 calls `$A0:A306` every gameplay frame after the enemy-
-            // projectile passes. The native routine reads the high byte of live WRAM
-            // radius `$0CEE`; a zero byte is its own inactive/pre-explosion guard.
+            // Every gameplay update resolves the power bomb's hits after the enemy-
+            // projectile passes. It reads the explosion's whole-pixel radius; a zero
+            // radius is its own inactive/pre-explosion guard.
             // Invincibility timers inside the enemy pass prevent the persistent
             // expansion/afterglow radius from damaging one actor every frame.
             SamusPowerBombExplosionState powerBomb =
@@ -816,7 +820,7 @@ internal sealed class SuperMetroidRuntime
     {
         // $82:E737's destination fade runs enemy/draw owners but not $90:94EC.
         // Its shared $0795 gate is set for ordinary doors as well as elevators.
-        // Running the normal camera here consumes the upward IRQ's +32 offset
+        // Running the normal camera here consumes the upward scroll's +32 offset
         // before arrival resumes, exposing wrapped Samus art above the room.
         if (!deathOwnsSamus && !Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive)
         {
@@ -881,7 +885,7 @@ internal sealed class SuperMetroidRuntime
             // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
             // position, not camera position. Fresh debug sessions begin without an area
             // map, so only tiles actually visited by this runtime are revealed.
-            Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.Counter8, MapRevealMode = Options.MapRevealMode, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+            Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, FrameCounter = Clock.ShortCounter, MapRevealMode = Options.MapRevealMode, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
         }
     }
 
@@ -925,8 +929,8 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Rebuilds the HUD counters ($80:9B44); the next accepted frame shows the rows as it latches them.</summary>
     private void UpdateHud(HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
-        // $80:9B44 rewrites the mutable three HUD rows during main-thread logic; they become visible at the next
-        // accepted NMI, which latches the HUD's images (AcceptedFrameBoundary, HudState.Shown).
+        // The HUD's three rows are rewritten during the update; they become visible at the next frame boundary,
+        // which latches the HUD's images (AcceptedFrameBoundary, HudState.Shown).
         if (Hud.IsInitialized)
         {
             // The loan exists only so cartridge firing logic does not observe zero and
@@ -936,7 +940,7 @@ internal sealed class SuperMetroidRuntime
             infiniteAmmoGuard.Complete(Player.Samus);
             // `$80:9B44` rebuilds live energy/ammo words every gameplay frame.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
-            // Samus during this frame, and those values must enter the next accepted NMI.
+            // Samus during this frame, and those values must enter the next frame boundary.
             // Native PLM_Handler has not returned while a pickup message is open.
             // Its newly granted inventory reaches the HUD only after that return.
             if (Player.Samus is not null && !Room.LoadedScope.Plms.CollectiblePlms.HasPendingCollectibleMessage)
@@ -1005,7 +1009,7 @@ internal sealed class SuperMetroidRuntime
 
     /// <summary>
     /// Invokes the pause-menu held-input filter with the controller sample latched by the
-    /// most recent accepted NMI. The retail caller passes reset value three.
+    /// most recent frame boundary. The game's caller passes reset value three.
     /// </summary>
     public void UpdatePauseHeldInput(int timerReset = 3)
     {
@@ -1028,10 +1032,10 @@ internal sealed class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Publishes the gameplay display at the end of a logic frame: the most recent NMI latch,
-    /// the inputs the cartridge reads while the frame is displayed (IRQ register writes and
-    /// HDMA tables), and the PPU memory image. Publishing never advances simulation, and the
-    /// result shares no storage with it.
+    /// Publishes the gameplay display at the end of an update: the most recent frame-boundary
+    /// latch, the display state read while the frame is shown (the door transition's layers
+    /// and the per-line effects), and the frame's colours. Publishing never advances
+    /// simulation, and the result shares no storage with it.
     /// </summary>
     public GameplayDisplayFrame PublishDisplayFrame()
     {
@@ -1092,8 +1096,8 @@ internal sealed class SuperMetroidRuntime
     internal TourianStatueSequenceDependencies TourianStatueDependencies { get; }
 
     /// <summary>
-    /// One lag frame of the bank-$85 message routine. Its completion returns into the
-    /// suspended dispatch, whose remaining owners already ran when the box opened.
+    /// One update of an open message box. Its completion returns into the suspended
+    /// gameplay update, whose remaining owners already ran when the box opened.
     /// </summary>
     internal RuntimeFrameResult StepMessageBoxFrame(
         ControllerButton controller1Input,
@@ -1101,11 +1105,11 @@ internal sealed class SuperMetroidRuntime
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
         MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = false;
-        // The joypad registers are the routine's only input: the NMI reads no controller.
+        // The box reads the controller directly; the frame boundary latches none.
         MessageBox.Step(controller1Input);
         if (MessageBox.LastFrameAudio.AdvancesPerLineEffects)
         {
-            // The message box's restoring frames ($88:84B9 in Restore_PPU) run the per-line effects too.
+            // The message box's restoring update runs the per-line effects too.
             if (Room.Camera is not null)
                 PerLineEffects.Advance(Room.LoadedScope.Plms, Room.LoadedScope);
             if (Player.Samus is { } samus)

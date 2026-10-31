@@ -4,34 +4,41 @@ namespace SuperMetroid.Verification.Gameplay;
 using SuperMetroid.Verification.Harness;
 
 /// <summary>
-/// Checks the accepted-frame counters stored as ints: each returns to zero after its period exactly as the cartridge's
-/// byte and word do, through one accepted frame and through a hardware wait that crosses the boundary, and the door
-/// IRQ clears only the short counter.
+/// Checks the frame counters stored as ints: each returns to zero after its period, through one shown frame and through
+/// a door's music load that crosses the boundary, and a door's scroll restarts only the short counter.
 /// </summary>
 internal static class FrameClockWrapVerification
 {
-    /// <summary>Checks both counters' wraps, the door-IRQ clear and the import range.</summary>
+    /// <summary>A door music load that counts a fixed number of frames.</summary>
+    /// <param name="frames">The frames the load counts.</param>
+    private sealed class FixedMusicLoad(int frames) : IDoorMusicLoadFrames
+    {
+        /// <inheritdoc/>
+        public int FramesCountedDuringMusicLoad() => frames;
+    }
+
+    /// <summary>Checks both counters' wraps, the door scroll's restart and the import range.</summary>
     internal static void VerifyFrameClockWrap()
     {
         var clock = new FrameClock();
         clock.Import(255, 65535);
         clock.AdvanceAcceptedFrame();
-        AssertEqual(0, clock.Counter8, "the short counter wraps from 255 to zero");
+        AssertEqual(0, clock.ShortCounter, "the short counter wraps from 255 to zero");
         AssertEqual(0, clock.Counter, "the long counter wraps from 65535 to zero");
 
         clock.Import(250, 65530);
-        clock.AdvanceHardwareWaitFrames(300);
-        AssertEqual(38, clock.Counter8, "a hardware wait crossing 256 keeps the short counter's byte wrap");
-        AssertEqual(294, clock.Counter, "a hardware wait crossing 65536 keeps the long counter's word wrap");
+        clock.CountDoorMusicLoad(new FixedMusicLoad(300));
+        AssertEqual(38, clock.ShortCounter, "a music load crossing 256 keeps the short counter's wrap");
+        AssertEqual(294, clock.Counter, "a music load crossing 65536 keeps the long counter's wrap");
 
-        clock.ClearCounter8ForDoorIrq();
-        AssertEqual(0, clock.Counter8, "the door IRQ clears the short counter");
-        AssertEqual(294, clock.Counter, "the door IRQ leaves the long counter running");
+        clock.RestartShortCounter();
+        AssertEqual(0, clock.ShortCounter, "the door scroll restarts the short counter");
+        AssertEqual(294, clock.Counter, "the door scroll leaves the long counter running");
 
-        AssertThrows<ArgumentOutOfRangeException>(() => clock.Import(256, 0), "the short counter rejects a value past its byte");
-        AssertThrows<ArgumentOutOfRangeException>(() => clock.Import(0, 65536), "the long counter rejects a value past its word");
+        AssertThrows<ArgumentOutOfRangeException>(() => clock.Import(256, 0), "the short counter rejects a value past its period");
+        AssertThrows<ArgumentOutOfRangeException>(() => clock.Import(0, 65536), "the long counter rejects a value past its period");
 
-        Console.WriteLine("Frame clock: both counters wrap at their periods and the door IRQ clears only the short one.");
+        Console.WriteLine("Frame clock: both counters wrap at their periods and a door's scroll restarts only the short one.");
     }
 
     /// <summary>Runs the focused frame clock wrap verification command.</summary>

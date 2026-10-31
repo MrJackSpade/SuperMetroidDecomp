@@ -186,10 +186,10 @@ public sealed class SuperMetroidGame
              startingDoorPhase is not (DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading));
         IReadOnlyList<AudioRequest> prologueMusicRequests = prologueMusicDispatch
             ? Session.audio.AdvanceMusicDispatch() : Array.Empty<AudioRequest>();
-        // Loading a new music data set stalls a door dispatch while door IRQs keep NMIs accepted;
-        // nothing between this update's own NMI and the load reads the counters.
+        // Frames pass on the frame counters while a door loads a new music data set
+        // (IDoorMusicLoadFrames); nothing between this update's frame boundary and the load reads them.
         if (doorAudioDispatch && prologueMusicRequests.Any(request => request is AudioRequest.ChangeMusicDataSet))
-            Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(Session.HostServices.DoorMusicLoadFrames.FramesCountedDuringMusicLoad());
+            Session.GameplayRuntime.Clock.CountDoorMusicLoad(Session.HostServices.DoorMusicLoadFrames);
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
         FrameNumber = WrappingCounter.IncrementWord(FrameNumber);
         if (Session.Runtime is null)
@@ -539,8 +539,8 @@ public sealed class SuperMetroidGame
                 Session.Random.Generate();
                 break;
             case DispatchRandomStep.NonGameplayLineEffectsThenAdvance:
-                // HDMA runs before $0D disables it; lava swaps the live RNG bytes.
-                Session.GameplayRuntime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, Session.GameplayRuntime.Room.LoadedScope.Plms, Session.GameplayRuntime.Room.LoadedScope);
+                // The per-line effects still run on the update before the pause screen; lava swaps the live random bytes.
+                Session.GameplayRuntime.DoorTransition.AdvanceEffectsAndRandom(Session.GameplayRuntime.Room.LoadedScope.Plms, Session.GameplayRuntime.Room.LoadedScope);
                 break;
             case DispatchRandomStep.AdvanceUnlessResumingWait:
                 if (!NextUpdateResumesFrameWait)

@@ -8,7 +8,7 @@ internal abstract record DraygonCue
     /// <summary>Starts a program on each of the four parts, as <c>Instruction_Draygon_SetInstList_Body_Eye_Tail_Arms</c> does.</summary>
     internal sealed record StartPartPrograms(DraygonProgram Body, DraygonProgram Eye, DraygonProgram Tail, DraygonProgram Arms) : DraygonCue;
 
-    /// <summary>Selects the room-loading interrupt's HUD-draw command.</summary>
+    /// <summary>Asks for the HUD to be drawn, which it always is; the cue changes no state.</summary>
     internal sealed record BeginHudDraw : DraygonCue
     {
         /// <summary>The cue's only value.</summary>

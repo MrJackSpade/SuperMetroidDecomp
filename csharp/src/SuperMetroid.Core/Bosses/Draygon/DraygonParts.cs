@@ -74,7 +74,7 @@ internal sealed class DraygonParts
         _frameContext.RequestFullSweep();
         Draygon = new DraygonEnemyState(body)
         {
-            RoomLoadingIrqCommand = RoomLoadingInterruptCommand.BeginHudDraw,
+
             MinimapDisabledAndBossTilesExplored = true,
             Function = DraygonAiFunction.IntroInitialDelay,
         };
@@ -230,7 +230,7 @@ internal sealed class DraygonParts
                 state.Body.InstructionTimer = WrappingCountdown.Start(1);
                 return null;
             case DraygonCue.BeginHudDraw:
-                state.RoomLoadingIrqCommand = RoomLoadingInterruptCommand.BeginHudDraw;
+                // The HUD is drawn every frame; the request changes no state.
                 return null;
             case DraygonCue.SetEyeFunction eyeFunction:
                 (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = eyeFunction.Function;

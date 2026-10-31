@@ -45,7 +45,7 @@ internal sealed class FrontendSession
     /// <summary>Accepted menu NMI counters used by frontend animation and input timing.</summary>
     internal readonly MenuLayer1Retention menuLayer1 = new();
 
-    /// <summary>The session's accepted-frame counters <c>$05B5/$05B6</c>: every runtime it creates counts on them.</summary>
+    /// <summary>The session's frame counters: every runtime it creates counts on them.</summary>
     internal readonly FrameClock frameClock = new();
     /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
     [field: NonSerialized]

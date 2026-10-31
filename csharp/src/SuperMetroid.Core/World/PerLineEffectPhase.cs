@@ -4,16 +4,14 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>
-/// The per-line effect phase (#1407): each frame it advances the room liquid's shared wave state and the Tourian
-/// statues' descent, the per-line effects whose state gameplay reads back. The cartridge runs this work as its HDMA
-/// objects' pre-instructions (<c>$88:84B9</c>).
+/// The per-line effect phase (#1407): it advances the room liquid's shared wave state and the Tourian statues' descent,
+/// the per-line effects whose state gameplay reads back, at the start of an update and before the update draws its random
+/// number.
 /// </summary>
 /// <remarks>
-/// Compatibility behaviour: the phase runs at a fixed point of the outer frame, before the main loop draws the frame's
-/// random number, and the statues' descent reads the random number as it stands then. Its place in the frame, the
-/// order of its two steps, and the frames it runs on (gameplay frames without a message box, the message box's
-/// restoring frames, and the door-transition frames <see cref="Rooms.Doors.PerLineEffectProcessing"/> selects) are
-/// kept exactly, so the random sequence and every decision drawn from it match the cartridge's.
+/// The statues' descent reads the random number as it stands before the update's draw, so the phase's place in the
+/// update, the order of its two steps, and the updates it runs on are kept exactly; which updates run it is
+/// <see cref="EffectPhaseRandomOrder"/>'s.
 /// </remarks>
 internal sealed class PerLineEffectPhase
 {
@@ -21,20 +19,29 @@ internal sealed class PerLineEffectPhase
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Shared system state the liquid's wave step reads.</summary>
     private readonly SharedGameState _system;
+    /// <summary>Which updates run the phase before their random draw.</summary>
+    private readonly EffectPhaseRandomOrder _order;
 
-    /// <summary>Connects the per-line effect phase to its live freeze and system owners.</summary>
-    internal PerLineEffectPhase(GameplayTimeFreeze freeze, SharedGameState system)
+    /// <summary>Connects the per-line effect phase to its live freeze and system owners and the order it runs in.</summary>
+    internal PerLineEffectPhase(GameplayTimeFreeze freeze, SharedGameState system, EffectPhaseRandomOrder order)
     {
         _freeze = freeze;
         _system = system;
+        _order = Ensure.NotNull(order);
     }
 
+    /// <summary>Whether this update advances the effects: false while a door transition has stopped them.</summary>
+    internal bool RunsThisUpdate => _order.RunsEffectWork;
+
     /// <summary>
-    /// Advances the effects in their fixed order, before the frame's random number is drawn: the room liquid's shared
-    /// state, then the Tourian statues' delay and descent (<c>$88:DBD7-$DCBA</c>), whose rumble reads the random number.
+    /// Advances the effects in their fixed order, before the update's random number is drawn, unless a door transition
+    /// has stopped them: the room liquid's shared state, then the Tourian statues' delay and descent, whose rumble reads
+    /// the random number.
     /// </summary>
     internal void Advance(RoomPlmSystem plms, RoomScope room)
     {
+        if (!RunsThisUpdate)
+            return;
         room.Layer3Fx.AdvanceLiquidMotion(_system, _freeze.TimeIsFrozen);
         room.TourianStatues.StepDescent(plms);
     }

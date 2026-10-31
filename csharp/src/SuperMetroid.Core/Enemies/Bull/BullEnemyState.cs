@@ -41,7 +41,7 @@ public sealed class BullEnemyState
     public int Acceleration
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public sealed class BullEnemyState
     public int AccelerationDelta
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public sealed class BullEnemyState
     public int Speed
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -81,8 +81,8 @@ public sealed class BullEnemyState
     /// </summary>
     internal void Accelerate()
     {
-        Acceleration = unchecked((ushort)(Acceleration + AccelerationDelta));
-        Speed = unchecked((ushort)(Speed + Acceleration));
+        Acceleration = WordWrap.Unsigned(Acceleration + AccelerationDelta);
+        Speed = WordWrap.Unsigned(Speed + Acceleration);
     }
 
     /// <summary>
@@ -92,8 +92,8 @@ public sealed class BullEnemyState
     /// </summary>
     internal void Decelerate()
     {
-        Acceleration = unchecked((ushort)(Acceleration - AccelerationDelta));
-        Speed = unchecked((ushort)(Speed - Acceleration));
+        Acceleration = WordWrap.Unsigned(Acceleration - AccelerationDelta);
+        Speed = WordWrap.Unsigned(Speed - Acceleration);
     }
 
     /// <summary>

@@ -43,7 +43,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Enemy frames between shared face-block palette advances.</summary>
-    private const ushort BlueBrinstarFaceBlockPalettePeriod = 16;
+    private const int BlueBrinstarFaceBlockPalettePeriod = 16;
     /// <summary>Number of frames in the installed auxiliary-color sequence.</summary>
     private const int BlueBrinstarFaceBlockPaletteFrameCount = 8;
     /// <summary>Consecutive OBJ colors replaced on each palette advance.</summary>
@@ -107,14 +107,14 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (state.Activated)
             return;
 
-        int verticalDelta = unchecked((ushort)(samus.Position.Y.Whole - slot.Position.Y.Whole));
+        int verticalDelta = CoordinateAxis.Wrap(samus.Position.Y.Whole - slot.Position.Y.Whole);
         if (AbsoluteFaceBlockDelta(verticalDelta) >= slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
         // Variable B is written after the Y test but before the X test, including on frames
         // that fail horizontal range or side. That write order is visible to debuggers and
         // is preserved rather than collapsing the two comparisons into host geometry.
-        int horizontalDelta = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int horizontalDelta = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
         state.LastHorizontalDelta = horizontalDelta;
         if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
@@ -144,8 +144,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// Reproduces the native signed-magnitude helper over one wrapped 16-bit subtraction.
     /// In particular, $8000 remains $8000 just as the 65C816 negate sequence does.
     /// </summary>
-    private static ushort AbsoluteFaceBlockDelta(int delta) =>
-        unchecked((short)delta) < 0 ? unchecked((ushort)-delta) : checked((ushort)delta);
+    private static int AbsoluteFaceBlockDelta(int delta) =>
+        WordWrap.Signed(delta) < 0 ? WordWrap.Unsigned(-delta) : Ensure.BetweenInclusive(0, ushort.MaxValue, delta);
 
     /// <summary>Selects the block's OBJ palette row as the singleton graphics-hook target.</summary>
     private void InstallBlueBrinstarFaceBlockPaletteHook(RoomEnemySlot slot)

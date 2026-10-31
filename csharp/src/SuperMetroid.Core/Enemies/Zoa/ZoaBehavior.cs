@@ -97,9 +97,9 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         ZoaEnemyState state,
         SamusState samus)
     {
-        int signedDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
-        int absoluteDistance = unchecked((short)signedDistance) < 0
-            ? unchecked((ushort)-signedDistance)
+        int signedDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
+        int absoluteDistance = CoordinateAxis.AsSigned(signedDistance) < 0
+            ? CoordinateAxis.Wrap(-signedDistance)
             : signedDistance;
         if (absoluteDistance >= ZoaActivationColumnDistance)
             return;
@@ -107,7 +107,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Odd indexes are rising lists: one faces left and three faces right. The sign test
         // uses the same wrapped Samus-minus-enemy word as the common bank-$A0 helper.
         state.InstructionListTableIndex = ZoaAnimationSelector.Rising |
-            (unchecked((short)signedDistance) < 0
+            (CoordinateAxis.AsSigned(signedDistance) < 0
                 ? ZoaAnimationSelector.None
                 : ZoaAnimationSelector.FacingRight);
         SetZoaProgram(slot, state);
@@ -121,7 +121,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
-        if (unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)) < 0)
+        if (CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) < 0)
         {
             // NTSC subtracts exactly 0.5 px/frame. The PAL regional constant is 0.625;
             // this project targets the user's Japan/USA retail ROM and reads NTSC data.

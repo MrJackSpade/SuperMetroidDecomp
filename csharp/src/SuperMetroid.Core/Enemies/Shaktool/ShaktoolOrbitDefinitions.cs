@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal static class ShaktoolOrbitDefinitions
 {
     /// <summary>One angle-table entry of a 16-bit angle: the straightening step and its extra centre step.</summary>
-    internal const ushort TableStep = 0x0100;
+    internal const int TableStep = 0x0100;
 
     /// <summary>The direction buckets a middle segment's heading is rounded to, one for each equal arc of the turn.</summary>
     internal const int OrientationBuckets = 8;
@@ -13,14 +13,14 @@ internal static class ShaktoolOrbitDefinitions
     internal const int OrientationBucketLead = 8;
 
     /// <summary>The curl progress installed when the centre reaches its target angle: 120 angle-table steps.</summary>
-    internal const ushort StraighteningStart = 120 * TableStep;
+    internal const int StraighteningStart = 120 * TableStep;
 
     /// <summary>Once the curl progress reaches 240 angle-table steps, the chain starts straightening.</summary>
-    internal const ushort StraighteningThreshold = 240 * TableStep;
+    internal const int StraighteningThreshold = 240 * TableStep;
 
     /// <summary>The subpixels in one pixel.</summary>
     private const int SubpixelsPerPixel = 65536;
 
     /// <summary>The fraction middle segments reset to on an endpoint swap: half a pixel.</summary>
-    internal const ushort SwapFraction = SubpixelsPerPixel / 2;
+    internal const int SwapFraction = SubpixelsPerPixel / 2;
 }

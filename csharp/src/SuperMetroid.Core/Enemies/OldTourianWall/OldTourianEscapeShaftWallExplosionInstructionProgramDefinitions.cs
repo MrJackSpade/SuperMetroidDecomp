@@ -14,9 +14,9 @@ internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefini
     internal const EnemyProjectilePreInstruction PreInstruction = EnemyProjectilePreInstruction.RTS_86B4B0;
 
     /// <summary>$86:B4A0/$B4A6: the wall-middle X/Y written to position and Var0/Var1.</summary>
-    internal const ushort XPosition = 0x0110;
+    internal const int XPosition = 0x0110;
     /// <summary>$86:B4A6 wall-middle Y used by both the projectile position and Var1.</summary>
-    internal const ushort YPosition = 0x0888;
+    internal const int YPosition = 0x0888;
 
     /// <summary>$86:B447: the loop count the list loads into the general timer; the burst plays once.</summary>
     internal const int BurstCount = 1;

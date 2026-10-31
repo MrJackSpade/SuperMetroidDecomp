@@ -48,15 +48,15 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ungrappled body rise measured from its balloon's spawn Y position.</summary>
-    private const ushort PowampUngrappledTravelDistance = 64;
+    private const int PowampUngrappledTravelDistance = 64;
     /// <summary>Frames the underground body rests before reinflating its balloon.</summary>
-    private const ushort PowampRestFrames = 60;
+    private const int PowampRestFrames = 60;
     /// <summary>Inflation or deflation transition duration.</summary>
-    private const ushort PowampTransitionFrames = 10;
+    private const int PowampTransitionFrames = 10;
     /// <summary>Delay between fatal damage and deleting the balloon with a spike burst.</summary>
-    private const ushort PowampDeathDelayFrames = 32;
+    private const int PowampDeathDelayFrames = 32;
     /// <summary>Frames between successive shared body and balloon horizontal wiggle offsets.</summary>
-    private const ushort PowampWiggleFramesPerOffset = 5;
+    private const int PowampWiggleFramesPerOffset = 5;
 
     /// <summary>Ports <c>InitAI_Powamp</c> at $A8:C1C9.</summary>
     internal void InitializePowamp(RoomEnemySlot slot)
@@ -204,7 +204,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         int travelDistance = hold == PowampHold.Grappled
             ? balloon.State.BalloonGrappleTravelDistance
             : PowampUngrappledTravelDistance;
-        int targetY = unchecked((ushort)(balloon.State.BalloonSpawn.Y - travelDistance));
+        int targetY = CoordinateAxis.Wrap(balloon.State.BalloonSpawn.Y - travelDistance);
 
         // CMP target,body followed by BMI means "continue while body is still below the
         // target". A room collision completes the rise regardless of its Y coordinate.
@@ -422,10 +422,10 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Powamp wiggle index {state.WiggleIndex} exceeds the 12-word ROM table.");
         }
 
-        int x = unchecked((ushort)(
-            balloon.State.BalloonSpawn.X + PowampMotion.WiggleOffset(state.WiggleIndex)));
-        balloon.Slot.Position = balloon.Slot.Position.WithWholeX(checked((ushort)x));
-        body.Position = body.Position.WithWholeX(checked((ushort)x));
+        int x = CoordinateAxis.Wrap(
+            balloon.State.BalloonSpawn.X + PowampMotion.WiggleOffset(state.WiggleIndex));
+        balloon.Slot.Position = balloon.Slot.Position.WithWholeX(x);
+        body.Position = body.Position.WithWholeX(x);
         if (stop == PowampWiggleStop.WhenCentered && IsPowampCentered(state.WiggleIndex))
             return true;
 
@@ -442,7 +442,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // The 65C816 calculation halves the pointer's byte offset past the first pose, (2 * shown - 2), and indexes
         // words with it. Before any pose has shown the offset underflows past five and falls back to the first entry.
         int index = shownPoses == 0 ? 0 : shownPoses - 1;
-        balloon.Slot.Position = balloon.Slot.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + PowampMotion.BalloonOffset(index, sinking))));
+        balloon.Slot.Position = balloon.Slot.Position.WithWrappedWholeY(body.Position.Y.Whole + PowampMotion.BalloonOffset(index, sinking));
     }
 
     /// <summary>
@@ -611,7 +611,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             spike.Position = FixedPosition<RoomPixels>.FromWhole(body.Position.Whole);
             spike.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
             spike.State = new PowampSpikeState(direction);
-            accumulator = unchecked((ushort)(spike.SlotIndex * 2));
+            accumulator = WordWrap.Unsigned(spike.SlotIndex * 2);
         }
         return accumulator;
     }
@@ -632,16 +632,16 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int direction = spike.StateOf<PowampSpikeState>().Direction;
 
-        spike.Velocity = spike.Velocity.WithX(new SignedEightEight(unchecked((ushort)(
-            unchecked((short)spike.Velocity.X.RawValue) + PowampMotion.SpikeXAcceleration(direction)))));
+        spike.Velocity = spike.Velocity.WithX(SignedEightEight.Wrapped(
+            spike.Velocity.X.SignedRawValue + PowampMotion.SpikeXAcceleration(direction)));
         if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Horizontal))
         {
             BeginPowampSpikeDeletion(spike);
             return;
         }
 
-        spike.Velocity = spike.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
-            unchecked((short)spike.Velocity.Y.RawValue) + PowampMotion.SpikeYAcceleration(direction)))));
+        spike.Velocity = spike.Velocity.WithY(SignedEightEight.Wrapped(
+            spike.Velocity.Y.SignedRawValue + PowampMotion.SpikeYAcceleration(direction)));
         if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Vertical))
             BeginPowampSpikeDeletion(spike);
     }

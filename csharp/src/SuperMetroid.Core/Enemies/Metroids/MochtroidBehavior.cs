@@ -38,7 +38,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Number of overlapping contacts between attached health drains.</summary>
-    private const ushort MochtroidAttachmentDamagePeriod = 80;
+    private const int MochtroidAttachmentDamagePeriod = 80;
     /// <summary>Whole-pixel speed cap for proportional free flight.</summary>
     private const int MochtroidMaximumVelocity = 3;
     /// <summary>Signed 16.16 speed of one pixel per attached-flight axis step.</summary>
@@ -105,7 +105,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // shifts that result left eight fractional bits, and subtracts it from velocity.
         // This is a proportional attraction toward Samus—not a fixed-speed seek—and the
         // accumulated fraction is observable before either whole component reaches ±3.
-        int yDifference = unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole));
+        int yDifference = CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole);
         int yVelocity = unchecked(state.Velocity.Y.RawValue - EightEight.FromWhole(yDifference >> 2));
         yVelocity = ClampMochtroidVelocity(yVelocity);
         StoreMochtroidYVelocity(state, yVelocity);
@@ -114,7 +114,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Y is intentionally resolved first. Horizontal collision therefore sees the
         // vertically adjusted position, matching $A3:A80D followed by $A3:A87C.
-        int xDifference = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
+        int xDifference = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole);
         int xVelocity = unchecked(state.Velocity.X.RawValue - EightEight.FromWhole(xDifference >> 2));
         xVelocity = ClampMochtroidVelocity(xVelocity);
         StoreMochtroidXVelocity(state, xVelocity);
@@ -139,7 +139,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // axis toward Samus, with X collision resolved before Y and ignored return values.
         int xVelocity = slot.Position.X.Whole == samus.Position.X.Whole
             ? 0
-            : unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) > 0
+            : CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) > 0
                 ? -MochtroidAttachedVelocity
                 : MochtroidAttachedVelocity;
         StoreMochtroidXVelocity(state, xVelocity);
@@ -147,7 +147,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int yVelocity = slot.Position.Y.Whole == samus.Position.Y.Whole
             ? 0
-            : unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) > 0
+            : CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) > 0
                 ? -MochtroidAttachedVelocity
                 : MochtroidAttachedVelocity;
         StoreMochtroidYVelocity(state, yVelocity);
@@ -229,9 +229,9 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // change; starting the host knockback state and trying to undo its pose would
             // introduce side effects the cartridge never reaches.
             int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-                ? unchecked((ushort)(slot.Definition.Damage >> 2))
+                ? WordWrap.Unsigned(slot.Definition.Damage >> 2)
                 : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                    ? unchecked((ushort)(slot.Definition.Damage >> 1))
+                    ? WordWrap.Unsigned(slot.Definition.Damage >> 1)
                     : slot.Definition.Damage;
             samus.Health = samus.Health <= damage
                 ? 0

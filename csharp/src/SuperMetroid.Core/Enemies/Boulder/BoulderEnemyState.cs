@@ -25,7 +25,7 @@ public sealed class BoulderEnemyState
     public int TravelSpeedAccumulator
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public sealed class BoulderEnemyState
     public int BounceSpeedAccumulator
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>Variable D. Its deliberate zero-to-$FFFF underflow ends the bounce phase.</summary>

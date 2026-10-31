@@ -16,9 +16,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BullEntity(this, slot, common);
 
     /// <summary>Each Bull acceleration or deceleration tick changes the 8.8 rate by $0018.</summary>
-    private const ushort BullAccelerationDelta = 24;
+    private const int BullAccelerationDelta = 24;
     /// <summary>Bulls wait sixteen enemy frames before retargeting Samus.</summary>
-    private const ushort BullMovementDelayFrames = 16;
+    private const int BullMovementDelayFrames = 16;
 
     /// <summary>Hands each new Bull the previous Bull in its slot, whose shot-reaction guard it inherits.</summary>
     private readonly SlotInheritance<BullEnemyState> _inheritance;
@@ -111,7 +111,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the cartridge's zero-up angle.</summary>
     private static RotationAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         RotationAngle.NormalizeTableIndex(EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue - EnemyByteAngleDefinitions.QuarterTurn);
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ReinterpretAsTableAngle().RawValue - EnemyByteAngleDefinitions.QuarterTurn);
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(BullEnemyState state)
@@ -147,11 +147,11 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // only ORs $FF00 when bit seven is set and never clears a borrowed high byte, so a
         // negative difference with bit seven clear (e.g. $FF10) stays large. NegateA then
         // takes the absolute value and CMP/BMI tests it against $30.
-        int difference = unchecked((ushort)(state.AngleToSamus.TableIndex - state.Angle));
+        int difference = WordWrap.Unsigned(state.AngleToSamus.TableIndex - state.Angle);
         difference = EnemyMath.SignExtendLowByte(difference);
         if (EnemyMath.IsNegative16(difference))
-            difference = unchecked((ushort)-difference);
-        if (unchecked((short)(difference - 48)) < 0)
+            difference = WordWrap.Unsigned(-difference);
+        if (WordWrap.Signed(difference - 48) < 0)
             return;
 
         state.Function = BullEnemyFunction.Decelerating;
@@ -163,16 +163,16 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         slot.Position = slot.Position.WithX(AddBullComponent(
             slot.Position.X,
-            ReadBullSignedSine(unchecked(new ByteAngle((byte)(state.Angle + EnemyByteAngleDefinitions.QuarterTurn)))),
+            ReadBullSignedSine(unchecked(new ByteAngle(WordWrap.LowByte(state.Angle + EnemyByteAngleDefinitions.QuarterTurn)))),
             state.Speed));
         slot.Position = slot.Position.WithY(AddBullComponent(
             slot.Position.Y,
-            ReadBullSignedSine(unchecked(new ByteAngle((byte)state.Angle))),
+            ReadBullSignedSine(unchecked(new ByteAngle(WordWrap.LowByte(state.Angle)))),
             state.Speed));
     }
 
     /// <summary>Reads the cartridge's signed sine sample for one byte-sized Bull heading.</summary>
-    internal static short ReadBullSignedSine(ByteAngle angle) =>
+    internal static int ReadBullSignedSine(ByteAngle angle) =>
         Trigonometry.SignedSixteenBitSine(angle);
 
     /// <summary>Applies Bull's 24-bit sine-times-speed displacement and native negative-fraction rule.</summary>
@@ -185,23 +185,23 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // unsigned 8.8 speed, and keeps the 24-bit result as a 16.16 displacement. Negative
         // components use $A8:DAF6, whose zero-fraction path is deliberately one subpixel more
         // negative than a conventional two's-complement negation.
-        int magnitude = unchecked((ushort)Math.Abs(sine));
+        int magnitude = WordWrap.Unsigned(Math.Abs(sine));
         int sineHighByte = UnsignedEightEight.Whole(magnitude);
         uint product = (uint)sineHighByte * (uint)speed;
-        int fraction = unchecked((ushort)product);
+        int fraction = WordWrap.Unsigned(product);
         int whole = FixedCoordinate.WholeOf(unchecked((int)product));
         if (sine < 0 && (whole != 0 || fraction != 0))
         {
             if (fraction == 0)
                 fraction = RoomPixelMasks.LastFraction;
             else
-                fraction = unchecked((ushort)-fraction);
-            whole = unchecked((ushort)~whole);
+                fraction = WordWrap.Unsigned(-fraction);
+            whole = WordWrap.Unsigned(~whole);
         }
 
         // The displacement moves the position as one 16.16 value: a fraction that passes a whole pixel moves the whole
         // position by one more, and the whole position wraps at its width.
-        return SignedSixteenSixteen.FromParts(unchecked((short)whole), fraction).AddTo(position.Whole, position.Fraction);
+        return SignedSixteenSixteen.FromParts(WordWrap.Signed(whole), fraction).AddTo(position.Whole, position.Fraction);
     }
 
     /// <summary>Ports the no-damage tail of <c>EnemyShot_Bull</c> at $A8:DB2C.</summary>

@@ -72,11 +72,11 @@ public sealed class DachoraEnemyState
     }
 
     /// <summary>The speed or shine palette frame the cycle shows next.</summary>
-    public int PaletteFrame => unchecked((byte)(_paletteCycle >> PaletteTickBits));
+    public int PaletteFrame => WordWrap.LowByte(_paletteCycle >> PaletteTickBits);
 
     /// <summary>The updates left before the speed palette cycle shows <see cref="PaletteFrame"/>.</summary>
     [IntegerQuantity("updates left before the palette cycle advances")]
-    public int PaletteTicks => unchecked((byte)_paletteCycle);
+    public int PaletteTicks => WordWrap.LowByte(_paletteCycle);
 
     /// <summary>
     /// Sets the palette cycle to show <paramref name="frame"/> after <paramref name="ticks"/> updates, each 0 through
@@ -105,7 +105,7 @@ public sealed class DachoraEnemyState
     internal void AdvanceSpeedPaletteCycle()
     {
         _paletteCycle = WrappingCounter.AddWord(_paletteCycle, DachoraPaletteDefinitions.SpeedStep);
-        if (unchecked((short)(_paletteCycle - DachoraPaletteDefinitions.SpeedEnd)) >= 0)
+        if (WordWrap.Signed(_paletteCycle - DachoraPaletteDefinitions.SpeedEnd) >= 0)
             _paletteCycle = DachoraPaletteDefinitions.SpeedRestart;
     }
 
@@ -116,7 +116,7 @@ public sealed class DachoraEnemyState
     internal void AdvanceShinePaletteCycle()
     {
         _paletteCycle = WrappingCounter.AddWord(_paletteCycle, DachoraPaletteDefinitions.ShineStep);
-        if (unchecked((short)(_paletteCycle - DachoraPaletteDefinitions.ShineEnd)) >= 0)
+        if (WordWrap.Signed(_paletteCycle - DachoraPaletteDefinitions.ShineEnd) >= 0)
             _paletteCycle = 0;
     }
 

@@ -26,25 +26,25 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Pixels a Brinstar pipe bug rises above its stored spawn Y before flying.</summary>
     private const int BrinstarPipeBugEmergenceHeight = 16;
     /// <summary>Strict horizontal range that wakes a hidden Brinstar pipe bug.</summary>
-    private const ushort BrinstarPipeBugTriggerWidth = 64;
+    private const int BrinstarPipeBugTriggerWidth = 64;
     /// <summary>Vertical band above a Brinstar bug in which Samus can trigger emergence.</summary>
-    private const ushort BrinstarPipeBugTriggerTop = 96;
+    private const int BrinstarPipeBugTriggerTop = 96;
     /// <summary>Native wait before an offscreen Brinstar bug may emerge again.</summary>
-    private const ushort BrinstarPipeBugRespawnFrames = 48;
+    private const int BrinstarPipeBugRespawnFrames = 48;
 
     /// <summary>Leader plus four consecutive followers addressed by Norfair's native routine.</summary>
     private const int NorfairFormationSize = 5;
 
     /// <summary>Forward horizontal range that wakes a yellow pipe bug.</summary>
-    private const ushort YellowPipeBugTriggerDistance = 192;
+    private const int YellowPipeBugTriggerDistance = 192;
     /// <summary>Strict vertical distance allowed by the yellow bug's Samus trigger.</summary>
-    private const ushort YellowPipeBugTriggerHeight = 48;
+    private const int YellowPipeBugTriggerHeight = 48;
     /// <summary>Frames between a yellow bug becoming visible and starting its straight flight.</summary>
-    private const ushort YellowPipeBugEmergenceDelayFrames = 24;
+    private const int YellowPipeBugEmergenceDelayFrames = 24;
     /// <summary>Distance past Samus at which a yellow bug begins its one-time arc.</summary>
-    private const ushort YellowPipeBugArcTriggerDistance = 48;
+    private const int YellowPipeBugArcTriggerDistance = 48;
     /// <summary>First quadratic-speed index for the yellow bug's vertical arc.</summary>
-    private const ushort YellowPipeBugArcCounterStart = 40;
+    private const int YellowPipeBugArcCounterStart = 40;
 
     /// <summary>Ports <c>BrinstarPipeBug_Init</c> at $B3:883B.</summary>
     internal static void InitializeBrinstarPipeBug(RoomEnemySlot slot)
@@ -211,12 +211,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         SamusState samus)
     {
-        int deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
-        if (deltaY >= 0 || unchecked((short)(deltaY + BrinstarPipeBugTriggerTop)) < 0)
+        int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole);
+        if (deltaY >= 0 || CoordinateAxis.AsSigned(deltaY + BrinstarPipeBugTriggerTop) < 0)
             return;
 
         state.BrinstarFliesLeft = (samus.Position.Whole - slot.Position.Whole).X < 0;
-        if (EnemyMath.WrappedMagnitude(unchecked((ushort)(slot.Position.X.Whole - samus.Position.X.Whole))) >=
+        if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) >=
             BrinstarPipeBugTriggerWidth)
         {
             return;
@@ -243,8 +243,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         FixedCoordinate y = slot.Position.Y;
         bool oldSubpositionWasNonzero = y.Fraction != 0;
         slot.Position = slot.Position.WithY(new(
-            unchecked((ushort)(y.Whole + (oldSubpositionWasNonzero ? -1 : -2))),
-            unchecked((ushort)(y.Fraction - 1))));
+            CoordinateAxis.Wrap(y.Whole + (oldSubpositionWasNonzero ? -1 : -2)),
+            CoordinateAxis.Wrap(y.Fraction - 1)));
         if ((state.EmergenceTop - slot.Position.Whole).Y < 0 ||
             slot.Position.Y.Whole >= samus.Position.Y.Whole)
         {
@@ -262,8 +262,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         int cameraX)
     {
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
-            (state.BrinstarFliesLeft ? -2 : 2))));
+        slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
+            (state.BrinstarFliesLeft ? -2 : 2));
         // $B3:8949 tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;
@@ -318,7 +318,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int triggerWidth = leader.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth;
         if (!EnemyMath.IsWithinStrictModularDistance(leader.Position.X.Whole, samus.Position.X.Whole, triggerWidth) ||
-            unchecked((short)(leader.Position.Y.Whole - samus.Position.Y.Whole)) < 0)
+            CoordinateAxis.Difference(leader.Position.Y.Whole, samus.Position.Y.Whole) < 0)
         {
             return;
         }
@@ -329,7 +329,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // timers intact, including zero timers in cleared respawn placeholders.
         leader.InstructionTimer = WrappingCountdown.Start(1);
         leader.Timer = WrappingCountdown.Start(0);
-        bool samusIsRight = unchecked((short)(samus.Position.X.Whole - leader.Position.X.Whole)) >= 0;
+        bool samusIsRight = CoordinateAxis.Difference(samus.Position.X.Whole, leader.Position.X.Whole) >= 0;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(leader);
         foreach (RoomEnemySlot member in formation)
         {
@@ -355,13 +355,13 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
         AddPipeBugLinearVelocity(slot, axis: Axis.Vertical, OnePixelPerFrame.Negative);
-        if (unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
             return;
 
         state.Function = state.NorfairPostRiseFunction;
         state.RiseEnd = slot.Position.Whole;
         InstallPipeBugProgram(slot, state,
-            unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0
+            CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0
                 ? PipeBugProgram.GametRisingRight
                 : PipeBugProgram.GametRisingLeft);
     }
@@ -379,7 +379,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             slot,
             axis: Axis.Vertical,
             signedOffset < 0 ? OnePixelPerFrame.Negative : OnePixelPerFrame.Positive);
-        Position16<RoomPixels> target = state.RiseEnd + new Offset16<RoomPixels>(0, checked((short)signedOffset));
+        Position16<RoomPixels> target = state.RiseEnd + new Offset16<RoomPixels>(0, signedOffset);
         int distancePastTarget = (slot.Position.Whole - target).Y;
         bool reached = signedOffset < 0
             ? distancePastTarget < 0
@@ -403,7 +403,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FormationCounter = 0;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0)
+        if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0)
         {
             state.Function = PipeBugEnemyFunction.NorfairFlyRight;
             state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GametFlyingRight);
@@ -463,10 +463,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         SamusState samus)
     {
-        int deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole);
         bool inFront = slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
-            ? deltaX < 0 && unchecked((short)(deltaX + YellowPipeBugTriggerDistance)) >= 0
-            : deltaX >= 0 && unchecked((short)(deltaX - YellowPipeBugTriggerDistance)) < 0;
+            ? deltaX < 0 && CoordinateAxis.AsSigned(deltaX + YellowPipeBugTriggerDistance) >= 0
+            : deltaX >= 0 && CoordinateAxis.Difference(deltaX, YellowPipeBugTriggerDistance) < 0;
         if (!inFront ||
             !EnemyMath.IsWithinStrictModularDistance(slot.Position.Y.Whole, samus.Position.Y.Whole, YellowPipeBugTriggerHeight))
         {
@@ -513,8 +513,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool passedSamus = direction == HorizontalDirection.Left
-            ? unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole - YellowPipeBugArcTriggerDistance)) < 0
-            : unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole - YellowPipeBugArcTriggerDistance)) < 0;
+            ? CoordinateAxis.Difference(slot.Position.X.Whole - samus.Position.X.Whole, YellowPipeBugArcTriggerDistance) < 0
+            : CoordinateAxis.Difference(samus.Position.X.Whole - slot.Position.X.Whole, YellowPipeBugArcTriggerDistance) < 0;
         if (!passedSamus)
             return;
 
@@ -551,17 +551,17 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.ArcCounter--;
                 AddPipeBugDisplacement(slot, axis: Axis.Vertical,
-                    EnemyQuadraticSpeeds.Row(checked((ushort)state.ArcCounter)).Positive);
+                    EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.ArcCounter)).Positive);
             }
             return;
         }
 
         state.ArcCounter++;
         AddPipeBugDisplacement(slot, axis: Axis.Vertical,
-            EnemyQuadraticSpeeds.Row(checked((ushort)state.ArcCounter)).Negative);
+            EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.ArcCounter)).Negative);
         bool returnedToSpawnY = direction == HorizontalDirection.Left
-            ? unchecked((short)(slot.Position.Y.Whole - state.SpawnPosition.Y)) < 0
-            : unchecked((short)(state.SpawnPosition.Y - slot.Position.Y.Whole)) >= 0;
+            ? CoordinateAxis.Difference(slot.Position.Y.Whole, state.SpawnPosition.Y) < 0
+            : CoordinateAxis.Difference(state.SpawnPosition.Y, slot.Position.Y.Whole) >= 0;
         if (!returnedToSpawnY)
             return;
 

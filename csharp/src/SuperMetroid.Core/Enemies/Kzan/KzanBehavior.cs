@@ -27,9 +27,9 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>NTSC pause at the bottom before the top begins to rise.</summary>
-    private const ushort KzanNtscRiseWaitFrames = 64;
+    private const int KzanNtscRiseWaitFrames = 64;
     /// <summary>Fractional pixels subtracted each rising actor update.</summary>
-    private const ushort KzanNtscRisingSubspeed = unchecked((ushort)-32768);
+    private const int KzanNtscRisingSubspeed = 32768;
     /// <summary>The fastest linear-speed row falling acceleration reaches.</summary>
     private const int KzanMaximumFallingSpeedRow = 64;
 
@@ -57,7 +57,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
         // on its first DEC rather than triggering immediately.
         var spawn = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
-        state.FallingTarget = spawn + new Offset16<RoomPixels>(0, checked((short)slot.SpawnSettings<KzanSpawnSettings>().FallDistance));
+        state.FallingTarget = spawn + new Offset16<RoomPixels>(0, slot.SpawnSettings<KzanSpawnSettings>().FallDistance);
         state.RisingTarget = spawn;
         state.FallWaitTimerResetValue = slot.SpawnSettings<KzanSpawnSettings>().FallWait;
         state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
@@ -80,7 +80,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException("Kzan bottom cannot occupy enemy slot zero.");
 
         RoomEnemySlot precedingSlot = _slotTable.Slots[bottom.SlotIndex - 1];
-        bottom.Position = bottom.Position.WithWhole(new(precedingSlot.Position.X.Whole, unchecked((ushort)(precedingSlot.Position.Y.Whole + 12))));
+        bottom.Position = bottom.Position.WithWhole(new(precedingSlot.Position.X.Whole, CoordinateAxis.Wrap(precedingSlot.Position.Y.Whole + 12)));
     }
 
     /// <summary>Dispatches the top actor through fall wait, accelerated descent, rise wait, and half-pixel ascent.</summary>
@@ -186,9 +186,9 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         int fractionalSpeed)
     {
         bool borrowed = slot.Position.Y.Fraction < fractionalSpeed;
-        slot.Position = slot.Position.WithFractionY(unchecked((ushort)(slot.Position.Y.Fraction - fractionalSpeed)));
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
-            slot.Position.Y.Whole - wholeSpeed - (borrowed ? 1 : 0))));
+        slot.Position = slot.Position.WithFractionY(CoordinateAxis.Wrap(slot.Position.Y.Fraction - fractionalSpeed));
+        slot.Position = slot.Position.WithWrappedWholeY(
+            slot.Position.Y.Whole - wholeSpeed - (borrowed ? 1 : 0));
     }
 
     /// <summary>
@@ -200,12 +200,12 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         SamusState samus)
     {
-        int xDistance = Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)));
+        int xDistance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);
         if (xDistance >= samus.Kinematics.Radius.X + slot.Radius.X)
             return false;
 
-        int shiftedYDelta = unchecked((short)(
-            unchecked((ushort)(samus.Position.Y.Whole + 5 - slot.Position.Y.Whole))));
+        int shiftedYDelta = CoordinateAxis.AsSigned(
+            CoordinateAxis.Wrap(samus.Position.Y.Whole + 5 - slot.Position.Y.Whole));
         if (shiftedYDelta >= 0)
             return false;
 

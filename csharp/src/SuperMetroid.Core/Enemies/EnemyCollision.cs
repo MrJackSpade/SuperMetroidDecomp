@@ -203,7 +203,7 @@ internal sealed class EnemyCollision
                 // turns the slot into an explosion, so retain the incoming type instead of
                 // accidentally asking the vulnerability table about the visual effect.
                 SamusProjectileType projectileType = projectile.Type;
-                int projectileDamage = checked((ushort)projectile.Damage);
+                int projectileDamage = Ensure.BetweenInclusive(0, ushort.MaxValue, projectile.Damage);
                 SamusProjectileDirection projectileDirection = projectile.Direction;
                 SamusProjectileFamily family = projectile.Type.Family;
                 if (!projectile.HasEnemyCollisionPayload)
@@ -654,8 +654,8 @@ internal sealed class EnemyCollision
             if (vulnerability.Multiplier == 0)
                 continue;
 
-            int xDistance = Math.Abs(unchecked((short)(explosionCenter.X - enemy.Position.X.Whole)));
-            int yDistance = Math.Abs(unchecked((short)(explosionCenter.Y - enemy.Position.Y.Whole)));
+            int xDistance = CoordinateAxis.Distance(explosionCenter.X, enemy.Position.X.Whole);
+            int yDistance = CoordinateAxis.Distance(explosionCenter.Y, enemy.Position.Y.Whole);
             if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
                 continue;
 
@@ -755,8 +755,8 @@ internal sealed class EnemyCollision
         if (enemy.FrozenTimer.IsZero)
             _audio.QueueEnemySound(Library3Sound.EnemyFrozen, priority: SoundRequestPriority.Low);
         enemy.FrozenTimer = WrappingCountdown.FromRaw(samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
-            ? (ushort)300
-            : (ushort)400);
+            ? 300
+            : 400);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;
         enemy.InvincibilityTimer = WrappingCountdown.Start(10);
     }
@@ -820,11 +820,11 @@ internal sealed class EnemyCollision
 
         var target = new EnemyHitboxProbe(
             TopLeft: new(
-                unchecked((ushort)(targetPosition.X - targetRadius.X)),
-                unchecked((ushort)(targetPosition.Y - targetRadius.Y))),
+                CoordinateAxis.Wrap(targetPosition.X - targetRadius.X),
+                CoordinateAxis.Wrap(targetPosition.Y - targetRadius.Y)),
             BottomRight: new(
-                unchecked((ushort)(targetPosition.X + targetRadius.X)),
-                unchecked((ushort)(targetPosition.Y + targetRadius.Y))),
+                CoordinateAxis.Wrap(targetPosition.X + targetRadius.X),
+                CoordinateAxis.Wrap(targetPosition.Y + targetRadius.Y)),
             SelectShotCallback: callbackKind == HitboxCallbackKind.Shot,
             ArtworkInstalled: _room.Artwork is not null);
 
@@ -955,8 +955,8 @@ internal sealed class EnemyCollision
         Extent16<RoomPixels> firstRadius,
         Position16<RoomPixels> secondPosition,
         Extent16<RoomPixels> secondRadius) =>
-        Math.Abs(unchecked((short)(firstPosition.X - secondPosition.X))) < firstRadius.X + secondRadius.X &&
-        Math.Abs(unchecked((short)(firstPosition.Y - secondPosition.Y))) < firstRadius.Y + secondRadius.Y;
+        CoordinateAxis.Distance(firstPosition.X, secondPosition.X) < firstRadius.X + secondRadius.X &&
+        CoordinateAxis.Distance(firstPosition.Y, secondPosition.Y) < firstRadius.Y + secondRadius.Y;
 
     /// <summary>Applies suit reduction and health loss, then publishes the native hurt direction and invincibility window.</summary>
     internal static void ApplyNormalEnemyTouchDamage(
@@ -966,7 +966,7 @@ internal sealed class EnemyCollision
     {
         // Suit_Damage_Division quarters the source header's damage for Gravity or halves
         // it for Varia before normal touch publishes the invincibility/hurt request.
-        int damage = SamusSuitDamage.Reduce(checked((ushort)damageBeforeSuit), samus.EquippedItems);
+        int damage = SamusSuitDamage.Reduce(Ensure.BetweenInclusive(0, ushort.MaxValue, damageBeforeSuit), samus.EquippedItems);
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;
@@ -988,18 +988,18 @@ internal sealed class EnemyCollision
     /// </summary>
     internal static bool IsEnemyTouchingSamusFromBelow(RoomEnemySlot enemy, SamusState samus)
     {
-        int xDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - enemy.Position.X.Whole)));
-        int horizontalGap = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
+        int xDistance = CoordinateAxis.Distance(samus.Position.X.Whole, enemy.Position.X.Whole);
+        int horizontalGap = CoordinateAxis.Wrap(xDistance - samus.Kinematics.Radius.X);
         bool horizontalOverlap = xDistance < samus.Kinematics.Radius.X ||
             horizontalGap < enemy.Radius.X;
         if (!horizontalOverlap)
             return false;
 
-        int biasedYDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - enemy.Position.Y.Whole));
-        if (unchecked((short)biasedYDifference) >= 0)
+        int biasedYDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3 - enemy.Position.Y.Whole);
+        if (WordWrap.Signed(biasedYDifference) >= 0)
             return false;
-        int yDistance = unchecked((ushort)-biasedYDifference);
-        int verticalGap = unchecked((ushort)(yDistance - samus.Kinematics.Radius.Y));
+        int yDistance = WordWrap.Unsigned(-biasedYDifference);
+        int verticalGap = CoordinateAxis.Wrap(yDistance - samus.Kinematics.Radius.Y);
         return yDistance < samus.Kinematics.Radius.Y || verticalGap <= enemy.Radius.Y;
     }
 }

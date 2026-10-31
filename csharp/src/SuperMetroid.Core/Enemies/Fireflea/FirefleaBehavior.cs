@@ -51,17 +51,17 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.UsesCircularMovement)
         {
             state.Center = slot.Position.Whole;
-            state.Angle = RotationAngle.FromTableIndex(checked((byte)settings.InitialAngle));
+            state.Angle = RotationAngle.FromTableIndex(settings.InitialAngle);
 
             // The initializer passes the complete 8.8 angle word to an eight-bit routine,
             // which reads its low byte. That is the retail missing-division bug; main AI
             // begins using the high byte on frame one and corrects the position immediately.
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ReinterpretFractionAsTableAngle(), checked((ushort)state.Radius)));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ReinterpretFractionAsTableAngle(), Ensure.BetweenInclusive(0, ushort.MaxValue, state.Radius)));
             return;
         }
 
         var spawnY = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
-        var reach = new Offset16<RoomPixels>(0, checked((short)state.Radius));
+        var reach = new Offset16<RoomPixels>(0, state.Radius);
         state.MinimumYExtent = spawnY - reach;
         state.MaximumYExtent = spawnY + reach;
     }
@@ -71,7 +71,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.UsesCircularMovement)
         {
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToByteAngle(), checked((ushort)state.Radius)));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.ToByteAngle(), Ensure.BetweenInclusive(0, ushort.MaxValue, state.Radius)));
 
             // The angle advances by the speed at 256ths of a pixel: the high byte of its fraction under the low byte
             // of its whole part, the exact signed 8.8 step including negative speeds.
@@ -135,8 +135,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void AdvanceFirefleaDarknessLevel()
     {
-        int next = unchecked((ushort)(_roomStatus.FirefleaDarknessLevel + 2));
-        if (unchecked((short)(next - 14)) < 0)
+        int next = WordWrap.Unsigned(_roomStatus.FirefleaDarknessLevel + 2);
+        if (WordWrap.Signed(next - 14) < 0)
             _roomStatus.FirefleaDarknessLevel = next;
     }
 

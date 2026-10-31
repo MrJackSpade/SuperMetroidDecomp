@@ -23,15 +23,15 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The eye responds to collected Morph Ball even when it is unequipped.</summary>
     /// <summary>Strict horizontal range for starting the opening animation.</summary>
-    private const ushort EyeActivateXDistance = 128;
+    private const int EyeActivateXDistance = 128;
     /// <summary>Wider strict horizontal range that keeps an active beam open.</summary>
-    private const ushort EyeDeactivateXDistance = 176;
+    private const int EyeDeactivateXDistance = 176;
     /// <summary>Strict vertical range for initial activation.</summary>
-    private const ushort EyeActivateYDistance = 128;
+    private const int EyeActivateYDistance = 128;
     /// <summary>Strict vertical range retained while tracking Samus.</summary>
-    private const ushort EyeDeactivateYDistance = 128;
+    private const int EyeDeactivateYDistance = 128;
     /// <summary>Native word countdown for both opening and closing eye transitions.</summary>
-    private const ushort EyeTransitionDuration = 32;
+    private const int EyeTransitionDuration = 32;
 
     /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
@@ -183,7 +183,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Calculates the cartridge angle from signed wrapped eye-to-Samus displacement.</summary>
     private static RotationAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
         EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - eye.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - eye.Position.Y.Whole)))).ReinterpretAsTableAngle().ToAngle();
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, eye.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, eye.Position.Y.Whole))).ReinterpretAsTableAngle().ToAngle();
 
     /// <summary>Requires the body in retail slot one before scheduling the room-global beam to appear next frame.</summary>
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)

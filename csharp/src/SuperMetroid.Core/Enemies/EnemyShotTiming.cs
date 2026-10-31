@@ -7,5 +7,5 @@ public static class EnemyShotTiming
     /// NormalEnemyShotAI at $A0:A85C-$A0:A85F stores sixteen frames of
     /// invincibility after a damaging projectile with the Plasma bit set.
     /// </summary>
-    public const ushort PlasmaInvincibilityFrames = 16;
+    public const int PlasmaInvincibilityFrames = 16;
 }

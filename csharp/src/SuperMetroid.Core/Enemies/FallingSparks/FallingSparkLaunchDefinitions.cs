@@ -21,6 +21,6 @@ public static class FallingSparkLaunchDefinitions
         SignedSixteenSixteen.FromParts(0, 0x0100),
         SignedSixteenSixteen.FromParts(0, 0x2000),
         SignedSixteenSixteen.FromParts(0, 0x4000),
-        SignedSixteenSixteen.FromParts(unchecked((short)0xdbbd), 0x301a),
+        SignedSixteenSixteen.FromParts(WordWrap.Signed(0xdbbd), 0x301a),
     ];
 }

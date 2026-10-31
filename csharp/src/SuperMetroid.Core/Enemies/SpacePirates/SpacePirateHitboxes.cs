@@ -18,10 +18,10 @@ internal static class SpacePirateHitboxes
             for (int index = 0; index < hitboxes.Count; index++)
             {
                 SpacePirateCollisionHitbox hitbox = hitboxes[index];
-                int left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                int top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                int right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                int bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                int left = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left);
+                int top = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top);
+                int right = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right);
+                int bottom = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom);
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
                 callback = probe.SelectShotCallback

@@ -197,13 +197,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
     /// <summary>Signed eight-eight acceleration added to a bug's vertical velocity each unobstructed airborne frame.</summary>
-    private const ushort KagoBugGravity = 224;
+    private const int KagoBugGravity = 224;
     /// <summary>Signed eight-eight horizontal jump speed, negated for leftward launches.</summary>
-    private const ushort KagoBugHorizontalSpeed = 512;
+    private const int KagoBugHorizontalSpeed = 512;
     /// <summary>Horizontal parent separation that enables the bug to block Samus's projectiles.</summary>
-    private const ushort KagoBugSourceCollisionEnableDistance = 23;
+    private const int KagoBugSourceCollisionEnableDistance = 23;
     /// <summary>Beyond this parent separation, the next jump homes toward the shell.</summary>
-    private const ushort KagoBugSourceHomingDistance = 48;
+    private const int KagoBugSourceHomingDistance = 48;
 
     /// <summary>Ports <c>EprojInit_KagosBugs</c> at <c>$86:D088</c>.</summary>
     internal bool SpawnKagoBug(RoomEnemySlot source)
@@ -252,7 +252,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void EnableKagoBugShotCollisionWhenSeparated(RoomEnemyProjectileSlot projectile)
     {
         RoomEnemySlot source = projectile.StateOf<KagoBugState>().Source;
-        int distance = Math.Abs(unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole)));
+        int distance = CoordinateAxis.Distance(source.Position.X.Whole, projectile.Position.X.Whole);
         if (distance >= KagoBugSourceCollisionEnableDistance)
             projectile.BlocksSamusProjectiles = true;
     }
@@ -298,8 +298,8 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + KagoBugGravity))));
-        if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + KagoBugGravity));
+        if (projectile.Velocity.Y.SignedRawValue >= 0)
             BeginKagoBugFall(projectile);
     }
 
@@ -324,7 +324,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + KagoBugGravity))));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + KagoBugGravity));
     }
 
     /// <summary>Switches an airborne bug to the falling list when rising ends or a wall interrupts it.</summary>
@@ -343,10 +343,10 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int random = ReadKagoRandomNumber();
         int upwardMagnitude = (KagoDefinitions.JumpHeightSteps.Of(random) * KagoDefinitions.JumpHeightStep) + 2048;
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)-upwardMagnitude)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(-upwardMagnitude));
 
         RoomEnemySlot source = projectile.StateOf<KagoBugState>().Source;
-        int sourceDelta = unchecked((short)(source.Position.X.Whole - projectile.Position.X.Whole));
+        int sourceDelta = CoordinateAxis.Difference(source.Position.X.Whole, projectile.Position.X.Whole);
         bool jumpLeft;
         if (Math.Abs(sourceDelta) >= KagoBugSourceHomingDistance)
         {
@@ -361,7 +361,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(jumpLeft
-            ? unchecked((ushort)-KagoBugHorizontalSpeed)
+            ? WordWrap.Unsigned(-KagoBugHorizontalSpeed)
             : KagoBugHorizontalSpeed));
         projectile.PreInstruction =
             EnemyProjectilePreInstruction.KagoBug_Jumping;

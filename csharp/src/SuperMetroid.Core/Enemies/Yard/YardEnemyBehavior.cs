@@ -87,7 +87,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardSpawnSettings settings = slot.SpawnSettings<YardSpawnSettings>();
         YardDirection direction = settings.Direction;
         int speedIndex = settings.SpeedIndex;
-        ValidateYardSpeedIndex(checked((ushort)speedIndex));
+        ValidateYardSpeedIndex(Ensure.BetweenInclusive(0, ushort.MaxValue, speedIndex));
 
         var state = new YardEnemyState
         {
@@ -119,8 +119,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction)
     {
-        ValidateYardSpeedIndex(checked((ushort)state.CrawlingSpeedIndex));
-        int speed = CrawlerSpeeds.ForParameter(checked((ushort)state.CrawlingSpeedIndex));
+        ValidateYardSpeedIndex(Ensure.BetweenInclusive(0, ushort.MaxValue, state.CrawlingSpeedIndex));
+        int speed = CrawlerSpeeds.ForParameter(Ensure.BetweenInclusive(0, ushort.MaxValue, state.CrawlingSpeedIndex));
         state.CrawlingVelocity = YardCrawlVelocity.Apply(speed, direction);
     }
 
@@ -189,7 +189,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Behavior is YardBehavior.AggressiveCrawling or YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched)
             return;
 
-        bool withinVerticalBand = unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= -96;
+        bool withinVerticalBand = CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= -96;
         SamusFacingDirection samusFacing = SamusPoseMetadata.ReadFacingDirection(samus);
         bool samusLookingAtYard = slot.Position.X.Whole < samus.Position.X.Whole
             ? samusFacing == SamusFacingDirection.Left
@@ -439,7 +439,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // Gravity always stores the fraction word but stores the whole word only below four.
         SignedSixteenSixteen fallingVelocity = state.AirborneVelocity.Y;
         SignedSixteenSixteen accelerated = fallingVelocity + SignedSixteenSixteen.FromParts(0, 8192);
-        state.AirborneVelocity = state.AirborneVelocity.WithY(unchecked((short)(accelerated.WholeWord - 4)) < 0
+        state.AirborneVelocity = state.AirborneVelocity.WithY(CoordinateAxis.Difference(accelerated.WholeWord, 4) < 0
             ? accelerated
             : fallingVelocity.WithFraction(accelerated.Fraction));
     }
@@ -557,14 +557,14 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SetYardAirborneLists(slot, state);
         // Only the whole words are stored; both fraction words keep their previous values.
         state.AirborneVelocity = state.AirborneVelocity.WithWhole(new Offset16<RoomPixels>(
-            SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? (short)-1 : (short)1,
+            SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Left ? -1 : 1,
             -1));
     }
 
     /// <summary>Negates the whole and fraction words independently, as Yard's collision handlers do.</summary>
     private static SignedSixteenSixteen NegateWordsSeparately(SignedSixteenSixteen velocity) =>
         SignedSixteenSixteen.FromParts(
-            unchecked((short)CrawlersBehavior.Negate16(velocity.WholeWord)),
+            WordWrap.Signed(CrawlersBehavior.Negate16(velocity.WholeWord)),
             CrawlersBehavior.Negate16(velocity.Fraction));
 
     /// <summary>Negates one raw 8.8 crawl word, wrapping at sixteen bits.</summary>

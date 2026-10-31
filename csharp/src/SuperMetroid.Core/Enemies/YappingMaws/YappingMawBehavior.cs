@@ -75,13 +75,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Minimum separation used before moving Samus to the extended mouth.</summary>
-    private const ushort YappingMawGrabSafetyDistance = 32;
+    private const int YappingMawGrabSafetyDistance = 32;
     /// <summary>Maximum extension curl admitted by the four-link solver, in whole angle units.</summary>
     private const int YappingMawMaximumCurl = 128;
     /// <summary>Cooldown after Samus is released before the Maw can grab again.</summary>
-    private const ushort YappingMawGrabCooldownFrames = 48;
+    private const int YappingMawGrabCooldownFrames = 48;
     /// <summary>Delay after full retraction before Samus input is released.</summary>
-    private const ushort YappingMawRetractedDelayFrames = 64;
+    private const int YappingMawRetractedDelayFrames = 64;
 
     /// <summary>Ports <c>YappingMaw_Init</c> at $A8:A148.</summary>
     internal void InitializeYappingMaw(RoomEnemySlot slot)
@@ -129,7 +129,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // CreateSpriteAtPos uses object number 56 for parameter zero and 57 otherwise. Its
         // returned native index is represented by the retained physical slot reference.
         state.RootSpriteObject = _spriteObjects.SpawnRoomSpriteObject(
-            new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down ? -8 : 8)))),
+            new(slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole + (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down ? -8 : 8))),
             slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                 ? RoomSpriteObjectKind.YappingMawRootVariantZero
                 : RoomSpriteObjectKind.YappingMawRootVariantOne,
@@ -228,13 +228,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MirroredBend = state.CurlAngle.TableIndex >= RotationAngle.HalfTurn.TableIndex;
 
         state.Baseline = new Offset16<RoomPixels>(
-            unchecked((short)CalculateYappingMawX(ByteAngle.HalfTurn, checked((ushort)state.SegmentRadius))),
-            unchecked((short)CalculateYappingMawY(
+            CoordinateAxis.AsSigned(CalculateYappingMawX(ByteAngle.HalfTurn, Ensure.BetweenInclusive(0, ushort.MaxValue, state.SegmentRadius))),
+            CoordinateAxis.AsSigned(CalculateYappingMawY(
                 ByteAngle.HalfTurn,
-                checked((ushort)(state.SegmentRadius / 2)))));
+                Ensure.BetweenInclusive(0, ushort.MaxValue, state.SegmentRadius / 2))));
 
         // Eight 32-unit sectors, each centred on its direction: the aim is turned a half sector before quantizing.
-        int direction = unchecked((byte)(state.AimAngle.RawValue + 16)) / 32;
+        int direction = WordWrap.LowByte(state.AimAngle.RawValue + 16) / 32;
         YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(direction);
         state.Aim = aim;
         state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawBites.AttackForDirection(aim));
@@ -255,39 +255,39 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // the clamp below caps it, and the update that carries it negative leaves this function. In that range a
         // quarter of the signed whole part equals the cartridge's two logical right shifts of the word; the checked
         // conversion fails loudly if that range is ever violated.
-        int bendStep = checked((ushort)(state.Extension.WholePixels / 4));
+        int bendStep = Ensure.BetweenInclusive(0, ushort.MaxValue, state.Extension.WholePixels / 4);
         // $A8:A532 corrects the eight offsets in one chain, link by link and X before Y: an offset whose correction
         // wraps it past the last pixel of its word moves the next offset in the chain one pixel further.
         int wrappedIntoNext = 0;
         for (int segment = 0; segment < 4; segment++)
         {
-            int multiple = unchecked((ushort)(bendStep * (segment + 1)));
+            int multiple = WordWrap.Unsigned(bendStep * (segment + 1));
             int linkAngle = state.MirroredBend
-                ? unchecked((ushort)(128 + multiple))
-                : unchecked((ushort)(128 - multiple));
+                ? WordWrap.Unsigned(128 + multiple)
+                : WordWrap.Unsigned(128 - multiple);
 
-            int rawX = unchecked((ushort)(
-                CalculateYappingMawX(new ByteAngle(unchecked((byte)(linkAngle))), checked((ushort)state.SegmentRadius)) - state.Baseline.X));
-            int rawY = unchecked((ushort)(
+            int rawX = CoordinateAxis.Wrap(
+                CalculateYappingMawX(new ByteAngle(WordWrap.LowByte(linkAngle)), Ensure.BetweenInclusive(0, ushort.MaxValue, state.SegmentRadius)) - state.Baseline.X);
+            int rawY = CoordinateAxis.Wrap(
                 CalculateYappingMawY(
-                    new ByteAngle(unchecked((byte)(linkAngle))),
-                    checked((ushort)(state.SegmentRadius / 2))) - state.Baseline.Y));
+                    new ByteAngle(WordWrap.LowByte(linkAngle)),
+                    Ensure.BetweenInclusive(0, ushort.MaxValue, state.SegmentRadius / 2)) - state.Baseline.Y);
 
             // Variables 27..2E rotate a correction whose length is the LOW BYTE of raw X.
             // Passing raw Y here is an attractive cleanup and is wrong; the cartridge's
             // lopsided curve is a direct consequence of reusing raw X for both components.
-            int correctionX = unchecked((ushort)(
+            int correctionX = CoordinateAxis.Wrap(
                 CalculateYappingMawX(state.CurlAngle.ToByteAngle(), rawX) -
-                CalculateYappingMawX(new ByteAngle(0), rawX)));
-            int correctionY = unchecked((ushort)(
+                CalculateYappingMawX(new ByteAngle(0), rawX));
+            int correctionY = CoordinateAxis.Wrap(
                 CalculateYappingMawY(state.CurlAngle.ToByteAngle(), rawX) -
-                CalculateYappingMawY(new ByteAngle(0), rawX)));
+                CalculateYappingMawY(new ByteAngle(0), rawX));
             state.Corrections[segment] = new Offset16<RoomPixels>(
-                unchecked((short)correctionX), unchecked((short)correctionY));
+                CoordinateAxis.AsSigned(correctionX), CoordinateAxis.AsSigned(correctionY));
             int segmentX = Corrected(rawX, correctionX);
             int segmentY = Corrected(rawY, correctionY);
             state.SegmentOffsets[segment] = new Offset16<RoomPixels>(
-                unchecked((short)segmentX), unchecked((short)segmentY));
+                CoordinateAxis.AsSigned(segmentX), CoordinateAxis.AsSigned(segmentY));
         }
 
         slot.Position = slot.Position.WithWhole(YappingMawLinkPosition(state, 3));
@@ -353,16 +353,16 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // wrapped; records whether this one wraps in turn.
         int Corrected(int offset, int correction)
         {
-            int sum = checked((ushort)offset) + checked((ushort)correction) + wrappedIntoNext;
+            int sum = Ensure.BetweenInclusive(0, ushort.MaxValue, offset) + Ensure.BetweenInclusive(0, ushort.MaxValue, correction) + wrappedIntoNext;
             wrappedIntoNext = sum > ushort.MaxValue ? 1 : 0;
-            return unchecked((ushort)sum);
+            return WordWrap.Unsigned(sum);
         }
     }
 
     /// <summary>Ports $A8:A63E: adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        state.Extension += SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(checked((ushort)state.QuadraticSpeedRecord)).Toward(state.QuadraticSpeedNegative ? EnemySpeedSign.Negative : EnemySpeedSign.Positive));
+        state.Extension += SignedSixteenSixteen.FromRaw(EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.QuadraticSpeedRecord)).Toward(state.QuadraticSpeedNegative ? EnemySpeedSign.Negative : EnemySpeedSign.Positive));
         state.QuadraticSpeedRecord++;
     }
 
@@ -496,7 +496,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The frozen colours flash back to the actor's own on alternating pairs only
         // during the final 89 ticks. The strict signed comparison excludes timer 90.
-        if (unchecked((short)(frozenTimer - 90)) < 0 && (frozenTimer & 2) == 0)
+        if (WordWrap.Signed(frozenTimer - 90) < 0 && (frozenTimer & 2) == 0)
             return originalColouring;
         return SharedSpriteColouring.Frozen;
     }
@@ -536,60 +536,60 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsYappingMawPointOffScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
-        unchecked((short)(slot.Position.X.Whole - camera.X)) < 0 ||
-        unchecked((short)(camera.X + 256 - slot.Position.X.Whole)) < 0 ||
-        unchecked((short)(slot.Position.Y.Whole - camera.Y)) < 0 ||
-        unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) < 0;
+        CoordinateAxis.Difference(slot.Position.X.Whole, camera.X) < 0 ||
+        CoordinateAxis.AsSigned(camera.X + 256 - slot.Position.X.Whole) < 0 ||
+        CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) < 0 ||
+        CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) < 0;
 
     /// <summary>Ports EnemyFunc_ACA8 at $A0:ACA8 for the one family that consumes it.</summary>
     private static YappingMawTarget CalculateYappingMawTarget(
         Position16<RoomPixels> origin,
         Position16<RoomPixels> samus)
     {
-        int deltaX = unchecked((ushort)(samus.X - origin.X));
+        int deltaX = CoordinateAxis.Wrap(samus.X - origin.X);
         int absoluteX = EnemyMath.WrappedMagnitude(deltaX);
-        if (unchecked((short)(absoluteX - 255)) >= 0)
+        if (CoordinateAxis.Difference(absoluteX, 255) >= 0)
             return new YappingMawTarget(absoluteX, default);
 
-        int deltaY = unchecked((ushort)(samus.Y - origin.Y));
+        int deltaY = CoordinateAxis.Wrap(samus.Y - origin.Y);
         int absoluteY = EnemyMath.WrappedMagnitude(deltaY);
-        if (unchecked((short)(absoluteY - 255)) >= 0)
+        if (CoordinateAxis.Difference(absoluteY, 255) >= 0)
             return new YappingMawTarget(absoluteY, default);
 
         ByteAngle positiveQuadrantAngle = EnemyMath.CalculateBearing(
-            new(unchecked((short)absoluteX), unchecked((short)absoluteY))).ReinterpretAsTableAngle();
-        int distance = unchecked((ushort)(
-            EnemyMath.WrappedMagnitude(unchecked((ushort)EnemyMath.ReadEightBitNegativeSineProduct(
+            new(CoordinateAxis.AsSigned(absoluteX), CoordinateAxis.AsSigned(absoluteY))).ReinterpretAsTableAngle();
+        int distance = CoordinateAxis.Wrap(
+            EnemyMath.WrappedMagnitude(CoordinateAxis.Wrap(EnemyMath.ReadEightBitNegativeSineProduct(
                 positiveQuadrantAngle,
                 absoluteX))) +
-            EnemyMath.WrappedMagnitude(unchecked((ushort)EnemyMath.ReadEightBitCosineProduct(
+            EnemyMath.WrappedMagnitude(CoordinateAxis.Wrap(EnemyMath.ReadEightBitCosineProduct(
                 positiveQuadrantAngle,
-                absoluteY)))));
-        return new YappingMawTarget(distance, EnemyMath.CalculateBearing(new(unchecked((short)deltaX), unchecked((short)deltaY))));
+                absoluteY))));
+        return new YappingMawTarget(distance, EnemyMath.CalculateBearing(new(CoordinateAxis.AsSigned(deltaX), CoordinateAxis.AsSigned(deltaY))));
     }
 
     /// <summary>$A8:A73E: X is the Y helper with a minus-64 angle adjustment.</summary>
-    internal static ushort CalculateYappingMawX(ByteAngle angle, int length) =>
+    internal static int CalculateYappingMawX(ByteAngle angle, int length) =>
         CalculateYappingMawY(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue), length);
 
     /// <summary>
     /// Ports $A8:A742 exactly, including the high-byte sine approximation and the unusual
     /// negative-product construction. Only length's low byte reaches WRMPYB.
     /// </summary>
-    internal static ushort CalculateYappingMawY(ByteAngle angle, int length)
+    internal static int CalculateYappingMawY(ByteAngle angle, int length)
     {
         int signedSample = Trigonometry.SignedSixteenBitSine(
-            new ByteAngle(unchecked((byte)-angle.RawValue)));
+            new ByteAngle(WordWrap.LowByte(-angle.RawValue)));
         bool negative = signedSample < 0;
-        int magnitude = unchecked((ushort)(negative ? -signedSample : signedSample));
-        int product = unchecked((ushort)(UnsignedEightEight.Whole(magnitude) * unchecked((byte)length)));
+        int magnitude = WordWrap.Unsigned(negative ? -signedSample : signedSample);
+        int product = CoordinateAxis.Wrap(UnsignedEightEight.Whole(magnitude) * WordWrap.LowByte(length));
         if (product == 0)
             return 0;
 
         if (!negative)
-            return unchecked((ushort)(2 * UnsignedEightEight.Whole(product)));
+            return CoordinateAxis.Wrap(2 * UnsignedEightEight.Whole(product));
 
-        int negatedProduct = unchecked((ushort)-product);
+        int negatedProduct = WordWrap.Unsigned(-product);
         return EnemyMath.FillHighByte(2 * UnsignedEightEight.Whole(negatedProduct));
     }
 

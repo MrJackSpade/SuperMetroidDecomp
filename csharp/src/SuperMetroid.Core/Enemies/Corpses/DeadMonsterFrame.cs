@@ -56,7 +56,7 @@ internal sealed class DeadMonsterFrame
     internal void SpawnCorpseRowDust(RoomEnemySlot slot, int random, EnemyProjectileEngine projectiles, int randomEnemyCounter)
     {
         projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(slot.Position.X.Whole + CorpseDustSpread(random) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
+            new(CoordinateAxis.Wrap(slot.Position.X.Whole + CorpseDustSpread(random) - 14), CoordinateAxis.Wrap(slot.Position.Y.Whole + 16)),
             MiscDustAnimation.CorpseDustCloud);
         if ((randomEnemyCounter & 7) == 0)
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.DeadMonsters, Library2Sound.LiquidDamage, priority: SoundRequestPriority.Low);

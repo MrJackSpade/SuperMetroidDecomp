@@ -29,11 +29,11 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Random-wandering activation resets the shared enemy RNG to $000B.</summary>
-    private const ushort SbugRandomSeed = 11;
+    private const int SbugRandomSeed = 11;
     /// <summary>Random and forward-then-wait legs last $20 enemy frames before selection changes.</summary>
-    private const ushort SbugMovementSegmentFrames = 32;
+    private const int SbugMovementSegmentFrames = 32;
     /// <summary>Long wandering mode tracks $200 frames before dropping its distance-based reversal gate.</summary>
-    private const ushort SbugLongRandomLifetime = 512;
+    private const int SbugLongRandomLifetime = 512;
     /// <summary>Both axes must be at least six blocks from Samus for the special reversal.</summary>
     private const int SbugReverseDistance = 96;
 
@@ -60,7 +60,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // $A3:A183 uses the cartridge-derived unsigned quarter-circle magnitudes and lets
         // $A0:B691 apply signs later from the original angle. The side velocities instead use the signed,
         // intentionally imperfect eight-bit multiply routine at $A0:B0B2/$B0C6.
-        int speed = checked((byte)state.Speed);
+        int speed = Ensure.BetweenInclusive(0, byte.MaxValue, state.Speed);
         RotationAngle leftAngle = state.InitialAngle.AddTableUnits(-EnemyByteAngleDefinitions.EighthTurn);
         RotationAngle rightAngle = state.InitialAngle.AddTableUnits(EnemyByteAngleDefinitions.EighthTurn);
         state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
@@ -168,8 +168,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunSbugWait(RoomEnemySlot slot, SbugEnemyState state, SamusState samus)
     {
         int threshold = state.ActivationRadius;
-        int xDistance = Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)));
-        int yDistance = Math.Abs(unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)));
+        int xDistance = CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole);
+        int yDistance = CoordinateAxis.Distance(slot.Position.Y.Whole, samus.Position.Y.Whole);
         if (xDistance >= threshold || yDistance >= threshold)
             return;
 
@@ -187,7 +187,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // $40 converts to Sbug's zero-right/counter-clockwise mathematical convention;
         // adding $80 selects the exact opposite direction for behavior six.
         ByteAngle heading = EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ToTableAngle();
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle();
         state.FaceCustomHeading(heading.AddTableUnits(relativeHeading == SbugHeading.Away ? ByteAngle.HalfTurn.RawValue : 0).ToAngle());
         RecalculateSbugCustomDirection(slot, state);
         state.Function = relativeHeading == SbugHeading.Away
@@ -273,8 +273,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // The native branch reverses only when both coordinate differences are at
             // least six blocks. This is a rectangular test, not Euclidean distance.
-            int xDistance = Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)));
-            int yDistance = Math.Abs(unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)));
+            int xDistance = CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole);
+            int yDistance = CoordinateAxis.Distance(slot.Position.Y.Whole, samus.Position.Y.Whole);
             if (xDistance >= SbugReverseDistance && yDistance >= SbugReverseDistance)
                 ReverseSbugCustomDirection(slot, state);
         }
@@ -290,8 +290,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // AND #$00FF / SBC #$0040 / AND #$00FF creates an unsigned byte delta; the later
         // trigonometry reads only the heading's low byte, which the turn wraps within.
-        int randomLow = unchecked((byte)_room.Random.Generate());
-        int angleDelta = unchecked((byte)(randomLow - EnemyByteAngleDefinitions.QuarterTurn));
+        int randomLow = SharedRandomState.LowerByte(_room.Random.Generate());
+        int angleDelta = WordWrap.LowByte(randomLow - EnemyByteAngleDefinitions.QuarterTurn);
         state.TurnCustomHeading(angleDelta);
         RecalculateSbugCustomDirection(slot, state);
         state.MovementTimer = WrappingCountdown.Start(SbugMovementSegmentFrames);
@@ -303,7 +303,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         CalculateSignedSbugVelocities(
             state.CustomHeading.ToByteAngle(),
-            checked((byte)state.Speed),
+            Ensure.BetweenInclusive(0, byte.MaxValue, state.Speed),
             out SignedSixteenSixteen customX,
             out SignedSixteenSixteen customY);
         state.CustomXVelocity = customX;
@@ -331,8 +331,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Negates pixel and subpixel words separately, retaining the cartridge's fractional error.</summary>
     private static SignedSixteenSixteen NegateSbugWordsIndependently(SignedSixteenSixteen value) =>
         SignedSixteenSixteen.FromParts(
-            unchecked((short)-value.WholeWord),
-            unchecked((ushort)-value.Fraction));
+            CoordinateAxis.AsSigned(-value.WholeWord),
+            WordWrap.Unsigned(-value.Fraction));
 
     /// <summary>Applies unsigned quarter-wave magnitudes with signs from the original angle.</summary>
     private static void MoveSbugForward(RoomEnemySlot slot, SbugEnemyState state)
@@ -414,15 +414,15 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         // than using floating point or Math.Sin, both of which erase its rounding bug.
         ByteAngle tableAngle = angle.AddTableUnits(phase);
         int sineMagnitude = Trigonometry.EightBitHalfWave(tableAngle.HalfWaveIndex);
-        int product = unchecked((ushort)(sineMagnitude * speed));
+        int product = WordWrap.Unsigned(sineMagnitude * speed);
         int pixel = EightEight.WholeOf(product);
-        int subpixel = unchecked((ushort)SixteenSixteen.FromEightEight(product));
+        int subpixel = WordWrap.Unsigned(SixteenSixteen.FromEightEight(product));
         if (tableAngle.IsInSecondHalf)
         {
-            pixel = unchecked((ushort)-pixel);
-            subpixel = unchecked((ushort)-subpixel);
+            pixel = CoordinateAxis.Wrap(-pixel);
+            subpixel = CoordinateAxis.Wrap(-subpixel);
         }
-        return SignedSixteenSixteen.FromParts(unchecked((short)pixel), subpixel);
+        return SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(pixel), subpixel);
     }
 
     /// <summary>Quantizes a heading to one of the eight facing loops, after rotating it back by the cartridge's quantization offset.</summary>

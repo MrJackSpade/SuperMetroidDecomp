@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 public static class PolypLaunches
 {
     /// <summary>Uses RNG bits 1..3; bit zero and the upper bits do not select a record.</summary>
-    public static ushort Cooldown(int random) => Cooldowns[CooldownSelector.Of(random)];
+    public static int Cooldown(int random) => Cooldowns[CooldownSelector.Of(random)];
 
     /// <summary>Uses RNG bits 1..4 to select quadratic speed indices 28 through 43.</summary>
-    public static ushort InitialYIndex(int random) => (ushort)(FirstInitialYIndex + LaunchSelector.Of(random));
+    public static int InitialYIndex(int random) => WordWrap.Unsigned(FirstInitialYIndex + LaunchSelector.Of(random));
 
     /// <summary>Preserves the native sign grouping and sixteen-bit representation.</summary>
-    public static ushort XVelocity(int random) => unchecked((ushort)XVelocities[LaunchSelector.Of(random)]);
+    public static int XVelocity(int random) => WordWrap.Unsigned(XVelocities[LaunchSelector.Of(random)]);
 }

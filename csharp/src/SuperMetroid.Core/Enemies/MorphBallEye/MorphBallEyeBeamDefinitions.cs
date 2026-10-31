@@ -17,5 +17,5 @@ internal static class MorphBallEyeBeamDefinitions
     internal static SignedSixteenSixteen WidthGrowthStep { get; } = SignedSixteenSixteen.FromParts(0, 0x4000);
 
     /// <summary>The whole angular half-width, in angle units, at which a widening beam is full.</summary>
-    internal const short FullAngularWidth = 4;
+    internal const int FullAngularWidth = 4;
 }

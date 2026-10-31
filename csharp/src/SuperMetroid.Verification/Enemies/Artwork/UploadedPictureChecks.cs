@@ -48,7 +48,7 @@ internal static class UploadedPictureChecks
                 for (ushort x = 0; x < placed.Size.X; x++)
                 {
                     int character = placed.CharacterAt(new(x, y), out Position16<CharacterPixels> within);
-                    byte colour = draw.Artwork.ColorIndex(character, within);
+                    int colour = draw.Artwork.ColorIndex(character, within);
                     if (colour != 0)
                         Ink(expected, placed.Position.X + x, placed.Position.Y + y, placed.Palette * 16 + colour, placed.Priority);
                 }

@@ -40,8 +40,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
             if (!enemy.InvincibilityTimer.IsZero)
                 continue;
 
-            int xDistance = Math.Abs(unchecked((short)(enemy.Position.X.Whole - endpoint.X)));
-            int yDistance = Math.Abs(unchecked((short)(enemy.Position.Y.Whole - endpoint.Y)));
+            int xDistance = CoordinateAxis.Distance(enemy.Position.X.Whole, endpoint.X);
+            int yDistance = CoordinateAxis.Distance(enemy.Position.Y.Whole, endpoint.Y);
             if (xDistance >= enemy.Radius.X + 8 || yDistance >= enemy.Radius.Y + 8)
                 continue;
 

@@ -131,12 +131,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                     "Post-Ceres gunship initialization requires the loader's Samus actor.");
             // `$A2:A669-$A678` attaches the top hull seventeen pixels above Samus and
             // enters function three, the high-altitude descent used only after Ceres.
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole - 17)));
+            slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole - 17);
             part.Function = GunshipFunction.DescendAfterCeres;
         }
         else
         {
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 25)));
+            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 25);
             part.BaseY = slot.Position.Y.Whole;
             part.Function = GunshipFunction.Idle;
         }
@@ -172,7 +172,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             // Y-position word. The opening pad sits one pixel above the top hull origin.
             if (slot.SlotIndex < 2)
                 throw new InvalidDataException("Gunship entrance pad requires two preceding enemy slots.");
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(_slotTable.Slots[slot.SlotIndex - 2].Position.Y.Whole - 1)));
+            slot.Position = slot.Position.WithWrappedWholeY(_slotTable.Slots[slot.SlotIndex - 2].Position.Y.Whole - 1);
         }
         else
         {
@@ -181,11 +181,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 SamusState samus = _samusAtEnemyInitialization
                     ?? throw new InvalidOperationException(
                         "Post-Ceres gunship bottom initialization requires Samus.");
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole + 23)));
+                slot.Position = slot.Position.WithWrappedWholeY(samus.Position.Y.Whole + 23);
             }
             else
             {
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 15)));
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 15);
                 part.EngineSoundTimer = WrappingCountdown.Start(71);
             }
         }
@@ -335,15 +335,15 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Post-Ceres gunship bounce lost Samus.");
 
-        int yDelta = GunshipMotion.LandingBrakeYDelta(checked((ushort)Part(top).LandingBrakeStep));
-        samus.Position += new Offset16<RoomPixels>(0, checked((short)yDelta));
+        int yDelta = GunshipMotion.LandingBrakeYDelta(Ensure.BetweenInclusive(0, ushort.MaxValue, Part(top).LandingBrakeStep));
+        samus.Position += new Offset16<RoomPixels>(0, yDelta);
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + yDelta)));
+            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + yDelta);
         }
 
-        Part(top).LandingBrakeStep = unchecked((ushort)(Part(top).LandingBrakeStep + 1));
+        Part(top).LandingBrakeStep = WordWrap.Unsigned(Part(top).LandingBrakeStep + 1);
         if (Part(top).LandingBrakeStep < 17)
             return;
 
@@ -352,7 +352,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         Part(top).BaseY = top.Position.Y.Whole;
         Part(top).BobTimer = WrappingCountdown.Start(1);
         Part(top).BobPhase = 0;
-        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.Position.X.Whole + 1)));
+        samus.Position = samus.Position.WithWrappedWholeX(top.Position.X.Whole + 1);
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
         Part(top).FunctionTimer = WrappingCountdown.Start(144);
@@ -367,7 +367,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             throw new InvalidOperationException("Post-Ceres gunship exit lost Samus.");
 
         samus.Position -= new Offset16<RoomPixels>(0, 1);
-        int targetY = unchecked((ushort)(Part(top).BaseY - 30));
+        int targetY = WordWrap.Unsigned(Part(top).BaseY - 30);
         if (!EnemyMath.IsNegative16(samus.Position.Y.Whole - targetY))
             return;
 
@@ -384,7 +384,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         uint samusFixed = new FixedCoordinate(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
         samusFixed = unchecked(samusFixed + delta);
         samus.Position = samus.Position.WithWholeY(FixedCoordinate.WholeOf(unchecked((int)samusFixed)));
-        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(unchecked((ushort)samusFixed));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(WordWrap.Unsigned(samusFixed));
 
         for (int component = 0; component < 3; component++)
         {
@@ -416,13 +416,13 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             return;
 
         GunshipIdleBobDefinition bob = GunshipMotion.IdleBob(
-            unchecked((ushort)(Part(top).BobPhase & 3)));
+            WordWrap.Unsigned(Part(top).BobPhase & 3));
         Part(top).BobTimer = WrappingCountdown.Start(bob.Timer);
         int yDelta = bob.YDelta;
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + yDelta)));
+            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + yDelta);
         }
         Part(top).BobPhase = (Part(top).BobPhase + 1) & 3;
     }
@@ -438,10 +438,10 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             return;
 
         bool insideEntrance =
-            (short)unchecked((ushort)(top.Position.X.Whole - 8 - samus.Position.X.Whole)) < 0 &&
-            (short)unchecked((ushort)(top.Position.X.Whole + 8 - samus.Position.X.Whole)) >= 0 &&
-            (short)unchecked((ushort)(top.Position.Y.Whole - 64 - samus.Position.Y.Whole)) < 0 &&
-            (short)unchecked((ushort)(top.Position.Y.Whole - samus.Position.Y.Whole)) >= 0;
+            CoordinateAxis.AsSigned(CoordinateAxis.Wrap(top.Position.X.Whole - 8 - samus.Position.X.Whole)) < 0 &&
+            CoordinateAxis.AsSigned(CoordinateAxis.Wrap(top.Position.X.Whole + 8 - samus.Position.X.Whole)) >= 0 &&
+            CoordinateAxis.AsSigned(CoordinateAxis.Wrap(top.Position.Y.Whole - 64 - samus.Position.Y.Whole)) < 0 &&
+            CoordinateAxis.AsSigned(CoordinateAxis.Wrap(top.Position.Y.Whole - samus.Position.Y.Whole)) >= 0;
         if (insideEntrance && SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Standing)
         {
             RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
@@ -456,7 +456,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
             samus.Control.EnterGunship();
             samus.Presentation.PrimeGraphics(samus);
-            pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
+            pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - 1);
             StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
             Part(top).FunctionTimer = WrappingCountdown.Start(144);
             _frameResults.Gunship = GunshipFrameEvent.EntryStarted;
@@ -478,7 +478,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Gunship entry lost its Samus actor.");
         samus.Position += new Offset16<RoomPixels>(0, 2);
-        if (EnemyMath.IsNegative16(samus.Position.Y.Whole - unchecked((ushort)(Part(top).BaseY + 18))))
+        if (EnemyMath.IsNegative16(samus.Position.Y.Whole - WordWrap.Unsigned(Part(top).BaseY + 18)))
             return;
 
         RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
@@ -529,7 +529,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Gunship exit lost its Samus actor.");
         samus.Position -= new Offset16<RoomPixels>(0, 2);
-        if (!EnemyMath.IsNegative16(samus.Position.Y.Whole - unchecked((ushort)(Part(top).BaseY - 30))))
+        if (!EnemyMath.IsNegative16(samus.Position.Y.Whole - WordWrap.Unsigned(Part(top).BaseY - 30)))
             return;
 
         RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
@@ -571,12 +571,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         int shake = (rumbleFrame & 1) != 0
             ? (rumbleFrame < 64 ? 1 : 2)
             : (rumbleFrame < 64 ? -1 : -2);
-        samus.Position += new Offset16<RoomPixels>(0, unchecked((short)shake));
-        top.Position = top.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole - 17)));
-        pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
-        bottom.Position = bottom.Position.WithWholeY(unchecked((ushort)(samus.Position.Y.Whole + 23)));
+        samus.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(shake));
+        top.Position = top.Position.WithWrappedWholeY(samus.Position.Y.Whole - 17);
+        pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - 1);
+        bottom.Position = bottom.Position.WithWrappedWholeY(samus.Position.Y.Whole + 23);
 
-        Part(bottom).RumbleFrame = unchecked((ushort)(Part(bottom).RumbleFrame + 1));
+        Part(bottom).RumbleFrame = WordWrap.Unsigned(Part(bottom).RumbleFrame + 1);
         if (Part(bottom).RumbleFrame == 64)
         {
             // The six calls at `$A2:AC9B-$ACCA` happen after the frame counter reaches
@@ -597,7 +597,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     {
         if (samus is null)
             throw new InvalidOperationException("Gunship liftoff lost Samus.");
-        MoveGunshipAndSamusToY(top, samus, unchecked((ushort)(samus.Position.Y.Whole - 2)));
+        MoveGunshipAndSamusToY(top, samus, CoordinateAxis.Wrap(samus.Position.Y.Whole - 2));
         if (EnemyMath.IsNegative16(top.Position.Y.Whole - 896))
         {
             Part(top).Function = GunshipFunction.AcceleratingLiftoff;
@@ -623,7 +623,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             throw new InvalidOperationException("Escaping gunship lost Samus.");
         RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
         GunshipPartState bottomPart = Part(bottom);
-        bottomPart.EscapeVelocity = unchecked((ushort)(bottomPart.EscapeVelocity + GunshipMotionDefinitions.EscapeAcceleration));
+        bottomPart.EscapeVelocity = WordWrap.Unsigned(bottomPart.EscapeVelocity + GunshipMotionDefinitions.EscapeAcceleration);
         if (UnsignedEightEight.WithoutFraction(bottomPart.EscapeVelocity) >= GunshipMotionDefinitions.EscapeVelocityCapTrigger)
             bottomPart.EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
 
@@ -639,12 +639,12 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         SamusState samus,
         int samusY)
     {
-        samus.Position = samus.Position.WithWholeY(checked((ushort)samusY));
+        samus.Position = samus.Position.WithWholeY(samusY);
         RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
         RoomEnemySlot pad = _slotTable.Slots[top.SlotIndex + 2];
-        top.Position = top.Position.WithWholeY(unchecked((ushort)(samusY - 17)));
-        pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
-        bottom.Position = bottom.Position.WithWholeY(unchecked((ushort)(samusY + 23)));
+        top.Position = top.Position.WithWrappedWholeY(samusY - 17);
+        pad.Position = pad.Position.WithWrappedWholeY(top.Position.Y.Whole - 1);
+        bottom.Position = bottom.Position.WithWrappedWholeY(samusY + 23);
     }
 
     /// <summary>Restores a resource by two without exceeding its maximum.</summary>

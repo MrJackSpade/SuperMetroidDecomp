@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal static class ChozoStatueRoomDefinitions
 {
     /// <summary>The base height the Wrecked Ship statue's draining acid settles at, in room pixels.</summary>
-    public const ushort LoweredAcidY = 722;
+    public const int LoweredAcidY = 722;
 
     /// <summary>The first of the two slope blocks the Wrecked Ship statue opens and closes, as a block index in its room.</summary>
     public const int FirstSlopeBlockIndex = 2820;

@@ -36,7 +36,7 @@ public sealed class MochtroidEnemyState
 
     /// <summary>Whether the count has reached <paramref name="period"/>, compared as the cartridge's signed word difference.</summary>
     /// <param name="period">The damage period in attached updates.</param>
-    internal bool HasReachedDamagePeriod(int period) => unchecked((short)(AttachmentDamageTimer - period)) >= 0;
+    internal bool HasReachedDamagePeriod(int period) => WordWrap.Signed(AttachmentDamageTimer - period) >= 0;
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

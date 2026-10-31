@@ -25,8 +25,8 @@ internal sealed class AngledFlightState(ByteAngle heading, UnsignedSixteenSixtee
     /// <param name="speed">The speed, 0 through 65535 in 1/256 pixel per update.</param>
     internal static AngledFlightState Launch(ByteAngle heading, int speed) => new(
         heading,
-        UnsignedSixteenSixteen.FromRaw(unchecked((uint)EnemyMath.ReadAbsoluteCosineProduct(heading, checked((ushort)speed)))),
-        UnsignedSixteenSixteen.FromRaw(unchecked((uint)EnemyMath.ReadAbsoluteSineProduct(heading, checked((ushort)speed)))));
+        UnsignedSixteenSixteen.FromRaw(unchecked((uint)EnemyMath.ReadAbsoluteCosineProduct(heading, Ensure.BetweenInclusive(0, ushort.MaxValue, speed)))),
+        UnsignedSixteenSixteen.FromRaw(unchecked((uint)EnemyMath.ReadAbsoluteSineProduct(heading, Ensure.BetweenInclusive(0, ushort.MaxValue, speed)))));
 
     /// <summary>Moves <paramref name="projectile"/> one update along the heading.</summary>
     internal void Advance(RoomEnemyProjectileSlot projectile)

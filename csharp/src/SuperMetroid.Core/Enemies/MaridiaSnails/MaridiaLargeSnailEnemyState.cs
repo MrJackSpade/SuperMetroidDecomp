@@ -56,7 +56,7 @@ public sealed class MaridiaLargeSnailEnemyState
     public int YSpeedTableIndex
     {
         get;
-        internal set => field = checked((short)value);
+        internal set => field = Ensure.BetweenInclusive(short.MinValue, short.MaxValue, value);
     }
 
     /// <summary>Signed-underflow attack cooldown, initialized to 128.</summary>

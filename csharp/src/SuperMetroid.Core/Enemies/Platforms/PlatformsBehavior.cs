@@ -116,28 +116,28 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Exact wrapped-word port of <c>$A0:ABE7-$AC28</c>.</summary>
     internal static bool IsSamusRidingPlatform(RoomEnemySlot slot, SamusState samus)
     {
-        int xDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
-        if (unchecked((short)xDistance) < 0)
-            xDistance = unchecked((ushort)-xDistance);
+        int xDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
+        if (CoordinateAxis.AsSigned(xDistance) < 0)
+            xDistance = CoordinateAxis.Wrap(-xDistance);
 
         // Carry clear after subtracting Samus's radius jumps directly to Y. Otherwise the
         // remainder must be strictly less than the platform radius; equality is not overlap.
         if (xDistance >= samus.Kinematics.Radius.X)
         {
-            int remainder = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
+            int remainder = CoordinateAxis.Wrap(xDistance - samus.Kinematics.Radius.X);
             if (remainder >= slot.Radius.X)
                 return false;
         }
 
         // The +3 bias requires Samus's center to remain above the enemy center. After taking
         // the wrapped magnitude, Y accepts equality with the enemy radius (unlike X).
-        int yDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - slot.Position.Y.Whole));
-        if (unchecked((short)yDifference) >= 0)
+        int yDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3 - slot.Position.Y.Whole);
+        if (WordWrap.Signed(yDifference) >= 0)
             return false;
-        int yDistance = unchecked((ushort)-yDifference);
+        int yDistance = WordWrap.Unsigned(-yDifference);
         if (yDistance < samus.Kinematics.Radius.Y)
             return true;
-        int yRemainder = unchecked((ushort)(yDistance - samus.Kinematics.Radius.Y));
+        int yRemainder = CoordinateAxis.Wrap(yDistance - samus.Kinematics.Radius.Y);
         return yRemainder <= slot.Radius.Y;
     }
 
@@ -202,7 +202,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Signed BMI comparison is intentional. Normal platforms stop once they have risen
         // from their depressed position to one pixel below their original spawn center.
-        if (unchecked((short)(slot.Position.Y.Whole - state.RestingHeight.Y)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.RestingHeight.Y) < 0)
         {
             state.YSpeedTableIndex = 0;
             SetPlatformVerticallyStillInstruction(slot, state);
@@ -238,8 +238,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Add the wrapped whole-pixel horizontal step to Samus's extra displacement; fractional
         // displacement is deliberately untouched because this enemy carries only whole pixels.
-        int xDelta = unchecked((ushort)(slot.Position.X.Whole - preHorizontalX));
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(xDelta)), 0);
+        int xDelta = CoordinateAxis.Wrap(slot.Position.X.Whole - preHorizontalX);
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(WordWrap.Signed(xDelta), 0);
 
         int preVerticalY = slot.Position.Y.Whole;
         int displacement = EnemyQuadraticSpeeds.Row(state.YSpeedTableIndex).Positive;
@@ -251,8 +251,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // This delta is measured after collision clipping, so Samus follows the platform's
         // accepted motion rather than the requested quadratic speed.
-        int yDelta = unchecked((ushort)(slot.Position.Y.Whole - preVerticalY));
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
+        int yDelta = CoordinateAxis.Wrap(slot.Position.Y.Whole - preVerticalY);
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, WordWrap.Signed(yDelta));
     }
 
     /// <summary>

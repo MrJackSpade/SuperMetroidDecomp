@@ -65,11 +65,11 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             displacement);
         if (!reverse && state.XVelocity.WholePixels < 0)
         {
-            reverse = unchecked((short)(slot.Position.X.Whole - state.MinimumXPosition)) < 0;
+            reverse = CoordinateAxis.Difference(slot.Position.X.Whole, state.MinimumXPosition) < 0;
         }
         if (!reverse && state.XVelocity.WholePixels >= 0)
         {
-            reverse = unchecked((short)(slot.Position.X.Whole - state.MaximumXPosition)) >= 0;
+            reverse = CoordinateAxis.Difference(slot.Position.X.Whole, state.MaximumXPosition) >= 0;
         }
         if (reverse)
         {

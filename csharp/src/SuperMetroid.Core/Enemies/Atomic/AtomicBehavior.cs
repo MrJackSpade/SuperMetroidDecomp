@@ -46,10 +46,10 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         // The cartridge treats equality as the positive direction: down for Y and right for
         // X. Compare the wrapped 16-bit subtraction as signed, matching BMI rather than a host
         // integer comparison that would disagree across the $0000/$FFFF coordinate boundary.
-        state.VerticalMovement = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)) < 0
+        state.VerticalMovement = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) < 0
             ? AtomicVerticalMovement.MoveUp
             : AtomicVerticalMovement.MoveDown;
-        state.HorizontalMovement = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
+        state.HorizontalMovement = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
             ? AtomicHorizontalMovement.MoveLeft
             : AtomicHorizontalMovement.MoveRight;
 
@@ -92,11 +92,11 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         FixedCoordinate position,
         SignedSixteenSixteen velocity)
     {
-        int whole = unchecked((ushort)(position.Whole + velocity.WholeWord));
+        int whole = WordWrap.Unsigned(position.Whole + velocity.WholeWord);
         uint fractionalSum = (uint)position.Fraction + velocity.Fraction;
         if (fractionalSum > ushort.MaxValue)
-            whole = unchecked((ushort)(whole + 1));
-        return new(checked((ushort)whole), unchecked((ushort)fractionalSum));
+            whole = WordWrap.Unsigned(whole + 1);
+        return new(whole, WordWrap.Unsigned(fractionalSum));
     }
 
     /// <summary>Advances Atomic's typed animation.</summary>

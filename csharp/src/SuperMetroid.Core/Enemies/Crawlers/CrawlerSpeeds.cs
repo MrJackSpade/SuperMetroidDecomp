@@ -11,13 +11,13 @@ public static class CrawlerSpeeds
     /// calculates; the two gap points and the penultimate magnitude are authored tuning
     /// with no rule in the ramp (see residualScalarInputsReview).
     /// </summary>
-    public static ushort ForParameter(int parameter)
+    public static int ForParameter(int parameter)
     {
         if (parameter >= Count)
             throw new InvalidDataException($"Crawler speed parameter ${parameter:X4} exceeds the 32 authored records.");
         if (parameter == Count - 1) return 0;
         if (parameter == Count - 2) return PenultimateMagnitude;
         int skippedSteps = parameter < FirstGapParameter ? 0 : parameter < SecondGapParameter ? 1 : 4;
-        return (ushort)((parameter + 1 + skippedSteps) * 64);
+        return WordWrap.Unsigned((parameter + 1 + skippedSteps) * 64);
     }
 }

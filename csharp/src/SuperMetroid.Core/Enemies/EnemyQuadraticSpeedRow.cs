@@ -28,6 +28,6 @@ public readonly record struct EnemyQuadraticSpeedRow(int Positive, int Negative)
     internal int CoarseToward(EnemySpeedSign sign)
     {
         int speed = Toward(sign);
-        return unchecked((ushort)EightEight.FromSixteenSixteen(SixteenSixteen.WholeOf(speed), SixteenSixteen.FractionOf(speed)));
+        return WordWrap.Unsigned(EightEight.FromSixteenSixteen(SixteenSixteen.WholeOf(speed), SixteenSixteen.FractionOf(speed)));
     }
 }

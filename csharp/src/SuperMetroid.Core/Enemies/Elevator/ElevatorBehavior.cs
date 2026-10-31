@@ -128,7 +128,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop);
-        state.DirectionTableByteOffset = unchecked((ushort)(slot.SpawnSettings<ElevatorSpawnSettings>().DirectionIndex * 2));
+        state.DirectionTableByteOffset = CoordinateAxis.Wrap(slot.SpawnSettings<ElevatorSpawnSettings>().DirectionIndex * 2);
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
         if (ElevatorStatus != ElevatorActorStatus.BeginArrivalReturn)
@@ -287,7 +287,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     /// <summary>Ports <c>Elevator_Func_4</c> at $A3:9612.</summary>
     private static void PinSamusToElevator(RoomEnemySlot slot, SamusState samus)
     {
-        samus.Position = samus.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - ElevatorActorDefinitions.SamusYOffset)));
+        samus.Position = samus.Position.WithWrappedWholeY(slot.Position.Y.Whole - ElevatorActorDefinitions.SamusYOffset);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
         samus.Position = samus.Position.WithWholeX(slot.Position.X.Whole);
         samus.Kinematics.YSpeed = default;

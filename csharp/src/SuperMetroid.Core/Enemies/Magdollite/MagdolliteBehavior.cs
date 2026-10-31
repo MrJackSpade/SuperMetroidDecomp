@@ -120,7 +120,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyWakeRequested = true;
         state.DesiredProgram = MagdolliteRise.Phase(0).BodyProgram;
         InstallMagdolliteInstructionList(slot, state);
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 32)));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
         state.Function = MagdolliteEnemyFunction.BodyDormant;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
@@ -135,7 +135,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AttackTimer = WrappingCountdown.Start(0);
         state.DesiredProgram = MagdolliteProgram.PillarCap;
         InstallMagdolliteInstructionList(slot, state);
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 32)));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 32);
         state.Function = MagdolliteEnemyFunction.OverlayWaitingForAttack;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
@@ -199,7 +199,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             return;
 
-        bool samusIsRight = !EnemyMath.IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.Position.X.Whole)));
+        bool samusIsRight = !EnemyMath.IsNegative16(CoordinateAxis.Wrap(samus.Position.X.Whole - head.Position.X.Whole));
         state.DesiredProgram = samusIsRight
             ? MagdolliteProgram.RightIdle
             : MagdolliteProgram.LeftIdle;
@@ -246,7 +246,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool samusIsRight = samus is not null &&
-            !EnemyMath.IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.Position.X.Whole)));
+            !EnemyMath.IsNegative16(CoordinateAxis.Wrap(samus.Position.X.Whole - head.Position.X.Whole));
         state.DesiredProgram = samusIsRight
             ? MagdolliteProgram.RightEmerge
             : MagdolliteProgram.LeftEmerge;
@@ -264,7 +264,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool samusIsRight = samus is not null &&
-            !EnemyMath.IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.Position.X.Whole)));
+            !EnemyMath.IsNegative16(CoordinateAxis.Wrap(samus.Position.X.Whole - head.Position.X.Whole));
         state.DesiredProgram = samusIsRight
             ? MagdolliteProgram.RightIdle
             : MagdolliteProgram.LeftIdle;
@@ -299,12 +299,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState speedOwner = head.RequireSpeciesState<MagdolliteEnemyState>();
         state.RiseDisplacement += AddMagdolliteY(body, speedOwner.UpwardVelocity);
 
-        int upwardDistance = unchecked((ushort)-state.RiseDisplacement.Y);
+        int upwardDistance = CoordinateAxis.Wrap(-state.RiseDisplacement.Y);
         MagdollitePhaseDefinition phase = MagdolliteRise.Phase(state.BodyPhase);
         bool roseMaximum = !EnemyMath.IsNegative16(
             upwardDistance - MagdollitePhaseDefinitions.MaximumRise);
-        bool rosePastSamus = samus is not null && EnemyMath.IsNegative16(unchecked((ushort)(
-            body.Position.Y.Whole - phase.OverlayYOffset - samus.Position.Y.Whole)));
+        bool rosePastSamus = samus is not null && EnemyMath.IsNegative16(CoordinateAxis.Wrap(
+            body.Position.Y.Whole - phase.OverlayYOffset - samus.Position.Y.Whole));
         // The maximum-rise branch skips the growth-index load, so its comparison depends on the
         // main loop's enemy index; the Samus test compares with the phase's own threshold.
         bool growsAPhase = roseMaximum
@@ -324,7 +324,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.BodyPhase++;
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 8)));
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 8);
         state.DesiredProgram = MagdolliteRise
             .Phase(state.BodyPhase).BodyProgram;
         InstallMagdolliteInstructionList(body, state);
@@ -348,13 +348,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int downwardDistanceRemaining = unchecked((ushort)-state.RiseDisplacement.Y);
+        int downwardDistanceRemaining = CoordinateAxis.Wrap(-state.RiseDisplacement.Y);
         int threshold = MagdolliteRise.Phase(state.BodyPhase - 1).DistanceThreshold;
         if (!EnemyMath.IsNegative16(downwardDistanceRemaining - threshold))
             return;
 
         state.BodyPhase--;
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 8)));
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 8);
         state.DesiredProgram = MagdolliteRise
             .Phase(state.BodyPhase).BodyProgram;
         InstallMagdolliteInstructionList(body, state);
@@ -404,7 +404,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (bodyState.BodyReachedApex)
         {
             bool samusIsRight = samus is not null &&
-                !EnemyMath.IsNegative16(unchecked((ushort)(samus.Position.X.Whole - overlay.Position.X.Whole)));
+                !EnemyMath.IsNegative16(CoordinateAxis.Wrap(samus.Position.X.Whole - overlay.Position.X.Whole));
             state.DesiredProgram = samusIsRight
                 ? MagdolliteProgram.RightThrow
                 : MagdolliteProgram.LeftThrow;
@@ -417,7 +417,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int offset = MagdolliteRise
                 .Phase(bodyState.BodyPhase).OverlayYOffset;
-            overlay.Position = overlay.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - offset)));
+            overlay.Position = overlay.Position.WithWrappedWholeY(body.Position.Y.Whole - offset);
         }
 
         UpdateMagdolliteHeadRadius(overlay);
@@ -439,7 +439,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int offset = MagdolliteRise
                 .Phase(bodyState.BodyPhase).OverlayYOffset;
-            overlay.Position = overlay.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - offset)));
+            overlay.Position = overlay.Position.WithWrappedWholeY(body.Position.Y.Whole - offset);
         }
 
         UpdateMagdolliteHeadRadius(overlay);
@@ -453,8 +453,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void UpdateMagdolliteHeadRadius(RoomEnemySlot overlay)
     {
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(overlay);
-        int radius = unchecked((ushort)(head.Position.Y.Whole - overlay.Position.Y.Whole + 2));
-        head.Radius = head.Radius.WithY(checked((ushort)(EnemyMath.IsNegative16(radius - 8) ? 8 : radius)));
+        int radius = CoordinateAxis.Wrap(head.Position.Y.Whole - overlay.Position.Y.Whole + 2);
+        head.Radius = head.Radius.WithY(EnemyMath.IsNegative16(radius - 8) ? 8 : radius);
     }
 
     /// <summary>
@@ -555,10 +555,10 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             }
             case MagdolliteCueKind.MoveDown2:
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 2)));
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 2);
                 break;
             case MagdolliteCueKind.MoveUp2:
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 2)));
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 2);
                 break;
             case MagdolliteCueKind.SetAnimationBusy:
                 state.AnimationBusy = true;
@@ -569,15 +569,15 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             case MagdolliteCueKind.MoveWithPillarUp1:
             {
                 RoomEnemySlot next = NextMagdolliteSlot(slot);
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 1)));
-                next.Position = next.Position.WithWholeY(unchecked((ushort)(next.Position.Y.Whole - 1)));
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 1);
+                next.Position = next.Position.WithWrappedWholeY(next.Position.Y.Whole - 1);
                 break;
             }
             case MagdolliteCueKind.MoveWithPillarDown1:
             {
                 RoomEnemySlot next = NextMagdolliteSlot(slot);
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
-                next.Position = next.Position.WithWholeY(unchecked((ushort)(next.Position.Y.Whole + 1)));
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
+                next.Position = next.Position.WithWrappedWholeY(next.Position.Y.Whole + 1);
                 break;
             }
             case MagdolliteCueKind.SinkAndShowParts:
@@ -778,7 +778,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer copies both subpixels from the throwing overlay, starts two pixels below it, and throws the
         // lava sideways in the overlay's facing.
-        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(unchecked((ushort)(source.Position.Y.Whole + 2)), source.Position.Y.Fraction));
+        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 2), source.Position.Y.Fraction));
         projectile.Velocity = new(
             SignedEightEight.FromSignedRaw(throwsRight ? MagdolliteLavaHorizontalSpeed : -MagdolliteLavaHorizontalSpeed),
             new SignedEightEight(0));
@@ -796,8 +796,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // $86:E049 deletes actors outside the inclusive 256x256 camera square after their
         // horizontal move. The lava never moves vertically.
-        if (unchecked((ushort)(projectile.Position.X.Whole - camera.X)) >= 256 ||
-            unchecked((ushort)(projectile.Position.Y.Whole - camera.Y)) >= 256)
+        if (CoordinateAxis.Wrap(projectile.Position.X.Whole - camera.X) >= 256 ||
+            CoordinateAxis.Wrap(projectile.Position.Y.Whole - camera.Y) >= 256)
         {
             projectile.Clear();
         }

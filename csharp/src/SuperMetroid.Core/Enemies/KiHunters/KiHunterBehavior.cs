@@ -69,11 +69,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Native grounded decision delay between jumps or spits.</summary>
-    private const ushort KiHunterGroundWaitFrames = 12;
+    private const int KiHunterGroundWaitFrames = 12;
     /// <summary>Native cooldown after an acid-spit instruction.</summary>
-    private const ushort KiHunterSpitWaitFrames = 24;
+    private const int KiHunterSpitWaitFrames = 24;
     /// <summary>Horizontal Samus range admitted by the grounded acid attack.</summary>
-    private const ushort KiHunterGroundAttackDistance = 96;
+    private const int KiHunterGroundAttackDistance = 96;
 
 
     /// <summary>The detached wing's speed-index step: 384 per update while it slows, and per step while its reset is found.</summary>
@@ -103,7 +103,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SwoopAngle = 0;
         state.Function = KiHunterEnemyFunction.FlyingPatrol;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(-1, 1));
-        state.UpperPatrol = new(0, unchecked((ushort)(body.Position.Y.Whole - 16)));
+        state.UpperPatrol = new(0, CoordinateAxis.Wrap(body.Position.Y.Whole - 16));
         state.LowerPatrol = state.UpperPatrol + new Offset16<RoomPixels>(0, 32);
         state.SpawnPosition = body.Position.Whole;
 
@@ -201,7 +201,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 body,
                 state.Velocity.Y.RawValue))
         {
-            state.Velocity = state.Velocity.WithWholeY(unchecked((short)-state.Velocity.Y.WholePixels));
+            state.Velocity = state.Velocity.WithWholeY(WordWrap.Signed(-state.Velocity.Y.WholePixels));
         }
         else if ((body.Position.Whole - state.UpperPatrol).Y < 0)
         {
@@ -217,16 +217,16 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 body,
                 state.Velocity.X.RawValue))
         {
-            state.Velocity = state.Velocity.WithWholeX(unchecked((short)-state.Velocity.X.WholePixels));
+            state.Velocity = state.Velocity.WithWholeX(WordWrap.Signed(-state.Velocity.X.WholePixels));
             SetKiHunterPairFacing(body, state.Velocity.X.WholePixels >= 0);
         }
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
 
-        int signedXDistance = unchecked((ushort)(samus.Position.X.Whole - body.Position.X.Whole));
+        int signedXDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - body.Position.X.Whole);
         int absoluteXDistance = EnemyMath.WrappedMagnitude(signedXDistance);
         int triggerDistance = KiHunterMotionDefinitions.SwoopTriggerDistance;
-        if (unchecked((short)(absoluteXDistance - triggerDistance)) >= 0 ||
-            unchecked((short)(samus.Position.Y.Whole - body.Position.Y.Whole - 32)) < 0)
+        if (CoordinateAxis.Difference(absoluteXDistance, triggerDistance) >= 0 ||
+            CoordinateAxis.Difference(samus.Position.Y.Whole - body.Position.Y.Whole, 32) < 0)
         {
             return;
         }
@@ -234,13 +234,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AngularVelocity = SignedSixteenSixteen.Zero;
         state.SwoopAnimationChanged = false;
         state.SwoopRadius = new Extent16<RoomPixels>(
-            checked((ushort)absoluteXDistance),
-            unchecked((ushort)(samus.Position.Y.Whole - body.Position.Y.Whole)));
+            absoluteXDistance,
+            CoordinateAxis.Wrap(samus.Position.Y.Whole - body.Position.Y.Whole));
         state.SwoopTarget = new(samus.Position.X.Whole, 0);
         state.SwoopOrigin = new(0, body.Position.Y.Whole);
         state.Function = KiHunterEnemyFunction.Swooping;
 
-        bool swoopLeft = unchecked((short)signedXDistance) < 0;
+        bool swoopLeft = CoordinateAxis.AsSigned(signedXDistance) < 0;
         if (swoopLeft)
         {
             state.MaximumAngularVelocity = -2;
@@ -287,7 +287,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             ? state.AngularVelocity.WholePixels < state.MaximumAngularVelocity
             : state.AngularVelocity.WholePixels >= state.MaximumAngularVelocity;
         if (pastCap)
-            state.AngularVelocity = state.AngularVelocity.WithWholePixels(checked((short)state.MaximumAngularVelocity));
+            state.AngularVelocity = state.AngularVelocity.WithWholePixels(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, state.MaximumAngularVelocity));
 
         state.SwoopAngle += state.AngularVelocity.WholePixels;
         if ((!leftArc && state.SwoopAngle >= RotationAngle.TableUnitsPerTurn) ||
@@ -298,22 +298,22 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         ByteAngle tableAngle = RotationAngle.NormalizeTableIndex(state.SwoopAngle).ToByteAngle();
-        int targetX = unchecked((ushort)(
+        int targetX = CoordinateAxis.Wrap(
             state.SwoopTarget.X +
-            EnemyMath.ReadEightBitCosineProduct(tableAngle, state.SwoopRadius.X)));
-        int horizontalDisplacement = SixteenSixteen.FromWhole((short)(targetX - body.Position.X.Whole));
+            EnemyMath.ReadEightBitCosineProduct(tableAngle, state.SwoopRadius.X));
+        int horizontalDisplacement = SixteenSixteen.FromWhole(CoordinateAxis.Difference(targetX, body.Position.X.Whole));
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
-            state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(leftArc ? (short)1 : (short)-1, 0));
+            state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(leftArc ? 1 : -1, 0));
             StartKiHunterSwoopRecovery(state);
             return;
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
-        int targetY = unchecked((ushort)(
+        int targetY = CoordinateAxis.Wrap(
             state.SwoopOrigin.Y +
-            EnemyMath.ReadEightBitNegativeSineProduct(tableAngle, state.SwoopRadius.Y)));
-        int verticalDisplacement = SixteenSixteen.FromWhole((short)(targetY - body.Position.Y.Whole));
+            EnemyMath.ReadEightBitNegativeSineProduct(tableAngle, state.SwoopRadius.Y));
+        int verticalDisplacement = SixteenSixteen.FromWhole(CoordinateAxis.Difference(targetY, body.Position.Y.Whole));
         if (_terrain.MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
     }
@@ -345,7 +345,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 level,
                 body,
                 state.Velocity.Y.RawValue) ||
-            unchecked((short)(body.Position.Y.Whole - state.SpawnPosition.Y)) < 0)
+            CoordinateAxis.Difference(body.Position.Y.Whole, state.SpawnPosition.Y) < 0)
         {
             state.Function = KiHunterEnemyFunction.FlyingPatrol;
         }
@@ -377,10 +377,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Function = KiHunterEnemyFunction.NoOp;
         int random = _room.Random.Read();
-        bool jumpLeft = unchecked((short)(body.Position.X.Whole - samus.Position.X.Whole)) >= 0;
+        bool jumpLeft = CoordinateAxis.Difference(body.Position.X.Whole, samus.Position.X.Whole) >= 0;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(
-            jumpLeft ? (short)-2 : (short)2,
-            unchecked((short)((random & 1) - 8))));
+            jumpLeft ? -2 : 2,
+            WordWrap.Signed((random & 1) - 8)));
         InstallKiHunterInstruction(
             body,
             body.RequireSpeciesState<KiHunterEnemyState>(),
@@ -424,7 +424,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 body,
                 state.Velocity.X.RawValue))
         {
-            state.Velocity = state.Velocity.WithWholeX(unchecked((short)-state.Velocity.X.WholePixels));
+            state.Velocity = state.Velocity.WithWholeX(WordWrap.Signed(-state.Velocity.X.WholePixels));
             return;
         }
 
@@ -442,7 +442,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.WaitTimer.IsZero)
             return;
 
-        int distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(body.Position.X.Whole - samus.Position.X.Whole)));
+        int distance = CoordinateAxis.Distance(body.Position.X.Whole, samus.Position.X.Whole);
         state.Function = distance < KiHunterGroundAttackDistance
             ? KiHunterEnemyFunction.SelectAcidSpit
             : KiHunterEnemyFunction.StartGroundJump;
@@ -454,7 +454,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state,
         SamusState samus)
     {
-        bool samusRight = unchecked((short)(body.Position.X.Whole - samus.Position.X.Whole)) < 0;
+        bool samusRight = CoordinateAxis.Difference(body.Position.X.Whole, samus.Position.X.Whole) < 0;
         InstallKiHunterInstruction(
             body,
             state,
@@ -520,14 +520,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             sign: EnemySpeedSign.Positive));
         int radius = KiHunterMotionDefinitions.DetachedWingRadius;
         ByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
-        int desiredY = unchecked((ushort)(
+        int desiredY = CoordinateAxis.Wrap(
             state.OrbitCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(byteAngle, radius) -
-            state.FallingArcOffset.Y));
+            state.FallingArcOffset.Y);
         if (_terrain.MoveEnemyVertically(
                 level,
                 wings,
-                SixteenSixteen.FromWhole((short)(desiredY - wings.Position.Y.Whole))))
+                SixteenSixteen.FromWhole(CoordinateAxis.Difference(desiredY, wings.Position.Y.Whole))))
         {
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
             wings.Position = wings.Position.WithWhole(state.SavedWingPosition);
@@ -535,8 +535,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        wings.Position = wings.Position.WithWholeX(unchecked((ushort)(
-            state.OrbitCenter.X + EnemyMath.ReadEightBitCosineProduct(byteAngle, radius) - state.FallingArcOffset.X)));
+        wings.Position = wings.Position.WithWrappedWholeX(
+            state.OrbitCenter.X + EnemyMath.ReadEightBitCosineProduct(byteAngle, radius) - state.FallingArcOffset.X);
         if (!LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
             BeginDetachedKiHunterWingOrbit(wings, state);
@@ -596,7 +596,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.WingFunction = KiHunterWingFunction.Orbit;
         state.OrbitCenter = new Position16<RoomPixels>(
             wings.Position.X.Whole,
-            unchecked((ushort)(state.SavedWingPosition - state.LowerPatrol).Y));
+            CoordinateAxis.Wrap((state.SavedWingPosition - state.LowerPatrol).Y));
         state.DetachedSpeedIndex = state.DetachedSpeedReset;
         InstallKiHunterInstruction(
             wings,
@@ -620,7 +620,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             int index = EightEight.WholeOf(state.DetachedSpeedReset);
             state.AccumulateDetachedSpeed(EnemyQuadraticSpeeds.Row(index).CoarseToward(EnemySpeedSign.Positive));
         }
-        while (unchecked((short)(state.DetachedSpeedAccumulator - KiHunterMotionDefinitions.DetachedSpeedThreshold)) < 0);
+        while (WordWrap.Signed(state.DetachedSpeedAccumulator - KiHunterMotionDefinitions.DetachedSpeedThreshold) < 0);
     }
 
     /// <summary>Centers the detached wing's orbit at its current position with a negative quarter-turn seed.</summary>
@@ -646,9 +646,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The detached wing's orbit angle step: a quadratic row's coarse speed in the direction it turns.</summary>
-    internal static ushort ReadKiHunterQuadraticAngleDelta(int speedIndex, EnemySpeedSign sign) =>
+    internal static int ReadKiHunterQuadraticAngleDelta(int speedIndex, EnemySpeedSign sign) =>
         // The orbit steps by the coarse speed, in 256ths of a pixel; stepping by the full speed changes the orbit.
-        unchecked((ushort)EnemyQuadraticSpeeds.Row(EightEight.WholeOf(speedIndex)).CoarseToward(sign));
+        WordWrap.Unsigned(EnemyQuadraticSpeeds.Row(EightEight.WholeOf(speedIndex)).CoarseToward(sign));
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>
     private static void DecrementKiHunterDetachedSpeedIndex(KiHunterEnemyState state)
@@ -891,11 +891,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private const EnemyProjectilePreInstruction KiHunterAcidMovingPreInstruction =
         EnemyProjectilePreInstruction.KiHunterAcid_Moving;
     /// <summary>Positive 8.8 horizontal acid speed, negated for leftward shots.</summary>
-    private const ushort KiHunterAcidHorizontalSpeed = 768;
+    private const int KiHunterAcidHorizontalSpeed = 768;
     /// <summary>8.8 downward speed added to each active acid frame.</summary>
-    private const ushort KiHunterAcidGravity = 16;
+    private const int KiHunterAcidGravity = 16;
     /// <summary>Maximum 8.8 downward speed for a falling acid projectile.</summary>
-    private const ushort KiHunterAcidTerminalYSpeed = 512;
+    private const int KiHunterAcidTerminalYSpeed = 512;
 
     /// <summary>
     /// Ports <c>SpawnEprojWithGfx</c> plus definitions $86:CF18/$CF26 and initializers
@@ -917,10 +917,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(movingRight
             ? KiHunterAcidHorizontalSpeed
-            : unchecked((ushort)-KiHunterAcidHorizontalSpeed)));
-        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole + (movingRight ? 22 : -22))));
+            : WordWrap.Unsigned(-KiHunterAcidHorizontalSpeed)));
+        projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole + (movingRight ? 22 : -22));
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 16))).WithFractionX(0).WithFractionY(0);
+        projectile.Position = projectile.Position.WithWrappedWholeY(body.Position.Y.Whole - 16).WithFractionX(0).WithFractionY(0);
     }
 
     /// <summary>
@@ -933,8 +933,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction)
     {
         projectile.PreInstruction = KiHunterAcidMovingPreInstruction;
-        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
-            projectile.Position.X.Whole + (direction == HorizontalDirection.Right ? 19 : -19))));
+        projectile.Position = projectile.Position.WithWrappedWholeX(
+            projectile.Position.X.Whole + (direction == HorizontalDirection.Right ? 19 : -19));
     }
 
     /// <summary>
@@ -957,9 +957,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int accelerated = unchecked((ushort)(projectile.Velocity.Y.RawValue + KiHunterAcidGravity));
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(checked((ushort)(unchecked((short)(accelerated - KiHunterAcidTerminalYSpeed)) >= 0
+        int accelerated = WordWrap.Unsigned(projectile.Velocity.Y.RawValue + KiHunterAcidGravity);
+        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(WordWrap.Signed(accelerated - KiHunterAcidTerminalYSpeed) >= 0
             ? KiHunterAcidTerminalYSpeed
-            : accelerated))));
+            : accelerated));
     }
 }

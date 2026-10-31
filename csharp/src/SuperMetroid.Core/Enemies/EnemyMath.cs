@@ -28,8 +28,8 @@ internal static class EnemyMath
     {
         // A signed word's magnitude is at most 32,768, so the absolute values need no wrap.
         int quadrant = 0;
-        int absoluteX = Math.Abs((int)delta.X);
-        int absoluteY = Math.Abs((int)delta.Y);
+        int absoluteX = Math.Abs(delta.X);
+        int absoluteY = Math.Abs(delta.Y);
         if (delta.X < 0)
             quadrant += 2;
         if (delta.Y < 0)

@@ -121,7 +121,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances the corpse's fall and runs one rot call of its schedule.</summary>
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + 1))));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue + 1));
         MoveWithEightEightVelocity(slot, state.Velocity);
         state.ProcessCallCount++;
         bool stillRotting = state.Rot.Step(_ => FinishDeadTorizoCorpseRow(state));
@@ -155,43 +155,43 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             // acts as a reach on its own side of the corpse origin.
             int verticalDistance;
             int verticalReach;
-            if (unchecked((short)(kinematics.Position.Y.Whole - slot.Position.Y.Whole)) >= 0)
+            if (CoordinateAxis.Difference(kinematics.Position.Y.Whole, slot.Position.Y.Whole) >= 0)
             {
-                verticalDistance = unchecked((ushort)(kinematics.Position.Y.Whole - slot.Position.Y.Whole));
+                verticalDistance = CoordinateAxis.Wrap(kinematics.Position.Y.Whole - slot.Position.Y.Whole);
                 verticalReach = Math.Abs(hitbox.Bottom);
             }
             else
             {
-                verticalDistance = unchecked((ushort)(slot.Position.Y.Whole - kinematics.Position.Y.Whole));
+                verticalDistance = CoordinateAxis.Wrap(slot.Position.Y.Whole - kinematics.Position.Y.Whole);
                 verticalReach = Math.Abs(hitbox.Top);
             }
 
-            int verticalOverlap = unchecked((ushort)(
-                kinematics.Radius.Y + verticalReach - verticalDistance));
-            if (unchecked((short)verticalOverlap) < 0)
+            int verticalOverlap = CoordinateAxis.Wrap(
+                kinematics.Radius.Y + verticalReach - verticalDistance);
+            if (WordWrap.Signed(verticalOverlap) < 0)
                 continue;
 
             int horizontalDistance;
             int horizontalReach;
-            if (unchecked((short)(kinematics.Position.X.Whole - slot.Position.X.Whole)) >= 0)
+            if (CoordinateAxis.Difference(kinematics.Position.X.Whole, slot.Position.X.Whole) >= 0)
             {
-                horizontalDistance = unchecked((ushort)(kinematics.Position.X.Whole - slot.Position.X.Whole));
+                horizontalDistance = CoordinateAxis.Wrap(kinematics.Position.X.Whole - slot.Position.X.Whole);
                 horizontalReach = Math.Abs(hitbox.Right);
             }
             else
             {
-                horizontalDistance = unchecked((ushort)(slot.Position.X.Whole - kinematics.Position.X.Whole));
+                horizontalDistance = CoordinateAxis.Wrap(slot.Position.X.Whole - kinematics.Position.X.Whole);
                 horizontalReach = Math.Abs(hitbox.Left);
             }
 
-            int overlap = unchecked((short)(
-                kinematics.Radius.X + horizontalReach - horizontalDistance));
+            int overlap = CoordinateAxis.AsSigned(
+                kinematics.Radius.X + horizontalReach - horizontalDistance);
             if (overlap < 0)
                 continue;
             if (overlap < 4)
                 overlap = 4;
 
-            kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(checked((short)overlap), 4));
+            kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(overlap, 4));
             return true;
         }
 
@@ -204,7 +204,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FinishedEntryCount++;
         int random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(CorpseDustDefinitions.TorizoSpread.Of(random) + 272)), 188),
+            new(WordWrap.Unsigned(CorpseDustDefinitions.TorizoSpread.Of(random) + 272), 188),
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext.RandomEnemyCounter & 7) == 0)
@@ -258,11 +258,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (DeadTorizo is not { } state)
             return;
 
-        int screenY = unchecked((ushort)(187 - camera.Y));
-        if (unchecked((short)screenY) < 0)
+        int screenY = CoordinateAxis.Wrap(187 - camera.Y);
+        if (CoordinateAxis.AsSigned(screenY) < 0)
             return;
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.DeadTorizoHook), DeadTorizoArtworkDefinitions.HookFrame,
-            new Position16<ScreenPixels>(unchecked((ushort)(296 - camera.X)), checked((ushort)screenY)), colouring: SharedSpriteColouring.Common, rot: ShownRot(state));
+            new Position16<ScreenPixels>(CoordinateAxis.Wrap(296 - camera.X), screenY), colouring: SharedSpriteColouring.Common, rot: ShownRot(state));
     }
 
     /// <summary>Requires the initialized slot-zero corpse state and rejects unrelated enemy slots.</summary>

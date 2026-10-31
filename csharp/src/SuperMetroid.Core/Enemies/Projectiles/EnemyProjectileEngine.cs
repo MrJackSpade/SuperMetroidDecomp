@@ -388,7 +388,7 @@ internal sealed class EnemyProjectileEngine
                 continue;
 
             Position16<ScreenPixels> screen = (projectile.Position.Whole + shake).ToScreen(camera);
-            if (unchecked((ushort)(screen.X + 128)) >= 512 || unchecked((ushort)(screen.Y + 128)) >= 512)
+            if (CoordinateAxis.Wrap(screen.X + 128) >= 512 || CoordinateAxis.Wrap(screen.Y + 128) >= 512)
                 continue;
 
             // The blank frame draws nothing.
@@ -515,8 +515,8 @@ internal sealed class EnemyProjectileEngine
         // diameter. The positive edge is inclusive, hence radius - 1; using +radius made
         // right/down projectiles collide one pixel earlier than their native counterparts.
         // The edge wraps at the room's sixteen-bit coordinate width, as the probe's block bounds check expects.
-        int movementEdge = unchecked((ushort)(nextPosition +
-            (velocity < 0 ? -movementRadius : movementRadius - 1)));
+        int movementEdge = CoordinateAxis.Wrap(nextPosition +
+            (velocity < 0 ? -movementRadius : movementRadius - 1));
         int firstPerpendicularBlock = (perpendicularPosition - perpendicularRadius) >> 4;
         int lastPerpendicularBlock = (perpendicularPosition + perpendicularRadius - 1) >> 4;
         for (int block = firstPerpendicularBlock; block <= lastPerpendicularBlock; block++)
@@ -526,7 +526,7 @@ internal sealed class EnemyProjectileEngine
             if (ProjectileAxisProbeHitsRoom(
                     level,
                     projectile,
-                    new(unchecked((ushort)(blockX)), unchecked((ushort)(blockY))),
+                    new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)),
                     axis,
                     movingNegative: velocity < 0,
                     targetEdge: movementEdge,
@@ -538,8 +538,8 @@ internal sealed class EnemyProjectileEngine
                 // Without this correction a fast downward projectile retains its last
                 // pre-collision coordinate and visibly hovers above the floor.
                 int snappedPosition = slopeAlignedPosition ?? (velocity < 0
-                    ? unchecked((ushort)((movementEdge | BlockPixelMask) + movementRadius + 1))
-                    : unchecked((ushort)((movementEdge & ~BlockPixelMask) - movementRadius)));
+                    ? CoordinateAxis.Wrap((movementEdge | BlockPixelMask) + movementRadius + 1)
+                    : CoordinateAxis.Wrap((movementEdge & ~BlockPixelMask) - movementRadius));
                 bool snapDoesNotMoveBackwards = slopeAlignedPosition.HasValue || (velocity < 0
                     ? snappedPosition <= position
                     : snappedPosition >= position);
@@ -548,13 +548,13 @@ internal sealed class EnemyProjectileEngine
                 {
                     projectile.Position = projectile.Position.WithFractionX(0);
                     if (snapDoesNotMoveBackwards)
-                        projectile.Position = projectile.Position.WithWholeX(checked((ushort)snappedPosition));
+                        projectile.Position = projectile.Position.WithWholeX(snappedPosition);
                 }
                 else
                 {
                     projectile.Position = projectile.Position.WithFractionY(0);
                     if (snapDoesNotMoveBackwards)
-                        projectile.Position = projectile.Position.WithWholeY(checked((ushort)snappedPosition));
+                        projectile.Position = projectile.Position.WithWholeY(snappedPosition);
                 }
                 return true;
             }
@@ -620,8 +620,8 @@ internal sealed class EnemyProjectileEngine
                 // boundary before the caller's full-block clamp.
                 int radius = (axis == Axis.Horizontal) ? projectile.Radius.X : projectile.Radius.Y;
                 slopeAlignedPosition = movingNegative
-                    ? unchecked((ushort)((targetEdge | HalfBlockPixelMask) + radius + 1))
-                    : unchecked((ushort)((targetEdge & ~HalfBlockPixelMask) - radius));
+                    ? CoordinateAxis.Wrap((targetEdge | HalfBlockPixelMask) + radius + 1)
+                    : CoordinateAxis.Wrap((targetEdge & ~HalfBlockPixelMask) - radius);
                 return true;
             }
             return false;
@@ -666,8 +666,8 @@ internal sealed class EnemyProjectileEngine
             }
 
             slopeAlignedPosition = movingUp
-                ? unchecked((ushort)((block.Y << 4) + 16 - height + projectile.Radius.Y))
-                : unchecked((ushort)((block.Y << 4) + height - projectile.Radius.Y));
+                ? CoordinateAxis.Wrap((block.Y << 4) + 16 - height + projectile.Radius.Y)
+                : CoordinateAxis.Wrap((block.Y << 4) + height - projectile.Radius.Y);
             return true;
         }
 
@@ -695,7 +695,7 @@ internal sealed class EnemyProjectileEngine
     /// read directly without following extensions.
     /// </summary>
     internal static bool NonAirBlockAt(RoomLevelData level, Position16<RoomPixels> pixel) =>
-        level.GetCollisionBlock(new(unchecked((ushort)(pixel.X >> 4)), unchecked((ushort)(pixel.Y >> 4)))).CollisionType != RoomCollisionType.Air;
+        level.GetCollisionBlock(new(CoordinateAxis.Wrap(pixel.X >> 4), CoordinateAxis.Wrap(pixel.Y >> 4))).CollisionType != RoomCollisionType.Air;
 
     /// <summary>Checks radius overlap and publishes touch-list or damage behavior for a projectile that reaches Samus.</summary>
     internal KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
@@ -711,21 +711,21 @@ internal sealed class EnemyProjectileEngine
         if (!projectile.CanDamageSamus || projectile.Radius.X == 0 || projectile.Radius.Y == 0)
             return null;
 
-        int xDistance = Math.Abs(unchecked((short)(projectile.Position.X.Whole - samus.Position.X.Whole)));
-        int yDistance = Math.Abs(unchecked((short)(projectile.Position.Y.Whole - samus.Position.Y.Whole)));
+        int xDistance = CoordinateAxis.Distance(projectile.Position.X.Whole, samus.Position.X.Whole);
+        int yDistance = CoordinateAxis.Distance(projectile.Position.Y.Whole, samus.Position.Y.Whole);
         if (xDistance >= projectile.Radius.X + samus.Kinematics.Radius.X ||
             yDistance >= projectile.Radius.Y + samus.Kinematics.Radius.Y)
         {
             return null;
         }
 
-        int damage = SamusSuitDamage.Reduce(checked((ushort)projectile.Damage), samus.EquippedItems);
+        int damage = SamusSuitDamage.Reduce(Ensure.BetweenInclusive(0, ushort.MaxValue, projectile.Damage), samus.EquippedItems);
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;
-        samus.InvincibilityTimer = WrappingCountdown.FromRaw(checked((ushort)projectile.InvincibilityFrames));
-        KnockbackHorizontalDirection knockbackXDirection = unchecked((short)(
-            samus.Position.X.Whole - projectile.Position.X.Whole)) >= 0
+        samus.InvincibilityTimer = WrappingCountdown.FromRaw(projectile.InvincibilityFrames);
+        KnockbackHorizontalDirection knockbackXDirection = CoordinateAxis.Difference(
+            samus.Position.X.Whole, projectile.Position.X.Whole) >= 0
             ? KnockbackHorizontalDirection.Right
             : KnockbackHorizontalDirection.Left;
 
@@ -780,8 +780,8 @@ internal sealed class EnemyProjectileEngine
     {
         int random = _room.Random.Generate();
         _ = _spriteObjects.SpawnRoomSpriteObject(new(
-            unchecked((ushort)(projectile.Position.X.Whole + (random & mask) - center)),
-            unchecked((ushort)(projectile.Position.Y.Whole + (SharedRandomState.UpperByte(random) & mask) - center))),
+            CoordinateAxis.Wrap(projectile.Position.X.Whole + (random & mask) - center),
+            CoordinateAxis.Wrap(projectile.Position.Y.Whole + (SharedRandomState.UpperByte(random) & mask) - center)),
             kind, graphics: default);
     }
 
@@ -795,31 +795,31 @@ internal sealed class EnemyProjectileEngine
     {
         Ensure.NotNull(projectile);
         // The masks and centres are authored byte values (checked below), so the offsets stay within one byte.
-        int xMask = checked((byte)scatter.Range.X);
-        int xCenter = checked((byte)scatter.Center.X);
-        int yMask = checked((byte)scatter.Range.Y);
-        int yCenter = checked((byte)scatter.Center.Y);
+        int xMask = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Range.X);
+        int xCenter = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Center.X);
+        int yMask = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Range.Y);
+        int yCenter = Ensure.BetweenInclusive(0, byte.MaxValue, scatter.Center.Y);
         int signSample = _room.Random.Generate();
 
         int xOffset;
         do
         {
-            xOffset = (xMask & unchecked((byte)_room.Random.Generate())) - xCenter;
+            xOffset = (xMask & SharedRandomState.LowerByte(_room.Random.Generate())) - xCenter;
         }
         while (xOffset < 0);
-        if (unchecked((short)signSample) < 0)
+        if (WordWrap.Signed(signSample) < 0)
             xOffset = -xOffset;
-        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(projectile.Position.X.Whole + xOffset)));
+        projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole + xOffset);
 
         int yOffset;
         do
         {
-            yOffset = (yMask & unchecked((byte)_room.Random.Generate())) - yCenter;
+            yOffset = (yMask & SharedRandomState.LowerByte(_room.Random.Generate())) - yCenter;
         }
         while (yOffset < 0);
         if ((signSample >> 14 & 1) != 0)
             yOffset = -yOffset;
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + yOffset)));
+        projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + yOffset);
     }
 
     /// <summary>
@@ -866,7 +866,7 @@ internal sealed class EnemyProjectileEngine
             ? RoomEnemyProjectileKind.CeresFallingDebrisDark
             : RoomEnemyProjectileKind.CeresFallingDebrisLight;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics);
-        projectile.Position = projectile.Position.WithWhole(new(checked((ushort)xPosition), 42));
+        projectile.Position = projectile.Position.WithWhole(new(xPosition, 42));
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(16));
         projectile.StartAnimation(animation);
     }
@@ -911,7 +911,7 @@ internal sealed class EnemyProjectileEngine
             graphics: default);
         int blockX = plmBlockIndex % roomWidthInBlocks;
         int blockY = plmBlockIndex / roomWidthInBlocks;
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(16 * (blockX + 1))), unchecked((ushort)(16 * (blockY - 2)))));
+        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(16 * (blockX + 1)), CoordinateAxis.Wrap(16 * (blockY - 2))));
     }
 
     /// <summary>
@@ -931,7 +931,7 @@ internal sealed class EnemyProjectileEngine
             projectile,
             RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
             graphics: default);
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + definition.XOffset)), unchecked((ushort)(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset))));
+        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + definition.XOffset), CoordinateAxis.Wrap(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset)));
         projectile.Velocity = new(new SignedEightEight(0), new SignedEightEight(0));
         projectile.StartAnimation(new GunshipDustAnimation(definition.Program));
     }
@@ -968,7 +968,7 @@ internal sealed class EnemyProjectileEngine
             particle,
             kind,
             source.Graphics);
-        particle.Position = particle.Position.WithWhole(new(unchecked((ushort)(source.Position.X.Whole + xOffset)), source.Position.Y.Whole));
+        particle.Position = particle.Position.WithWhole(new(CoordinateAxis.Wrap(source.Position.X.Whole + xOffset), source.Position.Y.Whole));
         particle.Velocity = velocity;
     }
 
@@ -996,8 +996,8 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileSlot projectile,
         int cameraY)
     {
-        int screenY = unchecked((ushort)(projectile.Position.Y.Whole - cameraY));
-        if (unchecked((short)screenY) >= 0 &&
+        int screenY = CoordinateAxis.Wrap(projectile.Position.Y.Whole - cameraY);
+        if (CoordinateAxis.AsSigned(screenY) >= 0 &&
             screenY >= EnemyProjectileOffScreenDefinitions.VerticalDeletionDepth)
         {
             projectile.Clear();
@@ -1010,9 +1010,9 @@ internal sealed class EnemyProjectileEngine
         table.AddPreInstruction(context =>
         {
             context.Projectile.Position = context.Projectile.Position.Advance(context.Projectile.Velocity.ToSixteenSixteen());
-            context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 80))));
-            if (unchecked((ushort)(context.Projectile.Position.X.Whole - context.Camera.X)) >= 256 ||
-                unchecked((ushort)(context.Projectile.Position.Y.Whole - context.Camera.Y)) >= 256)
+            context.Projectile.Velocity = context.Projectile.Velocity.WithY(SignedEightEight.Wrapped(context.Projectile.Velocity.Y.RawValue + 80));
+            if (CoordinateAxis.Wrap(context.Projectile.Position.X.Whole - context.Camera.X) >= 256 ||
+                CoordinateAxis.Wrap(context.Projectile.Position.Y.Whole - context.Camera.Y) >= 256)
             {
                 context.Projectile.Clear();
             }
@@ -1024,7 +1024,7 @@ internal sealed class EnemyProjectileEngine
     {
         table.AddPreInstruction(context =>
         {
-            context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 16))));
+            context.Projectile.Velocity = context.Projectile.Velocity.WithY(SignedEightEight.Wrapped(context.Projectile.Velocity.Y.RawValue + 16));
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
             {
                 Position16<RoomPixels> impact = context.Projectile.Position.Whole;

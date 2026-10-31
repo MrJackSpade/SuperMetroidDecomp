@@ -68,9 +68,9 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Native freeze lifetime once Ice damage exhausts the Metroid's threshold.</summary>
-    private const ushort MetroidFrozenDuration = 400;
+    private const int MetroidFrozenDuration = 400;
     /// <summary>Frames for the attached Metroid's Power Bomb escape function.</summary>
-    private const ushort MetroidEscapeDuration = 4;
+    private const int MetroidEscapeDuration = 4;
     /// <summary>Whole-pixel limit applied to each axis of Metroid homing velocity.</summary>
     private const int MetroidMaximumVelocity = 3;
     /// <summary>Native number of independently randomized drops after a frozen Metroid dies.</summary>
@@ -113,7 +113,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Metroid movement requires room level data.");
 
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
-        int targetY = unchecked((ushort)(samus.Position.Y.Whole - 8));
+        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
         switch (state.Function)
         {
             case MetroidAiFunction.Homing:
@@ -147,14 +147,14 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int targetY,
         RoomLevelData level)
     {
-        int yDifference = unchecked((short)(slot.Position.Y.Whole - targetY));
+        int yDifference = CoordinateAxis.Difference(slot.Position.Y.Whole, targetY);
         int yVelocity = unchecked(state.Velocity.Y.RawValue - EightEight.FromWhole(yDifference >> 2));
         yVelocity = ClampMetroidVelocity(yVelocity);
         StoreMetroidYVelocity(state, yVelocity);
         if (_terrain.MoveEnemyVertically(level, slot, yVelocity))
             StoreMetroidYVelocity(state, 0);
 
-        int xDifference = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole));
+        int xDifference = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole);
         int xVelocity = unchecked(state.Velocity.X.RawValue - EightEight.FromWhole(xDifference >> 2));
         xVelocity = ClampMetroidVelocity(xVelocity);
         StoreMetroidXVelocity(state, xVelocity);
@@ -188,12 +188,12 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Chooses Metroid's byte-oriented closing speed from wrapped distance to Samus.</summary>
     private static int CalculateMetroidClosingVelocity(int target, int current)
     {
-        int lowByteDifference = unchecked((byte)(target - (byte)current));
+        int lowByteDifference = WordWrap.LowByte(target - WordWrap.LowByte(current));
         int shifted = lowByteDifference << 5;
         // Sign-extend the 13-bit shifted byte difference.
         shifted = (shifted << 19) >> 19;
         return Math.Clamp(
-            (int)unchecked((short)shifted),
+            (int)WordWrap.Signed(shifted),
             -MetroidMaximumVelocity,
             MetroidMaximumVelocity);
     }
@@ -205,7 +205,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         int targetY)
     {
-        slot.Position = slot.Position.WithWhole(new(samus.Position.X.Whole, checked((ushort)targetY)));
+        slot.Position = slot.Position.WithWhole(new(samus.Position.X.Whole, targetY));
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
     }
@@ -259,7 +259,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveMetroidTouch(RoomEnemySlot slot, SamusState samus)
     {
         MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
-        int targetY = unchecked((ushort)(samus.Position.Y.Whole - 8));
+        int targetY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 8);
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
         {
             if (state.Function != MetroidAiFunction.AttachedToSamus)
@@ -267,10 +267,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // Native overlapping byte writes produce delta/4 in signed 16.16 form.
                 StoreMetroidXVelocity(
                     state,
-                    unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) << 14);
+                    CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) << 14);
                 StoreMetroidYVelocity(
                     state,
-                    unchecked((short)(slot.Position.Y.Whole - targetY)) << 14);
+                    CoordinateAxis.Difference(slot.Position.Y.Whole, targetY) << 14);
                 state.Function = MetroidAiFunction.Homing;
                 SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
             }
@@ -288,8 +288,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Function = MetroidAiFunction.ClosingOnSamus;
-        if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) >= 8 ||
-            Math.Abs(unchecked((short)(slot.Position.Y.Whole - targetY))) >= 8)
+        if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) >= 8 ||
+            CoordinateAxis.Distance(slot.Position.Y.Whole, targetY) >= 8)
         {
             return;
         }
@@ -339,10 +339,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // collision slot. The overlapping byte stores encode delta/8 as signed 16.16.
         StoreMetroidXVelocity(
             state,
-            unchecked((short)(slot.Position.X.Whole - recoilOrigin.X)) << 13);
+            CoordinateAxis.Difference(slot.Position.X.Whole, recoilOrigin.X) << 13);
         StoreMetroidYVelocity(
             state,
-            unchecked((short)(slot.Position.Y.Whole - recoilOrigin.Y)) << 13);
+            CoordinateAxis.Difference(slot.Position.Y.Whole, recoilOrigin.Y) << 13);
         state.Function = MetroidAiFunction.Homing;
         SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
 
@@ -397,8 +397,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             int random = _room.Random.Generate();
             // Each axis adds a five-bit random selection minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
-                unchecked((short)(EnemyDropMasks.HorizontalScatter.Of(random) - 16)),
-                unchecked((short)(EnemyDropMasks.VerticalScatter.Of(random) - 16)));
+                WordWrap.Signed(EnemyDropMasks.HorizontalScatter.Of(random) - 16),
+                WordWrap.Signed(EnemyDropMasks.VerticalScatter.Of(random) - 16));
             MetroidDropRequests.Add(new MetroidDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(origin + scatter, EnemyDefinitionId.Metroid);
         }
@@ -457,7 +457,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (c.Enemy.FrozenTimer.IsZero)
                 {
                     SamusProjectileSlot recoilOrigin = c.OrdinaryProjectiles.Slots[0];
-                    ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, checked((ushort)c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
+                    ResolveMetroidNonFrozenShot(c.Enemy, c.Bomb.Type, Ensure.BetweenInclusive(0, ushort.MaxValue, c.Bomb.Damage), recoilOrigin.Position.Whole, c.Samus);
                 }
             });
     }
@@ -537,7 +537,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Custom Metroid shot AI does not call normal shot AI. Preserve the collision prelude, then apply recoil/ice
         // or attached power-bomb escape without inventing vulnerability-based health damage.
         c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-        ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, checked((ushort)c.Projectile.Damage), c.Projectiles.Slots[0].Position.Whole, c.Samus);
+        ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, Ensure.BetweenInclusive(0, ushort.MaxValue, c.Projectile.Damage), c.Projectiles.Slots[0].Position.Whole, c.Samus);
         return true;
     }
 

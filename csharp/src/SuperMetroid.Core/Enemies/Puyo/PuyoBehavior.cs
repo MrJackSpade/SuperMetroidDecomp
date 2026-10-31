@@ -39,7 +39,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Upper bound applied to the airborne speed-table index.</summary>
-    private const ushort MaximumPuyoYSpeedTableIndex = 16384;
+    private const int MaximumPuyoYSpeedTableIndex = 16384;
 
     /// <summary>Ports <c>InitAI_Puyo</c> at $A2:9A3F.</summary>
     internal static void InitializePuyo(RoomEnemySlot slot)
@@ -121,7 +121,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // deliberately bypass this proximity rewrite.
         if (IsNormalHop(state.HopType))
         {
-            int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)));
+            int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);
             state.HopType = distance < slot.SpawnSettings<PuyoSpawnSettings>().HopDistance
                 ? PuyoHopType.NormalBig
                 : PuyoHopType.NormalSmall;
@@ -129,7 +129,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Aim toward Samus unless the preceding terrain collision latched the opposite
         // direction. Equality follows the cartridge's BPL path and therefore aims right.
-        PuyoDirection direction = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
+        PuyoDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
             ? PuyoDirection.Left
             : PuyoDirection.Right;
         if (state.InvertDirection)
@@ -163,18 +163,18 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         int xSpeed = hop.XSpeed;
         // The cartridge exchanges the height word's bytes (XBA); every authored height is below 256 pixels, so that
         // makes the height the whole part of an 8.8 distance.
-        int swappedJumpHeight = UnsignedEightEight.FromParts(whole: checked((byte)hop.Height), fraction: 0);
+        int swappedJumpHeight = UnsignedEightEight.FromParts(whole: Ensure.BetweenInclusive(0, byte.MaxValue, hop.Height), fraction: 0);
 
         for (int guard = 0; guard <= ushort.MaxValue; guard++)
         {
-            timeAccumulator = unchecked((ushort)(timeAccumulator + xSpeed));
+            timeAccumulator = WordWrap.Unsigned(timeAccumulator + xSpeed);
             EnemyQuadraticSpeedRow speedRow = EnemyQuadraticSpeeds.Row(UnsignedEightEight.Whole(timeAccumulator));
 
             // Summing each row's coarse speed, in 256ths of a pixel, gives the 8.8 distance estimate used only to
             // find the initial curve row.
-            distanceAccumulator = unchecked((ushort)(distanceAccumulator +
-                speedRow.CoarseToward(EnemySpeedSign.Positive)));
-            if (!EnemyMath.IsNegative16(unchecked((ushort)(swappedJumpHeight - distanceAccumulator))))
+            distanceAccumulator = WordWrap.Unsigned(distanceAccumulator +
+                speedRow.CoarseToward(EnemySpeedSign.Positive));
+            if (!EnemyMath.IsNegative16(CoordinateAxis.Wrap(swappedJumpHeight - distanceAccumulator)))
                 continue;
 
             state.YSpeedTableIndex = timeAccumulator;
@@ -191,7 +191,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The hop-table record <paramref name="state"/> has selected.</summary>
     private static PuyoHopDefinition Hop(PuyoEnemyState state) =>
-        PuyoHops.FromByteIndex(checked((ushort)(state.HopRecord * PuyoHopDefinitions.RecordSize)));
+        PuyoHops.FromByteIndex(Ensure.BetweenInclusive(0, ushort.MaxValue, state.HopRecord * PuyoHopDefinitions.RecordSize));
 
     /// <summary>Ports the indirect airborne dispatcher at $A2:9B81.</summary>
     private void RunAirbornePuyo(
@@ -291,8 +291,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <c>GetRandomNumber0_7</c> ($A2:9B06): generates a random number, then adds the
     /// enemy's frame counter before keeping the low three bits.
     /// </summary>
-    private ushort NextPuyoRandom0To7(RoomEnemySlot slot) =>
-        unchecked((ushort)((_room.Random.Generate() + slot.FrameCounter) & 7));
+    private int NextPuyoRandom0To7(RoomEnemySlot slot) =>
+        WordWrap.Unsigned((_room.Random.Generate() + slot.FrameCounter) & 7);
 
     /// <summary>Ports the post-drop bounce wrapper at $A2:9DCD.</summary>
     private void RunDroppedPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
@@ -346,9 +346,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // and zeroes the subspeed word; only the PAL build uses the fraction. The giant
         // hop's $0140 therefore moves exactly one pixel per frame either way.
         int xSpeed = Hop(state).XSpeed;
-        int whole = unchecked((short)(EightEight.WholeOf(xSpeed)));
+        int whole = WordWrap.Signed(EightEight.WholeOf(xSpeed));
         if (state.Direction == PuyoDirection.Left)
-            whole = unchecked((short)-whole);
+            whole = WordWrap.Signed(-whole);
         int horizontalDisplacement = SixteenSixteen.FromWhole(whole);
 
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(

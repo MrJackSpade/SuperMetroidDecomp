@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 public static class KiHunterMotionDefinitions
 {
     /// <summary>$A8:F180, XProximityToActivateSwoop, tested with native signed distance comparison.</summary>
-    public const ushort SwoopTriggerDistance = 96;
+    public const int SwoopTriggerDistance = 96;
     /// <summary>One eighth, in the 16.16 units these accelerations are added in.</summary>
     private const int OneEighth = 8192;
 
     /// <summary>$A8:F182/$A8:F184: seven eighths of a pixel per frame squared, added by both falling and hopping.</summary>
     public static SignedSixteenSixteen Gravity { get; } = SignedSixteenSixteen.FromRaw(7 * OneEighth);
     /// <summary>$A8:F186 low byte, fallingWingsArcRadius, used by detached-wing setup and both arcs.</summary>
-    public const byte DetachedWingRadius = 48;
+    public const int DetachedWingRadius = 48;
 
 
 
@@ -34,5 +34,5 @@ public static class KiHunterMotionDefinitions
     public static RotationAngle FallingArcStartAngle { get; } = RotationAngle.NormalizeRaw(-0x6000);
 
     /// <summary>The detached speed accumulator stops summing once it reaches this.</summary>
-    public const ushort DetachedSpeedThreshold = 0x2000;
+    public const int DetachedSpeedThreshold = 0x2000;
 }

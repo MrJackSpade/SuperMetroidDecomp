@@ -40,7 +40,7 @@ internal sealed class FallingSparksBehavior
             projectile,
             RoomEnemyProjectileKind.FallingSpark,
             source.Graphics);
-        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(unchecked((ushort)(source.Position.Y.Whole + 8)), source.Position.Y.Fraction));
+        projectile.Position = new(new(source.Position.X.Whole, source.Position.X.Fraction), new(CoordinateAxis.Wrap(source.Position.Y.Whole + 8), source.Position.Y.Fraction));
 
         // `$86:F391` zeros both ordinary velocity words, then calls the shared RNG. The
         // horizontal table is one record short. The compiled definition retains the
@@ -126,7 +126,7 @@ internal sealed class FallingSparksBehavior
         // Half a pixel upward. Because the whole part is negative, later frames skip collision and gravity while the
         // impact spark arcs upward through its eleven-frame blinking animation.
         spark.VerticalSpeed = FallingSparkImpactBounce;
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 2)));
+        projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 2);
     }
 
     /// <summary>Spawns a trail object at the spark's current whole-pixel position.</summary>

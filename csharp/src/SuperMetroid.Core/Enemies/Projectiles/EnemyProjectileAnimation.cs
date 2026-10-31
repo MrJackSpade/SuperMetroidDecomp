@@ -27,7 +27,7 @@ internal abstract class EnemyProjectileAnimation
             projectile.InstructionTimer = WrappingCountdown.Start(0);
             return;
         }
-        projectile.InstructionTimer = WrappingCountdown.FromRaw((ushort)duration);
+        projectile.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
         projectile.Frame = frame;
     }
 

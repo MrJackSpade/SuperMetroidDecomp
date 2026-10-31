@@ -7,7 +7,7 @@ public static class YappingMawAttackGeometry
     /// The longest target length the neutral maw keeps: a shorter distance to Samus is used as it is, a longer one is
     /// capped here before the link radius is computed.
     /// </summary>
-    public const ushort MaximumTargetDistance = 64;
+    public const int MaximumTargetDistance = 64;
 
     /// <summary>
     /// Where a maw holds Samus for each of its eight clockwise directions from up: an equal-step diamond of Manhattan
@@ -17,7 +17,7 @@ public static class YappingMawAttackGeometry
     internal static Offset16<RoomPixels> HeldSamusOffset(int direction)
     {
         if ((uint)direction >= 8) throw new ArgumentOutOfRangeException(nameof(direction));
-        static short Component(int phase) => (short)(8 * (2 - Math.Abs(phase - 4)));
+        static int Component(int phase) => WordWrap.Signed(8 * (2 - Math.Abs(phase - 4)));
         return new(Component((direction + 2) & 7), Component(direction));
     }
 }

@@ -21,5 +21,32 @@ internal static class SharedGameStateAccess
 
         /// <summary>Records the Chozo orb room data numbers <paramref name="orb"/> as broken.</summary>
         internal void SetRoomChozoBit(int orb) => self.Progress.ChozoOrbs.Add(orb);
+
+        /// <summary>Records bosses as defeated in the area with index <paramref name="areaIndex"/>.</summary>
+        internal void SetBossBits(int areaIndex, BossBits bits) => self.SetBossBits(AreaIds.At(areaIndex), bits);
+
+        /// <summary>Forgets bosses as defeated in the area with index <paramref name="areaIndex"/>.</summary>
+        internal void ClearBossBits(int areaIndex, BossBits bits) => self.ClearBossBits(AreaIds.At(areaIndex), bits);
+
+        /// <summary>Whether any of the bosses is defeated in the area with index <paramref name="areaIndex"/>.</summary>
+        internal bool HasAnyBossBits(int areaIndex, BossBits bits) => self.HasAnyBossBits(AreaIds.At(areaIndex), bits);
+
+        /// <summary>The bosses defeated in the area with index <paramref name="areaIndex"/>.</summary>
+        internal BossBits GetBossBits(int areaIndex) => self.GetBossBits(AreaIds.At(areaIndex));
+
+        /// <summary>Marks a map cell of the area with index <paramref name="areaIndex"/> explored.</summary>
+        internal void MarkExploredMapTile(int areaIndex, Position16<MapTiles> cell) => self.MarkExploredMapTile(AreaIds.At(areaIndex), cell);
+
+        /// <summary>Whether a map cell of the area with index <paramref name="areaIndex"/> is explored.</summary>
+        internal bool IsMapTileExplored(int areaIndex, Position16<MapTiles> cell) => self.IsMapTileExplored(AreaIds.At(areaIndex), cell);
+
+        /// <summary>Marks a save station of the area with index <paramref name="areaIndex"/> used.</summary>
+        internal void MarkSaveStationUsed(int areaIndex, int station) => self.MarkSaveStationUsed(AreaIds.At(areaIndex), station);
+
+        /// <summary>Whether the area with index <paramref name="areaIndex"/> has its map.</summary>
+        internal bool HasAreaMap(int areaIndex) => self.HasAreaMap(AreaIds.At(areaIndex));
+
+        /// <summary>Marks the map of the area with index <paramref name="areaIndex"/> acquired.</summary>
+        internal void SetAreaMapAcquired(int areaIndex) => self.SetAreaMapAcquired(AreaIds.At(areaIndex));
     }
 }

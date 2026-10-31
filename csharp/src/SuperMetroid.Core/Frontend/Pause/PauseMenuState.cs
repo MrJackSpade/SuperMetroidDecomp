@@ -457,16 +457,15 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     /// <summary>Derives native map-scroll bounds and initial offset from visible tiles and Samus's map cell.</summary>
     private void SetupMapScrolling()
     {
-        int areaIndex = AreaIds.ToIndex(area);
         // DetermineMapScrollLimits at $82:9EC4 scans either the downloaded cartridge map
         // or the persistent explored plane. Expressing the scan in coordinates is exactly
         // equivalent to its byte/bit loops and makes the two-page 64x32 layout explicit.
-        bool hasAreaMap = system.HasAreaMap(areaIndex);
+        bool hasAreaMap = system.HasAreaMap(area);
         IAreaMapView map = (mapPresentation ?? throw new InvalidOperationException(
             "Pause map requires installed map presentation assets.")).Get(area);
         bool IsVisible(int x, int y)
         {
-            bool explored = system.IsMapTileExplored(areaIndex, new(checked((ushort)x), checked((ushort)y)));
+            bool explored = system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y)));
             // Native scroll bounds select one bit plane, unlike tile rendering, which
             // also displays explored secrets. Unioning the planes moves the map's center
             // after a secret is explored even though the downloaded bounds are unchanged.

@@ -139,23 +139,6 @@ public sealed class PersistentProgress
         return copy;
     }
 
-    /// <summary>Whether <paramref name="other"/> holds the same progress.</summary>
-    public bool SameAs(PersistentProgress other)
-    {
-        Ensure.NotNull(other);
-        if (!Events.SetEquals(other.Events) || !ChozoOrbs.SetEquals(other.ChozoOrbs) ||
-            !CollectedItems.SetEquals(other.CollectedItems) || !OpenedDoors.SetEquals(other.OpenedDoors) ||
-            !_defeatedBosses.AsSpan().SequenceEqual(other._defeatedBosses) ||
-            !_acquiredMaps.AsSpan().SequenceEqual(other._acquiredMaps))
-            return false;
-        for (int area = 0; area < AreaIds.RetailCount; area++)
-        {
-            if (!_usedStations[area].SetEquals(other._usedStations[area]) || !_explored[area].SetEquals(other._explored[area]))
-                return false;
-        }
-        return true;
-    }
-
     /// <summary>One range of <paramref name="capacity"/> flags for each area.</summary>
     private static NumberedFlags[] Areas(int capacity) =>
         [.. Enumerable.Range(0, AreaIds.RetailCount).Select(_ => new NumberedFlags(capacity))];

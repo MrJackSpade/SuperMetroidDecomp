@@ -202,10 +202,6 @@ public sealed class SharedGameState
         NewlyTimedHeldInput = TimedHeldInput & (TimedHeldInputPrevious ^ TimedHeldInput);
     }
 
-    /// <summary>Records <paramref name="bits"/> as defeated in an area, equivalent to <c>$80:81A6</c>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The area index names no area, or the flags are not all named.</exception>
-    public void SetBossBits(int areaIndex, BossBits bits) => SetBossBits(AreaIds.At(areaIndex), bits);
-
     /// <summary>Records <paramref name="bits"/> as defeated in <paramref name="area"/>, equivalent to <c>$80:81A6</c>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
     public void SetBossBits(AreaId area, BossBits bits)
@@ -215,23 +211,15 @@ public sealed class SharedGameState
     }
 
     /// <summary>
-    /// Forgets <paramref name="bits"/> as defeated in an area, equivalent to the unused original routine at
+    /// Forgets <paramref name="bits"/> as defeated in <paramref name="area"/>, equivalent to the unused original routine at
     /// <c>$80:81C0</c>; the tester's encounter reset uses it.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The area index names no area, or the flags are not all named.</exception>
-    public void ClearBossBits(int areaIndex, BossBits bits) => ClearBossBits(AreaIds.At(areaIndex), bits);
-
-    /// <summary>Forgets <paramref name="bits"/> as defeated in <paramref name="area"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
     public void ClearBossBits(AreaId area, BossBits bits)
     {
         ProvenBossBits.Validate(bits, "Boss-state clear mask");
         Progress.SetDefeatedBosses(area, Progress.DefeatedBosses(area) & ~bits);
     }
-
-    /// <summary>Whether any of <paramref name="bits"/> is defeated in an area, matching <c>$80:81DC</c>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The area index names no area, or the flags are not all named.</exception>
-    public bool HasAnyBossBits(int areaIndex, BossBits bits) => HasAnyBossBits(AreaIds.At(areaIndex), bits);
 
     /// <summary>Whether any of <paramref name="bits"/> is defeated in <paramref name="area"/>, matching <c>$80:81DC</c>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The flags are not all named.</exception>
@@ -240,10 +228,6 @@ public sealed class SharedGameState
         ProvenBossBits.Validate(bits, "Boss-state query mask");
         return (Progress.DefeatedBosses(area) & bits) != BossBits.None;
     }
-
-    /// <summary>The bosses defeated in an area.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The area index names no area.</exception>
-    public BossBits GetBossBits(int areaIndex) => GetBossBits(AreaIds.At(areaIndex));
 
     /// <summary>The bosses defeated in <paramref name="area"/>.</summary>
     public BossBits GetBossBits(AreaId area) => Progress.DefeatedBosses(area);
@@ -293,43 +277,20 @@ public sealed class SharedGameState
         [.. Enumerable.Range(Ensure.AtLeastZero(firstDoor), Ensure.AtLeastZero(count))
             .Where(door => door < Progress.OpenedDoors.Capacity && Progress.OpenedDoors.Contains(door))];
 
-    /// <summary>Marks the area-map cell containing Samus as explored, matching <c>$90:A8A6/$90:A91B</c>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The area index names no area, or the cell is outside the area map.</exception>
-    public void MarkExploredMapTile(int areaIndex, Position16<MapTiles> cell) =>
-        MarkExploredMapTile(AreaIds.At(areaIndex), cell);
-
-    /// <summary>Marks a cell of <paramref name="area"/>'s map as explored.</summary>
+    /// <summary>Marks a cell of <paramref name="area"/>'s map as explored, matching <c>$90:A8A6/$90:A91B</c>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The cell is outside the area map.</exception>
     public void MarkExploredMapTile(AreaId area, Position16<MapTiles> cell) => Progress.SetExplored(area, cell, explored: true);
-
-    /// <summary>Whether a 64-by-32 area-map cell has been visited.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The area index names no area, or the cell is outside the area map.</exception>
-    public bool IsMapTileExplored(int areaIndex, Position16<MapTiles> cell) =>
-        IsMapTileExplored(AreaIds.At(areaIndex), cell);
 
     /// <summary>Whether a cell of <paramref name="area"/>'s map has been visited.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The cell is outside the area map.</exception>
     public bool IsMapTileExplored(AreaId area, Position16<MapTiles> cell) => Progress.IsExplored(area, cell);
 
-    /// <summary>Marks a save station of an area used.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The area index names no area, or the station number is outside the area's stations.</exception>
-    public void MarkSaveStationUsed(int areaIndex, int stationBitIndex) =>
-        MarkSaveStationUsed(AreaIds.At(areaIndex), stationBitIndex);
-
     /// <summary>Marks save station <paramref name="stationBitIndex"/> of <paramref name="area"/> used.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The station number is outside the area's stations.</exception>
     public void MarkSaveStationUsed(AreaId area, int stationBitIndex) => Progress.UsedStations(area).Add(stationBitIndex);
 
-    /// <summary>Returns whether the area has downloaded its map-station data.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The area index names no area.</exception>
-    public bool HasAreaMap(int areaIndex) => HasAreaMap(AreaIds.At(areaIndex));
-
     /// <summary>Returns whether <paramref name="area"/> has downloaded its map-station data.</summary>
     public bool HasAreaMap(AreaId area) => Progress.HasAreaMap(area);
-
-    /// <summary>Marks an area's map as acquired.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The area index names no area.</exception>
-    public void SetAreaMapAcquired(int areaIndex) => SetAreaMapAcquired(AreaIds.At(areaIndex));
 
     /// <summary>Marks <paramref name="area"/>'s map as acquired.</summary>
     public void SetAreaMapAcquired(AreaId area) => Progress.SetAreaMap(area, acquired: true);

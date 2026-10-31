@@ -10,9 +10,25 @@ internal static class PersistentProgressAccess
             flags.Add(number);
     }
 
-    /// <summary>Fills whole sets of progress for fixtures.</summary>
+    /// <summary>Compares numbered flags.</summary>
+    extension(NumberedFlags self)
+    {
+        /// <summary>Whether <paramref name="other"/> numbers the same range with the same flags on.</summary>
+        internal bool SetEquals(NumberedFlags other) =>
+            self.Capacity == other.Capacity && self.Members.SequenceEqual(other.Members);
+    }
+
+    /// <summary>Fills and compares whole sets of progress for fixtures.</summary>
     extension(PersistentProgress self)
     {
+        /// <summary>Whether <paramref name="other"/> holds the same progress.</summary>
+        internal bool SameAs(PersistentProgress other) =>
+            self.Events.SetEquals(other.Events) && self.ChozoOrbs.SetEquals(other.ChozoOrbs) &&
+            self.CollectedItems.SetEquals(other.CollectedItems) && self.OpenedDoors.SetEquals(other.OpenedDoors) &&
+            Enum.GetValues<AreaId>().All(area => self.DefeatedBosses(area) == other.DefeatedBosses(area) &&
+                self.UsedStations(area).SetEquals(other.UsedStations(area)) && self.HasAreaMap(area) == other.HasAreaMap(area) &&
+                self.ExploredCells(area).SequenceEqual(other.ExploredCells(area)));
+
         /// <summary>Records every cell of every area's map as explored.</summary>
         internal void ExploreEveryCell()
         {

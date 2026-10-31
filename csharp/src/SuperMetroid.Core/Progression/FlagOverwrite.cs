@@ -7,8 +7,4 @@ namespace SuperMetroid.Core.Progression;
 /// </summary>
 /// <param name="Decided">How many flags, from number zero, the overwrite decides.</param>
 /// <param name="Set">The decided flags the overwrite turns on, ascending.</param>
-public sealed record FlagOverwrite(int Decided, IReadOnlyList<int> Set)
-{
-    /// <summary>An overwrite that decides no flag.</summary>
-    public static FlagOverwrite None { get; } = new(0, []);
-}
+public sealed record FlagOverwrite(int Decided, IReadOnlyList<int> Set);

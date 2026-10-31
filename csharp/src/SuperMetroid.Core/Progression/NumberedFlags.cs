@@ -49,9 +49,6 @@ public sealed class NumberedFlags
         }
     }
 
-    /// <summary>Turns every flag off.</summary>
-    public void Clear() => Array.Clear(_on);
-
     /// <summary>Makes every flag match <paramref name="source"/>'s.</summary>
     /// <exception cref="ArgumentException"><paramref name="source"/> numbers a different range.</exception>
     public void CopyFrom(NumberedFlags source)
@@ -68,10 +65,6 @@ public sealed class NumberedFlags
         copy.CopyFrom(this);
         return copy;
     }
-
-    /// <summary>Whether <paramref name="other"/> numbers the same range with the same flags on.</summary>
-    public bool SetEquals(NumberedFlags other) =>
-        Ensure.NotNull(other).Capacity == Capacity && other._on.AsSpan().SequenceEqual(_on);
 
     /// <summary>
     /// Applies <paramref name="overwrite"/>: every flag it decides is turned on when it lists it and off otherwise, and

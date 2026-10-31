@@ -46,5 +46,5 @@ public static class MotherBrainDeathDefinitions
     public static readonly RoomBlockBehavior EscapeDoorBehavior = new(1);
 
     /// <summary>Each escape-door extension's behaviour: a link to the block one row upward.</summary>
-    public static readonly RoomBlockBehavior EscapeDoorExtensionBehavior = new(0xff);
+    public static readonly RoomBlockBehavior EscapeDoorExtensionBehavior = new(255);
 }

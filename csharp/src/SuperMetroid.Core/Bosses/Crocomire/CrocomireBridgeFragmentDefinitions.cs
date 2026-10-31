@@ -21,7 +21,7 @@ internal static class CrocomireBridgeFragmentDefinitions
     private static ReadOnlySpan<byte> AuthoredCrumbleColumnOrder => [8, 3, 9, 4, 11, 6, 10, 7, 1, 5, 2];
 
     /// <summary>$A4:9156-$916B cover eleven floor columns beginning at X$0710 with16-pixel spacing.</summary>
-    private const int FirstColumnX = 0x0710;
+    private const int FirstColumnX = 1808;
 
     /// <summary>The number of bridge fragments the collapse launches, one per authored column.</summary>
     internal const int FragmentCount = 11;

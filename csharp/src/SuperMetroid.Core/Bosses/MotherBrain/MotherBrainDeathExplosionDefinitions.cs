@@ -20,13 +20,13 @@ internal static class MotherBrainDeathExplosionDefinitions
     /// </summary>
     private static readonly Offset16<RoomPixels>[] DecorativeAnchors =
     [
-        new Offset16<RoomPixels>(0x0024, -0x0025), new Offset16<RoomPixels>(-0x0013, -0x000f), new Offset16<RoomPixels>(-0x0004, 0x000d), new Offset16<RoomPixels>(0x001d, 0x0019),
-        new Offset16<RoomPixels>(0x0011, -0x0037), new Offset16<RoomPixels>(0x001e, -0x0016), new Offset16<RoomPixels>(-0x0003, -0x0005), new Offset16<RoomPixels>(0x0000, 0x0028),
-        new Offset16<RoomPixels>(0x0034, -0x0022), new Offset16<RoomPixels>(-0x0003, -0x000f), new Offset16<RoomPixels>(0x000c, 0x0013), new Offset16<RoomPixels>(0x0019, 0x002c),
-        new Offset16<RoomPixels>(0x0004, -0x002b), new Offset16<RoomPixels>(-0x000c, -0x0016), new Offset16<RoomPixels>(0x000d, -0x0002), new Offset16<RoomPixels>(-0x0008, 0x0034),
-        new Offset16<RoomPixels>(-0x0002, -0x0021), new Offset16<RoomPixels>(0x000a, -0x000a), new Offset16<RoomPixels>(-0x000e, 0x0010), new Offset16<RoomPixels>(0x0006, 0x003b),
-        new Offset16<RoomPixels>(0x0014, -0x0029), new Offset16<RoomPixels>(0x0004, -0x0016), new Offset16<RoomPixels>(-0x0014, 0x0003), new Offset16<RoomPixels>(-0x001b, 0x0039),
-        new Offset16<RoomPixels>(0x000a, -0x001f), new Offset16<RoomPixels>(-0x0014, -0x0008), new Offset16<RoomPixels>(0x0000, 0x0017), new Offset16<RoomPixels>(0x001e, 0x003d),
+        new Offset16<RoomPixels>(36, -37), new Offset16<RoomPixels>(-19, -15), new Offset16<RoomPixels>(-4, 13), new Offset16<RoomPixels>(29, 25),
+        new Offset16<RoomPixels>(17, -55), new Offset16<RoomPixels>(30, -22), new Offset16<RoomPixels>(-3, -5), new Offset16<RoomPixels>(0, 40),
+        new Offset16<RoomPixels>(52, -34), new Offset16<RoomPixels>(-3, -15), new Offset16<RoomPixels>(12, 19), new Offset16<RoomPixels>(25, 44),
+        new Offset16<RoomPixels>(4, -43), new Offset16<RoomPixels>(-12, -22), new Offset16<RoomPixels>(13, -2), new Offset16<RoomPixels>(-8, 52),
+        new Offset16<RoomPixels>(-2, -33), new Offset16<RoomPixels>(10, -10), new Offset16<RoomPixels>(-14, 16), new Offset16<RoomPixels>(6, 59),
+        new Offset16<RoomPixels>(20, -41), new Offset16<RoomPixels>(4, -22), new Offset16<RoomPixels>(-20, 3), new Offset16<RoomPixels>(-27, 57),
+        new Offset16<RoomPixels>(10, -31), new Offset16<RoomPixels>(-20, -8), new Offset16<RoomPixels>(0, 23), new Offset16<RoomPixels>(30, 61),
     ];
 
     /// <summary>Reads one of the 28 body-relative decorative offsets in native group order.</summary>

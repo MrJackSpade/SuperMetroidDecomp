@@ -31,37 +31,37 @@ internal static class CrocomireArenaPlmDrawDefinitions
         [CrocomireArenaDraw.ClearBridge] =
         [
             [
-                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
-                RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
+                RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air),
             ],
         ],
         [CrocomireArenaDraw.CrumbleBridgeBlock] =
         [
-            [RoomTerrainBlock.Of(0x10b, BlockMirroring.None, RoomCollisionType.SolidBlock)],
+            [RoomTerrainBlock.Of(267, BlockMirroring.None, RoomCollisionType.SolidBlock)],
         ],
         [CrocomireArenaDraw.ClearBridgeBlock] =
         [
-            [RoomTerrainBlock.Of(0x80, BlockMirroring.None, RoomCollisionType.Air)],
+            [RoomTerrainBlock.Of(128, BlockMirroring.None, RoomCollisionType.Air)],
         ],
         [CrocomireArenaDraw.ClearInvisibleWall] =
         [
-            WallColumn(0x107, 0x127, 0x147, RoomCollisionType.Air),
-            WallColumn(0x108, 0x128, 0x148, RoomCollisionType.Air),
-            WallColumn(0x109, 0x129, 0x149, RoomCollisionType.Air),
+            WallColumn(263, 295, 327, RoomCollisionType.Air),
+            WallColumn(264, 296, 328, RoomCollisionType.Air),
+            WallColumn(265, 297, 329, RoomCollisionType.Air),
         ],
         [CrocomireArenaDraw.CreateInvisibleWall] =
         [
-            WallColumn(0x107, 0x127, 0x147, RoomCollisionType.SolidBlock),
-            WallColumn(0x108, 0x128, 0x148, RoomCollisionType.SolidBlock),
-            WallColumn(0x109, 0x129, 0x149, RoomCollisionType.SolidBlock),
+            WallColumn(263, 295, 327, RoomCollisionType.SolidBlock),
+            WallColumn(264, 296, 328, RoomCollisionType.SolidBlock),
+            WallColumn(265, 297, 329, RoomCollisionType.SolidBlock),
         ],
     };
 
@@ -81,13 +81,13 @@ internal static class CrocomireArenaPlmDrawDefinitions
     /// </summary>
     private static RoomTerrainBlock[] WallColumn(int top, int middle, int bottom, RoomCollisionType collision) =>
     [
-        RoomTerrainBlock.Of(0x80, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(128, BlockMirroring.None, collision),
         RoomTerrainBlock.Of(top, BlockMirroring.None, collision),
         RoomTerrainBlock.Of(middle, BlockMirroring.None, collision),
         RoomTerrainBlock.Of(top, BlockMirroring.None, collision),
         RoomTerrainBlock.Of(middle, BlockMirroring.None, collision),
         RoomTerrainBlock.Of(bottom, BlockMirroring.None, collision),
-        RoomTerrainBlock.Of(0x80, BlockMirroring.None, collision),
-        RoomTerrainBlock.Of(0x80, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(128, BlockMirroring.None, collision),
+        RoomTerrainBlock.Of(128, BlockMirroring.None, collision),
     ];
 }

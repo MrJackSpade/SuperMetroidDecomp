@@ -39,11 +39,11 @@ internal static class TorizoRandomDefinitions
     internal static readonly RandomSampleField EyeBeamSpread = new(1, 4);
 
     /// <summary>Golden Torizo's dying drop scatter: the low byte across its 256-pixel strip.</summary>
-    internal const ushort GoldenDropXMask = 0x00ff;
+    internal const ushort GoldenDropXMask = 0b1111_1111;
 
     /// <summary>Bomb Torizo's dying drop scatter: seven low bits across its 128-pixel region.</summary>
-    internal const ushort BombDropXMask = 0x007f;
+    internal const ushort BombDropXMask = 0b111_1111;
 
     /// <summary>Both statues' dying drop scatter: six bits of the sample's upper random byte down a 64-pixel band.</summary>
-    internal const ushort DropYMask = 0x003f;
+    internal const ushort DropYMask = 0b11_1111;
 }

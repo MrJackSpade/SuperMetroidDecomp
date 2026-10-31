@@ -8,5 +8,5 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitions
 {
 
     /// <summary>Projectile passes each pose shows before its list's terminal sleep.</summary>
-    internal const int PoseDuration = 0x7fff;
+    internal const int PoseDuration = 32767;
 }

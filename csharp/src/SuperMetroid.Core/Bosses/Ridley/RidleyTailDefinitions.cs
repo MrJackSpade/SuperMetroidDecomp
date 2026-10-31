@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyTailDefinitions
 {
     /// <summary>$A6:D2DD-D2E0: InitializeTailParts writes this bound independently of facing.</summary>
-    internal static RotationAngle InitialMinimumClockwise { get; } = RotationAngle.FromRaw(0x3ff0);
+    internal static RotationAngle InitialMinimumClockwise { get; } = RotationAngle.FromRaw(16368);
     /// <summary>$A6:D2E4-D2E7: InitializeTailParts writes this bound before the live tail controller adjusts it.</summary>
-    internal static RotationAngle InitialMaximumCounterClockwise { get; } = RotationAngle.FromRaw(0x4040);
+    internal static RotationAngle InitialMaximumCounterClockwise { get; } = RotationAngle.FromRaw(16448);
 
     /// <summary>$A6:BC0A sets ideal tail spacing while releasing Samus.</summary>
     internal const ushort CarryReleaseInterSegmentSpacing = 8;
@@ -15,45 +15,45 @@ internal static class RidleyTailDefinitions
     /// <summary>$A6:CB78/CB88, straight-down target angle.</summary>
     internal static RotationAngle DownAngle { get; } = RotationAngle.QuarterTurn;
     /// <summary>$A6:CD52/CDD8, pogo clockwise whip target.</summary>
-    internal static RotationAngle PogoWhipAngle { get; } = RotationAngle.FromRaw(0x3f00);
+    internal static RotationAngle PogoWhipAngle { get; } = RotationAngle.FromRaw(16128);
     /// <summary>The whip's extension request while a segment chases a whip target.</summary>
-    internal const ushort WhipDistance = 0x0c00;
+    internal const ushort WhipDistance = 3072;
     /// <summary>The axis a facing change reflects tail angles around: half of the 16-bit turn ($A6:D3F9).</summary>
     internal static RotationAngle MirrorAxisAngle { get; } = RotationAngle.HalfTurn;
     /// <summary>The first byte angle of the forward interval a whip may not aim through Ridley's body.</summary>
-    internal const byte ForbiddenForwardStart = 0x18;
+    internal const byte ForbiddenForwardStart = 24;
     /// <summary>The byte angle past the forbidden forward interval; a left-facing target clamps here.</summary>
-    internal const byte ForbiddenForwardEnd = 0xe8;
+    internal const byte ForbiddenForwardEnd = 232;
     /// <summary>The bank-$3F expansion of a left-facing whip target's byte angle.</summary>
-    internal const ushort LeftWhipTargetBase = 0x3f00;
+    internal const ushort LeftWhipTargetBase = 16128;
     /// <summary>The bank-$40 expansion of a right-facing whip target's byte angle.</summary>
-    internal const ushort RightWhipTargetBase = 0x4000;
+    internal const ushort RightWhipTargetBase = 16384;
 
     /// <summary>The longest each segment may extend while whipping, base through tip ($A6:CF5A-$D09E).</summary>
     internal static readonly ushort[] MaximumDistances = [0, 24 << 8, 24 << 8, 22 << 8, 22 << 8, 18 << 8, 5 << 8];
     /// <summary>$A6:CE08, descending stab extension request.</summary>
-    internal const ushort StabDistance = 0x0a00;
+    internal const ushort StabDistance = 2560;
     /// <summary>$A6:B76E, bounce extension request.</summary>
-    internal const ushort BounceDistance = 0x0c00;
+    internal const ushort BounceDistance = 3072;
     /// <summary>$A6:CC12, SetRidleyTailAngleExtrema_minClockwiseAngle for left/front/right facing.</summary>
     internal static readonly Dictionary<RidleyFacing, RotationAngle> MinimumClockwiseAngles = new()
     {
-        [RidleyFacing.Left] = RotationAngle.FromRaw(0x3ff0),
-        [RidleyFacing.Turning] = RotationAngle.FromRaw(0x3ff0),
-        [RidleyFacing.Right] = RotationAngle.FromRaw(0x3fc0),
+        [RidleyFacing.Left] = RotationAngle.FromRaw(16368),
+        [RidleyFacing.Turning] = RotationAngle.FromRaw(16368),
+        [RidleyFacing.Right] = RotationAngle.FromRaw(16320),
     };
     /// <summary>$A6:CC18, SetRidleyTailAngleExtrema_maxCounterClockwiseAngle for left/front/right facing.</summary>
     internal static readonly Dictionary<RidleyFacing, RotationAngle> MaximumCounterClockwiseAngles = new()
     {
-        [RidleyFacing.Left] = RotationAngle.FromRaw(0x4040),
-        [RidleyFacing.Turning] = RotationAngle.FromRaw(0x4040),
-        [RidleyFacing.Right] = RotationAngle.FromRaw(0x4010),
+        [RidleyFacing.Left] = RotationAngle.FromRaw(16448),
+        [RidleyFacing.Turning] = RotationAngle.FromRaw(16448),
+        [RidleyFacing.Right] = RotationAngle.FromRaw(16400),
     };
 
     /// <summary>$A6:D38A begins InitializeTailParts.angles at $4000, one quarter of the 16-bit full turn.</summary>
-    private const int InitialBaseAngle = 0x10000 / 4;
+    private const int InitialBaseAngle = 65536 / 4;
     /// <summary>$A6:D2FD loads $0010 into Ridley.idealInterSegmentTailAngle; the initial angles advance by that separation.</summary>
-    internal const ushort IdealInterSegmentSpacing = 0x0010;
+    internal const ushort IdealInterSegmentSpacing = 16;
     /// <summary>$A6:D37C initial base separation, in8.8 pixels. The two-pixel length is an authored scalar (see residualScalarInputsReview).</summary>
     private const ushort BaseRestDistance = 2 << 8;
     /// <summary>$A6:D37E..D387 initial shaft separation and $CF7F/$CFB5/$CFEB/$D021/$D057 shrink thresholds. The eight-pixel length is an authored scalar.</summary>

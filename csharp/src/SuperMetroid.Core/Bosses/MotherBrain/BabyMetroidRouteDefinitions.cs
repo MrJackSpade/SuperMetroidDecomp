@@ -17,8 +17,8 @@ internal static class BabyMetroidRouteDefinitions
     /// </summary>
     internal static readonly Position16<RoomPixels>[] Waypoints =
     [
-        new(0x00a0, 0x0078), new(0x0130, 0x007a), new(0x00c0, 0x0040), new(0x00c0, 0x0070),
-        new(0x00e0, 0x0080), new(0x00cd, 0x0090), new(0x00cc, 0x00a0), new(0x00cb, 0x00b0),
+        new(160, 120), new(304, 122), new(192, 64), new(192, 112),
+        new(224, 128), new(205, 144), new(204, 160), new(203, 176),
     ];
     /// <summary>First route leg that switches from the extra-$10 to extra-$08 wrong-way correction.</summary>
     internal const int FirstExtraEightLeg = 5;
@@ -26,7 +26,7 @@ internal static class BabyMetroidRouteDefinitions
     /// <summary>The wrong-way horizontal speed addition of each native movement callback.</summary>
     internal static readonly Dictionary<BabyMetroidRouteMovementFunction, int> WrongWayOffScreenXSpeeds = new()
     {
-        [BabyMetroidRouteMovementFunction.GradualAccelerationExtraEight] = 0x0008,
-        [BabyMetroidRouteMovementFunction.GradualAccelerationExtraSixteen] = 0x0010,
+        [BabyMetroidRouteMovementFunction.GradualAccelerationExtraEight] = 8,
+        [BabyMetroidRouteMovementFunction.GradualAccelerationExtraSixteen] = 16,
     };
 }

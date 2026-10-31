@@ -19,24 +19,24 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
     {
         [MotherBrainEscapeGateDraw.Open] =
         [
-            RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
         ],
         [MotherBrainEscapeGateDraw.HalfClosed] =
         [
-            RoomTerrainBlock.Of(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(783, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(783, BlockMirroring.None, RoomCollisionType.SolidBlock),
         ],
         [MotherBrainEscapeGateDraw.Closed] =
         [
-            RoomTerrainBlock.Of(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(0x2e8, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(0x2e8, BlockMirroring.None, RoomCollisionType.SolidBlock),
-            RoomTerrainBlock.Of(0x30f, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(783, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(744, BlockMirroring.Vertical, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(744, BlockMirroring.None, RoomCollisionType.SolidBlock),
+            RoomTerrainBlock.Of(783, BlockMirroring.None, RoomCollisionType.SolidBlock),
         ],
     };
 

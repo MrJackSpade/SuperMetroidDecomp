@@ -43,13 +43,13 @@ internal static class CrocomirePaintDefinitions
     /// <summary>$A4:B8C1-B8C9: repeated neutral masonry paint.</summary>
     internal const int WallNeutral = 24;
     /// <summary>$A4:B8CB-B8D3: independently chosen masonry face, recess and edge paints.</summary>
-    internal static readonly RgbColor WallFace = RgbColor.FromWord(0x4a7b), WallRecess = RgbColor.FromWord(0x1c90), WallEdge = RgbColor.FromWord(0x1469), WallDeepEdge = RgbColor.FromWord(0x1424);
+    internal static readonly RgbColor WallFace = new(27, 19, 18), WallRecess = new(16, 4, 7), WallEdge = new(9, 3, 5), WallDeepEdge = new(4, 1, 5);
     /// <summary>$A4:B8D3: selected red-only deepest masonry mark.</summary>
     internal const int WallRedMark = 8;
     /// <summary>$A4:B8D5-B8D9: masonry shares hide red/green contour shading but selects violet-blue tint levels.</summary>
     internal const int WallTintLight = 9, WallTintDeep = 7;
     /// <summary>$A4:B8DB: independent darkest wall paint, including its selected red-channel endpoint.</summary>
-    internal static readonly RgbColor WallDark = RgbColor.FromWord(0x1045);
+    internal static readonly RgbColor WallDark = new(5, 2, 4);
     /// <summary>$A4:B8DF: full-blue projectile glint with equal selected red and green.</summary>
     internal const int ProjectileGlint = 26;
     /// <summary>$A4:B8E1-B8E5: yellow/orange projectile core endpoints; red uses floor gamma-two interpolation and green floor linear interpolation. Blue is absent.</summary>
@@ -68,5 +68,5 @@ internal static class CrocomirePaintDefinitions
     /// <summary>$A4:B925-B92B: four cool steel shades interpolate downward with floor rounding and a shared blue excess.</summary>
     internal const int SteelLight = 19, SteelDark = 3, SteelBlueTint = 3;
     /// <summary>$A4:B92D/B92F/B937: three additional copied spike-palette accent paints; no visible-role claim is made for this fragment fixture.</summary>
-    internal static readonly RgbColor SpikeAccent = RgbColor.FromWord(0x0bb1), SpikeWarmAccent = RgbColor.FromWord(0x48fb), SpikeCoolAccent = RgbColor.FromWord(0x44e5);
+    internal static readonly RgbColor SpikeAccent = new(17, 29, 2), SpikeWarmAccent = new(27, 7, 18), SpikeCoolAccent = new(5, 7, 17);
 }

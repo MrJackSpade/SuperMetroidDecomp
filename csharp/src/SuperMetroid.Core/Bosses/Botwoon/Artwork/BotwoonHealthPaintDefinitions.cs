@@ -10,5 +10,5 @@ namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 internal static class BotwoonHealthPaintDefinitions
 {
     /// <summary>$B3:973B/975B: copied slot0 target in bands1/2; independently observable CGRAM data.</summary>
-    internal static readonly RgbColor EarlyBandTransparentTarget = RgbColor.FromWord(0x2003);
+    internal static readonly RgbColor EarlyBandTransparentTarget = new(3, 0, 8);
 }

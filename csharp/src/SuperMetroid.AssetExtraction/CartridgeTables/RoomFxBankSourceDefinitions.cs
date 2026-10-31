@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 
-
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>The cartridge banks whose bank-relative pointers the room-effect extractors resolve (#1415).</summary>

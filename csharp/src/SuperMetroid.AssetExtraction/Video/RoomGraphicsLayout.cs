@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 
-
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>Where a room's tileset, common-room-element and collectible graphics live in gameplay VRAM and CGRAM (#630).</summary>

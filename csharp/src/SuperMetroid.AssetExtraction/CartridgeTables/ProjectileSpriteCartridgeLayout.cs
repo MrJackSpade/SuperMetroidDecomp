@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 
-
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where each Samus projectile and charge-flare composition group begins in bank $93.</summary>

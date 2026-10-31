@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 
-
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>

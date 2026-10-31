@@ -35,7 +35,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
                  })
         {
             (enemies, slot, state) = Create(parameter2);
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(BlueBrinstarFaceBlockNativeValues.MorphBallItem),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(slot.Position.X.Whole + samusX)), slot.Position.Y.Whole)),
@@ -58,7 +58,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     /// <summary>A face block initialized at (256, 256) with a 64-pixel trigger range.</summary>
     private static BlueBrinstarFaceBlockBehaviorCreateResult Create(ushort parameter2)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

@@ -25,7 +25,7 @@ internal static class MotherBrainGlassSuperMissileVerification
     internal static void VerifyMotherBrainGlassSuperMissile()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int glassHits = 0;
         enemies.VerificationServices().IncrementMotherBrainGlassRoomArgument = () => glassHits++;
         var head = enemies.SlotTable.Slots[1];
@@ -38,7 +38,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.Glass };
         enemies.MotherBrainEncounter.MotherBrain = state;
         ((List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         string root = Path.GetFullPath("out/workbook-investigation/crocomire-install");
         var installation = GameAssetInstaller.EnsureInstalled(root) ??
             GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), root);

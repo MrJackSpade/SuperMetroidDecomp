@@ -19,7 +19,7 @@ internal static class PauseReserveManualVerification
     internal static void VerifyPauseReserveManual()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 20, MaxHealth = 99, ReserveEnergy = 10,
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 20, MaxHealth = 99, ReserveEnergy = 10,
             MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Auto,
             CollectedBeams = SamusBeamFlags.Charge };
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
@@ -62,7 +62,7 @@ internal static class PauseReserveManualVerification
     {
         foreach (ushort startingHealth in new ushort[] { 20, 98 })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = startingHealth, MaxHealth = 99, ReserveEnergy = 10,
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = startingHealth, MaxHealth = 99, ReserveEnergy = 10,
                 MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
             var audio = new AudioQueues();
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });

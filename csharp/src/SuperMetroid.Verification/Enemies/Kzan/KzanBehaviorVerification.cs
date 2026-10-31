@@ -18,7 +18,7 @@ internal static class KzanBehaviorVerification
     /// <summary>The initializer starts the idle program, which shows its one frame and then holds it.</summary>
     internal static void VerifyKzanBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -43,7 +43,7 @@ internal static class KzanBehaviorVerification
     /// </summary>
     internal static void VerifyKzanTargetsWrap()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
         slot.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);

@@ -156,7 +156,7 @@ internal static class SamusVisorColorsVerification
     /// <summary>Initializes a standing Samus actor and enters the stock X-ray beam sequence.</summary>
     private static SamusState CreateXraySamus()
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),

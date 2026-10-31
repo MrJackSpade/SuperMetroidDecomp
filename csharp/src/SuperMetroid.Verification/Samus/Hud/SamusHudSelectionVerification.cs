@@ -26,7 +26,7 @@ internal static class SamusHudSelectionVerification
         const ControllerButton select = ControllerButton.Select;
         const ControllerButton cancel = ControllerButton.Y;
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         AssertTrue(!SelectionChanged(samus, select, select),
             "Select with no available HUD item wraps to Nothing");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,

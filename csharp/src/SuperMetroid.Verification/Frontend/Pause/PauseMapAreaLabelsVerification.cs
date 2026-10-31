@@ -40,7 +40,7 @@ internal static class PauseMapAreaLabelsVerification
             gated.FinishFrame();
             AssertEqual(0, gated.LastFinalizedSpriteCount, "another area's map does not reveal these destinations");
             system.SetAreaMapAcquired(area);
-            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = area, RoomMapPosition = new(0, 0) });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), System = system, AreaIndex = area, RoomMapPosition = new(0, 0) });
             int list = 0x820000 | Read(0x82c74d + (int)area * 2);
             ushort x = unchecked((ushort)(Read(list) - 128)), y = unchecked((ushort)(Read(list + 2) - 100));
             pause.MapScrollPosition = new Position16<MapPixels>(x, y);

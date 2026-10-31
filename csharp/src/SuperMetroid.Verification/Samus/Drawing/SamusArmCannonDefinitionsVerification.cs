@@ -29,7 +29,7 @@ internal static class SamusArmCannonDefinitionsVerification
                 SamusArmCannonOpening.Opens(selectedHudItem),
                 $"arm-cannon HUD item {selectedHudItem} matches cartridge table");
 
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 SelectedHudItem = selectedHudItem,
@@ -61,7 +61,7 @@ internal static class SamusArmCannonDefinitionsVerification
 
         // An imported toggle word at its top wraps to zero on a stable sample, as the native 16-bit INC does, and the
         // closed Beam selection starts no transition while it counts back up.
-        var wrapping = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
+        var wrapping = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
         PrepareRetailSamusFixture(wrapping);
         wrapping.ArmCannon.Artwork = artwork;
         wrapping.ArmCannon.StableSelectionUpdates = ushort.MaxValue;

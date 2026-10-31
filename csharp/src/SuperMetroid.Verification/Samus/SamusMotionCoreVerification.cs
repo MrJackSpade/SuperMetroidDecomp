@@ -169,7 +169,7 @@ internal static void VerifySamusHorizontalSpeed()
     // Ordinary Dash uses the compiled native ten-frame, two-tick cadence. Do not
     // rewrite the cartridge pointer/delay ROM in the fake bus: gameplay now reads
     // those immutable definitions from SamusRunningCadenceDefinitions.
-    var dashAnimation = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = SamusPoseId.MovingRightNormalPose };
+    var dashAnimation = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.MovingRightNormalPose };
     SamusPresentation.InitializeAnimation(dashAnimation);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
@@ -211,7 +211,7 @@ internal static void VerifySamusHorizontalSpeed()
     for (int command = 0; command < 4; command++)
     {
         bool intercepted = booster.TryAdvanceSpeedBoosterAnimationStage(
-            null,
+            new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             movementType: SamusMovementType.Running,
             controllerInput: ControllerButton.B,
             animationFrameBuffer: 0,
@@ -424,7 +424,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(0x0321, boostCgram.Colors[192], "cancel restores ROM-authored Power Suit palette");
     AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");
 
-    var boostedJump = new SamusState(InstalledFixtures.AnimationContinuation) { EquippedItems = SamusEquipmentFlags.SpeedBooster };
+    var boostedJump = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { EquippedItems = SamusEquipmentFlags.SpeedBooster };
     boostedJump.Kinematics.YSpeed = new UnsignedSixteenSixteen(4, 0xe000);
     boostedJump.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(3, 0x4000);
     SamusAerialMovement.ApplyEquippedSpeedBoosterJumpBonus(boostedJump);
@@ -483,7 +483,7 @@ internal static void VerifySamusExtraDisplacement()
     const int height = 16;
     RoomLevelData level = CreateEmptyRoom(new(width, height));
 
-    var standing = new SamusState(InstalledFixtures.AnimationContinuation)
+    var standing = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
@@ -505,7 +505,7 @@ internal static void VerifySamusExtraDisplacement()
     AssertEqual(2, standing.Kinematics.ExtraDisplacement.Y.WholePixels,
         "movement does not consume persistent external Y producer word");
 
-    var negative = new SamusState(InstalledFixtures.AnimationContinuation)
+    var negative = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
@@ -521,7 +521,7 @@ internal static void VerifySamusExtraDisplacement()
     AssertEqual(unchecked((int)0xfffe8000), upward.Vertical.AcceptedDisplacement,
         "negative no-speed external Y has no downward bias");
 
-    var transition = new SamusState(InstalledFixtures.AnimationContinuation)
+    var transition = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Pose = SamusPoseId.NeutralJumpTransitionRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
@@ -541,7 +541,7 @@ internal static void VerifySamusExtraDisplacement()
     AssertEqual(0x00014000, unchecked((int)(transition.Kinematics.Position.Y.RawValue - transitionYBefore)),
         "jump transition applies extra-only Y with positive bias");
 
-    var rising = new SamusState(InstalledFixtures.AnimationContinuation)
+    var rising = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Pose = SamusPoseId.NeutralJumpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
@@ -562,7 +562,7 @@ internal static void VerifySamusExtraDisplacement()
     AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.YDirection,
         "external reversal does not rewrite native velocity-direction word");
 
-    var bouncingBall = new SamusState(InstalledFixtures.AnimationContinuation)
+    var bouncingBall = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Pose = SamusPoseId.MorphBallFallingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),

@@ -33,7 +33,7 @@ internal static class PipeBugBehaviorVerification
                 var name when name.StartsWith("Gamet", StringComparison.Ordinal) => new VerifyPipeBugBehaviorCase(EnemyDefinitionId.Gamet, 0),
                 _ => new VerifyPipeBugBehaviorCase(EnemyDefinitionId.Geega, 0),
             };
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PipeBugEnemyState state = Initialize(enemies, slot, definition, parameter);
             PipeBugsBehavior.InstallPipeBugProgram(slot, state, program);
@@ -56,7 +56,7 @@ internal static class PipeBugBehaviorVerification
     {
         foreach ((int before, int after, bool departs) in new[] { new VerifyPipeBugStateQuantitiesCase(70, 71, false), new VerifyPipeBugStateQuantitiesCase(71, 0, true), new VerifyPipeBugStateQuantitiesCase(65535, 0, false), new VerifyPipeBugStateQuantitiesCase(32839, 32840, false) })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Gamet, 0);
@@ -70,7 +70,7 @@ internal static class PipeBugBehaviorVerification
         }
 
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Zeb, 0);
@@ -86,7 +86,7 @@ internal static class PipeBugBehaviorVerification
 
         {
             const int onePixel = 65536;
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             slot.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
@@ -113,7 +113,7 @@ internal static class PipeBugBehaviorVerification
             {
                 Camera = Position16<RoomPixels>.Zero,
                 TimeIsFrozen = false,
-                Samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(samusPosition) },
+                Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(samusPosition) },
             },
             new FrameCounters(0));
     }
@@ -121,7 +121,7 @@ internal static class PipeBugBehaviorVerification
     /// <summary>A freshly initialized Pipe Bug's state.</summary>
     private static PipeBugEnemyState Initialized(EnemyDefinitionId definition, ushort parameter)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         return Initialize(enemies, enemies.SlotTable.Slots[0], definition, parameter);
     }
 

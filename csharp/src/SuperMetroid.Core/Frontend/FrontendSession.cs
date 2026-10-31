@@ -50,8 +50,8 @@ internal sealed class FrontendSession
     /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
     [field: NonSerialized]
     public GameArtwork Artwork { get => field ?? GameArtwork.Unbound; internal set; }
-    /// <summary>The session's floor update residue, which outlives each gameplay runtime.</summary>
-    internal readonly SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue = new();
+    /// <summary>The session's unauthored Speed Booster cadence, whose delays Ceres Ridley's getaway leaves for the rest of the session.</summary>
+    internal readonly UnauthoredBoostCadence unauthoredBoostCadence = new();
     /// <summary>When an open save confirmation reads the controller; every runtime's message box consults it.</summary>
     internal readonly SaveChoiceInputCadence saveChoiceInput = new();
     /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
@@ -397,7 +397,7 @@ internal sealed class FrontendSession
             {
                 Clock = frameClock,
                 Random = Random,
-                FloorQueueResidue = floorQueueResidue,
+                UnauthoredBoostCadence = unauthoredBoostCadence,
                 EarthquakeSoundDelay = earthquakeSoundDelay,
                 SaveChoiceInput = saveChoiceInput,
             },

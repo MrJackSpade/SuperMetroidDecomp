@@ -17,7 +17,7 @@ internal static class BoulderBehaviorVerification
     /// <summary>The real initializer starts the Left program, which the runtime then plays through once and back.</summary>
     internal static void VerifyBoulderBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -50,7 +50,7 @@ internal static class BoulderBehaviorVerification
                      new VerifyBoulderReboundClockCase(8192, 7936, BoulderAiFunction.Rebound),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(256, 512));
@@ -60,7 +60,7 @@ internal static class BoulderBehaviorVerification
             state.Function = BoulderAiFunction.Rebound;
             state.BounceSpeedAccumulator = start;
             var frame = new ClockedEnemyAiFrame(
-                new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation), Level = level },
+                new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), Level = level },
                 new FrameCounters(0));
 
             enemies.BoulderBehavior.RunBoulderMainAi(slot, frame);

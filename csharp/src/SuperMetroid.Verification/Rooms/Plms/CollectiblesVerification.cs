@@ -155,7 +155,7 @@ internal static class CollectiblesVerification
         // location rather than confusing the projectile type with an item bit.
         CollectibleFixture orb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 91, precollected: false);
         orb.Plms.Step(orb.Level);
-        var grappleSamus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var grappleSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(grappleSamus);
         var orbHit = SamusGrappleMovement.StepFiring(orb.Level, grappleSamus,
@@ -294,7 +294,7 @@ internal static class CollectiblesVerification
             system.SetCollectedItemBit(roomArgument);
         if (preopenedChozo)
             system.SetRoomChozoBit(roomArgument);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Health = 99,
             MaxHealth = 99,
@@ -485,7 +485,7 @@ internal static class CollectiblesVerification
         sourceSystem.SetOpenedDoorBit(511);
         sourceSystem.SetEvent(EventNumber.TourianUnlocked);
         sourceSystem.SetBossBits(2, BossBits.AreaBoss | BossBits.AreaTorizo);
-        var sourceSamus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var sourceSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Ice),
             EquippedBeams = SamusBeamFlags.Ice,
@@ -498,7 +498,7 @@ internal static class CollectiblesVerification
             ?? throw new InvalidOperationException("collectible save slot checksum failed");
 
         var restoredSystem = new SharedGameState();
-        var restoredSamus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var restoredSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         slot.ApplyTo(restoredSamus, restoredSystem);
         AssertTrue(restoredSystem.HasCollectedItemBit(0), "first physical item bit round-trips");
         AssertTrue(restoredSystem.HasCollectedItemBit(91), "middle physical item bit round-trips");
@@ -708,7 +708,7 @@ internal static class CollectiblesVerification
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
         Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory(suitColors));
         var cgram = new SamusColourRig();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(500, 600)),
@@ -883,7 +883,7 @@ internal static class CollectiblesVerification
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         foreach (bool otherSuit in new[] { false, true })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { EquippedItems = otherSuit
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { EquippedItems = otherSuit
                 ? (kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
                 : SamusEquipmentFlags.None };
             samus.Presentation.SuitColors = suitColors;

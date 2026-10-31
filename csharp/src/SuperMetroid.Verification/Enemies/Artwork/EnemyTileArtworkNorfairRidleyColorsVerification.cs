@@ -205,7 +205,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         static EnemyTileArtworkNorfairRidleyColorsCreateResult Create(
             ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
-            var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
+            var enemy = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var cgram = new SamusColourRig();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, RgbColor.FromWord((ushort)(color * 31)));

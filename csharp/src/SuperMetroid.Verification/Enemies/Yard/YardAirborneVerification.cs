@@ -52,7 +52,7 @@ internal static class YardAirborneVerification
         foreach (uint initialY in vertical)
         foreach (YardBehavior behavior in new[] { YardBehavior.Dropped, YardBehavior.Kicked, YardBehavior.BeamLaunched })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new GameplayColours(new SpriteColourSets())));
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];
@@ -63,7 +63,7 @@ internal static class YardAirborneVerification
             state.AirborneVelocity = new FixedVector<RoomPixels>(
                 SignedSixteenSixteen.FromRaw(unchecked((int)initialX)),
                 SignedSixteenSixteen.FromRaw(unchecked((int)initialY)));
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
                 Pose = SamusPoseId.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             uint x = 0x0200F000, y = 0x0200F000, vx = initialX, vy = initialY;

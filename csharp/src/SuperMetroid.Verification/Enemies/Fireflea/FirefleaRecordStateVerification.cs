@@ -13,7 +13,7 @@ internal static class FirefleaRecordStateVerification
     /// </summary>
     internal static void VerifyFirefleaRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new FirefleaEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);

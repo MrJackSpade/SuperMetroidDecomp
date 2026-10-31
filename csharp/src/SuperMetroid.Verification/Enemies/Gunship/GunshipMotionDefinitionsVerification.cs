@@ -24,7 +24,7 @@ internal static class GunshipMotionDefinitionsVerification
         {
             short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2a622 + frame * 2)));
 
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: new GunshipMotionFixtureGuard(rom));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: new GunshipMotionFixtureGuard(rom));
             var applyBrake = new Action<RoomEnemySlot, SamusState>(enemies.GunshipBehavior.BouncePostCeresGunship);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             top.Position = top.Position.WithWhole(new(0x1234, 0x2000));
@@ -33,7 +33,7 @@ internal static class GunshipMotionDefinitionsVerification
             part.LandingBrakeStep = frame;
             enemies.SlotTable.Slots[1].Position = enemies.SlotTable.Slots[1].Position.WithWholeY(0x2100);
             enemies.SlotTable.Slots[2].Position = enemies.SlotTable.Slots[2].Position.WithWholeY(0x2200);
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
 
             applyBrake(top, samus);
 
@@ -53,7 +53,7 @@ internal static class GunshipMotionDefinitionsVerification
             byte expectedTimer = GunshipMotionDefinitionsRomByte(rom, address);
             sbyte expectedDelta = unchecked((sbyte)GunshipMotionDefinitionsRomByte(rom, address + 1));
 
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: new GunshipMotionFixtureGuard(rom));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: new GunshipMotionFixtureGuard(rom));
             var stepBob = new Action<RoomEnemySlot>(enemies.GunshipBehavior.StepGunshipBob);
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();

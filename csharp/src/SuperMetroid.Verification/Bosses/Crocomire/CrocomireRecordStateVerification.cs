@@ -13,7 +13,7 @@ internal static class CrocomireRecordStateVerification
     /// </summary>
     internal static void VerifyCrocomireRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot tongue = enemies.SlotTable.Slots[1];
         var state = new CrocomireEnemyState(body);

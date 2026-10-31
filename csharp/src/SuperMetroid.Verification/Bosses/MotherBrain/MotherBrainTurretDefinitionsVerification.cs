@@ -44,7 +44,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                     $"Mother Brain turret allowed direction {parameter}/{direction}");
             }
 
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0;
             enemies.MotherBrainBehavior.Body.SpawnMotherBrainTurret(parameter);
 
@@ -120,7 +120,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                 definition.BulletVelocity.Y.SignedRawValue,
                 $"Mother Brain turret bullet Y velocity {direction}");
 
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             var turret = new RoomEnemyProjectileSlot(0)
             {
                 Position = new(new(0x0400, 0), new(0x0200, 0)),

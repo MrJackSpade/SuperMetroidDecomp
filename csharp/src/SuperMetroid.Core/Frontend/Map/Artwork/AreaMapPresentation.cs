@@ -73,7 +73,7 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
         SamusChargeColors = parts.SamusChargeColors;
         CeresRidleyColors = parts.CeresRidleyColors;
         CeresRidleyFloorColors = parts.CeresRidleyFloorColors;
-        CeresRidleyFloorUpdates = parts.CeresRidleyFloorUpdates;
+        CeresRidleyGetawayBoostDelays = parts.CeresRidleyGetawayBoostDelays;
         SamusHyperBeamColors = parts.SamusHyperBeamColors;
     }
 
@@ -164,8 +164,8 @@ public class AreaMapPresentation : IInstalledArtworkContent, IGameplayPresentati
     public CeresRidleyColorCatalog CeresRidleyColors { get; }
     /// <summary>Ceres Ridley Mode 7 zoom shades, separate from ordinary Ridley colors and compiled movement and rotation.</summary>
     public CeresRidleyFloorColorCatalog CeresRidleyFloorColors { get; }
-    /// <summary>Where the getaway's floor runs take their tile numbers from, which the floor updates it queues record.</summary>
-    public CeresRidleyFloorUpdateSources CeresRidleyFloorUpdates { get; }
+    /// <summary>The Speed Booster delays the getaway's wing frames leave behind for the unauthored cadence.</summary>
+    public CeresRidleyGetawayBoostDelays CeresRidleyGetawayBoostDelays { get; }
     /// <summary>Samus Hyper Beam palette-cycle colors, separate from charged-beam presentation and other suit cycles.</summary>
     public SamusHyperBeamColours SamusHyperBeamColors { get; }
     /// <summary>Resolves installed escape-timer character bytes for a VRAM transfer.</summary>

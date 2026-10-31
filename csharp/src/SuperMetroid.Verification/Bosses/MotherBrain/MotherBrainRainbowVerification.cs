@@ -28,7 +28,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
 
     var movement = new MotherBrainRainbowBeamSamusMovement();
     var cameraCheckpoint = new RainbowBeamCameraCheckpoint();
-    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
     };
@@ -157,7 +157,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 {
     var cameraCheckpoint = new RainbowBeamCameraCheckpoint();
 
-    var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+    var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Health = 999,
         Missiles = 80,
@@ -277,7 +277,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 
     // Boundary 700 uses command five; 699 uses `$18`. The second fixture also proves that
     // `$A9:C4E8` loads literal zero even when a different HUD item made the prior CMP fail.
-    var low = new SamusState(InstalledFixtures.AnimationContinuation)
+    var low = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
         Health = 699,
         Missiles = 1,

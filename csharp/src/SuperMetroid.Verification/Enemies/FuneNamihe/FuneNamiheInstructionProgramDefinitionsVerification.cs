@@ -78,7 +78,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
     private static RunFuneNamiheProgramResult RunFuneNamiheProgram(
         FuneNamiheProgramCase program)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

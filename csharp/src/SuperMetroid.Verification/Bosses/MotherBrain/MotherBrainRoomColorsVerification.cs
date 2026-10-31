@@ -315,7 +315,7 @@ internal static class MotherBrainRoomColorsVerification
     private static RoomEnemySystem CreateEnemy(SamusColourRig cgram,
         MotherBrainRoomColorPresentation? colors)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRoomColors = colors, BodySheets = BossBodySheetFixtures.Stock.Sheets } };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { MotherBrainRoomColors = colors, BodySheets = BossBodySheetFixtures.Stock.Sheets } };
         enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         return enemies;

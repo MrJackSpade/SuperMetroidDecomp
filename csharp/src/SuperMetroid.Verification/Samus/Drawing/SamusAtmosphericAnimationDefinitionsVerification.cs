@@ -142,7 +142,7 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
         RoomFxType fxType,
         SamusLiquidDamageRate expected)
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,

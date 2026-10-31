@@ -146,28 +146,27 @@ internal sealed class CeresRidleyGetaway
         state.FloorAngle = state.FloorAngle.AddRaw(48);
         UpdateCeresRidleyFloorMatrix(state);
 
-        // Both animations' floor updates leave their descriptors behind, the capsule's first, so the wing's follow it.
-        FloorUpdateResidue residue = _room.FloorQueueResidue ?? throw new InvalidOperationException(
-            "The Ceres Ridley getaway requires the session's floor update residue.");
-        var updates = new List<FloorUpdate>();
-
         // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1. The transfer
         // lists patch only the two two-byte rows occupied by that animation in the map.
         if ((frameCounter & 3) == 0)
         {
             state.GetawayBabyFrame = (state.GetawayBabyFrame + 1) % 4;
-            ApplyFloorAnimationFrame(CeresFloorAnimation.BabyFrameForPhase(state.GetawayBabyFrame), updates);
+            _room.Services.DrawFloor(CeresFloorAnimation.PictureOf(CeresFloorAnimation.BabyFrameForPhase(state.GetawayBabyFrame)));
         }
 
-        // The six sparse wing rows alternate on every eighth frame of the frame counter.
+        // The six sparse wing rows alternate on every eighth frame of the frame counter. Each wing frame's floor
+        // update leaves behind the delays Samus's unauthored Speed Booster cadence runs on from then on.
         if ((frameCounter & 7) == 0)
         {
             state.GetawayWingFrame = (state.GetawayWingFrame + 1) % 2;
-            ApplyFloorAnimationFrame(state.GetawayWingFrame == 0
+            CeresFloorAnimationFrame wing = state.GetawayWingFrame == 0
                 ? CeresFloorAnimationFrame.WingFrame0
-                : CeresFloorAnimationFrame.WingFrame1, updates);
+                : CeresFloorAnimationFrame.WingFrame1;
+            _room.Services.DrawFloor(CeresFloorAnimation.PictureOf(wing));
+            CeresRidleyGetawayBoostDelays delays = _bossArtwork.CeresRidleyGetawayBoostDelays ?? throw new InvalidOperationException(
+                "The Ceres Ridley getaway requires the installed delays its wing frames leave behind.");
+            _room.UnauthoredBoostCadence.TakeDelaysLeftByWings(delays.LeftBy(wing));
         }
-        residue.Record(updates);
     }
 
     /// <summary>
@@ -215,19 +214,6 @@ internal sealed class CeresRidleyGetaway
         }
         throw new InvalidOperationException(
             $"Ceres Ridley Mode 7 zoom step {zoomStep} is not in the installed palette catalog.");
-    }
-
-    /// <summary>
-    /// Draws one floor animation frame's picture over the room's floor (#1349, #1467) and adds its floor updates to
-    /// <paramref name="updates"/>, whose descriptors outlive the update. The descriptors are installed (#1415), so gameplay
-    /// needs no cartridge read.
-    /// </summary>
-    private void ApplyFloorAnimationFrame(CeresFloorAnimationFrame frame, List<FloorUpdate> updates)
-    {
-        CeresRidleyFloorUpdateSources sources = _bossArtwork.CeresRidleyFloorUpdates ?? throw new InvalidOperationException(
-            "The Ceres Ridley getaway requires the installed floor update sources.");
-        _room.Services.DrawFloor(CeresFloorAnimation.PictureOf(frame));
-        updates.AddRange(sources.Updates(frame));
     }
 
     /// <summary>

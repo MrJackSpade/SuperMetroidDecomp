@@ -17,7 +17,7 @@ internal static class BullShotReactionGuardVerification
     /// </summary>
     internal static void VerifyBullShotReactionGuardWrap()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var inheritance = new SlotInheritance<BullEnemyState>(EnemySlotOrder.Capacity);
         BullEnemyState state = inheritance.Inherit(slot.SlotIndex, static previous => new BullEnemyState(previous)

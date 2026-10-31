@@ -26,7 +26,7 @@ internal static class WorkRobotFallVerification
                      new VerifyWorkRobotFallCase(-1, 32768, 0, 0),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.RobotNoPower, slot.Definition);
             slot.Radius = new(8, 8);

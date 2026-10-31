@@ -90,6 +90,7 @@ internal static class GenericSpriteArtworkVerification
             samusBodyArtwork: body)
         {
             Random = new SharedRandom(),
+            UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             NarrationPresentation = maps.IntroNarration,
             ProjectileFrameBindings = projectiles.FrameBindings,
         };

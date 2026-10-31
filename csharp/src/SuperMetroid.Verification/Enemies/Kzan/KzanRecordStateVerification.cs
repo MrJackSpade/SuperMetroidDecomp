@@ -13,7 +13,7 @@ internal static class KzanRecordStateVerification
     /// </summary>
     internal static void VerifyKzanRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new KzanEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

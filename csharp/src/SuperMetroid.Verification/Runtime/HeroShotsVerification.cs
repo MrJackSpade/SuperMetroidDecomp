@@ -36,7 +36,7 @@ internal static class HeroShotsVerification
             var blocks = new RoomTerrainBlock[64 * 16];
             for (int row = 0; row < 16; row++) blocks[vertical ? 16 * 16 + row : row * 64 + 32] = Solid;
             var room = CreateRoom(vertical ? new(16, 64) : new(64, 16), blocks, new RoomBlockBehavior[blocks.Length]);
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Pose = vertical ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, (ushort)(vertical ? 640 : 128))) };
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = vertical ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, (ushort)(vertical ? 640 : 128))) };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             int deletedFrame = -1, impactFrame = -1;

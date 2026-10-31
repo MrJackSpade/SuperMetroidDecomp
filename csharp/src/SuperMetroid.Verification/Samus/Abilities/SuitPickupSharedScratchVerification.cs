@@ -24,7 +24,7 @@ internal static class SuitPickupSharedScratchVerification
     /// </summary>
     internal static void VerifySuitPickupSharedScratch()
     {
-        SamusState samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation)
+        SamusState samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

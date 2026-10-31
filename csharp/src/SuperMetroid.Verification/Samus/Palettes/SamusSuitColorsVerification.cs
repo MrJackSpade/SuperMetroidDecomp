@@ -151,7 +151,7 @@ internal static class SamusSuitColorsVerification
 
         var guard = NewSuitColorReadGuard(bus);
         var cgram = new SamusColourRig();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Presentation = { SuitColors = edited.SamusSuitColors } };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Presentation = { SuitColors = edited.SamusSuitColors } };
         ushort[] equipment =
         [
             0,

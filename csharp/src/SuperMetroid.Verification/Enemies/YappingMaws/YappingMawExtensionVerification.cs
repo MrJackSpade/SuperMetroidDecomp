@@ -82,7 +82,7 @@ internal static class YappingMawExtensionVerification
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) =
             YappingMawInstructionProgramDefinitionsVerification.NewInitializedYappingMaw(301);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
         var frame = new ClockedEnemyAiFrame(
             new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },

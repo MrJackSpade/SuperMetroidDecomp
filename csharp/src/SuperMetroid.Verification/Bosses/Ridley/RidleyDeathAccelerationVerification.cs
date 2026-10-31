@@ -18,7 +18,7 @@ internal static class RidleyDeathAccelerationVerification
         AssertEqual((byte)0, rom.ReadCartridgeByte(0xa6c60f), "Death movement native inertia index");
         AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0xa6c611), "Death movement LDA immediate opcode");
         AssertEqual((byte)16, rom.ReadCartridgeByte(0xa6c612), "Death movement native extra deceleration");
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         Action<RoomEnemySlot, RidleyEnemyState> approaching = NorfairRidleyCombat.TickNorfairRidleyMoveToDeathSpot;
         Action<RoomEnemySlot, RidleyEnemyState> roaring = enemies.RidleyBehavior.Death.TickNorfairRidleyDeathRoar;
         var slot = enemies.SlotTable.Slots[0];

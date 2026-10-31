@@ -33,7 +33,7 @@ internal static class SamusDeathFrameSelectionVerification
     {
         foreach (bool facingLeft in new[] { false, true })
         {
-            SamusState samus = InstalledFixtures.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation)
+            SamusState samus = InstalledFixtures.BindSamus(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
                 Pose = facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

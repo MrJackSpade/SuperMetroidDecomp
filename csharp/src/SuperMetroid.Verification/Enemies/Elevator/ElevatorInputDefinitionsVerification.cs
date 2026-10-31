@@ -28,7 +28,7 @@ internal static class ElevatorInputDefinitionsVerification
             ushort tableByteOffset = (ushort)(direction * 2);
             ControllerButton native = (ControllerButton)CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
 
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
             Action<RoomEnemySlot, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
             Action<RoomEnemySlot, ElevatorEnemyState, SamusState, ControllerButton,
@@ -38,7 +38,7 @@ internal static class ElevatorInputDefinitionsVerification
             slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
             slot.SetSpawnParameter1(EnemyDefinitionId.Elevator, direction);
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0180));
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
             samus.Presentation.BodyFrames.BindBodyFixture(bodyArtwork);
             initialize(slot, samus);
             ElevatorEnemyState elevator = enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].");

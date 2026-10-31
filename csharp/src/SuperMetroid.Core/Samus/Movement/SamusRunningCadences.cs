@@ -39,11 +39,11 @@ internal static class SamusRunningCadences
     };
 
     /// <summary>The delay, in ticks, of running frame <paramref name="frame"/> on <paramref name="cadence"/>.</summary>
-    /// <param name="residue">The session's floor update residue, which the unauthored cadence reads.</param>
+    /// <param name="unauthored">The session's unauthored Speed Booster cadence, which times the unauthored cadence's frames.</param>
     /// <param name="cadence">The cadence the run animates by.</param>
     /// <param name="frame">The running frame, zero through nine.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is not one of the ten running frames.</exception>
-    internal static int Delay(IFloorUpdateResidue? residue, SamusRunningCadence cadence, int frame)
+    internal static int Delay(UnauthoredBoostCadence unauthored, SamusRunningCadence cadence, int frame)
     {
         if ((uint)frame >= (uint)OrdinaryDelays.Count)
             throw new ArgumentOutOfRangeException(nameof(frame), frame, "A run has ten frames.");
@@ -55,7 +55,7 @@ internal static class SamusRunningCadences
             SamusRunningCadence.BoostStage2 => BoostStageDelays[2][frame],
             SamusRunningCadence.BoostStage3 => BoostStageDelays[3][frame],
             SamusRunningCadence.BoostStage4 => BoostStageDelays[4][frame],
-            SamusRunningCadence.UnauthoredBoost => UnauthoredBoostCadence.Delay(residue, frame),
+            SamusRunningCadence.UnauthoredBoost => unauthored.Delay(frame),
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusRunningCadence)} {cadence}."),
         };
     }

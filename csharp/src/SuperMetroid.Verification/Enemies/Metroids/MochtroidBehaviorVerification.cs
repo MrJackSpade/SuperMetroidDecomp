@@ -17,7 +17,7 @@ internal static class MochtroidBehaviorVerification
     /// </summary>
     internal static void VerifyMochtroidBehavior()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Mochtroid, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));

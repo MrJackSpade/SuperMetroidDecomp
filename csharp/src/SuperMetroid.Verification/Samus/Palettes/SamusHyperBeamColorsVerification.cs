@@ -352,7 +352,7 @@ internal static class SamusHyperBeamColorsVerification
                     "Shot edits cannot mutate the separate full-body asset");
             }
         }
-        var shotSamus = new SamusState(InstalledFixtures.AnimationContinuation) { HyperBeamEnabled = true, Presentation = { ChargeColors = shot } };
+        var shotSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { HyperBeamEnabled = true, Presentation = { ChargeColors = shot } };
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         projectiles.Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0x8014);
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
@@ -367,7 +367,7 @@ internal static class SamusHyperBeamColorsVerification
                     "Guarded Hyper-shot cycle preserves original applied colors and held rows");
         }
         AssertEqual(0, shotGuard.ForbiddenReadAttempts, "Hyper-shot calculated colors avoid original palette and pointer reads");
-        var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation);
+        var installedSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         installedSamus.Drained.EnableRainbow(installedSamus);
         installedSamus.Drained.PresentationColors = catalog.ToColours();
         var installedCgram = new SamusColourRig();

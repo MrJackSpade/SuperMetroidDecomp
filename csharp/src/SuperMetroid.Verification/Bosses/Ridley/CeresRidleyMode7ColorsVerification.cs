@@ -77,7 +77,7 @@ internal static class CeresRidleyMode7ColorsVerification
             "runtime rebind drops old Ceres Mode-7 colors");
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyFloorColors = edited.CeresRidleyFloorColors } };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { BossArtworkBinding = { CeresRidleyFloorColors = edited.CeresRidleyFloorColors } };
         var cgram = new SamusColourRig();
         enemies.Presentation.BindColours(cgram.Gameplay);
         Action<ushort> select = selectedZoom => enemies.CeresRidleyBehavior.Getaway.UpdateCeresRidleyFloorPalette(selectedZoom);

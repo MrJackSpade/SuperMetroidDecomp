@@ -50,7 +50,7 @@ internal static class CrampedAerialLandingVerification
         RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             foreground,
             new RoomBlockBehavior[foreground.Length]);
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = SamusPoseId.SpinJumpRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0094, 0x0034)),

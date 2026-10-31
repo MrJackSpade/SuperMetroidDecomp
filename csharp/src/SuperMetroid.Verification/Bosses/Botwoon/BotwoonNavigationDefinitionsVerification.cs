@@ -30,7 +30,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         {
             ushort native = ReadRomWord(rom, 0xb3949d + offset);
             AssertEqual(native, BotwoonNavigation.HoleAt(offset / RecordBytes).BottomRight.X, "Botwoon native right boundary");
-            var head = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
+            var head = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())).SlotTable.Slots[0];
             head.Position = head.Position.WithWholeY(ReadRomWord(rom, 0xb3949f + offset));
             foreach (int x in new[] {native - 1, native})
             {
@@ -53,7 +53,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         {
             ushort native = ReadRomWord(rom, 0xb394a1 + offset);
             AssertEqual(native, BotwoonNavigation.HoleAt(offset / RecordBytes).BottomRight.Y, "Botwoon native bottom boundary");
-            var head = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
+            var head = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())).SlotTable.Slots[0];
             head.Position = head.Position.WithWholeX(ReadRomWord(rom, 0xb3949b + offset));
             foreach (int y in new[] {native - 1, native})
             {
@@ -75,7 +75,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         Action<RoomEnemySlot, BotwoonEnemyState> run = BotwoonBehavior.RunBotwoonMovement;
         for (int offset = 0; offset < 256; offset += 8)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             var state = new BotwoonEnemyState() { MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
                 PathChoice = offset / RecordBytes, Speed = 0 };
@@ -167,7 +167,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             AssertEqual((ushort)0, cartridge.ReadCartridgeWord((address + 6)),
                 $"Botwoon path {choice} alignment word");
 
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             var state = new BotwoonEnemyState()
             {
@@ -197,7 +197,7 @@ internal static class BotwoonNavigationDefinitionsVerification
 
         // Every position a walk can reach, one before the first step through one after the last, moves the head by
         // the cartridge's sample at that position, or ends the walk where the cartridge reads a marker.
-        var movementEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var movementEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot movementHead = movementEnemies.SlotTable.Slots[0];
         List<int> separators = BotwoonPathCodec.SeparatorAddresses(cartridge);
         int movementStepCount = 0;
@@ -244,7 +244,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         for (int holeIndex = 0; holeIndex < holes.Length; holeIndex++)
         {
             BotwoonHoleDefinition hole = holes[holeIndex];
-            var head = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
+            var head = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())).SlotTable.Slots[0];
             var state = new BotwoonEnemyState() { RingIndex = 141 };
             head.Position = head.Position.WithWhole(hole.TopLeft);
             detectHole(head, state);
@@ -269,7 +269,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         for (int holeIndex = 0; holeIndex < holes.Length; holeIndex++)
         {
             BotwoonHoleDefinition hole = holes[holeIndex];
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             head.Position = head.Position.WithWhole(hole.Target);
             var state = new BotwoonEnemyState()
@@ -310,7 +310,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             () => BotwoonNavigation.HasStep(BotwoonPathDefinitions.Paths.Length, 0),
             "Botwoon path past the authored paths");
 
-        var invalidEnemies = new RoomEnemySystem(new EnemySession());
+        var invalidEnemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot invalidHead = invalidEnemies.SlotTable.Slots[0];
         var invalidState = new BotwoonEnemyState()
         {

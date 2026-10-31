@@ -22,7 +22,7 @@ internal static class GameplayRuntimeFactory
             throw new ArgumentException($"A {start.Purpose} runtime start {(start.Selected is null ? "requires" : "takes no")} selected-game options.", nameof(start));
 
         GameplaySessionCarryover carryover = start.Carryover;
-        var runtime = new SuperMetroidRuntime(start.Overrides, start.Artwork, carryover.Clock, carryover.FloorQueueResidue,
+        var runtime = new SuperMetroidRuntime(start.Overrides, start.Artwork, carryover.Clock, carryover.UnauthoredBoostCadence,
             carryover.Random, carryover.EarthquakeSoundDelay, carryover.SaveChoiceInput);
         start.Layer1.PublishTo(runtime);
         runtime.BindArtwork(start.Artwork, previous: null);

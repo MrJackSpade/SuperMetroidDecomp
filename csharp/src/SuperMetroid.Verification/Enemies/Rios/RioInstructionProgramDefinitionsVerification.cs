@@ -26,7 +26,7 @@ internal static class RioInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyRioInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot rio = enemies.SlotTable.Slots[0];
         rio.Bind(EnemyDefinitionId.Rio, rio.Definition);
         rio.Bind(rio.DefinitionId, default(RoomEnemyDefinition));

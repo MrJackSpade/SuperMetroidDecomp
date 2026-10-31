@@ -886,7 +886,7 @@ internal static class PaletteFxInstructionCodesVerification
         var paletteFxSession = new PaletteFxSessionState();
         var paletteFx = new RoomPaletteFxSystem(paletteFxSession);
         var cgram = new SamusColourRig();
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 99 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 99 };
         paletteFx.SpawnDefinition(definition: 0xf761, equippedItems: 0);
         paletteFx.SpawnDefinition(definition: 0xf785, equippedItems: 0);
 

@@ -13,7 +13,7 @@ internal static class DeadSidehopperRecordStateVerification
     /// </summary>
     internal static void VerifyDeadSidehopperRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new DeadSidehopperEnemyState(slot, 0, new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.InitiallyAlive.RowCount));
         slot.SetSpeciesState(state, state.ClearWithRecord);

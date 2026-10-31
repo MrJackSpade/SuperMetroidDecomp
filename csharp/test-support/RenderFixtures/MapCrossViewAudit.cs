@@ -54,7 +54,7 @@ internal static class MapCrossViewAudit
     {
         // A half-screen local coordinate keeps Samus inside every representative room and
         // makes the expected map cell independent of door-entry pose or camera history.
-        var samus = new SamusState(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AnimationContinuation)
+        var samus = new SamusState(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)),
         };

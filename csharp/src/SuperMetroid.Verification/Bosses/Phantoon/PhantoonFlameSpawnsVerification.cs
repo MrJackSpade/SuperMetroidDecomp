@@ -25,7 +25,7 @@ internal static class PhantoonFlameSpawnsVerification
         foreach (ushort origin in new ushort[] { 0, 128, 0xfff8 })
         foreach (ushort parameter in parameters)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             // A rain parameter's index byte packs the column in its low nibble and the fall delay over eight above it.
             Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool> spawn = (flameBody, flameType, flameIndex) =>
                 flameType == PhantoonFlameSpawnType.Rain

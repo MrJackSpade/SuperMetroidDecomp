@@ -30,7 +30,7 @@ internal static class CeresElevatorArrivalVerification
             ?? throw new InvalidOperationException("Verification requires the installed projectile compositions.");
         var bus = NewCeresArrivalDefinitionReadGuard(memory);
 
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0000)) };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0000)) };
         var arrival = new CeresElevatorArrivalState(samus);
         arrival.Step(samus);
 

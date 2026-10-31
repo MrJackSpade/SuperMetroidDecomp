@@ -24,7 +24,7 @@ internal static class YardSurfaceLossVerification
                      new VerifyYardSurfaceLossCase(3, 4, YardBehavior.Dropped, YardMovementFunction.Airborne),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(new(512, 512));
             slot.Radius = new(8, 8);

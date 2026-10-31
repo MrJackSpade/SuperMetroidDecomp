@@ -84,7 +84,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
         var cgram = new SamusColourRig();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindColours(cgram.Gameplay);
         // The Baby's colours are sprite palette seven from colour one, CGRAM byte $01E2.

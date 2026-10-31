@@ -12,7 +12,7 @@ internal static class BullMovementDefinitionsVerification
     /// <summary>Checks all 104 parameter pairs through the real initializer, including timers and initial instruction.</summary>
     internal static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         Action<RoomEnemySlot> initialize = enemies.BullBehavior.InitializeBull;
         var slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);

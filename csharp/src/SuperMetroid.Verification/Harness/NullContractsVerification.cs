@@ -59,11 +59,11 @@ internal static class NullContractsVerification
         AssertThrows<InvalidOperationException>(() => _ = room.LoadedCamera, "room camera requires a loaded room");
         var player = new SamusFrameState(new SpriteColourSets());
         AssertThrows<InvalidOperationException>(() => _ = player.IntroducedSamus, "gameplay Samus requires her introduction");
-        player.Samus = new SamusState(InstalledFixtures.AnimationContinuation);
+        player.Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
         AssertTrue(ReferenceEquals(player.Samus, player.IntroducedSamus), "the introduced Samus is the attached actor");
         var phantoon = new PhantoonEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
         AssertThrows<InvalidOperationException>(() => _ = phantoon.Eye, "Phantoon's eye requires part initialization");
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         AssertThrows<InvalidOperationException>(() => _ = enemies.Presentation.Colours, "enemy palettes require bound CGRAM");
         var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
         AssertThrows<InvalidOperationException>(() => _ = game.Session.GameplayRuntime, "the frontend has no gameplay runtime before a game loads");

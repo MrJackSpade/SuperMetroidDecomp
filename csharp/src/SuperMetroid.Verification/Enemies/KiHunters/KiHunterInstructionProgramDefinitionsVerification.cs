@@ -161,7 +161,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 {
                     Camera = Position16<RoomPixels>.Zero,
                     TimeIsFrozen = false,
-                    Samus = new SamusState(InstalledFixtures.AnimationContinuation) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) },
+                    Samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) },
                     Level = level,
                 },
                 new FrameCounters(0));
@@ -202,7 +202,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
         CreatePairResult CreatePair()
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initializeBody = KiHunterBehavior.InitializeKiHunter;
             Action<RoomEnemySlot> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
 

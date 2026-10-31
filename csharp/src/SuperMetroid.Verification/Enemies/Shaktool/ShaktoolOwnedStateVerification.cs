@@ -58,7 +58,7 @@ internal static class ShaktoolOwnedStateVerification
     /// <summary>Initializes the seven Shaktool segments in slots zero through six.</summary>
     private static RoomEnemySystem CreateShaktoolGroup()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         for (int index = 0; index < 7; index++)
         {
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];

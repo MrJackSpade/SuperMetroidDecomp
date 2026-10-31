@@ -51,7 +51,7 @@ internal static class WaverAnimationDefinitionsVerification
         var guarded = NewWaverAnimationReadGuard(rom);
         for (ushort parameter = 0; parameter < 2; parameter++)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
             slot.SetSpawnParameter1(EnemyDefinitionId.Waver, parameter);

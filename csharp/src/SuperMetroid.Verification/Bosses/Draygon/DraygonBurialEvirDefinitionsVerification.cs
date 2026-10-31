@@ -45,7 +45,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
             "Draygon burial Evir entry past table");
 
         var guarded = NewDraygonBurialEvirReadGuard(rom);
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         for (int entry = 5; entry >= 0; entry--)
         {

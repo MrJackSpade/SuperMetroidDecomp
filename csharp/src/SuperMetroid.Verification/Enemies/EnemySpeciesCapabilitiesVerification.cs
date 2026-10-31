@@ -164,7 +164,7 @@ internal static class EnemySpeciesCapabilitiesVerification
             EnemyInteractionCallback.CrocomireHeaderTouch,
         ];
 
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[1];
         int bound = 0;
         int answers = 0;

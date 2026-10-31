@@ -271,9 +271,8 @@ internal sealed class RoomLoader
     internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot, bool resetBossesOnLoad = false)
     {
         Ensure.NotNull(slot);
-        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation)
+        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence)
         {
-            FloorQueueResidue = _enemySession.FloorQueueResidue,
             Pose = SamusPoseId.FacingRightNormalPose,
             AnimationFrame = 0,
         };
@@ -306,7 +305,7 @@ internal sealed class RoomLoader
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a tester grant already applied to her is not repeated.
         // $91:E12F clears Pose; the port's constructor defaults to the right-facing pose.
-        var samus = new SamusState(_samusOverreads.AnimationContinuation) { FloorQueueResidue = _enemySession.FloorQueueResidue, Pose = 0, AnimationFrame = 0 };
+        var samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence) { Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
         _tester.CarryInventoryGrant(carried, samus);
@@ -1158,9 +1157,8 @@ internal sealed class RoomLoader
         if (_room.ActiveRoom is null || _room.ActiveLoadStation is null)
             throw new InvalidOperationException("The starting Ceres room must be loaded before Samus setup.");
 
-        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation)
+        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation, _enemySession.UnauthoredBoostCadence)
         {
-            FloorQueueResidue = _enemySession.FloorQueueResidue,
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,
             Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.SamusPosition.WithY(0)),

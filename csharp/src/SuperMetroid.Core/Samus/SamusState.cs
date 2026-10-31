@@ -502,11 +502,10 @@ public sealed class SamusState
     public ProjectileInheritanceRecords ProjectileInheritance { get; } = new();
 
     /// <summary>
-    /// The session's floor update residue, whose bytes time her run on the unauthored Speed Booster cadence
-    /// (<see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/>). The room loader, attract driver and intro
-    /// bind it when they create her; a detached Samus that reaches such a read fails loudly.
+    /// The session's unauthored Speed Booster cadence, which times her run when a full sound queue sends the boost onto
+    /// it, with the delays Ceres Ridley's getaway left behind.
     /// </summary>
-    public SuperMetroid.Core.Compatibility.IFloorUpdateResidue? FloorQueueResidue { get; set; }
+    internal UnauthoredBoostCadence UnauthoredBoostCadence { get; }
 
     /// <summary>
     /// Room-dependent admission for spike-block BTS zero, populated by the alpha-phase
@@ -517,9 +516,11 @@ public sealed class SamusState
     /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
     /// <remarks>Construction performs no cartridge reads and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
     /// <param name="animationContinuation">What an animation frame past her pose's program reads, the session's installed service.</param>
-    internal SamusState(LaidOutProgramContinuation<SamusPoseId> animationContinuation)
+    /// <param name="unauthoredBoostCadence">The session's unauthored Speed Booster cadence, which outlives her.</param>
+    internal SamusState(LaidOutProgramContinuation<SamusPoseId> animationContinuation, UnauthoredBoostCadence unauthoredBoostCadence)
     {
         _animationContinuation = Ensure.NotNull(animationContinuation);
+        UnauthoredBoostCadence = Ensure.NotNull(unauthoredBoostCadence);
         HudSelection = new SamusHudSelection();
         InputSnapshot = new SamusInputSnapshot();
         Presentation = new SamusPresentation();

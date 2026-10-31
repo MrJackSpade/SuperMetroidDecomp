@@ -145,7 +145,7 @@ internal static class PauseEquipmentRulesVerification
         Suite(nameof(VerifyPauseWireframeSelection), () => VerifyPauseWireframeSelection(bus));
         foreach (ushort items in wireframeMasks.SelectMany(mask => new[] { mask, (ushort)(mask | SamusEquipmentFlags.GravitySuit.ToEquipmentWord()) }))
         {
-            var pause = Create(new SamusState(InstalledFixtures.AnimationContinuation) { EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(items), CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(items) }); EnterPauseEquipment(pause);
+            var pause = Create(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(items), CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(items) }); EnterPauseEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));
             int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), (int)PauseMenuSourceDefinitions.PauseWireframePointers + variant * 2);
             var memory = pause.CaptureRenderSnapshot().Paint;
@@ -160,7 +160,7 @@ internal static class PauseEquipmentRulesVerification
         AssertEqual(nativeAmount, PauseEquipmentRules.ReserveEnergyPerFrame, "manual reserve rate matches native word");
         foreach (var scenario in new[] { new VerifyCompiledPauseEquipmentRulesCase(Health:20, Reserve:10), new VerifyCompiledPauseEquipmentRulesCase(Health:98, Reserve:10), new VerifyCompiledPauseEquipmentRulesCase(Health:99, Reserve:1) })
         {
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = (ushort)scenario.Health, MaxHealth = 99, ReserveEnergy = (ushort)scenario.Reserve,
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = (ushort)scenario.Health, MaxHealth = 99, ReserveEnergy = (ushort)scenario.Reserve,
                 MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
             var pause = Create(samus); EnterPauseEquipment(pause);
             pause.Step(0, ControllerButton.Up); pause.Step(0, ControllerButton.Down);
@@ -180,7 +180,7 @@ internal static class PauseEquipmentRulesVerification
         PauseMenuState Create(SamusState samus) => new(new PauseMenuEntry { Samus = samus, System = new SharedGameState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = catalog, SpriteSheets = MenuSheetFixtures.For(catalog) });
         // Equip exactly the collected bits in the beam or item field for a category fixture.
         static SamusState Inventory(PauseEquipmentBit owned) =>
-            new(InstalledFixtures.AnimationContinuation) { CollectedBeams = owned.Beam, EquippedBeams = owned.Beam, CollectedItems = owned.Item, EquippedItems = owned.Item };
+            new(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { CollectedBeams = owned.Beam, EquippedBeams = owned.Beam, CollectedItems = owned.Item, EquippedItems = owned.Item };
     }
 
     /// <summary>Forbids production reads of migrated equipment masks, wireframe masks, and reserve-transfer rate.</summary>

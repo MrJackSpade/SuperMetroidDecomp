@@ -13,7 +13,7 @@ internal static class KiHunterRecordStateVerification
     /// </summary>
     internal static void VerifyKiHunterRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new KiHunterEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);

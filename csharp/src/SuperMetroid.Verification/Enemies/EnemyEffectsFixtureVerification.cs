@@ -35,7 +35,7 @@ internal static class EnemyEffectsFixtureVerification
         /// <summary>Destination graphics memory checked after melt operations.</summary>
         internal SnesVram Vram { get; } = new();
         /// <summary>Enemy owner hosting the Crocomire body, tongue, and behavior.</summary>
-        internal RoomEnemySystem Enemies { get; } = new(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
+        internal RoomEnemySystem Enemies { get; } = new(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance,
             services: new VerificationRoomEnemyServices(null));
         /// <summary>Crocomire body state bound to the first two enemy slots.</summary>
         internal CrocomireEnemyState Actor { get; }

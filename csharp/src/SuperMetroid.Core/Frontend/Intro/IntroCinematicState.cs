@@ -70,8 +70,8 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// <summary>The session's random-number word, which the demo Samus's animation draws from.</summary>
     public required SharedRandom Random { get; init; }
 
-    /// <summary>The session's floor update residue, bound into the flashback Samus.</summary>
-    public SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; init; }
+    /// <summary>The session's unauthored Speed Booster cadence, bound into the flashback Samus.</summary>
+    public required UnauthoredBoostCadence UnauthoredBoostCadence { get; init; }
 
     /// <summary>Host-owned frame artwork for the Mother Brain flashback projectile slots.</summary>
     public InstalledProjectileFrameBindings? ProjectileFrameBindings
@@ -614,9 +614,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         // $8B:AEB8 changes BG1SC to $50. The corresponding 32x32 visual map was already
         // uploaded by the initial $96:FF14 decompression; $8C:BEC3 below is gameplay
         // collision data and must never be expanded as a visual block map.
-        CurrentFlashbackSamus = new SamusState(samusOverreads.AnimationContinuation)
+        CurrentFlashbackSamus = new SamusState(samusOverreads.AnimationContinuation, UnauthoredBoostCadence)
         {
-            FloorQueueResidue = FloorQueueResidue,
             Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(155, 115)),
             SelectedHudItem = HudItem.Missile,

@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Samus.Movement;
 /// <summary>Checks Samus's typed running cadences and the Speed Booster stage selection against the cartridge's (#1473).</summary>
 internal static class RunningCadenceVerification
 {
-    /// <summary>The delay the residue holds where the unauthored cadence's first frame reads it.</summary>
+    /// <summary>The delay the getaway's wings leave for the unauthored cadence's first frame in this check; later frames take one tick more each.</summary>
     private const byte ResidueDelay = 0x35;
 
     /// <summary>
@@ -30,14 +30,12 @@ internal static class RunningCadenceVerification
         AssertThrows<InvalidDataException>(() => SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadenceDefinitions.MaximumSoundQueueSelection + 1),
             "no selection lies past what the echo's queue request reports");
 
-        // The unauthored cadence reads the residue byte the cartridge's stage-five stream word names.
-        int firstResidueByte = SamusRunningCadenceCodec.UnauthoredFirstResidueByte(cartridge);
-        var residue = new RecordedFloorUpdateResidue();
-        for (int frame = 0; frame < UnauthoredBoostCadence.FrameCount; frame++)
-            residue.Write(firstResidueByte + frame, (byte)(ResidueDelay + frame));
+        // The unauthored cadence times each running frame by the delays the getaway's wings last left behind.
+        var residue = new UnauthoredBoostCadence();
+        residue.TakeDelaysLeftByWings([.. Enumerable.Range(0, UnauthoredBoostCadence.FrameCount).Select(frame => ResidueDelay + frame)]);
         for (int frame = 0; frame < UnauthoredBoostCadence.FrameCount; frame++)
             AssertEqual(ResidueDelay + frame, SamusRunningCadences.Delay(residue, SamusRunningCadence.UnauthoredBoost, frame),
-                $"unauthored cadence frame {frame} reads the residue");
+                $"unauthored cadence frame {frame} takes the delay the wings left");
         AssertThrows<ArgumentOutOfRangeException>(() => SamusRunningCadences.Delay(residue, SamusRunningCadence.Ordinary, SamusRunningCadenceCodec.FrameCount),
             "a running frame past the tenth has no delay");
 

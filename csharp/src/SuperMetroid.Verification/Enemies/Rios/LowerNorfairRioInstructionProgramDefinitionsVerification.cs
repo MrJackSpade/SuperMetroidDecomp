@@ -57,7 +57,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     /// <summary>Confirms that the parent starts idle while its follower starts the flame program.</summary>
     private static void VerifyLowerNorfairRioInitializerSelections()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
@@ -80,7 +80,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     internal static NewLowerNorfairRioInstructionSystemResult NewLowerNorfairRioInstructionSystem(
         LowerNorfairRioProgram entry)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
@@ -97,7 +97,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyLowerNorfairRioOwnedState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
         parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));

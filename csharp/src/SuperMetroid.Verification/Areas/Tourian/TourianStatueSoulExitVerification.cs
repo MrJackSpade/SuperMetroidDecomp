@@ -22,7 +22,7 @@ internal static class TourianStatueSoulExitVerification
         int[] startHeights = [2, 100, 258, 400, 600];
         foreach (int start in startHeights)
         {
-            var enemies = new RoomEnemySystem(new EnemySession());
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
             RoomEnemyProjectileSlot soul = enemies.Projectiles.EnemyProjectiles[0];
             soul.PreInstruction = EnemyProjectilePreInstruction.TourianStatueSoulMotion;
             soul.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(132, checked((ushort)start)));

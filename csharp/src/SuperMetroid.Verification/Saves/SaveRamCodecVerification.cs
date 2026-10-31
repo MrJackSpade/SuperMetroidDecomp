@@ -203,7 +203,7 @@ internal static class SaveRamCodecVerification
     /// <summary>A save with a distinct health, area, progression and explored map.</summary>
     private static SuperMetroidSaveSnapshot Snapshot(ushort health, AreaId area)
     {
-        var samus = new SamusState(InstalledFixtures.AnimationContinuation) { Health = health, MaxHealth = 199, Missiles = 5, MaxMissiles = 10 };
+        var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = health, MaxHealth = 199, Missiles = 5, MaxMissiles = 10 };
         var system = new SharedGameState();
         system.SetEvent(EventNumber.ZebesAwake);
         system.SetBossBits(area, BossBits.AreaBoss);

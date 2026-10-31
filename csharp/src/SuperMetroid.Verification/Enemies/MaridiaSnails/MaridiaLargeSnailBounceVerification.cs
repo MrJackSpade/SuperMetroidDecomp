@@ -31,7 +31,7 @@ internal static class MaridiaLargeSnailBounceVerification
                      new VerifyMaridiaLargeSnailBounceRecordCase("rising past zero", air, MaridiaLargeSnailBounceFunction.Rising, 200, 0, MaridiaLargeSnailBounceFunction.Falling, false),
                  })
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Oum, slot.Definition);
             MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail(slot);
@@ -41,7 +41,7 @@ internal static class MaridiaLargeSnailBounceVerification
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, level == floor ? (ushort)49 : (ushort)48));
             state.BounceFunction = phase;
             state.YSpeedTableIndex = start;
-            var samus = new SamusState(InstalledFixtures.AnimationContinuation);
+            var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence());
             samus.Position = samus.Position.WithWhole(new(1000, 1000));
             var frame = new ClockedEnemyAiFrame(
                 new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus, Level = level },

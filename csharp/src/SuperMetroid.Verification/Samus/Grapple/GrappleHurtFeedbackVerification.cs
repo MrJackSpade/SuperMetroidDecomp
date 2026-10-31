@@ -82,7 +82,7 @@ internal static class GrappleHurtFeedbackVerification
     /// <summary>Checks pending health-loss history survives current saves, and that an older capture layout is rejected (#1270).</summary>
     private static void VerifyHurtHealthHistoryRestoration()
     {
-        var state = new SamusState(InstalledFixtures.AnimationContinuation) { Health = 77, PreviousHealthForHurtCheck = 99 };
+        var state = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Health = 77, PreviousHealthForHurtCheck = 99 };
         using var current = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(current, state);
         current.Position = 0;

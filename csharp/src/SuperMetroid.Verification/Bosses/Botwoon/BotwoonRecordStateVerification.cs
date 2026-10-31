@@ -13,7 +13,7 @@ internal static class BotwoonRecordStateVerification
     /// </summary>
     internal static void VerifyBotwoonRecordState()
     {
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);

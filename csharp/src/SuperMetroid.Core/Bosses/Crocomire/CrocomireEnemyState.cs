@@ -4,11 +4,22 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's body state. These names come from the bank-$A4 disassembly. The cartridge reuses the last three
-/// common-record words between phases, and a phase can read what the previous one left in them, so the state keeps each
-/// record word once and every phase's named view reads and writes it. The words are emptied with the record when the
-/// body is killed (<see cref="ClearWithRecord"/>).
+/// Crocomire's body state. These names come from the bank-$A4 disassembly. The values the body's record keeps are
+/// emptied with the record when the body is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
+/// <remarks>
+/// The original game keeps the queued steps, the death-phase delay, the rumble step and the vertical acceleration in
+/// one record value; the reaction timer, the vertical speed and the skeleton speed's fraction in a second; and the
+/// projectile counter, the vertical subpixel and the skeleton speed's whole pixels in a third (#1476). Each is held on
+/// its own here because no phase's behaviour depends on what another meaning left behind: every phase starts its
+/// values (the bridge collapse and each melt pass start the sink from rest, the pause loads its delay, the rumble its
+/// first step, the skeleton its speed) except where one phase hands the same meaning to the next (a hop's sink
+/// continues the rise's speed and acceleration). The one value a phase reads under another meaning is a rise's
+/// acceleration, which starts as the death-phase delay the sink left: zero after a submerged pause, which counts its
+/// delay out, but forty-eight 256ths after a melt, which skips the pause. A rise reads only the acceleration's whole
+/// pixels, which the leftover fraction never reaches before the acceleration's ceiling discards it, and every melt's
+/// rise is followed by a new sink from rest, so a rise here starts from no acceleration.
+/// </remarks>
 public sealed class CrocomireEnemyState
 {
     /// <summary>Creates the state for Crocomire's body slot.</summary>
@@ -17,19 +28,10 @@ public sealed class CrocomireEnemyState
     /// <summary>The saturating count of mouth hits (<see cref="HitCount"/>).</summary>
     private int _hitCount;
 
-    /// <summary>The word holding the queued steps, a death-phase delay, the rumble cursor or the vertical acceleration.</summary>
-    private int _stepsDelayRumbleOrAccelerationWord;
+    /// <summary>The queued step count (<see cref="StepCounter"/>).</summary>
+    private int _stepCounter;
 
-    /// <summary>The word holding the reaction timer, the vertical speed or the skeleton speed's fraction.</summary>
-    private int _reactionSpeedOrSkeletonFractionWord;
-
-    /// <summary>
-    /// The word holding the projectile counter, the saved fight function, the vertical subpixel or the skeleton speed's
-    /// whole pixels.
-    /// </summary>
-    private int _projectileSubpixelOrSkeletonWholeWord;
-
-    /// <summary>Physical $DDBF body record owning the fight/death state words and room-pixel coordinates; his body layer follows this actor.</summary>
+    /// <summary>Physical $DDBF body record owning the fight and death state and room-pixel coordinates; his body layer follows this actor.</summary>
     public RoomEnemySlot Body { get; }
     /// <summary>Where the body's typed program resumes; it replaces the native instruction pointer.</summary>
     internal AnimationProgramCursor<CrocomireBodyProgram> BodyCursor { get; set; }
@@ -58,7 +60,7 @@ public sealed class CrocomireEnemyState
     /// <summary>The main/death dispatcher phase; <see cref="CrocomireDeathPhase.Fighting"/> runs the fight and bridge checks, and <see cref="CrocomireDeathPhase.DefeatedRoomAdvance"/> displays an already-defeated corpse.</summary>
     public CrocomireDeathPhase DeathSequenceIndex { get; internal set; }
 
-    /// <summary>The fight latches. The cartridge keeps them in one word with <see cref="HitCount"/> in its low four bits; nothing reads that word another way.</summary>
+    /// <summary>The fight latches. The cartridge keeps them in one value with <see cref="HitCount"/>; nothing reads that value another way.</summary>
     public CrocomireFightFlags FightFlags { get; internal set; }
 
     /// <summary>The saturating count of mouth hits, 0..<see cref="CrocomireMouthHits.MaximumCount"/>.</summary>
@@ -79,8 +81,8 @@ public sealed class CrocomireEnemyState
     /// </summary>
     public int StepCounter
     {
-        get => checked((ushort)_stepsDelayRumbleOrAccelerationWord);
-        internal set => _stepsDelayRumbleOrAccelerationWord = checked((ushort)Ensure.BetweenInclusive(0, MaximumStepCount, value));
+        get => _stepCounter;
+        internal set => _stepCounter = Ensure.BetweenInclusive(0, MaximumStepCount, value);
     }
 
     /// <summary>The largest queued step count the fight AI's signed comparisons read as the cartridge does.</summary>
@@ -90,11 +92,7 @@ public sealed class CrocomireEnemyState
     /// In the submerged pause and the skeleton tile upload: the frames left in that death phase, a saturating countdown
     /// (<c>LDA</c>, <c>BEQ</c>, <c>DEC</c>).
     /// </summary>
-    public WrappingCountdown DeathPhaseDelay
-    {
-        get => WrappingCountdown.FromRaw(checked((ushort)_stepsDelayRumbleOrAccelerationWord));
-        internal set => _stepsDelayRumbleOrAccelerationWord = value.RawValue;
-    }
+    public WrappingCountdown DeathPhaseDelay { get; internal set; }
 
     /// <summary>
     /// While the hidden wall rumbles: the step of the current target in <see cref="CrocomireRumbleDefinitions.All"/>,
@@ -102,29 +100,25 @@ public sealed class CrocomireEnemyState
     /// </summary>
     public int RumbleStep
     {
-        get => checked((ushort)_stepsDelayRumbleOrAccelerationWord);
-        internal set => _stepsDelayRumbleOrAccelerationWord = checked((ushort)value);
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, CrocomireRumbleDefinitions.All.Length, value);
     }
 
     /// <summary>
     /// While the body sinks or rises: the vertical acceleration in 1/256 pixel per frame per frame. The sink clamps its
-    /// whole part at forty-eight and the rise at thirty-one, so it never leaves the word.
+    /// whole part at forty-eight and the rise at thirty-one.
     /// </summary>
     public int VerticalAcceleration
     {
-        get => checked((ushort)_stepsDelayRumbleOrAccelerationWord);
-        internal set => _stepsDelayRumbleOrAccelerationWord = checked((ushort)value);
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
-    /// During combat: the shot and power-bomb reaction word, cleared at wake-up and set to ten by every reaction. No
+    /// During combat: the shot and power-bomb reaction timer, cleared at wake-up and set to ten by every reaction. No
     /// shipped routine reads it back.
     /// </summary>
-    public int ReactionTimer
-    {
-        get => checked((ushort)_reactionSpeedOrSkeletonFractionWord);
-        internal set => _reactionSpeedOrSkeletonFractionWord = checked((ushort)value);
-    }
+    public int ReactionTimer { get; internal set; }
 
     /// <summary>
     /// While the body sinks or rises: the vertical speed in 1/256 pixel per frame. The sink clamps its whole part at
@@ -132,71 +126,48 @@ public sealed class CrocomireEnemyState
     /// </summary>
     public int VerticalSpeed
     {
-        get => checked((ushort)_reactionSpeedOrSkeletonFractionWord);
-        internal set => _reactionSpeedOrSkeletonFractionWord = checked((ushort)value);
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
     /// During the projectile attack: the even spawn parameter, cleared when the attack starts and advanced by two
     /// through eighteen.
     /// </summary>
-    public int ProjectileCounter
-    {
-        get => checked((ushort)_projectileSubpixelOrSkeletonWholeWord);
-        internal set => _projectileSubpixelOrSkeletonWholeWord = checked((ushort)value);
-    }
+    public int ProjectileCounter { get; internal set; }
 
     /// <summary>
     /// In the unused claw attack: the fight function restored when the claws stop. The cartridge parks it in the
-    /// projectile counter's word; only that unused attack writes or reads it, so the retail fight never observes the
-    /// overlap and it is kept apart.
+    /// projectile counter's value; only that unused attack writes or reads it, so it is kept apart.
     /// </summary>
     internal CrocomireFightFunction SavedFightFunction { get; set; }
 
-    /// <summary>
-    /// The bits of the shared word below <see cref="VerticalSubpixel"/>, which the sink sequence clears and then leaves
-    /// alone. The subpixel stays in that word because the projectile counter and the skeleton's whole position use it
-    /// too, at other times.
-    /// </summary>
-    private const int SinkClearedBits = 8;
-
-    /// <summary>
-    /// While the body sinks or rises: the 1/256-pixel vertical position carried between frames. The cartridge keeps it
-    /// in the word's high byte and leaves the low byte as the sequence cleared it.
-    /// </summary>
+    /// <summary>While the body sinks or rises: the 1/256-pixel vertical position carried between frames.</summary>
     public int VerticalSubpixel
     {
-        get => unchecked((byte)(checked((ushort)_projectileSubpixelOrSkeletonWholeWord) >> SinkClearedBits));
-        internal set => _projectileSubpixelOrSkeletonWholeWord =
-            unchecked((byte)checked((ushort)_projectileSubpixelOrSkeletonWholeWord)) | checked((byte)value) << SinkClearedBits;
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
     /// <summary>
-    /// While the skeleton breaks out and collapses: its 16.16 horizontal speed in room pixels per frame.
+    /// While the skeleton breaks out and collapses: its 16.16 horizontal speed in room pixels per frame, zero when the
+    /// skeleton breaks through the wall.
     /// </summary>
-    internal SignedSixteenSixteen SkeletonVelocity
-    {
-        get => SignedSixteenSixteen.FromParts(unchecked((short)checked((ushort)_projectileSubpixelOrSkeletonWholeWord)), checked((ushort)_reactionSpeedOrSkeletonFractionWord));
-        set
-        {
-            _reactionSpeedOrSkeletonFractionWord = value.Fraction;
-            _projectileSubpixelOrSkeletonWholeWord = value.WholeWord;
-        }
-    }
+    internal SignedSixteenSixteen SkeletonVelocity { get; set; }
 
     /// <summary>
-    /// Starts a sink or rise from rest: clears the vertical speed and the whole subpixel word, then sets the starting
+    /// Starts a sink from rest: clears the vertical speed and subpixel, then sets the starting
     /// <paramref name="acceleration"/> in 1/256 pixel per frame per frame.
     /// </summary>
     internal void StartVerticalMotion(int acceleration)
     {
-        _reactionSpeedOrSkeletonFractionWord = 0;
-        _projectileSubpixelOrSkeletonWholeWord = 0;
+        VerticalSpeed = 0;
+        VerticalSubpixel = 0;
         VerticalAcceleration = acceleration;
     }
 
     /// <summary>Empties the values the cartridge keeps in the body's common record.</summary>
-    [IntendedDuplicate("each state clears its own native words; the shared shape is only the assignment of zero")]
+    [IntendedDuplicate("each state clears its own record values; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {
         DeathSequenceIndex = CrocomireDeathPhase.Fighting;
@@ -204,8 +175,14 @@ public sealed class CrocomireEnemyState
         _hitCount = 0;
         FightFunction = CrocomireFightFunction.ResetAnimation;
         SavedFightFunction = CrocomireFightFunction.ResetAnimation;
-        _stepsDelayRumbleOrAccelerationWord = 0;
-        _reactionSpeedOrSkeletonFractionWord = 0;
-        _projectileSubpixelOrSkeletonWholeWord = 0;
+        _stepCounter = 0;
+        DeathPhaseDelay = WrappingCountdown.Start(0);
+        RumbleStep = 0;
+        VerticalAcceleration = 0;
+        ReactionTimer = 0;
+        VerticalSpeed = 0;
+        ProjectileCounter = 0;
+        VerticalSubpixel = 0;
+        SkeletonVelocity = SignedSixteenSixteen.Zero;
     }
 }

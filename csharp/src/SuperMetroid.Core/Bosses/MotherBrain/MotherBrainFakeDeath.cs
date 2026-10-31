@@ -20,7 +20,7 @@ internal sealed class MotherBrainFakeDeath
     private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
     private readonly IEnemyDispatch _dispatch;
-    /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -30,9 +30,7 @@ internal sealed class MotherBrainFakeDeath
     private readonly EnemyPresentation _presentation;
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
-    /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
-    /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
-    private readonly MotherBrainExtensionWords[] _extensions;
+
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
     /// <summary>The session's installed boss artwork.</summary>
@@ -50,7 +48,7 @@ internal sealed class MotherBrainFakeDeath
         _earthquake = dependencies.Earthquake;
         _presentation = dependencies.Presentation;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
-        _extensions = dependencies.Extensions;
+
         _access = dependencies.Access;
     }
 
@@ -306,10 +304,10 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(MotherBrainFallingTubePopulationDefinitions.Pieces.PositionOf(piece));
-        _extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start(piece);
         tube.Radius = tubeBody.Radius;
         var state = new MotherBrainFallingTubeState
         {
+            Cursor = AnimationProgramCursor<MotherBrainTubePiece>.Start(piece),
             Function = piece == MotherBrainTubePiece.Main
                 ? MotherBrainTubeFunction.MainTube_WaitingToFall
                 : MotherBrainTubeFunction.NonMainTube,

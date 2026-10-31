@@ -232,6 +232,8 @@ internal sealed class CrocomireBridgeCollapse
         {
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             state.DeathPhaseDelay = WrappingCountdown.Start(48);
+            // The next rise, after a submerged pause or directly after a melt, starts from no acceleration.
+            state.VerticalAcceleration = 0;
             return;
         }
 

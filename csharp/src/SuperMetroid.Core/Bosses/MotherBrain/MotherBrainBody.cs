@@ -23,7 +23,7 @@ internal sealed class MotherBrainBody
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -35,9 +35,7 @@ internal sealed class MotherBrainBody
     private readonly MotherBrainEncounter _motherBrainEncounter;
     /// <summary>The other actors in the room: the Baby, the Rinkas, the Pirate laser and the afterburn.</summary>
     private readonly IMotherBrainRoomActors _roomActors;
-    /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
-    /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
-    private readonly MotherBrainExtensionWords[] _extensions;
+
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     private readonly MotherBrainProjectiles _projectileAttacks;
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
@@ -57,7 +55,7 @@ internal sealed class MotherBrainBody
         _presentation = dependencies.Presentation;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         _roomActors = dependencies.RoomActors;
-        _extensions = dependencies.Extensions;
+
         _projectileAttacks = dependencies.ProjectileAttacks;
         _access = dependencies.Access;
     }
@@ -76,12 +74,13 @@ internal sealed class MotherBrainBody
             return;
         }
 
-        AnimationProgramCursor<MotherBrainTubePiece> cursor = _extensions[tube.SlotIndex].FallingTubeCursor;
+        MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
+        AnimationProgramCursor<MotherBrainTubePiece> cursor = tubeState.Cursor;
         WrappingCountdown counter = tube.Timer;
         AnimationProgramAdvance<MotherBrainTubeFrame> advance = MotherBrainTubeAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => throw new InvalidOperationException($"Falling-tube programs publish no cue {cue}."));
         tube.Timer = counter;
-        _extensions[tube.SlotIndex].FallingTubeCursor = cursor;
+        tubeState.Cursor = cursor;
         switch (advance)
         {
             case AnimationProgramAdvance<MotherBrainTubeFrame>.Show shown:

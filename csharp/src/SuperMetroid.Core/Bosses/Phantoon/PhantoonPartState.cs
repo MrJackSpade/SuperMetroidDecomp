@@ -2,35 +2,22 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// One Phantoon part's common-record words: the body, eye, tentacles and mouth each have one, in slot order. The
-/// cartridge gives these words different meanings per part and phase, and a phase can read what an earlier one left,
-/// so the state keeps each word once with a named view per meaning. The words are emptied with the record when the
-/// part is killed (<see cref="ClearWithRecord"/>).
+/// One Phantoon part's own state: the body, eye, tentacles and mouth each have one, in slot order. The values the
+/// part's record keeps are emptied with the record when the part is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
+/// <remarks>
+/// The original game keeps the values below in six record values per part and gives each value a different meaning
+/// per part and phase (#1476). Each is held on its own because none is read under another meaning. Each part reads only
+/// its own meanings, and within a part every phase loads its values before reading them: the body's starting-flame
+/// index, path cursor and explosion pass are each set when their phase starts; the starting-flame latch is cleared
+/// before the figure-eight first writes its speed, and every waiting intro flame has left its wait by then; the eye's
+/// dying fade cycles start from the zero its figure-eight direction is cleared to at the fatal hit, and its rage waves
+/// from the zero a cleared fade-complete flag leaves; every part's function is set at setup but only the body's is
+/// dispatched, and the eye's fade-complete flag is cleared before its first fade reads it.
+/// </remarks>
 public sealed class PhantoonPartState
 {
-    /// <summary>The word holding the body's flame index, path cursor or explosion pass, the eye's closed timer, the tentacles' swoop request or the mouth's casual-flame pattern.</summary>
-    private int _wordA;
-
-    /// <summary>The word holding the body's starting-flame flag or speed fraction, the eye's shot marker, the tentacles' round damage or the mouth's casual-flame hold.</summary>
-    private int _wordB;
-
-    /// <summary>The word holding the body's speed whole pixels, the eye's figure-eight direction or fade-cycle count, the tentacles' horizontal swoop velocity or the mouth's casual-flame count.</summary>
-    private int _wordC;
-
-    /// <summary>The word holding the body's speed phase, the eye's fade denominator, the tentacles' vertical swoop velocity or the mouth's wave amplitude.</summary>
-    private int _wordD;
-
-    /// <summary>The word holding the body's function timer, the eye's fade numerator or the mouth's amplitude direction.</summary>
-    private int _wordE;
-
-    /// <summary>The word holding a part's function, the eye's fade-complete flag or rage wave count, the tentacles' explosion index or the mouth's wavy phase delta.</summary>
-    private int _wordF;
-
-    /// <summary>
-    /// The function word F holds, or null while it holds a number. Every function is a nonzero word in the cartridge,
-    /// so a held function reads as a completed fade (<see cref="FadeComplete"/>).
-    /// </summary>
+    /// <summary>The body's encounter phase, or null once a kill has emptied the record.</summary>
     private PhantoonAiFunction? _function;
 
     /// <summary>The eye's death-mosaic block size (<see cref="DeathMosaicSize"/>).</summary>
@@ -39,156 +26,120 @@ public sealed class PhantoonPartState
     /// <summary>The tentacles' swoop target X position (<see cref="SwoopTargetX"/>).</summary>
     private int _swoopTargetX;
 
+    /// <summary>The mouth's remaining casual flames (<see cref="CasualFlameCount"/>).</summary>
+    private int _casualFlameCount;
+
     /// <summary>The second spawn-parameter word: the body's flame-rain request, the tentacles' hit reaction or the mouth's shot pattern.</summary>
     private int _parameterTwo;
 
     /// <summary>The body's next starting flame, 0 through 7.</summary>
-    public int StartingFlameIndex { get => _wordA; internal set => _wordA = Word(value); }
+    public int StartingFlameIndex { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The body's figure-eight path cursor.</summary>
-    public int PathCursor { get => _wordA; internal set => _wordA = Word(value); }
+    public int PathCursor { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The body's completed death-explosion passes.</summary>
-    public int ExplosionPass { get => _wordA; internal set => _wordA = Word(value); }
+    public int ExplosionPass { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The eye's updates before it opens.</summary>
-    public int ClosedTimer { get => _wordA; internal set => _wordA = Word(value); }
+    public int ClosedTimer { get; internal set => field = InRecordRange(value); }
 
     /// <summary>Whether the tentacles have taken the shot that makes Phantoon swoop when its eye closes.</summary>
-    public bool SwoopRequested { get => _wordA != 0; internal set => _wordA = value ? 1 : 0; }
+    public bool SwoopRequested { get; internal set; }
 
     /// <summary>The mouth's casual-flame pattern, 0 through 3.</summary>
-    public int CasualFlamePattern { get => _wordA; internal set => _wordA = Word(value); }
+    public int CasualFlamePattern { get; internal set => field = InRecordRange(value); }
 
     /// <summary>Whether the body's starting flames are still orbiting.</summary>
-    public bool StartingFlamesActive { get => _wordB != 0; internal set => _wordB = value ? 1 : 0; }
+    public bool StartingFlamesActive { get; internal set; }
 
     /// <summary>The body's figure-eight speed fraction in 65536ths of a path entry per update.</summary>
-    public int SpeedFraction { get => _wordB; internal set => _wordB = Word(value); }
+    public int SpeedFraction { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The eye's shot marker, chosen when the eye is hit.</summary>
-    public int ShotMarker { get => _wordB; internal set => _wordB = Word(value); }
+    public int ShotMarker { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The damage the tentacles have taken during the current exposure.</summary>
-    public int RoundDamage { get => _wordB; internal set => _wordB = Word(value); }
+    public int RoundDamage { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The mouth's updates before its next casual flame.</summary>
-    public int CasualFlameHold { get => _wordB; internal set => _wordB = Word(value); }
+    public int CasualFlameHold { get; internal set => field = InRecordRange(value); }
 
-    /// <summary>The body's figure-eight speed in whole path entries per update, as the cartridge's word.</summary>
-    public int SpeedWhole { get => _wordC; internal set => _wordC = Word(value); }
+    /// <summary>The body's figure-eight speed in whole path entries per update, as the cartridge stores it.</summary>
+    public int SpeedWhole { get; internal set => field = InRecordRange(value); }
 
     /// <summary>Whether the eye's figure-eight runs the path backwards.</summary>
-    public bool FigureEightReversed { get => _wordC != 0; internal set => _wordC = value ? 1 : 0; }
+    public bool FigureEightReversed { get; internal set; }
 
     /// <summary>The eye's completed dying fade cycles.</summary>
-    public int DyingFadeCycles { get => _wordC; internal set => _wordC = Word(value); }
+    public int DyingFadeCycles { get; internal set => field = InRecordRange(value); }
 
-    /// <summary>
-    /// The eye's death-mosaic block size in screen pixels while the mosaic grows. The cartridge keeps the mosaic's
-    /// display setting in the eye's word C (its size less one above a layer bit); the size alone is what it shows, and
-    /// nothing reads the eye's word C through another view once the mosaic starts.
-    /// </summary>
+    /// <summary>The eye's death-mosaic block size in screen pixels while the mosaic grows.</summary>
     public int DeathMosaicSize
     {
         get => _deathMosaicSize;
         internal set => _deathMosaicSize = Ensure.BetweenInclusive(PhantoonDeathDefinitions.InitialMosaicSize, PhantoonDeathDefinitions.FinalMosaicSize, value);
     }
 
-    /// <summary>
-    /// Whether the eye's death mosaic has finished growing and the fade-out runs. The cartridge marks it by writing
-    /// minus one over the eye's word C.
-    /// </summary>
+    /// <summary>Whether the eye's death mosaic has finished growing and the fade-out runs.</summary>
     public bool DeathMosaicFinished { get; internal set; }
 
     /// <summary>
     /// The mouth's remaining casual flames: <see cref="PhantoonCasualFlameDefinitions.NoActiveSchedule"/> when no schedule
-    /// is active. The record keeps it as the cartridge's signed word, which never leaves this range: schedules hold small
-    /// counts and an exhausted one is set to minus one.
+    /// is active. Schedules hold small counts and an exhausted one is set to minus one.
     /// </summary>
     public int CasualFlameCount
     {
-        get => unchecked((short)_wordC);
-        internal set => _wordC = unchecked((ushort)Ensure.BetweenInclusive(PhantoonCasualFlameDefinitions.NoActiveSchedule, short.MaxValue, value));
+        get => _casualFlameCount;
+        internal set => _casualFlameCount = Ensure.BetweenInclusive(PhantoonCasualFlameDefinitions.NoActiveSchedule, short.MaxValue, value);
     }
 
     /// <summary>The tentacles' signed 8.8 swoop velocity in pixels per update.</summary>
-    public EightEightVector<RoomPixels> SwoopVelocity
-    {
-        get => new(new SignedEightEight(checked((ushort)_wordC)), new SignedEightEight(checked((ushort)_wordD)));
-        internal set
-        {
-            _wordC = value.X.RawValue;
-            _wordD = value.Y.RawValue;
-        }
-    }
+    public EightEightVector<RoomPixels> SwoopVelocity { get; internal set; }
 
     /// <summary>The body's figure-eight speed phase.</summary>
     [IntegerQuantity("counter the figure-eight advances through its speed steps")]
-    public int SpeedPhase { get => _wordD; internal set => _wordD = Word(value); }
+    public int SpeedPhase { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The eye's palette fade denominator.</summary>
-    public int FadeDenominator { get => _wordD; internal set => _wordD = Word(value); }
+    public int FadeDenominator { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The mouth's wave amplitude.</summary>
-    public int WaveAmplitude { get => _wordD; internal set => _wordD = Word(value); }
+    public int WaveAmplitude { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The body's updates before its current function moves on.</summary>
-    public int FunctionTimer { get => _wordE; internal set => _wordE = Word(value); }
+    public int FunctionTimer { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The eye's palette fade numerator.</summary>
-    public int FadeNumerator { get => _wordE; internal set => _wordE = Word(value); }
+    public int FadeNumerator { get; internal set => field = InRecordRange(value); }
 
-    /// <summary>
-    /// The tentacles' swoop target X position, which sweeps out to its turn and back. The cartridge keeps it in the
-    /// tentacles' word E with <see cref="SwoopReturning"/> as its top bit; only the swoop reads that word.
-    /// </summary>
+    /// <summary>The tentacles' swoop target X position, which sweeps out to its turn and back.</summary>
     public int SwoopTargetX { get => _swoopTargetX; internal set => _swoopTargetX = Ensure.BetweenInclusive(0, short.MaxValue, value); }
 
     /// <summary>Whether the tentacles' swoop target has reached its turn and is counting back toward zero.</summary>
     public bool SwoopReturning { get; internal set; }
 
     /// <summary>Whether the mouth's wave amplitude is shrinking rather than growing.</summary>
-    public bool WaveAmplitudeShrinking { get => _wordE != 0; internal set => _wordE = value ? 1 : 0; }
+    public bool WaveAmplitudeShrinking { get; internal set; }
 
-    /// <summary>
-    /// The encounter phase the body dispatches. It shares word F with the other parts' views, and every phase is
-    /// nonzero, as every cartridge function word is, so a phase reads as a completed fade through
-    /// <see cref="FadeComplete"/>.
-    /// </summary>
+    /// <summary>The encounter phase the body dispatches.</summary>
     public PhantoonAiFunction Function
     {
         get => _function ?? default;
-        internal set
-        {
-            _function = value;
-            _wordF = 0;
-        }
+        internal set => _function = value;
     }
 
     /// <summary>Whether the eye's current palette fade has completed.</summary>
-    public bool FadeComplete { get => _function is not null || _wordF != 0; internal set => SetWordF(value ? 1 : 0); }
+    public bool FadeComplete { get; internal set; }
 
     /// <summary>The eye's completed rage waves.</summary>
-    public int RageWaveCount { get => NumberInWordF(); internal set => SetWordF(Word(value)); }
+    public int RageWaveCount { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The tentacles' next death explosion.</summary>
-    public int ExplosionIndex { get => NumberInWordF(); internal set => SetWordF(Word(value)); }
+    public int ExplosionIndex { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The mouth's wavy-distortion phase step per update.</summary>
-    public int WavyPhaseDelta { get => NumberInWordF(); internal set => SetWordF(Word(value)); }
-
-    /// <summary>Stores a number in word F, replacing any held function.</summary>
-    private void SetWordF(int value)
-    {
-        _function = null;
-        _wordF = value;
-    }
-
-    /// <summary>The number word F holds; a held function has no number the port reproduces.</summary>
-    private int NumberInWordF() => _function is null
-        ? _wordF
-        : throw new InvalidOperationException($"Phantoon word F holds the function {_function}, not a number.");
+    public int WavyPhaseDelta { get; internal set => field = InRecordRange(value); }
 
     /// <summary>
     /// The length of the eye's wave, which the wave owner reads every pass; null ends the wave and lets the body
@@ -209,7 +160,7 @@ public sealed class PhantoonPartState
 
     /// <summary>
     /// The tentacles' hit-reaction marker, one or two, which no reader consumes. The cartridge keeps
-    /// <see cref="HurtFlashShown"/> in the same word, so setting the marker also clears that flag.
+    /// <see cref="HurtFlashShown"/> in the same value, so setting the marker also clears that flag.
     /// </summary>
     public int HitReaction
     {
@@ -225,11 +176,11 @@ public sealed class PhantoonPartState
     public bool HurtFlashShown { get; internal set; }
 
     /// <summary>The mouth's shot pattern, 0 through 7, drawn when a vulnerable shot lands; the death sequence writes one.</summary>
-    public int ShotPattern { get => _parameterTwo; internal set => _parameterTwo = Word(value); }
+    public int ShotPattern { get => _parameterTwo; internal set => _parameterTwo = InRecordRange(value); }
 
     /// <summary>
-    /// Starts a part's words empty: the eye's wave mode off. The original copied the part's number into the second word,
-    /// which no reader consumes before a phase overwrites it (#1472).
+    /// Starts a part: the eye's wave mode off. The original copied the part's number into the second parameter, which
+    /// no reader consumes before a phase overwrites it (#1472).
     /// </summary>
     internal void StartPart()
     {
@@ -240,13 +191,33 @@ public sealed class PhantoonPartState
     /// <summary>Empties the values the cartridge keeps in the part's common record.</summary>
     internal void ClearWithRecord()
     {
-        _wordA = 0;
-        _wordB = 0;
-        _wordC = 0;
-        _wordD = 0;
-        _wordE = 0;
-        _wordF = 0;
+        StartingFlameIndex = 0;
+        PathCursor = 0;
+        ExplosionPass = 0;
+        ClosedTimer = 0;
+        SwoopRequested = false;
+        CasualFlamePattern = 0;
+        StartingFlamesActive = false;
+        SpeedFraction = 0;
+        ShotMarker = 0;
+        RoundDamage = 0;
+        CasualFlameHold = 0;
+        SpeedWhole = 0;
+        FigureEightReversed = false;
+        DyingFadeCycles = 0;
+        _casualFlameCount = 0;
+        SwoopVelocity = default;
+        SpeedPhase = 0;
+        FadeDenominator = 0;
+        WaveAmplitude = 0;
+        FunctionTimer = 0;
+        FadeNumerator = 0;
+        WaveAmplitudeShrinking = false;
         _function = null;
+        FadeComplete = false;
+        RageWaveCount = 0;
+        ExplosionIndex = 0;
+        WavyPhaseDelta = 0;
         WaveLength = null;
         _parameterTwo = 0;
         _swoopTargetX = 0;
@@ -257,6 +228,6 @@ public sealed class PhantoonPartState
         HurtFlashShown = false;
     }
 
-    /// <summary>Checks that <paramref name="value"/> fits the cartridge's sixteen-bit record word.</summary>
-    private static int Word(int value) => Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    /// <summary>Checks that <paramref name="value"/> fits the range the original game's record holds.</summary>
+    private static int InRecordRange(int value) => Ensure.BetweenInclusive(0, ushort.MaxValue, value);
 }

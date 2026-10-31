@@ -77,9 +77,9 @@ public sealed class CrocomireDeathState
     public int BodyXBeforeMelting { get; internal set; }
 
     /// <summary>
-    /// Melt shake counter: decremented once per dissolve frame, wrapping below zero as the cartridge's word does,
-    /// and its second bit selects the four-pixel X jitter. The hidden-wall rumble's terminator leaves its own
-    /// marker here when the rumble hands the shared word back.
+    /// Melt shake counter: zero before the first melt, decremented once per dissolve frame and wrapping below zero, and
+    /// its second bit selects the four-pixel X jitter. The original game's hidden-wall rumble later leaves a marker in
+    /// the same value (#1476); every melt is over by then and nothing reads the counter again, so the marker is not kept.
     /// </summary>
     public WrappingCountdown MeltShakeCounter { get; internal set; }
 

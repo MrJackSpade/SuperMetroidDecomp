@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed record MotherBrainHeadDependencies
 {
-    /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>

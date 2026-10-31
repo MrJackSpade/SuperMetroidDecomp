@@ -16,7 +16,7 @@ internal sealed record MotherBrainFakeDeathDependencies
     /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
     public required IEnemyDispatch Dispatch { get; init; }
 
-    /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
+    /// <summary>Provides room services, tiles, palette state, and effects used by the encounter.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>
@@ -31,8 +31,6 @@ internal sealed record MotherBrainFakeDeathDependencies
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     public required MotherBrainEncounter MotherBrainEncounter { get; init; }
 
-    /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
-    public required MotherBrainExtensionWords[] Extensions { get; init; }
 
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     public required MotherBrainEncounterAccess Access { get; init; }

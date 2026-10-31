@@ -155,13 +155,13 @@ internal static class DraygonIntroDanceDefinitionsVerification
             }
         }
 
-        AssertEqual(DraygonIntroDanceDefinitions.DurationFrames, state.FunctionTimer.RawValue,
+        AssertEqual(DraygonIntroDanceDefinitions.DurationFrames, state.IntroFrames,
             "Draygon intro exact native duration");
         run(state, null, 1);
         AssertEqual(DraygonAiFunction.SwoopRightSetup, state.Function,
             "Draygon intro transitions to right-swoop setup after the native duration");
-        AssertEqual((ushort)0, state.FunctionTimer.RawValue,
-            "Draygon intro clears the function timer at the native handoff");
+        AssertEqual(0, state.IntroFrames,
+            "Draygon intro clears its frame count at the native handoff");
 
         // A restored dance step can be corrupt while the owner is still inside its native duration. Exercise the
         // production dispatcher so this cannot regress into reading past the traced path.

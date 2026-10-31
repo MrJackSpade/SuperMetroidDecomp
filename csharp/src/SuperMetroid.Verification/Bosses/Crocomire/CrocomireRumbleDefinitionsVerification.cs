@@ -17,6 +17,9 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 /// <summary>Checks Crocomire's wall-rumble cursor records and death-sequence timing against retail data.</summary>
 internal static class CrocomireRumbleDefinitionsVerification
 {
+    /// <summary>The marker the rumble table holds twice after its last step, as the last oscillation's timing.</summary>
+    private const ushort RumbleEndMarker = 0x8080;
+
     /// <summary>Audits all source words, then compares every rumble update through wall-spike palette publication.</summary>
     internal static void VerifyCrocomireRumbleDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -49,7 +52,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         int endIndex = CrocomireNativeWords.RumbleCursor(stepCount) / 2;
         foreach (int index in new[] { endIndex, endIndex + 1 })
         {
-            expectedWords[index] = CrocomireBehavior.MeltShakeCounterAfterRumble;
+            expectedWords[index] = RumbleEndMarker;
             assigned[index] = true;
         }
 
@@ -114,8 +117,8 @@ internal static class CrocomireRumbleDefinitionsVerification
             enemies.CrocomireBehavior.Skeleton.RunCrocomireWallRumble(state);
             frames++;
 
-            // The terminator writes its marker into the word the rumble shares with the melt shake counter;
-            // production keeps that marker in the counter and leaves the last step, which nothing reads again.
+            // The terminator writes its marker into the word the rumble shares with the melt shake counter; every
+            // melt is over by then and nothing reads either again, so production keeps neither the marker nor the step.
             if (state.DeathSequenceIndex == CrocomireDeathPhase.RumbleHiddenWall)
             {
                 AssertEqual(referenceIndex, CrocomireNativeWords.RumbleCursor(state.RumbleStep),
@@ -134,8 +137,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         AssertTrue(frames < 2048, "Crocomire rumble production sequence terminates");
         AssertEqual((ushort)0x0080, state.DeathPhaseDelay.RawValue,
             "Crocomire rumble production terminator handoff");
-        AssertEqual((ushort)0x8080, death.MeltShakeCounter.RawValue,
-            "Crocomire rumble production terminator marker reaches the melt shake counter");
+
         for (int color = 0; color < CrocomireColorDefinitions.WallSpikesCount; color++)
             AssertEqual(colors.ResolveWallSpikes(color),
                 cgram.Colors[CrocomireColorDestinations.WallSpikesDestination + color],

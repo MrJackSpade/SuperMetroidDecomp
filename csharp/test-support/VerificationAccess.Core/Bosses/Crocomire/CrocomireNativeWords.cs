@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -68,6 +69,37 @@ internal static class CrocomireNativeWords
             if ((flags & flag) != 0)
                 word |= bit;
         return checked((ushort)word);
+    }
+
+    /// <summary>
+    /// Imports the body's values the cartridge keeps in record words D, E and F (#1476): during the fight the queued
+    /// steps, the reaction timer and the projectile counter; while the wall rumbles the rumble step; otherwise in the
+    /// death sequence the death-phase delay or the vertical acceleration in D, the vertical speed or the skeleton speed's
+    /// fraction in E, and the vertical subpixel (the high byte) or the skeleton speed's whole pixels in F. Of the values
+    /// one death-phase word holds, only the phase's own is read, so each is imported from the word.
+    /// </summary>
+    internal static void ImportSharedWords(CrocomireEnemyState state, ushort wordD, ushort wordE, ushort wordF)
+    {
+        if (state.DeathSequenceIndex == CrocomireDeathPhase.Fighting)
+        {
+            state.StepCounter = wordD;
+            state.ReactionTimer = wordE;
+            state.ProjectileCounter = wordF;
+            return;
+        }
+
+        if (state.DeathSequenceIndex == CrocomireDeathPhase.RumbleHiddenWall)
+        {
+            state.RumbleStep = RumbleStep(wordD);
+        }
+        else
+        {
+            state.DeathPhaseDelay = WrappingCountdown.FromRaw(wordD);
+            state.VerticalAcceleration = wordD;
+        }
+        state.VerticalSpeed = wordE;
+        state.VerticalSubpixel = LittleEndianBytes.HighByte(wordF);
+        state.SkeletonVelocity = SignedSixteenSixteen.FromParts(unchecked((short)wordF), wordE);
     }
 
     /// <summary>The rumble table's byte cursor of the first step's target: two copied prefix words precede it.</summary>

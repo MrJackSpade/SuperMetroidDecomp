@@ -151,21 +151,21 @@ internal sealed class PhantoonDeath
             PhantoonBehavior.PhantoonDeathWaveMaximum);
 
         RoomEnemySlot eye = state.Eye;
-        PhantoonPartState eyeWords = state.Parts[eye.SlotIndex];
-        if (!eyeWords.DeathMosaicFinished)
+        PhantoonPartState eyePart = state.Parts[eye.SlotIndex];
+        if (!eyePart.DeathMosaicFinished)
         {
             if (_frameContext.FrameCounter % PhantoonDeathDefinitions.MosaicGrowthInterval != 0)
                 return;
 
-            if (eyeWords.DeathMosaicSize == PhantoonDeathDefinitions.FinalMosaicSize)
+            if (eyePart.DeathMosaicSize == PhantoonDeathDefinitions.FinalMosaicSize)
             {
-                eyeWords.DeathMosaicFinished = true;
-                eyeWords.FadeComplete = false;
+                eyePart.DeathMosaicFinished = true;
+                eyePart.FadeComplete = false;
                 return;
             }
 
-            eyeWords.DeathMosaicSize++;
-            state.MosaicBlockSize = eyeWords.DeathMosaicSize;
+            eyePart.DeathMosaicSize++;
+            state.MosaicBlockSize = eyePart.DeathMosaicSize;
             return;
         }
 

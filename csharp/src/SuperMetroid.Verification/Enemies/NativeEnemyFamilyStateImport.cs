@@ -80,22 +80,59 @@ internal static class NativeEnemyFamilyStateImport
         int index = slot.SlotIndex;
         if (slot.SpeciesState<PhantoonPartState>() is { } phantoonPartRecord)
         {
-            phantoonPartRecord.PathCursor = words.A;
-            phantoonPartRecord.SpeedFraction = words.B;
-            phantoonPartRecord.SwoopVelocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
-            phantoonPartRecord.FunctionTimer = words.E;
-            phantoonPartRecord.WavyPhaseDelta = words.F;
-            // The cartridge numbers the body zero and the eye, tentacles and mouth one through three.
-            int partNumber = slot.DefinitionId == EnemyDefinitionId.PhantoonEye ? 1
-                : slot.DefinitionId == EnemyDefinitionId.PhantoonTentacles ? 2
-                : slot.DefinitionId == EnemyDefinitionId.PhantoonMouth ? 3
-                : 0;
-            PhantoonNativeWords.Import(phantoonPartRecord, partNumber, words.C, words.E, words.F);
+            // The cartridge gives each record word a meaning per part (#1476); the part's identity says which.
+            if (slot.DefinitionId == EnemyDefinitionId.PhantoonEye)
+            {
+                phantoonPartRecord.ClosedTimer = words.A;
+                phantoonPartRecord.ShotMarker = words.B;
+                phantoonPartRecord.FigureEightReversed = words.C != 0;
+                phantoonPartRecord.DyingFadeCycles = words.C;
+                phantoonPartRecord.FadeDenominator = words.D;
+                phantoonPartRecord.FadeNumerator = words.E;
+                phantoonPartRecord.FadeComplete = words.F != 0;
+                phantoonPartRecord.RageWaveCount = words.F;
+                PhantoonNativeWords.ImportDeathMosaic(phantoonPartRecord, words.C);
+            }
+            else if (slot.DefinitionId == EnemyDefinitionId.PhantoonTentacles)
+            {
+                phantoonPartRecord.SwoopRequested = words.A != 0;
+                phantoonPartRecord.RoundDamage = words.B;
+                phantoonPartRecord.SwoopVelocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
+                PhantoonNativeWords.ImportSwoopTarget(phantoonPartRecord, words.E);
+                phantoonPartRecord.ExplosionIndex = words.F;
+            }
+            else if (slot.DefinitionId == EnemyDefinitionId.PhantoonMouth)
+            {
+                phantoonPartRecord.CasualFlamePattern = words.A;
+                phantoonPartRecord.CasualFlameHold = words.B;
+                phantoonPartRecord.CasualFlameCount = unchecked((short)words.C);
+                phantoonPartRecord.WaveAmplitude = words.D;
+                phantoonPartRecord.WaveAmplitudeShrinking = words.E != 0;
+                phantoonPartRecord.WavyPhaseDelta = words.F;
+            }
+            else
+            {
+                phantoonPartRecord.StartingFlameIndex = words.A;
+                phantoonPartRecord.PathCursor = words.A;
+                phantoonPartRecord.ExplosionPass = words.A;
+                phantoonPartRecord.StartingFlamesActive = words.B != 0;
+                phantoonPartRecord.SpeedFraction = words.B;
+                phantoonPartRecord.SpeedWhole = words.C;
+                phantoonPartRecord.SpeedPhase = words.D;
+                phantoonPartRecord.FunctionTimer = words.E;
+                if (words.F != 0)
+                    phantoonPartRecord.Function = PhantoonNativeWords.AiFunctions.Decode(words.F, "recorded PhantoonAiFunction");
+            }
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
             kraidPartRecord.Function = (KraidAiFunction)words.A;
+            // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
+            // each part reads only its own, so each is imported from the words.
             kraidPartRecord.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
+            kraidPartRecord.HeadTimer = words.C;
+            kraidPartRecord.LintXOffset = words.C;
+            kraidPartRecord.LintTravel = words.B;
             // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
             if (kraidPartRecord.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
                 kraidPartRecord.CeilingRock = words.F / sizeof(ushort);
@@ -145,10 +182,20 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<DraygonEnemyState>() is { } draygonRecord)
         {
             draygonRecord.Function = (DraygonAiFunction)words.A;
-            if (DraygonNativeWords.HoldsFunctionTimer(draygonRecord.Function))
-                draygonRecord.FunctionTimer = WrappingCountdown.FromRaw(words.B);
-            else
-                draygonRecord.SwoopEntry = words.B / DraygonNativeWords.SwoopEntryBytes;
+            switch (DraygonNativeWords.MeaningOfSharedValue(draygonRecord.Function))
+            {
+                case DraygonNativeWords.SharedValue.IntroFrames:
+                    draygonRecord.IntroFrames = words.B;
+                    break;
+                case DraygonNativeWords.SharedValue.BurialWait:
+                    draygonRecord.BurialWait = WrappingCountdown.FromRaw(words.B);
+                    break;
+                case DraygonNativeWords.SharedValue.SwoopEntry:
+                    draygonRecord.SwoopEntry = words.B / DraygonNativeWords.SwoopEntryBytes;
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined Draygon shared value meaning for {draygonRecord.Function}.");
+            }
             draygonRecord.SwoopPathEntryCount = words.C / DraygonNativeWords.SwoopEntryBytes;
             draygonRecord.SwoopVelocity = SixteenSixteen.Compose(words.D, words.E);
         }
@@ -164,13 +211,8 @@ internal static class NativeEnemyFamilyStateImport
             crocomireRecord.FightFlags = CrocomireNativeWords.FightFlags(words.B);
             crocomireRecord.HitCount = CrocomireNativeWords.HitCount(words.B);
             crocomireRecord.FightFunction = (CrocomireFightFunction)words.C;
-            // Word D is the rumble's table cursor while the wall rumbles, and another phase's count or delay otherwise.
-            if (crocomireRecord.DeathSequenceIndex == CrocomireDeathPhase.RumbleHiddenWall)
-                crocomireRecord.RumbleStep = CrocomireNativeWords.RumbleStep(words.D);
-            else
-                crocomireRecord.DeathPhaseDelay = WrappingCountdown.FromRaw(words.D);
-            crocomireRecord.VerticalSpeed = words.E;
-            crocomireRecord.ProjectileCounter = words.F;
+            // The cartridge keeps several of the body's values in each of words D, E and F; the phase says which.
+            CrocomireNativeWords.ImportSharedWords(crocomireRecord, words.D, words.E, words.F);
         }
         if (slot.SpeciesState<CrocomireTongueState>() is { } crocomireTongueRecord)
             crocomireTongueRecord.BodyXOffset = words.A;

@@ -19,7 +19,7 @@ internal sealed class KraidRise
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly BossFrameResultBuilder _frameResults;
-    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
+    /// <summary>Room services used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -203,7 +203,8 @@ internal sealed class KraidRise
 
             case KraidAiFunction.GrowDrawRoomBackground:
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowFadeInRoomBackground;
-                state.Parts[body.SlotIndex].CeilingRock = 0;
+                // The original game clears the value it kept the ceiling rocks in, which is the function timer again.
+                state.Parts[body.SlotIndex].FunctionTimer = 0;
                 // $A7:ADB0 DrawKraidsRoomBackground zeroes the shared numerator.
                 _presentation.GradualColorChange.Reset();
                 // `$A7:AD9A` queues this character upload on the same frame that it

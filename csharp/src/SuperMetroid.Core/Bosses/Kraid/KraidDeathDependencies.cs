@@ -12,7 +12,7 @@ internal sealed record KraidDeathDependencies
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
-    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
+    /// <summary>Room services used throughout the Kraid fight.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>

@@ -97,8 +97,6 @@ internal sealed class CrocomireSkeleton
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         if (CrocomireRumble.IsComplete(state.RumbleStep))
         {
-            // The rumble hands its shared word back to the melt's shake counter, with both bytes at 128.
-            death.MeltShakeCounter = WrappingCountdown.FromRaw(CrocomireBehavior.MeltShakeCounterAfterRumble);
             state.DeathPhaseDelay = WrappingCountdown.Start(128);
             (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
                 "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation.Colours);

@@ -50,12 +50,6 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// </summary>
     public TourianStatueAnimationState TourianEntranceStatueAnimationState { get; internal set; }
 
-    /// <summary>The words each physical slot keeps across TourianEntranceStatue occupants for the current room.</summary>
-    internal readonly TourianEntranceStatueExtensionWords[] Extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static TourianEntranceStatueExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new TourianEntranceStatueExtensionWords())];
 
     /// <summary>Installs one of three animations and lets only the first statue record spawn the fixed decorative actors.</summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
@@ -64,8 +58,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         statue.Colouring = SharedSpriteColouring.Common;
         statue.InstructionTimer = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
-        Extensions[statue.SlotIndex].Program = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
-            part);
+        statue.SetSpeciesState(new TourianEntranceStatueState(AnimationProgramCursor<TourianEntranceStatueProgram>.Start(part)));
 
         // Only the first of the three enemy records creates the fixed screen actors. The
         // native allocator searches from slot $22 down, so this exact call order gives the
@@ -137,9 +130,9 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<TourianEntranceStatueProgram> cursor = Extensions[slot.SlotIndex].Program ??
-            throw new InvalidOperationException($"Tourian entrance statue slot {slot.SlotIndex} has no animation.");
+        TourianEntranceStatueState state = slot.RequireSpeciesState<TourianEntranceStatueState>();
+        AnimationProgramCursor<TourianEntranceStatueProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.ShownFrames.Of);
-        Extensions[slot.SlotIndex].Program = cursor;
+        state.Program = cursor;
     }
 }

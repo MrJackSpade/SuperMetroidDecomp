@@ -13,7 +13,7 @@ internal sealed record KraidRiseDependencies
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required BossFrameResultBuilder FrameResults { get; init; }
 
-    /// <summary>Room scratch memory and services used throughout the Kraid fight.</summary>
+    /// <summary>Room services used throughout the Kraid fight.</summary>
     public required EnemyRoomBinding Room { get; init; }
 
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>

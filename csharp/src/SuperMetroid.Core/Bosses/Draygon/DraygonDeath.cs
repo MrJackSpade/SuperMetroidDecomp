@@ -60,7 +60,7 @@ internal sealed class DraygonDeath
         SpawnDraygonDeathEvirs(state);
         state.Function = DraygonAiFunction.DyingSink;
         state.MusicRequest = MusicRequest.SelectTrack(3);
-        state.FunctionTimer = WrappingCountdown.Start(DraygonBehavior.DraygonDeathWaitFramesUs);
+        state.BurialWait = WrappingCountdown.Start(DraygonBehavior.DraygonDeathWaitFramesUs);
         _parts.StartDraygonProgram(body, DraygonProgram.Sleep);
 
         EnemyProperties deletedPartProperties = body.Properties.With(EnemyProperties.Deleted);
@@ -81,8 +81,8 @@ internal sealed class DraygonDeath
         int frameCounterLow)
     {
         SpawnDyingDraygonSmoke(state, frameCounterLow);
-        state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
-        if (state.FunctionTimer.IsZero)
+        state.BurialWait = state.BurialWait.Decrement().Remaining;
+        if (state.BurialWait.IsZero)
         {
             state.Function = DraygonAiFunction.DyingFinish;
             return;

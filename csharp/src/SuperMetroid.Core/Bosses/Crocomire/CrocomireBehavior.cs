@@ -278,8 +278,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>The melt shake counter's word as the hidden-wall rumble's terminator leaves it: both bytes 128.</summary>
-    internal const ushort MeltShakeCounterAfterRumble = 32896;
     /// <summary>Advances Crocomire's typed animation.</summary>
     internal void AdvanceCrocomireTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {

@@ -131,8 +131,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         FakeKraidEnemyState state,
         Position16<RoomPixels> camera)
     {
-        // Main AI stores the next selector before acting on the old value. The native byte offsets zero/two/four
-        // into scratch RAM alias the three adjacent clocks above rather than three enemy slots.
+        // Main AI stores the next selector before acting on the old value.
         int timerIndex = state.SpikeTimerIndex;
         state.SpikeTimerIndex = timerIndex >= state.SpikeTimers.Length - 1 ? 0 : timerIndex + 1;
         WrappingCountdown timer = state.SpikeTimers[timerIndex];

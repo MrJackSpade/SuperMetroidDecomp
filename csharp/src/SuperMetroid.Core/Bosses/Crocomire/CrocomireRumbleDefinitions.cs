@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireRumbleDefinitions
 {
     /// <summary>
-    /// The last oscillation's timing: the same both-bytes-128 word the schedule's end hands to the melt shake counter.
+    /// The last oscillation's timing as authored. The rumble ends at the next step, before either value is used.
     /// </summary>
-    private const ushort EndMarker = CrocomireBehavior.MeltShakeCounterAfterRumble;
+    private const int EndMarker = 32896;
 
     /// <summary>
     /// $A4:98FA: selected final repeat counter3 in the shake/sound performance.

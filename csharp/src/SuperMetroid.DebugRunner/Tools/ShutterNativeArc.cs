@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.DebugRunner.Tools;
 

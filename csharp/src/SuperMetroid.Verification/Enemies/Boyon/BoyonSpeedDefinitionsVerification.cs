@@ -21,16 +21,16 @@ internal static class BoyonSpeedDefinitionsVerification
         {
             for (int multiplier = 0; multiplier < 8; multiplier++)
             {
-                actor.SetSpawnParameter1((ushort)((height << 8) | multiplier));
+                actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (ushort)((height << 8) | multiplier));
                 initialize(actor);
                 BoyonEnemyState initialized = (enemies.BoyonStates[0] ?? throw new InvalidOperationException("Verification requires enemies.BoyonStates[0]."));
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286df + multiplier * 2)), initialized.SpeedMultiplier, "Boyon real initialized multiplier without bus");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa286ef + height * 2)), initialized.JumpHeight, "Boyon real initialized height without bus");
             }
         }
-        actor.SetSpawnParameter1(8);
+        actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 8);
         AssertThrows<InvalidDataException>(() => initialize(actor), "Boyon rejected multiplier unchanged");
-        actor.SetSpawnParameter1(0x900);
+        actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, 0x900);
         AssertThrows<InvalidDataException>(() => initialize(actor), "Boyon rejected height unchanged");
         Func<BoyonEnemyState, int> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
         var state = new BoyonEnemyState();

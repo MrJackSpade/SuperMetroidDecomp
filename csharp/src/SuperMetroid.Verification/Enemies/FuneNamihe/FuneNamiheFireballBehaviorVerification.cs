@@ -25,10 +25,10 @@ internal static class FuneNamiheFireballBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = source.Position.WithWhole(new(288, 128));
-        source.SetSpawnParameter2(0);
+        source.SetSpawnParameter2(EnemyDefinitionId.Fune, 0);
         foreach (RoomEnemyProjectileKind kind in new[] { RoomEnemyProjectileKind.FuneFireball, RoomEnemyProjectileKind.NamiheFireball })
         {
-            source.SetSpawnParameter1(kind == RoomEnemyProjectileKind.FuneFireball ? (ushort)0 : (ushort)1);
+            source.SetSpawnParameter1(EnemyDefinitionId.Fune, kind == RoomEnemyProjectileKind.FuneFireball ? (ushort)0 : (ushort)1);
             foreach (bool movingRight in new[] { false, true })
             {
                 foreach (RoomEnemyProjectileSlot candidate in enemies.Projectiles.EnemyProjectiles)

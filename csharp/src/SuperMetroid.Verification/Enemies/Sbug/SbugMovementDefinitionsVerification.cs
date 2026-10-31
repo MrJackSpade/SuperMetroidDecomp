@@ -43,8 +43,8 @@ internal static class SbugMovementDefinitionsVerification
         for (ushort selector = 0; selector < 8; selector++)
         {
             byte angle = unchecked((byte)(0x30 + selector * 0x20));
-            slot.SetSpawnParameter1((ushort)(angle << 8 | 1));
-            slot.SetSpawnParameter2(1);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Sbug, (ushort)(angle << 8 | 1));
+            slot.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
             initialize(slot);
 
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
@@ -70,7 +70,7 @@ internal static class SbugMovementDefinitionsVerification
         {
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
             state.Function = SbugEnemyFunction.WaitForSamus;
-            slot.SetSpawnParameter2((ushort)(behavior << 8 | 1));
+            slot.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
             runMain(slot, samus, null);
 
             int address = activationTable + behavior * 2;
@@ -104,8 +104,8 @@ internal static class SbugMovementDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => 96;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
-        slot.SetSpawnParameter1(1);
-        slot.SetSpawnParameter2(1);
+        slot.SetSpawnParameter1(EnemyDefinitionId.Sbug, 1);
+        slot.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
         slot.Position = slot.Position.WithWhole(new(512, 512));
         SbugBehavior.InitializeSbug(slot);
         SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();

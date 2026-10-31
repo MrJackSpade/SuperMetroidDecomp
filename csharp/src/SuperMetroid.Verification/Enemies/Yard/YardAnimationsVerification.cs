@@ -21,7 +21,7 @@ internal static class YardAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'D' => checked((ushort)AssertIs<YardCue.SetDirection>(cue, $"{at}: cue").Direction),
+                    'D' => checked((ushort)SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.NumberOf(AssertIs<YardCue.SetDirection>(cue, $"{at}: cue").Direction)),
                     'S' => unchecked((ushort)AssertIs<YardCue.MoveBy>(cue, $"{at}: cue").Offset.X),
                     'Y' => unchecked((ushort)AssertIs<YardCue.MoveBy>(cue, $"{at}: cue").Offset.Y),
                     'N' => AssertIs<YardCue.SetHidingProgram>(cue, $"{at}: cue").OptionalTarget is { } optional ? NativeEnemyProgramOracle.EntryOf(Entries, optional) : NullTarget,

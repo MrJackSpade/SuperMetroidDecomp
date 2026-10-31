@@ -75,8 +75,8 @@ internal static class BoyonBehaviorVerification
             var enemies = new RoomEnemySystem(new EnemySession());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
-            slot.SetSpawnParameter1(checked((ushort)(heightSelector * 256)));
-            slot.SetSpawnParameter2(64);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Boyon, checked((ushort)(heightSelector * 256)));
+            slot.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
             slot.Position = slot.Position.WithWhole(new(256, 512));
             BoyonBehavior.InitializeBoyon(slot);
             BoyonEnemyState state = slot.RequireSpeciesState<BoyonEnemyState>();
@@ -97,7 +97,7 @@ internal static class BoyonBehaviorVerification
         slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
-        slot.SetSpawnParameter2(64);
+        slot.SetSpawnParameter2(EnemyDefinitionId.Boyon, 64);
         slot.Position = slot.Position.WithWhole(new(256, 512));
         BoyonBehavior.InitializeBoyon(slot);
         return new BoyonBehaviorCreateResult(enemies, slot, enemies.BoyonStates[0] ?? throw new InvalidOperationException("Boyon has no state."));

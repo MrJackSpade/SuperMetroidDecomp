@@ -77,7 +77,7 @@ internal static class EnemyDropsVerification
         enemy.Radius = new(8, 8);
         enemy.Health = 1;
         enemy.Frame = EnemyFrameId.SkulteraSwimLeft0;
-        enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
+        enemy.Properties = (EnemyProperties.RespawnIfKilled);
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var colours = new SamusColourRig();
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, SamusColours = colours.Samus, ResolveSamusContactBeforeAi = true });
@@ -354,7 +354,7 @@ internal static class EnemyDropsVerification
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.TileIndexBase = 0x0200;
         enemy.Colouring = SpriteColouring.InFixtureSet(6);
-        enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
+        enemy.Properties = (EnemyProperties.RespawnIfKilled);
 
         // Variant nine proves the common routine applies the native >=5 clamp before it
         // indexes the five-pointer death-animation table.

@@ -36,7 +36,7 @@ internal static class ElevatorInputDefinitionsVerification
 
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
-            slot.SetSpawnParameter1(direction);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Elevator, direction);
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0180));
             var samus = new SamusState();
             samus.Presentation.BodyFrames.BindBodyFixture(bodyArtwork);

@@ -99,7 +99,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(parameter);
+        slot.SetSpawnParameter1(EnemyDefinitionId.Dachora, parameter);
         return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, slot);
     }
 

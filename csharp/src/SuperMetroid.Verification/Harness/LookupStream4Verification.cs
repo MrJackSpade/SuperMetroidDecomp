@@ -2997,7 +2997,7 @@ internal static class LookupStream4Verification
             for (int index = 0; index < freeSlots; index++)
             {
                 RoomEnemySlot fragment = enemies.SlotTable.Slots[index + 1];
-                AssertEqual(expected[index], fragment.Spawn.Population.Parameter1, "Actual breakup slot order follows original native spawn calls");
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.RidleyExplosion, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(expected[index], 0)), fragment.Spawn.Population.SpawnSettings, "Actual breakup slot order follows original native spawn calls");
                 RidleyExplosionFragmentState fragmentState = fragment.SpeciesState<RidleyExplosionFragmentState>()
                     ?? throw new InvalidOperationException("A spawned fragment has no state.");
                 AssertEqual((ushort)((0x100 + 0x10 * index) & 0x130), fragmentState.Velocity.X.RawValue, "Actual breakup maps each random draw to its original fragment");

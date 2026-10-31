@@ -21,14 +21,14 @@ internal static class BoulderRecordStateVerification
         state.TravelSpeedAccumulator = 1;
         state.BounceSpeedAccumulator = 1;
         state.BounceCounter = WrappingCountdown.Start(1);
-        state.DirectionSelector = 1;
+        state.Roll = BoulderRoll.Left;
 
         slot.Clear();
         AssertEqual<BoulderAiFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<int>(0, state.TravelSpeedAccumulator, "a kill empties TravelSpeedAccumulator");
         AssertEqual<int>(0, state.BounceSpeedAccumulator, "a kill empties BounceSpeedAccumulator");
         AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.BounceCounter, "a kill empties BounceCounter");
-        AssertEqual<int>(0, state.DirectionSelector, "a kill empties DirectionSelector");
+        AssertEqual(BoulderRoll.Right, state.Roll, "a kill empties the roll");
         Console.WriteLine("Boulder record state: a kill empties every value the record holds.");
     }
 

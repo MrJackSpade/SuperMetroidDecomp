@@ -24,7 +24,7 @@ internal static class WorkRobotInitialSelectionVerification
                 $"Work Robot original selection {parameter}");
             var system = new RoomEnemySystem(new EnemySession());
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-            slot.SetSpawnParameter1(parameter);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Robot, parameter);
             var state = new WorkRobotEnemyState();
             system.WorkRobotBehavior.InitializeWorkRobotNoPower(slot, state);
             AssertEqual(AnimationProgramCursor<WorkRobotProgram>.Start(expected), state.Program,
@@ -35,7 +35,7 @@ internal static class WorkRobotInitialSelectionVerification
         {
             var system = new RoomEnemySystem(new EnemySession());
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-            slot.SetSpawnParameter1(3);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Robot, 3);
             AssertThrows<InvalidDataException>(() => system.WorkRobotBehavior.InitializeWorkRobotNoPower(slot, new WorkRobotEnemyState()),
                 "Work Robot production initializer rejects the overrun selector");
         }

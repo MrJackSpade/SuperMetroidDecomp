@@ -53,7 +53,7 @@ internal static class ChootPatternDefinitionsVerification
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
                 slot.Position = slot.Position.WithWhole(new(0x3456, 0x789a));
-                slot.SetSpawnParameter1((ushort)((patternIndex << 8) | loopCount));
+                slot.SetSpawnParameter1(EnemyDefinitionId.Choot, (ushort)((patternIndex << 8) | loopCount));
                 initialize(slot);
 
                 ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
@@ -75,7 +75,7 @@ internal static class ChootPatternDefinitionsVerification
             RoomEnemySlot fallSlot = fallEnemies.SlotTable.Slots[0];
             fallSlot.Bind(EnemyDefinitionId.Choot, fallSlot.Definition);
             fallSlot.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
-            fallSlot.SetSpawnParameter1((ushort)((patternIndex << 8) | 2));
+            fallSlot.SetSpawnParameter1(EnemyDefinitionId.Choot, (ushort)((patternIndex << 8) | 2));
             initializeFall(fallSlot);
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             fallState.FallingOrigin = new(0x4000, 0x5000);

@@ -17,8 +17,8 @@ internal static class PowampOwnedStateVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot balloon = enemies.SlotTable.Slots[0];
         balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
-        balloon.SetSpawnParameter1(1);
-        balloon.SetSpawnParameter2(ushort.MaxValue);
+        balloon.SetSpawnParameter1(EnemyDefinitionId.Powamp, 1);
+        balloon.SetSpawnParameter2(EnemyDefinitionId.Powamp, ushort.MaxValue);
         balloon.Position = balloon.Position.WithWhole(new(0x0180, 0x0020));
         enemies.PowampBehavior.InitializePowamp(balloon);
         RoomEnemySlot body = enemies.SlotTable.Slots[1];

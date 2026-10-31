@@ -77,7 +77,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
 
     var baby = new BabyMetroidCutsceneState();
     baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
-    AssertEqual(0x3800, baby.Properties.ToWord(), "Baby population/init property OR");
+    AssertEqual(0x3800, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(baby.Properties), "Baby population/init property OR");
     AssertEqual(false, baby.HitFlashPaletteShown, "Baby cutscene shows its own palette, not the hit flash");
     // The Baby's graphics are its tile base alone: its parts carry their own palette rows and priorities, so the
     // palette and priority fields the cartridge's graphics word also held are not state the Baby keeps (#1422).

@@ -21,7 +21,8 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
             throw new ArgumentOutOfRangeException(nameof(pointer));
         return new RoomEnemyPopulationDefinition("Crystal Flash contact Ripper",
         [
-            new RoomEnemyPopulationRecord(CrystalFlashContactDefinitions.RipperHeader, position, EnemySpawnSettings.None, EnemyPropertyWord.FromWord(CrystalFlashContactDefinitions.Properties), default, 0, 0),
+            SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(CrystalFlashContactDefinitions.RipperHeader,
+                position.X, position.Y, 0, CrystalFlashContactDefinitions.Properties, 0, 0, 0),
         ], 0);
     }
 

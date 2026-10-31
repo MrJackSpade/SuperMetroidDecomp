@@ -236,7 +236,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.Radius = new(8, 16);
-            slot.SetSpawnParameter2(0x0080);
+            slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyNinja, 0x0080);
             enemies.NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);
             return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, slot, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }

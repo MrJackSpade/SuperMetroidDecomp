@@ -69,7 +69,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
-        follower.SetSpawnParameter1(0x8000);
+        follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, 0x8000);
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
         AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames), enemies.SlotTable.Slots[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Program,
             "Lower Norfair Rio follower initializer selects flames");
@@ -102,7 +102,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
-        follower.SetSpawnParameter1(EnemyParameterMasks.FollowerBit);
+        follower.SetSpawnParameter1(EnemyDefinitionId.Holtz, EnemyParameterMasks.FollowerBit);
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
         LowerNorfairRioEnemyState parentState = parent.EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()
             ?? throw new InvalidOperationException("The Lower Norfair Rio parent has no state.");

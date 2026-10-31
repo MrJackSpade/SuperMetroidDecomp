@@ -53,18 +53,19 @@ internal static class CrawlerAnimationDefinitionsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
-            // The import decodes the population word into the surface the crawler starts on.
-            AssertEqual(new CrawlerSpawnSettings(orientations[orientation]),
-                SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Zoomer, orientation),
-                $"crawler population word {orientation} decodes to its surface");
-            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation]));
+            // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
+            // low bits into the side of its block.
+            AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], SpeedIndex: 0, SurfaceTableOffset: 0),
+                SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Zoomer,
+                    new SuperMetroid.AssetExtraction.Enemies.PopulationWords(orientation, orientation, 0, 0, 0)),
+                $"crawler population words {orientation} decode to its surface and block side");
+            slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.UpsideRight, SpeedIndex: 0, SurfaceTableOffset: 0));
             if (family == CrawlerAnimationFamily.Viola)
             {
-                // InitAI_Viola ($A3:B678) selects with the property bits, not the spawn settings.
-                slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation ^ 1]));
-                slot.Properties = EnemyPropertyWord.FromWord(orientation);
+                // InitAI_Viola ($A3:B678) selects with its block side, not its surface.
+                slot.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation ^ 1], orientations[orientation], SpeedIndex: 0, SurfaceTableOffset: 0));
             }
-            slot.SetSpawnParameter1(0);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Zoomer, 0);
             if (family == CrawlerAnimationFamily.HZoomer)
             {
                 new Action<RoomEnemySlot>(CrawlersBehavior.InitializeHZoomer)(slot);

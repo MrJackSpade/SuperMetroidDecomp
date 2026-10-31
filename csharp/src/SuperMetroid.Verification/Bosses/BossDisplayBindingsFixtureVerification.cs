@@ -75,7 +75,7 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
-            Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions);
+            Actor.Properties = (EnemyProperties.ProcessInstructions);
             Enemies.Drawing.Enqueue(0, Actor);
             // The boss draws under the retail graphics set its room loads, whose sheets hold its frames.
             SpawnedObjectFixtures.LoadSetDrawing(Enemies, definition, Actor);
@@ -110,7 +110,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Actor.SpritemapPointer = frame;
-            Actor.ExtraProperties = EnemyExtraPropertyWord.FromWord((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
+            Actor.ExtraProperties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.DecodeExtra((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
                 (fresh ? EnemyExtraProperties.NewInstructionFrame : 0)));
         }
 

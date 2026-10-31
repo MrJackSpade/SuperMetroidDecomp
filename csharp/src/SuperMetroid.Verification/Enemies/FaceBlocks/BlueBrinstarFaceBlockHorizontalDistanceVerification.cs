@@ -39,8 +39,8 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(64);
-        slot.SetSpawnParameter2(0);
+        slot.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
+        slot.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
         slot.Position = slot.Position.WithWhole(new(checked((ushort)blockX), RowY));
         enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, null);
         BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]

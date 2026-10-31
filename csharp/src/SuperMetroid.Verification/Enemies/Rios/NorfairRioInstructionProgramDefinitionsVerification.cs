@@ -75,7 +75,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
         follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
-        follower.SetSpawnParameter1(0x8000);
+        follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, 0x8000);
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
         AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.FlamesAscending),
             enemies.SlotTable.Slots[1].EntityState<NorfairRioEntity, NorfairRioEnemyState>()?.Program,

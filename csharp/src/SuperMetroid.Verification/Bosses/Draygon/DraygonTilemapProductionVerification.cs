@@ -73,7 +73,7 @@ internal static class DraygonTilemapProductionVerification
             foreach (var queue in enemies.Drawing.QueuesForVerification)
             foreach (RoomEnemySlot slot in queue)
             {
-                if ((slot.ExtraProperties.ToWord() & 0x8004) != 0x8004) continue;
+                if ((SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.ExtraProperties) & 0x8004) != 0x8004) continue;
                 int bank = (int)new SnesAddress(slot.NativeHeader.Bank, 0);
                 int count = bus.ReadCartridgeByte(bank | slot.SpritemapPointer);
                 for (int component = 0; component < count; component++)

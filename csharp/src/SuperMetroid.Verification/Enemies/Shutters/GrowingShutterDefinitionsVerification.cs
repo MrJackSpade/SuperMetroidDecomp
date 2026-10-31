@@ -26,9 +26,10 @@ internal static class GrowingShutterDefinitionsVerification
             {
                 for (int speed = 0; speed < 24; speed++)
                 {
-                    slot.ExtraProperties = EnemyExtraPropertyWord.FromWord((ushort)(selector >> 1));
-                    slot.SetSpawnSettings(new GrowingShutterSpawnSettings((selector & 1) != 0 ? GrowingShutterWait.SamusNear : GrowingShutterWait.Timer));
-                    slot.SetSpawnParameter2((ushort)((high << 8) | speed));
+                    // The native selector's high bit is the extra-property word that names the growth direction, its low
+                    // bit the initialization word that names the wait.
+                    slot.SetSpawnWords(EnemyDefinitionId.ShutterGrowing, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
+                        selector & 1, 0, selector >> 1, 0, (high << 8) | speed));
                     slot.Position = slot.Position.WithWholeY(selector < 2 ? (ushort)65530 : (ushort)5);
                     initialize(slot);
                     GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
@@ -38,7 +39,7 @@ internal static class GrowingShutterDefinitionsVerification
                     int direction = selector < 2 ? 1 : -1;
                     for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
                         AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 8 * level)), state.SectionOrigin(level).Y, $"Shutter wrapped origin {level}");
-                    AssertEqual((ushort)0, slot.ExtraProperties.ToWord(), "Shutter consumes initial direction word");
+                    AssertEqual(EnemyExtraProperties.None, slot.ExtraProperties, "Shutter clears its additional properties");
                 }
             }
         }

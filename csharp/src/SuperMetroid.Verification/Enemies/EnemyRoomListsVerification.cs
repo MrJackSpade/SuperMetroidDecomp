@@ -41,8 +41,13 @@ internal static class EnemyRoomListsVerification
                 AssertTrue(definitionWord != 0xffff,
                     $"population $A1:{pointer:X4} has no early terminator");
                 EnemyDefinitionId nativeEnemy = EnemyDefinitionIds.FromHeaderPointer(definitionWord);
-                // The initialization word is compared as the spawn settings the import decodes for the species.
-                RoomEnemyPopulationRecord native = new(nativeEnemy, new(ReadVerificationWord(bus, address + 2), ReadVerificationWord(bus, address + 4)), EnemySpawnSettingsCodec.Decode(nativeEnemy, ReadVerificationWord(bus, address + 6)), EnemyPropertyWord.FromWord(ReadVerificationWord(bus, address + 8)), EnemyExtraPropertyWord.FromWord(ReadVerificationWord(bus, address + 10)), ReadVerificationWord(bus, address + 12), ReadVerificationWord(bus, address + 14));
+                // The native entry is compared as the typed spawn the codec decodes for the species: its position, its
+                // engine properties, and the settings its species reads from the remaining words.
+                RoomEnemyPopulationRecord native = RoomEnemyPopulationRecordCodec.Decode(nativeEnemy,
+                    ReadVerificationWord(bus, address + 2), ReadVerificationWord(bus, address + 4),
+                    ReadVerificationWord(bus, address + 6), ReadVerificationWord(bus, address + 8),
+                    ReadVerificationWord(bus, address + 10), ReadVerificationWord(bus, address + 12),
+                    ReadVerificationWord(bus, address + 14));
                 AssertEqual(native, records[index],
                     $"population $A1:{pointer:X4} ordered slot {index}");
             }

@@ -20,9 +20,8 @@ internal static class BoulderBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnSettings(new BoulderSpawnSettings(TriggerHeight: 8));
-        slot.SetSpawnParameter1(256);
-        slot.SetSpawnParameter2(264);
+        slot.SetSpawnSettings(new BoulderSpawnSettings(TriggerHeight: 8, TriggerReach: 8, Drop: 1, Roll: BoulderRoll.Left,
+            LargeLandingCompensation: false));
         slot.Position = slot.Position.WithWhole(new(256, 512));
         BoulderBehavior.InitializeBoulder(slot);
         AssertEqual(AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Left), (enemies.SlotTable.Slots[0].EntityState<BoulderEntity, BoulderEnemyState>() ?? throw new InvalidOperationException("The Boulder has no state.")).Program,

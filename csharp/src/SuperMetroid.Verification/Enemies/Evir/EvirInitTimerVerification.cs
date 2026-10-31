@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Evir;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Runtime;
@@ -25,9 +26,9 @@ internal static class EvirInitTimerVerification
         int checkedBodies = 0;
         foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots)
         {
-            if (slot.DefinitionId != EnemyDefinitionId.Evir || slot.Spawn.Population.Parameter1 != 0)
+            if (slot.DefinitionId != EnemyDefinitionId.Evir || slot.SpawnSettings<EvirSpawnSettings>().IsArms)
                 continue;
-            int speedOffset = (byte)slot.Spawn.Population.Parameter2 * 8;
+            int speedOffset = slot.SpawnSettings<EvirSpawnSettings>().SpeedIndex * 8;
             int relative = 0x0fb7 + speedOffset - 0x0f78;
             RoomEnemySlot aliased = runtime.Enemies.SlotTable.Slots[relative / 0x40];
             int byteOffset = relative % 0x40;
@@ -35,7 +36,9 @@ internal static class EvirInitTimerVerification
             {
                 // The row holding the aliased enemy's colours, read as the native palette word that row is stored as.
                 0x1f => NativeSpriteGraphicsWords.PaletteBits(aliased.PaletteRowIn(runtime.Enemies)),
-                0x3f => checked((ushort)aliased.Spawn.Population.Parameter2),
+                // The aliased enemy's second population parameter word, as its settings encode it (an empty entry is zero).
+                0x3f => checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(
+                    aliased.Spawn.Population.SpawnSettings ?? EnemySpawnSettings.None).Parameter2),
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
             AssertEqual((ushort)((LittleEndianBytes.HighByte(word)) >> 1), (runtime.Enemies.EvirStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[slot.SlotIndex].")).MovementTimer.RawValue,

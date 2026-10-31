@@ -29,15 +29,12 @@ internal static class IdentityTableVerification
         SequenceMatchesValues(CrawlerAnimationDefinitions.Orientations, 4, value => (CrawlerSurfaceOrientation)value, "crawler orientations");
         SequenceMatchesValues(SbugMovementDefinitions.ActivationBehaviors, 7, value => (SbugActivationBehavior)value, "Sbug activation behaviours");
 
-        ParametersMatchValues(CeresSteamDefinitions.Variants, [0, 1, 2, 3, 4, 5], value => (CeresSteamVariant)value, "Ceres steam variants");
-        ParametersMatchValues(CacatacProjectileDefinitions.Directions, [0, 1, 2], value => (CacatacDirection)value, "Cacatac directions");
-
         int[] breakupOrder = [12, 10, 8, 6, 4, 2, 0, 14, 16, 20, 18, 22];
-        var spawned = new List<int>();
+        var spawned = new List<RidleyExplosionPart>();
         RidleyBreakup.SpawnInBreakupOrder(spawned.Add);
         AssertEqual(breakupOrder.Length, spawned.Count, "Ridley breakup spawns twelve parts");
         for (int index = 0; index < breakupOrder.Length; index++)
-            AssertEqual(breakupOrder[index], spawned[index], $"Ridley breakup spawn {index} carries its authored parameter");
+            AssertEqual(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.RidleyExplosionPart(breakupOrder[index]), spawned[index], $"Ridley breakup spawn {index} carries its authored parameter");
 
         var eye = new PhantoonPartState();
         eye.Function = PhantoonAiFunction.SpawnStartingFlames;
@@ -64,17 +61,6 @@ internal static class IdentityTableVerification
         AssertThrows<ArgumentOutOfRangeException>(() => sequence.At(count), $"{name} rejects a position past its end");
     }
 
-    /// <summary>Asserts each authored value of <paramref name="table"/> selects the member valued the same.</summary>
-    private static void ParametersMatchValues<T>(ParameterVariants<T> table, int[] values, Func<int, T> member, string name)
-        where T : struct, Enum
-    {
-        foreach (int value in values)
-        {
-            AssertEqual(member(value), table.Decode(value), $"{name} value {value}");
-            AssertEqual(value, table.Parameter(member(value)), $"{name} member {member(value)}");
-        }
-        AssertTrue(!table.TryDecode(values[^1] + 1, out _), $"{name} rejects an unauthored value");
-    }
 
     /// <summary>Runs the focused identity-table check.</summary>
     [VerificationCommand("--identity-tables-1418")]

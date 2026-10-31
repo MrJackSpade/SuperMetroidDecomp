@@ -26,8 +26,8 @@ internal static class OwtchMovementDefinitionsVerification
                 for (byte distanceIndex = 0; distanceIndex < 8; distanceIndex++)
                 {
                     byte initialState = (byte)((timerIndex + distanceIndex) % 5);
-                    slot.SetSpawnParameter1(LittleEndianBytes.Word(initialState, timerIndex));
-                    slot.SetSpawnParameter2((ushort)(distanceIndex << 8));
+                    slot.SetSpawnParameter1(EnemyDefinitionId.Owtch, LittleEndianBytes.Word(initialState, timerIndex));
+                    slot.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)(distanceIndex << 8));
                     slot.Position = slot.Position.WithWhole(new(spawnX, 0x0100));
                     initialize(slot);
 

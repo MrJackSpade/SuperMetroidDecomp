@@ -44,13 +44,13 @@ internal static class EnemyLinearSpeedsVerification
             ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08187 + index * 8)), rightFraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08189 + index * 8));
             ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0818b + index * 8)), leftFraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0818d + index * 8));
             var expected = new VerifyCompiledLinearEnemySpeedsCase(right, rightFraction, left, leftFraction);
-            slot.SetSpawnParameter1(0);
-            slot.SetSpawnParameter2(LittleEndianBytes.Word(0, unchecked((byte)index)));
+            slot.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Cacatac, LittleEndianBytes.Word(0, unchecked((byte)index)));
             slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
             cacatac(slot);
             var c = enemies.CacatacStates[0];
             AssertEqual(expected, new VerifyCompiledLinearEnemySpeedsCase((c ?? throw new InvalidOperationException("Verification requires c.")).RightVelocity.WholeWord, c.RightVelocity.Fraction, c.LeftVelocity.WholeWord, c.LeftVelocity.Fraction), "Cacatac native speed setup");
-            slot.SetSpawnParameter2((ushort)index);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)index);
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             owtch(slot);
             var o = enemies.OwtchStates[0];

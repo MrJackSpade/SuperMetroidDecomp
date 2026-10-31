@@ -327,10 +327,9 @@ internal static void VerifyTypedNativeWords()
     AssertEqual((ushort)0x3c12, new MapTileWord(0x2812).WithLocationBlink().Raw,
         "HUD location blink applies native palette bits");
 
-    // The low byte belongs to individual enemy families; the typed word keeps it untouched while making every
-    // independently composable high-byte property explicit.
-    var enemyProperties = new EnemyPropertyWord(EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision |
-        EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus, familyData: 90);
+    // Every independently composable enemy property is an explicit flag.
+    EnemyProperties enemyProperties = EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision |
+        EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus;
     AssertTrue(enemyProperties.HasAll(EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision |
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus),
         "enemy visibility, collision, plasma, and platform flags round trip");
@@ -341,24 +340,10 @@ internal static void VerifyTypedNativeWords()
         "enemy deletion and processing flags round trip");
     enemyProperties = enemyProperties.Without(EnemyProperties.Invisible | EnemyProperties.Deleted |
         EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions);
-    AssertEqual(0x945a, enemyProperties.ToWord(), "enemy flag operations preserve the family-specific low byte");
-    AssertEqual(enemyProperties, EnemyPropertyWord.FromWord(0x945a), "enemy property word round trips its native word");
     AssertEqual(EnemyProperties.IgnoreSamusCollision | EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus,
-        enemyProperties.Flags, "enemy property word exposes only its typed high-byte flags");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => enemyProperties.With((EnemyProperties)0x0001),
-        "enemy property word rejects family data disguised as a shared flag");
-
-    EnemyExtraPropertyWord enemyExtraProperties = new EnemyExtraPropertyWord(EnemyExtraProperties.UsesExtendedSpritemap)
-        .WithUntranslatedBits(EnemyExtraPropertyRawBits.CrocomireInitializerBit0400, "typed-word verification");
-    AssertEqual(0x0404, enemyExtraProperties.ToWord(),
-        "enemy extra-property escape hatch preserves explicitly owned untranslated data");
-    AssertEqual(enemyExtraProperties, EnemyExtraPropertyWord.FromWord(0x0404),
-        "enemy extra-property word splits its native word into flags and untranslated bits");
-    AssertThrows<ArgumentException>(
-        () => default(EnemyExtraPropertyWord).WithUntranslatedBits(
-            (ushort)EnemyExtraProperties.UsesExtendedSpritemap, "typed-word verification"),
-        "enemy extra-property escape hatch rejects known flags");
+        enemyProperties, "enemy flag operations clear only the named flags");
+    AssertEqual(enemyProperties, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(
+        SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(enemyProperties)), "enemy properties round trip their native word");
 
     // The import's level-word codec: $E selects the grapple collision kind, $C supplies both
     // mirrorings, and $02A is the block. The typed block holds each field by name.

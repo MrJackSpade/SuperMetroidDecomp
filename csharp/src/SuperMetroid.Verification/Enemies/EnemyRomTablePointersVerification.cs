@@ -107,10 +107,9 @@ internal static class EnemyRomTablePointersVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.TourianStatue.InstructionListWords + parameter)),
                 NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
-                    TourianEntranceStatues.InitialProgram(parameter)),
+                    SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)),
                 $"Tourian entrance statue initial selector {parameter}");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => TourianEntranceStatues.InitialProgram(1),
+        AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(1),
             "Tourian statue selector rejects odd byte offsets");
 
         var guarded = NewEnemyInstructionSelectionReadGuard(rom);
@@ -120,11 +119,11 @@ internal static class EnemyRomTablePointersVerification
             var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
             system.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
-            slot.SetSpawnParameter1(parameter);
+            slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
-                AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatues.InitialProgram(parameter)),
+                AnimationProgramCursor<TourianEntranceStatueProgram>.Start(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)),
                 system.TourianEntranceStatueBehavior.Extensions[slot.SlotIndex].Program,
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }

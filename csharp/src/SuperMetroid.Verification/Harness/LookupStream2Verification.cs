@@ -1044,9 +1044,8 @@ internal static class LookupStream2Verification
     /// <summary>Checks native crawler/Yard speed ramps through actual velocity resets.</summary>
     internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
-        Func<RoomEnemySlot, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
-        Action<YardEnemyState, int> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
-        var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
+        Func<CrawlerSurfaceOrientation, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
+        Action<YardEnemyState, YardDirection> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
         var yard = new YardEnemyState();
         int speedParameter = 0;
         for (ushort parameter = 0; parameter < 32; parameter++)
@@ -1058,8 +1057,8 @@ internal static class LookupStream2Verification
             yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = EnemyPropertyWord.FromWord((ushort)(0xa000 | property));
-                EightEightVector<RoomPixels> velocity = reset(slot, speedParameter, default);
+                // The block side is the crawler's two low property bits in the cartridge.
+                EightEightVector<RoomPixels> velocity = reset(CrawlerAnimationDefinitions.Orientations.At(property), speedParameter, default);
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue,
                     "Actual crawler reset X magnitude");
                 AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue,
@@ -1067,7 +1066,7 @@ internal static class LookupStream2Verification
             }
             for (ushort direction = 0; direction < 8; direction++)
             {
-                setYard(yard, direction);
+                setYard(yard, SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
                 int nativeDirection = 0xa3cd82 + direction * 8;
                 AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(nativeDirection)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((nativeDirection + 2)))),
                     yard.CrawlingVelocity.X.RawValue, "Actual Yard reset X magnitude");
@@ -1277,7 +1276,7 @@ internal static class LookupStream2Verification
             {
                 var slot = enemies.SlotTable.Slots[member];
                 slot.Bind(EnemyDefinitionId.Gamet, slot.Definition);
-                slot.Position = slot.Position.WithWhole(new(128, 128)); slot.SetSpawnParameter2(64);
+                slot.Position = slot.Position.WithWhole(new(128, 128)); slot.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
                 PipeBugsBehavior.InitializeNorfairPipeBug(slot);
                 slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)(member + 4));
                 slot.Timer = WrappingCountdown.FromRaw((ushort)(member + 8));
@@ -1810,25 +1809,25 @@ internal static class LookupStream2Verification
         {
             short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
             AssertEqual(original, WreckedShipGhostAppearance.FlickerDuration(offset / 2), "Ghost original flicker interval");
-            slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
+            slot.Properties = (EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
             state.PhaseTimer = WrappingCountdown.Start(1);
             state.FlickerTableOffset = offset;
             flicker(slot, state);
             AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer.RawValue, "Ghost actual next interval");
             AssertEqual(original < 0 ? 0 : offset + 2, state.FlickerTableOffset, "Ghost actual next offset including odd folding");
             bool remainsInvisible = original < 0 || (offset & 2) != 0;
-            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties.ToWord(), "Ghost actual visibility preserves unrelated flags");
+            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost actual visibility preserves unrelated flags");
         }
         state.PhaseTimer = WrappingCountdown.Start(2);
         state.FlickerTableOffset = 2;
-        slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible);
+        slot.Properties = (EnemyProperties.Invisible);
         flicker(slot, state);
         AssertEqual((ushort)1, state.PhaseTimer.RawValue, "Ghost interval countdown");
         AssertEqual(2, state.FlickerTableOffset, "Ghost no early interval advance");
-        AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties.ToWord(), "Ghost no early visibility change");
+        AssertEqual((ushort)EnemyProperties.Invisible, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost no early visibility change");
         state.PhaseTimer = WrappingCountdown.Start(0);
         flicker(slot, state);
-        AssertEqual((ushort)0, slot.Properties.ToWord(), "Ghost terminal next call clears invisibility");
+        AssertEqual((ushort)0, SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), "Ghost terminal next call clears invisibility");
         state.PhaseTimer = WrappingCountdown.Start(1);
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");

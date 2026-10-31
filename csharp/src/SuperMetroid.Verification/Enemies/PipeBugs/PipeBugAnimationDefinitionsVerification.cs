@@ -24,7 +24,7 @@ internal static class PipeBugAnimationDefinitionsVerification
             initializedSlot.Bind(strong
                 ? EnemyDefinitionId.Zebbo
                 : EnemyDefinitionId.Zeb, initializedSlot.Definition);
-            initializedSlot.SetSpawnParameter1(strong ? (ushort)1 : (ushort)0);
+            initializedSlot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? (ushort)1 : (ushort)0);
             initializedSlot.Position = initializedSlot.Position.WithWhole(new(0x0100, 0x0080));
             PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
             AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
@@ -47,7 +47,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                     InstructionTimer = WrappingCountdown.Start(0x2222),
                     Timer = WrappingCountdown.Start(0x3333),
                 };
-                slot.SetSpawnParameter1(strong ? 1 : 0);
+                slot.SetSpawnParameter1(EnemyDefinitionId.Zeb, strong ? 1 : 0);
                 var state = new PipeBugEnemyState(slot)
                 {
                     AnimationState = selector,

@@ -52,7 +52,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             IReadOnlyList<RoomEnemyPopulationRecord> records =
                 populations.TryGetValue(definitionPointer, out List<RoomEnemyPopulationRecord>? found)
                     ? found
-                    : [new RoomEnemyPopulationRecord(definitionPointer, new(128, 128), EnemySpawnSettingsCodec.Decode(definitionPointer, 0), default, default, 0, 0)];
+                    : [RoomEnemyPopulationRecordCodec.Decode(definitionPointer, 128, 128, 0, 0, 0, 0, 0)];
 
             bool definitionTranslated = false;
             bool definitionNeedsOwner = false;
@@ -83,8 +83,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 slot.SetSpawnSettings(population.SpawnSettings);
                 slot.Properties = population.Properties;
                 slot.ExtraProperties = population.ExtraProperties;
-                slot.SetSpawnParameter1(checked((ushort)population.Parameter1));
-                slot.SetSpawnParameter2(checked((ushort)population.Parameter2));
+
                 slot.InstructionTimer = WrappingCountdown.Start(1);
 
                 bool translatedRecord = true;
@@ -222,7 +221,9 @@ internal static class EnemyInstructionOwnerCoverageVerification
                     break;
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(definitionPointerWord);
 
-                var record = new RoomEnemyPopulationRecord(definitionPointer, new(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4))), EnemySpawnSettingsCodec.Decode(definitionPointer, CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 6))), EnemyPropertyWord.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 8))), EnemyExtraPropertyWord.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 10))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 12)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 14)));
+                int Word(int offset) => CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + offset);
+                RoomEnemyPopulationRecord record = RoomEnemyPopulationRecordCodec.Decode(
+                    definitionPointer, Word(2), Word(4), Word(6), Word(8), Word(10), Word(12), Word(14));
                 if (!records.TryGetValue(
                     definitionPointer,
                     out List<RoomEnemyPopulationRecord>? definitionRecords))

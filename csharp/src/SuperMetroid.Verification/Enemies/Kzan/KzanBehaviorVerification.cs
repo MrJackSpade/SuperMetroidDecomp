@@ -45,8 +45,8 @@ internal static class KzanBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
-        slot.SetSpawnParameter1(0);
-        slot.SetSpawnParameter2(32 * 256);
+        slot.SetSpawnParameter1(EnemyDefinitionId.KzanTop, 0);
+        slot.SetSpawnParameter2(EnemyDefinitionId.KzanTop, 32 * 256);
         slot.Position = slot.Position.WithWhole(new(128, 65520));
         enemies.KzanBehavior.InitializeKzanTop(slot);
         KzanEnemyState state = slot.RequireSpeciesState<KzanEnemyState>();

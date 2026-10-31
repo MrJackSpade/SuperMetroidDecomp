@@ -19,16 +19,18 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
 
         RoomEnemyPopulationRecord population =
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
+        SuperMetroid.AssetExtraction.Enemies.PopulationEntryWords words =
+            SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Encode(population);
         ushort[] actual =
         [
             SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(population.DefinitionId),
-            population.Position.X,
-            population.Position.Y,
-            checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(population.SpawnSettings)),
-            population.Properties.ToWord(),
-            population.ExtraProperties.ToWord(),
-            checked((ushort)population.Parameter1),
-            checked((ushort)population.Parameter2),
+            checked((ushort)words.X),
+            checked((ushort)words.Y),
+            checked((ushort)words.Initialization),
+            checked((ushort)words.Properties),
+            checked((ushort)words.ExtraProperties),
+            checked((ushort)words.Parameter1),
+            checked((ushort)words.Parameter2),
         ];
         // Word 3 is the record's initialization word: the cartridge stores the Baby's first instruction list
         // there ($CFA2), which the cutscene's typed program replaces, so the compiled record carries no spawn settings

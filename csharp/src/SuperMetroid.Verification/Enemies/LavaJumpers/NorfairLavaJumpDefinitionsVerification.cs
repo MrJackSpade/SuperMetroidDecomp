@@ -38,7 +38,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
             advances = 0;
             state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
             state.YVelocity = default;
-            slot.Properties = EnemyPropertyWord.FromWord(0);
+            slot.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0);
             runMain(slot, state);
 
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((LittleEndianBytes.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,

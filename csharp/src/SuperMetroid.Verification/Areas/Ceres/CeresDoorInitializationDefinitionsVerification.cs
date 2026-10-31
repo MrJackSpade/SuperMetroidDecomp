@@ -28,7 +28,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
         for (ushort variant = 0; variant < 7; variant++)
         {
             CeresDoorInitializationDefinition definition =
-                CeresDoorInitializations.For(variant);
+                CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(variant));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((functionTable + variant * 2)),
                 CeresNativeWords.DoorFunctions.Word(definition.MainFunction),
                 $"Ceres door function selector {variant}");
@@ -40,7 +40,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
             enemies.Presentation.BindColours(new GameplayColours(new SpriteColourSets()));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.SetSpawnParameter1(variant);
+            slot.SetSpawnParameter1(EnemyDefinitionId.CeresDoor, variant);
 
             slot.Bind(EnemyDefinitionId.CeresDoor, slot.Definition);
             enemies.CeresDoorBehavior.InitializeCeresDoor(slot);
@@ -55,8 +55,8 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 $"production Ceres door general timer {variant}");
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => CeresDoorInitializations.For(7),
+        AssertThrows<InvalidDataException>(
+            () => CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(7)),
             "Ceres door selector past definitions");
         Console.WriteLine(
             "Ceres door initialization definitions: all fourteen native selector words and seven production initializers pass with both source tables forbidden.");

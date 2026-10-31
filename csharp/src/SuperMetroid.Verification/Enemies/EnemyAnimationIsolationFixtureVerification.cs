@@ -83,7 +83,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Layer = Actor.Definition.Layer;
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
-            Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen);
+            Actor.Properties = (EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen);
             Actor.InstructionTimer = WrappingCountdown.Start(1);
             if (graphicsSet is not null)
             {
@@ -94,7 +94,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             }
             if (golden)
             {
-                Actor.ExtraProperties = EnemyExtraPropertyWord.FromWord((ushort)EnemyExtraProperties.UsesExtendedSpritemap);
+                Actor.ExtraProperties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.DecodeExtra((ushort)EnemyExtraProperties.UsesExtendedSpritemap);
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
                 Enemies.BombTorizoBehavior.Access.TorizoState = new TorizoEnemyState(Actor, isGolden: true)
                 {
@@ -109,8 +109,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
             {
                 // Choose valid nonzero bounce-height and multiplier indexes; these are
                 // fixture inputs, not authored animation/gameplay tuning.
-                Actor.SetSpawnParameter1((3 << 8) | 2);
-                Actor.SetSpawnParameter2(Actor.Position.Y.Whole);
+                Actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (3 << 8) | 2);
+                Actor.SetSpawnParameter2(EnemyDefinitionId.Boyon, Actor.Position.Y.Whole);
                 new Action<RoomEnemySlot>(BoyonBehavior.InitializeBoyon)(Actor);
             }
         }

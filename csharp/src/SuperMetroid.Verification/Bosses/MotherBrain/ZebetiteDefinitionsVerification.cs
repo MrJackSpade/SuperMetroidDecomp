@@ -66,16 +66,18 @@ internal static class ZebetiteDefinitionsVerification
         {
             RoomEnemyPopulationRecord population =
                 Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
+            SuperMetroid.AssetExtraction.Enemies.PopulationEntryWords words =
+                SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Encode(population);
             ushort[] actual =
             [
                 SuperMetroid.AssetExtraction.Enemies.EnemyDefinitionIds.HeaderPointer(population.DefinitionId),
-                population.Position.X,
-                population.Position.Y,
-                checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(population.SpawnSettings)),
-                population.Properties.ToWord(),
-                population.ExtraProperties.ToWord(),
-                checked((ushort)population.Parameter1),
-                checked((ushort)population.Parameter2),
+                checked((ushort)words.X),
+                checked((ushort)words.Y),
+                checked((ushort)words.Initialization),
+                checked((ushort)words.Properties),
+                checked((ushort)words.ExtraProperties),
+                checked((ushort)words.Parameter1),
+                checked((ushort)words.Parameter2),
             ];
             int record = linkedHalf ? linkedSpawn : primarySpawn;
             for (int word = 0; word < actual.Length; word++)
@@ -93,7 +95,7 @@ internal static class ZebetiteDefinitionsVerification
             var enemies = NewZebetiteDefinitionSystem(
                 generation);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.SetSpawnParameter1(linkedHalf ? (ushort)2 : (ushort)0);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Zebetite, linkedHalf ? (ushort)2 : (ushort)0);
             slot.Bind(EnemyDefinitionId.Zebetite, slot.Definition);
             enemies.ZebetiteBehavior.InitializeZebetite(slot);
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
@@ -128,7 +130,7 @@ internal static class ZebetiteDefinitionsVerification
             RoomEnemySlot slot = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
             AssertEqual(Zebetites.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary), slot.Spawn.Population,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
-            AssertEqual(linkedHalf, slot.Spawn.Population.Parameter1 != 0,
+            AssertEqual(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary, slot.SpawnSettings<ZebetiteSpawnSettings>().Half,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} role");
         }
 

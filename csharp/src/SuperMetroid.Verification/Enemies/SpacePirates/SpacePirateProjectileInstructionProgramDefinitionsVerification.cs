@@ -63,7 +63,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot source = enemies.SlotTable.Slots[0];
             source.Position = source.Position.WithWhole(new(128, 96));
-            source.SetSpawnParameter1(0);
+            source.SetSpawnParameter1(EnemyDefinitionId.PirateGreyWalking, 0);
             RoomEnemyProjectileSlot laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
             AssertEqual(program, NativePointer(laser),
                 "real Pirate/Mother Brain laser producer selects its facing program");

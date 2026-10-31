@@ -14,7 +14,7 @@ internal sealed class SamusAnimationProgram
     /// <exception cref="ArgumentException">A run starts before the previous one ends, or there is none.</exception>
     internal SamusAnimationProgram(IReadOnlyList<SamusAnimationSequence> sequences)
     {
-        Sequences = Ensure.NotNull(sequences);
+        Ensure.NotNull(sequences);
         if (sequences.Count == 0)
             throw new ArgumentException("An animation program holds at least one run of frames.", nameof(sequences));
         SamusAnimationSequence last = sequences[^1];
@@ -30,9 +30,6 @@ internal sealed class SamusAnimationProgram
             steps[nextFree++] = sequence.End;
         }
     }
-
-    /// <summary>The program's runs of frames, in frame order.</summary>
-    internal IReadOnlyList<SamusAnimationSequence> Sequences { get; }
 
     /// <summary>The step at frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">No step of the program is numbered <paramref name="frame"/>.</exception>

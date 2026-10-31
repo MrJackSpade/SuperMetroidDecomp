@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Samus.Movement.RunningCadenceVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -22,15 +21,24 @@ internal static class SamusAnimationDelayDefinitionsVerification
         for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {
             SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
-            IReadOnlyList<SamusAnimationSequence> expected = SamusAnimationProgramCodec.Decode(cartridge, pose);
-            IReadOnlyList<SamusAnimationSequence> actual = SamusAnimationDelays.ProgramForPose(pose).Sequences;
-            AssertEqual(expected.Count, actual.Count, $"pose {pose} animation run count");
-            for (int run = 0; run < expected.Count; run++)
+            SamusAnimationProgram actual = SamusAnimationDelays.ProgramForPose(pose);
+            int nextFrame = 0;
+            foreach (SamusAnimationSequence run in SamusAnimationProgramCodec.Decode(cartridge, pose))
             {
-                AssertEqual(expected[run].FirstFrame, actual[run].FirstFrame, $"pose {pose} run {run} first frame");
-                AssertSequenceEqual(expected[run].Delays, actual[run].Delays, $"pose {pose} run {run} delays");
-                AssertEqual(expected[run].End, actual[run].End, $"pose {pose} run {run} instruction");
+                // Frame numbers between two runs name no step: they held the previous instruction's operands.
+                for (; nextFrame < run.FirstFrame; nextFrame++)
+                {
+                    int gap = nextFrame;
+                    AssertThrows<InvalidDataException>(() => actual.StepAt(gap), $"pose {pose} frame {gap} is no step");
+                }
+                for (int index = 0; index < run.Delays.Count; index++, nextFrame++)
+                    AssertEqual<SamusAnimationProgramStep>(new SamusAnimationDelay(run.Delays[index]), actual.StepAt(nextFrame),
+                        $"pose {pose} frame {nextFrame} delay");
+                AssertEqual<SamusAnimationProgramStep>(run.End, actual.StepAt(nextFrame), $"pose {pose} frame {nextFrame} instruction");
+                nextFrame++;
             }
+            int past = nextFrame;
+            AssertThrows<InvalidDataException>(() => actual.StepAt(past), $"pose {pose} has no step past its program");
         }
 
         // The three numbers past the pose records name no program: no gameplay path gives Samus one of them.

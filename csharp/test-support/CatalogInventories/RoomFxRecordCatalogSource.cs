@@ -131,9 +131,9 @@ internal static class RoomFxRecordCatalogSource
             : string.Join(" | ", set);
     }
 
-    /// <summary>Renders a surface height as the generated catalog spells it: its pixel row as the record's word, or null where the record names none.</summary>
+    /// <summary>Renders a surface height as the generated catalog spells it: its pixel row in decimal, or null where the record names none.</summary>
     private static string SurfaceY(int? y) =>
-        y is int named ? $"0x{named:X4}" : "null";
+        y is int named ? named.ToString(System.Globalization.CultureInfo.InvariantCulture) : "null";
 
     /// <summary>Renders the named headers for the generated Core catalog.</summary>
     internal static string RenderRoomFxDefinitions(RetailRoomFxCapture capture)
@@ -166,7 +166,7 @@ internal static class RoomFxRecordCatalogSource
                 source.AppendLine($"        new({RenderDoor(record)}, " +
                     $"{SurfaceY(record.BaseYPosition)}, {SurfaceY(record.TargetYPosition)}, " +
                     $"SignedEightEight.FromSignedRaw({record.YVelocity.SignedRawValue.ToString(System.Globalization.CultureInfo.InvariantCulture)}), " +
-                    $"0x{record.Timer:X2}, {Member(record.Type)}, " +
+                    $"{record.Timer.ToString(System.Globalization.CultureInfo.InvariantCulture)}, {Member(record.Type)}, " +
                     $"{Member(record.DefaultLayerBlend)}, {Member(record.Layer3LayerBlend)}, " +
                     $"{Flags(record.LiquidOptions)}, {Flags(record.PaletteFxSlots)}, " +
                     $"{Flags(record.AnimatedTileSlots)}, {Member(record.PaletteBlend)}),");

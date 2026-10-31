@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 public static class GunshipDustDefinitions
 {
     /// <summary>$86:A2C4, InitAI_EnemyProjectile_GunshipLiftoffDustClouds: dust is eighty pixels below Samus.</summary>
-    public const ushort YOffset = 0x50;
+    public const ushort YOffset = 80;
 
     /// <summary>
     /// $86:A2D6..A2ED, .Xoffsets and .InstListPointers in

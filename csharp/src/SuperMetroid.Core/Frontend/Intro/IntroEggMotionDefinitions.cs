@@ -9,12 +9,12 @@ internal static class IntroEggMotionDefinitions
     /// <summary>The values <see cref="IntroEggMotion.FragmentInitialPosition"/> selects, in index order.</summary>
     internal static readonly Position16<ScreenPixels>[] FragmentInitialPositions =
     [
-        new(0x006c, 0x0093),
-        new(0x0073, 0x0093),
-        new(0x0069, 0x0098),
-        new(0x0070, 0x0096),
-        new(0x0076, 0x0099),
-        new(0x0073, 0x009b),
+        new(108, 147),
+        new(115, 147),
+        new(105, 152),
+        new(112, 150),
+        new(118, 153),
+        new(115, 155),
     ];
 
     /// <summary>The values <see cref="IntroEggMotion.FragmentX"/> selects, in index order.</summary>
@@ -52,19 +52,19 @@ internal static class IntroEggMotionDefinitions
         "natural-unit factory expresses them, and they are not cartridge addresses.")]
     internal static readonly SignedSixteenSixteen[] FragmentOverreads =
     [
-        SignedSixteenSixteen.FromParts(unchecked((short)0x9dad), 0x991b),
-        SignedSixteenSixteen.FromParts(0x1b7d, 0x97ad),
-        SignedSixteenSixteen.FromParts(unchecked((short)0x991a), 0x1a7d),
+        SignedSixteenSixteen.FromParts(unchecked((short)40365), 39195),
+        SignedSixteenSixteen.FromParts(7037, 38829),
+        SignedSixteenSixteen.FromParts(unchecked((short)39194), 6781),
     ];
 
     /// <summary>The shell gravity records before the overread: the bounded curve's frame count.</summary>
     internal const int FragmentCurveFrames = 38;
 
     /// <summary>The gravity curves' step, an eighth of a pixel per frame in 16.16.</summary>
-    internal const int GravityStep = 0x2000;
+    internal const int GravityStep = 8192;
 
     /// <summary>One whole pixel in 16.16.</summary>
-    internal const int OnePixel = 0x10000;
+    internal const int OnePixel = 65536;
 
     /// <summary>The values <see cref="IntroEggMotion.SlimeX"/> selects, in index order.</summary>
     internal static readonly SignedSixteenSixteen[] SlimeXVelocities =

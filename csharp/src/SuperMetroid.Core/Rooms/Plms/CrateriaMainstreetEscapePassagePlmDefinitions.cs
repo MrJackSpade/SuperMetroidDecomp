@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class CrateriaMainstreetEscapePassagePlmDefinitions
 {
     /// <summary>$8F:9198: the hardcoded spawn's block X.</summary>
-    internal const int BlockX = 0x3d;
+    internal const int BlockX = 61;
     /// <summary>$8F:9199: the hardcoded spawn's block Y.</summary>
-    internal const int BlockY = 0x0b;
+    internal const int BlockY = 11;
 
     /// <summary>The passage's one draw.</summary>
     internal enum Draw

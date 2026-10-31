@@ -60,7 +60,7 @@ public static class GameplayMessageBoxDefinitions
         /// <summary>The colour of the text set the light message colour replaces.</summary>
         public const int TemporaryLightColour = 9;
         /// <summary>The light colour installed for the message box.</summary>
-        public static RgbColor TemporaryLightColor => RgbColor.FromWord(0x0bb1);
+        public static RgbColor TemporaryLightColor => new RgbColor(17, 29, 2);
         /// <summary>The colour of the text set the dark message colour replaces.</summary>
         public const int TemporaryDarkColour = 10;
         /// <summary>The dark colour installed for the message box.</summary>

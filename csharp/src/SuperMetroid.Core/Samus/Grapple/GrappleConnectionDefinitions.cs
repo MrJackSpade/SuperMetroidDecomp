@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 internal static class GrappleConnectionDefinitions
 {
     /// <summary>The raw angle a stop's reflection mirrors it about: its reflected angle is this minus its own.</summary>
-    internal const int ReflectionAngle = 0x0100;
+    internal const int ReflectionAngle = 256;
 
     /// <summary>
     /// $9B:C43E GrappleBeamSpecialAngles stores eight exact collision-stop records. They are four
@@ -16,10 +16,10 @@ internal static class GrappleConnectionDefinitions
     /// </summary>
     internal static readonly SpecialConnection[] AuthoredStops =
     [
-        new(RotationAngle.FromTableIndex(0xd6, 0x80), GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionFunction.LockedInPlace),
-        new(RotationAngle.FromTableIndex(0xb3, 0x80), GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionFunction.LockedInPlace),
-        new(RotationAngle.FromTableIndex(0x6a, 0x80), GrappleWallContactRightPose, new(24, 16), GrappleConnectionFunction.WallGrab),
-        new(RotationAngle.FromTableIndex(0x73, 0x80), GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionFunction.WallGrab),
+        new(RotationAngle.FromTableIndex(214, 128), GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionFunction.LockedInPlace),
+        new(RotationAngle.FromTableIndex(179, 128), GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionFunction.LockedInPlace),
+        new(RotationAngle.FromTableIndex(106, 128), GrappleWallContactRightPose, new(24, 16), GrappleConnectionFunction.WallGrab),
+        new(RotationAngle.FromTableIndex(115, 128), GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionFunction.WallGrab),
     ];
 
     /// <summary>One collision-stop record.</summary>

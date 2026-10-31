@@ -8,11 +8,11 @@ internal static class NuclearWaffleDefinitions
     internal static readonly SoundEffectId TurnSoundEffect = Library2Sound.SidehopperLanding;
 
     /// <summary>$A6:95F6 endpoint pairs mirror around angle $140.</summary>
-    private const int SweepCenter = 0x140;
+    private const int SweepCenter = 320;
     /// <summary>$A6:95F6 endpoints extend $50 to either side of the common center.</summary>
-    private const int SweepRadius = 0x50;
+    private const int SweepRadius = 80;
     /// <summary>$A6:9606 turn thresholds extend $40 to either side of the center.</summary>
-    private const int TurnRadius = 0x40;
+    private const int TurnRadius = 64;
     /// <summary>$A6:95FE separates same-kind links by 24 angle units, with interleaved links halfway between.</summary>
     private const int SegmentPitch = 24;
     /// <summary>

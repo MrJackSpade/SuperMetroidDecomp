@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 internal static class TourianStatuePaintDefinitions
 {
     /// <summary>Native copied transparent-slot word at $AA:D765/D785 and $87:839C.</summary>
-    internal static readonly RgbColor TransparentSlotPayload = RgbColor.FromWord(0x3800);
+    internal static readonly RgbColor TransparentSlotPayload = new(0, 0, 14);
     /// <summary>Maximum value of a five-bit RGB color channel.</summary>
     internal const int Max = 31;
     /// <summary>$AA:D787: olive base highlight RGB(25,31,9), fading to black at color8.</summary>

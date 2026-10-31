@@ -8,5 +8,5 @@ internal static class CrocomireCameraDefinitions
     /// <summary>The high byte of the same native word write keeps Scrolls+5 blue.</summary>
     internal const int BridgeScreen = 5;
     /// <summary>$A4:8C7C compares SamusXPosition against $0520 before selecting the red left boundary.</summary>
-    internal const ushort BridgeVisibleSamusX = 0x0520;
+    internal const ushort BridgeVisibleSamusX = 1312;
 }

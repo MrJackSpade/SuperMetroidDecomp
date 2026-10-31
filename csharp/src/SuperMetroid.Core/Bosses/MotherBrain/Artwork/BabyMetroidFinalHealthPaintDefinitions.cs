@@ -7,21 +7,21 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class BabyMetroidFinalHealthPaintDefinitions
 {
     /// <summary>$AD:E870, final-health visible ink1: yellow-green dome highlight.</summary>
-    internal static readonly RgbColor DomeHighlight = RgbColor.FromWord(0x1b9a);
+    internal static readonly RgbColor DomeHighlight = new(26, 28, 6);
     /// <summary>$AD:E872, visible ink2: yellow-green dome surface.</summary>
-    internal static readonly RgbColor DomeSurface = RgbColor.FromWord(0x06d5);
+    internal static readonly RgbColor DomeSurface = new(21, 22, 1);
     /// <summary>$AD:E874, visible ink3: dome shadow.</summary>
-    internal static readonly RgbColor DomeShadow = RgbColor.FromWord(0x05cc);
+    internal static readonly RgbColor DomeShadow = new(12, 14, 1);
     /// <summary>$AD:E876, visible ink4: dark yellow dome rim, equal red/green.</summary>
     internal static readonly RgbColor DomeRim = new(7, 7, 0);
     /// <summary>$AD:E8DA, visible ink6: purple organ surface light.</summary>
-    internal static readonly RgbColor InnardLight = RgbColor.FromWord(0x3870);
+    internal static readonly RgbColor InnardLight = new(16, 3, 14);
     /// <summary>$AD:E8E0, visible ink9: dark organ contours, also reused by outer fang contours.</summary>
-    internal static readonly RgbColor DarkContour = RgbColor.FromWord(0x0c44);
+    internal static readonly RgbColor DarkContour = new(4, 2, 3);
     /// <summary>$AD:E878, visible ink10: weakened fang light.</summary>
-    internal static readonly RgbColor FangLight = RgbColor.FromWord(0x3676);
+    internal static readonly RgbColor FangLight = new(22, 19, 13);
     /// <summary>$AD:E87C, visible ink12: weakened fang dark.</summary>
-    internal static readonly RgbColor FangDark = RgbColor.FromWord(0x1d6d);
+    internal static readonly RgbColor FangDark = new(13, 11, 7);
     /// <summary>$AD:E880, visible ink14: pale yellow fang glint with equal red/green.</summary>
     internal static readonly RgbColor FangHighlight = new(30, 30, 21);
     /// <summary>$AD:E8DA-E8DE, blue14/13/12 surface progression; darkest contour uses its independent endpoint.</summary>

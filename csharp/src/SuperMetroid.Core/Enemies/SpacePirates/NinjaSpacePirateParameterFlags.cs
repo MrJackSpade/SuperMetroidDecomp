@@ -12,5 +12,5 @@ public enum NinjaSpacePirateParameterFlags
     None = 0,
 
     /// <summary>Starts at the left post and initially faces toward the right post.</summary>
-    StartsAtLeftPostFacingRight = 0x0001,
+    StartsAtLeftPostFacingRight = 1 << 0,
 }

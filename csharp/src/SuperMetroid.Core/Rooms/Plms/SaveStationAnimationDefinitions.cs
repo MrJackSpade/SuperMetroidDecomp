@@ -8,5 +8,5 @@ internal static class SaveStationAnimationDefinitions
     /// <c>Instruction_PLM_TimerEqualsY_8Bit</c>. The pinned NTSC cartridge uses 21
     /// alternating electricity loops before displaying the saved-game message.
     /// </summary>
-    public const ushort SaveAnimationLoops = 0x15;
+    public const ushort SaveAnimationLoops = 21;
 }

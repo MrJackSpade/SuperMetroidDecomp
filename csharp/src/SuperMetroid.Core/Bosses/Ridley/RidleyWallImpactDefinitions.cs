@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class RidleyWallImpactDefinitions
 {
     /// <summary>$A6:D914 compares the larger absolute 8.8 velocity against $0280 (2.5 pixels/frame).</summary>
-    public const int MinimumSpeed = 0x0280;
+    public const int MinimumSpeed = 640;
     /// <summary>$A6:D914's non-Norfair branch requests room-shake type 33.</summary>
     public const ushort EarthquakeType = 33;
     /// <summary>$A6:D914 initializes the quake to twelve frames.</summary>

@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class SpeedBoosterBlockPlmDefinitions
 {
     /// <summary>The behaviour of a Speed Booster block that grows back.</summary>
-    internal const int RespawningBts = 0x0e;
+    internal const int RespawningBts = 14;
     /// <summary>The behaviour of a Speed Booster block that stays broken.</summary>
-    internal const int PermanentBts = 0x0f;
+    internal const int PermanentBts = 15;
 
     /// <summary>Brinstar behaviour <c>$82</c>: respawning, slower crumble.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition BrinstarSlowRespawning = new(

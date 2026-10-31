@@ -4,13 +4,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 public static class MotherBrainCorpseArtworkDefinitions
 {
     /// <summary>$0C00 bytes, covering every initial corpse copy through $B7:D99F.</summary>
-    public const int ByteCount = 0x0c00;
+    public const int ByteCount = 3072;
 
     /// <summary>Indexed four-bit tile sheet independent of the ordinary ED7F enemy sheet.</summary>
     public const string FileName = "mother-brain-corpse-tiles.png";
 
     /// <summary>Each of the six corpse pages shows $1C0 bytes, leaving out its source page's last two tile rows ($A9:9003-$902E).</summary>
-    public const ushort PageByteCount = 0x01c0;
+    public const ushort PageByteCount = 448;
 
     /// <summary>$A9:E08B-$E130 extracts six tile rows of the right-hand corpse frame.</summary>
     public const int RowCount = 6;

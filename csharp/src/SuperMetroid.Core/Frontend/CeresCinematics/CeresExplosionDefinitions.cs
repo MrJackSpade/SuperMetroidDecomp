@@ -15,16 +15,16 @@ internal static class CeresExplosionDefinitions
     public const int FinalExplosionCount = 4;
 
     /// <summary><c>$8B:CE35</c>, invisible wait before instruction <c>$C404</c>.</summary>
-    public const ushort InitialWaitFrames = 0x0080;
+    public const ushort InitialWaitFrames = 128;
 
     /// <summary><c>$8B:CE3B</c>, wait before installing repeating pre-instruction <c>$C489</c>.</summary>
-    public const ushort RepeatingStartWaitFrames = 0x0050;
+    public const ushort RepeatingStartWaitFrames = 80;
 
     /// <summary><c>$8B:CE43</c>, final spawner lifetime before instruction <c>$C50C</c>.</summary>
-    public const ushort RepeatingLifetimeFrames = 0x0040;
+    public const ushort RepeatingLifetimeFrames = 64;
 
     /// <summary><c>$8B:C4A8</c>, frames between repeating second-wave explosions.</summary>
-    public const ushort RepeatingPeriodFrames = 0x000c;
+    public const ushort RepeatingPeriodFrames = 12;
 
     /// <summary>First host frame on which the initial wait has expired.</summary>
     public const int InitialSpawnFrame = InitialWaitFrames + 1;

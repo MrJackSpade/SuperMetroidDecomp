@@ -12,8 +12,8 @@ internal static class SporeSpawnDeathColorDefinitions
     /// </summary>
     internal static readonly RgbColor[] InitialRoomBackgroundColors =
     [
-        RgbColor.FromWord(0x5d22), RgbColor.FromWord(0x4463), RgbColor.FromWord(0x1840), RgbColor.FromWord(0x24c0), RgbColor.FromWord(0x1ca0), RgbColor.FromWord(0x1480), RgbColor.FromWord(0x1040),
-        RgbColor.FromWord(0x16df), RgbColor.FromWord(0x15d7), RgbColor.FromWord(0x14ee), RgbColor.FromWord(0x1486), RgbColor.FromWord(0x16df), RgbColor.FromWord(0x0800),
+        new RgbColor(2, 9, 23), new RgbColor(3, 3, 17), new RgbColor(0, 2, 6), new RgbColor(0, 6, 9), new RgbColor(0, 5, 7), new RgbColor(0, 4, 5), new RgbColor(0, 2, 4),
+        new RgbColor(31, 22, 5), new RgbColor(23, 14, 5), new RgbColor(14, 7, 5), new RgbColor(6, 4, 5), new RgbColor(31, 22, 5), new RgbColor(0, 0, 2),
     ];
 
     /// <summary>
@@ -22,7 +22,7 @@ internal static class SporeSpawnDeathColorDefinitions
     /// </summary>
     internal static readonly RgbColor[] InitialRoomLevelColors =
     [
-        RgbColor.FromWord(0x6318), RgbColor.FromWord(0x6318), RgbColor.FromWord(0x20e0), RgbColor.FromWord(0x1da7), RgbColor.FromWord(0x2d21), RgbColor.FromWord(0x28a0),
-        RgbColor.FromWord(0x26a9), RgbColor.FromWord(0x25e9), RgbColor.FromWord(0x1542), RgbColor.FromWord(0x26a9), RgbColor.FromWord(0x0082), RgbColor.FromWord(0x2771),
+        new RgbColor(24, 24, 24), new RgbColor(24, 24, 24), new RgbColor(0, 7, 8), new RgbColor(7, 13, 7), new RgbColor(1, 9, 11), new RgbColor(0, 5, 10),
+        new RgbColor(9, 21, 9), new RgbColor(9, 15, 9), new RgbColor(2, 10, 5), new RgbColor(9, 21, 9), new RgbColor(2, 4, 0), new RgbColor(17, 27, 9),
     ];
 }

@@ -22,35 +22,35 @@ internal static class GunshipMotionDefinitions
     internal static readonly GunshipIdleBobDefinition[] IdleBobs = [new(16, 1), new(16, -1), new(16, -1), new(16, 1)];
 
     /// <summary>Above this Y the descending ship moves $4.8000 pixels per call; below it, $2.8000.</summary>
-    internal const ushort SlowDescentY = 0x0300;
+    internal const ushort SlowDescentY = 768;
 
     /// <summary>The descending ship's speed above <see cref="SlowDescentY"/>, 16.16 pixels per call.</summary>
-    internal const uint FastDescentSpeed = 0x0004_8000u;
+    internal const uint FastDescentSpeed = 294912u;
 
     /// <summary>The descending ship's speed below <see cref="SlowDescentY"/>, 16.16 pixels per call.</summary>
-    internal const uint SlowDescentSpeed = 0x0002_8000u;
+    internal const uint SlowDescentSpeed = 163840u;
 
     /// <summary>The landed top hull's Y, where the descent clamps.</summary>
-    internal const ushort LandedTopY = 0x045f;
+    internal const ushort LandedTopY = 1119;
 
     /// <summary>The landed bottom hull's Y.</summary>
-    internal const ushort LandedBottomY = 0x0487;
+    internal const ushort LandedBottomY = 1159;
 
     /// <summary>The landed entrance pad's Y.</summary>
-    internal const ushort LandedPadY = 0x045e;
+    internal const ushort LandedPadY = 1118;
 
     /// <summary>The landed ship's X, where Samus stands to board.</summary>
-    internal const ushort LandedX = 0x0480;
+    internal const ushort LandedX = 1152;
 
     /// <summary>The escaping ship's starting 8.8 upward velocity.</summary>
-    internal const ushort EscapeStartVelocity = 0x0200;
+    internal const ushort EscapeStartVelocity = 512;
 
     /// <summary>The escaping ship's 8.8 acceleration per call.</summary>
-    internal const ushort EscapeAcceleration = 0x0040;
+    internal const ushort EscapeAcceleration = 64;
 
     /// <summary>The escaping velocity whose whole byte reaching ten caps it.</summary>
-    internal const ushort EscapeVelocityCapTrigger = 0x0a00;
+    internal const ushort EscapeVelocityCapTrigger = 2560;
 
     /// <summary>The escaping ship's capped 8.8 velocity.</summary>
-    internal const ushort EscapeVelocityCap = 0x0900;
+    internal const ushort EscapeVelocityCap = 2304;
 }

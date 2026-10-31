@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal static class ShaktoolOrbitDefinitions
 {
     /// <summary>One angle-table entry of a 16-bit angle: the straightening step and its extra centre step.</summary>
-    internal const ushort TableStep = 0x0100;
+    internal const ushort TableStep = 256;
 
     /// <summary>The direction buckets a middle segment's heading is rounded to, one for each equal arc of the turn.</summary>
     internal const int OrientationBuckets = 8;

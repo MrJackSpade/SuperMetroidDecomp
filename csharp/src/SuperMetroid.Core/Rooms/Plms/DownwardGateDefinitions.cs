@@ -8,7 +8,7 @@ internal static class DownwardGateDefinitions
     /// <summary>Five room blocks are marked solid while the closed gate occupies its column.</summary>
     public const byte GateHeightInBlocks = 5;
     /// <summary>The block behaviour written to every block in the closed gate column.</summary>
-    public static readonly RoomBlockBehavior ClosedGateBehavior = new(0x10);
+    public static readonly RoomBlockBehavior ClosedGateBehavior = new(16);
     /// <summary>The sound queued for a rejected non-blue gate trigger shot.</summary>
     public static readonly SoundEffectId RejectedShotSound = Library2Sound.DudShotOnDoor;
     /// <summary>The sound the gate's movement plays.</summary>

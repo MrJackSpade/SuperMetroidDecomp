@@ -16,7 +16,7 @@ internal static class IntroMotherBrainDefinitions
         new(CinematicSpriteProgram.IntroMotherBrainExplosionSmall);
 
     /// <summary><c>$8B:B773</c> fixes Mother Brain's cinematic origin at (56,111).</summary>
-    public static Position16<ScreenPixels> MotherBrainOrigin => new(0x0038, 0x006f);
+    public static Position16<ScreenPixels> MotherBrainOrigin => new(56, 111);
 
     /// <summary>Number of records in the <c>$8B:B9B6-$B9D3</c> large-explosion tables.</summary>
     public const int BigExplosionCount = 5;

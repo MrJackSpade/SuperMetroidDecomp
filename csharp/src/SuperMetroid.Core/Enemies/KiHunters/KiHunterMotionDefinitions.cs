@@ -22,17 +22,17 @@ public static class KiHunterMotionDefinitions
     public static SignedSixteenSixteen RightSwoopAcceleration { get; } = SignedSixteenSixteen.FromRaw(OneEighth);
 
     /// <summary>The detached wing orbit's offset angle, seven-eighths of a byte-angle turn.</summary>
-    public static ByteAngle DetachedOrbitOffsetAngle { get; } = new(0xe0);
+    public static ByteAngle DetachedOrbitOffsetAngle { get; } = new(224);
 
     /// <summary>The detached wing's falling-arc offset angle, five-eighths of a byte-angle turn.</summary>
-    public static ByteAngle FallingArcOffsetAngle { get; } = new(0xa0);
+    public static ByteAngle FallingArcOffsetAngle { get; } = new(160);
 
     /// <summary>The detached wing orbit's starting 16-bit angle, an eighth of a turn below zero.</summary>
-    public static RotationAngle DetachedOrbitStartAngle { get; } = RotationAngle.NormalizeRaw(-0x2000);
+    public static RotationAngle DetachedOrbitStartAngle { get; } = RotationAngle.NormalizeRaw(-8192);
 
     /// <summary>The detached wing's falling-arc starting 16-bit angle, three eighths of a turn below zero.</summary>
-    public static RotationAngle FallingArcStartAngle { get; } = RotationAngle.NormalizeRaw(-0x6000);
+    public static RotationAngle FallingArcStartAngle { get; } = RotationAngle.NormalizeRaw(-24576);
 
     /// <summary>The detached speed accumulator stops summing once it reaches this.</summary>
-    public const ushort DetachedSpeedThreshold = 0x2000;
+    public const ushort DetachedSpeedThreshold = 8192;
 }

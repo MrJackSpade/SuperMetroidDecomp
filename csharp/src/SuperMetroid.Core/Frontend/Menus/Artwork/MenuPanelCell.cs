@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 internal enum MenuPanelCell
 {
     /// <summary>$57: the upper-left cell.</summary>
-    UpperLeft = 0x57,
+    UpperLeft = 87,
 
     /// <summary>$58: the upper-right cell.</summary>
-    UpperRight = 0x58,
+    UpperRight = 88,
 
     /// <summary>$59: the lower-left cell.</summary>
-    LowerLeft = 0x59,
+    LowerLeft = 89,
 
     /// <summary>$5A: the lower-right cell.</summary>
-    LowerRight = 0x5a,
+    LowerRight = 90,
 }

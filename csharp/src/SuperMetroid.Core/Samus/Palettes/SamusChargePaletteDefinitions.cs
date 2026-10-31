@@ -12,5 +12,5 @@ public static class SamusChargePaletteDefinitions
     /// <summary>First native byte offset into the reversed Hyper-shot list, which the shot-glow timer encodes.</summary>
     public const ushort FirstHyperTableByteOffset = 2;
     /// <summary>Last native byte offset into the reversed Hyper-shot list, which the shot-glow timer encodes.</summary>
-    public const ushort LastHyperTableByteOffset = 0x14;
+    public const ushort LastHyperTableByteOffset = 20;
 }

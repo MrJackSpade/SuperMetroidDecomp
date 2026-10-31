@@ -13,13 +13,13 @@ public static class KraidPlmDefinitions
     /// <c>$A7:C3F0</c>, the final SpawnHardcodedPLM call in KraidDeath_Initialisation:
     /// start the animated spike sweep at (5,27), independently of defeated-room clearing.
     /// </summary>
-    public static readonly PlmSpawnRequest LiveDeathSpikes = new(new(0x05, 0x1b), PlmHeaderId.CrumbleKraidSpikes);
+    public static readonly PlmSpawnRequest LiveDeathSpikes = new(new(5, 27), PlmHeaderId.CrumbleKraidSpikes);
 
     /// <summary>$A7:C168 SpawnPLMToClearTheCeiling: clear ceiling blocks from (2,18).</summary>
-    private static PlmSpawnRequest ClearCeiling => new(new(0x02, 0x12), PlmHeaderId.ClearKraidCeiling);
+    private static PlmSpawnRequest ClearCeiling => new(new(2, 18), PlmHeaderId.ClearKraidCeiling);
 
     /// <summary>$A7:C171 SpawnPLMToClearTheSpikes: clear spike blocks from (5,27).</summary>
-    private static PlmSpawnRequest ClearSpikes => new(new(0x05, 0x1b), PlmHeaderId.ClearKraidSpikes);
+    private static PlmSpawnRequest ClearSpikes => new(new(5, 27), PlmHeaderId.ClearKraidSpikes);
 
     /// <summary>
     /// The nine calls in <c>$A7:AC4D</c>, indexed by Kraid variable F / 2: the ceiling callbacks at ACD7..AD3A
@@ -28,15 +28,15 @@ public static class KraidPlmDefinitions
     /// </summary>
     public static IReadOnlyList<PlmSpawnRequest> GrowthCeiling { get; } = new List<PlmSpawnRequest>
     {
-        new(new(6, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
-        new(new(13, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
-        new(new(2, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground1),
-        new(new(10, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
-        new(new(5, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
-        new(new(12, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
-        new(new(3, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
-        new(new(11, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
-        new(new(4, 0x12), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
+        new(new(6, 18), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
+        new(new(13, 18), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
+        new(new(2, 18), PlmHeaderId.CrumbleKraidCeilingIntoBackground1),
+        new(new(10, 18), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
+        new(new(5, 18), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
+        new(new(12, 18), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
+        new(new(3, 18), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
+        new(new(11, 18), PlmHeaderId.CrumbleKraidCeilingIntoBackground2),
+        new(new(4, 18), PlmHeaderId.CrumbleKraidCeilingIntoBackground3),
     }.AsReadOnly();
 
     /// <summary>
@@ -55,11 +55,11 @@ public static class KraidPlmDefinitions
         new Dictionary<KraidSinkCallback, PlmSpawnRequest?>
         {
             [KraidSinkCallback.NoOperation] = null,
-            [KraidSinkCallback.CrumbleLeftPlatformLeft] = new PlmSpawnRequest(new(7, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant1),
-            [KraidSinkCallback.CrumbleLeftPlatformMiddle] = new PlmSpawnRequest(new(8, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant2),
-            [KraidSinkCallback.CrumbleLeftPlatformRight] = new PlmSpawnRequest(new(9, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant1),
-            [KraidSinkCallback.CrumbleRightPlatformLeft] = new PlmSpawnRequest(new(14, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant2),
-            [KraidSinkCallback.CrumbleRightPlatformMiddle] = new PlmSpawnRequest(new(15, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant1),
-            [KraidSinkCallback.CrumbleRightPlatformRight] = new PlmSpawnRequest(new(16, 0x12), PlmHeaderId.CrumbleKraidPlatformVariant2),
+            [KraidSinkCallback.CrumbleLeftPlatformLeft] = new PlmSpawnRequest(new(7, 18), PlmHeaderId.CrumbleKraidPlatformVariant1),
+            [KraidSinkCallback.CrumbleLeftPlatformMiddle] = new PlmSpawnRequest(new(8, 18), PlmHeaderId.CrumbleKraidPlatformVariant2),
+            [KraidSinkCallback.CrumbleLeftPlatformRight] = new PlmSpawnRequest(new(9, 18), PlmHeaderId.CrumbleKraidPlatformVariant1),
+            [KraidSinkCallback.CrumbleRightPlatformLeft] = new PlmSpawnRequest(new(14, 18), PlmHeaderId.CrumbleKraidPlatformVariant2),
+            [KraidSinkCallback.CrumbleRightPlatformMiddle] = new PlmSpawnRequest(new(15, 18), PlmHeaderId.CrumbleKraidPlatformVariant1),
+            [KraidSinkCallback.CrumbleRightPlatformRight] = new PlmSpawnRequest(new(16, 18), PlmHeaderId.CrumbleKraidPlatformVariant2),
         };
 }

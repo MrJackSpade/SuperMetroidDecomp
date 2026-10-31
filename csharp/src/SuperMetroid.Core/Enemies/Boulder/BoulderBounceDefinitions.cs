@@ -16,5 +16,5 @@ public static class BoulderBounceDefinitions
     /// VerifyCompiledBoulderBounces exercises each real floor collision, the
     /// zero-to-$FFFF handoff, and both invalid counter boundaries without a bus.
     /// </remarks>
-    internal static readonly ushort[] SpeedIndices = [0, 0x1000, 0x1800];
+    internal static readonly ushort[] SpeedIndices = [0, 4096, 6144];
 }

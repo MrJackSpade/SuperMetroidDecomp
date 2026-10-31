@@ -17,9 +17,9 @@ public static class BoyonSpeedDefinitions
     /// <summary>$A2:86EF, BoyonData.jumpHeights: the number of 8.8 heights parameter one's high byte selects from.</summary>
     internal const int InitialHeightCount = 9;
     /// <summary>The lowest 8.8 jump height, selected by high byte zero.</summary>
-    internal const int LowestInitialHeight = 0x3000;
+    internal const int LowestInitialHeight = 12288;
     /// <summary>How much higher each successive 8.8 jump height is.</summary>
-    internal const int InitialHeightStep = 0x1000;
+    internal const int InitialHeightStep = 4096;
 
     /// <summary>$A2:875E/$880F/$885B clamp indices at or above 23 to $FF before multiplication.</summary>
     public const int StoredSampleCount = 23;

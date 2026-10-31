@@ -10,11 +10,11 @@ internal static class TorizoInitializationDefinitions
     /// First entries select Bomb Torizo, including InstList_Torizo_BombTorizo_Initial_0
     /// ($AA:B879). The property word is ORed into the population's existing properties.
     /// </summary>
-    internal static TorizoInitializationDefinition Bomb => new(new(0x00db, 0x00b3), TorizoBodyProgram.BombTorizoInitial0, EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen, new(0x12, 0x30));
+    internal static TorizoInitializationDefinition Bomb => new(new(219, 179), TorizoBodyProgram.BombTorizoInitial0, EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen, new(18, 48));
 
     /// <summary>
     /// Second entries of $AA:C95F..C976 select Golden Torizo, including
     /// InstList_GoldenTorizo_Initial_0 ($AA:C9CB). Its shorter Y radius is authored data.
     /// </summary>
-    internal static TorizoInitializationDefinition Golden => new(new(0x01a8, 0x0090), TorizoBodyProgram.GoldenInitial0, EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen, new(0x12, 0x29));
+    internal static TorizoInitializationDefinition Golden => new(new(424, 144), TorizoBodyProgram.GoldenInitial0, EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen, new(18, 41));
 }

@@ -12,26 +12,26 @@ public enum RoomLiquidOptions
     None = 0,
 
     /// <summary>Water: the BG3 surface texture drifts right by a quarter pixel every frame.</summary>
-    SurfaceDrift = 0x01,
+    SurfaceDrift = 1 << 0,
 
     /// <summary>
     /// Water: BG2 ripples with the horizontal water wave below the surface. Lava and acid: BG2 ripples with the
     /// vertical heat-haze wave, which takes priority over the horizontal one.
     /// </summary>
-    Bg2Wave = 0x02,
+    Bg2Wave = 1 << 1,
 
     /// <summary>
     /// Water: Samus's movement ignores the water surface until a PLM clears this option (the n00b tube's glass).
     /// Lava and acid: BG2 ripples with the horizontal heat wave when the vertical one is not selected.
     /// </summary>
-    WaterPhysicsDisabledOrHorizontalHeatWave = 0x04,
+    WaterPhysicsDisabledOrHorizontalHeatWave = 1 << 2,
 
     /// <summary>An option some records set that no liquid tests; kept so the record's options round-trip.</summary>
-    Untested = 0x08,
+    Untested = 1 << 3,
 
     /// <summary>The surface rises and falls by up to 32 pixels; the small tide takes priority when both are set.</summary>
-    LargeTide = 0x40,
+    LargeTide = 1 << 6,
 
     /// <summary>The surface rises and falls by up to 8 pixels.</summary>
-    SmallTide = 0x80,
+    SmallTide = 1 << 7,
 }

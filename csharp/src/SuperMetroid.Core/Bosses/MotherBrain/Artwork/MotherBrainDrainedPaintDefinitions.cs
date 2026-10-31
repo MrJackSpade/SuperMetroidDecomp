@@ -12,11 +12,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainDrainedPaintDefinitions
 {
     /// <summary>$AD:EEB8/F0BF/F1EB, drained/revival-start/corpse-final color zero: shared cortex and lower-face tissue highlight, repeated at color eight.</summary>
-    internal static readonly RgbColor Highlight = RgbColor.FromWord(0x4f38);
+    internal static readonly RgbColor Highlight = new(24, 25, 19);
     /// <summary>$AD:EEBE/F0C5/F1F1, drained/revival-start/corpse-final color three: silhouette and internal olive-grey outlines.</summary>
-    internal static readonly RgbColor Outline = RgbColor.FromWord(0x0ca5);
+    internal static readonly RgbColor Outline = new(5, 5, 3);
     /// <summary>$AD:EED0/F0D7/F203, drained/revival-start/corpse-final color twelve: darkest lower-face and neck tissue, native sprite palette index thirteen.</summary>
-    internal static readonly RgbColor DarkestTissue = RgbColor.FromWord(0x1949);
+    internal static readonly RgbColor DarkestTissue = new(9, 10, 6);
 
     /// <summary>
     /// Exact bounded RGB8 representation (193,200,155) of Highlight for the native tissue

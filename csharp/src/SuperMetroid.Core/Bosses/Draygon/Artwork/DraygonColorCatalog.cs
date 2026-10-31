@@ -12,7 +12,7 @@ public sealed class DraygonColorCatalog
     public string ContentIdentity => DraygonPalette.ContentIdentity(this);
 
     /// <summary><c>Palette_Draygon_WhiteFlash</c> at $A5:A297: every visible flash ink is white.</summary>
-    internal static readonly RgbColor FlashInk = RgbColor.FromWord(0x7fff);
+    internal static readonly RgbColor FlashInk = new(31, 31, 31);
 
     /// <summary>The selected opening, material, flash and health-band colours.</summary>
     internal readonly DraygonColorSelection selection;

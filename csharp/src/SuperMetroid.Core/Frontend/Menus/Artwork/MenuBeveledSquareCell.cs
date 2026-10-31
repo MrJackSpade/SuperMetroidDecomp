@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 internal enum MenuBeveledSquareCell
 {
     /// <summary>$98: the light colorway.</summary>
-    Light = 0x98,
+    Light = 152,
 
     /// <summary>$99: the dark colorway.</summary>
-    Dark = 0x99,
+    Dark = 153,
 }

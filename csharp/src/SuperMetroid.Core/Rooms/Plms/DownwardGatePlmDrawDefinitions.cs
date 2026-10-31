@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class DownwardGatePlmDrawDefinitions
 {
     /// <summary>The visual block of the column's top while the gate rests at either end.</summary>
-    internal const int StationaryTopBlock = 0x0d6;
+    internal const int StationaryTopBlock = 214;
     /// <summary>The visual block of the column's top while the gate moves.</summary>
-    internal const int MovingTopBlock = 0x0d7;
+    internal const int MovingTopBlock = 215;
     /// <summary>The visual block of the column's other cells, shootable where filled and air where open.</summary>
-    internal const int BodyBlock = 0x0ff;
+    internal const int BodyBlock = 255;
     /// <summary>The visual block of a left trigger's solid neighbour.</summary>
-    internal const int NeighbourBlock = 0x0d6;
+    internal const int NeighbourBlock = 214;
     /// <summary>The visual block of the first trigger colour; each colour's frame steps one block down.</summary>
-    internal const int TriggerFirstBlock = 0x0db;
+    internal const int TriggerFirstBlock = 219;
 }

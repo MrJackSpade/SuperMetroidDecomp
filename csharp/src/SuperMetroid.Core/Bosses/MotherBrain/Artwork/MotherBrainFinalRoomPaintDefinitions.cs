@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal static class MotherBrainFinalRoomPaintDefinitions
 {
     /// <summary>$A9:D082: light fine rear-panel accents, BG palette3 ink4.</summary>
-    internal static readonly RgbColor WallLight = RgbColor.FromWord(0x4a16);
+    internal static readonly RgbColor WallLight = new(22, 16, 18);
     /// <summary>$A9:D088: dark ends of the same rear-panel accents, BG palette3 ink7.</summary>
-    internal static readonly RgbColor WallDark = RgbColor.FromWord(0x1ca7);
+    internal static readonly RgbColor WallDark = new(7, 5, 7);
     /// <summary>$A9:D08A: recessed pipe/panel-edge light, BG palette3 ink8.</summary>
-    internal static readonly RgbColor RecessedLight = RgbColor.FromWord(0x20e5);
+    internal static readonly RgbColor RecessedLight = new(5, 7, 8);
     /// <summary>$A9:D096: selected amber BG palette3 inkE. Its exact pixel role is unestablished;
     /// retention follows its categorical paint role, not absence from inspected compositions.</summary>
     internal static readonly RgbColor Amber = new(31, 22, 0);

@@ -20,9 +20,9 @@ internal static class TourianAccessPlmDrawDefinitions
         {
             [TourianAccessDraw.Clear] = new(6, RoomTerrainBlocks.BlankAir),
             [TourianAccessDraw.EmptyRow] = new(1, RoomTerrainBlocks.BlankAir),
-            [TourianAccessDraw.CrumbleFirst] = new(1, RoomTerrainBlock.Of(0x53, BlockMirroring.None, RoomCollisionType.Air)),
-            [TourianAccessDraw.CrumbleSecond] = new(1, RoomTerrainBlock.Of(0x54, BlockMirroring.None, RoomCollisionType.Air)),
-            [TourianAccessDraw.CrumbleThird] = new(1, RoomTerrainBlock.Of(0x55, BlockMirroring.None, RoomCollisionType.Air)),
+            [TourianAccessDraw.CrumbleFirst] = new(1, RoomTerrainBlock.Of(83, BlockMirroring.None, RoomCollisionType.Air)),
+            [TourianAccessDraw.CrumbleSecond] = new(1, RoomTerrainBlock.Of(84, BlockMirroring.None, RoomCollisionType.Air)),
+            [TourianAccessDraw.CrumbleThird] = new(1, RoomTerrainBlock.Of(85, BlockMirroring.None, RoomCollisionType.Air)),
         };
 
     /// <summary>The artwork identity naming each empty, crumble or six-row clear frame in visual files.</summary>

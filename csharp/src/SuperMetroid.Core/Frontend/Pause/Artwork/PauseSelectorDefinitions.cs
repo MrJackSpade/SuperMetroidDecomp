@@ -40,10 +40,10 @@ public static class PauseSelectorDefinitions
     internal static readonly IReadOnlyDictionary<PauseEquipmentCategory, Position16<ScreenPixels>> CategoryOrigins =
         new Dictionary<PauseEquipmentCategory, Position16<ScreenPixels>>
         {
-            [PauseEquipmentCategory.Reserves] = new(0x1b, 0x54),
-            [PauseEquipmentCategory.Beams] = new(0x30, 0x84),
-            [PauseEquipmentCategory.Suits] = new(0xcc, 0x4c),
-            [PauseEquipmentCategory.Boots] = new(0xcc, 0x9c),
+            [PauseEquipmentCategory.Reserves] = new(27, 84),
+            [PauseEquipmentCategory.Beams] = new(48, 132),
+            [PauseEquipmentCategory.Suits] = new(204, 76),
+            [PauseEquipmentCategory.Boots] = new(204, 156),
         };
 
     /// <summary>Vertical distance between successive items' selectors, one eight-pixel row.</summary>

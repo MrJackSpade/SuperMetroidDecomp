@@ -24,10 +24,10 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
     /// <summary>The terrain each draw installs.</summary>
     internal static readonly IReadOnlyDictionary<GrappleBlockDraw, RoomTerrainBlock> Blocks = new Dictionary<GrappleBlockDraw, RoomTerrainBlock>
     {
-        [GrappleBlockDraw.Intact] = RoomTerrainBlock.Of(0x0b7, BlockMirroring.None, RoomCollisionType.GrappleBlock),
-        [GrappleBlockDraw.Break0] = RoomTerrainBlock.Of(0x053, BlockMirroring.None, RoomCollisionType.Air),
-        [GrappleBlockDraw.Break1] = RoomTerrainBlock.Of(0x054, BlockMirroring.None, RoomCollisionType.Air),
-        [GrappleBlockDraw.Break2] = RoomTerrainBlock.Of(0x055, BlockMirroring.None, RoomCollisionType.Air),
-        [GrappleBlockDraw.Blank] = RoomTerrainBlock.Of(0x0ff, BlockMirroring.None, RoomCollisionType.Air),
+        [GrappleBlockDraw.Intact] = RoomTerrainBlock.Of(183, BlockMirroring.None, RoomCollisionType.GrappleBlock),
+        [GrappleBlockDraw.Break0] = RoomTerrainBlock.Of(83, BlockMirroring.None, RoomCollisionType.Air),
+        [GrappleBlockDraw.Break1] = RoomTerrainBlock.Of(84, BlockMirroring.None, RoomCollisionType.Air),
+        [GrappleBlockDraw.Break2] = RoomTerrainBlock.Of(85, BlockMirroring.None, RoomCollisionType.Air),
+        [GrappleBlockDraw.Blank] = RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.Air),
     };
 }

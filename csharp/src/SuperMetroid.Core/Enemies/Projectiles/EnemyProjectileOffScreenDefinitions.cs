@@ -7,5 +7,5 @@ public static class EnemyProjectileOffScreenDefinitions
     /// <c>CMP #$0120</c> at $86:B5C2: pixels below the camera's top row at which
     /// <c>Delete_EnemyProjectile_IfVerticallyOffScreen</c> deletes a projectile.
     /// </summary>
-    public const ushort VerticalDeletionDepth = 0x0120;
+    public const ushort VerticalDeletionDepth = 288;
 }

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 internal enum MenuThinBorderCell
 {
     /// <summary>$AD: the horizontal line.</summary>
-    Line = 0xad,
+    Line = 173,
 
     /// <summary>$AE: the left corner.</summary>
-    Corner = 0xae,
+    Corner = 174,
 }

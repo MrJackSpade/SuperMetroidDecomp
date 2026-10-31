@@ -9,16 +9,16 @@ public static class MorphBallBombDefinitions
     public const int SlotCount = 5;
 
     /// <summary>Normal-bomb cooldown selected from non-beam table entry five.</summary>
-    public const ushort NormalBombCooldown = 0x0010;
+    public const ushort NormalBombCooldown = 16;
 
     /// <summary>Power-bomb cooldown selected from non-beam table entry three.</summary>
-    public const ushort PowerBombCooldown = 0x0028;
+    public const ushort PowerBombCooldown = 40;
 
     /// <summary>Initial normal- and power-bomb fuse written by their firing routines.</summary>
     public const ushort InitialBombTimer = 60;
 
     /// <summary>Minimum flare counter accepted by <c>FireBombOrBombSpread</c> at $90:C0AB.</summary>
-    public const ushort RequiredChargeFrames = 0x003c;
+    public const ushort RequiredChargeFrames = 60;
 
     /// <summary>
     /// The updates of held Down a bomb spread charges for within each <see cref="DownChargeTimeoutCycle"/> of the

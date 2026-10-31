@@ -66,44 +66,44 @@ internal static class DraygonCannonPlmDrawDefinitions
     };
 
     /// <summary>The empty cell a damaged frame leaves beside its core.</summary>
-    private static RoomTerrainBlock Empty => RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.Air);
+    private static RoomTerrainBlock Empty => RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.Air);
 
     /// <summary>A right shield frame: the shootable core then its rim, over the core's extension and the lower rim.</summary>
     private static RoomTerrainBlock[][] RightShield(int frame) =>
     [
         [
-            RoomTerrainBlock.Of(0x114 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock),
-            RoomTerrainBlock.Of(0x113 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.Air),
+            RoomTerrainBlock.Of(276 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock),
+            RoomTerrainBlock.Of(275 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.Air),
         ],
         [
-            RoomTerrainBlock.Of(0x134 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
-            RoomTerrainBlock.Of(0x133 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.Air),
+            RoomTerrainBlock.Of(308 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.VerticalExtension),
+            RoomTerrainBlock.Of(307 + frame * 2, BlockMirroring.Horizontal, RoomCollisionType.Air),
         ],
     ];
 
     /// <summary>A right damaged frame: the spiked core over its lower half, each beside an empty cell.</summary>
     private static RoomTerrainBlock[][] RightDamaged(int frame) =>
     [
-        [RoomTerrainBlock.Of(0x180 + frame, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock), Empty],
-        [RoomTerrainBlock.Of(0x1a0 + frame, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock), Empty],
+        [RoomTerrainBlock.Of(384 + frame, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock), Empty],
+        [RoomTerrainBlock.Of(416 + frame, BlockMirroring.Horizontal, RoomCollisionType.SpikeBlock), Empty],
     ];
 
     /// <summary>A left shield frame: the shootable core, the rim to its left, then the lower rim and core extension.</summary>
     private static RoomTerrainBlock[][] LeftShield(int frame) =>
     [
-        [RoomTerrainBlock.Of(0x114 + frame * 2, BlockMirroring.None, RoomCollisionType.ShootableBlock)],
-        [RoomTerrainBlock.Of(0x113 + frame * 2, BlockMirroring.None, RoomCollisionType.Air)],
+        [RoomTerrainBlock.Of(276 + frame * 2, BlockMirroring.None, RoomCollisionType.ShootableBlock)],
+        [RoomTerrainBlock.Of(275 + frame * 2, BlockMirroring.None, RoomCollisionType.Air)],
         [
-            RoomTerrainBlock.Of(0x133 + frame * 2, BlockMirroring.None, RoomCollisionType.Air),
-            RoomTerrainBlock.Of(0x134 + frame * 2, BlockMirroring.None, RoomCollisionType.VerticalExtension),
+            RoomTerrainBlock.Of(307 + frame * 2, BlockMirroring.None, RoomCollisionType.Air),
+            RoomTerrainBlock.Of(308 + frame * 2, BlockMirroring.None, RoomCollisionType.VerticalExtension),
         ],
     ];
 
     /// <summary>A left damaged frame: the spiked core, an empty cell to its left, then an empty cell and the lower half.</summary>
     private static RoomTerrainBlock[][] LeftDamaged(int frame) =>
     [
-        [RoomTerrainBlock.Of(0x180 + frame, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
+        [RoomTerrainBlock.Of(384 + frame, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
         [Empty],
-        [Empty, RoomTerrainBlock.Of(0x1a0 + frame, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
+        [Empty, RoomTerrainBlock.Of(416 + frame, BlockMirroring.None, RoomCollisionType.SpikeBlock)],
     ];
 }

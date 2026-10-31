@@ -12,20 +12,20 @@ public enum TourianStatueAnimationState
     None = 0,
 
     /// <summary>Phantoon's statue is running its idle or release animation.</summary>
-    PhantoonAnimating = 0x0001,
+    PhantoonAnimating = 1 << 0,
 
     /// <summary>Ridley's statue is running its idle or release animation.</summary>
-    RidleyAnimating = 0x0002,
+    RidleyAnimating = 1 << 1,
 
     /// <summary>Kraid's statue is running its idle or release animation.</summary>
-    KraidAnimating = 0x0004,
+    KraidAnimating = 1 << 2,
 
     /// <summary>Draygon's statue is running its idle or release animation.</summary>
-    DraygonAnimating = 0x0008,
+    DraygonAnimating = 1 << 3,
 
     /// <summary>All four grey-statue events exist; latched by the descent before it waits for the last release to end.</summary>
-    AllReleased = 0x0010,
+    AllReleased = 1 << 4,
 
     /// <summary>One statue is playing its release; the others keep idling until it finishes, so releases play one at a time.</summary>
-    ReleaseInProgress = 0x8000,
+    ReleaseInProgress = 1 << 15,
 }

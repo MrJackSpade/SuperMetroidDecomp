@@ -20,10 +20,10 @@ internal static class ChargeFlareAnimationDefinitions
     /// <summary>$9B:C04F, HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
     internal const ushort GrappleInitialDelay = 3;
     /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Rewind"/>.</summary>
-    internal const byte RewindByte = 0xfe;
+    internal const byte RewindByte = 254;
 
     /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Restart"/>.</summary>
-    internal const byte RestartByte = 0xff;
+    internal const byte RestartByte = 255;
 
     /// <summary>The command each command byte of a delay stream encodes; every other stream byte is a delay.</summary>
     internal static readonly FrozenDictionary<byte, ChargeFlareDelayCommand> CommandBytes =

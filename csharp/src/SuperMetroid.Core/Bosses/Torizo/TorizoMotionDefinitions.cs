@@ -32,5 +32,5 @@ internal static class TorizoMotionDefinitions
     /// Golden Torizo's egg hatch timer. $86:B001 masks the literal opcode byte $E2 rather than a random number, an
     /// authentic bug that fixes the timer at 66 updates.
     /// </summary>
-    internal const ushort EggHatchTimer = (0x00e2 & 0x001f) + 64;
+    internal const ushort EggHatchTimer = (226 & 0b1_1111) + 64;
 }

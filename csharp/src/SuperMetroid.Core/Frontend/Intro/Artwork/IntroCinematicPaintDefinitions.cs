@@ -44,11 +44,11 @@ internal static class IntroCinematicPaintDefinitions
     internal const int PortraitOutlineBlue = 5;
 
     /// <summary>$8C:E4E9 and every object-row zero: copied transparent compatibility word.</summary>
-    internal static readonly RgbColor ObjectZero = RgbColor.FromWord(0x3800);
+    internal static readonly RgbColor ObjectZero = new(0, 0, 14);
     /// <summary>$8C:E44D: shoulder/edge paint.</summary>
-    internal static readonly RgbColor Shoulder = RgbColor.FromWord(0x15aa);
+    internal static readonly RgbColor Shoulder = new(10, 13, 5);
     /// <summary>$8C:E455: dark cyan contour.</summary>
-    internal static readonly RgbColor PortraitContour = RgbColor.FromWord(0x14a2);
+    internal static readonly RgbColor PortraitContour = new(2, 5, 5);
     /// <summary>$8C:E461: deep cool silhouette paint.</summary>
-    internal static readonly RgbColor PortraitDeep = RgbColor.FromWord(0x1c42);
+    internal static readonly RgbColor PortraitDeep = new(2, 2, 7);
 }

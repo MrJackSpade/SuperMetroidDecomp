@@ -42,7 +42,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
     }
 
     /// <summary>The visual block of the first breakup frame; the next two frames step one block each.</summary>
-    internal const int BreakupFirstBlock = 0x053;
+    internal const int BreakupFirstBlock = 83;
 
     /// <summary>The visual blocks a restored shape's rows advance by.</summary>
     internal const int RestoreRowStride = 32;
@@ -50,10 +50,10 @@ internal static class RoomPlmShotBlockDrawDefinitions
     /// <summary>The visual block of each restored shape's parent.</summary>
     internal static readonly IReadOnlyDictionary<Shape, int> RestoreBlocks = new Dictionary<Shape, int>
     {
-        [Shape.Horizontal] = 0x096,
-        [Shape.Vertical] = 0x098,
-        [Shape.Single] = 0x099,
-        [Shape.Square] = 0x099,
+        [Shape.Horizontal] = 150,
+        [Shape.Vertical] = 152,
+        [Shape.Single] = 153,
+        [Shape.Square] = 153,
     };
 
     /// <summary>Breakup frames per shape.</summary>

@@ -20,5 +20,5 @@ public enum DragonAnimationSelector
     AttackingFacingRight = 5,
 
     /// <summary>Native installed-selector sentinel that forces the requested list to reload.</summary>
-    ForceReinstall = 0xffff,
+    ForceReinstall = 65535,
 }

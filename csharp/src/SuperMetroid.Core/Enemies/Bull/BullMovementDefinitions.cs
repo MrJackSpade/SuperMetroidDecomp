@@ -11,10 +11,10 @@ public static class BullMovementDefinitions
     public const int IntervalCount = 13;
 
     /// <summary>The 8.8 maximum speed selector zero chooses.</summary>
-    internal const int SlowestMaximumSpeed = 0x03ff;
+    internal const int SlowestMaximumSpeed = 1023;
 
     /// <summary>How much faster each successive maximum-speed selector is, in 8.8.</summary>
-    internal const int MaximumSpeedStep = 0x0100;
+    internal const int MaximumSpeedStep = 256;
 
     /// <summary>
     /// The frame intervals each population parameter-one selector chooses.

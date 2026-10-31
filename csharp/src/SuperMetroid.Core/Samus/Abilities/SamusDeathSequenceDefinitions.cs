@@ -10,9 +10,9 @@ public static class SamusDeathSequenceDefinitions
     /// <summary>Sixty calls alternate palettes before the suit explodes.</summary>
     public const ushort FlashFrameCount = 60;
     /// <summary>Right-facing base index in Samus's death-explosion spritemap table.</summary>
-    public const ushort RightExplosionSpritemap = 0x081c;
+    public const ushort RightExplosionSpritemap = 2076;
     /// <summary>Left-facing base index in Samus's death-explosion spritemap table.</summary>
-    public const ushort LeftExplosionSpritemap = 0x0825;
+    public const ushort LeftExplosionSpritemap = 2085;
 
     /// <summary>The value each key selects; InitialFrame looks it up.</summary>
     public static readonly IReadOnlyDictionary<SamusMovementType, byte> InitialFrames = new Dictionary<SamusMovementType, byte>

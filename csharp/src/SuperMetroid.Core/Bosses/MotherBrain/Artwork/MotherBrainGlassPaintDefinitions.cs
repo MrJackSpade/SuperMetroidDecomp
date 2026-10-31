@@ -9,5 +9,5 @@ internal static class MotherBrainGlassPaintDefinitions
     /// in maps $8D:9750/976C. Init $86:CDF0 supplies graphics $0640, selecting
     /// head-sheet tiles $162/$165 and OBJ palette three; this is a fixed painted tint.
     /// </summary>
-    internal static readonly RgbColor FaceHighlight = RgbColor.FromWord(0x7f8b);
+    internal static readonly RgbColor FaceHighlight = new(11, 28, 31);
 }

@@ -24,7 +24,7 @@ public static class KraidRockLaunchDefinitions
     public static SignedEightEight FromRandom(int random) => Speeds[random & ChoiceMask];
 
     /// <summary>Keeps RNG bits 1..3, the eight even launch choices.</summary>
-    private const int ChoiceMask = 0x000e;
+    private const int ChoiceMask = 0b1110;
 
     /// <summary>The launch speed of each of the eight even RNG choices.</summary>
     private static readonly Dictionary<int, SignedEightEight> Speeds = new()

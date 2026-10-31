@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 internal enum MenuShoulderHighlightCell
 {
     /// <summary>$3C: the top-left quarter.</summary>
-    TopLeft = 0x3c,
+    TopLeft = 60,
 
     /// <summary>$3D: the top-right quarter.</summary>
-    TopRight = 0x3d,
+    TopRight = 61,
 
     /// <summary>$43: the bottom-right quarter.</summary>
-    BottomRight = 0x43,
+    BottomRight = 67,
 
     /// <summary>$51: the bottom-left quarter.</summary>
-    BottomLeft = 0x51,
+    BottomLeft = 81,
 }

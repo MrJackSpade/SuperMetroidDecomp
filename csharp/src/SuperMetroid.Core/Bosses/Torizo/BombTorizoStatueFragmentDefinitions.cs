@@ -7,8 +7,8 @@ internal static class BombTorizoStatueFragmentDefinitions
     internal const int FragmentCount = 16;
 
     /// <summary>$86:A7FB: every fragment's initial downward velocity.</summary>
-    internal const int YVelocity = 0x0100;
+    internal const int YVelocity = 256;
 
     /// <summary>$86:A80B: every fragment's downward acceleration.</summary>
-    internal const int Acceleration = 0x0010;
+    internal const int Acceleration = 16;
 }

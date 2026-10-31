@@ -15,20 +15,20 @@ internal static class MotherBrainTurretDefinitions
     internal static SpriteGraphics Graphics { get; } = SpriteGraphics.CharacterZeroIn(new GraphicsSetMemberColouring(EnemyDefinitionId.Rinka));
 
     /// <summary>Minimum random rotation delay applied by $86:BFDF.</summary>
-    internal const ushort MinimumRotationDelay = 0x0020;
+    internal const ushort MinimumRotationDelay = 32;
 
     /// <summary>Minimum random firing cooldown applied by $86:C00A.</summary>
-    internal const ushort MinimumFiringCooldown = 0x0080;
+    internal const ushort MinimumFiringCooldown = 128;
 
     /// <summary>$86:BE89-$BEF8 places four room bays of three turrets.</summary>
     internal const int TurretCount = 12;
     /// <summary>$86:BEB9/$C040 select eight turret poses in left-to-up-left octant order.</summary>
     /// <summary>$86:BE89 starts the first bay at X=$398; each later bay is 192 pixels left.</summary>
-    internal const int FirstBayX = 0x398;
+    internal const int FirstBayX = 920;
     /// <summary>The native placement rows repeat three mounting positions every twelve tiles.</summary>
     internal const int BaySpacing = 192;
     /// <summary>$86:BFBF/$BFCF use a 2.75-pixel 8.8 bullet speed, rounded in diagonal octants.</summary>
-    internal const int BulletSpeed = 0x2c0;
+    internal const int BulletSpeed = 704;
     /// <summary>$86:BF9F samples a seventeen-pixel horizontal muzzle radius.</summary>
     internal const int MuzzleRadius = 17;
 

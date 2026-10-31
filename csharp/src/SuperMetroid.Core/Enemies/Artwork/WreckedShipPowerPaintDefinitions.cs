@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class WreckedShipPowerPaintDefinitions
 {
     /// <summary>$A7:CA81/CAA1: exact copied ink-zero metadata of green/magenta door rows; BG ink zero is transparent.</summary>
-    internal static readonly RgbColor DoorTransparentMetadata = RgbColor.FromWord(0x2003);
+    internal static readonly RgbColor DoorTransparentMetadata = new(3, 0, 8);
     /// <summary>$A7:CA63-CA67: common gold door/machine accent endpoints and selected middle red.</summary>
     internal const int GoldMiddleRed = 23, GoldDarkRed = 12, GoldLightGreen = 22, GoldDarkGreen = 5;
     /// <summary>$A7:CA69-CA6F, repeated atCA89-CA8F: warm common-room machinery red/green intensities.</summary>
@@ -22,17 +22,17 @@ internal static class WreckedShipPowerPaintDefinitions
     /// <summary>$A7:CA69-CA6F: the two lighter steel facets add two blue levels to green; deeper facets add one.</summary>
     internal const int MetalLightBlueTint = 2, MetalDarkBlueTint = 1;
     /// <summary>$A7:CA71/CA83/CAFB: common green indicator/door highlight paint.</summary>
-    internal static readonly RgbColor GreenHighlight = RgbColor.FromWord(0x0bb1);
+    internal static readonly RgbColor GreenHighlight = new(17, 29, 2);
     /// <summary>$A7:CA85/CAF9: common green door/indicator middle paint.</summary>
-    internal static readonly RgbColor GreenMiddle = RgbColor.FromWord(0x1ea9);
+    internal static readonly RgbColor GreenMiddle = new(9, 21, 7);
     /// <summary>$A7:CA87/CB05: green door shadow; green is twice red and blue is absent.</summary>
     internal const int GreenDarkRed = 5;
     /// <summary>$A7:CA73/CAA5: shared magenta door/common indicator paint.</summary>
-    internal static readonly RgbColor MagentaMiddle = RgbColor.FromWord(0x48fb);
+    internal static readonly RgbColor MagentaMiddle = new(27, 7, 18);
     /// <summary>$A7:CAA3/CAA7: magenta door glint and dark red-blue outline.</summary>
     internal const int MagentaLight = 28, MagentaLightGreen = 21, MagentaDarkRed = 22, MagentaDarkBlue = 6;
     /// <summary>$A7:CA7B: additional copied common-room blue accent paint; not assigned a visible role by the source metatile packet.</summary>
-    internal static readonly RgbColor CommonBlueAccent = RgbColor.FromWord(0x44e5);
+    internal static readonly RgbColor CommonBlueAccent = new(5, 7, 17);
     /// <summary>$A7:CA91/CAA9-CABB/CAC9-CADB/CB23-CB3B: common neutral placeholder/material ink.</summary>
     internal const int CommonNeutral = 24;
     /// <summary>$A7:CA93-CA95: independent common-room neutral shadow and outline intensities.</summary>

@@ -264,8 +264,8 @@ internal static class SamusPoseProjectileOriginDefinitions
         [SamusPoseId.DrainedCrouchingLeftPose] = 252,
         [SamusPoseId.DrainedStandingRightPose] = 252,
         [SamusPoseId.DrainedStandingLeftPose] = 252,
-        [SamusPoseId.AdjacentCodePoseFD] = 0xc2,
-        [SamusPoseId.AdjacentCodePoseFE] = 0x16,
-        [SamusPoseId.AdjacentCodePoseFF] = 0x85,
+        [SamusPoseId.AdjacentCodePoseFD] = 194,
+        [SamusPoseId.AdjacentCodePoseFE] = 22,
+        [SamusPoseId.AdjacentCodePoseFF] = 133,
     };
 }

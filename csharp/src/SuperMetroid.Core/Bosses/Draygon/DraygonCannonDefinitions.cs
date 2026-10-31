@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonCannonDefinitions
 {
     /// <summary>A live cannon's own block: shootable, with the behaviour that routes a shot to the cannon.</summary>
-    internal static readonly DraygonCannonTerrain LiveCannon = new(RoomCollisionType.ShootableBlock, new RoomBlockBehavior(0x44));
+    internal static readonly DraygonCannonTerrain LiveCannon = new(RoomCollisionType.ShootableBlock, new RoomBlockBehavior(68));
 
     /// <summary>The block below a live cannon: a vertical extension of the block one row above.</summary>
-    internal static readonly DraygonCannonTerrain LiveCannonExtension = new(RoomCollisionType.VerticalExtension, new RoomBlockBehavior(0xff));
+    internal static readonly DraygonCannonTerrain LiveCannonExtension = new(RoomCollisionType.VerticalExtension, new RoomBlockBehavior(255));
 
     /// <summary>Both blocks of a destroyed cannon: the spike-block family with the destroyed-cannon behaviour.</summary>
     internal static readonly DraygonCannonTerrain DestroyedCannon = new(RoomCollisionType.SpikeBlock, new RoomBlockBehavior(3));

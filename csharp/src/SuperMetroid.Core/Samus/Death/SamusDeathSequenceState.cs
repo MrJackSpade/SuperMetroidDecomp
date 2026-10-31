@@ -47,7 +47,7 @@ public sealed class SamusDeathSequenceState
     /// <summary>Set only when the source movement type was spin jumping and SFX `$32` is queued.</summary>
     public bool SpinJumpSoundRequested { get; private set; }
 
-    /// <summary>Consumes death setup's native <c>QueueSfx1_Max6($32)</c> publication.</summary>
+    /// <summary>Consumes death setup's normal-priority sound request.</summary>
     public bool ConsumeSpinJumpSoundRequest()
     {
         bool requested = SpinJumpSoundRequested;

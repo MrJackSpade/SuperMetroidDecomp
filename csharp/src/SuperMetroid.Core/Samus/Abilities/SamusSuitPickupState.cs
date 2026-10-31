@@ -36,7 +36,7 @@ public sealed class SamusSuitPickupState
     /// <summary>Native queue guard captured at suit setup, before deferred host publication.</summary>
     public bool TransformationSoundSuppressed { get; private set; }
 
-    /// <summary>Consumes the one-shot Max6 transformation request emitted by native suit setup.</summary>
+    /// <summary>Consumes the one-shot normal-priority transformation sound request suit setup makes.</summary>
     public bool ConsumeTransformationSoundRequest()
     {
         bool pending = _transformationSoundPending;

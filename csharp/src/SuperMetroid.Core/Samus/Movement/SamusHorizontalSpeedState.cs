@@ -75,7 +75,7 @@ public sealed class SamusHorizontalSpeedState
         set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Consumes speed stage four's native <c>QueueSfx3_Max6($03)</c> call.</summary>
+    /// <summary>Consumes speed stage four's normal-priority echo sound request.</summary>
     public bool ConsumeEchoSoundRequest()
     {
         bool requested = EchoSoundRequested;

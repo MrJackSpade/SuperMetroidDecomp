@@ -1016,7 +1016,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(ridley.Position.Y.Whole < 80,
         "Ceres Ridley crosses the cartridge's Y=$50 battle threshold");
     AssertTrue(observedRoarSound,
-        "Ridley instruction $E4BE publishes QueueSfx2_Max6($59)");
+        "Ridley instruction $E4BE requests the roar");
 
     // #1275: $A6:A72D selects the next attack from RandomNumberSeed as it stands; it does
     // not generate a number. Fireballs (low nibble 9) and swoop (low nibble E) tell the two apart.
@@ -1193,7 +1193,7 @@ internal static void VerifyCeresRidleyRoomEntry()
 
     AssertTrue(enemies.Audio.SoundRequests.Contains(
             new SoundRequest(Library2Sound.CeresRidleyGetaway, Priority: SoundRequestPriority.Normal)),
-        "handoff frame's first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
+        "handoff frame's first Mode-7 getaway entry requests the departure sound");
     void GetawayFrame()
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
@@ -1619,7 +1619,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
 
     // The two later animation lists are the actual dispatcher seams that make reveal-only
     // implementations fail. The compact roar list keeps its real $E4BE opcode before a
-    // single timed map, so both the roaring flag and QueueSfx2_Max6($59) cross the actual
+    // single timed map, so both the roaring flag and the roar request cross the actual
     // instruction dispatcher. The liftoff list retains its real $E969 instruction so AI
     // control changes exactly as it does in the cartridge. Movement divisors are the
     // literal $10..$01 D712 table.

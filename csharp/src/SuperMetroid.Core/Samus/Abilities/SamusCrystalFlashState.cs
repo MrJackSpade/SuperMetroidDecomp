@@ -93,7 +93,7 @@ public sealed class SamusCrystalFlashState
     public bool ActivationSoundRequested { get; private set; }
 
     /// <summary>
-    /// Consumes the one <c>QueueSfx3_Max15($01)</c> call emitted when the raising phase
+    /// Consumes the one essential-priority sound request made when the raising phase
     /// becomes the main Crystal Flash phase. The flag is debugger-visible, while this
     /// method gives the frontend the native one-shot semantics.
     /// </summary>

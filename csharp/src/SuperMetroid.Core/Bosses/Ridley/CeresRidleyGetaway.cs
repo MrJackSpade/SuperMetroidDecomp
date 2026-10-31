@@ -101,8 +101,8 @@ internal sealed class CeresRidleyGetaway
         int tableIndex = state.GetawayFrameIndex;
         state.GetawayFrameIndex = tableIndex + 1;
 
-        // HandleCeresRidleyGetawayCutscene queues the departure sound on the first table
-        // entry only ($A6:AABD -> QueueSfx2_Max6($4E)). Tying the request to the native
+        // HandleCeresRidleyGetawayCutscene requests the departure sound on the first table
+        // entry only ($A6:AABD). Tying the request to the native
         // table index preserves the same one-shot behavior after saves/replays and pauses.
         if (tableIndex == 0)
             _audio.QueueEnemySound(Library2Sound.CeresRidleyGetaway, priority: SoundRequestPriority.Normal);

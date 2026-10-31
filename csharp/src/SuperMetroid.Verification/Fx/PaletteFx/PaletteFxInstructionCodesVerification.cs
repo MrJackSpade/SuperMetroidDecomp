@@ -1580,8 +1580,8 @@ internal static class PaletteFxInstructionCodesVerification
             "$F781 beacon sound uses library two");
         AssertEqual<SoundEffectId>(Library2Sound.Beacon, soundRequest.SoundEffect,
             "$F781 beacon sound is the beacon (operand $18)");
-        AssertEqual(PaletteFxAudioQueueLimits.SoundEffects, soundRequest.Priority,
-            "$F781 beacon sound uses QueueSfx2_Max6");
+        AssertEqual(PaletteFxSoundPriorities.InstructionSound, soundRequest.Priority,
+            "$F781 beacon sound uses the palette-effect instruction priority");
 
         // The next call must parse the timed palette record immediately after the byte
         // operand. This is the observable consequence of returning Y+1 at $8D:C67A.

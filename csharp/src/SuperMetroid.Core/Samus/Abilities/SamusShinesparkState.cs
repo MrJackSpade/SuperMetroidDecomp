@@ -118,7 +118,7 @@ public sealed class SamusShinesparkState
     /// <summary>Set when energy or collision installs the crash handler.</summary>
     public bool CrashSoundRequested { get; set; }
 
-    /// <summary>Consumes the stored-shine warning's <c>QueueSfx3_Max9($0C)</c> call.</summary>
+    /// <summary>Consumes the stored-shine warning's high-priority sound request.</summary>
     public bool ConsumeStoredShineWarningSoundRequest()
     {
         bool requested = StoredShineWarningSoundRequested;
@@ -126,7 +126,7 @@ public sealed class SamusShinesparkState
         return requested;
     }
 
-    /// <summary>Consumes directional launch's <c>QueueSfx3_Max9($0F)</c> call.</summary>
+    /// <summary>Consumes directional launch's high-priority sound request.</summary>
     public bool ConsumeLaunchSoundRequest()
     {
         bool requested = LaunchSoundRequested;
@@ -135,8 +135,8 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Consumes crash setup. Retail publishes two calls at this point:
-    /// <c>QueueSfx1_Max6($35)</c> and <c>QueueSfx3_Max6($10)</c>.
+    /// Consumes crash setup, which requests two sounds at normal priority: one in library one and one in
+    /// library three.
     /// </summary>
     public bool ConsumeCrashSoundRequest()
     {

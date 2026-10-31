@@ -627,7 +627,7 @@ public sealed class RoomLayer3FxState
     /// </summary>
     /// <param name="randomNumber">Current RNG word, sampled without advancing it; its low two bits add zero through three updates to the next earthquake-sound delay.</param>
     /// <param name="earthquakeSoundDelay">
-    /// The frame the save file found at power-on adds to the next delay. <c>QueueSound_Lib2_Max6</c> restores the carry
+    /// The frame the save file found at power-on adds to the next delay. The earthquake sound request restores the carry
     /// with <c>PLP</c>, so <c>ADC .baseTimer</c> at $88:B245 adds it. Both callers' per-line effect objects are the first their FX
     /// spawns after the door deletes the per-line effect objects, so they run in slot zero, which inherits the main loop's
     /// power-on carry (<see cref="PowerOnEarthquakeSoundDelay"/>); a later slot would see the clear carry from

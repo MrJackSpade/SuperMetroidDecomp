@@ -6,7 +6,7 @@ internal sealed class PlmSoundQueue
     /// <summary>Retains PLM sound requests from the current handler pass until frame publication.</summary>
     private readonly List<SoundRequest> _soundRequests = new();
 
-    /// <summary>Queues <paramref name="soundEffect"/> under the native queue cap.</summary>
+    /// <summary>Queues <paramref name="soundEffect"/> at <paramref name="Priority"/>.</summary>
     internal void Queue(SoundEffectId soundEffect, SoundRequestPriority Priority) => _soundRequests.Add(CreateSoundRequest(soundEffect, Priority));
 
     /// <summary>Queues requests built earlier, in order.</summary>

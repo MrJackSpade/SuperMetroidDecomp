@@ -191,7 +191,7 @@ internal static class RidleyAnimationsVerification
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case NativeEnemyProjectileInstruction.PreInstructionInY:
-                    AssertEqual(EnemyProjectilePreInstructionAccess.Word(EnemyProjectilePreInstruction.RidleyFireball), operand, $"{at}: the fireball's moving pre-instruction");
+                    AssertEqual(EnemyProjectilePreInstruction.RidleyFireballFlight, EnemyProjectilePreInstructionAccess.FromWord(operand), $"{at}: the fireball's moving pre-instruction");
                     AssertEqual(RidleyFireballCue.BeginFlight, AssertIs<AnimationProgramStep<RidleyFireballProgram, RidleyFireballFrame, RidleyFireballCue>.CueStep>(step, $"{at}: cue step").Cue, $"{at}: begin flight");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;

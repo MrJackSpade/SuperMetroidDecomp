@@ -202,7 +202,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Stoke shot: horizontal motion and viewport cull.
             RunStokeProjectilePreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.StokeFireball);
+        }, EnemyProjectilePreInstruction.StokeFireballFlight);
     }
 
     /// <summary>Ports Stoke's main AI.</summary>

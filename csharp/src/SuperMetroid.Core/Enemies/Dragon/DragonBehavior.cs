@@ -321,7 +321,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             RunDragonFireballPreInstruction(context.Projectile, context.Camera.Y);
-        }, EnemyProjectilePreInstruction.DragonFireball);
+        }, EnemyProjectilePreInstruction.DragonFireballArc);
     }
 
     /// <summary>Ports Dragon's main AI.</summary>

@@ -35,34 +35,12 @@ internal sealed class EnemyProjectileEngine
     [field: NonSerialized]
     private EnemyProjectileHandlerTable Handlers => field ??= BuildHandlers();
 
-    /// <summary>Registers inert native RTS addresses and every species-owned projectile handler.</summary>
+    /// <summary>Registers the stationary behaviour and every species-owned projectile handler.</summary>
     private EnemyProjectileHandlerTable BuildHandlers()
     {
         var table = new EnemyProjectileHandlerTable();
-        // Native RTS pre-instructions and inert phases do nothing.
-        table.AddPreInstruction(static _ => { },
-            EnemyProjectilePreInstruction.None,
-            EnemyProjectilePreInstruction.RTS_868170,
-            EnemyProjectilePreInstruction.RTS_86A327,
-            EnemyProjectilePreInstruction.RTS_8684FB,
-            EnemyProjectilePreInstruction.RTS_86EC94,
-            EnemyProjectilePreInstruction.RTS_86D0EB,
-            EnemyProjectilePreInstruction.RTS_86CFF7,
-            EnemyProjectilePreInstruction.RTS_86B4B0,
-            EnemyProjectilePreInstruction.RTS_868D54,
-            EnemyProjectilePreInstruction.RTS_86950C,
-            EnemyProjectilePreInstruction.RTS_869A44,
-            EnemyProjectilePreInstruction.RTS_86BBC6,
-            EnemyProjectilePreInstruction.RTS_86A05B,
-            EnemyProjectilePreInstruction.RTS_86EFDF,
-            EnemyProjectilePreInstruction.RTS_86A919,
-            EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped,
-            EnemyProjectilePreInstruction.RTS_86DD44,
-            EnemyProjectilePreInstruction.RTS_86CAA3,
-            EnemyProjectilePreInstruction.RTS_86C76D,
-            EnemyProjectilePreInstruction.RTS_86E6D1,
-            EnemyProjectilePreInstruction.DownwardGateInertPreInstruction,
-            EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction);
+        // A stationary projectile does not move itself: it holds still, or its owner positions it.
+        table.AddPreInstruction(static _ => { }, EnemyProjectilePreInstruction.Stationary);
         table.AddCue<EnemyProjectileCommonCue>((context, cue) => ApplyCommonCue(context.Projectile, cue));
         foreach (IEnemyProjectileHandlerSource source in _handlerSources)
             source.AddEnemyProjectileHandlers(table);
@@ -81,7 +59,7 @@ internal sealed class EnemyProjectileEngine
                 projectile.PreInstruction = setPreInstruction.PreInstruction;
                 break;
             case EnemyProjectileCommonCue.Command { Kind: EnemyProjectileCommonCueKind.ClearPreInstruction }:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
                 break;
             case EnemyProjectileCommonCue.Scatter scatter:
                 Scatter(projectile, scatter.Spread);
@@ -206,7 +184,7 @@ internal sealed class EnemyProjectileEngine
                     enemyProjectile.StartAnimation(Handlers.TryGetShotAnimation(enemyProjectile.Kind, out Func<EnemyProjectileAnimation>? shotAnimation)
                         ? shotAnimation()
                         : EnemyProjectileDeleteAnimation.Instance);
-                    enemyProjectile.PreInstruction = EnemyProjectilePreInstruction.RTS_8684FB;
+                    enemyProjectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
 
                     // Native masks properties with $0FFF. The typed fields below are the
                     // three high property bits represented by this runtime, so clearing
@@ -459,7 +437,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Graphics = graphics;
     }
 
-    /// <summary>Dispatches the slot's current bank-$86 movement callback before its timed instruction list.</summary>
+    /// <summary>Runs the projectile's current pre-instruction before its program advances.</summary>
     private void RunEnemyProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
@@ -468,7 +446,6 @@ internal sealed class EnemyProjectileEngine
         int frameCounterByte,
         SamusBombProjectileSystem? samusBombs)
     {
-        if (Handlers.TryInterceptPreInstruction(projectile)) return;
         EnemyProjectilePreInstruction id = projectile.PreInstruction;
         if (!Handlers.TryGetPreInstruction(id, out EnemyProjectilePreInstructionHandler? handler))
         {
@@ -1016,7 +993,7 @@ internal sealed class EnemyProjectileEngine
             {
                 context.Projectile.Clear();
             }
-        }, EnemyProjectilePreInstruction.MetalSkreeParticle);
+        }, EnemyProjectilePreInstruction.SkreeParticleFlight);
     }
 
     /// <summary>Registers tile gravity and impact dust/sound when Ceres debris strikes room terrain.</summary>
@@ -1032,7 +1009,7 @@ internal sealed class EnemyProjectileEngine
                 SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.SmallDustCloud);
                 _audio.QueueEnemySound(Library2Sound.CeresTileFall, priority: SoundRequestPriority.Normal);
             }
-        }, EnemyProjectilePreInstruction.CeresFallingTile);
+        }, EnemyProjectilePreInstruction.CeresTileFall);
     }
 
     /// <summary>

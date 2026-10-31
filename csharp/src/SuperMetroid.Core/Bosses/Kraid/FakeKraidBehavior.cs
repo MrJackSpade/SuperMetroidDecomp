@@ -384,12 +384,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             RunFakeKraidSpitPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.MiniKraidSpit);
+        }, EnemyProjectilePreInstruction.FakeKraidSpitFlight);
 
         table.AddPreInstruction(context =>
         {
             RunFakeKraidSpikePreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.MiniKraidSpikes);
+        }, EnemyProjectilePreInstruction.FakeKraidSpikeFlight);
     }
 
     /// <summary>Ports FakeKraid's initialization AI.</summary>

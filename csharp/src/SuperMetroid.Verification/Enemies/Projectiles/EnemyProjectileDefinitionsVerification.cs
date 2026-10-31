@@ -522,7 +522,7 @@ internal static class EnemyProjectileDefinitionsVerification
                 forbidden.Add(address + index);
 
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)), EnemyProjectilePreInstructionAccess.Word(definition.PreInstruction),
+            AssertEqual(definition.PreInstruction, EnemyProjectilePreInstructionAccess.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 2)),
                 $"{kind} pre-instruction");
             // The record's radius word holds X in its low byte and Y in its high byte; its property word holds the
             // contact damage in its low twelve bits and the four behaviour bits above them.

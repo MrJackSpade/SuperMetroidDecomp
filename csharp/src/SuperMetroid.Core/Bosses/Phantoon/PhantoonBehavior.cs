@@ -404,10 +404,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             : _slotTable.Slots[0]);
     /// <summary>Initial flame callback that holds position before orbit activation.</summary>
     internal const EnemyProjectilePreInstruction PhantoonStartingFlameWaitingPreInstruction =
-        EnemyProjectilePreInstruction.PhantoonStartingFlames;
+        EnemyProjectilePreInstruction.PhantoonIntroFlameWaiting;
     /// <summary>Activated flame callback that advances its orbit around the body.</summary>
     internal const EnemyProjectilePreInstruction PhantoonStartingFlameOrbitPreInstruction =
-        EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated;
+        EnemyProjectilePreInstruction.PhantoonIntroFlameOrbit;
 
     /// <summary>Ports PhantoonBody's main AI.</summary>
     internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

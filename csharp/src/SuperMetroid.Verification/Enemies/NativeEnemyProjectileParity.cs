@@ -33,9 +33,9 @@ internal static class NativeEnemyProjectileParity
             AssertEqual(native.Timer, projectile.InstructionTimer.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.PreInstructionCleared)
-                AssertEqual(EnemyProjectilePreInstruction.RTS_868170, projectile.PreInstruction, $"{at}: cleared pre-instruction");
+                AssertEqual(EnemyProjectilePreInstruction.Stationary, projectile.PreInstruction, $"{at}: cleared pre-instruction");
             else if (native.PreInstruction is { } installed)
-                AssertEqual(installed, projectile.PreInstructionWord, $"{at}: installed pre-instruction");
+                AssertEqual(EnemyProjectilePreInstructionAccess.FromWord(installed), projectile.PreInstruction, $"{at}: installed pre-instruction");
         }
         return new CompareResult(false, update);
     }

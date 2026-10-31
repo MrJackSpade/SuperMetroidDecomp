@@ -843,17 +843,17 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             RunKiHunterAcidMovement(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.KiHunterAcid_Moving);
+        }, EnemyProjectilePreInstruction.KiHunterAcidFlight);
 
         table.AddPreInstruction(context =>
         {
             StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Left);
-        }, EnemyProjectilePreInstruction.KiHunterAcid_Left);
+        }, EnemyProjectilePreInstruction.KiHunterAcidLaunchLeft);
 
         table.AddPreInstruction(context =>
         {
             StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Right);
-        }, EnemyProjectilePreInstruction.KiHunterAcid_Right);
+        }, EnemyProjectilePreInstruction.KiHunterAcidLaunchRight);
     }
 
     /// <summary>Ports KiHunter's main AI.</summary>
@@ -889,7 +889,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
     /// <summary>Bank-$86 acid mover installed by the startup callback after the projectile's idle frames.</summary>
     private const EnemyProjectilePreInstruction KiHunterAcidMovingPreInstruction =
-        EnemyProjectilePreInstruction.KiHunterAcid_Moving;
+        EnemyProjectilePreInstruction.KiHunterAcidFlight;
     /// <summary>Positive 8.8 horizontal acid speed, negated for leftward shots.</summary>
     private const int KiHunterAcidHorizontalSpeed = 768;
     /// <summary>8.8 downward speed added to each active acid frame.</summary>

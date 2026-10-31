@@ -43,57 +43,57 @@ internal sealed class TorizoAttacks
         table.AddPreInstruction(context =>
         {
             RunBombTorizoStatueBreakingPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.BombTorizoChozoBreaking_Falling);
+        }, EnemyProjectilePreInstruction.BombTorizoStatueFragmentFall);
 
         table.AddPreInstruction(context =>
         {
             RunBombTorizoChozoOrbPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.BombTorizosChozoOrbs);
+        }, EnemyProjectilePreInstruction.BombTorizoOrbFall);
 
         table.AddPreInstruction(context =>
         {
             RunGoldenTorizoChozoOrbPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizosChozoOrbs);
+        }, EnemyProjectilePreInstruction.GoldenTorizoOrbBounce);
 
         table.AddPreInstruction(context =>
         {
             RunBombTorizoSonicBoomPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.TorizoSonicBoom);
+        }, EnemyProjectilePreInstruction.TorizoSonicBoomFlight);
 
         table.AddPreInstruction(context =>
         {
             RunBombTorizoDroolPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.BombTorizoLowHealthDrool_Falling);
+        }, EnemyProjectilePreInstruction.BombTorizoDroolFall);
 
         table.AddPreInstruction(context =>
         {
             RunGoldenTorizoEggPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoEgg_Bouncing);
+        }, EnemyProjectilePreInstruction.GoldenTorizoEggBounce);
 
         table.AddPreInstruction(context =>
         {
             RunGoldenTorizoEggHorizontalCharge(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoEgg_Hatched);
+        }, EnemyProjectilePreInstruction.GoldenTorizoEggCharge);
 
         table.AddPreInstruction(context =>
         {
             RunGoldenTorizoEggFall(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall);
+        }, EnemyProjectilePreInstruction.GoldenTorizoEggDrop);
 
         table.AddPreInstruction(context =>
         {
             RunGoldenTorizoSuperMissilePreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Held);
+        }, EnemyProjectilePreInstruction.GoldenTorizoSuperMissileHeld);
 
         table.AddPreInstruction(context =>
         {
             RunGoldenTorizoSuperMissileFlight(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Thrown);
+        }, EnemyProjectilePreInstruction.GoldenTorizoSuperMissileThrown);
 
         table.AddPreInstruction(context =>
         {
             RunGoldenTorizoEyeBeamPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.GoldenTorizoEyeBeam);
+        }, EnemyProjectilePreInstruction.GoldenTorizoEyeBeamFlight);
 
         table.AddBranchingCue<TorizoProjectileProgram, TorizoProjectileCue>((context, cue) => ApplyTorizoProjectileCue(context.Projectile, context.Samus, cue));
         table.AddShotAnimation(RoomEnemyProjectileKind.BombTorizoChozoOrb, () => new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbShot));
@@ -112,7 +112,7 @@ internal sealed class TorizoAttacks
         switch (cue)
         {
             case TorizoProjectileCue.Command { Kind: TorizoProjectileCueKind.ClearPreInstruction }:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
                 return null;
             case TorizoProjectileCue.SetPreInstruction setPreInstruction:
                 projectile.PreInstruction = setPreInstruction.PreInstruction;
@@ -655,7 +655,7 @@ internal sealed class TorizoAttacks
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.PreInstruction =
-                EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall;
+                EnemyProjectilePreInstruction.GoldenTorizoEggDrop;
             projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(0));
             return;
         }
@@ -830,7 +830,7 @@ internal sealed class TorizoAttacks
         }
 
         projectile.PreInstruction =
-            EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped;
+            EnemyProjectilePreInstruction.Stationary;
     }
     /// <summary>
     /// Whether a falling projectile has run away: its raw 8.8 speed is at least sixteen pixels per frame and below

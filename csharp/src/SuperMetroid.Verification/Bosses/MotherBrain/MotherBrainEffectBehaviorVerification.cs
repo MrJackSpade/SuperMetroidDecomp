@@ -183,7 +183,7 @@ internal static class MotherBrainEffectBehaviorVerification
 
             // The ring's own movement routine handles its Samus hits; its definition's touch list is reached through the
             // common contact path, opened and kept alive here as the definitions check does.
-            ring.PreInstruction = EnemyProjectilePreInstruction.MotherBrainsOnionRings;
+            ring.PreInstruction = EnemyProjectilePreInstruction.MotherBrainOnionRingFlight;
             ring.Graphics = SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(MotherBrainColourDefinitions.PhaseTwoAttack));
             ring.CanDamageSamus = true;
             ring.PersistsOnSamusContact = true;
@@ -195,7 +195,7 @@ internal static class MotherBrainEffectBehaviorVerification
                 Process(rom, ringEnemies, ring, samus);
             AssertTrue(ring.IsActive, "onion-ring impact survives all six five-frame stages");
             AssertEqual(SuperMetroid.Core.Assets.SpriteGraphics.Emptied, ring.Graphics, "onion-ring impact clears its graphics to the common colours");
-            AssertEqual(EnemyProjectilePreInstruction.RTS_868170, ring.PreInstruction, "onion-ring impact clears its movement");
+            AssertEqual(EnemyProjectilePreInstruction.Stationary, ring.PreInstruction, "onion-ring impact clears its movement");
             Process(rom, ringEnemies, ring, samus);
             AssertTrue(!ring.IsActive, "onion-ring impact deletes on the frame after its 30-frame lifetime");
         }
@@ -216,10 +216,10 @@ internal static class MotherBrainEffectBehaviorVerification
 
             for (int frame = 0; frame < 50; frame++)
                 Process(rom, droolEnemies, drool, samus);
-            AssertEqual(EnemyProjectilePreInstruction.MotherBrainsDrool, drool.PreInstruction,
+            AssertEqual(EnemyProjectilePreInstruction.MotherBrainDroolHanging, drool.PreInstruction,
                 $"{expectedKind} remains attached for five ten-frame stages");
             Process(rom, droolEnemies, drool, samus);
-            AssertEqual(EnemyProjectilePreInstruction.MotherBrainsDrool_Falling, drool.PreInstruction,
+            AssertEqual(EnemyProjectilePreInstruction.MotherBrainDroolFall, drool.PreInstruction,
                 $"{expectedKind} switches to falling after its fifth attached stage");
             AssertEqual(unchecked((ushort)(attachedY + 12)), drool.Position.Y.Whole, $"{expectedKind} release drops the drool twelve pixels");
             AssertTrue(drool.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.Drool },

@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Enemies.OldTourianWall;
 /// </summary>
 internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions
 {
-    /// <summary>$86:B4B0, the header's bare-RTS pre-instruction.</summary>
-    internal const EnemyProjectilePreInstruction PreInstruction = EnemyProjectilePreInstruction.RTS_86B4B0;
-
     /// <summary>$86:B4A0/$B4A6: the wall-middle X/Y written to position and Var0/Var1.</summary>
     internal const int XPosition = 272;
     /// <summary>$86:B4A6 wall-middle Y used by both the projectile position and Var1.</summary>

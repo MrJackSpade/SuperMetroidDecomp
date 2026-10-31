@@ -850,12 +850,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             RunBotwoonBodyPreInstruction(context.Projectile, context.ShortCounter);
-        }, EnemyProjectilePreInstruction.BotwoonsBody);
+        }, EnemyProjectilePreInstruction.BotwoonBodySegment);
 
         table.AddPreInstruction(context =>
         {
             RunBotwoonSpitPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.BotwoonsSpit);
+        }, EnemyProjectilePreInstruction.BotwoonSpitFlight);
     }
 
     /// <summary>Ports Botwoon's main AI.</summary>

@@ -301,7 +301,7 @@ internal sealed class EyeDoorBehavior
         {
             projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
             // The floor splash stops the drop's movement, as the native list switch does.
-            projectile.PreInstruction = EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
+            projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
             projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.HitFloor));
             return;
         }
@@ -319,7 +319,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the native list switch does.</summary>
     private static void StartEyeDoorProjectileImpact(RoomEnemyProjectileSlot projectile)
     {
-        projectile.PreInstruction = EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
+        projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
         projectile.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Impact));
     }
 
@@ -335,7 +335,7 @@ internal sealed class EyeDoorBehavior
                 projectile.PreInstruction = cue.PreInstruction;
                 break;
             case EyeDoorProjectileCueKind.ClearPreInstruction:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
                 break;
             case EyeDoorProjectileCueKind.Delete:
                 projectile.Clear();
@@ -490,11 +490,11 @@ internal sealed class EyeDoorBehavior
         table.AddPreInstruction(context =>
         {
             RunEyeDoorProjectilePreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.EyeDoorProjectilePreInstruction);
+        }, EnemyProjectilePreInstruction.EyeDoorShotFlight);
 
         table.AddPreInstruction(context =>
         {
             RunEyeDoorSweatPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.EyeDoorSweatPreInstruction);
+        }, EnemyProjectilePreInstruction.EyeDoorSweatFall);
     }
 }

@@ -393,7 +393,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddPreInstruction(context =>
         {
             RunAlcoonFireballPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.AlcoonFireball);
+        }, EnemyProjectilePreInstruction.AlcoonFireballFlight);
     }
 
     /// <summary>Ports Alcoon's initialization AI.</summary>

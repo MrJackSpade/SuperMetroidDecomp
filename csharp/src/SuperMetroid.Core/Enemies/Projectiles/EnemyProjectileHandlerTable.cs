@@ -1,30 +1,13 @@
 ﻿namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The projectile engine's dispatch table: each closed native pre-instruction maps to exactly one handler.
+/// The projectile engine's dispatch table: each pre-instruction maps to exactly one handler.
 /// Registering an identity twice fails immediately with both registrations' identities.
 /// </summary>
 internal sealed class EnemyProjectileHandlerTable
 {
-    /// <summary>Closed native pre-instruction identities and their sole registered implementations.</summary>
+    /// <summary>Each pre-instruction and its sole registered implementation.</summary>
     private readonly Dictionary<EnemyProjectilePreInstruction, EnemyProjectilePreInstructionHandler> _preInstructions = [];
-    /// <summary>Kind-specific pre-instruction hooks evaluated before closed native dispatch.</summary>
-    private readonly List<EnemyProjectilePreInstructionInterceptor> _preInstructionInterceptors = [];
-
-    /// <summary>Adds a pre-instruction interceptor; interceptors run in registration order before the closed decode.</summary>
-    internal void InterceptPreInstructions(EnemyProjectilePreInstructionInterceptor interceptor) =>
-        _preInstructionInterceptors.Add(Ensure.NotNull(interceptor));
-
-    /// <summary>Whether an interceptor ran <paramref name="projectile"/>'s pre-instruction.</summary>
-    internal bool TryInterceptPreInstruction(RoomEnemyProjectileSlot projectile)
-    {
-        foreach (EnemyProjectilePreInstructionInterceptor interceptor in _preInstructionInterceptors)
-        {
-            if (interceptor(projectile))
-                return true;
-        }
-        return false;
-    }
 
     /// <summary>Registers <paramref name="handler"/> for every listed pre-instruction.</summary>
     internal void AddPreInstruction(EnemyProjectilePreInstructionHandler handler, params EnemyProjectilePreInstruction[] ids)

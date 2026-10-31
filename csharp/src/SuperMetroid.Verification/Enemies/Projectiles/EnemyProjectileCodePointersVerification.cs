@@ -15,12 +15,15 @@ internal static class EnemyProjectileCodePointersVerification
     {
         VerifyEnemyProjectileCodePointerCatalogCase[] callbacks =
         [
-            .. Enum.GetValues<EnemyProjectilePreInstruction>()
-                .Where(code => code != EnemyProjectilePreInstruction.None)
-                .Select(code => new VerifyEnemyProjectileCodePointerCatalogCase($"pre-instruction {code}", EnemyProjectilePreInstructionAccess.Word(code))),
+            .. EnemyProjectilePreInstructionAccess.RoutineWords
+                .Where(word => word != 0)
+                .Select(word => new VerifyEnemyProjectileCodePointerCatalogCase($"pre-instruction {EnemyProjectilePreInstructionAccess.FromWord(word)}", word)),
             .. Enum.GetValues<NativeEnemyProjectileInstruction>().Select(code => new VerifyEnemyProjectileCodePointerCatalogCase($"instruction {code}", (ushort)code)),
         ];
         AssertTrue(callbacks.Length != 0, "enemy projectile callback catalog is populated");
+        foreach (EnemyProjectilePreInstruction preInstruction in Enum.GetValues<EnemyProjectilePreInstruction>())
+            AssertTrue(EnemyProjectilePreInstructionAccess.RoutineWords.Any(word => EnemyProjectilePreInstructionAccess.FromWord(word) == preInstruction),
+                $"pre-instruction {preInstruction} stands for a cartridge routine");
 
         AssertEqual(callbacks.Length, callbacks
             .Select(callback => callback.Pointer)

@@ -19,6 +19,6 @@ internal static class SpacePirateProjectileCueRules
         (word, operands, cue, at) =>
         {
             AssertEqual(Commands[(NativeEnemyProjectileInstruction)word], cue.Kind, $"{at}: cue");
-            AssertEqual((ushort)(operands[0] | operands[1] << 8), EnemyProjectilePreInstructionAccess.Word(cue.Movement), $"{at}: movement");
+            AssertEqual(cue.Movement, EnemyProjectilePreInstructionAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
         });
 }

@@ -209,7 +209,7 @@ internal sealed class RidleyProjectiles
                         count);
                 }
             }
-        }, EnemyProjectilePreInstruction.RidleyFireball);
+        }, EnemyProjectilePreInstruction.RidleyFireballFlight);
 
         table.AddPreInstruction(context =>
         {
@@ -218,7 +218,7 @@ internal sealed class RidleyProjectiles
             context.Projectile.Position = context.Projectile.Position.AdvanceX(context.Projectile.Velocity.X.ToSixteenSixteenDelta());
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
                 BeginAfterburnFinalAnimation(context.Projectile);
-        }, EnemyProjectilePreInstruction.HorizontalAfterburn);
+        }, EnemyProjectilePreInstruction.HorizontalAfterburnFlight);
 
         table.AddPreInstruction(context =>
         {
@@ -227,7 +227,7 @@ internal sealed class RidleyProjectiles
             context.Projectile.Position = context.Projectile.Position.AdvanceY(context.Projectile.Velocity.Y.ToSixteenSixteenDelta());
             if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Horizontal))
                 BeginAfterburnFinalAnimation(context.Projectile);
-        }, EnemyProjectilePreInstruction.VerticalAfterburn);
+        }, EnemyProjectilePreInstruction.VerticalAfterburnFlight);
     }
 
     /// <summary>Carries out the cues of the fireball and afterburn programs: motion, the afterburn spawns and deletion.</summary>
@@ -239,10 +239,10 @@ internal sealed class RidleyProjectiles
             switch (cue)
             {
                 case RidleyFireballCue.ClearPreInstruction:
-                    projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
                     return;
                 case RidleyFireballCue.BeginFlight:
-                    projectile.PreInstruction = EnemyProjectilePreInstruction.RidleyFireball;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.RidleyFireballFlight;
                     return;
                 case RidleyFireballCue.SpawnHorizontalAfterburns:
                     SpawnAfterburnPair(projectile, axis: Axis.Horizontal);

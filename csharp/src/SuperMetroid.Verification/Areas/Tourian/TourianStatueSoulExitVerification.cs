@@ -28,7 +28,7 @@ internal static class TourianStatueSoulExitVerification
             soul.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(132, checked((ushort)start)));
             soul.Velocity = soul.Velocity.WithY(new SignedEightEight(unchecked((ushort)(-RisePixels * 256))));
 
-            AssertTrue(enemies.TourianUnlockBehavior.TryStepTourianUnlockEffect(soul), $"soul motion runs from Y {start}");
+            TourianUnlockBehavior.RaiseTourianStatueSoul(soul);
 
             int reached = (start - RisePixels + 65536) % 65536;
             bool oddScreenRow = reached / 256 % 2 == 1;

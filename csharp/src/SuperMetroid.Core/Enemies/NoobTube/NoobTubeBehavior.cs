@@ -243,164 +243,42 @@ internal sealed class NoobTubeBehavior
         return parameter / 2;
     }
 
-    /// <summary>Runs the six crack, shard, and bubble callbacks, including flicker timing and off-screen shard deletion.</summary>
-    internal void RunNoobTubeProjectilePreInstruction(
-        RoomEnemyProjectileSlot projectile,
-        int cameraY)
+    /// <summary>Flickers the crack: alternate updates park it off to the side and return it to its shown column.</summary>
+    private void FlickerNoobTubeCrack(RoomEnemyProjectileSlot projectile)
     {
-        EnemyProjectilePreInstruction preInstruction = projectile.PreInstruction;
-        switch (preInstruction)
-        {
-            case EnemyProjectilePreInstruction.NoobTubeCrackFlickering:
-            {
-                NoobTubeCrackState crack = projectile.StateOf<NoobTubeCrackState>();
-                if (projectile.Position.X.Whole != NoobTubeDebrisDefinitions.HiddenXPosition)
-                    crack.ShownX = projectile.Position.X.Whole;
-                projectile.Position = projectile.Position.WithWholeX((_projectiles.CurrentFrame8 & 1) != 0
-                    ? NoobTubeDebrisDefinitions.HiddenXPosition
-                    : Ensure.BetweenInclusive(0, ushort.MaxValue, crack.ShownX));
-                return;
-            }
+        NoobTubeCrackState crack = projectile.StateOf<NoobTubeCrackState>();
+        if (projectile.Position.X.Whole != NoobTubeDebrisDefinitions.HiddenXPosition)
+            crack.ShownX = projectile.Position.X.Whole;
+        projectile.Position = projectile.Position.WithWholeX((_projectiles.CurrentFrame8 & 1) != 0
+            ? NoobTubeDebrisDefinitions.HiddenXPosition
+            : Ensure.BetweenInclusive(0, ushort.MaxValue, crack.ShownX));
+    }
 
-            case EnemyProjectilePreInstruction.NoobTubeCrackFalling:
-                projectile.Position = projectile.Position.AdvanceY(NoobTubeDebrisDefinitions.CrackFallVelocity.ToSixteenSixteenDelta());
-                return;
+    /// <summary>Drops the detached crack at its fixed fall speed.</summary>
+    private static void DropNoobTubeCrack(RoomEnemyProjectileSlot projectile) =>
+        projectile.Position = projectile.Position.AdvanceY(NoobTubeDebrisDefinitions.CrackFallVelocity.ToSixteenSixteenDelta());
 
-            case EnemyProjectilePreInstruction.NoobTubeShardFlying:
-                AdvanceNoobTubeShardX(projectile, projectile.Velocity.X);
-                projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-                EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
-                return;
+    /// <summary>Flies a newly emitted shard by its velocity and deletes it once it leaves the screen vertically.</summary>
+    private static void FlyNoobTubeShard(RoomEnemyProjectileSlot projectile, int cameraY)
+    {
+        AdvanceNoobTubeShardX(projectile, projectile.Velocity.X);
+        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+        EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
+    }
 
-            case EnemyProjectilePreInstruction.NoobTubeShardFalling:
-                MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 2);
-                projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
-                EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
-                return;
+    /// <summary>Sways a falling shard along its arc, drops it, and deletes it once it leaves the screen vertically.</summary>
+    private static void DropNoobTubeShard(RoomEnemyProjectileSlot projectile, int cameraY)
+    {
+        MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 2);
+        projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
+        EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);
+    }
 
-            case EnemyProjectilePreInstruction.NoobTubeBubbleFalling:
-                // `$86:D89F` performs only the curved horizontal update before falling
-                // through to `$D8DF`, which applies the bubble's vertical velocity once.
-                MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 4);
-                MoveNoobTubeBubbleVertically(projectile);
-                return;
-
-            case EnemyProjectilePreInstruction.NoobTubeBubbleFlying:
-                MoveNoobTubeBubbleVertically(projectile);
-                return;
-
-            case EnemyProjectilePreInstruction.None:
-            case EnemyProjectilePreInstruction.PrePhantoonRoom:
-            case EnemyProjectilePreInstruction.RTS_868170:
-            case EnemyProjectilePreInstruction.RTS_86A327:
-            case EnemyProjectilePreInstruction.RTS_8684FB:
-            case EnemyProjectilePreInstruction.RTS_86EC94:
-            case EnemyProjectilePreInstruction.RTS_86D0EB:
-            case EnemyProjectilePreInstruction.RTS_86CFF7:
-            case EnemyProjectilePreInstruction.RTS_86B4B0:
-            case EnemyProjectilePreInstruction.RTS_868D54:
-            case EnemyProjectilePreInstruction.RTS_86950C:
-            case EnemyProjectilePreInstruction.RTS_869A44:
-            case EnemyProjectilePreInstruction.RTS_86BBC6:
-            case EnemyProjectilePreInstruction.RTS_86A05B:
-            case EnemyProjectilePreInstruction.RTS_86EFDF:
-            case EnemyProjectilePreInstruction.RTS_86A919:
-            case EnemyProjectilePreInstruction.BombTorizoStatueFragment_Stopped:
-            case EnemyProjectilePreInstruction.RTS_86DD44:
-            case EnemyProjectilePreInstruction.RTS_86CAA3:
-            case EnemyProjectilePreInstruction.RTS_86C76D:
-            case EnemyProjectilePreInstruction.RTS_86E6D1:
-            case EnemyProjectilePreInstruction.DownwardGateInertPreInstruction:
-            case EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction:
-            case EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction:
-            case EnemyProjectilePreInstruction.EyeDoorProjectilePreInstruction:
-            case EnemyProjectilePreInstruction.EyeDoorSweatPreInstruction:
-            case EnemyProjectilePreInstruction.BombTorizoChozoBreaking_Falling:
-            case EnemyProjectilePreInstruction.Pickup:
-            case EnemyProjectilePreInstruction.MotherBrainsTurrets:
-            case EnemyProjectilePreInstruction.MotherBrainsTurretBullets:
-            case EnemyProjectilePreInstruction.MotherBrainGlassShattering_Shard:
-            case EnemyProjectilePreInstruction.MotherBrainsTubeFalling:
-            case EnemyProjectilePreInstruction.MotherBrainsDrool:
-            case EnemyProjectilePreInstruction.MotherBrainsDrool_Falling:
-            case EnemyProjectilePreInstruction.MotherBrainsOnionRings:
-            case EnemyProjectilePreInstruction.MotherBrainsBomb:
-            case EnemyProjectilePreInstruction.MotherBrainRainbowBeam_Charging:
-            case EnemyProjectilePreInstruction.MotherBrainsRainbowBeamExplosion:
-            case EnemyProjectilePreInstruction.MotherBrainDeathExplosionPreInstruction:
-            case EnemyProjectilePreInstruction.MotherBrainDeathDoorFragmentPreInstruction:
-            case EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction:
-            case EnemyProjectilePreInstruction.DraygonGoop_StuckToSamus:
-            case EnemyProjectilePreInstruction.DraygonsWallTurretProjectile_Fired:
-            case EnemyProjectilePreInstruction.DraygonGoop:
-            case EnemyProjectilePreInstruction.Spores:
-            case EnemyProjectilePreInstruction.SporeSpawner:
-            case EnemyProjectilePreInstruction.BotwoonsBody:
-            case EnemyProjectilePreInstruction.BotwoonsSpit:
-            case EnemyProjectilePreInstruction.BombTorizosChozoOrbs:
-            case EnemyProjectilePreInstruction.GoldenTorizosChozoOrbs:
-            case EnemyProjectilePreInstruction.TorizoSonicBoom:
-            case EnemyProjectilePreInstruction.BombTorizoLowHealthDrool_Falling:
-            case EnemyProjectilePreInstruction.GoldenTorizoEgg_Bouncing:
-            case EnemyProjectilePreInstruction.GoldenTorizoEgg_Hatched:
-            case EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall:
-            case EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Held:
-            case EnemyProjectilePreInstruction.GoldenTorizoSuperMissile_Thrown:
-            case EnemyProjectilePreInstruction.GoldenTorizoEyeBeam:
-            case EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess:
-            case EnemyProjectilePreInstruction.TourianStatue_Ridley_Phantoon_BaseDecor:
-            case EnemyProjectilePreInstruction.ShaktoolsAttack_Front:
-            case EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving:
-            case EnemyProjectilePreInstruction.MiscDust:
-            case EnemyProjectilePreInstruction.DragonFireball:
-            case EnemyProjectilePreInstruction.RidleyFireball:
-            case EnemyProjectilePreInstruction.HorizontalAfterburn:
-            case EnemyProjectilePreInstruction.VerticalAfterburn:
-            case EnemyProjectilePreInstruction.MetalSkreeParticle:
-            case EnemyProjectilePreInstruction.CrocomiresProjectile_Setup:
-            case EnemyProjectilePreInstruction.CrocomiresProjectile_Fired:
-            case EnemyProjectilePreInstruction.CrocomireSpikeWallPieces:
-            case EnemyProjectilePreInstruction.KraidRocks:
-            case EnemyProjectilePreInstruction.KraidCeilingRocks:
-            case EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0:
-            case EnemyProjectilePreInstruction.PhantoonStartingFlames:
-            case EnemyProjectilePreInstruction.PhantoonStartingFlames_Activated:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Falling:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Enraged:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Rain:
-            case EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Spiral:
-            case EnemyProjectilePreInstruction.CrocomireBridgeCrumbling:
-            case EnemyProjectilePreInstruction.AlcoonFireball:
-            case EnemyProjectilePreInstruction.KiHunterAcid_Moving:
-            case EnemyProjectilePreInstruction.KiHunterAcid_Left:
-            case EnemyProjectilePreInstruction.KiHunterAcid_Right:
-            case EnemyProjectilePreInstruction.PowampSpike:
-            case EnemyProjectilePreInstruction.WreckedShipRobotLaser:
-            case EnemyProjectilePreInstruction.StokeFireball:
-            case EnemyProjectilePreInstruction.CacatacSpike:
-            case EnemyProjectilePreInstruction.PolypRock:
-            case EnemyProjectilePreInstruction.NamiFuneFireball:
-            case EnemyProjectilePreInstruction.MagdolliteLava:
-            case EnemyProjectilePreInstruction.KagoBug_Idle:
-            case EnemyProjectilePreInstruction.KagoBug_Jumping:
-            case EnemyProjectilePreInstruction.KagoBug_Falling:
-            case EnemyProjectilePreInstruction.FallingSpark:
-            case EnemyProjectilePreInstruction.CeresFallingTile:
-            case EnemyProjectilePreInstruction.MiniKraidSpit:
-            case EnemyProjectilePreInstruction.MiniKraidSpikes:
-            case EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Left:
-            case EnemyProjectilePreInstruction.Pirate_MotherBrain_Laser_Right:
-            case EnemyProjectilePreInstruction.PirateClaw_Left:
-            case EnemyProjectilePreInstruction.PirateClaw_Right:
-            case EnemyProjectilePreInstruction.TourianStatueSplashMotion:
-            case EnemyProjectilePreInstruction.TourianStatueParticleMotion:
-            case EnemyProjectilePreInstruction.TourianStatueSoulMotion:
-            default:
-                throw new InvalidOperationException(
-                    $"Undefined n00b-tube projectile pre-instruction {preInstruction}.");
-        }
+    /// <summary>Sways a falling bubble along its arc, then moves it vertically once as a flying bubble does.</summary>
+    private static void DropNoobTubeBubble(RoomEnemyProjectileSlot projectile)
+    {
+        MoveNoobTubeProjectileHorizontallyAlongArc(projectile, angleStep: 4);
+        MoveNoobTubeBubbleVertically(projectile);
     }
 
     /// <summary>Advances the debris's own 16.16 horizontal position.</summary>
@@ -427,13 +305,15 @@ internal sealed class NoobTubeBehavior
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).WithWholeX(projectile.StateOf<NoobTubeDebrisState>().X.Whole);
     }
 
-    /// <summary>Connects all six native projectile pre-instruction identities to the shared room callback.</summary>
+    /// <summary>Connects the crack, shard and bubble movers to the projectile engine.</summary>
     internal void AddNoobTubeProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.AddPreInstruction(context =>
-        {
-            RunNoobTubeProjectilePreInstruction(context.Projectile, context.Camera.Y);
-        }, EnemyProjectilePreInstruction.NoobTubeCrackFlickering, EnemyProjectilePreInstruction.NoobTubeCrackFalling, EnemyProjectilePreInstruction.NoobTubeShardFlying, EnemyProjectilePreInstruction.NoobTubeShardFalling, EnemyProjectilePreInstruction.NoobTubeBubbleFalling, EnemyProjectilePreInstruction.NoobTubeBubbleFlying);
+        table.AddPreInstruction(context => FlickerNoobTubeCrack(context.Projectile), EnemyProjectilePreInstruction.NoobTubeCrackFlickering);
+        table.AddPreInstruction(context => DropNoobTubeCrack(context.Projectile), EnemyProjectilePreInstruction.NoobTubeCrackFalling);
+        table.AddPreInstruction(context => FlyNoobTubeShard(context.Projectile, context.Camera.Y), EnemyProjectilePreInstruction.NoobTubeShardFlying);
+        table.AddPreInstruction(context => DropNoobTubeShard(context.Projectile, context.Camera.Y), EnemyProjectilePreInstruction.NoobTubeShardFalling);
+        table.AddPreInstruction(context => DropNoobTubeBubble(context.Projectile), EnemyProjectilePreInstruction.NoobTubeBubbleFalling);
+        table.AddPreInstruction(context => MoveNoobTubeBubbleVertically(context.Projectile), EnemyProjectilePreInstruction.NoobTubeBubbleFlying);
     }
 
     /// <summary>Carries out the cues of the crack, shard and bubble programs.</summary>

@@ -192,7 +192,7 @@ internal static class EnemyDropsVerification
 
         AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Library2, expectedSound), fixture.System.Audio.PublishedSoundFrom(EnemySoundSource.EnemyPickup),
             $"{kind} library-two sound");
-        AssertEqual((ushort)0xefdf, pickup.PreInstructionWord,
+        AssertEqual(EnemyProjectilePreInstruction.Stationary, pickup.PreInstruction,
             $"{kind} enters shared blank/no-collision tail after collection");
         assertEffect(samus);
     }
@@ -234,7 +234,7 @@ internal static class EnemyDropsVerification
         biasSamus.Health = 50;
         RoomEnemyProjectileSlot clearedBias =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChances) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChancePoi...."));
-        AssertEqual((ushort)0xefdf, clearedBias.PreInstructionWord,
+        AssertEqual(EnemyProjectilePreInstruction.Stationary, clearedBias.PreInstruction,
             "50 energy clears critical bias and permits the table's no-drop weight");
 
         SamusState fullSamus = CreateDropTestSamus();
@@ -245,7 +245,7 @@ internal static class EnemyDropsVerification
         EnemyDropFixture full = CreateEnemyDropFixture(fullSamus, randomValues: [1]);
         RoomEnemyProjectileSlot ineligible =
             (full.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChances) ?? throw new InvalidOperationException("Verification requires full.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChanceP...."));
-        AssertEqual((ushort)0xefdf, ineligible.PreInstructionWord,
+        AssertEqual(EnemyProjectilePreInstruction.Stationary, ineligible.PreInstruction,
             "full resources make the native record's ammo weights ineligible");
     }
 
@@ -262,7 +262,7 @@ internal static class EnemyDropsVerification
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual(0, expiring.StateOf<EnemyPickupState>().Lifetime,
             "pickup lifetime decrements before its expiry comparison");
-        AssertEqual((ushort)0xefdf, expiring.PreInstructionWord,
+        AssertEqual(EnemyProjectilePreInstruction.Stationary, expiring.PreInstruction,
             "expired pickup enters native blank tail");
         AssertEqual(50, samus.Health,
             "expiry does not apply a pickup effect");
@@ -327,14 +327,14 @@ internal static class EnemyDropsVerification
                 (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChances) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
             AssertEqual(17 - allocation, pickup.SlotIndex,
                 $"enemy projectile allocation {allocation} descends from native $22");
-            AssertEqual((ushort)0xefe0, pickup.PreInstructionWord,
+            AssertEqual(EnemyProjectilePreInstruction.PickupLifetime, pickup.PreInstruction,
                 $"nonzero projectile slot {pickup.SlotIndex} becomes pickup");
         }
 
         RoomEnemyProjectileSlot slotZero =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChances) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
         AssertEqual(0, slotZero.SlotIndex, "eighteenth allocation reaches physical slot zero");
-        AssertEqual((ushort)0xefe0, slotZero.PreInstructionWord,
+        AssertEqual(EnemyProjectilePreInstruction.PickupLifetime, slotZero.PreInstruction,
             "a directly spawned drop in physical slot zero becomes a pickup");
         AssertEqual<RoomEnemyProjectileSlot?>(null,
             fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChances),
@@ -389,7 +389,7 @@ internal static class EnemyDropsVerification
             "EEAF converts death actor in place without rewriting its definition identity");
         AssertEqual(EnemyPickupKind.SmallEnergy, explosion.StateOf<EnemyPickupState>().Kind,
             "converted death actor becomes a small-energy pickup");
-        AssertEqual((ushort)0xefe0, explosion.PreInstructionWord,
+        AssertEqual(EnemyProjectilePreInstruction.PickupLifetime, explosion.PreInstruction,
             "converted death actor enters shared pickup pre-instruction");
         AssertEqual(EnemyDeathProjectileProgram.SmallEnergy, converted,
             "converted death actor continues at the small-energy drop program");

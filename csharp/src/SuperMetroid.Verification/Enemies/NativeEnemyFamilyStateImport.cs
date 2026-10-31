@@ -528,7 +528,7 @@ internal static class NativeEnemyFamilyStateImport
             segment.AngularVelocity = Index(words.C, 1020, "Shaktool angular velocity");
             ImportShaktoolOrientation(segment, slot.SpawnSettings<ShaktoolSpawnSettings>().Segment, words.D);
             segment.OwnerSlotIndex = SlotIndex(words.E, "Shaktool owner");
-            segment.PreInstruction = words.F == 0 ? null : ShaktoolNativeWords.ShaktoolPreInstructions.Decode(words.F, "recorded ShaktoolPreInstruction");
+            segment.PreInstruction = words.F == 0 ? null : ShaktoolNativeWords.DecodePreInstruction(words.F, "recorded ShaktoolPreInstruction");
         }
         if (enemies.ChootStates[index] is { } choot)
         {

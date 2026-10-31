@@ -85,12 +85,12 @@ internal sealed class KraidProjectiles
         table.AddPreInstruction(context =>
         {
             RunKraidRockPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.KraidRocks);
+        }, EnemyProjectilePreInstruction.KraidRockFlight);
 
         table.AddPreInstruction(context =>
         {
             RunKraidCeilingRockPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.KraidCeilingRocks);
+        }, EnemyProjectilePreInstruction.KraidCeilingRockFall);
     }
 
     /// <summary>Ports KraidLintTop's initialization AI.</summary>
@@ -134,7 +134,7 @@ internal sealed class KraidProjectiles
             switch (cue)
             {
                 case KraidRockCue.UsePaletteZero:
-                    projectile.PreInstruction = EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.KraidShotRockRecolor;
                     return;
                 case KraidRockCue.Delete:
                     projectile.Clear();
@@ -542,6 +542,6 @@ internal sealed class KraidProjectiles
         table.AddPreInstruction(context =>
         {
             context.Projectile.Graphics = default;
-        }, EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0);
+        }, EnemyProjectilePreInstruction.KraidShotRockRecolor);
     }
 }

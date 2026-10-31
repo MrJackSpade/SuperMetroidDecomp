@@ -45,7 +45,7 @@ internal static class ShaktoolOwnedStateVerification
         for (int index = 0; index < states.Length; index++)
         {
             AssertEqual(ShaktoolMotionFlags.ReversedOnce, states[index].MotionFlags, $"segment {index} has reversed once and stopped straightening");
-            AssertEqual(ShaktoolPreInstruction.IdleAfterAttack, states[index].PreInstruction, $"segment {index} idles through the collision response");
+            AssertEqual(ShaktoolPreInstruction.Idle, states[index].PreInstruction, $"segment {index} idles through the collision response");
         }
 
         tail.Clear();

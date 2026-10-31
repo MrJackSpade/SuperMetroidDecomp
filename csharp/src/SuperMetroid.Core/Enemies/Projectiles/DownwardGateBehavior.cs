@@ -138,7 +138,7 @@ internal sealed class DownwardGateBehavior
                 projectile.PreInstruction = setPreInstruction.PreInstruction;
                 break;
             case DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.ClearPreInstruction }:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
                 break;
             case DownwardGateProjectileCue.Command { Kind: DownwardGateProjectileCueKind.Delete }:
                 projectile.Clear();
@@ -155,6 +155,6 @@ internal sealed class DownwardGateBehavior
         table.AddPreInstruction(context =>
         {
             RunDownwardGateProjectileMovement(context.Projectile);
-        }, EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction);
+        }, EnemyProjectilePreInstruction.DownwardGateDescent);
     }
 }

@@ -1,356 +1,293 @@
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>Bank-$86 enemy-projectile pre-instructions the shared projectile pass dispatches; Tourian unlock effects are handled before it.</summary>
+/// <summary>
+/// How an enemy projectile moves itself on each projectile pass, before its program advances. Its values are arbitrary;
+/// verification's native view names the cartridge routines each member stands for.
+/// </summary>
 internal enum EnemyProjectilePreInstruction
 {
-    /// <summary>No pre-instruction is installed.</summary>
-    None,
+    /// <summary>
+    /// The projectile does not move itself: it holds still while its program plays, or its owner positions it. A freed
+    /// slot holds it too.
+    /// </summary>
+    Stationary,
+
+    /// <summary>Holds the pre-Phantoon room's second background layer at no vertical offset on every pass.</summary>
+    PrePhantoonBackgroundPin,
+
+    /// <summary>Slides the downward gate by its signed 8.8 vertical velocity.</summary>
+    DownwardGateDescent,
 
     /// <summary>
-    /// <c>InitAI_PreInstruction_EnemyProjectile_PrePhantoonRoom</c> at $86:A3A3: zeroes
-    /// BG2YOffset ($0923) as both the initialization and the per-frame pre-instruction.
+    /// Flies an eye-door shot with block collision, accumulating its angle-selected acceleration, and starts its
+    /// explosion on impact or once its door opens.
     /// </summary>
-        PrePhantoonRoom,
+    EyeDoorShotFlight,
 
-    /// <summary><c>RTS_868170</c> at $86:8170. The common cleared-pre-instruction RTS.</summary>
-        RTS_868170,
+    /// <summary>Drops an eye-door sweat drop, accelerating twelve 8.8 units per pass, and splashes on the floor.</summary>
+    EyeDoorSweatFall,
 
-    /// <summary><c>RTS_86A327</c> at $86:A327. Gunship liftoff dust clouds move only through their frame lists.</summary>
-        RTS_86A327,
+    /// <summary>Drops a Bomb Torizo statue fragment until it reaches the room's floor.</summary>
+    BombTorizoStatueFragmentFall,
 
-    /// <summary><c>RTS_8684FB</c> at $86:84FB. Collision handler's common inert pre-instruction.</summary>
-        RTS_8684FB,
+    /// <summary>Counts a dropped pickup's lifetime and collects it when Samus or her grapple touches it.</summary>
+    PickupLifetime,
 
-    /// <summary><c>RTS_86EC94</c> at $86:EC94. Yapping Maw body links are positioned entirely by bank-$A8 main AI.</summary>
-        RTS_86EC94,
+    /// <summary>Turns a Mother Brain room turret, fires it, or removes it once the room asks.</summary>
+    MotherBrainTurretAiming,
 
-    /// <summary><c>RTS_86D0EB</c> at $86:D0EB. Kago bug startup/landed no-op.</summary>
-        RTS_86D0EB,
+    /// <summary>Flickers and flies a turret bullet until it strikes a solid block.</summary>
+    MotherBrainTurretBulletFlight,
 
-    /// <summary>
-    /// <c>RTS_86CFF7</c> at $86:CFF7: the acid spit header's idle pre-instruction, a bare
-    /// RTS until the instruction list installs a start-moving callback.
-    /// </summary>
-        RTS_86CFF7,
+    /// <summary>Flies a shard of Mother Brain's glass in 8.8 steps under gravity, trailing sparkles.</summary>
+    MotherBrainGlassShardFlight,
 
-    /// <summary>
-    /// <c>RTS_86B4B0</c> at $86:B4B0: the old Tourian escape shaft fake-wall explosion's
-    /// pre-instruction, a bare RTS its list clears on the first tick.
-    /// </summary>
-        RTS_86B4B0,
+    /// <summary>Raises dust once, then drops a ceiling tube, accelerating.</summary>
+    MotherBrainTubeFall,
 
-    /// <summary><c>RTS_868D54</c> at $86:8D54. Draygon wall turret charges before its list enables flight.</summary>
-        RTS_868D54,
+    /// <summary>Keeps drool hanging from Mother Brain's mouth for its first five poses.</summary>
+    MotherBrainDroolHanging,
 
-    /// <summary><c>RTS_86950C</c> at $86:950C. Center afterburn is stationary while its instruction list blooms.</summary>
-        RTS_86950C,
+    /// <summary>Drops released drool, accelerating, until it reaches the arena floor.</summary>
+    MotherBrainDroolFall,
 
-    /// <summary><c>RTS_869A44</c> at $86:9A44. Phantoon casual/rain flame resting RTS.</summary>
-        RTS_869A44,
+    /// <summary>Holds an onion ring at the mouth for its delay, then flies it with its own collision and arena cull.</summary>
+    MotherBrainOnionRingFlight,
 
-    /// <summary><c>RTS_86BBC6</c> at $86:BBC6. Nuclear Waffle body: position is owned by bank-$A6 main AI.</summary>
-        RTS_86BBC6,
+    /// <summary>Drops a Mother Brain bomb under gravity, bouncing in stages and testing Samus's bombs.</summary>
+    MotherBrainBombBounce,
 
-    /// <summary><c>RTS_86A05B</c> at $86:A05B. Pirate laser startup: three muzzle-flash frames do not move.</summary>
-        RTS_86A05B,
+    /// <summary>Contracts the rainbow beam's charge around the moving brain.</summary>
+    MotherBrainRainbowBeamCharge,
 
-    /// <summary><c>RTS_86EFDF</c> at $86:EFDF. Enemy death/pickup subsystem's empty pre-instruction.</summary>
-        RTS_86EFDF,
+    /// <summary>Keeps a rainbow-beam impact at its offset from Samus as she moves.</summary>
+    MotherBrainRainbowImpactTracking,
 
-    /// <summary><c>RTS_86A919</c> at $86:A919. Bomb Torizo explosive swipe: stationary authored hit flash.</summary>
-        RTS_86A919,
+    /// <summary>Keeps a death explosion at its offset from Mother Brain's body each pass.</summary>
+    MotherBrainDeathExplosionTracking,
 
-    /// <summary><c>PreInstruction_BombTorizoStatueFragment_Stopped</c> at $86:A918. Bomb Torizo statue fragment stopped after floor collision.</summary>
-        BombTorizoStatueFragment_Stopped,
+    /// <summary>Drags and drops a door fragment under gravity for its fixed lifetime.</summary>
+    MotherBrainDeathDoorFragmentFall,
 
-    /// <summary><c>RTS_86DD44</c> at $86:DD44. Spore Spawn stalk: position is written by the boss's main AI.</summary>
-        RTS_86DD44,
+    /// <summary>Pins the death subtitle to fixed screen coordinates.</summary>
+    MotherBrainDeathSubtitleScreenPin,
 
-    /// <summary><c>RTS_86CAA3</c> at $86:CAA3. Mother Brain's large purple breath is a stationary animation.</summary>
-        RTS_86CAA3,
+    /// <summary>Keeps Draygon's goop stuck to Samus for its lifetime.</summary>
+    DraygonGoopStuckToSamus,
 
-    /// <summary><c>RTS_86C76D</c> at $86:C76D. Mother Brain's charging/fired red hand-beam list owns all motion.</summary>
-        RTS_86C76D,
+    /// <summary>Flies a wall turret's aimed shot at full precision until it leaves the room.</summary>
+    DraygonTurretShotFlight,
 
-    /// <summary><c>RTS_86E6D1</c> at $86:E6D1. Save-station electricity is stationary after its PLM-relative initializer.</summary>
-        RTS_86E6D1,
+    /// <summary>Flies Draygon's goop, sticks it to Samus when she is near, and removes it outside the room.</summary>
+    DraygonGoopFlight,
 
-    /// <summary>Initializer-selected no-op pre-instruction at <c>$86:E604</c>.</summary>
-        DownwardGateInertPreInstruction,
+    /// <summary>Drifts a spore along its authored movement stream.</summary>
+    SporeDrift,
 
-    /// <summary><c>$86:E508</c>, native <c>RTS_86E508</c>: no-op callback for PLM dust/smoke; also used by the translated eye-door attack and sweat actors to suspend motion while their impact instructions finish.</summary>
-        EyeDoorSmokeInertPreInstruction,
+    /// <summary>Releases spores from the ceiling spawner on a random cadence while Spore Spawn is closed.</summary>
+    SporeSpawnerCadence,
 
-    /// <summary>Signed 8.8 vertical gate movement pre-instruction at <c>$86:E605</c>.</summary>
-        DownwardGateMovementPreInstruction,
+    /// <summary>Orients a Botwoon body segment, shows its hurt colours, and runs its death sequence.</summary>
+    BotwoonBodySegment,
 
-    /// <summary><c>$86:B6B9</c>, native <c>PreInstruction_EnemyProjectile_EyeDoorProjectile_Moving</c>: moves with block collision, accumulates angle-selected acceleration, and selects the explosion sequence on impact or an opened door bit.</summary>
-        EyeDoorProjectilePreInstruction,
+    /// <summary>Flies Botwoon's spit by its 16.16 vector until it leaves the camera.</summary>
+    BotwoonSpitFlight,
 
-    /// <summary><c>$86:B714</c>, native <c>PreInstruction_EnemyProjectile_EyeDoorSweat</c>: moves the sweat drop, adds <c>$000C</c> to its 8.8 Y velocity per update, and selects its impact sequence on a downward floor collision.</summary>
-        EyeDoorSweatPreInstruction,
+    /// <summary>Drops a Bomb Torizo orb under gravity until it strikes the room.</summary>
+    BombTorizoOrbFall,
 
-    /// <summary><c>PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling</c> at $86:A8EF. Bomb Torizo hand fragment: fall until room collision.</summary>
-        BombTorizoChozoBreaking_Falling,
+    /// <summary>Bounces a Golden Torizo orb off walls and, damped, off the floor.</summary>
+    GoldenTorizoOrbBounce,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_Pickup</c> at $86:EFE0.</summary>
-        Pickup,
+    /// <summary>Flies a Torizo sonic boom horizontally, accelerating, until it strikes the room.</summary>
+    TorizoSonicBoomFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_MotherBrainsTurrets</c> at $86:BFDF. Mother Brain room turret: rotate, fire, or honor deletion flag.</summary>
-        MotherBrainsTurrets,
+    /// <summary>Drags and drops Bomb Torizo's drool under gravity, splashing on impact.</summary>
+    BombTorizoDroolFall,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_MotherBrainsTurretBullets</c> at $86:C0E0. Mother Brain turret bullet: flicker, move, and hit non-air blocks.</summary>
-        MotherBrainsTurretBullets,
+    /// <summary>Bounces a Golden Torizo egg for its timer, then launches it horizontally.</summary>
+    GoldenTorizoEggBounce,
 
-    /// <summary><c>PreInstruction_EnemyProj_MotherBrainGlassShattering_Shard</c> at $86:CE9B. Mother Brain glass shard: 8.8 flight, gravity, and sparkles.</summary>
-        MotherBrainGlassShattering_Shard,
+    /// <summary>Accelerates a hatched Golden Torizo egg toward a wall.</summary>
+    GoldenTorizoEggCharge,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_MotherBrainsTubeFalling</c> at $86:CBE7. Mother Brain ceiling tubes: dust once, then accelerate downward.</summary>
-        MotherBrainsTubeFalling,
+    /// <summary>Drops a Golden Torizo egg that struck a wall to the floor, where it hatches or bursts.</summary>
+    GoldenTorizoEggDrop,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_MotherBrainsDrool</c> at $86:C84D. Mother Brain drool remains attached for its first five maps.</summary>
-        MotherBrainsDrool,
+    /// <summary>Keeps a held super missile at Golden Torizo's hand.</summary>
+    GoldenTorizoSuperMissileHeld,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_MotherBrainsDrool_Falling</c> at $86:C886. Released drool accelerates down until the fixed arena floor.</summary>
-        MotherBrainsDrool_Falling,
+    /// <summary>Drops a thrown super missile under gravity until it strikes the room.</summary>
+    GoldenTorizoSuperMissileThrown,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_MotherBrainsOnionRings</c> at $86:C335. Delayed mouth pin, flight, custom collision, and arena cull.</summary>
-        MotherBrainsOnionRings,
+    /// <summary>Flies Golden Torizo's eye beam until it strikes the room.</summary>
+    GoldenTorizoEyeBeamFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_MotherBrainsBomb</c> at $86:C4C8. Mother Brain bomb: Samus-bomb scan, gravity, and staged bounces.</summary>
-        MotherBrainsBomb,
+    /// <summary>Keeps a Tourian entrance statue actor on the statue's line-by-line reveal.</summary>
+    TourianStatueRevealFollow,
 
-    /// <summary><c>PreInst_EnemyProjectile_MotherBrainRainbowBeam_Charging</c> at $86:C814. Rainbow charge contracts around the live articulated brain slot.</summary>
-        MotherBrainRainbowBeam_Charging,
+    /// <summary>Keeps a finished statue decoration at its place.</summary>
+    TourianStatueDecorationSettled,
 
-    /// <summary><c>PreInstruction_EnemyProj_MotherBrainsRainbowBeamExplosion</c> at $86:C94C. Rainbow impact sprites retain their offset from moving Samus.</summary>
-        MotherBrainsRainbowBeamExplosion,
+    /// <summary>Flies Shaktool's front circle with independent horizontal and vertical room collision.</summary>
+    ShaktoolFrontCircleFlight,
 
-    /// <summary>$86:C914, reattaches a death explosion to the current body position each frame.</summary>
-        MotherBrainDeathExplosionPreInstruction,
+    /// <summary>Flies Shaktool's middle and back circles while their owner lives.</summary>
+    ShaktoolTrailingCircleFlight,
 
-    /// <summary>$86:C9D2, fragment drag, gravity, and thirty-three-call lifetime.</summary>
-        MotherBrainDeathDoorFragmentPreInstruction,
+    /// <summary>Removes dust or an explosion once it leaves the camera.</summary>
+    DustCameraCull,
 
-    /// <summary>$86:CAFA pins the subtitle to physical screen coordinates.</summary>
-        MotherBrainDeathSubtitlePreInstruction,
+    /// <summary>Flies a Dragon fireball in a signed 8.8 arc under gravity, removing it below the screen.</summary>
+    DragonFireballArc,
 
-    /// <summary><c>PreInstruction_DraygonGoop_StuckToSamus</c> at $86:8DCA. Draygon goop: attached to Samus with a 256-frame lifetime.</summary>
-        DraygonGoop_StuckToSamus,
+    /// <summary>Flies a Ridley fireball.</summary>
+    RidleyFireballFlight,
 
-    /// <summary><c>PreInstruction_EnemyProj_DraygonsWallTurretProjectile_Fired</c> at $86:8DFF. Draygon wall turret: aimed full-precision flight and room cull.</summary>
-        DraygonsWallTurretProjectile_Fired,
+    /// <summary>Flickers the n00b-tube crack.</summary>
+    NoobTubeCrackFlickering,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_DraygonGoop</c> at $86:8E0F. Draygon goop: flight, proximity-triggered attach list, room cull.</summary>
-        DraygonGoop,
+    /// <summary>Drops the detached n00b-tube crack.</summary>
+    NoobTubeCrackFalling,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_Spores</c> at $86:DCEE. Spore Spawn spore: ROM-authored two-byte movement stream.</summary>
-        Spores,
+    /// <summary>Flies a newly emitted n00b-tube shard.</summary>
+    NoobTubeShardFlying,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_SporeSpawner</c> at $86:DD46. Spore Spawn ceiling spawner: randomized closed-phase cadence.</summary>
-        SporeSpawner,
+    /// <summary>Sways and drops a n00b-tube shard after its first flight.</summary>
+    NoobTubeShardFalling,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_BotwoonsBody</c> at $86:EA80. Botwoon body: orientation, hurt palette, and death dispatcher.</summary>
-        BotwoonsBody,
+    /// <summary>Sways and drops a released-air bubble.</summary>
+    NoobTubeBubbleFalling,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_BotwoonsSpit</c> at $86:EC05. Botwoon spit: full 16.16 vector followed by strict camera cull.</summary>
-        BotwoonsSpit,
+    /// <summary>Moves a released-air bubble vertically.</summary>
+    NoobTubeBubbleFlying,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_BombTorizosChozoOrbs</c> at $86:ACAD. Bomb Torizo Chozo orb: room collision followed by gravity.</summary>
-        BombTorizosChozoOrbs,
+    /// <summary>Flies one of Ridley's horizontal afterburns by its 8.8 velocity.</summary>
+    HorizontalAfterburnFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_GoldenTorizosChozoOrbs</c> at $86:ACFA. Golden Torizo Chozo orb: wall bounce and damped floor bounce.</summary>
-        GoldenTorizosChozoOrbs,
+    /// <summary>Flies one of Ridley's vertical afterburns by its 8.8 velocity.</summary>
+    VerticalAfterburnFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_TorizoSonicBoom</c> at $86:AE6C. Both Torizos' sonic boom: accelerating horizontal room shot.</summary>
-        TorizoSonicBoom,
+    /// <summary>Flies a Skree particle in signed 8.8 steps under gravity, removing it outside the camera.</summary>
+    SkreeParticleFlight,
 
-    /// <summary><c>PreInst_EnemyProjectile_BombTorizoLowHealthDrool_Falling</c> at $86:A887. Bomb Torizo drool: drag, gravity, and room-impact lists.</summary>
-        BombTorizoLowHealthDrool_Falling,
+    /// <summary>Moves Crocomire's shot once, then derives its fired vector.</summary>
+    CrocomireShotAiming,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_GoldenTorizoEgg_Bouncing</c> at $86:B043. Golden Torizo egg: timed bounce followed by horizontal launch.</summary>
-        GoldenTorizoEgg_Bouncing,
+    /// <summary>Flies Crocomire's shot until it strikes the room horizontally or vertically.</summary>
+    CrocomireShotFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_GoldenTorizoEgg_Hatched</c> at $86:B0B9. Golden Torizo egg: accelerate toward a wall.</summary>
-        GoldenTorizoEgg_Hatched,
+    /// <summary>Accelerates and drops each spike-wall piece by its own slot's rule.</summary>
+    CrocomireSpikeWallCollapse,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_GoldenTorizoEgg_HitWall</c> at $86:B0DD. Golden Torizo egg: fall to the floor and hatch/impact.</summary>
-        GoldenTorizoEgg_HitWall,
+    /// <summary>Flies one of Kraid's rocks with room collision, drag and gravity.</summary>
+    KraidRockFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_GoldenTorizoSuperMissile_Held</c> at $86:B20D. Held Golden Torizo super missile follows the hand joint.</summary>
-        GoldenTorizoSuperMissile_Held,
+    /// <summary>Drops a ceiling rock with vertical room collision and gravity.</summary>
+    KraidCeilingRockFall,
 
-    /// <summary><c>PreInst_EnemyProjectile_GoldenTorizoSuperMissile_Thrown</c> at $86:B237. Thrown Golden Torizo super missile: gravity and room impact.</summary>
-        GoldenTorizoSuperMissile_Thrown,
+    /// <summary>Switches a shot spat rock to the common explosion colours.</summary>
+    KraidShotRockRecolor,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_GoldenTorizoEyeBeam</c> at $86:B38A. Golden Torizo eye beam: room collision impact lists.</summary>
-        GoldenTorizoEyeBeam,
+    /// <summary>Holds an intro flame until Phantoon's body activates it.</summary>
+    PhantoonIntroFlameWaiting,
 
-    /// <summary><c>PreInst_EnemyProj_TourianStatueBaseDecoration_AllowProcess</c> at $86:BA37. Tourian entrance statue actors follow the statue's per-line vertical reveal.</summary>
-        TourianStatueBaseDecoration_AllowProcess,
+    /// <summary>Orbits an intro flame while its radius contracts.</summary>
+    PhantoonIntroFlameOrbit,
 
-    /// <summary><c>PreInst_EnemyProj_TourianStatue_Ridley_Phantoon_BaseDecor</c> at $86:BA42. Shared position-only tail used after the finished flag is set.</summary>
-        TourianStatue_Ridley_Phantoon_BaseDecor,
+    /// <summary>Drops a casual flame until it first strikes the room.</summary>
+    PhantoonCasualFlameFall,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_ShaktoolsAttack_Front</c> at $86:BE03. Unused Shaktool front circle: independent X/Y room collision.</summary>
-        ShaktoolsAttack_Front,
+    /// <summary>Holds a landed casual flame for its impact pause.</summary>
+    PhantoonCasualFlameLanding,
 
-    /// <summary><c>PreInst_EnemyProjectile_ShaktoolsAttack_MiddleBack_Moving</c> at $86:BE12. Unused middle/back circles live only while their owner slot does.</summary>
-        ShaktoolsAttack_MiddleBack_Moving,
+    /// <summary>Bounces a casual flame twice, each bounce lower.</summary>
+    PhantoonCasualFlameBounce,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_MiscDust</c> at $86:E4FE. Generic room-coordinate dust/explosion camera cull.</summary>
-        MiscDust,
+    /// <summary>Orbits a rage flame outward around Phantoon's body.</summary>
+    PhantoonRageFlameOrbit,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_DragonFireball</c> at $86:B535. Dragon fireball: signed 8.8 arc, gravity, and bottom-only cull.</summary>
-        DragonFireball,
+    /// <summary>Drops a rain flame after its delay until it strikes the room.</summary>
+    PhantoonFlameRainFall,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_RidleyFireball</c> at $86:940E.</summary>
-        RidleyFireball,
+    /// <summary>Spirals a flame outward around Phantoon's body.</summary>
+    PhantoonSpiralFlameOrbit,
 
-    /// <summary><c>$86:D7BF</c>: flicker the n00b-tube crack actor.</summary>
-        NoobTubeCrackFlickering,
+    /// <summary>Drops a crumbling bridge fragment under gravity until it strikes the room.</summary>
+    CrocomireBridgeFragmentFall,
 
-    /// <summary><c>$86:D7DE</c>: move the detached n00b-tube crack downward.</summary>
-        NoobTubeCrackFalling,
+    /// <summary>Flies an Alcoon fireball with vertical, then horizontal, room collision and horizontal drag.</summary>
+    AlcoonFireballFlight,
 
-    /// <summary><c>$86:D7FD</c>: move a newly emitted n00b-tube shard.</summary>
-        NoobTubeShardFlying,
+    /// <summary>Flies Ki-Hunter acid under gravity until it strikes the room.</summary>
+    KiHunterAcidFlight,
 
-    /// <summary><c>$86:D83D</c>: rotate and fall after a n00b-tube shard's initial flight.</summary>
-        NoobTubeShardFalling,
+    /// <summary>Launches Ki-Hunter acid leftward.</summary>
+    KiHunterAcidLaunchLeft,
 
-    /// <summary><c>$86:D89F</c>: rotate and fall a released-air bubble.</summary>
-        NoobTubeBubbleFalling,
+    /// <summary>Launches Ki-Hunter acid rightward.</summary>
+    KiHunterAcidLaunchRight,
 
-    /// <summary><c>$86:D8DF</c>: move a released-air bubble vertically.</summary>
-        NoobTubeBubbleFlying,
+    /// <summary>Flies a Powamp spike outward, accelerating, with horizontal-then-vertical room collision.</summary>
+    PowampSpikeFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_HorizontalAfterburn</c> at $86:950D. $86:950D first uses the raw 8.8 horizontal adder, not the room-collision</summary>
-        HorizontalAfterburn,
+    /// <summary>Flies a Work Robot laser with room collision.</summary>
+    WorkRobotLaserFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_VerticalAfterburn</c> at $86:9522. $86:9522 is the transposed path: unrestricted vertical travel followed</summary>
-        VerticalAfterburn,
+    /// <summary>Flies a Stoke fireball.</summary>
+    StokeFireballFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_MetalSkreeParticle</c> at $86:8B5D. Skree particle: signed 8.8 movement, gravity, camera deletion.</summary>
-        MetalSkreeParticle,
+    /// <summary>Flies a Cacatac spike.</summary>
+    CacatacSpikeFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_CrocomiresProjectile_Setup</c> at $86:906B. Crocomire projectile: derive the fired vector after one setup move.</summary>
-        CrocomiresProjectile_Setup,
+    /// <summary>Flies a Polyp rock.</summary>
+    PolypRockFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_CrocomiresProjectile_Fired</c> at $86:90B3. Crocomire projectile: X then Y collision deletes the actor.</summary>
-        CrocomiresProjectile_Fired,
+    /// <summary>Flies a Fune or Namihe fireball.</summary>
+    FuneNamiheFireballFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_CrocomireSpikeWallPieces</c> at $86:9115. Crocomire spike wall: slot-specific acceleration and fall.</summary>
-        CrocomireSpikeWallPieces,
+    /// <summary>Flies Magdollite lava.</summary>
+    MagdolliteLavaFlight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_KraidRocks</c> at $86:9D56. Kraid spat/floor rocks: X/Y collision, drag, and gravity.</summary>
-        KraidRocks,
+    /// <summary>Holds a Kago bug for its idle time, then starts its jump.</summary>
+    KagoBugWaiting,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_KraidCeilingRocks</c> at $86:9D89. Kraid ceiling rocks: vertical collision and masked gravity.</summary>
-        KraidCeilingRocks,
+    /// <summary>Raises a jumping Kago bug.</summary>
+    KagoBugJump,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_KraidRockSpit_UsePalette0</c> at $86:9DA5. Shot Kraid spit rock switches to common explosion palette zero.</summary>
-        KraidRockSpit_UsePalette0,
+    /// <summary>Drops a Kago bug until it lands.</summary>
+    KagoBugFall,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_PhantoonStartingFlames</c> at $86:9B29. Phantoon intro flame: wait for the body activation word.</summary>
-        PhantoonStartingFlames,
+    /// <summary>Drops a falling spark in 16.16 steps under gravity, bouncing on the floor and leaving a trail.</summary>
+    FallingSparkBounce,
 
-    /// <summary><c>PreInst_EnemyProjectile_PhantoonStartingFlames_Activated</c> at $86:9B41. Phantoon intro flame: orbit while its radius contracts.</summary>
-        PhantoonStartingFlames_Activated,
+    /// <summary>Drops a Ceres tile, accelerating, and raises dust where it lands.</summary>
+    CeresTileFall,
 
-    /// <summary><c>PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Falling</c> at $86:9981. Phantoon casual flame: fall until the first terrain impact.</summary>
-        PhantoonDestroyableFlame_Casual_Falling,
+    /// <summary>Flies Fake Kraid's spit with room collision, then capped gravity.</summary>
+    FakeKraidSpitFlight,
 
-    /// <summary><c>PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_HitGround</c> at $86:99BF. Phantoon casual flame: eight-frame impact pause.</summary>
-        PhantoonDestroyableFlame_Casual_HitGround,
+    /// <summary>Flies a Fake Kraid spike horizontally until it strikes a wall.</summary>
+    FakeKraidSpikeFlight,
 
-    /// <summary><c>PreInst_EnemyProj_PhantoonDestroyableFlame_Casual_Bouncing</c> at $86:9A01. Phantoon casual flame: two diminishing terrain bounces.</summary>
-        PhantoonDestroyableFlame_Casual_Bouncing,
+    /// <summary>Flies a Space Pirate or Mother Brain laser left until it leaves the camera.</summary>
+    LaserFlightLeft,
 
-    /// <summary><c>PreInst_EnemyProj_PhantoonDestroyableFlame_Enraged</c> at $86:9A45. Phantoon rage flame: expanding orbit around the body.</summary>
-        PhantoonDestroyableFlame_Enraged,
+    /// <summary>Flies a Space Pirate or Mother Brain laser right until it leaves the camera.</summary>
+    LaserFlightRight,
 
-    /// <summary><c>PreInst_EnemyProj_PhantoonDestroyableFlame_Rain</c> at $86:9A94. Phantoon flame rain: delayed fall and terrain impact.</summary>
-        PhantoonDestroyableFlame_Rain,
+    /// <summary>Flies a Ninja Space Pirate claw thrown left out, then back right.</summary>
+    PirateClawThrownLeft,
 
-    /// <summary><c>PreInst_EnemyProj_PhantoonDestroyableFlame_Spiral</c> at $86:9ADA. Phantoon spiral: rotating expansion around the body.</summary>
-        PhantoonDestroyableFlame_Spiral,
+    /// <summary>Flies a Ninja Space Pirate claw thrown right out, then back left.</summary>
+    PirateClawThrownRight,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_CrocomireBridgeCrumbling</c> at $86:92BA. Crocomire bridge fragment: gravity until room collision.</summary>
-        CrocomireBridgeCrumbling,
+    /// <summary>Holds a Tourian statue splash at the water surface.</summary>
+    TourianStatueSplashMotion,
 
-    /// <summary><c>PreInstruction_EnemyProjectile_AlcoonFireball</c> at $86:9EFF. Alcoon fireball: Y then X collision, followed by horizontal drag.</summary>
-        AlcoonFireball,
+    /// <summary>Drops a Tourian statue particle, splashing as it crosses the water.</summary>
+    TourianStatueParticleMotion,
 
-    /// <summary><c>PreInstruction_EnemyProj_KiHunterAcidSpit_Moving</c> at $86:CFF8.</summary>
-        KiHunterAcid_Moving,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_KiHunterAcid_Left</c> at $86:CFD5.</summary>
-        KiHunterAcid_Left,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_KiHunterAcid_Right</c> at $86:CFE6.</summary>
-        KiHunterAcid_Right,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_PowampSpike</c> at $86:D263. Powamp spike: radial acceleration and X-then-Y room collision.</summary>
-        PowampSpike,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_WreckedShipRobotLaser</c> at $86:D3BF. Work Robot laser: clear graphics index, then X/Y room collision.</summary>
-        WreckedShipRobotLaser,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_StokeFireball</c> at $86:DB5B.</summary>
-        StokeFireball,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_CacatacSpike</c> at $86:D9DB.</summary>
-        CacatacSpike,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_PolypRock</c> at $86:BC0F.</summary>
-        PolypRock,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_NamiFuneFireball</c> at $86:DF39.</summary>
-        NamiFuneFireball,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_MagdolliteLava</c> at $86:E049.</summary>
-        MagdolliteLava,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_KagoBug_Idle</c> at $86:D0CA.</summary>
-        KagoBug_Idle,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_KagoBug_Jumping</c> at $86:D0EC.</summary>
-        KagoBug_Jumping,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_KagoBug_Falling</c> at $86:D128.</summary>
-        KagoBug_Falling,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_FallingSpark</c> at $86:F3F0. Spark projectile: 16.16 gravity, floor bounce, and trail objects.</summary>
-        FallingSpark,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_CeresFallingTile</c> at $86:9701. Ceres falling tile: accelerating descent and impact cloud.</summary>
-        CeresFallingTile,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_MiniKraidSpit</c> at $86:9E1E. Fake Kraid spit: X/Y room collision, then capped gravity.</summary>
-        MiniKraidSpit,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_MiniKraidSpikes</c> at $86:9E83. Fake Kraid spike: horizontal motion until wall contact.</summary>
-        MiniKraidSpikes,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_Pirate_MotherBrain_Laser_Left</c> at $86:A05C. Space Pirate/Mother Brain laser: move left, then camera cull.</summary>
-        Pirate_MotherBrain_Laser_Left,
-
-    /// <summary><c>PreInst_EnemyProjectile_Pirate_MotherBrain_Laser_Right</c> at $86:A07A. Space Pirate/Mother Brain laser: move right, then camera cull.</summary>
-        Pirate_MotherBrain_Laser_Right,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_PirateClaw_Left</c> at $86:A0D1. Ninja Space Pirate claw: thrown left, then returns right.</summary>
-        PirateClaw_Left,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_PirateClaw_Right</c> at $86:A124. Ninja Space Pirate claw: thrown right, then returns left.</summary>
-        PirateClaw_Right,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_TourianStatueUnlockingSplash</c> at $86:B977: the splash holds at the water surface.</summary>
-        TourianStatueSplashMotion,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_TourianStatueUnlockingParticle</c> at $86:B982: a particle falls and splashes.</summary>
-        TourianStatueParticleMotion,
-
-    /// <summary><c>PreInstruction_EnemyProjectile_TourianStatueSoul</c> at $86:B9FD: a soul rises out of the room.</summary>
-        TourianStatueSoulMotion,
+    /// <summary>Raises a Tourian statue soul out of the room.</summary>
+    TourianStatueSoulMotion,
 }

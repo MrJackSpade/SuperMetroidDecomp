@@ -29,7 +29,7 @@ internal static class EnemyPickupDefinitionsVerification
             var projectile = new RoomEnemyProjectileSlot(index)
             {
                 InstructionTimer = WrappingCountdown.Start(0xffff),
-                PreInstruction = EnemyProjectilePreInstruction.None,
+                PreInstruction = EnemyProjectilePreInstruction.Stationary,
                 PersistsOnSamusContact = true,
             };
             EnemyDeathsAndDropsConstants.BeginEnemyPickup(projectile, kind);
@@ -42,7 +42,7 @@ internal static class EnemyPickupDefinitionsVerification
                 $"production pickup instruction timer {kind}");
             AssertEqual(400, projectile.StateOf<EnemyPickupState>().Lifetime,
                 $"production pickup lifetime {kind}");
-            AssertEqual(EnemyProjectilePreInstruction.Pickup,
+            AssertEqual(EnemyProjectilePreInstruction.PickupLifetime,
                 projectile.PreInstruction,
                 $"production pickup pre-instruction {kind}");
             AssertTrue(!projectile.PersistsOnSamusContact,

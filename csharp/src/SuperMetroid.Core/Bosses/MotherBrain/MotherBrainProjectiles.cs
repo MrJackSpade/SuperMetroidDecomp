@@ -64,7 +64,7 @@ internal sealed class MotherBrainProjectiles
                 projectile.PreInstruction = setPreInstruction.PreInstruction;
                 break;
             case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.ClearPreInstruction }:
-                projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
+                projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
                 break;
             case MotherBrainEffectCue.Command { Kind: MotherBrainEffectCueKind.Delete }:
                 projectile.Clear();
@@ -88,7 +88,7 @@ internal sealed class MotherBrainProjectiles
                     projectile.Graphics = default;
                     return;
                 case MotherBrainTurretCue.ClearPreInstruction:
-                    projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_868170;
+                    projectile.PreInstruction = EnemyProjectilePreInstruction.Stationary;
                     return;
                 case MotherBrainTurretCue.Delete:
                     projectile.Clear();
@@ -112,32 +112,32 @@ internal sealed class MotherBrainProjectiles
         table.AddPreInstruction(context =>
         {
             RunMotherBrainTurretPreInstruction(context.Projectile, context.Camera);
-        }, EnemyProjectilePreInstruction.MotherBrainsTurrets);
+        }, EnemyProjectilePreInstruction.MotherBrainTurretAiming);
 
         table.AddPreInstruction(context =>
         {
             RunMotherBrainTurretBulletPreInstruction(context.Projectile, context.Level);
-        }, EnemyProjectilePreInstruction.MotherBrainsTurretBullets);
+        }, EnemyProjectilePreInstruction.MotherBrainTurretBulletFlight);
 
         table.AddPreInstruction(context =>
         {
             RunMotherBrainGlassShardPreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainGlassShattering_Shard);
+        }, EnemyProjectilePreInstruction.MotherBrainGlassShardFlight);
 
         table.AddPreInstruction(context =>
         {
             RunMotherBrainTopTubePreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainsTubeFalling);
+        }, EnemyProjectilePreInstruction.MotherBrainTubeFall);
 
         table.AddPreInstruction(context =>
         {
             RunMotherBrainAttachedDroolPreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainsDrool);
+        }, EnemyProjectilePreInstruction.MotherBrainDroolHanging);
 
         table.AddPreInstruction(context =>
         {
             RunMotherBrainFallingDroolPreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainsDrool_Falling);
+        }, EnemyProjectilePreInstruction.MotherBrainDroolFall);
 
         table.AddPreInstruction(context =>
         {
@@ -145,37 +145,37 @@ internal sealed class MotherBrainProjectiles
                 context.Projectile,
                 context.Samus,
                 context.Camera.X);
-        }, EnemyProjectilePreInstruction.MotherBrainsOnionRings);
+        }, EnemyProjectilePreInstruction.MotherBrainOnionRingFlight);
 
         table.AddPreInstruction(context =>
         {
             RunMotherBrainBombPreInstruction(context.Projectile, context.SamusBombs);
-        }, EnemyProjectilePreInstruction.MotherBrainsBomb);
+        }, EnemyProjectilePreInstruction.MotherBrainBombBounce);
 
         table.AddPreInstruction(context =>
         {
             RunMotherBrainRainbowChargingPreInstruction(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainRainbowBeam_Charging);
+        }, EnemyProjectilePreInstruction.MotherBrainRainbowBeamCharge);
 
         table.AddPreInstruction(context =>
         {
             RunMotherBrainRainbowExplosionPreInstruction(context.Projectile, context.Samus);
-        }, EnemyProjectilePreInstruction.MotherBrainsRainbowBeamExplosion);
+        }, EnemyProjectilePreInstruction.MotherBrainRainbowImpactTracking);
 
         table.AddPreInstruction(context =>
         {
             RunMotherBrainDeathExplosion(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainDeathExplosionPreInstruction);
+        }, EnemyProjectilePreInstruction.MotherBrainDeathExplosionTracking);
 
         table.AddPreInstruction(context =>
         {
             RunMotherBrainDoorFragment(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainDeathDoorFragmentPreInstruction);
+        }, EnemyProjectilePreInstruction.MotherBrainDeathDoorFragmentFall);
 
         table.AddPreInstruction(context =>
         {
             PinMotherBrainEscapeSubtitle(context.Projectile);
-        }, EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction);
+        }, EnemyProjectilePreInstruction.MotherBrainDeathSubtitleScreenPin);
 
         table.AddCue<MotherBrainEffectCue>((context, cue) => ApplyMotherBrainEffectCue(context.Projectile, cue));
         // A touched onion ring runs its typed impact program, the list its definition names.

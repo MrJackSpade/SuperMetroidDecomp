@@ -31,6 +31,8 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     [
         "Snes", "Vram", "Cgram", "Oam", "Obj", "Dma", "Hdma", "Nmi", "Apu", "Spc", "Dsp", "Wram", "Ppu",
         "Native", "Rom", "Bank", "Pointer", "Address", "Cartridge", "Mode7", "Register",
+        // #1481: routine labels name the CPU's return and jump instructions.
+        "Rts", "Rtl", "Jsr", "Jsl", "Jmp", "Jml",
     ];
 
     /// <summary>Endings that keep a word the same hardware word: <c>Banks</c>, <c>Addresses</c>, <c>Banked</c>, <c>Addressing</c>.</summary>
@@ -173,6 +175,12 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
     /// <summary>The hardware word <paramref name="identifier"/> contains as a whole camel-case word, or null.</summary>
     internal static string? HardwareWord(string identifier)
     {
+        // An address in a label is its own underscore-separated part; camel-case splitting would break it at each letter.
+        foreach (string part in identifier.Split('_'))
+        {
+            if (IsAddressWord(part))
+                return part;
+        }
         foreach (string word in Words(identifier))
         {
             foreach (string hardware in HardwareWords)
@@ -190,6 +198,14 @@ public sealed class CoreVocabularyAnalyzer : DiagnosticAnalyzer
         }
         return null;
     }
+
+    /// <summary>
+    /// Whether a word is a cartridge address spelled into a name (#1481): four or six hexadecimal digits with at least one
+    /// decimal digit among them, as in <c>RTS_86BB30</c> or <c>Instr_A0B3</c>. Requiring a digit keeps words such as
+    /// <c>Face</c> or <c>Bead</c>.
+    /// </summary>
+    internal static bool IsAddressWord(string word) =>
+        word.Length is 4 or 6 && word.All(Uri.IsHexDigit) && word.Any(char.IsDigit);
 
     /// <summary>
     /// The camel-case words of an identifier: a word starts at an upper-case letter that follows a lower-case letter or

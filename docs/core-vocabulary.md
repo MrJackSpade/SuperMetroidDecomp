@@ -21,7 +21,9 @@ functions, query range variables, namespace segments and file names.
 The words, kept in one place in the analyzer (`CoreVocabularyAnalyzer.HardwareWords`):
 
 `Snes`, `Vram`, `Cgram`, `Oam`, `Obj`, `Dma`, `Hdma`, `Nmi`, `Apu`, `Spc`, `Dsp`, `Wram`, `Ppu`, `Native`, `Rom`, `Bank`,
-`Pointer`, `Address`, `Cartridge`, `Mode7`, `Register`.
+`Pointer`, `Address`, `Cartridge`, `Mode7`, `Register`, and the CPU's return and jump mnemonics `Rts`, `Rtl`, `Jsr`,
+`Jsl`, `Jmp`, `Jml` that routine labels carry (#1481). An underscore-separated part that is a cartridge address (four or six
+hexadecimal digits with at least one decimal digit, as in `RTS_86BB30` or `Instr_A0B3`) is reported as well.
 
 Matching is by whole camel-case word, ignoring case, with plural and verb endings (`Banks`, `Addresses`, `Banked`,
 `Addressing`). `Object` is not `Obj`, `Roman` is not `Rom`, `Registry` is not `Register`. A run of capitals is one word

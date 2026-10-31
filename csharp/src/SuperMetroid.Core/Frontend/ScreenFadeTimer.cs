@@ -3,16 +3,16 @@ using SuperMetroid.Core.Frontend.Pause;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The bank-$80 screen fade timing words: counter $0725 and its reload delay $0723. The counter advances once per
+/// The screen fade timing words: the counter and its reload delay. The counter advances once per
 /// accepted frontend frame; each time it runs out, the brightness steps once toward the fade's target.
 /// </summary>
 internal sealed class ScreenFadeTimer
 {
-    /// <summary>Bank-$80 screen fade counter $0725.</summary>
+    /// <summary>Screen fade counter.</summary>
     internal int Counter { get; set; } = PauseFadeTiming.CounterReload;
 
     /// <summary>
-    /// Bank-$80 screen fade delay $0723, the counter's reload value. Every return to state
+    /// Screen fade delay, the counter's reload value. Every return to main
     /// eight leaves both words zero, which a map-station pause then inherits.
     /// </summary>
     internal int Delay { get; set; }
@@ -24,7 +24,7 @@ internal sealed class ScreenFadeTimer
         Counter = PauseFadeTiming.CounterReload;
     }
 
-    /// <summary>$82:8B34, $82:8CE4 and $82:93B5 clear both fade words on a fade's final frame.</summary>
+    /// <summary>Clears both fade words on a fade's final frame.</summary>
     internal void Clear()
     {
         Delay = 0;

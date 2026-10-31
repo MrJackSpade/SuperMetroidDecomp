@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Frontend.Options;
 
-/// <summary>Named options-phase selection corresponding to $82:F2ED..F306.</summary>
+/// <summary>Named options-phase cursor selection.</summary>
 /// <remarks>
-/// Native phases 2/3/B select the primary page, 7 controller and 8 special.
+/// Phases 2/3/B select the primary page, 7 controller and 8 special.
 /// Dissolve 5/6, scroll 9/A and start-game fade C select zero, meaning the installed
 /// hidden anchor, as does start-game handoff 4 (<see cref="GameOptionsPhase.StartGame"/>).
-/// Native startup phases 0/1 (<see cref="GameOptionsPhase.FinishFadingOut"/> and
+/// Startup phases 0/1 (<see cref="GameOptionsPhase.FinishFadingOut"/> and
 /// <see cref="GameOptionsPhase.LoadingMenu"/>) also select zero. No pointer
 /// array or generated selection cache is retained. Forged managed phases reject.
 /// </remarks>

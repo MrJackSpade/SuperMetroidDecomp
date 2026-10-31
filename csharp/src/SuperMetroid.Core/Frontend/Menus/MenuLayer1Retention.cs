@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// </summary>
 internal sealed class MenuLayer1Retention
 {
-    /// <summary>Preserves layer-one fractions $090F/$0913 across runtime replacement; only camera movement,
+    /// <summary>Preserves the layer-one fractions across runtime replacement; only camera movement,
     /// scroll clamps, or the reset vector's wipe change them. The next runtime consumes the fractions.</summary>
     private FixedPosition<RoomPixels> retainedLayer1Position;
 
-    /// <summary>Clears the position as the reset vector's bank-$7E wipe does.</summary>
+    /// <summary>Clears the position as the reset's memory wipe does.</summary>
     internal void Reset() => retainedLayer1Position = FixedPosition<RoomPixels>.Zero;
 
     /// <summary>Hands the retained layer-one fractions to a new runtime.</summary>

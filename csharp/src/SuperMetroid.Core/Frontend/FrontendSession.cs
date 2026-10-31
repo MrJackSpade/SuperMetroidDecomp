@@ -63,7 +63,7 @@ internal sealed class FrontendSession
     internal readonly SaveSlotStore saves;
     /// <summary>The frame the save file found at power-on adds to every earthquake rumble's delay; fixed for the session.</summary>
     internal readonly PowerOnEarthquakeSoundDelay earthquakeSoundDelay;
-    /// <summary>Boot-time <c>NumberOfDemoSets</c> ($1F59); fixed for the session.</summary>
+    /// <summary>Boot-time number of demo sets; fixed for the session.</summary>
     internal readonly int bootDemoSetCount;
     /// <summary>The music queue and the sound libraries' request queues, shared across menus and gameplay.</summary>
     internal readonly AudioQueues audio = new();
@@ -233,7 +233,7 @@ internal sealed class FrontendSession
     /// </remarks>
     internal void CollectTranslatedAudioRequests(GameplayAudioFramePublication gameplayAudio)
     {
-        // Demo loading suppresses room music; native debug_disable_sounds suppresses
+        // // Demo loading suppresses room music; the demo's sound switch suppresses
         // scene SFX while the title track continues. Do not let runtime publishers
         // replace it with each demo room's normal area music.
         if (runtime?.AttractDemo.IsAttractDemo == true)
@@ -241,7 +241,7 @@ internal sealed class FrontendSession
         if (runtime?.Room.ActiveRoom?.State is { } roomState &&
             roomState != LastAudioRoomState)
         {
-            // $82:E071 loads data during door setup. $82:E664 selects the track
+            // // Door setup loads music data. The track is selected
             // only after the opening scroll and this data queue have completed.
             if (GameState == SuperMetroidGameState.LoadingNextRoomB)
                 audio.QueueRoomMusicData(roomState.Music.DataSet);
@@ -285,16 +285,16 @@ internal sealed class FrontendSession
         lastAudioRuntimeGameplayPublication =
             runtime.FrameBoundary.CompletedGameplayAudioPublication;
 
-        // Bank $88 room-effect actors and bank $8D palette objects run before Samus,
+        // // Room-effect actors and palette objects run before Samus,
         // projectiles, PLMs, and enemies in state eight. Queue their calls first so a full
-        // SFX ring retains the same higher-priority request the cartridge would retain
+        // // sound ring retains the same higher-priority request the game would retain
         // when several producers fire during one frame.
         gameplayAudio.PublishPrefix(runtime);
 
         if (runtime.Player.Samus is { } samus)
         {
             // These state machines predate the shared SoundRequest list. Consume their
-            // one-shot publications here, retaining the exact native library and MaxN entry.
+            // // one-shot publications here, retaining the exact library and MaxN entry.
             if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
                 audio.QueueSound(Library3Sound.SpeedBooster, priority: SoundRequestPriority.Normal);
             if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
@@ -364,8 +364,8 @@ internal sealed class FrontendSession
     /// state eight has already completed its room-main and clock work when this is called.
     /// </summary>
     /// <summary>
-    /// Gunship function $A2:AD0E writes game state $26 only after the top hull has crossed
-    /// Y=$0100, zeroing ScreenFadeDelay/Counter. It does not freeze time: state $26 keeps
+    /// The gunship writes the liftoff game state only after the top hull has crossed
+    /// Y=256, zeroing ScreenFadeDelay/Counter. It does not freeze time: the liftoff state keeps
     /// running full gameplay, so Samus and the RNG advance behind the fade. State eight has
     /// already completed on this publication frame; the following call owns the fade.
     /// </summary>
@@ -424,7 +424,7 @@ internal sealed class FrontendSession
     }
     /// <summary>
     /// Shared saved-game HUD construction for playable and cinematic checkpoints.
-    /// The saved inventory supplies counters/icons; native initialization clears
+    /// The saved inventory supplies counters/icons; loading the game clears
     /// the persisted HUD selection before the first live gameplay update.
     /// </summary>
     internal void InitializeSelectedGameHud(SuperMetroidSaveSlot slot) =>
@@ -438,7 +438,7 @@ internal sealed class FrontendSession
             slot.PowerBombs,
             slot.MaxPowerBombs,
             slot.EquippedItems,
-            // $91:E00D clears selection before $80:9A79 builds the visible HUD.
+            // // Loading clears the selection before the visible HUD is built.
             SelectedItem: 0,
             slot.ReserveEnergy,
             slot.ReserveMode));
@@ -449,7 +449,7 @@ internal sealed class FrontendSession
 
         if (spacetimeIntroRestartSlot is { } restartSlot)
         {
-            // The cart loaded the old inventory before $82:EEB4 selected the intro. Ceres
+            // // The game loaded the old inventory before the intro was selected. Ceres
             // setup then starts from fresh progression while retaining equipment and other
             // resources. The flashback specifically replaces and then clears Missiles.
             runtime.HudSetup.InitializeHud(new HudSnapshot(
@@ -493,7 +493,7 @@ internal sealed class FrontendSession
             runtime.FrameBoundary.PublishWhileLoading();
 
             // Preserve the already-translated Ceres elevator entrance for its checkpoint.
-            // Every other station uses the general cartridge-backed loader below.
+            // // Every other station uses the general room loader below.
             if (slot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
             {
                 // Room selection and actors must see the restored mirror, not a
@@ -514,12 +514,12 @@ internal sealed class FrontendSession
             // File selection loaded the saved options before the options menu ran.
             // InitializeSavedGame also serves direct diagnostic loads, so it restores
             // those fields itself. At this frontend boundary, the player's live edits
-            // take precedence over that original snapshot, just like cartridge WRAM.
+            // // take precedence over that original snapshot, just as the game keeps them live.
             ApplySelectedGameOptions();
             RoomStateSettings loadedState = runtime.Room.ActiveRoom?.State
                 ?? throw new InvalidOperationException(
                     "Saved-game appearance started without an active room state.");
-            // `$92:ED24` starts appearance track one after 14 frames and, on its fifth
+            // // Samus's appearance starts appearance track one after 14 frames and, on its fifth
             // call, schedules the room track 360 frames later. Mark this room state as
             // already handled so the generic room-change collector cannot overwrite the
             // fanfare with an immediate track request.
@@ -535,16 +535,16 @@ internal sealed class FrontendSession
             return false;
         }
 
-        // Native new-game loading first publishes the standard HUD/OBJ transfer, then
+        // // New-game loading first publishes the standard HUD/sprite artwork, then
         // loads the area-six station-zero room and finally runs SamusCode_08. This is the
-        // same cartridge-backed sequence used by the room diagnostic; there is no host
+        // // same sequence used by the room diagnostic; there is no host
         // terrain image, hand-placed Samus, or alternate playable-only initialization.
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.FrameBoundary.PublishWhileLoading();
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        // CinematicFunction_Intro_Func73 at `$8B:C100` publishes area six/station zero
-        // and calls the ordinary `$81:8000` saver immediately before state $1F. Both the
+        // // The intro's end publishes area six/station zero
+        // // and saves immediately before the Ceres game state. Both the
         // full cinematic and host-configured skip converge here, so neither path can omit
         // the automatic checkpoint.
         AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, SelectedSaveSlot);
@@ -552,10 +552,10 @@ internal sealed class FrontendSession
         return true;
     }
     /// <summary>
-    /// Enters cartridge game state seven with a fully dark screen and the native two-frame
-    /// brightness cadence. A fresh Ceres game must execute complete gameplay/OAM frames in
+    /// Enters the fade-in game state with a fully dark screen and the two-frame
+    /// brightness cadence. A fresh Ceres game must execute complete gameplay frames in
     /// this state before state $20 owns the elevator arrival; otherwise the level-data pad
-    /// is briefly visible before its bank-$86 concealer reaches displayed OAM.
+    /// is briefly visible before its concealing enemy projectile is drawn.
     /// </summary>
     internal void BeginGameplayFadeIn(GameplayFadeTarget target)
     {
@@ -564,7 +564,7 @@ internal sealed class FrontendSession
         GameState = SuperMetroidGameState.MainGameplayFadeIn;
     }
     /// <summary>
-    /// <c>$82:8106</c> ends the fade-in by selecting state seven, which then enters state eight; the Ceres arrival is
+    /// The end of the fade-in selects the next state, which then enters main gameplay; the Ceres arrival is
     /// ordinary gameplay with Samus locked. HandleFadingIn wrote $51 = $0F this frame; the level is published before it
     /// rises, so the register is recorded directly.
     /// </summary>
@@ -617,9 +617,9 @@ internal sealed class FrontendSession
     }
 
     /// <summary>
-    /// Applies the inventory that remains live across a SpaceTime-triggered intro. Native
-    /// $8B:A395 temporarily replaces both missile words for the Mother Brain flashback and
-    /// $8B:B76C clears them afterward; no equivalent stores touch Super Missiles or Power
+    /// Applies the inventory that remains live across a SpaceTime-triggered intro. The
+    /// Mother Brain flashback temporarily replaces both missile counts and
+    /// the intro clears them afterward; nothing touches Super Missiles or Power
     /// Bombs. The frontend cinematic uses isolated actor state, so its gameplay consequence
     /// is made explicit at the shared Ceres handoff.
     /// </summary>

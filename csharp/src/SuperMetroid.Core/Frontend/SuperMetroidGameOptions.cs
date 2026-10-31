@@ -25,7 +25,7 @@ public sealed record SuperMetroidGameOptions
 
     /// <summary>Prevents emulated gameplay damage from reducing Samus below one energy.</summary>
     /// <remarks>
-    /// This is a host-side testing convenience, not cartridge state. Damage routines still
+    /// This is a host-side testing convenience, not game state. Damage routines still
     /// execute, so energy loss, hit reactions, and collision behavior remain available for
     /// debugging; the runtime changes a lethal zero-energy result to one. Shinesparks
     /// also bypass their low-energy cutoff and continue draining down to one, so this
@@ -63,7 +63,7 @@ public sealed record SuperMetroidGameOptions
     /// <remarks>
     /// This host convenience is evaluated only while drawing. It never changes exploration
     /// bits or area-map acquisition flags, so returning to <see cref="MapRevealMode.None"/>
-    /// immediately restores the cartridge's saved visibility.
+    /// immediately restores the game's saved visibility.
     /// </remarks>
     public MapRevealMode MapReveal { get; init; }
 

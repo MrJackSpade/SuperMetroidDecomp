@@ -15,8 +15,8 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// Title-sequence state owned by game state one.
 /// </summary>
 /// <remarks>
-/// This ports the visible state chain at <c>$8B:9A22-$8B:A35A</c>. Installed sessions
-/// supply extracted graphics, palette, and gradient presentation. No cartridge
+/// This runs the visible title state chain. Installed sessions
+/// supply extracted graphics, palette, and gradient presentation. No original
 /// image is mapped during the title sequence.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
@@ -52,7 +52,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal readonly ScreenPalette palette = new();
     /// <summary>Runs the two console-light palette-FX programs during the title sequence.</summary>
     private RoomPaletteFxSystem consolePaletteFx = new(new PaletteFxSessionState());
-    /// <summary>The title and copyright sprite entries in native drawing order, over the title OBJ page (#1358).</summary>
+    /// <summary>The title and copyright sprite entries in drawing order, over the title sprite page (#1358).</summary>
     internal readonly ScreenSprites objects;
     /// <summary>Preserves newly pressed input edges for title skip and file-select entry.</summary>
     private readonly ControllerInputState controller = new();
@@ -78,9 +78,9 @@ public sealed class TitleSequenceState : IFrontendScreen
     internal ScreenColourGroup ActiveObjectColouring { get; set; }
     /// <summary>The floor's pan position, whose whole words are interpreted as signed pixels.</summary>
     private FixedPosition<FloorPixels> panPosition;
-    /// <summary>Native 8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
+    /// <summary>8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
     internal int Zoom { get; private set; }
-    /// <summary>Current SNES screen brightness applied after composing title layers.</summary>
+    /// <summary>Current screen brightness applied after composing title layers.</summary>
     internal int Brightness { get; private set; }
     /// <summary>Index into the Baby Metroid character page cycle.</summary>
     internal int BabyFrame { get; private set; }
@@ -93,7 +93,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     /// <summary>Selects the demo destination after the shared title fade-out.</summary>
     private bool fadingToDemo;
 
-    /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
+    /// <summary>Creates the initial title setup.</summary>
     /// <param name="audio">Receives the opening music and title transitions when audio is available.</param>
     /// <param name="titleGradientPresentation">The installed gradients, one per zoom bucket.</param>
     /// <param name="titlePalettePresentation">Required installed title colours.</param>
@@ -110,7 +110,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     {
     }
 
-    /// <summary>Builds the initial title VRAM and palette state, optionally queuing opening music for a new session.</summary>
+    /// <summary>Builds the initial title artwork and palette state, optionally queuing opening music for a new session.</summary>
     private TitleSequenceState(
         AudioQueues? audio,
         TitleOpeningMusic openingMusic,
@@ -136,24 +136,24 @@ public sealed class TitleSequenceState : IFrontendScreen
                 MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.OpeningTrack));
         }
 
-        // `$8B:9B87` expands the four artwork streams and uploads them; the title binds that
+        // // Title setup expands the four artwork streams; the title binds that
         // artwork and its capture places the Mode 7 planes, OBJ characters and Baby page.
         objects = new ScreenSprites();
         titlePalettePresentation.Apply(palette);
         ResetConsolePaletteFx();
 
-        // The Year object's pre-instruction forces full brightness on the first
-        // processing frame; its position and palette come from the native definition.
+        // // The Year object's frame behaviour forces full brightness on the first
+        // // processing frame; its position and palette come from its definition.
         Brightness = TitleSequenceDefinitions.Timing.MaximumBrightness;
         BeginTextSequence(TitleSequenceDefinitions.TextSequences.Year);
     }
 
-    /// <summary>Current native title sub-state, exposed as a stable debugger label.</summary>
+    /// <summary>Current title sub-state, exposed as a stable debugger label.</summary>
     public TitleSequencePhase Phase { get; internal set; }
 
     /// <summary>True after the title's slow fade has handed control to file select.</summary>
     public bool FileSelectRequested { get; private set; }
-    /// <summary>True after the idle timeout's slow fade reaches native demo state $28.</summary>
+    /// <summary>True after the idle timeout's slow fade reaches the demo state.</summary>
     public bool DemoRequested { get; private set; }
 
     /// <summary>State $2C's player-cancelled return skips the introductory title cards.</summary>
@@ -209,10 +209,10 @@ public sealed class TitleSequenceState : IFrontendScreen
         controller.Latch(controllerInput);
         bool rebuildConsolePaletteFxAfterStep = false;
 
-        // `$8B:9A48` admits B, Start, or A during every pre-title cinematic function. The
+        // // The title admits B, Start, or A during every pre-title cinematic function. The
         // original performs a fast fade-out, reconstructs the final title objects, then a
         // fast fade-in. Do not jump straight to a host menu: those intermediate frames and
-        // their brightness levels are observable in native traces.
+        // // their brightness levels are observable in recorded traces.
         bool confirmPressed =
             controller.NewlyPressed.HasAny(TitleSequenceDefinitions.Timing.ConfirmButtons);
         if (confirmPressed && Phase is not (TitleSequencePhase.TitleScreenFadeIn or TitleSequencePhase.TitleScreen or
@@ -269,9 +269,9 @@ public sealed class TitleSequenceState : IFrontendScreen
             case TitleSequencePhase.TitleLogoFade:
                 if (--PhaseTimer <= 0)
                 {
-                    // `$8B:A0E1` holds the copyright for 32 frames before arming the
+                    // // The copyright holds for 32 frames before arming the
                     // 900-frame demo countdown. The palette FX itself remains future work;
-                    // its final cartridge palette is already the visible CGRAM source.
+                    // // its final palette is already the visible colour source.
                     Phase = TitleSequencePhase.CopyrightFade;
                     PhaseTimer = TitleSequenceDefinitions.Timing.CopyrightHoldFrames;
                 }
@@ -288,7 +288,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                     Brightness - TitleSequenceDefinitions.Timing.SkipFadeBrightnessStep);
                 if (Brightness == 0)
                 {
-                    // HandleCinematicsTransitions_1 at $8B:9A83 queues track six before
+                    // // HandleCinematicsTransitions_1 queues track six before
                     // rebuilding the immediate title objects.
                     audio?.QueueMusic(
                         MusicRequest.SelectTrack(TitleSequenceDefinitions.Music.ImmediateTitleTrack));
@@ -307,7 +307,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.TitleScreen:
-                // The native timeout check wins over confirmation on its final frame.
+                // // The timeout check wins over confirmation on its final frame.
                 if (--PhaseTimer <= 0)
                 {
                     fadingToDemo = true;
@@ -338,17 +338,17 @@ public sealed class TitleSequenceState : IFrontendScreen
         }
 
         StepBabyMetroidAnimation();
-        // The title calls the same bank-$8D interpreter as rooms. Its two console
+        // // The title calls the same palette-FX interpreter as rooms. Its two console
         // programs own their colors and timers; the host must not synthesize a blink.
         consolePaletteFx.Step(new ScreenPaletteFxColours(palette), titlePalettePresentation ?? throw new InvalidOperationException(
                 "Title palette FX requires installed title colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-        // Native skip reconstruction follows PaletteFxHandler for this frame. Restart
+        // // The skip reconstruction follows PaletteFxHandler for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
         if (rebuildConsolePaletteFxAfterStep)
             ResetConsolePaletteFx();
     }
 
-    /// <summary>Restarts the slow and fast console-light palette programs at the native title seam.</summary>
+    /// <summary>Restarts the slow and fast console-light palette programs at the title seam.</summary>
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
@@ -357,7 +357,7 @@ public sealed class TitleSequenceState : IFrontendScreen
     }
 
     /// <summary>
-    /// Builds the cartridge's OAM on the simulation owner and captures its display.
+    /// Builds the title's sprite list on the simulation owner and captures its display.
     /// No pixels are composed, and the returned value retains no live scene references.
     /// Call at the same display boundary as Render, before subsequent state changes.
     /// </summary>
@@ -389,8 +389,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         objects.BeginFrame();
         if (ActiveSprite is { } sprite)
         {
-            // Cinematic drawing calls `$81:879F`, whose `chr_r22` replaces palette bits
-            // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
+            // // Cinematic drawing replaces each part's palette bits
+            // // after masking the stored attributes. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             TitleGraphicsPresentation.DrawSprite(sheet, sprite, objects,
                 ActiveOrigin.ToSpritePosition(), ActiveObjectColouring);
@@ -427,26 +427,26 @@ public sealed class TitleSequenceState : IFrontendScreen
             {
                 case TitleSequenceScriptStep.TriggerScene0:
                     Phase = TitleSequencePhase.SceneZeroPan;
-                    floorBackgroundEnabled = true; // `$8B:9CE3-$9CE5` shows the floor beside the objects.
+                    floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
                     ApplyScene(TitleSequenceDefinitions.Scenes.SceneZero);
                     return;
 
                 case TitleSequenceScriptStep.TriggerScene1:
                     Phase = TitleSequencePhase.SceneOnePan;
-                    floorBackgroundEnabled = true; // `$8B:9D5D-$9D61` shows the floor beside the objects.
+                    floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
                     ApplyScene(TitleSequenceDefinitions.Scenes.SceneOne);
                     return;
 
                 case TitleSequenceScriptStep.TriggerScene2:
                     Phase = TitleSequencePhase.SceneTwoPan;
-                    floorBackgroundEnabled = true; // `$8B:9DD6-$9DDA` shows the floor beside the objects.
+                    floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
                     ApplyScene(TitleSequenceDefinitions.Scenes.SceneTwo);
                     return;
 
                 case TitleSequenceScriptStep.TriggerScene3:
                     Phase = TitleSequencePhase.SceneThreeZoom;
                     gradientEnabled = true;
-                    floorBackgroundEnabled = true; // `$8B:9E58-$9E5C` shows the floor beside the objects.
+                    floorBackgroundEnabled = true; // The pan shows the floor beside the objects.
                     PhaseTimer = 0;
                     ApplyScene(TitleSequenceDefinitions.Scenes.SceneThree);
                     return;
@@ -491,8 +491,8 @@ public sealed class TitleSequenceState : IFrontendScreen
     private void EnterImmediateTitleObjects()
     {
         gradientEnabled = true;
-        // Skip transition `$8B:9A9C` explicitly overwrites the two glyph colors used by
-        // the Nintendo copyright spritemap after restoring CGRAM's upper half.
+        // // The skip transition explicitly overwrites the two glyph colors used by
+        // // the Nintendo copyright spritemap after restoring the sprite colours.
         WriteCopyright(
             titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceDefinitions.Palette.CopyrightWhite,
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceDefinitions.Palette.CopyrightRed);
@@ -504,7 +504,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         Zoom = TitleSequenceDefinitions.Scenes.IdentityScale;
     }
 
-    /// <summary>Opens the idle title screen at full brightness with its native demo countdown.</summary>
+    /// <summary>Opens the idle title screen at full brightness with its demo countdown.</summary>
     private void EnterTitleScreen()
     {
         EnterImmediateTitleObjects();

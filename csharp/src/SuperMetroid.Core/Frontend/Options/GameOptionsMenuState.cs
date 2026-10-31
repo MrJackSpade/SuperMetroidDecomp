@@ -46,7 +46,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private readonly MenuMissileAnimation missile = new();
 
     /// <summary>Creates the complete primary, controller, and special options-menu state.</summary>
-    /// <param name="audio">Optional cartridge audio queues for cursor and confirmation sounds.</param>
+    /// <param name="audio">Optional audio queues for cursor and confirmation sounds.</param>
     /// <param name="controllerBindings">Initial retail controller-button permutation.</param>
     /// <param name="iconCancelEnabled">Initial state of the automatic item-cancel option.</param>
     /// <param name="moonwalkEnabled">Initial state of the moonwalk option.</param>
@@ -106,10 +106,10 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     /// <summary>The seven live controller words committed when the controller page exits.</summary>
     public ControllerBindings ControllerBindings { get; private set; }
 
-    /// <summary>WRAM <c>$09EA</c>, toggled by special-settings row zero.</summary>
+    /// <summary>The automatic item-cancel option, toggled by special-settings row zero.</summary>
     public bool IconCancelEnabled { get; private set; }
 
-    /// <summary>WRAM <c>$09E4</c>, toggled by special-settings row one.</summary>
+    /// <summary>The moonwalk option, toggled by special-settings row one.</summary>
     public bool MoonwalkEnabled { get; private set; }
 
     /// <summary>Gets the current options-menu coroutine phase.</summary>
@@ -126,7 +126,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     {
         controller.Latch(controllerInput);
         ControllerButton pressed = controller.NewlyPressed;
-        // The selection missile is spawned by index one ($82:ECD3); the object handler
+        // // The selection missile is spawned by index one; the object handler
         // then runs after every index's work, including that first one.
         if (Phase != GameOptionsPhase.FinishFadingOut)
             missile.Step(mapPresentation?.GameOptions.CursorFrameDuration);
@@ -134,13 +134,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         switch (Phase)
         {
             case GameOptionsPhase.FinishFadingOut:
-                // $82:EBDB index zero: the previous menu already reached black, so
+                // // Index zero: the previous menu already reached black, so
                 // HandleFadingOut leaves it there and the index advances.
                 Phase = GameOptionsPhase.LoadingMenu;
                 break;
 
             case GameOptionsPhase.LoadingMenu:
-                // $82:EC11 index one loads the menu on a black screen; fading starts next update.
+                // // Index one loads the menu on a black screen; fading starts next update.
                 Phase = GameOptionsPhase.FadeIn;
                 break;
 
@@ -201,7 +201,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.FadeOutToIntro:
-                // $82:EE92 index $0C: reaching black selects index four, which
+                // // Index $0C: reaching black selects index four, which
                 // dispatches the loading game state on the following update.
                 brightness = Math.Max(0, brightness - 1);
                 if (brightness == 0)
@@ -209,7 +209,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.StartGame:
-                // $82:EEB4 index four.
+                // // Index four.
                 IntroRequested = true;
                 break;
 
@@ -278,7 +278,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         switch (row)
         {
             case GameOptionsPrimaryRow.StartGame:
-                // $82:EDBD: a save that resumes ordinary gameplay starts at once (index four);
+                // // Starting: a save that resumes ordinary gameplay starts at once (index four);
                 // a new game and the cinematic routes fade out first (index $0C).
                 Phase = LoadingGameState == SaveLoadingGameState.MainGame
                     ? GameOptionsPhase.StartGame
@@ -337,7 +337,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         if (pressed == ControllerButton.None)
             return;
 
-        // Native queues the confirmation sound for any newly pressed word on this page,
+        // // The game queues the confirmation sound for any newly pressed word on this page,
         // even when an action row cannot find an assignable button in that word.
         QueueSelectSound();
         GameOptionsControllerRowKind kind = GameOptionsPositions.ControllerRowKind(SelectedItem);
@@ -429,7 +429,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
 
     /// <summary>
     /// Selects the language-specific page and shows it with the current language highlight, controller labels and toggle
-    /// choices, as the cartridge reapplies them whenever it loads the page.
+    /// choices, as the game reapplies them whenever it loads the page.
     /// </summary>
     [MemberNotNull(nameof(ShownPage))]
     private void LoadVisiblePage()
@@ -448,7 +448,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
     private Position16<SpritePixels> CursorPosition()
     {
         GameOptionsPage? cursorPage = GameOptionsCursorPolicy.Select(Phase);
-        // Keep the cursor actor in OAM at the installed hidden anchor during transitions.
+        // // Keep the cursor actor in the sprite list at the installed hidden anchor during transitions.
         if (cursorPage is null)
         {
             Position16<SpritePixels> hidden = (mapPresentation ?? throw new InvalidOperationException(
@@ -462,13 +462,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         return new Position16<SpritePixels>(checked(point.X), checked(point.Y));
     }
 
-    /// <summary>Queues the native cursor sound within the menu sound limit.</summary>
+    /// <summary>Queues the cursor sound within the menu sound limit.</summary>
     private void QueueMoveSound() =>
         audio?.QueueSound(
             Library1Sound.MenuCursor,
             priority: GameOptionsDefinitions.MaximumQueuedMenuSounds);
 
-    /// <summary>Queues the native confirmation sound within the menu sound limit.</summary>
+    /// <summary>Queues the confirmation sound within the menu sound limit.</summary>
     private void QueueSelectSound() =>
         audio?.QueueSound(
             Library1Sound.MenuConfirm,

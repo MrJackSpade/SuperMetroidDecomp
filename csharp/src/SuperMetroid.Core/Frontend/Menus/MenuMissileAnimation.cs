@@ -11,7 +11,7 @@ internal sealed class MenuMissileAnimation
 
     /// <summary>
     /// Counts one update down and, when the frame's duration expires, advances to the next frame for
-    /// <paramref name="frameDuration"/> updates, or the native duration when no presentation supplies one.
+    /// <paramref name="frameDuration"/> updates, or the authored duration when no presentation supplies one.
     /// </summary>
     internal void Step(int? frameDuration)
     {

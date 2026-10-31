@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>
-/// The four title cards' typed steps, in place of their bank-$8B lists ($8B:A03D-$A0C6): each card reveals its letters
+/// The four title cards' typed steps: each card reveals its letters
 /// one frame at a time for eight updates, holds its final frame, then triggers its Mode 7 scene and deletes itself.
-/// The extraction pipeline walks the cartridge lists beside these steps; <see cref="TitleCards"/> selects a card.
+/// The extraction pipeline checks the original animation scripts beside these steps; <see cref="TitleCards"/> selects a card.
 /// </summary>
 internal static class TitleCardDefinitions
 {
@@ -16,7 +16,7 @@ internal static class TitleCardDefinitions
     /// <summary>The final hold of the Metroid 3 card, in title updates.</summary>
     private const int MetroidThreeHoldFrames = 120;
 
-    /// <summary>$8B:A03D: the Year card's 60-update blank opening, its four letters and the scene-zero trigger.</summary>
+    /// <summary>The Year card's 60-update blank opening, its four letters and the scene-zero trigger.</summary>
     internal static readonly TitleCardStep[] Year =
     [
         TitleCardStep.Show(OpeningFrames, null),
@@ -28,7 +28,7 @@ internal static class TitleCardDefinitions
         TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 
-    /// <summary>$8B:A055: the Nintendo card's eight reveals and the scene-one trigger.</summary>
+    /// <summary>The Nintendo card's eight reveals and the scene-one trigger.</summary>
     internal static readonly TitleCardStep[] Nintendo =
     [
         TitleCardStep.Show(RevealFrames, TitleSprite.NintendoReveal1),
@@ -43,7 +43,7 @@ internal static class TitleCardDefinitions
         TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 
-    /// <summary>$8B:A079: the Presents card's eight reveals and the scene-two trigger.</summary>
+    /// <summary>The Presents card's eight reveals and the scene-two trigger.</summary>
     internal static readonly TitleCardStep[] Presents =
     [
         TitleCardStep.Show(RevealFrames, TitleSprite.PresentsReveal1),
@@ -58,7 +58,7 @@ internal static class TitleCardDefinitions
         TitleCardStep.Run(TitleSequenceScriptStep.Delete),
     ];
 
-    /// <summary>$8B:A09D: the Metroid 3 card's nine reveals, its 120-update final hold and the scene-three trigger.</summary>
+    /// <summary>The Metroid 3 card's nine reveals, its 120-update final hold and the scene-three trigger.</summary>
     internal static readonly TitleCardStep[] MetroidThree =
     [
         TitleCardStep.Show(RevealFrames, TitleSprite.MetroidThreeReveal1),

@@ -8,7 +8,7 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 
 namespace SuperMetroid.Core.Frontend.GameOver;
 
-/// <summary>Retail game-over prompt at <c>$81:90AE-$81:93F7</c>.</summary>
+/// <summary>The retail game-over prompt.</summary>
 public sealed class GameOverMenuState : IMenuFrontendScreen
 {
     /// <inheritdoc/>
@@ -29,7 +29,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>Accumulates Baby, egg, and cursor sprites for each rendered frame.</summary>
     /// <summary>Detects newly pressed answer-navigation and confirmation buttons.</summary>
     private readonly ControllerInputState controller = new();
-    /// <summary>Native master brightness stepped once per fade update.</summary>
+    /// <summary>Screen brightness stepped once per fade update.</summary>
     private int brightness;
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
     internal readonly MenuMissileAnimation missile = new();
@@ -46,13 +46,13 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
         throw new InvalidOperationException("No map presentation is installed for the game-over screen.");
 
     /// <summary>Creates the game-over scene with installed artwork, leaving music, animation, and fade initialization for the first update.</summary>
-    /// <param name="audio">Shared cartridge-style music and sound queue used by menu updates.</param>
+    /// <param name="audio">Shared music and sound queue used by menu updates.</param>
     /// <param name="mapPresentation">Required installed presentation bundle.</param>
     /// <param name="spriteSheets">Required installed sprite sheets, which the Baby, egg and cursor draw from.</param>
     /// <exception cref="ArgumentNullException"><paramref name="audio"/> is null.</exception>
     /// <exception cref="InvalidOperationException">No installed presentation bundle or sprite sheets are supplied.</exception>
     /// <param name="continueLoadsCeresArrival">
-    /// True when <c>SRAMMirror_LoadingGameState</c> is <c>$1F</c>: <c>$81:915D</c> then answers Yes by
+    /// True when the save resumes at the Ceres elevator: the menu then answers Yes by
     /// publishing the Ceres loader immediately instead of fading into the area map.
     /// </param>
     public GameOverMenuState(
@@ -74,7 +74,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     /// <summary>Zero selects Yes; one selects No, matching <c>file_select_map_area_index</c>.</summary>
     public YesNoChoice SelectedItem { get; private set; }
 
-    /// <summary>Current native menu index; these enum ordinals are not native menu-index words.</summary>
+    /// <summary>Current menu step; these enum ordinals are not the game's step numbers.</summary>
     public GameOverMenuPhase Phase { get; internal set; }
 
     /// <summary>
@@ -88,7 +88,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
     /// <summary>
     /// Sticky request raised on the frame Yes is accepted while the save resumes at the Ceres
-    /// elevator: <c>$81:9171</c> stores game state <c>$1F</c> and reloads SRAM without fading.
+    /// elevator: it publishes the Ceres game state and reloads the save without fading.
     /// </summary>
     public bool CeresArrivalRequested { get; private set; }
 
@@ -97,7 +97,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
 
     /// <summary>
     /// Reattaches host-owned presentation after debugger restoration and refreshes only
-    /// presentation-owned PPU state. Animation phase, answer selection and fade remain live.
+    /// presentation-owned display state. Animation phase, answer selection and fade remain live.
     /// </summary>
     public void BindMapPresentation(AreaMapPresentation? catalog)
     {
@@ -117,7 +117,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
     }
 
     /// <summary>Advances one menu update, latching input edges, animating the cursor and Baby, and progressing the music wait and one-level-per-update brightness fades.</summary>
-    /// <param name="controllerInput">Current held-button word in native <see cref="ControllerButton"/> bit layout; only newly pressed buttons affect the interactive menu.</param>
+    /// <param name="controllerInput">Current held-button word in the <see cref="ControllerButton"/> bit layout; only newly pressed buttons affect the interactive menu.</param>
     /// <remarks>Select, Up, or Down toggles the answer and takes priority over A confirmation in the same update. Accepting either answer holds the current Baby frame for 180 updates while fading out.</remarks>
     public void Step(ControllerButton controllerInput)
     {
@@ -171,7 +171,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 break;
 
             case GameOverMenuPhase.WaitForInitialMusic:
-                // $81:93E8 only polls the music queue; it neither animates the Baby nor draws the missile.
+                // // The music gate only polls the music queue; it neither animates the Baby nor draws the missile.
                 if (!audio.HasQueuedMusic)
                 {
                     audio.QueueMusic(
@@ -198,7 +198,7 @@ public sealed class GameOverMenuState : IMenuFrontendScreen
                 }
                 else if ((pressed & ControllerButton.A) != ControllerButton.None)
                 {
-                    // `$81:914B` holds the current Baby frame for 180 ticks once either
+                    // // The game holds the current Baby frame for 180 ticks once either
                     // answer is accepted, while the selected fade owner continues drawing.
                     BabyFrameHold =
                         WrappingCountdown.Start(GameOverMenuDefinitions.AcceptedAnswerHoldDuration);

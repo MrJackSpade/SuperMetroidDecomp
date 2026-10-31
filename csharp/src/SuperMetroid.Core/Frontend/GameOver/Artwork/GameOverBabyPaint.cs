@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 /// <summary>Game-over Baby color inputs with calculated cry-phase brightness steps.</summary>
 /// <remarks>
-/// Original $82:BD97..BE16 contains four sixteen-color phases. Native $82:BB9F..BBB4
-/// copies a selected phase to OBJ palette 4; $82:CFF6/CFFD/D004 select the fixed
-/// 16x16 Baby images at OBJ tiles $90/$92/$9B from $B6:C000. Their pixel inks are
+/// The original palette contains four sixteen-color phases. The animation
+/// copies a selected phase to the Baby's sprite palette and selects one of the three fixed
+/// 16x16 Baby images. Their pixel inks are
 /// categorical materials, not samples of a numeric independent variable.
 ///
 /// Calculate the green five-level ramp, floor midpoints for organ/fang shades,
@@ -28,7 +28,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// exception. The actual shade/phase relationships are calculated separately.
 ///
 /// Two further Idle words are preserved unused artwork metadata: ink 0 is skipped
-/// by OBJ transparency, and ink 5 occurs in none of the three native Baby images.
+/// by sprite transparency, and ink 5 occurs in none of the three Baby images.
 /// Their original values cannot be deduced from drawn pixels; inventing a function
 /// for this non-drawn metadata would likewise only encode the arbitrary payload.
 /// Stock storage is therefore twelve base words, two endpoint red fields and one

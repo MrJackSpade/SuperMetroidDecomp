@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
 /// <summary>
 /// The title's editable gradients, one for each of the sixteen zoom buckets, each described by its stops (#1468).
-/// The gradients contain no cartridge addresses, instruction streams, or gameplay state.
+/// The gradients contain no original-program addresses, instruction streams, or gameplay state.
 /// </summary>
 public sealed class TitleGradientPresentation
 {

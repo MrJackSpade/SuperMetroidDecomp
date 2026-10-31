@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The native screen-fade words $0723 (delay) and $0725 (counter), and the
-/// <c>HandleFadingIn</c> ($80:894D) / <c>HandleFadingOut</c> ($80:8924) steps that use
+/// The screen-fade delay and counter, and the
+/// fade-in and fade-out steps that use
 /// them to step a <see cref="ScreenBrightness"/>.
 /// </summary>
 /// <remarks>
-/// Each call is one native dispatch. A nonnegative decremented counter consumes the call
+/// Each call is one dispatch. A nonnegative decremented counter consumes the call
 /// without changing brightness; otherwise the counter reloads from the delay and brightness
 /// moves one step. A delay of one therefore changes brightness on every second dispatch.
 /// The brightness stays with its screen owner; this type owns only the timing words.
@@ -35,7 +35,7 @@ public sealed class ScreenFade
     }
 
     /// <summary>
-    /// $80:894D: one dispatch of fading in, one level brighter up to fully lit; a blanked screen comes back at level
+    /// One dispatch of fading in, one level brighter up to fully lit; a blanked screen comes back at level
     /// one. Completion is reaching <see cref="ScreenBrightness.FullyLit"/>.
     /// </summary>
     public void FadeIn(ref ScreenBrightness brightness)
@@ -47,7 +47,7 @@ public sealed class ScreenFade
     }
 
     /// <summary>
-    /// $80:8924: one dispatch of fading out. The step down from level one blanks the screen, which is the fade's
+    /// One dispatch of fading out. The step down from level one blanks the screen, which is the fade's
     /// completion (<see cref="ScreenBrightness.IsBlanked"/>); an unblanked level zero stays where it is.
     /// </summary>
     public void FadeOut(ref ScreenBrightness brightness)
@@ -61,12 +61,12 @@ public sealed class ScreenFade
     }
 
     /// <summary>
-    /// $8B:911B AdvanceSlowScreenFadeIn: one cinematic dispatch of fading in. Returns the
-    /// native carry, set when this call reached full brightness.
+    /// AdvanceSlowScreenFadeIn: one cinematic dispatch of fading in. Returns
+    /// true when this call reached full brightness.
     /// </summary>
     /// <remarks>
-    /// Unlike the bank $80 routines, these count down the low byte of $0723 and reload it
-    /// from $0725, stepping when the decrement reaches zero or wraps negative. Equal seeds
+    /// Unlike the gameplay fades, these count down the low byte of the delay and reload it
+    /// from the counter, stepping when the decrement reaches zero or wraps negative. Equal seeds
     /// of N therefore step on the Nth call and every N calls after it.
     /// </remarks>
     public bool AdvanceSlowFadeIn(ref ScreenBrightness brightness)
@@ -86,8 +86,8 @@ public sealed class ScreenFade
     }
 
     /// <summary>
-    /// $8B:90D5 AdvanceSlowScreenFadeOut: one cinematic dispatch of fading out. Returns the
-    /// native carry, set once brightness is zero (the screen is blanked on that call).
+    /// AdvanceSlowScreenFadeOut: one cinematic dispatch of fading out. Returns
+    /// true once brightness is zero (the screen is blanked on that call).
     /// </summary>
     public bool AdvanceSlowFadeOut(ref ScreenBrightness brightness)
     {
@@ -107,7 +107,7 @@ public sealed class ScreenFade
         return false;
     }
 
-    /// <summary>8-bit DEC $0723 with BEQ/BPL: true while the decremented byte stays positive.</summary>
+    /// <summary>Decrements the delay's low byte: true while the decremented byte stays positive.</summary>
     private bool ConsumeSlowDelay()
     {
         LowByteCountdownStep step = Delay.DecrementEightBitCount();
@@ -115,10 +115,10 @@ public sealed class ScreenFade
         return !step.IsZeroOrNegative;
     }
 
-    /// <summary>8-bit LDA $0725 : STA $0723.</summary>
+    /// <summary>Reloads the delay's low byte from the counter.</summary>
     private void ReloadSlowDelay() => Delay = Delay.WithEightBitCount(Counter.EightBitCount);
 
-    /// <summary>8-bit STZ $0723 and $0725 on reaching the fade's end.</summary>
+    /// <summary>Clears the delay and counter on reaching the fade's end.</summary>
     private void ClearSlowTiming()
     {
         Delay = Delay.WithEightBitCount(0);

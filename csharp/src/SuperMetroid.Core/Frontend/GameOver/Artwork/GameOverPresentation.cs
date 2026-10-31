@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// </summary>
 public abstract class GameOverPresentation
 {
-    /// <summary>Installed idle and crying color sets for the Baby's fixed CGRAM row.</summary>
+    /// <summary>Installed idle and crying color sets for the Baby's fixed palette row.</summary>
     private readonly GameOverBabyPaint babyPalettes;
 
     /// <summary>Retains compiled artwork and screen anchors; the page's tiles are the import's, which pictures the page (#1467).</summary>
@@ -43,7 +43,7 @@ public abstract class GameOverPresentation
     public int YesCursorY { get; }
     /// <summary>Missile-cursor vertical screen coordinate in pixels for the No answer, bounded to 0-255.</summary>
     public int NoCursorY { get; }
-    /// <summary>OBJ palette selector 0-7 used when drawing the Baby composition; palette animation writes to its fixed native CGRAM destination.</summary>
+    /// <summary>Sprite palette selector 0-7 used when drawing the Baby composition; palette animation writes to its fixed destination.</summary>
     public int BabyPaletteIndex { get; }
     /// <summary>OBJ palette selector 0-7 used when drawing the egg at the shared Baby anchor.</summary>
     public int EggPaletteIndex { get; }

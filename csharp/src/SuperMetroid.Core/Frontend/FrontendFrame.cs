@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 /// <param name="GameState">Front-end dispatcher state reported with this emitted frame.</param>
 /// <param name="Phase">Human-readable scene or runtime phase label for host diagnostics.</param>
-/// <param name="FrameNumber">Wrapping 16-bit front-end step counter, not elapsed time or a native movie video-frame number.</param>
+/// <param name="FrameNumber">Wrapping 16-bit front-end step counter, not elapsed time or a recorded movie's video-frame number.</param>
 public readonly record struct FrontendFrame(
     SuperMetroidGameState GameState,
     string Phase,

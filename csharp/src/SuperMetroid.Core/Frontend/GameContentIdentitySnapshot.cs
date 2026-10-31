@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Serializable installed-content identity captured beside deterministic diagnostic state.
 /// </summary>
 /// <remarks>
-/// The source cartridge digest remains a separate field in each owning format. These values
+/// The source data digest remains a separate field in each owning format. These values
 /// identify the compiled gameplay definitions and replaceable presentation catalogs selected
 /// by the host, allowing consumers to explain which part of an installation differs without
 /// embedding any copyrighted content.
@@ -14,7 +14,7 @@ public sealed record GameContentIdentitySnapshot
     /// <summary>Version of the framed installed-content identity contract.</summary>
     public required int FormatVersion { get; init; }
 
-    /// <summary>Module build ID containing the compiled cartridge definitions.</summary>
+    /// <summary>Module build ID containing the compiled game definitions.</summary>
     public required Guid CompiledDefinitionsBuildId { get; init; }
 
     /// <summary>SHA-256 of the selected validated audio catalog.</summary>

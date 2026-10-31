@@ -32,7 +32,7 @@ public sealed class MapSaveMarkerPositions
         string id = MapSaveMarkers.Id(area, index);
         Position16<MapPixels> basis = FileSelectMapLoadAnchors.Get(area, index);
         var edited = coordinateOverrides.GetValueOrDefault(id);
-        return new(checked((ushort)(edited.X ?? basis.X)), checked((ushort)(edited.Y ?? basis.Y)));
+        return new(edited.X ?? basis.X, edited.Y ?? basis.Y);
     }
     /// <summary>Loads all 34 supported save/elevator marker anchors, validates the complete identity set and coordinate bounds, and retains only coordinates differing from compiled station projections.</summary>
     /// <param name="json">Caller-owned stream containing the editable save-marker JSON document.</param>

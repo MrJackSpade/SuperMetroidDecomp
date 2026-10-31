@@ -187,7 +187,7 @@ internal static class WorldMapCharacterDrawing
                 if (x >= 1 && x < Side - 1 && y >= 1 && y < Side - 2)
                 {
                     value = x == 1 || y == 1 ? Fill : Edge;
-                    if (shape == WorldMapBackgroundShape.SunkenPanel) value = (byte)(Fill + Edge - value);
+                    if (shape == WorldMapBackgroundShape.SunkenPanel) value = WordWrap.LowByte(Fill + Edge - value);
                 }
                 return true;
             case WorldMapBackgroundShape.PanelTopCap:
@@ -197,28 +197,28 @@ internal static class WorldMapCharacterDrawing
                 value = y == Side - 1 ? x == 0 ? Outside : Fill : x == 0 || x == 1 && y == Side - 2
                     ? Fill : x == Side - 1 && y >= 2 ? Outside : Edge;
                 return true;
-            case WorldMapBackgroundShape.AntiDiagonalCut: value = x + y != Side - 1 ? Fill : (byte)0; return true;
-            case WorldMapBackgroundShape.TopRowCut: value = y == 0 ? (byte)0 : Fill; return true;
+            case WorldMapBackgroundShape.AntiDiagonalCut: value = x + y != Side - 1 ? Fill : 0; return true;
+            case WorldMapBackgroundShape.TopRowCut: value = y == 0 ? 0 : Fill; return true;
             case WorldMapBackgroundShape.UpperRightWedge or WorldMapBackgroundShape.LowerRightWedge or
                 WorldMapBackgroundShape.RightQuarterWedge or WorldMapBackgroundShape.TopQuarterWedge or
                 WorldMapBackgroundShape.UpperRightWedgeBelowTop or WorldMapBackgroundShape.LowerRightWedgeWithEdge or
                 WorldMapBackgroundShape.RightQuarterWedgeWithEdge or WorldMapBackgroundShape.UpperRightWedgeWithDiagonal:
                 bool filled = WedgeFills[shape](x, y);
-                value = filled ? Fill : (byte)0; return true;
+                value = filled ? Fill : 0; return true;
             default:
                 throw new InvalidOperationException($"Unknown background shape {shape}.");
         }
     }
 
     /// <summary>$8E:D800..D87F: room fill with edges on the bordered sides.</summary>
-    private static byte RoomBorder(WorldMapRoomBorder border, Position16<CharacterPixels> point)
+    private static int RoomBorder(WorldMapRoomBorder border, Position16<CharacterPixels> point)
     {
         (bool top, bool bottom, bool left, bool right) = border;
         return top && point.Y == 0 || bottom && point.Y == Side - 1 || left && point.X == 0 || right && point.X == Side - 1 ? Edge : Fill;
     }
 
     /// <summary>$8E:D730..D7AF/D880..D8FF: half-cell slopes and their chosen wall/guide joins.</summary>
-    private static byte DiagonalRoom(WorldMapDiagonalRoom room, Position16<CharacterPixels> point)
+    private static int DiagonalRoom(WorldMapDiagonalRoom room, Position16<CharacterPixels> point)
     {
         (bool mirror, int offset, bool below, bool left, bool right, bool dashLeft, bool dashBottom, bool wallJoin) = room;
         int boundary = (mirror ? Side - 1 - point.X : point.X) / 2 + offset;

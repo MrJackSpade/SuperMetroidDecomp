@@ -94,7 +94,7 @@ internal static class CeresDestructionActors
         return new(
 wait,
             ZebesStarSheets[quadrant],
-            new((ushort)(48 + 160 * (quadrant & 1)), (ushort)(47 + 160 * (quadrant >> 1))),
+            new(WordWrap.Unsigned(48 + 160 * (quadrant & 1)), WordWrap.Unsigned(47 + 160 * (quadrant >> 1))),
             ScreenColourGroup.CeresFlightSpaceObjects, 0, false, 32,
             completesScene ? CinematicSpritePreInstruction.ZebesStarsCompletionSlideSceneAway : CinematicSpritePreInstruction.ZebesStarsSlideSceneAway,
             completesScene);

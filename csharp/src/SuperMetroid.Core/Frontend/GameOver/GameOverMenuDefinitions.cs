@@ -10,10 +10,10 @@ public static class GameOverMenuDefinitions
     public static readonly SoundRequestPriority MaximumQueuedSounds = SoundRequestPriority.Normal;
 
     /// <summary>The pre-statue-hall track of the title music set, requested once the initial music queue drains.</summary>
-    public const byte MusicTrack = 4;
+    public const int MusicTrack = 4;
 
     /// <summary>Menu updates the current Baby frame is held for once either answer is accepted, holding it through the fade-out.</summary>
-    public const ushort AcceptedAnswerHoldDuration = 180;
+    public const int AcceptedAnswerHoldDuration = 180;
 
     /// <summary>The colours in each Baby palette phase.</summary>
     public const int BabyPaletteColorCount = 16;

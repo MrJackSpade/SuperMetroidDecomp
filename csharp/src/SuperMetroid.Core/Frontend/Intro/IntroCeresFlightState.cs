@@ -26,7 +26,7 @@ internal sealed class IntroCeresFlightState
         CreateActor(CeresFlightActorDefinitions.FrontStars);
 
     /// <summary>Mode 7 scroll position advanced with the star actor or rear-view drift.</summary>
-    private FixedPosition<FloorPixels> background = new(new(unchecked((ushort)-72), 0), new(unchecked((ushort)-104), 0));
+    private FixedPosition<FloorPixels> background = new(new(WordWrap.Unsigned(-72), 0), new(WordWrap.Unsigned(-104), 0));
     /// <summary>
     /// Mode 7 scale in 8.8 fixed point: 512 at the start, shrunk by 16 per update while at least 32 (ending at 16)
     /// for the front approach, then grown by 16 below 3072 and by 32 below 8192 for the rear view, ending at 8192.
@@ -210,9 +210,9 @@ internal sealed class IntroCeresFlightState
         layers.Add(new SpriteDepthLayer(3));
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
         {
-            layers.Add(new ScreenTintLayer(checked((byte)flashIntensity), checked((byte)flashIntensity), checked((byte)flashIntensity)));
+            layers.Add(new ScreenTintLayer(Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity), Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity), Ensure.BetweenInclusive(0, byte.MaxValue, flashIntensity)));
         }
-        return new(new FramePaint(palette.Shown(), objects.Draws), layers.ToArray(), checked((byte)brightness));
+        return new(new FramePaint(palette.Shown(), objects.Draws), layers.ToArray(), brightness);
     }
 
     /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>
@@ -234,7 +234,7 @@ internal sealed class IntroCeresFlightState
     private void SetupRearView()
     {
         // $BE22 loads the rear view's map; the rear view's phase selects its installed floor (#1467).
-        background = new(new(unchecked((ushort)-32), 0), new(unchecked((ushort)-128), 0));
+        background = new(new(WordWrap.Unsigned(-32), 0), new(WordWrap.Unsigned(-128), 0));
         angle = RotationAngle.FromTableIndex(32);
 
         // These five slots are the exact $BE3B-$BE5C spawn order. Their visual lists
@@ -369,7 +369,7 @@ internal sealed class IntroCeresFlightState
                     $"{actor.PreInstruction}.");
             }
             if (definition.WrapX)
-                AddWrappedX(actor, unchecked((ushort)definition.HorizontalDelta));
+                AddWrappedX(actor, WordWrap.Unsigned(definition.HorizontalDelta));
             else
                 AddSignedX(actor, definition.HorizontalDelta);
             actor.Step();
@@ -380,7 +380,7 @@ internal sealed class IntroCeresFlightState
     private static void AddWrappedX(IntroDiscoverySprite actor, int fractionalDelta)
     {
         FixedCoordinate x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
-        actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole % 512)));
+        actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % 512)));
     }
 
     /// <summary>Applies signed 16.16 horizontal motion without the front-star wrap.</summary>
@@ -401,9 +401,9 @@ internal sealed class IntroCeresFlightState
                 $"Ceres front stars name invalid pre-instruction " +
                 $"{stars.PreInstruction}.");
         }
-        stars.GeneralTimer = unchecked((ushort)(stars.GeneralTimer +
-            CeresFlightActorDefinitions.FrontStarAcceleration));
-        var velocity = new SignedEightEight(checked((ushort)stars.GeneralTimer));
+        stars.GeneralTimer = WordWrap.Unsigned(stars.GeneralTimer +
+            CeresFlightActorDefinitions.FrontStarAcceleration);
+        var velocity = new SignedEightEight(stars.GeneralTimer);
         stars.Position = new(
             IntroCinematicMotion.AddEightEight(stars.Position.X, velocity),
             IntroCinematicMotion.AddEightEight(stars.Position.Y, velocity));

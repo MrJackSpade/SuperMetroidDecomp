@@ -483,7 +483,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.FinaleSubMap), IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
+        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, Stage.Brightness);
 
         PicturedPlaneLayer Plane(EndingObjectFragmentId map, TileDepth priority) => new(ExplosionPlane(map),
             new Position16<TilePlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow), priority == TileDepth.Front);
@@ -541,8 +541,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
         {
             foreach (ShownEndingText shown in text)
                 placed.Add(new PlacedPlanePicture(sheet.Frame(shown.Picture), new Position16<TilePlanePixels>(
-                    checked((ushort)(shown.Cell.X * ScreenGeometry.BackgroundTileSizePixels)),
-                    checked((ushort)((shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels)))));
+                    shown.Cell.X * ScreenGeometry.BackgroundTileSizePixels,
+                    (shown.Cell.Y + firstRow) * ScreenGeometry.BackgroundTileSizePixels)));
         }
     }
 
@@ -561,7 +561,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             new AddedPicturedPlaneLayer(ExplosionPlane(EndingExplosionDisplayDefinitions.BurstSubMap), main, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, checked((byte)Stage.Brightness));
+        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), layers, Stage.Brightness);
     }
 
     /// <summary>Whether the current cinematic phase leaves its escape or planet backdrop visible.</summary>

@@ -230,7 +230,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         PrepareRenderSprites();
         // The backdrop, the page and its labels, language rows and toggle choices are the menus' pictures (#1467).
         return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(GameOptionsNames.BackgroundFrame),
-            screen.PagePictures(ShownPage.Frames()), unchecked((ushort)bg1VerticalScroll), checked((byte)brightness));
+            screen.PagePictures(ShownPage.Frames()), CoordinateAxis.Wrap(bg1VerticalScroll), Ensure.BetweenInclusive(0, byte.MaxValue, brightness));
     }
 
     /// <summary>Draws the current page heading and animated cursor as sprite entries.</summary>

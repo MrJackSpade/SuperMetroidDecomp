@@ -145,7 +145,7 @@ internal sealed class EndingStage
             case EndingSpriteRole.AnimalEscape:
                 uint y = IntroCinematicMotion.Packed(sprite.Position.Y) + EndingAnimalEscapeDefinitions.YFractionVelocity;
                 sprite.Position = new(
-                    sprite.Position.X.WithWhole(unchecked((ushort)(sprite.Position.X.Whole + EndingAnimalEscapeDefinitions.XVelocity))),
+                    sprite.Position.X.WithWhole(CoordinateAxis.Wrap(sprite.Position.X.Whole + EndingAnimalEscapeDefinitions.XVelocity)),
                     IntroCinematicMotion.Unpacked(y));
                 if (sprite.Position.X.Whole >= EndingAnimalEscapeDefinitions.DeleteX)
                     sprite.Delete();
@@ -203,17 +203,17 @@ internal sealed class EndingStage
                 {
                     sprite.InstallPreInstruction(CinematicSpritePreInstruction.ZebesExplosionStarsMoving);
                     // The Y subposition word doubles as the low velocity word.
-                    sprite.Position = sprite.Position.WithY(sprite.Position.Y.WithFraction((ushort)(SixteenSixteen.FromWhole(1) / 4)));
+                    sprite.Position = sprite.Position.WithY(sprite.Position.Y.WithFraction(CoordinateAxis.Wrap(SixteenSixteen.FromWhole(1) / 4)));
                     sprite.GeneralTimer = 0;
                 }
                 break;
             case CinematicSpritePreInstruction.ZebesExplosionStarsMoving:
                 int velocity = unchecked((int)(SixteenSixteen.Compose(sprite.GeneralTimer, sprite.Position.Y.Fraction))) - 32;
-                sprite.GeneralTimer = unchecked((ushort)(SixteenSixteen.WholeOf(velocity)));
+                sprite.GeneralTimer = WordWrap.Unsigned(SixteenSixteen.WholeOf(velocity));
                 uint position = unchecked(IntroCinematicMotion.Packed(sprite.Position.X) + (uint)velocity);
                 sprite.Position = new(
                     IntroCinematicMotion.Unpacked(position),
-                    sprite.Position.Y.WithFraction(unchecked((ushort)velocity)));
+                    sprite.Position.Y.WithFraction(WordWrap.Unsigned(velocity)));
                 break;
             case CinematicSpritePreInstruction.NoOp:
             case CinematicSpritePreInstruction.MetroidEgg:

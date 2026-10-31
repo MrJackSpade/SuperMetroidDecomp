@@ -12,6 +12,6 @@ internal static class FileCopyArrows
             throw new ArgumentOutOfRangeException(nameof(destination));
         int distance = Math.Abs(source - destination);
         int shape = (distance == 2 ? 2 : 0) + (source > destination ? 1 : 0);
-        return new FileCopyArrowPlacement(shape, (ushort)(distance == 2 ? 104 : 88 + 32 * Math.Min(source, destination)));
+        return new FileCopyArrowPlacement(shape, CoordinateAxis.Wrap(distance == 2 ? 104 : 88 + 32 * Math.Min(source, destination)));
     }
 }

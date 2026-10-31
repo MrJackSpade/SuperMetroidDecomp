@@ -125,7 +125,7 @@ internal sealed class IntroBabyDiscoveryState
         // The egg's $A8E8 pre-instruction tests Samus's post-movement X during the later
         // cinematic-sprite pass. It permanently redirects the list once X is below $A9.
         if (egg.PreInstruction == IntroBabyActorDefinitions.Egg.PreInstruction &&
-            unchecked((short)(Samus.Position.X.Whole - 169)) < 0)
+            CoordinateAxis.Difference(Samus.Position.X.Whole, 169) < 0)
         {
             egg.Start(CinematicSpriteProgram.MetroidEggHatching);
             egg.InstallPreInstruction(
@@ -375,7 +375,7 @@ internal sealed class IntroBabyDiscoveryState
         }
 
         // $BA73 accelerates toward 32 pixels above Samus, clamping to +/-$220 in 8.8.
-        int targetY = unchecked((ushort)(Samus.Position.Y.Whole - 32));
+        int targetY = CoordinateAxis.Wrap(Samus.Position.Y.Whole - 32);
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
             confusedBaby.WholePosition.Y,
             targetY,
@@ -386,7 +386,7 @@ internal sealed class IntroBabyDiscoveryState
 
         // The first non-negative velocity marks the top of the initial arc. Native code
         // then holds for $80 frames before enabling the two-axis dance around Samus.
-        if (unchecked((short)BabyVelocity.Y.RawValue) >= 0)
+        if (BabyVelocity.Y.SignedRawValue >= 0)
         {
             BabyIdleTimer = WrappingCountdown.Start(128);
             confusedBaby.InstallPreInstruction(
@@ -422,12 +422,12 @@ internal sealed class IntroBabyDiscoveryState
             positiveLimit: 640,
             negativeLimit: -640));
         // $8B:BB79-$BB9E: a baby moving left draws over Samus; otherwise Samus draws first.
-        SamusDisplay = unchecked((sbyte)(EightEight.WholeOf(BabyVelocity.X.RawValue))) < 0
+        SamusDisplay = WordWrap.SignedLowByte(EightEight.WholeOf(BabyVelocity.X.RawValue)) < 0
             ? IntroSamusDisplay.ObjectsFirst
             : IntroSamusDisplay.SamusFirst;
         AddEightEightVelocity(confusedBaby, axis: Axis.Horizontal, BabyVelocity.X);
 
-        int targetY = unchecked((ushort)(Samus.Position.Y.Whole - 8));
+        int targetY = CoordinateAxis.Wrap(Samus.Position.Y.Whole - 8);
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
             confusedBaby.WholePosition.Y,
             targetY,
@@ -445,12 +445,12 @@ internal sealed class IntroBabyDiscoveryState
         int positiveLimit,
         int negativeLimit)
     {
-        int velocity = unchecked((short)current.RawValue);
-        if (unchecked((short)(target - position)) >= 0)
+        int velocity = WordWrap.Signed(current.RawValue);
+        if (CoordinateAxis.Difference(target, position) >= 0)
             velocity = Math.Min(positiveLimit, velocity + 32);
         else
             velocity = Math.Max(negativeLimit, velocity - 32);
-        return new(unchecked((ushort)velocity));
+        return new(WordWrap.Unsigned(velocity));
     }
 
     /// <summary>Integrates one 8.8 velocity component into the actor's subpixel position.</summary>

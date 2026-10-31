@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingExplosionDisplayDefinitions
 {
     /// <summary>Native visible scanout begins at physical line one. With BG VOFS=0, the first displayed BG row is source row one, while OBJ remains screen-relative.</summary>
-    public const ushort FirstVisibleBackgroundRow = 1;
+    public const int FirstVisibleBackgroundRow = 1;
     /// <summary>The explosion the first background plane shows from Func117 until the finale replaces it.</summary>
     public const EndingObjectFragmentId InitialMap = EndingObjectFragmentId.Segment70;
     /// <summary>The explosion the first background plane shows during the finale (F2FA).</summary>

@@ -15,10 +15,10 @@ internal static class FileSelectCursorPositions
     /// follow the native text layout. Bounds are checked before arithmetic and preserve
     /// ArgumentOutOfRangeException. X is the separate constant14.
     /// </remarks>
-    public static ushort MainSelectionY(int selection)
+    public static int MainSelectionY(int selection)
     {
         if ((uint)selection >= MainSelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
-        return (ushort)(selection < SaveSlotCount ? 48 + 40 * selection
+        return WordWrap.Unsigned(selection < SaveSlotCount ? 48 + 40 * selection
             : 163 + 24 * (selection - SaveSlotCount));
     }
 
@@ -28,10 +28,10 @@ internal static class FileSelectCursorPositions
     /// spacing. Exit shares the main-page Exit Y. Both original tables and the extractor's
     /// former duplicate are one logical mapping; unsupported indices remain rejected.
     /// </remarks>
-    public static ushort DataSelectionY(int selection)
+    public static int DataSelectionY(int selection)
     {
         if ((uint)selection >= DataSelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
-        return selection < SaveSlotCount ? (ushort)(72 + 32 * selection)
+        return selection < SaveSlotCount ? WordWrap.Unsigned(72 + 32 * selection)
             : MainSelectionY(MainSelectionCount - 1);
     }
 
@@ -40,9 +40,9 @@ internal static class FileSelectCursorPositions
     /// Independently reviewed for #1165: slots0..2 use the main slot cursor anchor minus
     /// one pixel, giving the same five-tile spacing. Reject unsupported slot indices.
     /// </remarks>
-    public static ushort HelmetY(int slot)
+    public static int HelmetY(int slot)
     {
         if ((uint)slot >= SaveSlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
-        return (ushort)(MainSelectionY(slot) - 1);
+        return WordWrap.Unsigned(MainSelectionY(slot) - 1);
     }
 }

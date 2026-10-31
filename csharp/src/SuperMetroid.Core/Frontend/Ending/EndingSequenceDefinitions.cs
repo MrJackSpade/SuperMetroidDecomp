@@ -10,20 +10,20 @@ public static class EndingSequenceDefinitions
     public static class Music
     {
         /// <summary>Track five, selected with both the escape and ending music sets.</summary>
-        public const byte Track = 5;
+        public const int Track = 5;
 
         /// <summary>The delayed-music argument fourteen, which the music queue's delay conversion interprets rather than counting frames.</summary>
-        public const ushort DelayArgument = 14;
+        public const int DelayArgument = 14;
     }
 
     /// <summary>Whole-hour thresholds selecting the suitless, helmetless or fully armored Samus reward.</summary>
     public static class Rewards
     {
         /// <summary>Exclusive whole-hour cutoff for the suitless reward: recorded game time below three hours.</summary>
-        public const ushort SuitlessMaximumHoursExclusive = 3;
+        public const int SuitlessMaximumHoursExclusive = 3;
 
         /// <summary>Exclusive whole-hour cutoff for the helmetless suited reward: at least three but fewer than ten hours; ten or more keeps the helmet.</summary>
-        public const ushort HelmetlessMaximumHoursExclusive = 10;
+        public const int HelmetlessMaximumHoursExclusive = 10;
     }
 
     /// <summary>Authored reveal, palette-fade and panel-hold durations, in cinematic updates.</summary>

@@ -30,7 +30,7 @@ public static class MapSaveMarkers
         IEnumerable<int> Enumerate()
         {
             for (int index = 0; index < SlotsPerArea; index++)
-                if (LoadStations.Get(area, (byte)index).Room is not null)
+                if (LoadStations.Get(area, WordWrap.LowByte(index)).Room is not null)
                     yield return index;
         }
     }
@@ -44,7 +44,7 @@ public static class MapSaveMarkers
     {
         ValidateArea(area);
         if ((uint)index >= SlotsPerArea) throw new ArgumentOutOfRangeException(nameof(index));
-        return LoadStations.Get(area, (byte)index).Room is not null;
+        return LoadStations.Get(area, WordWrap.LowByte(index)).Room is not null;
     }
 
     /// <summary>Rejects Ceres and undefined areas because only the six Zebes areas own marker tables.</summary>

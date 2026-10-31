@@ -65,7 +65,7 @@ public static class IntroNarrationPictures
 
     /// <summary>The plane position of the cell at <paramref name="column"/> of <paramref name="row"/>.</summary>
     private static Position16<TilePlanePixels> At(int column, int row) =>
-        new(checked((ushort)(column * ScreenGeometry.BackgroundTileSizePixels)), checked((ushort)(row * ScreenGeometry.BackgroundTileSizePixels)));
+        new(column * ScreenGeometry.BackgroundTileSizePixels, row * ScreenGeometry.BackgroundTileSizePixels);
 
     /// <summary>The installed narration picture sheet.</summary>
     private static SpriteSheet Sheet(InstalledSpriteSheets sheets) => Ensure.NotNull(sheets).Get(SpriteSheetId.IntroNarrationPictures);

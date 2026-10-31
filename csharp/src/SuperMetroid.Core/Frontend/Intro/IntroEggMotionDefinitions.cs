@@ -52,9 +52,9 @@ internal static class IntroEggMotionDefinitions
         "natural-unit factory expresses them, and they are not cartridge addresses.")]
     internal static readonly SignedSixteenSixteen[] FragmentOverreads =
     [
-        SignedSixteenSixteen.FromParts(unchecked((short)0x9dad), 0x991b),
+        SignedSixteenSixteen.FromParts(WordWrap.Signed(0x9dad), 0x991b),
         SignedSixteenSixteen.FromParts(0x1b7d, 0x97ad),
-        SignedSixteenSixteen.FromParts(unchecked((short)0x991a), 0x1a7d),
+        SignedSixteenSixteen.FromParts(WordWrap.Signed(0x991a), 0x1a7d),
     ];
 
     /// <summary>The shell gravity records before the overread: the bounded curve's frame count.</summary>

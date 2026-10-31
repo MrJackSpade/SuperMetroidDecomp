@@ -225,7 +225,7 @@ internal sealed class EndingEscapeScenes
     {
         int normalized = Math.Clamp(digit, 0, 9);
         _stage.SpawnSprite(
-            new(checked((ushort)x), EndingActorDefinitions.ClearTimeDigitY),
+            new(x, EndingActorDefinitions.ClearTimeDigitY),
             ScreenColourGroup.EndingClearTimeDigits,
             ClearTimeDigitProgram(normalized),
             EndingSpriteRole.ClearTimeDigit);

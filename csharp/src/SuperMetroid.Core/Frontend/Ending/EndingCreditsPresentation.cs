@@ -23,7 +23,7 @@ internal static class EndingCreditsPresentation
             layers.Add(new SpritesLayer(ending.InstalledArtwork.CurrentEndingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer(ending));
             // The logo assembles over the shooting scene's page.
-            return new(CaptureMemory(ending, EndingObjectSheet.RewardFalling), layers.ToArray(), checked((byte)ending.Stage.Brightness));
+            return new(CaptureMemory(ending, EndingObjectSheet.RewardFalling), layers.ToArray(), ending.Stage.Brightness);
         }
         if (ending.CreditsRoll.CurrentPostShot is not null)
         {
@@ -34,7 +34,7 @@ internal static class EndingCreditsPresentation
             layers.Add(new SpriteDepthLayer(1));
             layers.Add(new SpriteDepthLayer(2));
             layers.Add(new SpriteDepthLayer(3));
-            return new(CaptureMemory(ending, CurrentRewardObjectSheet(ending)), layers.ToArray(), checked((byte)ending.Stage.Brightness));
+            return new(CaptureMemory(ending, CurrentRewardObjectSheet(ending)), layers.ToArray(), ending.Stage.Brightness);
         }
         if (ending.Stage.Phase == EndingCreditsPhase.Credits)
         {
@@ -71,7 +71,7 @@ internal static class EndingCreditsPresentation
                 {
                     int a = Scale(ReadSine(ending.Stage.FloorAngle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), ending.Stage.FloorZoom);
                     int b = Scale(ReadSine(ending.Stage.FloorAngle.ToByteAngle()), ending.Stage.FloorZoom);
-                    layers.Add(new TurningFloorLayer(new((short)a, (short)b, unchecked((short)-b), (short)a,
+                    layers.Add(new TurningFloorLayer(new(WordWrap.Signed(a), WordWrap.Signed(b), WordWrap.Signed(-b), WordWrap.Signed(a),
                         CurrentFloorCenter(ending),
                         ending.Stage.FloorPosition.Whole.AsSignedWord(), AtmosphericMapWraps(ending) ? FloorOverflowMode.Wrap : FloorOverflowMode.Transparent),
                         floor, AddsForeground: AtmosphericMapWraps(ending)));
@@ -99,7 +99,7 @@ internal static class EndingCreditsPresentation
             if (ending.Stage.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                 layers.Add(EndingFlyaway.WhiteAddition(ending.CreditsRoll.WhiteFlashColor));
         }
-        return new(memory, layers.ToArray(), checked((byte)ending.Stage.Brightness));
+        return new(memory, layers.ToArray(), ending.Stage.Brightness);
     }
 
     /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>
@@ -107,7 +107,7 @@ internal static class EndingCreditsPresentation
     {
             int a = Scale(ReadSine(ending.PostShot.Angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), ending.PostShot.Scale);
             int b = Scale(ReadSine(ending.PostShot.Angle.ToByteAngle()), ending.PostShot.Scale);
-            return new((short)a, (short)b, unchecked((short)-b), (short)a,
+            return new(WordWrap.Signed(a), WordWrap.Signed(b), WordWrap.Signed(-b), WordWrap.Signed(a),
                 new Offset16<FloorPixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
                 new Offset16<FloorPixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
         }
@@ -151,7 +151,7 @@ internal static class EndingCreditsPresentation
     /// <summary>The post-credits background plane: the waiting backdrop, or the shown text page at its current scroll and height.</summary>
     private static PicturedPlaneLayer PostCreditsLayer(EndingCreditsState ending)
     {
-        var size = new Extent16<TilemapCells>(EndingScreenDefinitions.TilemapWidth, checked((ushort)ending.CreditsRoll.PostCreditsMapHeight));
+        var size = new Extent16<TilemapCells>(EndingScreenDefinitions.TilemapWidth, ending.CreditsRoll.PostCreditsMapHeight);
         return UsesWaitingBackground(ending)
             ? new(ending.WaitingPlane(size), ending.Stage.PostCreditsScroll, null)
             : new(ending.TextPagePlane(ending.CreditsRoll.PostCreditsTextTilemap, size), ending.Stage.PostCreditsScroll, null);
@@ -201,13 +201,13 @@ internal static class EndingCreditsPresentation
     }
 
     /// <summary>Reads a signed sine component from the installed enemy trigonometry table.</summary>
-    internal static short ReadSine(ByteAngle angle) => Trigonometry.SignedSine(angle);
+    internal static int ReadSine(ByteAngle angle) => Trigonometry.SignedSine(angle);
 
     /// <summary>The falling reward sheet once the jumping Samus has switched to it, otherwise the reward sheet.</summary>
     private static EndingObjectSheet CurrentRewardObjectSheet(EndingCreditsState ending) => ending.CreditsRoll.CurrentRewardJump?.FallingSheetSelected == true
         ? EndingObjectSheet.RewardFalling : EndingObjectSheet.Reward;
 
     /// <summary>Multiplies a signed Mode 7 component by the scene's positive 8.8 zoom scalar.</summary>
-    private static short Scale(int component, int scalar) =>
-        unchecked((short)EightEight.Multiply(component, scalar));
+    private static int Scale(int component, int scalar) =>
+        WordWrap.Signed(EightEight.Multiply(component, scalar));
 }

@@ -135,7 +135,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     /// BG1VOFS inherited by both gameplay flashbacks from the first illustrated page ($8B:A66F).
     /// Their actor coordinates remain screen-relative and are not shifted with the background.
     /// </summary>
-    internal const ushort GameplayFlashbackBg1VerticalScroll = 8;
+    internal const int GameplayFlashbackBg1VerticalScroll = 8;
 
     /// <summary>Owns queued cinematic music and sound effects when installed.</summary>
     private readonly AudioQueues? audio;
@@ -1356,7 +1356,7 @@ level, samus, FrameCounterWord(elapsedUpdates));
     /// The shared Samus systems' frame-counter word after <paramref name="elapsedUpdates"/> updates: its low sixteen
     /// bits, which return to zero every 65536 updates exactly as the cartridge's sixteen-bit counter does.
     /// </summary>
-    internal static ushort FrameCounterWord(int elapsedUpdates) => unchecked((ushort)elapsedUpdates);
+    internal static int FrameCounterWord(int elapsedUpdates) => WordWrap.Unsigned(elapsedUpdates);
 
     /// <summary>The scene plane showing <paramref name="pictures"/> at the selected scroll, its back pixels only (#1467).</summary>
     private static PicturedPlaneLayer Plane(PicturedPlane pictures, Position16<TilePlanePixels> scroll) => new(pictures, scroll, false);

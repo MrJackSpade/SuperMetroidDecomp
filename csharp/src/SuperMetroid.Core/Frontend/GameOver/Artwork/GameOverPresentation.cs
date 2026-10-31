@@ -77,7 +77,7 @@ public abstract class GameOverPresentation
         if ((uint)frame >= GameOverPresentationDefinitions.CursorFrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
         Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationNames.CursorFrameName(frame)),
-            new Position16<SpritePixels>(checked((ushort)CursorX), checked((ushort)(selectNo ? NoCursorY : YesCursorY))));
+            new Position16<SpritePixels>(CursorX, selectNo ? NoCursorY : YesCursorY));
     }
 
     /// <summary>Writes one selected sixteen-colour Baby animation palette over the Baby's sprite palette row.</summary>

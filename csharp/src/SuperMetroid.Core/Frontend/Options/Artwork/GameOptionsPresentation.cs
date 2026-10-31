@@ -61,7 +61,7 @@ public abstract class GameOptionsPresentation
             ? GameOptionsArtworkCells.HeadingAnchor(page)
             : headingAnchors[page];
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
-        Position16<SpritePixels> origin = new(checked(point.X), unchecked((ushort)(point.Y - verticalScroll)));
+        Position16<SpritePixels> origin = new(checked(point.X), CoordinateAxis.Wrap(point.Y - verticalScroll));
         sprites.AddImage(sheet.Frame(GameOptionsNames.HeadingSpriteName(page)), origin);
     }
 

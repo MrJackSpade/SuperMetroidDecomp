@@ -59,5 +59,5 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
     }
 
     /// <summary>Applies the native signed 16-bit comparison to a map-bound subtraction.</summary>
-    private static short Signed(int value) => unchecked((short)value);
+    private static int Signed(int value) => WordWrap.Signed(value);
 }

@@ -15,16 +15,16 @@ internal static class CeresExplosionDefinitions
     public const int FinalExplosionCount = 4;
 
     /// <summary><c>$8B:CE35</c>, invisible wait before instruction <c>$C404</c>.</summary>
-    public const ushort InitialWaitFrames = 0x0080;
+    public const int InitialWaitFrames = 0x0080;
 
     /// <summary><c>$8B:CE3B</c>, wait before installing repeating pre-instruction <c>$C489</c>.</summary>
-    public const ushort RepeatingStartWaitFrames = 0x0050;
+    public const int RepeatingStartWaitFrames = 0x0050;
 
     /// <summary><c>$8B:CE43</c>, final spawner lifetime before instruction <c>$C50C</c>.</summary>
-    public const ushort RepeatingLifetimeFrames = 0x0040;
+    public const int RepeatingLifetimeFrames = 0x0040;
 
     /// <summary><c>$8B:C4A8</c>, frames between repeating second-wave explosions.</summary>
-    public const ushort RepeatingPeriodFrames = 0x000c;
+    public const int RepeatingPeriodFrames = 0x000c;
 
     /// <summary>First host frame on which the initial wait has expired.</summary>
     public const int InitialSpawnFrame = InitialWaitFrames + 1;
@@ -37,7 +37,7 @@ internal static class CeresExplosionDefinitions
         InitialWaitFrames + RepeatingStartWaitFrames + RepeatingLifetimeFrames + 1;
 
     /// <summary>$8B:C33C, CinematicFunctionTimer seed when the initial fade completes.</summary>
-    internal const ushort RepeatingCountdownSeed = 1;
+    internal const int RepeatingCountdownSeed = 1;
     /// <summary><c>$8B:CEBB</c>, first delayed small-explosion actor.</summary>
     /// <remarks>Native list $8B:CCDB..CCF4 displays six duration-3 small-explosion frames, then deletes. It runs as a typed cinematic sprite program.</remarks>
     public static CinematicActorDefinition InitialActor =>

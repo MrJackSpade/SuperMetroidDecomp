@@ -12,7 +12,7 @@ public readonly struct TitleBabyPageSequence : IReadOnlyList<byte>
     /// <returns>Page 0-2; multiplying it by a page's bytes gives the page's start.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The phase is outside 0-3.</exception>
     public byte this[int frame] => (uint)frame < Length
-        ? (byte)Math.Min(frame, Length - frame)
+        ? WordWrap.LowByte(Math.Min(frame, Length - frame))
         : throw new ArgumentOutOfRangeException(nameof(frame));
     /// <summary>Enumerates the four pages in animation order without retaining a page array.</summary>
     /// <returns>An enumerator yielding 0, 1, 2, 1.</returns>

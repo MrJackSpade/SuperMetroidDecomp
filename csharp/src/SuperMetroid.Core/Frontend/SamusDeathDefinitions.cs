@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Frontend;
 internal static class SamusDeathDefinitions
 {
     /// <summary>The death fanfare's track in the death music set, selected after every sound and the current music stop.</summary>
-    public const byte FanfareTrack = 5;
+    public const int FanfareTrack = 5;
 }

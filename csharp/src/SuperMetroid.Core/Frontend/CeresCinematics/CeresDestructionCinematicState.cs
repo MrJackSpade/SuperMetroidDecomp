@@ -92,7 +92,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private IntroDiscoverySprite? zebesTitleActor;
 
     /// <summary>Signed 16.16 camera offset applied to the Mode-7 Ceres or Zebes scene.</summary>
-    internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(unchecked((ushort)-44), 0), new(unchecked((ushort)-112), 0));
+    internal FixedPosition<FloorPixels> Background { get; private set; } = new(new(WordWrap.Unsigned(-44), 0), new(WordWrap.Unsigned(-112), 0));
     /// <summary>
     /// Mode-7 scene scale in 1/256 units (256 is identity). Every producer keeps it within zero through
     /// <see cref="CeresDestructionSceneDefinitions.Motion.FarZebesScaleLimit"/> plus one fast step, and the only decrease
@@ -277,7 +277,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 break;
 
             case CeresDestructionPhase.FlyingAwayFromExplosion:
-                Background = Background.WithX(Background.X.WithWhole(unchecked((ushort)(Background.X.Whole + 2))));
+                Background = Background.WithX(Background.X.WithWhole(CoordinateAxis.Wrap(Background.X.Whole + 2)));
                 angle = angle.AddTableUnits(-1);
                 if (Zoom < CeresDestructionSceneDefinitions.Motion.MinimumScale)
                 {
@@ -344,7 +344,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
             case CeresDestructionPhase.FlyingTowardZebesB:
                 Background = Background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(Background.Y, CeresDestructionSceneDefinitions.Motion.EighthPixel16Point16));
                 Background = Background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(Background.X, CeresDestructionSceneDefinitions.Motion.NegativeHalfPixel16Point16));
-                if (unchecked((short)Background.X.Whole) < -128)
+                if (CoordinateAxis.AsSigned(Background.X.Whole) < -128)
                 {
                     Phase = CeresDestructionPhase.FlyingTowardZebesC;
                 }
@@ -475,7 +475,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     {
         usesFloor = true;
         Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Sprites.ZebesInitialBackgroundX),
-            Background.Y.WithWhole(unchecked((ushort)-104)));
+            Background.Y.WithWhole(WordWrap.Unsigned(-104)));
         angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
         Zoom = CeresDestructionSceneDefinitions.Motion.IdentityScale;
         actors.Clear();
@@ -617,7 +617,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                         $"{actor.PreInstruction}.");
                 }
                 if (definition.WrapX)
-                    AddWrappedX(actor, unchecked((ushort)definition.HorizontalDelta));
+                    AddWrappedX(actor, WordWrap.Unsigned(definition.HorizontalDelta));
             }
             else
                 MoveExplosion(actor);
@@ -647,13 +647,13 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         // C345 calls the ordinary bank-$88 explosion with screen-space coordinates,
         // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
         stationExplosion.Spawn(new(
-            unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole)),
-            unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole))));
+            CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole),
+            CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)));
         audio?.QueueSound(SuperMetroid.Core.Audio.Library1Sound.PowerBombExplosion,
             priority: SoundRequestPriority.Essential);
         var cinematicExplosion = new IntroDiscoverySprite(
-            new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole)),
-                unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole))),
+            new(CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X - Background.X.Whole),
+                CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y - Background.Y.Whole)),
             ScreenColourGroup.CeresExplosions,
             CeresExplosionDefinitions.StationBlastActor.Program);
         cinematicExplosion.InstallPreInstruction(
@@ -669,10 +669,10 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         CeresExplosionPlacement placement)
     {
         var actor = new IntroDiscoverySprite(
-            new(unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.X -
-                    unchecked((short)Background.X.Whole) + placement.Offset.X)),
-                unchecked((ushort)(CeresDestructionSceneDefinitions.CeresFloorCenter.Y -
-                    unchecked((short)Background.Y.Whole) + placement.Offset.Y))),
+            new(CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.X -
+                    CoordinateAxis.AsSigned(Background.X.Whole) + placement.Offset.X),
+                CoordinateAxis.Wrap(CeresDestructionSceneDefinitions.CeresFloorCenter.Y -
+                    CoordinateAxis.AsSigned(Background.Y.Whole) + placement.Offset.Y)),
             ScreenColourGroup.CeresExplosions,
             definition.Program);
         actor.InstallPreInstruction(definition.PreInstruction);
@@ -748,7 +748,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 // it crosses -$80, so the speed never nears the word's wrap.
                 actor.GeneralTimer += definition.SlideAcceleration;
                 SubtractEightEightY(actor, actor.GeneralTimer);
-                if (unchecked((short)actor.WholePosition.Y) < -128)
+                if (CoordinateAxis.AsSigned(actor.WholePosition.Y) < -128)
                 {
                     // `$8B:C885/$C8F2/$C95D/$C987` delete each object before its 8-bit
                     // OAM Y coordinate can wrap below the screen. Only star sheet five
@@ -785,7 +785,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 // The title actor, not a host timer, publishes the camera flight exactly
                 // where its cartridge instruction list reaches C9C7.
                 Background = new(Background.X.WithWhole(CeresDestructionSceneDefinitions.Motion.FloorExitX),
-                    Background.Y.WithWhole(unchecked((ushort)-112)));
+                    Background.Y.WithWhole(WordWrap.Unsigned(-112)));
                 angle = CeresDestructionSceneDefinitions.Motion.ApproachAngle;
                 Zoom = CeresDestructionSceneDefinitions.Motion.MinimumScale;
                 Phase = CeresDestructionPhase.FlyingTowardZebesA;
@@ -831,7 +831,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     private static void AddWrappedX(IntroDiscoverySprite actor, int fractionalDelta)
     {
         FixedCoordinate x = IntroCinematicMotion.AddSixteenSixteen(actor.Position.X, 0, fractionalDelta);
-        actor.Position = actor.Position.WithX(x.WithWhole((ushort)(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
+        actor.Position = actor.Position.WithX(x.WithWhole(CoordinateAxis.Wrap(x.Whole % CeresDestructionSceneDefinitions.WorldWidth)));
     }
 
     /// <summary>Subtracts an unsigned 8.8 slide velocity from the actor's 16.16 Y position with borrow.</summary>
@@ -842,7 +842,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         uint fixedPosition = new FixedCoordinate(actor.Position.Y.Whole, actor.Position.Y.Fraction).RawValue;
         uint fixedVelocity = SixteenSixteen.FromEightEight((uint)velocity);
         fixedPosition = unchecked(fixedPosition - fixedVelocity);
-        actor.Position = actor.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition)));
+        actor.Position = actor.Position.WithY(new(FixedCoordinate.WholeOf(unchecked((int)fixedPosition)), CoordinateAxis.Wrap(fixedPosition)));
     }
 
     /// <summary>Captures the scene's exact Mode 7/OBJ insertion order or Mode 1 planet plane.</summary>
@@ -878,7 +878,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
-        return new(new FramePaint(palette.Shown(), objects.Draws), layers, checked((byte)brightness));
+        return new(new FramePaint(palette.Shown(), objects.Draws), layers, brightness);
     }
 
     /// <summary>One Ceres actor's native OBJ slot.</summary>

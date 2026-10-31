@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 internal static class CeresFlightSceneDefinitions
 {
     /// <summary>The track of the flight's music set that starts with the flight.</summary>
-    internal const byte MusicTrack = 5;
+    internal const int MusicTrack = 5;
     /// <summary>The queue delay the flight's track is requested with.</summary>
-    internal const ushort MusicDelay = 14;
+    internal const int MusicDelay = 14;
 }

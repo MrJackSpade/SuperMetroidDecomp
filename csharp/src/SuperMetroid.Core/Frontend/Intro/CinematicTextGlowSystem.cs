@@ -30,7 +30,7 @@ internal sealed class CinematicTextGlowSystem
             if (!slot.Active || !(slot.Timer = slot.Timer.Decrement().Remaining).IsZero) continue;
             for (int row = 0; row < slot.Size.Y; row++)
             for (int column = 0; column < slot.Size.X; column++)
-                text.Recolour(new(checked((ushort)(slot.Cell.X + column)), checked((ushort)(slot.Cell.Y + row))), slot.Palette);
+                text.Recolour(new(slot.Cell.X + column, slot.Cell.Y + row), slot.Palette);
             if (slot.Palette == CinematicTextGlowDefinitions.FinalPalette)
                 slot.Active = false;
             else

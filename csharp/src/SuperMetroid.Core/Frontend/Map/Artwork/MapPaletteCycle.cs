@@ -16,7 +16,7 @@ public sealed class MapPaletteCycle
     /// Native $82:C10C pauses fifteen ticks at the loop origin and advances other
     /// highlight phases every three ticks. Independently edited frame holds remain exact.
     /// </summary>
-    private static byte StockDuration(int frame) => frame == 0 ? (byte)15 : (byte)3;
+    private static int StockDuration(int frame) => frame == 0 ? 15 : 3;
 
     /// <summary>Retains independent holds and paint edits while deriving the stock fourteen-frame mirror.</summary>
     internal MapPaletteCycle(byte[] durations, RgbColor[][] suppliedColors)
@@ -50,7 +50,7 @@ public sealed class MapPaletteCycle
     /// <param name="frame">Zero-based selected frame index, strictly below <see cref="FrameCount"/>; not automatically wrapped.</param>
     /// <returns>A hold of one through 254 ticks; stock frame zero holds fifteen ticks and other stock frames hold three.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
-    public byte Duration(int frame)
+    public int Duration(int frame)
     {
         CheckFrame(frame);
         return durationEdits.ContainsKey(frame) ? durationEdits[frame] : StockDuration(frame);

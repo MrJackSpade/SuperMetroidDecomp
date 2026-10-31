@@ -16,7 +16,7 @@ public static class PauseReserveTankParts
     public static Position16<SpritePixels> StockAnchor(int index)
     {
         if ((uint)index >= AnchorCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return new(checked((ushort)(FirstAnchorX + index * AnchorStride)), AnchorY);
+        return new(FirstAnchorX + index * AnchorStride, AnchorY);
     }
     /// <summary>$82:B305 full tank; $82:B396 trailing cap; $82:B37D empty tank and $82:B3D9 seven fill levels.</summary>
     /// <returns>Ten stable frame-name/native-spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order; caller-owned reserve quantities select the frame.</returns>

@@ -12,5 +12,5 @@ internal readonly record struct EndingSpriteDefinition(
 {
     /// <summary>An actor at signed <paramref name="origin"/>, stored as the wrapped words the actor carries.</summary>
     public static EndingSpriteDefinition At(Offset16<ScreenPixels> origin, ScreenColourGroup colouring, CinematicSpriteProgram program) =>
-        new(new(unchecked((ushort)origin.X), unchecked((ushort)origin.Y)), colouring, program);
+        new(new(CoordinateAxis.Wrap(origin.X), CoordinateAxis.Wrap(origin.Y)), colouring, program);
 }

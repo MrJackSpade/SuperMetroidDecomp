@@ -149,7 +149,7 @@ internal sealed class IntroDiscoverySprite
         switch (advance)
         {
             case AnimationProgramAdvance<CinematicSpritePose>.Show shown:
-                instructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+                instructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 Pose = shown.Frame;
                 return;
             case AnimationProgramAdvance<CinematicSpritePose>.Hold:
@@ -184,7 +184,7 @@ internal sealed class IntroDiscoverySprite
             return;
         Position16<ScreenPixels> origin = Position.Whole - scroll;
         int y = origin.Y;
-        if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >=
+        if (CoordinateAxis.Wrap(y + CinematicSpriteDrawDefinitions.OriginYBias) >=
             CinematicSpriteDrawDefinitions.BiasedOriginYLimit)
             return;
         // A negative origin still has visible component tiles, but their low-byte Y

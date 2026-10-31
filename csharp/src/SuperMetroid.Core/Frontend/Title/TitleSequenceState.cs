@@ -234,21 +234,21 @@ public sealed class TitleSequenceState : IFrontendScreen
             case TitleSequencePhase.SceneZeroPan:
                 panPosition = panPosition.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
                     panPosition.X, -TitleSequenceDefinitions.Scenes.PanVelocity16Point16));
-                if (unchecked((short)panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.SceneZeroEndX)
+                if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.SceneZeroEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Nintendo);
                 break;
 
             case TitleSequencePhase.SceneOnePan:
                 panPosition = panPosition.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(
                     panPosition.X, -TitleSequenceDefinitions.Scenes.PanVelocity16Point16));
-                if (unchecked((short)panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.SceneOneEndX)
+                if (CoordinateAxis.AsSigned(panPosition.X.Whole) < TitleSequenceDefinitions.Scenes.SceneOneEndX)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.Presents);
                 break;
 
             case TitleSequencePhase.SceneTwoPan:
                 panPosition = panPosition.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(
                     panPosition.Y, TitleSequenceDefinitions.Scenes.PanVelocity16Point16));
-                if (unchecked((short)panPosition.Y.Whole) >= TitleSequenceDefinitions.Scenes.SceneTwoEndY)
+                if (CoordinateAxis.AsSigned(panPosition.Y.Whole) >= TitleSequenceDefinitions.Scenes.SceneTwoEndY)
                     BeginTextSequence(TitleSequenceDefinitions.TextSequences.MetroidThree);
                 break;
 
@@ -366,10 +366,10 @@ public sealed class TitleSequenceState : IFrontendScreen
         PrepareRenderSprites();
         return new(new FramePaint(palette.Shown(), objects.Draws),
             floorBackgroundEnabled
-                ? new AffineTransform(unchecked((short)Zoom), TitleSequenceDefinitions.Scenes.Rotation.TableIndex,
-                    0, unchecked((short)Zoom), new Offset16<FloorPixels>(128, 128), panPosition.Whole.AsSignedWord())
+                ? new AffineTransform(WordWrap.Signed(Zoom), TitleSequenceDefinitions.Scenes.Rotation.TableIndex,
+                    0, WordWrap.Signed(Zoom), new Offset16<FloorPixels>(128, 128), panPosition.Whole.AsSignedWord())
                 : null,
-            checked((byte)Brightness), gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
+            Ensure.BetweenInclusive(0, byte.MaxValue, Brightness), gradientEnabled ? new ScreenGradientLayer(ResolveTitleGradient()) : null,
             floorBackgroundEnabled ? TitleFloors.Of(spriteSheets, TitleSequenceDefinitions.Graphics.BabyAnimationSourcePages[BabyFrame]) : null);
     }
 
@@ -379,7 +379,7 @@ public sealed class TitleSequenceState : IFrontendScreen
         if (titleGradientPresentation is null)
             throw new InvalidOperationException(
                 "Title rendering requires the installed title-gradient asset.");
-        return titleGradientPresentation.Resolve((ushort)Zoom);
+        return titleGradientPresentation.Resolve(WordWrap.Unsigned(Zoom));
     }
 
     /// <summary>Places the active title spritemap and stage-dependent copyright as the frame's sprite entries.</summary>
@@ -529,8 +529,8 @@ public sealed class TitleSequenceState : IFrontendScreen
         Phase = definition.Phase;
         floorBackgroundEnabled = true;
         Zoom = definition.Scale;
-        panPosition = new(panPosition.X.WithWhole(unchecked((ushort)definition.Position.X)),
-            panPosition.Y.WithWhole(unchecked((ushort)definition.Position.Y)));
+        panPosition = new(panPosition.X.WithWhole(CoordinateAxis.Wrap(definition.Position.X)),
+            panPosition.Y.WithWhole(CoordinateAxis.Wrap(definition.Position.Y)));
         ActiveSprite = null;
     }
 }

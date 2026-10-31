@@ -23,7 +23,7 @@ public abstract class PauseReserveTankPresentation
     public Position16<SpritePixels> Anchor(int index)
     {
         var basis = PauseReserveTankParts.StockAnchor(index);
-        return anchorOverrides.TryGetValue(index, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
+        return anchorOverrides.TryGetValue(index, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
     }
     /// <summary>Draws one full, empty, partially filled, or end-cap reserve frame of the pause sheet at a strip position.</summary>
     /// <param name="entries">The screen's sprite entries.</param>

@@ -178,7 +178,7 @@ internal sealed class IntroRinkaSystem
             colouring: ScreenColourGroup.IntroDiscoveryActors,
             program: IntroRinkaDefinitions.RinkaActor.Program)
         {
-            GeneralTimer = (ushort)parameter,
+            GeneralTimer = WordWrap.Unsigned(parameter),
         };
         rinka.InstallPreInstruction(
             IntroRinkaDefinitions.RinkaActor.PreInstruction);
@@ -203,8 +203,8 @@ internal sealed class IntroRinkaSystem
 
                 // $B90B compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding routine.
-                if (unchecked((short)(rinka.WholePosition.X + 8)) <
-                    unchecked((short)(samus.Position.X.Whole - 5)))
+                if (CoordinateAxis.AsSigned(rinka.WholePosition.X + 8) <
+                    CoordinateAxis.Difference(samus.Position.X.Whole, 5))
                 {
                     if (motherBrainExploding)
                         rinka.Delete();
@@ -221,7 +221,7 @@ internal sealed class IntroRinkaSystem
                 MoveHalfPixelX(rinka,
                     IntroRinkaLaunches.Rinka(rinka.GeneralTimer).XWholeVelocity);
                 MoveHalfPixelY(rinka);
-                int y = unchecked((short)rinka.WholePosition.Y);
+                int y = CoordinateAxis.AsSigned(rinka.WholePosition.Y);
                 if (y < 16 || y >= 208 || motherBrainExploding)
                     rinka.Delete();
                 return;

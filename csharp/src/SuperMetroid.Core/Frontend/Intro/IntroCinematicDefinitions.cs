@@ -46,7 +46,7 @@ public static class IntroCinematicDefinitions
     public static class Palette
     {
         /// <summary>The crossfade counter's starting value.</summary>
-        public const ushort CrossfadeInitialCounter = 127;
+        public const int CrossfadeInitialCounter = 127;
         /// <summary>Updates per crossfade colour step.</summary>
         public const int CrossfadeStepFrames = 4;
         /// <summary>The screen colours faded for the gameplay flashback.</summary>
@@ -68,9 +68,9 @@ public static class IntroCinematicDefinitions
     public static class Music
     {
         /// <summary>The track each loaded cinematic music set starts.</summary>
-        public const byte SceneTrack = 5;
+        public const int SceneTrack = 5;
         /// <summary>The queue delay the scene track is requested with.</summary>
-        public const ushort SceneTrackDelay = 14;
+        public const int SceneTrackDelay = 14;
         /// <summary>The countdown before the discovery scene's music begins.</summary>
         public const int DiscoveryInitialTimer = 14;
     }
@@ -79,9 +79,9 @@ public static class IntroCinematicDefinitions
     public static class Fade
     {
         /// <summary>The narration's fades: one brightness level every two updates.</summary>
-        public const ushort NarrationSlowFade = 2;
+        public const int NarrationSlowFade = 2;
         /// <summary>The final fade: one brightness level every second update.</summary>
-        public const ushort FinishFade = 1;
+        public const int FinishFade = 1;
     }
 
     /// <summary>The actors' sounds.</summary>
@@ -101,11 +101,11 @@ public static class IntroCinematicDefinitions
     public static class ObjectSystem
     {
         /// <summary>The caret's row before narration begins.</summary>
-        public const ushort CaretInitialY = 248;
+        public const int CaretInitialY = 248;
         /// <summary>The caret's leftmost column, in pixels.</summary>
-        public const ushort CaretLeftX = 8;
+        public const int CaretLeftX = 8;
         /// <summary>The caret's row on the first narration line.</summary>
-        public const ushort CaretFirstTextY = 24;
+        public const int CaretFirstTextY = 24;
         /// <summary>Width and height of one text character in pixels.</summary>
         public const int CharacterPixelSize = 8;
         /// <summary>Pixels from a character's origin to its baseline.</summary>

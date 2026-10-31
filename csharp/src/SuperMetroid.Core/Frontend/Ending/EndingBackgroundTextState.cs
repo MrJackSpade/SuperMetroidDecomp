@@ -93,7 +93,7 @@ internal sealed class EndingBackgroundTextState
             // A space writes its style's blank glyph, which shows nothing.
             if (character.Character != ' ')
                 page.Write(EndingPictureNames.Glyph(character.Style, character.Character), new Position16<TilemapCells>(
-                    checked((ushort)character.Column), checked((ushort)character.Row)));
+                    character.Column, character.Row));
             InstructionTimer = WrappingCountdown.Start(EndingTypewriterDefinitions.CharacterDelayFrames);
             Upload(screen);
             return;
@@ -143,7 +143,7 @@ internal sealed class EndingBackgroundTextState
 
     /// <summary>The cell of the item percentage's glyph <paramref name="place"/> places right of the hundreds digit.</summary>
     private static Position16<TilemapCells> PercentageCell(int place) => new(
-        checked((ushort)(EndingResultTextLayout.PercentageHundredsCell.X + place)), EndingResultTextLayout.PercentageHundredsCell.Y);
+        EndingResultTextLayout.PercentageHundredsCell.X + place, EndingResultTextLayout.PercentageHundredsCell.Y);
 
     /// <summary>Shows the staging page on the selected text page.</summary>
     private void Upload(EndingScreen screen) =>

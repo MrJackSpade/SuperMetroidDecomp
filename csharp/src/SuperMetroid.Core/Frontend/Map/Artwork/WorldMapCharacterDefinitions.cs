@@ -9,15 +9,15 @@ internal static class WorldMapCharacterDefinitions
     /// <summary>Hardware character side in pixels; all primitive coordinates use the complete eight-pixel cell.</summary>
     internal const int CellSide = 8;
     /// <summary>$8E:D600 2-bpp character role: outside a room.</summary>
-    internal const byte Outside = 3;
+    internal const int Outside = 3;
     /// <summary>$8E:D600 2-bpp character role: room fill.</summary>
-    internal const byte Fill = 1;
+    internal const int Fill = 1;
     /// <summary>$8E:D600 2-bpp character role: room edge.</summary>
-    internal const byte Edge = 2;
+    internal const int Edge = 2;
     /// <summary>$8E:8000..91FF/9A00..A5FF/AC00..B3FF and named UI labels: retained typeface face pen.</summary>
-    internal const byte ForegroundFontFace = 14;
+    internal const int ForegroundFontFace = 14;
     /// <summary>$8E:8000..91FF/9A00..A5FF/AC00..B3FF and named UI labels: retained typeface shadow pen.</summary>
-    internal const byte ForegroundFontShadow = 13;
+    internal const int ForegroundFontShadow = 13;
     /// <summary>$6A: the world-map label font's A cell; the letters follow alphabetically.</summary>
     internal const int LabelLetterACell = 0x6a;
 

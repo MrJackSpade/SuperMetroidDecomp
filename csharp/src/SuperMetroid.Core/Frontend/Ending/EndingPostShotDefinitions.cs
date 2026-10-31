@@ -6,19 +6,19 @@ internal static class EndingPostShotDefinitions
     /// <summary>The final text background plane E48A shows is 32 cells wide and this many cells tall: two screens stacked.</summary>
     public const int FinalTextMapHeight = 64;
     /// <summary>E48A adds maximum five-bit white; E504 decreases it each frame.</summary>
-    public const byte WhiteComponent = 31;
+    public const int WhiteComponent = 31;
     /// <summary>F604 queues library-one $22 through the max-fifteen sound queue.</summary>
     public static readonly SoundEffectId ShotSound = Library1Sound.ChargedPlasmaWave;
     /// <summary>F604 queues the shot through the max-fifteen entry point.</summary>
     public static SoundRequestPriority ShotSoundLimit { get; } = SoundRequestPriority.Essential;
     /// <summary>Func126's post-credits Mode-7 horizontal origin.</summary>
-    public const short CenterX = 104;
+    public const int CenterX = 104;
     /// <summary>Func126's post-credits Mode-7 vertical origin.</summary>
-    public const short CenterY = 112;
+    public const int CenterY = 112;
     /// <summary>F604's post-shot BG horizontal offset.</summary>
-    public const short OffsetX = -4;
+    public const int OffsetX = -4;
     /// <summary>F604's post-shot BG vertical offset.</summary>
-    public const short OffsetY = -8;
+    public const int OffsetY = -8;
     /// <summary>Func126 initializes the reward Mode-7 scale to nine times unity.</summary>
     public const int InitialScale = 2304;
     /// <summary>Func139 reduces scale by $40 per frame.</summary>

@@ -167,7 +167,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
         bool ceresFadeFinished = session.ceresDeparture.StepFadeAfterGameplay();
-        session.SetDisplayBrightness(checked((byte)session.ceresDeparture.Brightness));
+        session.SetDisplayBrightness(Ensure.BetweenInclusive(0, byte.MaxValue, session.ceresDeparture.Brightness));
         if (ceresFadeFinished)
         {
             // GameState_33 saves the live area-six/station-zero slot only after
@@ -228,7 +228,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             SamusState endingSamus = session.GameplayRuntime.Player.Samus ??
                 throw new InvalidOperationException(
                     "Ending inventory calculation requires the live Samus state.");
-            session.Show(new EndingCreditsState(session.audio, new EndingCreditsSetup { GameTimeHours = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : session.GameplayRuntime.GameTime.Hours, GameTimeMinutes = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : session.GameplayRuntime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
+            session.Show(new EndingCreditsState(session.audio, new EndingCreditsSetup { GameTimeHours = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? WordWrap.Unsigned(endingMinutes / 60) : session.GameplayRuntime.GameTime.Hours, GameTimeMinutes = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? WordWrap.Unsigned(totalMinutes % 60) : session.GameplayRuntime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
                     endingSamus.MaxHealth,
                     endingSamus.MaxReserveEnergy,
                     endingSamus.MaxMissiles,

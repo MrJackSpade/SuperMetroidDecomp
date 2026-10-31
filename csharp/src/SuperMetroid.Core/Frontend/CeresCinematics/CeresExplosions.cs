@@ -82,7 +82,7 @@ internal static class CeresExplosions
             throw new ArgumentOutOfRangeException(nameof(index));
         int x = index == 4 ? 0 : 16 * (1 - 2 * (index & 1));
         int y = index < 2 ? -x : x;
-        return new(new((short)x, (short)y), index == 0 ? 1 : 16 * index);
+        return new(new(CoordinateAxis.AsSigned(x), CoordinateAxis.AsSigned(y)), index == 0 ? 1 : 16 * index);
     }
 
     /// <summary>Returns a chosen repeating-burst position with its common first-call delay.</summary>
@@ -126,6 +126,6 @@ internal static class CeresExplosions
         int magnitude = 8 + 4 * (index & 1);
         int x = index < 2 ? magnitude : -magnitude;
         int y = FinalBurstHeights[index];
-        return new(new((short)x, (short)y), index == 0 ? 1 : 1 << (index + 1));
+        return new(new(CoordinateAxis.AsSigned(x), CoordinateAxis.AsSigned(y)), index == 0 ? 1 : 1 << (index + 1));
     }
 }

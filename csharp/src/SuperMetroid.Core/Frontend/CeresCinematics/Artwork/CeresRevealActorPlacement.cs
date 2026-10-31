@@ -6,7 +6,7 @@ public sealed record CeresRevealActorPlacement
 {
     /// <summary>The validated spawn position as one native screen-pixel value.</summary>
     [System.Text.Json.Serialization.JsonIgnore]
-    public Position16<ScreenPixels> Position => new(checked((ushort)X), checked((ushort)Y));
+    public Position16<ScreenPixels> Position => new(X, Y);
 
     /// <summary>Case-sensitive native presentation role, required to match its fixed index in <see cref="CeresRevealActorLayoutDocument.Actors"/>.</summary>
     public required string Id { get; init; }

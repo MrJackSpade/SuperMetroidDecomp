@@ -10,7 +10,7 @@ public static class FileSelectMapDefinitions
     public const int AreaCount = 6;
 
     /// <summary>The room view's frame drawn this many pixels lower, aligning it with the visible map viewport.</summary>
-    public const ushort RoomFrameVerticalScroll = 24;
+    public const int RoomFrameVerticalScroll = 24;
 
     /// <summary>Updates the return window's area timer is shortened by.</summary>
     public const int ReturnWindowTimerReduction = 12;

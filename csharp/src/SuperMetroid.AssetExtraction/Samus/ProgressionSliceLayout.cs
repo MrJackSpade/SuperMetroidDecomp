@@ -1,9 +1,12 @@
-namespace SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
+
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Byte offsets of the persistent-progress slice of the cartridge's SRAM mirror, from the event bitset at
 /// <c>$7E:D820</c> through the saved dispatcher word at <c>$7E:D914</c>, in native order. SpaceTime's malformed palette
-/// copy addresses progression by these offsets (#1318, #1330).
+/// copy addresses progression by these offsets (#1318, #1330); extraction decodes the copy into each table's replaced
+/// entries (#1474).
 /// </summary>
 internal static class ProgressionSliceLayout
 {

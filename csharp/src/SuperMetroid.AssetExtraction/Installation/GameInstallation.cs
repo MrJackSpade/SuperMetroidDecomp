@@ -75,10 +75,10 @@ public sealed record GameInstallation(string Root)
     /// <summary>Validates stock starting palettes and loads any compatible user replacements for initial CGRAM and room-entry sprite colors.</summary>
     public GameplayBasePalette LoadGameplayBasePalettes() =>
         GameplayBasePaletteFiles.Load(GameplayBasePaletteDirectory, GameplayBasePaletteOverrideDirectory);
-    /// <summary>Stock cartridge bytes Samus's glitch paths read; not editable, so there is no override directory.</summary>
+    /// <summary>Stock decoded results of Samus's glitch reads; not editable, so there is no override directory.</summary>
     public string SamusOverreadDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SamusOverreadDirectoryName);
-    /// <summary>Loads the validated cartridge bytes Samus's glitch paths read.</summary>
-    public InstalledSamusOverreads LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
+    /// <summary>Loads the validated compatibility services reproducing Samus's glitch reads.</summary>
+    public SamusOverreadServices LoadSamusOverreads() => SamusOverreadFiles.Load(SamusOverreadDirectory);
     /// <summary>Stock pre-coloured sprite sheets and their frame manifests.</summary>
     public string SpriteSheetDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.SpriteSheetDirectoryName);
     /// <summary>Player-edited sprite sheet images or frame manifests, which replace the stock files of the same name.</summary>

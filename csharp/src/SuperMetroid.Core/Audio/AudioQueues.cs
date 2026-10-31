@@ -46,7 +46,7 @@ public sealed class AudioQueues
     /// <summary>The power-on requests, deferred until the next audio frame.</summary>
     private readonly List<AudioRequest> _pendingPowerOnRequests = [];
 
-    /// <summary>Slot of the music entry being retired or fetched by bank-80 dispatch, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
+    /// <summary>Slot of the music entry being retired or fetched by the music handler, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
     internal int MusicReadPosition { get; private set; }
     /// <summary>Insertion slot of the circular delayed-music command queue, below <see cref="AudioQueueDefinitions.MusicCapacity"/>.</summary>
     internal int MusicWritePosition { get; private set; }
@@ -231,8 +231,8 @@ public sealed class AudioQueues
     }
 
     /// <summary>
-    /// Queues <c>Cancel_Sound_Effects</c> at <c>$82:BE17</c> through all three native
-    /// SFX rings, in the cartridge's exact library order.
+    /// Silences all three sound libraries by queueing each one's silence request at normal
+    /// priority, in library order.
     /// </summary>
     public void QueueCancelSoundEffects()
     {
@@ -323,7 +323,7 @@ public sealed class AudioQueues
         MusicWritePosition = next;
     }
 
-    /// <summary>Advances the bank-80 timer and requests either a data set change or a track at expiry.</summary>
+    /// <summary>Advances the music handler's delay countdown and requests either a data set change or a track at expiry.</summary>
     private void HandleMusicQueue(List<AudioRequest> requests)
     {
         CountdownStep step = MusicTimer.Decrement();

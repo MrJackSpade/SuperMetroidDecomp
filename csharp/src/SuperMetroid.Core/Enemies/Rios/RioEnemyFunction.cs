@@ -8,12 +8,12 @@ public enum RioEnemyFunction
 {
     /// <summary>Starts a dive when Samus is within a strict 160-world-pixel horizontal distance, selecting launch direction toward her.</summary>
     WaitingForSamus = 1,
-    /// <summary>Waits for the $A2:BBC3 animation handshake, then installs the post-swoop idle list and resumes proximity waiting.</summary>
+    /// <summary>Waits for the swoop animation's handshake, then installs the post-swoop idle animation and resumes proximity waiting.</summary>
     WaitingForLandingAnimation,
-    /// <summary>Moves with signed 8.8 velocities, subtracting $0018 from Y velocity per AI update until homing begins or collision starts the bounce.</summary>
+    /// <summary>Moves with signed 8.8 velocities, subtracting 24 from Y velocity per AI update until homing begins or collision starts the bounce.</summary>
     Diving,
     /// <summary>Follows the upward bounce with signed 8.8 acceleration; horizontal collision reverses X, and vertical collision starts the cooldown animation.</summary>
     BouncingBackToPerch,
-    /// <summary>Uses angle-table samples as 8.8 velocities while above Samus, then restores saved horizontal speed and begins ascent at Y velocity $FFFF.</summary>
+    /// <summary>Uses angle-table samples as 8.8 velocities while above Samus, then restores saved horizontal speed and begins ascent at Y velocity -1.</summary>
     HoveringTowardSamus,
 }

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// Every enemy projectile kind's definition: how it moves itself, its size, its damage to Samus and its behaviours.
-/// Kinds whose cartridge routines differ only by where an empty routine sits share <see cref="EnemyProjectileFrameBehavior.Stationary"/>.
+/// Kinds whose authored behaviours differ only by where an empty step sits share <see cref="EnemyProjectileFrameBehavior.Stationary"/>.
 /// </summary>
 internal static class EnemyProjectileDefinitionCatalog
 {

@@ -174,7 +174,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case NorfairRioEnemyFunction.FinishLanding:
                 // Function six is intentionally a one-frame state: it changes only
-                // the dispatch word. Looping list $C179 remains installed, which also keeps
+                // the dispatch word. The looping idle animation remains installed, which also keeps
                 // the follower half visible while the actor waits for another random attack.
                 state.Function = NorfairRioEnemyFunction.WaitForAttackOpportunity;
                 return;
@@ -242,8 +242,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // gEnemySpawnData(child)[31] is another deliberate WRAM alias. For an immediately
-        // following child, +$7C0 reaches the parent's family-extra block: some_flag is the
+        // The follower's spawn-data read is another deliberate alias. For an immediately
+        // following child, it reaches the parent's family-extra block: one word is the
         // installed-list word and field_4 is its signed follower Y offset. The drawing-queue
         // offsets in the same routine alias the parent's live X/Y position words.
         NorfairRioProgram followerList = parentState.FollowerOffset.Y < 0

@@ -3,16 +3,15 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>
-/// Enemy projectile $86:B4B1, the old Tourian escape shaft fake-wall explosion, and its list
-/// Which
+/// The old Tourian escape shaft fake-wall explosion, whose animation
 /// <see cref="OldTourianWallExplosionAnimation"/> plays typed. Its six small-explosion spritemap operands resolve
 /// through extracted presentation art.
 /// </summary>
 internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions
 {
-    /// <summary>$86:B4A0/$B4A6: the wall-middle X/Y written to position and Var0/Var1.</summary>
+    /// <summary>The wall-middle X written to position and Var0.</summary>
     internal const int XPosition = 272;
-    /// <summary>$86:B4A6 wall-middle Y used by both the projectile position and Var1.</summary>
+    /// <summary>The wall-middle Y used by both the projectile position and Var1.</summary>
     internal const int YPosition = 2184;
 
     /// <summary>The loop count the list loads into the general timer; the burst plays once.</summary>

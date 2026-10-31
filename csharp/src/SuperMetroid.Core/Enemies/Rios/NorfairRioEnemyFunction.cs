@@ -8,7 +8,7 @@ public enum NorfairRioEnemyFunction
 {
     /// <summary>Follows the preceding parent using its signed animation-authored Y offset, hides for parent freeze/idle, and deletes the follower when the parent dies.</summary>
     FollowParent = 1,
-    /// <summary>Admits an attack when RNG mask <c>$0101</c> is nonzero and Samus is strictly within 192 horizontal room pixels, sampling a launch velocity from that RNG word.</summary>
+    /// <summary>Admits an attack when RNG mask 0x0101 is nonzero and Samus is strictly within 192 horizontal room pixels, sampling a launch velocity from that RNG word.</summary>
     WaitForAttackOpportunity,
     /// <summary>Waits for the animation handshake, then installs descending artwork, enters the dive, and requests library-two sound <c>$65</c>.</summary>
     WaitForTakeoffAnimation,

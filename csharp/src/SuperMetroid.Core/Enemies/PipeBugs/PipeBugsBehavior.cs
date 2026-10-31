@@ -107,7 +107,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case PipeBugEnemyFunction.BrinstarWaitUntilOnScreen:
                 // The poorly named CheckIfEnemyIsOnScreen returns zero when the
-                // origin is visible. $B3:8880 branches on that zero result, so this initial
+                // origin is visible. The wait branches on that zero result, so this initial
                 // state arms the proximity check on-screen, not after a despawn boundary.
                 if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
                     state.Function = PipeBugEnemyFunction.BrinstarWaitForSamus;
@@ -236,7 +236,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         SamusState samus)
     {
-        // $B3:88E3 decrements the subposition as a separate word, then subtracts either one
+        // The rise decrements the subposition as a separate word, then subtracts either one
         // or two pixels according to the old word. This is deliberately not normal 16.16
         // subtraction; preserving the oddity prevents a one-pixel/frame timing drift.
         FixedCoordinate y = slot.Position.Y;
@@ -263,12 +263,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
             (state.BrinstarFliesLeft ? -2 : 2));
-        // $B3:8949 tests only the horizontal screen extent.
+        // The despawn tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;
 
         slot.Position = slot.Position.WithWhole(state.SpawnPosition).WithFractionX(0);
-        // This apparently strange assignment is literal $B3:8958 behavior: the original
+        // This apparently strange assignment is literal game behavior: the original
         // stores the integer spawn Y into both halves rather than clearing the fraction.
         slot.Position = slot.Position.WithFractionY(state.SpawnPosition.Y);
         state.RequestedAnimation = PipeBugAnimationSelector.RisingFacingLeft;
@@ -323,8 +323,8 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         leaderState.CountFormationTick();
-        // $B3:8C19-$8C1F resets only the current (leader) slot. The following
-        // formation stores change every instruction pointer, but leave follower
+        // The formation tick resets only the current (leader) slot. The following
+        // formation stores change every animation, but leave follower
         // timers intact, including zero timers in cleared respawn placeholders.
         leader.FrameHold = WrappingCountdown.Start(1);
         leader.Timer = WrappingCountdown.Start(0);
@@ -373,7 +373,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.CountFormationTick();
         // Negative offsets move upward and positive offsets downward, one pixel per frame. The
-        // native routine clamps exactly at emergenceY +/- 16/32.
+        // game clamps exactly at emergenceY +/- 16/32.
         AddPipeBugLinearVelocity(
             slot,
             axis: Axis.Vertical,
@@ -447,7 +447,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"owned by initialized enemy {state?.DefinitionAtInitialization.ToString() ?? "none"}, " +
                     $"expected {EnemyDefinitionId.Gamet}.");
             }
-            // `$B3:8BCD/$8BFF/$8C52` never re-check the live definition. They read and
+            // The formation behaviours never re-check the live definition. They read and
             // write five consecutive 64-byte records even after generic death has changed
             // one member's definition to zero. Retaining the initialized typed owner here
             // preserves that raw alias without accepting an unrelated never-Pipe-Bug slot.

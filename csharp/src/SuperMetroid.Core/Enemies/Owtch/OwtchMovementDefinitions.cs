@@ -6,9 +6,9 @@ internal static class OwtchMovementDefinitions
 
     /// <summary>The patrol distance, 16*(index+1), for patrol selector 0..7.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165 against all eight NTSC J/U v1.0 words and
-    /// pinned bank_A2.asm. The high byte of parameter two selects an undoubled index;
-    /// native doubles it for word access, then adds/subtracts the distance with word
+    /// Independently reviewed for #1165 against all eight authored words.
+    /// The high byte of parameter two selects an undoubled index;
+    /// the game doubles it for word access, then adds/subtracts the distance with word
     /// wrap. Callers retain that wrapping.
     /// </remarks>
     internal static readonly ushort[] TravelDistances = [16, 32, 48, 64, 80, 96, 112, 128];

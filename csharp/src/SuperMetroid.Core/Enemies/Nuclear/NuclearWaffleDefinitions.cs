@@ -1,19 +1,19 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
-/// <summary>Compiled cartridge definitions for Puromi/Nuclear Waffle.</summary>
+/// <summary>Compiled authored definitions for Puromi/Nuclear Waffle.</summary>
 internal static class NuclearWaffleDefinitions
 {
 
     /// <summary>Sound effect $5E in library two, queued when a joint makes its rising turn.</summary>
     internal static readonly SoundEffectId TurnSoundEffect = Library2Sound.SidehopperLanding;
 
-    /// <summary>$A6:95F6 endpoint pairs mirror around angle $140.</summary>
+    /// <summary>The sweep endpoint pairs mirror around angle 320.</summary>
     private const int SweepCenter = 320;
-    /// <summary>$A6:95F6 endpoints extend $50 to either side of the common center.</summary>
+    /// <summary>The sweep endpoints extend 80 to either side of the common center.</summary>
     private const int SweepRadius = 80;
-    /// <summary>$A6:9606 turn thresholds extend $40 to either side of the center.</summary>
+    /// <summary>The turn thresholds extend 64 to either side of the center.</summary>
     private const int TurnRadius = 64;
-    /// <summary>$A6:95FE separates same-kind links by 24 angle units, with interleaved links halfway between.</summary>
+    /// <summary>Same-kind links are separated by 24 angle units, with interleaved links halfway between.</summary>
     private const int SegmentPitch = 24;
     /// <summary>
     /// The two mirrored sweeps, by direction, each with its endpoints, link spacing and turn thresholds: the first sweeps

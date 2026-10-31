@@ -13,7 +13,7 @@ public sealed class PolypEnemyState
     /// <summary>The current Polyp behaviour; none once a kill has emptied the record.</summary>
     public PolypEnemyFunction? Function { get; internal set; }
 
-    /// <summary>The launch cooldown, decremented through $FFFF before the Polyp rearms.</summary>
+    /// <summary>The launch cooldown, decremented through -1 before the Polyp rearms.</summary>
     public WrappingCountdown CooldownTimer { get; internal set; }
 
     /// <summary>Empties the values the game keeps in the enemy's common record: no behaviour and no cooldown.</summary>

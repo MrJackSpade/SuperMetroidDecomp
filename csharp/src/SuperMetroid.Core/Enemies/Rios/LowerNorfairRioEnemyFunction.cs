@@ -8,7 +8,7 @@ public enum LowerNorfairRioEnemyFunction
 {
     /// <summary>Follows the immediately preceding parent twelve pixels below, mirrors its freeze state and flame visibility, and deletes the follower when the parent dies.</summary>
     FollowParent = 1,
-    /// <summary>Admits an attack when the RNG mask <c>$0101</c> is nonzero and Samus is strictly within 112 horizontal room pixels.</summary>
+    /// <summary>Admits an attack when the RNG mask 0x0101 is nonzero and Samus is strictly within 112 horizontal room pixels.</summary>
     WaitForAttackOpportunity,
     /// <summary>Waits for the animation instruction's completion signal before clearing it and starting downward motion.</summary>
     WaitForTakeoffAnimation,

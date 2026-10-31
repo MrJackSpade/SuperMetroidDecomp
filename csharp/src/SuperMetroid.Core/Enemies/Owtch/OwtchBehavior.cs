@@ -133,7 +133,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 1);
                 if (state.RiseOnePixel())
                 {
-                    // $A2:A549 samples RandomNumberSeed+1 without advancing the RNG. The
+                    // The underground wait samples the random seed's high byte without advancing the RNG. The
                     // gameplay runtime supplies that read seam; isolated callers without it
                     // retain the established advancing fallback used by other translated AI.
                     int random = _room.Random.Read();
@@ -155,7 +155,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the carry-sensitive additions/$A4D9.</summary>
+    /// <summary>Moves the Owtch with the game's carry-sensitive additions.</summary>
     private static void MoveOwtch(
         RoomEnemySlot slot,
         OwtchEnemyState state,
@@ -187,7 +187,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Behavior = OwtchBehaviorState.Sinking;
     }
 
-    /// <summary>Animation commands $A2:A56D (left) and $A2:A571 (right): select the moving function index.</summary>
+    /// <summary>Animation cues for left and right: select the moving function index.</summary>
     private static void SetOwtchMoving(OwtchEnemyState state, OwtchBehaviorState moving) =>
         state.Behavior = moving;
 
@@ -235,7 +235,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Owtch &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.OwtchShot)
         {
-            // Owtch's private $A2:A579 callback returns before common shot AI unless signed(state - 1) is negative.
+            // Owtch's private shot callback returns before common shot AI unless signed(state - 1) is negative.
             // The collision prelude has already marked ordinary non-plasma shots as collided at this point,
             // but it has not converted them into an impact animation. Preserve that split so the shell is genuinely
             // immune while moving right, sinking, buried, or rising.

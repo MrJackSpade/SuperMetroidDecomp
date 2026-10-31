@@ -2,7 +2,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>
-/// The state of an Owtch, with its three extended WRAM words <c>$7E:7800-$7804</c>. The values the game keeps in
+/// The state of an Owtch, with its three extended words. The values the game keeps in
 /// the enemy's common record are emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class OwtchEnemyState
@@ -47,18 +47,18 @@ public sealed class OwtchEnemyState
         return BurialDepth == 0;
     }
 
-    /// <summary>Extended word <c>$7E:7800,x</c>.</summary>
+    /// <summary>The underground wait countdown.</summary>
     public WrappingCountdown UndergroundTimer { get; internal set; }
 
     /// <summary>
-    /// Extended word <c>$7E:7802,x</c>: the left end of the patrol, the spawn X less the travel distance with
+    /// The left end of the patrol, the spawn X less the travel distance with
     /// room-coordinate wraparound; only its X is meaningful. Positions compare with it by the wrapped spatial
     /// difference.
     /// </summary>
     public Position16<RoomPixels> MinimumPosition { get; internal set; }
 
     /// <summary>
-    /// Extended word <c>$7E:7804,x</c>: the right end of the patrol, the spawn X plus the travel distance with
+    /// The right end of the patrol, the spawn X plus the travel distance with
     /// room-coordinate wraparound; only its X is meaningful. Positions compare with it by the wrapped spatial
     /// difference.
     /// </summary>

@@ -166,7 +166,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (TickPowampTimer(state))
         {
             state.Function = PowampEnemyFunction.InflatedRiseToTargetHeight;
-            // Exactly half a pixel per frame upward on the NTSC cartridge.
+            // Exactly half a pixel per frame upward on NTSC.
             state.YVelocity = SignedSixteenSixteen.FromRaw(-SixteenSixteen.FromWhole(1) / 2);
             SetPowampProgram(body, state, PowampProgram.BodyFast);
         }
@@ -419,7 +419,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.WiggleIndex >= PowampMotionDefinitions.WigglePhaseCount)
         {
             throw new InvalidDataException(
-                $"Powamp wiggle index {state.WiggleIndex} exceeds the 12-word ROM table.");
+                $"Powamp wiggle index {state.WiggleIndex} exceeds the twelve authored wiggle offsets.");
         }
 
         int x = CoordinateAxis.Wrap(
@@ -446,8 +446,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Whether the balloon is in its sink sequence and how many of that sequence's poses it has shown. The native
-    /// instruction pointer the AI reads is the sequence's first list plus four bytes per shown pose; the deflated and
+    /// Whether the balloon is in its sink sequence and how many of that sequence's poses it has shown. The
+    /// animation position the AI reads is the sequence's first animation plus one step per shown pose; the deflated and
     /// second inflate lists continue those sequences.
     /// </summary>
     internal static PowampBalloonState PowampBalloonPhase(AnimationProgramCursor<PowampProgram> cursor) => cursor.Program switch
@@ -574,7 +574,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddPowampTouch(EnemySharedReactions table)
     {
         // Only the body before fatal shot damage accepts contact. Balloons are normally absent from the
-        // interactive list because population property $0400 excludes them, but retain the handler's literal guard.
+        // interactive list because their intangibility property excludes them, but retain the handler's literal guard.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Powamp &&
                                EnemyCollision.TouchAi(slot) == EnemyReaction.PowampTouch,
             context =>
@@ -586,22 +586,22 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>FirePowampSpikesIn8Directions</c>.</summary>
     /// <returns>
     /// The death animation <c>FirePowampSpikesIn8Directions</c> leaves selected for EnemyDeath: the last spike's
-    /// native projectile index, or, when the pool was full, <see cref="FullPoolDeathAnimation"/>.
+    /// projectile index, or, when the pool was full, <see cref="FullPoolDeathAnimation"/>.
     /// </returns>
     internal int SpawnPowampSpikeBurst(RoomEnemySlot body)
     {
         int graphics = FullPoolDeathAnimation(body);
         int accumulator = 0;
-        // Native Y counts from seven down to zero. Allocation independently searches the
-        // eighteen-slot pool from index $22 downward on every iteration.
+        // The spike loop counts from seven down to zero. Allocation independently searches the
+        // eighteen-slot pool from the last slot downward on every iteration.
         for (int direction = 7; direction >= 0; direction--)
         {
             RoomEnemyProjectileSlot? spike = _projectiles.AllocateEnemyProjectile();
             if (spike is null)
                 return graphics;
 
-            // SpawnEnemyProjectileY_ParameterA_XGraphics copies definition $D298 before
-            // initializer $D23A zeros velocities and captures the owner position. Reading
+            // Spawning copies the spike's definition before
+            // its initializer zeros velocities and captures the owner position. Reading
             // the record through the shared helper preserves its list, map sentinel, radii,
             // damage, and all property bits instead of maintaining a second hand copy here.
             EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(

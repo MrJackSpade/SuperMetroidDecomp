@@ -69,7 +69,7 @@ internal sealed class DownwardGateBehavior
                 ? DownwardGateDefinitions.ClosedPositionOffsetPixels
                 : 0))));
 
-        // The gate's block ties the actor to its gate; $84:BBF0 searches for it when the gate needs to open again.
+        // The gate's block ties the actor to its gate; the gate's PLM searches for it when the gate needs to open again.
         projectile.State = new DownwardGateState(request.PlmBlockIndex);
     }
 
@@ -92,13 +92,13 @@ internal sealed class DownwardGateBehavior
         if (projectile is null)
         {
             throw new InvalidDataException(
-                $"Downward gate PLM block {plmBlockIndex} has no associated bank-$86 actor.");
+                $"Downward gate PLM block {plmBlockIndex} has no associated gate projectile.");
         }
 
         ResumeDownwardGate(projectile);
     }
 
-    /// <summary>Ports <c>$86:E605</c>'s one-block-at-a-time signed 8.8 motion.</summary>
+    /// <summary>Moves the gate one block at a time with signed 8.8 motion.</summary>
     internal static void RunDownwardGateProjectileMovement(RoomEnemyProjectileSlot projectile)
     {
         int speedMagnitude = Math.Abs(projectile.Velocity.Y.SignedRawValue);

@@ -129,8 +129,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RequireRipperTerrain(level, "Ripper");
 
-        // $A0:C6AB consumes the signed 16.16 velocity as a displacement. On collision the
-        // native helper aligns the actor flush with the wall before Ripper swaps direction
+        // The horizontal mover consumes the signed 16.16 velocity as a displacement. On collision the
+        // mover aligns the actor flush with the wall before Ripper swaps direction
         // and animation.
         RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
         int displacement = state.XVelocity.RawValue;

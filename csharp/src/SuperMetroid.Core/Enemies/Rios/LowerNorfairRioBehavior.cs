@@ -94,7 +94,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
                 {
                     // Unlike upper Norfair Rio, this variant clears the handshake and calls
                     // its list installer on every rejected frame. The helper itself prevents
-                    // an unchanged $C61A list from restarting.
+                    // an unchanged attack animation from restarting.
                     state.AnimationSignal = false;
                     InstallLowerNorfairRioAnimationScript(
                         slot,

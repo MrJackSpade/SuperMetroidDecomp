@@ -8,7 +8,7 @@ internal static class NuclearWaffleSweeps
     internal static NuclearWaffleSweepDefinition Sweep(int direction)
     {
         if (direction >= NuclearWaffleDefinitions.Sweeps.Length)
-            throw new InvalidDataException($"Nuclear Waffle direction {direction} is outside the two native sweeps.");
+            throw new InvalidDataException($"Nuclear Waffle direction {direction} is outside the two sweeps.");
         return NuclearWaffleDefinitions.Sweeps[direction];
     }
 }

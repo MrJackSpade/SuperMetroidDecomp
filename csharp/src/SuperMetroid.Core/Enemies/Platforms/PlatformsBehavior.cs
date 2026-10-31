@@ -113,7 +113,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousYMovement = state.YMovement;
     }
 
-    /// <summary>Exact wrapped-word port of <c>$A0:ABE7-$AC28</c>.</summary>
+    /// <summary>Exact wrapped-word test of Samus riding the platform from above.</summary>
     internal static bool IsSamusRidingPlatform(RoomEnemySlot slot, SamusState samus)
     {
         int xDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
@@ -232,7 +232,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level,
         int preHorizontalX)
     {
-        // `$A3:9DE7-$9DED` performs a comparison followed by a JSR to an immediate RTS; it
+        // The sinking step performs a comparison followed by a call that does nothing; it
         // has no branch or side effect. Sinking therefore always continues to acceleration.
         IncrementAndClampPlatformYSpeed(state);
 
@@ -277,7 +277,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             state.VerticallyMovingArtInstalled = true;
             InstallPlatformVerticallyMovingForCurrentDirection(slot, state);
         }
-        // `$A3:9ED9` is below the already-installed branch target, so it executes even when
+        // The direction cue runs after the already-installed branch target, so it executes even when
         // no new list was needed this frame.
         state.VerticallyStillArtInstalled = false;
     }
@@ -322,7 +322,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports the four equivalent list commands/$9C76/$9C81/$9C8C.</summary>
+    /// <summary>Runs the four equivalent movement cues.</summary>
     private static void SetPlatformHorizontalMovementFromInstruction(
         RoomEnemySlot slot,
         PlatformHorizontalMovement movement)
@@ -383,7 +383,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The frozen Tripper's frame. $A3:9F14-9F25 tests the complete X-movement word for zero: every nonzero value shows
+    /// The frozen Tripper's frame. The frozen draw tests the complete X-movement word for zero: every nonzero value shows
     /// the right-moving frame, including values outside the normal dispatcher domain.
     /// </summary>
     private static EnemyFrameId TripperFrozenFrame(PlatformHorizontalMovement direction) =>

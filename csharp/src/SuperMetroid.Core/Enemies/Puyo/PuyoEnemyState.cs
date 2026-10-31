@@ -12,8 +12,8 @@ public sealed class PuyoEnemyState
     internal AnimationProgramCursor<PuyoProgram> Program { get; set; }
 
     /// <summary>
-    /// Unsigned 8.8 index whose whole part chooses a row of the shared quadratic speed table, from 0 through $7FFF:
-    /// a hop starts below $6000, and any step that would leave the range restarts the fall at zero
+    /// Unsigned 8.8 index whose whole part chooses a row of the shared quadratic speed table, from 0 through 32767:
+    /// a hop starts below 24576, and any step that would leave the range restarts the fall at zero
     /// (<see cref="StepAirborneIndex"/>).
     /// </summary>
     public int YSpeedTableIndex { get; internal set; }
@@ -59,7 +59,7 @@ public sealed class PuyoEnemyState
 
     /// <summary>
     /// One airborne update's change to the speed index: rising lowers it by <paramref name="delta"/>, falling raises it.
-    /// A step that leaves 0 through $7FFF (the game tests its word's sign bit) restarts the fall at zero: the apex
+    /// A step that leaves 0 through 32767 (the game tests its word's sign bit) restarts the fall at zero: the apex
     /// while rising, and a restart of an overlong fall.
     /// </summary>
     /// <param name="delta">The hop record's 8.8 index step, at most $300.</param>

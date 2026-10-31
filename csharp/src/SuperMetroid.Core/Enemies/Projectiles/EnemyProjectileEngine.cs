@@ -124,8 +124,8 @@ internal sealed class EnemyProjectileEngine
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyProjectileDud, Library1Sound.DudShot, priority: SoundRequestPriority.Low);
 
     /// <summary>
-    /// Ports <c>EprojProjCollDet</c> and <c>HandleEprojCollWithProj</c> at
-    /// $A0:996C-$9A30. Flag-one Nuclear Waffle links create duds and remain alive; flag-zero
+    /// Tests enemy projectiles against Samus's projectiles and handles each hit.
+    /// Flag-one Nuclear Waffle links create duds and remain alive; flag-zero
     /// projectiles such as Kago's bugs switch to their shot list.
     /// </summary>
     public int ResolveEnemyProjectileSamusProjectileHits(
@@ -167,7 +167,7 @@ internal sealed class EnemyProjectileEngine
                     continue;
                 }
 
-                // `$A0:99F9-$9A07` only marks non-plasma shots spent. It does not call the
+                // The collision handler only marks non-plasma shots spent. It does not call the
                 // ordinary enemy-impact routine and therefore cannot turn a freshly fired
                 // Super Missile (or its invisible link) into an explosion in the producer
                 // frame. Its own pre-instruction consumes the mark on the next projectile pass.
@@ -186,7 +186,7 @@ internal sealed class EnemyProjectileEngine
                         : EnemyProjectileDeleteAnimation.Instance);
                     enemyProjectile.FrameBehavior = EnemyProjectileFrameBehavior.Stationary;
 
-                    // Masks properties with $0FFF. The typed fields below are the
+                    // The game masks properties to their low twelve bits. The typed fields below are the
                     // three high property bits represented by this runtime, so clearing
                     // them is the exact structural equivalent rather than a Kago special.
                     enemyProjectile.BlocksSamusProjectiles = false;
@@ -225,14 +225,14 @@ internal sealed class EnemyProjectileEngine
     {
         Ensure.NotNull(level);
 
-        // `$86:810D-$8122` starts X at physical byte index `$22`, executes that slot, reloads
-        // the unchanged outer index from `$1991`, subtracts two, and continues through `$00`.
-        // Array index 17 is native `$22`, so this must be a live descending scan rather than
+        // The projectile pass starts at the last physical slot, executes that slot, reloads
+        // the unchanged outer index, steps down one slot, and continues through slot zero.
+        // Array index 17 is the first slot run, so this must be a live descending scan rather than
         // LINQ's ascending enumeration or a frame-start snapshot.
         //
-        // The distinction is observable whenever a pre-instruction or instruction opcode
-        // allocates another projectile. `$86:8027` searches `$22 -> $00` without changing
-        // the outer `$1991`. A child allocated below the current physical index is therefore
+        // The distinction is observable whenever a frame behaviour or animation cue
+        // allocates another projectile. Allocation searches from the last slot down without changing
+        // the pass's outer index. A child allocated below the current physical index is therefore
         // reached later in THIS pass; a child allocated above it waits until the next pass.
         // Reusing the current slot also lets the replacement's instruction list run in this
         // pass after the pre-instruction returns. Reading each array entry at loop time
@@ -257,7 +257,7 @@ internal sealed class EnemyProjectileEngine
                 camera,
                 projectileFrame,
                 samusBombs);
-            // `$86:8125` does not re-read the ID after the pre-instruction: a slot whose identity
+            // The pass does not re-read the identity after the frame behaviour: a slot whose identity
             // the pre-instruction released still runs its instructions in this pass (a power-bombed
             // Draygon goop that reaches Samus attaches through its touch list). A slot the port
             // cleared outright has no timer or animation left, so processing it does nothing.
@@ -270,8 +270,8 @@ internal sealed class EnemyProjectileEngine
     public void ResolveEnemyProjectileSamusHits(SamusState? samus)
     {
         _room.EnsureLoaded();
-        // Gameplay runs `$86:868B` for every projectile first, then enters the
-        // separate `$A0:9894` Samus-collision pass. That pass samples invincibility and
+        // Gameplay runs every projectile's update first, then enters the
+        // separate Samus-collision pass. That pass samples invincibility and
         // contact-damage state once at entry; damage from one overlapping projectile does
         // not abort the remaining descending-slot scan. This distinction is observable for
         // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
@@ -291,8 +291,8 @@ internal sealed class EnemyProjectileEngine
             }
         }
 
-        // `$A0:9923` only publishes the five-frame request and overwrites its horizontal
-        // direction for every hit. Bank $90 has already run this frame: do not initialize
+        // The contact only publishes the five-frame request and overwrites its horizontal
+        // direction for every hit. Samus's update has already run this frame: do not initialize
         // a hurt pose or move Samus here. The next frame consumes the final request.
         if (finalKnockbackXDirection.HasValue)
         {
@@ -406,7 +406,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>
     /// Copies the seven-word definition record installed by
     /// <c>SpawnEprojInner</c>. Family initializers may then replace fields exactly as their
-    /// cartridge routine does; centralizing the copy prevents each projectile translation
+    /// authored initializer does; centralizing the copy prevents each projectile translation
     /// from inventing subtly different radius/property semantics.
     /// </summary>
     internal static void InitializeEnemyProjectileFromDefinition(
@@ -488,7 +488,7 @@ internal sealed class EnemyProjectileEngine
             ? projectile.Radius.Y
             : projectile.Radius.X;
 
-        // Bank $86 checks every room block crossed by the projectile's perpendicular
+        // The block scan checks every room block crossed by the projectile's perpendicular
         // diameter. The positive edge is inclusive, hence radius - 1; using +radius made
         // right/down projectiles collide one pixel earlier than their counterparts.
         // The edge wraps at the room's sixteen-bit coordinate width, as the probe's block bounds check expects.
@@ -509,7 +509,7 @@ internal sealed class EnemyProjectileEngine
                     targetEdge: movementEdge,
                     slopeAlignedPosition: out int? slopeAlignedPosition))
             {
-                // `$86:894F-$897A` / `$86:8A0D-$8A38` do not merely reject the
+                // The horizontal and vertical block scans do not merely reject the
                 // attempted movement. They clear the subposition and place the
                 // projectile flush against the 16-pixel block boundary it reached.
                 // Without this correction a fast downward projectile retains its last
@@ -576,7 +576,7 @@ internal sealed class EnemyProjectileEngine
         RoomCollisionType type = collisionBlock.CollisionType;
         if (type == RoomCollisionType.Slope && !collisionBlock.Behavior.IsNonSquareSlope)
         {
-            // Bank $86 tests only occupied eight-pixel quadrants touched by the
+            // The horizontal scan tests only occupied eight-pixel quadrants touched by the
             // leading edge. Empty halves of square slopes are not solid walls.
             int perpendicularPosition = (axis == Axis.Horizontal) ? projectile.Position.Y.Whole : projectile.Position.X.Whole;
             int perpendicularRadius = (axis == Axis.Horizontal) ? projectile.Radius.Y : projectile.Radius.X;
@@ -612,8 +612,8 @@ internal sealed class EnemyProjectileEngine
             if ((axis == Axis.Horizontal))
                 return false;
 
-            // Bank $86's vertical projectile collision uses the same 16-sample slope
-            // profiles as bank $94. Only the column containing the projectile center owns
+            // Vertical projectile collision uses the same 16-sample slope
+            // profiles as Samus's. Only the column containing the projectile center owns
             // non-square geometry; neighboring columns touched by its radius do not turn
             // the slope into a full-height wall.
             if (block.X != projectile.Position.X.Whole >> 4)
@@ -652,7 +652,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// The unconditional rows of <c>$86:8846</c>/<c>$8866</c>, the enemy-projectile block
+    /// The unconditional rows of the enemy-projectile block
     /// reaction tables. Slopes and extensions are resolved before reaching this test.
     /// Spike blocks stop projectiles; grapple blocks do not.
     /// </summary>
@@ -679,10 +679,10 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
     {
-        // `$A0:9894` already made the pass-level invincibility/contact-damage decision.
+        // The Samus-collision pass already made the pass-level invincibility/contact-damage decision.
         // Do not re-read the timer here: the first hit writes it, but the original loop
         // deliberately continues testing the other projectile slots in this same pass.
-        // $A0:98C7-98DB skips either zero radius before overlap testing. A zero
+        // The pass skips either zero radius before overlap testing. A zero
         // radius is not a point-shaped hazard: decorative wall shards use it to
         // remain harmless even while passing straight through Samus's body.
         if (!projectile.CanDamageSamus || projectile.Radius.X == 0 || projectile.Radius.Y == 0)
@@ -706,8 +706,8 @@ internal sealed class EnemyProjectileEngine
             ? KnockbackHorizontalDirection.Right
             : KnockbackHorizontalDirection.Left;
 
-        // `$A0:9930-$993F` installs the definition's touch list before consulting property
-        // $4000. Mother Brain's turret bullet depends on that ordering: it survives contact
+        // Contact installs the definition's touch animation before consulting the persists-on-contact
+        // property. Mother Brain's turret bullet depends on that ordering: it survives contact
         // but immediately changes to its smoke list. Keeping this in the common path also
         // prevents later persistent projectile families from needing bespoke hit effects.
         bool hasTouchList = EnemyProjectileKinds.Get(projectile.Kind).SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction;
@@ -718,7 +718,7 @@ internal sealed class EnemyProjectileEngine
             projectile.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
 
         // Generic enemy-projectile contact deletes Ridley's fireball. Afterburn is a wall-
-        // impact feature from $86:940E, so a Samus contact does not create the wall bloom.
+        // impact feature of the fireball's wall hit, so a Samus contact does not create the wall bloom.
         if (!projectile.PersistsOnSamusContact)
             projectile.Clear();
 
@@ -744,7 +744,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Ports $86:ECE3/$ED17. Both instructions consume one object-number operand and one
+    /// Runs the death actor's two explosion cues. Both consume one object-number operand and one
     /// RNG word; its low and high bytes offset X and Y around the death actor respectively.
     /// CreateSpriteAtPos owns a separate finite pool, so these decorations never
     /// consume one of the eighteen pickup/death projectile slots.
@@ -828,7 +828,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Allocates the light or dark Ceres falling-tile actor requested by room main
-    /// <c>$8F:E525</c>. The X coordinate and palette variant come directly from the room's
+    /// main. The X coordinate and palette variant come directly from the room's
     /// current RNG word; this initializer owns only projectile fields. The room
     /// main supplies the tile's animation and the graphics it draws in.
     /// </summary>
@@ -864,7 +864,7 @@ internal sealed class EnemyProjectileEngine
         });
 
     /// <summary>
-    /// Ports <c>SpawnEprojWithRoomGfx($E6D2, 0)</c> and initializer $86:E6AD.
+    /// Spawns the save station's projectile with the room's graphics and initializes it.
     /// The game derives the actor origin from the currently executing save-station
     /// PLM: one block right and two blocks above its trigger block.
     /// </summary>
@@ -892,8 +892,8 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>
-    /// Allocates one of gunship function <c>$A2:AC1B</c>'s six room-graphics dust actors.
-    /// Parameter values are even byte offsets <c>0..A</c> into the X/list tables.
+    /// Allocates one of the gunship liftoff's six room-graphics dust actors.
+    /// Parameter values are even byte offsets 0..10 into the X/list tables.
     /// </summary>
     internal void SpawnGunshipLiftoffDustCloud(int parameter, SamusState samus)
     {
@@ -928,7 +928,7 @@ internal sealed class EnemyProjectileEngine
 
     /// <summary>
     /// Spawns one particle through <c>SpawnEprojInner</c>'s definition copy (damage four,
-    /// contact enabled, Skree or Metaree list), then applies the shared $86:8ACD-$8B39
+    /// contact enabled, Skree or Metaree animation), then applies the shared particle
     /// initializer's position and 8.8 velocity.
     /// </summary>
     private void SpawnSkreeOrMetareeParticle(

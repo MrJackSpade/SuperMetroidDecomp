@@ -186,7 +186,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         throw new InvalidDataException(
             $"Puyo hop record {state.HopRecord} never reached " +
-            "its ROM jump-height threshold.");
+            "its authored jump-height threshold.");
     }
 
     /// <summary>The hop-table record <paramref name="state"/> has selected.</summary>
@@ -280,7 +280,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
 
-        // $A2:9DB6 picks one of the two dropped bounce heights from the same 0..7 value.
+        // The bounce picks one of the two dropped bounce heights from the same 0..7 value.
         state.HopType = (NextPuyoRandom0To7(slot) & 1) == 0
             ? PuyoHopType.DroppedSmall
             : PuyoHopType.DroppedBig;
@@ -317,9 +317,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (!state.Falling)
             {
-                // $A2:9BBF copies the stale direct-page word at $01 into the invert flag.
-                // During gameplay HandleHUDTilemap_PausedAndRunning leaves
-                // $00 = $9DD3 every frame, so the flag is set. Door transitions can leave
+                // The landing copies a stale shared scratch word into the invert flag.
+                // During gameplay the HUD update leaves
+                // that word nonzero every frame, so the flag is set. Door transitions can leave
                 // other values before the first HUD pass of a room; those are treated as
                 // nonzero too, by decision, rather than modelling every scratch writer.
                 state.InvertDirection = true;
@@ -342,9 +342,9 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.StepAirborneIndex(Hop(state).YIndexDelta);
 
-        // X speed is stored as 8.8, but NTSC $A2:9C29-9C32 moves by the whole byte only
+        // X speed is stored as 8.8, but NTSC movement moves by the whole byte only
         // and zeroes the subspeed word; only the PAL build uses the fraction. The giant
-        // hop's $0140 therefore moves exactly one pixel per frame either way.
+        // hop's 1.25 therefore moves exactly one pixel per frame either way.
         int xSpeed = Hop(state).XSpeed;
         int whole = WordWrap.Signed(EightEight.WholeOf(xSpeed));
         if (state.Direction == PuyoDirection.Left)
@@ -417,7 +417,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         PuyoDirection.Right => PuyoDirection.Left,
         PuyoDirection.Left => PuyoDirection.Right,
         _ => throw new InvalidDataException(
-            $"Puyo direction {direction} is outside the two-entry ROM domain."),
+            $"Puyo direction {direction} is neither of the two directions."),
     };
 
     /// <summary>Starts a selected pose or hop animation with a one-tick instruction countdown.</summary>

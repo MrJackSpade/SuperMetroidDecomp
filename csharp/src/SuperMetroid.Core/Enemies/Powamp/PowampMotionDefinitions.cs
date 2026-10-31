@@ -15,11 +15,11 @@ public static class PowampMotionDefinitions
     /// <summary>HandlePowampBalloonYOffset sinking offsets: four pixels lower per inflation pose.</summary>
     internal static readonly short[] SinkingBalloonOffsets = [-20, -16, -12];
 
-    /// <summary>$86:D21A/D22A, PowampSpike_VelocityTable_X/Y: eight clockwise compass directions beginning up.</summary>
+    /// <summary>Eight clockwise compass directions beginning up.</summary>
     public const int SpikeDirectionCount = 8;
 
     /// <summary>
-    /// $86:D21A/D22A, PowampSpike_VelocityTable_X/Y: each compass direction's signed 8.8 acceleration, ±$20 on each
+    /// Each compass direction's signed 8.8 acceleration, ±32 on each
     /// axis the direction leans along. The Y component is the X component rotated two compass steps.
     /// </summary>
     internal static readonly EightEightVector<RoomPixels>[] SpikeAccelerations =

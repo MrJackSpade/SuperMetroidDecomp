@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// <summary>
 /// Typed state of the three Pipe Bug families. The function and the Brinstar flight direction are values the game
 /// keeps in the enemy's common record, emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>); the
-/// rest is per-family state the game kept in its extended $7E:7800 words. Each property belongs to the family its
+/// rest is per-family state the game kept in its extended words. Each property belongs to the family its
 /// summary names; the others never read it.
 /// </summary>
 public sealed class PipeBugEnemyState

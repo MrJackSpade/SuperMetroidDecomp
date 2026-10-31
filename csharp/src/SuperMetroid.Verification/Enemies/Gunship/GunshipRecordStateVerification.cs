@@ -30,11 +30,11 @@ internal static class GunshipRecordStateVerification
         part.EscapeVelocity = 256;
         AssertEqual(GunshipFunction.NoOperation, part.Function, "the function keeps its value apart from the escape velocity");
 
-        part.FunctionTimer = 144;
+        part.FunctionTimer = WrappingCountdown.Start(144);
         part.NextLiftoffPage = 3;
         part.BobPhase = 2;
         slot.Clear();
-        AssertEqual(0, part.FunctionTimer, "a kill empties the function timer");
+        AssertEqual(0, part.FunctionTimer.RawValue, "a kill empties the function timer");
         AssertEqual(0, part.NextLiftoffPage, "a kill empties the next liftoff page");
         AssertEqual(0, part.BobPhase, "a kill empties the bob phase");
         AssertEqual(0, part.BobTimer.RawValue, "a kill empties the bob timer");

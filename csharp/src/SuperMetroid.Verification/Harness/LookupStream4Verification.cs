@@ -1647,7 +1647,7 @@ internal static class LookupStream4Verification
         int kinds = 0;
         foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Where(kind => kind != RoomSpriteObjectKind.None).Distinct())
         {
-            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * (ushort)kind));
+            ushort entry = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb4bda8 + 2 * RoomSpriteObjectNativeWords.Kinds.Word(kind)));
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), "room sprite native program case");
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomSpriteObjectSlot? spawned = spriteSpawn(enemies, new(0x1234, 0x5678), kind, SpriteGraphics.CharacterZeroIn(SpriteColouring.InFixtureSet(3)));
@@ -1662,9 +1662,11 @@ internal static class LookupStream4Verification
             kinds++;
         }
         foreach (ushort invalid in new ushort[] { 62, 0x8000, 0xffff })
-            AssertThrows<KeyNotFoundException>(
-                () => _ = RoomSpriteObjectDefinitions.Programs[(RoomSpriteObjectKind)invalid],
+            AssertEqual(false, RoomSpriteObjectNativeWords.Kinds.TryDecode(invalid, out _),
                 "room sprite native kind domain rejects invalid selector");
+        AssertThrows<KeyNotFoundException>(
+            () => _ = RoomSpriteObjectDefinitions.Programs[RoomSpriteObjectKind.None],
+            "room sprite cleared kind starts no program");
         Console.WriteLine($"Room sprite dispatch: {kinds} spawned kinds' native entries and actual spawns, initial timing/visuals and invalid selectors pass.");
     }
 

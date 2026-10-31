@@ -19,7 +19,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
         int kinds = 0, updates = 0;
         foreach (RoomSpriteObjectKind kind in Enum.GetValues<RoomSpriteObjectKind>().Where(kind => kind != RoomSpriteObjectKind.None).Distinct())
         {
-            ushort entry = RoomSpriteObjectNativeLists.Entry(rom, (ushort)kind);
+            ushort entry = RoomSpriteObjectNativeLists.Entry(rom, RoomSpriteObjectNativeWords.Kinds.Word(kind));
             AssertEqual(entry, RoomSpriteObjectDefinitions.InstructionPointer(kind), $"room sprite object {kind} entry");
             var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomSpriteObjectSlot slot = enemies.SpriteObjects.SpawnRoomSpriteObject(new(0x1000, 0x2000), kind, SuperMetroid.Core.Assets.SpriteGraphics.CharacterZeroIn(SpriteColouring.InFixtureSet(3)))

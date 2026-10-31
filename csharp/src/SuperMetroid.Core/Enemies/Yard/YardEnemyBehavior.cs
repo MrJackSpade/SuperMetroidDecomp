@@ -32,9 +32,13 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the common touch and vulnerability paths after Yard-specific reactions.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds Yard's room, terrain, quake, and collision owners for its registered AI callbacks.</summary>
-    internal YardEnemyBehavior(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, EnemyCollision collision)
+    internal YardEnemyBehavior(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, EnemyCollision collision, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _terrain = terrain;
         _earthquake = earthquake;
@@ -402,7 +406,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 // whole pixel away from a conventional 32-bit negation when low word is 0.
                 state.AirborneVelocity = state.AirborneVelocity.WithX(NegateWordsSeparately(state.AirborneVelocity.X));
                 state.BouncedHorizontally = true;
-                LastYardSoundEffect = YardBounceSound;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Yard, YardBounceSound, priority: SoundRequestPriority.Low);
             }
             else
             {
@@ -584,7 +588,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (kickRequested)
         {
             KickYardIntoAir(slot, state, samus);
-            LastYardSoundEffect = YardBounceSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Yard, YardBounceSound, priority: SoundRequestPriority.Low);
             return;
         }
 
@@ -628,7 +632,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked))
             ShootYardIntoAir(slot, state, samus);
-        LastYardSoundEffect = YardBounceSound;
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Yard, YardBounceSound, priority: SoundRequestPriority.Low);
     }
 
     /// <summary>Ports Yard's main AI.</summary>
@@ -682,20 +686,4 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Library-two sound $70 queued by a Yard shell kick, launch or wall bounce.</summary>
     private static readonly SoundEffectId YardBounceSound =
         EnemySoundEffectDefinitions.YardBounceSound;
-
-    /// <summary>Last library-two $70 Yard shell kick, launch, or wall-bounce sound this enemy pass, using the Max3 queue entry; cleared before the next pass.</summary>
-    public SoundEffectId? LastYardSoundEffect { get; private set; }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastYardSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastYardSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Low);
-    }
 }

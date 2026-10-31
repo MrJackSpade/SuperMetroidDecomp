@@ -106,7 +106,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, 0);
 
             AssertEqual((SoundEffectId?)MetroidReactions.RandomCrySoundEffect(random),
-                enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2,
+                enemies.Audio.PublishedSoundFrom(EnemySoundSource.Metroid),
                 $"production Metroid random cry {random}");
             AssertEqual(16, slot.InstructionTimer.RawValue,
                 $"production Metroid script timer {random}");

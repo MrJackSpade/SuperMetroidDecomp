@@ -134,13 +134,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Room graphics animation selected for the explosion outcome.</summary>
     private const MiscDustAnimation CeresDoorExplosionAnimation = MiscDustAnimation.Smoke;
 
-    /// <summary>
-    /// Most recent library-two sound queued by Ceres-door destruction during this enemy frame.
-    /// The view keeps its exact cadence observable to ROM-backed audits; active playback
-    /// consumes the lossless <see cref="EnemyAudioQueue.SoundRequests"/> list.
-    /// </summary>
-    public SoundEffectId? LastCeresDoorSoundEffect { get; private set; }
-
     /// <summary>Gets the installed Ceres door artwork required by initialization and animation.</summary>
     private CeresDoorVisuals SelectedCeresDoorVisual =>
         _areaArtwork.Artwork?.CeresDoorVisual ?? throw new InvalidOperationException(
@@ -301,10 +294,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
             : CeresDoorSmokeAnimation;
         _projectiles.SpawnRoomGraphicsDustExplosion(explosion, animation);
 
-        // QueueSound_Lib2_Max6 runs even if the finite enemy-projectile pool was full and
-        // could not allocate the visual effect, so publish the request unconditionally.
-        // The request list carries the sound to the audio queue; this property is its debugger and test view.
-        LastCeresDoorSoundEffect = Library2Sound.BigExplosion;
+        // The explosion sound is requested even when the finite enemy-projectile pool was full and
+        // could not allocate the visual effect.
         _audio.QueueEnemySound(Library2Sound.BigExplosion, priority: SoundRequestPriority.Normal);
     }
 
@@ -333,11 +324,4 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AdvanceCeresDoorAnimation(slot, context.Samus);
     }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastCeresDoorSoundEffect = null;
-    }
-
 }

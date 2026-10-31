@@ -15,7 +15,7 @@ internal static class PhantoonFlameSoundVerification
         var enemies = CreatePhantoonSystem();
         Action<RoomEnemySlot, PhantoonPartCue> callback = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
-        var collect = new Action(enemies.CollectLegacyEnemyAudioRequests);
+        var collect = new Action(enemies.PublishEnemyAudioRequests);
         begin();
         callback(enemies.SlotTable.Slots[3], PhantoonPartCue.SpawnCasualFlame);
         collect();

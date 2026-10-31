@@ -120,7 +120,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 $"KiHunter {(movingRight ? "right" : "left")} spit restores ground wait");
             AssertEqual((ushort)24, state.WaitTimer.RawValue,
                 $"KiHunter {(movingRight ? "right" : "left")} spit wait timer");
-            AssertEqual(Library2Sound.AcidSpit, (enemies.KiHunterBehavior.LastKiHunterSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.KiHunterBehavior.LastKiHunterSoundEffect.")),
+            AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == Library2Sound.AcidSpit),
                 $"KiHunter {(movingRight ? "right" : "left")} spit sound");
             RoomEnemyProjectileKind kind = movingRight
                 ? RoomEnemyProjectileKind.KiHunterAcidSpitRight

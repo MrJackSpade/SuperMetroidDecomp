@@ -22,9 +22,13 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves Rio's horizontal and vertical flight against current room terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds Rio AI to shared room RNG and enemy terrain collision.</summary>
-    internal RioBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
+    internal RioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _terrain = terrain;
     }
@@ -33,9 +37,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort RioTriggerDistance = 160;
     /// <summary>8.8 vertical velocity decrement applied during dive and rebound.</summary>
     private const ushort RioGravityStep = 24;
-
-    /// <summary>Most recent library-two sound request produced by Rio during this frame.</summary>
-    public SoundEffectId? LastRioSoundEffect { get; private set; }
 
     /// <summary>Ports <c>Rio_Init</c> at $A2:BBCD.</summary>
     internal static void InitializeRio(RoomEnemySlot slot)
@@ -93,7 +94,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 // CheckIfEnemyIsOnScreen returns zero for an on-screen origin. The native
                 // branch consequently queues sound $65 only for the visible attack start.
                 if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
-                    LastRioSoundEffect = EnemySoundEffectDefinitions.RioDiveSound;
+                    _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Rio, EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
 
             case RioEnemyFunction.WaitingForLandingAnimation:
@@ -269,16 +270,4 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Advance(slot, RioAnimations.Programs, RioFrameDefinitions.ShownFrames.Of,
             static (RioEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
             (state, cue, _) => ApplyRioCue(state, cue));
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastRioSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueEnemySoundIfAny(LastRioSoundEffect, priority: SoundRequestPriority.Normal);
-    }
 }

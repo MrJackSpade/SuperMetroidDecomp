@@ -9,6 +9,12 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <summary>The Morph Ball eye species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
+    /// <summary>Builds the species owner on the room's enemy audio queue.</summary>
+    internal MorphBallEyeBehavior(EnemyAudioQueue audio) => _audio = audio;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Eye];
 
@@ -27,12 +33,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Native word countdown for both opening and closing eye transitions.</summary>
     private const ushort EyeTransitionDuration = 32;
 
-
     /// <summary>The room-global beam an eye body casts.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
-
-    /// <summary>Most recent library-two eye sound requested during this enemy frame.</summary>
-    public SoundEffectId? LastMorphBallEyeSoundEffect { get; private set; }
 
     /// <summary>Initializes a closed body from parameter-one facing, or offsets a mount and resets the room-global beam for negative parameter two.</summary>
     internal void InitializeMorphBallEye(RoomEnemySlot slot)
@@ -132,7 +134,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!timer.IsZero && timer.IsNonNegative)
             return;
 
-        LastMorphBallEyeSoundEffect = EnemySoundEffectDefinitions.EyeActivationSound;
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MorphBallEye, EnemySoundEffectDefinitions.EyeActivationSound, priority: SoundRequestPriority.Normal);
         RequestMorphBallEyeBeam(eye);
         state.Function = MorphBallEyeAiFunction.Active;
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
@@ -149,7 +151,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, EyeDeactivateXDistance);
         if (!inProximity)
         {
-            LastMorphBallEyeSoundEffect = EnemySoundEffectDefinitions.EyeDeactivationSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MorphBallEye, EnemySoundEffectDefinitions.EyeDeactivationSound, priority: SoundRequestPriority.Normal);
             state.IsActivated = false;
             state.FunctionTimer = WrappingCountdown.Start(EyeTransitionDuration);
             state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
@@ -309,18 +311,5 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunMorphBallEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMorphBallEyeMain(slot, slot.RequireSpeciesState<MorphBallEyeEnemyState>(), frame.Samus);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastMorphBallEyeSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastMorphBallEyeSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

@@ -22,9 +22,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Runs common damaging touch behavior for selected shell hitboxes.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds terrain and contact owners for Oum's bounce and push behavior.</summary>
-    internal MaridiaLargeSnailBehavior(EnemyTerrain terrain, EnemyCollision collision)
+    internal MaridiaLargeSnailBehavior(EnemyTerrain terrain, EnemyCollision collision, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _terrain = terrain;
         _collision = collision;
     }
@@ -59,9 +63,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Library-two sound queued after a shot hits Oum.</summary>
     private static readonly SoundEffectId MaridiaLargeSnailShotSound =
         EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound;
-
-    /// <summary>Most recent library-two sound requested by Oum this frame.</summary>
-    public SoundEffectId? LastMaridiaLargeSnailSoundEffect { get; private set; }
 
     /// <summary>Ports <c>InitAI_Oum</c> at $A2:CCD4.</summary>
     internal static void InitializeMaridiaLargeSnail(RoomEnemySlot slot)
@@ -447,7 +448,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (cue.Kind)
         {
             case MaridiaLargeSnailCueKind.PlaySplash:
-                LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailSplashSound;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MaridiaLargeSnail, MaridiaLargeSnailSplashSound, priority: SoundRequestPriority.Normal);
                 break;
             case MaridiaLargeSnailCueKind.FinishAttack:
                 state.AttackAnimationFinished = true;
@@ -507,7 +508,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// AI for damaging, freezing, and zero-damage vulnerability results alike.
     /// </summary>
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
-        LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailShotSound;
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MaridiaLargeSnail, MaridiaLargeSnailShotSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Publishes Oum's native shot sound after common bomb damage.</summary>
     internal void AddMaridiaLargeSnailBombReactions(EnemySharedReactions table)
@@ -591,19 +592,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                     _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
                 ResolveMaridiaLargeSnailTouchAfterCommon(context.Slot, context.Samus);
             });
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastMaridiaLargeSnailSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastMaridiaLargeSnailSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>

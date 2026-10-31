@@ -471,12 +471,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         return state;
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        _deadMonsters.Clear();
-    }
-
     /// <summary>Routes bomb-special hits on the corpse shot callback to its decay check.</summary>
     internal static void AddDeadSidehopperBombReactions(EnemySharedReactions table)
     {

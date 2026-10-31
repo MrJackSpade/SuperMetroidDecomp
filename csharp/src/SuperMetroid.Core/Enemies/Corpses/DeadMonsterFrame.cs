@@ -7,19 +7,22 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <summary>
 /// State shared by the dead-monster family (dead sidehoppers and Tourian corpses): the rot steps each kind of corpse has
 /// taken, which corpses of one kind take together, the rot each kind's frames show, and the dust sound the family
-/// publishes each frame.
+/// requests.
 /// </summary>
 [RoomLifetime]
 internal sealed class DeadMonsterFrame
 {
+    /// <summary>Receives the family's end-of-update dust sound.</summary>
+    private readonly EnemyAudioQueue _audio;
+
+    /// <summary>Builds the family's shared state on the room's enemy audio queue.</summary>
+    internal DeadMonsterFrame(EnemyAudioQueue audio) => _audio = audio;
+
     /// <summary>The rot steps each kind of corpse's staged characters have taken since a corpse of that kind copied them in.</summary>
     private readonly Dictionary<RottingCorpseKind, int> rotSteps = [];
 
     /// <summary>The rot step each kind of corpse's frames show, from the first step it takes.</summary>
     private readonly Dictionary<RottingCorpseKind, int> shownSteps = [];
-
-    /// <summary>The dust sound requested by a completed sidehopper or corpse row this frame, or null.</summary>
-    public SoundEffectId? LastSoundEffect { get; internal set; }
 
     /// <summary>
     /// Starts the rot of <paramref name="kind"/>'s staged characters over, as a corpse of that kind copies them in afresh;
@@ -56,21 +59,11 @@ internal sealed class DeadMonsterFrame
             new(unchecked((ushort)(slot.Position.X.Whole + CorpseDustSpread(random) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
             MiscDustAnimation.CorpseDustCloud);
         if ((randomEnemyCounter & 7) == 0)
-            LastSoundEffect = Library2Sound.LiquidDamage;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.DeadMonsters, Library2Sound.LiquidDamage, priority: SoundRequestPriority.Low);
     }
 
     /// <summary>How far right of its leftmost place <paramref name="random"/> spreads a corpse row's dust cloud.</summary>
     private static int CorpseDustSpread(int random) =>
         (CorpseDustDefinitions.SpreadFineSteps.Of(random) * CorpseDustDefinitions.SpreadFineStep) +
         (CorpseDustDefinitions.SpreadCoarseSteps.Of(random) * CorpseDustDefinitions.SpreadCoarseStep);
-
-    /// <summary>Drops this frame's sound request.</summary>
-    internal void Clear() => LastSoundEffect = null;
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Low);
-    }
 }

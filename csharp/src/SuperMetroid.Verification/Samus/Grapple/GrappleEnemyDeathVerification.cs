@@ -59,9 +59,8 @@ internal static class GrappleEnemyDeathVerification
         for (int frame = 0; frame < 100; frame++)
         {
             fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-            // This focused projectile pass publishes the death sound field; the
-            // full enemy-frame adapter forwards it to the queue with Max1.
-            heardDeath |= fixture.System.DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 ==
+            // This focused projectile pass requests the death sound for the end of the following enemy pass.
+            heardDeath |= fixture.System.Audio.PublishedSoundFrom(EnemySoundSource.EnemyDeath) ==
                 Library2Sound.EnemyKilled;
             if (explosion.State is EnemyPickupState { Kind: EnemyPickupKind.SmallEnergy })
             {

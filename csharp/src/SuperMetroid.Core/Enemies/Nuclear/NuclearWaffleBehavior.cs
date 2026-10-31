@@ -23,15 +23,16 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates visual body links and turn overlays.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Captures the projectile and sprite pools used for body links.</summary>
-    internal NuclearWaffleBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects)
+    internal NuclearWaffleBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _projectiles = projectiles;
         _spriteObjects = spriteObjects;
     }
-
-    /// <summary>Last library-two sound requested by a joint turn during this enemy frame.</summary>
-    public SoundEffectId? LastNuclearWaffleSoundEffect { get; private set; }
 
     /// <summary>Ports <c>NuclearWaffle_Init</c> at <c>$A6:94C4</c>.</summary>
     internal void InitializeNuclearWaffle(RoomEnemySlot slot)
@@ -310,7 +311,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The falling turn is the silent second half-turn; every other change queues the turn sound.
         if (orientation.State != NuclearWaffleTurnState.PastFallingThreshold)
-            LastNuclearWaffleSoundEffect = NuclearWaffleDefinitions.TurnSoundEffect;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.NuclearWaffle, NuclearWaffleDefinitions.TurnSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Places the head at the requested angle around its captured room origin.</summary>
@@ -349,18 +350,5 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunNuclearWaffleMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunNuclearWaffleMain(slot, slot.RequireSpeciesState<NuclearWaffleEnemyState>());
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastNuclearWaffleSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastNuclearWaffleSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

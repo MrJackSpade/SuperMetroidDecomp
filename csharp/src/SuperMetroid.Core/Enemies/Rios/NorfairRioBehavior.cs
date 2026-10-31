@@ -24,9 +24,13 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves each flame follower's immediately preceding parent slot.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Captures the room RNG, terrain, and slot table needed by Rio AI.</summary>
-    internal NorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable)
+    internal NorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _terrain = terrain;
         _slotTable = slotTable;
@@ -36,9 +40,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort NorfairRioHorizontalTriggerDistance = 192;
     /// <summary>Signed 8.8 vertical speed decrement applied during dive and return.</summary>
     private const ushort NorfairRioGravity = 32;
-
-    /// <summary>Most recent library-two dive sound request produced during this frame.</summary>
-    public SoundEffectId? LastNorfairRioSoundEffect { get; private set; }
 
     /// <summary>Ports <c>NorfairRio_Init</c> at $A2:C242.</summary>
     internal void InitializeNorfairRio(RoomEnemySlot slot)
@@ -128,7 +129,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     NorfairRioProgram.Descending);
                 state.Function = NorfairRioEnemyFunction.Dive;
-                LastNorfairRioSoundEffect = EnemySoundEffectDefinitions.NorfairRioDiveSound;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.NorfairRio, EnemySoundEffectDefinitions.NorfairRioDiveSound, priority: SoundRequestPriority.Normal);
                 return;
 
             case NorfairRioEnemyFunction.Dive:
@@ -335,16 +336,4 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Programs, NorfairRioFrameDefinitions.ShownFrames.Of,
             static (NorfairRioEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
             (state, cue, _) => ApplyNorfairRioCue(state, cue));
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastNorfairRioSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueEnemySoundIfAny(LastNorfairRioSoundEffect, priority: SoundRequestPriority.Normal);
-    }
 }

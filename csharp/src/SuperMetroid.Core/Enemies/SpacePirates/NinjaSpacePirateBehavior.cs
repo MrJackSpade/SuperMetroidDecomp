@@ -617,8 +617,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                     "A ninja Space Pirate colouring cue carries no colouring.");
                 return null;
             case NinjaSpacePirateCue.PlaySound playSound:
-                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = playSound.Sound ?? throw new InvalidOperationException(
-                    "A ninja Space Pirate sound cue carries no sound.");
+                _walkingSpacePirateBehavior.RequestSpacePirateSound(playSound.Sound ?? throw new InvalidOperationException(
+                    "A ninja Space Pirate sound cue carries no sound."));
                 return null;
             case NinjaSpacePirateCue.ThrowClaw throwClaw:
                 SpawnNinjaPirateClaw(slot, state, throwClaw.Throw == HorizontalDirection.Right, throwClaw.Offset);

@@ -204,7 +204,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         RoomEnemySlot bottom = _slotTable.Slots[top.SlotIndex + 1];
 
         // $A2:A75C decrements the solid bottom's engine-sound timer and reloads 70 on
-        // one/underflow. QueueSfx2_Max6($4D) occurs before the reload, exactly as it does in
+        // one/underflow. The engine sound is requested before the reload, exactly as it is in
         // GunshipTop_Main; this periodic producer continues while the ship is idling/bobbing.
         CountdownStep bottomTimer = WrappingCountdown.FromRaw(checked((ushort)Part(bottom).EngineSoundTimer)).Decrement();
         Part(bottom).EngineSoundTimer = bottomTimer.Value;

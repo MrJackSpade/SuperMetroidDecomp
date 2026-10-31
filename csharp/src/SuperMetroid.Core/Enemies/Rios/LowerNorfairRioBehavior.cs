@@ -24,9 +24,13 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Finds each flame follower in the slot immediately after its parent.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds Holtz parent and follower behavior to room RNG, collision, and slot order.</summary>
-    internal LowerNorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable)
+    internal LowerNorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _terrain = terrain;
         _slotTable = slotTable;
@@ -36,9 +40,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     private const ushort LowerNorfairRioHorizontalTriggerDistance = 112;
     /// <summary>Each flight update subtracts 32 units from the signed 8.8 vertical velocity.</summary>
     private const ushort LowerNorfairRioGravity = 32;
-
-    /// <summary>Most recent library-two return sound request produced during this frame.</summary>
-    public SoundEffectId? LastLowerNorfairRioSoundEffect { get; private set; }
 
     /// <summary>Ports <c>LowerNorfairRio_Init</c> at $A2:C6F3.</summary>
     internal void InitializeLowerNorfairRio(RoomEnemySlot slot)
@@ -243,7 +244,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             state,
             LowerNorfairRioProgram.AscendingPart1);
         state.Function = LowerNorfairRioEnemyFunction.ReturnToPerch;
-        LastLowerNorfairRioSoundEffect = EnemySoundEffectDefinitions.LowerNorfairRioReturnSound;
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.LowerNorfairRio, EnemySoundEffectDefinitions.LowerNorfairRioReturnSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Advances the Rio horizontally and reverses its velocity on a wall collision.</summary>
@@ -327,16 +328,4 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
         EnemyProgramAnimation.Advance(slot, LowerNorfairRioAnimations.Programs, LowerNorfairRioFrameDefinitions.ShownFrames.Of,
             static (LowerNorfairRioEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
             (state, cue, _) => ApplyLowerNorfairRioCue(state, cue));
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastLowerNorfairRioSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueEnemySoundIfAny(LastLowerNorfairRioSoundEffect, priority: SoundRequestPriority.Normal);
-    }
 }

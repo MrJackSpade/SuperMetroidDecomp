@@ -30,9 +30,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Caps camera movement while Samus is held at the Maw's mouth.</summary>
     private readonly SamusScrollCap _scrollCap;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Connects Maw AI to room, body-link, sprite-object, and Samus camera services.</summary>
-    internal YappingMawBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, SamusScrollCap scrollCap)
+    internal YappingMawBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, SamusScrollCap scrollCap, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _projectiles = projectiles;
         _spriteObjects = spriteObjects;
         _scrollCap = scrollCap;
@@ -78,9 +82,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort YappingMawGrabCooldownFrames = 48;
     /// <summary>Delay after full retraction before Samus input is released.</summary>
     private const ushort YappingMawRetractedDelayFrames = 64;
-
-    /// <summary>Most recent library-two $2F request emitted by animation opcode $A133.</summary>
-    public SoundEffectId? LastYappingMawSoundEffect { get; private set; }
 
     /// <summary>Ports <c>YappingMaw_Init</c> at $A8:A148.</summary>
     internal void InitializeYappingMaw(RoomEnemySlot slot)
@@ -504,7 +505,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlayYappingMawAttackSound(YappingMawEnemyState state)
     {
         if (!state.IsOffScreen)
-            LastYappingMawSoundEffect = EnemySoundEffectDefinitions.YappingMawAttackSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.YappingMaw, EnemySoundEffectDefinitions.YappingMawAttackSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Moves one of the four required body-link projectiles to its solved point.</summary>
@@ -628,19 +629,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.YappingMaw &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.YappingMawTouch,
             context => ResolveYappingMawTouch(context.Slot.RequireSpeciesState<YappingMawEnemyState>(), context.Samus));
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastYappingMawSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastYappingMawSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Routes frozen palette updates to all body links and the root sprite object.</summary>

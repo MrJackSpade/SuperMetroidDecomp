@@ -76,9 +76,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort KiHunterGroundAttackDistance = 96;
 
 
-    /// <summary>Last library-two sound queued by an acid-spit instruction this frame.</summary>
-    public SoundEffectId? LastKiHunterSoundEffect { get; private set; }
-
     /// <summary>The detached wing's speed-index step: 384 per update while it slows, and per step while its reset is found.</summary>
     private const int DetachedSpeedStep = 384;
     /// <summary>The speed index a slowing detached wing lands on when the next step would go below zero.</summary>
@@ -695,7 +692,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Emits the acid projectile and sound, then starts the native 24-frame spit wait.</summary>
     private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, HorizontalDirection direction)
     {
-        LastKiHunterSoundEffect = Library2Sound.AcidSpit;
         _audio.QueueEnemySound(Library2Sound.AcidSpit, priority: SoundRequestPriority.Normal);
         SpawnKiHunterAcidSpit(body, direction == HorizontalDirection.Right);
         body.RequireSpeciesState<KiHunterEnemyState>().WaitTimer = WrappingCountdown.Start(KiHunterSpitWaitFrames);
@@ -965,13 +961,5 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(checked((ushort)(unchecked((short)(accelerated - KiHunterAcidTerminalYSpeed)) >= 0
             ? KiHunterAcidTerminalYSpeed
             : accelerated))));
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        // Legacy publications are momentary like their native QueueSfx/QueueMusic calls; clearing them at the
-        // EnemyMain frame boundary keeps a paused or frozen actor from replaying its previous request.
-        LastKiHunterSoundEffect = null;
     }
 }

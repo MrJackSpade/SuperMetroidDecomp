@@ -36,7 +36,7 @@ internal static class BoyonBehaviorVerification
             EnemyInstructionRunner.ShownFrames(bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Programs, BoyonProgram.BouncingLoop)), "Boyon bounce loop");
         AssertTrue(bounce.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Boyon bounce processes off screen");
         AssertEqual((SoundEffectId?)BoyonNativeValues.BounceSound,
-            bounceSystem.BoyonBehavior.LastBoyonSoundEffect, "Boyon bounce plays its library-two bounce sound");
+            bounceSystem.Audio.PublishedSoundFrom(EnemySoundSource.Boyon), "Boyon bounce plays its library-two bounce sound");
         AssertTrue(!bounceState.BounceDisabled, "Boyon bounce permits the movement arc");
         Console.WriteLine("  Boyon behavior: the idle and bounce loops with their off-screen, sound and arc cues pass.");
     }

@@ -199,7 +199,7 @@ internal static class LookupStream5Verification
                 AssertEqual(call == 49, slot.Properties.HasAny(EnemyProperties.Invisible), "Hide only at destruction expiry");
             }
             AssertEqual(CeresEscapeStatus.ElevatorDoorDestroyed, system.RidleyEncounter.CeresStatus, "Actual rotation handoff after last anchor");
-            AssertEqual(Library2Sound.BigExplosion, (system.CeresDoorBehavior.LastCeresDoorSoundEffect ?? throw new InvalidOperationException("Verification requires system.CeresDoorBehavior.LastCeresDoorSoundEffect.")), "Emission sound preserved");
+            AssertTrue(system.Audio.SoundRequests.Any(request => request.SoundEffect == Library2Sound.BigExplosion), "Emission sound preserved");
         }
         Console.WriteLine("Ceres rumble: eight native words, bounds, 98 actual calls, 20 emitted native positions/order/animations, wrap and expiry pass.");
     }

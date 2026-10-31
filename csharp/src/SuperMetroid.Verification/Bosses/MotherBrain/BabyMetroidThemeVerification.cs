@@ -26,7 +26,7 @@ internal static class BabyMetroidThemeVerification
         Action<MotherBrainEnemyState, BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
         var begin = new Action(enemies.BeginEnemySoundRequestFrame);
         var beginMotherBrain = new Action(state.BeginFrame);
-        var collect = new Action(enemies.CollectLegacyEnemyAudioRequests);
+        var collect = new Action(enemies.PublishEnemyAudioRequests);
         for (int frame = 0; frame <= 73; frame++)
         {
             begin();

@@ -31,9 +31,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the item drop when a thrown lava projectile is destroyed.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Connects the Magdollite AI, projectile, combat and palette services.</summary>
-    internal MagdolliteBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
+    internal MagdolliteBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _projectiles = projectiles;
         _slotTable = slotTable;
@@ -50,9 +54,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal SpriteColouring MagdolliteColouring { get; set; } = SharedSpriteColouring.Common;
     /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
     internal bool MagdollitePaletteAnimationInstalled { get; set; }
-
-    /// <summary>Last library-two sound emitted by throw opcode $A8:AE12 this frame.</summary>
-    public SoundEffectId? LastMagdolliteSoundEffect { get; private set; }
 
     /// <summary>Ports <c>NorfairLavaMan_Init</c> at $A8:AF8B.</summary>
     internal void InitializeMagdollite(RoomEnemySlot slot, SamusState? samus)
@@ -550,7 +551,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                     EnemyMath.IsNegative16(slot.Position.Y.Whole - camera.Y) ||
                     EnemyMath.IsNegative16(camera.Y + 256 - slot.Position.Y.Whole);
                 if (!offScreen)
-                    LastMagdolliteSoundEffect = cue.Sound ?? throw new InvalidDataException("A Magdollite sound cue carries no sound.");
+                    _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Magdollite, cue.Sound ?? throw new InvalidDataException("A Magdollite sound cue carries no sound."), priority: SoundRequestPriority.Normal);
                 break;
             }
             case MagdolliteCueKind.MoveDown2:
@@ -808,18 +809,5 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
             projectile.Position.Whole,
             EnemyDefinitionId.Magdollite);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastMagdolliteSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastMagdolliteSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

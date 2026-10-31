@@ -38,7 +38,7 @@ internal static class CacatacBehaviorVerification
             EnemyInstructionRunner.ShownFrames(slot, 53);
             AssertEqual(loop, state.Program.Program, $"Cacatac {orientation} attack returns to idle");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, $"Cacatac {orientation} attack resumes patrol");
-            AssertEqual<SoundEffectId?>(CacatacNativeValues.SpikeSound, enemies.CacatacBehavior.LastCacatacSoundEffect, $"Cacatac {orientation} attack plays the spike sound");
+            AssertEqual<SoundEffectId?>(CacatacNativeValues.SpikeSound, enemies.Audio.PublishedSoundFrom(EnemySoundSource.Cacatac), $"Cacatac {orientation} attack plays the spike sound");
             CacatacSpikeDirection[] directions = upsideUp
                 ? [CacatacSpikeDirection.LeftFacingUp, CacatacSpikeDirection.UpLeft, CacatacSpikeDirection.Up, CacatacSpikeDirection.UpRight, CacatacSpikeDirection.RightFacingUp]
                 : [CacatacSpikeDirection.LeftFacingDown, CacatacSpikeDirection.DownLeft, CacatacSpikeDirection.Down, CacatacSpikeDirection.DownRight, CacatacSpikeDirection.RightFacingDown];

@@ -364,14 +364,14 @@ internal static class LookupStream1Verification
                     AssertEqual(visual, slot.SpritemapPointer, "Held Metroid inside pose stays selected");
                 }
                 AssertEqual(0, randomCalls, "No Metroid RNG call before complete pulse loop");
-                AssertTrue(enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 is null, "No Metroid callback before loop boundary");
+                AssertTrue(enemies.Audio.PublishedSoundFrom(EnemySoundSource.Metroid) is null, "No Metroid callback before loop boundary");
             }
             AssertEqual(chasing ? 256 : 64, calls, "Exact native pulse-loop length");
             EnemyInstructionRunner.Process(arguments);
             AssertEqual(chasing ? 1 : 0, randomCalls, "Exact Metroid callback RNG ownership");
             ushort expectedSound = chasing ? Word(0xa3ead6 + 5 * 2) : Word(0xa3eaa8);
             AssertEqual(SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, expectedSound),
-                enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2, "Native loop callback sound decodes to the sound queued");
+                enemies.Audio.PublishedSoundFrom(EnemySoundSource.Metroid), "Native loop callback sound decodes to the sound queued");
             AssertEqual(Word(0xa30000 | (root + 2)), slot.SpritemapPointer, "Callback loops to first timed record");
             AssertEqual(Word(0xa30000 | root), slot.InstructionTimer.RawValue, "Loop reload preserves first native hold");
         }

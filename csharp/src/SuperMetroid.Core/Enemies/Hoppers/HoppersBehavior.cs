@@ -22,9 +22,13 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves vertical and horizontal collisions in both floor and ceiling hops.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds the five Hopper definitions to shared room RNG and terrain movement.</summary>
-    internal HoppersBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
+    internal HoppersBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _terrain = terrain;
     }
@@ -41,7 +45,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                 break;
             case HopperCueKind.PlaySound:
-                LastHopperSoundEffect = cue.Sound ?? throw new InvalidOperationException("A hopper sound cue has no sound.");
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Hoppers, cue.Sound ?? throw new InvalidOperationException("A hopper sound cue has no sound."), priority: SoundRequestPriority.Normal);
                 break;
             case HopperCueKind.ReadyToHop:
                 state.ReadyToHop = true;
@@ -363,21 +367,5 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Run(slot, HopperAnimations.Programs, ref cursor, HopperFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyHopperCue(slot, state, cue));
         state.Program = cursor;
-    }
-
-    /// <summary>Last library-two sound emitted by a Hopper instruction this enemy pass, admitted through the native Max6 queue entry; null means no request.</summary>
-    public SoundEffectId? LastHopperSoundEffect { get; private set; }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastHopperSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastHopperSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

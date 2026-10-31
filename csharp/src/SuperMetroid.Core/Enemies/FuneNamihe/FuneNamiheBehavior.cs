@@ -20,9 +20,13 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates the shared directional fireball fired by either species' animation list.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Connects the family AI to the room's enemy projectile slots.</summary>
-    internal FuneNamiheBehavior(EnemyProjectileEngine projectiles)
+    internal FuneNamiheBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _projectiles = projectiles;
     }
 
@@ -56,12 +60,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         return null;
     }
-
-    /// <summary>
-    /// Most recent library-two spit sound requested by opcode $A8:9625. Audio mixing is an
-    /// outer frontend concern, so the actor publishes the exact sound number for that seam.
-    /// </summary>
-    public SoundEffectId? LastFuneNamiheSoundEffect { get; private set; }
 
     /// <summary>Decodes species, facing, cooldown, and Y proximity from population parameters, then installs the corresponding idle list.</summary>
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
@@ -170,7 +168,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Publishes the shared library-two spit cue for the outer enemy audio queue.</summary>
     private void QueueFuneNamiheSpitSound() =>
-        LastFuneNamiheSoundEffect = FuneNamiheDefinitions.SpitSoundEffect;
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.FuneNamihe, FuneNamiheDefinitions.SpitSoundEffect, priority: SoundRequestPriority.Normal);
 
     /// <summary>Moves the list-table cursor back to idle and restores the species-specific waiting function after the active animation.</summary>
     private static void FinishFuneNamiheActivity(FuneNamiheEnemyState state)
@@ -252,17 +250,5 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         // The shared native cull treats both camera edges as inclusive: an origin exactly
         // at camera+256 survives this frame and is deleted only after crossing beyond it.
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastFuneNamiheSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueEnemySoundIfAny(LastFuneNamiheSoundEffect, priority: SoundRequestPriority.Normal);
     }
 }

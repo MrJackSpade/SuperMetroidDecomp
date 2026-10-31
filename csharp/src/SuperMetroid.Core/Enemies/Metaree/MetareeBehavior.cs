@@ -22,9 +22,13 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the debris burst during burrow and death reactions.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Uses the room's projectile engine for Metaree's four-piece metal debris.</summary>
-    internal MetareeBehavior(EnemyProjectileEngine projectiles)
+    internal MetareeBehavior(EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _projectiles = projectiles;
     }
 
@@ -134,9 +138,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallRequestedMetareeInstruction(slot, state);
         state.Function = MetareeEnemyFunction.LaunchedAttack;
 
-        // QueueSound_Lib2_Max6 receives $5B at $A3:89EB. Audio mixing remains an outer
-        // subsystem, so expose the exact event word for the frontend/debugger seam.
-        LastMetareeSoundEffect = EnemySoundEffectDefinitions.DiveSound;
+        // The dive sound is requested as the attack launches.
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metaree, EnemySoundEffectDefinitions.DiveSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Probes solid terrain ahead before whole-pixel descent; ground contact begins burrowing while airborne frames steer toward Samus.</summary>
@@ -150,7 +153,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         // the attachment probe reports the ground, which is why interrupted dives never age.
         state.BurrowTimer = WrappingCountdown.Start(MetareeBurrowLifetimeNtsc);
 
-
         if (EnemyTerrain.EnemyMeetsAttachmentBlockBelow(
                 level,
                 slot,
@@ -159,7 +161,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.InstructionTimer = WrappingCountdown.Start(1);
             slot.Timer = WrappingCountdown.Start(0);
             state.Function = MetareeEnemyFunction.Burrowing;
-            LastMetareeSoundEffect = EnemySoundEffectDefinitions.BurrowSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metaree, EnemySoundEffectDefinitions.BurrowSound, priority: SoundRequestPriority.Normal);
             return;
         }
 
@@ -217,21 +219,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Programs, SkreeMetareeFrameDefinitions.ShownFrames.Of,
             static (MetareeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
             (state, cue, _) => SkreeMetareeCues.Apply(slot, cue, () => state.AttackReady = true));
-
-    /// <summary>Last library-two Metaree dive ($5B) or floor-impact ($5C) sound this enemy pass, using the Max6 queue entry; cleared before the next pass.</summary>
-    public SoundEffectId? LastMetareeSoundEffect { get; private set; }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastMetareeSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueEnemySoundIfAny(LastMetareeSoundEffect, priority: SoundRequestPriority.Normal);
-    }
 
     /// <summary>Spawns four metal debris actors with the dying Metaree's graphics indexes before common shot death clears them.</summary>
     internal void AddMetareeShotReactions(EnemySharedReactions table)

@@ -31,9 +31,13 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Whether Phantoon's area-boss bit is set, which powers the work robots.</summary>
     internal bool IsAreaBossDefeated => _room.Services.Bosses.IsDefeated(BossBits.AreaBoss);
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds robot locomotion, power state, lasers, and palette animation to room services.</summary>
-    internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
+    internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
@@ -68,12 +72,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     internal int WorkRobotPaletteAnimationRecord { get; set; }
     /// <summary>The colours whose set the robot graphics-drawn hook animates.</summary>
     internal SpriteColouring WorkRobotPaletteAnimationColouring { get; set; } = SharedSpriteColouring.Common;
-
-    /// <summary>
-    /// Most recent library-two sound requested by robot feet ($68) or a robot laser ($67).
-    /// It is cleared at the beginning of every enemy frame, like the other audio seams.
-    /// </summary>
-    public SoundEffectId? LastWorkRobotSoundEffect { get; private set; }
 
     /// <summary>Matches powered and unpowered Wrecked Ship robot population definitions.</summary>
     internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionId) =>
@@ -189,7 +187,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallProgram = WorkRobotProgram.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = default });
             case WorkRobotCueKind.Footstep:
                 if (IsWorkRobotOriginStrictlyOnScreen(slot, camera))
-                    LastWorkRobotSoundEffect = WorkRobotFootstepSound;
+                    _audio.RequestSoundAtUpdateEnd(EnemySoundSource.WorkRobot, WorkRobotFootstepSound, priority: SoundRequestPriority.Normal);
                 return null;
             case WorkRobotCueKind.WalkLeft:
                 return WorkRobotProgram.FacingLeftWalkingForwards;
@@ -483,7 +481,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((short)(robot.Position.Y.Whole + robot.Radius.Y - camera.Y)) >= 0 &&
             unchecked((short)(robot.Position.Y.Whole - robot.Radius.Y - 224)) < 0;
         if (horizontallyVisible && verticallyVisible)
-            LastWorkRobotSoundEffect = WorkRobotLaserSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.WorkRobot, WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Ports pre-instruction $86:D3BF: X collision, then Y collision, else move.</summary>
@@ -497,18 +495,5 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             projectile.Clear();
         }
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastWorkRobotSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastWorkRobotSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

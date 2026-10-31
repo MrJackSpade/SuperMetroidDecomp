@@ -10,7 +10,7 @@ internal abstract record NinjaSpacePirateCue
     {
     }
 
-    /// <summary>Plays the operand's library-two sound (<c>Instruction_PirateNinja_QueueSoundInY_Lib2_Max6</c>, $B2:F546).</summary>
+    /// <summary>Plays the operand's library-two sound ($B2:F546).</summary>
     /// <param name="Sound">For a sound cue: the library-two sound it plays.</param>
     internal sealed record PlaySound(SoundEffectId? Sound) : NinjaSpacePirateCue;
 

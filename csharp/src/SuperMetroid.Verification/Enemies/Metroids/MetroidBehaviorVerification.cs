@@ -37,7 +37,7 @@ internal static class MetroidBehaviorVerification
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(MetroidAnimations.Programs, loop, MetroidFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Programs, loop)), $"Metroid {loop} loop");
             AssertEqual(cries, randomCalls, $"Metroid {loop} loop's RNG use");
-            AssertTrue(enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 is not null, $"Metroid {loop} loop plays its sound");
+            AssertTrue(enemies.Audio.PublishedSoundFrom(EnemySoundSource.Metroid) is not null, $"Metroid {loop} loop plays its sound");
         }
         Console.WriteLine("  Metroid behavior: the chasing start and both pulse loops with their sound and RNG cues pass.");
     }

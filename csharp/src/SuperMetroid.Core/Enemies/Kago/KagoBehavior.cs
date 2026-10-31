@@ -28,9 +28,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Tracks the Kago death request in the room's defeated-enemy count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds shell AI and bug projectile behavior to the shared room systems that own their effects.</summary>
-    internal KagoBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus)
+    internal KagoBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
@@ -201,9 +205,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Beyond this parent separation, the next jump homes toward the shell.</summary>
     private const ushort KagoBugSourceHomingDistance = 48;
 
-    /// <summary>Last library-two Kago bug sound request produced during this enemy frame.</summary>
-    public SoundEffectId? LastKagoBugSoundEffect { get; private set; }
-
     /// <summary>Ports <c>EprojInit_KagosBugs</c> at <c>$86:D088</c>.</summary>
     internal bool SpawnKagoBug(RoomEnemySlot source)
     {
@@ -241,7 +242,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         bug.SoundDelay--;
         if (bug.SoundDelay == 0)
-            LastKagoBugSoundEffect = EnemySoundEffectDefinitions.KagoBugSoundEffect;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Kago, EnemySoundEffectDefinitions.KagoBugSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>
@@ -385,16 +386,4 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samples the shared random word without consuming a new value, matching the bug routines' seed reuse.</summary>
     private int ReadKagoRandomNumber() =>
         _room.Random.Read();
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastKagoBugSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueEnemySoundIfAny(LastKagoBugSoundEffect, priority: SoundRequestPriority.Normal);
-    }
 }

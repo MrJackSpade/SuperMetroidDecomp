@@ -83,15 +83,15 @@ internal sealed class FallingSparksBehavior
                 return;
             }
 
-            int acceleratedFraction = spark.VerticalSpeed.Fraction + FallingSparkGravity;
-            int acceleratedWhole = spark.VerticalSpeed.WholePixels + WordCarry.OutOfWord(acceleratedFraction);
+            // Gravity adds a quarter pixel to the speed's fraction; a fraction that passes a whole pixel raises the
+            // whole speed by one.
+            SignedSixteenSixteen accelerated = spark.VerticalSpeed + SignedSixteenSixteen.FromParts(0, FallingSparkGravity);
 
-            // CMP #$0004 / BCS deliberately stops raising the whole part once it reaches four. The fraction still
-            // received its quarter-pixel increment immediately before this test, reproducing the cartridge's slightly
-            // asymmetric cap.
-            spark.VerticalSpeed = SignedSixteenSixteen.FromParts(
-                acceleratedWhole < FallingSparkTerminalWholeSpeed ? acceleratedWhole : spark.VerticalSpeed.WholePixels,
-                unchecked((ushort)acceleratedFraction));
+            // The whole speed stops rising once it would reach four. The fraction still keeps its quarter-pixel
+            // increment, reproducing the original's slightly asymmetric cap.
+            spark.VerticalSpeed = accelerated.WholePixels < FallingSparkTerminalWholeSpeed
+                ? accelerated
+                : accelerated.WithWholePixels(spark.VerticalSpeed.WholePixels);
         }
 
         AddFallingSparkVerticalVelocity(projectile);

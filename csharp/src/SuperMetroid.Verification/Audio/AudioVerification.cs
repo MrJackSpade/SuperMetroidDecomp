@@ -26,8 +26,8 @@ internal static class AudioVerification
         Suite(nameof(VerifyAudioUploadCatalog), () => VerifyAudioUploadCatalog(retail));
         Suite(nameof(SoundAcceptanceClockVerification.VerifySoundAcceptanceClockMatchesEmulatedDriver),
             () => SoundAcceptanceClockVerification.VerifySoundAcceptanceClockMatchesEmulatedDriver());
-        Suite(nameof(TickAccumulatorVerification.VerifyTickAccumulator),
-            () => TickAccumulatorVerification.VerifyTickAccumulator());
+        Suite(nameof(SoundRequestCheckTimerVerification.VerifySoundRequestCheckTimer),
+            () => SoundRequestCheckTimerVerification.VerifySoundRequestCheckTimer());
         // #1410: a music data set is a name, so a data index the retail data never holds cannot reach the queue; the
         // room-state import rejects it where the cartridge byte is decoded. This replaces the queued raw $FF01 word
         // that failed at dispatch.

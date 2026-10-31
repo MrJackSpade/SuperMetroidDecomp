@@ -24,8 +24,15 @@ public sealed class AudioSession
     /// <summary>Interleaved left/right samples in one update's PCM frame.</summary>
     public const int PcmSamplesPerFrame = StereoFramesPerVideoFrame * ChannelCount;
 
+    /// <summary>Creates the session's audio advance on the session's <paramref name="soundClock"/>.</summary>
+    /// <param name="soundClock">
+    /// The game session's sound acceptance clock, created at the session's composition root and living as long as the
+    /// session: its requests, acknowledgements and request-check phase carry across menus and gameplay runtimes.
+    /// </param>
+    internal AudioSession(SoundAcceptanceClock<SoundEffectId> soundClock) => eventSource = new AudioEventSource(soundClock);
+
     /// <summary>Synthesis-free command-to-event conversion that also produces the acknowledgements gameplay reads.</summary>
-    private readonly AudioEventSource eventSource = new();
+    private readonly AudioEventSource eventSource;
     /// <summary>Whether any update has advanced the session, so PCM exists to copy.</summary>
     private bool hasAdvanced;
     /// <summary>The clip backend's playback state, kept with the session so a restored session continues its PCM.</summary>

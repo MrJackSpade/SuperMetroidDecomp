@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <typeparam name="TSound">The sound a library is asked for; the clock only compares requests.</typeparam>
 /// <remarks>
-/// Advanced once per update, after the update's sound requests, by the session's audio event source; its steps also
-/// schedule the sound backend's sequencer. Evidence: the sound program's timer service and request read (<c>$1621</c>),
+/// Created once per game session by its composition root (<c>FrontendSession</c>), which injects it into the session's
+/// audio advance, so its requests, acknowledgements and request-check phase live as long as the session; an offline clip
+/// renderer owns one of its own. Advanced once per update, after the update's sound requests, by the audio event source
+/// it is injected into; its steps also schedule the sound backend's sequencer. Evidence: the sound program's timer service and request read (<c>$1621</c>),
 /// confirmed against the emulated sound program and the SMV recordings' acknowledgement traces.
 /// </remarks>
 [CompatibilityService("when each sound library accepts a request, and the acknowledgement the game reads back")]
@@ -32,7 +34,7 @@ public sealed class SoundAcceptanceClock<TSound>
     /// </summary>
     private int samplesSinceStep;
     /// <summary>The request-check timer: each step adds an eighth of its period and its overflow checks the requests.</summary>
-    private TickAccumulator checkTimer;
+    private SoundRequestCheckTimer checkTimer;
 
     /// <summary>What each library reports back as acknowledged.</summary>
     public SoundAcknowledgements<TSound> Acknowledgements => new(acknowledged[0], acknowledged[1], acknowledged[2]);
@@ -85,8 +87,7 @@ public sealed class SoundAcceptanceClock<TSound>
     /// <summary>Runs one step at <paramref name="sampleOffset"/>, advancing the check timer and checking every library on its overflow.</summary>
     private SoundClockStep<TSound> Step(int sampleOffset, int periods)
     {
-        // The sound program forms the step's timer increment in eight bits before adding it.
-        (checkTimer, bool checks) = checkTimer.Advance(periods * SoundClockTiming.CheckTimerIncrement % TickAccumulator.Period);
+        (checkTimer, bool checks) = checkTimer.Advance(periods);
         if (!checks)
             return new SoundClockStep<TSound>(sampleOffset, periods, ChecksRequests: false, default);
         SoundRequestChecks<TSound> libraryChecks = default;

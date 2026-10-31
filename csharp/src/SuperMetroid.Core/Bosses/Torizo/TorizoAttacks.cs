@@ -223,15 +223,15 @@ internal sealed class TorizoAttacks
             int liftCarry = jitteredY >= TorizoMotionDefinitions.InitialDroolLift ? 1 : 0;
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(jitteredY - TorizoMotionDefinitions.InitialDroolLift)));
             projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(TorizoRandomDefinitions.DroolFallJitter.Of(random) + 48 + liftCarry))));
-            // $86:A68D-$A6C3: the X offset's ADC carries out of CLC; ADC X. Every branch
-            // stores a zero X velocity.
+            // $86:A68D-$A6C3: a jitter that carries the drool past the last pixel of the coordinate space moves
+            // its side offset one pixel further right. Every branch stores a zero X velocity.
             int jitteredX = (_room.Random.Generate() & 3) + torizo.Position.X.Whole;
-            int carry = WordCarry.OutOfWord(jitteredX);
+            int pastLastPixel = jitteredX > ushort.MaxValue ? 1 : 0;
             projectile.Position = projectile.Position.WithWholeX(_access.Posture(torizo).HasFlag(TorizoPostureFlags.TurningAround)
                 ? unchecked((ushort)jitteredX)
                 : _access.FacesRight(torizo)
-                    ? unchecked((ushort)(jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset + carry))
-                    : unchecked((ushort)(jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset + carry)));
+                    ? unchecked((ushort)(jitteredX + TorizoMotionDefinitions.InitialDroolSideOffset + pastLastPixel))
+                    : unchecked((ushort)(jitteredX - TorizoMotionDefinitions.InitialDroolSideOffset + pastLastPixel)));
             projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
             return;
         }

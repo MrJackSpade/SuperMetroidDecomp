@@ -26,10 +26,10 @@ internal static class SuperMetroidRuntimeToolingExtensions
             SuperMetroid.Core.Gameplay.HostGameplayOverrides overrides,
             SuperMetroid.Core.Samus.SamusOverreadServices samusOverreads,
             SuperMetroid.Core.Assets.GameplayBasePalette? initialPaletteArt = null,
-            SuperMetroid.Core.Progression.SharedRandom? random = null) =>
+            SuperMetroid.Core.Compatibility.SharedRandom? random = null) =>
             new(overrides, new SuperMetroid.Core.Frontend.GameArtwork { GameplayBasePalettes = initialPaletteArt, SamusOverreads = samusOverreads },
-                new SuperMetroid.Core.Gameplay.FrameClock(), new SuperMetroid.Core.Compatibility.FloorUpdateResidue(),
-                random ?? new SuperMetroid.Core.Progression.SharedRandom(),
+                new SuperMetroid.Core.Compatibility.FrameClock(), new SuperMetroid.Core.Compatibility.FloorUpdateResidue(),
+                random ?? new SuperMetroid.Core.Compatibility.SharedRandom(),
                 // A tooling runtime powers on as the game does with an empty save store.
                 new SuperMetroid.Core.Saves.SaveSlotStore().EarthquakeSoundDelayAtPowerOn(),
                 new SuperMetroid.Core.Compatibility.SaveChoiceInputCadence());

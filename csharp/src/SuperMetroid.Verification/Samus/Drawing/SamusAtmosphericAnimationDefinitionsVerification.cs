@@ -13,7 +13,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Drawing;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Checks Samus atmospheric animation timers and lava/acid damage rates against bank 90.</summary>

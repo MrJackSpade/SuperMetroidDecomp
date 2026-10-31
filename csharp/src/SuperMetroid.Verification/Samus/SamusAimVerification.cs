@@ -11,7 +11,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Progression;
 
 /// <summary>Checks bank-$91 aiming poses, movement transitions and their command-line verification routes.</summary>
 internal static class SamusAimVerification

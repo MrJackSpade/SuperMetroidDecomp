@@ -73,8 +73,8 @@ internal static class RidleyInertiaVerification
         if ((short)initial < 0)
         {
             int a = initial + q + carry;
-            int b = unchecked((ushort)a) + q + WordCarry.OutOfWord(a);
-            value = unchecked((ushort)b) + q + WordCarry.OutOfWord(b);
+            int b = unchecked((ushort)a) + q + (a > ushort.MaxValue ? 1 : 0);
+            value = unchecked((ushort)b) + q + (b > ushort.MaxValue ? 1 : 0);
         }
         else value = initial + q + carry;
         ushort result = unchecked((ushort)value);
@@ -105,8 +105,8 @@ internal static class RidleyInertiaVerification
         if ((short)initial < 0)
         {
             int a = unchecked((ushort)(initial + boost)) + 8;
-            int b = unchecked((ushort)a) + q + WordCarry.OutOfWord(a);
-            value = unchecked((ushort)b) + q + WordCarry.OutOfWord(b);
+            int b = unchecked((ushort)a) + q + (a > ushort.MaxValue ? 1 : 0);
+            value = unchecked((ushort)b) + q + (b > ushort.MaxValue ? 1 : 0);
         }
         else value = initial + q + (position >= target ? 1 : 0);
         ushort result = unchecked((ushort)value);

@@ -43,7 +43,11 @@ internal sealed class NorfairRidleyMovement
                 reversalBoost));
     }
 
-    /// <summary>Preserves ADC/SBC carry across reversal and normal acceleration steps on one axis.</summary>
+    /// <summary>
+    /// Accelerates one axis toward the target: while reversing, the reversal boost and then the reversal acceleration
+    /// each start a fresh run of steps, the second continuing into two distance steps; otherwise one distance step.
+    /// Within a run a step that crosses zero makes the next one a unit larger (<see cref="SeekingVelocityRun"/>).
+    /// </summary>
     /// <param name="axisVelocity">The axis velocity.</param>
     /// <param name="position">Ridley's whole coordinate on the axis, 0 through 65535.</param>
     /// <param name="target">The target's whole coordinate on the axis, 0 through 65535.</param>
@@ -59,41 +63,36 @@ internal sealed class NorfairRidleyMovement
         int distance = unchecked((short)(position - target));
         if (distance == 0) return axisVelocity;
         int step = Math.Max(1, Math.Abs(distance) / divisor);
-        bool carry = WordCarry.AfterCompare(checked((ushort)position), checked((ushort)target));
-        int velocity = axisVelocity.RawValue;
+        var run = new SeekingVelocityRun(axisVelocity, position, target);
 
-        // $A6:D559..D5A5 and D5CF..D61B retain carry/borrow across the chained
-        // ADC/SBC instructions. Crossing zero can add one more acceleration unit;
-        // combining these operations into integer arithmetic changes the trajectory.
         if (distance > 0)
         {
-            if (unchecked((short)velocity) >= 0)
+            if (axisVelocity.SignedRawValue >= 0)
             {
-                carry = true;
-                Subtract(reversalBoost);
-                carry = true;
-                Subtract(RidleyInertiaDefinitions.ReversalAcceleration);
-                Subtract(step);
+                run.StartFresh();
+                run.Lower(reversalBoost);
+                run.StartFresh();
+                run.Lower(RidleyInertiaDefinitions.ReversalAcceleration);
+                run.Lower(step);
             }
-            Subtract(step);
-            if (unchecked((short)(velocity - RidleyInertiaDefinitions.MinimumVelocity.RawValue)) < 0) velocity = RidleyInertiaDefinitions.MinimumVelocity.RawValue;
+            run.Lower(step);
+            SignedEightEight lowered = run.Velocity;
+            return unchecked((short)(lowered.RawValue - RidleyInertiaDefinitions.MinimumVelocity.RawValue)) < 0
+                ? RidleyInertiaDefinitions.MinimumVelocity
+                : lowered;
         }
-        else
+        if (axisVelocity.SignedRawValue < 0)
         {
-            if (unchecked((short)velocity) < 0)
-            {
-                carry = false;
-                Add(reversalBoost);
-                carry = false;
-                Add(RidleyInertiaDefinitions.ReversalAcceleration);
-                Add(step);
-            }
-            Add(step);
-            if (unchecked((short)(velocity - RidleyInertiaDefinitions.MaximumVelocity.RawValue)) >= 0) velocity = RidleyInertiaDefinitions.MaximumVelocity.RawValue;
+            run.StartFresh();
+            run.Raise(reversalBoost);
+            run.StartFresh();
+            run.Raise(RidleyInertiaDefinitions.ReversalAcceleration);
+            run.Raise(step);
         }
-        return new SignedEightEight(checked((ushort)velocity));
-
-        void Add(int operand) => velocity = WordCarry.AddWithCarry(checked((ushort)velocity), checked((ushort)operand), ref carry);
-        void Subtract(int operand) => velocity = WordCarry.SubtractWithBorrow(checked((ushort)velocity), checked((ushort)operand), ref carry);
+        run.Raise(step);
+        SignedEightEight raised = run.Velocity;
+        return unchecked((short)(raised.RawValue - RidleyInertiaDefinitions.MaximumVelocity.RawValue)) >= 0
+            ? RidleyInertiaDefinitions.MaximumVelocity
+            : raised;
     }
 }

@@ -31,6 +31,13 @@ public readonly record struct UnsignedSixteenSixteen
     /// <summary>A speed of <paramref name="sixteenths"/> sixteenths of a pixel, which must not be negative.</summary>
     public static UnsignedSixteenSixteen FromSixteenthsOfPixel(int sixteenths) => FromRaw(checked((uint)sixteenths * 4096u));
 
+    /// <summary>
+    /// Adds two values: a fraction sum that passes a whole moves the whole part by one, and the whole part wraps at its
+    /// word.
+    /// </summary>
+    public static UnsignedSixteenSixteen operator +(UnsignedSixteenSixteen left, UnsignedSixteenSixteen right) =>
+        FromRaw(unchecked(left.RawValue + right.RawValue));
+
     /// <summary>This speed with its whole word replaced.</summary>
     public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 

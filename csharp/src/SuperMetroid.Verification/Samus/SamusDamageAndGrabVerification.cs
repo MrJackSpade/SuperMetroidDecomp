@@ -20,7 +20,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Constructed cartridge checks for Samus draining, solid-enemy probes, and Draygon grab control.</summary>

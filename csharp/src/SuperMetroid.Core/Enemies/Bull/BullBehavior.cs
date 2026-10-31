@@ -199,11 +199,9 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             whole = unchecked((ushort)~whole);
         }
 
-        // Both fractions are words, so their sum fits an int and its carry is the bit above the word.
-        int fractionalSum = position.Fraction + fraction;
-        return new(
-            unchecked((ushort)(position.Whole + whole + (WordCarry.OutOfWord(fractionalSum)))),
-            unchecked((ushort)fractionalSum));
+        // The displacement moves the position as one 16.16 value: a fraction that passes a whole pixel moves the whole
+        // position by one more, and the whole position wraps at its width.
+        return SignedSixteenSixteen.FromParts(unchecked((short)whole), fraction).AddTo(position.Whole, position.Fraction);
     }
 
     /// <summary>Ports the no-damage tail of <c>EnemyShot_Bull</c> at $A8:DB2C.</summary>

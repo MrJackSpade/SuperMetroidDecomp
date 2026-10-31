@@ -33,6 +33,7 @@ internal sealed class FrontendSession
         Random = Ensure.NotNull(random);
         ConfiguredOptions = gameOptions ?? new SuperMetroidGameOptions();
         display = new FrontendDisplay(hostServices.GameplayFrames);
+        audioSession = new AudioSession(soundClock);
         this.saves = Ensure.NotNull(saves);
         SelectedSaveSlot = saves.ReadSelectedSlot();
         // Construction is power-on: boot evaluates the saves once before entering MainGameLoop.
@@ -66,8 +67,13 @@ internal sealed class FrontendSession
     internal readonly int bootDemoSetCount;
     /// <summary>The music queue and the sound libraries' request queues, shared across menus and gameplay.</summary>
     internal readonly AudioQueues audio = new();
-    /// <summary>The sound acceptance clock and clip playback, advanced at the end of every update.</summary>
-    internal readonly AudioSession audioSession = new();
+    /// <summary>
+    /// When each sound library accepts the game's requests and what it acknowledges: one clock for the session's whole
+    /// lifetime, so its requests and request-check phase carry across menus and gameplay runtimes.
+    /// </summary>
+    internal readonly SoundAcceptanceClock<SoundEffectId> soundClock = new();
+    /// <summary>The audio advance on <see cref="soundClock"/> and clip playback, advanced at the end of every update.</summary>
+    internal readonly AudioSession audioSession;
     /// <summary>The frontend screen showing now: the one menu or cinematic the current state runs, or none.</summary>
     internal IFrontendScreen? Screen { get; private set; }
     /// <summary>Shows <paramref name="screen"/> in place of whatever screen was showing.</summary>

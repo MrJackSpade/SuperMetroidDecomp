@@ -21,5 +21,5 @@ public static class SoundClockTiming
     public const int MaximumStepsPerUpdate = SamplesPerUpdate / SamplesPerStep + 1;
 
     /// <summary>Added to the request-check timer on every step; its overflow, every eighth step, checks the requests.</summary>
-    public const int CheckTimerIncrement = TickAccumulator.Period / 8;
+    public const int CheckTimerIncrement = SoundRequestCheckTimer.Period / 8;
 }

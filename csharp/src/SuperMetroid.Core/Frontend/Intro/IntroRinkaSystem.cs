@@ -264,22 +264,21 @@ internal sealed class IntroRinkaSystem
         }
     }
 
-    /// <summary>Advances horizontal whole motion plus a half-pixel fractional carry with native word wrapping.</summary>
+    /// <summary>
+    /// Moves the Rinka horizontally by its whole velocity plus half a pixel, as one 16.16 displacement: every second
+    /// update the half pixels add up to one more whole pixel, and the position wraps at its width.
+    /// </summary>
     private static void MoveHalfPixelX(IntroDiscoverySprite rinka, int wholeDelta)
     {
         FixedCoordinate x = rinka.Position.X;
-        uint subSum = (uint)x.Fraction + IntroRinkaDefinitions.HalfPixel.Fraction;
-        int carry = (int)(WordCarry.OutOfWord(subSum));
-        rinka.Position = rinka.Position.WithX(new(
-            unchecked((ushort)(x.Whole + wholeDelta + carry)), unchecked((ushort)subSum)));
+        SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(wholeDelta, 0) + IntroRinkaDefinitions.HalfPixel;
+        rinka.Position = rinka.Position.WithX(displacement.AddTo(x.Whole, x.Fraction));
     }
 
-    /// <summary>Advances the Rinka's vertical half-pixel fraction and carries into its whole position.</summary>
+    /// <summary>Moves the Rinka down half a pixel: every second update the half pixels add up to one whole pixel.</summary>
     private static void MoveHalfPixelY(IntroDiscoverySprite rinka)
     {
         FixedCoordinate y = rinka.Position.Y;
-        uint subSum = (uint)y.Fraction + IntroRinkaDefinitions.HalfPixel.Fraction;
-        rinka.Position = rinka.Position.WithY(new(
-            unchecked((ushort)(y.Whole + (WordCarry.OutOfWord(subSum)))), unchecked((ushort)subSum)));
+        rinka.Position = rinka.Position.WithY(IntroRinkaDefinitions.HalfPixel.AddTo(y.Whole, y.Fraction));
     }
 }

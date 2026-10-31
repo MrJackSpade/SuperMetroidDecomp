@@ -405,24 +405,21 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces $903C-$906B, including carry propagation across two otherwise separate
-    /// negations and the missing final INC on the whole acceleration word.
+    /// Reverses the hovering turtle's horizontal velocity and acceleration at a wall ($903C-$906B). Each value's
+    /// fraction is negated and its whole part inverted, which reverses a value exactly unless its fraction is zero,
+    /// when the reversed value lands one whole pixel lower. A velocity whose whole part is -1 (moving left by less
+    /// than a pixel) lowers the reversed acceleration's whole part by one more pixel.
     /// </summary>
     internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
         SignedSixteenSixteen velocity = state.Velocity.X;
-        int negatedFraction = unchecked((ushort)(~velocity.Fraction + 1));
+        state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.FromParts(
+            ~velocity.WholePixels, unchecked((ushort)-velocity.Fraction)));
 
-        bool carry = true; // BCS supplied carry-in one.
-        int xVelocityWhole = WordCarry.AddWithCarry(velocity.WholeWord, 0, ref carry);
-        int negatedWhole = unchecked((ushort)(~xVelocityWhole + 1));
-        state.Velocity = state.Velocity.WithX(
-            SignedSixteenSixteen.FromParts(unchecked((short)negatedWhole), negatedFraction));
-
-        int negatedAccelerationFraction = unchecked((ushort)(~state.XAcceleration.Fraction + 1));
-        int accelerationWhole = WordCarry.AddWithCarry(state.XAcceleration.WholeWord, 0, ref carry);
-        int invertedAccelerationWhole = unchecked((ushort)~accelerationWhole); // No INC in ROM.
-        state.XAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)invertedAccelerationWhole), negatedAccelerationFraction);
+        SignedSixteenSixteen acceleration = state.XAcceleration;
+        int lowered = velocity.WholePixels == -1 ? 1 : 0;
+        state.XAcceleration = SignedSixteenSixteen.FromParts(
+            unchecked((short)(~acceleration.WholePixels - lowered)), unchecked((ushort)-acceleration.Fraction));
     }
 
     /// <summary>Ports the rider-powered seven-pixel ascent at <c>$A2:9083</c>.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Verification.Harness;
@@ -80,22 +81,36 @@ internal static class FixedPointVocabularyVerification
         }
     }
 
-    /// <summary>WordCarry's ADC and SBC match the private helpers they replaced over boundary words.</summary>
+    /// <summary>
+    /// A seeking boss's velocity run (#1479) over boundary words: a run toward a target whose signed distance wraps
+    /// starts with an extra unit, each raise or lower lands on the word the chained arithmetic it replaced computed,
+    /// and a step that crosses zero adds one unit to the next step, which a zero step then shows.
+    /// </summary>
     private static void VerifyCarryArithmetic()
     {
         foreach (ushort value in BoundaryWords)
         foreach (ushort operand in BoundaryWords)
-        foreach (bool carryIn in new[] { false, true })
+        foreach (bool wrappedDistance in new[] { false, true })
         {
-            int sum = value + operand + (carryIn ? 1 : 0);
-            bool carry = carryIn;
-            AssertEqual(unchecked((ushort)sum), WordCarry.AddWithCarry(value, operand, ref carry), $"ADC {value:X4}+{operand:X4} c{carryIn}");
-            AssertEqual(sum > ushort.MaxValue, carry, $"ADC carry {value:X4}+{operand:X4} c{carryIn}");
+            int extra = wrappedDistance ? 1 : 0;
+            // From 0, a target at 1 lies ahead in both orders; one at $9000 lies behind by the signed distance.
+            int target = wrappedDistance ? 0x9000 : 1;
 
-            int difference = value - operand - (carryIn ? 0 : 1);
-            carry = carryIn;
-            AssertEqual(unchecked((ushort)difference), WordCarry.SubtractWithBorrow(value, operand, ref carry), $"SBC {value:X4}-{operand:X4} c{carryIn}");
-            AssertEqual(difference >= 0, carry, $"SBC carry {value:X4}-{operand:X4} c{carryIn}");
+            var raising = new SeekingVelocityRun(new SignedEightEight(value), 0, target);
+            int sum = value + operand + extra;
+            raising.Raise(operand);
+            AssertEqual(unchecked((ushort)sum), raising.Velocity.RawValue, $"raise {value:X4}+{operand:X4} extra {extra}");
+            raising.Raise(0);
+            AssertEqual(unchecked((ushort)(sum + (sum > ushort.MaxValue ? 1 : 0))), raising.Velocity.RawValue,
+                $"a raise {value:X4}+{operand:X4} extra {extra} crossing zero lengthens the next step");
+
+            var lowering = new SeekingVelocityRun(new SignedEightEight(value), 0, target);
+            int difference = value - operand - extra;
+            lowering.Lower(operand);
+            AssertEqual(unchecked((ushort)difference), lowering.Velocity.RawValue, $"lower {value:X4}-{operand:X4} extra {extra}");
+            lowering.Lower(0);
+            AssertEqual(unchecked((ushort)(difference - (difference < 0 ? 1 : 0))), lowering.Velocity.RawValue,
+                $"a lower {value:X4}-{operand:X4} extra {extra} crossing zero lengthens the next step");
         }
     }
 

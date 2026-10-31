@@ -15,7 +15,6 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Areas.Escape;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the escape-timer handoff from drained Samus to running animation.</summary>
 internal static class EscapeRunningFootstepsVerification

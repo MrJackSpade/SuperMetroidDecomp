@@ -21,7 +21,6 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 /// <summary>Checks Grapple flare timing, OAM, editable offsets, and restored actor binding against native presentation.</summary>

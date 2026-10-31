@@ -41,7 +41,7 @@ what the value means, and the change records the decision at the site:
 
 | The value is | It becomes |
 | --- | --- |
-| A wrap or borrow the game observes (a timer decremented through zero, a counter that wraps, a low byte stepped beside independent state, health and ammo borrow, level-data allocation tails, over-read windows) | A named wrapping stub in `Core/Compatibility` (`WrappingCountdown`, `WrappingCounter`, `CountdownStep`, `LowByteCountdownStep`, `TickAccumulator`) or a new one whose summary states the gameplay behaviour the width produces, with a focused check that exercises the wrap. |
+| A wrap or borrow the game observes (a timer decremented through zero, a counter that wraps, a low byte stepped beside independent state, health and ammo borrow, level-data allocation tails, over-read windows) | A named wrapping stub in `Core/Compatibility` (`WrappingCountdown`, `WrappingCounter`, `CountdownStep`, `LowByteCountdownStep`, `SoundRequestCheckTimer`) or a new one whose summary states the gameplay behaviour the width produces, with a focused check that exercises the wrap. |
 | A width an encoding needs (a save word, a cartridge record byte, a packed tile or level word, a file-format field, a host pixel) | The encoding's single `[EncodingOwner]` codec (`RoomLevelWordCodec` in the import, `PcmWaveFile`, `RgbaPixel`); gameplay holds the decoded domain value or the codec's value type. |
 | Spatial | The branded spatial types (`docs/spatial-types.md`); a value passing through one axis is an `int`. |
 | An index or count | `int`, with `[IntegerQuantity]` where the analyzer needs it. |
@@ -107,8 +107,10 @@ An angle's type states its convention (SME6352). `RotationAngle` is the 8.8 turn
 reads a bearing directly from the table, the conversion is written out at that call. Steps, deltas, masks and offsets
 in table units stay integers.
 
-Processor flags do not cross routine boundaries (SME6353). `WordCarry.AddWithCarry`, `SubtractWithBorrow` and
-`AfterCompare` model the arithmetic where a carry is load-bearing, and a result names what the flag meant
+Processor flags do not cross routine boundaries (SME6353). Where a carry is load-bearing, the code states the rule it
+serves in the value's own terms: a 16.16 or 8.8 addition whose fraction overflow moves the whole part, or a seeking
+boss's velocity run (`SeekingVelocityRun`) in which a step crossing zero lengthens the next (#1479). A result names
+what the flag meant
 (`ReachedVerticalBoundary`, `GrappleBlockReaction`).
 
 ## Classifying an encoded value

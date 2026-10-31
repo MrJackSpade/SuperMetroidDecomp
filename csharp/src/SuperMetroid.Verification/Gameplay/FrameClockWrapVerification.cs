@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Gameplay;
 using SuperMetroid.Verification.Harness;
 

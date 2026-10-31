@@ -53,7 +53,7 @@ internal static class AudioClipBackendVerification
     /// <summary>Feeds one event stream to both backends: uploads on update 0, <paramref name="request"/> on update 1.</summary>
     private static void VerifyEquivalence(ClipAudioLibrary clips, ExtractedAudioAssetCatalog extracted, AudioRequest request, int updates, string name)
     {
-        var source = new AudioEventSource();
+        var source = new AudioEventSource(new SoundAcceptanceClock<SoundEffectId>());
         var clipBackend = new ClipAudioBackend(clips);
         var synthesis = new ManagedSpcAudioBackend(extracted);
         short[] fromClips = new short[AudioSession.PcmSamplesPerFrame];
@@ -155,7 +155,7 @@ internal static class AudioClipBackendVerification
     private sealed class Script(ClipAudioLibrary clips)
     {
         /// <summary>The port model producing the events.</summary>
-        private readonly AudioEventSource source = new();
+        private readonly AudioEventSource source = new(new SoundAcceptanceClock<SoundEffectId>());
         /// <summary>The backend under test.</summary>
         private readonly ClipAudioBackend backend = new(clips);
         /// <summary>Reusable PCM output.</summary>

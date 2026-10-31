@@ -37,11 +37,9 @@ internal static class EnemyMath
 
         if (absoluteY < absoluteX)
         {
-            // The routine chooses its octant using words, then writes only bytes
-            // to the hardware divider. Preserve overflow rather than extending
-            // its intended +/-255 range with a more accurate host calculation.
-            int divided = UnsignedDivision.Quotient(
-                unchecked((ushort)EightEight.FromWhole(absoluteY)), unchecked((byte)absoluteX));
+            // The octant is chosen from the full distances; the slope keeps the original's limits, so offsets
+            // beyond 255 pixels bend the angle (AimAngleSlope).
+            int divided = AimAngleSlope.Of(absoluteY, absoluteX);
             return new Bearing(quadrant switch
             {
                 0 => unchecked((byte)((divided >> 3) + RotationAngle.QuarterTurn.TableIndex)),
@@ -51,8 +49,7 @@ internal static class EnemyMath
             });
         }
 
-        int inverseDivided = UnsignedDivision.Quotient(
-            unchecked((ushort)EightEight.FromWhole(absoluteX)), unchecked((byte)absoluteY));
+        int inverseDivided = AimAngleSlope.Of(absoluteX, absoluteY);
         return new Bearing(quadrant switch
         {
             0 => unchecked((byte)(RotationAngle.HalfTurn.TableIndex - (inverseDivided >> 3))),

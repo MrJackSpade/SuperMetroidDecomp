@@ -649,18 +649,16 @@ public sealed class SamusLiquidPhysicsState
     /// Adds one native 16.16 periodic-damage contribution to WRAM `$0A4E.$0A50`.
     /// </summary>
     /// <remarks>
-    /// Liquid damage reads its operands from ROM, while block and enemy reactions supply
-    /// literal values. They all use the same 65816 <c>CLC/ADC/STA; LDA/ADC/STA</c> carry
-    /// chain, so keeping that operation here prevents each producer from quietly dropping
-    /// a fractional overflow into the whole-energy word.
+    /// Liquid, block and enemy damage all accumulate here as one 16.16 amount, so no producer drops a fraction that
+    /// passes a whole point of energy: it moves the whole damage by one. Each damage word is 0 through 65535, and the
+    /// whole damage wraps at its word.
     /// </remarks>
-    /// <remarks>Each damage word is 0 through 65535; the fraction's carry advances the whole damage, which wraps at a word.</remarks>
     public void AccumulatePeriodicDamage(int subDamage, int wholeDamage)
     {
-        uint fractional = (uint)PeriodicSubDamage + (uint)Ensure.BetweenInclusive(0, ushort.MaxValue, subDamage);
-        PeriodicSubDamage = unchecked((ushort)fractional);
-        PeriodicDamage = unchecked((ushort)(
-            PeriodicDamage + Ensure.BetweenInclusive(0, ushort.MaxValue, wholeDamage) + WordCarry.OutOfWord(fractional)));
+        UnsignedSixteenSixteen total = new UnsignedSixteenSixteen(PeriodicDamage, PeriodicSubDamage) +
+            new UnsignedSixteenSixteen(wholeDamage, subDamage);
+        PeriodicSubDamage = total.Fraction;
+        PeriodicDamage = total.Whole;
     }
 
     /// <summary>Creates either the diving surface particle or paired shallow splashes selected by movement type.</summary>

@@ -1454,7 +1454,7 @@ internal static class RidleyFullMovieVerification
                     }
                     else
                     {
-                        Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer.RawValue, NativeSnapshotMemory.PlmLoopTimer + offset);
+                        Check($"PLM {slotIndex} LoopTimer", slot.LoopTimer, NativeSnapshotMemory.PlmLoopTimer + offset);
                     }
                     Check($"PLM {slotIndex} RoomArgument", slot.RoomArgument, NativeSnapshotMemory.PlmRoomArgument + offset);
                     // The native sleep leaves the countdown at zero and lets it run on from $FFFF; the typed hold re-arms

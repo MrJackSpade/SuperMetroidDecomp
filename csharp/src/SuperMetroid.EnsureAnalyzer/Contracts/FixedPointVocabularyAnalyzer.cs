@@ -49,11 +49,11 @@ public sealed class FixedPointVocabularyAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor CarryProtocolRule = new(
         CarryProtocolId,
         "Processor-flag protocol",
-        "'{0}' carries a processor flag; use WordCarry's operations or name what the flag means",
+        "'{0}' carries a processor flag; state the rule the carry serves in the value's own terms",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Carry arithmetic lives in WordCarry; results say what happened rather than which flag was set (#1326).");
+        description: "A carry is stated as the domain rule it serves, such as a fixed-point addition whose fraction overflow moves the whole part; results say what happened rather than which flag was set (#1326, #1479).");
 
     /// <inheritdoc/>
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [SplitFixedPointRule, RawAngleRule, CarryProtocolRule];

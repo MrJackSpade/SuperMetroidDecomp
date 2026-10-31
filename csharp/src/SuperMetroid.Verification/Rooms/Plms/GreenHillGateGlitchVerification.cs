@@ -119,7 +119,7 @@ internal static class GreenHillGateGlitchVerification
             runtime.StepFrame(input);
             gate = runtime.Plms.PopulationSlots.Single(slot =>
                 slot.HeaderPointer == PlmHeaderId.DownwardGate);
-            if (gate.LoopTimer.IsZero)
+            if (gate.LoopTimer == 0)
                 continue;
             openFrame = frame;
             break;

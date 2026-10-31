@@ -69,6 +69,7 @@ internal static class Program
                 new AnalyzerSuite(nameof(VerifyDuplicateConceptAnalyzer), VerifyDuplicateConceptAnalyzer),
                 new AnalyzerSuite(nameof(VerifyTupleAnalyzer), VerifyTupleAnalyzer),
                 new AnalyzerSuite(nameof(CoreVocabularyAnalyzerTests.VerifyCoreVocabularyAnalyzer), CoreVocabularyAnalyzerTests.VerifyCoreVocabularyAnalyzer),
+                new AnalyzerSuite(nameof(CoreDocumentationVocabularyAnalyzerTests.VerifyCoreDocumentationVocabularyAnalyzer), CoreDocumentationVocabularyAnalyzerTests.VerifyCoreDocumentationVocabularyAnalyzer),
                 new AnalyzerSuite(nameof(CompatibilityServiceAnalyzerTests.VerifyCompatibilityServiceAnalyzer), CompatibilityServiceAnalyzerTests.VerifyCompatibilityServiceAnalyzer),
                 new AnalyzerSuite(nameof(AddressIdentityAnalyzerTests.VerifyAddressIdentityAnalyzer), AddressIdentityAnalyzerTests.VerifyAddressIdentityAnalyzer),
                 new AnalyzerSuite(nameof(FrameCompositionAnalyzerTests.VerifyFrameCompositionAnalyzer), FrameCompositionAnalyzerTests.VerifyFrameCompositionAnalyzer),

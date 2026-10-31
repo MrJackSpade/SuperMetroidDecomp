@@ -55,25 +55,19 @@ internal static class PhantoonNativeWords
     /// <summary>The eye's word C for a death-mosaic block size: the size less one in the high nibble, BG2 enabled.</summary>
     internal static ushort DeathMosaicWord(int size) => (ushort)((size - 1) * 16 | 0x02);
 
-    /// <summary>
-    /// Imports the packed views of a recorded Phantoon part's words: the body's function (word F), the tentacles' swoop
-    /// target (word E) and the eye's death mosaic (word C, when it holds a mosaic word).
-    /// </summary>
-    internal static void Import(PhantoonPartState part, int partIndex, ushort wordC, ushort wordE, ushort wordF)
+    /// <summary>Imports the tentacles' swoop target from their recorded word E.</summary>
+    internal static void ImportSwoopTarget(PhantoonPartState part, ushort wordE)
     {
-        if (partIndex == 0 && wordF != 0)
-            part.Function = AiFunctions.Decode(wordF, "recorded PhantoonAiFunction");
-        if (partIndex == 2)
-        {
-            part.SwoopTargetX = wordE & ~SwoopReturningBit;
-            part.SwoopReturning = (wordE & SwoopReturningBit) != 0;
-        }
-        if (partIndex == 1)
-        {
-            part.DeathMosaicFinished = wordC == DeathMosaicFinished;
-            for (int size = PhantoonDeathDefinitions.InitialMosaicSize; size <= PhantoonDeathDefinitions.FinalMosaicSize; size++)
-                if (wordC == DeathMosaicWord(size))
-                    part.DeathMosaicSize = size;
-        }
+        part.SwoopTargetX = wordE & ~SwoopReturningBit;
+        part.SwoopReturning = (wordE & SwoopReturningBit) != 0;
+    }
+
+    /// <summary>Imports the eye's death mosaic from its recorded word C, when it holds a mosaic word.</summary>
+    internal static void ImportDeathMosaic(PhantoonPartState part, ushort wordC)
+    {
+        part.DeathMosaicFinished = wordC == DeathMosaicFinished;
+        for (int size = PhantoonDeathDefinitions.InitialMosaicSize; size <= PhantoonDeathDefinitions.FinalMosaicSize; size++)
+            if (wordC == DeathMosaicWord(size))
+                part.DeathMosaicSize = size;
     }
 }

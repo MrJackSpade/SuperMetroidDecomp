@@ -80,17 +80,49 @@ internal static class NativeEnemyFamilyStateImport
         int index = slot.SlotIndex;
         if (slot.SpeciesState<PhantoonPartState>() is { } phantoonPartRecord)
         {
-            phantoonPartRecord.PathCursor = words.A;
-            phantoonPartRecord.SpeedFraction = words.B;
-            phantoonPartRecord.SwoopVelocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
-            phantoonPartRecord.FunctionTimer = words.E;
-            phantoonPartRecord.WavyPhaseDelta = words.F;
-            // The cartridge numbers the body zero and the eye, tentacles and mouth one through three.
-            int partNumber = slot.DefinitionId == EnemyDefinitionId.PhantoonEye ? 1
-                : slot.DefinitionId == EnemyDefinitionId.PhantoonTentacles ? 2
-                : slot.DefinitionId == EnemyDefinitionId.PhantoonMouth ? 3
-                : 0;
-            PhantoonNativeWords.Import(phantoonPartRecord, partNumber, words.C, words.E, words.F);
+            // The cartridge gives each record word a meaning per part (#1476); the part's identity says which.
+            if (slot.DefinitionId == EnemyDefinitionId.PhantoonEye)
+            {
+                phantoonPartRecord.ClosedTimer = words.A;
+                phantoonPartRecord.ShotMarker = words.B;
+                phantoonPartRecord.FigureEightReversed = words.C != 0;
+                phantoonPartRecord.DyingFadeCycles = words.C;
+                phantoonPartRecord.FadeDenominator = words.D;
+                phantoonPartRecord.FadeNumerator = words.E;
+                phantoonPartRecord.FadeComplete = words.F != 0;
+                phantoonPartRecord.RageWaveCount = words.F;
+                PhantoonNativeWords.ImportDeathMosaic(phantoonPartRecord, words.C);
+            }
+            else if (slot.DefinitionId == EnemyDefinitionId.PhantoonTentacles)
+            {
+                phantoonPartRecord.SwoopRequested = words.A != 0;
+                phantoonPartRecord.RoundDamage = words.B;
+                phantoonPartRecord.SwoopVelocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
+                PhantoonNativeWords.ImportSwoopTarget(phantoonPartRecord, words.E);
+                phantoonPartRecord.ExplosionIndex = words.F;
+            }
+            else if (slot.DefinitionId == EnemyDefinitionId.PhantoonMouth)
+            {
+                phantoonPartRecord.CasualFlamePattern = words.A;
+                phantoonPartRecord.CasualFlameHold = words.B;
+                phantoonPartRecord.CasualFlameCount = unchecked((short)words.C);
+                phantoonPartRecord.WaveAmplitude = words.D;
+                phantoonPartRecord.WaveAmplitudeShrinking = words.E != 0;
+                phantoonPartRecord.WavyPhaseDelta = words.F;
+            }
+            else
+            {
+                phantoonPartRecord.StartingFlameIndex = words.A;
+                phantoonPartRecord.PathCursor = words.A;
+                phantoonPartRecord.ExplosionPass = words.A;
+                phantoonPartRecord.StartingFlamesActive = words.B != 0;
+                phantoonPartRecord.SpeedFraction = words.B;
+                phantoonPartRecord.SpeedWhole = words.C;
+                phantoonPartRecord.SpeedPhase = words.D;
+                phantoonPartRecord.FunctionTimer = words.E;
+                if (words.F != 0)
+                    phantoonPartRecord.Function = PhantoonNativeWords.AiFunctions.Decode(words.F, "recorded PhantoonAiFunction");
+            }
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {

@@ -22,7 +22,7 @@ internal static class EnemyAiRoutineDefinitions
         /// <summary>Shared no-op interaction callback at $A0:804C.</summary>
         public static readonly SnesAddress NoOp = new(Bank, 0x804c);
 
-        /// <summary>RTS_A0804B at $A0:804B, the shared short-return no-op identity rejected by collision dispatch.</summary>
+        /// <summary>The shared short return at $A0:804B, which the multibox walkers treat like <see cref="NoOp"/>.</summary>
         public static readonly SnesAddress NoOpShortReturn = new(Bank, 0x804b);
     }
 
@@ -106,8 +106,6 @@ internal static class EnemyAiRoutineDefinitions
         public static readonly SnesAddress YardTouch = new(Bank, 0xd3b0);
         /// <summary>Yard shot callback at $A3:D469.</summary>
         public static readonly SnesAddress YardShot = new(Bank, 0xd469);
-        /// <summary>Platform no-op touch callback at $A3:9F07.</summary>
-        public static readonly SnesAddress PlatformNoOpTouch = new(Bank, 0x9f07);
         /// <summary>Tripper shot callback at $A3:9F08.</summary>
         public static readonly SnesAddress TripperShot = new(Bank, 0x9f08);
     }
@@ -118,12 +116,10 @@ internal static class EnemyAiRoutineDefinitions
         /// <summary>The enemy bank, $A4, whose code these callbacks run in.</summary>
         public const byte Bank = 0xa4;
 
-        /// <summary>Crocomire header touch callback at $A4:B950.</summary>
-        public static readonly SnesAddress HeaderTouch = new(Bank, 0xb950);
         /// <summary>Crocomire claw touch callback at $A4:B93D.</summary>
         public static readonly SnesAddress ClawTouch = new(Bank, 0xb93d);
-        /// <summary>Crocomire no-op hitbox shot callback at $A4:B951.</summary>
-        public static readonly SnesAddress NoOpHitboxShot = new(Bank, 0xb951);
+        /// <summary>Crocomire hit-count hitbox shot callback at $A4:B951.</summary>
+        public static readonly SnesAddress HitCountShot = new(Bank, 0xb951);
         /// <summary>Crocomire dust hitbox shot callback at $A4:B968.</summary>
         public static readonly SnesAddress DustHitboxShot = new(Bank, 0xb968);
         /// <summary>Crocomire mouth shot callback at $A4:BA05.</summary>
@@ -192,8 +188,6 @@ internal static class EnemyAiRoutineDefinitions
         public static readonly SnesAddress KraidBackgroundTouch = new(Bank, 0x948b);
         /// <summary>Kraid arm touch callback at $A7:9490.</summary>
         public static readonly SnesAddress KraidArmTouch = new(Bank, 0x9490);
-        /// <summary>Kraid no-op shot callback at $A7:94B5.</summary>
-        public static readonly SnesAddress KraidNoOpShot = new(Bank, 0x94b5);
         /// <summary>Kraid arm shot callback at $A7:94B6.</summary>
         public static readonly SnesAddress KraidArmShot = new(Bank, 0x94b6);
         /// <summary>EnemyTouch_KraidNail at $A7:BCCF: normal touch followed by enemy death.</summary>
@@ -274,8 +268,6 @@ internal static class EnemyAiRoutineDefinitions
         public static readonly SnesAddress MotherBrainBodyShot = new(Bank, 0xb503);
         /// <summary>Mother Brain head shot callback at $A9:B507.</summary>
         public static readonly SnesAddress MotherBrainHeadShot = new(Bank, 0xb507);
-        /// <summary>Mother Brain body touch callback at $A9:B5C5, a bare RTL.</summary>
-        public static readonly SnesAddress MotherBrainBodyTouch = new(Bank, 0xb5c5);
         /// <summary>Mother Brain head touch callback at $A9:B5C6.</summary>
         public static readonly SnesAddress MotherBrainHeadTouch = new(Bank, 0xb5c6);
         /// <summary>Dead Torizo touch/shot callback at $A9:D433.</summary>

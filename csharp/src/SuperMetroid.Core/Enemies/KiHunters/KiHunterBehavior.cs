@@ -831,7 +831,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddKiHunterBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => IsKiHunterBodyDefinition(c.Enemy.DefinitionId) &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.KiHunterShot)
+                                                       c.SelectedShotAi == EnemyReaction.KiHunterShot)
         {
             AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
         });
@@ -872,7 +872,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddKiHunterPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsKiHunterBodyDefinition(enemy.DefinitionId) &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.KiHunterShot)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.KiHunterShot)
         {
             AfterCommon = (enemy, _) => ResolveKiHunterShotAfterCommon(enemy),
         });
@@ -882,7 +882,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddKiHunterShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsKiHunterBodyDefinition(enemy.DefinitionId) &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KiHunterShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.KiHunterShot)
         {
             AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
         });

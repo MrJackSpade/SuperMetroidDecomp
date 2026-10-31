@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
@@ -37,15 +37,15 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceDraygonTypedAnimation;
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
-        return DraygonCombat.FindDraygonHitboxCallback(Slot, probe, out callback);
+        reaction = null;
+        return DraygonCombat.FindDraygonHitboxReaction(Slot, probe, out reaction);
     }
 
     /// <summary>The Draygon body's dud shot ($A5:8046 CreateDudShot) after the no-op check, ahead of the shared ones.</summary>
     public override Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) =>
-        Slot.DefinitionId == EnemyDefinitionId.DraygonBody && context.SelectedShotAi == EnemyInteractionCallback.DudShot
+        Slot.DefinitionId == EnemyDefinitionId.DraygonBody && context.SelectedShotAi == EnemyReaction.DudShot
             ? EnemyDudShot.Bomb
             : base.FindBombSpecialAfterNoOp(context);
 
@@ -57,8 +57,8 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
 
-    /// <summary>The body's shot callback and its dud shot, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.DefinitionId == EnemyDefinitionId.DraygonBody && callback is EnemyInteractionCallback.DraygonShot or EnemyInteractionCallback.DudShot;
+    /// <summary>The body's shot reaction and its dud shot, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        Slot.DefinitionId == EnemyDefinitionId.DraygonBody && reaction is EnemyReaction.DraygonShot or EnemyReaction.DudShot;
 }

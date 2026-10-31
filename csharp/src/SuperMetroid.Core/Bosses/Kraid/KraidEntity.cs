@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => KraidPartDefinitions.Parts[Slot.DefinitionId] switch
@@ -43,11 +43,11 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     };
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
-        return KraidCombat.FindKraidFootHitboxCallback(Slot, probe, out callback) ??
-            KraidCombat.FindKraidArmHitboxCallback(Slot, probe, out callback);
+        reaction = null;
+        return KraidCombat.FindKraidFootHitboxReaction(Slot, probe, out reaction) ??
+            KraidCombat.FindKraidArmHitboxReaction(Slot, probe, out reaction);
     }
 
     /// <summary>The arm and foot take both extended-spritemap walkers; Kraid's body takes only the projectile walker; the lint and nails take neither.</summary>
@@ -56,8 +56,8 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
             ? EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes
             : Slot.DefinitionId == EnemyDefinitionId.Kraid ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
 
-    /// <summary>The arm's shot callback, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.DefinitionId == EnemyDefinitionId.KraidArm && callback == EnemyInteractionCallback.KraidArmShot;
+    /// <summary>The arm's shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        Slot.DefinitionId == EnemyDefinitionId.KraidArm && reaction == EnemyReaction.KraidArmShot;
 }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One signed Mother Brain rectangle and its reactions to Samus contact and to her projectiles.</summary>
@@ -8,4 +10,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Touch">The reaction when Samus touches the rectangle.</param>
 /// <param name="Shot">The reaction when a Samus projectile hits the rectangle.</param>
 internal readonly record struct MotherBrainCollisionHitbox(
-    int Left, int Top, int Right, int Bottom, MotherBrainHitboxTouch Touch, MotherBrainHitboxShot Shot);
+    int Left, int Top, int Right, int Bottom, EnemyReaction Touch, EnemyReaction Shot);

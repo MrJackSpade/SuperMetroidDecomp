@@ -524,9 +524,9 @@ internal sealed class KraidProjectiles
     internal void AddKraidNailTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.KraidNail &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.KraidNailTouch ||
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.KraidNailTouch ||
                                slot.DefinitionId == EnemyDefinitionId.KraidNailBad &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.KraidBadNailTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.KraidBadNailTouch,
             context =>
             {
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);

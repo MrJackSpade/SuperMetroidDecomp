@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -10,23 +11,23 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal static class SporeSpawnCollisionDefinitions
 {
     /// <summary>Spore Spawn's contact reaction, on the active shell and vulnerable point.</summary>
-    internal const SporeSpawnHitboxTouch Touch = SporeSpawnHitboxTouch.Contact;
+    internal const EnemyReaction Touch = EnemyReaction.SporeSpawnTouch;
     /// <summary>Spore Spawn's shot reaction, on the exposed vulnerable point.</summary>
-    internal const SporeSpawnHitboxShot Shot = SporeSpawnHitboxShot.Vulnerable;
+    internal const EnemyReaction Shot = EnemyReaction.SporeSpawnShot;
     /// <summary>The inactive head's touch reaction before Spore Spawn opens.</summary>
-    internal const SporeSpawnHitboxTouch NoOp = SporeSpawnHitboxTouch.Inert;
+    internal const EnemyReaction Inert = EnemyReaction.Ignore;
     /// <summary>The dud shot reaction of shell rectangles and the inactive trailing point.</summary>
-    internal const SporeSpawnHitboxShot Dud = SporeSpawnHitboxShot.Dud;
+    internal const EnemyReaction Dud = EnemyReaction.DudShot;
 
     /// <summary>Builds the trailing vulnerable rectangle with active or dud shot response.</summary>
-    private static SporeSpawnCollisionHitbox InnerPoint(SporeSpawnHitboxShot shot) => new(-15, -24, 14, 23, Touch, shot);
+    private static SporeSpawnCollisionHitbox InnerPoint(EnemyReaction shot) => new(-15, -24, 14, 23, Touch, shot);
 
     /// <summary>Head rectangles shared by the closed and open lists, which differ only in touch AI.</summary>
-    private static SporeSpawnCollisionHitbox[] Head(SporeSpawnHitboxTouch touch) =>
+    private static SporeSpawnCollisionHitbox[] Head(EnemyReaction touch) =>
         [new(-41, -30, 41, 30, touch, Dud), new(-16, -45, 15, -30, touch, Dud)];
 
     /// <summary>Two closed-head shell rectangles without an active touch response.</summary>
-    internal static readonly SporeSpawnCollisionHitbox[] ClosedHeadList = Head(NoOp);
+    internal static readonly SporeSpawnCollisionHitbox[] ClosedHeadList = Head(Inert);
     /// <summary>Two open-head shell rectangles with active touch response.</summary>
     internal static readonly SporeSpawnCollisionHitbox[] OpenHeadList = Head(Touch);
     /// <summary>Wider head rectangles used by the first opening pose.</summary>

@@ -5,158 +5,192 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Enemies.Callbacks;
 
 /// <summary>
-/// Decodes enemy header and hitbox callback words to the interaction callbacks the port names. The shared prologue
-/// entries every enemy bank repeats at the same offset are named by their bank-$A0 copy and admitted from any enemy bank.
+/// Decodes enemy header and hitbox callback words to the reactions the simulation names. The shared prologue entries
+/// every enemy bank repeats at the same offset are named by their bank-$A0 copy and admitted from any enemy bank. Every
+/// callback that returns at once, the engine's shared ones and a species' own alike, decodes to
+/// <see cref="EnemyReaction.Ignore"/>; whether the header's word is the engine's own is decoded separately, as the
+/// header's <see cref="EnemyHitboxScan"/>.
 /// </summary>
 internal static class EnemyInteractionCallbacks
 {
-    /// <summary>The native long address of each named callback.</summary>
-    internal static readonly IReadOnlyDictionary<EnemyInteractionCallback, SnesAddress> Addresses =
-        new Dictionary<EnemyInteractionCallback, SnesAddress>
+    /// <summary>The native long address of each named reaction's callback.</summary>
+    private static readonly IReadOnlyDictionary<EnemyReaction, SnesAddress> Addresses =
+        new Dictionary<EnemyReaction, SnesAddress>
     {
-        [EnemyInteractionCallback.NormalEnemyTouch] = EnemyAiRoutineDefinitions.BankA0.NormalEnemyTouch,
-        [EnemyInteractionCallback.NormalEnemyShot] = EnemyAiRoutineDefinitions.BankA0.NormalEnemyShot,
-        [EnemyInteractionCallback.DudShot] = EnemyAiRoutineDefinitions.BankA0.DudShot,
-        [EnemyInteractionCallback.NoOp] = EnemyAiRoutineDefinitions.BankA0.NoOp,
-        [EnemyInteractionCallback.NoOpShortReturn] = EnemyAiRoutineDefinitions.BankA0.NoOpShortReturn,
-        [EnemyInteractionCallback.OwtchShot] = EnemyAiRoutineDefinitions.BankA2.OwtchShot,
-        [EnemyInteractionCallback.DragonTouch] = EnemyAiRoutineDefinitions.BankA2.DragonTouch,
-        [EnemyInteractionCallback.DragonShot] = EnemyAiRoutineDefinitions.BankA2.DragonShot,
-        [EnemyInteractionCallback.DragonPowerBomb] = EnemyAiRoutineDefinitions.BankA2.DragonPowerBomb,
-        [EnemyInteractionCallback.GRipperRipper2Shot] = EnemyAiRoutineDefinitions.BankA2.GRipperRipper2Shot,
-        [EnemyInteractionCallback.MamaTurtleTouch] = EnemyAiRoutineDefinitions.BankA2.MamaTurtleTouch,
-        [EnemyInteractionCallback.BabyTurtleTouch] = EnemyAiRoutineDefinitions.BankA2.BabyTurtleTouch,
-        [EnemyInteractionCallback.BabyTurtleShot] = EnemyAiRoutineDefinitions.BankA2.BabyTurtleShot,
-        [EnemyInteractionCallback.MaridiaLargeSnailDamagingTouch] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailDamagingTouch,
-        [EnemyInteractionCallback.MaridiaLargeSnailNonDamagingTouch] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailNonDamagingTouch,
-        [EnemyInteractionCallback.MaridiaLargeSnailShot] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailShot,
-        [EnemyInteractionCallback.RinkaTouch] = EnemyAiRoutineDefinitions.BankA2.RinkaTouch,
-        [EnemyInteractionCallback.RinkaShot] = EnemyAiRoutineDefinitions.BankA2.RinkaShot,
-        [EnemyInteractionCallback.RinkaPowerBomb] = EnemyAiRoutineDefinitions.BankA2.RinkaPowerBomb,
-        [EnemyInteractionCallback.VerticalShutterTouch] = EnemyAiRoutineDefinitions.BankA2.VerticalShutterTouch,
-        [EnemyInteractionCallback.ShootableVerticalShutterShot] = EnemyAiRoutineDefinitions.BankA2.ShootableVerticalShutterShot,
-        [EnemyInteractionCallback.DestroyableVerticalShutterShot] = EnemyAiRoutineDefinitions.BankA2.DestroyableVerticalShutterShot,
-        [EnemyInteractionCallback.VerticalShutterPowerBomb] = EnemyAiRoutineDefinitions.BankA2.VerticalShutterPowerBomb,
-        [EnemyInteractionCallback.HorizontalShutterTouch] = EnemyAiRoutineDefinitions.BankA2.HorizontalShutterTouch,
-        [EnemyInteractionCallback.HorizontalShutterShot] = EnemyAiRoutineDefinitions.BankA2.HorizontalShutterShot,
-        [EnemyInteractionCallback.HorizontalShutterPowerBomb] = EnemyAiRoutineDefinitions.BankA2.HorizontalShutterPowerBomb,
-        [EnemyInteractionCallback.SkreeShot] = EnemyAiRoutineDefinitions.BankA3.SkreeShot,
-        [EnemyInteractionCallback.MetareeShot] = EnemyAiRoutineDefinitions.BankA3.MetareeShot,
-        [EnemyInteractionCallback.FirefleaTouch] = EnemyAiRoutineDefinitions.BankA3.FirefleaTouch,
-        [EnemyInteractionCallback.FirefleaPowerBomb] = EnemyAiRoutineDefinitions.BankA3.FirefleaPowerBomb,
-        [EnemyInteractionCallback.FirefleaShot] = EnemyAiRoutineDefinitions.BankA3.FirefleaShot,
-        [EnemyInteractionCallback.MochtroidTouch] = EnemyAiRoutineDefinitions.BankA3.MochtroidTouch,
-        [EnemyInteractionCallback.MochtroidShot] = EnemyAiRoutineDefinitions.BankA3.MochtroidShot,
-        [EnemyInteractionCallback.MetroidTouch] = EnemyAiRoutineDefinitions.BankA3.MetroidTouch,
-        [EnemyInteractionCallback.MetroidShot] = EnemyAiRoutineDefinitions.BankA3.MetroidShot,
-        [EnemyInteractionCallback.MetroidPowerBomb] = EnemyAiRoutineDefinitions.BankA3.MetroidPowerBomb,
-        [EnemyInteractionCallback.YardTouch] = EnemyAiRoutineDefinitions.BankA3.YardTouch,
-        [EnemyInteractionCallback.YardShot] = EnemyAiRoutineDefinitions.BankA3.YardShot,
-        [EnemyInteractionCallback.PlatformNoOpTouch] = EnemyAiRoutineDefinitions.BankA3.PlatformNoOpTouch,
-        [EnemyInteractionCallback.TripperShot] = EnemyAiRoutineDefinitions.BankA3.TripperShot,
-        [EnemyInteractionCallback.CrocomireHeaderTouch] = EnemyAiRoutineDefinitions.BankA4.HeaderTouch,
-        [EnemyInteractionCallback.CrocomireClawTouch] = EnemyAiRoutineDefinitions.BankA4.ClawTouch,
-        [EnemyInteractionCallback.CrocomireNoOpHitboxShot] = EnemyAiRoutineDefinitions.BankA4.NoOpHitboxShot,
-        [EnemyInteractionCallback.CrocomireDustHitboxShot] = EnemyAiRoutineDefinitions.BankA4.DustHitboxShot,
-        [EnemyInteractionCallback.CrocomireMouthShot] = EnemyAiRoutineDefinitions.BankA4.MouthShot,
-        [EnemyInteractionCallback.CrocomireAlternateDustHitboxShot] = EnemyAiRoutineDefinitions.BankA4.AlternateDustHitboxShot,
-        [EnemyInteractionCallback.CrocomirePowerBomb] = EnemyAiRoutineDefinitions.BankA4.PowerBomb,
-        [EnemyInteractionCallback.SporeSpawnTouch] = EnemyAiRoutineDefinitions.BankA5.SporeSpawnTouch,
-        [EnemyInteractionCallback.SporeSpawnShot] = EnemyAiRoutineDefinitions.BankA5.SporeSpawnShot,
-        [EnemyInteractionCallback.DraygonTouch] = EnemyAiRoutineDefinitions.BankA5.DraygonTouch,
-        [EnemyInteractionCallback.DraygonShot] = EnemyAiRoutineDefinitions.BankA5.DraygonShot,
-        [EnemyInteractionCallback.DraygonPowerBomb] = EnemyAiRoutineDefinitions.BankA5.DraygonPowerBomb,
-        [EnemyInteractionCallback.FakeKraidTouch] = EnemyAiRoutineDefinitions.BankA6.FakeKraidTouch,
-        [EnemyInteractionCallback.FakeKraidShot] = EnemyAiRoutineDefinitions.BankA6.FakeKraidShot,
-        [EnemyInteractionCallback.CeresSteamTouch] = EnemyAiRoutineDefinitions.BankA6.CeresSteamTouch,
-        [EnemyInteractionCallback.RidleyExtendedTouch] = EnemyAiRoutineDefinitions.BankA6.RidleyExtendedTouch,
-        [EnemyInteractionCallback.RidleyShot] = EnemyAiRoutineDefinitions.BankA6.RidleyShot,
-        [EnemyInteractionCallback.RidleyPowerBomb] = EnemyAiRoutineDefinitions.BankA6.RidleyPowerBomb,
-        [EnemyInteractionCallback.ZebetiteTouch] = EnemyAiRoutineDefinitions.BankA6.ZebetiteTouch,
-        [EnemyInteractionCallback.ZebetiteShot] = EnemyAiRoutineDefinitions.BankA6.ZebetiteShot,
-        [EnemyInteractionCallback.KraidBackgroundTouch] = EnemyAiRoutineDefinitions.BankA7.KraidBackgroundTouch,
-        [EnemyInteractionCallback.KraidArmTouch] = EnemyAiRoutineDefinitions.BankA7.KraidArmTouch,
-        [EnemyInteractionCallback.KraidNoOpShot] = EnemyAiRoutineDefinitions.BankA7.KraidNoOpShot,
-        [EnemyInteractionCallback.KraidArmShot] = EnemyAiRoutineDefinitions.BankA7.KraidArmShot,
-        [EnemyInteractionCallback.KraidNailTouch] = EnemyAiRoutineDefinitions.BankA7.KraidNailTouch,
-        [EnemyInteractionCallback.KraidBadNailTouch] = EnemyAiRoutineDefinitions.BankA7.KraidBadNailTouch,
-        [EnemyInteractionCallback.EvirTouch] = EnemyAiRoutineDefinitions.BankA8.EvirTouch,
-        [EnemyInteractionCallback.EvirPowerBomb] = EnemyAiRoutineDefinitions.BankA8.EvirPowerBomb,
-        [EnemyInteractionCallback.EvirShot] = EnemyAiRoutineDefinitions.BankA8.EvirShot,
-        [EnemyInteractionCallback.MagdollitePowerBomb] = EnemyAiRoutineDefinitions.BankA8.MagdollitePowerBomb,
-        [EnemyInteractionCallback.MagdolliteTouch] = EnemyAiRoutineDefinitions.BankA8.MagdolliteTouch,
-        [EnemyInteractionCallback.MagdolliteShot] = EnemyAiRoutineDefinitions.BankA8.MagdolliteShot,
-        [EnemyInteractionCallback.BeetomTouch] = EnemyAiRoutineDefinitions.BankA8.BeetomTouch,
-        [EnemyInteractionCallback.BeetomShot] = EnemyAiRoutineDefinitions.BankA8.BeetomShot,
-        [EnemyInteractionCallback.PowampTouch] = EnemyAiRoutineDefinitions.BankA8.PowampTouch,
-        [EnemyInteractionCallback.PowampShot] = EnemyAiRoutineDefinitions.BankA8.PowampShot,
-        [EnemyInteractionCallback.PowampPowerBomb] = EnemyAiRoutineDefinitions.BankA8.PowampPowerBomb,
-        [EnemyInteractionCallback.WorkRobotTouch] = EnemyAiRoutineDefinitions.BankA8.WorkRobotTouch,
-        [EnemyInteractionCallback.WorkRobotNoPowerShot] = EnemyAiRoutineDefinitions.BankA8.WorkRobotNoPowerShot,
-        [EnemyInteractionCallback.WorkRobotShot] = EnemyAiRoutineDefinitions.BankA8.WorkRobotShot,
-        [EnemyInteractionCallback.BullShot] = EnemyAiRoutineDefinitions.BankA8.BullShot,
-        [EnemyInteractionCallback.KagoShot] = EnemyAiRoutineDefinitions.BankA8.KagoShot,
-        [EnemyInteractionCallback.KiHunterShot] = EnemyAiRoutineDefinitions.BankA8.KiHunterShot,
-        [EnemyInteractionCallback.SparkShot] = EnemyAiRoutineDefinitions.BankA8.SparkShot,
-        [EnemyInteractionCallback.BlueBrinstarFaceBlockShot] = EnemyAiRoutineDefinitions.BankA8.BlueBrinstarFaceBlockShot,
-        [EnemyInteractionCallback.YappingMawTouch] = EnemyAiRoutineDefinitions.BankA8.YappingMawTouch,
-        [EnemyInteractionCallback.YappingMawShot] = EnemyAiRoutineDefinitions.BankA8.YappingMawShot,
-        [EnemyInteractionCallback.MotherBrainBodyShot] = EnemyAiRoutineDefinitions.BankA9.MotherBrainBodyShot,
-        [EnemyInteractionCallback.MotherBrainHeadShot] = EnemyAiRoutineDefinitions.BankA9.MotherBrainHeadShot,
-        [EnemyInteractionCallback.MotherBrainBodyTouch] = EnemyAiRoutineDefinitions.BankA9.MotherBrainBodyTouch,
-        [EnemyInteractionCallback.MotherBrainHeadTouch] = EnemyAiRoutineDefinitions.BankA9.MotherBrainHeadTouch,
-        [EnemyInteractionCallback.DeadTorizoTouchAndShot] = EnemyAiRoutineDefinitions.BankA9.DeadTorizoTouchAndShot,
-        [EnemyInteractionCallback.DeadTorizoPowerBomb] = EnemyAiRoutineDefinitions.BankA9.DeadTorizoPowerBomb,
-        [EnemyInteractionCallback.DeadSidehopperTouch] = EnemyAiRoutineDefinitions.BankA9.DeadSidehopperTouch,
-        [EnemyInteractionCallback.DeadSidehopperShot] = EnemyAiRoutineDefinitions.BankA9.DeadSidehopperShot,
-        [EnemyInteractionCallback.DeadSidehopperPowerBomb] = EnemyAiRoutineDefinitions.BankA9.DeadSidehopperPowerBomb,
-        [EnemyInteractionCallback.ShitroidTouch] = EnemyAiRoutineDefinitions.BankA9.ShitroidTouch,
-        [EnemyInteractionCallback.ShitroidShot] = EnemyAiRoutineDefinitions.BankA9.ShitroidShot,
-        [EnemyInteractionCallback.ShitroidPowerBomb] = EnemyAiRoutineDefinitions.BankA9.ShitroidPowerBomb,
-        [EnemyInteractionCallback.BombTorizoTouch] = EnemyAiRoutineDefinitions.BankAA.BombTorizoTouch,
-        [EnemyInteractionCallback.BombTorizoShot] = EnemyAiRoutineDefinitions.BankAA.BombTorizoShot,
-        [EnemyInteractionCallback.TorizoStandUpSitDownShot] = EnemyAiRoutineDefinitions.BankAA.TorizoStandUpSitDownShot,
-        [EnemyInteractionCallback.GoldenTorizoShot] = EnemyAiRoutineDefinitions.BankAA.GoldenTorizoShot,
-        [EnemyInteractionCallback.ShaktoolTouch] = EnemyAiRoutineDefinitions.BankAA.ShaktoolTouch,
-        [EnemyInteractionCallback.ShaktoolShot] = EnemyAiRoutineDefinitions.BankAA.ShaktoolShot,
-        [EnemyInteractionCallback.SpacePiratePowerBomb] = EnemyAiRoutineDefinitions.BankB2.PowerBomb,
-        [EnemyInteractionCallback.SpacePirateTouch] = EnemyAiRoutineDefinitions.BankB2.Touch,
-        [EnemyInteractionCallback.SpacePirateShot] = EnemyAiRoutineDefinitions.BankB2.Shot,
-        [EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot] = EnemyAiRoutineDefinitions.BankB2.GoldNinjaVulnerableHitboxShot,
-        [EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot] = EnemyAiRoutineDefinitions.BankB2.GoldNinjaInvincibleHitboxShot,
-        [EnemyInteractionCallback.BotwoonTouch] = EnemyAiRoutineDefinitions.BankB3.BotwoonTouch,
-        [EnemyInteractionCallback.BotwoonShot] = EnemyAiRoutineDefinitions.BankB3.BotwoonShot,
-        [EnemyInteractionCallback.BotwoonPowerBomb] = EnemyAiRoutineDefinitions.BankB3.BotwoonPowerBomb,
-        [EnemyInteractionCallback.PhantoonTouch] = EnemyAiRoutineDefinitions.BankA7.PhantoonTouch,
-        [EnemyInteractionCallback.PhantoonShot] = EnemyAiRoutineDefinitions.BankA7.PhantoonShot,
-        [EnemyInteractionCallback.DeadZoomerTouchAndShot] = EnemyAiRoutineDefinitions.BankA9.DeadZoomerTouchAndShot,
-        [EnemyInteractionCallback.DeadZoomerPowerBomb] = EnemyAiRoutineDefinitions.BankA9.DeadZoomerPowerBomb,
-        [EnemyInteractionCallback.DeadRipperTouchAndShot] = EnemyAiRoutineDefinitions.BankA9.DeadRipperTouchAndShot,
-        [EnemyInteractionCallback.DeadRipperPowerBomb] = EnemyAiRoutineDefinitions.BankA9.DeadRipperPowerBomb,
-        [EnemyInteractionCallback.DeadSkreeTouchAndShot] = EnemyAiRoutineDefinitions.BankA9.DeadSkreeTouchAndShot,
-        [EnemyInteractionCallback.DeadSkreePowerBomb] = EnemyAiRoutineDefinitions.BankA9.DeadSkreePowerBomb,
-        [EnemyInteractionCallback.CeresDoorNoOpShot] = EnemyShotCallbackDefinitions.CeresDoorNoOp,
-        [EnemyInteractionCallback.ChozoNoOpShot] = EnemyShotCallbackDefinitions.ChozoNoOp,
+        [EnemyReaction.NormalEnemyTouch] = EnemyAiRoutineDefinitions.BankA0.NormalEnemyTouch,
+        [EnemyReaction.NormalEnemyShot] = EnemyAiRoutineDefinitions.BankA0.NormalEnemyShot,
+        [EnemyReaction.DudShot] = EnemyAiRoutineDefinitions.BankA0.DudShot,
+        [EnemyReaction.OwtchShot] = EnemyAiRoutineDefinitions.BankA2.OwtchShot,
+        [EnemyReaction.DragonTouch] = EnemyAiRoutineDefinitions.BankA2.DragonTouch,
+        [EnemyReaction.DragonShot] = EnemyAiRoutineDefinitions.BankA2.DragonShot,
+        [EnemyReaction.DragonPowerBomb] = EnemyAiRoutineDefinitions.BankA2.DragonPowerBomb,
+        [EnemyReaction.GRipperRipper2Shot] = EnemyAiRoutineDefinitions.BankA2.GRipperRipper2Shot,
+        [EnemyReaction.MamaTurtleTouch] = EnemyAiRoutineDefinitions.BankA2.MamaTurtleTouch,
+        [EnemyReaction.BabyTurtleTouch] = EnemyAiRoutineDefinitions.BankA2.BabyTurtleTouch,
+        [EnemyReaction.BabyTurtleShot] = EnemyAiRoutineDefinitions.BankA2.BabyTurtleShot,
+        [EnemyReaction.MaridiaLargeSnailDamagingTouch] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailDamagingTouch,
+        [EnemyReaction.MaridiaLargeSnailNonDamagingTouch] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailNonDamagingTouch,
+        [EnemyReaction.MaridiaLargeSnailShot] = EnemyAiRoutineDefinitions.BankA2.MaridiaLargeSnailShot,
+        [EnemyReaction.RinkaTouch] = EnemyAiRoutineDefinitions.BankA2.RinkaTouch,
+        [EnemyReaction.RinkaShot] = EnemyAiRoutineDefinitions.BankA2.RinkaShot,
+        [EnemyReaction.RinkaPowerBomb] = EnemyAiRoutineDefinitions.BankA2.RinkaPowerBomb,
+        [EnemyReaction.VerticalShutterTouch] = EnemyAiRoutineDefinitions.BankA2.VerticalShutterTouch,
+        [EnemyReaction.ShootableVerticalShutterShot] = EnemyAiRoutineDefinitions.BankA2.ShootableVerticalShutterShot,
+        [EnemyReaction.DestroyableVerticalShutterShot] = EnemyAiRoutineDefinitions.BankA2.DestroyableVerticalShutterShot,
+        [EnemyReaction.VerticalShutterPowerBomb] = EnemyAiRoutineDefinitions.BankA2.VerticalShutterPowerBomb,
+        [EnemyReaction.HorizontalShutterTouch] = EnemyAiRoutineDefinitions.BankA2.HorizontalShutterTouch,
+        [EnemyReaction.HorizontalShutterShot] = EnemyAiRoutineDefinitions.BankA2.HorizontalShutterShot,
+        [EnemyReaction.HorizontalShutterPowerBomb] = EnemyAiRoutineDefinitions.BankA2.HorizontalShutterPowerBomb,
+        [EnemyReaction.SkreeShot] = EnemyAiRoutineDefinitions.BankA3.SkreeShot,
+        [EnemyReaction.MetareeShot] = EnemyAiRoutineDefinitions.BankA3.MetareeShot,
+        [EnemyReaction.FirefleaTouch] = EnemyAiRoutineDefinitions.BankA3.FirefleaTouch,
+        [EnemyReaction.FirefleaPowerBomb] = EnemyAiRoutineDefinitions.BankA3.FirefleaPowerBomb,
+        [EnemyReaction.FirefleaShot] = EnemyAiRoutineDefinitions.BankA3.FirefleaShot,
+        [EnemyReaction.MochtroidTouch] = EnemyAiRoutineDefinitions.BankA3.MochtroidTouch,
+        [EnemyReaction.MochtroidShot] = EnemyAiRoutineDefinitions.BankA3.MochtroidShot,
+        [EnemyReaction.MetroidTouch] = EnemyAiRoutineDefinitions.BankA3.MetroidTouch,
+        [EnemyReaction.MetroidShot] = EnemyAiRoutineDefinitions.BankA3.MetroidShot,
+        [EnemyReaction.MetroidPowerBomb] = EnemyAiRoutineDefinitions.BankA3.MetroidPowerBomb,
+        [EnemyReaction.YardTouch] = EnemyAiRoutineDefinitions.BankA3.YardTouch,
+        [EnemyReaction.YardShot] = EnemyAiRoutineDefinitions.BankA3.YardShot,
+        [EnemyReaction.TripperShot] = EnemyAiRoutineDefinitions.BankA3.TripperShot,
+        [EnemyReaction.CrocomireClawTouch] = EnemyAiRoutineDefinitions.BankA4.ClawTouch,
+        [EnemyReaction.CrocomireHitCountShot] = EnemyAiRoutineDefinitions.BankA4.HitCountShot,
+        [EnemyReaction.CrocomireDustHitboxShot] = EnemyAiRoutineDefinitions.BankA4.DustHitboxShot,
+        [EnemyReaction.CrocomireMouthShot] = EnemyAiRoutineDefinitions.BankA4.MouthShot,
+        [EnemyReaction.CrocomireAlternateDustHitboxShot] = EnemyAiRoutineDefinitions.BankA4.AlternateDustHitboxShot,
+        [EnemyReaction.CrocomirePowerBomb] = EnemyAiRoutineDefinitions.BankA4.PowerBomb,
+        [EnemyReaction.SporeSpawnTouch] = EnemyAiRoutineDefinitions.BankA5.SporeSpawnTouch,
+        [EnemyReaction.SporeSpawnShot] = EnemyAiRoutineDefinitions.BankA5.SporeSpawnShot,
+        [EnemyReaction.DraygonTouch] = EnemyAiRoutineDefinitions.BankA5.DraygonTouch,
+        [EnemyReaction.DraygonShot] = EnemyAiRoutineDefinitions.BankA5.DraygonShot,
+        [EnemyReaction.DraygonPowerBomb] = EnemyAiRoutineDefinitions.BankA5.DraygonPowerBomb,
+        [EnemyReaction.FakeKraidTouch] = EnemyAiRoutineDefinitions.BankA6.FakeKraidTouch,
+        [EnemyReaction.FakeKraidShot] = EnemyAiRoutineDefinitions.BankA6.FakeKraidShot,
+        [EnemyReaction.CeresSteamTouch] = EnemyAiRoutineDefinitions.BankA6.CeresSteamTouch,
+        [EnemyReaction.RidleyExtendedTouch] = EnemyAiRoutineDefinitions.BankA6.RidleyExtendedTouch,
+        [EnemyReaction.RidleyShot] = EnemyAiRoutineDefinitions.BankA6.RidleyShot,
+        [EnemyReaction.RidleyPowerBomb] = EnemyAiRoutineDefinitions.BankA6.RidleyPowerBomb,
+        [EnemyReaction.ZebetiteTouch] = EnemyAiRoutineDefinitions.BankA6.ZebetiteTouch,
+        [EnemyReaction.ZebetiteShot] = EnemyAiRoutineDefinitions.BankA6.ZebetiteShot,
+        [EnemyReaction.KraidBackgroundTouch] = EnemyAiRoutineDefinitions.BankA7.KraidBackgroundTouch,
+        [EnemyReaction.KraidArmTouch] = EnemyAiRoutineDefinitions.BankA7.KraidArmTouch,
+        [EnemyReaction.KraidArmShot] = EnemyAiRoutineDefinitions.BankA7.KraidArmShot,
+        [EnemyReaction.KraidNailTouch] = EnemyAiRoutineDefinitions.BankA7.KraidNailTouch,
+        [EnemyReaction.KraidBadNailTouch] = EnemyAiRoutineDefinitions.BankA7.KraidBadNailTouch,
+        [EnemyReaction.EvirTouch] = EnemyAiRoutineDefinitions.BankA8.EvirTouch,
+        [EnemyReaction.EvirPowerBomb] = EnemyAiRoutineDefinitions.BankA8.EvirPowerBomb,
+        [EnemyReaction.EvirShot] = EnemyAiRoutineDefinitions.BankA8.EvirShot,
+        [EnemyReaction.MagdollitePowerBomb] = EnemyAiRoutineDefinitions.BankA8.MagdollitePowerBomb,
+        [EnemyReaction.MagdolliteTouch] = EnemyAiRoutineDefinitions.BankA8.MagdolliteTouch,
+        [EnemyReaction.MagdolliteShot] = EnemyAiRoutineDefinitions.BankA8.MagdolliteShot,
+        [EnemyReaction.BeetomTouch] = EnemyAiRoutineDefinitions.BankA8.BeetomTouch,
+        [EnemyReaction.BeetomShot] = EnemyAiRoutineDefinitions.BankA8.BeetomShot,
+        [EnemyReaction.PowampTouch] = EnemyAiRoutineDefinitions.BankA8.PowampTouch,
+        [EnemyReaction.PowampShot] = EnemyAiRoutineDefinitions.BankA8.PowampShot,
+        [EnemyReaction.PowampPowerBomb] = EnemyAiRoutineDefinitions.BankA8.PowampPowerBomb,
+        [EnemyReaction.WorkRobotTouch] = EnemyAiRoutineDefinitions.BankA8.WorkRobotTouch,
+        [EnemyReaction.WorkRobotNoPowerShot] = EnemyAiRoutineDefinitions.BankA8.WorkRobotNoPowerShot,
+        [EnemyReaction.WorkRobotShot] = EnemyAiRoutineDefinitions.BankA8.WorkRobotShot,
+        [EnemyReaction.BullShot] = EnemyAiRoutineDefinitions.BankA8.BullShot,
+        [EnemyReaction.KagoShot] = EnemyAiRoutineDefinitions.BankA8.KagoShot,
+        [EnemyReaction.KiHunterShot] = EnemyAiRoutineDefinitions.BankA8.KiHunterShot,
+        [EnemyReaction.SparkShot] = EnemyAiRoutineDefinitions.BankA8.SparkShot,
+        [EnemyReaction.BlueBrinstarFaceBlockShot] = EnemyAiRoutineDefinitions.BankA8.BlueBrinstarFaceBlockShot,
+        [EnemyReaction.YappingMawTouch] = EnemyAiRoutineDefinitions.BankA8.YappingMawTouch,
+        [EnemyReaction.YappingMawShot] = EnemyAiRoutineDefinitions.BankA8.YappingMawShot,
+        [EnemyReaction.MotherBrainBodyShot] = EnemyAiRoutineDefinitions.BankA9.MotherBrainBodyShot,
+        [EnemyReaction.MotherBrainHeadShot] = EnemyAiRoutineDefinitions.BankA9.MotherBrainHeadShot,
+        [EnemyReaction.MotherBrainHeadTouch] = EnemyAiRoutineDefinitions.BankA9.MotherBrainHeadTouch,
+        [EnemyReaction.DeadTorizoTouchAndShot] = EnemyAiRoutineDefinitions.BankA9.DeadTorizoTouchAndShot,
+        [EnemyReaction.DeadTorizoPowerBomb] = EnemyAiRoutineDefinitions.BankA9.DeadTorizoPowerBomb,
+        [EnemyReaction.DeadSidehopperTouch] = EnemyAiRoutineDefinitions.BankA9.DeadSidehopperTouch,
+        [EnemyReaction.DeadSidehopperShot] = EnemyAiRoutineDefinitions.BankA9.DeadSidehopperShot,
+        [EnemyReaction.DeadSidehopperPowerBomb] = EnemyAiRoutineDefinitions.BankA9.DeadSidehopperPowerBomb,
+        [EnemyReaction.ShitroidTouch] = EnemyAiRoutineDefinitions.BankA9.ShitroidTouch,
+        [EnemyReaction.ShitroidShot] = EnemyAiRoutineDefinitions.BankA9.ShitroidShot,
+        [EnemyReaction.ShitroidPowerBomb] = EnemyAiRoutineDefinitions.BankA9.ShitroidPowerBomb,
+        [EnemyReaction.BombTorizoTouch] = EnemyAiRoutineDefinitions.BankAA.BombTorizoTouch,
+        [EnemyReaction.BombTorizoShot] = EnemyAiRoutineDefinitions.BankAA.BombTorizoShot,
+        [EnemyReaction.TorizoStandUpSitDownShot] = EnemyAiRoutineDefinitions.BankAA.TorizoStandUpSitDownShot,
+        [EnemyReaction.GoldenTorizoShot] = EnemyAiRoutineDefinitions.BankAA.GoldenTorizoShot,
+        [EnemyReaction.ShaktoolTouch] = EnemyAiRoutineDefinitions.BankAA.ShaktoolTouch,
+        [EnemyReaction.ShaktoolShot] = EnemyAiRoutineDefinitions.BankAA.ShaktoolShot,
+        [EnemyReaction.SpacePiratePowerBomb] = EnemyAiRoutineDefinitions.BankB2.PowerBomb,
+        [EnemyReaction.SpacePirateTouch] = EnemyAiRoutineDefinitions.BankB2.Touch,
+        [EnemyReaction.SpacePirateShot] = EnemyAiRoutineDefinitions.BankB2.Shot,
+        [EnemyReaction.GoldNinjaVulnerableHitboxShot] = EnemyAiRoutineDefinitions.BankB2.GoldNinjaVulnerableHitboxShot,
+        [EnemyReaction.GoldNinjaInvincibleHitboxShot] = EnemyAiRoutineDefinitions.BankB2.GoldNinjaInvincibleHitboxShot,
+        [EnemyReaction.BotwoonTouch] = EnemyAiRoutineDefinitions.BankB3.BotwoonTouch,
+        [EnemyReaction.BotwoonShot] = EnemyAiRoutineDefinitions.BankB3.BotwoonShot,
+        [EnemyReaction.BotwoonPowerBomb] = EnemyAiRoutineDefinitions.BankB3.BotwoonPowerBomb,
+        [EnemyReaction.PhantoonTouch] = EnemyAiRoutineDefinitions.BankA7.PhantoonTouch,
+        [EnemyReaction.PhantoonShot] = EnemyAiRoutineDefinitions.BankA7.PhantoonShot,
+        [EnemyReaction.DeadZoomerTouchAndShot] = EnemyAiRoutineDefinitions.BankA9.DeadZoomerTouchAndShot,
+        [EnemyReaction.DeadZoomerPowerBomb] = EnemyAiRoutineDefinitions.BankA9.DeadZoomerPowerBomb,
+        [EnemyReaction.DeadRipperTouchAndShot] = EnemyAiRoutineDefinitions.BankA9.DeadRipperTouchAndShot,
+        [EnemyReaction.DeadRipperPowerBomb] = EnemyAiRoutineDefinitions.BankA9.DeadRipperPowerBomb,
+        [EnemyReaction.DeadSkreeTouchAndShot] = EnemyAiRoutineDefinitions.BankA9.DeadSkreeTouchAndShot,
+        [EnemyReaction.DeadSkreePowerBomb] = EnemyAiRoutineDefinitions.BankA9.DeadSkreePowerBomb,
     };
 
-    /// <summary>The named callback at each native long address.</summary>
-    private static readonly FrozenDictionary<SnesAddress, EnemyInteractionCallback> ByAddress =
+    /// <summary>The named reaction whose callback lies at each native long address.</summary>
+    private static readonly FrozenDictionary<SnesAddress, EnemyReaction> ByAddress =
         Addresses.ToFrozenDictionary(pair => pair.Value, pair => pair.Key);
 
-    /// <summary>Names the callback a word selects in <paramref name="bank"/>'s code, or null when the port names none.</summary>
-    internal static EnemyInteractionCallback? TryDecode(int bank, int pointer)
+    /// <summary>The reaction a header or hitbox touch word names in <paramref name="bank"/>'s code, or null for a zero word.</summary>
+    internal static EnemyReaction? DecodeTouch(int bank, int pointer) =>
+        Decode(bank, pointer, EnemyTouchCallbackDefinitions.LiteralNoOps);
+
+    /// <summary>The reaction a header or hitbox shot word names in <paramref name="bank"/>'s code, or null for a zero word.</summary>
+    internal static EnemyReaction? DecodeShot(int bank, int pointer) =>
+        Decode(bank, pointer, EnemyShotCallbackDefinitions.LiteralNoOps);
+
+    /// <summary>
+    /// The reaction a header's Power Bomb word names in <paramref name="bank"/>'s code, or null for a zero word, which
+    /// selects the common Power Bomb damage.
+    /// </summary>
+    internal static EnemyReaction? DecodePowerBomb(int bank, int pointer) =>
+        Decode(bank, pointer, EnemyPowerBombCallbackDefinitions.LiteralNoOps);
+
+    /// <summary>
+    /// Whether a header's touch or shot word lets the multibox walkers read the enemy's extended hitboxes. The walkers
+    /// compare the header's word with the engine's two shared returns before they read any hitbox and withhold the
+    /// contact on a match; a species' own return does not match and still lets the hitboxes decide.
+    /// </summary>
+    internal static EnemyHitboxScan HitboxScan(int pointer) =>
+        IsEngineReturn(pointer) ? EnemyHitboxScan.Withheld : EnemyHitboxScan.Scanned;
+
+    /// <summary>
+    /// Decodes a callback word: zero names nothing, a return (the engine's shared ones or one of
+    /// <paramref name="returns"/>) is <see cref="EnemyReaction.Ignore"/>, a named routine is its reaction, and any other
+    /// routine is the species' own.
+    /// </summary>
+    private static EnemyReaction? Decode(int bank, int pointer, IReadOnlySet<SnesAddress> returns) =>
+        pointer == 0 ? null
+        : IsEngineReturn(pointer) || returns.Contains(SnesAddress.InBank(bank, pointer)) ? EnemyReaction.Ignore
+        : TryName(bank, pointer) ?? EnemyReaction.SpeciesOwn;
+
+    /// <summary>Whether a word names one of the engine's two shared returns, which every enemy bank repeats.</summary>
+    private static bool IsEngineReturn(int pointer)
     {
-        if (ByAddress.TryGetValue(SnesAddress.InBank(EnemyAiRoutineDefinitions.BankA0.Bank, pointer), out EnemyInteractionCallback common) &&
-            common is EnemyInteractionCallback.NormalEnemyTouch or EnemyInteractionCallback.NormalEnemyShot or
-                EnemyInteractionCallback.DudShot or EnemyInteractionCallback.NoOp or EnemyInteractionCallback.NoOpShortReturn)
+        SnesAddress common = SnesAddress.InBank(EnemyAiRoutineDefinitions.BankA0.Bank, pointer);
+        return common == EnemyAiRoutineDefinitions.BankA0.NoOp || common == EnemyAiRoutineDefinitions.BankA0.NoOpShortReturn;
+    }
+
+    /// <summary>Names the reaction a routine word selects in <paramref name="bank"/>'s code, or null when it has no name.</summary>
+    private static EnemyReaction? TryName(int bank, int pointer)
+    {
+        if (ByAddress.TryGetValue(SnesAddress.InBank(EnemyAiRoutineDefinitions.BankA0.Bank, pointer), out EnemyReaction common) &&
+            common is EnemyReaction.NormalEnemyTouch or EnemyReaction.NormalEnemyShot or EnemyReaction.DudShot)
             return common;
-        return ByAddress.TryGetValue(SnesAddress.InBank(bank, pointer), out EnemyInteractionCallback local) ? local : null;
+        return ByAddress.TryGetValue(SnesAddress.InBank(bank, pointer), out EnemyReaction local) ? local : null;
     }
 
     /// <summary>Whether a header's initialization or main-AI word names the shared no-op or the species' routine.</summary>
     internal static EnemyAiRoutine AiRoutine(int bank, int pointer) =>
         EnemyAiRoutineDefinitions.CommonNoOpAiRoutines.Contains(SnesAddress.InBank(bank, pointer))
-            ? EnemyAiRoutine.CommonNoOp
+            ? EnemyAiRoutine.Inert
             : EnemyAiRoutine.SpeciesRoutine;
 
     /// <summary>
@@ -165,30 +199,6 @@ internal static class EnemyInteractionCallbacks
     /// </summary>
     internal static EnemyAiRoutine HurtRoutine(int pointer) =>
         SnesAddress.InBank(EnemyAiRoutineDefinitions.BankA0.Bank, pointer) == EnemyAiRoutineDefinitions.BankA0.NoOp
-            ? EnemyAiRoutine.CommonNoOp
+            ? EnemyAiRoutine.Inert
             : EnemyAiRoutine.SpeciesRoutine;
-
-    /// <summary>What a callback word does: nothing to call, a routine, or an immediate return.</summary>
-    internal static EnemyCallbackBody Body(int pointer, bool literalNoOp) =>
-        pointer == 0 ? EnemyCallbackBody.None
-        : literalNoOp ? EnemyCallbackBody.ImmediateReturn
-        : EnemyCallbackBody.Routine;
-
-    /// <summary>What <paramref name="bank"/>'s code runs for the shared no-op callback.</summary>
-    internal static EnemyCallbackBody NoOpCallbackBody(int bank) =>
-        IsLiteralNoOpShot(bank, EnemyAiRoutineDefinitions.BankA0.NoOp.Offset)
-            ? EnemyCallbackBody.ImmediateReturn
-            : EnemyCallbackBody.Routine;
-
-    /// <summary>Whether a header or hitbox touch word in <paramref name="bank"/>'s code is a literal long return.</summary>
-    internal static bool IsLiteralNoOpTouch(int bank, int pointer) =>
-        EnemyTouchCallbackDefinitions.LiteralNoOps.Contains(SnesAddress.InBank(bank, pointer));
-
-    /// <summary>Whether a header or hitbox shot word in <paramref name="bank"/>'s code is a literal long return.</summary>
-    internal static bool IsLiteralNoOpShot(int bank, int pointer) =>
-        EnemyShotCallbackDefinitions.LiteralNoOps.Contains(SnesAddress.InBank(bank, pointer));
-
-    /// <summary>Whether a header's Power Bomb word in <paramref name="bank"/>'s code is a literal long return.</summary>
-    internal static bool IsLiteralNoOpPowerBomb(int bank, int pointer) =>
-        EnemyPowerBombCallbackDefinitions.LiteralNoOps.Contains(SnesAddress.InBank(bank, pointer));
 }

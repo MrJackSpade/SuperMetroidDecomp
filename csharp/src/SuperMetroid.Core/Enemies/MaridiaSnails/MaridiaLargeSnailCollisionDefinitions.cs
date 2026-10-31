@@ -12,13 +12,13 @@ internal static class MaridiaLargeSnailCollisionDefinitions
 {
     /// <summary>Native bank containing Oum's extended frames and hitbox lists.</summary>
     /// <summary>Bank-$A2 callback used by Oum's extended hitboxes that hurt Samus on contact.</summary>
-    private const EnemyInteractionCallback DamageTouch = EnemyInteractionCallback.MaridiaLargeSnailDamagingTouch;
+    private const EnemyReaction DamageTouch = EnemyReaction.MaridiaLargeSnailDamagingTouch;
     /// <summary>Bank-$A2 callback for Oum surfaces that permit harmless contact.</summary>
-    private const EnemyInteractionCallback SafeTouch = EnemyInteractionCallback.MaridiaLargeSnailNonDamagingTouch;
+    private const EnemyReaction SafeTouch = EnemyReaction.MaridiaLargeSnailNonDamagingTouch;
     /// <summary>Bank-$A2 callback for the shot-sensitive portion of an Oum frame.</summary>
-    private const EnemyInteractionCallback Shot = EnemyInteractionCallback.MaridiaLargeSnailShot;
+    private const EnemyReaction Shot = EnemyReaction.MaridiaLargeSnailShot;
     /// <summary>Bank-$A0 no-op callback on Oum hitboxes that do not react to shots.</summary>
-    private const EnemyInteractionCallback NoShot = EnemyInteractionCallback.NoOp;
+    private const EnemyReaction NoShot = EnemyReaction.Ignore;
 
     /// <summary>The 30 hitbox lists, one per frame in frame order; the rectangles are fitted to the drawings.</summary>
     internal static readonly MaridiaLargeSnailCollisionHitbox[][] Lists =

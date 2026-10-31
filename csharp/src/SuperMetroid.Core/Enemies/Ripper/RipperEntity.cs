@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => RipperPartDefinitions.Parts[Slot.DefinitionId] switch
@@ -28,8 +28,8 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RipperBehavior.AdvanceRipperTypedAnimation;
 
-    /// <summary>The grapple Ripper's and second Ripper's shared shot callback, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 && callback == EnemyInteractionCallback.GRipperRipper2Shot;
+    /// <summary>The grapple Ripper's and second Ripper's shared shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        Slot.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 && reaction == EnemyReaction.GRipperRipper2Shot;
 }

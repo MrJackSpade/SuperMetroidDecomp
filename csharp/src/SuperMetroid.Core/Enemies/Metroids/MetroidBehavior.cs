@@ -451,7 +451,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Metroid shot AI ignores bombs while frozen, detaches an attached body for family $0500, or applies its
         // peculiar slot-zero recoil otherwise.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metroid &&
-                                  EnemyCollision.ShotAi(c.Enemy) == EnemyInteractionCallback.MetroidShot,
+                                  EnemyCollision.ShotAi(c.Enemy) == EnemyReaction.MetroidShot,
             c =>
             {
                 if (c.Enemy.FrozenTimer.IsZero)
@@ -478,7 +478,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddMetroidPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metroid &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.MetroidPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.MetroidPowerBomb)
         {
             BeforeGenericDeath = FinishMetroidDeath,
         });
@@ -488,7 +488,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMetroidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Metroid &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MetroidTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.MetroidTouch,
             context => ResolveMetroidTouch(context.Slot, context.Samus));
     }
 
@@ -545,7 +545,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMetroidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metroid &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MetroidShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MetroidShot)
         {
             AdmitsBombFamilies = true,
             AfterSuperMissileQuake = ResolveMetroidOrdinaryShot,

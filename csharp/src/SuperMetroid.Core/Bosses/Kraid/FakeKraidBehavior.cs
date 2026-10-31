@@ -372,7 +372,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             RunsGenericDeath = false,
             AfterCommon = c =>
             {
-                if (c.SelectedShotAi == EnemyInteractionCallback.FakeKraidShot && c.HealthBefore != 0 && c.Enemy.Health == 0)
+                if (c.SelectedShotAi == EnemyReaction.FakeKraidShot && c.HealthBefore != 0 && c.Enemy.Health == 0)
                     KillFakeKraid(c.Enemy);
             },
         });
@@ -419,7 +419,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Mini Kraid's private power-bomb callback still owns its four direct pickup explosions, spawned after its
         // death explosion.
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MiniKraid &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.FakeKraidShot)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.FakeKraidShot)
         {
             ReplacesGenericDeath = (enemy, _) => KillFakeKraid(enemy),
         });
@@ -429,7 +429,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddFakeKraidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MiniKraid &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.FakeKraidShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.FakeKraidShot)
         {
             ReplacesGenericDeath = c =>
             {
@@ -448,7 +448,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddFakeKraidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.MiniKraid &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.FakeKraidTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.FakeKraidTouch,
             context =>
             {
                 int healthBefore = context.Slot.Health;

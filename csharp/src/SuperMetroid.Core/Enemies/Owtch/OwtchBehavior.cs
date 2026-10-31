@@ -213,7 +213,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Owtch's shell accepts common damage only during its vulnerable state zero.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Owtch &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.OwtchShot)
+                                                       c.SelectedShotAi == EnemyReaction.OwtchShot)
         {
             Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
         });
@@ -235,7 +235,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddOwtchShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Owtch &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.OwtchShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.OwtchShot)
         {
             // Owtch's private $A2:A579 callback returns before common shot AI unless signed(state - 1) is negative.
             // The bank-$A0 collision prelude has already marked ordinary non-plasma shots as collided at this point,

@@ -50,7 +50,7 @@ internal sealed class PhantoonCombat
         // translated post-common routines as beams. Normal bombs cannot freeze, but their damage, staged-death,
         // child synchronization, recoil, release, and attack side effects are otherwise the same callback tails.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.PhantoonBody &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.PhantoonShot)
+                                                       c.SelectedShotAi == EnemyReaction.PhantoonShot)
         {
             RunsGenericDeath = false,
             // Phantoon's `$A7:DD9B` hitbox callback enters the same no-death common-damage routine for bombs as it
@@ -179,12 +179,12 @@ internal sealed class PhantoonCombat
                     "Phantoon lost the extended-spritemap property required by his hitboxes.");
             }
 
-            if (!_collision.TryFindExtendedHitboxCallback(
+            if (!_collision.TryFindExtendedHitboxReaction(
                     body,
                     projectile.Position.Whole,
                     projectile.Radius,
-                    callbackKind: HitboxCallbackKind.Shot,
-                    out EnemyInteractionCallback? hitboxShotAi))
+                    contactKind: HitboxContactKind.Shot,
+                    out EnemyReaction? hitboxShotAi))
             {
                 continue;
             }
@@ -197,7 +197,7 @@ internal sealed class PhantoonCombat
                 _earthquake.EarthquakeType = SuperMissileDefinitions.EnemyHitEarthquakeType;
             }
 
-            if (hitboxShotAi == EnemyInteractionCallback.NoOp ||
+            if (hitboxShotAi == EnemyReaction.Ignore ||
                 Part(body).Function is PhantoonAiFunction.DyingFadeInOut or PhantoonAiFunction.DyingExplosions or
                     PhantoonAiFunction.BeginFinalWavyDeath or PhantoonAiFunction.DyingFadeOut or PhantoonAiFunction.AlmostDead or
                     PhantoonAiFunction.Dead or PhantoonAiFunction.NoOperation)
@@ -209,7 +209,7 @@ internal sealed class PhantoonCombat
                 return 1;
             }
 
-            if (hitboxShotAi != EnemyInteractionCallback.PhantoonShot)
+            if (hitboxShotAi != EnemyReaction.PhantoonShot)
             {
                 throw new InvalidDataException(
                     $"Phantoon hitbox shot AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
@@ -639,14 +639,14 @@ internal sealed class PhantoonCombat
     internal void AddPhantoonBodyTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.PhantoonBody &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.PhantoonTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.PhantoonTouch,
             context =>
             {
                 if (!context.UsesExtendedHitboxes)
                     throw new InvalidDataException("Phantoon requires his authored extended touch hitboxes.");
-                if (context.HitboxTouchAi == EnemyInteractionCallback.NoOp)
+                if (context.HitboxTouchAi == EnemyReaction.Ignore)
                     return;
-                if (context.HitboxTouchAi != EnemyInteractionCallback.PhantoonTouch)
+                if (context.HitboxTouchAi != EnemyReaction.PhantoonTouch)
                 {
                     throw new InvalidDataException(
                         $"Phantoon hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
@@ -655,10 +655,10 @@ internal sealed class PhantoonCombat
             });
     }
 
-    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindPhantoonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindPhantoonHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (!(PhantoonCombat.IsPhantoonPartDefinition(enemy.DefinitionId)))
             return null;
 
@@ -678,9 +678,7 @@ internal sealed class PhantoonCombat
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
-                callback = probe.SelectShotCallback
-                    ? PhantoonHitboxCallbackCodec.ToCallback(hitbox.Shot)
-                    : PhantoonHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;
             }
         }

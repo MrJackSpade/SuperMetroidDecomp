@@ -512,7 +512,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddPowampBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Powamp &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.PowampShot)
+                                                       c.SelectedShotAi == EnemyReaction.PowampShot)
         {
             RunsGenericDeath = false,
             AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
@@ -545,7 +545,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddPowampPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Powamp &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.PowampPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.PowampPowerBomb)
         {
             AfterCommon = (enemy, _) =>
             {
@@ -559,7 +559,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddPowampShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Powamp &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.PowampShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.PowampShot)
         {
             // Powamp refuses contact as soon as a lethal shot starts its private 32-frame death. Later
             // overlaps return before common shot AI, so they must not consume or explode the projectile while the
@@ -576,7 +576,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // Only the body before fatal shot damage accepts contact. Balloons are normally absent from the
         // interactive list because population property $0400 excludes them, but retain the handler's literal guard.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Powamp &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.PowampTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.PowampTouch,
             context =>
             {
                 if (!context.Slot.RequireSpeciesState<PowampEnemyState>().RefusesContact)

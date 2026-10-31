@@ -43,37 +43,37 @@ internal sealed class KraidCombat
         table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot,
             c =>
             {
-                if (c.SelectedShotAi is not (EnemyInteractionCallback.KraidNoOpShot or EnemyInteractionCallback.KraidArmShot) ||
+                if (c.SelectedShotAi is not (EnemyReaction.Ignore or EnemyReaction.KraidArmShot) ||
                     c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
-                        c.SelectedShotAi != EnemyInteractionCallback.KraidNoOpShot)
+                        c.SelectedShotAi != EnemyReaction.Ignore)
                 {
                     throw new InvalidDataException(
                         $"Kraid part {c.Enemy.DefinitionId} selected " +
                         $"normal-bomb shot AI {c.SelectedShotAi?.ToString() ?? "(unnamed)"}.");
                 }
 
-                // `$A7:94B6` creates a room-graphics dust actor at the selected physical projectile coordinates,
-                // then returns to the multibox walker that has already installed direction bit `$10`. `$94B5` is the
-                // adjacent literal RTL used by protected arm frames and every foot rectangle.
-                if (c.SelectedShotAi == EnemyInteractionCallback.KraidArmShot)
+                // The arm's shot reaction creates a room-graphics dust actor at the selected physical projectile
+                // coordinates, then returns to the multibox walker that has already installed direction bit `$10`.
+                // Protected arm frames and every foot rectangle ignore the shot.
+                if (c.SelectedShotAi == EnemyReaction.KraidArmShot)
                     SpawnKraidArmShotExplosion(c.Bomb.Type, c.Bomb.Position.Whole);
             });
     }
 
-    /// <summary>Binds shot callbacks for Kraid's mouth, body, arm, and nail surfaces.</summary>
+    /// <summary>Binds shot reactions for Kraid's mouth, body, arm, and nail surfaces.</summary>
     internal void AddKraidShotReactions(EnemySharedReactions table)
     {
-        // Kraid's arm and foot are admitted by their literal no-op header callback, but their authored hitboxes
-        // select the arm's private callback.
+        // Kraid's arm and foot are admitted by their ignoring header shot reaction, which still lets their hitboxes
+        // decide; their authored hitboxes select the arm's private reaction.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot &&
-                                                     EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition, EnemyCollision.ShotAi(enemy)))
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.Ignore)
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 if (!c.UsesExtendedHitboxes ||
-                    c.HitboxShotAi is not (EnemyInteractionCallback.KraidNoOpShot or EnemyInteractionCallback.KraidArmShot) ||
+                    c.HitboxShotAi is not (EnemyReaction.Ignore or EnemyReaction.KraidArmShot) ||
                     c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
-                        c.HitboxShotAi != EnemyInteractionCallback.KraidNoOpShot)
+                        c.HitboxShotAi != EnemyReaction.Ignore)
                 {
                     throw new InvalidDataException(
                         $"Kraid part {c.Enemy.DefinitionId} selected " +
@@ -81,7 +81,7 @@ internal sealed class KraidCombat
                 }
 
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
-                if (c.HitboxShotAi == EnemyInteractionCallback.KraidArmShot)
+                if (c.HitboxShotAi == EnemyReaction.KraidArmShot)
                     SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
                 return true;
             },
@@ -92,7 +92,7 @@ internal sealed class KraidCombat
     internal void AddKraidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.KraidArm &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.KraidArmTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.KraidArmTouch,
             context =>
             {
                 // `$A7:9490-$94A4` deliberately addresses physical enemy slot four,
@@ -303,7 +303,7 @@ internal sealed class KraidCombat
 
     /// <summary>Checks the body hitbox and applies contact damage to Samus.</summary>
     /// <remarks>These collision checks belong to actor AI rather than generic interactive hitboxes. The body's
-    /// permanent intangible flag and lint's no-op touch callback do not suppress these private native paths.</remarks>
+    /// permanent intangible flag and lint's ignoring touch reaction do not suppress these private native paths.</remarks>
     internal void ResolveKraidBodyContact(RoomEnemySlot body, KraidEnemyState state, SamusState samus)
     {
         if (!KraidFunctionGroups.BeforeDeath.Contains(state.Parts[body.SlotIndex].Function))
@@ -323,10 +323,10 @@ internal sealed class KraidCombat
             _collision.ResolveNormalEnemyTouch(body, samus);
     }
 
-    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindKraidFootHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindKraidFootHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
             KraidFootCollision.TryGetComponents(enemy.Frame, out var footComponents)))
             return null;
@@ -344,9 +344,7 @@ internal sealed class KraidCombat
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
-                callback = probe.SelectShotCallback
-                    ? KraidHitboxCallbackCodec.ToCallback(hitbox.Shot)
-                    : KraidHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;
             }
         }
@@ -354,10 +352,10 @@ internal sealed class KraidCombat
     
     }
 
-    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindKraidArmHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindKraidArmHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.KraidArm &&
             KraidArmCollision.TryGetComponents(enemy.Frame, out var kraidComponents)))
             return null;
@@ -377,9 +375,7 @@ internal sealed class KraidCombat
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
 
-                callback = probe.SelectShotCallback
-                    ? KraidHitboxCallbackCodec.ToCallback(hitbox.Shot)
-                    : KraidHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;
             }
         }

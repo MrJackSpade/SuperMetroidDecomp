@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>One signed Kraid arm or foot rectangle and its reactions to Samus contact and to her projectiles.</summary>
@@ -7,4 +9,4 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="Bottom">Bottom edge relative to the component origin, in room pixels.</param>
 /// <param name="Touch">The reaction when Samus touches the rectangle.</param>
 /// <param name="Shot">The reaction when a Samus projectile hits the rectangle.</param>
-internal readonly record struct KraidCollisionHitbox(int Left, int Top, int Right, int Bottom, KraidHitboxTouch Touch, KraidHitboxShot Shot);
+internal readonly record struct KraidCollisionHitbox(int Left, int Top, int Right, int Bottom, EnemyReaction Touch, EnemyReaction Shot);

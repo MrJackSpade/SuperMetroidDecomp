@@ -524,7 +524,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddEvirBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Evir &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.EvirShot)
+                                                       c.SelectedShotAi == EnemyReaction.EvirShot)
         {
             AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
         });
@@ -572,7 +572,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // does not. Both body and arms therefore dispatch $A8:8B0C and its intentionally physical +$40/+80 follow-up
         // aliases.
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.EvirPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.EvirPowerBomb)
         {
             AfterCommon = (enemy, _) => ResolveEvirCombatAfterCommon(enemy),
         });
@@ -585,7 +585,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // where the body copies the newly installed frozen timer to its arms and attached (idle) spit.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
                                                      enemy.SpawnSettings<EvirSpawnSettings>().Part != EvirBodyPart.Arms &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.EvirShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.EvirShot)
         {
             AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
         });
@@ -596,7 +596,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Evir &&
                                slot.SpawnSettings<EvirSpawnSettings>().Part != EvirBodyPart.Arms &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.EvirTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.EvirTouch,
             context =>
             {
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);

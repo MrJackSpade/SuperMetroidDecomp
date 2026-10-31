@@ -54,15 +54,15 @@ internal sealed class CrocomireCombat
         _presentation.BossColours().CrocomireFightBody.Fill(RgbColor.White);
     }
 
-    /// <summary>Registers component-specific bomb hit routines, including the native no-op gates.</summary>
+    /// <summary>Registers component-specific bomb hit reactions, consulted before the ignoring-shot gate.</summary>
     internal void AddCrocomireBombReactions(EnemySharedReactions table)
     {
-        // Specials consulted before the selected literal no-op gate, in the original order.
-        // Crocomire has no header shot callback; every live component supplies its own bank-$A4 routine. Bomb
-        // family $0500 therefore reaches the same no-op counter, dust, or mouth reaction selected by the map.
+        // Specials consulted before the selected ignoring-shot gate, in the original order.
+        // Crocomire's header names no shot reaction; every live component supplies its own. Normal bombs
+        // therefore reach the same hit counter, dust, or mouth reaction selected by the map.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-                                  c.Enemy.Definition.ShotBody == EnemyCallbackBody.None && c.UsesExtendedHitboxes &&
-                                  c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,
+                                  c.Enemy.Definition.Shot is null && c.UsesExtendedHitboxes &&
+                                  c.SelectedShotAi != EnemyReaction.NormalEnemyShot,
             c => ResolveCrocomireHitboxShot(c.Bomb.Type, c.Bomb.Position.Whole, c.SelectedShotAi));
     }
 
@@ -94,7 +94,7 @@ internal sealed class CrocomireCombat
     internal void AddCrocomirePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.CrocomirePowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.CrocomirePowerBomb)
         {
             ReplacesCommon = (enemy, _) => ResolveCrocomirePowerBombReaction(enemy),
         });
@@ -104,13 +104,13 @@ internal sealed class CrocomireCombat
     internal void AddCrocomireShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
-                                                     enemy.Definition.ShotBody == EnemyCallbackBody.None ||
+                                                     enemy.Definition.Shot is null ||
                                                      enemy.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.NormalEnemyShot)
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                if (c.HitboxShotAi == EnemyInteractionCallback.NormalEnemyShot)
+                if (c.HitboxShotAi == EnemyReaction.NormalEnemyShot)
                     return false;
                 if (!c.UsesExtendedHitboxes)
                     throw new InvalidDataException("Crocomire components require extended-spritemap collision.");
@@ -125,24 +125,24 @@ internal sealed class CrocomireCombat
     internal void AddCrocomireTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Crocomire &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CrocomireHeaderTouch ||
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.Ignore ||
                                slot.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.NormalEnemyTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.NormalEnemyTouch,
             context =>
             {
                 if (!context.UsesExtendedHitboxes)
                     throw new InvalidDataException("Crocomire components require extended-spritemap collision.");
-                if (context.HitboxTouchAi == EnemyInteractionCallback.CrocomireHeaderTouch)
-                    return; // $A4:B950 is a literal RTL.
+                if (context.HitboxTouchAi == EnemyReaction.Ignore)
+                    return; // The corpse's rectangles ignore Samus's touch.
                 if (context.HitboxTouchAi is not (
-                        EnemyInteractionCallback.CrocomireClawTouch or EnemyInteractionCallback.NormalEnemyTouch))
+                        EnemyReaction.CrocomireClawTouch or EnemyReaction.NormalEnemyTouch))
                 {
                     throw new InvalidDataException(
-                        $"Crocomire hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
+                        $"Crocomire hitbox touch reaction {context.HitboxTouchAi?.ToString() ?? "(none)"} is not translated.");
                 }
 
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
-                if (context.HitboxTouchAi == EnemyInteractionCallback.CrocomireClawTouch)
+                if (context.HitboxTouchAi == EnemyReaction.CrocomireClawTouch)
                 {
                     CrocomireEnemyState crocomire = _access.Crocomire ??
                         throw new InvalidOperationException("Crocomire claw has no body owner.");
@@ -152,165 +152,42 @@ internal sealed class CrocomireCombat
             });
     }
 
-    /// <summary>Dispatches $A4:B951/$B968/$BA05/$BAB4 after multibox collision.</summary>
+    /// <summary>Runs the shot reaction a Crocomire hitbox selected after multibox collision.</summary>
     private void ResolveCrocomireHitboxShot(
         SamusProjectileType projectileType,
         Position16<RoomPixels> projectile,
-        EnemyInteractionCallback? callback)
+        EnemyReaction? reaction)
     {
         CrocomireEnemyState state = _access.Crocomire ??
             throw new InvalidOperationException("Crocomire hitbox has no body owner.");
         RoomEnemySlot body = state.Body;
 
-        switch (callback)
+        if (reaction == EnemyReaction.CrocomireHitCountShot)
         {
-            case EnemyInteractionCallback.CrocomireNoOpHitboxShot:
-            {
-                // $B951 increments a temporary low-nibble value, then ORs it back into the
-                // flags word instead of replacing the nibble. Preserve that odd instruction
-                // sequence; changing it to an ordinary counter disagrees for several values.
-                state.HitCount |= CrocomireMouthHits.Next(state.HitCount);
-                return;
-            }
-
-            case EnemyInteractionCallback.CrocomireDustHitboxShot:
-            case EnemyInteractionCallback.CrocomireAlternateDustHitboxShot:
-                SpawnCrocomireShotDust(projectileType, projectile);
-                return;
-
-            case EnemyInteractionCallback.CrocomireMouthShot:
-                ResolveCrocomireMouthShot(
-                    state,
-                    body,
-                    projectileType,
-                    projectile);
-                return;
-
-            case EnemyInteractionCallback.CrocomireHeaderTouch:
-                // Some extended-map records deliberately point at the body header's RTL.
-                return;
-
-            case EnemyInteractionCallback.NormalEnemyTouch:
-            case EnemyInteractionCallback.NormalEnemyShot:
-            case EnemyInteractionCallback.DudShot:
-            case EnemyInteractionCallback.NoOp:
-            case EnemyInteractionCallback.NoOpShortReturn:
-            case EnemyInteractionCallback.OwtchShot:
-            case EnemyInteractionCallback.DragonTouch:
-            case EnemyInteractionCallback.DragonShot:
-            case EnemyInteractionCallback.DragonPowerBomb:
-            case EnemyInteractionCallback.GRipperRipper2Shot:
-            case EnemyInteractionCallback.MamaTurtleTouch:
-            case EnemyInteractionCallback.BabyTurtleTouch:
-            case EnemyInteractionCallback.BabyTurtleShot:
-            case EnemyInteractionCallback.MaridiaLargeSnailDamagingTouch:
-            case EnemyInteractionCallback.MaridiaLargeSnailNonDamagingTouch:
-            case EnemyInteractionCallback.MaridiaLargeSnailShot:
-            case EnemyInteractionCallback.RinkaTouch:
-            case EnemyInteractionCallback.RinkaShot:
-            case EnemyInteractionCallback.RinkaPowerBomb:
-            case EnemyInteractionCallback.VerticalShutterTouch:
-            case EnemyInteractionCallback.ShootableVerticalShutterShot:
-            case EnemyInteractionCallback.DestroyableVerticalShutterShot:
-            case EnemyInteractionCallback.VerticalShutterPowerBomb:
-            case EnemyInteractionCallback.HorizontalShutterTouch:
-            case EnemyInteractionCallback.HorizontalShutterShot:
-            case EnemyInteractionCallback.HorizontalShutterPowerBomb:
-            case EnemyInteractionCallback.SkreeShot:
-            case EnemyInteractionCallback.MetareeShot:
-            case EnemyInteractionCallback.FirefleaTouch:
-            case EnemyInteractionCallback.FirefleaPowerBomb:
-            case EnemyInteractionCallback.FirefleaShot:
-            case EnemyInteractionCallback.MochtroidTouch:
-            case EnemyInteractionCallback.MochtroidShot:
-            case EnemyInteractionCallback.MetroidTouch:
-            case EnemyInteractionCallback.MetroidShot:
-            case EnemyInteractionCallback.MetroidPowerBomb:
-            case EnemyInteractionCallback.YardTouch:
-            case EnemyInteractionCallback.YardShot:
-            case EnemyInteractionCallback.PlatformNoOpTouch:
-            case EnemyInteractionCallback.TripperShot:
-            case EnemyInteractionCallback.CrocomireClawTouch:
-            case EnemyInteractionCallback.CrocomirePowerBomb:
-            case EnemyInteractionCallback.SporeSpawnTouch:
-            case EnemyInteractionCallback.SporeSpawnShot:
-            case EnemyInteractionCallback.DraygonTouch:
-            case EnemyInteractionCallback.DraygonShot:
-            case EnemyInteractionCallback.DraygonPowerBomb:
-            case EnemyInteractionCallback.FakeKraidTouch:
-            case EnemyInteractionCallback.FakeKraidShot:
-            case EnemyInteractionCallback.CeresSteamTouch:
-            case EnemyInteractionCallback.RidleyExtendedTouch:
-            case EnemyInteractionCallback.RidleyShot:
-            case EnemyInteractionCallback.RidleyPowerBomb:
-            case EnemyInteractionCallback.ZebetiteTouch:
-            case EnemyInteractionCallback.ZebetiteShot:
-            case EnemyInteractionCallback.KraidBackgroundTouch:
-            case EnemyInteractionCallback.KraidArmTouch:
-            case EnemyInteractionCallback.KraidNoOpShot:
-            case EnemyInteractionCallback.KraidArmShot:
-            case EnemyInteractionCallback.KraidNailTouch:
-            case EnemyInteractionCallback.KraidBadNailTouch:
-            case EnemyInteractionCallback.EvirTouch:
-            case EnemyInteractionCallback.EvirPowerBomb:
-            case EnemyInteractionCallback.EvirShot:
-            case EnemyInteractionCallback.MagdollitePowerBomb:
-            case EnemyInteractionCallback.MagdolliteTouch:
-            case EnemyInteractionCallback.MagdolliteShot:
-            case EnemyInteractionCallback.BeetomTouch:
-            case EnemyInteractionCallback.BeetomShot:
-            case EnemyInteractionCallback.PowampTouch:
-            case EnemyInteractionCallback.PowampShot:
-            case EnemyInteractionCallback.PowampPowerBomb:
-            case EnemyInteractionCallback.WorkRobotTouch:
-            case EnemyInteractionCallback.WorkRobotNoPowerShot:
-            case EnemyInteractionCallback.WorkRobotShot:
-            case EnemyInteractionCallback.BullShot:
-            case EnemyInteractionCallback.KagoShot:
-            case EnemyInteractionCallback.KiHunterShot:
-            case EnemyInteractionCallback.SparkShot:
-            case EnemyInteractionCallback.BlueBrinstarFaceBlockShot:
-            case EnemyInteractionCallback.YappingMawTouch:
-            case EnemyInteractionCallback.YappingMawShot:
-            case EnemyInteractionCallback.MotherBrainBodyShot:
-            case EnemyInteractionCallback.MotherBrainHeadShot:
-            case EnemyInteractionCallback.MotherBrainBodyTouch:
-            case EnemyInteractionCallback.MotherBrainHeadTouch:
-            case EnemyInteractionCallback.DeadTorizoTouchAndShot:
-            case EnemyInteractionCallback.DeadTorizoPowerBomb:
-            case EnemyInteractionCallback.DeadSidehopperTouch:
-            case EnemyInteractionCallback.DeadSidehopperShot:
-            case EnemyInteractionCallback.DeadSidehopperPowerBomb:
-            case EnemyInteractionCallback.ShitroidTouch:
-            case EnemyInteractionCallback.ShitroidShot:
-            case EnemyInteractionCallback.ShitroidPowerBomb:
-            case EnemyInteractionCallback.BombTorizoTouch:
-            case EnemyInteractionCallback.BombTorizoShot:
-            case EnemyInteractionCallback.TorizoStandUpSitDownShot:
-            case EnemyInteractionCallback.GoldenTorizoShot:
-            case EnemyInteractionCallback.ShaktoolTouch:
-            case EnemyInteractionCallback.ShaktoolShot:
-            case EnemyInteractionCallback.SpacePiratePowerBomb:
-            case EnemyInteractionCallback.SpacePirateTouch:
-            case EnemyInteractionCallback.SpacePirateShot:
-            case EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot:
-            case EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot:
-            case EnemyInteractionCallback.BotwoonTouch:
-            case EnemyInteractionCallback.BotwoonShot:
-            case EnemyInteractionCallback.BotwoonPowerBomb:
-            case EnemyInteractionCallback.PhantoonTouch:
-            case EnemyInteractionCallback.PhantoonShot:
-            case EnemyInteractionCallback.DeadZoomerTouchAndShot:
-            case EnemyInteractionCallback.DeadZoomerPowerBomb:
-            case EnemyInteractionCallback.DeadRipperTouchAndShot:
-            case EnemyInteractionCallback.DeadRipperPowerBomb:
-            case EnemyInteractionCallback.DeadSkreeTouchAndShot:
-            case EnemyInteractionCallback.DeadSkreePowerBomb:
-            case EnemyInteractionCallback.CeresDoorNoOpShot:
-            case EnemyInteractionCallback.ChozoNoOpShot:
-            default:
-                throw new InvalidOperationException($"Crocomire hitbox shot AI {callback?.ToString() ?? "(unnamed)"} is not translated.");
+            // The count increments a temporary low-nibble value, then ORs it back into the
+            // flags word instead of replacing the nibble. Preserve that odd instruction
+            // sequence; changing it to an ordinary counter disagrees for several values.
+            state.HitCount |= CrocomireMouthHits.Next(state.HitCount);
+            return;
         }
+
+        if (reaction is EnemyReaction.CrocomireDustHitboxShot or EnemyReaction.CrocomireAlternateDustHitboxShot)
+        {
+            SpawnCrocomireShotDust(projectileType, projectile);
+            return;
+        }
+
+        if (reaction == EnemyReaction.CrocomireMouthShot)
+        {
+            ResolveCrocomireMouthShot(
+                state,
+                body,
+                projectileType,
+                projectile);
+            return;
+        }
+
+        throw new InvalidOperationException($"Crocomire hitbox shot reaction {reaction?.ToString() ?? "(none)"} is not translated.");
     }
 
     /// <summary>Ports Crocomire's mouth reaction at $A4:BA05.</summary>
@@ -555,15 +432,15 @@ internal sealed class CrocomireCombat
         });
     }
 
-    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindCrocomireBodyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindCrocomireBodyHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
             CrocomireBodyCollision.HasFrame(enemy.Frame)))
             return null;
 
-        // Physical body components and their callback lists are compiled
+        // Physical body components and their hitbox lists are compiled
         // independently of Crocomire's replaceable OAM/BG2 presentation.
         // Preserve native component/hitbox order: the first overlap wins.
         foreach (CrocomireBodyCollisionComponent component in
@@ -578,7 +455,7 @@ internal sealed class CrocomireCombat
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
-                callback = probe.SelectShotCallback ? CrocomireHitboxCallbackCodec.ToCallback(hitbox.Shot) : CrocomireHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;
             }
         }
@@ -586,10 +463,10 @@ internal sealed class CrocomireCombat
     
     }
 
-    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindCrocomireTongueHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindCrocomireTongueHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
             (CrocomireTongueCollision.HasFrame(enemy.Frame) ||
             probe.ArtworkInstalled)))
@@ -597,7 +474,7 @@ internal sealed class CrocomireCombat
 
         // These nine selected frames have one component each, but both
         // referenced native hitbox lists are empty. Validate the exact
-        // engine-owned frame identity and return no touch/shot callback.
+        // engine-owned frame identity and return no touch/shot reaction.
         CrocomireTongueCollisionComponent component =
             CrocomireTongueCollision.ComponentAt(enemy.Frame);
         _ = CrocomireTongueCollision.HitboxCountAt(

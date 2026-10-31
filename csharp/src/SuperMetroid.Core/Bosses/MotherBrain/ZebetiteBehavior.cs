@@ -359,7 +359,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddZebetiteBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Zebetite &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.ZebetiteShot)
+                                                       c.SelectedShotAi == EnemyReaction.ZebetiteShot)
         {
             RunsGenericDeath = false,
             AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
@@ -376,7 +376,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddZebetiteShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Zebetite &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ZebetiteShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.ZebetiteShot)
         {
             AlwaysUsesCollisionPrelude = true,
             ExemptFromGenericDeath = true,
@@ -388,7 +388,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddZebetiteTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Zebetite &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ZebetiteTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.ZebetiteTouch,
             context => _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip));
     }
 }

@@ -164,7 +164,7 @@ internal sealed class CeresRidleyHits
         // walker has already marked the physical bomb, while Ridley alternates hurt timing and advances the 100-hit
         // escape condition.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.RidleyCeres &&
-                                  c.SelectedShotAi == EnemyInteractionCallback.RidleyShot,
+                                  c.SelectedShotAi == EnemyReaction.RidleyShot,
             c => ResolveCeresRidleyShotAfterCollision(c.Enemy));
     }
 
@@ -195,21 +195,21 @@ internal sealed class CeresRidleyHits
             return false;
         }
 
-        if (!_collision.TryFindExtendedHitboxCallback(
+        if (!_collision.TryFindExtendedHitboxReaction(
                 slot,
                 samus.Position.Whole,
                 samus.Kinematics.Radius,
-                callbackKind: HitboxCallbackKind.Touch,
-                out EnemyInteractionCallback? touchAi))
+                contactKind: HitboxContactKind.Touch,
+                out EnemyReaction? touchAi))
         {
             return false;
         }
 
-        if (touchAi != EnemyInteractionCallback.RidleyExtendedTouch)
+        if (touchAi != EnemyReaction.RidleyExtendedTouch)
         {
             throw new InvalidDataException(
                 $"Ridley extended body selected touch AI {touchAi?.ToString() ?? "(unnamed)"}, expected " +
-                $"{EnemyInteractionCallback.RidleyExtendedTouch} from map {slot.Frame}.");
+                $"{EnemyReaction.RidleyExtendedTouch} from map {slot.Frame}.");
         }
 
         // $A6:DF59 enters the common no-death-check handler. That distinction matters for

@@ -824,7 +824,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // ordinary slot zero. For a bomb collision that means family-$0500 damage controls recoil strength while
         // whatever stale/live shot occupies slot zero controls direction. It never enters vulnerability damage.
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
-                                  c.SelectedShotAi == EnemyInteractionCallback.ShitroidShot,
+                                  c.SelectedShotAi == EnemyReaction.ShitroidShot,
             c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, c.OrdinaryProjectiles.Slots[0]));
     }
 
@@ -889,7 +889,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddShitroidPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.ShitroidPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.ShitroidPowerBomb)
         {
             ReplacesCommon = ResolveShitroidPowerBomb,
         });
@@ -899,7 +899,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddShitroidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShitroidShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.ShitroidShot)
         {
             // Like Dead Torizo, Shitroid receives the bank-$A0 projectile prelude but never creates an impact or
             // enters vulnerability damage. Its own callback converts shot strength and slot-zero aim into recoil.
@@ -918,7 +918,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // `$A9:F789` replaces normal touch damage entirely. Depending on its current cutscene state, contact either
         // starts pursuit/latching or adds a spin-jump recoil vector to the actor itself; Samus is never hurt here.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.BabyMetroid &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ShitroidTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.ShitroidTouch,
             context => ResolveShitroidTouch(context.Slot, context.Samus));
     }
 }

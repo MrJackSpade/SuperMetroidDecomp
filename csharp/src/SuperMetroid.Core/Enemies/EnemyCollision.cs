@@ -50,17 +50,17 @@ internal sealed class EnemyCollision
         _room = dependencies.Room;
         _slotTable = dependencies.SlotTable;
     }
-    /// <summary>The named header touch callback (+$30) of <paramref name="slot"/>'s definition, or null.</summary>
-    internal static EnemyInteractionCallback? TouchAi(RoomEnemySlot slot) => slot.Definition.Touch;
+    /// <summary>The touch reaction <paramref name="slot"/>'s definition names, or null when it names none.</summary>
+    internal static EnemyReaction? TouchAi(RoomEnemySlot slot) => slot.Definition.Touch;
 
-    /// <summary>The named header shot callback (+$32) of <paramref name="slot"/>'s definition, or null.</summary>
-    internal static EnemyInteractionCallback? ShotAi(RoomEnemySlot slot) => slot.Definition.Shot;
+    /// <summary>The shot reaction <paramref name="slot"/>'s definition names, or null when it names none.</summary>
+    internal static EnemyReaction? ShotAi(RoomEnemySlot slot) => slot.Definition.Shot;
 
-    /// <summary>The named header Power Bomb reaction (+$28) of <paramref name="slot"/>'s definition, or null.</summary>
-    internal static EnemyInteractionCallback? PowerBombReaction(RoomEnemySlot slot) => slot.Definition.PowerBombReaction;
+    /// <summary>The Power Bomb reaction <paramref name="slot"/>'s definition names, or null when it names none.</summary>
+    internal static EnemyReaction? PowerBombReaction(RoomEnemySlot slot) => slot.Definition.PowerBombReaction;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
-    /// <param name="samus">Live player state receiving the native touch callback.</param>
+    /// <param name="samus">Live player state receiving the touch reaction.</param>
     /// <param name="controllerInput">Current held input used by touch handlers.</param>
     /// <param name="level">Room terrain required by collision-aware touch handlers.</param>
     /// <param name="onlyEnemy">The enemy EnemyMain is processing, or null for a standalone whole-list audit.</param>
@@ -87,10 +87,9 @@ internal sealed class EnemyCollision
             if (slot.Frame is null)
                 continue;
             bool usesExtendedHitboxes = UsesExtendedSamusHitboxes(slot);
-            // Multibox entry rejects the two shared no-op callback identities before
+            // Multibox entry withholds the touch the header excludes from its hitboxes before
             // resetting invulnerability. Ordinary radius entry resets first instead.
-            if (usesExtendedHitboxes && TouchAi(slot) is
-                EnemyInteractionCallback.NoOp or EnemyInteractionCallback.NoOpShortReturn)
+            if (usesExtendedHitboxes && slot.Definition.TouchHitboxScan == EnemyHitboxScan.Withheld)
                 continue;
             if (contactDamageIndex != SamusContactDamageIndex.None)
                 samus.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -110,14 +109,14 @@ internal sealed class EnemyCollision
             }
 
             bool overlapsSamus;
-            EnemyInteractionCallback? hitboxTouchAi = TouchAi(slot);
+            EnemyReaction? hitboxTouchAi = TouchAi(slot);
             if (usesExtendedHitboxes)
             {
-                overlapsSamus = TryFindExtendedHitboxCallback(
+                overlapsSamus = TryFindExtendedHitboxReaction(
                     slot,
                     samus.Position.Whole,
                     samus.Kinematics.Radius,
-                    callbackKind: HitboxCallbackKind.Touch,
+                    contactKind: HitboxContactKind.Touch,
                     out hitboxTouchAi);
             }
             else
@@ -229,24 +228,23 @@ internal sealed class EnemyCollision
                     CommonEnemyEmptyFrames.IsFrame(enemy.Frame))
                     continue;
                 if (usesExtendedHitboxes &&
-                    IsCanonicalMultiboxNoOpAi(ShotAi(enemy)))
+                    enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld)
                 {
-                    // `EprojCollHandler_Multibox` compares the header callback before
-                    // reading the extended map. Canonical RTS/RTL means no overlap, no
+                    // A header that withholds shots from its hitboxes means no overlap, no
                     // Super-Missile quake, and no direction mark even when a visible
                     // authored rectangle would otherwise contain this projectile.
                     continue;
                 }
 
                 bool overlapsProjectile;
-                EnemyInteractionCallback? hitboxShotAi = ShotAi(enemy);
+                EnemyReaction? hitboxShotAi = ShotAi(enemy);
                 if (usesExtendedHitboxes)
                 {
-                    overlapsProjectile = TryFindExtendedHitboxCallback(
+                    overlapsProjectile = TryFindExtendedHitboxReaction(
                         enemy,
                         projectile.Position.Whole,
                         projectile.Radius,
-                        callbackKind: HitboxCallbackKind.Shot,
+                        contactKind: HitboxContactKind.Shot,
                         out hitboxShotAi);
                 }
                 else
@@ -261,7 +259,7 @@ internal sealed class EnemyCollision
                 if (!overlapsProjectile)
                     continue;
 
-                bool selectedLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition, hitboxShotAi);
+                bool selectedIgnore = hitboxShotAi == EnemyReaction.Ignore;
                 var shot = new EnemyShotContext(
                     enemy,
                     projectile,
@@ -283,7 +281,7 @@ internal sealed class EnemyCollision
                 if (usesExtendedHitboxes && family == SamusProjectileFamily.SuperMissile)
                 {
                     // The multibox prelude requests this earthquake before dispatching the
-                    // hitbox callback, even when that callback is the no-op shell region.
+                    // hitbox reaction, even when that reaction is the ignoring shell region.
                     _earthquake.EarthquakeTimer = WrappingCountdown.Start(SuperMissileDefinitions.EarthquakeDuration);
                     _earthquake.EarthquakeType = SuperMissileDefinitions.EnemyHitEarthquakeType;
                 }
@@ -294,7 +292,7 @@ internal sealed class EnemyCollision
                     break;
                 }
 
-                if (selectedLiteralNoOpShotAi)
+                if (selectedIgnore)
                 {
                     projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(projectile.SlotIndex, shot.MarksCollision);
                     hitCount++;
@@ -418,14 +416,14 @@ internal sealed class EnemyCollision
     /// Normal bombs occupy physical projectile slots five through nine. They are not part
     /// of the five-slot beam/missile walk above: bank $A0 waits for the shared bomb-variable
     /// word to reach zero, marks the overlapping bomb with direction bit $10, and dispatches
-    /// the enemy's shot callback with that physical slot selected. The original translation
-    /// implemented only Metroid's private detach/recoil callback, which meant ordinary bombs
+    /// the enemy's shot reaction with that physical slot selected. The original translation
+    /// implemented only Metroid's private detach/recoil reaction, which meant ordinary bombs
     /// could never damage the many enemies that install common shot AI.
     ///
-    /// This pass now owns both the common callback and the already-translated Metroid tail.
-    /// Private per-species callbacks remain deliberately outside the common branch; they can
+    /// This pass now owns both the common reaction and the already-translated Metroid tail.
+    /// Private per-species reactions remain deliberately outside the common branch; they can
     /// be added here as their exact bomb-specific post-processing is translated rather than
-    /// silently treating every callback as <c>$A0:802D</c>.
+    /// silently treating every reaction as the ordinary shot reaction.
     /// </remarks>
     public int ResolveOrdinaryBombHits(
         SamusBombProjectileSystem bombs,
@@ -441,16 +439,16 @@ internal sealed class EnemyCollision
         for (int ordinal = 0; ordinal < (onlyEnemy is not null ? 1 : _dispatch.InteractiveEnemies.Count); ordinal++)
         {
             RoomEnemySlot enemy = onlyEnemy ?? _dispatch.InteractiveEnemies[ordinal];
-            bool usesCommonShotAi = ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot;
-            bool usesLiteralNoOpShotAi = IsLiteralNoOpShotAi(enemy.Definition, ShotAi(enemy));
+            bool usesCommonShotAi = ShotAi(enemy) == EnemyReaction.NormalEnemyShot;
+            bool usesIgnoreShotAi = ShotAi(enemy) == EnemyReaction.Ignore;
             bool usesTranslatedPrivateShotAi = IsTranslatedPrivateNormalBombShotAi(enemy, ShotAi(enemy));
             bool usesExtendedHitboxes =
                 enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool headerSuppressesMultiboxShotCollision = usesExtendedHitboxes &&
-                IsCanonicalMultiboxNoOpAi(ShotAi(enemy));
+                enemy.Definition.ShotHitboxScan == EnemyHitboxScan.Withheld;
             bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
                 admission.AdmitsNormalBombs(usesExtendedHitboxes);
-            if ((!usesCommonShotAi && !usesLiteralNoOpShotAi &&
+            if ((!usesCommonShotAi && !usesIgnoreShotAi &&
                     !usesTranslatedPrivateShotAi && !admittedByOccupant) ||
                 enemy.Frame is null ||
                 !enemy.InvincibilityTimer.IsZero ||
@@ -480,13 +478,13 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                EnemyInteractionCallback? selectedShotAi = ShotAi(enemy);
+                EnemyReaction? selectedShotAi = ShotAi(enemy);
                 bool overlaps = usesExtendedHitboxes
-                    ? TryFindExtendedHitboxCallback(
+                    ? TryFindExtendedHitboxReaction(
                         enemy,
                         bomb.Position.Whole,
                         bomb.Radius,
-                        callbackKind: HitboxCallbackKind.Shot,
+                        contactKind: HitboxContactKind.Shot,
                         out selectedShotAi)
                     : RadiusBoxesOverlap(
                         enemy.Position.Whole,
@@ -498,13 +496,13 @@ internal sealed class EnemyCollision
                     continue;
                 }
 
-                // Multibox actors dispatch the callback stored in the selected hitbox,
-                // not necessarily the definition header. Do not turn a protected/private
-                // component into common damage merely because the header uses `$802D`.
-                bool selectedLiteralNoOp = IsLiteralNoOpShotAi(enemy.Definition, selectedShotAi);
+                // Multibox actors dispatch the reaction stored in the selected hitbox,
+                // not necessarily the definition header's. Do not turn a protected/private
+                // component into common damage merely because the header names the ordinary shot.
+                bool selectedIgnore = selectedShotAi == EnemyReaction.Ignore;
                 bool selectedTranslatedPrivate = IsTranslatedPrivateNormalBombShotAi(enemy, selectedShotAi);
-                if (selectedShotAi != EnemyInteractionCallback.NormalEnemyShot &&
-                    !selectedLiteralNoOp &&
+                if (selectedShotAi != EnemyReaction.NormalEnemyShot &&
+                    !selectedIgnore &&
                     !selectedTranslatedPrivate)
                     continue;
 
@@ -524,7 +522,7 @@ internal sealed class EnemyCollision
                 {
                     special(bombContext);
                 }
-                else if (!selectedLiteralNoOp)
+                else if (!selectedIgnore)
                 {
                     if (bombReactions?.FindBombSpecialAfterNoOp(bombContext) is { } afterNoOp)
                     {
@@ -532,7 +530,7 @@ internal sealed class EnemyCollision
                     }
                     else
                     {
-                        // A private callback that rejects the bomb returns before common damage; bank $A0 has
+                        // A private reaction that rejects the bomb returns before common damage; bank $A0 has
                         // already marked the bomb, so rejection belongs here rather than in collision admission.
                         EnemyBombReaction? reaction = bombReactions?.FindBombCommon(bombContext);
                         if (reaction?.Rejects?.Invoke(bombContext) != true)
@@ -553,32 +551,15 @@ internal sealed class EnemyCollision
         return hitCount;
     }
 
-    /// <summary>Checks whether an enemy callback, run in <paramref name="definition"/>'s code, returns at once.</summary>
-    internal static bool IsLiteralNoOpShotAi(RoomEnemyDefinition definition, EnemyInteractionCallback? callback) =>
-        callback is EnemyInteractionCallback.CeresDoorNoOpShot or EnemyInteractionCallback.KraidNoOpShot or EnemyInteractionCallback.ChozoNoOpShot ||
-        callback == EnemyInteractionCallback.NoOp && definition.NoOpCallbackBody == EnemyCallbackBody.ImmediateReturn;
-
     /// <summary>
-    /// Tests the two engine-owned no-op callback addresses checked directly by
-    /// <c>EprojCollHandler_Multibox</c> and <c>EnemyBombCollHandler_Multibox</c> before either
-    /// routine reads an extended spritemap. A bank-local routine that merely contains the
-    /// same RTS/RTL opcode is deliberately not equivalent: Kraid's `$A7:94B5` proves that
-    /// such a header still scans components and may select `$A7:94B6` from an arm hitbox.
-    /// </summary>
-    internal static bool IsCanonicalMultiboxNoOpAi(EnemyInteractionCallback? callback) =>
-        callback is EnemyInteractionCallback.NoOp or EnemyInteractionCallback.NoOpShortReturn;
-
-    /// <summary>
-    /// Reports the bank-$A2/$A3 private shot callbacks whose family-$0500 path is translated.
-    /// Definition and callback are checked together because identical 16-bit addresses in
-    /// different enemy banks are unrelated native routines, while an extended hitbox may
-    /// deliberately override its definition header with a different callback.
+    /// Reports the private shot reactions whose normal-bomb path is translated. The occupant decides, because an extended
+    /// hitbox may deliberately override its definition header with a different reaction.
     /// </summary>
     private static bool IsTranslatedPrivateNormalBombShotAi(
         RoomEnemySlot enemy,
-        EnemyInteractionCallback? callback) =>
-        enemy.Entity is IEnemyPrivateShotCallback owner &&
-        owner.OwnsPrivateShotCallback(callback);
+        EnemyReaction? reaction) =>
+        enemy.Entity is IEnemyPrivateShotReaction owner &&
+        owner.OwnsPrivateShotReaction(reaction);
 
     /// <summary>
     /// Executes the family-$0500 branch of <c>NormalEnemyShotAiSkipDeathAnim</c> at
@@ -662,11 +643,10 @@ internal sealed class EnemyCollision
             EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.FindPowerBomb();
             if (reaction?.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
-            if (enemy.Definition.PowerBombReactionBody != EnemyCallbackBody.None && reaction is null)
+            if (enemy.Definition.PowerBombReaction is { } named && reaction is null)
             {
                 throw new InvalidDataException(
-                    $"Enemy {enemy.DefinitionId} power-bomb reaction " +
-                    $"{enemy.Definition.PowerBombReaction?.ToString() ?? "(unnamed)"} is not translated.");
+                    $"Enemy {enemy.DefinitionId} power-bomb reaction {named} is not translated.");
             }
 
             // Private callbacks replace common power-bomb damage, but still receive the native
@@ -799,18 +779,18 @@ internal sealed class EnemyCollision
 
     /// <summary>
     /// Walks `$A0:9A5A/$A0:9B7F`'s bank-local extended-spritemap structure and returns the
-    /// callback belonging to the first overlapping hitbox. One displayed enemy frame may
-    /// contain several independently offset ordinary spritemaps; every component points at
-    /// a hitbox list whose records are signed bounds plus touch/shot function pointers.
+    /// reaction belonging to the first overlapping hitbox. One displayed enemy frame may
+    /// contain several independently offset ordinary spritemaps; every component has a
+    /// hitbox list whose records are signed bounds plus touch and shot reactions.
     /// </summary>
-    internal bool TryFindExtendedHitboxCallback(
+    internal bool TryFindExtendedHitboxReaction(
         RoomEnemySlot enemy,
         Position16<RoomPixels> targetPosition,
         Extent16<RoomPixels> targetRadius,
-        HitboxCallbackKind callbackKind,
-        out EnemyInteractionCallback? callback)
+        HitboxContactKind contactKind,
+        out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
 
         // Native multibox collision walks every frame an actor shows, and only an actor that has
         // shown none is skipped. The common visually empty extended frame still owns a point
@@ -825,22 +805,22 @@ internal sealed class EnemyCollision
             BottomRight: new(
                 CoordinateAxis.Wrap(targetPosition.X + targetRadius.X),
                 CoordinateAxis.Wrap(targetPosition.Y + targetRadius.Y)),
-            SelectShotCallback: callbackKind == HitboxCallbackKind.Shot,
+            SelectsShot: contactKind == HitboxContactKind.Shot,
             ArtworkInstalled: _room.Artwork is not null);
 
         if (CommonEnemyEmptyFrames.IsFrame(enemy.Frame))
         {
             // The shared empty frame has a single zero-radius point at the
             // enemy origin. Run the same asymmetric native overlap test before
-            // selecting its common touch/shot callback.
+            // selecting its common touch/shot reaction.
             if (!target.Overlaps(enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))
                 return false;
-            callback = callbackKind == HitboxCallbackKind.Shot ? EnemyInteractionCallback.NormalEnemyShot : EnemyInteractionCallback.NormalEnemyTouch;
+            reaction = contactKind == HitboxContactKind.Shot ? EnemyReaction.NormalEnemyShot : EnemyReaction.NormalEnemyTouch;
             return true;
         }
 
         // A species with engine-owned geometry answers for its own frames; null means none covers this frame.
-        if (enemy.Entity is IEnemyExtendedHitboxes owner && owner.FindHitboxCallback(target, out callback) is { } owned)
+        if (enemy.Entity is IEnemyExtendedHitboxes owner && owner.FindHitboxReaction(target, out reaction) is { } owned)
             return owned;
 
         throw new InvalidDataException(
@@ -940,7 +920,7 @@ internal sealed class EnemyCollision
         if (enemy.Health != 0)
             return;
 
-        // Rinka's bank-$A2 callback calls this common damage body explicitly, inspects the
+        // Rinka's touch reaction calls this common damage body explicitly, inspects the
         // resulting zero health, then chooses either generic respawn death or its private
         // hidden two-frame Mother Brain respawn. Do not clear the slot before that tail.
         if (deathAnimation == TouchDeathAnimation.Skip)

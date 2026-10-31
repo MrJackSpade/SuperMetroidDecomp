@@ -349,19 +349,19 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     internal static void AddWallSpacePiratePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.DefinitionId) &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.SpacePiratePowerBomb));
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.SpacePiratePowerBomb));
     }
 
     /// <summary>Uses shared Pirate shot logic, including hitbox quake, big death explosion, and Gold Ninja drops.</summary>
     internal void AddWallSpacePirateShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.DefinitionId) &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SpacePirateShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.SpacePirateShot)
         {
             AfterSuperMissileQuake = _walkingSpacePirateBehavior.ResolveSpacePirateHitboxShot,
             ReplacesGenericDeath = c =>
             {
-                if (c.HitboxShotAi == EnemyInteractionCallback.NormalEnemyShot)
+                if (c.HitboxShotAi == EnemyReaction.NormalEnemyShot)
                     return false;
                 // The shared Pirate shot tail clears one value before requesting death animation
                 // variant four: a wall Pirate's jump destination (used only as a debug destination, so its fatal clear
@@ -386,14 +386,14 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     internal void AddWallSpacePirateTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => IsOrdinarySpacePirateDefinition(slot.DefinitionId) &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.SpacePirateTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.SpacePirateTouch,
             context =>
             {
                 // Space Pirate extended maps currently use the shared `$B2:876C` touch
                 // callback in every retail hitbox. Keep the pointer check explicit: silently
                 // treating a later family-specific attack box as ordinary body contact would
                 // recreate the exact radius-flattening bug this path is intended to remove.
-                if (context.UsesExtendedHitboxes && context.HitboxTouchAi != EnemyInteractionCallback.SpacePirateTouch)
+                if (context.UsesExtendedHitboxes && context.HitboxTouchAi != EnemyReaction.SpacePirateTouch)
                 {
                     throw new InvalidDataException(
                         $"Space Pirate hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");

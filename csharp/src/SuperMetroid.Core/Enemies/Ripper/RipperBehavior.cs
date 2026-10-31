@@ -216,7 +216,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddRipperBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.GRipperRipper2Shot)
+                                                       c.SelectedShotAi == EnemyReaction.GRipperRipper2Shot)
         {
             AfterCommon = c => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
         });
@@ -244,7 +244,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddRipperShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.GRipperRipper2Shot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.GRipperRipper2Shot)
         {
             AfterCommon = c => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
         });

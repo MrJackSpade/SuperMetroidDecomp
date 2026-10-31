@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
@@ -37,7 +38,7 @@ internal static class PhantoonCollisionDefinitions
 
     /// <summary>The single no-reaction point carried by hidden parts and by both tentacle components.</summary>
     internal static readonly PhantoonCollisionHitbox[] PointList =
-        [new(0, 0, 0, 0, PhantoonHitboxTouch.Inert, PhantoonHitboxShot.Inert)];
+        [new(0, 0, 0, 0, EnemyReaction.Ignore, EnemyReaction.Ignore)];
     /// <summary>The visible body: body, eye, left, right and center tentacle rectangles, tested in that order.</summary>
     internal static readonly PhantoonCollisionHitbox[] FullBodyList =
         [Body, Eye, LeftTentacle, RightTentacle, CenterTentacle];
@@ -56,7 +57,7 @@ internal static class PhantoonCollisionDefinitions
 
     /// <summary>A body rectangle that Samus touches and shoots.</summary>
     private static PhantoonCollisionHitbox Contact(int left, int top, int right, int bottom) =>
-        new(left, top, right, bottom, PhantoonHitboxTouch.Contact, PhantoonHitboxShot.Vulnerable);
+        new(left, top, right, bottom, EnemyReaction.PhantoonTouch, EnemyReaction.PhantoonShot);
 
     /// <summary>
     /// A body rectangle centered on the component's pixel-centered axis: its left edge is one pixel beyond the negated

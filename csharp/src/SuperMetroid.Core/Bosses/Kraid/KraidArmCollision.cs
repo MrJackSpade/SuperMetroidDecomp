@@ -12,17 +12,17 @@ internal static class KraidArmCollision
     /// <remarks>Independently reviewed for #1165 against all selected bank_A7 native
     /// rectangles. The selected lists through Hitbox_KraidArm_F use arm touch;
     /// Hitbox_KraidArm_10..12 and both dying/lunge lists use background touch.</remarks>
-    internal static KraidHitboxTouch TouchCallback(int rectangle)
+    internal static EnemyReaction TouchReaction(int rectangle)
     {
         if ((uint)rectangle >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(rectangle));
-        return rectangle < FirstBackgroundRectangle ? KraidHitboxTouch.Arm : KraidHitboxTouch.Background;
+        return rectangle < FirstBackgroundRectangle ? EnemyReaction.KraidArmTouch : EnemyReaction.KraidBackgroundTouch;
     }
 
     /// <summary>Every selected arm rectangle uses the arm's shot reaction (EnemyShot_KraidArm).</summary>
-    internal static KraidHitboxShot ShotCallback(int rectangle)
+    internal static EnemyReaction ShotReaction(int rectangle)
     {
         if ((uint)rectangle >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(rectangle));
-        return KraidHitboxShot.Arm;
+        return EnemyReaction.KraidArmShot;
     }
 
     /// <summary>Combines one indexed rectangle's bounds with its arm/background touch and arm-shot reactions.</summary>
@@ -31,7 +31,7 @@ internal static class KraidArmCollision
         if ((uint)index >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(index));
         EnemyHitboxRectangle geometry = Geometry[index];
         return new(geometry.Left, geometry.Top, geometry.Right, geometry.Bottom,
-            TouchCallback(index), ShotCallback(index));
+            TouchReaction(index), ShotReaction(index));
     }
 
     /// <summary>Calculates the physical hitbox identity for a normalized arm pose and component.</summary>
@@ -88,8 +88,7 @@ internal static class KraidArmCollision
 
     /// <summary>
     /// Bank-$A7 hitbox lists $92D1-$948A; the first overlapping rectangle wins.
-    /// The native callbacks are Kraid-arm touch $9490 or background touch $948B,
-    /// and Kraid-arm shot $94B6.
+    /// The reactions are the arm's touch or the background touch, and the arm's shot.
     /// </summary>
     /// <remarks>Independently reviewed for #1165: these cases select ordered
     /// rectangle slices for native arm shapes 0..6, 8..A, F..12 and the two

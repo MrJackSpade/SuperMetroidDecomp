@@ -224,7 +224,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMetareeShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metaree &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MetareeShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MetareeShot)
         {
             BeforeGenericDeath = c =>
             {
@@ -239,7 +239,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMetareeBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metaree &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.MetareeShot)
+                                                       c.SelectedShotAi == EnemyReaction.MetareeShot)
         {
             AfterCommon = c =>
             {

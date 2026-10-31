@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class RidleyEntity(
     RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation,
-        IEnemyExtendedHitboxes, IEnemyContactHooks, IEnemyShotAdmission, IEnemyDrawHooks, IEnemyPrivateShotCallback
+        IEnemyExtendedHitboxes, IEnemyContactHooks, IEnemyShotAdmission, IEnemyDrawHooks, IEnemyPrivateShotReaction
 {
     /// <summary>Whether the occupant is one of the two Ridley bodies rather than the breakup actor.</summary>
     private bool IsBody => Slot.DefinitionId is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres;
@@ -45,8 +45,8 @@ internal sealed class RidleyEntity(
     };
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) =>
-        RidleyInteractions.FindRidleyHitboxCallback(Slot, probe, out callback);
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
+        RidleyInteractions.FindRidleyHitboxReaction(Slot, probe, out reaction);
 
     /// <summary>
     /// Both Ridley bodies use a hand-authored extended body plus a separately solved tail tip, resolved by their own
@@ -86,8 +86,8 @@ internal sealed class RidleyEntity(
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId == EnemyDefinitionId.Ridley ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
 
-    /// <summary>Both Ridley bodies' shot callback, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        IsBody && callback == EnemyInteractionCallback.RidleyShot;
+    /// <summary>Both Ridley bodies' shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        IsBody && reaction == EnemyReaction.RidleyShot;
 }

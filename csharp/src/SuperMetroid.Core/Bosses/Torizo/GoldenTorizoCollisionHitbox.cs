@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>One ordered touch/shot rectangle of a Torizo hitbox list.</summary>
@@ -9,4 +11,4 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="Shot">How the rectangle reacts to a projectile.</param>
 internal readonly record struct GoldenTorizoCollisionHitbox(
     int Left, int Top, int Right, int Bottom,
-    TorizoHitboxTouch Touch, TorizoHitboxShot Shot);
+    EnemyReaction Touch, EnemyReaction Shot);

@@ -2,14 +2,14 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
 /// The engine-owned collision of all three ordinary Pirate families. Editable component offsets in the installed visual
-/// asset cannot move these rectangles or replace their native touch/shot callbacks.
+/// asset cannot move these rectangles or replace their native touch/shot reactions.
 /// </summary>
 internal static class SpacePirateHitboxes
 {
-    /// <summary>The callback of the first Pirate hitbox the probe overlaps.</summary>
-    internal static bool Find(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first Pirate hitbox the probe overlaps.</summary>
+    internal static bool Find(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         foreach (SpacePirateCollisionComponent component in
                  SpacePirateCollisionDefinitions.Frames.Of(enemy.Frame))
         {
@@ -24,9 +24,7 @@ internal static class SpacePirateHitboxes
                 int bottom = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom);
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = probe.SelectShotCallback
-                    ? SpacePirateHitboxCallbackCodec.ToCallback(hitbox.Shot)
-                    : SpacePirateHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;
             }
         }
@@ -34,12 +32,12 @@ internal static class SpacePirateHitboxes
     }
 
     /// <summary>
-    /// Whether <paramref name="callback"/> is one of the Pirate shot callbacks the hitboxes select, which normal bombs
+    /// Whether <paramref name="reaction"/> is one of the Pirate shot reactions the hitboxes select, which normal bombs
     /// dispatch like the common one.
     /// </summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    internal static bool OwnsShotCallback(EnemyInteractionCallback? callback) =>
-        callback is EnemyInteractionCallback.SpacePirateShot or
-            EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot or
-            EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot;
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    internal static bool OwnsShotReaction(EnemyReaction? reaction) =>
+        reaction is EnemyReaction.SpacePirateShot or
+            EnemyReaction.GoldNinjaVulnerableHitboxShot or
+            EnemyReaction.GoldNinjaInvincibleHitboxShot;
 }

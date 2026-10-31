@@ -6,6 +6,6 @@ public enum EnemyAiRoutine
     /// <summary>The species' own routine.</summary>
     SpeciesRoutine,
 
-    /// <summary>The shared routine that does nothing.</summary>
-    CommonNoOp,
+    /// <summary>Nothing: the enemy does nothing at this point.</summary>
+    Inert,
 }

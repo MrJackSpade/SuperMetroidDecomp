@@ -475,7 +475,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     internal static void AddDeadSidehopperBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecialAfterNoOp(c => c.Enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
-                                           c.SelectedShotAi == EnemyInteractionCallback.DeadSidehopperShot,
+                                           c.SelectedShotAi == EnemyReaction.DeadSidehopperShot,
             c => ResolveDeadSidehopperShot(c.Enemy));
     }
 
@@ -501,7 +501,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     internal void AddDeadSidehopperPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DeadSidehopperPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.DeadSidehopperPowerBomb)
         {
             ReplacesCommon = ResolveDeadSidehopperPowerBomb,
         });
@@ -511,7 +511,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     internal static void AddDeadSidehopperShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DeadSidehopperShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.DeadSidehopperShot)
         {
             // The common projectile prelude always marks the shot, but the private callback ignores it until the
             // corpse palette has fully transformed. Even then it starts rotting without vulnerability damage or impact.
@@ -530,7 +530,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         // Before Shitroid finishes feeding, `$A9:DD44` uses normal contact damage without a death animation. At
         // palette stage eight it instead starts the corpse decomposition and never enters common touch damage.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DeadSidehopperTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.DeadSidehopperTouch,
             context => ResolveDeadSidehopperTouch(context.Slot, RequireDeadSidehopperState(context.Slot), context.Samus));
     }
 }

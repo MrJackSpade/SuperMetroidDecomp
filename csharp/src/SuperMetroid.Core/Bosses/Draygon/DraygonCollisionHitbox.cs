@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>One Draygon body rectangle, relative to its component's origin, with its touch and shot reactions.</summary>
@@ -8,4 +10,4 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="Touch">How the rectangle reacts when Samus touches it.</param>
 /// <param name="Shot">How the rectangle reacts when a Samus projectile hits it.</param>
 internal readonly record struct DraygonCollisionHitbox(
-    int Left, int Top, int Right, int Bottom, DraygonHitboxTouch Touch, DraygonHitboxShot Shot);
+    int Left, int Top, int Right, int Bottom, EnemyReaction Touch, EnemyReaction Shot);

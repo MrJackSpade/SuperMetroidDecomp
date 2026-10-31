@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.Movement.RunBombTorizoInitializationAi;
@@ -24,19 +24,19 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceBombTorizoTypedAnimation;
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
-        return TorizoCombat.FindTorizoHitboxCallback(Slot, probe, out callback);
+        reaction = null;
+        return TorizoCombat.FindTorizoHitboxReaction(Slot, probe, out reaction);
     }
 
     /// <summary>Both Torizos' contact and shots enter the extended-spritemap walker over their own hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 
-    /// <summary>The Torizo shot callbacks, which normal bombs dispatch like the common one; only Golden Torizo owns its own.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        callback is EnemyInteractionCallback.BombTorizoShot or EnemyInteractionCallback.TorizoStandUpSitDownShot ||
-        Slot.DefinitionId == EnemyDefinitionId.GoldenTorizo && callback == EnemyInteractionCallback.GoldenTorizoShot;
+    /// <summary>The Torizo shot reactions, which normal bombs dispatch like the common one; only Golden Torizo owns its own.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        reaction is EnemyReaction.BombTorizoShot or EnemyReaction.TorizoStandUpSitDownShot ||
+        Slot.DefinitionId == EnemyDefinitionId.GoldenTorizo && reaction == EnemyReaction.GoldenTorizoShot;
 }

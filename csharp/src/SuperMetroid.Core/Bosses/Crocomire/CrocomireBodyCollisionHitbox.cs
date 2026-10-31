@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>One Crocomire collision rectangle and its touch and shot reactions, independent of its editable artwork.</summary>
@@ -8,4 +10,4 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="Touch">How the rectangle reacts to Samus's touch.</param>
 /// <param name="Shot">How the rectangle reacts to a Samus projectile.</param>
 internal readonly record struct CrocomireBodyCollisionHitbox(
-    int Left, int Top, int Right, int Bottom, CrocomireHitboxTouch Touch, CrocomireHitboxShot Shot);
+    int Left, int Top, int Right, int Bottom, EnemyReaction Touch, EnemyReaction Shot);

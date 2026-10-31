@@ -282,7 +282,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         // Corpse shot callbacks run directly after the bank-$A0 collision mark. They do not consult bomb
         // vulnerability or health; they only hand the actor to its authored rotting state machine.
         table.AddBombSpecialAfterNoOp(c => c.Enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
-                                           c.SelectedShotAi == EnemyInteractionCallback.DeadTorizoTouchAndShot,
+                                           c.SelectedShotAi == EnemyReaction.DeadTorizoTouchAndShot,
             c => TriggerDeadTorizoRotting(c.Enemy));
     }
 
@@ -304,7 +304,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddDeadTorizoPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DeadTorizoPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.DeadTorizoPowerBomb)
         {
             ReplacesCommon = (enemy, _) => TriggerDeadTorizoPowerBomb(enemy),
         });
@@ -315,7 +315,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The dead corpses and Shitroid receive the bank-$A0 projectile prelude but never an impact or vulnerability.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DeadTorizoTouchAndShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.DeadTorizoTouchAndShot)
         {
             // Its private callback runs after the ordinary collision prelude but before common impact/vulnerability
             // code. The shot is marked, not converted into an explosion, and the corpse never loses health.
@@ -334,7 +334,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         // `$A9:D433` is shared by touch and shot. Contact does not enter common damage; it makes the corpse solid
         // and starts the exact rotting table immediately.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DeadTorizoTouchAndShot,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.DeadTorizoTouchAndShot,
             context => TriggerDeadTorizoRotting(context.Slot));
     }
 }

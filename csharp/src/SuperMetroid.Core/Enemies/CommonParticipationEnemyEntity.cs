@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// An entity whose reactions and AI-state handlers are the shared ones (#1312). A species entity derives from it and
 /// implements its own participations; an override replaces a shared answer where the species owns it. It takes only the
-/// common collision paths until the species overrides <see cref="Capabilities"/>, and it owns no private shot callback
-/// unless the species implements <see cref="IEnemyPrivateShotCallback"/>.
+/// common collision paths until the species overrides <see cref="Capabilities"/>, and it owns no private shot reaction
+/// unless the species implements <see cref="IEnemyPrivateShotReaction"/>.
 /// </summary>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation the system composes.</param>

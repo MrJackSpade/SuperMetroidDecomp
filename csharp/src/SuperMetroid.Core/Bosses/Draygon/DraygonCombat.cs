@@ -55,7 +55,7 @@ internal sealed class DraygonCombat
     internal void AddDraygonBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.DraygonShot)
+                                                       c.SelectedShotAi == EnemyReaction.DraygonShot)
         {
             RunsGenericDeath = false,
             BeforeCommon = c => AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(c.Enemy)),
@@ -67,7 +67,7 @@ internal sealed class DraygonCombat
     internal void AddDraygonPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DraygonPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.DraygonPowerBomb)
         {
             ExemptFromGenericDeath = true,
             AfterCommon = (enemy, samus) => ResolveDraygonReaction(enemy, samus),
@@ -78,14 +78,14 @@ internal sealed class DraygonCombat
     internal void AddDraygonTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.DraygonBody &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DraygonTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.DraygonTouch,
             context =>
             {
                 if (!context.UsesExtendedHitboxes)
                     throw new InvalidDataException("Draygon requires his authored extended touch hitboxes.");
-                if (context.HitboxTouchAi == EnemyInteractionCallback.NoOp)
+                if (context.HitboxTouchAi == EnemyReaction.Ignore)
                     return; // The vulnerable eye rectangle is harmless to Samus.
-                if (context.HitboxTouchAi != EnemyInteractionCallback.DraygonTouch)
+                if (context.HitboxTouchAi != EnemyReaction.DraygonTouch)
                 {
                     throw new InvalidDataException(
                         $"Draygon hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
@@ -205,13 +205,13 @@ internal sealed class DraygonCombat
     internal void AddDraygonShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DraygonShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.DraygonShot)
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 if (!c.UsesExtendedHitboxes)
                     throw new InvalidDataException("Draygon requires his authored extended shot hitboxes.");
-                if (c.HitboxShotAi == EnemyInteractionCallback.DudShot)
+                if (c.HitboxShotAi == EnemyReaction.DudShot)
                 {
                     // Body, claws, and shell use shared `$A0:8046`; only the first
                     // eye rectangle in maps $1A/$2D reaches Draygon's damage callback.
@@ -219,7 +219,7 @@ internal sealed class DraygonCombat
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;
                 }
-                if (c.HitboxShotAi != EnemyInteractionCallback.DraygonShot)
+                if (c.HitboxShotAi != EnemyReaction.DraygonShot)
                 {
                     throw new InvalidDataException(
                         $"Draygon hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
@@ -232,10 +232,10 @@ internal sealed class DraygonCombat
         });
     }
 
-    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindDraygonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindDraygonHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (!DraygonCombat.IsDraygonDefinition(enemy.DefinitionId))
             return null;
 
@@ -253,9 +253,7 @@ internal sealed class DraygonCombat
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
-                callback = probe.SelectShotCallback
-                    ? DraygonHitboxCallbackCodec.ToCallback(hitbox.Shot)
-                    : DraygonHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;
             }
         }

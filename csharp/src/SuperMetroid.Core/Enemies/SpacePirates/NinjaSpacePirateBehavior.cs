@@ -692,7 +692,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     internal static void AddGoldNinjaPirateBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja &&
-                                  c.UsesExtendedHitboxes && c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,
+                                  c.UsesExtendedHitboxes && c.SelectedShotAi != EnemyReaction.NormalEnemyShot,
             c =>
             {
                 PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateNormalBombHitboxShotAction(c.Enemy, c.SelectedShotAi);

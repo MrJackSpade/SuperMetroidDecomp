@@ -309,7 +309,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddDragonBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Dragon &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.DragonShot)
+                                                       c.SelectedShotAi == EnemyReaction.DragonShot)
         {
             AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
         });
@@ -340,7 +340,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddDragonPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Dragon &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DragonPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.DragonPowerBomb)
         {
             AfterCommon = (enemy, _) => ResolveDragonCombatAfterCommon(enemy),
         });
@@ -350,7 +350,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddDragonShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Dragon &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DragonShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.DragonShot)
         {
             AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
         });
@@ -360,7 +360,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddDragonTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Dragon &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DragonTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.DragonTouch,
             context =>
             {
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);

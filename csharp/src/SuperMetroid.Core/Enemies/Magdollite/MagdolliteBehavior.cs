@@ -678,7 +678,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMagdolliteBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.MagdolliteShot)
+                                                       c.SelectedShotAi == EnemyReaction.MagdolliteShot)
         {
             AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
         });
@@ -734,7 +734,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMagdollitePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.MagdollitePowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.MagdollitePowerBomb)
         {
             AfterCommon = (enemy, _) => ResolveMagdolliteCombatAfterCommon(enemy),
         });
@@ -744,7 +744,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMagdolliteShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MagdolliteShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MagdolliteShot)
         {
             AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
         });
@@ -754,7 +754,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMagdolliteTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Magdollite &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MagdolliteTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.MagdolliteTouch,
             context =>
             {
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);

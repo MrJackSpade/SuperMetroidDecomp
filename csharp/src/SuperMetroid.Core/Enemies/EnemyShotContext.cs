@@ -28,7 +28,7 @@ internal readonly record struct EnemyShotContext(
     SamusProjectileDirection ProjectileDirection,
     SamusProjectileFamily Family,
     bool UsesExtendedHitboxes,
-    EnemyInteractionCallback? HitboxShotAi,
+    EnemyReaction? HitboxShotAi,
     int HealthBefore = 0)
 {
     /// <summary>Whether common shot AI took the immediate-freeze path; set for <see cref="EnemyShotReaction.AfterCommon"/>.</summary>

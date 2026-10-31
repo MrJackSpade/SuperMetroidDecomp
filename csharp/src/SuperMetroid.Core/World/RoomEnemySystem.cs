@@ -1228,15 +1228,14 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>Maps banked power-bomb reaction pointers for each supported species.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations. Matches are mutually exclusive: each names its
-    /// definition and header reaction callback.</remarks>
+    /// definition and header reaction.</remarks>
     private void AddPowerBombReactions(EnemySharedReactions table)
     {
-        // These headers install private callbacks instead of falling through common power-bomb damage. A literal RTL
-        // intentionally does nothing; the shutter callbacks only run their trigger state machines. All still
-        // receive the native process-off-screen bit after a qualifying ellipse overlap. Literal no-ops are
-        // classified by their compiled bank-qualified identities without fetching executable ROM bytes.
+        // These headers name their own reactions instead of falling through common power-bomb damage. The ignoring
+        // reaction intentionally does nothing; the shutter reactions only run their trigger state machines. All still
+        // receive the native process-off-screen bit after a qualifying ellipse overlap.
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy =>
-            enemy.Definition.PowerBombReactionBody == EnemyCallbackBody.ImmediateReturn)
+            EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.Ignore)
         {
             ReplacesCommon = static (_, _) => { },
         });
@@ -1349,7 +1348,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>Maps shot-response pointers, including species-specific damage behavior.</summary>
     /// <remarks>Each species registers its own run of reactions; first match wins, so the interleaving below is the
     /// established precedence between species and shared registrations. Matches are mutually exclusive. Kraid's parts
-    /// precede the generic literal no-op header and the ordinary normal-shot reaction is last, because Crocomire's
+    /// precede the generic ignoring header and the ordinary normal-shot reaction is last, because Crocomire's
     /// tongue also uses NormalEnemyShot.</remarks>
     private void AddShotReactions(EnemySharedReactions table)
     {
@@ -1404,10 +1403,10 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         // Ordinary common shot AI with no species stage.
         CeresSteamBehavior.AddCeresSteamShotReactions(table);
         MochtroidBehavior.AddMochtroidShotReactions(table);
-        // Several retail helper/projectile definitions point their shot callback at a literal RTL in their own enemy
-        // bank. Radius collision still dispatches those callbacks after its projectile prelude.
-        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition, EnemyCollision.ShotAi(enemy))));
-        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot));
+        // Several retail helper/projectile definitions ignore shots. Radius collision still dispatches that reaction
+        // after its projectile prelude.
+        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.ShotAi(enemy) == EnemyReaction.Ignore));
+        table.AddShot(new EnemyShotReaction(enemy => EnemyCollision.ShotAi(enemy) == EnemyReaction.NormalEnemyShot));
 }
 
     /// <summary>Registers Samus-contact handlers after species instruction registrations.</summary>
@@ -1436,10 +1435,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         MaridiaLargeSnailBehavior.AddMaridiaLargeSnailTouch(table);
         PlatformsBehavior.AddPlatformsTouch(table);
 
-        // Fifteen inventoried header/hitbox callbacks are literal RTL routines. Classify their bank-qualified
-        // identities rather than probing executable ROM bytes at runtime. The collision is still reported, but the
-        // callback performs no damage, knockback, or actor reaction.
-        table.AddTouch(slot => slot.Definition.TouchBody == EnemyCallbackBody.ImmediateReturn,
+        // Headers that ignore Samus's touch: the collision is still reported, but the reaction performs no damage,
+        // knockback, or actor reaction.
+        table.AddTouch(slot => EnemyCollision.TouchAi(slot) == EnemyReaction.Ignore,
             static _ => { });
         ShuttersBehavior.AddShuttersTouch(table);
         MochtroidBehavior.AddMochtroidTouch(table);
@@ -1461,7 +1459,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         FakeKraidBehavior.AddFakeKraidTouch(table);
         ShaktoolBehavior.AddShaktoolTouch(table);
 
-        table.AddTouch(slot => EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.NormalEnemyTouch,
+        table.AddTouch(slot => EnemyCollision.TouchAi(slot) == EnemyReaction.NormalEnemyTouch,
             context => Collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
 }
 
@@ -1487,7 +1485,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         RidleyBehavior.AddRidleyHurtAi(table);
         PhantoonBehavior.AddPhantoonHurtAi(table);
         DraygonBehavior.AddDraygonHurtAi(table);
-        table.AddHurt(slot => slot.Definition.HurtAi == EnemyAiRoutine.CommonNoOp, (_, _) => { });
+        table.AddHurt(slot => slot.Definition.HurtAi == EnemyAiRoutine.Inert, (_, _) => { });
     }
 
     /// <summary>Maps frozen-state AI pointers used while ice suspends normal behavior.</summary>

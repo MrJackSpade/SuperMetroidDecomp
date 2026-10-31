@@ -81,15 +81,15 @@ internal sealed class RidleyInteractions
     internal static void AddRidleyShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Ridley &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.RidleyShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.RidleyShot)
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                if (!c.UsesExtendedHitboxes || c.HitboxShotAi != EnemyInteractionCallback.RidleyShot)
+                if (!c.UsesExtendedHitboxes || c.HitboxShotAi != EnemyReaction.RidleyShot)
                 {
                     throw new InvalidDataException(
                         $"Lower Norfair Ridley requires extended shot AI " +
-                        $"{EnemyInteractionCallback.RidleyShot}; extended={c.UsesExtendedHitboxes}, " +
+                        $"{EnemyReaction.RidleyShot}; extended={c.UsesExtendedHitboxes}, " +
                         $"selected={c.HitboxShotAi?.ToString() ?? "(unnamed)"}, map=$A6:{c.Enemy.Frame}.");
                 }
                 return false;
@@ -102,16 +102,16 @@ internal sealed class RidleyInteractions
     internal static void AddRidleyBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Ridley &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.RidleyShot)
+                                                       c.SelectedShotAi == EnemyReaction.RidleyShot)
         {
             RunsGenericDeath = false,
         });
     }
 
-    /// <summary>The callback of the first Ridley hitbox the probe overlaps, or null outside its compiled frames.</summary>
-    internal static bool? FindRidleyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first Ridley hitbox the probe overlaps, or null outside its compiled frames.</summary>
+    internal static bool? FindRidleyHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (!(RidleyInteractions.IsRidleyDefinition(enemy.DefinitionId) &&
             (RidleyCollision.HasFrame(enemy.Frame) ||
             probe.ArtworkInstalled)))
@@ -132,7 +132,9 @@ internal sealed class RidleyInteractions
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
-                callback = RidleyHitboxCallbackCodec.ToCallback(probe.SelectShotCallback);
+                reaction = probe.SelectsShot
+                    ? RidleyCollisionDefinitions.BodyShotReaction
+                    : RidleyCollisionDefinitions.BodyTouchReaction;
                 return true;
             }
         }
@@ -143,7 +145,7 @@ internal sealed class RidleyInteractions
     /// <summary>Ridley's Power Bomb reaction, exempt from the generic death.</summary>
     internal static void AddRidleyPowerBombReactions(EnemySharedReactions table) =>
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.RidleyPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.RidleyPowerBomb)
         {
             ExemptFromGenericDeath = true,
         });

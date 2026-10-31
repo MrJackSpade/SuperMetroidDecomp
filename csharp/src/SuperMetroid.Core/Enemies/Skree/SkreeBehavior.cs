@@ -172,7 +172,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddSkreeShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Skree &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SkreeShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.SkreeShot)
         {
             BeforeGenericDeath = c => _projectiles.SpawnMetalParticleBurst(c.Enemy, SkreeParticleDefinitions.Burst),
         });
@@ -184,7 +184,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddSkreeBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Skree &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.SkreeShot)
+                                                       c.SelectedShotAi == EnemyReaction.SkreeShot)
         {
             RunsGenericDeath = false,
             AfterCommon = c =>

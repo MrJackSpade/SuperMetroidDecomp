@@ -836,7 +836,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddBotwoonBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.BotwoonShot)
+                                                       c.SelectedShotAi == EnemyReaction.BotwoonShot)
         {
             RunsGenericDeath = false,
             BeforeCommon = c => RequireBotwoonState(c.Enemy).PreviousHealth = c.HealthBefore,
@@ -868,7 +868,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddBotwoonPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.BotwoonPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.BotwoonPowerBomb)
         {
             ExemptFromGenericDeath = true,
             AfterCommon = (enemy, _) => ResolveBotwoonCombatAfterCommon(enemy),
@@ -879,7 +879,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddBotwoonShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Botwoon &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BotwoonShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.BotwoonShot)
         {
             ExemptFromGenericDeath = true,
             AfterCommon = c =>
@@ -894,7 +894,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddBotwoonTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Botwoon &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BotwoonTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.BotwoonTouch,
             context =>
             {
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);

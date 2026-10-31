@@ -35,10 +35,6 @@ public static class WordWrap
     /// <param name="value">The computed value, which may lie outside eight bits.</param>
     public static int LowByte(int value) => unchecked((byte)value);
 
-    /// <summary>The upper eight bits of a sixteen-bit quantity, 0 through 255.</summary>
-    /// <param name="value">The computed value; only its low sixteen bits are read.</param>
-    public static int HighByte(int value) => unchecked((byte)(value >> 8));
-
     /// <summary>The value's low eight bits read as signed, -128 through 127.</summary>
     /// <param name="value">The computed value, which may lie outside eight bits.</param>
     public static int SignedLowByte(int value) => unchecked((sbyte)value);

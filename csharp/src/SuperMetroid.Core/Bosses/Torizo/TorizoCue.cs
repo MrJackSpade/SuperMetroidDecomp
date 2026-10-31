@@ -31,7 +31,11 @@ internal abstract record TorizoCue
 
     /// <summary>Spawns a Torizo projectile with a spawn parameter.</summary>
     /// <param name="Kind">What the cue spawns.</param>
-    /// <param name="Parameter">The spawn parameter the native instruction passes.</param>
+    /// <param name="Parameter">
+    /// What the spawn places: a swipe's placement index, a low-health explosion's site
+    /// (<see cref="BombTorizoAttacks.GutSite"/> or <see cref="BombTorizoAttacks.FaceSite"/>), or a sonic boom's
+    /// parameter.
+    /// </param>
     internal sealed record ParameterizedSpawn(TorizoParameterizedSpawnKind Kind, int Parameter) : TorizoCue;
 
     /// <summary>Selects the main-AI function (<c>Instruction_Torizo_FunctionInY</c>, $AA:B09C).</summary>

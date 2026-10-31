@@ -140,6 +140,10 @@ internal static class TorizoAnimationsVerification
                                 // The cartridge's operand is the step's byte offset into its word table.
                                 TorizoCue.Posture posture => posture.Step * sizeof(ushort),
                                 TorizoCue.Walk walk => walk.Step * sizeof(ushort),
+                                // A swipe's operand is its placement's byte offset; a low-health explosion's selects
+                                // the gut's or the face's rows, six bytes apart.
+                                TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnExplosiveSwipe } swipe => swipe.Parameter * sizeof(ushort),
+                                TorizoCue.ParameterizedSpawn { Kind: TorizoParameterizedSpawnKind.SpawnLowHealthExplosions } explosion => explosion.Parameter * 6,
                                 TorizoCue.ParameterizedSpawn spawn => spawn.Parameter,
                                 _ => throw new InvalidOperationException($"{at}: {cue} carries no value."),
                             })),

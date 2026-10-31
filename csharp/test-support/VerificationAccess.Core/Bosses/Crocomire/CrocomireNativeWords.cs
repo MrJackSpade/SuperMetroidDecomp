@@ -4,8 +4,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// Verification's native view of Crocomire's identities and packed words (#1413): the cartridge words naming each
-/// member, and how the cartridge packs the fight latches with the mouth-hit count. Core's values are arbitrary; a
-/// native snapshot or ROM oracle translates through these tables.
+/// member, how the cartridge packs the fight latches with the mouth-hit count, and where each rumble step's target sits
+/// in the cartridge's rumble table. Core's values are arbitrary; a native snapshot or ROM oracle translates through
+/// these tables.
 /// </summary>
 internal static class CrocomireNativeWords
 {
@@ -67,5 +68,28 @@ internal static class CrocomireNativeWords
             if ((flags & flag) != 0)
                 word |= bit;
         return checked((ushort)word);
+    }
+
+    /// <summary>The rumble table's byte cursor of the first step's target: two copied prefix words precede it.</summary>
+    private const int RumbleFirstCursor = 4;
+
+    /// <summary>The bytes one oscillation occupies: a return target, then a negative target and its two timing words.</summary>
+    private const int RumbleOscillationBytes = 8;
+
+    /// <summary>
+    /// The rumble table's byte cursor of <paramref name="step"/>'s target; the step past the last target is the
+    /// cursor of the table's end marker.
+    /// </summary>
+    internal static int RumbleCursor(int step) =>
+        RumbleFirstCursor + step / 2 * RumbleOscillationBytes + step % 2 * sizeof(ushort);
+
+    /// <summary>The rumble step whose target a recorded byte cursor names.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="cursor"/> names no step's target.</exception>
+    internal static int RumbleStep(int cursor)
+    {
+        for (int step = 0; step <= CrocomireRumbleDefinitions.All.Length; step++)
+            if (RumbleCursor(step) == cursor)
+                return step;
+        throw new InvalidDataException($"Crocomire rumble cursor ${cursor:X4} names no rumble target.");
     }
 }

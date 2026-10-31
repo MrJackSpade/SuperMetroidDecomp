@@ -80,7 +80,7 @@ internal sealed class CrocomireSkeleton
         if (state.Tongue is { } tongue)
             tongue.Properties = tongue.Properties.With(
                 EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
-        state.RumbleTableOffset = 4;
+        state.RumbleStep = CrocomireRumble.FirstStep;
 
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.RumbleYOffset = 0;
@@ -95,10 +95,7 @@ internal sealed class CrocomireSkeleton
     internal void RunCrocomireWallRumble(CrocomireEnemyState state)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        CrocomireRumbleDefinition definition =
-            CrocomireRumble.AtOffset(state.RumbleTableOffset);
-        int target = definition.TargetYOffset;
-        if (definition.IsTerminator)
+        if (CrocomireRumble.IsComplete(state.RumbleStep))
         {
             // The rumble hands its shared word back to the melt's shake counter, with both bytes at 128.
             death.MeltShakeCounter = WrappingCountdown.FromRaw(CrocomireBehavior.MeltShakeCounterAfterRumble);
@@ -109,6 +106,8 @@ internal sealed class CrocomireSkeleton
             return;
         }
 
+        CrocomireRumbleDefinition definition = CrocomireRumble.At(state.RumbleStep);
+        int target = definition.TargetYOffset;
         if (death.RumbleYOffset == target)
         {
             if (target < 0)
@@ -116,7 +115,8 @@ internal sealed class CrocomireSkeleton
                 if (!death.RumbleCooldown.IsZero)
                 {
                     death.RumbleCooldown = death.RumbleCooldown.Decrement().Remaining;
-                    state.RumbleTableOffset -= 2;
+                    // Repeat the oscillation: back to its return target.
+                    state.RumbleStep--;
                     _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.WallRumble;
                     return;
                 }
@@ -124,7 +124,7 @@ internal sealed class CrocomireSkeleton
                 death.RumbleCooldown = WrappingCountdown.FromRaw(definition.Cooldown);
                 death.RumbleDelta = definition.Delta;
             }
-            state.RumbleTableOffset = definition.NextTargetOffset;
+            state.RumbleStep++;
             return;
         }
 

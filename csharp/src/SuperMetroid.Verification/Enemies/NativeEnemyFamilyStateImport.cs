@@ -152,11 +152,16 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<CrocomireEnemyState>() is { } crocomireRecord)
         {
-            crocomireRecord.DeathSequenceIndex = (CrocomireDeathPhase)words.A;
+            // The cartridge's death word is the phase's byte offset into its dispatch table.
+            crocomireRecord.DeathSequenceIndex = (CrocomireDeathPhase)(words.A / sizeof(ushort));
             crocomireRecord.FightFlags = CrocomireNativeWords.FightFlags(words.B);
             crocomireRecord.HitCount = CrocomireNativeWords.HitCount(words.B);
             crocomireRecord.FightFunction = (CrocomireFightFunction)words.C;
-            crocomireRecord.RumbleTableOffset = words.D;
+            // Word D is the rumble's table cursor while the wall rumbles, and another phase's count or delay otherwise.
+            if (crocomireRecord.DeathSequenceIndex == CrocomireDeathPhase.RumbleHiddenWall)
+                crocomireRecord.RumbleStep = CrocomireNativeWords.RumbleStep(words.D);
+            else
+                crocomireRecord.DeathPhaseDelay = WrappingCountdown.FromRaw(words.D);
             crocomireRecord.VerticalSpeed = words.E;
             crocomireRecord.ProjectileCounter = words.F;
         }

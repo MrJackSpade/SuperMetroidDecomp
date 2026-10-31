@@ -22,23 +22,22 @@ internal static class CrocomireRumbleDefinitionsVerification
     {
         const int sourceAddress = 0xa498ca;
 
+        // The table's words from the first step's target on: each step's target at its cursor, a negative target's
+        // cooldown and delta in the two words after it, and the end marker twice after the last step. The two copied
+        // prefix words before the first step are never a target the rumble reaches, so the schedule omits them.
+        const int firstWord = 2;
         var expectedWords = new ushort[32];
         var assigned = new bool[32];
-        // Walk the native cursor chain: each target's next-target cursor names the following
-        // word, skipping the two timing words that only negative targets carry.
-        ushort tableOffset = 0;
-        foreach (CrocomireRumbleDefinition definition in CrocomireRumbleDefinitions.All)
+        int stepCount = CrocomireRumbleDefinitions.All.Length;
+        for (int step = 0; step < stepCount; step++)
         {
-            AssertEqual(definition, CrocomireRumble.AtOffset(tableOffset),
-                $"Crocomire rumble cursor ${tableOffset:X4} resolves its enumerated target");
-            int targetIndex = tableOffset >> 1;
+            CrocomireRumbleDefinition definition = CrocomireRumble.At(step);
+            AssertTrue(!CrocomireRumble.IsComplete(step), $"Crocomire rumble step {step} is a target");
+            int targetIndex = CrocomireNativeWords.RumbleCursor(step) / 2;
+            AssertEqual(step, CrocomireNativeWords.RumbleStep(targetIndex * 2), $"Crocomire rumble step {step} cursor round trip");
             expectedWords[targetIndex] = unchecked((ushort)definition.TargetYOffset);
             assigned[targetIndex] = true;
-            bool hasTiming = !definition.IsTerminator && definition.NextTargetOffset == tableOffset + 6;
-            tableOffset = (ushort)(definition.IsTerminator
-                ? tableOffset + 2
-                : definition.NextTargetOffset);
-            if (!hasTiming)
+            if (definition.TargetYOffset >= 0)
                 continue;
 
             expectedWords[targetIndex + 1] = (ushort)definition.Cooldown;
@@ -46,8 +45,15 @@ internal static class CrocomireRumbleDefinitionsVerification
             assigned[targetIndex + 1] = true;
             assigned[targetIndex + 2] = true;
         }
+        AssertTrue(CrocomireRumble.IsComplete(stepCount), "Crocomire rumble completes past its last target");
+        int endIndex = CrocomireNativeWords.RumbleCursor(stepCount) / 2;
+        foreach (int index in new[] { endIndex, endIndex + 1 })
+        {
+            expectedWords[index] = CrocomireBehavior.MeltShakeCounterAfterRumble;
+            assigned[index] = true;
+        }
 
-        for (int index = 0; index < expectedWords.Length; index++)
+        for (int index = firstWord; index < expectedWords.Length; index++)
         {
             AssertTrue(assigned[index], $"Crocomire rumble source word {index} ownership");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index * 2)), expectedWords[index],
@@ -55,14 +61,14 @@ internal static class CrocomireRumbleDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => CrocomireRumble.AtOffset(1),
-            "Crocomire odd rumble offset");
+            () => CrocomireRumble.At(stepCount),
+            "Crocomire rumble step past the schedule has no target");
         AssertThrows<InvalidDataException>(
-            () => CrocomireRumble.AtOffset(8),
+            () => CrocomireRumble.IsComplete(stepCount + 1),
+            "Crocomire rumble step outside the schedule");
+        AssertThrows<InvalidDataException>(
+            () => CrocomireNativeWords.RumbleStep(8),
             "Crocomire timing word cannot become a target");
-        AssertThrows<InvalidDataException>(
-            () => CrocomireRumble.AtOffset(0x40),
-            "Crocomire rumble offset outside table");
 
         var guarded = NewCrocomireRumbleReadGuard(rom);
         CrocomireColorCatalog colors = CrocomireColorFile.Read(
@@ -82,14 +88,14 @@ internal static class CrocomireRumbleDefinitionsVerification
         var state = new CrocomireEnemyState(body)
         {
             DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall,
-            RumbleTableOffset = 4,
+            RumbleStep = CrocomireRumble.FirstStep,
         };
         enemies.Presentation.BindColours(cgram.Gameplay);
         enemies.CrocomireBehavior.Access.CrocomireDeath = death;
 
         // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the
         // comparisons read back as words.
-        ushort referenceIndex = checked((ushort)state.RumbleTableOffset);
+        ushort referenceIndex = checked((ushort)CrocomireNativeWords.RumbleCursor(state.RumbleStep));
         ushort referenceY = unchecked((ushort)death.RumbleYOffset);
         ushort referenceCooldown = death.RumbleCooldown.RawValue;
         ushort referenceDelta = checked((ushort)death.RumbleDelta);
@@ -108,13 +114,15 @@ internal static class CrocomireRumbleDefinitionsVerification
             enemies.CrocomireBehavior.Skeleton.RunCrocomireWallRumble(state);
             frames++;
 
-            AssertEqual(referenceIndex, state.RumbleTableOffset,
-                $"Crocomire rumble frame {frames} target index");
             // The terminator writes its marker into the word the rumble shares with the melt shake counter;
-            // production keeps that marker in the counter and leaves the last offset, which nothing reads again.
+            // production keeps that marker in the counter and leaves the last step, which nothing reads again.
             if (state.DeathSequenceIndex == CrocomireDeathPhase.RumbleHiddenWall)
+            {
+                AssertEqual(referenceIndex, CrocomireNativeWords.RumbleCursor(state.RumbleStep),
+                    $"Crocomire rumble frame {frames} target step");
                 AssertEqual(referenceY, unchecked((ushort)death.RumbleYOffset),
                     $"Crocomire rumble frame {frames} Y offset");
+            }
             AssertEqual(referenceCooldown, death.RumbleCooldown.RawValue,
                 $"Crocomire rumble frame {frames} cooldown");
             AssertEqual(referenceDelta, death.RumbleDelta,
@@ -134,7 +142,7 @@ internal static class CrocomireRumbleDefinitionsVerification
                 $"Crocomire rumble termination applies installed wall-spike color {color}");
 
         Console.WriteLine(
-            $"Crocomire rumble definitions: all 32 native words and {frames} exact production frames pass with the source stream forbidden.");
+            $"Crocomire rumble definitions: all 30 reachable native words and {frames} exact production frames pass with the source stream forbidden.");
     }
 
     /// <summary>Advances a separate cartridge-word reference cursor for one rumble frame.</summary>

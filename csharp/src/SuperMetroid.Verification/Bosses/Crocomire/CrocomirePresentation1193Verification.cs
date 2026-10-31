@@ -59,7 +59,7 @@ internal static class CrocomirePresentation1193Verification
         {
             (boss ?? throw new InvalidOperationException("Verification requires boss.")).DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall;
             boss.Body.Properties = boss.Body.Properties.Without(EnemyProperties.Invisible);
-            boss.RumbleTableOffset = 6;
+            boss.RumbleStep = 1;
             (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = 0;
             death.RumbleCooldown = WrappingCountdown.Start(10);
             death.RumbleDelta = 1;

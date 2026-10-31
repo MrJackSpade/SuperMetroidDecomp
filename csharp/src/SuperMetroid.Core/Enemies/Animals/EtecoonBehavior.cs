@@ -288,7 +288,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        if (state.HeadsRightOrCountsHops)
+        if (state.HeadingRight)
         {
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
             state.Function = EtecoonAiFunction.RunRightToWall;
@@ -345,7 +345,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PauseEtecoonForEarthquake(slot, state);
         if (MoveEtecoonHorizontally(slot, state, level))
         {
-            if (state.HeadsRightOrCountsHops)
+            if (state.HeadingRight)
             {
                 InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpLeftEligible);
                 state.Head(side: HorizontalDirection.Left);
@@ -368,7 +368,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallEtecoonInstruction(
             slot,
             state,
-            state.HeadsRightOrCountsHops
+            state.HeadingRight
                 ? EtecoonProgram.HoppingFacingLeft
                 : EtecoonProgram.HoppingFacingRight);
         state.FunctionTimer = WrappingCountdown.Start(11);
@@ -383,7 +383,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!DecrementEtecoonTimerAndTestExpired(state))
             return;
 
-        if (state.HeadsRightOrCountsHops)
+        if (state.HeadingRight)
         {
             InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpRight);
             SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
@@ -549,7 +549,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.HitCeiling);
     }
 
-    /// <summary>Counts teaching hops in parameter one's high byte and takes the return run after four on nonlooping routes.</summary>
+    /// <summary>Counts teaching hops and takes the return run after four on nonlooping routes.</summary>
     private void RunEtecoonIdleBetweenTeachingJumps(
         RoomEnemySlot slot,
         EtecoonEnemyState state,
@@ -560,8 +560,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         // Four teaching hops are counted. Native then clears only the count, keeping the
-        // heading used by the airborne states. The count compares as the signed word the
-        // cartridge subtracts from, so it wraps exactly as the high byte does.
+        // heading used by the airborne states. The count wraps at 256 and is compared by the
+        // sign of its difference from four, as the cartridge compares it.
         state.TeachingHops = unchecked((byte)(state.TeachingHops + 1));
         bool fewerThanFourTeachingJumps = unchecked((short)(state.TeachingHops * 256 - 1024)) < 0;
         if (!fewerThanFourTeachingJumps)

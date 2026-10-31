@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class SamusEaterPlmDrawDefinitions
 {
     /// <summary>The visual block of the foliage's first tile at phase zero; each phase steps two blocks.</summary>
-    internal const int FoliageFirstBlock = 0x180;
+    internal const int FoliageFirstBlock = 384;
     /// <summary>The visual block of the mouth's first tile at phase zero; each phase steps two blocks.</summary>
-    internal const int MouthFirstBlock = 0x1a0;
+    internal const int MouthFirstBlock = 416;
 }

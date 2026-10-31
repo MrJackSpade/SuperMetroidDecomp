@@ -8,8 +8,8 @@ internal static class RoomPlmBombedRevealDrawDefinitions
     /// <summary>The single block each bombed reveal draws.</summary>
     internal static readonly IReadOnlyDictionary<RoomPlmBombedRevealDraw, RoomTerrainBlock> Blocks = new Dictionary<RoomPlmBombedRevealDraw, RoomTerrainBlock>
     {
-        [RoomPlmBombedRevealDraw.PowerBomb] = RoomTerrainBlock.Of(0x057, BlockMirroring.None, RoomCollisionType.ShootableBlock),
-        [RoomPlmBombedRevealDraw.SuperMissile] = RoomTerrainBlock.Of(0x09f, BlockMirroring.None, RoomCollisionType.ShootableBlock),
-        [RoomPlmBombedRevealDraw.CrumbleSingle] = RoomTerrainBlock.Of(0x0bc, BlockMirroring.None, RoomCollisionType.SpecialBlock),
+        [RoomPlmBombedRevealDraw.PowerBomb] = RoomTerrainBlock.Of(87, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        [RoomPlmBombedRevealDraw.SuperMissile] = RoomTerrainBlock.Of(159, BlockMirroring.None, RoomCollisionType.ShootableBlock),
+        [RoomPlmBombedRevealDraw.CrumbleSingle] = RoomTerrainBlock.Of(188, BlockMirroring.None, RoomCollisionType.SpecialBlock),
     };
 }

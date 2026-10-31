@@ -4,19 +4,19 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public enum DownwardGateTriggerBehavior
 {
     /// <summary><c>$84:C610 Setup_LeftBlueGateTrigger</c>.</summary>
-    BlueLeft = 0x46,
+    BlueLeft = 70,
     /// <summary><c>$84:C627 Setup_RightBlueGateTrigger</c>.</summary>
-    BlueRight = 0x47,
+    BlueRight = 71,
     /// <summary><c>$84:C58B Setup_LeftRedGateTrigger</c>.</summary>
-    RedLeft = 0x48,
+    RedLeft = 72,
     /// <summary><c>$84:C5AF Setup_RightRedGateTrigger</c>.</summary>
-    RedRight = 0x49,
+    RedRight = 73,
     /// <summary><c>$84:C54D Setup_LeftGreenGateTrigger</c>.</summary>
-    GreenLeft = 0x4a,
+    GreenLeft = 74,
     /// <summary><c>$84:C56C Setup_RightGreenGateTrigger</c>.</summary>
-    GreenRight = 0x4b,
+    GreenRight = 75,
     /// <summary><c>$84:C5D3 Setup_LeftYellowGateTrigger</c>.</summary>
-    YellowLeft = 0x4c,
+    YellowLeft = 76,
     /// <summary><c>$84:C5F1 RightYellowGateTrigger</c>.</summary>
-    YellowRight = 0x4d,
+    YellowRight = 77,
 }

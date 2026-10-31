@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class NoobTubePlmDrawDefinitions
 {
     /// <summary>The visual block of the tube's glass.</summary>
-    internal const int GlassBlock = 0x140;
+    internal const int GlassBlock = 320;
     /// <summary>The visual block of the tube's upper rim.</summary>
-    internal const int RimBlock = 0x141;
+    internal const int RimBlock = 321;
     /// <summary>The visual block of the floor row's first edge cell; the second steps one block.</summary>
-    internal const int FloorEdgeFirstBlock = 0x14e;
+    internal const int FloorEdgeFirstBlock = 334;
     /// <summary>The visual block of the top panel row's edge; lower rows step one block toward the centre.</summary>
-    internal const int PanelFirstBlock = 0x322;
+    internal const int PanelFirstBlock = 802;
 }

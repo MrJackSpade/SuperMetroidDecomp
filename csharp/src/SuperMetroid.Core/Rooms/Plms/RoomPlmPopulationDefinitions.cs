@@ -16,8 +16,8 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 39), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 38), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 37), null),
-        new(PlmHeaderId.GreenDoorFacingLeft, new(142, 70), new DoorBitArgument(0x00, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.YellowDoorFacingLeft, new(142, 22), new DoorBitArgument(0x01, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(142, 70), new DoorBitArgument(0, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.YellowDoorFacingLeft, new(142, 22), new DoorBitArgument(1, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The LandingSiteState3 room PLM population.</summary>
@@ -28,9 +28,9 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 38), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(30, 37), null),
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(4)),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 38), new GreyDoorArgument(4, new DoorBitArgument(0x02, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(142, 70), new GreyDoorArgument(4, new DoorBitArgument(0x03, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(142, 22), new GreyDoorArgument(4, new DoorBitArgument(0x04, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 38), new GreyDoorArgument(4, new DoorBitArgument(2, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(142, 70), new GreyDoorArgument(4, new DoorBitArgument(3, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(142, 22), new GreyDoorArgument(4, new DoorBitArgument(4, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The GauntletEntranceState01 room PLM population.</summary>
@@ -68,7 +68,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(61, 17), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(62, 17), null),
         new(PlmHeaderId.ScrollTrigger, new(52, 14), null, ScrollProgram: RoomScrollProgram.ParlorState01Scroll9),
-        new(PlmHeaderId.RedDoorFacingLeft, new(30, 54), new DoorBitArgument(0x05, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(30, 54), new DoorBitArgument(5, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The ParlorState2 room PLM population.</summary>
@@ -102,33 +102,33 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(62, 17), null),
         new(PlmHeaderId.ScrollTrigger, new(52, 14), null, ScrollProgram: RoomScrollProgram.ParlorState01Scroll9),
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(5)),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(4, new DoorBitArgument(0x06, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingRight, new(17, 38), new GreyDoorArgument(4, new DoorBitArgument(0x07, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingRight, new(17, 54), new GreyDoorArgument(4, new DoorBitArgument(0x08, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 54), new GreyDoorArgument(4, new DoorBitArgument(0x09, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingUp, new(22, 77), new GreyDoorArgument(4, new DoorBitArgument(0x0A, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(4, new DoorBitArgument(6, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(17, 38), new GreyDoorArgument(4, new DoorBitArgument(7, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(17, 54), new GreyDoorArgument(4, new DoorBitArgument(8, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 54), new GreyDoorArgument(4, new DoorBitArgument(9, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingUp, new(22, 77), new GreyDoorArgument(4, new DoorBitArgument(10, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The CrateriaPowerBombs room PLM population.</summary>
     public static RoomPlmPopulation CrateriaPowerBombs { get; } = RoomPlmPopulation.FromRecords(nameof(CrateriaPowerBombs),
     [
-        new(PlmHeaderId.ExposedPowerBombTank, new(29, 7), new CollectedItemArgument(0x00)),
+        new(PlmHeaderId.ExposedPowerBombTank, new(29, 7), new CollectedItemArgument(0)),
     ]);
 
     /// <summary>The CrateriaSave room PLM population.</summary>
     public static RoomPlmPopulation CrateriaSave { get; } = RoomPlmPopulation.FromRecords(nameof(CrateriaSave),
     [
-        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(0x01)),
+        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(1)),
     ]);
 
     /// <summary>The WestOcean room PLM population.</summary>
     public static RoomPlmPopulation WestOcean { get; } = RoomPlmPopulation.FromRecords(nameof(WestOcean),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(94, 54), new GreyDoorArgument(4, new DoorBitArgument(0x0B, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreenDoorFacingLeft, new(126, 70), new DoorBitArgument(0x0C, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.ExposedMissileTank, new(2, 91), new CollectedItemArgument(0x01)),
-        new(PlmHeaderId.ShotBlockMissileTank, new(28, 3), new CollectedItemArgument(0x02)),
-        new(PlmHeaderId.ExposedMissileTank, new(1, 47), new CollectedItemArgument(0x03)),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(94, 54), new GreyDoorArgument(4, new DoorBitArgument(11, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(126, 70), new DoorBitArgument(12, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedMissileTank, new(2, 91), new CollectedItemArgument(1)),
+        new(PlmHeaderId.ShotBlockMissileTank, new(28, 3), new CollectedItemArgument(2)),
+        new(PlmHeaderId.ExposedMissileTank, new(1, 47), new CollectedItemArgument(3)),
     ]);
 
     /// <summary>The BowlingAlleyPath room PLM population.</summary>
@@ -145,8 +145,8 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(23, 12), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 12), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(25, 12), null),
-        new(PlmHeaderId.YellowDoorFacingLeft, new(46, 6), new DoorBitArgument(0x0D, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.YellowDoorFacingUp, new(22, 45), new DoorBitArgument(0x0E, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.YellowDoorFacingLeft, new(46, 6), new DoorBitArgument(13, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.YellowDoorFacingUp, new(22, 45), new DoorBitArgument(14, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The ForgottenHighwayElev room PLM population.</summary>
@@ -173,7 +173,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ForgottenHighwayElbow room PLM population.</summary>
     public static RoomPlmPopulation ForgottenHighwayElbow { get; } = RoomPlmPopulation.FromRecords(nameof(ForgottenHighwayElbow),
     [
-        new(PlmHeaderId.YellowDoorFacingUp, new(6, 13), new DoorBitArgument(0x0F, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.YellowDoorFacingUp, new(6, 13), new DoorBitArgument(15, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The CrateriaTube room PLM population.</summary>
@@ -184,21 +184,21 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Moat room PLM population.</summary>
     public static RoomPlmPopulation Moat { get; } = RoomPlmPopulation.FromRecords(nameof(Moat),
     [
-        new(PlmHeaderId.ExposedMissileTank, new(14, 9), new CollectedItemArgument(0x04)),
+        new(PlmHeaderId.ExposedMissileTank, new(14, 9), new CollectedItemArgument(4)),
     ]);
 
     /// <summary>The RedBinstarElev room PLM population.</summary>
     public static RoomPlmPopulation RedBinstarElev { get; } = RoomPlmPopulation.FromRecords(nameof(RedBinstarElev),
     [
         new(PlmHeaderId.ScrollTrigger, new(8, 13), null, ScrollProgram: RoomScrollProgram.RedBinstarElevScroll0),
-        new(PlmHeaderId.YellowDoorFacingDown, new(6, 2), new DoorBitArgument(0x10, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.YellowDoorFacingDown, new(6, 2), new DoorBitArgument(16, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The GauntletETank room PLM population.</summary>
     public static RoomPlmPopulation GauntletETank { get; } = RoomPlmPopulation.FromRecords(nameof(GauntletETank),
     [
         new(PlmHeaderId.ScrollTrigger, new(84, 12), null, ScrollProgram: RoomScrollProgram.GauntletETankScroll0),
-        new(PlmHeaderId.ExposedEnergyTank, new(83, 8), new CollectedItemArgument(0x05)),
+        new(PlmHeaderId.ExposedEnergyTank, new(83, 8), new CollectedItemArgument(5)),
     ]);
 
     /// <summary>The PreBowling room PLM population.</summary>
@@ -232,9 +232,9 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 135), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 136), null),
         new(PlmHeaderId.ScrollTrigger, new(8, 137), null, ScrollProgram: RoomScrollProgram.ClimbState01Scroll7),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(4, new DoorBitArgument(0x11, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 134), new GreyDoorArgument(4, new DoorBitArgument(0x12, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.YellowDoorFacingLeft, new(46, 118), new DoorBitArgument(0x13, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(4, new DoorBitArgument(17, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 134), new GreyDoorArgument(4, new DoorBitArgument(18, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.YellowDoorFacingLeft, new(46, 118), new DoorBitArgument(19, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The ClimbState2 room PLM population.</summary>
@@ -264,10 +264,10 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(8, 136), null),
         new(PlmHeaderId.ScrollTrigger, new(8, 137), null, ScrollProgram: RoomScrollProgram.ClimbState01Scroll7),
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(6)),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(4, new DoorBitArgument(0x14, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 118), new GreyDoorArgument(4, new DoorBitArgument(0x15, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 134), new GreyDoorArgument(4, new DoorBitArgument(0x16, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 134), new GreyDoorArgument(4, new DoorBitArgument(0x17, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(4, new DoorBitArgument(20, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 118), new GreyDoorArgument(4, new DoorBitArgument(21, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 134), new GreyDoorArgument(4, new DoorBitArgument(22, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 134), new GreyDoorArgument(4, new DoorBitArgument(23, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The Pit0 room PLM population.</summary>
@@ -276,7 +276,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(4, 15), null, ScrollProgram: RoomScrollProgram.Pit0Scroll0),
         new(PlmHeaderId.ScrollTrigger, new(6, 15), null, ScrollProgram: RoomScrollProgram.Pit0Scroll0),
         new(PlmHeaderId.ScrollTrigger, new(5, 9), null, ScrollProgram: RoomScrollProgram.Pit0Scroll2),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(4, new DoorBitArgument(0x18, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(4, new DoorBitArgument(24, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The Pit1 room PLM population.</summary>
@@ -285,9 +285,9 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(4, 15), null, ScrollProgram: RoomScrollProgram.Pit0Scroll0),
         new(PlmHeaderId.ScrollTrigger, new(6, 15), null, ScrollProgram: RoomScrollProgram.Pit0Scroll0),
         new(PlmHeaderId.ScrollTrigger, new(5, 9), null, ScrollProgram: RoomScrollProgram.Pit0Scroll2),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(3, new DoorBitArgument(0x19, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(0x1A, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.ExposedMissileTank, new(5, 26), new CollectedItemArgument(0x06)),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(3, new DoorBitArgument(25, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(26, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ExposedMissileTank, new(5, 26), new CollectedItemArgument(6)),
     ]);
 
     /// <summary>The ElevToBlueBrinstarState01 room PLM population.</summary>
@@ -299,8 +299,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BombTorizoState01 room PLM population.</summary>
     public static RoomPlmPopulation BombTorizoState01 { get; } = RoomPlmPopulation.FromRecords(nameof(BombTorizoState01),
     [
-        new(PlmHeaderId.BombTorizoGreyDoor, new(1, 6), new GreyDoorArgument(2, new DoorBitArgument(0x1B, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.ChozoBombs, new(12, 10), new CollectedItemArgument(0x07)),
+        new(PlmHeaderId.BombTorizoGreyDoor, new(1, 6), new GreyDoorArgument(2, new DoorBitArgument(27, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ChozoBombs, new(12, 10), new CollectedItemArgument(7)),
         new(PlmHeaderId.BombTorizoHand, new(13, 11), null),
     ]);
 
@@ -308,13 +308,13 @@ internal static class RoomPlmPopulationDefinitions
     public static RoomPlmPopulation BombTorizoState2 { get; } = RoomPlmPopulation.FromRecords(nameof(BombTorizoState2),
     [
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(7)),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(6, new DoorBitArgument(0x1C, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(6, new DoorBitArgument(28, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The FlywayState01 room PLM population.</summary>
     public static RoomPlmPopulation FlywayState01 { get; } = RoomPlmPopulation.FromRecords(nameof(FlywayState01),
     [
-        new(PlmHeaderId.RedDoorFacingLeft, new(46, 6), new DoorBitArgument(0x1D, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(46, 6), new DoorBitArgument(29, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The FlywayState2 room PLM population.</summary>
@@ -331,7 +331,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Terminator room PLM population.</summary>
     public static RoomPlmPopulation Terminator { get; } = RoomPlmPopulation.FromRecords(nameof(Terminator),
     [
-        new(PlmHeaderId.ExposedEnergyTank, new(7, 42), new CollectedItemArgument(0x08)),
+        new(PlmHeaderId.ExposedEnergyTank, new(7, 42), new CollectedItemArgument(8)),
     ]);
 
     /// <summary>The GreenBrinstarElev room PLM population.</summary>
@@ -358,15 +358,15 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 67), null),
         new(PlmHeaderId.ScrollTrigger, new(9, 70), null, ScrollProgram: RoomScrollProgram.GreenPiratesShaftScroll1),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 70), null),
-        new(PlmHeaderId.ExposedMissileTank, new(13, 27), new CollectedItemArgument(0x09)),
-        new(PlmHeaderId.ExposedMissileTank, new(2, 27), new CollectedItemArgument(0x0A)),
-        new(PlmHeaderId.RedDoorFacingLeft, new(14, 102), new DoorBitArgument(0x1E, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedMissileTank, new(13, 27), new CollectedItemArgument(9)),
+        new(PlmHeaderId.ExposedMissileTank, new(2, 27), new CollectedItemArgument(10)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 102), new DoorBitArgument(30, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The CrateriaSuper room PLM population.</summary>
     public static RoomPlmPopulation CrateriaSuper { get; } = RoomPlmPopulation.FromRecords(nameof(CrateriaSuper),
     [
-        new(PlmHeaderId.ExposedSuperMissileTank, new(59, 9), new CollectedItemArgument(0x0B)),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(59, 9), new CollectedItemArgument(11)),
     ]);
 
     /// <summary>The FinalMissileBombwayState0 room PLM population.</summary>
@@ -387,7 +387,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The FinalMissileState1 room PLM population.</summary>
     public static RoomPlmPopulation FinalMissileState1 { get; } = RoomPlmPopulation.FromRecords(nameof(FinalMissileState1),
     [
-        new(PlmHeaderId.ExposedMissileTank, new(4, 7), new CollectedItemArgument(0x0C)),
+        new(PlmHeaderId.ExposedMissileTank, new(4, 7), new CollectedItemArgument(12)),
     ]);
 
     /// <summary>The GreenBrinstarMainShaft room PLM population.</summary>
@@ -398,13 +398,13 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(33, 168), null, ScrollProgram: RoomScrollProgram.GreenBrinstarMainShaftScroll1),
         new(PlmHeaderId.ScrollTrigger, new(13, 172), null, ScrollProgram: RoomScrollProgram.GreenBrinstarMainShaftScroll3),
         new(PlmHeaderId.ElevatorPlatform, new(6, 44), null),
-        new(PlmHeaderId.ChozoPowerBombTank, new(60, 122), new CollectedItemArgument(0x0D)),
-        new(PlmHeaderId.RedDoorFacingRight, new(1, 86), new DoorBitArgument(0x1F, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.RedDoorFacingRight, new(1, 70), new DoorBitArgument(0x20, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.RedDoorFacingLeft, new(14, 70), new DoorBitArgument(0x21, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.RedDoorFacingLeft, new(14, 102), new DoorBitArgument(0x22, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.RedDoorFacingRight, new(1, 102), new DoorBitArgument(0x23, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 118), new GreyDoorArgument(4, new DoorBitArgument(0x24, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.ChozoPowerBombTank, new(60, 122), new CollectedItemArgument(13)),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 86), new DoorBitArgument(31, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 70), new DoorBitArgument(32, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 70), new DoorBitArgument(33, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 102), new DoorBitArgument(34, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 102), new DoorBitArgument(35, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 118), new GreyDoorArgument(4, new DoorBitArgument(36, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The SporeSpawnSuper room PLM population.</summary>
@@ -412,13 +412,13 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.ScrollTrigger, new(23, 11), null, ScrollProgram: RoomScrollProgram.SporeSpawnSuperScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(24, 11), null),
-        new(PlmHeaderId.ChozoSuperMissileTank, new(26, 135), new CollectedItemArgument(0x0E)),
+        new(PlmHeaderId.ChozoSuperMissileTank, new(26, 135), new CollectedItemArgument(14)),
     ]);
 
     /// <summary>The BrinstarPreMap room PLM population.</summary>
     public static RoomPlmPopulation BrinstarPreMap { get; } = RoomPlmPopulation.FromRecords(nameof(BrinstarPreMap),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(3, new DoorBitArgument(0x25, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), new GreyDoorArgument(3, new DoorBitArgument(37, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The EarlySupers room PLM population.</summary>
@@ -429,18 +429,18 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(43, 14), null),
         new(PlmHeaderId.ScrollTrigger, new(4, 19), null, ScrollProgram: RoomScrollProgram.EarlySupersScroll1),
         new(PlmHeaderId.ScrollTrigger, new(4, 15), null, ScrollProgram: RoomScrollProgram.EarlySupersScroll0),
-        new(PlmHeaderId.RedDoorFacingLeft, new(46, 22), new DoorBitArgument(0x26, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.ExposedMissileTank, new(19, 27), new CollectedItemArgument(0x0F)),
-        new(PlmHeaderId.ExposedSuperMissileTank, new(4, 6), new CollectedItemArgument(0x10)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(46, 22), new DoorBitArgument(38, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedMissileTank, new(19, 27), new CollectedItemArgument(15)),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(4, 6), new CollectedItemArgument(16)),
     ]);
 
     /// <summary>The BrinstarReserveTank room PLM population.</summary>
     public static RoomPlmPopulation BrinstarReserveTank { get; } = RoomPlmPopulation.FromRecords(nameof(BrinstarReserveTank),
     [
         new(PlmHeaderId.ScrollTrigger, new(14, 11), null, ScrollProgram: RoomScrollProgram.BrinstarReserveTankScroll0),
-        new(PlmHeaderId.ChozoReserveTank, new(11, 7), new CollectedItemArgument(0x11)),
-        new(PlmHeaderId.ShotBlockMissileTank, new(30, 7), new CollectedItemArgument(0x12)),
-        new(PlmHeaderId.ExposedMissileTank, new(25, 7), new CollectedItemArgument(0x13)),
+        new(PlmHeaderId.ChozoReserveTank, new(11, 7), new CollectedItemArgument(17)),
+        new(PlmHeaderId.ShotBlockMissileTank, new(30, 7), new CollectedItemArgument(18)),
+        new(PlmHeaderId.ExposedMissileTank, new(25, 7), new CollectedItemArgument(19)),
     ]);
 
     /// <summary>The GreenBrinstarMap room PLM population.</summary>
@@ -452,13 +452,13 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The GreenBrinstarFirefleas room PLM population.</summary>
     public static RoomPlmPopulation GreenBrinstarFirefleas { get; } = RoomPlmPopulation.FromRecords(nameof(GreenBrinstarFirefleas),
     [
-        new(PlmHeaderId.GreenDoorFacingRight, new(1, 38), new DoorBitArgument(0x27, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 38), new DoorBitArgument(39, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The GreenBrinstarMissileRefill room PLM population.</summary>
     public static RoomPlmPopulation GreenBrinstarMissileRefill { get; } = RoomPlmPopulation.FromRecords(nameof(GreenBrinstarMissileRefill),
     [
-        new(PlmHeaderId.MissileStation, new(4, 10), new StationArgument(0x14)),
+        new(PlmHeaderId.MissileStation, new(4, 10), new StationArgument(20)),
     ]);
 
     /// <summary>The Dachora room PLM population.</summary>
@@ -498,26 +498,26 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(64, 87), null, ScrollProgram: RoomScrollProgram.BigPinkScroll3),
         new(PlmHeaderId.ScrollTrigger, new(31, 8), null, ScrollProgram: RoomScrollProgram.BigPinkScroll4),
         new(PlmHeaderId.ScrollTrigger, new(33, 8), null, ScrollProgram: RoomScrollProgram.BigPinkScroll5),
-        new(PlmHeaderId.ExposedMissileTank, new(36, 50), new CollectedItemArgument(0x15)),
-        new(PlmHeaderId.ExposedMissileTank, new(34, 103), new CollectedItemArgument(0x16)),
-        new(PlmHeaderId.ChozoChargeBeam, new(37, 118), new CollectedItemArgument(0x17)),
-        new(PlmHeaderId.YellowDoorFacingLeft, new(62, 70), new DoorBitArgument(0x28, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.GreenDoorFacingLeft, new(62, 102), new DoorBitArgument(0x29, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.RedDoorFacingLeft, new(62, 6), new DoorBitArgument(0x2A, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.RedDoorFacingRight, new(1, 150), new DoorBitArgument(0x2B, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedMissileTank, new(36, 50), new CollectedItemArgument(21)),
+        new(PlmHeaderId.ExposedMissileTank, new(34, 103), new CollectedItemArgument(22)),
+        new(PlmHeaderId.ChozoChargeBeam, new(37, 118), new CollectedItemArgument(23)),
+        new(PlmHeaderId.YellowDoorFacingLeft, new(62, 70), new DoorBitArgument(40, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(62, 102), new DoorBitArgument(41, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(62, 6), new DoorBitArgument(42, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 150), new DoorBitArgument(43, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The SporeSpawnKihunters room PLM population.</summary>
     public static RoomPlmPopulation SporeSpawnKihunters { get; } = RoomPlmPopulation.FromRecords(nameof(SporeSpawnKihunters),
     [
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(0x2C, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingDown, new(54, 3), new GreyDoorArgument(3, new DoorBitArgument(0x2D, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(44, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingDown, new(54, 3), new GreyDoorArgument(3, new DoorBitArgument(45, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The SporeSpawnState01 room PLM population.</summary>
     public static RoomPlmPopulation SporeSpawnState01 { get; } = RoomPlmPopulation.FromRecords(nameof(SporeSpawnState01),
     [
-        new(PlmHeaderId.GreenDoorFacingUp, new(6, 46), new DoorBitArgument(0x2E, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingUp, new(6, 46), new DoorBitArgument(46, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The PinkBrinstarPowerBombs room PLM population.</summary>
@@ -525,8 +525,8 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.ScrollTrigger, new(8, 14), null, ScrollProgram: RoomScrollProgram.PinkBrinstarPowerBombsScroll0),
         new(PlmHeaderId.ScrollTrigger, new(8, 11), null, ScrollProgram: RoomScrollProgram.PinkBrinstarPowerBombsScroll1),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(3, new DoorBitArgument(0x2F, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.ExposedPowerBombTank, new(6, 23), new CollectedItemArgument(0x18)),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(3, new DoorBitArgument(47, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ExposedPowerBombTank, new(6, 23), new CollectedItemArgument(24)),
     ]);
 
     /// <summary>The GreenHillZone room PLM population.</summary>
@@ -534,8 +534,8 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.DownwardGate, new(100, 55), null),
         new(PlmHeaderId.DownwardGateShotBlock, new(100, 55), new GateTriggerArgument(0)),
-        new(PlmHeaderId.YellowDoorFacingLeft, new(30, 6), new DoorBitArgument(0x30, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.ExposedMissileTank, new(61, 24), new CollectedItemArgument(0x19)),
+        new(PlmHeaderId.YellowDoorFacingLeft, new(30, 6), new DoorBitArgument(48, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedMissileTank, new(61, 24), new CollectedItemArgument(25)),
     ]);
 
     /// <summary>The MorphBallState0 room PLM population.</summary>
@@ -557,7 +557,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(87, 10), null, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(88, 38), null),
         new(PlmHeaderId.ScrollTrigger, new(87, 38), null, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll4),
-        new(PlmHeaderId.ExposedMorphBall, new(69, 41), new CollectedItemArgument(0x1A)),
+        new(PlmHeaderId.ExposedMorphBall, new(69, 41), new CollectedItemArgument(26)),
     ]);
 
     /// <summary>The MorphBallState1 room PLM population.</summary>
@@ -579,8 +579,8 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(87, 10), null, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll2),
         new(PlmHeaderId.RightwardsScrollExtension, new(88, 38), null),
         new(PlmHeaderId.ScrollTrigger, new(87, 38), null, ScrollProgram: RoomScrollProgram.MorphBallState0Scroll4),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 38), new GreyDoorArgument(3, new DoorBitArgument(0x31, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.ExposedPowerBombTank, new(40, 42), new CollectedItemArgument(0x1B)),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 38), new GreyDoorArgument(3, new DoorBitArgument(49, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ExposedPowerBombTank, new(40, 42), new CollectedItemArgument(27)),
     ]);
 
     /// <summary>The ConstructionZoneState01 room PLM population.</summary>
@@ -594,7 +594,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 11), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 11), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(11, 11), null),
-        new(PlmHeaderId.RedDoorFacingLeft, new(14, 6), new DoorBitArgument(0x32, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 6), new DoorBitArgument(50, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The BlueBrinstarETankState01 room PLM population.</summary>
@@ -602,14 +602,14 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.ScrollTrigger, new(39, 11), null, ScrollProgram: RoomScrollProgram.BlueBrinstarETankState01Scroll0),
         new(PlmHeaderId.ScrollTrigger, new(39, 38), null, ScrollProgram: RoomScrollProgram.BlueBrinstarETankState01Scroll0),
-        new(PlmHeaderId.ExposedMissileTank, new(46, 41), new CollectedItemArgument(0x1C)),
-        new(PlmHeaderId.ShotBlockEnergyTank, new(28, 34), new CollectedItemArgument(0x1D)),
+        new(PlmHeaderId.ExposedMissileTank, new(46, 41), new CollectedItemArgument(28)),
+        new(PlmHeaderId.ShotBlockEnergyTank, new(28, 34), new CollectedItemArgument(29)),
     ]);
 
     /// <summary>The NoobBridge room PLM population.</summary>
     public static RoomPlmPopulation NoobBridge { get; } = RoomPlmPopulation.FromRecords(nameof(NoobBridge),
     [
-        new(PlmHeaderId.GreenDoorFacingLeft, new(94, 6), new DoorBitArgument(0x33, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(94, 6), new DoorBitArgument(51, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The GreenBrinstarBeetoms room PLM population.</summary>
@@ -623,26 +623,26 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(7, 11), null, ScrollProgram: RoomScrollProgram.EtecoonETankScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 11), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 11), null),
-        new(PlmHeaderId.ExposedEnergyTank, new(5, 9), new CollectedItemArgument(0x1E)),
-        new(PlmHeaderId.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(0x34, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedEnergyTank, new(5, 9), new CollectedItemArgument(30)),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(52, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The EtecoonSuper room PLM population.</summary>
     public static RoomPlmPopulation EtecoonSuper { get; } = RoomPlmPopulation.FromRecords(nameof(EtecoonSuper),
     [
-        new(PlmHeaderId.ExposedSuperMissileTank, new(7, 9), new CollectedItemArgument(0x1F)),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(7, 9), new CollectedItemArgument(31)),
     ]);
 
     /// <summary>The DachoraEnergyRefill room PLM population.</summary>
     public static RoomPlmPopulation DachoraEnergyRefill { get; } = RoomPlmPopulation.FromRecords(nameof(DachoraEnergyRefill),
     [
-        new(PlmHeaderId.EnergyStation, new(4, 10), new StationArgument(0x20)),
+        new(PlmHeaderId.EnergyStation, new(4, 10), new StationArgument(32)),
     ]);
 
     /// <summary>The SporeSpawnFarming room PLM population.</summary>
     public static RoomPlmPopulation SporeSpawnFarming { get; } = RoomPlmPopulation.FromRecords(nameof(SporeSpawnFarming),
     [
-        new(PlmHeaderId.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(0x35, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(53, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The WaterwayETank room PLM population.</summary>
@@ -651,13 +651,13 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 9), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 10), null),
         new(PlmHeaderId.ScrollTrigger, new(15, 11), null, ScrollProgram: RoomScrollProgram.WaterwayETankScroll0),
-        new(PlmHeaderId.ExposedEnergyTank, new(4, 9), new CollectedItemArgument(0x21)),
+        new(PlmHeaderId.ExposedEnergyTank, new(4, 9), new CollectedItemArgument(33)),
     ]);
 
     /// <summary>The FirstMissile room PLM population.</summary>
     public static RoomPlmPopulation FirstMissile { get; } = RoomPlmPopulation.FromRecords(nameof(FirstMissile),
     [
-        new(PlmHeaderId.ChozoMissileTank, new(4, 7), new CollectedItemArgument(0x22)),
+        new(PlmHeaderId.ChozoMissileTank, new(4, 7), new CollectedItemArgument(34)),
     ]);
 
     /// <summary>The PinkBrinstarHoppers room PLM population.</summary>
@@ -665,20 +665,20 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.DownwardGate, new(17, 4), null),
         new(PlmHeaderId.DownwardGateShotBlock, new(17, 4), new GateTriggerArgument(1)),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(3, new DoorBitArgument(0x36, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 22), new GreyDoorArgument(3, new DoorBitArgument(0x37, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(3, new DoorBitArgument(54, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 22), new GreyDoorArgument(3, new DoorBitArgument(55, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The HopperETank room PLM population.</summary>
     public static RoomPlmPopulation HopperETank { get; } = RoomPlmPopulation.FromRecords(nameof(HopperETank),
     [
-        new(PlmHeaderId.ExposedEnergyTank, new(11, 9), new CollectedItemArgument(0x23)),
+        new(PlmHeaderId.ExposedEnergyTank, new(11, 9), new CollectedItemArgument(35)),
     ]);
 
     /// <summary>The BigPinkSaveRoom room PLM population.</summary>
     public static RoomPlmPopulation BigPinkSaveRoom { get; } = RoomPlmPopulation.FromRecords(nameof(BigPinkSaveRoom),
     [
-        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(0x00)),
+        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(0)),
     ]);
 
     /// <summary>The BlueBrinstarBoulders room PLM population.</summary>
@@ -689,20 +689,20 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BillyMays room PLM population.</summary>
     public static RoomPlmPopulation BillyMays { get; } = RoomPlmPopulation.FromRecords(nameof(BillyMays),
     [
-        new(PlmHeaderId.ExposedMissileTank, new(7, 9), new CollectedItemArgument(0x24)),
-        new(PlmHeaderId.ShotBlockMissileTank, new(5, 12), new CollectedItemArgument(0x25)),
+        new(PlmHeaderId.ExposedMissileTank, new(7, 9), new CollectedItemArgument(36)),
+        new(PlmHeaderId.ShotBlockMissileTank, new(5, 12), new CollectedItemArgument(37)),
     ]);
 
     /// <summary>The GreenBrinstarSave room PLM population.</summary>
     public static RoomPlmPopulation GreenBrinstarSave { get; } = RoomPlmPopulation.FromRecords(nameof(GreenBrinstarSave),
     [
-        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(0x01)),
+        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(1)),
     ]);
 
     /// <summary>The EtecoonSave room PLM population.</summary>
     public static RoomPlmPopulation EtecoonSave { get; } = RoomPlmPopulation.FromRecords(nameof(EtecoonSave),
     [
-        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(0x02)),
+        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(2)),
     ]);
 
     /// <summary>The RedTower room PLM population.</summary>
@@ -710,20 +710,20 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.ScrollTrigger, new(9, 106), null, ScrollProgram: RoomScrollProgram.RedTowerScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 106), null),
-        new(PlmHeaderId.GreenDoorFacingRight, new(1, 150), new DoorBitArgument(0x38, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.YellowDoorFacingRight, new(1, 102), new DoorBitArgument(0x39, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 150), new DoorBitArgument(56, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.YellowDoorFacingRight, new(1, 102), new DoorBitArgument(57, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The RedBrinstarFirefleas room PLM population.</summary>
     public static RoomPlmPopulation RedBrinstarFirefleas { get; } = RoomPlmPopulation.FromRecords(nameof(RedBrinstarFirefleas),
     [
-        new(PlmHeaderId.RedDoorFacingRight, new(1, 6), new DoorBitArgument(0x3A, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 6), new DoorBitArgument(58, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The XrayScope room PLM population.</summary>
     public static RoomPlmPopulation XrayScope { get; } = RoomPlmPopulation.FromRecords(nameof(XrayScope),
     [
-        new(PlmHeaderId.ChozoXrayScope, new(5, 7), new CollectedItemArgument(0x26)),
+        new(PlmHeaderId.ChozoXrayScope, new(5, 7), new CollectedItemArgument(38)),
     ]);
 
     /// <summary>The Hellway room PLM population.</summary>
@@ -741,9 +741,9 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ElevatorPlatform, new(6, 44), null),
         new(PlmHeaderId.DownwardGate, new(38, 53), null),
         new(PlmHeaderId.DownwardGateShotBlock, new(38, 53), new GateTriggerArgument(5)),
-        new(PlmHeaderId.GreenDoorFacingRight, new(1, 54), new DoorBitArgument(0x3B, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.YellowDoorFacingRight, new(1, 86), new DoorBitArgument(0x3C, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.GreenDoorFacingRight, new(1, 118), new DoorBitArgument(0x3D, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 54), new DoorBitArgument(59, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.YellowDoorFacingRight, new(1, 86), new DoorBitArgument(60, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 118), new DoorBitArgument(61, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The BetaPowerBomb room PLM population.</summary>
@@ -751,8 +751,8 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.ScrollTrigger, new(7, 14), null, ScrollProgram: RoomScrollProgram.BetaPowerBombScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 14), null),
-        new(PlmHeaderId.ExposedPowerBombTank, new(4, 19), new CollectedItemArgument(0x27)),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(3, new DoorBitArgument(0x3E, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ExposedPowerBombTank, new(4, 19), new CollectedItemArgument(39)),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(3, new DoorBitArgument(62, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The AlphaPowerBomb room PLM population.</summary>
@@ -767,8 +767,8 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 10), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(15, 11), null),
         new(PlmHeaderId.ScrollTrigger, new(15, 12), null, ScrollProgram: RoomScrollProgram.AlphaPowerBombScroll0),
-        new(PlmHeaderId.ChozoPowerBombTank, new(20, 9), new CollectedItemArgument(0x28)),
-        new(PlmHeaderId.ExposedMissileTank, new(2, 8), new CollectedItemArgument(0x29)),
+        new(PlmHeaderId.ChozoPowerBombTank, new(20, 9), new CollectedItemArgument(40)),
+        new(PlmHeaderId.ExposedMissileTank, new(2, 8), new CollectedItemArgument(41)),
     ]);
 
     /// <summary>The SkreeBoost room PLM population.</summary>
@@ -791,13 +791,13 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(8, 20), null, ScrollProgram: RoomScrollProgram.BelowSpazerScroll1),
         new(PlmHeaderId.ScrollTrigger, new(2, 17), null, ScrollProgram: RoomScrollProgram.BelowSpazerScroll0),
         new(PlmHeaderId.ScrollTrigger, new(2, 20), null, ScrollProgram: RoomScrollProgram.BelowSpazerScroll1),
-        new(PlmHeaderId.GreenDoorFacingLeft, new(30, 6), new DoorBitArgument(0x3F, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(30, 6), new DoorBitArgument(63, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The Spazer room PLM population.</summary>
     public static RoomPlmPopulation Spazer { get; } = RoomPlmPopulation.FromRecords(nameof(Spazer),
     [
-        new(PlmHeaderId.ChozoSpazerBeam, new(11, 9), new CollectedItemArgument(0x2A)),
+        new(PlmHeaderId.ChozoSpazerBeam, new(11, 9), new CollectedItemArgument(42)),
     ]);
 
     /// <summary>The WarehouseZeela room PLM population.</summary>
@@ -807,14 +807,14 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(2, 25), null, ScrollProgram: RoomScrollProgram.WarehouseZeelaScroll1),
         new(PlmHeaderId.ScrollTrigger, new(7, 25), null, ScrollProgram: RoomScrollProgram.WarehouseZeelaScroll2),
         new(PlmHeaderId.ScrollTrigger, new(21, 25), null, ScrollProgram: RoomScrollProgram.WarehouseZeelaScroll1),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(0x40, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(64, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The WarehouseETank room PLM population.</summary>
     public static RoomPlmPopulation WarehouseETank { get; } = RoomPlmPopulation.FromRecords(nameof(WarehouseETank),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(3, new DoorBitArgument(0x41, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.ShotBlockEnergyTank, new(5, 4), new CollectedItemArgument(0x2B)),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(3, new DoorBitArgument(65, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ShotBlockEnergyTank, new(5, 4), new CollectedItemArgument(43)),
     ]);
 
     /// <summary>The WarehouseKihunter room PLM population.</summary>
@@ -832,14 +832,14 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(11, 11), null, ScrollProgram: RoomScrollProgram.WarehouseKihunterScroll2),
         new(PlmHeaderId.ScrollTrigger, new(39, 12), null, ScrollProgram: RoomScrollProgram.WarehouseKihunterScroll3),
         new(PlmHeaderId.ScrollTrigger, new(46, 12), null, ScrollProgram: RoomScrollProgram.WarehouseKihunterScroll3),
-        new(PlmHeaderId.ShotBlockMissileTank, new(46, 8), new CollectedItemArgument(0x2C)),
+        new(PlmHeaderId.ShotBlockMissileTank, new(46, 8), new CollectedItemArgument(44)),
     ]);
 
     /// <summary>The MiniKraidState01 room PLM population.</summary>
     public static RoomPlmPopulation MiniKraidState01 { get; } = RoomPlmPopulation.FromRecords(nameof(MiniKraidState01),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(94, 6), new GreyDoorArgument(3, new DoorBitArgument(0x42, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(0x43, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(94, 6), new GreyDoorArgument(3, new DoorBitArgument(66, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(67, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The KraidEyeDoor room PLM population.</summary>
@@ -848,17 +848,17 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(3, 18), null, ScrollProgram: RoomScrollProgram.KraidEyeDoorScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(4, 18), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(5, 18), null),
-        new(PlmHeaderId.GreenDoorFacingLeft, new(14, 6), new DoorBitArgument(0x44, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorFacingLeft, new(30, 22), new DoorBitArgument(0x45, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorBottomFacingLeft, new(30, 25), new DoorBitArgument(0x45, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorEyeFacingLeft, new(30, 23), new DoorBitArgument(0x45, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(14, 6), new DoorBitArgument(68, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorFacingLeft, new(30, 22), new DoorBitArgument(69, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorBottomFacingLeft, new(30, 25), new DoorBitArgument(69, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorEyeFacingLeft, new(30, 23), new DoorBitArgument(69, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The KraidState01 room PLM population.</summary>
     public static RoomPlmPopulation KraidState01 { get; } = RoomPlmPopulation.FromRecords(nameof(KraidState01),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 22), new GreyDoorArgument(0, new DoorBitArgument(0x46, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(0x47, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 22), new GreyDoorArgument(0, new DoorBitArgument(70, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(71, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The StatuesHallway room PLM population.</summary>
@@ -869,20 +869,20 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The RedTowerRefill room PLM population.</summary>
     public static RoomPlmPopulation RedTowerRefill { get; } = RoomPlmPopulation.FromRecords(nameof(RedTowerRefill),
     [
-        new(PlmHeaderId.EnergyStation, new(4, 10), new StationArgument(0x2D)),
+        new(PlmHeaderId.EnergyStation, new(4, 10), new StationArgument(45)),
     ]);
 
     /// <summary>The KraidRefill room PLM population.</summary>
     public static RoomPlmPopulation KraidRefill { get; } = RoomPlmPopulation.FromRecords(nameof(KraidRefill),
     [
-        new(PlmHeaderId.MissileStation, new(9, 10), new StationArgument(0x2E)),
-        new(PlmHeaderId.EnergyStation, new(7, 10), new StationArgument(0x2F)),
+        new(PlmHeaderId.MissileStation, new(9, 10), new StationArgument(46)),
+        new(PlmHeaderId.EnergyStation, new(7, 10), new StationArgument(47)),
     ]);
 
     /// <summary>The Statues room PLM population.</summary>
     public static RoomPlmPopulation Statues { get; } = RoomPlmPopulation.FromRecords(nameof(Statues),
     [
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(5, new DoorBitArgument(0x48, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(5, new DoorBitArgument(72, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The WarehouseEntrance room PLM population.</summary>
@@ -911,19 +911,19 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The VariaSuit room PLM population.</summary>
     public static RoomPlmPopulation VariaSuit { get; } = RoomPlmPopulation.FromRecords(nameof(VariaSuit),
     [
-        new(PlmHeaderId.ChozoVariaSuit, new(7, 9), new CollectedItemArgument(0x30)),
+        new(PlmHeaderId.ChozoVariaSuit, new(7, 9), new CollectedItemArgument(48)),
     ]);
 
     /// <summary>The WarehouseSave room PLM population.</summary>
     public static RoomPlmPopulation WarehouseSave { get; } = RoomPlmPopulation.FromRecords(nameof(WarehouseSave),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x03)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(3)),
     ]);
 
     /// <summary>The RedBrinstarSave room PLM population.</summary>
     public static RoomPlmPopulation RedBrinstarSave { get; } = RoomPlmPopulation.FromRecords(nameof(RedBrinstarSave),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x04)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(4)),
     ]);
 
     /// <summary>The IceBeamAcid room PLM population.</summary>
@@ -934,23 +934,23 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Cathedral room PLM population.</summary>
     public static RoomPlmPopulation Cathedral { get; } = RoomPlmPopulation.FromRecords(nameof(Cathedral),
     [
-        new(PlmHeaderId.ShotBlockMissileTank, new(34, 28), new CollectedItemArgument(0x31)),
-        new(PlmHeaderId.GreenDoorFacingLeft, new(46, 22), new DoorBitArgument(0x49, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ShotBlockMissileTank, new(34, 28), new CollectedItemArgument(49)),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(46, 22), new DoorBitArgument(73, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The CathedralEntrance room PLM population.</summary>
     public static RoomPlmPopulation CathedralEntrance { get; } = RoomPlmPopulation.FromRecords(nameof(CathedralEntrance),
     [
-        new(PlmHeaderId.RedDoorFacingLeft, new(46, 6), new DoorBitArgument(0x4A, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(46, 6), new DoorBitArgument(74, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The BusinessCenter room PLM population.</summary>
     public static RoomPlmPopulation BusinessCenter { get; } = RoomPlmPopulation.FromRecords(nameof(BusinessCenter),
     [
         new(PlmHeaderId.ElevatorPlatform, new(6, 44), null),
-        new(PlmHeaderId.GreenDoorFacingRight, new(1, 54), new DoorBitArgument(0x4B, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.YellowDoorFacingRight, new(1, 70), new DoorBitArgument(0x4C, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.RedDoorFacingRight, new(1, 86), new DoorBitArgument(0x4D, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 54), new DoorBitArgument(75, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.YellowDoorFacingRight, new(1, 70), new DoorBitArgument(76, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 86), new DoorBitArgument(77, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The IceBeamGate room PLM population.</summary>
@@ -968,7 +968,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The IceBeam room PLM population.</summary>
     public static RoomPlmPopulation IceBeam { get; } = RoomPlmPopulation.FromRecords(nameof(IceBeam),
     [
-        new(PlmHeaderId.ChozoIceBeam, new(12, 7), new CollectedItemArgument(0x32)),
+        new(PlmHeaderId.ChozoIceBeam, new(12, 7), new CollectedItemArgument(50)),
     ]);
 
     /// <summary>The IceBeamSnake room PLM population.</summary>
@@ -983,7 +983,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The CrumbleShaft room PLM population.</summary>
     public static RoomPlmPopulation CrumbleShaft { get; } = RoomPlmPopulation.FromRecords(nameof(CrumbleShaft),
     [
-        new(PlmHeaderId.ShotBlockMissileTank, new(1, 8), new CollectedItemArgument(0x33)),
+        new(PlmHeaderId.ShotBlockMissileTank, new(1, 8), new CollectedItemArgument(51)),
     ]);
 
     /// <summary>The CrocomireSpeedway room PLM population.</summary>
@@ -1001,20 +1001,20 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(194, 40), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(194, 39), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(194, 38), null),
-        new(PlmHeaderId.GreenDoorFacingUp, new(198, 45), new DoorBitArgument(0x4E, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingUp, new(198, 45), new DoorBitArgument(78, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The CrocomireState01 room PLM population.</summary>
     public static RoomPlmPopulation CrocomireState01 { get; } = RoomPlmPopulation.FromRecords(nameof(CrocomireState01),
     [
-        new(PlmHeaderId.GreyDoorFacingDown, new(54, 2), new GreyDoorArgument(1, new DoorBitArgument(0x4F, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.ExposedEnergyTank, new(125, 6), new CollectedItemArgument(0x34)),
+        new(PlmHeaderId.GreyDoorFacingDown, new(54, 2), new GreyDoorArgument(1, new DoorBitArgument(79, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ExposedEnergyTank, new(125, 6), new CollectedItemArgument(52)),
     ]);
 
     /// <summary>The HiJumpBoots room PLM population.</summary>
     public static RoomPlmPopulation HiJumpBoots { get; } = RoomPlmPopulation.FromRecords(nameof(HiJumpBoots),
     [
-        new(PlmHeaderId.ChozoHiJumpBoots, new(3, 10), new CollectedItemArgument(0x35)),
+        new(PlmHeaderId.ChozoHiJumpBoots, new(3, 10), new CollectedItemArgument(53)),
     ]);
 
     /// <summary>The CrocomireEscape room PLM population.</summary>
@@ -1022,7 +1022,7 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.DownwardGate, new(6, 5), null),
         new(PlmHeaderId.DownwardGateShotBlock, new(6, 5), new GateTriggerArgument(5)),
-        new(PlmHeaderId.ExposedMissileTank, new(13, 9), new CollectedItemArgument(0x36)),
+        new(PlmHeaderId.ExposedMissileTank, new(13, 9), new CollectedItemArgument(54)),
     ]);
 
     /// <summary>The HiJumpETank room PLM population.</summary>
@@ -1032,39 +1032,39 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(15, 5), null, ScrollProgram: RoomScrollProgram.HiJumpETankScroll1),
         new(PlmHeaderId.ScrollTrigger, new(8, 28), null, ScrollProgram: RoomScrollProgram.HiJumpETankScroll2),
         new(PlmHeaderId.ScrollTrigger, new(11, 18), null, ScrollProgram: RoomScrollProgram.HiJumpETankScroll3),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(3, new DoorBitArgument(0x50, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.ExposedMissileTank, new(9, 6), new CollectedItemArgument(0x37)),
-        new(PlmHeaderId.ExposedEnergyTank, new(23, 8), new CollectedItemArgument(0x38)),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(3, new DoorBitArgument(80, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ExposedMissileTank, new(9, 6), new CollectedItemArgument(55)),
+        new(PlmHeaderId.ExposedEnergyTank, new(23, 8), new CollectedItemArgument(56)),
     ]);
 
     /// <summary>The PostCrocFarming room PLM population.</summary>
     public static RoomPlmPopulation PostCrocFarming { get; } = RoomPlmPopulation.FromRecords(nameof(PostCrocFarming),
     [
-        new(PlmHeaderId.RedDoorFacingRight, new(1, 6), new DoorBitArgument(0x51, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 6), new DoorBitArgument(81, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The PostCrocSave room PLM population.</summary>
     public static RoomPlmPopulation PostCrocSave { get; } = RoomPlmPopulation.FromRecords(nameof(PostCrocSave),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x00)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0)),
     ]);
 
     /// <summary>The PostCrocPowerBombs room PLM population.</summary>
     public static RoomPlmPopulation PostCrocPowerBombs { get; } = RoomPlmPopulation.FromRecords(nameof(PostCrocPowerBombs),
     [
-        new(PlmHeaderId.ExposedPowerBombTank, new(7, 8), new CollectedItemArgument(0x39)),
+        new(PlmHeaderId.ExposedPowerBombTank, new(7, 8), new CollectedItemArgument(57)),
     ]);
 
     /// <summary>The PostCrocShaft room PLM population.</summary>
     public static RoomPlmPopulation PostCrocShaft { get; } = RoomPlmPopulation.FromRecords(nameof(PostCrocShaft),
     [
-        new(PlmHeaderId.RedDoorFacingLeft, new(14, 54), new DoorBitArgument(0x52, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 54), new DoorBitArgument(82, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The PostCrocMissile room PLM population.</summary>
     public static RoomPlmPopulation PostCrocMissile { get; } = RoomPlmPopulation.FromRecords(nameof(PostCrocMissile),
     [
-        new(PlmHeaderId.ExposedMissileTank, new(60, 9), new CollectedItemArgument(0x3A)),
+        new(PlmHeaderId.ExposedMissileTank, new(60, 9), new CollectedItemArgument(58)),
     ]);
 
     /// <summary>The GrappleTutorial3 room PLM population.</summary>
@@ -1077,7 +1077,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The PostCrocJump room PLM population.</summary>
     public static RoomPlmPopulation PostCrocJump { get; } = RoomPlmPopulation.FromRecords(nameof(PostCrocJump),
     [
-        new(PlmHeaderId.ExposedMissileTank, new(67, 9), new CollectedItemArgument(0x3B)),
+        new(PlmHeaderId.ExposedMissileTank, new(67, 9), new CollectedItemArgument(59)),
     ]);
 
     /// <summary>The GrappleTutorial2 room PLM population.</summary>
@@ -1093,43 +1093,43 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The GrappleBeam room PLM population.</summary>
     public static RoomPlmPopulation GrappleBeam { get; } = RoomPlmPopulation.FromRecords(nameof(GrappleBeam),
     [
-        new(PlmHeaderId.ChozoGrappleBeam, new(4, 39), new CollectedItemArgument(0x3C)),
+        new(PlmHeaderId.ChozoGrappleBeam, new(4, 39), new CollectedItemArgument(60)),
     ]);
 
     /// <summary>The NorfairReserveTank room PLM population.</summary>
     public static RoomPlmPopulation NorfairReserveTank { get; } = RoomPlmPopulation.FromRecords(nameof(NorfairReserveTank),
     [
-        new(PlmHeaderId.ChozoReserveTank, new(2, 7), new CollectedItemArgument(0x3D)),
-        new(PlmHeaderId.ShotBlockMissileTank, new(7, 11), new CollectedItemArgument(0x3E)),
+        new(PlmHeaderId.ChozoReserveTank, new(2, 7), new CollectedItemArgument(61)),
+        new(PlmHeaderId.ShotBlockMissileTank, new(7, 11), new CollectedItemArgument(62)),
     ]);
 
     /// <summary>The GreenBubblesMissiles room PLM population.</summary>
     public static RoomPlmPopulation GreenBubblesMissiles { get; } = RoomPlmPopulation.FromRecords(nameof(GreenBubblesMissiles),
     [
         new(PlmHeaderId.ScrollTrigger, new(16, 5), null, ScrollProgram: RoomScrollProgram.GreenBubblesMissilesScroll0),
-        new(PlmHeaderId.ExposedMissileTank, new(20, 10), new CollectedItemArgument(0x3F)),
+        new(PlmHeaderId.ExposedMissileTank, new(20, 10), new CollectedItemArgument(63)),
     ]);
 
     /// <summary>The BubbleMountain room PLM population.</summary>
     public static RoomPlmPopulation BubbleMountain { get; } = RoomPlmPopulation.FromRecords(nameof(BubbleMountain),
     [
-        new(PlmHeaderId.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(0x53, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.GreenDoorFacingLeft, new(30, 6), new DoorBitArgument(0x54, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.ExposedMissileTank, new(20, 60), new CollectedItemArgument(0x40)),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 6), new DoorBitArgument(83, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(30, 6), new DoorBitArgument(84, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedMissileTank, new(20, 60), new CollectedItemArgument(64)),
     ]);
 
     /// <summary>The SpeedBoosterHall room PLM population.</summary>
     public static RoomPlmPopulation SpeedBoosterHall { get; } = RoomPlmPopulation.FromRecords(nameof(SpeedBoosterHall),
     [
         new(PlmHeaderId.SpeedBoosterEscape, new(0, 0), null),
-        new(PlmHeaderId.ShotBlockMissileTank, new(188, 19), new CollectedItemArgument(0x41)),
-        new(PlmHeaderId.RedDoorFacingLeft, new(190, 22), new DoorBitArgument(0x55, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ShotBlockMissileTank, new(188, 19), new CollectedItemArgument(65)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(190, 22), new DoorBitArgument(85, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The SpeedBooster room PLM population.</summary>
     public static RoomPlmPopulation SpeedBooster { get; } = RoomPlmPopulation.FromRecords(nameof(SpeedBooster),
     [
-        new(PlmHeaderId.ChozoSpeedBooster, new(11, 6), new CollectedItemArgument(0x42)),
+        new(PlmHeaderId.ChozoSpeedBooster, new(11, 6), new CollectedItemArgument(66)),
     ]);
 
     /// <summary>The SingleChamber room PLM population.</summary>
@@ -1140,7 +1140,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(77, 10), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(77, 11), null),
         new(PlmHeaderId.ScrollTrigger, new(77, 12), null, ScrollProgram: RoomScrollProgram.SingleChamberScroll1),
-        new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), new DoorBitArgument(0x56, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), new DoorBitArgument(86, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The DoubleChamber room PLM population.</summary>
@@ -1148,14 +1148,14 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.DownwardGate, new(26, 5), null),
         new(PlmHeaderId.DownwardGateShotBlock, new(26, 5), new GateTriggerArgument(0)),
-        new(PlmHeaderId.ExposedMissileTank, new(31, 9), new CollectedItemArgument(0x43)),
-        new(PlmHeaderId.RedDoorFacingLeft, new(62, 6), new DoorBitArgument(0x57, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedMissileTank, new(31, 9), new CollectedItemArgument(67)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(62, 6), new DoorBitArgument(87, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The WaveBeam room PLM population.</summary>
     public static RoomPlmPopulation WaveBeam { get; } = RoomPlmPopulation.FromRecords(nameof(WaveBeam),
     [
-        new(PlmHeaderId.ChozoWaveBeam, new(11, 6), new CollectedItemArgument(0x44)),
+        new(PlmHeaderId.ChozoWaveBeam, new(11, 6), new CollectedItemArgument(68)),
     ]);
 
     /// <summary>The SpikyPlatformsTunnel room PLM population.</summary>
@@ -1191,7 +1191,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(8, 24), null, ScrollProgram: RoomScrollProgram.KronicBoostScroll2),
         new(PlmHeaderId.DownwardGate, new(7, 20), null),
         new(PlmHeaderId.DownwardGateShotBlock, new(7, 20), new GateTriggerArgument(0)),
-        new(PlmHeaderId.YellowDoorFacingRight, new(17, 38), new DoorBitArgument(0x58, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.YellowDoorFacingRight, new(17, 38), new DoorBitArgument(88, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The MagdolliteTunnel room PLM population.</summary>
@@ -1246,7 +1246,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The UpperNorfairRefill room PLM population.</summary>
     public static RoomPlmPopulation UpperNorfairRefill { get; } = RoomPlmPopulation.FromRecords(nameof(UpperNorfairRefill),
     [
-        new(PlmHeaderId.EnergyStation, new(7, 10), new StationArgument(0x45)),
+        new(PlmHeaderId.EnergyStation, new(7, 10), new StationArgument(69)),
     ]);
 
     /// <summary>The PurpleFarming room PLM population.</summary>
@@ -1276,7 +1276,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BubbleMountainSave room PLM population.</summary>
     public static RoomPlmPopulation BubbleMountainSave { get; } = RoomPlmPopulation.FromRecords(nameof(BubbleMountainSave),
     [
-        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(0x01)),
+        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(1)),
     ]);
 
     /// <summary>The FrogSpeedway room PLM population.</summary>
@@ -1292,19 +1292,19 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The FrogSave room PLM population.</summary>
     public static RoomPlmPopulation FrogSave { get; } = RoomPlmPopulation.FromRecords(nameof(FrogSave),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x02)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(2)),
     ]);
 
     /// <summary>The CrocomireSave room PLM population.</summary>
     public static RoomPlmPopulation CrocomireSave { get; } = RoomPlmPopulation.FromRecords(nameof(CrocomireSave),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x03)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(3)),
     ]);
 
     /// <summary>The LNElevSave room PLM population.</summary>
     public static RoomPlmPopulation LNElevSave { get; } = RoomPlmPopulation.FromRecords(nameof(LNElevSave),
     [
-        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(0x04)),
+        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(4)),
     ]);
 
     /// <summary>The AcidStatue room PLM population.</summary>
@@ -1337,9 +1337,9 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 12), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 12), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(11, 12), null),
-        new(PlmHeaderId.ExposedMissileTank, new(13, 8), new CollectedItemArgument(0x46)),
-        new(PlmHeaderId.ShotBlockSuperMissileTank, new(21, 8), new CollectedItemArgument(0x47)),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 22), new GreyDoorArgument(2, new DoorBitArgument(0x59, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ExposedMissileTank, new(13, 8), new CollectedItemArgument(70)),
+        new(PlmHeaderId.ShotBlockSuperMissileTank, new(21, 8), new CollectedItemArgument(71)),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 22), new GreyDoorArgument(2, new DoorBitArgument(89, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The FastRipper room PLM population.</summary>
@@ -1352,22 +1352,22 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The GTEnergyRefill room PLM population.</summary>
     public static RoomPlmPopulation GTEnergyRefill { get; } = RoomPlmPopulation.FromRecords(nameof(GTEnergyRefill),
     [
-        new(PlmHeaderId.EnergyStation, new(8, 10), new StationArgument(0x48)),
+        new(PlmHeaderId.EnergyStation, new(8, 10), new StationArgument(72)),
     ]);
 
     /// <summary>The RidleyState01 room PLM population.</summary>
     public static RoomPlmPopulation RidleyState01 { get; } = RoomPlmPopulation.FromRecords(nameof(RidleyState01),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(0, new DoorBitArgument(0x5A, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(0x5B, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(0, new DoorBitArgument(90, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(91, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The LNFarming room PLM population.</summary>
     public static RoomPlmPopulation LNFarming { get; } = RoomPlmPopulation.FromRecords(nameof(LNFarming),
     [
-        new(PlmHeaderId.EyeDoorFacingRight, new(1, 6), new DoorBitArgument(0x5C, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorBottomFacingRight, new(1, 9), new DoorBitArgument(0x5C, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorEyeFacingRight, new(1, 7), new DoorBitArgument(0x5C, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorFacingRight, new(1, 6), new DoorBitArgument(92, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorBottomFacingRight, new(1, 9), new DoorBitArgument(92, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorEyeFacingRight, new(1, 7), new DoorBitArgument(92, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The FastPillarsSetup room PLM population.</summary>
@@ -1401,8 +1401,8 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(61, 52), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(60, 52), null),
         new(PlmHeaderId.ScrollTrigger, new(59, 52), null, ScrollProgram: RoomScrollProgram.MickeyMouseScroll5),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 54), new GreyDoorArgument(3, new DoorBitArgument(0x5D, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.ExposedMissileTank, new(39, 27), new CollectedItemArgument(0x49)),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 54), new GreyDoorArgument(3, new DoorBitArgument(93, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ExposedMissileTank, new(39, 27), new CollectedItemArgument(73)),
     ]);
 
     /// <summary>The Pillar room PLM population.</summary>
@@ -1451,13 +1451,13 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 18), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 18), null),
         new(PlmHeaderId.ScrollTrigger, new(47, 3), null, ScrollProgram: RoomScrollProgram.LNSpringBallMazeScroll2),
-        new(PlmHeaderId.ExposedMissileTank, new(43, 7), new CollectedItemArgument(0x4A)),
+        new(PlmHeaderId.ExposedMissileTank, new(43, 7), new CollectedItemArgument(74)),
     ]);
 
     /// <summary>The LNEscapePowerBombs room PLM population.</summary>
     public static RoomPlmPopulation LNEscapePowerBombs { get; } = RoomPlmPopulation.FromRecords(nameof(LNEscapePowerBombs),
     [
-        new(PlmHeaderId.ExposedPowerBombTank, new(12, 8), new CollectedItemArgument(0x4B)),
+        new(PlmHeaderId.ExposedPowerBombTank, new(12, 8), new CollectedItemArgument(75)),
     ]);
 
     /// <summary>The RedKihunterShaft room PLM population.</summary>
@@ -1477,7 +1477,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(7, 11), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 11), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 11), null),
-        new(PlmHeaderId.YellowDoorFacingUp, new(38, 77), new DoorBitArgument(0x5E, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.YellowDoorFacingUp, new(38, 77), new DoorBitArgument(94, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The Wasteland room PLM population.</summary>
@@ -1505,14 +1505,14 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(9, 7), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(9, 6), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(9, 5), null),
-        new(PlmHeaderId.GreenDoorFacingRight, new(17, 38), new DoorBitArgument(0x5F, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.ExposedPowerBombTank, new(7, 8), new CollectedItemArgument(0x4C)),
+        new(PlmHeaderId.GreenDoorFacingRight, new(17, 38), new DoorBitArgument(95, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedPowerBombTank, new(7, 8), new CollectedItemArgument(76)),
     ]);
 
     /// <summary>The MetalPirates room PLM population.</summary>
     public static RoomPlmPopulation MetalPirates { get; } = RoomPlmPopulation.FromRecords(nameof(MetalPirates),
     [
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(0x60, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(96, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The ThreeMusketeers room PLM population.</summary>
@@ -1526,19 +1526,19 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 37), null),
         new(PlmHeaderId.ScrollTrigger, new(15, 42), null, ScrollProgram: RoomScrollProgram.ThreeMusketeersScroll1),
         new(PlmHeaderId.ScrollTrigger, new(20, 42), null, ScrollProgram: RoomScrollProgram.ThreeMusketeersScroll2),
-        new(PlmHeaderId.ExposedMissileTank, new(8, 41), new CollectedItemArgument(0x4D)),
+        new(PlmHeaderId.ExposedMissileTank, new(8, 41), new CollectedItemArgument(77)),
     ]);
 
     /// <summary>The RidleyETank room PLM population.</summary>
     public static RoomPlmPopulation RidleyETank { get; } = RoomPlmPopulation.FromRecords(nameof(RidleyETank),
     [
-        new(PlmHeaderId.ShotBlockEnergyTank, new(14, 11), new CollectedItemArgument(0x4E)),
+        new(PlmHeaderId.ShotBlockEnergyTank, new(14, 11), new CollectedItemArgument(78)),
     ]);
 
     /// <summary>The ScrewAttack room PLM population.</summary>
     public static RoomPlmPopulation ScrewAttack { get; } = RoomPlmPopulation.FromRecords(nameof(ScrewAttack),
     [
-        new(PlmHeaderId.ChozoScrewAttack, new(11, 40), new CollectedItemArgument(0x4F)),
+        new(PlmHeaderId.ChozoScrewAttack, new(11, 40), new CollectedItemArgument(79)),
     ]);
 
     /// <summary>The LNFireflea room PLM population.</summary>
@@ -1562,13 +1562,13 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(22, 11), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(21, 11), null),
         new(PlmHeaderId.ScrollTrigger, new(20, 11), null, ScrollProgram: RoomScrollProgram.LNFirefleaScroll3),
-        new(PlmHeaderId.ExposedEnergyTank, new(42, 81), new CollectedItemArgument(0x50)),
+        new(PlmHeaderId.ExposedEnergyTank, new(42, 81), new CollectedItemArgument(80)),
     ]);
 
     /// <summary>The LNSave room PLM population.</summary>
     public static RoomPlmPopulation LNSave { get; } = RoomPlmPopulation.FromRecords(nameof(LNSave),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x05)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(5)),
     ]);
 
     /// <summary>The BowlingAlleyState0 room PLM population.</summary>
@@ -1588,8 +1588,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The AtticState0 room PLM population.</summary>
     public static RoomPlmPopulation AtticState0 { get; } = RoomPlmPopulation.FromRecords(nameof(AtticState0),
     [
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(0, new DoorBitArgument(0x80, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(110, 6), new GreyDoorArgument(0, new DoorBitArgument(0x81, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(0, new DoorBitArgument(128, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(110, 6), new GreyDoorArgument(0, new DoorBitArgument(129, DoorOpeningPersistence.Persistent))),
         new(PlmHeaderId.WreckedShipAttic, new(8, 8), null),
     ]);
 
@@ -1606,10 +1606,10 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.ScrollTrigger, new(65, 87), null, ScrollProgram: RoomScrollProgram.WreckedShipMainShaftScroll2),
         new(PlmHeaderId.ScrollTrigger, new(78, 105), null, ScrollProgram: RoomScrollProgram.WreckedShipMainShaftScroll3),
         new(PlmHeaderId.ScrollTrigger, new(71, 109), null, ScrollProgram: RoomScrollProgram.WreckedShipMainShaftScroll4),
-        new(PlmHeaderId.ExposedMissileTank, new(2, 89), new CollectedItemArgument(0x80)),
-        new(PlmHeaderId.GreyDoorFacingRight, new(65, 102), new GreyDoorArgument(0, new DoorBitArgument(0x82, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(78, 70), new GreyDoorArgument(0, new DoorBitArgument(0x83, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreenDoorFacingUp, new(70, 125), new DoorBitArgument(0x84, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedMissileTank, new(2, 89), new CollectedItemArgument(128)),
+        new(PlmHeaderId.GreyDoorFacingRight, new(65, 102), new GreyDoorArgument(0, new DoorBitArgument(130, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(78, 70), new GreyDoorArgument(0, new DoorBitArgument(131, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreenDoorFacingUp, new(70, 125), new DoorBitArgument(132, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The SpikyDeathState0 room PLM population.</summary>
@@ -1634,9 +1634,9 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.ScrollTrigger, new(64, 12), null, ScrollProgram: RoomScrollProgram.BasementState0Scroll0),
         new(PlmHeaderId.ScrollTrigger, new(70, 12), null, ScrollProgram: RoomScrollProgram.BasementState0Scroll1),
-        new(PlmHeaderId.EyeDoorFacingLeft, new(78, 6), new DoorBitArgument(0x85, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorBottomFacingLeft, new(78, 9), new DoorBitArgument(0x85, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorEyeFacingLeft, new(78, 7), new DoorBitArgument(0x85, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorFacingLeft, new(78, 6), new DoorBitArgument(133, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorBottomFacingLeft, new(78, 9), new DoorBitArgument(133, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorEyeFacingLeft, new(78, 7), new DoorBitArgument(133, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The WreckedShipMapState0 room PLM population.</summary>
@@ -1647,7 +1647,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Phantoon room PLM population.</summary>
     public static RoomPlmPopulation Phantoon { get; } = RoomPlmPopulation.FromRecords(nameof(Phantoon),
     [
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(0, new DoorBitArgument(0x86, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(0, new DoorBitArgument(134, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The SpongeBathState0 room PLM population.</summary>
@@ -1674,7 +1674,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WreckedShipSaveState1 room PLM population.</summary>
     public static RoomPlmPopulation WreckedShipSaveState1 { get; } = RoomPlmPopulation.FromRecords(nameof(WreckedShipSaveState1),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x00)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0)),
     ]);
 
     /// <summary>The BowlingAlleyState1 room PLM population.</summary>
@@ -1684,9 +1684,9 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(65, 38), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(65, 39), null),
         new(PlmHeaderId.ScrollTrigger, new(65, 40), null, ScrollProgram: RoomScrollProgram.BowlingAlleyState0Scroll1),
-        new(PlmHeaderId.ChozoReserveTank, new(83, 11), new CollectedItemArgument(0x81)),
-        new(PlmHeaderId.ExposedMissileTank, new(60, 38), new CollectedItemArgument(0x82)),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(4, new DoorBitArgument(0x87, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.ChozoReserveTank, new(83, 11), new CollectedItemArgument(129)),
+        new(PlmHeaderId.ExposedMissileTank, new(60, 38), new CollectedItemArgument(130)),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(4, new DoorBitArgument(135, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The WreckedShipEntranceState1 room PLM population.</summary>
@@ -1697,16 +1697,16 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The AtticState1 room PLM population.</summary>
     public static RoomPlmPopulation AtticState1 { get; } = RoomPlmPopulation.FromRecords(nameof(AtticState1),
     [
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(0x88, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(110, 6), new GreyDoorArgument(3, new DoorBitArgument(0x89, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingUp, new(70, 14), new GreyDoorArgument(3, new DoorBitArgument(0x8A, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(136, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(110, 6), new GreyDoorArgument(3, new DoorBitArgument(137, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingUp, new(70, 14), new GreyDoorArgument(3, new DoorBitArgument(138, DoorOpeningPersistence.Persistent))),
         new(PlmHeaderId.WreckedShipAttic, new(8, 8), null),
     ]);
 
     /// <summary>The AssemblyLineState1 room PLM population.</summary>
     public static RoomPlmPopulation AssemblyLineState1 { get; } = RoomPlmPopulation.FromRecords(nameof(AssemblyLineState1),
     [
-        new(PlmHeaderId.ExposedMissileTank, new(45, 8), new CollectedItemArgument(0x83)),
+        new(PlmHeaderId.ExposedMissileTank, new(45, 8), new CollectedItemArgument(131)),
     ]);
 
     /// <summary>The SpikyDeathState1 room PLM population.</summary>
@@ -1719,13 +1719,13 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.ScrollTrigger, new(7, 16), null, ScrollProgram: RoomScrollProgram.ElectricDeathState0Scroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 16), null),
-        new(PlmHeaderId.RedDoorFacingRight, new(1, 6), new DoorBitArgument(0x8B, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 6), new DoorBitArgument(139, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The WreckedShipETankState1 room PLM population.</summary>
     public static RoomPlmPopulation WreckedShipETankState1 { get; } = RoomPlmPopulation.FromRecords(nameof(WreckedShipETankState1),
     [
-        new(PlmHeaderId.ExposedEnergyTank, new(3, 6), new CollectedItemArgument(0x84)),
+        new(PlmHeaderId.ExposedEnergyTank, new(3, 6), new CollectedItemArgument(132)),
     ]);
 
     /// <summary>The BasementState1 room PLM population.</summary>
@@ -1749,26 +1749,26 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WSWestSuperState1 room PLM population.</summary>
     public static RoomPlmPopulation WSWestSuperState1 { get; } = RoomPlmPopulation.FromRecords(nameof(WSWestSuperState1),
     [
-        new(PlmHeaderId.ExposedSuperMissileTank, new(2, 7), new CollectedItemArgument(0x85)),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(2, 7), new CollectedItemArgument(133)),
     ]);
 
     /// <summary>The WSEastSuperState1 room PLM population.</summary>
     public static RoomPlmPopulation WSEastSuperState1 { get; } = RoomPlmPopulation.FromRecords(nameof(WSEastSuperState1),
     [
         new(PlmHeaderId.ScrollTrigger, new(47, 7), null, ScrollProgram: RoomScrollProgram.WSEastSuperState0Scroll0),
-        new(PlmHeaderId.ExposedSuperMissileTank, new(56, 9), new CollectedItemArgument(0x86)),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(56, 9), new CollectedItemArgument(134)),
     ]);
 
     /// <summary>The GravitySuitState1 room PLM population.</summary>
     public static RoomPlmPopulation GravitySuitState1 { get; } = RoomPlmPopulation.FromRecords(nameof(GravitySuitState1),
     [
-        new(PlmHeaderId.ChozoGravitySuit, new(7, 9), new CollectedItemArgument(0x87)),
+        new(PlmHeaderId.ChozoGravitySuit, new(7, 9), new CollectedItemArgument(135)),
     ]);
 
     /// <summary>The GlassTunnelSave room PLM population.</summary>
     public static RoomPlmPopulation GlassTunnelSave { get; } = RoomPlmPopulation.FromRecords(nameof(GlassTunnelSave),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x00)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0)),
     ]);
 
     /// <summary>The GlassTunnelState01 room PLM population.</summary>
@@ -1789,7 +1789,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 29), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 29), null),
         new(PlmHeaderId.NoobTube, new(2, 21), null),
-        new(PlmHeaderId.RedDoorFacingLeft, new(14, 38), new DoorBitArgument(0x8C, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 38), new DoorBitArgument(140, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The WestTunnel room PLM population.</summary>
@@ -1818,9 +1818,9 @@ internal static class RoomPlmPopulationDefinitions
     public static RoomPlmPopulation MainStreet { get; } = RoomPlmPopulation.FromRecords(nameof(MainStreet),
     [
         new(PlmHeaderId.ScrollTrigger, new(37, 41), null, ScrollProgram: RoomScrollProgram.MainStreetScroll0),
-        new(PlmHeaderId.RedDoorFacingLeft, new(30, 118), new DoorBitArgument(0x8D, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.ExposedMissileTank, new(14, 53), new CollectedItemArgument(0x88)),
-        new(PlmHeaderId.ExposedSuperMissileTank, new(22, 40), new CollectedItemArgument(0x89)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(30, 118), new DoorBitArgument(141, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedMissileTank, new(14, 53), new CollectedItemArgument(136)),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(22, 40), new CollectedItemArgument(137)),
     ]);
 
     /// <summary>The FishTank room PLM population.</summary>
@@ -1834,14 +1834,14 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(48, 39), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(48, 40), null),
         new(PlmHeaderId.ScrollTrigger, new(48, 41), null, ScrollProgram: RoomScrollProgram.FishTankScroll0),
-        new(PlmHeaderId.RedDoorFacingLeft, new(62, 38), new DoorBitArgument(0x8E, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(62, 38), new DoorBitArgument(142, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The MamaTurtle room PLM population.</summary>
     public static RoomPlmPopulation MamaTurtle { get; } = RoomPlmPopulation.FromRecords(nameof(MamaTurtle),
     [
-        new(PlmHeaderId.ExposedEnergyTank, new(31, 10), new CollectedItemArgument(0x8A)),
-        new(PlmHeaderId.ShotBlockMissileTank, new(44, 29), new CollectedItemArgument(0x8B)),
+        new(PlmHeaderId.ExposedEnergyTank, new(31, 10), new CollectedItemArgument(138)),
+        new(PlmHeaderId.ShotBlockMissileTank, new(44, 29), new CollectedItemArgument(139)),
     ]);
 
     /// <summary>The CrabTunnel room PLM population.</summary>
@@ -1867,8 +1867,8 @@ internal static class RoomPlmPopulationDefinitions
     public static RoomPlmPopulation WateringHole { get; } = RoomPlmPopulation.FromRecords(nameof(WateringHole),
     [
         new(PlmHeaderId.ScrollTrigger, new(7, 31), null, ScrollProgram: RoomScrollProgram.WateringHoleScroll0),
-        new(PlmHeaderId.ExposedSuperMissileTank, new(4, 38), new CollectedItemArgument(0x8C)),
-        new(PlmHeaderId.ExposedMissileTank, new(11, 39), new CollectedItemArgument(0x8D)),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(4, 38), new CollectedItemArgument(140)),
+        new(PlmHeaderId.ExposedMissileTank, new(11, 39), new CollectedItemArgument(141)),
     ]);
 
     /// <summary>The NWestMaridiaBug room PLM population.</summary>
@@ -1889,7 +1889,7 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.ScrollTrigger, new(7, 45), null, ScrollProgram: RoomScrollProgram.CrabShaftScroll0),
         new(PlmHeaderId.RightwardsScrollExtension, new(8, 45), null),
-        new(PlmHeaderId.GreenDoorFacingLeft, new(30, 54), new DoorBitArgument(0x8F, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(30, 54), new DoorBitArgument(143, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The PseudoPlasmaSpark room PLM population.</summary>
@@ -1903,7 +1903,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(29, 39), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(29, 40), null),
         new(PlmHeaderId.ScrollTrigger, new(29, 41), null, ScrollProgram: RoomScrollProgram.PseudoPlasmaSparkScroll1),
-        new(PlmHeaderId.ExposedMissileTank, new(44, 40), new CollectedItemArgument(0x8E)),
+        new(PlmHeaderId.ExposedMissileTank, new(44, 40), new CollectedItemArgument(142)),
     ]);
 
     /// <summary>The CrabHole room PLM population.</summary>
@@ -1911,7 +1911,7 @@ internal static class RoomPlmPopulationDefinitions
     [
         new(PlmHeaderId.ScrollTrigger, new(8, 14), null, ScrollProgram: RoomScrollProgram.CrabHoleScroll0),
         new(PlmHeaderId.ScrollTrigger, new(8, 17), null, ScrollProgram: RoomScrollProgram.CrabHoleScroll0),
-        new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), new DoorBitArgument(0x90, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), new DoorBitArgument(144, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The WestSandHallTunnel room PLM population.</summary>
@@ -1927,8 +1927,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Plasma room PLM population.</summary>
     public static RoomPlmPopulation Plasma { get; } = RoomPlmPopulation.FromRecords(nameof(Plasma),
     [
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(0x91, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.ChozoPlasmaBeam, new(25, 38), new CollectedItemArgument(0x8F)),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(145, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.ChozoPlasmaBeam, new(25, 38), new CollectedItemArgument(143)),
     ]);
 
     /// <summary>The ThreadTheNeedle room PLM population.</summary>
@@ -1940,14 +1940,14 @@ internal static class RoomPlmPopulationDefinitions
     public static RoomPlmPopulation MaridiaElev { get; } = RoomPlmPopulation.FromRecords(nameof(MaridiaElev),
     [
         new(PlmHeaderId.ElevatorPlatform, new(6, 44), null),
-        new(PlmHeaderId.RedDoorFacingLeft, new(14, 70), new DoorBitArgument(0x92, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 70), new DoorBitArgument(146, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The PlasmaSpark room PLM population.</summary>
     public static RoomPlmPopulation PlasmaSpark { get; } = RoomPlmPopulation.FromRecords(nameof(PlasmaSpark),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 22), new GreyDoorArgument(0, new DoorBitArgument(0x93, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreenDoorFacingUp, new(6, 45), new DoorBitArgument(0x94, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 22), new GreyDoorArgument(0, new DoorBitArgument(147, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreenDoorFacingUp, new(6, 45), new DoorBitArgument(148, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The Kassiuz room PLM population.</summary>
@@ -1964,7 +1964,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ForgottenHighwaySave room PLM population.</summary>
     public static RoomPlmPopulation ForgottenHighwaySave { get; } = RoomPlmPopulation.FromRecords(nameof(ForgottenHighwaySave),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x01)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(1)),
     ]);
 
     /// <summary>The Toilet room PLM population.</summary>
@@ -1995,7 +1995,7 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 20), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(11, 20), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(12, 20), null),
-        new(PlmHeaderId.GreenDoorFacingDown, new(6, 2), new DoorBitArgument(0x95, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingDown, new(6, 2), new DoorBitArgument(149, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The EastSandHall room PLM population.</summary>
@@ -2006,15 +2006,15 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WestSandHole room PLM population.</summary>
     public static RoomPlmPopulation WestSandHole { get; } = RoomPlmPopulation.FromRecords(nameof(WestSandHole),
     [
-        new(PlmHeaderId.ExposedMissileTank, new(6, 4), new CollectedItemArgument(0x90)),
-        new(PlmHeaderId.ChozoReserveTank, new(15, 4), new CollectedItemArgument(0x91)),
+        new(PlmHeaderId.ExposedMissileTank, new(6, 4), new CollectedItemArgument(144)),
+        new(PlmHeaderId.ChozoReserveTank, new(15, 4), new CollectedItemArgument(145)),
     ]);
 
     /// <summary>The EastSandHole room PLM population.</summary>
     public static RoomPlmPopulation EastSandHole { get; } = RoomPlmPopulation.FromRecords(nameof(EastSandHole),
     [
-        new(PlmHeaderId.ExposedMissileTank, new(3, 7), new CollectedItemArgument(0x92)),
-        new(PlmHeaderId.ExposedPowerBombTank, new(25, 16), new CollectedItemArgument(0x93)),
+        new(PlmHeaderId.ExposedMissileTank, new(3, 7), new CollectedItemArgument(146)),
+        new(PlmHeaderId.ExposedPowerBombTank, new(25, 16), new CollectedItemArgument(147)),
     ]);
 
     /// <summary>The WestAqueductQuicksand room PLM population.</summary>
@@ -2030,15 +2030,15 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Aqueduct room PLM population.</summary>
     public static RoomPlmPopulation Aqueduct { get; } = RoomPlmPopulation.FromRecords(nameof(Aqueduct),
     [
-        new(PlmHeaderId.RedDoorFacingRight, new(1, 38), new DoorBitArgument(0x96, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.ExposedMissileTank, new(76, 9), new CollectedItemArgument(0x94)),
-        new(PlmHeaderId.ExposedSuperMissileTank, new(92, 8), new CollectedItemArgument(0x95)),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 38), new DoorBitArgument(150, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ExposedMissileTank, new(76, 9), new CollectedItemArgument(148)),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(92, 8), new CollectedItemArgument(149)),
     ]);
 
     /// <summary>The Butterfly room PLM population.</summary>
     public static RoomPlmPopulation Butterfly { get; } = RoomPlmPopulation.FromRecords(nameof(Butterfly),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(0, new DoorBitArgument(0x97, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 6), new GreyDoorArgument(0, new DoorBitArgument(151, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The BotwoonHallway room PLM population.</summary>
@@ -2092,7 +2092,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Springball room PLM population.</summary>
     public static RoomPlmPopulation Springball { get; } = RoomPlmPopulation.FromRecords(nameof(Springball),
     [
-        new(PlmHeaderId.ChozoSpringBall, new(24, 22), new CollectedItemArgument(0x96)),
+        new(PlmHeaderId.ChozoSpringBall, new(24, 22), new CollectedItemArgument(150)),
     ]);
 
     /// <summary>The BelowBotwoonETank room PLM population.</summary>
@@ -2103,15 +2103,15 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Colosseum room PLM population.</summary>
     public static RoomPlmPopulation Colosseum { get; } = RoomPlmPopulation.FromRecords(nameof(Colosseum),
     [
-        new(PlmHeaderId.RedDoorFacingLeft, new(110, 6), new DoorBitArgument(0x98, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.GreenDoorFacingLeft, new(78, 38), new DoorBitArgument(0x99, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.GreenDoorFacingLeft, new(110, 22), new DoorBitArgument(0x9A, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(110, 6), new DoorBitArgument(152, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(78, 38), new DoorBitArgument(153, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(110, 22), new DoorBitArgument(154, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The AqueductSave room PLM population.</summary>
     public static RoomPlmPopulation AqueductSave { get; } = RoomPlmPopulation.FromRecords(nameof(AqueductSave),
     [
-        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(0x02)),
+        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(2)),
     ]);
 
     /// <summary>The ThePreciousState01 room PLM population.</summary>
@@ -2125,28 +2125,28 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.RightwardsScrollExtension, new(9, 14), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(10, 14), null),
         new(PlmHeaderId.RightwardsScrollExtension, new(11, 14), null),
-        new(PlmHeaderId.EyeDoorFacingRight, new(1, 38), new DoorBitArgument(0x9B, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorBottomFacingRight, new(1, 41), new DoorBitArgument(0x9B, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorEyeFacingRight, new(1, 39), new DoorBitArgument(0x9B, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.ShotBlockMissileTank, new(28, 6), new CollectedItemArgument(0x97)),
+        new(PlmHeaderId.EyeDoorFacingRight, new(1, 38), new DoorBitArgument(155, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorBottomFacingRight, new(1, 41), new DoorBitArgument(155, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorEyeFacingRight, new(1, 39), new DoorBitArgument(155, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.ShotBlockMissileTank, new(28, 6), new CollectedItemArgument(151)),
     ]);
 
     /// <summary>The BotwoonETank room PLM population.</summary>
     public static RoomPlmPopulation BotwoonETank { get; } = RoomPlmPopulation.FromRecords(nameof(BotwoonETank),
     [
-        new(PlmHeaderId.ExposedEnergyTank, new(50, 5), new CollectedItemArgument(0x98)),
+        new(PlmHeaderId.ExposedEnergyTank, new(50, 5), new CollectedItemArgument(152)),
     ]);
 
     /// <summary>The DraygonSave room PLM population.</summary>
     public static RoomPlmPopulation DraygonSave { get; } = RoomPlmPopulation.FromRecords(nameof(DraygonSave),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x03)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(3)),
     ]);
 
     /// <summary>The MaridiaMissileRefill room PLM population.</summary>
     public static RoomPlmPopulation MaridiaMissileRefill { get; } = RoomPlmPopulation.FromRecords(nameof(MaridiaMissileRefill),
     [
-        new(PlmHeaderId.MissileStation, new(8, 10), new StationArgument(0x99)),
+        new(PlmHeaderId.MissileStation, new(8, 10), new StationArgument(153)),
     ]);
 
     /// <summary>The PlasmaBeachQuicksand room PLM population.</summary>
@@ -2173,25 +2173,25 @@ internal static class RoomPlmPopulationDefinitions
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 39), null),
         new(PlmHeaderId.UpwardsScrollExtension, new(11, 38), null),
         new(PlmHeaderId.ScrollTrigger, new(14, 41), null, ScrollProgram: RoomScrollProgram.HalfieClimbScroll2),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(0x9C, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(156, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The BotwoonState01 room PLM population.</summary>
     public static RoomPlmPopulation BotwoonState01 { get; } = RoomPlmPopulation.FromRecords(nameof(BotwoonState01),
     [
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(1, new DoorBitArgument(0x9D, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(1, new DoorBitArgument(157, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The SpaceJump room PLM population.</summary>
     public static RoomPlmPopulation SpaceJump { get; } = RoomPlmPopulation.FromRecords(nameof(SpaceJump),
     [
-        new(PlmHeaderId.ChozoSpaceJump, new(4, 8), new CollectedItemArgument(0x9A)),
+        new(PlmHeaderId.ChozoSpaceJump, new(4, 8), new CollectedItemArgument(154)),
     ]);
 
     /// <summary>The MaridiaEnergyRefill room PLM population.</summary>
     public static RoomPlmPopulation MaridiaEnergyRefill { get; } = RoomPlmPopulation.FromRecords(nameof(MaridiaEnergyRefill),
     [
-        new(PlmHeaderId.EnergyStation, new(8, 10), new StationArgument(0x9B)),
+        new(PlmHeaderId.EnergyStation, new(8, 10), new StationArgument(155)),
     ]);
 
     /// <summary>The WestCactusAlley room PLM population.</summary>
@@ -2207,8 +2207,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The DraygonState01 room PLM population.</summary>
     public static RoomPlmPopulation DraygonState01 { get; } = RoomPlmPopulation.FromRecords(nameof(DraygonState01),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(0, new DoorBitArgument(0x9E, DoorOpeningPersistence.Persistent))),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(0x9F, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(0, new DoorBitArgument(158, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(0, new DoorBitArgument(159, DoorOpeningPersistence.Persistent))),
         new(PlmHeaderId.DraygonCannonFacingRightDestroyed, new(2, 11), null, DraygonWallCannon.UpperLeft),
         new(PlmHeaderId.DraygonCannonFacingRight, new(2, 18), null, DraygonWallCannon.LowerLeft),
         new(PlmHeaderId.DraygonCannonFacingLeft, new(29, 15), null, DraygonWallCannon.UpperRight),
@@ -2225,28 +2225,28 @@ internal static class RoomPlmPopulationDefinitions
     public static RoomPlmPopulation Metroids1State01 { get; } = RoomPlmPopulation.FromRecords(nameof(Metroids1State01),
     [
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(9)),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(0xA0, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(160, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Metroids2State01 room PLM population.</summary>
     public static RoomPlmPopulation Metroids2State01 { get; } = RoomPlmPopulation.FromRecords(nameof(Metroids2State01),
     [
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(10)),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 22), new GreyDoorArgument(3, new DoorBitArgument(0xA1, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 22), new GreyDoorArgument(3, new DoorBitArgument(161, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Metroids3State01 room PLM population.</summary>
     public static RoomPlmPopulation Metroids3State01 { get; } = RoomPlmPopulation.FromRecords(nameof(Metroids3State01),
     [
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(11)),
-        new(PlmHeaderId.GreyDoorFacingLeft, new(94, 6), new GreyDoorArgument(3, new DoorBitArgument(0xA2, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(94, 6), new GreyDoorArgument(3, new DoorBitArgument(162, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The Metroids4State01 room PLM population.</summary>
     public static RoomPlmPopulation Metroids4State01 { get; } = RoomPlmPopulation.FromRecords(nameof(Metroids4State01),
     [
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(12)),
-        new(PlmHeaderId.GreyDoorFacingUp, new(6, 30), new GreyDoorArgument(3, new DoorBitArgument(0xA3, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingUp, new(6, 30), new GreyDoorArgument(3, new DoorBitArgument(163, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The BlueHopperState01 room PLM population.</summary>
@@ -2257,27 +2257,27 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The DustTorizoState01 room PLM population.</summary>
     public static RoomPlmPopulation DustTorizoState01 { get; } = RoomPlmPopulation.FromRecords(nameof(DustTorizoState01),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(4, new DoorBitArgument(0xA4, DoorOpeningPersistence.Transient))),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(0xA5, DoorOpeningPersistence.Persistent))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), new GreyDoorArgument(4, new DoorBitArgument(164, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), new GreyDoorArgument(3, new DoorBitArgument(165, DoorOpeningPersistence.Persistent))),
     ]);
 
     /// <summary>The BigBoyState01 room PLM population.</summary>
     public static RoomPlmPopulation BigBoyState01 { get; } = RoomPlmPopulation.FromRecords(nameof(BigBoyState01),
     [
-        new(PlmHeaderId.GreyDoorFacingLeft, new(62, 6), new GreyDoorArgument(4, new DoorBitArgument(0xA6, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(62, 6), new GreyDoorArgument(4, new DoorBitArgument(166, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The Seaweed room PLM population.</summary>
     public static RoomPlmPopulation Seaweed { get; } = RoomPlmPopulation.FromRecords(nameof(Seaweed),
     [
-        new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), new DoorBitArgument(0xA7, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), new DoorBitArgument(167, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The TourianRecharge room PLM population.</summary>
     public static RoomPlmPopulation TourianRecharge { get; } = RoomPlmPopulation.FromRecords(nameof(TourianRecharge),
     [
-        new(PlmHeaderId.MissileStation, new(8, 10), new StationArgument(0x9C)),
-        new(PlmHeaderId.EnergyStation, new(6, 10), new StationArgument(0x9D)),
+        new(PlmHeaderId.MissileStation, new(8, 10), new StationArgument(156)),
+        new(PlmHeaderId.EnergyStation, new(6, 10), new StationArgument(157)),
     ]);
 
     /// <summary>The MotherBrainState012 room PLM population.</summary>
@@ -2289,21 +2289,21 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The TourianEyeDoor room PLM population.</summary>
     public static RoomPlmPopulation TourianEyeDoor { get; } = RoomPlmPopulation.FromRecords(nameof(TourianEyeDoor),
     [
-        new(PlmHeaderId.EyeDoorFacingLeft, new(62, 6), new DoorBitArgument(0xA8, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorBottomFacingLeft, new(62, 9), new DoorBitArgument(0xA8, DoorOpeningPersistence.Persistent)),
-        new(PlmHeaderId.EyeDoorEyeFacingLeft, new(62, 7), new DoorBitArgument(0xA8, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorFacingLeft, new(62, 6), new DoorBitArgument(168, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorBottomFacingLeft, new(62, 9), new DoorBitArgument(168, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.EyeDoorEyeFacingLeft, new(62, 7), new DoorBitArgument(168, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The RinkaShaft room PLM population.</summary>
     public static RoomPlmPopulation RinkaShaft { get; } = RoomPlmPopulation.FromRecords(nameof(RinkaShaft),
     [
-        new(PlmHeaderId.RedDoorFacingRight, new(1, 38), new DoorBitArgument(0xA9, DoorOpeningPersistence.Persistent)),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 38), new DoorBitArgument(169, DoorOpeningPersistence.Persistent)),
     ]);
 
     /// <summary>The MotherBrainSave room PLM population.</summary>
     public static RoomPlmPopulation MotherBrainSave { get; } = RoomPlmPopulation.FromRecords(nameof(MotherBrainSave),
     [
-        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(0x00)),
+        new(PlmHeaderId.SaveStation, new(5, 11), new StationArgument(0)),
     ]);
 
     /// <summary>The TourianEscape1 room PLM population.</summary>
@@ -2317,27 +2317,27 @@ internal static class RoomPlmPopulationDefinitions
     public static RoomPlmPopulation TourianEscape2 { get; } = RoomPlmPopulation.FromRecords(nameof(TourianEscape2),
     [
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(1)),
-        new(PlmHeaderId.GreyDoorFacingDown, new(6, 3), new GreyDoorArgument(4, new DoorBitArgument(0xAA, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingDown, new(6, 3), new GreyDoorArgument(4, new DoorBitArgument(170, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The TourianEscape3 room PLM population.</summary>
     public static RoomPlmPopulation TourianEscape3 { get; } = RoomPlmPopulation.FromRecords(nameof(TourianEscape3),
     [
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(2)),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(4, new DoorBitArgument(0xAB, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), new GreyDoorArgument(4, new DoorBitArgument(171, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The TourianEscape4 room PLM population.</summary>
     public static RoomPlmPopulation TourianEscape4 { get; } = RoomPlmPopulation.FromRecords(nameof(TourianEscape4),
     [
         new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), new MetroidRoomArgument(3)),
-        new(PlmHeaderId.GreyDoorFacingRight, new(1, 54), new GreyDoorArgument(4, new DoorBitArgument(0xAC, DoorOpeningPersistence.Transient))),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 54), new GreyDoorArgument(4, new DoorBitArgument(172, DoorOpeningPersistence.Transient))),
     ]);
 
     /// <summary>The UpperTourianSave room PLM population.</summary>
     public static RoomPlmPopulation UpperTourianSave { get; } = RoomPlmPopulation.FromRecords(nameof(UpperTourianSave),
     [
-        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(0x01)),
+        new(PlmHeaderId.SaveStation, new(7, 11), new StationArgument(1)),
     ]);
 
     /// <summary>The CeresElevState01 room PLM population.</summary>

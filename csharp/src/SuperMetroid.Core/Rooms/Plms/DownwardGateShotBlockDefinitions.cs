@@ -14,13 +14,13 @@ internal static class DownwardGateShotBlockDefinitions
     /// </summary>
     internal static IReadOnlyList<DownwardGateShotBlockDefinition> Triggers { get; } =
     [
-        new(DownwardGateProgram.TriggerBlueLeft, RoomTerrainBlock.Of(0x46, BlockMirroring.None, RoomCollisionType.ShootableBlock), null),
-        new(DownwardGateProgram.TriggerBlueRight, null, RoomTerrainBlock.Of(0x47, BlockMirroring.None, RoomCollisionType.ShootableBlock)),
-        new(DownwardGateProgram.TriggerRedLeft, RoomTerrainBlock.Of(0x48, BlockMirroring.None, RoomCollisionType.ShootableBlock), null),
-        new(DownwardGateProgram.TriggerRedRight, null, RoomTerrainBlock.Of(0x49, BlockMirroring.None, RoomCollisionType.ShootableBlock)),
-        new(DownwardGateProgram.TriggerGreenLeft, RoomTerrainBlock.Of(0x4a, BlockMirroring.None, RoomCollisionType.ShootableBlock), null),
-        new(DownwardGateProgram.TriggerGreenRight, null, RoomTerrainBlock.Of(0x4b, BlockMirroring.None, RoomCollisionType.ShootableBlock)),
-        new(DownwardGateProgram.TriggerYellowLeft, RoomTerrainBlock.Of(0x4c, BlockMirroring.None, RoomCollisionType.ShootableBlock), null),
-        new(DownwardGateProgram.TriggerYellowRight, null, RoomTerrainBlock.Of(0x4d, BlockMirroring.None, RoomCollisionType.ShootableBlock)),
+        new(DownwardGateProgram.TriggerBlueLeft, RoomTerrainBlock.Of(70, BlockMirroring.None, RoomCollisionType.ShootableBlock), null),
+        new(DownwardGateProgram.TriggerBlueRight, null, RoomTerrainBlock.Of(71, BlockMirroring.None, RoomCollisionType.ShootableBlock)),
+        new(DownwardGateProgram.TriggerRedLeft, RoomTerrainBlock.Of(72, BlockMirroring.None, RoomCollisionType.ShootableBlock), null),
+        new(DownwardGateProgram.TriggerRedRight, null, RoomTerrainBlock.Of(73, BlockMirroring.None, RoomCollisionType.ShootableBlock)),
+        new(DownwardGateProgram.TriggerGreenLeft, RoomTerrainBlock.Of(74, BlockMirroring.None, RoomCollisionType.ShootableBlock), null),
+        new(DownwardGateProgram.TriggerGreenRight, null, RoomTerrainBlock.Of(75, BlockMirroring.None, RoomCollisionType.ShootableBlock)),
+        new(DownwardGateProgram.TriggerYellowLeft, RoomTerrainBlock.Of(76, BlockMirroring.None, RoomCollisionType.ShootableBlock), null),
+        new(DownwardGateProgram.TriggerYellowRight, null, RoomTerrainBlock.Of(77, BlockMirroring.None, RoomCollisionType.ShootableBlock)),
     ];
 }

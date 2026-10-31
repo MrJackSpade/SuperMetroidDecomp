@@ -8,15 +8,15 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class RoomPlmCollectibleDrawDefinitions
 {
     /// <summary>The visual block of an orb's first frame; an orb is shootable.</summary>
-    internal const int OrbFirstBlock = 0x072;
+    internal const int OrbFirstBlock = 114;
     /// <summary>The visual block of an orb's burst; the burst is solid.</summary>
-    internal const int OrbBurstBlock = 0x075;
+    internal const int OrbBurstBlock = 117;
     /// <summary>The visual block of a tank's first frame; a tank is a special block.</summary>
-    internal const int TankFirstBlock = 0x04a;
+    internal const int TankFirstBlock = 74;
     /// <summary>The visual block of a dynamic collectible's first frame; it is a special block.</summary>
-    internal const int DynamicFirstBlock = 0x08e;
+    internal const int DynamicFirstBlock = 142;
     /// <summary>The visual block of a shot reveal's first frame; the reveal is solid.</summary>
-    internal const int ShotRevealFirstBlock = 0x053;
+    internal const int ShotRevealFirstBlock = 83;
 
     /// <summary>The six collectible draw groups, in the order their frames are published.</summary>
     internal enum DrawGroup

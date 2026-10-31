@@ -18,7 +18,7 @@ internal static class MaridiaElevatubePlmDefinitions
     internal static PlmFrameDraw<Draw> BlockDraw { get; } = PlmDraw.Of(Draw.Block);
 
     /// <summary>The elevatube's block: a solid block showing block $180, the block Kraid's crumble draw also shows.</summary>
-    internal static RoomTerrainBlock Terrain { get; } = RoomTerrainBlock.Of(0x180, BlockMirroring.None, RoomCollisionType.SolidBlock);
+    internal static RoomTerrainBlock Terrain { get; } = RoomTerrainBlock.Of(384, BlockMirroring.None, RoomCollisionType.SolidBlock);
 
     /// <summary>Temporary artwork description for export; gameplay draws the single block directly.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList BlockDrawList =>

@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// Independently tested meanings in walking Pirate population parameter one. No other bits
-/// are named. The values are arbitrary bits; <see cref="SpacePirateParameters.Walking"/> decodes them from the parameter.
+/// Independently tested options of a walking Pirate, which its population entry names. The values are arbitrary bits.
 /// </summary>
 [Flags]
 public enum WalkingSpacePirateParameterFlags

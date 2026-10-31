@@ -47,7 +47,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Waver</c> at <c>$A3:86ED</c>.</summary>
     internal static void InitializeWaver(RoomEnemySlot slot)
     {
-        bool facingRight = (slot.Spawn.Population.Parameter1 & 1) != 0;
+        bool facingRight = slot.SpawnSettings<WaverSpawnSettings>().Facing == HorizontalDirection.Right;
         int signedSpeed = facingRight
             ? WaverHorizontalSpeedFixed
             : -WaverHorizontalSpeedFixed;

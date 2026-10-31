@@ -86,7 +86,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeEtecoon(RoomEnemySlot slot)
     {
         var state = new EtecoonEnemyState();
-        state.InstallSpawnParameters(slot.Spawn.Population);
+        state.InstallSpawnSettings(slot.SpawnSettings<EtecoonSpawnSettings>());
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Native ORs property $2000 (`DisableSamusColl`). The host scheduler also uses the

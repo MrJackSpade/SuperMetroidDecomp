@@ -22,7 +22,7 @@ internal static class MotherBrainFallingTubes
         Position16<RoomPixels> position = new(checked((ushort)x), checked((ushort)(BottomBaseline - compositionBottom)));
         EnemyProperties properties = EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions;
         if (main) properties |= EnemyProperties.ProcessOffScreen;
-        return new(EnemyDefinitionId.MotherBrainTubes, position, EnemySpawnSettings.None, new EnemyPropertyWord(properties), new EnemyExtraPropertyWord(EnemyExtraProperties.None),
-            (ushort)(index * sizeof(ushort)), main ? MainFallDelay : (ushort)0);
+        return new(EnemyDefinitionId.MotherBrainTubes, position, properties, EnemyExtraProperties.None,
+            new MotherBrainTubeSpawnSettings(piece, main ? MainFallDelay : 0));
     }
 }

@@ -66,14 +66,15 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Decodes species, facing, cooldown, and Y proximity from population parameters, then installs the corresponding idle list.</summary>
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {
-        FuneNamiheSetup setup = FuneNamiheSetup.Of(slot.Spawn.Population.Parameter1);
+        FuneNamiheSpawnSettings settings = slot.SpawnSettings<FuneNamiheSpawnSettings>();
+        FuneNamiheSetup setup = FuneNamiheSetup.Of(settings);
         FuneNamiheEnemyState state = new()
         {
             ShowsActiveAnimation = false,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
             VariantIndex = setup.Variant,
-            YProximity = slot.Spawn.Population.Parameter2Settings.Second,
-            CooldownTime = slot.Spawn.Population.Parameter1Settings.Second,
+            YProximity = settings.YProximity,
+            CooldownTime = settings.CooldownTime,
             CooldownTimer = 0,
             FacingRight = setup.FacesRight,
         };
@@ -231,10 +232,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The initializer tests the actor parameter's species nibble, not the projectile
         // definition. Namihe's mouth is four pixels lower than Fune's in the shared art.
-        if (FuneNamiheSetup.Of(source.Spawn.Population.Parameter1).IsNamihe)
+        FuneNamiheSpawnSettings sourceSettings = source.SpawnSettings<FuneNamiheSpawnSettings>();
+        if (FuneNamiheSetup.Of(sourceSettings).IsNamihe)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
 
-        var velocities = EnemyFireballLaunches.NamiFuneVelocities(checked((ushort)source.Spawn.Population.Parameter2));
+        var velocities = EnemyFireballLaunches.NamiFuneVelocities(sourceSettings.LaunchIndex);
         projectile.Velocity = new(
             new SignedEightEight(checked((ushort)(direction == HorizontalDirection.Right ? velocities.Right : velocities.Left))),
             new SignedEightEight(0));

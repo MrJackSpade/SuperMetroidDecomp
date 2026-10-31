@@ -78,7 +78,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         var state = new NinjaSpacePirateEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        bool startsAtLeft = (SpacePirateParameters.Ninja(slot.Spawn.Population.Parameter1) &
+        NinjaSpacePirateSpawnSettings settings = slot.SpawnSettings<NinjaSpacePirateSpawnSettings>();
+        bool startsAtLeft = (settings.Options &
             NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != NinjaSpacePirateParameterFlags.None;
         NinjaSpacePirateProgram initial = startsAtLeft
             ? NinjaSpacePirateProgram.InitialFacingRight
@@ -92,9 +93,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // sum. That adjustment is why the final span can differ slightly from parameter two.
         int requestedLeft = startsAtLeft
             ? slot.Position.X.Whole
-            : unchecked((ushort)(slot.Position.X.Whole - slot.Spawn.Population.Parameter2));
+            : unchecked((ushort)(slot.Position.X.Whole - settings.PostDistance));
         int requestedRight = startsAtLeft
-            ? unchecked((ushort)(slot.Position.X.Whole + slot.Spawn.Population.Parameter2))
+            ? unchecked((ushort)(slot.Position.X.Whole + settings.PostDistance))
             : slot.Position.X.Whole;
         int requestedHalfSpan = unchecked((ushort)(requestedRight - requestedLeft));
         requestedHalfSpan >>= 1;

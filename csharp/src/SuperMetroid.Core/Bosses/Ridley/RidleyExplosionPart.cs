@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>One authored component of Ridley's death breakup; <see cref="RidleyExplosionDefinitions.PartParameters"/> holds the spawn parameter selecting each.</summary>
+/// <summary>One authored component of Ridley's death breakup, which a breakup fragment's spawn settings name.</summary>
 internal enum RidleyExplosionPart
 {
     /// <summary>First tail segment.</summary>

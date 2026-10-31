@@ -61,15 +61,13 @@ public sealed class EtecoonEnemyState
         TeachingHops = 0;
     }
 
-    /// <summary>Installs the authored route and heading from the spawn parameters.</summary>
-    internal void InstallSpawnParameters(RoomEnemyPopulationRecord population)
+    /// <summary>Installs the authored route and heading from the spawn settings.</summary>
+    internal void InstallSpawnSettings(EtecoonSpawnSettings settings)
     {
-        PopulationParameterSettings heading = population.Parameter1Settings;
-        PopulationParameterSettings route = population.Parameter2Settings;
-        HeadingRight = heading.First != 0;
-        TeachingHops = heading.Second;
-        Route = route.First;
-        QuakePauseFrames = route.Second;
+        HeadingRight = Ensure.NotNull(settings).Heading == HorizontalDirection.Right;
+        TeachingHops = settings.TeachingHops;
+        Route = settings.Route;
+        QuakePauseFrames = settings.QuakePauseFrames;
     }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>

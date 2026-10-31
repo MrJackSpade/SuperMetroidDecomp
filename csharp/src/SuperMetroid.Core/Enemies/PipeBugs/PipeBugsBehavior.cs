@@ -57,7 +57,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AnimationState = PipeBugAnimationSelector.None;
         state.InstalledAnimationState = PipeBugAnimationSelector.None;
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
-            strong: slot.Spawn.Population.Parameter1 != 0,
+            strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Strong,
             PipeBugAnimationSelector.None));
     }
 
@@ -67,7 +67,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.LinearSpeedTableOffset = slot.Spawn.Population.Parameter2Settings.Second * EnemyLinearSpeedDefinitions.RecordSize;
+        state.LinearSpeedTableOffset = slot.SpawnSettings<NorfairPipeBugSpawnSettings>().SpeedIndex * EnemyLinearSpeedDefinitions.RecordSize;
         state.FormationCounter = 0;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -83,13 +83,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(slot.Spawn.Population.Parameter1 != 0
-            ? PipeBugProgram.GeegaFlyingLeft
-            : PipeBugProgram.GeegaFlyingRight);
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(
+            slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
+                ? PipeBugProgram.GeegaFlyingLeft
+                : PipeBugProgram.GeegaFlyingRight);
 
-        // Parameter two is a logical entry index. Each common linear-speed record is eight
-        // bytes: positive fraction/whole followed by its separately authored negative pair.
-        int speedOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
+        // Each common linear-speed record is eight bytes: positive fraction/whole followed
+        // by its separately authored negative pair.
+        int speedOffset = unchecked((ushort)(slot.SpawnSettings<YellowPipeBugSpawnSettings>().SpeedIndex * 8));
         state.PositiveVelocity = ReadPipeBugLinearVelocity(speedOffset);
         state.NegativeVelocity = ReadPipeBugLinearVelocity(unchecked((ushort)(speedOffset + 4)));
         state.Function = PipeBugEnemyFunction.YellowWaitForSamus;
@@ -288,7 +289,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.InstalledAnimationState = state.AnimationState;
         state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugPrograms.BrinstarProgram(
-            strong: slot.Spawn.Population.Parameter1 != 0,
+            strong: slot.SpawnSettings<BrinstarPipeBugSpawnSettings>().Strong,
             state.AnimationState));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
@@ -297,10 +298,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Arms the Norfair leader only after all five consecutive formation members remain dormant.</summary>
     private void RunNorfairPipeBugFormationWait(RoomEnemySlot slot, PipeBugEnemyState state)
     {
-        // Only the first record has a nonzero low parameter byte. It is the formation
-        // controller and may arm itself only while all four following physical records are
-        // still at the dormant function. The native code addresses them at +$40 increments.
-        if (slot.Spawn.Population.Parameter2Settings.First == 0)
+        // Only the first record has a trigger width. It is the formation controller and may
+        // arm itself only while all four following physical records are still at the
+        // dormant function.
+        if (slot.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth == 0)
             return;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(slot);
         if (formation.All(member =>
@@ -316,7 +317,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState leaderState,
         SamusState samus)
     {
-        int triggerWidth = unchecked((byte)leader.Spawn.Population.Parameter2);
+        int triggerWidth = leader.SpawnSettings<NorfairPipeBugSpawnSettings>().TriggerWidth;
         if (!EnemyMath.IsWithinStrictModularDistance(leader.Position.X.Whole, samus.Position.X.Whole, triggerWidth) ||
             unchecked((short)(leader.Position.Y.Whole - samus.Position.Y.Whole)) < 0)
         {
@@ -464,7 +465,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         int deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
-        bool inFront = slot.Spawn.Population.Parameter1 != 0
+        bool inFront = slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
             ? deltaX < 0 && unchecked((short)(deltaX + YellowPipeBugTriggerDistance)) >= 0
             : deltaX >= 0 && unchecked((short)(deltaX - YellowPipeBugTriggerDistance)) < 0;
         if (!inFront ||
@@ -486,7 +487,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        if (slot.Spawn.Population.Parameter1 != 0)
+        if (slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left)
         {
             state.Program = AnimationProgramCursor<PipeBugProgram>.Start(PipeBugProgram.GeegaFlyingLeft);
             state.Function = PipeBugEnemyFunction.YellowFlyLeft;
@@ -590,9 +591,10 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ArcCompleted = false;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(slot.Spawn.Population.Parameter1 != 0
-            ? PipeBugProgram.GeegaFlyingLeft
-            : PipeBugProgram.GeegaFlyingRight);
+        state.Program = AnimationProgramCursor<PipeBugProgram>.Start(
+            slot.SpawnSettings<YellowPipeBugSpawnSettings>().Facing == HorizontalDirection.Left
+                ? PipeBugProgram.GeegaFlyingLeft
+                : PipeBugProgram.GeegaFlyingRight);
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
         return true;
     }

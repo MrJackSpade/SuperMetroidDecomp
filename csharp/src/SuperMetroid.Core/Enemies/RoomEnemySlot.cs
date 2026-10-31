@@ -104,14 +104,18 @@ public sealed class RoomEnemySlot
     }
     /// <summary>The population entry the occupant was spawned from, kept unchanged while its live state moves on.</summary>
     public RoomEnemySpawnSnapshot Spawn { get; internal set; }
+
+    /// <summary>The settings the occupant's population entry gives its species, as the <typeparamref name="T"/> it reads.</summary>
+    /// <exception cref="InvalidDataException">The entry carries other settings.</exception>
+    internal T SpawnSettings<T>() where T : EnemySpawnSettings => Spawn.Population.SpawnSettingsOf<T>();
     /// <summary>The enemy's 16.16 room position, each whole coordinate wrapping at sixteen bits.</summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Collision half-extents in pixels, initially the definition's.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>The occupant's properties controlling collision, drawing and animation, initially the population entry's.</summary>
-    public EnemyPropertyWord Properties { get; internal set; }
+    public EnemyProperties Properties { get; internal set; }
     /// <summary>The occupant's additional properties, including whether it draws extended frames.</summary>
-    public EnemyExtraPropertyWord ExtraProperties { get; internal set; }
+    public EnemyExtraProperties ExtraProperties { get; internal set; }
     /// <summary>Which of the ordinary, hurt, frozen and grappled behaviours the enemy's update dispatches to.</summary>
     public EnemyAiStates AiStates { get; internal set; }
     /// <summary>Remaining health, initially the definition's and reduced by weapon damage.</summary>

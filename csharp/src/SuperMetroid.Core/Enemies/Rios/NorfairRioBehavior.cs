@@ -47,7 +47,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AnimationSignal = false,
             FollowerOffset = Offset16<RoomPixels>.Zero,
-            IsFollower = EnemyFollowers.FollowsParent(slot.Spawn.Population.Parameter1),
+            IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().FollowsParent,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -305,7 +305,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemySlot parent = GetPrecedingNorfairRioSlot(follower);
         if (parent.DefinitionId != EnemyDefinitionId.Geruta ||
-            EnemyFollowers.FollowsParent(parent.Spawn.Population.Parameter1))
+            parent.SpawnSettings<EnemyFollowerSpawnSettings>().FollowsParent)
         {
             throw new InvalidDataException(
                 $"Norfair Rio follower in slot {follower.SlotIndex} must immediately follow " +

@@ -13,8 +13,8 @@ internal abstract record YardCue
     internal sealed record MoveBy(Offset16<RoomPixels> Offset) : YardCue;
 
     /// <summary>Sets the attachment direction and the airborne facing it implies (<c>DirectionInY</c>, $A3:CC48).</summary>
-    /// <param name="Direction">The surface direction, 0 through 7, a <see cref="SetDirection"/> cue attaches the Yard in.</param>
-    internal sealed record SetDirection([property: PackedFields("surface orientation word 0-7 an animation opcode installs; YardDirectionDefinitions decodes it")] int Direction) : YardCue;
+    /// <param name="Direction">The surface direction a <see cref="SetDirection"/> cue attaches the Yard in.</param>
+    internal sealed record SetDirection(YardDirection Direction) : YardCue;
 
     /// <summary>Names the animation the Yard hides with, or none (<c>HidingInstListInY</c>, $A3:CC3F).</summary>
     /// <param name="OptionalTarget">The program the cue names, or none where the native operand is the $CF5F sentinel.</param>

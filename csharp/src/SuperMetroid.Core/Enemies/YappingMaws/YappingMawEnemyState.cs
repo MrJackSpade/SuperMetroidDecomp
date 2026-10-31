@@ -99,9 +99,8 @@ public sealed class YappingMawEnemyState
     /// <summary>Signed whole room-pixel offset from the moving mouth to captive Samus, selected by aiming/animation opcodes (Y at native $7E:8026).</summary>
     public Offset16<RoomPixels> HeldSamusOffset { get; internal set; }
 
-    /// <summary>Direction 0-7 selecting one of eight facing lists (native byte offset twice this).</summary>
-    [PackedFields("aim sector 0-7 indexing the eight native facing lists; the held placement applies only to the two horizontal sectors")]
-    public int DirectionIndex { get; internal set; }
+    /// <summary>The sector the bite aims into, selecting its facing animations; the held placement applies only to the two horizontal sectors.</summary>
+    public YappingMawAim Aim { get; internal set; }
 
     /// <summary>
     /// Native variable 35. Main AI decrements it unconditionally; touch may grab only while

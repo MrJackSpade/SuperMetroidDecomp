@@ -52,7 +52,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow);
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
-        state.HitCounter = WrappingCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter1));
+        state.HitCounter = WrappingCountdown.Start(slot.SpawnSettings<KagoSpawnSettings>().HitCount);
     }
 
     /// <summary>Ports <c>Kago_Main</c> and its one useful indirect target.</summary>

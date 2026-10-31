@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Application-owned ordered enemy placements selected by all retail room states.</summary>
 /// <remarks>
-/// The 302 pointers and 1,658 records come from the pinned NTSC J/U v1.0 bank-$A1
+/// The 302 lists and 1,658 records come from the pinned NTSC J/U v1.0
 /// populations selected by 323 compiled room states. Record order and the byte after
 /// each terminator govern linked slot allocation and the room enemy-death quota.
 /// This is gameplay data, not an editable visual asset.
@@ -22,7 +22,7 @@ public static class RoomEnemyPopulationDefinitions
         ..CeresRoomEnemyPopulationDefinitions.Build(),
     ], ListCount, RecordCount);
 
-    /// <summary>Number of distinct bank-$A1 population pointers selected by the compiled retail room states, including empty lists.</summary>
+    /// <summary>Number of distinct populations selected by the compiled retail room states, including empty lists.</summary>
     public const int ListCount = 302;
     /// <summary>Total placement records across the distinct compiled lists, excluding terminators and without counting repeated references from room states.</summary>
     public const int RecordCount = 1658;

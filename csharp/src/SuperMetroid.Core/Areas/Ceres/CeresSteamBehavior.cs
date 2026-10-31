@@ -82,7 +82,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     internal void InitializeCeresSteam(RoomEnemySlot slot)
     {
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
-            CeresSteamDefinitions.Variants.Decode(slot.Spawn.Population.Parameter1));
+            slot.Spawn.Population.SpawnSettingsOf<CeresSteamSpawnSettings>().Variant);
 
         // Steam graphics are preloaded with the Ceres tileset and therefore use VRAM tile
         // base zero. Both property changes are literal ORs performed by the initializer:

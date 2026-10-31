@@ -303,9 +303,9 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Ports falling-tube initialization $A9:8B35.</summary>
     internal void InitializeMotherBrainFallingTube(RoomEnemySlot tube)
     {
-        int tubeIndex = tube.Spawn.Population.Parameter1 / 2;
-        MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(tubeIndex);
-        MotherBrainTubePiece piece = MotherBrainFallingTubePopulationDefinitions.Pieces.At(tubeIndex);
+        MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
+        MotherBrainTubePiece piece = settings.Piece;
+        MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(MotherBrainFallingTubePopulationDefinitions.Pieces.PositionOf(piece));
         _extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start(piece);
         tube.Radius = tubeBody.Radius;
         var state = new MotherBrainFallingTubeState
@@ -314,7 +314,7 @@ internal sealed class MotherBrainFakeDeath
                 ? MotherBrainTubeFunction.MainTube_WaitingToFall
                 : MotherBrainTubeFunction.NonMainTube,
             FloorY = tubeBody.Floor,
-            FallDelay = WrappingCountdown.FromRaw(checked((ushort)tube.Spawn.Population.Parameter2)),
+            FallDelay = WrappingCountdown.Start(settings.FallDelay),
         };
         tube.SetSpeciesState(state, state.ClearWithRecord);
     }

@@ -23,13 +23,13 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicSpins.InitialProgram(checked((ushort)slot.Spawn.Population.Parameter1)));
+        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicSpins.InitialProgram(slot.SpawnSettings<AtomicSpawnSettings>().Spin));
 
         // Parameter two is an index into the shared eight-byte linear-speed record:
         // positive whole/fraction followed by its ROM-generated negative whole/fraction.
         // Keeping all four words exactly avoids the one-subpixel errors caused by rebuilding
         // the negative pair from a C# integer after the fact.
-        int speedTableOffset = unchecked((ushort)(slot.Spawn.Population.Parameter2 * 8));
+        int speedTableOffset = unchecked((ushort)(slot.SpawnSettings<AtomicSpawnSettings>().SpeedIndex * 8));
         SignedSixteenSixteen positive =
             EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         SignedSixteenSixteen negative =

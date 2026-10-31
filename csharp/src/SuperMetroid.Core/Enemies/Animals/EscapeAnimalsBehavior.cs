@@ -72,7 +72,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Colouring = SharedSpriteColouring.Common;
 
         EscapeEtecoonInitialization initialization =
-            EscapeEtecoons.Initialization(checked((ushort)slot.Spawn.Population.Parameter1));
+            EscapeEtecoons.Initialization(slot.SpawnSettings<EscapeEtecoonSpawnSettings>().Role);
         slot.Position = slot.Position.WithWhole(initialization.Position);
         state.PreInstruction = initialization.PreInstruction;
         state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(initialization.Program);

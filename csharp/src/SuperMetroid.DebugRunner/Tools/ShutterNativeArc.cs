@@ -55,7 +55,7 @@ internal static class ShutterNativeArc
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
                 Console.WriteLine($"frame {frame}: {scenario.ArcRow(frame)} pose={(int)scenario.Samus.Pose:X2} " +
                     $"shutter={(ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function ?? throw new InvalidOperationException("The live shutter has no function.")):X4} up={shutter.MovedUpRestTime:X4} down={shutter.MovedDownRestTime:X4} " +
-                    $"rev={shutter.ReactionDirection:X4} act={(shutter.ShotActivated ? 1 : 0):X4}");
+                    $"rev={shutter.ReactionDirection} act={(shutter.ShotActivated ? 1 : 0):X4}");
         }
         return 0;
     }
@@ -146,7 +146,7 @@ internal static class ShutterNativeArc
         Word(0xFAC, shutter.DownVelocity.Fraction); Word(0xFAE, shutter.DownVelocity.WholeWord);
         Word(0x780E, ShutterTriggerModeCodec.ToNativeOffset(shutter.TriggerMode)); Word(0x7818, shutter.ShotActivated ? 1 : 0);
         Word(0x7812, shutter.MovedDownRestTime); Word(0x7820, shutter.LowerEndpoint.Y);
-        Word(0x8000, shutter.ReactionDirection);
+        Word(0x8000, shutter.ReactionDirection == ShutterHeading.LeftOrUp ? 0 : 1);
         Word(0x781E, shutter.UpperEndpoint.Y); Word(0x7810, shutter.MovedUpRestTime);
         File.WriteAllBytes(path, ram);
 

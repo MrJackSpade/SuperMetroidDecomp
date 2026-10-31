@@ -48,21 +48,20 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Owtch</c> at $A2:A3F9.</summary>
     internal static void InitializeOwtch(RoomEnemySlot slot)
     {
-        int initialState = slot.Spawn.Population.Parameter1Settings.First;
-        int undergroundTimerIndex = slot.Spawn.Population.Parameter1Settings.Second;
-        int speedIndex = slot.Spawn.Population.Parameter2Settings.First;
-        int distanceIndex = slot.Spawn.Population.Parameter2Settings.Second;
+        OwtchSpawnSettings settings = slot.SpawnSettings<OwtchSpawnSettings>();
+        int initialState = settings.InitialState;
+        int undergroundTimerIndex = settings.UndergroundTimerIndex;
+        int speedIndex = settings.SpeedIndex;
+        int distanceIndex = settings.DistanceIndex;
         if (initialState >= 5)
         {
             throw new InvalidDataException(
-                $"Owtch parameter one ${slot.Spawn.Population.Parameter1:X4} selects state {initialState}, " +
-                "outside its five-entry main-AI table.");
+                $"Owtch initial state {initialState} is outside its five-entry main-AI table.");
         }
         if (speedIndex >= EnemyLinearSpeedDefinitions.RecordCount)
         {
             throw new InvalidDataException(
-                $"Owtch parameter two ${slot.Spawn.Population.Parameter2:X4} selects linear-speed " +
-                $"index {speedIndex}, outside the NTSC retail table.");
+                $"Owtch linear-speed index {speedIndex} is outside the NTSC retail table.");
         }
         int undergroundTimer =
             OwtchPatrol.UndergroundTimer((byte)undergroundTimerIndex);
@@ -128,7 +127,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
                     state.UndergroundTimer = WrappingCountdown.FromRaw(OwtchPatrol.UndergroundTimer(
-                        slot.Spawn.Population.Parameter1Settings.Second));
+                        slot.SpawnSettings<OwtchSpawnSettings>().UndergroundTimerIndex));
                 }
                 return;
 

@@ -36,7 +36,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // Parameter one's high byte selects one of five genuine pattern streams. The sixth
         // ROM table word points back into the pointer table and is documented garbage; no
         // retail population selects it, so expose corrupt/high parameters as invalid data.
-        int patternIndex = slot.Spawn.Population.Parameter1Settings.Second;
+        int patternIndex = slot.SpawnSettings<ChootSpawnSettings>().PatternIndex;
         ChootPatternDefinition pattern = ChootFalls.ForIndex(patternIndex);
         state.FallingPath = pattern.FallingPath;
         state.FallingPatternYDistance = pattern.FallingPatternYDistance;
@@ -44,7 +44,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // The SNES multiplier consumes only the loop count's low byte; the authored loop advance is
         // already below 256. Retail loop counts are nonzero.
         int jumpHeight = unchecked((ushort)(
-            slot.Spawn.Population.Parameter1Settings.First * state.FallingPatternYDistance));
+            slot.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance));
         state.InitialYSpeedTableIndex = CalculateInitialChootYSpeedTableIndex(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(unchecked((ushort)(
             state.SpawnPosition.Y - jumpHeight)));
@@ -95,7 +95,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(distance - ChootActivationDistance)) >= 0)
             return;
 
-        state.JumpDelayTimer = WrappingCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter2));
+        state.JumpDelayTimer = WrappingCountdown.Start(slot.SpawnSettings<ChootSpawnSettings>().JumpDelay);
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 
@@ -131,7 +131,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
         // A population loop count of zero wraps to $FFFF loops, as the cartridge's DEC of the loaded count does.
-        state.FallingPatternLoopCounter = WrappingCountdown.FromRaw(slot.Spawn.Population.Parameter1Settings.First)
+        state.FallingPatternLoopCounter = WrappingCountdown.Start(slot.SpawnSettings<ChootSpawnSettings>().PatternLoops)
             .Decrement().Remaining;
         SetChootProgram(slot, state, ChootProgram.Falling);
         state.Function = ChootEnemyFunction.Falling;

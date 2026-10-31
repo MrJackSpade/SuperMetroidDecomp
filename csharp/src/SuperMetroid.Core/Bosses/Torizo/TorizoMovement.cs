@@ -50,9 +50,10 @@ internal sealed class TorizoMovement
         bool isGolden = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
         var state = new TorizoEnemyState(torizo, isGolden)
         {
-            Posture = TorizoParameterFlagCodec.PostureOf(torizo.Spawn.Population.Parameter1),
-            PostureParameterLowBits = TorizoParameterFlagCodec.PostureLowBitsOf(torizo.Spawn.Population.Parameter1),
-            Behavior = TorizoParameterFlagCodec.BehaviorOf(torizo.Spawn.Population.Parameter2),
+            // Every Torizo population entry starts it standing, with no behaviour latch set.
+            Posture = TorizoPostureFlags.None,
+            PostureParameterLowBits = 0,
+            Behavior = 0,
         };
         _access.TorizoState = state;
 

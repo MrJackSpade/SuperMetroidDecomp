@@ -3,13 +3,6 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 /// <summary>Compiled program selection and launch-speed definitions for Cacatac spikes.</summary>
 internal static class CacatacProjectileDefinitions
 {
-    /// <summary>The patrol direction each authored population parameter-one low byte selects.</summary>
-    internal static readonly ParameterVariants<CacatacDirection> Directions = new(new Dictionary<int, CacatacDirection>
-    {
-        [0] = CacatacDirection.Left,
-        [1] = CacatacDirection.Right,
-        [2] = CacatacDirection.InitialStop,
-    });
 
     /// <summary>
     /// Native immediate operands $86:D9BB/$86:D9C1: a cardinal spike moves two pixels per update

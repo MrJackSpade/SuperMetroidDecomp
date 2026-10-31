@@ -12,12 +12,6 @@ namespace SuperMetroid.Core.Enemies.Stoke;
 [RoomLifetime]
 internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The facing each authored population parameter-one value selects.</summary>
-    private static readonly ParameterVariants<StokeDirection> Directions = new(new Dictionary<int, StokeDirection>
-    {
-        [0] = StokeDirection.Left,
-        [1] = StokeDirection.Right,
-    });
 
     /// <summary>A Stoke projectile's sideways speed, one pixel per update, in signed 8.8.</summary>
     private const int StokeProjectileSpeed = 256;
@@ -69,16 +63,16 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Stoke</c> at <c>$A2:89AD</c>.</summary>
     internal static void InitializeStoke(RoomEnemySlot slot)
     {
-        if (slot.Spawn.Population.Parameter2 >= EnemyLinearSpeedDefinitions.RecordCount)
+        StokeSpawnSettings settings = slot.SpawnSettings<StokeSpawnSettings>();
+        if (settings.SpeedIndex >= EnemyLinearSpeedDefinitions.RecordCount)
         {
             throw new InvalidDataException(
-                $"Stoke speed parameter ${slot.Spawn.Population.Parameter2:X4} exceeds the NTSC common " +
-                $"speed table's ${EnemyLinearSpeedDefinitions.RecordCount - 1:X2} maximum index.");
+                $"Stoke speed index {settings.SpeedIndex} exceeds the NTSC common speed table.");
         }
 
-        // The parameter is an entry number. ASL three times converts it to the byte offset
-        // of {positive whole, positive fraction, negative whole, negative fraction}.
-        int speedOffset = slot.Spawn.Population.Parameter2 * EnemyLinearSpeedDefinitions.RecordSize;
+        // The entry number scales to the byte offset of
+        // {positive whole, positive fraction, negative whole, negative fraction}.
+        int speedOffset = settings.SpeedIndex * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeeds.Read(speedOffset);
         var left = EnemyLinearSpeeds.Read(speedOffset + 4);
         var state = new StokeEnemyState
@@ -86,16 +80,16 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             RightVelocity = right,
             LeftVelocity = left,
             Function = StokeAiFunction.Moving,
-            Direction = Directions.Decode(slot.Spawn.Population.Parameter1),
+            Direction = settings.Direction,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Initialization writes the common empty map, then picks the left list by default.
-        // A nonzero init0 takes the native right-facing branch. The room-loader tail later
+        // A right-moving Stoke takes the right-facing branch. The room-loader tail later
         // restores the transient empty map, and the first instruction tick supplies art.
         slot.Frame = EnemyFrameId.Empty;
         SetStokeProgram(slot, state, StokeProgram.MovingLeft);
-        if (slot.Spawn.Population.Parameter1 != 0)
+        if (settings.Direction == StokeDirection.Right)
         {
             SetStokeProgram(slot, state, StokeProgram.MovingRight);
         }

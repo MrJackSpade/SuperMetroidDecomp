@@ -134,7 +134,7 @@ internal sealed class CorpseRotSimulation
         CorpseStaging staged = CorpseStaging.Sidehopper(
             Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheet, CorpseSheetDefinitions.DeadMonsterSheetByteCount), graphicsVariant);
         CorpseRowGeometry geometry = CorpseRowGeometry.Sidehopper(graphicsVariant, definition.WrapOffset);
-        int populated = Populated(EnemyDefinitionId.CorpseSidehopper, graphicsVariant);
+        int populated = Populated(EnemyDefinitionId.CorpseSidehopper, graphicsVariant / 2);
         return Batch(definition.Kind, staged, geometry, definition.RotTableOffset, definition.EntryCount, populated);
     }
 
@@ -146,7 +146,7 @@ internal sealed class CorpseRotSimulation
         CorpseStaging staged = CorpseStaging.Tourian(
             Atlas(enemies, CorpseSheetDefinitions.DeadMonsterSheet, CorpseSheetDefinitions.DeadMonsterSheetByteCount), layout);
         CorpseRowGeometry geometry = CorpseRowGeometry.Tourian(species, layout, definition.WrapOffset);
-        int populated = Populated(enemy, checked((ushort)(variant * 2)));
+        int populated = Populated(enemy, variant);
         return Batch(definition.Kind, staged, geometry, definition.RotTableOffset, definition.EntryCount, populated);
     }
 
@@ -301,10 +301,11 @@ internal sealed class CorpseRotSimulation
     private static int TorizoRowIndex(bool odd, int upload, int uploads) =>
         upload < uploads - 1 ? upload + (odd ? uploads - 1 : 0) : 2 * (uploads - 1) + (odd ? 1 : 0);
 
-    /// <summary>How many population records of <paramref name="enemy"/> with first parameter <paramref name="parameter"/> any room state holds at most.</summary>
-    private static int Populated(EnemyDefinitionId enemy, int parameter) =>
+    /// <summary>How many population records of corpse <paramref name="variant"/> of <paramref name="enemy"/> any room state holds at most.</summary>
+    private static int Populated(EnemyDefinitionId enemy, int variant) =>
         Math.Max(1, RoomStateDefinitions.All.Max(state => state.EnemyPopulation.Records.Span
-            .Count(record => record.DefinitionId == enemy && record.Parameter1 == parameter)));
+            .Count(record => record.DefinitionId == enemy &&
+                record.SpawnSettings is CorpseSpawnSettings corpse && corpse.Variant == variant)));
 
     /// <summary>The installed tiles a corpse copies its staged characters from.</summary>
     private static ReadOnlySpan<byte> Atlas(EnemyTileSourceArtwork enemies, EnemyDefinitionId sheet, int byteCount)

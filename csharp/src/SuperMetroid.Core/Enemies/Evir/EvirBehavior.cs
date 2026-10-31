@@ -78,10 +78,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new EvirEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        if (slot.Spawn.Population.Parameter1 != 0)
+        if (slot.SpawnSettings<EvirSpawnSettings>().IsArms)
         {
-            // The second record is not a second creature. Its nonzero parameter selects the
-            // arms role, which always reads facing and position from the immediately prior
+            // The second record is not a second creature. It is the arms, which always
+            // reads facing and position from the immediately prior
             // body record. Retail gives it layer four so the two maps compose correctly.
             PositionEvirArms(slot, state, update: EvirArmsUpdate.Initialization);
             slot.Layer = 4;
@@ -90,10 +90,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             SetEvirBodyFacing(slot, state, samus);
 
-            // Parameter two's low byte selects the body's record in the shared linear-speed
-            // table, whose positive half is the downward velocity and negative half the upward
-            // one. The high byte is the steady-state number of frames between direction changes.
-            int speedRecord = slot.Spawn.Population.Parameter2Settings.First;
+            // The body's speed record in the shared linear-speed table: its positive half is the
+            // downward velocity and its negative half the upward one.
+            int speedRecord = slot.SpawnSettings<EvirSpawnSettings>().SpeedIndex;
             int speedOffset = checked((ushort)(speedRecord * EnemyLinearSpeedDefinitions.RecordSize));
             SignedSixteenSixteen down = EnemyMath.ReadLinearEnemySpeed(speedOffset);
             state.DownVelocity = down;
@@ -123,16 +122,20 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             if (source.SpeedRecord != speedRecord)
                 continue;
             RoomEnemySlot enemy = _slotTable.Slots[source.SlotIndex];
-            int value = source.Field switch
+            return WrappingCountdown.Start(source.Field switch
             {
-                EvirHalfCycleSourceField.PopulationParameter2 => checked((ushort)enemy.Spawn.Population.Parameter2),
+                // An enemy whose population entry has not loaded yet holds the empty entry, read as zero.
+                EvirHalfCycleSourceField.DirectionChangePeriod => enemy.Spawn.Population.SpawnSettings switch
+                {
+                    EvirSpawnSettings evir => evir.DirectionChangePeriod / 2,
+                    null => 0,
+                    var other => throw new InvalidDataException(
+                        $"Evir speed record {speedRecord} reads the direction-change period of enemy {enemy.DefinitionId} ({other})."),
+                },
                 // The cartridge reads the enemy's palette selection as the count.
                 EvirHalfCycleSourceField.Palette => _presentation.Placement.SelectionNumber(enemy.Colouring),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
-            };
-            return WrappingCountdown.Start(source.Field == EvirHalfCycleSourceField.Palette
-                ? value
-                : PopulationParameterSettings.Of(value).Second / 2);
+            });
         }
         throw new InvalidDataException(
             $"Evir speed record {speedRecord} takes its first half-cycle from a value no retail Evir reads.");
@@ -174,7 +177,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Evir body/arms function {state.Function} is not translated.");
         }
 
-        if (slot.Spawn.Population.Parameter1 != 0)
+        if (slot.SpawnSettings<EvirSpawnSettings>().IsArms)
         {
             PositionEvirArms(slot, state);
             return;
@@ -200,7 +203,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementTimer = step.Remaining;
         if (step.IsNegative)
         {
-            state.MovementTimer = WrappingCountdown.Start(slot.Spawn.Population.Parameter2Settings.Second);
+            state.MovementTimer = WrappingCountdown.Start(slot.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod);
             state.MovingDown = !state.MovingDown;
         }
     }
@@ -588,7 +591,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // Evir's bank-$A8 shot tail runs after every accepted common shot, including the $FF ice result. That is
         // where the body copies the newly installed frozen timer to its arms and attached (idle) spit.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
-                                                     enemy.Spawn.Population.Parameter1 == 0 &&
+                                                     !enemy.SpawnSettings<EvirSpawnSettings>().IsArms &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.EvirShot)
         {
             AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
@@ -599,7 +602,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddEvirTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Evir &&
-                               slot.Spawn.Population.Parameter1 == 0 &&
+                               !slot.SpawnSettings<EvirSpawnSettings>().IsArms &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.EvirTouch,
             context =>
             {

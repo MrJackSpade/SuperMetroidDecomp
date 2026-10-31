@@ -63,8 +63,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new PowampEnemyState
         {
-            IsBalloon = slot.Spawn.Population.Parameter1 != 0,
-            RefusesContact = slot.Spawn.Population.Parameter2 != 0,
+            IsBalloon = slot.SpawnSettings<PowampSpawnSettings>().IsBalloon,
+            RefusesContact = slot.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance != 0,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -90,7 +90,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BalloonSpawn = slot.Position.Whole;
         state.Function = PowampEnemyFunction.BalloonNoOp;
         SetPowampProgram(slot, state, PowampProgram.BalloonDeflated);
-        state.BalloonGrappleTravelDistance = slot.Spawn.Population.Parameter2;
+        state.BalloonGrappleTravelDistance = slot.SpawnSettings<PowampSpawnSettings>().GrappleTravelDistance;
     }
 
     /// <summary>Ports <c>MainAI_Powamp</c> and every body function it dispatches.</summary>
@@ -500,7 +500,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.SlotIndex == 0)
             throw new InvalidDataException("A Powamp body has no preceding balloon slot.");
         RoomEnemySlot balloon = _slotTable.Slots[body.SlotIndex - 1];
-        if (balloon.DefinitionId != EnemyDefinitionId.Powamp || balloon.Spawn.Population.Parameter1 == 0)
+        if (balloon.DefinitionId != EnemyDefinitionId.Powamp || !balloon.SpawnSettings<PowampSpawnSettings>().IsBalloon)
         {
             throw new InvalidDataException(
                 $"Powamp body slot {body.SlotIndex} is not preceded by its balloon half.");
@@ -549,7 +549,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = (enemy, _) =>
             {
-                if (enemy.Spawn.Population.Parameter1 == 0)
+                if (!enemy.SpawnSettings<PowampSpawnSettings>().IsBalloon)
                     ResolvePowampPowerBombAfterCommon(enemy);
             },
         });

@@ -49,8 +49,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new HibashiEnemyState
         {
-            InactiveTimerReset = WrappingCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter1)),
-            IsCollisionPart = slot.Spawn.Population.Parameter2 != 0,
+            InactiveTimerReset = WrappingCountdown.Start(slot.SpawnSettings<HibashiSpawnSettings>().InactiveTime),
+            IsCollisionPart = slot.SpawnSettings<HibashiSpawnSettings>().IsCollisionPart,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 

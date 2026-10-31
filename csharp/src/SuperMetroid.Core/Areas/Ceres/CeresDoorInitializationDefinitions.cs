@@ -7,17 +7,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 internal static class CeresDoorInitializationDefinitions
 {
-    /// <summary>The variant each authored population parameter-one value selects.</summary>
-    internal static readonly ParameterVariants<CeresDoorVariant> Variants = new(new Dictionary<int, CeresDoorVariant>
-    {
-        [0] = CeresDoorVariant.NormalFacingRight,
-        [1] = CeresDoorVariant.NormalFacingLeft,
-        [2] = CeresDoorVariant.RotatingElevatorPreExplosionOverlay,
-        [3] = CeresDoorVariant.RidleyRoomFacingRight,
-        [4] = CeresDoorVariant.RotatingElevatorInvisibleWall,
-        [5] = CeresDoorVariant.RidleyEscapeFloorLeftWall,
-        [6] = CeresDoorVariant.RidleyEscapeFloorRightWall,
-    });
 
     /// <summary>
     /// <c>InitAI_CeresDoor.functionPointers</c> at <c>$A6:F72B-$A6:F738</c> paired

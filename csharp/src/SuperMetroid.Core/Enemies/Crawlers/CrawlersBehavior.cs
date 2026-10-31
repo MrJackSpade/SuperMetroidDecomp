@@ -55,34 +55,35 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerAnimationFamily animationFamily,
         int? speciesInstructionOffset = null)
     {
+        CrawlerSpawnSettings settings = slot.SpawnSettings<CrawlerSpawnSettings>();
         var state = new CrawlerEnemyState
         {
-            SpeedParameter = slot.Spawn.Population.Parameter1,
-            SurfaceTableOffset = speciesInstructionOffset ?? slot.Spawn.Population.Parameter2,
+            SpeedParameter = settings.SpeedIndex,
+            SurfaceTableOffset = speciesInstructionOffset ?? settings.SurfaceTableOffset,
         };
         Bind(slot, state);
 
         // The population entry names the starting surface. InitAI_Viola ($A3:B678) alone
-        // selects with the property bits instead.
+        // takes its block side instead.
         CrawlerSurfaceOrientation orientation = animationFamily == CrawlerAnimationFamily.Viola
-            ? CrawlerAnimationDefinitions.Orientations.At(slot.Properties.FamilyData & 3)
-            : slot.Spawn.Population.SpawnSettingsOf<CrawlerSpawnSettings>().Orientation;
+            ? settings.BlockSide
+            : settings.Orientation;
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
             animationFamily, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
-        state.Velocity = ResetCrawlerVelocitiesFromProperties(slot, state.SpeedParameter, state.Velocity);
+        state.Velocity = ResetCrawlerVelocities(settings.BlockSide, state.SpeedParameter, state.Velocity);
     }
 
     /// <summary>Shared $A3:E67A velocity reset, also called by Yard after landing.</summary>
-    /// <param name="slot">The crawling enemy, whose property bits sign the velocity.</param>
+    /// <param name="blockSide">The side of its block the crawler holds, which signs the velocity.</param>
     /// <param name="speedParameter">The crawl speed selector: a speed-table index or the preserve-velocity selector.</param>
     /// <param name="velocity">The velocity kept when the selector preserves it.</param>
-    /// <returns>The reset velocity: <paramref name="velocity"/> or the parameter's speed on both axes, signed by the properties.</returns>
-    internal static EightEightVector<RoomPixels> ResetCrawlerVelocitiesFromProperties(
-        RoomEnemySlot slot, int speedParameter, EightEightVector<RoomPixels> velocity)
+    /// <returns>The reset velocity: <paramref name="velocity"/> or the parameter's speed on both axes, signed by the block side.</returns>
+    internal static EightEightVector<RoomPixels> ResetCrawlerVelocities(
+        CrawlerSurfaceOrientation blockSide, int speedParameter, EightEightVector<RoomPixels> velocity)
     {
         if (speedParameter != CrawlerSpeedDefinitions.PreserveVelocity)
         {
@@ -95,20 +96,24 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             velocity = new(new SignedEightEight(checked((ushort)speed)), new SignedEightEight(checked((ushort)speed)));
         }
 
-        // The low two population-property bits encode which side of the starting block the
-        // crawler occupies. They are not independent EnemyProperties flags.
-        return (slot.Properties.FamilyData & 3) switch
-        {
-            0 => velocity.ReversedX(),
-            2 => velocity.ReversedY(),
-            _ => velocity,
-        };
+        return SignedForBlockSide(blockSide, velocity);
     }
+
+    /// <summary>A crawl velocity signed for the side of its block the crawler holds.</summary>
+    private static EightEightVector<RoomPixels> SignedForBlockSide(
+        CrawlerSurfaceOrientation blockSide, EightEightVector<RoomPixels> velocity) => blockSide switch
+        {
+            CrawlerSurfaceOrientation.UpsideRight => velocity.ReversedX(),
+            CrawlerSurfaceOrientation.UpsideDown => velocity.ReversedY(),
+            CrawlerSurfaceOrientation.UpsideLeft or CrawlerSurfaceOrientation.UpsideUp => velocity,
+            _ => throw new InvalidOperationException($"Undefined {nameof(CrawlerSurfaceOrientation)} {blockSide}."),
+        };
 
     /// <summary>Ports the separate orange-Zoomer initializer at $A3:E043.</summary>
     internal static void InitializeHZoomer(RoomEnemySlot slot)
     {
-        int speedParameter = slot.Spawn.Population.Parameter1;
+        CrawlerSpawnSettings settings = slot.SpawnSettings<CrawlerSpawnSettings>();
+        int speedParameter = settings.SpeedIndex;
         if (speedParameter >= CrawlerSpeedDefinitions.Count)
         {
             throw new InvalidDataException(
@@ -119,22 +124,17 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Function = CrawlerEnemyFunction.HZoomerInstructionPending,
             SpeedParameter = speedParameter,
-            SurfaceTableOffset = slot.Spawn.Population.Parameter2,
+            SurfaceTableOffset = settings.SurfaceTableOffset,
         };
         Bind(slot, state);
-        CrawlerSurfaceOrientation orientation = slot.Spawn.Population.SpawnSettingsOf<CrawlerSpawnSettings>().Orientation;
+        CrawlerSurfaceOrientation orientation = settings.Orientation;
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.InitialProgram(
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         int velocity = CrawlerSpeeds.ForParameter(checked((ushort)speedParameter));
         state.Velocity = new(new SignedEightEight(checked((ushort)velocity)), new SignedEightEight(checked((ushort)velocity)));
-        state.Velocity = (slot.Properties.FamilyData & 3) switch
-        {
-            0 => state.Velocity.ReversedX(),
-            2 => state.Velocity.ReversedY(),
-            _ => state.Velocity,
-        };
+        state.Velocity = SignedForBlockSide(settings.BlockSide, state.Velocity);
     }
 
     /// <summary>

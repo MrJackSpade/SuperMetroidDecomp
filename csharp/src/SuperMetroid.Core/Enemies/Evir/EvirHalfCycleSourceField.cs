@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// </summary>
 public enum EvirHalfCycleSourceField
 {
-    /// <summary>The enemy's second population parameter; for an Evir body its upper eight bits are the direction-change period, and an Evir's arms hold zero.</summary>
-    PopulationParameter2,
+    /// <summary>The enemy's direction-change period as an Evir body; an Evir's arms and an enemy not yet loaded give zero.</summary>
+    DirectionChangePeriod,
     /// <summary>The enemy's sprite palette selection; halving its upper eight bits gives the palette number.</summary>
     Palette,
 }

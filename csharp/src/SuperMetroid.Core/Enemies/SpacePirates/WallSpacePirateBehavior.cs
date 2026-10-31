@@ -64,7 +64,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         var state = new WallSpacePirateEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        var flags = SpacePirateParameters.Wall(slot.Spawn.Population.Parameter1);
+        WallSpacePirateParameterFlags flags = slot.SpawnSettings<WallSpacePirateSpawnSettings>().Options;
         bool startsOnRight = (flags & WallSpacePirateParameterFlags.StartsOnRightWall) != WallSpacePirateParameterFlags.None;
         bool slowJump = (flags & WallSpacePirateParameterFlags.SlowJumpAndLaser) != WallSpacePirateParameterFlags.None;
 
@@ -170,10 +170,10 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             state.WallJumpArcCenter.X +
             EnemyMath.ReadEightBitNegativeSineProduct(
                 state.WallJumpArcAngle.ToByteAngle(),
-                (ushort)(slot.Spawn.Population.Parameter2 >> 1)))));
+                (ushort)(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 1)))));
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
             state.WallJumpArcCenter.Y -
-            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle.ToByteAngle(), (ushort)(slot.Spawn.Population.Parameter2 >> 2)))));
+            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle.ToByteAngle(), (ushort)(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 2)))));
     }
 
     /// <summary>Allows the fire-and-jump sequence when Samus is within the strict vertical detection band.</summary>
@@ -262,10 +262,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        int signedSpan = direction == HorizontalDirection.Right ? slot.Spawn.Population.Parameter2 : -slot.Spawn.Population.Parameter2;
+        int span = slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan;
+        int signedSpan = direction == HorizontalDirection.Right ? span : -span;
         int signedHalfSpan = direction == HorizontalDirection.Right
-            ? slot.Spawn.Population.Parameter2 >> 1
-            : -(slot.Spawn.Population.Parameter2 >> 1);
+            ? span >> 1
+            : -(span >> 1);
         state.WallJumpDestination = new(unchecked((ushort)(slot.Position.X.Whole + signedSpan)), 0);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             unchecked((ushort)(slot.Position.X.Whole + signedHalfSpan)),

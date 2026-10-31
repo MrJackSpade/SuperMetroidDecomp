@@ -13,7 +13,7 @@ public static class EvirInitDefinitions
     /// </summary>
     public static IReadOnlyList<EvirFirstHalfCycleSource> FirstHalfCycleSources { get; } =
     [
-        new(SpeedRecord: 8, SlotIndex: 1, EvirHalfCycleSourceField.PopulationParameter2),
+        new(SpeedRecord: 8, SlotIndex: 1, EvirHalfCycleSourceField.DirectionChangePeriod),
         new(SpeedRecord: 12, SlotIndex: 2, EvirHalfCycleSourceField.Palette),
     ];
 }

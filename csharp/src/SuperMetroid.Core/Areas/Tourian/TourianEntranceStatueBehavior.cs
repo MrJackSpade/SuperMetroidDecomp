@@ -60,23 +60,17 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Installs one of three animations and lets only the first statue record spawn the fixed decorative actors.</summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
     {
-        if (statue.Spawn.Population.Parameter1 is not (0 or 2 or 4))
-        {
-            throw new InvalidDataException(
-                $"Tourian entrance statue parameter one ${statue.Spawn.Population.Parameter1:X4} " +
-                "is outside the three-entry instruction table.");
-        }
-
+        TourianEntranceStatueProgram part = statue.Spawn.Population.SpawnSettingsOf<TourianEntranceStatueSpawnSettings>().Statue;
         statue.Colouring = SharedSpriteColouring.Common;
         statue.InstructionTimer = WrappingCountdown.Start(1);
         statue.Timer = WrappingCountdown.Start(0);
         Extensions[statue.SlotIndex].Program = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
-            TourianEntranceStatues.InitialProgram(checked((ushort)statue.Spawn.Population.Parameter1)));
+            part);
 
         // Only the first of the three enemy records creates the fixed screen actors. The
         // native allocator searches from slot $22 down, so this exact call order gives the
         // decoration, Ridley, and Phantoon their retail OAM ordering.
-        if (statue.Spawn.Population.Parameter1 == 0)
+        if (part == TourianEntranceStatueProgram.BaseDecoration)
         {
             SpawnTourianEntranceStatueProjectile(
                 RoomEnemyProjectileKind.TourianStatueBaseDecoration,

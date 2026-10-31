@@ -58,8 +58,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.HidingProgram = setHidingProgram.OptionalTarget;
                 return null;
             case YardCue.SetDirection setDirection:
-                if ((uint)setDirection.Direction >= 8)
-                    throw new InvalidDataException($"Yard animation selected invalid direction {setDirection.Direction}.");
                 state.Direction = setDirection.Direction;
                 state.AirborneFacingDirection = YardDirections.ForDirection(state.Direction).AirborneFacingDirection;
                 return null;
@@ -82,23 +80,18 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Yard initialization at $A3:CDE2-$CE56.</summary>
     internal static void InitializeYard(RoomEnemySlot slot)
     {
-        int direction = slot.Spawn.Population.SpawnSettingsOf<YardSpawnSettings>().Direction;
-        if (direction >= 8)
-        {
-            throw new InvalidDataException(
-                $"Yard initialization direction ${direction:X4} exceeds its eight ROM entries.");
-        }
-        int speedIndex = slot.Spawn.Population.Parameter1;
+        YardSpawnSettings settings = slot.SpawnSettings<YardSpawnSettings>();
+        YardDirection direction = settings.Direction;
+        int speedIndex = settings.SpeedIndex;
         ValidateYardSpeedIndex(checked((ushort)speedIndex));
 
         var state = new YardEnemyState
         {
             MovementFunction = YardMovementFunction.InstructionPending,
-            // The population word selects the initial lists/velocity signs, but
-            // does not initialize the live direction register. Only the direction
-            // instruction writes that word. A first-frame hide can bypass it and
-            // must retain the cartridge's zero-initialized attachment direction.
-            Direction = 0,
+            // The population entry selects the initial lists and velocity signs, but
+            // does not set the live direction. Only the direction cue does. A
+            // first-frame hide can bypass it and keeps the first direction.
+            Direction = YardDirection.UpsideRightMovingUp,
             Behavior = YardBehavior.NormalCrawling,
             IdleCrawlingSpeedIndex = speedIndex,
             CrawlingSpeedIndex = speedIndex,
@@ -110,7 +103,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         YardDirectionDefinition definition = YardDirections.ForDirection(direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
-        slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | definition.PropertyBits));
+        state.BlockSide = definition.BlockSide;
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, direction);
@@ -120,7 +113,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reproduces the sign-pair arithmetic at $A3:CE27. Negative entries are encoded as
     /// <c>$FFFF xor speed, then +1</c>, rather than by a host signed table.
     /// </summary>
-    internal static void SetYardCrawlingVelocities(YardEnemyState state, int direction)
+    internal static void SetYardCrawlingVelocities(YardEnemyState state, YardDirection direction)
     {
         ValidateYardSpeedIndex(checked((ushort)state.CrawlingSpeedIndex));
         int speed = CrawlerSpeeds.ForParameter(checked((ushort)state.CrawlingSpeedIndex));
@@ -251,7 +244,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardEnemyState state,
         RoomLevelData level)
     {
-        bool stillAttached = state.Direction < 4
+        bool stillAttached = YardDirections.IsOnWall(state.Direction)
             ? EnemyTerrain.EnemyMeetsAttachmentBlockHorizontallyAhead(
                 level,
                 slot,
@@ -468,12 +461,13 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Yard deliberately tail-calls the common crawler initializer after landing, but
-        // retains its own state and main AI. Reproduce only those shared velocity/sign words.
-        slot.Properties = slot.Properties.WithFamilyData(
-            (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | (state.AirborneFacingDirection == YardAirborneFacing.Right ? 1 : 0)));
+        // retains its own state and main AI. Reproduce only those shared velocity signs.
+        state.BlockSide = state.AirborneFacingDirection == YardAirborneFacing.Right
+            ? CrawlerSurfaceOrientation.UpsideLeft
+            : CrawlerSurfaceOrientation.UpsideRight;
         // Surface direction can still describe a wall or ceiling. E67A instead uses
-        // the new floor-facing property bits for its downward probe and horizontal sign.
-        state.CrawlingVelocity = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot, state.CrawlingSpeedIndex, state.CrawlingVelocity);
+        // the new floor-facing block side for its downward probe and horizontal sign.
+        state.CrawlingVelocity = CrawlersBehavior.ResetCrawlerVelocities(state.BlockSide, state.CrawlingSpeedIndex, state.CrawlingVelocity);
         slot.Frame = EnemyFrameId.Empty;
         state.MovementFunction = YardMovementFunction.InstructionPending;
         state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??
@@ -519,8 +513,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Direction = YardDirections.ForDirection(state.Direction).OppositeDirection;
         YardDirectionDefinition definition = YardDirections.ForDirection(state.Direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
-        slot.Properties = slot.Properties.WithFamilyData(
-            (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | definition.PropertyBits));
+        state.BlockSide = definition.BlockSide;
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(state, state.Direction);

@@ -38,7 +38,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         {
             AnimationFinished = false,
             InstalledProgram = null,
-            IsFollower = EnemyFollowers.FollowsParent(slot.Spawn.Population.Parameter1),
+            IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().FollowsParent,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -193,13 +193,13 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
         if (parent.DefinitionId != EnemyDefinitionId.Squeept ||
-            EnemyFollowers.FollowsParent(parent.Spawn.Population.Parameter1))
+            parent.SpawnSettings<EnemyFollowerSpawnSettings>().FollowsParent)
         {
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in slot {follower.SlotIndex} must immediately follow " +
                 "a parent record of the same definition. " +
                 $"Preceding slot: definition={parent.DefinitionId}, " +
-                $"health=${parent.Health:X4}, parameter=${parent.Spawn.Population.Parameter1:X4}, properties={parent.Properties}.");
+                $"health=${parent.Health:X4}, spawn={parent.Spawn.Population.SpawnSettings}, properties={parent.Properties}.");
         }
     }
 

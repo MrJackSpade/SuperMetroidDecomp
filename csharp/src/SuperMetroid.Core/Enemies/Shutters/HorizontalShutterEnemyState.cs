@@ -33,9 +33,8 @@ public sealed class HorizontalShutterEnemyState
 
     /// <summary>Spawn speed selector, 0 through 255: the common linear-speed record holding the rightward and leftward velocities.</summary>
     public int SpeedTableIndex { get; internal set; }
-    /// <summary>Spawn direction selector, 0 through 255: zero starts leftward; any other value starts rightward.</summary>
-    [PackedFields("population direction byte: zero starts toward the left end, any other value toward the right; ReactionDirection is its bit-0 complement")]
-    public int PrimaryDirection { get; internal set; }
+    /// <summary>The end the shutter first heads for, as its population entry names it.</summary>
+    public ShutterHeading PrimaryDirection { get; internal set; }
     /// <summary>Left endpoint's rest length in sixteen-update units, 0 through 255; 255 selects an inert endpoint.</summary>
     public int MovedLeftRestParameter { get; internal set; }
     /// <summary>Right endpoint's rest length in sixteen-update units, 0 through 255; 255 selects an inert endpoint.</summary>
@@ -59,12 +58,10 @@ public sealed class HorizontalShutterEnemyState
     /// <summary>Whether Samus overlaps the shutter on its leading side before movement, enabling fixed-point extra-X displacement and opposing-input ejection.</summary>
     public bool MovingSamus { get; internal set; }
     /// <summary>
-    /// Alternating reaction direction, 0 through 255: initialized as the primary direction with bit zero inverted and
-    /// toggled before each reaction, which moves left for zero and right otherwise. A primary direction above one
-    /// therefore never reacts leftward.
+    /// The end the shutter last reacted toward: it starts opposite the primary heading and turns before each
+    /// reaction, so the first reaction heads the primary way.
     /// </summary>
-    [PackedFields("bit-0 complement of the population direction byte, tested against zero when a shot reverses the shutter")]
-    public int ReactionDirection { get; internal set; }
+    public ShutterHeading ReactionDirection { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

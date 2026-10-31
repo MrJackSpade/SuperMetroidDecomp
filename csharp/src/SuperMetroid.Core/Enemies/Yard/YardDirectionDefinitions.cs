@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Crawlers;
+
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Fixed direction and airborne-animation definitions for Yard.</summary>
@@ -5,37 +7,37 @@ internal static class YardDirectionDefinitions
 {
     /// <summary>
     /// $A3:CD42, $CDC2 and $CDD2: each of the eight surface orientations' crawling and hiding animations, airborne
-    /// facing, opposite direction and native movement callback, by direction number: right-side wall moving up and
+    /// facing, opposite direction and native movement callback, by direction: right-side wall moving up and
     /// down, left-side wall moving up and down, ceiling moving left and right, floor moving left and right. Direction
-    /// pairs reverse motion on the same surface. Property bit zero selects positive motion and bit one vertical motion.
+    /// pairs reverse motion on the same surface. Each names the side of its block a landing crawl takes its signs from.
     /// </summary>
-    internal static readonly YardDirectionDefinition[] Directions =
-    [
-        new(YardProgram.CrawlingUpsideRightMovingUp, 2,
-            YardProgram.HidingUpsideRightMovingUp, YardAirborneFacing.Left, 1,
+    internal static readonly Dictionary<YardDirection, YardDirectionDefinition> Directions = new()
+    {
+        [YardDirection.UpsideRightMovingUp] = new(YardProgram.CrawlingUpsideRightMovingUp, CrawlerSurfaceOrientation.UpsideDown,
+            YardProgram.HidingUpsideRightMovingUp, YardAirborneFacing.Left, YardDirection.UpsideRightMovingDown,
             YardMovementFunction.CrawlingUpsideDownMovingLeft),
-        new(YardProgram.CrawlingUpsideRightMovingDown, 3,
-            YardProgram.HidingUpsideRightMovingDown, YardAirborneFacing.Right, 0,
+        [YardDirection.UpsideRightMovingDown] = new(YardProgram.CrawlingUpsideRightMovingDown, CrawlerSurfaceOrientation.UpsideUp,
+            YardProgram.HidingUpsideRightMovingDown, YardAirborneFacing.Right, YardDirection.UpsideRightMovingUp,
             YardMovementFunction.CrawlingUpsideRightMovingDown),
-        new(YardProgram.CrawlingUpsideLeftMovingUp, 2,
-            YardProgram.HidingUpsideLeftMovingUp, YardAirborneFacing.Right, 3,
+        [YardDirection.UpsideLeftMovingUp] = new(YardProgram.CrawlingUpsideLeftMovingUp, CrawlerSurfaceOrientation.UpsideDown,
+            YardProgram.HidingUpsideLeftMovingUp, YardAirborneFacing.Right, YardDirection.UpsideLeftMovingDown,
             YardMovementFunction.CrawlingUpsideLeftMovingUp),
-        new(YardProgram.CrawlingUpsideLeftMovingDown, 3,
-            YardProgram.HidingUpsideLeftMovingDown, YardAirborneFacing.Left, 2,
+        [YardDirection.UpsideLeftMovingDown] = new(YardProgram.CrawlingUpsideLeftMovingDown, CrawlerSurfaceOrientation.UpsideUp,
+            YardProgram.HidingUpsideLeftMovingDown, YardAirborneFacing.Left, YardDirection.UpsideLeftMovingUp,
             YardMovementFunction.CrawlingUpsideLeftMovingDown),
-        new(YardProgram.CrawlingUpsideDownMovingLeft, 0,
-            YardProgram.HidingUpsideDownMovingLeft, YardAirborneFacing.Right, 5,
+        [YardDirection.UpsideDownMovingLeft] = new(YardProgram.CrawlingUpsideDownMovingLeft, CrawlerSurfaceOrientation.UpsideRight,
+            YardProgram.HidingUpsideDownMovingLeft, YardAirborneFacing.Right, YardDirection.UpsideDownMovingRight,
             YardMovementFunction.CrawlingUpsideRightMovingUp),
-        new(YardProgram.CrawlingUpsideDownMovingRight, 1,
-            YardProgram.HidingUpsideDownMovingRight, YardAirborneFacing.Left, 4,
+        [YardDirection.UpsideDownMovingRight] = new(YardProgram.CrawlingUpsideDownMovingRight, CrawlerSurfaceOrientation.UpsideLeft,
+            YardProgram.HidingUpsideDownMovingRight, YardAirborneFacing.Left, YardDirection.UpsideDownMovingLeft,
             YardMovementFunction.CrawlingUpsideDownMovingRight),
-        new(YardProgram.CrawlingUpsideUpMovingLeft, 0,
-            YardProgram.HidingUpsideUpMovingLeft, YardAirborneFacing.Left, 7,
+        [YardDirection.UpsideUpMovingLeft] = new(YardProgram.CrawlingUpsideUpMovingLeft, CrawlerSurfaceOrientation.UpsideRight,
+            YardProgram.HidingUpsideUpMovingLeft, YardAirborneFacing.Left, YardDirection.UpsideUpMovingRight,
             YardMovementFunction.CrawlingUpsideUpMovingLeft),
-        new(YardProgram.CrawlingUpsideUpMovingRight, 1,
-            YardProgram.HidingUpsideUpMovingRight, YardAirborneFacing.Right, 6,
+        [YardDirection.UpsideUpMovingRight] = new(YardProgram.CrawlingUpsideUpMovingRight, CrawlerSurfaceOrientation.UpsideLeft,
+            YardProgram.HidingUpsideUpMovingRight, YardAirborneFacing.Right, YardDirection.UpsideUpMovingLeft,
             YardMovementFunction.CrawlingUpsideUpMovingRight),
-    ];
+    };
 
     /// <summary>
     /// The visible and hidden airborne animations by facing. Native detach, contact-kick and shot-launch repeat these

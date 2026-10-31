@@ -428,7 +428,7 @@ public sealed class SamusPowerBombExplosionState
         // the ordinary afterglow, zero underflows on its first active pre-instruction.
         _afterglowTimer = WrappingCountdown.Start(0);
         _crystalFlashAfterglowStepsRemaining =
-            PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(checked((ushort)RenderedExplosionRadius.RawValue));
+            PowerBombExplosionAfterglow.CrystalFlashAfterglowSteps(Ensure.BetweenInclusive(0, ushort.MaxValue, RenderedExplosionRadius.RawValue));
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 

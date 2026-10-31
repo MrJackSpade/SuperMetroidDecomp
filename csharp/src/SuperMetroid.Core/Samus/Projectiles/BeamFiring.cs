@@ -475,7 +475,7 @@ internal sealed class BeamFiring
         // request before the ordinary empty-ammo fallback. Murder Beam uses this exact path
         // to begin charging safely while the missile cooldown suppresses its unsafe initial
         // uncharged shot.
-        sharedProjectiles.SetSharedCooldown(isSuperMissile ? (ushort)20 : (ushort)10);
+        sharedProjectiles.SetSharedCooldown(isSuperMissile ? 20 : 10);
         if (samus.AutoCancelHudItemIndex != HudItem.Beam)
         {
             samus.SelectedHudItem = HudItem.Beam;
@@ -501,7 +501,7 @@ internal sealed class BeamFiring
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
         var origin = SamusMuzzleOrigins.Read(runningOrigin, slot.Direction.ToAimIndex());
-        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + origin.X)), unchecked((ushort)(samus.Position.Y.Whole + origin.Y - poseYOffset))));
+        slot.Position = slot.Position.WithWhole(new(CoordinateAxis.Wrap(samus.Position.X.Whole + origin.X), CoordinateAxis.Wrap(samus.Position.Y.Whole + origin.Y - poseYOffset)));
     }
 
     /// <summary>Selects beam speed from its combination and diagonal direction before applying inherited velocity.</summary>
@@ -512,7 +512,7 @@ internal sealed class BeamFiring
         int direction = slot.Direction.ToAimIndex();
         bool diagonal = direction is 1 or 3 or 6 or 8;
         int rowOffset = slot.Type.BeamCombination.TableIndex * SamusFiringTableDefinitions.InitialSpeedRowBytes;
-        int speed = unchecked((short)SamusProjectileAccelerations.ReadWord(
+        int speed = WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
             (diagonal
                 ? SamusFiringTableDefinitions.DiagonalSpeeds
                 : SamusFiringTableDefinitions.HorizontalVerticalSpeeds) + rowOffset));

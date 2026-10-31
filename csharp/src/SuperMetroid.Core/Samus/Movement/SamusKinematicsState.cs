@@ -144,20 +144,20 @@ public sealed class SamusKinematicsState
     /// from Samus's feet.
     /// </summary>
     public Position16<RoomPixels> TopBoundary =>
-        new(Position.X.Whole, unchecked((ushort)(Position.Y.Whole - Radius.Y)));
+        new(Position.X.Whole, CoordinateAxis.Wrap(Position.Y.Whole - Radius.Y));
 
     /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
     /// <c>$90:EC3E</c>, this does not subtract one. The native addition wraps at 16 bits.
     /// </summary>
-    public int BottomBoundary => unchecked((ushort)(Position.Y.Whole + Radius.Y));
+    public int BottomBoundary => CoordinateAxis.Wrap(Position.Y.Whole + Radius.Y);
 
     /// <summary>
     /// Bottom-centre occupied point: Samus's whole X and the last pixel row her collision box
     /// covers, one above the exclusive bottom boundary, wrapping in room space.
     /// </summary>
     public Position16<RoomPixels> BottomPixel =>
-        new(Position.X.Whole, unchecked((ushort)(BottomBoundary - 1)));
+        new(Position.X.Whole, CoordinateAxis.Wrap(BottomBoundary - 1));
 
     /// <summary>Publishes the result of one directional solid-enemy probe: the slot ordinal of the enemy met, or null.</summary>
     internal void RecordSolidEnemyCollision(

@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Samus.Death;
 internal static class SamusDeathExplosionTimingDefinitions
 {
     /// <summary>Number of authored suit-explosion timing records.</summary>
-    public const ushort RecordCount = 9;
+    public const int RecordCount = 9;
 
     /// <summary>Nine authored dwell times: initial whiteout hold, seven drawing cadences, and final completion delay.</summary>
     internal static ReadOnlySpan<byte> Durations =>

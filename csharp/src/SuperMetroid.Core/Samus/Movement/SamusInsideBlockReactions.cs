@@ -19,7 +19,7 @@ public static class SamusInsideBlockReactions
 
         void Visit(int y, bool bottomPoint, bool centerPoint)
         {
-            var block = level.GetCollisionBlockOrEdgeSolid(new(unchecked((ushort)(body.Position.X.Whole >> 4)), unchecked((ushort)(y >> 4))));
+            var block = level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(body.Position.X.Whole >> 4), CoordinateAxis.Wrap(y >> 4)));
             if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
@@ -73,7 +73,7 @@ public static class SamusInsideBlockReactions
                     speed.SpeedBoostCounter = default;
                     speed.EchoSoundFlag = 0;
                     speed.ExtraRunSpeed = default;
-                    speed.BaseSpeed = new UnsignedSixteenSixteen(0, speed.BaseSpeed.Fraction & (ushort)short.MaxValue);
+                    speed.BaseSpeed = new UnsignedSixteenSixteen(0, speed.BaseSpeed.Fraction & WordWrap.Unsigned(short.MaxValue));
                     if (!bottomPoint) return;
                     QuicksandSurfacePhysics physics =
                         QuicksandReactions.SurfacePhysics(
@@ -91,7 +91,7 @@ public static class SamusInsideBlockReactions
                             SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
                             // The original compares the middle words of the 16.16 speed and limit, then
                             // replaces the speed's whole pixels and fraction with the limit's.
-                            if ((ushort)(EightEight.WholeOf(body.VerticalSpeedFixed)) > EightEight.WholeOf(limit.RawValue))
+                            if (WordWrap.Unsigned(EightEight.WholeOf(body.VerticalSpeedFixed)) > EightEight.WholeOf(limit.RawValue))
                             {
                                 body.YSpeed = new UnsignedSixteenSixteen(limit.WholeWord, limit.Fraction);
                             }
@@ -220,7 +220,7 @@ public static class SamusInsideBlockReactions
             displacement = 0;
             return true;
         }
-        if (body.YDirection == SamusVerticalDirection.None && (ushort)(EightEight.WholeOf((uint)displacement)) > EightEight.WholeOf(QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue))
+        if (body.YDirection == SamusVerticalDirection.None && CoordinateAxis.Wrap(EightEight.WholeOf((uint)displacement)) > EightEight.WholeOf(QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue))
             displacement = (displacement & ~(ushort.MaxValue << 8)) | QuicksandDefinitions.StationarySurfaceProbeLimit.RawValue;
         surfaceContact = true;
         return false;

@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class PowerBombExplosionDefinitions
 {
     /// <summary>Initial unsigned 8.8 radius.</summary>
-    public const ushort InitialRadius = 0x0400;
+    public const int InitialRadius = 0x0400;
     /// <summary>Initial pre-explosion unsigned 8.8 radial velocity.</summary>
-    public const ushort InitialPreExplosionSpeed = 0x3000;
+    public const int InitialPreExplosionSpeed = 0x3000;
     /// <summary>Pre-explosion unsigned 8.8 acceleration.</summary>
-    public const ushort PreExplosionAcceleration = 0x0080;
+    public const int PreExplosionAcceleration = 0x0080;
     /// <summary>Explosion unsigned 8.8 acceleration.</summary>
-    public const ushort ExplosionAcceleration = 0x0030;
+    public const int ExplosionAcceleration = 0x0030;
     /// <summary>
     /// The horizontal radius, in pixels, of each yellow oval the pre-explosion's last frames walk, one per frame. Each
     /// is the radius a blast starting at four pixels and forty-eight pixels a frame, slowing by half a pixel a frame,
@@ -35,17 +35,17 @@ public static class PowerBombExplosionDefinitions
     /// <summary>Radius at which yellow explosion switches to white shapes.</summary>
     public static readonly PowerBombRadius ExplosionYellowLimit = PowerBombRadius.FromWholePixels(134);
     /// <summary>Crystal Flash's shorter explosion radius limit.</summary>
-    public const ushort CrystalFlashRadiusLimit = 0x2000;
+    public const int CrystalFlashRadiusLimit = 0x2000;
     /// <summary>
     /// Maximum component of the first native Crystal Flash color at $88:8D85:
     /// RGB5 (14,14,10). This is a lifetime operand, not replacement artwork.
     /// </summary>
-    internal const byte CrystalFlashInitialFadeSteps = 14;
+    internal const int CrystalFlashInitialFadeSteps = 14;
     /// <summary>
     /// $88:A5BE-$A5CC divides the consumed unsigned 8.8 radius by $0800 to
     /// select a color. Crystal Flash reaches only the first four yellow rows.
     /// </summary>
     internal const int CrystalFlashColorRadiusShift = 11;
     /// <summary>$88:8B96, byte reloaded by ordinary and Crystal Flash afterglow handlers.</summary>
-    public const byte AfterglowTimerReload = 3;
+    public const int AfterglowTimerReload = 3;
 }

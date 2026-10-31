@@ -110,7 +110,7 @@ public sealed class HyperBeamPaletteFxState
             "Hyper Beam palette FX requires installed colors."))
             .Apply(colours.HyperBeam, frameIndex);
 
-        InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+        InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         CurrentFrameIndex = frameIndex;
         return new HyperBeamPaletteFxStepResult();
     }

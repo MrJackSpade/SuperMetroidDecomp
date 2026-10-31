@@ -86,7 +86,7 @@ internal static class SamusAerialPoseTransitions
         samus.Pose = targetPose;
         // F404/F543 keep the source collision radius for the rest of this update.
         // Alpha's SetRadius publishes the new pose radius on the next update.
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
 
         // Aim may cancel the spin into a pose that consumes stored shine. Run that
         // branch of the common normal-jump initializer before ordinary acceleration.
@@ -209,7 +209,7 @@ internal static class SamusAerialPoseTransitions
         SamusGroundedPoseTransitions.FoldExtraRunSpeedIntoBaseAndStartTurn(samus);
         samus.Pose = selectedTurnPose;
         // The changed-pose handler preserves the source radius until next alpha.
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
     }
@@ -298,7 +298,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
                 samus.ApplyPoseChangeCollisionCrouchFallback(samus.Pose);
                 return;
             }
-            samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+            samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
         }
 
         // `$91:F433` observes previous movement type three plus equipped Screw Attack and
@@ -425,7 +425,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         {
             samus.Pose = targetPose;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+            samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
             if (samus.Pose != samus.PoseHistory.PreviousPose)
                 SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         }
@@ -1056,7 +1056,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         }
 
         samus.Pose = targetPose;
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
         if (sourcePose != samus.Pose)
         {
             // Pose collision uses prospective geometry; the live radius belongs to

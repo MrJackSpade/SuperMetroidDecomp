@@ -75,7 +75,7 @@ public sealed class SamusShinesparkState
     /// <param name="substate">The suit pickup's stage number, which becomes the acceleration's whole word.</param>
     /// <param name="lightBeamPosition">The suit pickup's light-beam word, which becomes the acceleration's fraction.</param>
     internal void ApplySuitPickupScratch(int substate, int lightBeamPosition) =>
-        VerticalAcceleration = SignedSixteenSixteen.FromParts(unchecked((short)substate), lightBeamPosition);
+        VerticalAcceleration = SignedSixteenSixteen.FromParts(WordWrap.Signed(substate), lightBeamPosition);
 
     /// <summary>Debugger-readable replacement for the installed bank-$90 handler pointer.</summary>
     public ShinesparkPhase Phase { get; internal set; }
@@ -187,7 +187,7 @@ public sealed class SamusShinesparkState
     public int CrashAngularTravel
     {
         get => FirstReleasedCrashEchoSlot.Position.Y;
-        private set => FirstReleasedCrashEchoSlot.Position = FirstReleasedCrashEchoSlot.Position.WithY(checked((ushort)value));
+        private set => FirstReleasedCrashEchoSlot.Position = FirstReleasedCrashEchoSlot.Position.WithY(value);
     }
 
     /// <summary>The largest angular travel the shared echo coordinate holds; one more step wraps past it to zero.</summary>
@@ -685,7 +685,7 @@ false);
 
         // Each active handler samples echoes before motion. Runtime suppresses its ordinary
         // post-motion producer while this special handler owns the frame.
-        samus.HorizontalSpeed.CaptureSpeedEchoPosition(checked((ushort)frame.GameTimeFrames), samus.Position.Whole);
+        samus.HorizontalSpeed.CaptureSpeedEchoPosition(Ensure.BetweenInclusive(0, ushort.MaxValue, frame.GameTimeFrames), samus.Position.Whole);
 
         BlockMoveResult? horizontal = null;
         BlockMoveResult? vertical = null;
@@ -795,8 +795,8 @@ false);
         // prologue clears it before the newly installed crash handler runs next.
         samus.HurtFlashCounter = 0;
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        FirstCrashEchoAngle = RotationAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
-        SecondCrashEchoAngle = RotationAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
+        FirstCrashEchoAngle = RotationAngle.FromTableIndex(facingLeft ? 32 : 224);
+        SecondCrashEchoAngle = RotationAngle.FromTableIndex(facingLeft ? 160 : 96);
         CrashAngularDelta = facingLeft ? 4 : -4;
         FirstReleasedCrashEchoSlot.DisableDrawing();
         CrashOrbitStage = ShinesparkCrashOrbitStage.Expanding;
@@ -819,8 +819,8 @@ false);
     /// </summary>
     private int CrashAngularDelta
     {
-        get => unchecked((short)FirstReleasedCrashEchoSlot.Position.X);
-        set => FirstReleasedCrashEchoSlot.Position = FirstReleasedCrashEchoSlot.Position.WithX(unchecked((ushort)value));
+        get => CoordinateAxis.AsSigned(FirstReleasedCrashEchoSlot.Position.X);
+        set => FirstReleasedCrashEchoSlot.Position = FirstReleasedCrashEchoSlot.Position.WithX(WordWrap.Unsigned(value));
     }
 
     /// <summary>Ports `$90:D346-$D3F2`, including the three overloaded-index substates.</summary>
@@ -847,7 +847,7 @@ false);
                 AdvanceCrashAngularTravel();
                 // The sign of the sixteen-bit distance from 128 decides, so a travel that wrapped to
                 // zero, or one seeded far above 128, keeps orbiting until it climbs back to 128.
-                if (unchecked((short)(CrashAngularTravel - 128)) >= 0)
+                if (WordWrap.Signed(CrashAngularTravel - 128) >= 0)
                     CrashOrbitStage = ShinesparkCrashOrbitStage.Contracting;
                 break;
 
@@ -870,7 +870,7 @@ false);
 
         // Projectile_SinLookup consumes a byte angle/radius and returns wrapped 16-bit
         // offsets. Both additions below deliberately retain that unsigned WRAM wrapping.
-        int orbitRadius = checked((byte)CrashRadius);
+        int orbitRadius = Ensure.BetweenInclusive(0, byte.MaxValue, CrashRadius);
         Offset16<RoomPixels> firstOffset = ProjectileSinLookup(FirstCrashEchoAngle, orbitRadius);
         Offset16<RoomPixels> secondOffset = ProjectileSinLookup(SecondCrashEchoAngle, orbitRadius);
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
@@ -892,7 +892,7 @@ false);
     /// The speed-echo index word the crash shares with the speed echoes: the orbit radius in its low byte and the
     /// orbit stage number, 0 through 2, in its high byte. The echo drawer and the next boost read that word.
     /// </summary>
-    private ushort CrashEchoIndexWord()
+    private int CrashEchoIndexWord()
     {
         int stageNumber = CrashOrbitStage switch
         {
@@ -901,7 +901,7 @@ false);
             ShinesparkCrashOrbitStage.Contracting => 2,
             _ => throw new InvalidOperationException($"Shinespark crash orbit stage {CrashOrbitStage} is undefined."),
         };
-        return (ushort)(checked((byte)CrashRadius) | stageNumber << CrashEchoStageShift);
+        return CoordinateAxis.Wrap(Ensure.BetweenInclusive(0, byte.MaxValue, CrashRadius) | stageNumber << CrashEchoStageShift);
     }
 
     /// <summary>Ports the 30-frame center echo hold at `$90:D3F3`.</summary>
@@ -934,9 +934,9 @@ false);
         // or above. The runtime supplies the ordinary projectile count, not bomb count.
         // Capacity failure does not clear existing echo words or slots. In particular,
         // retaining slot three's Y also retains the next crash's angular-travel seed.
-        if (unchecked((short)(projectileCounter - 5)) < 0)
+        if (CoordinateAxis.Difference(projectileCounter, 5) < 0)
         {
-            if (unchecked((short)(projectileCounter - 4)) < 0)
+            if (CoordinateAxis.Difference(projectileCounter, 4) < 0)
             {
                 FirstReleasedCrashEchoSlot.Initialize(departureAngles.First, samus.Position.Whole);
                 projectiles?.Shinespark.InitializeShinesparkEcho(3, departureAngles.First);
@@ -985,11 +985,11 @@ false,             CrashSequenceFinished: true);
             4 => SecondReleasedCrashEchoSlot,
             _ => throw new InvalidOperationException("Crash echo requires fixed slot three or four.")
         };
-        echo.Radius = unchecked((ushort)projectile.Velocity.X.SignedRawValue);
+        echo.Radius = WordWrap.Unsigned(projectile.Velocity.X.SignedRawValue);
         echo.Angle = projectile.EchoAngle.ToAngle();
         if (!StepReleasedCrashEcho(samus, layer1,
             echo, slotOwner: CrashEchoSlotOwner.Projectile)) return false;
-        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)echo.Radius)));
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.FromSignedRaw(CoordinateAxis.AsSigned(echo.Radius)));
         projectile.Position = projectile.Position.WithWhole(echo.Position);
         return true;
     }
@@ -1008,14 +1008,14 @@ false,             CrashSequenceFinished: true);
         // The point is recalculated from the *current* Samus position on every frame; these
         // are expanding radial copies, not ordinary projectiles with independent velocity.
         slot.ExpandRadius();
-        Offset16<RoomPixels> offset = ProjectileSinLookup(slot.Angle, unchecked((byte)slot.Radius));
+        Offset16<RoomPixels> offset = ProjectileSinLookup(slot.Angle, WordWrap.LowByte(slot.Radius));
         Position16<RoomPixels> point = samus.Position.Whole + offset;
         slot.Position = slot.Position.WithX(point.X);
 
         // Native performs the X viewport rejection before calculating/publishing Y. The
         // cleared result is identical either way, but retaining the branch order makes a
         // debugger trace line up with `$90:D4F2-$D51E` instruction for instruction.
-        int screenX = unchecked((short)(slot.Position.X - layer1.X));
+        int screenX = CoordinateAxis.Difference(slot.Position.X, layer1.X);
         if (screenX is < 0 or >= 256)
         {
             slot.Clear();
@@ -1023,7 +1023,7 @@ false,             CrashSequenceFinished: true);
         }
 
         slot.Position = slot.Position.WithY(point.Y);
-        int screenY = unchecked((short)(slot.Position.Y - layer1.Y));
+        int screenY = CoordinateAxis.Difference(slot.Position.Y, layer1.Y);
         if (screenY is < 0 or >= 256)
         {
             slot.Clear();
@@ -1060,15 +1060,15 @@ false,             CrashSequenceFinished: true);
     /// </summary>
     private static void CapPreviousX(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
-        int delta = unchecked((short)(samus.Position.X.Whole - samus.PeekPreviousPositionWords(checkpoint).X));
+        int delta = CoordinateAxis.Difference(samus.Position.X.Whole, samus.PeekPreviousPositionWords(checkpoint).X);
         if (delta >= 0)
         {
             if (delta >= 16)
-                samus.WritePreviousXPosition(unchecked((ushort)(samus.Position.X.Whole - 15)));
+                samus.WritePreviousXPosition(CoordinateAxis.Wrap(samus.Position.X.Whole - 15));
         }
         else if (delta < -15)
         {
-            samus.WritePreviousXPosition(unchecked((ushort)(samus.Position.X.Whole + 15)));
+            samus.WritePreviousXPosition(CoordinateAxis.Wrap(samus.Position.X.Whole + 15));
         }
     }
 
@@ -1078,10 +1078,10 @@ false,             CrashSequenceFinished: true);
     /// </summary>
     private static void CapPreviousY(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
-        int delta = unchecked((ushort)(samus.Position.Y.Whole - samus.PeekPreviousPositionWords(checkpoint).Y));
+        int delta = CoordinateAxis.Wrap(samus.Position.Y.Whole - samus.PeekPreviousPositionWords(checkpoint).Y);
         // CMP #$FFF2 / BPL: the sign of delta - $FFF2, which is delta + 14 in sixteen bits.
-        if (unchecked((short)(delta + 14)) < 0)
-            samus.WritePreviousYPosition(unchecked((ushort)(samus.Position.Y.Whole + 14)));
+        if (WordWrap.Signed(delta + 14) < 0)
+            samus.WritePreviousYPosition(CoordinateAxis.Wrap(samus.Position.Y.Whole + 14));
     }
 
     /// <summary>Accelerates horizontal spark speed up to fifteen pixels per frame and probes breakable room blocks.</summary>
@@ -1098,7 +1098,7 @@ false,             CrashSequenceFinished: true);
                 samus.Kinematics.YAcceleration.Whole,
                 samus.Kinematics.YAcceleration.Fraction));
         samus.HorizontalSpeed.ExtraRunSpeed = UnsignedSixteenSixteen.FromRaw(accelerated);
-        if (unchecked((short)(samus.HorizontalSpeed.ExtraRunSpeed.Whole - 15)) >= 0)
+        if (WordWrap.Signed(samus.HorizontalSpeed.ExtraRunSpeed.Whole - 15) >= 0)
         {
             samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(15, 0);
         }
@@ -1124,11 +1124,11 @@ false,             CrashSequenceFinished: true);
         uint speed = unchecked(SixteenSixteen.Compose(
             samus.Kinematics.YSpeed.Whole,
             samus.Kinematics.YSpeed.Fraction) + acceleration);
-        samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(speed))), unchecked((ushort)speed));
+        samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(WordWrap.Unsigned(SixteenSixteen.WholeOf(speed)), WordWrap.Unsigned(speed));
 
         // The native clamp operates on a temporary displacement, not stored velocity.
         // Keep accumulating the wrapped speed words even after movement reaches its cap.
-        uint displacementSpeed = unchecked((short)(samus.Kinematics.YSpeed.Whole - 14)) >= 0
+        uint displacementSpeed = WordWrap.Signed(samus.Kinematics.YSpeed.Whole - 14) >= 0
             ? SixteenSixteen.Compose(14, samus.Kinematics.YSpeed.Fraction)
             : speed;
         int upwardDisplacement = unchecked(-(int)displacementSpeed);
@@ -1141,11 +1141,11 @@ false,             CrashSequenceFinished: true);
         // it back before the room move. If external Y is strong enough to reverse motion
         // downward, the temporary value is negative and deliberately bypasses this clamp.
         int collisionMagnitude = unchecked(-upwardDisplacement);
-        int collisionMagnitudeWhole = unchecked((short)SixteenSixteen.WholeOf(collisionMagnitude));
-        if (unchecked((short)(collisionMagnitudeWhole - 15)) >= 0)
+        int collisionMagnitudeWhole = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(collisionMagnitude));
+        if (CoordinateAxis.Difference(collisionMagnitudeWhole, 15) >= 0)
         {
             collisionMagnitude = unchecked((int)(
-                (15u << 16) | (ushort)collisionMagnitude));
+                (15u << 16) | WordWrap.Unsigned(collisionMagnitude)));
             upwardDisplacement = unchecked(-collisionMagnitude);
         }
         // Shinespark's native solid-enemy branch sets collision and returns without
@@ -1153,7 +1153,7 @@ false,             CrashSequenceFinished: true);
         // to the enemy boundary; using it here shifts the entire crash/recovery anchor.
         SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(
             samus.Kinematics, samus.Kinematics.InteractiveEnemies, SamusCollisionDirection.Up,
-            FixedCoordinate.WholeOf(collisionMagnitude), unchecked((ushort)collisionMagnitude));
+            FixedCoordinate.WholeOf(collisionMagnitude), WordWrap.Unsigned(collisionMagnitude));
         samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Up, enemy.EnemySlot);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);

@@ -51,12 +51,12 @@ internal sealed class ProjectileMotion
         }
 
         int directionOffset = slot.Direction.ToAimIndex() * 2;
-        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
-            unchecked((short)SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamXAccelerations + directionOffset))))));
-        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
-            unchecked((short)SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamYAccelerations + directionOffset))))));
+        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
+            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
+                SamusFiringTableDefinitions.BeamXAccelerations + directionOffset)))));
+        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue +
+            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
+                SamusFiringTableDefinitions.BeamYAccelerations + directionOffset)))));
 
         SamusProjectileDirection direction = slot.Direction;
         bool collided = direction switch
@@ -111,8 +111,8 @@ internal sealed class ProjectileMotion
         {
             slot.TrailTimer = WrappingCountdown.FromRaw(slot.PreInstruction ==
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
-                    ? (ushort)3
-                    : (ushort)4);
+                    ? 3
+                    : 4);
             _trails.SpawnTrail(slot);
         }
 
@@ -146,12 +146,12 @@ internal sealed class ProjectileMotion
         ISamusRoomPlms? roomPlms)
     {
         int direction = slot.Direction.ToAimIndex();
-        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
-            unchecked((short)SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamXAccelerations + direction * 2))))));
-        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
-            unchecked((short)SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamYAccelerations + direction * 2))))));
+        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
+            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
+                SamusFiringTableDefinitions.BeamXAccelerations + direction * 2)))));
+        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue +
+            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
+                SamusFiringTableDefinitions.BeamYAccelerations + direction * 2)))));
 
         // `$94:A352/$A3E4` advance the same 16.16 positions and scan every block touched by
         // the projectile radii, but deliberately return carry clear unconditionally. That is
@@ -199,12 +199,12 @@ internal sealed class ProjectileMotion
         // Missile pre-instruction `$90:AF8F-$AFA0` first applies the same small directional
         // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
-        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
-            unchecked((short)SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamXAccelerations + direction * 2))))));
-        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
-            unchecked((short)SamusProjectileAccelerations.ReadWord(
-                SamusFiringTableDefinitions.BeamYAccelerations + direction * 2))))));
+        slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
+            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
+                SamusFiringTableDefinitions.BeamXAccelerations + direction * 2)))));
+        slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue +
+            WordWrap.Signed(SamusProjectileAccelerations.ReadWord(
+                SamusFiringTableDefinitions.BeamYAccelerations + direction * 2)))));
 
         if (slot.MissileIgnition != SamusMissileIgnition.Ignited)
         {
@@ -215,10 +215,10 @@ internal sealed class ProjectileMotion
         else
         {
             int acceleration = SamusFiringTableDefinitions.MissileAccelerations + direction * 4;
-            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
-                unchecked((short)SamusProjectileAccelerations.ReadWord(acceleration))))));
-            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
-                unchecked((short)SamusProjectileAccelerations.ReadWord(acceleration + 2))))));
+            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
+                WordWrap.Signed(SamusProjectileAccelerations.ReadWord(acceleration)))));
+            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue +
+                WordWrap.Signed(SamusProjectileAccelerations.ReadWord(acceleration + 2)))));
         }
 
         bool collided = direction switch
@@ -279,10 +279,10 @@ internal sealed class ProjectileMotion
         {
             int acceleration =
                 SamusFiringTableDefinitions.SuperMissileAccelerations + direction * 4;
-            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
-                unchecked((short)SamusProjectileAccelerations.ReadWord(acceleration))))));
-            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.Y.SignedRawValue +
-                unchecked((short)SamusProjectileAccelerations.ReadWord(acceleration + 2))))));
+            slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.X.SignedRawValue +
+                WordWrap.Signed(SamusProjectileAccelerations.ReadWord(acceleration)))));
+            slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(WordWrap.Signed(slot.Velocity.Y.SignedRawValue +
+                WordWrap.Signed(SamusProjectileAccelerations.ReadWord(acceleration + 2)))));
         }
 
         bool collided = false;
@@ -324,8 +324,8 @@ internal sealed class ProjectileMotion
         const int MinimumVisibleCoordinate = -64;
         const int MaximumVisibleCoordinateExclusive = 320;
 
-        int screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
-        int screenY = unchecked((short)(slot.Position.Y.Whole - layer1.Y));
+        int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, layer1.X);
+        int screenY = CoordinateAxis.Difference(slot.Position.Y.Whole, layer1.Y);
         bool outside =
             screenX < MinimumVisibleCoordinate ||
             screenX >= MaximumVisibleCoordinateExclusive ||
@@ -430,7 +430,7 @@ internal sealed class ProjectileMotion
         // strikes the door behind it still opens the cap through its link.
         int offset = wholeMagnitude - 10;
         int ownerPosition = axis == Axis.Vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
-        int linkPosition = unchecked((ushort)(ownerPosition + (velocity < 0 ? offset : -offset)));
+        int linkPosition = CoordinateAxis.Wrap(ownerPosition + (velocity < 0 ? offset : -offset));
         if (axis == Axis.Vertical)
             link.Position = link.Position.WithWholeY(linkPosition);
         else
@@ -503,7 +503,7 @@ internal sealed class ProjectileMotion
             return false;
         }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+        RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
 
         // `$94:9D9F/$9DCA` return the dispatcher to its caller with N set, causing the same
         // point reaction to run again on the signed horizontal/vertical parent. A zero-behaviour

@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class SamusDeathSequenceDefinitions
 {
     /// <summary>Sixteen calls display the ordinary death pose before flashing.</summary>
-    public const ushort PreFlashFrameCount = 16;
+    public const int PreFlashFrameCount = 16;
     /// <summary>Sixty calls alternate palettes before the suit explodes.</summary>
-    public const ushort FlashFrameCount = 60;
+    public const int FlashFrameCount = 60;
     /// <summary>Right-facing base index in Samus's death-explosion spritemap table.</summary>
-    public const ushort RightExplosionSpritemap = 0x081c;
+    public const int RightExplosionSpritemap = 0x081c;
     /// <summary>Left-facing base index in Samus's death-explosion spritemap table.</summary>
-    public const ushort LeftExplosionSpritemap = 0x0825;
+    public const int LeftExplosionSpritemap = 0x0825;
 
     /// <summary>The value each key selects; InitialFrame looks it up.</summary>
     public static readonly IReadOnlyDictionary<SamusMovementType, byte> InitialFrames = new Dictionary<SamusMovementType, byte>

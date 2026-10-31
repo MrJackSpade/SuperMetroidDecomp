@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class ShinesparkDefinitions
 {
     /// <summary><c>$90:D2BD</c>, EndSuperJump's minimum energy to sustain a native shinespark.</summary>
-    public const ushort MinimumSustainingEnergy = 30;
+    public const int MinimumSustainingEnergy = 30;
 }

@@ -52,19 +52,19 @@ public static class SamusSlopePhysics
         // magnitude, multiplies, and negates the 32-bit result afterward.
         if (displacement >= 0)
         {
-            int truncated = unchecked((ushort)(EightEight.WholeOf(displacement)));
+            int truncated = CoordinateAxis.Wrap(EightEight.WholeOf(displacement));
             return unchecked((int)((uint)truncated * multiplier));
         }
         else
         {
-            int truncated = unchecked((ushort)(EightEight.WholeOf(displacement)));
-            int magnitude = unchecked((ushort)-truncated);
+            int truncated = CoordinateAxis.Wrap(EightEight.WholeOf(displacement));
+            int magnitude = WordWrap.Unsigned(-truncated);
             return unchecked(-(int)((uint)magnitude * multiplier));
         }
     }
 
     /// <summary>Typed behaviour overload used by live room collision.</summary>
-    public static byte ReadAlignmentHeight(
+    public static int ReadAlignmentHeight(
         RoomBlockBehavior behavior,
         int xPosition)
     {
@@ -72,7 +72,7 @@ public static class SamusSlopePhysics
         // behaviour bit $40 mirrors the profile horizontally. XORing the complete coordinate by
         // $000F is equivalent to flipping its low nibble while retaining native word math.
         int sampledX = behavior.SlopeFlipsHorizontally
-            ? unchecked((ushort)(xPosition ^ 15))
+            ? CoordinateAxis.Wrap(xPosition ^ 15)
             : xPosition;
         return SlopeHeights.Read(behavior.SlopeShape, sampledX & 15);
     }
@@ -103,7 +103,7 @@ public static class SamusSlopePhysics
 
         // $94:87F4 first probes the center-X block containing Samus's bottom pixel. Only
         // type 1, shapes >=5, and behaviour bit $80 clear participate as floor slopes.
-        int bottomPosition = unchecked((ushort)(yPosition + yRadius - 1));
+        int bottomPosition = CoordinateAxis.Wrap(yPosition + yRadius - 1);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
             bottom.CollisionType == RoomCollisionType.Slope &&
             bottom.Behavior.IsNonSquareSlope)
@@ -112,10 +112,10 @@ public static class SamusSlopePhysics
             {
                 int height = ReadAlignmentHeight(bottom.Behavior, xPosition);
                 int bottomNibble = bottomPosition & 15;
-                int correction = unchecked((short)(height - bottomNibble - 1));
+                int correction = CoordinateAxis.Difference(height - bottomNibble, 1);
                 if (correction < 0)
                 {
-                    yPosition = unchecked((ushort)(yPosition + correction));
+                    yPosition = CoordinateAxis.Wrap(yPosition + correction);
                     adjusted = true;
                 }
             }
@@ -123,7 +123,7 @@ public static class SamusSlopePhysics
 
         // Recompute the top probe after any floor correction. Ceiling slopes use behaviour bit
         // $80 set and reverse the same signed correction, matching $94:887A-$94:88F3.
-        int topPosition = unchecked((ushort)(yPosition - yRadius));
+        int topPosition = CoordinateAxis.Wrap(yPosition - yRadius);
         if (TryGetBlockAtPixel(level, Position16<RoomPixels>.Of(xPosition, topPosition), out RoomCollisionBlock top) &&
             top.CollisionType == RoomCollisionType.Slope &&
             top.Behavior.IsNonSquareSlope)
@@ -132,10 +132,10 @@ public static class SamusSlopePhysics
             {
                 int height = ReadAlignmentHeight(top.Behavior, xPosition);
                 int invertedTopNibble = (topPosition & 15) ^ 15;
-                int correction = unchecked((short)(height - invertedTopNibble - 1));
+                int correction = CoordinateAxis.Difference(height - invertedTopNibble, 1);
                 if (correction <= 0)
                 {
-                    yPosition = unchecked((ushort)(yPosition - correction));
+                    yPosition = CoordinateAxis.Wrap(yPosition - correction);
                     adjusted = true;
                 }
             }
@@ -160,7 +160,7 @@ public static class SamusSlopePhysics
             return false;
         }
 
-        block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+        block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
         return true;
     }
 

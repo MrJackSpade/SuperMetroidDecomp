@@ -108,7 +108,7 @@ public abstract class InstalledSamusBodyArtwork
     /// <summary>Gets the installed drained-state vertical-offset table.</summary>
     public ReadOnlySpan<sbyte> DrainedYOffsets => drainedYOffsets;
     /// <summary>Resolves an edited landing byte or its native shared-source alias.</summary>
-    private ushort LandingByte(int index) => landingYOffsets.ContainsKey(index)
+    private int LandingByte(int index) => landingYOffsets.ContainsKey(index)
         ? landingYOffsets[index] : SamusBodyPlacements.LandingSourceIndex(index) == index
             ? SamusBodyPlacements.DefaultLandingByte(index) : LandingByte(SamusBodyPlacements.LandingSourceIndex(index));
     /// <summary>Attempts to read the native unaligned landing-offset word at a byte index.</summary>
@@ -122,7 +122,7 @@ public abstract class InstalledSamusBodyArtwork
             value = 0;
             return false;
         }
-        value = BinaryPrimitives.ReadUInt16LittleEndian([(byte)LandingByte(index), (byte)LandingByte(index + 1)]);
+        value = BinaryPrimitives.ReadUInt16LittleEndian([WordWrap.LowByte(LandingByte(index)), WordWrap.LowByte(LandingByte(index + 1))]);
         return true;
     }
     /// <summary>Attempts to read a signed posture-transition art offset.</summary>
@@ -146,7 +146,7 @@ public abstract class InstalledSamusBodyArtwork
         return true;
     }
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
-    public sbyte GraphicsYOffset(SamusPoseId pose) =>
+    public int GraphicsYOffset(SamusPoseId pose) =>
         SamusPoseNumbering.HasRecord(pose) ? graphicsYOffsets.ContainsKey(SamusPoseNumbering.Number(pose)) ? graphicsYOffsets[SamusPoseNumbering.Number(pose)] : SamusBodyPlacements.DefaultGraphicsYOffset(pose) :
             throw new InvalidDataException($"Pose {pose} has no authored graphics Y offset.");
 

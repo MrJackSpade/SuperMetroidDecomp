@@ -54,7 +54,7 @@ internal sealed class SamusInputSnapshot
         ShinesparkPoseInputLocked = false;
         CrystalFlashPoseInputLocked = false;
         AutoJumpInputPending = false;
-        if (AutoJumpTimer != 0 && unchecked((short)(AutoJumpTimer - SamusAutoJumpDefinitions.TimerComparisonLimit)) < 0)
+        if (AutoJumpTimer != 0 && WordWrap.Signed(AutoJumpTimer - SamusAutoJumpDefinitions.TimerComparisonLimit) < 0)
         {
             AutoJumpTimer = 0;
             newlyPressed |= ControllerButton.A;
@@ -70,7 +70,7 @@ internal sealed class SamusInputSnapshot
     {
         ControllerButton jump = ControllerButton.A;
         AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != ControllerButton.None
-            ? unchecked((ushort)(AutoJumpTimer + 1)) : 0;
+            ? WordWrap.Unsigned(AutoJumpTimer + 1) : 0;
         PreviousDrawHeldInput = held;
         PreviousDrawNewInput = newlyPressed;
     }

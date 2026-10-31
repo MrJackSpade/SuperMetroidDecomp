@@ -44,7 +44,7 @@ internal static class SamusMuzzleOrigins
     }
 
     /// <summary>Resolves authored muzzle words first, then reproduces adjacent cooldown bytes reached by out-of-range low-nibble directions.</summary>
-    private static short ReadWord(int offset)
+    private static int ReadWord(int offset)
     {
         int originOffset = offset - SamusFiringTableDefinitions.DefaultXOrigins;
         if (originOffset >= 0 && originOffset < 40 * sizeof(ushort) && (originOffset & 1) == 0)
@@ -53,6 +53,6 @@ internal static class SamusMuzzleOrigins
             var muzzle = Muzzle(word >= 20, SamusProjectileDirections.At(word % 10));
             return word % 20 < 10 ? muzzle.X : muzzle.Y;
         }
-        return unchecked((short)BinaryPrimitives.ReadUInt16LittleEndian([SamusProjectileCooldowns.ReadByte(offset), SamusProjectileCooldowns.ReadByte(offset + 1)]));
+        return CoordinateAxis.AsSigned(BinaryPrimitives.ReadUInt16LittleEndian([SamusProjectileCooldowns.ReadByte(offset), SamusProjectileCooldowns.ReadByte(offset + 1)]));
     }
 }

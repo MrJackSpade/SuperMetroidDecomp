@@ -16,14 +16,14 @@ internal static class ChargeFlareAnimationDefinitions
     /// <summary>The three words just before the programs, naming the main-flare, slow-spark and fast-spark programs.</summary>
     internal const int ProgramTableByteCount = 6;
     /// <summary>$9B:C049, HandleGrappleBeamFlare: counter one force-selects main frame sixteen.</summary>
-    internal const ushort GrappleInitialFrame = 16;
+    internal const int GrappleInitialFrame = 16;
     /// <summary>$9B:C04F, HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
-    internal const ushort GrappleInitialDelay = 3;
+    internal const int GrappleInitialDelay = 3;
     /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Rewind"/>.</summary>
-    internal const byte RewindByte = 0xfe;
+    internal const int RewindByte = 0xfe;
 
     /// <summary>The stream byte that encodes <see cref="ChargeFlareDelayCommand.Restart"/>.</summary>
-    internal const byte RestartByte = 0xff;
+    internal const int RestartByte = 0xff;
 
     /// <summary>The command each command byte of a delay stream encodes; every other stream byte is a delay.</summary>
     internal static readonly FrozenDictionary<byte, ChargeFlareDelayCommand> CommandBytes =

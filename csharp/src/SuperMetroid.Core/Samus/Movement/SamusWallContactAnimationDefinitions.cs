@@ -7,8 +7,8 @@ internal static class SamusWallContactAnimationDefinitions
     /// Screw Attack's rewind frame: its longer pre-contact animation makes frame 27 the first
     /// eligible wall frame, so contact rewinds to 26.
     /// </summary>
-    internal const ushort ScrewAttackRewindFrame = 0x1a;
+    internal const int ScrewAttackRewindFrame = 0x1a;
 
     /// <summary>Ordinary spin and Space Jump's rewind frame, the compact 10 -> 11 handoff.</summary>
-    internal const ushort SpinJumpRewindFrame = 0x0a;
+    internal const int SpinJumpRewindFrame = 0x0a;
 }

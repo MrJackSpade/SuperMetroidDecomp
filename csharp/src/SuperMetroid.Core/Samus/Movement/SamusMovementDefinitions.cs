@@ -12,17 +12,17 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusMovementDefinitions
 {
     /// <summary>$91:F1FC/$F25E ball-landing handlers: signed whole-speed threshold for the first automatic bounce.</summary>
-    public const short FirstBallBounceMinimumSpeed = 3;
+    public const int FirstBallBounceMinimumSpeed = 3;
 
     /// <summary>$90:A3C1, SamusMovement_Standing: held-shot animation timer before the animation tick.</summary>
-    public const ushort StandingShotAnimationTimer = 16;
+    public const int StandingShotAnimationTimer = 16;
 
     /// <summary>$90:A58D, Samus_Movement_06_Falling: minimum signed whole speed selecting fast-fall art.</summary>
-    public const short FastFallAnimationSpeed = 5;
+    public const int FastFallAnimationSpeed = 5;
     /// <summary>$90:A58D falling handler: first fast-fall animation frame.</summary>
-    public const ushort FastFallAnimationFrame = 5;
+    public const int FastFallAnimationFrame = 5;
     /// <summary>$90:A58D falling handler: fast-fall timer before the animation tick.</summary>
-    public const ushort FastFallAnimationTimer = 8;
+    public const int FastFallAnimationTimer = 8;
 
 
     /// <summary>Pose definitions, animation lists, and controller-transition streams.</summary>
@@ -40,7 +40,7 @@ public static class SamusMovementDefinitions
         /// $FF in pose-definition byte three: the pose has no shot direction. Hurt and
         /// damage-boost art store it, and $91:E95D lands them through the facing pair.
         /// </summary>
-        public const byte NoShotDirection = 0xff;
+        public const int NoShotDirection = 0xff;
     }
 
     /// <summary>Horizontal acceleration, Speed Booster, and animation cadence tables.</summary>

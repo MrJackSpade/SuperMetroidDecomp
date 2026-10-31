@@ -6,7 +6,7 @@ public static class ChargeFlareSpriteDefinitions
     /// <summary>Installed JSON resource filename for charge/Hyper/grapple flare and spark OAM compositions, separate from ordinary projectile compositions.</summary>
     public const string FileName = "charge-flare-compositions.json";
     /// <summary>$93:A225/A22B, FlareSpritemapTable_IndexOffsets: both facing rows select the main flare at offset zero.</summary>
-    public const ushort MainFlareSelectorOffset = 0;
+    public const int MainFlareSelectorOffset = 0;
 
     /// <summary>How many compositions each flare family holds: four main flares, then the right slow, right fast, left slow and left fast spark groups.</summary>
     internal static readonly ProjectileSpriteGroupSize[] Groups =

@@ -12,5 +12,5 @@ public static class GrappleSwingFrameDefinitions
     /// <summary>$9B:BD95: Grapple swing art has 32 orientation frames per facing.</summary>
     public const int FrameCount = 32;
     /// <summary>$9B:C1C2 angle selector rounds to the nearest eight-angle frame, wrapping at 32.</summary>
-    public static byte FrameForAngle(ByteAngle angle) => (byte)(((angle.RawValue + 4) >> 3) & (FrameCount - 1));
+    public static int FrameForAngle(ByteAngle angle) => WordWrap.LowByte(((angle.RawValue + 4) >> 3) & (FrameCount - 1));
 }

@@ -177,7 +177,7 @@ public sealed class SamusGrappleState
     /// Readable $21-$24 instruction phases corresponding to WRAM pointers $7E:0D62-$0D80.
     /// Values zero through three are added to base tile $21 only at the OAM write boundary.
     /// </summary>
-    public byte[] SegmentAnimationFrames { get; } = new byte[16];
+    public int[] SegmentAnimationFrames { get; } = new int[16];
 
     /// <summary>
     /// Host-readable marker for $94:AFBA's special first timer expiry. The original stores

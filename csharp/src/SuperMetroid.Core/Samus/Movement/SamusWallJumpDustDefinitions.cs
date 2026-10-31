@@ -10,7 +10,7 @@ internal static class SamusWallJumpDustDefinitions
     /// <summary>$91:FA76 installs packed type $0600, the shared dry dust animation.</summary>
     public const SamusAtmosphericEffectType Type = SamusAtmosphericEffectType.Dust;
     /// <summary>$91:FA76 starts the dust at frame zero with three animation ticks.</summary>
-    public const ushort InitialTimer = 3;
+    public const int InitialTimer = 3;
     /// <summary>$91:FA76 places dust six pixels behind the new pose's facing direction.</summary>
     public const int HorizontalOffset = 6;
 }

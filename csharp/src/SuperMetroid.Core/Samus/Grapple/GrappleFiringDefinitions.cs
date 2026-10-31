@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 internal static class GrappleFiringDefinitions
 {
     /// <summary>$9B:C0DF cardinal component: twelve times the byte-sine maximum 255.</summary>
-    internal const short CardinalVelocity = 12 * 255;
+    internal const int CardinalVelocity = 12 * 255;
     /// <summary>$9B:C0DD diagonal component: twelve times the byte-sine octant sample 181.</summary>
-    internal const short DiagonalVelocity = 12 * 181;
+    internal const int DiagonalVelocity = 12 * 181;
 }

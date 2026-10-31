@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 public sealed class SamusAtmosphericEffectsState
 {
     /// <summary>Exactly $8000: a delayed-start timer, which reloads the current frame's duration and draws it.</summary>
-    internal const ushort DelayedStartMarker = 1 << 15;
+    internal const int DelayedStartMarker = 1 << 15;
 
     /// <summary>How many atmospheric effects Samus can show at once.</summary>
     public const int SlotCount = 4;
@@ -145,7 +145,7 @@ public sealed class SamusAtmosphericEffectsState
 
                 case SamusAtmosphericEffectType.LavaSurfaceDamage:
                     // The first two slots' spray drifts right and the last two slots' left.
-                    slot.Position += new Offset16<RoomPixels>(slotIndex >= 2 ? (short)-1 : (short)1, -1);
+                    slot.Position += new Offset16<RoomPixels>(slotIndex >= 2 ? -1 : 1, -1);
                     DrawDirectSmallSprite(drawing, slot, slotIndex, type, SamusAtmosphereSheetDefinitions.LavaAndDustFrame(slot.AnimationFrame));
                     break;
 
@@ -176,8 +176,8 @@ public sealed class SamusAtmosphericEffectsState
         SamusAtmosphericEffectType type,
         string frame)
     {
-        int screenX = unchecked((short)(slot.Position.X - drawing.Camera.X - 4));
-        int screenY = unchecked((short)(slot.Position.Y - drawing.Camera.Y - 4));
+        int screenX = CoordinateAxis.Difference(slot.Position.X - drawing.Camera.X, 4);
+        int screenY = CoordinateAxis.Difference(slot.Position.Y - drawing.Camera.Y, 4);
         if (screenX < 0 || screenX >= 256 || screenY < 0 || screenY >= 256)
             return;
 
@@ -187,7 +187,7 @@ public sealed class SamusAtmosphericEffectsState
         if (type == SamusAtmosphericEffectDefinitions.ScratchListType)
             return;
         drawing.Sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),
-            drawing.Frame(frame), new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), SpriteMirror.None));
+            drawing.Frame(frame), new Position16<ScreenPixels>(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(screenY)), SpriteMirror.None));
     }
 
     /// <summary>Draws splash/bubble frames of Samus's spritemap table, clipping Y's high byte while preserving native X wrap.</summary>
@@ -197,8 +197,8 @@ public sealed class SamusAtmosphericEffectsState
         int slotIndex,
         string frame)
     {
-        int screenX = unchecked((ushort)(slot.Position.X - drawing.Camera.X));
-        int screenY = unchecked((ushort)(slot.Position.Y - drawing.Camera.Y));
+        int screenX = CoordinateAxis.Wrap(slot.Position.X - drawing.Camera.X);
+        int screenY = CoordinateAxis.Wrap(slot.Position.Y - drawing.Camera.Y);
 
         // `$90:8B83` rejects any nonzero high byte of Y. X is deliberately not clipped;
         if (ScreenConversions.IsOutsideSpriteRange(screenY))

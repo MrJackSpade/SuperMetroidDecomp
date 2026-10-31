@@ -11,20 +11,20 @@ internal static class ChargeFlareAnimations
     /// program's end reads the following programs, and one wrapping below the first program's start reads the delays
     /// <paramref name="below"/> decoded there.
     /// </summary>
-    internal static byte ReadDelay(int component, int frame, ChargeFlareDelaysBelowPrograms below)
+    internal static int ReadDelay(int component, int frame, ChargeFlareDelaysBelowPrograms below)
     {
         Ensure.NotNull(below);
-        int offset = unchecked((ushort)(Start(component) + frame));
+        int offset = WordWrap.Unsigned(Start(component) + frame);
         if (offset < RegionByteCount)
             return ReadByte(offset);
         int distanceBelow = ushort.MaxValue + 1 - offset;
         if (distanceBelow > ProgramTableByteCount)
             throw new InvalidDataException($"Charge-flare cadence byte {offset} is outside the compiled programs.");
-        return checked((byte)below.DelayBelow(distanceBelow));
+        return Ensure.BetweenInclusive(0, byte.MaxValue, below.DelayBelow(distanceBelow));
     }
 
     /// <summary>The main flare's delay or command byte at <paramref name="frame"/>, read without wrapping, as the grapple flare reads it.</summary>
-    internal static byte ReadMainFlareDelay(int frame) => ReadByte(MainFlare + frame);
+    internal static int ReadMainFlareDelay(int frame) => ReadByte(MainFlare + frame);
 
     /// <summary>Where charge-flare <paramref name="component"/>'s program starts in the region.</summary>
     private static int Start(int component) => component switch
@@ -36,7 +36,7 @@ internal static class ChargeFlareAnimations
     };
 
     /// <summary>The main-flare, slow-spark or fast-spark cadence byte <paramref name="offset"/> bytes into the region.</summary>
-    internal static byte ReadByte(int offset)
+    internal static int ReadByte(int offset)
     {
         int delay = offset - MainFlare;
         if ((uint)delay >= RegionByteCount)
@@ -50,13 +50,13 @@ internal static class ChargeFlareAnimations
         int sparkOffset = offset - SlowSparks;
         int frame = sparkOffset % 7;
         int minimum = sparkOffset < 7 ? 3 : 2;
-        return frame == 6 ? RestartByte : (byte)Math.Max(minimum, minimum + 2 - frame);
+        return frame == 6 ? RestartByte : WordWrap.LowByte(Math.Max(minimum, minimum + 2 - frame));
     }
 
     /// <summary>Distinguishes a flare delay-stream command byte from an ordinary delay.</summary>
     internal static bool TryDecodeCommand(int streamByte, out ChargeFlareDelayCommand command)
     {
         command = default;
-        return (uint)streamByte <= byte.MaxValue && CommandBytes.TryGetValue((byte)streamByte, out command);
+        return (uint)streamByte <= byte.MaxValue && CommandBytes.TryGetValue(WordWrap.LowByte(streamByte), out command);
     }
 }

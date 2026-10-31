@@ -62,7 +62,7 @@ internal static class SamusPosturePoseTransitions
         // `$91:FDAE` explicitly publishes the previous pose's radius while probing the
         // enlargement, and this direct transition does not call Samus_SetRadius afterward.
         // Ordinary alpha publishes the standing radius at the start of the next frame.
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
     }
@@ -120,7 +120,7 @@ internal static class SamusPosturePoseTransitions
         }
 
         samus.Pose = targetPose;
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
 
         // Alpha owns the new radius next frame; collision correction and jump setup
         // below must not publish it during this frame's pose-commit stage.
@@ -219,8 +219,8 @@ internal static class SamusPosturePoseTransitions
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
 level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixels),
                 (frameCounter & 1) == 0, targetPose, plms);
-            samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
-                samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
+            samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
+                samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)));
             // Command seven publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
@@ -252,7 +252,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
         // ordinary alpha publishes the target radius at the start of the next frame.
         // Keeping that one-frame handoff is observable when the crouched body is resting
         // on a frozen enemy inside a ceiling, as in the Botwoon-pipe Mochtroid clip.
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
     }
@@ -331,8 +331,8 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixel
             BlockMoveResult alignment = samus.ProbeChangedPoseVertical(
 level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels),
                 (frameCounter & 1) == 0, targetPose, plms);
-            samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
-                samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
+            samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
+                samus.Kinematics.Position.Y.Whole + (SixteenSixteen.WholeOf(alignment.AcceptedDisplacement)));
             // Command seven ($91:ED0E) replaces the previous whole-Y checkpoint
             // after alignment, so the camera does not count pose displacement as motion.
             samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
@@ -372,7 +372,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
         }
 
         samus.Pose = targetPose;
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
         samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
         // Unmorph uses the same prospective command seven as morph. Its zero
         // alignment-table entry does not bypass the subsequent bounce cancellation.
@@ -452,7 +452,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
 
         samus.Pose = targetPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
 
         // InitializeAnimation resets only the target art stream. In particular, do not call
         // Make_Samus_Jump or clear YDirection/YSpeed/YSubspeed: the input record can occur
@@ -534,7 +534,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
         // The cartridge tests the sign of a word subtraction, not an unsigned
         // magnitude. Moonfall's negative velocity therefore lands without a rebound.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
-            unchecked((short)(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FirstBallBounceMinimumSpeed)) >= 0)
+            WordWrap.Signed(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FirstBallBounceMinimumSpeed) >= 0)
         {
             samus.MorphBallBounceState = SamusBallBounceState.FirstRebound;
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
@@ -546,7 +546,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
         {
             samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed.WithWhole(unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed.Whole - 1)));
+            samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed.WithWhole(WordWrap.Unsigned(SamusVerticalMotionDefinitions.BallBounceSpeed.Whole - 1));
             return false;
         }
 
@@ -588,7 +588,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
         // $91:F26E dispatches on the rebound count only, so an ordinary-ball
         // rebound left over from a Spring Ball toggle selects the same rebound step.
         if (samus.MorphBallBounceState == SamusBallBounceState.None &&
-            unchecked((short)(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FirstBallBounceMinimumSpeed)) >= 0)
+            WordWrap.Signed(samus.Kinematics.YSpeed.Whole - SamusMovementDefinitions.FirstBallBounceMinimumSpeed) >= 0)
         {
             samus.MorphBallBounceState = SamusBallBounceState.SpringBallFirstRebound;
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
@@ -600,7 +600,7 @@ level, SixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels
         {
             samus.MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound;
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-            samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed.WithWhole(unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed.Whole - 1)));
+            samus.Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed.WithWhole(WordWrap.Unsigned(SamusVerticalMotionDefinitions.BallBounceSpeed.Whole - 1));
             return false;
         }
 

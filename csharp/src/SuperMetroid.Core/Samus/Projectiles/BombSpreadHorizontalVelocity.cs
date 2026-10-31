@@ -36,7 +36,7 @@ public readonly record struct BombSpreadHorizontalVelocity
         get
         {
             SignedSixteenSixteen speed = SignedSixteenSixteen.FromParts(
-                checked((short)WholePixels), checked((ushort)(FractionSteps * 256)));
+                WholePixels, FractionSteps * 256);
             return MovingLeft ? SignedSixteenSixteen.Zero - speed : speed;
         }
     }

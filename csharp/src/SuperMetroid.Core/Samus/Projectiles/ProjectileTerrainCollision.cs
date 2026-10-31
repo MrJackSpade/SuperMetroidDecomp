@@ -57,8 +57,8 @@ internal sealed class ProjectileTerrainCollision
         // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
         // including the cartridge's counterintuitive right-edge initial horizontal probe.
         slot.Velocity = slot.Velocity.WithX(SignedEightEight.FromSignedRaw(slot.Direction == SamusProjectileDirection.Left
-            ? (short)-1
-            : (short)0));
+            ? -1
+            : 0));
         slot.Velocity = slot.Velocity.WithY(SignedEightEight.FromSignedRaw(0));
 
         SamusProjectileDirection direction = slot.Direction;
@@ -132,11 +132,11 @@ internal sealed class ProjectileTerrainCollision
         SamusProjectileSlot slot,
         ISamusRoomPlms? roomPlms)
     {
-        int topBlock = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)) >> 4;
-        int bottomBlock = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1)) >> 4;
+        int topBlock = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y) >> 4;
+        int bottomBlock = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1) >> 4;
         int targetX = slot.Velocity.X.SignedRawValue < 0
-            ? unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X))
-            : unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
+            ? CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X)
+            : CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
         int blockX = targetX >> 4;
 
         if ((uint)blockX >= level.Size.X ||
@@ -153,7 +153,7 @@ internal sealed class ProjectileTerrainCollision
         int span = bottomBlock - topBlock;
         for (int blockY = topBlock; blockY <= bottomBlock; blockY++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+            RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
             var context = new ShotSpan(span, bottomBlock - blockY, targetX);
             if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan))
                 everyBlockSolid = false;
@@ -168,11 +168,11 @@ internal sealed class ProjectileTerrainCollision
         SamusProjectileSlot slot,
         ISamusRoomPlms? roomPlms)
     {
-        int leftBlock = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
-        int rightBlock = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
+        int leftBlock = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
+        int rightBlock = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) >> 4;
         int targetY = slot.Velocity.Y.SignedRawValue < 0
-            ? unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))
-            : unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
+            ? CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y)
+            : CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int blockY = targetY >> 4;
 
         if ((uint)blockY >= level.Size.Y ||
@@ -186,7 +186,7 @@ internal sealed class ProjectileTerrainCollision
         int span = rightBlock - leftBlock;
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+            RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
             var context = new ShotSpan(span, rightBlock - blockX, targetY);
             if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan, axis: Axis.Vertical))
                 everyBlockSolid = false;
@@ -266,8 +266,8 @@ internal sealed class ProjectileTerrainCollision
         {
             // The leading edge picks the column half; the scan then tests top/bottom rows.
             int cell = flips ^ ((span.TargetBoundary & 8) >> 3);
-            bool topEdgeInBottomHalf = (unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)) & 8) != 0;
-            bool bottomEdgeInBottomHalf = (unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1)) & 8) != 0;
+            bool topEdgeInBottomHalf = (CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y) & 8) != 0;
+            bool bottomEdgeInBottomHalf = (CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1) & 8) != 0;
             if (span.Span == 0)
                 return (!topEdgeInBottomHalf && Solid(cell)) || (bottomEdgeInBottomHalf && Solid(cell ^ 2));
             if (span.Remaining == 0)
@@ -279,8 +279,8 @@ internal sealed class ProjectileTerrainCollision
 
         // The leading edge picks the row half; the scan then tests left/right columns.
         int rowCell = flips ^ ((span.TargetBoundary & 8) >> 2);
-        bool leftEdgeInRightHalf = (unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) & 8) != 0;
-        bool rightEdgeInRightHalf = (unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) & 8) != 0;
+        bool leftEdgeInRightHalf = (CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) & 8) != 0;
+        bool rightEdgeInRightHalf = (CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) & 8) != 0;
         if (span.Span == 0)
             return (!leftEdgeInRightHalf && Solid(rowCell)) || (rightEdgeInRightHalf && Solid(rowCell ^ 1));
         if (span.Remaining == 0)
@@ -533,14 +533,14 @@ internal sealed class ProjectileTerrainCollision
         // the instruction list. Diagonals adjust both axes in their respective signs.
         int direction = slot.Direction.ToAimIndex();
         if (direction is 1 or 2 or 3)
-            slot.Position += new Offset16<RoomPixels>(unchecked((short)slot.Radius.X), 0);
+            slot.Position += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(slot.Radius.X), 0);
         else if (direction is 6 or 7 or 8)
-            slot.Position -= new Offset16<RoomPixels>(unchecked((short)slot.Radius.X), 0);
+            slot.Position -= new Offset16<RoomPixels>(CoordinateAxis.AsSigned(slot.Radius.X), 0);
 
         if (direction is 0 or 1 or 8 or 9)
-            slot.Position -= new Offset16<RoomPixels>(0, unchecked((short)slot.Radius.Y));
+            slot.Position -= new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(slot.Radius.Y));
         else if (direction is 3 or 4 or 5 or 6)
-            slot.Position += new Offset16<RoomPixels>(0, unchecked((short)slot.Radius.Y));
+            slot.Position += new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(slot.Radius.Y));
 
         slot.Type = slot.Type.AsFamily(SamusProjectileFamily.BeamExplosion);
         slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BeamExplosion);
@@ -593,23 +593,23 @@ internal sealed class ProjectileTerrainCollision
     internal static void ScanHorizontalWaveShotReactions(
         RoomLevelData level, SamusProjectileSlot slot, ISamusRoomPlms? roomPlms)
     {
-        int top = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
-        int bottom = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
-        int remaining = unchecked((ushort)(bottom - (top & ~15))) >> 4;
+        int top = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
+        int bottom = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
+        int remaining = WordWrap.Unsigned(bottom - (top & ~15)) >> 4;
         int span = remaining;
-        int targetX = unchecked((ushort)(slot.Velocity.X.SignedRawValue < 0
-            ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1));
+        int targetX = CoordinateAxis.Wrap(slot.Velocity.X.SignedRawValue < 0
+            ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1);
         // XBA sets N/Z from its resulting LOW BYTE even with a 16-bit accumulator.
         // BMI therefore tests the original coordinate's high-byte sign, not bit 7
         // of its pixel offset. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
-        if (remaining >= 16 || unchecked((short)slot.Position.Y.Whole) < 0 ||
+        if (remaining >= 16 || CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0 ||
             (EightEight.WholeOf(slot.Position.Y.Whole)) >= (level.Size.Y + 15) / 16 ||
             RoomGridConversions.PixelToScreen(targetX) >= (level.Size.X + 15) / 16)
             return;
 
-        int product = unchecked((byte)(top >> 4)) * unchecked((byte)level.Size.X);
-        int byteOffset = unchecked((ushort)((product + (targetX >> 4)) * 2));
+        int product = WordWrap.LowByte(top >> 4) * WordWrap.LowByte(level.Size.X);
+        int byteOffset = CoordinateAxis.Wrap((product + (targetX >> 4)) * 2);
         do
         {
             int index = byteOffset >> 1;
@@ -633,7 +633,7 @@ internal sealed class ProjectileTerrainCollision
             // There is only one CLC before the two ADCs. Do not simplify this
             // to offset += width * 2: the first carry causes ceiling odd reads.
             int first = byteOffset + level.Size.X;
-            byteOffset = unchecked((ushort)((ushort)first + level.Size.X + (first > ushort.MaxValue ? 1 : 0)));
+            byteOffset = CoordinateAxis.Wrap(WordWrap.Unsigned(first) + level.Size.X + (first > ushort.MaxValue ? 1 : 0));
         } while (--remaining >= 0);
     }
 
@@ -643,14 +643,14 @@ internal sealed class ProjectileTerrainCollision
     internal static void ScanVerticalWaveShotReactions(
         RoomLevelData level, SamusProjectileSlot slot, ISamusRoomPlms? roomPlms)
     {
-        int left = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
-        int right = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
-        int remaining = unchecked((ushort)(right - (left & ~15))) >> 4;
+        int left = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
+        int right = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
+        int remaining = WordWrap.Unsigned(right - (left & ~15)) >> 4;
         if (remaining >= 16) return;
         int span = remaining;
-        int targetY = unchecked((ushort)(slot.Velocity.Y.SignedRawValue < 0
+        int targetY = CoordinateAxis.Wrap(slot.Velocity.Y.SignedRawValue < 0
             ? slot.Position.Y.Whole - slot.Radius.Y
-            : slot.Position.Y.Whole + slot.Radius.Y - 1));
+            : slot.Position.Y.Whole + slot.Radius.Y - 1);
         int centerScreenX = EightEight.WholeOf(slot.Position.X.Whole);
         if (centerScreenX >= (level.Size.X + 15) / 16 ||
             RoomGridConversions.PixelToScreen(targetY) >= (level.Size.Y + 15) / 16)
@@ -662,18 +662,18 @@ internal sealed class ProjectileTerrainCollision
         // starts 4095 tiles forward while the center remains inside the room.
         // The native block reaction dispatcher bounds the resulting allocation
         // offset, not the horizontal extent of this individual tile span.
-        int rowOffset = unchecked((byte)(targetY >> 4)) * level.Size.X;
-        int byteOffset = unchecked((ushort)((rowOffset + (left >> 4)) * 2));
+        int rowOffset = WordWrap.LowByte(targetY >> 4) * level.Size.X;
+        int byteOffset = CoordinateAxis.Wrap((rowOffset + (left >> 4)) * 2);
         do
         {
             int index = byteOffset >> 1;
             if (index < level.Size.X * level.Size.Y)
             {
-                RunShotReaction(level, slot, level.GetCollisionBlock(new(unchecked((ushort)(index % level.Size.X)), unchecked((ushort)(index / level.Size.X)))), roomPlms,
+                RunShotReaction(level, slot, level.GetCollisionBlock(new(CoordinateAxis.Wrap(index % level.Size.X), CoordinateAxis.Wrap(index / level.Size.X))), roomPlms,
                     new ShotSpan(span, remaining, targetY), out bool endSpan, axis: Axis.Vertical);
                 if (endSpan) return;
             }
-            byteOffset = unchecked((ushort)(byteOffset + 2));
+            byteOffset = CoordinateAxis.Wrap(byteOffset + 2);
         } while (--remaining >= 0);
     }
 }

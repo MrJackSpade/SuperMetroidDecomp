@@ -247,7 +247,7 @@ level, samus, controllerInput, frameCounter, plms, SamusMovementType.SpringBallI
         // the same branch even if Jump is still held.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
             (((controllerInput & ControllerButton.A) == ControllerButton.None) ||
-             unchecked((short)samus.Kinematics.YSpeed.Whole) < 0))
+             WordWrap.Signed(samus.Kinematics.YSpeed.Whole) < 0))
         {
             samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -375,7 +375,7 @@ level, samus, controllerInput, frameCounter, plms, SamusMovementType.SpringBallI
         // `$90:90C4` converts the signed underflow produced at the prior apex frame before
         // this frame snapshots displacement. Direction is a separate word in the original;
         // do not infer it from the sign of the fixed-point magnitude.
-        if (state.YDirection == SamusVerticalDirection.Up && unchecked((short)state.YSpeed.Whole) < 0)
+        if (state.YDirection == SamusVerticalDirection.Up && WordWrap.Signed(state.YSpeed.Whole) < 0)
         {
             state.YSpeed = default;
             state.YDirection = SamusVerticalDirection.Down;
@@ -396,7 +396,7 @@ level, samus, controllerInput, frameCounter, plms, SamusMovementType.SpringBallI
         {
             newSpeed = unchecked(oldSpeed - acceleration);
         }
-        state.YSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(newSpeed))), unchecked((ushort)newSpeed));
+        state.YSpeed = new UnsignedSixteenSixteen(WordWrap.Unsigned(SixteenSixteen.WholeOf(newSpeed)), WordWrap.Unsigned(newSpeed));
 
         int displacement = state.YDirection == SamusVerticalDirection.Down
             ? unchecked((int)oldSpeed)

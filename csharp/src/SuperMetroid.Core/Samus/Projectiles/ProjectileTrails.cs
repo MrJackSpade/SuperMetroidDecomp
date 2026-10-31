@@ -96,7 +96,7 @@ internal sealed class ProjectileTrails
     }
 
     /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with 16-bit position wrap.</summary>
-    private static ushort AddOffset(int origin, int offset) => unchecked((ushort)(origin + offset - 4));
+    private static int AddOffset(int origin, int offset) => CoordinateAxis.Wrap(origin + offset - 4);
 
     /// <summary>Advances one side's instruction stream unless time is frozen.</summary>
     internal static void AdvanceTrailSide(
@@ -140,13 +140,13 @@ internal sealed class ProjectileTrails
                         // The opcode names its destination array. Both streams dispatch
                         // the same handlers, including writes to their sibling's position.
                         case ProjectileTrailInstruction.MoveLeftDown:
-                            pair.Left.Position = pair.Left.Position.WithY(unchecked((ushort)(pair.Left.Position.Y + 1)));
+                            pair.Left.Position = pair.Left.Position.WithY(CoordinateAxis.Wrap(pair.Left.Position.Y + 1));
                             break;
                         case ProjectileTrailInstruction.MoveRightDown:
-                            pair.Right.Position = pair.Right.Position.WithY(unchecked((ushort)(pair.Right.Position.Y + 1)));
+                            pair.Right.Position = pair.Right.Position.WithY(CoordinateAxis.Wrap(pair.Right.Position.Y + 1));
                             break;
                         case ProjectileTrailInstruction.MoveLeftUp:
-                            pair.Left.Position = pair.Left.Position.WithY(unchecked((ushort)(pair.Left.Position.Y - 1)));
+                            pair.Left.Position = pair.Left.Position.WithY(CoordinateAxis.Wrap(pair.Left.Position.Y - 1));
                             break;
                         default:
                             throw new InvalidOperationException($"Undefined {nameof(ProjectileTrailInstruction)} {movement}.");
@@ -175,8 +175,8 @@ internal sealed class ProjectileTrails
         // `$90:B6F4/$B703` require both complete 16-bit camera-relative coordinates to have
         // a zero high byte. Unlike the generic spritemap path, negative or 256+ coordinates
         // are skipped rather than wrapped or parked.
-        int screenX = unchecked((ushort)(side.DisplayedPosition.X - layer1.X));
-        int screenY = unchecked((ushort)(side.DisplayedPosition.Y - layer1.Y));
+        int screenX = CoordinateAxis.Wrap(side.DisplayedPosition.X - layer1.X);
+        int screenY = CoordinateAxis.Wrap(side.DisplayedPosition.Y - layer1.Y);
         if (ScreenConversions.IsOutsideSpriteRange(screenX) || ScreenConversions.IsOutsideSpriteRange(screenY))
             return;
 

@@ -10,5 +10,5 @@ internal static class SamusBodyPlacementDefinitions
 
     /// <summary>$90:8D38: exact PLB instruction encoding observed as the high byte of the final admitted unaligned word.</summary>
     /// <remarks>Only this one byte is retained as unrelated native instruction content; no memory beyond the17-byte window is modeled.</remarks>
-    internal const byte AdjacentLandingPlb = 0xAB;
+    internal const int AdjacentLandingPlb = 0xAB;
 }

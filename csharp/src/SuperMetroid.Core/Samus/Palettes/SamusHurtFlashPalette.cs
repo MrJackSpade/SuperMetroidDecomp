@@ -61,7 +61,7 @@ public static class SamusHurtFlashPalette
         // Only calls one through six write colors. Odd calls select the fixed hurt palette;
         // even calls restore either the intro palette or the equipment-selected suit. Once
         // counter seven is reached the existing CGRAM values deliberately remain untouched.
-        if (unchecked((short)(counterBefore - 7)) < 0)
+        if (WordWrap.Signed(counterBefore - 7) < 0)
         {
             if ((counterBefore & 1) != 0)
             {
@@ -86,7 +86,7 @@ public static class SamusHurtFlashPalette
         if (counterAfter == 40)
             RecoverInterruptedSound(samus, controllerInput);
 
-        if (unchecked((short)(counterAfter - 60)) >= 0)
+        if (WordWrap.Signed(counterAfter - 60) >= 0)
         {
             samus.HurtFlashCounter = 0;
         }

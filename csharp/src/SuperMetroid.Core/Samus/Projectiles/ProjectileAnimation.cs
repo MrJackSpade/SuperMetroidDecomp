@@ -40,7 +40,7 @@ internal sealed class ProjectileAnimation
             return true;
         }
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
-        slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)duration);
+        slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
         slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;
         slot.Radius = record.Radius;
         slot.AnimationFrame = record.AnimationFrame;
@@ -67,8 +67,8 @@ internal sealed class ProjectileAnimation
         int? horizontalMargin,
         ProjectileDrawArtwork artwork)
     {
-        int screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
-        int screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
+        int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, layer1.X);
+        int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - layer1.Y);
         if (horizontalMargin is int margin && (screenX < -margin || screenX >= 256 + margin) ||
             ScreenConversions.IsOutsideSpriteRange(screenY))
         {
@@ -77,7 +77,7 @@ internal sealed class ProjectileAnimation
 
         SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetFrames.ProjectileFrame(
             slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.")));
-        sprites.Add(new ImageSpriteDraw(source, image, Position16<ScreenPixels>.Of(unchecked((ushort)screenX), screenY),
+        sprites.Add(new ImageSpriteDraw(source, image, Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY),
             SpriteMirror.None));
     }
 
@@ -91,7 +91,7 @@ internal sealed class ProjectileAnimation
         if (timer.IsNonNegative)
             return;
 
-        int frame = unchecked((ushort)(_charge.FlareFrame(component) + 1));
+        int frame = WordWrap.Unsigned(_charge.FlareFrame(component) + 1);
         int delay = ChargeFlareAnimations.ReadDelay(component, frame, _flareDelaysBelow);
         if (ChargeFlareAnimations.TryDecodeCommand(delay, out ChargeFlareDelayCommand command))
         {
@@ -103,7 +103,7 @@ internal sealed class ProjectileAnimation
                     break;
                 case ChargeFlareDelayCommand.Rewind:
                     int rewind = ChargeFlareAnimations.ReadDelay(component, frame + 1, _flareDelaysBelow);
-                    frame = unchecked((ushort)(frame - rewind));
+                    frame = WordWrap.Unsigned(frame - rewind);
                     delay = ChargeFlareAnimations.ReadDelay(component, frame, _flareDelaysBelow);
                     break;
                 default:
@@ -122,7 +122,7 @@ internal sealed class ProjectileAnimation
         if (direction >= 16)
             return;
 
-        DrawFlareComponentWithMetadata(sprites, samus, layer1, component, turningFloor, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = unchecked((byte)SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
+        DrawFlareComponentWithMetadata(sprites, samus, layer1, component, turningFloor, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = WordWrap.LowByte(SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres Mode-7 center transform, then draws the installed component frame.</summary>
@@ -142,8 +142,8 @@ internal sealed class ProjectileAnimation
         Position16<RoomPixels> renderPoint = turningFloor is { } transform
             ? transform.Transform(samusPosition)
             : samusPosition;
-        int screenX = unchecked((ushort)(renderPoint.X + xOffset - layer1.X));
-        int screenY = unchecked((ushort)(renderPoint.Y + yOffset - pose.PoseYOffset - layer1.Y));
+        int screenX = CoordinateAxis.Wrap(renderPoint.X + xOffset - layer1.X);
+        int screenY = CoordinateAxis.Wrap(renderPoint.Y + yOffset - pose.PoseYOffset - layer1.Y);
 
         // `$90:BC98` clips only by the origin's Y high byte. The shared bank-$81 loader
         // deliberately allows individual entries to wrap, matching charge sparks near an
@@ -151,11 +151,11 @@ internal sealed class ProjectileAnimation
         if (ScreenConversions.IsOutsideSpriteRange(screenY))
             return;
 
-        int indexOffset = unchecked((ushort)(pose.FacingLeft
+        int indexOffset = CoordinateAxis.Wrap(pose.FacingLeft
             ? component switch { 0 => 0, 1 => 42, _ => 48 }
-            : component switch { 0 => 0, 1 => 30, _ => 36 }));
+            : component switch { 0 => 0, 1 => 30, _ => 36 });
         // `$90:BBEA` keeps only the low byte of the frame word before adding the offset.
-        int tableIndex = unchecked((ushort)(indexOffset + unchecked((byte)_charge.FlareFrame(component))));
+        int tableIndex = CoordinateAxis.Wrap(indexOffset + WordWrap.LowByte(_charge.FlareFrame(component)));
         // A frame that wrapped to $FF selects a pointer past the end of $93:A1A1. Native then
         // draws a "spritemap" out of WRAM, I/O registers and open bus (into OAM only; the
         // index is masked to $1FF). That garbage needs full memory emulation and has no

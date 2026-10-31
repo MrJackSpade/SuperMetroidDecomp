@@ -14,7 +14,7 @@ internal static class HealthWarningVerification
     {
         var warning = new SamusHealthWarningState();
         var audio = new AudioQueues();
-        byte[] positions = audio.SoundWritePositions;
+        int[] positions = audio.SoundWritePositions;
         SoundEffectId?[,] queues = audio.SoundQueues;
         foreach (var sample in new[] { new VerifyHealthWarningCase(99, 0), new VerifyHealthWarningCase(30, 2), new VerifyHealthWarningCase(0, 0), new VerifyHealthWarningCase(30, 0), new VerifyHealthWarningCase(31, 1), new VerifyHealthWarningCase(32, 0), new VerifyHealthWarningCase(30, 2), new VerifyHealthWarningCase(31, 1) })
         {

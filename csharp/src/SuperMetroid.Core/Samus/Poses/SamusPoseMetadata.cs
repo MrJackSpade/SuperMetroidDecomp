@@ -19,11 +19,11 @@ internal static class SamusPoseMetadata
     }
 
     /// <summary>Reads a prospective pose's radius without publishing it to live collision state.</summary>
-    public static ushort ReadPoseYRadius(SamusPoseId pose) =>
+    public static int ReadPoseYRadius(SamusPoseId pose) =>
         SamusPoseCollisionRadii.ReadVerticalRadius(pose);
 
     /// <summary>Reads pose-definition byte zero, the direction byte other actors' AI reads back.</summary>
-    public static byte ReadPoseXDirection(SamusState samus)
+    public static int ReadPoseXDirection(SamusState samus)
     {
         return ReadPoseXDirection(samus.InitializedPose);
     }
@@ -33,7 +33,7 @@ internal static class SamusPoseMetadata
     /// initializers compare the old and prospective records before publishing the new
     /// pose, so making that distinction explicit avoids temporarily corrupting live state.
     /// </summary>
-    public static byte ReadPoseXDirection(SamusPoseId pose)
+    public static int ReadPoseXDirection(SamusPoseId pose)
     {
         return SamusPoseRecordCodec.FacingByte(pose);
     }
@@ -110,7 +110,7 @@ internal static class SamusPoseMetadata
     /// Physical beam/Grapple origins use their separate compiled correction; replacing
     /// artwork must not shift a projectile's collision position.
     /// </summary>
-    public static sbyte ReadGraphicsYOffset(SamusState samus)
+    public static int ReadGraphicsYOffset(SamusState samus)
     {
         return (samus.Presentation.BodyFrames.Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork."))
@@ -680,8 +680,8 @@ internal static class SamusPoseMetadata
 
                 samus.Pose = targetPose;
                 RefreshCollisionRadii(samus);
-                samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
-                    samus.Kinematics.Position.Y.Whole + centerAdjustment)));
+                samus.Kinematics.Position = samus.Kinematics.Position.WithWrappedWholeY(
+                    samus.Kinematics.Position.Y.Whole + centerAdjustment);
 
                 // The special target installs through $91:F433, which dispatches the new
                 // normal-jumping type to $91:F543 ($51/$52 cannot start a spark there). $F433

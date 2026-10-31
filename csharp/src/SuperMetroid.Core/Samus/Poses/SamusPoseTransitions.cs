@@ -51,7 +51,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return;
         }
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
         // Command five's no-floor branch ($91:EFEF) preserves an ascending
         // velocity, even if a special handler left it on a standing pose. Crystal
         // Flash can do exactly that; unconditional reset shortens its return arc.
@@ -108,8 +108,8 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (samus.Kinematics.Radius.Y > oldRadius)
         {
-            int difference = unchecked((ushort)(samus.Kinematics.Radius.Y - oldRadius));
-            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, unchecked((short)difference));
+            int difference = CoordinateAxis.Wrap(samus.Kinematics.Radius.Y - oldRadius);
+            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, WordWrap.Signed(difference));
         }
 
         ApplyAerialLandingCollisionCommand(samus, leavingScrewAttack);
@@ -150,7 +150,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
             samus.Pose = targetPose;
             // Correct the center now, but retain the movement frame's live radius
             // until alpha, including when landing on a frozen enemy.
-            samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+            samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
             SamusPresentation.InitializeAnimation(samus, initialFrame: StandingPoseInitialFrame(sourcePose, targetPose));
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
@@ -176,13 +176,13 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
     /// Keeps the gun raised on frame one when both standing poses aim straight up;
     /// other standing transitions begin at frame zero.
     /// </summary>
-    internal static ushort StandingPoseInitialFrame(SamusPoseId sourcePose, SamusPoseId targetPose)
+    internal static int StandingPoseInitialFrame(SamusPoseId sourcePose, SamusPoseId targetPose)
     {
         // $91:F4DC keeps the gun raised when both the old and new standing
         // initializer's poses aim straight up, including landing and its completion.
         return SamusPoseMetadata.ReadMovementType(targetPose) == SamusMovementType.Standing &&
             SamusPoseMetadata.ReadShotDirection(sourcePose) is 0 or 9 &&
-            SamusPoseMetadata.ReadShotDirection(targetPose) is 0 or 9 ? (ushort)1 : (ushort)0;
+            SamusPoseMetadata.ReadShotDirection(targetPose) is 0 or 9 ? 1 : 0;
     }
 
     /// <summary>Chooses <c>$91:E95D</c>'s prospective landing pose.</summary>
@@ -277,7 +277,7 @@ level, targetPose, frameCounter, plms, out int centerAdjustment);
             // $91:FDAE leaves $0B00 at the compact body's radius: this frame's enemy and
             // projectile collision still use it, and alpha's SetSamusRadius takes the
             // landing body only next frame, as for an ordinary landing.
-            samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+            samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(centerAdjustment));
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)

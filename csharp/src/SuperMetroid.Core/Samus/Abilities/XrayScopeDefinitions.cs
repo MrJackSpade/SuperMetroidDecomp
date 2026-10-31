@@ -19,28 +19,28 @@ public static class XrayScopeDefinitions
         /// <summary>The visor shade count, which ends the full-beam cycle.</summary>
         public const int FullCycleEndShade = SamusPaletteDefinitions.Visor.CycleEndShade;
         /// <summary>Frames between visor color advances.</summary>
-        public const ushort FrameDelay = SamusPaletteDefinitions.Visor.FrameDelay;
+        public const int FrameDelay = SamusPaletteDefinitions.Visor.FrameDelay;
     }
 
     /// <summary>Angle bands selecting the five standing/crouching X-ray animation frames.</summary>
     public static class AnimationAngles
     {
         /// <summary>Right-facing boundary between frames zero and one.</summary>
-        public const byte RightFrameOne = 0x19;
+        public const int RightFrameOne = 0x19;
         /// <summary>Right-facing boundary between frames one and two.</summary>
-        public const byte RightFrameTwo = 0x32;
+        public const int RightFrameTwo = 0x32;
         /// <summary>Right-facing boundary between frames two and three.</summary>
-        public const byte RightFrameThree = 0x4b;
+        public const int RightFrameThree = 0x4b;
         /// <summary>Right-facing boundary between frames three and four.</summary>
-        public const byte RightFrameFour = 0x64;
+        public const int RightFrameFour = 0x64;
         /// <summary>Left-facing boundary between frames four and three.</summary>
-        public const byte LeftFrameFour = 0x99;
+        public const int LeftFrameFour = 0x99;
         /// <summary>Left-facing boundary between frames three and two.</summary>
-        public const byte LeftFrameThree = 0xb2;
+        public const int LeftFrameThree = 0xb2;
         /// <summary>Left-facing boundary between frames two and one.</summary>
-        public const byte LeftFrameTwo = 0xcb;
+        public const int LeftFrameTwo = 0xcb;
         /// <summary>Left-facing boundary between frames one and zero.</summary>
-        public const byte LeftFrameOne = 0xe4;
+        public const int LeftFrameOne = 0xe4;
     }
 
     /// <summary>How the X-ray scope's cone widens.</summary>

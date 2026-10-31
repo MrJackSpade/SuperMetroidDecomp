@@ -216,7 +216,7 @@ public sealed class SamusProjectileSystem
             bool chargePaletteActive =
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 Charge.FlareCounter != 0 &&
-                unchecked((short)(Charge.FlareCounter - 60)) >= 0;
+                WordWrap.Signed(Charge.FlareCounter - 60) >= 0;
             if (chargePaletteActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.PseudoScrew;

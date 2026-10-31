@@ -249,8 +249,8 @@ public sealed class SamusDrainedState
         // pose. This preserves the previous bottom boundary even when the source body did
         // not already have the drained pose's radius of 21 pixels.
         int sourceRadius = samus.Kinematics.Radius.Y;
-        samus.Position = samus.Position.WithWholeY(unchecked((ushort)(
-            samus.Position.Y.Whole - unchecked((ushort)(21 - sourceRadius)))));
+        samus.Position = samus.Position.WithWrappedWholeY(
+            samus.Position.Y.Whole - CoordinateAxis.Wrap(21 - sourceRadius));
 
         // Direction byte four is left; every other byte chooses the right-facing record.
         // Read it before replacing the pose, exactly as `$91:E50D` does.

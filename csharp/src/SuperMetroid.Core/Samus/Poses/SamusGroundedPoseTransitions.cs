@@ -50,7 +50,7 @@ internal static class SamusGroundedPoseTransitions
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         uint combinedSpeed = unchecked(speed.BaseFixed +
             speed.ExtraRunSpeed.RawValue);
-        speed.BaseSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(combinedSpeed))), unchecked((ushort)combinedSpeed));
+        speed.BaseSpeed = new UnsignedSixteenSixteen(WordWrap.Unsigned(SixteenSixteen.WholeOf(combinedSpeed)), WordWrap.Unsigned(combinedSpeed));
         speed.ExtraRunSpeed = default;
         speed.AccelerationMode = SamusAccelerationMode.Turning;
     }
@@ -579,7 +579,7 @@ internal static class SamusGroundedPoseTransitions
         // preserve exactly that pair of operations, including overflow at the high word.
         uint combinedSpeed = unchecked(speed.BaseFixed +
             speed.ExtraRunSpeed.RawValue);
-        speed.BaseSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(combinedSpeed))), unchecked((ushort)combinedSpeed));
+        speed.BaseSpeed = new UnsignedSixteenSixteen(WordWrap.Unsigned(SixteenSixteen.WholeOf(combinedSpeed)), WordWrap.Unsigned(combinedSpeed));
 
         // The native handler consumes the extra component and selects acceleration mode
         // one. $90:8EA9 interprets that mode as “move opposite the NEW facing direction”
@@ -615,7 +615,7 @@ level, targetPose, frameCounter, plms, out int adjustment);
                 samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
         }
-        samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)adjustment));
+        samus.Kinematics.Position += new Offset16<RoomPixels>(0, WordWrap.Signed(adjustment));
         return true;
     }
 

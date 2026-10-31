@@ -143,7 +143,7 @@ public sealed class SamusSuitPickupState
 
         // Native writes whole positions but leaves fractional words untouched. These are
         // fixed screen coordinates, not a room-specific item-location approximation.
-        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(layer1.X + 120)), unchecked((ushort)(layer1.Y + 136))));
+        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(layer1.X + 120), CoordinateAxis.Wrap(layer1.Y + 136)));
         // $91:D580/$D58D store the same words as the previous position, so this frame's
         // scrolling sees no movement.
         samus.WritePreviousXPosition(samus.Position.X.Whole);
@@ -211,7 +211,7 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>The number, 0 through 6 in stage order, the shared scratch word holds for <paramref name="stage"/>.</summary>
-    private static ushort SharedScratchStageNumber(SamusSuitPickupStage stage) => stage switch
+    private static int SharedScratchStageNumber(SamusSuitPickupStage stage) => stage switch
     {
         SamusSuitPickupStage.LightBeamAppears => 0,
         SamusSuitPickupStage.UniformWidening => 1,
@@ -259,15 +259,15 @@ public sealed class SamusSuitPickupState
     /// <summary>Moves the beam's left and right endpoints apart uniformly before curved widening begins.</summary>
     private void StepUniformWidening()
     {
-        int amount = unchecked((byte)EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
+        int amount = WordWrap.LowByte(EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
         // Window columns are eight bits wide: both edges wrap within the screen row.
-        int left = unchecked((byte)(checked((byte)_lightBeamLeft.X) - amount));
-        int right = unchecked((byte)(checked((byte)_lightBeamRight.X) + amount));
+        int left = WordWrap.LowByte(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X) - amount);
+        int right = WordWrap.LowByte(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X) + amount);
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.Column, _lightBeamLeft, _lightBeamRight, 0);
 
-        if (unchecked((sbyte)(left - 97)) < 0)
+        if (WordWrap.SignedLowByte(left - 97) < 0)
         {
             Stage = SamusSuitPickupStage.CurvedWidening;
             SetLightBeamEdges(SuitPickupBeamDefinitions.CurvedWideningStart);
@@ -279,13 +279,13 @@ public sealed class SamusSuitPickupState
     {
         AdvanceColorTowardWhite();
 
-        int amount = unchecked((byte)EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
-        int oldLeft = checked((byte)_lightBeamLeft.X);
-        int left = unchecked((byte)(oldLeft - amount));
-        int right = checked((byte)_lightBeamRight.X);
+        int amount = WordWrap.LowByte(EightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
+        int oldLeft = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X);
+        int left = WordWrap.LowByte(oldLeft - amount);
+        int right = Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X);
         // The native BEQ shares the negative-result clamp. Exact zero must also
         // force the right endpoint to 255 or the reveal is delayed by a frame.
-        if (left == 0 || unchecked((sbyte)(oldLeft - amount)) < 0)
+        if (left == 0 || WordWrap.SignedLowByte(oldLeft - amount) < 0)
         {
             left = 0;
             right = byte.MaxValue;
@@ -293,7 +293,7 @@ public sealed class SamusSuitPickupState
         else
         {
             int widenedRight = right + amount;
-            right = widenedRight > byte.MaxValue ? byte.MaxValue : unchecked((byte)widenedRight);
+            right = widenedRight > byte.MaxValue ? byte.MaxValue : WordWrap.LowByte(widenedRight);
         }
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
@@ -305,7 +305,7 @@ public sealed class SamusSuitPickupState
         {
             Stage = SamusSuitPickupStage.RevealSuit;
             // The unsigned speed halves, truncating its lowest fraction bit.
-            LightBeamWideningVelocity = WideningVelocity(unchecked((ushort)(LightBeamWideningVelocity.X.RawValue / 2)));
+            LightBeamWideningVelocity = WideningVelocity(WordWrap.Unsigned(LightBeamWideningVelocity.X.RawValue / 2));
             _lightBeamScanlines = 0;
         }
     }
@@ -343,10 +343,10 @@ public sealed class SamusSuitPickupState
         // lower do/while starts at position minus one, so the bottom wipe is one shorter.
         Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamScanlines };
 
-        int decelerated = unchecked((ushort)(
-            LightBeamWideningVelocity.X.RawValue - SuitPickupBeamDefinitions.ShrinkingDeceleration));
+        int decelerated = WordWrap.Unsigned(
+            LightBeamWideningVelocity.X.RawValue - SuitPickupBeamDefinitions.ShrinkingDeceleration);
         LightBeamWideningVelocity = WideningVelocity(decelerated);
-        if (unchecked((short)(decelerated - SuitPickupBeamDefinitions.MinimumShrinkingSpeed)) < 0)
+        if (WordWrap.Signed(decelerated - SuitPickupBeamDefinitions.MinimumShrinkingSpeed) < 0)
             LightBeamWideningVelocity = WideningVelocity(SuitPickupBeamDefinitions.MinimumShrinkingSpeed);
         if (_lightBeamScanlines >= 128)
         {
@@ -359,12 +359,12 @@ public sealed class SamusSuitPickupState
     private void StepLightBeamDissipates()
     {
         // Window columns are eight bits wide: the starting left column 255 wraps to 7 on the first call.
-        int left = unchecked((byte)(checked((byte)_lightBeamLeft.X) + 8));
-        int right = unchecked((byte)(checked((byte)_lightBeamRight.X) - 8));
+        int left = WordWrap.LowByte(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamLeft.X) + 8);
+        int right = WordWrap.LowByte(Ensure.BetweenInclusive(0, byte.MaxValue, _lightBeamRight.X) - 8);
         _lightBeamLeft = ScreenColumn(left);
         _lightBeamRight = ScreenColumn(right);
         Beam = new(SamusSuitPickupBeamShape.CenterLine, _lightBeamLeft, _lightBeamRight, 0);
-        if (unchecked((sbyte)(left - 112)) >= 0)
+        if (WordWrap.SignedLowByte(left - 112) >= 0)
             Stage = SamusSuitPickupStage.Finish;
     }
 
@@ -395,7 +395,7 @@ public sealed class SamusSuitPickupState
 
     /// <summary>A horizontal unsigned 8.8 speed from its raw word; the vertical axis is unused.</summary>
     private static EightEightVector<ScreenPixels> WideningVelocity(int speed) =>
-        new(new SignedEightEight(checked((ushort)speed)), new SignedEightEight(0));
+        new(new SignedEightEight(speed), new SignedEightEight(0));
 
     /// <summary>Raises each channel by two toward the white reveal colour.</summary>
     private void AdvanceColorTowardWhite() =>

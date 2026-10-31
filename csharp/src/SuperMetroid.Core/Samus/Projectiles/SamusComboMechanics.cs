@@ -33,8 +33,8 @@ internal static class SamusComboMechanics
     /// bank_90.asm: the four single-beam rows cost one and the other eight cost zero.
     /// FireSBA masks equipped beams to a low nibble, then doubles it for a word
     /// lookup. Rows 12..15 are outside the table.</remarks>
-    internal static ushort GetPowerBombCost(SamusBeamCombination beam) =>
-        ComboKind(beam) is null ? (ushort)0 : (ushort)1;
+    internal static int GetPowerBombCost(SamusBeamCombination beam) =>
+        ComboKind(beam) is null ? 0 : 1;
 
     /// <summary>
     /// IcePlasmaSBAProjectileOriginAngles at $90:CD08: four evenly spaced
@@ -69,9 +69,9 @@ internal static class SamusComboMechanics
     {
         short Component(int phase)
         {
-            int sample = Trigonometry.SignedSine(new ByteAngle(checked((byte)phase)));
-            int magnitude = EightEight.Multiply(Math.Abs(sample), (byte)amplitude);
-            return unchecked((short)(sample < 0 ? -magnitude : magnitude));
+            int sample = Trigonometry.SignedSine(new ByteAngle(phase));
+            int magnitude = EightEight.Multiply(Math.Abs(sample), WordWrap.LowByte(amplitude));
+            return WordWrap.Signed(sample < 0 ? -magnitude : magnitude);
         }
 
         return new(Component(angle.RawValue), Component(angle.AddTableUnits(-ByteAngle.QuarterTurn.RawValue).RawValue));

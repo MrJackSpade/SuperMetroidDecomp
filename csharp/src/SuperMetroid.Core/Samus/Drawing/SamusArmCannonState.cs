@@ -75,7 +75,7 @@ public sealed class SamusArmCannonState
         }
         else
         {
-            int incremented = unchecked((ushort)(StableSelectionUpdates + 1));
+            int incremented = WordWrap.Unsigned(StableSelectionUpdates + 1);
             StableSelectionUpdates = incremented < 3 ? incremented : 2;
         }
 
@@ -112,9 +112,9 @@ public sealed class SamusArmCannonState
         Offset16<RoomPixels> offset = placement.Offset(samus.AnimationFrame);
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
 
-        int screenX = unchecked((short)(samus.Position.X.Whole + offset.X - layer1.X));
-        int screenY = unchecked((short)(
-            samus.Position.Y.Whole + offset.Y - graphicsYOffset - layer1.Y));
+        int screenX = CoordinateAxis.AsSigned(samus.Position.X.Whole + offset.X - layer1.X);
+        int screenY = CoordinateAxis.AsSigned(
+            samus.Position.Y.Whole + offset.Y - graphicsYOffset - layer1.Y);
         bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
         if (spriteWritten)
         {
@@ -125,7 +125,7 @@ public sealed class SamusArmCannonState
                 "Arm cannon requires the installed sprite sheets.");
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusArmCannon),
                 sheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ArmCannonFrame(selector, Frame)),
-                new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), SpriteMirror.None));
+                new Position16<ScreenPixels>(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(screenY)), SpriteMirror.None));
         }
 
         return new SamusArmCannonDrawResult();
@@ -159,8 +159,8 @@ public sealed class SamusArmCannonState
     {
         if (IsOpen)
         {
-            int incremented = unchecked((ushort)(Frame + 1));
-            if (unchecked((short)(incremented - 3)) < 0)
+            int incremented = WordWrap.Unsigned(Frame + 1);
+            if (WordWrap.Signed(incremented - 3) < 0)
             {
                 Frame = incremented;
                 return;
@@ -170,8 +170,8 @@ public sealed class SamusArmCannonState
         }
         else
         {
-            int decremented = unchecked((ushort)(Frame - 1));
-            if (decremented != 0 && unchecked((short)decremented) >= 0)
+            int decremented = WordWrap.Unsigned(Frame - 1);
+            if (decremented != 0 && WordWrap.Signed(decremented) >= 0)
             {
                 Frame = decremented;
                 return;

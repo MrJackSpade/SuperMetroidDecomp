@@ -103,7 +103,7 @@ public static class SamusBlockCollision
                 state.InteractiveEnemies,
                 direction,
                 FixedCoordinate.WholeOf(unchecked((int)magnitude)),
-                unchecked((ushort)magnitude));
+                WordWrap.Unsigned(magnitude));
             state.RecordSolidEnemyCollision(direction, probe.EnemySlot);
 
             if (probe.Collided)
@@ -124,20 +124,20 @@ public static class SamusBlockCollision
             // The target center and leading boundary are calculated once, before a slope
             // handler is allowed to scale ci_r18_r20. This slightly surprising ordering is
             // exactly how $94:9543 initializes its collision-info scratch words.
-            int targetCenter = unchecked((ushort)(
-                SixteenSixteen.WholeOf(state.Position.X.RawValue + (uint)acceptedDisplacement)));
+            int targetCenter = CoordinateAxis.Wrap(
+                SixteenSixteen.WholeOf(state.Position.X.RawValue + (uint)acceptedDisplacement));
             int leadingBoundary = acceptedDisplacement >= 0
-                ? unchecked((ushort)(state.Radius.X + targetCenter - 1))
-                : unchecked((ushort)(targetCenter - state.Radius.X));
+                ? CoordinateAxis.Wrap(state.Radius.X + targetCenter - 1)
+                : CoordinateAxis.Wrap(targetCenter - state.Radius.X);
 
-            int topBlockY = unchecked((ushort)(state.Position.Y.Whole - state.Radius.Y)) >> 4;
+            int topBlockY = CoordinateAxis.Wrap(state.Position.Y.Whole - state.Radius.Y) >> 4;
             int verticalSpan = GetVerticalBlockSpan(state);
             int blockX = leadingBoundary >> 4;
 
             for (int rowOffset = 0; rowOffset <= verticalSpan; rowOffset++)
             {
                 RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(
-                    new(unchecked((ushort)blockX), unchecked((ushort)(topBlockY + rowOffset))));
+                    new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(topBlockY + rowOffset)));
                 if (!TryResolveExtension(terrain.Level, ref block))
                     continue;
                 switch (block.CollisionType)
@@ -419,7 +419,7 @@ public static class SamusBlockCollision
                 state.InteractiveEnemies,
                 direction,
                 FixedCoordinate.WholeOf(unchecked((int)magnitude)),
-                unchecked((ushort)magnitude));
+                WordWrap.Unsigned(magnitude));
             state.RecordSolidEnemyCollision(direction, probe.EnemySlot);
 
             if (probe.Collided)
@@ -477,21 +477,21 @@ public static class SamusBlockCollision
         int acceptedDisplacement = move.Displacement;
         bool collided = false;
         bool sandContact = false;
-        int targetCenter = unchecked((ushort)(
-            SixteenSixteen.WholeOf(state.Position.Y.RawValue + (uint)acceptedDisplacement)));
+        int targetCenter = CoordinateAxis.Wrap(
+            SixteenSixteen.WholeOf(state.Position.Y.RawValue + (uint)acceptedDisplacement));
         int leadingBoundary = acceptedDisplacement >= 0
-            ? unchecked((ushort)(state.Radius.Y + targetCenter - 1))
-            : unchecked((ushort)(targetCenter - state.Radius.Y));
+            ? CoordinateAxis.Wrap(state.Radius.Y + targetCenter - 1)
+            : CoordinateAxis.Wrap(targetCenter - state.Radius.Y);
         int blockY = leadingBoundary >> 4;
         int horizontalSpan = GetHorizontalBlockSpan(state);
         int firstBlockX = move.ScanLeftToRight
-            ? unchecked((ushort)(state.Position.X.Whole - state.Radius.X)) >> 4
-            : unchecked((ushort)(state.Position.X.Whole + state.Radius.X - 1)) >> 4;
+            ? CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X) >> 4
+            : CoordinateAxis.Wrap(state.Position.X.Whole + state.Radius.X - 1) >> 4;
 
         for (int offset = 0; offset <= horizontalSpan; offset++)
         {
             int blockX = move.ScanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
-            RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+            RoomCollisionBlock block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
             if (!TryResolveExtension(terrain.Level, ref block))
                 continue;
             switch (block.CollisionType)
@@ -830,12 +830,12 @@ public static class SamusBlockCollision
                 return new SlopeClip(displacement, false);
 
             int height = SamusSlopePhysics.ReadAlignmentHeight(block.Behavior, state.Position.X.Whole);
-            int bottomNibble = unchecked((ushort)(state.Radius.Y + targetCenter - 1)) & 15;
-            int correction = unchecked((short)(height - bottomNibble - 1));
+            int bottomNibble = CoordinateAxis.Wrap(state.Radius.Y + targetCenter - 1) & 15;
+            int correction = CoordinateAxis.Difference(height - bottomNibble, 1);
             if (correction > 0)
                 return new SlopeClip(displacement, false);
 
-            int whole = unchecked((short)(SixteenSixteen.WholeOf(displacement))) + correction;
+            int whole = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(displacement)) + correction;
             if (whole < 0)
                 whole = 0;
             return new SlopeClip(SixteenSixteen.FromWhole(whole), true);
@@ -847,11 +847,11 @@ public static class SamusBlockCollision
 
             int height = SamusSlopePhysics.ReadAlignmentHeight(block.Behavior, state.Position.X.Whole);
             int invertedTopNibble = ((targetCenter - state.Radius.Y) & 15) ^ 15;
-            int correction = unchecked((short)(height - invertedTopNibble - 1));
+            int correction = CoordinateAxis.Difference(height - invertedTopNibble, 1);
             if (correction > 0)
                 return new SlopeClip(displacement, false);
 
-            int whole = unchecked((short)(SixteenSixteen.WholeOf(displacement))) + correction;
+            int whole = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(displacement)) + correction;
             if (whole < 0)
                 whole = 0;
             return new SlopeClip(SixteenSixteen.FromWhole(whole), true);
@@ -998,7 +998,7 @@ public static class SamusBlockCollision
     {
         if (displacement < 0)
         {
-            int whole = unchecked((short)(state.Radius.X + (leadingBoundary | 15) + 1 - state.Position.X.Whole));
+            int whole = CoordinateAxis.AsSigned(state.Radius.X + (leadingBoundary | 15) + 1 - state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(0);
@@ -1006,7 +1006,7 @@ public static class SamusBlockCollision
         }
         else
         {
-            int whole = unchecked((short)((leadingBoundary & ~15) - state.Radius.X - state.Position.X.Whole));
+            int whole = CoordinateAxis.Difference((leadingBoundary & ~15) - state.Radius.X, state.Position.X.Whole);
             if (whole < 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(ushort.MaxValue);
@@ -1022,16 +1022,16 @@ public static class SamusBlockCollision
     {
         if (displacement < 0)
         {
-            int whole = unchecked((short)(
-                state.Radius.X + (leadingBoundary | 7) + 1 - state.Position.X.Whole));
+            int whole = CoordinateAxis.AsSigned(
+                state.Radius.X + (leadingBoundary | 7) + 1 - state.Position.X.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionX(0);
             return SixteenSixteen.FromWhole(whole);
         }
 
-        int rightWhole = unchecked((short)(
-            (leadingBoundary & ~7) - state.Radius.X - state.Position.X.Whole));
+        int rightWhole = CoordinateAxis.Difference(
+            (leadingBoundary & ~7) - state.Radius.X, state.Position.X.Whole);
         if (rightWhole < 0)
             rightWhole = 0;
         state.Position = state.Position.WithFractionX(ushort.MaxValue);
@@ -1046,7 +1046,7 @@ public static class SamusBlockCollision
     {
         if (displacement < 0)
         {
-            int whole = unchecked((short)(state.Radius.Y + (leadingBoundary | 15) + 1 - state.Position.Y.Whole));
+            int whole = CoordinateAxis.AsSigned(state.Radius.Y + (leadingBoundary | 15) + 1 - state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(0);
@@ -1054,7 +1054,7 @@ public static class SamusBlockCollision
         }
         else
         {
-            int whole = unchecked((short)((leadingBoundary & ~15) - state.Radius.Y - state.Position.Y.Whole));
+            int whole = CoordinateAxis.Difference((leadingBoundary & ~15) - state.Radius.Y, state.Position.Y.Whole);
             if (whole < 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(ushort.MaxValue);
@@ -1070,16 +1070,16 @@ public static class SamusBlockCollision
     {
         if (displacement < 0)
         {
-            int whole = unchecked((short)(
-                state.Radius.Y + (leadingBoundary | 7) + 1 - state.Position.Y.Whole));
+            int whole = CoordinateAxis.AsSigned(
+                state.Radius.Y + (leadingBoundary | 7) + 1 - state.Position.Y.Whole);
             if (whole >= 0)
                 whole = 0;
             state.Position = state.Position.WithFractionY(0);
             return SixteenSixteen.FromWhole(whole);
         }
 
-        int downWhole = unchecked((short)(
-            (leadingBoundary & ~7) - state.Radius.Y - state.Position.Y.Whole));
+        int downWhole = CoordinateAxis.Difference(
+            (leadingBoundary & ~7) - state.Radius.Y, state.Position.Y.Whole);
         if (downWhole < 0)
             downWhole = 0;
         state.Position = state.Position.WithFractionY(ushort.MaxValue);
@@ -1093,17 +1093,17 @@ public static class SamusBlockCollision
     /// <summary>Counts tile rows touched by Samus's current vertical collision extent.</summary>
     private static int GetVerticalBlockSpan(SamusKinematicsState state)
     {
-        int alignedTop = unchecked((ushort)(state.Position.Y.Whole - state.Radius.Y));
+        int alignedTop = CoordinateAxis.Wrap(state.Position.Y.Whole - state.Radius.Y);
         alignedTop &= ushort.MaxValue & ~15;
-        return unchecked((ushort)(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop)) >> 4;
+        return CoordinateAxis.Wrap(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop) >> 4;
     }
 
     /// <summary>Counts tile columns touched by Samus's current horizontal collision extent.</summary>
     private static int GetHorizontalBlockSpan(SamusKinematicsState state)
     {
-        int alignedLeft = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
+        int alignedLeft = CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X);
         alignedLeft &= ushort.MaxValue & ~15;
-        return unchecked((ushort)(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft)) >> 4;
+        return CoordinateAxis.Wrap(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft) >> 4;
     }
 
     /// <summary>
@@ -1165,10 +1165,10 @@ public static class SamusBlockCollision
         int up = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
         int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
         if (up == 0 || down != 0) return;
-        state.Position -= new Offset16<RoomPixels>(0, unchecked((short)up));
+        state.Position -= new Offset16<RoomPixels>(0, WordWrap.Signed(up));
         // Tall bodies may overlap two rows. Retail repeats once, not until clear.
         if (state.Radius.Y >= 16)
-            state.Position = state.Position.WithWholeY(unchecked((ushort)(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down))));
+            state.Position = state.Position.WithWrappedWholeY(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down));
     }
 
     /// <summary>
@@ -1177,15 +1177,15 @@ public static class SamusBlockCollision
     /// </summary>
     private static int GrappleVerticalOverlap(RoomLevelData level, SamusKinematicsState state, VerticalDirection direction)
     {
-        int boundary = unchecked((ushort)(state.Position.Y.Whole + (direction == VerticalDirection.Down ? state.Radius.Y - 1 : -state.Radius.Y)));
-        int left = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
-        int right = unchecked((ushort)(state.Position.X.Whole + state.Radius.X - 1));
+        int boundary = CoordinateAxis.Wrap(state.Position.Y.Whole + (direction == VerticalDirection.Down ? state.Radius.Y - 1 : -state.Radius.Y));
+        int left = CoordinateAxis.Wrap(state.Position.X.Whole - state.Radius.X);
+        int right = CoordinateAxis.Wrap(state.Position.X.Whole + state.Radius.X - 1);
         int firstColumn = left >> 4;
         int lastColumn = right >> 4;
         int maximum = 0;
         for (int column = firstColumn; column <= lastColumn; column++)
         {
-            RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(new(unchecked((ushort)column), unchecked((ushort)(boundary >> 4))));
+            RoomCollisionBlock block = level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(column), CoordinateAxis.Wrap(boundary >> 4)));
             int depth;
             // The post-grapple table treats even vertical extensions as solid, without
             // following behaviour. Ordinary movement's dispatcher is not interchangeable.

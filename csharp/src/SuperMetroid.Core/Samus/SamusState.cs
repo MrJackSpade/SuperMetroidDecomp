@@ -650,7 +650,7 @@ level,
         {
             // `$91:FF20` is the mirror: move down only as far as necessary to clear the
             // ceiling while admitting the enlarged body.
-            int acceptedWhole = unchecked((short)(SixteenSixteen.WholeOf(upward.AcceptedDisplacement)));
+            int acceptedWhole = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(upward.AcceptedDisplacement));
             int freeWholePixels = Math.Max(0, -acceptedWhole);
             centerAdjustment = radiusDifference - freeWholePixels;
 
@@ -676,7 +676,7 @@ level,
         // A zero correction in a collision branch still performs that write;
         // the no-collision branch does not replace the scrolling checkpoint.
         if (upward.Collided || downward.Collided || enemyUp.Collided || enemyDown.Collided)
-            WritePreviousYPosition(unchecked((ushort)(Kinematics.Position.Y.Whole + centerAdjustment)));
+            WritePreviousYPosition(CoordinateAxis.Wrap(Kinematics.Position.Y.Whole + centerAdjustment));
         return LargerPoseCollisionOutcome.Allowed;
 
         LargerPoseCollisionOutcome BothSides() => Kinematics.Radius.Y < 8
@@ -687,7 +687,7 @@ level,
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.Radius = probe.Radius.WithY(radius);
             SolidEnemyCollisionResult result = SamusSolidEnemyCollision.Probe(
-                probe, probe.InteractiveEnemies, direction, unchecked((ushort)distance), 0);
+                probe, probe.InteractiveEnemies, direction, CoordinateAxis.Wrap(distance), 0);
             Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
             return result;
         }
@@ -718,13 +718,13 @@ level,
         SamusPoseId targetPose,
         ISamusRoomPlms? plms)
     {
-        int wholePixels = unchecked((short)(SixteenSixteen.WholeOf(displacement)));
+        int wholePixels = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(displacement));
         if ((Math.Abs(wholePixels) & ~7) != 0)
         {
             // `$94:96C0` computes `(signedWhole & $FFF0) | 8`. Retain the literal
             // two's-complement expression rather than replacing it with a magnitude
             // shortcut; negative probes deliberately produce -8 for the known pose radii.
-            int intermediateWhole = unchecked((short)((wholePixels & ~15) | 8));
+            int intermediateWhole = CoordinateAxis.AsSigned((wholePixels & ~15) | 8);
             BlockMoveResult intermediate = Probe(SixteenSixteen.FromWhole(intermediateWhole));
             if (intermediate.Collided)
                 return intermediate;
@@ -773,8 +773,8 @@ level, probe, this, amount, scanLeftToRight, plms);
             // `$91:FFD4-$91:FFE9` subtracts the extra crouch radius from center Y. This is
             // normally invisible for radius-16 aimed crouches, but compact radius ten must
             // move up six pixels when simultaneous initial probes force `$27/$28`.
-            Kinematics.Position = Kinematics.Position.WithWholeY(unchecked((ushort)(
-                Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius))));
+            Kinematics.Position = Kinematics.Position.WithWrappedWholeY(
+                Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius));
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
         SamusPresentation.InitializeAnimation(this, initialFrame: 0);
@@ -811,7 +811,7 @@ level, probe, this, amount, scanLeftToRight, plms);
     internal void AlignBottomAfterPoseChange(int previousRadius, int targetRadius)
     {
         int delta = previousRadius - targetRadius;
-        Position += new Offset16<RoomPixels>(0, unchecked((short)delta));
+        Position += new Offset16<RoomPixels>(0, WordWrap.Signed(delta));
         _poseAlignmentPreviousYDelta += delta;
     }
 
@@ -831,8 +831,8 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// The live SamusPreviousXPosition/SamusPreviousYPosition words ($0B10/$0B14): the
     /// frame-start checkpoint with this frame's writes so far, without consuming them.
     /// </summary>
-    internal Position16<RoomPixels> PeekPreviousPositionWords(FixedPosition<RoomPixels> previous) => new Position16<RoomPixels>(        checked((ushort)(_previousXPositionWrite ?? previous.X.Whole)),
-        unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta)));
+    internal Position16<RoomPixels> PeekPreviousPositionWords(FixedPosition<RoomPixels> previous) => new Position16<RoomPixels>(        _previousXPositionWrite ?? previous.X.Whole,
+        CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta));
 
     /// <summary>
     /// Applies this frame's whole previous-position writes before $90:94EC calculates
@@ -840,9 +840,9 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// </summary>
     internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
     {
-        int correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
-            + _poseAlignmentPreviousYDelta));
-        int xPosition = checked((ushort)(_previousXPositionWrite ?? previous.X.Whole));
+        int correctedY = CoordinateAxis.Wrap((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
+            + _poseAlignmentPreviousYDelta);
+        int xPosition = Ensure.BetweenInclusive(0, ushort.MaxValue, _previousXPositionWrite ?? previous.X.Whole);
         _poseCollisionPreviousYPosition = null;
         _poseAlignmentPreviousYDelta = 0;
         _previousXPositionWrite = null;

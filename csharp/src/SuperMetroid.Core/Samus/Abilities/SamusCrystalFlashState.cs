@@ -40,7 +40,7 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>Mirrors another owner's write, 0 through 65535, to the shared ammo-countdown word; other values are rejected.</summary>
     internal void SetSharedAmmoCounter(int value) =>
-        AmmoDecrementTimer = WrappingCountdown.FromRaw(checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
+        AmmoDecrementTimer = WrappingCountdown.FromRaw(Ensure.BetweenInclusive(0, ushort.MaxValue, value));
 
     /// <summary>Replaces the movement pointer without clearing the live Flash palette/timer.</summary>
     internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;
@@ -443,6 +443,6 @@ public sealed class SamusCrystalFlashState
         // Their handlers are mutually exclusive, but exposing the alias keeps breakpoint
         // inspection and the next owner's initial state faithful to WRAM.
         samus.HorizontalSpeed.CyclePaletteStep = BubbleStep;
-        samus.HorizontalSpeed.SpecialPaletteTimer = WrappingCountdown.FromRaw(checked((ushort)BodyPaletteRecordOffset));
+        samus.HorizontalSpeed.SpecialPaletteTimer = WrappingCountdown.FromRaw(BodyPaletteRecordOffset);
     }
 }

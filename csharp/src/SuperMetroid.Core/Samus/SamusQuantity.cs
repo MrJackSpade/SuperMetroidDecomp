@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Samus;
 /// itself reaches negative counts: Crystal Flash keeps draining an ammunition kind past zero. Words exist only at the
 /// SRAM, JSON and snapshot boundaries, which convert through <see cref="Decode"/> and <see cref="Encode"/>.
 /// </summary>
+[EncodingOwner("Samus's count words in saves and snapshots")]
 public static class SamusQuantity
 {
     /// <summary>The smallest count: the word $8000 under the cartridge's signed comparisons.</summary>

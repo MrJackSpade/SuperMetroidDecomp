@@ -12,13 +12,13 @@ public sealed class InstalledGrappleSwingFrames
     private InstalledGrappleSwingFrames(byte[] frames)
     {
         for (int angle = 0; angle < frames.Length; angle++)
-            if (frames[angle] != GrappleSwingFrameDefinitions.FrameForAngle(new ByteAngle((byte)angle)))
+            if (frames[angle] != GrappleSwingFrameDefinitions.FrameForAngle(new ByteAngle(WordWrap.LowByte(angle))))
             { this.frames = frames; return; }
     }
     /// <summary>Selects the editable displayed orientation frame for one high angle byte, independently of the compiled body-placement frame and the runtime's separate straight-down animation handling.</summary>
     /// <param name="angle">High byte of the mirrored native swing angle, representing one of 256 positions around a full turn.</param>
     /// <returns>A displayed orientation frame index from 0 through 31, within the current facing's swing artwork.</returns>
-    public byte Resolve(ByteAngle angle) => frames is null
+    public int Resolve(ByteAngle angle) => frames is null
         ? GrappleSwingFrameDefinitions.FrameForAngle(angle) : frames[angle.RawValue];
     /// <summary>Strict camel-case JSON settings for the editable 256-angle document.</summary>
     private static readonly JsonSerializerOptions Options = new()
@@ -47,7 +47,7 @@ public sealed class InstalledGrappleSwingFrames
         if (document.Version != GrappleSwingFrameDefinitions.Version || document.Frames is null || document.Frames.Length != GrappleSwingFrameDefinitions.AngleCount ||
             document.Frames.Any(frame => frame is < 0 or >= GrappleSwingFrameDefinitions.FrameCount))
             throw new InvalidDataException("Grapple swing frames require version 1 and 256 frame indices in 0..31.");
-        return new(document.Frames.Select(frame => (byte)frame).ToArray());
+        return new(document.Frames.Select(frame => WordWrap.LowByte(frame)).ToArray());
     }
     /// <summary>Serializes a swing-frame document as indented camel-case UTF-8 JSON and validates it through <see cref="Load"/> before returning the bytes.</summary>
     /// <param name="document">Document containing the supported version and all 256 valid orientation-frame selections.</param>

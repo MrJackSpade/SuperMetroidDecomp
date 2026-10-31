@@ -44,12 +44,12 @@ internal sealed class SamusScrollCap
     /// <summary>Returns a previous-position word twelve pixels from Samus when native signed-distance comparison reaches the camera cap.</summary>
     private static int? CappedPreviousPosition(int position, int previous)
     {
-        int delta = unchecked((ushort)(position - previous));
-        int magnitude = unchecked((short)delta) < 0 ? unchecked((ushort)-delta) : delta;
+        int delta = WordWrap.Unsigned(position - previous);
+        int magnitude = WordWrap.Signed(delta) < 0 ? WordWrap.Unsigned(-delta) : delta;
         // CMP #$000C / BMI: the sign of magnitude - 12.
-        if (unchecked((short)(magnitude - 12)) < 0)
+        if (WordWrap.Signed(magnitude - 12) < 0)
             return null;
-        int offset = unchecked((short)delta) < 0 ? -12 : 12;
-        return unchecked((ushort)(position + offset));
+        int offset = WordWrap.Signed(delta) < 0 ? -12 : 12;
+        return CoordinateAxis.Wrap(position + offset);
     }
 }

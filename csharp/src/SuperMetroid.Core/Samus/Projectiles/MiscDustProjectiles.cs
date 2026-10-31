@@ -49,7 +49,7 @@ internal static class MiscDustProjectiles
         int xRadius = 1 << (placementIndex + (tall ? 0 : 1));
         int yRadius = tall ? xRadius * 2 : xRadius;
         return new(
-            new Extent16<RoomPixels>((ushort)(xRadius * 2 - 1), (ushort)(yRadius * 2 - 1)),
-            new Offset16<RoomPixels>((short)-xRadius, (short)-yRadius));
+            new Extent16<RoomPixels>(CoordinateAxis.Wrap(xRadius * 2 - 1), CoordinateAxis.Wrap(yRadius * 2 - 1)),
+            new Offset16<RoomPixels>(CoordinateAxis.AsSigned(-xRadius), CoordinateAxis.AsSigned(-yRadius)));
     }
 }

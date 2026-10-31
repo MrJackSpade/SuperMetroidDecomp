@@ -173,7 +173,7 @@ internal sealed class SamusPresentation
         samus.LiquidPhysics.PrepareAnimationFrame(
             samus,
             step.Random,
-            checked((ushort)step.FrameCounter),
+            Ensure.BetweenInclusive(0, ushort.MaxValue, step.FrameCounter),
             step.BeginLiquidSoundRequestFrame,
             step.BossPresent);
 
@@ -425,7 +425,7 @@ internal sealed class SamusPresentation
         // $90:8C94 sign-extends the byte at pose-definition offset four. Pose $01 stores
         // +6, moving the art origin six pixels above Samus's world-space center.
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        int spritemapX = unchecked((ushort)(renderX - layer1.X));
+        int spritemapX = CoordinateAxis.Wrap(renderX - layer1.X);
         int spritemapY;
         // The part of the stored spritemap Y that OAM never shows: a landing frame's leaked neighbouring byte.
         int landingOffsetHighPart = 0;
@@ -436,7 +436,7 @@ internal sealed class SamusPresentation
             // `$90:8D07-$90:8D27` uses the ordinary pose graphics offset for front-facing
             // frames zero/one, then pins every later frame exactly one pixel above Samus's
             // center. This is independent of `$00`'s extra power-suit chest-cover OBJ.
-            spritemapY = unchecked((ushort)(renderY - 1 - layer1.Y));
+            spritemapY = CoordinateAxis.Wrap(renderY - 1 - layer1.Y);
         }
         else if (movementType == SamusMovementType.Standing &&
             SamusPoseNumbering.InRange(samus.Pose, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
@@ -451,9 +451,9 @@ internal sealed class SamusPresentation
             if (BodyFrames.Artwork is not { } landingArt ||
                 !landingArt.TryLandingYOffset(landingOffsetIndex, out int landingOffset))
                 throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
-            spritemapY = unchecked((ushort)(
-                renderY - landingOffset - layer1.Y));
-            landingOffsetHighPart = (ushort)(landingOffset - (byte)landingOffset);
+            spritemapY = CoordinateAxis.Wrap(
+                renderY - landingOffset - layer1.Y);
+            landingOffsetHighPart = CoordinateAxis.Wrap(landingOffset - WordWrap.LowByte(landingOffset));
         }
         else if (movementType == SamusMovementType.PostureTransition &&
             !SamusPoseNumbering.Precedes(samus.Pose, SamusPoseId.CrouchingTransitionRightPose) &&
@@ -468,7 +468,7 @@ internal sealed class SamusPresentation
             if (BodyFrames.Artwork is not { } postureArt ||
                 !postureArt.TryPostureYOffset(postureIndex, out int transitionOffset))
                 throw new InvalidDataException($"Samus posture offset {postureIndex} lacks installed art.");
-            spritemapY = unchecked((ushort)(renderY + transitionOffset - layer1.Y));
+            spritemapY = CoordinateAxis.Wrap(renderY + transitionOffset - layer1.Y);
         }
         else if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
         {
@@ -479,21 +479,21 @@ internal sealed class SamusPresentation
             if (BodyFrames.Artwork is not { } drainedArt ||
                 !drainedArt.TryDrainedYOffset(samus.AnimationFrame, out int drainedOffset))
                 throw new InvalidDataException($"Samus drained offset {samus.AnimationFrame} lacks installed art.");
-            spritemapY = unchecked((ushort)(renderY + drainedOffset - layer1.Y));
+            spritemapY = CoordinateAxis.Wrap(renderY + drainedOffset - layer1.Y);
         }
         else if ((samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose) &&
                  samus.AnimationFrame >= 5)
         {
             // `$90:8DB1-$8DBC` replaces the usual pose graphics offset with -3 after
             // standing drained art reaches byte index five.
-            spritemapY = unchecked((ushort)(renderY - 3 - layer1.Y));
+            spritemapY = CoordinateAxis.Wrap(renderY - 3 - layer1.Y);
         }
         else
         {
-            spritemapY = unchecked((ushort)(renderY - graphicsYOffset - layer1.Y));
+            spritemapY = CoordinateAxis.Wrap(renderY - graphicsYOffset - layer1.Y);
         }
         SpritemapPosition = Position16<ScreenPixels>.Of(spritemapX, spritemapY);
-        Position16<ScreenPixels> drawOrigin = Position16<ScreenPixels>.Of(spritemapX, unchecked((ushort)(spritemapY + landingOffsetHighPart)));
+        Position16<ScreenPixels> drawOrigin = Position16<ScreenPixels>.Of(spritemapX, CoordinateAxis.Wrap(spritemapY + landingOffsetHighPart));
 
         var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus rendering requires installed spritemap artwork.");
@@ -513,8 +513,8 @@ internal sealed class SamusPresentation
         // not SpritemapPosition.Y (which has already applied pose graphics offset `$08`).
         if (samus.Pose == SamusPoseId.ForwardFacingPowerSuitPose)
         {
-            int chestX = unchecked((ushort)(samus.Position.X.Whole - 7 - layer1.X));
-            int chestY = unchecked((ushort)(samus.Position.Y.Whole - 17 - layer1.Y));
+            int chestX = CoordinateAxis.Wrap(samus.Position.X.Whole - 7 - layer1.X);
+            int chestY = CoordinateAxis.Wrap(samus.Position.Y.Whole - 17 - layer1.Y);
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusChest),
                 BodySheets.Get(SpriteSheetId.SamusOverlays).Frame(SamusOverlaySheetDefinitions.ChestCoverFrame),
                 Position16<ScreenPixels>.Of(chestX, chestY), SpriteMirror.None));
@@ -722,7 +722,7 @@ internal sealed class SamusPresentation
             return;
 
         int graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
-        int screenY = unchecked((short)(echo.Y - graphicsYOffset - layer1.Y));
+        int screenY = CoordinateAxis.Difference(echo.Y - graphicsYOffset, layer1.Y);
 
         // The original accepts screen Y 0..247. Horizontal clipping remains OAM/PPU work,
         // exactly as it is for the current Samus body.
@@ -731,8 +731,8 @@ internal sealed class SamusPresentation
 
         var spritemaps = BodyFrames.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus speed-booster echo requires installed spritemap artwork.");
-        int screenX = unchecked((ushort)(echo.X - layer1.X));
-        var origin = Position16<ScreenPixels>.Of(screenX, unchecked((ushort)screenY));
+        int screenX = CoordinateAxis.Wrap(echo.X - layer1.X);
+        var origin = Position16<ScreenPixels>.Of(screenX, CoordinateAxis.Wrap(screenY));
         // An echo repeats the pictures the body last drew; before the body has been drawn there is nothing to repeat.
         if (TopSpritemap is { } top)
             sprites.AddSamusBody(top, origin, spritemaps, BodySheets, ShownPictures, new SpriteSource(SpriteSourceKind.SamusEcho, slot * 2));

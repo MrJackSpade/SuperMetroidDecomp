@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileDamage
 {
     /// <summary>The damage <paramref name="header"/> starts its projectile with.</summary>
-    internal static ushort Read(SamusProjectileHeader header) => header switch
+    internal static int Read(SamusProjectileHeader header) => header switch
     {
         SamusProjectileHeader.Missile => 100,
         SamusProjectileHeader.SuperMissile or SamusProjectileHeader.SuperMissileLink => 300,
@@ -43,7 +43,7 @@ internal static class SamusProjectileDamage
         Beams.TryGetValue(header, out SamusBeamCombination value) ? value : throw new ArgumentOutOfRangeException(nameof(header), header, "Undefined projectile header.");
 
     /// <summary>Maps a beam header to its native base damage and triples charged shots.</summary>
-    private static ushort BeamDamage(SamusBeamIdentity identity)
+    private static int BeamDamage(SamusBeamIdentity identity)
     {
         var (charged, beam) = identity;
         int damage = beam switch
@@ -65,6 +65,6 @@ internal static class SamusProjectileDamage
                 throw new InvalidOperationException($"{beam} has no beam header."),
             _ => throw new ArgumentOutOfRangeException(nameof(identity), beam, "Undefined beam combination."),
         };
-        return (ushort)(damage * (charged ? 3 : 1));
+        return WordWrap.Unsigned(damage * (charged ? 3 : 1));
     }
 }

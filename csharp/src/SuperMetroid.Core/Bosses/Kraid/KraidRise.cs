@@ -203,7 +203,8 @@ internal sealed class KraidRise
 
             case KraidAiFunction.GrowDrawRoomBackground:
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowFadeInRoomBackground;
-                state.Parts[body.SlotIndex].CeilingRock = 0;
+                // The original game clears the value it kept the ceiling rocks in, which is the function timer again.
+                state.Parts[body.SlotIndex].FunctionTimer = 0;
                 // $A7:ADB0 DrawKraidsRoomBackground zeroes the shared numerator.
                 _presentation.GradualColorChange.Reset();
                 // `$A7:AD9A` queues this character upload on the same frame that it

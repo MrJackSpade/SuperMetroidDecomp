@@ -95,7 +95,12 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
             kraidPartRecord.Function = (KraidAiFunction)words.A;
+            // Words B and C hold the body's head timer, a lint's travel and X offset, or a nail's horizontal velocity;
+            // each part reads only its own, so each is imported from the words.
             kraidPartRecord.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
+            kraidPartRecord.HeadTimer = words.C;
+            kraidPartRecord.LintXOffset = words.C;
+            kraidPartRecord.LintTravel = words.B;
             // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
             if (kraidPartRecord.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
                 kraidPartRecord.CeilingRock = words.F / sizeof(ushort);

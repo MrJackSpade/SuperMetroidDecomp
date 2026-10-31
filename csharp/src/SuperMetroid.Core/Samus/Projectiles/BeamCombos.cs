@@ -228,8 +228,8 @@ internal sealed class BeamCombos
         }
     }
     /// <summary>
-    /// Runs the SpaceTime shot's callback, which falls back into the beam palette's copy loop and, from an animation high
-    /// in its bank, copies on through saved progression (<see cref="SpaceTimeProgressionOverwrite{TCursor}"/>). Before the
+    /// Runs the SpaceTime shot's callback, which falls back into the beam palette's copy loop and, from an animation that
+    /// sends the copy far enough, copies on through saved progression (<see cref="SpaceTimeProgressionOverwrite{TCursor}"/>). Before the
     /// shot's first frame is installed, or with no animation, the copy starts low and ends long before progression, and
     /// only the progression part of the copy is kept (owner decision on #1318).
     /// </summary>

@@ -75,7 +75,7 @@ internal static class HeroShotRuntimeVerification
                     ushort type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(expected[TypeColumn]) == shot.Type
                         ? expected[TypeColumn] : unchecked((ushort)~expected[TypeColumn]);
                     ushort[] actual = [samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction,
-                        samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction, (ushort)samus.Pose,
+                        samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction, (ushort)SamusPoseNumbering.Number(samus.Pose),
                         runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y,
                         shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
                         unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), type, checked((ushort)shot.InstructionPointer)];

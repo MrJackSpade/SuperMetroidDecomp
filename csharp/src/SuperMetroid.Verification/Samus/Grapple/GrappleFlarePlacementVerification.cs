@@ -53,7 +53,7 @@ internal static class GrappleFlarePlacementVerification
         var authoredPoses = Enumerable.Range(0, 253)
             .Select(pose => new
             {
-                Pose = (SamusPoseId)pose,
+                Pose = SamusPoseNumbering.FromNumber(pose),
                 Movement = CpuBusRegionRead.Read(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1),
                 Direction = CpuBusRegionRead.Read(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3),
             })

@@ -26,9 +26,9 @@ internal static class PoseProjectileOriginVerification
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleBeamDrawing.RefreshFiringDrawOrigins);
         SamusPoseId guardedPose = default;
         var bus = new CartridgeReadGuard(rom)
-            .Forbid(address => address == 0x91b629 + (int)guardedPose * 8 + 3,
+            .Forbid(address => address == 0x91b629 + (int)SamusPoseNumbering.Number(guardedPose) * 8 + 3,
                 _ => "Compiled pose aim read artwork metadata.")
-            .Forbid(address => address == 0x91b629 + (int)guardedPose * 8 + 4,
+            .Forbid(address => address == 0x91b629 + (int)SamusPoseNumbering.Number(guardedPose) * 8 + 4,
                 _ => "Installed graphics offset read ROM.");
         var samus = PrepareRetailSamusFixture(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         var slot = new SamusProjectileSlot(0);
@@ -39,7 +39,7 @@ internal static class PoseProjectileOriginVerification
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             byte expected = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
-            AssertEqual(expected, SamusPoseProjectileOrigins.ReadYOffset((SamusPoseId)pose),
+            AssertEqual(expected, SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)),
                 "Every byte-valued correction is compiled, including three adjacent-code indexes");
         }
         // Each artwork class is bound once and every pose and direction checked under it: binding composes and
@@ -51,7 +51,7 @@ internal static class PoseProjectileOriginVerification
             for (int pose = 0; pose <= 0xfc; pose++)
             for (byte direction = 0; direction < 10; direction++)
             {
-                guardedPose = samus.Pose = (SamusPoseId)pose;
+                guardedPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);
                 samus.Position = samus.Position.WithWholeX(unchecked((ushort)(pose * 251 + art)));
                 samus.Position = samus.Position.WithWholeY(unchecked((ushort)~samus.Position.X.Whole));
                 byte physicalY = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);
@@ -67,8 +67,8 @@ internal static class PoseProjectileOriginVerification
                 g.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
                 SamusGrappleMovement.BeginFiring(samus);
-                bool held = pose is (int)SamusPoseId.DraygonGrabbedMovingLeftPose or (int)SamusPoseId.DraygonGrabbedMovingRightPose;
-                int firingDirection = held ? (pose == (int)SamusPoseId.DraygonGrabbedMovingLeftPose ? 7 : 2) : rom.ReadCartridgeByte(0x91b629 + pose * 8 + 3);
+                bool held = pose is (int)SamusPoseNumbering.Number(SamusPoseId.DraygonGrabbedMovingLeftPose) or (int)SamusPoseNumbering.Number(SamusPoseId.DraygonGrabbedMovingRightPose);
+                int firingDirection = held ? (pose == (int)SamusPoseNumbering.Number(SamusPoseId.DraygonGrabbedMovingLeftPose) ? 7 : 2) : rom.ReadCartridgeByte(0x91b629 + pose * 8 + 3);
                 if ((firingDirection & 0xf0) != 0)
                 {
                     AssertEqual(GrapplePhase.CancelPending, g.Phase, "Artwork cannot enable Grapple in a restricted authored pose");

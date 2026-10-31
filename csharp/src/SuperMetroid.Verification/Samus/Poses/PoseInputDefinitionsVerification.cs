@@ -19,8 +19,8 @@ internal static class PoseInputDefinitionsVerification
         int conditionCount = 0, newMask = 0, heldMask = 0;
         for (int poseIndex = 0; poseIndex < 253; poseIndex++)
         {
-            SamusPoseId pose = (SamusPoseId)poseIndex;
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitions.Poses.TransitionListPointers + (int)pose * 2));
+            SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
+            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((SamusMovementDefinitions.Poses.TransitionListPointers + (int)SamusPoseNumbering.Number(pose) * 2));
             var native = new List<PoseInputDefinitionsNative>();
             for (int address = 0x910000 | pointer; CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address) != ushort.MaxValue; address += 6)
             {
@@ -55,8 +55,8 @@ internal static class PoseInputDefinitionsVerification
                         if ((input & (ControllerButton)native[i].Held) == (ControllerButton)native[i].Held && (edges & (ControllerButton)native[i].New) == (ControllerButton)native[i].New)
                         { match = i; break; }
                     expected = match < 0 ? new(null, native.Count != 0)
-                        : native[match].Target == (ushort)pose ? new(null, false)
-                        : new(new SamusPoseTransition((SamusPoseId)native[match].Target), false);
+                        : native[match].Target == (ushort)SamusPoseNumbering.Number(pose) ? new(null, false)
+                        : new(new SamusPoseTransition(SamusPoseNumbering.FromNumber(native[match].Target)), false);
                 }
                 AssertEqual(expected, SamusPoseTransitionTable.Lookup(pose, input, edges),
                     "Compiled input graph preserves native first-match, self-match and fallback result");
@@ -69,7 +69,7 @@ internal static class PoseInputDefinitionsVerification
         AssertEqual(598, conditionCount, "All distinct-list conditions");
         for (int pose = 253; pose <= byte.MaxValue; pose++)
         {
-            SamusPoseId invalidPose = (SamusPoseId)pose;
+            SamusPoseId invalidPose = SamusPoseNumbering.FromNumber(pose);
             AssertTrue(!SamusPoseInputs.TryGetInputList(invalidPose, out _), "Trailing pose indexes have no authored graph");
             AssertThrows<InvalidDataException>(
                 () => SamusPoseTransitionTable.Lookup(invalidPose, (ControllerButton)1, (ControllerButton)1),
@@ -102,7 +102,7 @@ internal static class PoseInputDefinitionsVerification
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
         int accepted = 0;
         for (int i = 0; i < 65536; i++)
-            if (SamusPoseTransitionTable.Lookup((SamusPoseId)(i % 253), (ControllerButton)(ushort)i, (ControllerButton)(ushort)~i).Transition.HasValue) accepted++;
+            if (SamusPoseTransitionTable.Lookup(SamusPoseNumbering.FromNumber((i % 253)), (ControllerButton)(ushort)i, (ControllerButton)(ushort)~i).Transition.HasValue) accepted++;
         long allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
         AssertTrue(accepted > 0, "Allocation probe exercises successful matches");
         AssertEqual(0L, allocated, "Warmed production lookup allocates no per-frame graph or records");

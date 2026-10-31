@@ -174,7 +174,7 @@ internal static class VerificationHelpersVerification
     /// (<c>$91:B010</c>, one same-bank word per pose) at a synthetic delay stream.
     /// </summary>
     internal static void WritePoseAnimationDelayPointer(TestAddressSpace bus, SamusPoseId pose, ushort stream) =>
-        WriteTestWord(bus, SamusAnimationDelayDefinitions.PointerTableAddress + (int)pose * sizeof(ushort), stream);
+        WriteTestWord(bus, SamusAnimationDelayDefinitions.PointerTableAddress + (int)SamusPoseNumbering.Number(pose) * sizeof(ushort), stream);
 
     /// <summary>Installs one synthetic animation-delay stream at a bank-$91 offset.</summary>
     internal static void WriteAnimationDelayStream(TestAddressSpace bus, ushort stream, ReadOnlySpan<byte> delays)

@@ -63,7 +63,7 @@ internal static class PostCeresLandingHandOffVerification
         AssertEqual(GunshipFrameEvent.LandingCompleted, runtime.Enemies.LastEnemyFrame.Gunship,
             "post-Ceres landing completes");
         // $A2:A987 runs in EnemyMain, after this frame's locked current-state handler.
-        AssertEqual((byte)0, (byte)runtime.Player.IntroducedSamus.Pose, "unlock frame keeps the locked alpha's forward pose");
+        AssertEqual((byte)0, SamusPoseNumbering.Number(runtime.Player.IntroducedSamus.Pose), "unlock frame keeps the locked alpha's forward pose");
         ushort unlockedX = runtime.Player.IntroducedSamus.Position.X.Whole;
         runtime.StepFrame(input);
         AssertEqual(SamusPoseId.TurningRightToLeftPose, runtime.Player.IntroducedSamus.Pose, "first unlocked alpha accepts the held turn");

@@ -144,7 +144,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         // no longer override gameplay direction merely to simplify a fixture.
         SamusPoseId pose = nativePosesByShotDirection[direction];
         AssertEqual(direction, SamusPoseMetadata.ReadShotDirection(pose),
-            $"native projectile fixture pose ${(int)pose:X2} aim");
+            $"native projectile fixture pose ${(int)SamusPoseNumbering.Number(pose):X2} aim");
         var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
         {
             Pose = pose,
@@ -185,7 +185,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     const SamusPoseId rightPose = SamusPoseId.FacingRightNormalPose;
     WritePoseDefinition(
         bus,
-        (int)rightPose,
+        (int)SamusPoseNumbering.Number(rightPose),
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
 
     // Every valid low-nibble combination must index its own projectile data, cooldown, and
@@ -546,7 +546,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // still held, supplies the stored direction to the new projectile, and is then cleared.
     WritePoseDefinition(
         bus,
-        (int)SamusPoseId.NeutralJumpTransitionRightPose,
+        (int)SamusPoseNumbering.Number(SamusPoseId.NeutralJumpTransitionRightPose),
         [0x08, 0x02, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
     var bridgeSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {
@@ -876,7 +876,7 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     WritePoseDefinition(
         bus,
-        (int)rightPose,
+        (int)SamusPoseNumbering.Number(rightPose),
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
     var wallSamus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
     {

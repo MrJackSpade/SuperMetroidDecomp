@@ -43,7 +43,7 @@ internal static class CeilingWrapRoomVerification
         for (int frame = 0; frame < native.Length; frame++)
         {
             runtime.StepFrame((ControllerButton.X | ControllerButton.Left | ControllerButton.R | (dash ? ControllerButton.B : 0)));
-            string actual = $"{frame},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)samus.Pose:X2},{runtime.Plms.SlotTable.ActiveCount},{runtime.Room.LoadedCamera.PixelPosition.X}";
+            string actual = $"{frame},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)SamusPoseNumbering.Number(samus.Pose):X2},{runtime.Plms.SlotTable.ActiveCount},{runtime.Room.LoadedCamera.PixelPosition.X}";
             if (actual != native[frame] && mismatches++ < 8)
                 Console.WriteLine($"Speedway mismatch:\n{actual}\n{native[frame]}");
         }

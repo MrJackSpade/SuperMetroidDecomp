@@ -43,7 +43,7 @@ internal static class InstalledSamusArtworkTests
     {
         for (int pose = 0; pose < InstalledSamusBodyArtwork.PoseCount; pose++)
         {
-            var stock = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = (SamusPoseId)pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), Health = 99 };
+            var stock = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseNumbering.FromNumber(pose), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), Health = 99 };
             var edited = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(stock.Position.Whole), Health = stock.Health };
             SamusPoseMetadata.RefreshCollisionRadii(stock); SamusPoseMetadata.RefreshCollisionRadii(edited);
             stock.Presentation.BodyFrames.BindBodyFixture(fixture.Stock);

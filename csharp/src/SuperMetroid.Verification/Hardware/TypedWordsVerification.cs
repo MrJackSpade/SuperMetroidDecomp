@@ -98,9 +98,9 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(SamusPoseMetadata.IsFacingLeft(SamusPoseId.FacingLeftNormalPose), "typed left-facing pose query");
     AssertEqual(SamusFacingDirection.Right, SamusPoseMetadata.ReadFacingDirection(SamusPoseId.FacingRightNormalPose),
         "typed right-facing pose query");
-    AssertEqual(SamusFacingDirection.ForwardOrSpecial, SamusPoseMetadata.ReadFacingDirection((SamusPoseId)0xfe),
+    AssertEqual(SamusFacingDirection.ForwardOrSpecial, SamusPoseMetadata.ReadFacingDirection(SamusPoseNumbering.FromNumber(0xfe)),
         "typed facing query faces an unnamed adjacent-code record neither way");
-    AssertEqual(41, SamusPoseMetadata.ReadPoseXDirection((SamusPoseId)0xfe),
+    AssertEqual(41, SamusPoseMetadata.ReadPoseXDirection(SamusPoseNumbering.FromNumber(0xfe)),
         "pose-record facing byte preserves the compiled unnamed adjacent-code byte");
 
     // Fixed-bank pointer arithmetic must wrap only the low word. A host addition would
@@ -471,8 +471,8 @@ internal static void VerifyTypedNativeWords()
     typedPose.PoseId = SamusPoseId.ScrewAttackLeftPose;
     AssertEqual(SamusPoseId.ScrewAttackLeftPose, typedPose.Pose,
         "typed Samus pose writes the native byte");
-    typedPose.Pose = (SamusPoseId)0xfe;
-    AssertEqual((SamusPoseId)0xfe, typedPose.PoseId,
+    typedPose.Pose = SamusPoseNumbering.FromNumber(0xfe);
+    AssertEqual(SamusPoseNumbering.FromNumber(0xfe), typedPose.PoseId,
         "undefined Samus pose byte remains observable for diagnostics");
 
     var bgEntry = new SnesBgTilemapWord(0xf555);

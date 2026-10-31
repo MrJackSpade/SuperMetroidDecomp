@@ -51,7 +51,7 @@ internal static class GrappleFiringDefinitionsVerification
         // the immutable movement byte of standing pose $01.
         SamusPoseId[] movementPoses = Enumerable.Range(0, 253).GroupBy(pose =>
             GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1))
-            .OrderBy(group => group.Key).Select(group => (SamusPoseId)group.First()).ToArray();
+            .OrderBy(group => group.Key).Select(group => SamusPoseNumbering.FromNumber(group.First())).ToArray();
         // The graphics-Y byte only enters the flare as a signed offset, so the signed byte
         // classes cover it; each needs one full artwork fixture.
         ushort[] positions = [0x0000, 0x0001, 0x7fff, 0x8000, 0xfffe, 0xffff];
@@ -59,8 +59,8 @@ internal static class GrappleFiringDefinitionsVerification
         {
             SamusPoseId[] aimingPoses = Enumerable.Range(0, 253).Where(pose =>
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
-                pose is not ((int)SamusPoseId.DraygonGrabbedMovingLeftPose or (int)SamusPoseId.DraygonGrabbedMovingRightPose))
-                .Select(pose => (SamusPoseId)pose).ToArray();
+                pose is not ((int)SamusPoseNumbering.Number(SamusPoseId.DraygonGrabbedMovingLeftPose) or (int)SamusPoseNumbering.Number(SamusPoseId.DraygonGrabbedMovingRightPose)))
+                .Select(pose => SamusPoseNumbering.FromNumber(pose)).ToArray();
             int offset = direction * 2;
             short vx = Word(0x9bc0db + offset), vy = Word(0x9bc0ef + offset);
             ushort angle = unchecked((ushort)Word(0x9bc104 + offset));
@@ -73,11 +73,11 @@ internal static class GrappleFiringDefinitionsVerification
                 // Every authored aim/movement pose for the direction, each signed graphics-Y
                 // class and the X/Y position wrap boundaries.
                 samus.Pose = sourcePose = pose;
-                byte movement = GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + (int)samus.Pose * 8 + 1);
+                byte movement = GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + (int)SamusPoseNumbering.Number(samus.Pose) * 8 + 1);
                 bool running = movement == 1;
                 short x = Word((running ? 0x9bc172 : 0x9bc122) + offset);
                 short y = Word((running ? 0x9bc186 : 0x9bc136) + offset);
-                int correctedY = y - GrappleFiringDefinitionsRomByte(rom, 0x91b629 + (int)samus.Pose * 8 + 4);
+                int correctedY = y - GrappleFiringDefinitionsRomByte(rom, 0x91b629 + (int)SamusPoseNumbering.Number(samus.Pose) * 8 + 4);
                 samus.Position = samus.Position.WithWhole(new(raw, unchecked((ushort)~raw)));
                 grapple.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -114,9 +114,9 @@ internal static class GrappleFiringDefinitionsVerification
         for (byte direction = 0; direction < 10; direction++)
         {
             grapple.FlarePlacement = replaceFlare ? editedFlare : stockFlare;
-            samus.Pose = sourcePose = (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
+            samus.Pose = sourcePose = SamusPoseNumbering.FromNumber(Enumerable.Range(0, 253).First(pose =>
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
-                GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != 1);
+                GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != 1));
             samus.Presentation.BodyFrames.BindBodyFixture(SamusGraphicsOffsetFixture(0));
             samus.Position = samus.Position.WithWhole(new(512, 512));
             grapple.Phase = GrapplePhase.Inactive;
@@ -132,7 +132,7 @@ internal static class GrappleFiringDefinitionsVerification
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");
                 AssertEqual(dy, grapple.EndpointOffset.Y.RawValue, "Native extension Y trajectory");
                 AssertEqual(unchecked((ushort)(512 + Word(0x9bc122 + direction * 2) + (dx >> 16))), grapple.Anchor.X, "Native endpoint X");
-                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + (int)samus.Pose * 8 + 4) + (dy >> 16))), grapple.Anchor.Y, "Native endpoint Y with authored physical correction");
+                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + (int)SamusPoseNumbering.Number(samus.Pose) * 8 + 4) + (dy >> 16))), grapple.Anchor.Y, "Native endpoint Y with authored physical correction");
             }
         }
         grapple.FlarePlacement = stockFlare;
@@ -273,7 +273,7 @@ internal static class GrappleFiringDefinitionsVerification
     internal static MutableCartridgeReadGuard NewGrappleFiringReadGuard(ISnesAddressSpace source,
         Func<SamusPoseId> sourcePose)
     {
-        int PoseRecord() => SamusSourceDefinitions.PoseDefinitions.Value + (int)sourcePose() * 8;
+        int PoseRecord() => SamusSourceDefinitions.PoseDefinitions.Value + (int)SamusPoseNumbering.Number(sourcePose()) * 8;
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => address == PoseRecord() + 1, _ => "Compiled pose movement read ROM.")
             .Forbid(address => address == PoseRecord() + 4, _ => "Installed graphics offset read ROM.")

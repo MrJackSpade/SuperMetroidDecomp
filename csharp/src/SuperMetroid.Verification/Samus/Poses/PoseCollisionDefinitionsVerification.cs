@@ -17,9 +17,9 @@ internal static class PoseCollisionDefinitionsVerification
         {
             ushort expected = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 6);
-            AssertEqual(expected, SamusPoseMetadata.ReadPoseYRadius((SamusPoseId)pose),
+            AssertEqual(expected, SamusPoseMetadata.ReadPoseYRadius(SamusPoseNumbering.FromNumber(pose)),
                 "Prospective collision radius matches native pose, without authored ROM reads");
-            samus.Pose = (SamusPoseId)pose;
+            samus.Pose = SamusPoseNumbering.FromNumber(pose);
             samus.Kinematics.Radius = new(ushort.MaxValue, ushort.MaxValue);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             AssertEqual((ushort)5, samus.Kinematics.Radius.X, "Every pose keeps native horizontal radius");

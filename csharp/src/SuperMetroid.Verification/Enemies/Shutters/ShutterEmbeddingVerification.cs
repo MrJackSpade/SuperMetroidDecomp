@@ -56,7 +56,7 @@ internal static class ShutterEmbeddingVerification
                     samus.Position.Y.Whole < platform.Position.Y.Whole && gap < minimumGap)
                 {
                     minimumGap = gap;
-                    Console.WriteLine($"Overlap candidate: slot={slot} offset={offset} bomb={bombAt} stop={stopAt}/{direction} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)samus.Pose:X2} platformY={platform.Position.Y.Whole}");
+                    Console.WriteLine($"Overlap candidate: slot={slot} offset={offset} bomb={bombAt} stop={stopAt}/{direction} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)SamusPoseNumbering.Number(samus.Pose):X2} platformY={platform.Position.Y.Whole}");
                 }
             }
             if (activated) activatedCases++;

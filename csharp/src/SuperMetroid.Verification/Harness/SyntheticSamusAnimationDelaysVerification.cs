@@ -13,7 +13,7 @@ internal static class SyntheticSamusAnimationDelaysVerification
     /// </summary>
     internal static void SeedSyntheticAnimationDelay(TestAddressSpace bus, SamusPoseId pose, ushort stream, byte firstDelay)
     {
-        WriteTestWord(bus, SamusAnimationDelayDefinitions.PointerTableAddress + (int)pose * sizeof(ushort), stream);
+        WriteTestWord(bus, SamusAnimationDelayDefinitions.PointerTableAddress + (int)SamusPoseNumbering.Number(pose) * sizeof(ushort), stream);
         bus.WriteByte(0x910000 | stream, firstDelay);
     }
 }

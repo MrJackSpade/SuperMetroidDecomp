@@ -41,7 +41,7 @@ internal static class SamusBodyArtworkVerification
             int graphicsAddress = SamusSourceDefinitions.PoseDefinitions.Value +
                 pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
             AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
-                stock.GraphicsYOffset((SamusPoseId)pose), $"Samus pose {pose:X2} visual Y origin");
+                stock.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} visual Y origin");
         }
         for (int index = 0; index < SamusBodySources.FrameCount; index++)
         {
@@ -88,9 +88,9 @@ internal static class SamusBodyArtworkVerification
             int topAddress = InstalledSamusSpritemaps.TopBaseAddress + pose * 2;
             int bottomAddress = InstalledSamusSpritemaps.BottomBaseAddress + pose * 2;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(topAddress),
-                sprites.TopBase((SamusPoseId)pose), $"Samus pose {pose:X2} top OAM base");
+                sprites.TopBase(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} top OAM base");
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(bottomAddress),
-                sprites.BottomBase((SamusPoseId)pose), $"Samus pose {pose:X2} bottom OAM base");
+                sprites.BottomBase(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} bottom OAM base");
         }
         var spritemapGuard = NewFrontendCartridgeReadGuard(bus);
         int nonzeroSpritemaps = 0;
@@ -305,9 +305,9 @@ internal static class SamusBodyArtworkVerification
         {
             var frames = new SamusBodyFrameState();
             frames.BindArtwork(stock);
-            frames.Select((SamusPoseId)pose, 0);
+            frames.Select(SamusPoseNumbering.FromNumber(pose), 0);
             // The pictures shown are the definition records the cartridge's frame-zero selector names (#1465).
-            SamusBodyFrameSelection selection = stock.Selection((SamusPoseId)pose, 0);
+            SamusBodyFrameSelection selection = stock.Selection(SamusPoseNumbering.FromNumber(pose), 0);
             AssertEqual(SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition)),
                 frames.Shown.Top, $"Samus pose {pose:X2} shows its frame-zero top definition");
             AssertEqual(selection.NamesBottom
@@ -379,7 +379,7 @@ internal static class SamusBodyArtworkVerification
             SamusArmCannonArtworkFormat.JsonFileName);
         JsonNode armDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
             installation.SamusBodyDirectory, SamusArmCannonArtworkFormat.JsonFileName)));
-        ushort armPosePointer = stock.ArmCannon.PoseDrawingData((int)SamusPoseId.FacingRightNormalPose);
+        ushort armPosePointer = stock.ArmCannon.PoseDrawingData((int)SamusPoseNumbering.Number(SamusPoseId.FacingRightNormalPose));
         byte armSelector = stock.ArmCannon.ReadDrawingByteAt(armPosePointer);
         ushort armXAddress = unchecked((ushort)(armPosePointer +
             ((armSelector & 0x80) != 0 ? 4 : 2)));
@@ -635,7 +635,7 @@ internal static class SamusBodyArtworkVerification
                 CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2);
             int direction = bus.ReadCartridgeByte(descriptor);
             bool frameDependent = (direction & 0x80) != 0;
-            SamusArmCannonPlacement placement = body.ArmCannon.Placement((SamusPoseId)pose);
+            SamusArmCannonPlacement placement = body.ArmCannon.Placement(SamusPoseNumbering.FromNumber(pose));
             AssertEqual(bus.ReadCartridgeByte(descriptor + 1), placement.DrawingMode, $"arm-cannon pose {pose:X2} drawing mode");
             AssertEqual(direction & 0x7f, placement.FirstDirection, $"arm-cannon pose {pose:X2} first direction");
             AssertEqual(frameDependent ? bus.ReadCartridgeByte(descriptor + 2) & 0x7f : null, placement.LaterDirection,

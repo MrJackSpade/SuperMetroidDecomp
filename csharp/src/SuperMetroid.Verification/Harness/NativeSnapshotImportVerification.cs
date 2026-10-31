@@ -138,8 +138,8 @@ internal static class NativeSnapshotImportVerification
         // The recorded indices name the pictures the body last drew; they are imported as the pose-half frames that show them.
         InstalledSamusSpritemaps spritemaps = samus.Presentation.BodyFrames.Artwork?.Spritemaps ?? throw new InvalidDataException(
             "The native Ridley checkpoint requires installed Samus spritemaps.");
-        samus.Presentation.TopSpritemap = SamusSpritemapNative.Frame(spritemaps, (SamusPoseId)W(NativeSnapshotMemory.Pose), SamusBodyHalf.Top, W(NativeSnapshotMemory.SamusTopSpritemap));
-        samus.Presentation.BottomSpritemap = SamusSpritemapNative.Frame(spritemaps, (SamusPoseId)W(NativeSnapshotMemory.Pose), SamusBodyHalf.Bottom, W(NativeSnapshotMemory.SamusBottomSpritemap));
+        samus.Presentation.TopSpritemap = SamusSpritemapNative.Frame(spritemaps, SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)), SamusBodyHalf.Top, W(NativeSnapshotMemory.SamusTopSpritemap));
+        samus.Presentation.BottomSpritemap = SamusSpritemapNative.Frame(spritemaps, SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose)), SamusBodyHalf.Bottom, W(NativeSnapshotMemory.SamusBottomSpritemap));
         samus.Presentation.SpritemapPosition = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));
         samus.ArmCannon.Frame = W(NativeSnapshotMemory.CannonFrame);
         samus.ArmCannon.StableSelectionUpdates = W(NativeSnapshotMemory.CannonToggle);
@@ -193,15 +193,15 @@ internal static class NativeSnapshotImportVerification
         samus.ReserveTankMode = ReserveTankModes.Decode(W(NativeSnapshotMemory.ReserveMode));
         samus.MaxReserveEnergy = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxReserve));
         samus.ReserveEnergy = SamusQuantity.Decode(W(NativeSnapshotMemory.Reserve));
-        samus.Pose = (SamusPoseId)W(NativeSnapshotMemory.Pose);
+        samus.Pose = SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.Pose));
         samus.Position = samus.Position.WithWhole(new(W(NativeSnapshotMemory.X), W(NativeSnapshotMemory.Y)));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(W(NativeSnapshotMemory.XFraction)).WithFractionY(W(NativeSnapshotMemory.YFraction));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
-        samus.PoseHistory.PreviousPose = (SamusPoseId)W(NativeSnapshotMemory.PreviousPose);
+        samus.PoseHistory.PreviousPose = SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.PreviousPose));
         samus.PoseHistory.PreviousMovement = SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection));
-        samus.PoseHistory.LastDifferentPose = (SamusPoseId)W(NativeSnapshotMemory.LastDifferentPose);
+        samus.PoseHistory.LastDifferentPose = SamusPoseNumbering.FromNumber(W(NativeSnapshotMemory.LastDifferentPose));
         samus.PoseHistory.LastDifferentMovement = SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection));
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.BaseSpeed), W(NativeSnapshotMemory.BaseFraction));
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(W(NativeSnapshotMemory.ExtraSpeed), W(NativeSnapshotMemory.ExtraFraction));

@@ -20,11 +20,11 @@ internal static class ProjectileOriginsVerification
         void Check(SamusPoseId pose, SamusProjectileDirection direction, ushort x, ushort y)
         {
             samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(x, y)); slot.Direction = direction;
-            bool running = rom.ReadCartridgeByte(0x91b629 + (int)pose * 8 + 1) == 1 || pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
+            bool running = rom.ReadCartridgeByte(0x91b629 + (int)SamusPoseNumbering.Number(pose) * 8 + 1) == 1 || pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
             int offset = direction.ToAimIndex() * 2;
             short dx = Word((running ? 0x90c22c : 0x90c204) + offset);
             short dy = Word((running ? 0x90c240 : 0x90c218) + offset);
-            byte correction = rom.ReadCartridgeByte(0x91b629 + (int)pose * 8 + 4);
+            byte correction = rom.ReadCartridgeByte(0x91b629 + (int)SamusPoseNumbering.Number(pose) * 8 + 4);
             initialize(samus, slot);
             AssertEqual(unchecked((ushort)(x + dx)), slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.Position.Y.Whole, "Physical muzzle Y follows native signed origin and unsigned pose correction");
@@ -47,7 +47,7 @@ internal static class ProjectileOriginsVerification
         foreach (ushort boundary in new ushort[] { 0, 127, 0x8000, ushort.MaxValue })
         for (int pose = 0; pose <= 0xfc; pose++)
         foreach (SamusProjectileDirection direction in Enum.GetValues<SamusProjectileDirection>())
-            Check((SamusPoseId)pose, direction, boundary, boundary);
+            Check(SamusPoseNumbering.FromNumber(pose), direction, boundary, boundary);
 
         // Ten authored directions; the visual muzzle reads past them at aim indices up to
         // fifteen, which cross table boundaries; running Y reaches adjacent cooldown bytes.

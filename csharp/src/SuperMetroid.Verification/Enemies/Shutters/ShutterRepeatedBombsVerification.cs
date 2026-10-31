@@ -46,7 +46,7 @@ internal static class ShutterRepeatedBombsVerification
                     samus.Position.Y.Whole < platform.Position.Y.Whole && gap < worstGap)
                 {
                     worstGap = gap;
-                    Console.WriteLine($"Repeated bomb overlap: slot={slotIndex} offset={offset} interval={interval} unmorph={unmorphAt} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)samus.Pose:X2} platformY={platform.Position.Y.Whole} carry={samus.Kinematics.ExtraDisplacement.Y.RawValue}");
+                    Console.WriteLine($"Repeated bomb overlap: slot={slotIndex} offset={offset} interval={interval} unmorph={unmorphAt} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)SamusPoseNumbering.Number(samus.Pose):X2} platformY={platform.Position.Y.Whole} carry={samus.Kinematics.ExtraDisplacement.Y.RawValue}");
                 }
             }
             cases++;

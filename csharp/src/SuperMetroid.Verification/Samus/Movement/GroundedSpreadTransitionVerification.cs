@@ -68,7 +68,7 @@ internal static class GroundedSpreadTransitionVerification
             }
             runtime.StepFrame(input);
             if (trace is not null)
-                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{input:X},{(int)samus.Pose:X4},{samus.Position.Y.Whole:X4},{samus.ProjectileFlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
+                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{input:X},{(int)SamusPoseNumbering.Number(samus.Pose):X4},{samus.Position.Y.Whole:X4},{samus.ProjectileFlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
                     $"native/runtime charge-preserving unmorph frame {frame}");
             AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.Charge.FlareCounter, "runtime charge mirror stays synchronized");
             if (frame == 99)

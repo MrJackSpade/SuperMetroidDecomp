@@ -34,7 +34,7 @@ internal static void VerifySamusPoseTransitionMatching()
         currentPose: fixturePose,
         canonicalHeldInput: ControllerButton.Up | ControllerButton.Right | ControllerButton.A,
         canonicalNewInput: ControllerButton.A) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x098...."));
-    AssertEqual(0x55, (byte)jumpUp.ProspectivePose, "Samus transition required-new plus held chord");
+    AssertEqual(0x55, SamusPoseNumbering.Number(jumpUp.ProspectivePose), "Samus transition required-new plus held chord");
     AssertTrue(SamusPoseInputs.TryGetInputList(fixturePose, out _),
         "Samus transition fixture pose has an authored table");
 
@@ -42,13 +42,13 @@ internal static void VerifySamusPoseTransitionMatching()
         currentPose: fixturePose,
         canonicalHeldInput: (ControllerButton.Up | ControllerButton.Y),
         canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: (usho...."));
-    AssertEqual(0x03, (byte)up.ProspectivePose, "Samus transition permits extra held action");
+    AssertEqual(0x03, SamusPoseNumbering.Number(up.ProspectivePose), "Samus transition permits extra held action");
 
     SamusPoseTransition right = (SamusPoseTransitionTable.Find(
         currentPose: fixturePose,
         canonicalHeldInput: ControllerButton.Right,
         canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x010...."));
-    AssertEqual(0x09, (byte)right.ProspectivePose, "Samus standing Right proposes running pose");
+    AssertEqual(0x09, SamusPoseNumbering.Number(right.ProspectivePose), "Samus standing Right proposes running pose");
 
     AssertEqual<SamusPoseTransition?>(null,
         SamusPoseTransitionTable.Find(fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0),
@@ -466,7 +466,7 @@ internal static void VerifySamusExtraDisplacement()
     WritePoseDefinition(bus, 0x01, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
     WritePoseDefinition(
         bus,
-        (int)SamusPoseId.MorphBallFallingRightPose,
+        (int)SamusPoseNumbering.Number(SamusPoseId.MorphBallFallingRightPose),
         [0x08, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]); // $31
     WritePoseDefinition(bus, 0x4B, [0x08, 0x02, 0xff, 0x02, 0x03, 0x00, 0x13, 0x00]); // $4B
     WritePoseDefinition(bus, 0x4D, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D

@@ -621,7 +621,7 @@ internal static class LookupStream1Verification
         void CheckFrame(InstalledSamusBodyArtwork edited, SamusBodyFrameSelection[] decoded, SamusPoseId pose, int frame, string context)
         {
             SamusBodyFrameSelection selection = edited.Selection(pose, frame);
-            AssertEqual(decoded[(poses[(int)pose] - 0xdb48) / 4 + frame], selection, context);
+            AssertEqual(decoded[(poses[(int)SamusPoseNumbering.Number(pose)] - 0xdb48) / 4 + frame], selection, context);
             AssertEqual(new SamusBodyFramePictures(SamusBodySources.Picture(edited.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition)),
                     selection.NamesBottom ? SamusBodySources.Picture(edited.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)) : null),
                 edited.Frame(pose, frame), context + ": the frame shows the pictures its selector names");
@@ -674,7 +674,7 @@ internal static class LookupStream1Verification
                 CheckFrame(edited, Decode(supplied), pose, frame, "Actual stationary/forward jump and downward-aim jump/fall selection");
             AssertEqual(CanonicalBodyHash(template, top, bottom, poses, Decode(supplied), upper, lower), edited.ContentIdentity, "Original canonical edited frame hash");
         }
-        AssertThrows<InvalidDataException>(() => stock.Frame((SamusPoseId)0xfd, 0), "Original pose bound preserved");
+        AssertThrows<InvalidDataException>(() => stock.Frame(SamusPoseNumbering.FromNumber(0xfd), 0), "Original pose bound preserved");
         Console.WriteLine($"Body frames:{count} native components,{edits} independent component edits, actual pose pictures and original canonical hashes pass.");
     }
 
@@ -698,17 +698,17 @@ internal static class LookupStream1Verification
         for (int pose = 0; pose < 253; pose++)
         {
             int index = (native[pose] - 0xdb48) / 4;
-            AssertEqual(frames[index], stock.Selection((SamusPoseId)pose, 0), "Import selects supplied frame payload through the native frame list");
+            AssertEqual(frames[index], stock.Selection(SamusPoseNumbering.FromNumber(pose), 0), "Import selects supplied frame payload through the native frame list");
             ushort[] selected = (ushort[])native.Clone();
             selected[pose] = native[pose] + 4 < 0xed24 ? (ushort)(native[pose] + 4) : (ushort)0xdb48;
             InstalledSamusBodyArtwork changed = Create(selected);
             AssertTrue(changed.PosePointers.SequenceEqual(selected), "All supplied pose-pointer identities preserved");
             AssertTrue(changed.Frames.SequenceEqual(frames), "Pointer edit never changes independent frame records");
-            AssertEqual(frames[(selected[pose] - 0xdb48) / 4], changed.Selection((SamusPoseId)pose, 0), "Import honors edited frame-list identity");
+            AssertEqual(frames[(selected[pose] - 0xdb48) / 4], changed.Selection(SamusPoseNumbering.FromNumber(pose), 0), "Import honors edited frame-list identity");
             AssertEqual(CanonicalBodyHash(template, top, bottom, selected, frames, topGroups, bottomGroups), changed.ContentIdentity, "Exact old canonical edited pose hash");
             AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Independent pose edit changes hash");
         }
-        foreach (SamusPoseId pose in new[] { (SamusPoseId)0xfd, (SamusPoseId)0xfe, (SamusPoseId)0xff })
+        foreach (SamusPoseId pose in new[] { SamusPoseNumbering.FromNumber(0xfd), SamusPoseNumbering.FromNumber(0xfe), SamusPoseNumbering.FromNumber(0xff) })
         {
             AssertThrows<InvalidDataException>(() => stock.Frame(pose, 0), "Installed pose domain stays bounded");
         }
@@ -819,8 +819,8 @@ internal static class LookupStream1Verification
         AssertEqual(0, Count(stock), "No stock graphics-origin override survives");
         for (int pose = 0; pose < 253; pose++)
         {
-            AssertEqual(native[pose], SamusBodyPlacements.DefaultGraphicsYOffset((SamusPoseId)pose), "Direct calculated visual origin matches native real-pose byte");
-            AssertEqual(native[pose], stock.GraphicsYOffset((SamusPoseId)pose), "Installed default origin");
+            AssertEqual(native[pose], SamusBodyPlacements.DefaultGraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), "Direct calculated visual origin matches native real-pose byte");
+            AssertEqual(native[pose], stock.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), "Installed default origin");
         }
         AssertTrue(stock.GraphicsYOffsets.SequenceEqual(native), "Visual origin snapshot ordering");
         string identity = stock.ContentIdentity;
@@ -833,12 +833,12 @@ internal static class LookupStream1Verification
             AssertTrue(changed.ContentIdentity != identity, "Every visual-origin edit changes content identity");
             for (int pose = 0; pose < 253; pose++)
             {
-                AssertEqual(selected[pose], changed.GraphicsYOffset((SamusPoseId)pose), "Edited runtime origin");
-                AssertEqual(unchecked((byte)native[pose]), SamusPoseProjectileOrigins.ReadYOffset((SamusPoseId)pose), "Visual edits never change physical projectile origins");
+                AssertEqual(selected[pose], changed.GraphicsYOffset(SamusPoseNumbering.FromNumber(pose)), "Edited runtime origin");
+                AssertEqual(unchecked((byte)native[pose]), SamusPoseProjectileOrigins.ReadYOffset(SamusPoseNumbering.FromNumber(pose)), "Visual edits never change physical projectile origins");
             }
         }
         AssertEqual(identity, stock.ContentIdentity, "Stock visual origin hash immutable");
-        foreach (SamusPoseId pose in new[] { (SamusPoseId)0xfd, (SamusPoseId)0xfe, (SamusPoseId)0xff })
+        foreach (SamusPoseId pose in new[] { SamusPoseNumbering.FromNumber(0xfd), SamusPoseNumbering.FromNumber(0xfe), SamusPoseNumbering.FromNumber(0xff) })
         {
             AssertThrows<InvalidDataException>(() => stock.GraphicsYOffset(pose), "Installed graphics excludes adjacent instruction poses");
             AssertThrows<ArgumentOutOfRangeException>(() => SamusBodyPlacements.DefaultGraphicsYOffset(pose), "Default graphics excludes adjacent instruction poses");
@@ -940,7 +940,7 @@ internal static class LookupStream1Verification
                 var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
                 samus.Presentation.BodyFrames.BindBodyFixture(stockArt);
                 samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
-                AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.Presentation.SpritemapPosition.Y,
+                AssertEqual(unchecked((ushort)(128 + native[((int)SamusPoseNumbering.Number(pose) - 0x35) * 2 + frame])), samus.Presentation.SpritemapPosition.Y,
                     "Actual transition rendering preserves native support correction");
                 AssertEqual((ushort)128, samus.Position.Y.Whole, "Posture art never mutates physical center");
             }
@@ -1013,7 +1013,7 @@ internal static class LookupStream1Verification
         {
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
-                Pose = (SamusPoseId)(0xa4 + index / 4), AnimationFrame = (ushort)(index % 4),
+                Pose = SamusPoseNumbering.FromNumber((0xa4 + index / 4)), AnimationFrame = (ushort)(index % 4),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             samus.Presentation.BodyFrames.BindBodyFixture(stock);
@@ -1090,8 +1090,8 @@ internal static class LookupStream1Verification
         for (int pose = 0; pose < 253; pose++)
         {
             ushort expected = half == 0 ? top[pose] : bottom[pose];
-            var firstFrame = new SamusBodyHalfFrame((SamusPoseId)pose, half == 0 ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, 0);
-            AssertEqual(expected, half == 0 ? stock.TopBase((SamusPoseId)pose) : stock.BottomBase((SamusPoseId)pose), "Import-side native base selection");
+            var firstFrame = new SamusBodyHalfFrame(SamusPoseNumbering.FromNumber(pose), half == 0 ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, 0);
+            AssertEqual(expected, half == 0 ? stock.TopBase(SamusPoseNumbering.FromNumber(pose)) : stock.BottomBase(SamusPoseNumbering.FromNumber(pose)), "Import-side native base selection");
             AssertEqual(entries[expected], Shown(stock, firstFrame), "A pose half's first frame shows its native base entry's composition");
             CheckSelection(stock, expected);
             ushort[] upper = (ushort[])top.Clone(), lower = (ushort[])bottom.Clone();
@@ -1100,14 +1100,14 @@ internal static class LookupStream1Verification
             var changed = Create(upper, lower);
             AssertTrue(changed.TopBases.SequenceEqual(upper) && changed.BottomBases.SequenceEqual(lower), "All supplied independent bases preserved");
             AssertTrue(changed.Entries.SequenceEqual(entries), "OAM composition entries unchanged");
-            ushort selected = half == 0 ? changed.TopBase((SamusPoseId)pose) : changed.BottomBase((SamusPoseId)pose);
+            ushort selected = half == 0 ? changed.TopBase(SamusPoseNumbering.FromNumber(pose)) : changed.BottomBase(SamusPoseNumbering.FromNumber(pose));
             AssertEqual(edited, selected, "Import honors independently edited base");
             AssertEqual(entries[edited], Shown(changed, firstFrame), "An edited base moves the pose half's first frame to the edited entry's composition");
             CheckSelection(changed, selected);
             AssertEqual(Canonical(upper, lower), changed.ContentIdentity, "Exact original canonical edited OAM hash");
             AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Every independent base edit changes identity");
         }
-        foreach (SamusPoseId pose in new[] { (SamusPoseId)0xfd, (SamusPoseId)0xfe, (SamusPoseId)0xff })
+        foreach (SamusPoseId pose in new[] { SamusPoseNumbering.FromNumber(0xfd), SamusPoseNumbering.FromNumber(0xfe), SamusPoseNumbering.FromNumber(0xff) })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => stock.TopBase(pose), "Original installed top domain exception");
             AssertThrows<ArgumentOutOfRangeException>(() => stock.BottomBase(pose), "Original installed bottom domain exception");
@@ -1267,15 +1267,15 @@ internal static class LookupStream1Verification
             // the cartridge's flags and the code stored around them for every pose.
             if (pose < 0xDB)
                 AssertEqual(LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0,
-                    SamusHudObservations.PostureAdmitsWeapons((SamusPoseId)pose, InstalledFixtures.SamusOverreads.PostureAdmission),
+                    SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.PostureAdmission),
                     $"HUD exact bounded posture admission {pose:X2}");
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.PostureAdmitsWeapons((SamusPoseId)pose, InstalledFixtures.SamusOverreads.PostureAdmission),
+                AssertThrows<ArgumentOutOfRangeException>(() => SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.PostureAdmission),
                     "HUD rejects prefiltered posture observation");
             foreach (bool grapple in new[] { false, true })
             {
                 bool expected = pose >= 0xF1 || (pose < 0xDB && (LookupStream1HudPostureRomByte(rom, 0x90DDAA + pose - 0x35) == 0 || grapple));
-                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons((SamusPoseId)pose, grapple, InstalledFixtures.SamusOverreads.PostureAdmission),
+                AssertEqual(expected, SamusHudInput.PostureTransitionAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), grapple, InstalledFixtures.SamusOverreads.PostureAdmission),
                     $"HUD actual admission {pose:X2}, Grapple={grapple}");
             }
         }
@@ -1426,7 +1426,7 @@ internal static class LookupStream1Verification
         {
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             samus.Presentation.BodyFrames.BindBodyFixture(body);
-            int direction = LookupStream1FlarePlacementRomByte(rom, 0x91b629 + (int)pose * 8 + 3);
+            int direction = LookupStream1FlarePlacementRomByte(rom, 0x91b629 + (int)SamusPoseNumbering.Number(pose) * 8 + 3);
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
             short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
             short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
@@ -1458,9 +1458,9 @@ internal static class LookupStream1Verification
     {
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
-            AssertEqual(LookupStream1RomByte(rom, 0x91b629 + pose * 8), SamusPoseRecordCodec.FacingByte((SamusPoseId)pose), "Native named-pose facing case");
-            AssertEqual(LookupStream1RomByte(rom, 0x91b62a + pose * 8), SamusPoseRecordCodecTooling.MovementByte((SamusPoseId)pose), "Native named-pose raw movement case");
-            AssertEqual(LookupStream1RomByte(rom, 0x91b62b + pose * 8), (byte)SamusPoseDispatch.ReadNoInputPose((SamusPoseId)pose), "Native named-pose no-input case");
+            AssertEqual(LookupStream1RomByte(rom, 0x91b629 + pose * 8), SamusPoseRecordCodec.FacingByte(SamusPoseNumbering.FromNumber(pose)), "Native named-pose facing case");
+            AssertEqual(LookupStream1RomByte(rom, 0x91b62a + pose * 8), SamusPoseRecordCodecTooling.MovementByte(SamusPoseNumbering.FromNumber(pose)), "Native named-pose raw movement case");
+            AssertEqual(LookupStream1RomByte(rom, 0x91b62b + pose * 8), SamusPoseNumbering.Number(SamusPoseDispatch.ReadNoInputPose(SamusPoseNumbering.FromNumber(pose))), "Native named-pose no-input case");
         }
         Suite(nameof(VerifyLookupStream1SamusPolicyDomains), () => VerifyLookupStream1SamusPolicyDomains(rom));
         Suite(nameof(VerifyLookupStream1MetroidLayout), () => VerifyLookupStream1MetroidLayout(rom));
@@ -1862,13 +1862,13 @@ internal static class LookupStream1Verification
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             // The six crash poses, and the drained-crouch poses a drained controller installs mid-crash, which read on past the table.
-            if (pose is >= 0xc9 and <= 0xce or (int)SamusPoseId.DrainedCrouchingRightPose or (int)SamusPoseId.DrainedCrouchingLeftPose)
+            if (pose is >= 0xc9 and <= 0xce or (int)SamusPoseNumbering.Number(SamusPoseId.DrainedCrouchingRightPose) or (int)SamusPoseNumbering.Number(SamusPoseId.DrainedCrouchingLeftPose))
             {
-                var angles = ShinesparkEchoDepartures.DepartureAngles((SamusPoseId)pose);
+                var angles = ShinesparkEchoDepartures.DepartureAngles(SamusPoseNumbering.FromNumber(pose));
                 AssertEqual(LookupStream1SamusPolicyDomainsRomByte(rom, 0x90d4c6 + (pose - 0xc9) * 2), angles.First.TableIndex, "native crash first departure angle");
                 AssertEqual(LookupStream1SamusPolicyDomainsRomByte(rom, 0x90d4c7 + (pose - 0xc9) * 2), angles.Second.TableIndex, "native crash opposite departure angle");
             }
-            else AssertThrows<InvalidOperationException>(() => ShinesparkEchoDepartures.DepartureAngles((SamusPoseId)pose), "crash departure exact pose domain");
+            else AssertThrows<InvalidOperationException>(() => ShinesparkEchoDepartures.DepartureAngles(SamusPoseNumbering.FromNumber(pose)), "crash departure exact pose domain");
         }
         foreach (byte invalid in new byte[] { 28, byte.MaxValue })
             AssertEqual(false, SamusMovementTypeNativeWords.Types.TryDecode(invalid, out _), "movement byte exact domain");
@@ -2740,11 +2740,11 @@ internal static class LookupStream1Verification
                 samus.Presentation.BodyFrames.BindBodyFixture(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
                 cannon.Update(samus); cannon.Update(samus);
-                int pointer = LittleEndianBytes.Word(LookupStream1CannonPlacementRomByte(rom, 0x90c7df + (int)pose * 2), LookupStream1CannonPlacementRomByte(rom, 0x90c7e0 + (int)pose * 2));
+                int pointer = LittleEndianBytes.Word(LookupStream1CannonPlacementRomByte(rom, 0x90c7df + (int)SamusPoseNumbering.Number(pose) * 2), LookupStream1CannonPlacementRomByte(rom, 0x90c7e0 + (int)SamusPoseNumbering.Number(pose) * 2));
                 int offset = (LookupStream1CannonPlacementRomByte(rom, 0x900000 | pointer) & 128) != 0 ? 4 : 2;
                 int x = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (pointer + offset + frame * 2)));
                 int y = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (pointer + offset + frame * 2 + 1)));
-                int graphics = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x91b629 + (int)pose * 8 + 4));
+                int graphics = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x91b629 + (int)SamusPoseNumbering.Number(pose) * 8 + 4));
                 OamBuffer cannonOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, Position16<RoomPixels>.Zero, 0));
                 AssertEqual(1, cannonOam.LastFinalizedSpriteCount, "Actual cover draw publication");
                 OamEntry cannonEntry = cannonOam.GetEntry(0);
@@ -2779,7 +2779,7 @@ internal static class LookupStream1Verification
         foreach (SamusBodyHalf half in new[] { SamusBodyHalf.Top, SamusBodyHalf.Bottom })
         for (int frame = 0; ; frame++)
         {
-            var poseFrame = new SamusBodyHalfFrame((SamusPoseId)pose, half, frame);
+            var poseFrame = new SamusBodyHalfFrame(SamusPoseNumbering.FromNumber(pose), half, frame);
             int index = stock.EntryIndex(poseFrame);
             if (frame == SamusBodySheetDefinitions.AnimationFrames || index >= SamusSpritemapSources.EntryCount)
             {
@@ -3019,7 +3019,7 @@ internal static class LookupStream1Verification
         {
             var state = new SamusBodyFrameState(); state.BindArtwork(body);
             state.Select(selected.Pose, selected.Phase);
-            int frameAddress = 0x920000 | (Word(0x92d94e + (int)selected.Pose * 2) + selected.Phase * 4);
+            int frameAddress = 0x920000 | (Word(0x92d94e + (int)SamusPoseNumbering.Number(selected.Pose) * 2) + selected.Phase * 4);
             int topAddress = 0x920000 | (Word(0x92d91e + LookupStream1BodyTransfersRomByte(rom, frameAddress) * 2) + LookupStream1BodyTransfersRomByte(rom, frameAddress + 1) * 7);
             AssertEqual(topAddress, state.TopDefinitionAddress, "Native physical upper selection including cross-group position");
             bool namesBottom = LookupStream1BodyTransfersRomByte(rom, frameAddress + 2) != 255;

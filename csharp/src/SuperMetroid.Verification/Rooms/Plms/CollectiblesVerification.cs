@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Hud;
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -675,7 +676,7 @@ internal static class CollectiblesVerification
             }
         }
 
-        AssertEqual((byte)0x1a, (byte)GameplayMessageIds.GravitySuit,
+        AssertEqual(0x1a, GameplayMessageNumbers.Numbers.Word(GameplayMessageIds.GravitySuit),
             "Gravity Suit uses retail message $1A rather than map-station message $14");
         NotSupportedException unsupported = AssertThrows<NotSupportedException>(
             () => GameplayMessageIds.FromCartridge(0x1b, "constructed PLM"),

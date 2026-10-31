@@ -19,7 +19,7 @@ internal static class ZebesEscapeExplosionDefinitionsVerification
         {
             ZebesEscapeExplosionDefinition definition =
                 ZebesEscapeExplosions.ForIndex(index);
-            AssertEqual(rom.ReadCartridgeByte(0x8fc1d6 + index), (byte)definition.SpriteKind,
+            AssertEqual(rom.ReadCartridgeByte(0x8fc1d6 + index), RoomSpriteObjectNativeWords.Kinds.Word(definition.SpriteKind),
                 $"Zebes escape explosion sprite {index}");
             AssertEqual(SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, rom.ReadCartridgeByte(0x8fc1de + index)), definition.SoundEffect,
                 $"Zebes escape explosion sound {index}");

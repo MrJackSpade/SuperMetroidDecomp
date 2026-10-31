@@ -72,7 +72,7 @@ internal static class OwtchPatrolStateVerification
         enemies.VerificationServices().ReadRandom = () => 0x80;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
-        slot.SetSpawnParameter1(EnemyDefinitionId.Owtch, (ushort)behavior);
+        slot.SetSpawnParameter1(EnemyDefinitionId.Owtch, OwtchNativeWords.Behaviors.Word(behavior));
         slot.SetSpawnParameter2(EnemyDefinitionId.Owtch, 0);
         slot.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64));
         OwtchBehavior.InitializeOwtch(slot);

@@ -1186,11 +1186,11 @@ internal static class RidleyFullMovieVerification
                 NativeSnapshotMemory.SamusInputHandler);
 
             Check("Samus previous pose", (ushort)SamusPoseNumbering.Number(samus.PoseHistory.PreviousPose), NativeSnapshotMemory.PreviousPose);
-            CheckValue("Samus previous movement", (int)samus.PoseHistory.PreviousMovement,
-                (int)SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection)));
+            CheckValue("Samus previous movement", SamusMovementTypeNativeWords.Byte(samus.PoseHistory.PreviousMovement),
+                SamusMovementTypeNativeWords.Byte(SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.PreviousDirection))));
             Check("Samus last different pose", (ushort)SamusPoseNumbering.Number(samus.PoseHistory.LastDifferentPose), NativeSnapshotMemory.LastDifferentPose);
-            CheckValue("Samus last different movement", (int)samus.PoseHistory.LastDifferentMovement,
-                (int)SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection)));
+            CheckValue("Samus last different movement", SamusMovementTypeNativeWords.Byte(samus.PoseHistory.LastDifferentMovement),
+                SamusMovementTypeNativeWords.Byte(SamusSnapshotWords.DecodeHistoryMovement(W(NativeSnapshotMemory.LastDifferentDirection))));
             Check("Samus animation", samus.AnimationFrame, NativeSnapshotMemory.Animation);
             Check("Samus animation timer", samus.AnimationFrameTimer.RawValue, NativeSnapshotMemory.AnimationTimer);
             Check("Samus base speed", samus.HorizontalSpeed.BaseSpeed.Whole, NativeSnapshotMemory.BaseSpeed);

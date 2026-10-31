@@ -31,7 +31,7 @@ internal static class SamusHudDefinitionsVerification
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         foreach (bool active in new[] { false, true })
         {
-            if (pose < (int)SamusHudDefinitions.NonFiringTransitionStart)
+            if (pose < SamusPoseNumbering.Number(SamusHudDefinitions.NonFiringTransitionStart))
                 AssertEqual(rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + pose -
                         (int)SamusPoseNumbering.Number(SamusHudDefinitions.FirstTransitionPose)) == 0,
                     SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.PostureAdmission),
@@ -104,7 +104,7 @@ internal static class SamusHudDefinitionsVerification
         int postureStart = SamusCartridgeTablesConstants.HudTransitionFlags -
             (int)SamusPoseNumbering.Number(SamusHudDefinitions.FirstTransitionPose);
         int postureEnd = SamusCartridgeTablesConstants.HudTransitionFlags +
-            (int)SamusHudDefinitions.NonFiringTransitionStart -
+            SamusPoseNumbering.Number(SamusHudDefinitions.NonFiringTransitionStart) -
             (int)SamusPoseNumbering.Number(SamusHudDefinitions.FirstTransitionPose);
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => address >= SamusCartridgeTablesConstants.HudMovementHandlers && address < 0x90dd3d ||

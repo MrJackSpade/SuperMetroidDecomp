@@ -23,16 +23,23 @@ internal static class SamusIndexedSpeedsVerification
             .Forbid(_ => forbidReads, _ => "Authored indexed speed unexpectedly reads the ROM.")
             .RejectWrites(_ => "Unexpected indexed-speed write.");
         int compiledCount = 0;
+        // The table entries lie in movement-byte order from the entry of the movement byte zero names.
+        SamusMovementType byteZero = SamusMovementTypeNativeWords.Of(0);
         foreach (SamusLiquidMedium medium in Enum.GetValues<SamusLiquidMedium>())
         {
             speed.SelectEnvironmentSpeedTable(medium);
             for (int movement = 0; movement <= byte.MaxValue; movement++)
             {
-                // Movement bytes past the movement types name none; they stand for an out-of-domain identity here.
-                SamusMovementType type = SamusMovementTypeNativeWords.Types.TryDecode(movement, out SamusMovementType named)
-                    ? named
-                    : (SamusMovementType)(-1);
-                int address = speed.ResolveEntryAddress(type);
+                // The cartridge indexes the selected table by the movement byte. A byte past the movement types names
+                // none, so its row is the table's first row plus the byte, read through the row-indexed entry.
+                int row = speed.ResolveEntryRow(byteZero) + movement;
+                bool named = SamusMovementTypeNativeWords.Types.TryDecode(movement, out SamusMovementType type);
+                if (named)
+                    AssertEqual(row, speed.ResolveEntryRow(type), "Each movement type selects the row its movement byte indexes");
+                Func<SpeedTableEntry> readEntry = named
+                    ? () => speed.ReadEntry(type)
+                    : () => SamusHorizontalSpeedState.ReadEntryAtRow(row);
+                int address = speed.ResolveEntryAddress(byteZero) + SpeedTableEntryConstants.ByteCount * movement;
                 SpeedTableEntry expected = Read(address);
                 bool authored = address is >= 0x909f55 and < 0x90a32d;
                 AssertEqual(authored, SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out var entry), "Native authored/overread boundary");
@@ -41,12 +48,12 @@ internal static class SamusIndexedSpeedsVerification
                     AssertEqual(expected, entry, "All six indexed words match native data");
                     compiledCount++;
                     forbidReads = true;
-                    AssertEqual(expected, speed.ReadEntry(type), "Actual byte-indexed read preserves adjacent authored tables");
+                    AssertEqual(expected, readEntry(), "Actual byte-indexed read preserves adjacent authored tables");
                 }
                 else
                 {
                     AssertThrows<InvalidDataException>(
-                        () => speed.ReadEntry(type),
+                        () => readEntry(),
                         "Byte-indexed high-bank overread rejected");
                 }
             }

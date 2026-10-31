@@ -69,7 +69,7 @@ internal static class PoseDispatchDefinitionsVerification
         {
             SamusPoseId pose = unchecked(SamusPoseNumbering.FromNumber((index % 253)));
             checksum += SamusPoseMetadata.ReadPoseXDirection(pose);
-            checksum += (byte)SamusPoseMetadata.ReadMovementType(pose);
+            checksum += SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose));
             checksum += (int)SamusPoseNumbering.Number(SamusPoseDispatch.ReadNoInputPose(pose));
         }
         return GC.GetAllocatedBytesForCurrentThread() - before;

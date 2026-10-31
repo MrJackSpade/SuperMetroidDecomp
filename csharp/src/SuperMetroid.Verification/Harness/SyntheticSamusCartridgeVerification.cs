@@ -57,7 +57,7 @@ internal static class SyntheticSamusCartridge
         ReadOnlySpan<byte> entry)
     {
         Ensure.LengthEqual(entry, 12);
-        bus.WriteBytes(0x909f55 + (int)movementType * 12, entry);
+        bus.WriteBytes(0x909f55 + SamusMovementTypeNativeWords.Byte(movementType) * 12, entry);
     }
 
     /// <summary>

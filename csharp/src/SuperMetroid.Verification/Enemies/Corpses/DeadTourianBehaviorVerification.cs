@@ -26,17 +26,17 @@ internal static class DeadTourianBehaviorVerification
         corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseZoomer, 0);
         enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
         AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperIdle),
-            enemies.DeadSidehopperBehavior.Extensions[0].Program, "real dead Sidehopper initializer starts the alive-idle pose");
+            corpse.RequireSpeciesState<DeadSidehopperEnemyState>().Program, "real dead Sidehopper initializer starts the alive-idle pose");
 
         foreach (DeadTourianProgram pose in new[] { DeadTourianProgram.SidehopperIdle, DeadTourianProgram.SidehopperCorpse, DeadTourianProgram.SidehopperInitiallyDead })
         {
-            enemies.DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, pose);
+            DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, corpse.RequireSpeciesState<DeadSidehopperEnemyState>(), pose);
             ushort frame = DeadTourianAnimationsConstants.Spritemaps(pose).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
                 EnemyInstructionRunner.ShownFrames(corpse, 3), $"dead Sidehopper {pose} pose");
         }
 
-        enemies.DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, DeadTourianProgram.SidehopperHopping);
+        DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, corpse.RequireSpeciesState<DeadSidehopperEnemyState>(), DeadTourianProgram.SidehopperHopping);
         ushort[] hop = DeadTourianAnimationsConstants.Spritemaps(DeadTourianProgram.SidehopperHopping).ToArray();
         int[] holds = [2, 4, 5, 48, 5, 4, 5, 4];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(hop, holds),

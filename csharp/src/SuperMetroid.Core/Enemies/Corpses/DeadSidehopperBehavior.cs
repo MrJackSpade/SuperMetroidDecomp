@@ -64,13 +64,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>The words each physical slot keeps across DeadSidehopper occupants for the current room.</summary>
-    internal readonly DeadSidehopperExtensionWords[] Extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static DeadSidehopperExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new DeadSidehopperExtensionWords())];
-
     /// <summary>Remembers level data for the private power-bomb callback, which has no level argument.</summary>
     private RoomLevelData? _deadSidehopperLevel;
     /// <summary>Remembers the camera position for the private power-bomb AI dispatch.</summary>
@@ -115,12 +108,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         slot.Position = slot.Position.WithWhole(new(488, 184));
         slot.Colouring = SharedSpriteColouring.DeadSidehopperFade;
         slot.Radius = slot.Radius.WithY(21);
-        SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperIdle);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
             graphicsVariant: 0,
             DeadSidehopperCorpseDefinitions.InitiallyAlive);
+        SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperIdle);
         state.Function = DeadSidehopperAiFunction.AliveWaitForCamera;
         state.PaletteStage = 0;
         state.Velocity = new EightEightVector<RoomPixels>(96, 256);
@@ -130,12 +123,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
         slot.Colouring = new EncounterSpriteColouring(TourianCorpseColourDefinitions.DrainedCorpses);
-        SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperInitiallyDead);
 
         DeadSidehopperEnemyState state = InitializeDeadSidehopperCorpseState(
             slot,
             graphicsVariant: 2,
             DeadSidehopperCorpseDefinitions.InitiallyDead);
+        SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperInitiallyDead);
         state.PaletteStage = DeadSidehopperCorpseDefinitions.NoPaletteStage;
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
     }
@@ -191,7 +184,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 if (MoveDeadSidehopper(slot, state, level))
                 {
                     state.JumpPhase = (state.JumpPhase + 1) % DeadSidehopperLaunchDefinitions.PhaseCount;
-                    SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperHopping);
+                    SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperHopping);
                     state.Function = DeadSidehopperAiFunction.NoOperation;
                 }
                 return;
@@ -216,7 +209,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 }
 
                 state.Function = DeadSidehopperAiFunction.ActivatedMovement;
-                SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperIdle);
+                SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperIdle);
                 state.Velocity = DeadSidehopperLaunchDefinitions.Velocity(state.JumpPhase);
                 return;
 
@@ -345,7 +338,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         if (state.PaletteStage < 8)
             return;
 
-        SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperCorpse);
+        SetDeadSidehopperProgram(slot, state, DeadTourianProgram.SidehopperCorpse);
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.Radius = slot.Radius.WithY(12);
@@ -456,8 +449,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both instruction clocks before its first step runs.</summary>
-    internal void SetDeadSidehopperProgram(RoomEnemySlot slot, DeadTourianProgram program) =>
-        Extensions[slot.SlotIndex].Program = StartDeadTourianProgram(slot, program);
+    internal static void SetDeadSidehopperProgram(RoomEnemySlot slot, DeadSidehopperEnemyState state, DeadTourianProgram program) =>
+        state.Program = StartDeadTourianProgram(slot, program);
 
     /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns <paramref name="program"/>'s starting cursor.</summary>
     internal static AnimationProgramCursor<DeadTourianProgram> StartDeadTourianProgram(RoomEnemySlot slot, DeadTourianProgram program)
@@ -499,14 +492,15 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Advances DeadSidehopper's typed animation.</summary>
-    internal void AdvanceDeadSidehopperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceDeadSidehopperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<DeadTourianProgram> cursor = Extensions[slot.SlotIndex].Program;
+        DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
+        AnimationProgramCursor<DeadTourianProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyDeadSidehopperCue(slot, cue));
-        Extensions[slot.SlotIndex].Program = cursor;
+        state.Program = cursor;
     }
 
     /// <summary>Uses the private power-bomb callback in place of common enemy damage handling.</summary>

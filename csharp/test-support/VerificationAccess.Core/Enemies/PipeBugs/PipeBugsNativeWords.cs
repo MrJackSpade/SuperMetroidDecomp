@@ -34,4 +34,16 @@ internal static class PipeBugsNativeWords
         [PipeBugEnemyFunction.YellowArcLeft] = 0x915a,
         [PipeBugEnemyFunction.YellowArcRight] = 0x91d8,
     });
+
+    /// <summary>
+    /// The Brinstar animation-table index naming each <see cref="PipeBugAnimationSelector"/>: bit zero is the shooting
+    /// animation and bit one the right facing.
+    /// </summary>
+    internal static readonly NativeWordIdentities<PipeBugAnimationSelector> BrinstarAnimations = new(new Dictionary<PipeBugAnimationSelector, ushort>
+    {
+        [PipeBugAnimationSelector.RisingFacingLeft] = 0,
+        [PipeBugAnimationSelector.ShootingFacingLeft] = 1,
+        [PipeBugAnimationSelector.RisingFacingRight] = 2,
+        [PipeBugAnimationSelector.ShootingFacingRight] = 3,
+    });
 }

@@ -24,18 +24,18 @@ internal static class PipeBugDefinitions
     ];
 
     /// <summary>
-    /// $B3:882B/$8833: the normal/strong rising/shooting programs for the native facing and shooting flags. Every value
-    /// names its actual behavior and species.
+    /// The normal and strong rising and shooting programs for each Brinstar animation. Every value names its actual
+    /// behavior and species.
     /// </summary>
     internal static readonly Dictionary<PipeBugProgramKey, PipeBugProgram> BrinstarPrograms = new()
     {
-        [new(false, PipeBugAnimationSelector.None)] = PipeBugProgram.ZebRisingLeft,
-        [new(false, PipeBugAnimationSelector.Shooting)] = PipeBugProgram.ZebShootingLeft,
-        [new(false, PipeBugAnimationSelector.FacingRight)] = PipeBugProgram.ZebRisingRight,
-        [new(false, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting)] = PipeBugProgram.ZebShootingRight,
-        [new(true, PipeBugAnimationSelector.None)] = PipeBugProgram.ZebboRisingLeft,
-        [new(true, PipeBugAnimationSelector.Shooting)] = PipeBugProgram.ZebboShootingLeft,
-        [new(true, PipeBugAnimationSelector.FacingRight)] = PipeBugProgram.ZebboRisingRight,
-        [new(true, PipeBugAnimationSelector.FacingRight | PipeBugAnimationSelector.Shooting)] = PipeBugProgram.ZebboShootingRight,
+        [new(false, PipeBugAnimationSelector.RisingFacingLeft)] = PipeBugProgram.ZebRisingLeft,
+        [new(false, PipeBugAnimationSelector.ShootingFacingLeft)] = PipeBugProgram.ZebShootingLeft,
+        [new(false, PipeBugAnimationSelector.RisingFacingRight)] = PipeBugProgram.ZebRisingRight,
+        [new(false, PipeBugAnimationSelector.ShootingFacingRight)] = PipeBugProgram.ZebShootingRight,
+        [new(true, PipeBugAnimationSelector.RisingFacingLeft)] = PipeBugProgram.ZebboRisingLeft,
+        [new(true, PipeBugAnimationSelector.ShootingFacingLeft)] = PipeBugProgram.ZebboShootingLeft,
+        [new(true, PipeBugAnimationSelector.RisingFacingRight)] = PipeBugProgram.ZebboRisingRight,
+        [new(true, PipeBugAnimationSelector.ShootingFacingRight)] = PipeBugProgram.ZebboShootingRight,
     };
 }

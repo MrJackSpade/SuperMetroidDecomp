@@ -334,9 +334,10 @@ internal static class NativeSnapshotImportVerification
             {
                 pipe.SpawnPosition = new(words.B, words.C);
                 pipe.RespawnDelay = WrappingCountdown.FromRaw(words.D);
-                pipe.AnimationState = (PipeBugAnimationSelector)words.E;
+                pipe.RequestedAnimation = PipeBugsNativeWords.BrinstarAnimations.Decode(words.E, "recorded Pipe Bug requested animation");
                 pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
-                pipe.InstalledAnimationState = (PipeBugAnimationSelector)W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64);
+                pipe.InstalledAnimation = PipeBugsNativeWords.BrinstarAnimations.Decode(
+                    W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64), "recorded Pipe Bug installed animation");
             }
         }
         if (runtime.Enemies.MotherBrainEncounter.MotherBrain is not null)

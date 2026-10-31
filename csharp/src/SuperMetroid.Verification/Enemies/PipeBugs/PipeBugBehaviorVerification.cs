@@ -81,7 +81,7 @@ internal static class PipeBugBehaviorVerification
             enemies.PipeBugsBehavior.RunPipeBugsMainAi(slot, Frame(new(148, 78)));
             AssertTrue(!state.BrinstarFliesLeft, "Brinstar Pipe Bug flies right toward Samus on her right");
             AssertEqual(PipeBugEnemyFunction.BrinstarEmerge, state.Function, "Brinstar Pipe Bug emerges for Samus 20 pixels away");
-            AssertEqual(PipeBugAnimationSelector.FacingRight, state.AnimationState, "Brinstar Pipe Bug emerges facing right");
+            AssertEqual(PipeBugAnimationSelector.RisingFacingRight, state.RequestedAnimation, "Brinstar Pipe Bug emerges facing right");
         }
 
         {

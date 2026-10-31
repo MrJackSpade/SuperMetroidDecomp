@@ -43,10 +43,10 @@ public sealed class PipeBugEnemyState
     /// meaningful. The bug keeps rising while it is still below this point.
     /// </summary>
     public Position16<RoomPixels> EmergenceTop { get; internal set; }
-    /// <summary>Gets the requested Brinstar animation selector bits.</summary>
-    public PipeBugAnimationSelector AnimationState { get; internal set; }
-    /// <summary>Gets the Brinstar animation selector currently installed in the enemy slot.</summary>
-    public PipeBugAnimationSelector InstalledAnimationState { get; internal set; }
+    /// <summary>The Brinstar animation main AI asks for.</summary>
+    public PipeBugAnimationSelector RequestedAnimation { get; internal set; }
+    /// <summary>The Brinstar animation currently installed; a request for it installs nothing.</summary>
+    public PipeBugAnimationSelector InstalledAnimation { get; internal set; }
 
     /// <summary>
     /// A Norfair formation member's stagger counter, counting up from zero to <see cref="LargestCount"/> and wrapping

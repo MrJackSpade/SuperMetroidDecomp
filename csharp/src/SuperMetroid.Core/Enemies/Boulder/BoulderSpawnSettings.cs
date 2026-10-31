@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 /// <param name="TriggerReach">The horizontal distance, 0 through 255 pixels, ahead of it Samus must be within.</param>
 /// <param name="Drop">Pixels, 0 through 255, it hangs above its resting place; zero rolls without bouncing.</param>
 /// <param name="Roll">How it rolls.</param>
-/// <param name="LargeLandingCompensation">Whether it lands five pixels low rather than two.</param>
-internal sealed record BoulderSpawnSettings(int TriggerHeight, int TriggerReach, int Drop, BoulderRoll Roll, bool LargeLandingCompensation) : EnemySpawnSettings
+/// <param name="Landing">How low it lands.</param>
+internal sealed record BoulderSpawnSettings(int TriggerHeight, int TriggerReach, int Drop, BoulderRoll Roll, BoulderLanding Landing) : EnemySpawnSettings
 {
     /// <summary>The vertical distance, 0 through 255 pixels, Samus must be strictly within.</summary>
     public int TriggerHeight { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, TriggerHeight);

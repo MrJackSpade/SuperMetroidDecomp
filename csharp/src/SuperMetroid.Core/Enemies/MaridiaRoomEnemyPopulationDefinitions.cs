@@ -447,16 +447,16 @@ internal static class MaridiaRoomEnemyPopulationDefinitions
         ], 1),
         new(nameof(RoomEnemyPopulationDefinitions.EastSandHole),
         [
-            new(EnemyDefinitionId.Boulder, new(400, 160), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 114, TriggerReach: 4, Drop: 114, Roll: BoulderRoll.LeftBreakingOnImpact, LargeLandingCompensation: false)),
-            new(EnemyDefinitionId.Boulder, new(336, 192), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 152, TriggerReach: 4, Drop: 162, Roll: BoulderRoll.LeftBreakingOnImpact, LargeLandingCompensation: false)),
-            new(EnemyDefinitionId.Boulder, new(208, 208), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 192, TriggerReach: 4, Drop: 162, Roll: BoulderRoll.LeftBreakingOnImpact, LargeLandingCompensation: false)),
+            new(EnemyDefinitionId.Boulder, new(400, 160), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 114, TriggerReach: 4, Drop: 114, Roll: BoulderRoll.LeftBreakingOnImpact, Landing: BoulderLanding.Standard)),
+            new(EnemyDefinitionId.Boulder, new(336, 192), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 152, TriggerReach: 4, Drop: 162, Roll: BoulderRoll.LeftBreakingOnImpact, Landing: BoulderLanding.Standard)),
+            new(EnemyDefinitionId.Boulder, new(208, 208), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 192, TriggerReach: 4, Drop: 162, Roll: BoulderRoll.LeftBreakingOnImpact, Landing: BoulderLanding.Standard)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.WestSandHole),
         [
-            new(EnemyDefinitionId.Boulder, new(464, 144), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 80, TriggerReach: 4, Drop: 98, Roll: BoulderRoll.LeftBreakingOnImpact, LargeLandingCompensation: false)),
-            new(EnemyDefinitionId.Boulder, new(176, 320), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 4, Drop: 160, Roll: BoulderRoll.LeftBreakingOnImpact, LargeLandingCompensation: false)),
-            new(EnemyDefinitionId.Boulder, new(240, 352), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 240, TriggerReach: 4, Drop: 240, Roll: BoulderRoll.LeftBreakingOnImpact, LargeLandingCompensation: false)),
-            new(EnemyDefinitionId.Boulder, new(48, 144), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 64, TriggerReach: 4, Drop: 82, Roll: BoulderRoll.LeftBreakingOnImpact, LargeLandingCompensation: false)),
+            new(EnemyDefinitionId.Boulder, new(464, 144), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 80, TriggerReach: 4, Drop: 98, Roll: BoulderRoll.LeftBreakingOnImpact, Landing: BoulderLanding.Standard)),
+            new(EnemyDefinitionId.Boulder, new(176, 320), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 4, Drop: 160, Roll: BoulderRoll.LeftBreakingOnImpact, Landing: BoulderLanding.Standard)),
+            new(EnemyDefinitionId.Boulder, new(240, 352), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 240, TriggerReach: 4, Drop: 240, Roll: BoulderRoll.LeftBreakingOnImpact, Landing: BoulderLanding.Standard)),
+            new(EnemyDefinitionId.Boulder, new(48, 144), EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 64, TriggerReach: 4, Drop: 82, Roll: BoulderRoll.LeftBreakingOnImpact, Landing: BoulderLanding.Standard)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.WestCactusAlley),
         [

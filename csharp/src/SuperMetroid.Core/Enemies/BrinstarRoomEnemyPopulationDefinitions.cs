@@ -176,9 +176,9 @@ internal static class BrinstarRoomEnemyPopulationDefinitions
         ], 11),
         new(nameof(RoomEnemyPopulationDefinitions.BlueBrinstarBoulders),
         [
-            new(EnemyDefinitionId.Boulder, new(344, 192), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Drop: 160, Roll: BoulderRoll.LeftBreakingOnImpact, LargeLandingCompensation: false)),
-            new(EnemyDefinitionId.Boulder, new(240, 192), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Drop: 160, Roll: BoulderRoll.LeftBreakingOnImpact, LargeLandingCompensation: false)),
-            new(EnemyDefinitionId.Boulder, new(144, 192), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Drop: 160, Roll: BoulderRoll.LeftBreakingOnImpact, LargeLandingCompensation: false)),
+            new(EnemyDefinitionId.Boulder, new(344, 192), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Drop: 160, Roll: BoulderRoll.LeftBreakingOnImpact, Landing: BoulderLanding.Standard)),
+            new(EnemyDefinitionId.Boulder, new(240, 192), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Drop: 160, Roll: BoulderRoll.LeftBreakingOnImpact, Landing: BoulderLanding.Standard)),
+            new(EnemyDefinitionId.Boulder, new(144, 192), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new BoulderSpawnSettings(TriggerHeight: 128, TriggerReach: 80, Drop: 160, Roll: BoulderRoll.LeftBreakingOnImpact, Landing: BoulderLanding.Standard)),
         ], 0),
         new(nameof(RoomEnemyPopulationDefinitions.BillyMays),
         [

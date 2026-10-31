@@ -37,8 +37,8 @@ internal static class EvirInitTimerVerification
                 // The row holding the aliased enemy's colours, read as the native palette word that row is stored as.
                 0x1f => NativeSpriteGraphicsWords.PaletteBits(aliased.PaletteRowIn(runtime.Enemies)),
                 // The aliased enemy's second population parameter word, as its settings encode it (an empty entry is zero).
-                0x3f => checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(
-                    aliased.Spawn.Population.SpawnSettings ?? EnemySpawnSettings.None).Parameter2),
+                0x3f => aliased.DefinitionId == EnemyDefinitionId.None ? (ushort)0 : checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(
+                    aliased.Spawn.Population.SpawnSettings).Parameter2),
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
             AssertEqual((ushort)((LittleEndianBytes.HighByte(word)) >> 1), (runtime.Enemies.EvirStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[slot.SlotIndex].")).MovementTimer.RawValue,

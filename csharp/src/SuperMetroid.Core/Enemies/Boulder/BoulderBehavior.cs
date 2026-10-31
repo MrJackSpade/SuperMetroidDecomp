@@ -106,7 +106,12 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.TriggerReach = Offset16<RoomPixels>.Of(horizontalReach, verticalReach);
 
-        state.VerticalCompensation = new Offset16<RoomPixels>(0, settings.LargeLandingCompensation ? (short)5 : (short)2);
+        state.VerticalCompensation = new Offset16<RoomPixels>(0, settings.Landing switch
+        {
+            BoulderLanding.Standard => (short)2,
+            BoulderLanding.Deep => (short)5,
+            _ => throw new InvalidOperationException($"Undefined {nameof(BoulderLanding)} {settings.Landing}."),
+        });
     }
 
     /// <summary>Dispatches wait, fall, rebound, roll, and inert phases with required Samus and terrain state.</summary>

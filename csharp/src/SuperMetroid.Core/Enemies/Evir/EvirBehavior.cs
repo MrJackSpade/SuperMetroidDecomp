@@ -124,14 +124,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemySlot enemy = _slotTable.Slots[source.SlotIndex];
             return WrappingCountdown.Start(source.Field switch
             {
-                // An enemy whose population entry has not loaded yet holds the empty entry, read as zero.
-                EvirHalfCycleSourceField.DirectionChangePeriod => enemy.Spawn.Population.SpawnSettings switch
-                {
-                    EvirSpawnSettings evir => evir.DirectionChangePeriod / 2,
-                    null => 0,
-                    var other => throw new InvalidDataException(
-                        $"Evir speed record {speedRecord} reads the direction-change period of enemy {enemy.DefinitionId} ({other})."),
-                },
+                // An enemy whose population entry has not loaded yet is still empty, read as zero.
+                EvirHalfCycleSourceField.DirectionChangePeriod => enemy.DefinitionId == EnemyDefinitionId.None
+                    ? 0
+                    : enemy.SpawnSettings<EvirSpawnSettings>().DirectionChangePeriod / 2,
                 // The cartridge reads the enemy's palette selection as the count.
                 EvirHalfCycleSourceField.Palette => _presentation.Placement.SelectionNumber(enemy.Colouring),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),

@@ -22,9 +22,11 @@ internal static class RoomEnemySlotSpawnWords
     /// </summary>
     internal static void SetSpawnWords(this RoomEnemySlot slot, EnemyDefinitionId species, Func<PopulationWords, PopulationWords> change)
     {
-        EnemySpawnSettings? current = slot.Spawn.Population.SpawnSettings;
+        RoomEnemyPopulationRecord current = slot.Spawn.Population;
         Type kind = EnemySpawnSettingsCodec.Decode(species, default).GetType();
-        PopulationWords words = current is not null && current.GetType() == kind ? EnemySpawnSettingsCodec.Encode(current) : default;
+        PopulationWords words = !current.Equals(default(RoomEnemyPopulationRecord)) && current.SpawnSettings.GetType() == kind
+            ? EnemySpawnSettingsCodec.Encode(current.SpawnSettings)
+            : default;
         slot.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, change(words)));
     }
 }

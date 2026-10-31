@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Enemies.ShotCallbackDefinitionsVerificati
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.RegularExpressions;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 
@@ -39,7 +40,7 @@ internal static class PowerBombCallbackDefinitionsVerification
             byte bank = rom.ReadCartridgeByte(address + 12);
             ushort callback = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 40);
             bool expected = callback != 0 && rom.ReadCartridgeByte(((int)new SnesAddress(bank, callback))) == 0x6b;
-            AssertEqual(expected, EnemyInteractionCallbacks.IsLiteralNoOpPowerBomb(bank, callback),
+            AssertEqual(expected, EnemyInteractionCallbacks.DecodePowerBomb(bank, callback) == EnemyReaction.Ignore,
                 $"header {address:X6} native Power Bomb classification");
             if (expected)
                 literalCallbacks.Add(((int)new SnesAddress(bank, callback)));
@@ -47,13 +48,15 @@ internal static class PowerBombCallbackDefinitionsVerification
         }
         AssertTrue(headers > 150, "all named native enemy headers enumerated");
         AssertEqual(10, literalCallbacks.Count, "complete Power Bomb literal no-op identity set");
-        // No other bank/pointer may accidentally alias a classified identity. A zero
-        // pointer is always common damage, regardless of the bank's bytes at offset zero.
+        // No other bank/pointer decodes to the ignoring reaction except the engine's two shared returns, which every
+        // enemy bank repeats. A zero pointer is always common damage, regardless of the bank's bytes at offset zero.
         for (int bank = 0; bank <= byte.MaxValue; bank++)
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-            AssertEqual(literalCallbacks.Contains(((int)new SnesAddress(checked((byte)bank), checked((ushort)pointer)))),
-                EnemyInteractionCallbacks.IsLiteralNoOpPowerBomb((byte)bank, (ushort)pointer),
-                "Power Bomb bank-qualified callback identity");
+            AssertEqual(literalCallbacks.Contains(((int)new SnesAddress(checked((byte)bank), checked((ushort)pointer)))) ||
+                    pointer is 0x804b or 0x804c,
+                EnemyInteractionCallbacks.DecodePowerBomb((byte)bank, (ushort)pointer) == EnemyReaction.Ignore,
+                "Power Bomb bank-qualified reaction");
+        AssertEqual<EnemyReaction?>(null, EnemyInteractionCallbacks.DecodePowerBomb(0xa2, 0), "a zero Power Bomb word names no reaction");
         Console.WriteLine($"Power Bomb callbacks: {headers} named headers match native opcode classification; all 16777216 bank/pointer pairs preserve the ten literal no-ops and zero/common distinction.");
     }
 

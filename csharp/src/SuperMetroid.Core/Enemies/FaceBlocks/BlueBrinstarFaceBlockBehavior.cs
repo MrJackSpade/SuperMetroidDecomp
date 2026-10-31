@@ -15,7 +15,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>The pass-through shot reaction for this species' private shot callback.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
         new(enemy => enemy.DefinitionId == EnemyDefinitionId.FaceBlock &&
-                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BlueBrinstarFaceBlockShot)
+                     EnemyCollision.ShotAi(enemy) == EnemyReaction.BlueBrinstarFaceBlockShot)
         {
             AfterSuperMissileQuake = ProjectilePassThrough.Shot,
         };

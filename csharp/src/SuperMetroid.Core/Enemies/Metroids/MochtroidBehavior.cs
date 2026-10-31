@@ -266,7 +266,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMochtroidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Mochtroid &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MochtroidTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.MochtroidTouch,
             context => ResolveMochtroidTouch(context.Slot, context.Slot.RequireSpeciesState<MochtroidEnemyState>(), context.Samus));
     }
 
@@ -275,6 +275,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddMochtroidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Mochtroid &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MochtroidShot));
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MochtroidShot));
     }
 }

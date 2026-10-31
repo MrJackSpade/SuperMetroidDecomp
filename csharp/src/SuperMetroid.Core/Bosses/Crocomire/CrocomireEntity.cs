@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyNormalBombAdmission, IBossBodyFrames, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyNormalBombAdmission, IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
@@ -42,16 +42,16 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     };
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
-        return CrocomireCombat.FindCrocomireBodyHitboxCallback(Slot, probe, out callback) ??
-            CrocomireCombat.FindCrocomireTongueHitboxCallback(Slot, probe, out callback);
+        reaction = null;
+        return CrocomireCombat.FindCrocomireBodyHitboxReaction(Slot, probe, out reaction) ??
+            CrocomireCombat.FindCrocomireTongueHitboxReaction(Slot, probe, out reaction);
     }
 
-    /// <summary>The Crocomire body takes normal bombs on its extended frames although its header names no shot callback.</summary>
+    /// <summary>The Crocomire body takes normal bombs on its extended frames although its header names no shot reaction.</summary>
     public bool AdmitsNormalBombs(bool usesExtendedHitboxes) =>
-        Slot.DefinitionId == EnemyDefinitionId.Crocomire && Slot.Definition.ShotBody == EnemyCallbackBody.None && usesExtendedHitboxes;
+        Slot.DefinitionId == EnemyDefinitionId.Crocomire && Slot.Definition.Shot is null && usesExtendedHitboxes;
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
@@ -62,10 +62,9 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 
-    /// <summary>Crocomire's hitbox shot callbacks, including the records that point at the body header's return.</summary>
-    /// <param name="callback">The named callback the header or hitbox selects, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        callback is EnemyInteractionCallback.CrocomireNoOpHitboxShot or EnemyInteractionCallback.CrocomireDustHitboxShot or
-            EnemyInteractionCallback.CrocomireMouthShot or EnemyInteractionCallback.CrocomireAlternateDustHitboxShot or
-            EnemyInteractionCallback.CrocomireHeaderTouch;
+    /// <summary>Crocomire's own hitbox shot reactions.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        reaction is EnemyReaction.CrocomireHitCountShot or EnemyReaction.CrocomireDustHitboxShot or
+            EnemyReaction.CrocomireMouthShot or EnemyReaction.CrocomireAlternateDustHitboxShot;
 }

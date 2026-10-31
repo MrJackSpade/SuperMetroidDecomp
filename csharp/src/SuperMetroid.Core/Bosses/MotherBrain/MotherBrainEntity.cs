@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
@@ -43,7 +43,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     };
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => MotherBrainCombat.FindMotherBrainHitboxCallback(Slot, probe, out callback);
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => MotherBrainCombat.FindMotherBrainHitboxReaction(Slot, probe, out reaction);
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
@@ -54,9 +54,9 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
 
-    /// <summary>The body's and head's own shot callbacks, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && callback == EnemyInteractionCallback.MotherBrainBodyShot ||
-        Slot.DefinitionId == EnemyDefinitionId.MotherBrainHead && callback == EnemyInteractionCallback.MotherBrainHeadShot;
+    /// <summary>The body's and head's own shot reactions, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && reaction == EnemyReaction.MotherBrainBodyShot ||
+        Slot.DefinitionId == EnemyDefinitionId.MotherBrainHead && reaction == EnemyReaction.MotherBrainHeadShot;
 }

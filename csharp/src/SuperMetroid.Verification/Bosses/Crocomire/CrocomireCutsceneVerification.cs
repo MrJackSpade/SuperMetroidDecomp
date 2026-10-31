@@ -45,15 +45,19 @@ internal static class CrocomireCutsceneVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 2))), component.Offset.Y, "corpse native component Y");
                 // The ROM names the component's hitbox list by address; the compiled component holds that list.
                 ushort list = rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 6));
-                IReadOnlyList<CrocomireBodyCollisionHitbox> boxes = component.Hitboxes;
+                IReadOnlyList<EnemyCollisionHitbox> boxes = component.Hitboxes;
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | list), boxes.Count, "corpse native hitbox count");
                 for (int boxIndex = 0; boxIndex < boxes.Count; boxIndex++)
                 {
                     var box = boxes[boxIndex];
                     int boxAddress = list + 2 + 12 * boxIndex;
-                    ushort[] words = [unchecked((ushort)box.Left), unchecked((ushort)box.Top), unchecked((ushort)box.Right), unchecked((ushort)box.Bottom), CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot)];
+                    ushort[] words = [unchecked((ushort)box.Left), unchecked((ushort)box.Top), unchecked((ushort)box.Right), unchecked((ushort)box.Bottom)];
                     for (int word = 0; word < words.Length; word++)
-                        AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | (boxAddress + word * 2)), words[word], "corpse native rectangle/callback");
+                        AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | (boxAddress + word * 2)), words[word], "corpse native rectangle");
+                    AssertEqual(EnemyReactionAccess.Of(0xa4, rom.ReadCartridgeWordFixedBank(0xa40000 | (boxAddress + 8)), shot: false),
+                        (EnemyReaction?)box.Touch, "corpse native touch reaction");
+                    AssertEqual(EnemyReactionAccess.Of(0xa4, rom.ReadCartridgeWordFixedBank(0xa40000 | (boxAddress + 10)), shot: true),
+                        (EnemyReaction?)box.Shot, "corpse native shot reaction");
                 }
                 if (!anyHitbox && boxes.Count != 0)
                 {
@@ -64,7 +68,7 @@ internal static class CrocomireCutsceneVerification
                     {
                         object?[] hit = [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot, (ushort)0];
                         AssertTrue(ExtendedHitboxWalker.Find(enemies, hit), "corpse physical component is visited");
-                        AssertEqual(shot ? CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot) : CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), (ushort)(hit[^1] ?? throw new InvalidOperationException("Verification requires hit[^1].")), "corpse selects native callback");
+                        AssertEqual((EnemyReaction?)(shot ? box.Shot : box.Touch), ExtendedHitboxWalker.Reaction(hit), "corpse selects native reaction");
                     }
                 }
                 anyHitbox |= boxes.Count != 0;

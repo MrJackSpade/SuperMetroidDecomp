@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeZebetite;
@@ -18,8 +18,8 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemySlot slo
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => ZebetiteBehavior.AdvanceZebetiteAnimation(enemy);
 
-    /// <summary>The Zebetite's own shot callback, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        callback == EnemyInteractionCallback.ZebetiteShot;
+    /// <summary>The Zebetite's own shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        reaction == EnemyReaction.ZebetiteShot;
 }

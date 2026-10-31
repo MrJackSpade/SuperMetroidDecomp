@@ -851,7 +851,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMamaTurtleBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyTurtle &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.BabyTurtleShot)
+                                                       c.SelectedShotAi == EnemyReaction.BabyTurtleShot)
         {
             AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy.RequireSpeciesState<BabyTurtleEnemyState>()),
         });
@@ -902,7 +902,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMamaTurtleShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyTurtle &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BabyTurtleShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.BabyTurtleShot)
         {
             AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy.RequireSpeciesState<BabyTurtleEnemyState>()),
         });
@@ -912,11 +912,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddMamaTurtleTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.MamaTurtle &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MamaTurtleTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.MamaTurtleTouch,
             context => ResolveMamaTurtleTouch(context.Slot, context.Slot.RequireSpeciesState<MamaTurtleEnemyState>(), context.Samus));
 
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.BabyTurtle &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BabyTurtleTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.BabyTurtleTouch,
             context => ResolveBabyTurtleTouch(context.Slot, context.Slot.RequireSpeciesState<BabyTurtleEnemyState>(), context.Samus, context.Level));
     }
 }

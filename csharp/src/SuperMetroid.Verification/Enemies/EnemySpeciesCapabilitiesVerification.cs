@@ -70,69 +70,69 @@ internal static class EnemySpeciesCapabilitiesVerification
     /// The named private shot callbacks each definition owned in the removed catalog, plus the Metroid's, which its entity
     /// already answered; every definition not listed owns no named callback.
     /// </summary>
-    private static Dictionary<EnemyDefinitionId, EnemyInteractionCallback[]> ExpectedNamedShotCallbacks()
+    private static Dictionary<EnemyDefinitionId, EnemyReaction[]> ExpectedNamedShotCallbacks()
     {
-        var expected = new Dictionary<EnemyDefinitionId, EnemyInteractionCallback[]>
+        var expected = new Dictionary<EnemyDefinitionId, EnemyReaction[]>
         {
-            [EnemyDefinitionId.BabyTurtle] = [EnemyInteractionCallback.BabyTurtleShot],
-            [EnemyDefinitionId.Owtch] = [EnemyInteractionCallback.OwtchShot],
-            [EnemyDefinitionId.Rinka] = [EnemyInteractionCallback.RinkaShot],
-            [EnemyDefinitionId.Oum] = [EnemyInteractionCallback.MaridiaLargeSnailShot],
-            [EnemyDefinitionId.GRipper] = [EnemyInteractionCallback.GRipperRipper2Shot],
-            [EnemyDefinitionId.Ripper2] = [EnemyInteractionCallback.GRipperRipper2Shot],
-            [EnemyDefinitionId.Dragon] = [EnemyInteractionCallback.DragonShot],
-            [EnemyDefinitionId.ShutterShootable] = [EnemyInteractionCallback.ShootableVerticalShutterShot],
-            [EnemyDefinitionId.Kamer] = [EnemyInteractionCallback.ShootableVerticalShutterShot],
-            [EnemyDefinitionId.ShutterDestroyable] = [EnemyInteractionCallback.DestroyableVerticalShutterShot],
-            [EnemyDefinitionId.Metaree] = [EnemyInteractionCallback.MetareeShot],
-            [EnemyDefinitionId.Fireflea] = [EnemyInteractionCallback.FirefleaShot],
-            [EnemyDefinitionId.Tripper] = [EnemyInteractionCallback.TripperShot],
-            [EnemyDefinitionId.Mochtroid] = [EnemyInteractionCallback.MochtroidShot],
-            [EnemyDefinitionId.Skree] = [EnemyInteractionCallback.SkreeShot],
-            [EnemyDefinitionId.Yard] = [EnemyInteractionCallback.YardShot],
-            [EnemyDefinitionId.Evir] = [EnemyInteractionCallback.EvirShot],
-            [EnemyDefinitionId.YappingMaw] = [EnemyInteractionCallback.YappingMawShot],
-            [EnemyDefinitionId.Kago] = [EnemyInteractionCallback.KagoShot],
-            [EnemyDefinitionId.Magdollite] = [EnemyInteractionCallback.MagdolliteShot],
-            [EnemyDefinitionId.Beetom] = [EnemyInteractionCallback.BeetomShot],
-            [EnemyDefinitionId.Powamp] = [EnemyInteractionCallback.PowampShot],
-            [EnemyDefinitionId.Robot] = [EnemyInteractionCallback.WorkRobotShot, EnemyInteractionCallback.WorkRobotNoPowerShot],
-            [EnemyDefinitionId.RobotNoPower] = [EnemyInteractionCallback.WorkRobotShot, EnemyInteractionCallback.WorkRobotNoPowerShot],
-            [EnemyDefinitionId.Bull] = [EnemyInteractionCallback.BullShot],
-            [EnemyDefinitionId.Spark] = [EnemyInteractionCallback.SparkShot],
-            [EnemyDefinitionId.FaceBlock] = [EnemyInteractionCallback.BlueBrinstarFaceBlockShot],
-            [EnemyDefinitionId.KihunterGreen] = [EnemyInteractionCallback.KiHunterShot],
-            [EnemyDefinitionId.KihunterYellow] = [EnemyInteractionCallback.KiHunterShot],
-            [EnemyDefinitionId.KihunterRed] = [EnemyInteractionCallback.KiHunterShot],
-            [EnemyDefinitionId.MiniKraid] = [EnemyInteractionCallback.FakeKraidShot],
-            [EnemyDefinitionId.Zebetite] = [EnemyInteractionCallback.ZebetiteShot],
-            [EnemyDefinitionId.CorpseTorizo] = [EnemyInteractionCallback.DeadTorizoTouchAndShot],
-            [EnemyDefinitionId.CorpseSidehopper] = [EnemyInteractionCallback.DeadSidehopperShot],
-            [EnemyDefinitionId.DraygonBody] = [EnemyInteractionCallback.DraygonShot, EnemyInteractionCallback.DudShot],
-            [EnemyDefinitionId.SporeSpawn] = [EnemyInteractionCallback.SporeSpawnShot, EnemyInteractionCallback.DudShot],
-            [EnemyDefinitionId.PhantoonBody] = [EnemyInteractionCallback.PhantoonShot],
-            [EnemyDefinitionId.MotherBrainBody] = [EnemyInteractionCallback.MotherBrainBodyShot],
-            [EnemyDefinitionId.MotherBrainHead] = [EnemyInteractionCallback.MotherBrainHeadShot],
-            [EnemyDefinitionId.BombTorizo] = [EnemyInteractionCallback.BombTorizoShot, EnemyInteractionCallback.TorizoStandUpSitDownShot],
+            [EnemyDefinitionId.BabyTurtle] = [EnemyReaction.BabyTurtleShot],
+            [EnemyDefinitionId.Owtch] = [EnemyReaction.OwtchShot],
+            [EnemyDefinitionId.Rinka] = [EnemyReaction.RinkaShot],
+            [EnemyDefinitionId.Oum] = [EnemyReaction.MaridiaLargeSnailShot],
+            [EnemyDefinitionId.GRipper] = [EnemyReaction.GRipperRipper2Shot],
+            [EnemyDefinitionId.Ripper2] = [EnemyReaction.GRipperRipper2Shot],
+            [EnemyDefinitionId.Dragon] = [EnemyReaction.DragonShot],
+            [EnemyDefinitionId.ShutterShootable] = [EnemyReaction.ShootableVerticalShutterShot],
+            [EnemyDefinitionId.Kamer] = [EnemyReaction.ShootableVerticalShutterShot],
+            [EnemyDefinitionId.ShutterDestroyable] = [EnemyReaction.DestroyableVerticalShutterShot],
+            [EnemyDefinitionId.Metaree] = [EnemyReaction.MetareeShot],
+            [EnemyDefinitionId.Fireflea] = [EnemyReaction.FirefleaShot],
+            [EnemyDefinitionId.Tripper] = [EnemyReaction.TripperShot],
+            [EnemyDefinitionId.Mochtroid] = [EnemyReaction.MochtroidShot],
+            [EnemyDefinitionId.Skree] = [EnemyReaction.SkreeShot],
+            [EnemyDefinitionId.Yard] = [EnemyReaction.YardShot],
+            [EnemyDefinitionId.Evir] = [EnemyReaction.EvirShot],
+            [EnemyDefinitionId.YappingMaw] = [EnemyReaction.YappingMawShot],
+            [EnemyDefinitionId.Kago] = [EnemyReaction.KagoShot],
+            [EnemyDefinitionId.Magdollite] = [EnemyReaction.MagdolliteShot],
+            [EnemyDefinitionId.Beetom] = [EnemyReaction.BeetomShot],
+            [EnemyDefinitionId.Powamp] = [EnemyReaction.PowampShot],
+            [EnemyDefinitionId.Robot] = [EnemyReaction.WorkRobotShot, EnemyReaction.WorkRobotNoPowerShot],
+            [EnemyDefinitionId.RobotNoPower] = [EnemyReaction.WorkRobotShot, EnemyReaction.WorkRobotNoPowerShot],
+            [EnemyDefinitionId.Bull] = [EnemyReaction.BullShot],
+            [EnemyDefinitionId.Spark] = [EnemyReaction.SparkShot],
+            [EnemyDefinitionId.FaceBlock] = [EnemyReaction.BlueBrinstarFaceBlockShot],
+            [EnemyDefinitionId.KihunterGreen] = [EnemyReaction.KiHunterShot],
+            [EnemyDefinitionId.KihunterYellow] = [EnemyReaction.KiHunterShot],
+            [EnemyDefinitionId.KihunterRed] = [EnemyReaction.KiHunterShot],
+            [EnemyDefinitionId.MiniKraid] = [EnemyReaction.FakeKraidShot],
+            [EnemyDefinitionId.Zebetite] = [EnemyReaction.ZebetiteShot],
+            [EnemyDefinitionId.CorpseTorizo] = [EnemyReaction.DeadTorizoTouchAndShot],
+            [EnemyDefinitionId.CorpseSidehopper] = [EnemyReaction.DeadSidehopperShot],
+            [EnemyDefinitionId.DraygonBody] = [EnemyReaction.DraygonShot, EnemyReaction.DudShot],
+            [EnemyDefinitionId.SporeSpawn] = [EnemyReaction.SporeSpawnShot, EnemyReaction.DudShot],
+            [EnemyDefinitionId.PhantoonBody] = [EnemyReaction.PhantoonShot],
+            [EnemyDefinitionId.MotherBrainBody] = [EnemyReaction.MotherBrainBodyShot],
+            [EnemyDefinitionId.MotherBrainHead] = [EnemyReaction.MotherBrainHeadShot],
+            [EnemyDefinitionId.BombTorizo] = [EnemyReaction.BombTorizoShot, EnemyReaction.TorizoStandUpSitDownShot],
             [EnemyDefinitionId.GoldenTorizo] =
             [
-                EnemyInteractionCallback.GoldenTorizoShot, EnemyInteractionCallback.BombTorizoShot,
-                EnemyInteractionCallback.TorizoStandUpSitDownShot,
+                EnemyReaction.GoldenTorizoShot, EnemyReaction.BombTorizoShot,
+                EnemyReaction.TorizoStandUpSitDownShot,
             ],
-            [EnemyDefinitionId.Shaktool] = [EnemyInteractionCallback.ShaktoolShot],
-            [EnemyDefinitionId.KraidArm] = [EnemyInteractionCallback.KraidArmShot],
-            [EnemyDefinitionId.RidleyCeres] = [EnemyInteractionCallback.RidleyShot],
-            [EnemyDefinitionId.Ridley] = [EnemyInteractionCallback.RidleyShot],
-            [EnemyDefinitionId.BabyMetroid] = [EnemyInteractionCallback.ShitroidShot],
-            [EnemyDefinitionId.Botwoon] = [EnemyInteractionCallback.BotwoonShot],
-            [EnemyDefinitionId.Metroid] = [EnemyInteractionCallback.MetroidShot],
+            [EnemyDefinitionId.Shaktool] = [EnemyReaction.ShaktoolShot],
+            [EnemyDefinitionId.KraidArm] = [EnemyReaction.KraidArmShot],
+            [EnemyDefinitionId.RidleyCeres] = [EnemyReaction.RidleyShot],
+            [EnemyDefinitionId.Ridley] = [EnemyReaction.RidleyShot],
+            [EnemyDefinitionId.BabyMetroid] = [EnemyReaction.ShitroidShot],
+            [EnemyDefinitionId.Botwoon] = [EnemyReaction.BotwoonShot],
+            [EnemyDefinitionId.Metroid] = [EnemyReaction.MetroidShot],
         };
         foreach (EnemyDefinitionId pirate in OrdinaryPirates)
         {
             expected.Add(pirate,
             [
-                EnemyInteractionCallback.SpacePirateShot, EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot,
-                EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot,
+                EnemyReaction.SpacePirateShot, EnemyReaction.GoldNinjaVulnerableHitboxShot,
+                EnemyReaction.GoldNinjaInvincibleHitboxShot,
             ]);
         }
         return expected;
@@ -146,7 +146,7 @@ internal static class EnemySpeciesCapabilitiesVerification
     internal static void VerifyEnemySpeciesCapabilities()
     {
         Dictionary<EnemyDefinitionId, EnemyCapabilities> capabilities = ExpectedCapabilities();
-        Dictionary<EnemyDefinitionId, EnemyInteractionCallback[]> namedCallbacks = ExpectedNamedShotCallbacks();
+        Dictionary<EnemyDefinitionId, EnemyReaction[]> namedCallbacks = ExpectedNamedShotCallbacks();
         IEnumerable<EnemyDefinitionId> definitions = RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id)
             .Concat(RoomEnemyAuxiliaryDefinitionCatalog.Definitions.Keys)
             .Concat(capabilities.Keys)
@@ -155,13 +155,12 @@ internal static class EnemySpeciesCapabilitiesVerification
             .Concat(CrocomireParts)
             .Where(definition => definition != EnemyDefinitionId.None && !UnportedDefinitions.Contains(definition))
             .Distinct();
-        EnemyInteractionCallback?[] callbacks =
-            [null, .. Enum.GetValues<EnemyInteractionCallback>().Select(callback => (EnemyInteractionCallback?)callback)];
-        EnemyInteractionCallback[] crocomireCallbacks =
+        EnemyReaction?[] callbacks =
+            [null, .. Enum.GetValues<EnemyReaction>().Select(callback => (EnemyReaction?)callback)];
+        EnemyReaction[] crocomireCallbacks =
         [
-            EnemyInteractionCallback.CrocomireNoOpHitboxShot, EnemyInteractionCallback.CrocomireDustHitboxShot,
-            EnemyInteractionCallback.CrocomireMouthShot, EnemyInteractionCallback.CrocomireAlternateDustHitboxShot,
-            EnemyInteractionCallback.CrocomireHeaderTouch,
+            EnemyReaction.CrocomireHitCountShot, EnemyReaction.CrocomireDustHitboxShot,
+            EnemyReaction.CrocomireMouthShot, EnemyReaction.CrocomireAlternateDustHitboxShot,
         ];
 
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
@@ -177,15 +176,15 @@ internal static class EnemySpeciesCapabilitiesVerification
             AssertEqual(capabilities.GetValueOrDefault(definition, EnemyCapabilities.None), entity.Capabilities,
                 $"{definition} collision capabilities");
 
-            EnemyInteractionCallback[] owned = namedCallbacks.GetValueOrDefault(definition, Array.Empty<EnemyInteractionCallback>());
+            EnemyReaction[] owned = namedCallbacks.GetValueOrDefault(definition, Array.Empty<EnemyReaction>());
             bool ownsHeaderCallback = DeadTourianCorpses.Contains(definition);
             bool ownsCrocomireCallbacks = CrocomireParts.Contains(definition);
-            foreach (EnemyInteractionCallback? callback in callbacks)
+            foreach (EnemyReaction? callback in callbacks)
             {
                 bool expected = callback is { } named && owned.Contains(named) ||
                     ownsHeaderCallback && DeadTourianBehavior.HasDeadTourianCorpseShotCallback(slot) && callback == EnemyCollision.ShotAi(slot) ||
                     ownsCrocomireCallbacks && callback is { } crocomire && crocomireCallbacks.Contains(crocomire);
-                bool actual = entity is IEnemyPrivateShotCallback owner && owner.OwnsPrivateShotCallback(callback);
+                bool actual = entity is IEnemyPrivateShotReaction owner && owner.OwnsPrivateShotReaction(callback);
                 AssertEqual(expected, actual, $"{definition} owns private shot callback {callback?.ToString() ?? "none"}");
                 answers++;
             }

@@ -120,9 +120,9 @@ internal static class CeresSteamCollisionDefinitionsVerification
                     bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                     AssertEqual(nativeHit, compiledHit,
                         $"Ceres steam $A6:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                    AssertEqual(nativeCallback,
-                        (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
-                        $"Ceres steam $A6:{frame:X4} callback {x:X4},{y:X4}, shot={shot}");
+                    AssertEqual(EnemyReactionAccess.Of(0xa6, nativeCallback, shot != 0),
+                        ExtendedHitboxWalker.Reaction(compiledArguments),
+                        $"Ceres steam $A6:{frame:X4} reaction {x:X4},{y:X4}, shot={shot}");
                     probes++;
                 }
             }
@@ -143,8 +143,10 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top, "steam top");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), box.Right, "steam right");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom, "steam bottom");
-                AssertEqual(rom.ReadCartridgeWord((record + 8)), CeresSteamHitboxCallbackCodec.TouchCallbackWord, "steam touch callback");
-                AssertEqual(rom.ReadCartridgeWord((record + 10)), CeresSteamHitboxCallbackCodec.ShotCallbackWord, "steam shot callback");
+                AssertEqual(EnemyReactionAccess.Of(0xa6, rom.ReadCartridgeWord((record + 8)), shot: false),
+                    (EnemyReaction?)CeresSteamCollisionDefinitions.TouchReaction, "steam touch reaction");
+                AssertEqual(EnemyReactionAccess.Of(0xa6, rom.ReadCartridgeWord((record + 10)), shot: true),
+                    (EnemyReaction?)CeresSteamCollisionDefinitions.ShotReaction, "steam shot reaction");
             }
         }
         AssertThrows<InvalidDataException>(

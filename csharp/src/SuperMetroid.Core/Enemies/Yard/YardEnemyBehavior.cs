@@ -657,7 +657,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddYardShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Yard &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.YardShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.YardShot)
         {
             AdmitsBombFamilies = true,
             // Yard's custom shot AI sends super-missile/power-bomb families through normal vulnerability damage,
@@ -679,7 +679,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddYardTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Yard &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.YardTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.YardTouch,
             context => ResolveYardTouch(context.Slot, context.Slot.RequireSpeciesState<YardEnemyState>(), context.Samus, context.ControllerInput));
     }
 

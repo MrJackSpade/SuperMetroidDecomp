@@ -43,9 +43,9 @@ internal static class KraidFootCollisionDefinitionsVerification
             AssertTrue(KraidFootCollision.TryGetComponents(selectedFrame, out _),
                 $"Kraid foot frame $A7:{selectedFrame:X4} is a compiled physical frame");
 
-        System.Collections.Immutable.ImmutableArray<KraidCollisionHitbox> hitboxes =
+        System.Collections.Immutable.ImmutableArray<EnemyCollisionHitbox> hitboxes =
             KraidFootCollisionDefinitionsConstants.HitboxesAt(KraidFootCollisionDefinitionsConstants.HitboxList);
-        KraidCollisionHitbox box = hitboxes[0];
+        EnemyCollisionHitbox box = hitboxes[0];
 
         int probes = 0;
         // A foot shows only installed frames; the catalog's stride also spans $8F35, which no composition shows.
@@ -73,9 +73,9 @@ internal static class KraidFootCollisionDefinitionsVerification
                     bool installedHit = ExtendedHitboxWalker.Find(installed, installedArguments);
                     AssertEqual(nativeHit, installedHit,
                         $"Kraid foot $A7:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                    AssertEqual(nativeCallback,
-                        (ushort)(installedArguments[^1] ?? throw new InvalidOperationException("Verification requires installedArguments[^1].")),
-                        $"Kraid foot $A7:{frame:X4} callback {x:X4},{y:X4}, shot={shot}");
+                    AssertEqual(EnemyReactionAccess.Of(0xa7, nativeCallback, shot != 0),
+                        ExtendedHitboxWalker.Reaction(installedArguments),
+                        $"Kraid foot $A7:{frame:X4} reaction {x:X4},{y:X4}, shot={shot}");
                     probes++;
                 }
             }

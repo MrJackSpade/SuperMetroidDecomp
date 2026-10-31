@@ -577,7 +577,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // `$A2:F0A2` never calls common shot AI. Bomb collision has already marked the physical bomb, then the
         // callback only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
         table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
-                                  c.SelectedShotAi == EnemyInteractionCallback.ShootableVerticalShutterShot,
+                                  c.SelectedShotAi == EnemyReaction.ShootableVerticalShutterShot,
             c => ReactVerticalShutter(c.Enemy, _shutterCamera));
     }
 
@@ -585,7 +585,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddDestroyableShutterBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.DestroyableVerticalShutterShot)
+                                                       c.SelectedShotAi == EnemyReaction.DestroyableVerticalShutterShot)
         {
             AfterCommon = c => ReactVerticalShutter(c.Enemy, _shutterCamera),
         });
@@ -658,12 +658,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddShuttersPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsVerticalShutterDefinition(enemy.DefinitionId) &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.VerticalShutterPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.VerticalShutterPowerBomb)
         {
             ReplacesCommon = (enemy, _) => ReactVerticalShutter(enemy, _shutterCamera),
         });
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.HorizontalShutterPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.HorizontalShutterPowerBomb)
         {
             ReplacesCommon = (enemy, _) => ReactHorizontalShutter(enemy),
         });
@@ -673,7 +673,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddShuttersShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShootableVerticalShutterShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.ShootableVerticalShutterShot)
         {
             // $F0A2 goes directly to the shutter reaction instead of normal shot AI. The bank-$A0 collision walker
             // has nevertheless already marked the colliding projectile, including Super Missile quake side effects.
@@ -690,13 +690,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddDestroyableAndHorizontalShutterShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DestroyableVerticalShutterShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.DestroyableVerticalShutterShot)
         {
             AfterCommon = c => ReactVerticalShutter(c.Enemy, _shutterCamera),
         });
 
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.HorizontalShutterShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.HorizontalShutterShot)
         {
             ExemptFromGenericDeath = true,
             AfterCommon = c => ReactHorizontalShutter(c.Enemy),
@@ -709,11 +709,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // $F09D does not enter common contact damage. Body overlap is itself the trigger, and $F0B6 decides
         // whether this population mode may start moving.
         table.AddTouch(slot => IsVerticalShutterDefinition(slot.DefinitionId) &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.VerticalShutterTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.VerticalShutterTouch,
             context => ReactVerticalShutter(context.Slot, _shutterCamera));
 
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.HorizontalShutterTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.HorizontalShutterTouch,
             context =>
             {
                 // $F3D8 provides manual ejection only after a permanently stopped shutter.

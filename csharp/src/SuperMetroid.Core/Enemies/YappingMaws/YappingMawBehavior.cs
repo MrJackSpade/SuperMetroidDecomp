@@ -597,7 +597,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddYappingMawBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.YappingMaw &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.YappingMawShot)
+                                                       c.SelectedShotAi == EnemyReaction.YappingMawShot)
         {
             AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<YappingMawEnemyState>(), c.Samus),
         });
@@ -623,7 +623,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddYappingMawShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.YappingMaw &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.YappingMawShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.YappingMawShot)
         {
             AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<YappingMawEnemyState>(), c.Samus),
         });
@@ -635,7 +635,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // $A8:A799 replaces common contact damage entirely. A qualifying overlap transfers Samus input/position
         // ownership to the mouth state machine.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.YappingMaw &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.YappingMawTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.YappingMawTouch,
             context => ResolveYappingMawTouch(context.Slot.RequireSpeciesState<YappingMawEnemyState>(), context.Samus));
     }
 

@@ -477,7 +477,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddRinkaBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Rinka &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.RinkaShot)
+                                                       c.SelectedShotAi == EnemyReaction.RinkaShot)
         {
             RunsGenericDeath = false,
             AfterCommon = c => ResolveRinkaCombatAfterCommon(c.Enemy),
@@ -500,7 +500,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddRinkaPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Rinka &&
-                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.RinkaPowerBomb)
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyReaction.RinkaPowerBomb)
         {
             SkipsEnemy = enemy => enemy.Properties.HasAny(EnemyProperties.Invisible),
             ExemptFromGenericDeath = true,
@@ -513,7 +513,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Rinka's tail follows the damage path only; the immediate-freeze path skips it.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Rinka &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.RinkaShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.RinkaShot)
         {
             ExemptFromGenericDeath = true,
             AfterCommon = c =>
@@ -528,7 +528,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddRinkaTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Rinka &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.RinkaTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.RinkaTouch,
             context =>
             {
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);

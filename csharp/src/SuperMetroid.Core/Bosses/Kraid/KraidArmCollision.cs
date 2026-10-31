@@ -12,26 +12,26 @@ internal static class KraidArmCollision
     /// <remarks>Independently reviewed for #1165 against all selected bank_A7 native
     /// rectangles. The selected lists through Hitbox_KraidArm_F use arm touch;
     /// Hitbox_KraidArm_10..12 and both dying/lunge lists use background touch.</remarks>
-    internal static KraidHitboxTouch TouchCallback(int rectangle)
+    internal static EnemyReaction TouchReaction(int rectangle)
     {
         if ((uint)rectangle >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(rectangle));
-        return rectangle < FirstBackgroundRectangle ? KraidHitboxTouch.Arm : KraidHitboxTouch.Background;
+        return rectangle < FirstBackgroundRectangle ? EnemyReaction.KraidArmTouch : EnemyReaction.KraidBackgroundTouch;
     }
 
     /// <summary>Every selected arm rectangle uses the arm's shot reaction (EnemyShot_KraidArm).</summary>
-    internal static KraidHitboxShot ShotCallback(int rectangle)
+    internal static EnemyReaction ShotReaction(int rectangle)
     {
         if ((uint)rectangle >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(rectangle));
-        return KraidHitboxShot.Arm;
+        return EnemyReaction.KraidArmShot;
     }
 
     /// <summary>Combines one indexed rectangle's bounds with its arm/background touch and arm-shot reactions.</summary>
-    internal static KraidCollisionHitbox Rectangle(int index)
+    internal static EnemyCollisionHitbox Rectangle(int index)
     {
         if ((uint)index >= RectangleCount) throw new ArgumentOutOfRangeException(nameof(index));
         EnemyHitboxRectangle geometry = Geometry[index];
         return new(geometry.Left, geometry.Top, geometry.Right, geometry.Bottom,
-            TouchCallback(index), ShotCallback(index));
+            TouchReaction(index), ShotReaction(index));
     }
 
     /// <summary>Calculates the physical hitbox identity for a normalized arm pose and component.</summary>
@@ -66,7 +66,7 @@ internal static class KraidArmCollision
     /// articulated positions have separate, unfinished review scope.</remarks>
     internal static KraidCollisionComponent Component(int pose, int component)
     {
-        ImmutableArray<KraidCollisionHitbox> hitbox = HitboxesAt(ComponentHitbox(pose, component));
+        ImmutableArray<EnemyCollisionHitbox> hitbox = HitboxesAt(ComponentHitbox(pose, component));
         // The central body component and both single-component poses are anchored
         // at the enemy origin. Only the four articulated positions are stored.
         if (pose >= 10 || component == 2) return new(Offset16<RoomPixels>.Zero, hitbox);
@@ -88,8 +88,7 @@ internal static class KraidArmCollision
 
     /// <summary>
     /// Bank-$A7 hitbox lists $92D1-$948A; the first overlapping rectangle wins.
-    /// The native callbacks are Kraid-arm touch $9490 or background touch $948B,
-    /// and Kraid-arm shot $94B6.
+    /// The reactions are the arm's touch or the background touch, and the arm's shot.
     /// </summary>
     /// <remarks>Independently reviewed for #1165: these cases select ordered
     /// rectangle slices for native arm shapes 0..6, 8..A, F..12 and the two
@@ -97,13 +96,13 @@ internal static class KraidArmCollision
     /// domain, not native byte offsets; lengths match each original count word.
     /// Shape7, B..E, foot/lint lists, record interiors and every other ushort
     /// identity remain rejected. Rectangle-edge data has a separate disposition.</remarks>
-    internal static ImmutableArray<KraidCollisionHitbox> HitboxesAt(KraidArmHitboxList list) =>
-        HitboxLists.TryGetValue(list, out ImmutableArray<KraidCollisionHitbox> rectangles)
+    internal static ImmutableArray<EnemyCollisionHitbox> HitboxesAt(KraidArmHitboxList list) =>
+        HitboxLists.TryGetValue(list, out ImmutableArray<EnemyCollisionHitbox> rectangles)
             ? rectangles
             : throw new InvalidDataException($"Kraid-arm hitbox list {list} is not compiled.");
 
     /// <summary>Each compiled hitbox list's rectangles in collision order.</summary>
-    private static readonly Dictionary<KraidArmHitboxList, ImmutableArray<KraidCollisionHitbox>> HitboxLists = HitboxListSlices.ToDictionary(
+    private static readonly Dictionary<KraidArmHitboxList, ImmutableArray<EnemyCollisionHitbox>> HitboxLists = HitboxListSlices.ToDictionary(
         slice => slice.List, slice => Enumerable.Range(slice.First, slice.Count).Select(Rectangle).ToImmutableArray());
 
     /// <summary>Each physical pose's components in native order: five for the ten shared poses, one for the two dying poses.</summary>

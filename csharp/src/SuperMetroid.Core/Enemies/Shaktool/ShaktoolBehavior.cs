@@ -511,7 +511,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddShaktoolBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Shaktool &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.ShaktoolShot)
+                                                       c.SelectedShotAi == EnemyReaction.ShaktoolShot)
         {
             AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
         });
@@ -553,7 +553,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddShaktoolTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Shaktool &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ShaktoolTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.ShaktoolTouch,
             context => _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
     }
 
@@ -561,7 +561,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddShaktoolShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Shaktool &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShaktoolShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.ShaktoolShot)
         {
             AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
         });

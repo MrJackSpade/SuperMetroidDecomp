@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -53,6 +54,6 @@ internal static class KraidFootCollisionDefinitions
     };
 
     /// <summary>The single shared rectangle every foot component collides with.</summary>
-    internal static ImmutableArray<KraidCollisionHitbox> SharedHitboxes { get; } =
-        [new(-6, -6, 6, 6, KraidHitboxTouch.Background, KraidHitboxShot.Inert)];
+    internal static ImmutableArray<EnemyCollisionHitbox> SharedHitboxes { get; } =
+        [new(-6, -6, 6, 6, EnemyReaction.KraidBackgroundTouch, EnemyReaction.Ignore)];
 }

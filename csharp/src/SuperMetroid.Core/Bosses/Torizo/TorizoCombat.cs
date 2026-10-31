@@ -42,7 +42,7 @@ internal sealed class TorizoCombat
     private void ResolveTorizoNormalBomb(
         RoomEnemySlot torizo,
         SamusBombProjectileSlot bomb,
-        EnemyInteractionCallback? selectedShotAi)
+        EnemyReaction? selectedShotAi)
     {
         bool isBombTorizo = torizo.DefinitionId == EnemyDefinitionId.BombTorizo;
         bool isGoldenTorizo = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
@@ -50,7 +50,7 @@ internal sealed class TorizoCombat
             throw new ArgumentException("Normal-bomb Torizo dispatch requires a Torizo body.");
 
         TorizoEnemyState state = _access.RequireBombTorizoState(torizo);
-        if (selectedShotAi == EnemyInteractionCallback.TorizoStandUpSitDownShot)
+        if (selectedShotAi == EnemyReaction.TorizoStandUpSitDownShot)
         {
             // `$C9C2` is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
             // `$D658`, which accepts common damage only outside the active flash and while
@@ -66,8 +66,8 @@ internal sealed class TorizoCombat
         }
 
         bool validMainCallback = isBombTorizo
-            ? selectedShotAi == EnemyInteractionCallback.BombTorizoShot
-            : selectedShotAi is EnemyInteractionCallback.BombTorizoShot or EnemyInteractionCallback.GoldenTorizoShot;
+            ? selectedShotAi == EnemyReaction.BombTorizoShot
+            : selectedShotAi is EnemyReaction.BombTorizoShot or EnemyReaction.GoldenTorizoShot;
         if (!validMainCallback)
         {
             throw new InvalidDataException(
@@ -165,8 +165,8 @@ internal sealed class TorizoCombat
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
                                                      EnemyCollision.ShotAi(enemy) == (enemy.DefinitionId == EnemyDefinitionId.BombTorizo
-                                                         ? EnemyInteractionCallback.BombTorizoShot
-                                                         : EnemyInteractionCallback.GoldenTorizoShot))
+                                                         ? EnemyReaction.BombTorizoShot
+                                                         : EnemyReaction.GoldenTorizoShot))
         {
             // Golden's definition installs $D667, but its ordinary extended body hitboxes call shared $C97C; that
             // wrapper dispatches to $D667 by area. Stand-up/sit-down maps deliberately use $C9C2 instead. That
@@ -175,7 +175,7 @@ internal sealed class TorizoCombat
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 if (!c.UsesExtendedHitboxes || c.HitboxShotAi is not (
-                        EnemyInteractionCallback.BombTorizoShot or EnemyInteractionCallback.TorizoStandUpSitDownShot))
+                        EnemyReaction.BombTorizoShot or EnemyReaction.TorizoStandUpSitDownShot))
                 {
                     throw new InvalidDataException(
                         $"Torizo hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
@@ -196,10 +196,10 @@ internal sealed class TorizoCombat
     internal void AddBombTorizoTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BombTorizoTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.BombTorizoTouch,
             context =>
             {
-                if (!context.UsesExtendedHitboxes || context.HitboxTouchAi != EnemyInteractionCallback.BombTorizoTouch)
+                if (!context.UsesExtendedHitboxes || context.HitboxTouchAi != EnemyReaction.BombTorizoTouch)
                 {
                     throw new InvalidDataException(
                         $"Torizo hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
@@ -220,7 +220,7 @@ internal sealed class TorizoCombat
         bool isBombTorizo = enemy.DefinitionId == EnemyDefinitionId.BombTorizo;
         bool isGoldenTorizo = !isBombTorizo;
         TorizoEnemyState torizoState = _access.RequireBombTorizoState(enemy);
-        if (c.HitboxShotAi == EnemyInteractionCallback.TorizoStandUpSitDownShot)
+        if (c.HitboxShotAi == EnemyReaction.TorizoStandUpSitDownShot)
         {
             // `$AA:C9C2` returns immediately in area zero. In nonzero areas it calls `$AA:D658`, which admits common
             // no-death shot damage only while both the flash timer and native `toriz_var_04` are zero. Crucially it
@@ -242,12 +242,12 @@ internal sealed class TorizoCombat
 
         // A caught Super bypasses family selection, but still reaches the native stun write before common damage.
         // Animation lock and the transitional hitbox callback bypass that write instead.
-        if (c.HitboxShotAi == EnemyInteractionCallback.BombTorizoShot && isGoldenTorizo &&
+        if (c.HitboxShotAi == EnemyReaction.BombTorizoShot && isGoldenTorizo &&
             !torizoState.AnimationLocked &&
             _body.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
             SetBehavior(enemy, TorizoBehaviorFlags.Stunned);
 
-        if (c.HitboxShotAi == EnemyInteractionCallback.BombTorizoShot &&
+        if (c.HitboxShotAi == EnemyReaction.BombTorizoShot &&
             isGoldenTorizo && !torizoState.AnimationLocked &&
             !_body.HasBehavior(enemy, TorizoBehaviorFlags.CaughtSuperMissile))
         {
@@ -300,10 +300,10 @@ internal sealed class TorizoCombat
         table.AddHurt(slot => slot.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             (slot, _) => ApplyBombTorizoHurt(slot));
 
-    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindTorizoHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindTorizoHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (enemy.DefinitionId is not (EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))
             return null;
 
@@ -311,19 +311,17 @@ internal sealed class TorizoCombat
                  TorizoCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            IReadOnlyList<GoldenTorizoCollisionHitbox> rectangles = component.Hitboxes.Rectangles;
+            IReadOnlyList<EnemyCollisionHitbox> rectangles = component.Hitboxes.Rectangles;
             for (int index = 0; index < rectangles.Count; index++)
             {
-                GoldenTorizoCollisionHitbox hitbox = rectangles[index];
+                EnemyCollisionHitbox hitbox = rectangles[index];
                 if (!probe.Overlaps(
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
-                callback = probe.SelectShotCallback
-                    ? TorizoHitboxCallbackCodec.ToCallback(hitbox.Shot)
-                    : TorizoHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;
             }
         }

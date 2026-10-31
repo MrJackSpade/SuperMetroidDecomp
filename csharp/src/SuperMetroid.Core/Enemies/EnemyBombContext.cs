@@ -18,6 +18,6 @@ internal readonly record struct EnemyBombContext(
     SamusBombProjectileSlot Bomb,
     SamusProjectileSystem OrdinaryProjectiles,
     SamusState? Samus,
-    EnemyInteractionCallback? SelectedShotAi,
+    EnemyReaction? SelectedShotAi,
     bool UsesExtendedHitboxes,
     int HealthBefore = 0);

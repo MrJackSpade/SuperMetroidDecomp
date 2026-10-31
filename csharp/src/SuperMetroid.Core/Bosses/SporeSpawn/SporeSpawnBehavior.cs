@@ -338,7 +338,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddSporeSpawnBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.SporeSpawnShot)
+                                                       c.SelectedShotAi == EnemyReaction.SporeSpawnShot)
         {
             RunsGenericDeath = false,
             AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
@@ -417,19 +417,19 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddSporeSpawnShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SporeSpawnShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.SporeSpawnShot)
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 if (!c.UsesExtendedHitboxes)
                     throw new InvalidDataException("Spore Spawn requires its authored extended-spritemap hitboxes.");
-                if (c.HitboxShotAi == EnemyInteractionCallback.DudShot)
+                if (c.HitboxShotAi == EnemyReaction.DudShot)
                 {
                     c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                     _projectiles.CreateEnemyProjectileDudShot(c.Projectile);
                     return true;
                 }
-                if (c.HitboxShotAi != EnemyInteractionCallback.SporeSpawnShot)
+                if (c.HitboxShotAi != EnemyReaction.SporeSpawnShot)
                 {
                     throw new InvalidDataException(
                         $"Spore Spawn hitbox shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
@@ -452,14 +452,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddSporeSpawnTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.SporeSpawn &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.SporeSpawnTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.SporeSpawnTouch,
             context =>
             {
                 if (!context.UsesExtendedHitboxes)
                     throw new InvalidDataException("Spore Spawn requires its authored extended-spritemap hitboxes.");
-                if (context.HitboxTouchAi == EnemyInteractionCallback.NoOp)
+                if (context.HitboxTouchAi == EnemyReaction.Ignore)
                     return;
-                if (context.HitboxTouchAi != EnemyInteractionCallback.SporeSpawnTouch)
+                if (context.HitboxTouchAi != EnemyReaction.SporeSpawnTouch)
                 {
                     throw new InvalidDataException(
                         $"Spore Spawn hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
@@ -836,10 +836,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Publishes Spore Spawn's pending target palette writes, if the boss is present.</summary>
     internal void ConsumeTargetColors(Action<SporeSpawnStagedColour> write) => SporeSpawn?.ConsumeTargetColors(write);
 
-    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindSporeSpawnHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindSporeSpawnHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (!(enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
             SporeSpawnCollision.IsFrame(enemy.Frame)))
             return null;
@@ -851,7 +851,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                  SporeSpawnCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (SporeSpawnCollisionHitbox hitbox in component.Hitboxes)
+            foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
@@ -859,9 +859,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
-                callback = probe.SelectShotCallback
-                    ? SporeSpawnHitboxCallbackCodec.ToCallback(hitbox.Shot)
-                    : SporeSpawnHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;
             }
         }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => MamaTurtlePartDefinitions.Parts[Slot.DefinitionId] switch
@@ -31,8 +31,8 @@ internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemySlot
         _ => throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.DefinitionId}."),
     };
 
-    /// <summary>The baby turtle's own shot callback, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.DefinitionId == EnemyDefinitionId.BabyTurtle && callback == EnemyInteractionCallback.BabyTurtleShot;
+    /// <summary>The baby turtle's own shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        Slot.DefinitionId == EnemyDefinitionId.BabyTurtle && reaction == EnemyReaction.BabyTurtleShot;
 }

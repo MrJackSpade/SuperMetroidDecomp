@@ -12,7 +12,6 @@ using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -175,13 +174,13 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
                 checkedLists.Add(listPointer);
                 int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, listPointer));
-                IReadOnlyList<PhantoonCollisionHitbox> hitboxes = component.Hitboxes;
+                IReadOnlyList<EnemyCollisionHitbox> hitboxes = component.Hitboxes;
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), checked((ushort)hitboxes.Count),
                     $"Phantoon {frame.Name} component {index} rectangle count");
                 for (int hitboxIndex = 0; hitboxIndex < hitboxes.Count; hitboxIndex++)
                 {
                     int address = listAddress + 2 + hitboxIndex * 12;
-                    PhantoonCollisionHitbox hitbox = hitboxes[hitboxIndex];
+                    EnemyCollisionHitbox hitbox = hitboxes[hitboxIndex];
                     AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), hitbox.Left,
                         "Phantoon compiled left bound");
                     AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), hitbox.Top,
@@ -190,33 +189,33 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                         "Phantoon compiled right bound");
                     AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), hitbox.Bottom,
                         "Phantoon compiled bottom bound");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)),
-                        PhantoonHitboxCallbackCodec.ToCallbackWord(hitbox.Touch), "Phantoon compiled touch reaction");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)),
-                        PhantoonHitboxCallbackCodec.ToCallbackWord(hitbox.Shot), "Phantoon compiled shot reaction");
+                    AssertEqual(EnemyReactionAccess.Of(0xa7, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)), shot: false),
+                        (EnemyReaction?)hitbox.Touch, "Phantoon compiled touch reaction");
+                    AssertEqual(EnemyReactionAccess.Of(0xa7, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)), shot: true),
+                        (EnemyReaction?)hitbox.Shot, "Phantoon compiled shot reaction");
                 }
             }
-            _ = FindPhantoonHitboxCallback(stock, frame.Pointer, new(0x0080, 0x0080), selectShot: true);
-            _ = FindPhantoonHitboxCallback(stock, frame.Pointer, new(0x0080, 0x00a0), selectShot: false);
+            _ = FindPhantoonHitboxReaction(stock, frame.Pointer, new(0x0080, 0x0080), selectShot: true);
+            _ = FindPhantoonHitboxReaction(stock, frame.Pointer, new(0x0080, 0x00a0), selectShot: false);
         }
         AssertEqual(3, checkedLists.Count,
             "Phantoon uses the three compiled retail hitbox lists");
-        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset,
-            FindPhantoonHitboxCallback(stock, (ushort)PhantoonCollisionFrame.BodyFullHitbox,
+        AssertEqual((EnemyReaction?)EnemyReaction.PhantoonShot,
+            FindPhantoonHitboxReaction(stock, (ushort)PhantoonCollisionFrame.BodyFullHitbox,
                 new(0x0080, 0x0080), selectShot: true),
-            "Phantoon full-body frame selects native shot callback");
-        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset,
-            FindPhantoonHitboxCallback(edited, (ushort)PhantoonCollisionFrame.BodyFullHitbox,
+            "Phantoon full-body frame selects Phantoon's shot reaction");
+        AssertEqual((EnemyReaction?)EnemyReaction.PhantoonShot,
+            FindPhantoonHitboxReaction(edited, (ushort)PhantoonCollisionFrame.BodyFullHitbox,
                 new(0x0080, 0x0080), selectShot: true),
-            "Phantoon BG2 artwork edit does not move or replace hitbox callbacks");
-        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset,
-            FindPhantoonHitboxCallback(edited, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
+            "Phantoon BG2 artwork edit does not move or replace hitbox reactions");
+        AssertEqual((EnemyReaction?)EnemyReaction.PhantoonShot,
+            FindPhantoonHitboxReaction(edited, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly,
                 new(0x0080, 0x0099), selectShot: true),
-            "Phantoon eye-only frame selects native vulnerable eye callback");
+            "Phantoon eye-only frame selects the vulnerable eye's shot reaction");
     }
 
-    /// <summary>Invokes the production extended-hitbox walker for a selected Phantoon frame and returns its touch or shot callback.</summary>
-    internal static ushort FindPhantoonHitboxCallback(
+    /// <summary>Invokes the production extended-hitbox walker for a selected Phantoon frame and returns its touch or shot reaction.</summary>
+    internal static EnemyReaction? FindPhantoonHitboxReaction(
         InstalledEnemyArtwork? art, ushort pointer, Position16<RoomPixels> target, bool selectShot)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses, AreaArtwork = art?.Areas };
@@ -228,7 +227,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         object?[] arguments =
             [slot, target, new Extent16<RoomPixels>(2, 2), selectShot, null];
         bool found = ExtendedHitboxWalker.Find(enemies, arguments);
-        return found ? (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4].")) : (ushort)0;
+        return found ? ExtendedHitboxWalker.Reaction(arguments) : null;
     }
 
     /// <summary>Draws a Phantoon BG2 frame into fresh VRAM, optionally setting the native new-instruction-frame upload bit.</summary>

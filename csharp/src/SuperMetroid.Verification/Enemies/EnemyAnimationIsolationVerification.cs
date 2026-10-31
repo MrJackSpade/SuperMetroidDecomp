@@ -142,7 +142,7 @@ internal static class EnemyAnimationIsolationVerification
             after[0] = edited.Actor;
             bool hit = ExtendedHitboxWalker.Find(stock.Enemies, before);
             AssertEqual(hit, ExtendedHitboxWalker.Find(edited.Enemies, after), $"Torizo physical hit window frame {frame} at {x}/{y}");
-            AssertEqual(before[^1], after[^1], $"Torizo physical callback frame {frame} at {x}/{y}");
+            AssertEqual(ExtendedHitboxWalker.Reaction(before), ExtendedHitboxWalker.Reaction(after), $"Torizo physical reaction frame {frame} at {x}/{y}");
             if (hit) hits++; else misses++;
         }
     }

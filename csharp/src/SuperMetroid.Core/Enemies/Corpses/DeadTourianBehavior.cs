@@ -191,8 +191,8 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="VariantCount">How many corpse variants the species has; a population parameter selects one.</param>
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
-        EnemyInteractionCallback TouchAndShot,
-        EnemyInteractionCallback PowerBomb,
+        EnemyReaction TouchAndShot,
+        EnemyReaction PowerBomb,
         int VariantCount);
 
     /// <summary>Routes bomb hits through the shared shot callback, which begins decomposition.</summary>

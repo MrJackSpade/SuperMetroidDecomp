@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class SparkEntity(SparkBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeSpark;
@@ -22,10 +22,10 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemySlot slot, Ene
 
     /// <summary>The bomb pass-through after the no-op check, ahead of the shared ones.</summary>
     public override Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) =>
-        context.SelectedShotAi == EnemyInteractionCallback.SparkShot ? ProjectilePassThrough.Bomb : base.FindBombSpecialAfterNoOp(context);
+        context.SelectedShotAi == EnemyReaction.SparkShot ? ProjectilePassThrough.Bomb : base.FindBombSpecialAfterNoOp(context);
 
-    /// <summary>The Spark's own shot callback, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        callback == EnemyInteractionCallback.SparkShot;
+    /// <summary>The Spark's own shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        reaction == EnemyReaction.SparkShot;
 }

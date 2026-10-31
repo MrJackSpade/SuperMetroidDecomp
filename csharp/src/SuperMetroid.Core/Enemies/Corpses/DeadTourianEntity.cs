@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback,
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
         IShowsCorpseRot
 {
     /// <inheritdoc/>
@@ -20,8 +20,8 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySl
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => DeadTourianBehavior.AdvanceDeadTourianTypedAnimation;
 
-    /// <summary>The corpse's rot trigger, when its header names it as the shot callback; it is selected by pointer because it is not a named callback.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        DeadTourianBehavior.HasDeadTourianCorpseShotCallback(Slot) && callback == EnemyCollision.ShotAi(Slot);
+    /// <summary>The corpse's rot trigger, when its header names it as the shot reaction.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        DeadTourianBehavior.HasDeadTourianCorpseShotCallback(Slot) && reaction == EnemyCollision.ShotAi(Slot);
 }

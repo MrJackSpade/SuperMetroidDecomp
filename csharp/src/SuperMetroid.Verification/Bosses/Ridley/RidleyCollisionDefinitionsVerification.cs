@@ -115,9 +115,9 @@ internal static class RidleyCollisionDefinitionsVerification
                         bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                         AssertEqual(nativeHit, compiledHit,
                             $"Ridley $A6:{frame:X4} overlap {xi},{yi}, shot={shot}");
-                        AssertEqual(nativeCallback,
-                            (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
-                            $"Ridley $A6:{frame:X4} callback {xi},{yi}, shot={shot}");
+                        AssertEqual(EnemyReactionAccess.Of(0xa6, nativeCallback, shot != 0),
+                            ExtendedHitboxWalker.Reaction(compiledArguments),
+                            $"Ridley $A6:{frame:X4} reaction {xi},{yi}, shot={shot}");
                         if (shot == 1)
                         {
                             // The Ceres encounter's private projectile walker has its
@@ -156,11 +156,11 @@ internal static class RidleyCollisionDefinitionsVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom,
                     "Ridley native bottom bound");
                 // Every native rectangle carries the same touch and shot callbacks, which is why the
-                // compiled rectangles hold none and the codec supplies Ridley's one reaction of each kind.
-                AssertEqual(rom.ReadCartridgeWord((record + 8)), RidleyHitboxCallbackCodec.TouchCallbackWord,
-                    "Ridley native touch callback");
-                AssertEqual(rom.ReadCartridgeWord((record + 10)), RidleyHitboxCallbackCodec.ShotCallbackWord,
-                    "Ridley native shot callback");
+                // compiled rectangles hold none and the definitions name Ridley's one reaction of each kind.
+                AssertEqual(EnemyReactionAccess.Of(0xa6, rom.ReadCartridgeWord((record + 8)), shot: false),
+                    (EnemyReaction?)RidleyCollisionDefinitions.BodyTouchReaction, "Ridley native touch reaction");
+                AssertEqual(EnemyReactionAccess.Of(0xa6, rom.ReadCartridgeWord((record + 10)), shot: true),
+                    (EnemyReaction?)RidleyCollisionDefinitions.BodyShotReaction, "Ridley native shot reaction");
                 boxesChecked++;
             }
         }

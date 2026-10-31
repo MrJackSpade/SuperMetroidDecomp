@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyShotAdmission, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyShotAdmission, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeWorkRobot;
@@ -26,8 +26,8 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
     public bool AdmitsShots() =>
         Slot.DefinitionId != EnemyDefinitionId.Robot || species.IsAreaBossDefeated;
 
-    /// <summary>The powered and unpowered robots' shot callbacks, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        callback is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot;
+    /// <summary>The powered and unpowered robots' shot reactions, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        reaction is EnemyReaction.WorkRobotShot or EnemyReaction.WorkRobotNoPowerShot;
 }

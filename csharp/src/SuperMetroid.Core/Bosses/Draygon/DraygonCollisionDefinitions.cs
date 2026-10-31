@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -11,25 +12,25 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonCollisionDefinitions
 {
     /// <summary>Left-facing body rectangles: one shootable eye and three touch-only regions.</summary>
-    internal static readonly DraygonCollisionHitbox[] FirstBodyHitboxes =
+    internal static readonly EnemyCollisionHitbox[] FirstBodyHitboxes =
     [
-        new(-17, -16, 18, 30, DraygonHitboxTouch.Harmless, DraygonHitboxShot.Eye),
-        new(-59, -66, 3, -30, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
-        new(16, 1, 60, 53, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
-        new(-28, -37, 61, -10, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
+        new(-17, -16, 18, 30, EnemyReaction.Ignore, EnemyReaction.DraygonShot),
+        new(-59, -66, 3, -30, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
+        new(16, 1, 60, 53, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
+        new(-28, -37, 61, -10, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
     ];
 
     /// <summary>Mirrored right-facing body rectangles with the same shootable-eye rule.</summary>
-    internal static readonly DraygonCollisionHitbox[] SecondBodyHitboxes =
+    internal static readonly EnemyCollisionHitbox[] SecondBodyHitboxes =
     [
-        new(-18, -7, 18, 30, DraygonHitboxTouch.Harmless, DraygonHitboxShot.Eye),
-        new(-10, -63, 62, -26, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
-        new(-55, 0, -21, 57, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
-        new(-62, -33, 15, -5, DraygonHitboxTouch.Body, DraygonHitboxShot.Dud),
+        new(-18, -7, 18, 30, EnemyReaction.Ignore, EnemyReaction.DraygonShot),
+        new(-10, -63, 62, -26, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
+        new(-55, 0, -21, 57, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
+        new(-62, -33, 15, -5, EnemyReaction.DraygonTouch, EnemyReaction.DudShot),
     ];
 
     /// <summary>The empty list of the BG2 frames in which the body cannot be hit or touched.</summary>
-    internal static readonly DraygonCollisionHitbox[] EmptyHitboxes = [];
+    internal static readonly EnemyCollisionHitbox[] EmptyHitboxes = [];
 
     /// <summary>Ordinary OAM art has no collision components.</summary>
     internal static readonly ImmutableArray<DraygonCollisionComponent> NoComponents = [];

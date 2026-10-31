@@ -377,10 +377,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // Powered Work Robot returns until Phantoon is dead. Bank $A0 has already marked the bomb, so callback
         // rejection belongs here rather than in collision admission.
         table.AddBombCommon(new EnemyBombReaction(c => IsWorkRobotDefinition(c.Enemy.DefinitionId) &&
-                                                       c.SelectedShotAi is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot)
+                                                       c.SelectedShotAi is EnemyReaction.WorkRobotShot or EnemyReaction.WorkRobotNoPowerShot)
         {
             Rejects = c => c.Enemy.DefinitionId == EnemyDefinitionId.Robot &&
-                           c.SelectedShotAi == EnemyInteractionCallback.WorkRobotShot &&
+                           c.SelectedShotAi == EnemyReaction.WorkRobotShot &&
                            !_room.Services.Bosses.IsDefeated(BossBits.AreaBoss),
             AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
         });
@@ -411,7 +411,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddWorkRobotShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsWorkRobotDefinition(enemy.DefinitionId) &&
-                                                     EnemyCollision.ShotAi(enemy) is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot)
+                                                     EnemyCollision.ShotAi(enemy) is EnemyReaction.WorkRobotShot or EnemyReaction.WorkRobotNoPowerShot)
         {
             AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
         });
@@ -421,7 +421,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddWorkRobotTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => IsWorkRobotDefinition(slot.DefinitionId) &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.WorkRobotTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.WorkRobotTouch,
             context => ResolveWorkRobotTouch(context.Slot, context.Samus));
     }
 

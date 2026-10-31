@@ -37,7 +37,7 @@ internal sealed class MotherBrainCombat
     internal void AddMotherBrainBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.MotherBrainHead &&
-                                  c.SelectedShotAi == EnemyInteractionCallback.MotherBrainHeadShot,
+                                  c.SelectedShotAi == EnemyReaction.MotherBrainHeadShot,
             c => ResolveMotherBrainHeadNormalBomb(c.Enemy, c.Bomb));
     }
 
@@ -45,13 +45,13 @@ internal sealed class MotherBrainCombat
     internal void AddMotherBrainShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MotherBrainBody &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MotherBrainBodyShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MotherBrainBodyShot)
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 // Every body rectangle's shot callback is `$A9:B503`, exactly CreateDudShot;
                 // only the dummy root's head-callback list could select anything else.
-                if (c.HitboxShotAi != EnemyInteractionCallback.MotherBrainBodyShot)
+                if (c.HitboxShotAi != EnemyReaction.MotherBrainBodyShot)
                 {
                     throw new InvalidDataException(
                         $"Mother Brain's body selected shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"} from " +
@@ -65,7 +65,7 @@ internal sealed class MotherBrainCombat
         });
 
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MotherBrainHead &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MotherBrainHeadShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MotherBrainHeadShot)
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {
@@ -275,7 +275,7 @@ internal sealed class MotherBrainCombat
     internal static void AddMotherBrainHeadTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainHead &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MotherBrainHeadTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.MotherBrainHeadTouch,
             context =>
             {
                 // `$A9:B5C6` is not ordinary touch damage. A spin-jumping Samus toggles
@@ -295,14 +295,14 @@ internal sealed class MotherBrainCombat
     internal static void AddMotherBrainBodyBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.MotherBrainBody &&
-                                  c.SelectedShotAi == EnemyInteractionCallback.MotherBrainBodyShot,
+                                  c.SelectedShotAi == EnemyReaction.MotherBrainBodyShot,
             static _ => { });
     }
 
-    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
-    internal static bool? FindMotherBrainHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindMotherBrainHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (enemy.DefinitionId is not (EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead))
             return null;
 
@@ -311,7 +311,7 @@ internal sealed class MotherBrainCombat
                  MotherBrainCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (MotherBrainCollisionHitbox hitbox in component.Hitboxes)
+            foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
@@ -319,9 +319,7 @@ internal sealed class MotherBrainCombat
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
-                callback = probe.SelectShotCallback
-                    ? MotherBrainHitboxCallbackCodec.ToCallback(hitbox.Shot)
-                    : MotherBrainHitboxCallbackCodec.ToCallback(hitbox.Touch);
+                reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
                 return true;
             }
         }

@@ -19,7 +19,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 
     /// <summary>Room services that supply the live RNG used to stagger vent activation.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Common contact resolution used after steam's extended hitbox selects its touch callback.</summary>
+    /// <summary>Common contact resolution used after steam's extended hitbox selects its touch reaction.</summary>
     private readonly EnemyCollision _collision;
 
     /// <summary>Stores room and collision services for steam initialization and contact handling.</summary>
@@ -153,20 +153,20 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         RunCeresSteamMain(slot, frame.TurningFloor);
     }
 
-    /// <summary>Registers contact handling only for steam's authored extended hitbox callback.</summary>
+    /// <summary>Registers contact handling only for steam's authored extended hitbox reaction.</summary>
     internal void AddCeresSteamTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Steam &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CeresSteamTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.CeresSteamTouch,
             context =>
             {
                 // Every visible steam frame stores `$A6:F03F` in its authored hitbox.
                 // The last two dispersal frames use an empty hitbox list and cannot reach
                 // this branch. Insisting on both facts keeps collision tied to ROM geometry.
-                if (!context.UsesExtendedHitboxes || context.HitboxTouchAi != EnemyInteractionCallback.CeresSteamTouch)
+                if (!context.UsesExtendedHitboxes || context.HitboxTouchAi != EnemyReaction.CeresSteamTouch)
                 {
                     throw new InvalidDataException(
-                        $"Ceres steam requires extended touch AI {EnemyInteractionCallback.CeresSteamTouch}; " +
+                        $"Ceres steam requires extended touch AI {EnemyReaction.CeresSteamTouch}; " +
                         $"extended={context.UsesExtendedHitboxes}, selected={context.HitboxTouchAi?.ToString() ?? "(unnamed)"}, " +
                         $"map=$A6:{context.Slot.Frame}.");
                 }
@@ -183,19 +183,19 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     internal static void AddCeresSteamShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Steam &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NoOp));
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.Ignore));
     }
 
-    /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
-    internal static bool? FindHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
+    internal static bool? FindHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (!(CeresSteamCollisionDefinitions.Frames.Contains(enemy.Frame) || probe.ArtworkInstalled))
             return null;
 
         // The high byte of each steam frame's $1001 header is drawing
         // metadata, not an extra component. Both damaging rectangles and
-        // callbacks remain fixed even if its installed OAM is edited.
+        // reactions remain fixed even if its installed OAM is edited.
         foreach (CeresSteamCollisionComponent component in
                  CeresSteamCollisionDefinitions.Frames.Of(enemy.Frame))
         {
@@ -209,7 +209,9 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 int bottom = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom);
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = CeresSteamHitboxCallbackCodec.ToCallback(probe.SelectShotCallback);
+                reaction = probe.SelectsShot
+                    ? CeresSteamCollisionDefinitions.ShotReaction
+                    : CeresSteamCollisionDefinitions.TouchReaction;
                 return true;
             }
         }

@@ -17,7 +17,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Enemies;
 
-/// <summary>Checks bank-qualified enemy touch and shot no-op callback identities against pinned cartridge data.</summary>
+/// <summary>Checks that the import decodes every enemy touch and shot callback that returns at once to the ignoring reaction.</summary>
 internal static class ShotCallbackDefinitionsVerification
 {
     /// <summary>Inventories callback pointers in enemy headers and hitboxes, then checks classification and combat admission.</summary>
@@ -76,26 +76,30 @@ internal static class ShotCallbackDefinitionsVerification
             .ToHashSet();
         AssertEqual(12, expectedShotNoOps.Count, "native literal shot no-op count");
         AssertEqual(15, expectedTouchNoOps.Count, "native literal touch no-op count");
+        // A word naming one of the engine's two shared returns ignores the contact in every enemy bank; every other
+        // ignoring reaction is one of the inventoried literal returns.
         var classifyShot = new Func<byte, ushort, bool>((bank, pointer) =>
-            EnemyCollision.IsLiteralNoOpShotAi(
-                default(RoomEnemyDefinition) with { NoOpCallbackBody = EnemyInteractionCallbacks.NoOpCallbackBody(bank) },
-                EnemyInteractionCallbacks.TryDecode(bank, pointer)));
+            EnemyInteractionCallbacks.DecodeShot(bank, pointer) == EnemyReaction.Ignore);
+        var classifyTouch = new Func<byte, ushort, bool>((bank, pointer) =>
+            EnemyInteractionCallbacks.DecodeTouch(bank, pointer) == EnemyReaction.Ignore);
         foreach (int address in shotCallbacks)
-            AssertEqual(expectedShotNoOps.Contains(address), classifyShot(SnesLittleEndianConstants.BankByte(address), (ushort)address), "real shot classifier native parity");
+            AssertEqual(expectedShotNoOps.Contains(address) || IsEngineReturn((ushort)address),
+                classifyShot(SnesLittleEndianConstants.BankByte(address), (ushort)address), "real shot classifier native parity");
         for (int bank = 0; bank <= 255; bank++)
         for (int pointer = 0; pointer <= 65535; pointer++)
         {
             int address = ((int)new SnesAddress(checked((byte)bank), checked((ushort)pointer)));
-            AssertEqual(expectedShotNoOps.Contains(address),
+            AssertEqual(expectedShotNoOps.Contains(address) || IsEngineReturn((ushort)pointer),
                 classifyShot((byte)bank, (ushort)pointer),
                 "bank-qualified shot identity");
-            AssertEqual(expectedTouchNoOps.Contains(address),
-                EnemyInteractionCallbacks.IsLiteralNoOpTouch((byte)bank, (ushort)pointer),
+            AssertEqual(expectedTouchNoOps.Contains(address) || IsEngineReturn((ushort)pointer),
+                classifyTouch((byte)bank, (ushort)pointer),
                 "bank-qualified touch identity");
         }
-        var shortcut = new Func<ushort, bool>(pointer =>
-            EnemyCollision.IsCanonicalMultiboxNoOpAi(EnemyInteractionCallbacks.TryDecode(0xa7, pointer)));
-        AssertTrue(!shortcut(0x94b5) && shortcut(0x804b) && shortcut(0x804c), "Kraid private RTL is not a canonical multibox shortcut");
+        AssertTrue(EnemyInteractionCallbacks.HitboxScan(0x94b5) == EnemyHitboxScan.Scanned &&
+            EnemyInteractionCallbacks.HitboxScan(0x804b) == EnemyHitboxScan.Withheld &&
+            EnemyInteractionCallbacks.HitboxScan(0x804c) == EnemyHitboxScan.Withheld,
+            "Kraid's private return still lets the hitboxes decide; only the engine's shared returns withhold them");
         Suite(nameof(VerifyLiteralNoOpCombatAdmission), () => VerifyLiteralNoOpCombatAdmission(rom, expectedTouchNoOps, expectedShotNoOps));
         Console.WriteLine(
             "Combat callback inventory: 163 headers, 221 lists, 309 hitboxes, 71 touch " +
@@ -120,8 +124,7 @@ internal static class ShotCallbackDefinitionsVerification
             ushort touchWord = unchecked((ushort)callback);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
-                Touch = EnemyInteractionCallbacks.TryDecode(touchBank, touchWord),
-                TouchBody = EnemyInteractionCallbacks.Body(touchWord, EnemyInteractionCallbacks.IsLiteralNoOpTouch(touchBank, touchWord)),
+                Touch = EnemyInteractionCallbacks.DecodeTouch(touchBank, touchWord),
             });
             var samus = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence())
             {
@@ -147,9 +150,7 @@ internal static class ShotCallbackDefinitionsVerification
             ushort shotWord = unchecked((ushort)callback);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
-                Shot = EnemyInteractionCallbacks.TryDecode(shotBank, shotWord),
-                ShotBody = EnemyInteractionCallbacks.Body(shotWord, EnemyInteractionCallbacks.IsLiteralNoOpShot(shotBank, shotWord)),
-                NoOpCallbackBody = EnemyInteractionCallbacks.NoOpCallbackBody(shotBank),
+                Shot = EnemyInteractionCallbacks.DecodeShot(shotBank, shotWord),
             });
             var projectiles = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             SamusProjectileSlot projectile = projectiles.Slots[0];
@@ -183,6 +184,9 @@ internal static class ShotCallbackDefinitionsVerification
             return new CreateLiteralNoOpCombatSystemResult(enemies, enemy);
         }
     }
+
+    /// <summary>Whether a callback word names one of the engine's two shared returns, which every enemy bank repeats.</summary>
+    private static bool IsEngineReturn(ushort pointer) => pointer is 0x804b or 0x804c;
 
     /// <summary>Forbids cartridge reads at callback addresses identified as literal RTL routines.</summary>
     private static CartridgeReadGuard NewEnemyCallbackOpcodeReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>

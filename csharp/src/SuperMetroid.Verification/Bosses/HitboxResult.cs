@@ -1,6 +1,8 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Verification.Bosses;
 
-/// <summary>The hit and callback of one hitbox result.</summary>
+/// <summary>The hit and reaction of one hitbox result.</summary>
 /// <param name="Hit">The hit.</param>
-/// <param name="Callback">The callback.</param>
-internal readonly record struct HitboxResult(bool Hit, ushort Callback);
+/// <param name="Reaction">The selected reaction, or null when none was selected.</param>
+internal readonly record struct HitboxResult(bool Hit, EnemyReaction? Reaction);

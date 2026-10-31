@@ -61,20 +61,20 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
             AssertEqual(rom.ReadCartridgeWord((0xa20000 | frame + 8)), list,
                 "Oum native frame hitbox-list pointer");
             seenLists.Add(list);
-            ReadOnlySpan<MaridiaLargeSnailCollisionHitbox> boxes =
+            ReadOnlySpan<EnemyCollisionHitbox> boxes =
                 MaridiaLargeSnailCollisionDefinitions.HitboxesAt(list);
             AssertEqual(rom.ReadCartridgeWord((0xa20000 | list)), (ushort)boxes.Length,
                 $"Oum $A2:{list:X4} native hitbox count");
             for (int index = 0; index < boxes.Length; index++)
             {
-                MaridiaLargeSnailCollisionHitbox box = boxes[index];
+                EnemyCollisionHitbox box = boxes[index];
                 int record = 0xa20000 | unchecked((ushort)(list + 2 + index * 12));
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord(record)), box.Left, "Oum left");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top, "Oum top");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), box.Right, "Oum right");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom, "Oum bottom");
-                AssertEqual(rom.ReadCartridgeWord((record + 8)), EnemyInteractionCallbackAccess.Word(box.TouchAi), "Oum touch callback");
-                AssertEqual(rom.ReadCartridgeWord((record + 10)), EnemyInteractionCallbackAccess.Word(box.ShotAi), "Oum shot callback");
+                AssertEqual(EnemyReactionAccess.Of(0xa2, rom.ReadCartridgeWord((record + 8)), shot: false), (EnemyReaction?)box.Touch, "Oum touch callback");
+                AssertEqual(EnemyReactionAccess.Of(0xa2, rom.ReadCartridgeWord((record + 10)), shot: true), (EnemyReaction?)box.Shot, "Oum shot callback");
                 boxesChecked++;
             }
 
@@ -89,7 +89,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                 nativeSlot.Position = nativeSlot.Position.WithWholeX(originX);
                 compiledSlot.Position = compiledSlot.Position.WithWholeY(originY);
                 nativeSlot.Position = nativeSlot.Position.WithWholeY(originY);
-                foreach (MaridiaLargeSnailCollisionHitbox box in boxes)
+                foreach (EnemyCollisionHitbox box in boxes)
                 {
                     ushort[] xs = BoundaryPoints(originX, box.Left, box.Right);
                     ushort[] ys = BoundaryPoints(originY, box.Top, box.Bottom);
@@ -105,9 +105,9 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                         bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                         AssertEqual(nativeHit, compiledHit,
                             $"Oum $A2:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                        AssertEqual((ushort)(nativeArguments[^1] ?? throw new InvalidOperationException("Verification requires nativeArguments[^1].")),
-                            (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
-                            $"Oum $A2:{frame:X4} callback {x:X4},{y:X4}, shot={shot}");
+                        AssertEqual(ExtendedHitboxWalker.NativeReaction(MaridiaLargeSnailCollisionDefinitions.Bank, nativeArguments),
+                            ExtendedHitboxWalker.Reaction(compiledArguments),
+                            $"Oum $A2:{frame:X4} reaction {x:X4},{y:X4}, shot={shot}");
                         probes++;
                     }
                 }

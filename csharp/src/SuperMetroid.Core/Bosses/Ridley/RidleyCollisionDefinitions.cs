@@ -12,6 +12,12 @@ internal static class RidleyCollisionDefinitions
     /// <summary>The 32-pixel margin $A6:DE7A adds on each axis before the camera-relative test.</summary>
     internal static readonly Offset16<RoomPixels> InteractionWindowMargin = new(32, 32);
 
+    /// <summary>Every body rectangle's touch reaction: Ridley's extended-body contact.</summary>
+    internal const EnemyReaction BodyTouchReaction = EnemyReaction.RidleyExtendedTouch;
+
+    /// <summary>Every body rectangle's shot reaction: Ridley's own shot reaction.</summary>
+    internal const EnemyReaction BodyShotReaction = EnemyReaction.RidleyShot;
+
     /// <summary>Native extended body maps for both Ridley encounters, selected by facing, mouth, and leg pose.</summary>
     internal enum BodyFrame
     {

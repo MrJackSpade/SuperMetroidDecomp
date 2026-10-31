@@ -72,12 +72,12 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             // Bank $A0 holds the shared records but no enemy, so no slot selects its frames.
             if (!RoomEnemyDefinitionNative.HoldsEnemy(bank))
                 continue;
-            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(false),
-                FindSharedEmptyCallback(bank, selectShot: false),
-                $"bank ${bank:X2} shared point selects compiled touch callback");
-            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(true),
-                FindSharedEmptyCallback(bank, selectShot: true),
-                $"bank ${bank:X2} shared point selects compiled shot callback");
+            AssertEqual(EnemyReactionAccess.Of(bank, CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(false), shot: false),
+                FindSharedEmptyReaction(bank, selectShot: false),
+                $"bank ${bank:X2} shared point selects compiled touch reaction");
+            AssertEqual(EnemyReactionAccess.Of(bank, CommonEnemyEmptyExtendedFrameDefinitionsConstants.Callback(true), shot: true),
+                FindSharedEmptyReaction(bank, selectShot: true),
+                $"bank ${bank:X2} shared point selects compiled shot reaction");
         }
         AssertTrue(!CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(
                 0xb4, CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap),
@@ -85,8 +85,8 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
         Console.WriteLine("  Shared empty frames: 12 bank-local ordinary and extended records match the ROM; ordinary draw and extended draw/collision forbid cartridge reads.");
     }
 
-    /// <summary>Runs the extended hitbox walker at the point origin to select its touch or shot callback.</summary>
-    private static ushort FindSharedEmptyCallback(
+    /// <summary>Runs the extended hitbox walker at the point origin to select its touch or shot reaction.</summary>
+    private static EnemyReaction? FindSharedEmptyReaction(
         byte bank, bool selectShot)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance);
@@ -99,6 +99,6 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             [slot, new Position16<RoomPixels>(0x0080, 0x0080), new Extent16<RoomPixels>(2, 2), selectShot, null];
         bool found = ExtendedHitboxWalker.Find(enemies, arguments);
         AssertTrue(found, "shared empty extended point overlaps its origin");
-        return (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4]."));
+        return ExtendedHitboxWalker.Reaction(arguments);
     }
 }

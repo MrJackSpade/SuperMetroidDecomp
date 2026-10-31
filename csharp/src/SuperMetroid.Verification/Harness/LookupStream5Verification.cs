@@ -9,7 +9,6 @@ using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.AssetExtraction.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -739,17 +738,19 @@ internal static class LookupStream5Verification
                 ushort listPointer = ReadVerificationWord(rom, record + 6);
                 lists.Add(listPointer);
                 int address = 0xa70000 | listPointer;
-                IReadOnlyList<PhantoonCollisionHitbox> hitboxes = component.Hitboxes;
+                IReadOnlyList<EnemyCollisionHitbox> hitboxes = component.Hitboxes;
                 AssertEqual(ReadVerificationWord(rom, address), hitboxes.Count, "Native hitbox extent");
                 for (int hitbox = 0; hitbox < hitboxes.Count; hitbox++)
                 {
                     int native = address + 2 + hitbox * 12;
                     LookupStream5Expected expected = new LookupStream5Expected(unchecked((short)ReadVerificationWord(rom, native)),
                         unchecked((short)ReadVerificationWord(rom, native + 2)), unchecked((short)ReadVerificationWord(rom, native + 4)),
-                        unchecked((short)ReadVerificationWord(rom, native + 6)), ReadVerificationWord(rom, native + 8), ReadVerificationWord(rom, native + 10));
-                    PhantoonCollisionHitbox actual = hitboxes[hitbox];
+                        unchecked((short)ReadVerificationWord(rom, native + 6)),
+                        EnemyReactionAccess.Of(0xa7, ReadVerificationWord(rom, native + 8), shot: false),
+                        EnemyReactionAccess.Of(0xa7, ReadVerificationWord(rom, native + 10), shot: true));
+                    EnemyCollisionHitbox actual = hitboxes[hitbox];
                     LookupStream5Expected compiled = new LookupStream5Expected(actual.Left, actual.Top, actual.Right, actual.Bottom,
-                        PhantoonHitboxCallbackCodec.ToCallbackWord(actual.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(actual.Shot));
+                        actual.Touch, actual.Shot);
                     AssertEqual(expected, compiled, "Native shape and callback pair");
                 }
             }
@@ -758,10 +759,10 @@ internal static class LookupStream5Verification
         }
         AssertEqual(25, componentCount, "All native components");
         AssertEqual(3, lists.Count, "All native hitbox lists");
-        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), true), "Actual full-body shot callback");
-        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonTouch.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), false), "Actual full-body touch callback");
-        AssertEqual(EnemyAiRoutineDefinitions.BankA7.PhantoonShot.Offset, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 153), true), "Actual vulnerable eye callback");
-        AssertEqual((ushort)0, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 128), true), "Eye-only frame excludes body collision");
+        AssertEqual((EnemyReaction?)EnemyReaction.PhantoonShot, FindPhantoonHitboxReaction(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), true), "Actual full-body shot callback");
+        AssertEqual((EnemyReaction?)EnemyReaction.PhantoonTouch, FindPhantoonHitboxReaction(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), false), "Actual full-body touch callback");
+        AssertEqual((EnemyReaction?)EnemyReaction.PhantoonShot, FindPhantoonHitboxReaction(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 153), true), "Actual vulnerable eye callback");
+        AssertEqual<EnemyReaction?>(null, FindPhantoonHitboxReaction(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 128), true), "Eye-only frame excludes body collision");
         AssertThrows<InvalidDataException>(() => PhantoonCollision.ComponentsAt(0), "Frame domain");
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");
     }

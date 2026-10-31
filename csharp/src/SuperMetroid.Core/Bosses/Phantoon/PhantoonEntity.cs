@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
 internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyContactHooks, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IBossBodyFrames, IEnemyContactHooks, IEnemyPrivateShotReaction
 {
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
@@ -40,7 +40,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvancePhantoonPartAnimation(enemy);
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => PhantoonCombat.FindPhantoonHitboxCallback(Slot, probe, out callback);
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) => PhantoonCombat.FindPhantoonHitboxReaction(Slot, probe, out reaction);
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
@@ -69,8 +69,8 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     public override EnemyCapabilities Capabilities =>
         Slot.DefinitionId == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.ExtendedSamusHitboxes : EnemyCapabilities.None;
 
-    /// <summary>The body's shot callback, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.DefinitionId == EnemyDefinitionId.PhantoonBody && callback == EnemyInteractionCallback.PhantoonShot;
+    /// <summary>The body's shot reaction, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        Slot.DefinitionId == EnemyDefinitionId.PhantoonBody && reaction == EnemyReaction.PhantoonShot;
 }

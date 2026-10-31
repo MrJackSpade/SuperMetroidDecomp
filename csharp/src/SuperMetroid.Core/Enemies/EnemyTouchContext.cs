@@ -21,5 +21,5 @@ internal readonly record struct EnemyTouchContext(
     ControllerButton ControllerInput,
     RoomLevelData? Level,
     bool UsesExtendedHitboxes,
-    EnemyInteractionCallback? HitboxTouchAi,
+    EnemyReaction? HitboxTouchAi,
     SamusContactDamageIndex ContactDamageIndex);

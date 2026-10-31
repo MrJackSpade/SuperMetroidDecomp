@@ -182,14 +182,12 @@ internal static class EnemyDefinitionsVerification
             EnemyInteractionCallbacks.AiRoutine(bank, Word(18)), EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
             SamusIdentityWords.GrappleAiRoutines.Decode(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
             EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),
-            EnemyInteractionCallbacks.TryDecode(bank, Word(40)),
-            EnemyInteractionCallbacks.Body(Word(40), EnemyInteractionCallbacks.IsLiteralNoOpPowerBomb(bank, Word(40))),
+            EnemyInteractionCallbacks.DecodePowerBomb(bank, Word(40)),
             Word(42) >= 0x8000 ? (ushort)0 : Word(42),
-            EnemyInteractionCallbacks.TryDecode(bank, Word(48)),
-            EnemyInteractionCallbacks.Body(Word(48), EnemyInteractionCallbacks.IsLiteralNoOpTouch(bank, Word(48))),
-            EnemyInteractionCallbacks.TryDecode(bank, Word(50)),
-            EnemyInteractionCallbacks.Body(Word(50), EnemyInteractionCallbacks.IsLiteralNoOpShot(bank, Word(50))),
-            EnemyInteractionCallbacks.NoOpCallbackBody(bank),
+            EnemyInteractionCallbacks.DecodeTouch(bank, Word(48)),
+            EnemyInteractionCallbacks.DecodeShot(bank, Word(50)),
+            EnemyInteractionCallbacks.HitboxScan(Word(48)),
+            EnemyInteractionCallbacks.HitboxScan(Word(50)),
             Byte(57), EnemyHeaderTables.DropChances(cartridge, Word(58)), EnemyHeaderTables.Vulnerability(cartridge, Word(60)));
     }
 

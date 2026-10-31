@@ -514,7 +514,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     internal void AddMaridiaLargeSnailBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Oum &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.MaridiaLargeSnailShot)
+                                                       c.SelectedShotAi == EnemyReaction.MaridiaLargeSnailShot)
         {
             AfterCommon = _ => ResolveMaridiaLargeSnailShotAfterCommon(),
         });
@@ -541,13 +541,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     internal void AddMaridiaLargeSnailShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Oum &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MaridiaLargeSnailShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.MaridiaLargeSnailShot)
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 if (!c.UsesExtendedHitboxes)
                     throw new InvalidDataException("Maridia Large Snail lost its required extended-spritemap property.");
-                if (c.HitboxShotAi == EnemyInteractionCallback.NoOp)
+                if (c.HitboxShotAi == EnemyReaction.Ignore)
                 {
                     // Native multibox collision marks the projectile before calling the
                     // no-op. It does not run normal shot AI, create an impact, play $57,
@@ -555,7 +555,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                     c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                     return true;
                 }
-                if (c.HitboxShotAi != EnemyInteractionCallback.MaridiaLargeSnailShot)
+                if (c.HitboxShotAi != EnemyReaction.MaridiaLargeSnailShot)
                 {
                     throw new InvalidDataException(
                         $"Maridia Large Snail hitbox shot AI " +
@@ -571,14 +571,14 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     internal void AddMaridiaLargeSnailTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Oum &&
-                               EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MaridiaLargeSnailNonDamagingTouch,
+                               EnemyCollision.TouchAi(slot) == EnemyReaction.MaridiaLargeSnailNonDamagingTouch,
             context =>
             {
                 if (!context.UsesExtendedHitboxes)
                     throw new InvalidDataException("Maridia Large Snail lost its required extended-spritemap property.");
                 if (context.HitboxTouchAi is not (
-                        EnemyInteractionCallback.MaridiaLargeSnailDamagingTouch or
-                        EnemyInteractionCallback.MaridiaLargeSnailNonDamagingTouch))
+                        EnemyReaction.MaridiaLargeSnailDamagingTouch or
+                        EnemyReaction.MaridiaLargeSnailNonDamagingTouch))
                 {
                     throw new InvalidDataException(
                         $"Maridia Large Snail hitbox touch AI " +
@@ -588,23 +588,23 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 // $D388 enters common touch damage and falls directly through $D38C's
                 // asymmetric shove. $D38C frames execute only the shove, which is why the
                 // closed shell can carry/push Samus without inflicting the header's 100 HP.
-                if (context.HitboxTouchAi == EnemyInteractionCallback.MaridiaLargeSnailDamagingTouch)
+                if (context.HitboxTouchAi == EnemyReaction.MaridiaLargeSnailDamagingTouch)
                     _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
                 ResolveMaridiaLargeSnailTouchAfterCommon(context.Slot, context.Samus);
             });
     }
 
-    /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
-    internal static bool? FindHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
+    internal static bool? FindHitboxReaction(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
+        reaction = null;
         if (!(MaridiaLargeSnailCollisionDefinitions.Frames.Contains(enemy.Frame) || probe.ArtworkInstalled))
             return null;
 
         // Oum's 30 native frames each have one (0,0) component, but the
         // ordered regions change with roll and attack direction. Keep
         // those rectangles and callback identities independent of OAM.
-        foreach (MaridiaLargeSnailCollisionHitbox hitbox in
+        foreach (EnemyCollisionHitbox hitbox in
                  MaridiaLargeSnailCollisionDefinitions.Frames.Of(enemy.Frame))
         {
             int left = CoordinateAxis.Wrap(enemy.Position.X.Whole + hitbox.Left);
@@ -613,7 +613,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             int bottom = CoordinateAxis.Wrap(enemy.Position.Y.Whole + hitbox.Bottom);
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
-            callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
             return true;
         }
         return false;

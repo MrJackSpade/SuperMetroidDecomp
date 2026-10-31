@@ -116,7 +116,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddKagoBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Kago &&
-                                                       c.SelectedShotAi == EnemyInteractionCallback.KagoShot)
+                                                       c.SelectedShotAi == EnemyReaction.KagoShot)
         {
             AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
         });
@@ -191,7 +191,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddKagoShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Kago &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KagoShot)
+                                                     EnemyCollision.ShotAi(enemy) == EnemyReaction.KagoShot)
         {
             AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
         });

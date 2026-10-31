@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotReaction
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeSporeSpawn;
@@ -19,22 +19,22 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceSporeSpawnAnimation(enemy);
 
     /// <inheritdoc/>
-    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
+    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
     {
-        callback = null;
-        return SporeSpawnBehavior.FindSporeSpawnHitboxCallback(Slot, probe, out callback);
+        reaction = null;
+        return SporeSpawnBehavior.FindSporeSpawnHitboxReaction(Slot, probe, out reaction);
     }
 
     /// <summary>Spore Spawn's dud shot ($A5:8046 CreateDudShot) after the no-op check, ahead of the shared ones.</summary>
     public override Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) =>
-        context.SelectedShotAi == EnemyInteractionCallback.DudShot ? EnemyDudShot.Bomb : base.FindBombSpecialAfterNoOp(context);
+        context.SelectedShotAi == EnemyReaction.DudShot ? EnemyDudShot.Bomb : base.FindBombSpecialAfterNoOp(context);
 
     /// <summary>Spore Spawn's contact and shots both enter the extended-spritemap walker over its own hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
         EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
 
-    /// <summary>Spore Spawn's shot callback and its dud shot, which normal bombs dispatch like the common one.</summary>
-    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        callback is EnemyInteractionCallback.SporeSpawnShot or EnemyInteractionCallback.DudShot;
+    /// <summary>Spore Spawn's shot reaction and its dud shot, which normal bombs dispatch like the common one.</summary>
+    /// <param name="reaction">The reaction the header or the selected hitbox names, or null.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) =>
+        reaction is EnemyReaction.SporeSpawnShot or EnemyReaction.DudShot;
 }

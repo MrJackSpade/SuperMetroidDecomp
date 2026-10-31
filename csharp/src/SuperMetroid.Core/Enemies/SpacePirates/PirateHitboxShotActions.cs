@@ -14,14 +14,14 @@ internal static class PirateHitboxShotActions
     internal static PirateHitboxShotAction SelectPirateHitboxShotAction(
         RoomEnemySlot enemy,
         SamusProjectileSlot projectile,
-        EnemyInteractionCallback? hitboxShotAi)
+        EnemyReaction? hitboxShotAi)
     {
         // The empty extended map still has a real point hitbox. Its common callback
         // bypasses the Ninja-specific armor tests; it must not be rejected as unknown.
-        if (hitboxShotAi is EnemyInteractionCallback.SpacePirateShot or EnemyInteractionCallback.NormalEnemyShot)
+        if (hitboxShotAi is EnemyReaction.SpacePirateShot or EnemyReaction.NormalEnemyShot)
             return PirateHitboxShotAction.Normal;
         if (hitboxShotAi is not (
-                EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot or EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot))
+                EnemyReaction.GoldNinjaVulnerableHitboxShot or EnemyReaction.GoldNinjaInvincibleHitboxShot))
         {
             throw new InvalidDataException(
                 $"Space Pirate hitbox shot AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
@@ -30,7 +30,7 @@ internal static class PirateHitboxShotActions
             return PirateHitboxShotAction.Normal;
 
         SamusProjectileFamily family = projectile.Type.Family;
-        if (hitboxShotAi == EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot)
+        if (hitboxShotAi == EnemyReaction.GoldNinjaInvincibleHitboxShot)
         {
             if (family == SamusProjectileFamily.SuperMissile && projectile.MissileIgnition == SamusMissileIgnition.Pending)
                 return PirateHitboxShotAction.Ignore;
@@ -71,12 +71,12 @@ internal static class PirateHitboxShotActions
     /// </summary>
     internal static PirateHitboxShotAction SelectPirateNormalBombHitboxShotAction(
         RoomEnemySlot enemy,
-        EnemyInteractionCallback? hitboxShotAi)
+        EnemyReaction? hitboxShotAi)
     {
         if (hitboxShotAi is not (
-                EnemyInteractionCallback.SpacePirateShot or
-                EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot or
-                EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot))
+                EnemyReaction.SpacePirateShot or
+                EnemyReaction.GoldNinjaVulnerableHitboxShot or
+                EnemyReaction.GoldNinjaInvincibleHitboxShot))
         {
             throw new InvalidDataException(
                 $"Space Pirate normal-bomb hitbox AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");

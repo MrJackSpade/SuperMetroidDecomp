@@ -15,11 +15,11 @@ public enum ScreenLayers
     /// <summary>No layer and no sprites.</summary>
     None = 0,
     /// <summary>The room's foreground.</summary>
-    Foreground = 0x01,
+    Foreground = 1 << 0,
     /// <summary>The room's background, or a boss body drawn as a background.</summary>
-    Background = 0x02,
+    Background = 1 << 1,
     /// <summary>The overlay: the HUD, and a room's liquid, fog or haze effect.</summary>
-    Overlay = 0x04,
+    Overlay = 1 << 2,
     /// <summary>The sprites: Samus, enemies, projectiles and the other drawn objects.</summary>
-    Sprites = 0x10,
+    Sprites = 1 << 4,
 }

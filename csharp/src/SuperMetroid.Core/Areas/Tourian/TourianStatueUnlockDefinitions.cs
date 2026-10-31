@@ -10,9 +10,9 @@ internal static class TourianStatueUnlockDefinitions
     /// </summary>
     internal static readonly Position16<RoomPixels>[] EyePositions =
     [
-        new(0x0084, 0x0090),
-        new(0x007a, 0x0051),
-        new(0x009e, 0x0080),
-        new(0x0068, 0x0072),
+        new(132, 144),
+        new(122, 81),
+        new(158, 128),
+        new(104, 114),
     ];
 }

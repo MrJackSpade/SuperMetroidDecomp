@@ -21,15 +21,12 @@ namespace SuperMetroid.Core.Compatibility;
 [CompatibilityService("the room's per-line effects advance before each update's random draw, and stop from a door's header update until its destination loads")]
 public sealed class EffectPhaseRandomOrder
 {
-    /// <summary>Whether the room's per-line effects are stopped while a door loads its destination.</summary>
-    private bool _stoppedForDoorLoading;
-
     /// <summary>Whether an update that draws its random number runs the per-line effect work first.</summary>
-    public bool RunsEffectWork => !_stoppedForDoorLoading;
+    public bool RunsEffectWork { get; private set; } = true;
 
     /// <summary>Stops the per-line effects: the door transition has read the door's header.</summary>
-    public void StopForDoorLoading() => _stoppedForDoorLoading = true;
+    public void StopForDoorLoading() => RunsEffectWork = false;
 
     /// <summary>Resumes the per-line effects: the door's destination room has loaded its own.</summary>
-    public void ResumeAfterRoomLoad() => _stoppedForDoorLoading = false;
+    public void ResumeAfterRoomLoad() => RunsEffectWork = true;
 }

@@ -100,9 +100,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <exception cref="InvalidOperationException">Gameplay left a state the darkening cannot continue from.</exception>
     private static SuperMetroidGameState StateAfterPauseDarkening(SuperMetroidGameState state) => state switch
     {
-        SuperMetroidGameState.PausingDarkening => SuperMetroidGameState.Pausing,
-        SuperMetroidGameState.HitDoorBlock => SuperMetroidGameState.LoadingNextRoomA,
-        SuperMetroidGameState.TimeUp => SuperMetroidGameState.WhitingOutFromTimeUp,
+        SuperMetroidGameState.PausingDarkening or
+        SuperMetroidGameState.HitDoorBlock or
+        SuperMetroidGameState.TimeUp => EnumOrder.Next(state),
         SuperMetroidGameState.Reset or
         SuperMetroidGameState.OpeningCinematic or
         SuperMetroidGameState.GameOptionsMenu or

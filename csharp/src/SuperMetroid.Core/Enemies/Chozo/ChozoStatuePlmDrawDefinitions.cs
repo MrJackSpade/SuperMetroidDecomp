@@ -4,9 +4,9 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// Physical bank-$84 draw layouts used by the translated Chozo statue PLMs.
+/// Physical draw layouts used by the translated Chozo statue PLMs.
 /// The crumble plug shares the already-compiled shot-block breakup frames.
-/// Complete terrain blocks, run geometry and signed offsets are cartridge mechanics;
+/// Complete terrain blocks, run geometry and signed offsets are game mechanics;
 /// installed artwork may replace only their block appearances.
 /// </summary>
 internal static class ChozoStatuePlmDrawDefinitions

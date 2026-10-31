@@ -7,13 +7,13 @@ public static class BullMotion
 {
     /// <summary>Returns the authored 8.8 speed selected by population parameter two.</summary>
     /// <remarks>
-    /// #625 / #648 exact NTSC J/U v1.0 algorithm: for selector i in 0..7,
-    /// the unsigned word at $A8:D885 + 2*i is $03FF + i*$0100. All eight
-    /// words match the pinned ROM and bank-A8 disassembly. The native initializer
+    /// #625 / #648 exact algorithm: for selector i in 0..7,
+    /// the unsigned word is 0x03FF + i*0x0100. All eight
+    /// words are the authored speeds. The initializer
     /// doubles parameter two for a word offset; selector 8 would read the
     /// adjacent acceleration table and is outside the speed domain.
     /// VerifyCompiledBullMovement covers all eight values through 104 real
-    /// initializer combinations and rejects selector 8 without a ROM bus.
+    /// initializer combinations and rejects selector 8.
     /// </remarks>
     public static int MaximumSpeed(int selector)
     {

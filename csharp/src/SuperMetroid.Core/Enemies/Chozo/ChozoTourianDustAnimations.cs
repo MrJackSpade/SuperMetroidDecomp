@@ -6,7 +6,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The Wrecked Ship Chozo's footstep and explosion dust and the Tourian statue's descent dust (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The Wrecked Ship Chozo's footstep and explosion dust and the Tourian statue's descent dust (#641). Each
 /// frame shows a <see cref="ChozoTourianDustFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class ChozoTourianDustAnimations
@@ -71,6 +71,6 @@ internal static class ChozoTourianDustAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> FallInto(ChozoTourianDustProgram program) => AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<ChozoTourianDustProgram, ChozoTourianDustFrame, EnemyProjectileCommonCue>.Hold;
 }

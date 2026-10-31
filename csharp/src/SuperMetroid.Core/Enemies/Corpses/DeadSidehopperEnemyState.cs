@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
 /// One dead sidehopper's corpse state: its silhouette, rot schedule, animation, hop, palette and contact progress. The
-/// values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// values the game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
 /// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class DeadSidehopperEnemyState
@@ -65,8 +65,8 @@ public sealed class DeadSidehopperEnemyState
     internal const int LargestPreRotDelayCount = 65535;
 
     /// <summary>
-    /// The countdown initialized to $0040 for the post-landing pause; expiry requires decrementing through zero
-    /// to $FFFF, giving 65 delay-state calls.
+    /// The countdown initialized to 64 for the post-landing pause; expiry requires decrementing through zero
+    /// to -1, giving 65 delay-state calls.
     /// </summary>
     public WrappingCountdown StateTimer { get; internal set; }
 
@@ -81,7 +81,7 @@ public sealed class DeadSidehopperEnemyState
     internal void CountPreRotDelayCall() =>
         PreRotDelayCounter = PreRotDelayCounter == LargestPreRotDelayCount ? 0 : PreRotDelayCounter + 1;
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 /// </summary>
 public sealed class RoomPlmChozoStatueVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding mechanics.</summary>
     public string ContentIdentity => ChozoStatueArtwork.ContentIdentity(this);
 
     /// <summary>Visual-only overrides keyed by draw; absent when every selected block uses its compiled appearance.</summary>
@@ -26,7 +26,7 @@ public sealed class RoomPlmChozoStatueVisualCatalog
 
     /// <summary>Resolves one selected Chozo-layout appearance, projecting run-local indices into the flattened authored payload while preserving compiled mechanics.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Zero-based native draw-run ordinal.</param>
+    /// <param name="runIndex">Zero-based draw-run ordinal.</param>
     /// <param name="blockIndex">Zero-based cell ordinal within that run, not a room coordinate or flattened entry index.</param>
     /// <returns>The block and its mirroring; unchanged layouts take them from the compiled stock blocks.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported Chozo layout.</exception>

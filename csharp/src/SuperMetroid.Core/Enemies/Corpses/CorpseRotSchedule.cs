@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// corpse. Mother Brain, the dead Torizo and every dead monster rot by the same schedule, each corpse with its own.
 /// </summary>
 /// <remarks>
-/// The cartridge keeps every corpse's schedule in one shared work-memory heap, but no room places two corpses whose
+/// The game keeps every corpse's schedule in one shared work-memory heap, but no room places two corpses whose
 /// schedules overlap there, so no corpse's rot can reach another's (#1472).
 /// </remarks>
 public sealed class CorpseRotSchedule
@@ -49,7 +49,7 @@ public sealed class CorpseRotSchedule
     /// <returns>True while another rot call is needed; false once the last row has fallen.</returns>
     /// <remarks>
     /// The last row's fall ends the rot without marking the row fallen, so a further call on a finished schedule lets it
-    /// fall once more, as the cartridge's does.
+    /// fall once more, as the game's does.
     /// </remarks>
     public bool Step(Action<int, CorpseRowOperation> moveRow, Action<int> rowFallen)
     {

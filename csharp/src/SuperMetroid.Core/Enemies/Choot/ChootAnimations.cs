@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Choot.ChootProgram;
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
-/// Choot's idle, jumping and falling animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// Choot's idle, jumping and falling animations as typed programs (#641). Each
 /// frame shows a <see cref="ChootFrame"/> pose and each callback becomes a <see cref="ChootCue"/> with its typed operands.
 /// </summary>
 internal static class ChootAnimations
@@ -42,7 +42,7 @@ internal static class ChootAnimations
     /// <summary>Publishes <paramref name="cue"/>.</summary>
     private static AnimationProgramStep<ChootProgram, ChootFrame, ChootCue> Cue(ChootCue cue) => AnimationProgramStep<ChootProgram, ChootFrame, ChootCue>.Publish(cue);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<ChootProgram, ChootFrame, ChootCue> Hold => AnimationProgramStep<ChootProgram, ChootFrame, ChootCue>.Hold;
 
 }

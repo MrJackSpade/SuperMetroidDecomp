@@ -29,16 +29,16 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates the Wrecked Ship statue's spike-footstep projectile.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Queues library-two footstep and walking sounds from native instructions.</summary>
+    /// <summary>Queues library-two footstep and walking sounds from instructions.</summary>
     private readonly EnemyAudioQueue _audio;
-    /// <summary>Exposes native slot zero for the singleton statue's cross-slot writes.</summary>
+    /// <summary>Exposes slot zero for the singleton statue's cross-slot writes.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Receives tube-crack and statue palette changes in live CGRAM.</summary>
+    /// <summary>Receives tube-crack and statue palette changes in the live palette.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Receives statue-authored layer-three FX motion writes.</summary>
     private readonly EnemyRoomFx _roomFx;
 
-    /// <summary>Binds bank-$AA statue behavior to room, movement, palette, FX, sound and projectile owners.</summary>
+    /// <summary>Binds statue behavior to room, movement, palette, FX, sound and projectile owners.</summary>
     internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyRoomFx roomFx)
     {
         _room = room;
@@ -53,7 +53,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Pending hardcoded and footstep PLM requests consumed by the shared allocator.</summary>
     internal readonly List<ChozoStatuePlmRequest> ChozoStatuePlmRequests = new();
 
-    /// <summary>Consumes each published request once through the shared bank-$84 slot allocator.</summary>
+    /// <summary>Consumes each published request once through the shared slot allocator.</summary>
     internal void ApplyPendingChozoStatuePlms(RoomLevelData level, ChozoStatuePlms chozoStatuePlms)
     {
         while (ChozoStatuePlmRequests.Count != 0)
@@ -70,15 +70,15 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ChozoFootstepsSound =
         EnemySoundEffectDefinitions.ChozoFootstepsSound;
 
-    /// <summary>Last value sent through native <c>CallSomeSamusCode(0/1)</c>.</summary>
+    /// <summary>Whether the statue last enabled Samus's controls rather than disabling them.</summary>
     public bool ChozoStatueSamusControlsEnabled { get; private set; } = true;
 
-    /// <summary>Whether the Lower Norfair statue has started lowering the acid in this room (instruction $AA:E429).</summary>
+    /// <summary>Whether the Lower Norfair statue has started lowering the acid in this room.</summary>
     public bool ChozoStatueAcidLoweringStarted { get; private set; }
 
     /// <summary>
-    /// Ports the complete palette-only initializer at $AA:E716. The retail record begins
-    /// with property $0200, so it exists solely long enough to replace target palette rows
+    /// Ports the complete palette-only initializer. The retail record begins
+    /// with the deletion property, so it exists solely long enough to replace target palette rows
     /// nine and ten; the scheduler removes it before any main-AI frame.
     /// </summary>
     internal void InitializeN00bTubeCracks()
@@ -87,7 +87,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             "Tube crack colors require installed artwork.")).ApplyTubeCracks(ChozoAndTubeColours());
     }
 
-    /// <summary>Ports $AA:E725-$E7A1 for both shipped statues.</summary>
+    /// <summary>Initializes either shipped statue.</summary>
     internal void InitializeChozoStatue(RoomEnemySlot statue)
     {
         int variant = statue.SpawnSettings<ChozoStatueSpawnSettings>().Variant;
@@ -97,7 +97,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Chozo statue variant {variant} is outside its two-entry table.");
         }
 
-        // The original ORs $2000, $0800, and the otherwise unnamed high bit. Keep $8000 raw:
+        // The initializer sets two named properties and the otherwise unnamed high bit. Keep the high bit raw:
         // no translated caller has proved a stable semantic name for that property yet.
         statue.Properties = statue.Properties.With(
             EnemyProperties.SolidToSamus |
@@ -116,7 +116,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         statue.SetSpeciesState(state, state.ClearWithRecord);
 
-        // The native initializer writes enemy_data[0].layer regardless of cur_enemy_index.
+        // The initializer writes enemy_data[0].layer regardless of cur_enemy_index.
         // Every retail population places this singleton in slot zero, but preserve the alias
         // explicitly so malformed/debug populations expose the same cross-slot behavior.
         _slotTable.Slots[0].Layer = 0;
@@ -136,7 +136,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Applies the installed Wrecked Ship or Lower Norfair statue palette to live CGRAM.</summary>
+    /// <summary>Applies the installed Wrecked Ship or Lower Norfair statue palette to the live palette.</summary>
     private ChozoAndTubeColorCatalog ChozoStatueColors() =>
         _room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException("Chozo statue colors require installed artwork.");
 
@@ -145,9 +145,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         SpriteColourStore.InOrder(SpriteColourSetDefinitions.ChozoAndTube, _presentation.Colours.SpriteSets);
 
     /// <summary>
-    /// Represents the exact enemy-slot side effect produced by the bank-$84 Chozo hand
+    /// Represents the exact enemy-slot side effect produced by the Chozo hand
     /// trigger. Collision/pose/item admission remains the PLM owner's responsibility; once
-    /// admitted, both native trigger setups write parameter one and disable Samus controls.
+    /// admitted, both trigger setups write parameter one and disable Samus controls.
     /// </summary>
     public void ActivateChozoStatueHandTrigger(RoomLevelData level, int? collisionBlockIndex = null)
     {
@@ -155,7 +155,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.EnsureLoaded();
         RoomEnemySlot statue = _slotTable.Slots[0];
         if (statue.DefinitionId != EnemyDefinitionId.Chozo)
-            throw new InvalidOperationException("Chozo hand trigger requires statue $F0FF in enemy slot zero.");
+            throw new InvalidOperationException("Chozo hand trigger requires the Chozo statue in enemy slot zero.");
 
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         int triggerBlockX = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.X : ChozoStatueRoomDefinitions.LowerNorfairTriggerX;
@@ -172,7 +172,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         DisableChozoStatueSamusControls();
         if (!state.IsWreckedShip)
         {
-            // Lower Norfair's $84:D18F trigger records event $0C before waking the actor.
+            // Lower Norfair's hand trigger records the acid-lowered event before waking the actor.
             _room.Services.Events.Set(EventNumber.LowerNorfairChozoLoweredAcid);
             PublishHardcodedChozoPlm(
                 PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
@@ -180,9 +180,9 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            // $84:D620 performs two little-endian word stores before handing the statue to
-            // $E7AE: scroll bytes 7/8 become green and 13/14 become blue. PLM $D6F8 then
-            // queues the authored slope-access terrain transition in bank $84.
+            // The Wrecked Ship hand performs two little-endian word stores before handing the statue to
+            // its carry: scroll bytes 7/8 become green and 13/14 become blue. The clear-slope-access PLM then
+            // queues the authored slope-access terrain transition.
             _room.Services.RoomScroll.Write(7, RoomScrollState.Green);
             _room.Services.RoomScroll.Write(8, RoomScrollState.Green);
             _room.Services.RoomScroll.Write(13, RoomScrollState.Blue);
@@ -227,7 +227,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of the Chozo statues' animations: every callback reachable from lists
-    /// $E39D/$E3A7/$E457/$E461. Every cue runs on to the next step, so none redirects.
+    /// the four statue animations. Every cue runs on to the next step, so none redirects.
     /// </summary>
     private ChozoStatueProgram? ApplyChozoStatueCue(
         RoomEnemySlot statue,
@@ -248,8 +248,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.StartLoweringAcid }:
                 ChozoStatueAcidLoweringStarted = true;
-                // Native AI writes the FX words consumed by the liquid handler once, at
-                // instruction execution; the FX owns them from then on.
+                // The cue writes the liquid words consumed by the liquid handler once, when
+                // it runs; the liquid owns them from then on.
                 _roomFx.Layer3Fx?.SetLiquidMotion(
                     timer: ChozoStatueFxData.LoweringDelay, packedYVelocity: ChozoStatueFxData.LoweringVelocity);
                 return null;
@@ -320,11 +320,11 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, statue);
 
         // The two 32-word tables are joint offsets indexed by the same record.
-        // Writing Samus after collision reproduces the native cutscene's absolute ownership.
+        // Writing Samus after collision reproduces the cutscene's absolute ownership.
         samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + motion.SamusOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + motion.SamusOffset.Y)));
     }
 
-    /// <summary>Spawns a plug-crumble PLM and spike-footstep only when the offset floor block has the native special type.</summary>
+    /// <summary>Spawns a plug-crumble PLM and spike-footstep only when the offset floor block has the special type.</summary>
     private void ProcessChozoStatueFootstep(
         RoomEnemySlot statue,
         RoomLevelData level,
@@ -361,7 +361,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28)));
     }
 
-    /// <summary>Restores Samus controls, publishes the native overlapping scroll writes and queues slope-access terrain.</summary>
+    /// <summary>Restores Samus controls, publishes the overlapping scroll writes and queues slope-access terrain.</summary>
     private void FinishWreckedShipChozoSequence()
     {
         EnableChozoStatueSamusControls();
@@ -392,7 +392,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.SamusControls.DisableControls();
     }
 
-    /// <summary>Queues an authored bank-$84 PLM spawn at its fixed room block.</summary>
+    /// <summary>Queues an authored PLM spawn at its fixed room block.</summary>
     private void PublishHardcodedChozoPlm(PlmHeaderId header, Position16<RoomBlocks> block) =>
         ChozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
             header,

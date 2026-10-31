@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// The Cacatac's spike programs, one per launch direction (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// The Cacatac's spike programs, one per launch direction (#641). Each
 /// frame shows a <see cref="CacatacProjectileFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class CacatacProjectileAnimations
@@ -69,6 +69,6 @@ internal static class CacatacProjectileAnimations
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue> Show(int pose, int duration) => AnimationProgramStep<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue>.Show(new(pose), duration);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue> Hold => AnimationProgramStep<CacatacProjectileProgram, CacatacProjectileFrame, EnemyProjectileCommonCue>.Hold;
 }

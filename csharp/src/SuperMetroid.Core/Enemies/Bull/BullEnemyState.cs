@@ -2,9 +2,9 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
-/// The state of a Bull. Speed and acceleration stay the exact values the cartridge keeps, because a deceleration that
+/// The state of a Bull. Speed and acceleration stay the exact values the game keeps, because a deceleration that
 /// overshoots leaves a wrapped value that the next update reads by its sign; they change only through
-/// <see cref="Accelerate"/> and <see cref="Decelerate"/>. The values the cartridge keeps in the enemy's common record are
+/// <see cref="Accelerate"/> and <see cref="Decelerate"/>. The values the game keeps in the enemy's common record are
 /// emptied with it when the enemy is killed (<see cref="ClearWithRecord"/>). The shot-reaction guard is inherited from
 /// the previous Bull in its slot (<see cref="SlotInheritance{TOccupant}"/>).
 /// </summary>
@@ -24,18 +24,18 @@ public sealed class BullEnemyState
         ShotReactionDisableTimer = previous?.ShotReactionDisableTimer ?? WrappingCountdown.Start(0);
     }
 
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<BullProgram> Program { get; set; }
 
     /// <summary>
-    /// The current bank-$A8 delay, target, acceleration, or deceleration dispatcher pointer; none once a kill has
+    /// The current delay, target, acceleration, or deceleration dispatcher pointer; none once a kill has
     /// emptied the record.
     /// </summary>
     public BullEnemyFunction? Function { get; internal set; }
 
     /// <summary>
     /// The speed change applied at each interval expiry, in 256ths of a pixel per update, as the exact word the
-    /// cartridge keeps (0 through 65535). It grows or shrinks by <see cref="AccelerationDelta"/> through <see
+    /// game keeps (0 through 65535). It grows or shrinks by <see cref="AccelerationDelta"/> through <see
     /// cref="Accelerate"/> and <see cref="Decelerate"/>; a word with its sign bit set reads as below zero.
     /// </summary>
     public int Acceleration
@@ -56,7 +56,7 @@ public sealed class BullEnemyState
 
     /// <summary>
     /// The flight speed in 256ths of a pixel per update, projected through the sine table into the X and Y
-    /// displacements, as the exact word the cartridge keeps (0 through 65535). A deceleration that overshoots leaves a
+    /// displacements, as the exact word the game keeps (0 through 65535). A deceleration that overshoots leaves a
     /// word with its sign bit set, which the next decelerating update reads as stopped (<see cref="HasStopped"/>).
     /// </summary>
     public int Speed
@@ -67,7 +67,7 @@ public sealed class BullEnemyState
 
     /// <summary>
     /// Whether flight is still below <see cref="MaxSpeed"/>, compared by the sign of the word difference as the
-    /// cartridge does; an overshooting update is not clamped.
+    /// game does; an overshooting update is not clamped.
     /// </summary>
     internal bool IsBelowMaximumSpeed => EnemyMath.IsNegative16(Speed - MaxSpeed);
 
@@ -77,7 +77,7 @@ public sealed class BullEnemyState
 
     /// <summary>
     /// An accelerating interval expiry: the acceleration grows by its delta, then the speed grows by the acceleration.
-    /// Both are word additions that wrap as the cartridge's do.
+    /// Both are word additions that wrap as the game's do.
     /// </summary>
     internal void Accelerate()
     {
@@ -87,7 +87,7 @@ public sealed class BullEnemyState
 
     /// <summary>
     /// A decelerating interval expiry: the acceleration shrinks by its delta, then the speed shrinks by the
-    /// acceleration. Both are word subtractions that wrap as the cartridge's do, so an overshoot leaves a word that
+    /// acceleration. Both are word subtractions that wrap as the game's do, so an overshoot leaves a word that
     /// reads as below zero.
     /// </summary>
     internal void Decelerate()
@@ -97,7 +97,7 @@ public sealed class BullEnemyState
     }
 
     /// <summary>
-    /// Wrapping movement-delay counter initialized/reloaded to $0010, with targeting selected when its decrement
+    /// Wrapping movement-delay counter initialized/reloaded to 16, with targeting selected when its decrement
     /// reaches exactly zero.
     /// </summary>
     public WrappingCountdown ActivationTimer { get; internal set; }
@@ -136,7 +136,7 @@ public sealed class BullEnemyState
     /// </summary>
     public WrappingCountdown ShotReactionDisableTimer { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;

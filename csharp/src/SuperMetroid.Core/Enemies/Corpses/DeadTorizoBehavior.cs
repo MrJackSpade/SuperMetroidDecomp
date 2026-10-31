@@ -48,13 +48,13 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Slot zero's typed corpse pose (#641), started before the corpse state exists.</summary>
     private AnimationProgramCursor<DeadTorizoProgram> program;
 
-    /// <summary>Ports <c>DeadTorizo_Init</c> at <c>$A9:D308</c>.</summary>
+    /// <summary>Ports <c>DeadTorizo_Init</c>.</summary>
     internal void InitializeDeadTorizo(RoomEnemySlot slot)
     {
         if (slot.SlotIndex != 0)
         {
             throw new InvalidDataException(
-                $"Dead Torizo requires native slot zero, not slot {slot.SlotIndex}.");
+                $"Dead Torizo requires enemy slot zero, not slot {slot.SlotIndex}.");
         }
 
         slot.Properties = slot.Properties.With(
@@ -72,7 +72,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(DeadTorizo, DeadTorizo.ClearWithRecord);
     }
 
-    /// <summary>Ports <c>DeadTorizo_Main</c> at <c>$A9:D368</c>.</summary>
+    /// <summary>Ports <c>DeadTorizo_Main</c>.</summary>
     internal void RunDeadTorizoMain(RoomEnemySlot slot, SamusState? samus)
     {
         DeadTorizoEnemyState state = RequireDeadTorizoState(slot);
@@ -129,7 +129,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = DeadTorizoFunction.NoOperation;
     }
 
-    /// <summary>Shot/touch tail at <c>$A9:D433</c>.</summary>
+    /// <summary>Shot/touch tail.</summary>
     internal void TriggerDeadTorizoRotting(RoomEnemySlot slot)
     {
         DeadTorizoEnemyState state = RequireDeadTorizoState(slot);
@@ -137,7 +137,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = DeadTorizoFunction.Rotting;
     }
 
-    /// <summary>Power-bomb entry at <c>$A9:D42A</c>.</summary>
+    /// <summary>Power-bomb entry.</summary>
     internal void TriggerDeadTorizoPowerBomb(RoomEnemySlot slot)
     {
         RequireDeadTorizoState(slot);
@@ -151,7 +151,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusKinematicsState kinematics = samus.Kinematics;
         foreach (EnemyHitboxRectangle hitbox in DeadTorizoTouchDefinitions.TouchHitboxes)
         {
-            // The cartridge takes the magnitude of whichever signed edge faces Samus, so each edge
+            // The game takes the magnitude of whichever signed edge faces Samus, so each edge
             // acts as a reach on its own side of the corpse origin.
             int verticalDistance;
             int verticalReach;
@@ -212,8 +212,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Applies bank-$A9's shared signed 8.8 enemy velocity pair. Dead Torizo and Shitroid
-    /// both call the same cartridge helper; retaining one implementation also makes its
+    /// Applies shared signed 8.8 enemy velocity pair. Dead Torizo and Shitroid
+    /// both call the same shared helper; retaining one implementation also makes its
     /// unusual use of the high byte of the subposition explicit.
     /// </summary>
     internal static void MoveWithEightEightVelocity(RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
@@ -229,7 +229,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Switches to the other half of the corpse's rows and selects the rot steps the corpse has taken as the step that half
-    /// shows (#1406). The cartridge uploads one half each main-AI call, while the corpse is intact, rotting or finished, so
+    /// shows (#1406). The game uploads one half each main-AI call, while the corpse is intact, rotting or finished, so
     /// the half's pictures show the step from this update on.
     /// </summary>
     internal static void ShowNextRotHalf(DeadTorizoEnemyState state)
@@ -250,7 +250,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         new(DeadTorizoCorpseDefinitions.Kind, [state.EvenHalfStep, state.OddHalfStep]);
 
     /// <summary>
-    /// Runs the post-enemy ordinary-spritemap hook at <c>$A9:D39A</c>, publishing its frame as the encounter's own (#1392),
+    /// Runs the post-enemy ordinary-spritemap hook, publishing its frame as the encounter's own (#1392),
     /// over the corpse's rows as their rot shows them.
     /// </summary>
     internal void DrawDeadTorizoHook(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
@@ -279,7 +279,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AddDeadTorizoBombReactions(EnemySharedReactions table)
     {
         // Specials consulted after the selected literal no-op gate.
-        // Corpse shot callbacks run directly after the bank-$A0 collision mark. They do not consult bomb
+        // Corpse shot callbacks run directly after the collision mark. They do not consult bomb
         // vulnerability or health; they only hand the actor to its authored rotting state machine.
         table.AddBombSpecialAfterNoOp(c => c.Enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
                                            c.SelectedShotAi == EnemyReaction.DeadTorizoTouchAndShot,
@@ -313,7 +313,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks projectile collision and starts rotting without impact animation or health loss.</summary>
     internal void AddDeadTorizoShotReactions(EnemySharedReactions table)
     {
-        // The dead corpses and Shitroid receive the bank-$A0 projectile prelude but never an impact or vulnerability.
+        // The dead corpses and Shitroid receive the projectile prelude but never an impact or vulnerability.
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.DeadTorizoTouchAndShot)
         {
@@ -331,7 +331,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the same rotting tail on direct Samus contact.</summary>
     internal void AddDeadTorizoTouch(EnemySharedReactions table)
     {
-        // `$A9:D433` is shared by touch and shot. Contact does not enter common damage; it makes the corpse solid
+        // Touch and shot share one reaction. Contact does not enter common damage; it makes the corpse solid
         // and starts the exact rotting table immediately.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
                                EnemyCollision.TouchAi(slot) == EnemyReaction.DeadTorizoTouchAndShot,

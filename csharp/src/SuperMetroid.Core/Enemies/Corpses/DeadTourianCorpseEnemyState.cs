@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
 /// Typed corpse state for one dead Zoomer, Ripper, or Skree. The function and the pre-rot count are values the
-/// cartridge keeps in the enemy's common record, so they are emptied with that record when the corpse's slot is
+/// game keeps in the enemy's common record, so they are emptied with that record when the corpse's slot is
 /// cleared (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class DeadTourianCorpseEnemyState
@@ -25,9 +25,9 @@ public sealed class DeadTourianCorpseEnemyState
     public RoomEnemySlot Slot { get; }
     /// <summary>The phase main AI runs; none once the record has been emptied.</summary>
     public DeadTourianCorpseFunction? Function { get; internal set; }
-    /// <summary>Corpse family selected by the enemy header, determining native callbacks and the tiled artwork layout.</summary>
+    /// <summary>Corpse family selected by the enemy header, determining callbacks and the tiled artwork layout.</summary>
     public DeadTourianCorpseSpecies Species { get; }
-    /// <summary>Zero-based variant within the species, obtained by dividing the even native parameter-1 table-byte offset by two; Rippers allow 0–1, Zoomers and Skrees 0–2.</summary>
+    /// <summary>Zero-based variant within the species, obtained by dividing the even parameter-1 table-byte offset by two; Rippers allow 0–1, Zoomers and Skrees 0–2.</summary>
     public int VariantIndex { get; }
     /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, 16 for Zoomer and Ripper, 32 for Skree.</summary>
     internal CorpseRotSchedule Rot { get; }
@@ -44,7 +44,7 @@ public sealed class DeadTourianCorpseEnemyState
     public uint ProcessCallCount { get; internal set; }
     /// <summary>Port diagnostic count of row-table completion callbacks, including the final entry before the AI becomes a no-operation.</summary>
     public uint FinishedEntryCount { get; internal set; }
-    /// <summary>Port diagnostic count of dust spawn requests from completed rows; each uses animation 10 at corpse Y plus 16 pixels and a native RNG-masked horizontal offset.</summary>
+    /// <summary>Port diagnostic count of dust spawn requests from completed rows; each uses animation 10 at corpse Y plus 16 pixels and a RNG-masked horizontal offset.</summary>
     public uint DustSpawnCount { get; internal set; }
 
     /// <summary>Assembly-internal callback profile and tile-row layout of this corpse's species.</summary>

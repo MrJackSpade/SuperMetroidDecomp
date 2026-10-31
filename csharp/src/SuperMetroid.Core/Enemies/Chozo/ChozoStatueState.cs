@@ -2,21 +2,21 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The state of a bank-$AA Chozo statue. The values the cartridge keeps in the enemy's common record are emptied with
+/// The state of a Chozo statue. The values the game keeps in the enemy's common record are emptied with
 /// it when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class ChozoStatueState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<ChozoStatueProgram> Program { get; set; }
 
-    /// <summary>The carry-motion record, 0 through 31, the statue last moved by (instruction $AA:E5D8).</summary>
+    /// <summary>The carry-motion record, 0 through 31, the statue last moved by.</summary>
     public int CarryRecord { get; internal set; }
 
-    /// <summary>The literal bank-$AA pre-instruction pointer; none once a kill has emptied the record.</summary>
+    /// <summary>The literal pre-instruction pointer; none once a kill has emptied the record.</summary>
     public ChozoStatueFrameBehavior? FrameBehavior { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         CarryRecord = 0;

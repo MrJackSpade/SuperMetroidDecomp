@@ -6,7 +6,7 @@ using D = SuperMetroid.Core.Enemies.Cacatac.CacatacSpikeDirection;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
-/// Cacatac's upright and inverted idle and spike-attack animations as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// Cacatac's upright and inverted idle and spike-attack animations as typed programs (#641). Each
 /// frame shows a <see cref="CacatacFrame"/> pose and each callback becomes a <see cref="CacatacCue"/> with its typed operands.
 /// </summary>
 internal static class CacatacAnimations

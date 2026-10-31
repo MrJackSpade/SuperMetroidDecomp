@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>
-/// The Wrecked Ship Chozo's footstep and explosion dust and the Tourian statue's descent dust (#641), one per bank-$86 list a spawn, branch or family routine enters, in authored order.
-/// Generated from the verified native lists; see <see cref="ChozoTourianDustAnimations"/>.
+/// The Wrecked Ship Chozo's footstep and explosion dust and the Tourian statue's descent dust (#641), one per animation a spawn, branch or family routine enters, in authored order.
+/// Their steps are <see cref="ChozoTourianDustAnimations"/>.
 /// </summary>
 internal enum ChozoTourianDustProgram
 {
-    /// <summary><c>InstList_EnemyProj_WreckedShipChozoSpikeClearingFootsteps</c> at $86:AEC4.</summary>
+    /// <summary>The footsteps animation.</summary>
     Footsteps,
-    /// <summary><c>UNUSED_InstList_EnemyProj_SpikeClearingExplosions_86AEDC</c> at $86:AEDC.</summary>
+    /// <summary>The spike clearing explosions animation. No authored spawn or branch enters it.</summary>
     SpikeClearingExplosions,
-    /// <summary><c>InstList_EnemyProj_TourianStatueDustClouds_0</c> at $86:AF14.</summary>
+    /// <summary>The tourian descent dust animation.</summary>
     TourianDescentDust,
-    /// <summary><c>InstList_EnemyProj_TourianStatueDustClouds_1</c> at $86:AF18.</summary>
+    /// <summary>The tourian descent dust loop animation.</summary>
     TourianDescentDustLoop,
 }

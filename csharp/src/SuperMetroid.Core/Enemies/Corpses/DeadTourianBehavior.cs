@@ -24,7 +24,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Emits dust when a rotting-table row finishes.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
-    /// <summary>Provides installed corpse art and queues its VRAM transfers.</summary>
+    /// <summary>Provides installed corpse art and queues its tile transfers.</summary>
     private readonly DeadMonsterFrame _deadMonsters;
 
     /// <summary>Connects corpse AI to the room scratch state, projectiles, and installed art.</summary>
@@ -40,7 +40,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionId) =>
         definitionId is EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree;
 
-    /// <summary>Selects the species-specific native callbacks and art layout for a corpse header.</summary>
+    /// <summary>Selects the species-specific callbacks and art layout for a corpse header.</summary>
     internal static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(EnemyDefinitionId definitionId) =>
         DeadTourianPartDefinitions.Parts[definitionId] switch
         {
@@ -74,7 +74,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         return EnemyCollision.PowerBombReaction(slot) == ProfileForDeadTourianCorpse(slot.DefinitionId).PowerBomb;
     }
 
-    /// <summary>Ports initializers <c>$A9:D849/$D876/$D89F</c>, validating the art variant before registering state and copying tiles into work RAM.</summary>
+    /// <summary>Initializes a Tourian corpse, validating the art variant before registering state and copying tiles into work memory.</summary>
     internal void InitializeDeadTourianCorpse(RoomEnemySlot slot)
     {
         DeadTourianCorpseProfile profile =
@@ -99,7 +99,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         _deadMonsters.BeginRot(state.Flesh);
     }
 
-    /// <summary>Runs shared dispatcher <c>$A9:D8DB</c>: collision starts a 16-frame delay, then the corpse rots until its last row has fallen.</summary>
+    /// <summary>Runs the shared corpse behaviour: collision starts a 16-frame delay, then the corpse rots until its last row has fallen.</summary>
     private void RunDeadTourianCorpseMain(RoomEnemySlot slot, SamusState? samus)
     {
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
@@ -137,7 +137,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
     }
 
-    /// <summary>Power-bomb callbacks reject actors whose decomposition already set $0400.</summary>
+    /// <summary>Power-bomb callbacks reject actors whose decomposition already made them intangible.</summary>
     private static void ResolveDeadTourianCorpsePowerBomb(RoomEnemySlot slot)
     {
         RequireDeadTourianCorpseState(slot);
@@ -235,7 +235,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         table.AddShot(new EnemyShotReaction(HasDeadTourianCorpseShotCallback)
         {
-            // `$DCF8/$DD08/$DD18` run after the ordinary projectile prelude, set process-offscreen plus $0400, and
+            // The species reactions run after the ordinary projectile prelude, set process-offscreen plus intangibility, and
             // select their species rot callback. No vulnerability, health damage, or projectile impact follows.
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
             {

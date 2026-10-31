@@ -3,12 +3,12 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>
 /// The state of a Cacatac: its patrol velocities, direction and function, plus its two patrol bounds. The values the
-/// cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
+/// game keeps in the enemy's common record are emptied with it when the enemy is killed (<see
 /// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class CacatacEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the animation resumes.</summary>
     internal AnimationProgramCursor<CacatacProgram> Program { get; set; }
 
     /// <summary>
@@ -23,16 +23,16 @@ public sealed class CacatacEnemyState
     /// </summary>
     public SignedSixteenSixteen LeftVelocity { get; internal set; }
 
-    /// <summary>Native; zero is left, one is right, two initially stops.</summary>
+    /// <summary>The patrol direction; zero is left, one is right, two initially stops.</summary>
     public CacatacDirection Direction { get; internal set; }
 
-    /// <summary>Native indirect function pointer at; none once a kill has emptied the record.</summary>
+    /// <summary>The current behaviour; none once a kill has emptied the record.</summary>
     public CacatacEnemyFunction? Function { get; internal set; }
 
     /// <summary>
     /// Left patrol limit; only X is meaningful. Leftward patrol turns right once the whole X position lies strictly
     /// left of it, measured as the wrapped signed difference, so a limit that wrapped past the room's left edge still
-    /// turns the enemy as the cartridge does.
+    /// turns the enemy as the game does.
     /// </summary>
     public Position16<RoomPixels> LeftPatrolLimit { get; internal set; }
 
@@ -48,7 +48,7 @@ public sealed class CacatacEnemyState
     /// </summary>
     public bool UpsideUp { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
+    /// <summary>Empties the values the game keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         RightVelocity = RightVelocity.WithWholePixels(0);

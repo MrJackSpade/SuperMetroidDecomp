@@ -12,7 +12,7 @@ internal static class ChozoStatueDraws
     /// <summary>A cleared hand or slope-access draw's runs.</summary>
     internal readonly record struct Draw(ChozoStatueDraw Frame) : IPlmRunDrawShape
     {
-        /// <summary>The draw's runs in native order.</summary>
+        /// <summary>The draw's runs in order.</summary>
         private PlmBlockStrip[] Strips => ChozoStatuePlmDrawDefinitions.Strips[Frame];
         /// <summary>One run for the hand cell, five for the Wrecked Ship slope layout.</summary>
         public int RunCount => Strips.Length;

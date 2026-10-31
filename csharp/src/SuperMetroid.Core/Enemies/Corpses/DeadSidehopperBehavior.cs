@@ -56,7 +56,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         switch (cue.Kind)
         {
             case DeadTourianCueKind.EndHop:
-                // `$A9:ECD0` ends the landing animation and hands ownership back to main AI.
+                // The end-hop cue ends the landing animation and hands ownership back to main AI.
                 SelectDeadSidehopperPostAnimationState(slot);
                 return null;
             default:
@@ -72,7 +72,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>The living victim activates once the camera's left edge is left of this room pixel column.</summary>
     private static readonly Position16<RoomPixels> VictimActivationCamera = new(513, 0);
 
-    /// <summary>Ports <c>DeadSidehopper_Init</c> at <c>$A9:D7B6</c>.</summary>
+    /// <summary>Ports <c>DeadSidehopper_Init</c>.</summary>
     internal void InitializeDeadSidehopper(RoomEnemySlot slot)
     {
         if (slot.SpeciesState<DeadSidehopperEnemyState>() is not null)
@@ -93,10 +93,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>Ports the Shitroid victim layout at <c>$A9:D7C4</c>.</summary>
+    /// <summary>Ports the Shitroid victim layout.</summary>
     private void InitializeShitroidVictimSidehopper(RoomEnemySlot slot)
     {
-        // The native mask clears the solid bit and any inherited process-offscreen bit,
+        // The mask clears the solid bit and any inherited process-offscreen bit,
         // then explicitly reinstalls only process-offscreen. Do not replace this with an
         // enum union: preserving the unrelated population-property bits is observable.
         slot.Properties = slot.Properties.Replace(
@@ -119,7 +119,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         state.Velocity = new EightEightVector<RoomPixels>(96, 256);
     }
 
-    /// <summary>Ports the already-dead Tourian layout at <c>$A9:D825</c>.</summary>
+    /// <summary>Ports the already-dead Tourian layout.</summary>
     private void InitializeAlternateDeadSidehopper(RoomEnemySlot slot)
     {
         slot.Colouring = new EncounterSpriteColouring(TourianCorpseColourDefinitions.DrainedCorpses);
@@ -149,7 +149,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         return state;
     }
 
-    /// <summary>Ports <c>DeadSidehopper_Main</c> at <c>$A9:D8DB</c>.</summary>
+    /// <summary>Ports <c>DeadSidehopper_Main</c>.</summary>
     private void RunDeadSidehopperMain(
         RoomEnemySlot slot,
         SamusState? samus,
@@ -242,7 +242,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>
-    /// Implements <c>DeadMonsters_Func_3/4</c> at <c>$A9:D961/D9C7</c>. The scripted
+    /// Moves a dead monster through its staged set. The scripted
     /// Shitroid-room half moves directly through the staged set until X reaches 544; the
     /// general room half then switches to the shared terrain collision primitives.
     /// </summary>
@@ -269,7 +269,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
 
         // Upward motion accelerates by $20 in signed 8.8; falling motion accelerates by
-        // $80. The sign test is performed before the addition in the cartridge.
+        // $80. The sign test is performed before the addition in the game.
         int acceleration = state.Velocity.Y.SignedRawValue < 0
             ? 32
             : 128;
@@ -314,7 +314,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         level ?? throw new InvalidDataException(
             "Dead sidehopper crossed into terrain-driven movement without room level data.");
 
-    /// <summary>Ports palette transformation <c>$A9:DA08</c>.</summary>
+    /// <summary>Steps the draining palette transformation.</summary>
     private void StepDeadSidehopperPaletteTransformation(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
@@ -345,7 +345,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>
-    /// Instruction <c>$A9:ECD0</c> selects the post-landing state from the companion's
+    /// The end-hop cue selects the post-landing state from the companion's
     /// palette-activation word. It is deliberately instruction-driven: replacing it with a
     /// main-AI timer would make animation length and movement cadence diverge.
     /// </summary>
@@ -361,7 +361,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     internal static void ActivateDeadSidehopperVictim(RoomEnemySlot victim) =>
         RequireDeadSidehopperState(victim).PaletteStage = 1;
 
-    /// <summary>Ports shot callback <c>$A9:DD1D</c>.</summary>
+    /// <summary>Resolves a shot hitting the dead Sidehopper.</summary>
     private static void ResolveDeadSidehopperShot(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
@@ -373,7 +373,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         TriggerDeadSidehopperRotting(slot, state);
     }
 
-    /// <summary>Ports touch callback <c>$A9:DD44</c>.</summary>
+    /// <summary>Resolves Samus touching the dead Sidehopper.</summary>
     private void ResolveDeadSidehopperTouch(
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state,
@@ -387,7 +387,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         TriggerDeadSidehopperRotting(slot, state);
     }
 
-    /// <summary>Ports power-bomb callback <c>$A9:D8CC</c>.</summary>
+    /// <summary>Resolves a power bomb reaching the dead Sidehopper.</summary>
     private void ResolveDeadSidehopperPowerBomb(RoomEnemySlot slot, SamusState? samus)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
@@ -399,7 +399,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         // Before the corpse is ready, the private power-bomb callback literally invokes
         // the actor's main dispatcher once. Use the last scheduled room context because the
-        // outer bank-$A0 power-bomb pass does not carry level/camera arguments.
+        // outer power-bomb pass does not carry level/camera arguments.
         DispatchDeadSidehopperState(
             slot,
             state,
@@ -527,7 +527,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Uses ordinary touch damage during transformation and starts decomposition afterward.</summary>
     internal void AddDeadSidehopperTouch(EnemySharedReactions table)
     {
-        // Before Shitroid finishes feeding, `$A9:DD44` uses normal contact damage without a death animation. At
+        // Before Shitroid finishes feeding, the touch reaction uses normal contact damage without a death animation. At
         // palette stage eight it instead starts the corpse decomposition and never enters common touch damage.
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
                                EnemyCollision.TouchAi(slot) == EnemyReaction.DeadSidehopperTouch,

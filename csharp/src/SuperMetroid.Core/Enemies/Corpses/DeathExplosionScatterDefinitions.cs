@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// The ten-point small-explosion scatter shared by Ridley's death ($A6:C66E-$A6:C695) and the
-/// Baby Metroid's death ($A9:CDFC-$A9:CE23): both banks store the identical interleaved X/Y
+/// The ten-point small-explosion scatter shared by Ridley's death and the
+/// Baby Metroid's death: both store the identical interleaved X/Y
 /// word pairs, so one owner serves both consumers. The points are an authored scatter pattern
 /// with no symmetry, ordering or radial rule (see residualScalarInputsReview).
 /// </summary>
@@ -11,7 +11,7 @@ internal static class DeathExplosionScatterDefinitions
     /// <summary>The ten authored offsets in the shared Ridley and Baby Metroid scatter list.</summary>
     internal const int Count = 10;
 
-    /// <summary>Native-order signed pixel offsets from each explosion center.</summary>
+    /// <summary>Authored-order signed pixel offsets from each explosion center.</summary>
     internal static readonly Offset16<RoomPixels>[] Offsets =
     [
         new(-24, -24), new(-20, 20), new(16, -30), new(30, -3), new(14, -13),

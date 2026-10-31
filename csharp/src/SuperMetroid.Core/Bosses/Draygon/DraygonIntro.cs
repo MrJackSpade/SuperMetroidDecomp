@@ -35,9 +35,9 @@ internal sealed class DraygonIntro
         int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
-        if (state.FunctionTimer.RawValue < 256)
+        if (state.IntroFrames < 256)
         {
-            if (state.FunctionTimer.IsZero)
+            if (state.IntroFrames == 0)
             {
                 _presentation.ShowLook(DraygonIntroPresentationDefinitions.EvirTiles);
                 state.IntroEvirGraphicsLoaded = true;
@@ -55,12 +55,12 @@ internal sealed class DraygonIntro
                     }
                 }
             }
-            state.FunctionTimer = state.FunctionTimer.AddFrames(1);
+            state.IntroFrames++;
             return;
         }
 
         state.Function = DraygonAiFunction.IntroDance;
-        state.FunctionTimer = WrappingCountdown.Start(0);
+        state.IntroFrames = 0;
         state.LeftSideReset = state.Body.Position.Whole;
         state.RightSideReset = state.LeftSideReset + DraygonBehavior.DraygonRightSideResetDistance;
         state.Body.Position = state.Body.Position.WithWhole(state.LeftSideReset);
@@ -74,10 +74,10 @@ internal sealed class DraygonIntro
         int frameCounterLow)
     {
         _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
-        if (state.FunctionTimer.RawValue >= DraygonIntroDanceDefinitions.DurationFrames)
+        if (state.IntroFrames >= DraygonIntroDanceDefinitions.DurationFrames)
         {
             state.Function = DraygonAiFunction.SwoopRightSetup;
-            state.FunctionTimer = WrappingCountdown.Start(0);
+            state.IntroFrames = 0;
             return;
         }
 
@@ -100,6 +100,6 @@ internal sealed class DraygonIntro
         }
 
         state.IntroDanceStep++;
-        state.FunctionTimer = state.FunctionTimer.AddFrames(1);
+        state.IntroFrames++;
     }
 }

@@ -25,12 +25,26 @@ internal static class DraygonNativeWords
     /// </summary>
     public const int SwoopEntryBytes = 4;
 
+    /// <summary>What the record word the cartridge shares between three of Draygon's values holds.</summary>
+    internal enum SharedValue
+    {
+        /// <summary>The current intro stage's frame count.</summary>
+        IntroFrames,
+        /// <summary>The dying body's burial wait.</summary>
+        BurialWait,
+        /// <summary>The swoop path entry.</summary>
+        SwoopEntry,
+    }
+
     /// <summary>
-    /// Whether, during <paramref name="function"/>, the record word the cartridge shares between the function timer
-    /// and the swoop entry holds the timer: before the first swoop and while dying. Every other function keeps the
-    /// swoop entry there.
+    /// What the record word the cartridge shares between the intro frame count, the burial wait and the swoop entry
+    /// holds during <paramref name="function"/>: the intro count before the first swoop, the burial wait while dying,
+    /// and the swoop entry otherwise.
     /// </summary>
-    internal static bool HoldsFunctionTimer(DraygonAiFunction function) =>
+    internal static SharedValue MeaningOfSharedValue(DraygonAiFunction function) =>
         function is DraygonAiFunction.None or DraygonAiFunction.IntroInitialDelay or DraygonAiFunction.IntroDance
-            or DraygonAiFunction.Dying or DraygonAiFunction.DyingSink or DraygonAiFunction.DyingFinish;
+            ? SharedValue.IntroFrames
+            : function is DraygonAiFunction.Dying or DraygonAiFunction.DyingSink or DraygonAiFunction.DyingFinish
+                ? SharedValue.BurialWait
+                : SharedValue.SwoopEntry;
 }

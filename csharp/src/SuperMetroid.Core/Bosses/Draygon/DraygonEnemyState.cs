@@ -198,8 +198,23 @@ public sealed class DraygonEnemyState
     /// <summary>Bank-$A5 body-function address; body main AI dispatches this before copying coordinates to the three parts.</summary>
     public DraygonAiFunction Function { get; internal set; }
 
-    /// <summary>The intro's elapsed-frame count or the burial-wait countdown, according to <see cref="Function"/>.</summary>
-    public WrappingCountdown FunctionTimer { get; internal set; }
+    /// <summary>
+    /// The updates the current intro stage has run: zero when the opening delay starts and when the dance starts, and
+    /// one more after each of that stage's updates. The opening delay ends at 256 and the dance at its duration.
+    /// </summary>
+    /// <remarks>
+    /// The original game keeps this count and <see cref="BurialWait"/> in one record value (#1476). Neither is read
+    /// under the other's meaning: each intro stage ends by zeroing the count, and the burial wait is loaded with its
+    /// full length when the dying body reaches its burial point, so they are held apart.
+    /// </remarks>
+    public int IntroFrames
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, DraygonIntroDanceDefinitions.DurationFrames, value);
+    }
+
+    /// <summary>The updates the dying body waits at its burial point before it sinks, counted down to zero.</summary>
+    public WrappingCountdown BurialWait { get; internal set; }
 
     /// <summary>
     /// The swoop path entry whose height the body takes next: it counts down from <see cref="SwoopPathEntryCount"/>
@@ -218,7 +233,8 @@ public sealed class DraygonEnemyState
     internal void ClearWithRecord()
     {
         Function = DraygonAiFunction.None;
-        FunctionTimer = WrappingCountdown.Start(0);
+        IntroFrames = 0;
+        BurialWait = WrappingCountdown.Start(0);
         SwoopEntry = 0;
         SwoopPathEntryCount = 0;
         SwoopVelocity = 0;

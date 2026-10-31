@@ -21,14 +21,16 @@ internal static class DraygonRecordStateVerification
         var eyeState = new DraygonEyeState { Function = DraygonEyeFunction.FacingLeft, LookAngle = 64 };
         eye.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
 
-        state.FunctionTimer = WrappingCountdown.Start(12);
+        state.IntroFrames = 40;
+        state.BurialWait = WrappingCountdown.Start(12);
         state.Function = DraygonAiFunction.Dying;
         state.SwoopPathEntryCount = 10;
         state.SwoopEntry = 7;
         state.SwoopVelocity = SixteenSixteen.Compose(2, 0x8000);
         body.Clear();
         AssertEqual((DraygonAiFunction)0, state.Function, "a body kill empties the function");
-        AssertEqual((ushort)0, state.FunctionTimer.RawValue, "a body kill empties the function timer");
+        AssertEqual(0, state.IntroFrames, "a body kill empties the intro frame count");
+        AssertEqual((ushort)0, state.BurialWait.RawValue, "a body kill empties the burial wait");
         AssertEqual(0, state.SwoopEntry, "a body kill empties the swoop entry");
         AssertEqual(0, state.SwoopPathEntryCount, "a body kill empties the swoop path length");
         AssertEqual(0u, state.SwoopVelocity, "a body kill empties the velocity");

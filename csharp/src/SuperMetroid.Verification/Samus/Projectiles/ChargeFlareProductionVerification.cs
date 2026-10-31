@@ -19,7 +19,6 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 /// <summary>Checks compiled charge flare compositions in production draw and saved-state rebinding.</summary>

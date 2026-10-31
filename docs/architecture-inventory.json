@@ -4550,43 +4550,30 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyFloorUpdateDocument",
+      "type": "SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyGetawayBoostDelayDocument",
       "kind": "record",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Bosses/Ridley/CeresRidleyFloorUpdateDocument.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/Ridley/CeresRidleyGetawayBoostDelayDocument.cs"
       ],
       "partial": "none",
       "disposition": "record"
     },
     {
-      "type": "SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyFloorUpdateFiles",
+      "type": "SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyGetawayBoostDelayFiles",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.AssetExtraction"
       ],
       "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Bosses/Ridley/CeresRidleyFloorUpdateFiles.cs"
+        "csharp/src/SuperMetroid.AssetExtraction/Bosses/Ridley/CeresRidleyGetawayBoostDelayFiles.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyFloorUpdateRunDocument",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.AssetExtraction"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.AssetExtraction/Bosses/Ridley/CeresRidleyFloorUpdateRunDocument.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
     },
     {
       "type": "SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorDocument",
@@ -30150,6 +30137,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Audio.SoundRequestCheckTimerConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Audio/SoundRequestCheckTimerConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Audio.SpcDriverDefinitionsRamConstants",
       "kind": "static class",
       "scope": "test",
@@ -30308,22 +30311,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.TickAccumulatorConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Audio/TickAccumulatorConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Audio.UnrenderableSoundEffect",
@@ -44416,27 +44403,27 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyFloorUpdateFormat",
+      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyGetawayBoostDelayFormat",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyFloorUpdateFormat.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyGetawayBoostDelayFormat.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyFloorUpdateSources",
+      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyGetawayBoostDelays",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyFloorUpdateSources.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/CeresRidleyGetawayBoostDelays.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -45110,6 +45097,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.CeresSelfDestructPhase",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresSelfDestructPhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.NorfairRidleyCombat",
@@ -46265,6 +46265,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.SeekingVelocityRun",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/SeekingVelocityRun.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.SporeSpawn.Artwork.RoomPlmSporeSpawnCeilingVisualCatalog",
@@ -49178,6 +49191,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.AimAngleSlope",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/AimAngleSlope.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.ChainsawFuseAnimationShift\u003CTCursor\u003E",
       "kind": "class",
       "scope": "product",
@@ -49327,56 +49353,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.FloorUpdate",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/FloorUpdate.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.FloorUpdateResidue",
+      "type": "SuperMetroid.Core.Compatibility.FrameClock",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/FloorUpdateResidue.cs"
+        "csharp/src/SuperMetroid.Core/Compatibility/FrameClock.cs"
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.FloorUpdateResidue.Descriptor",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/FloorUpdateResidue.cs"
-      ],
-      "partial": "none",
-      "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.FloorUpdateResidue.DescriptorClearing",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/FloorUpdateResidue.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.IDoorMusicLoadFrames",
@@ -49387,19 +49374,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/IDoorMusicLoadFrames.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.IFloorUpdateResidue",
-      "kind": "interface",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/IFloorUpdateResidue.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -49658,19 +49632,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.RecordedFloorUpdateResidue",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Compatibility/RecordedFloorUpdateResidue.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Compatibility.RoomHandOver",
       "kind": "class",
       "scope": "product",
@@ -49718,6 +49679,45 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/SaveChoiceInputCadence.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SharedRandom",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SharedRandom.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SharedRandomDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SharedRandomDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SharedRandomState",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SharedRandomState.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -49835,6 +49835,32 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/SoundRequestCheck.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundRequestCheckTimer",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundRequestCheckTimer.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundRequestCheckTimerStep",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundRequestCheckTimerStep.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -49983,32 +50009,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Compatibility.TickAccumulator",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/TickAccumulator.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.TickAdvance",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/TickAdvance.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Compatibility.TrailStartPastPlacements\u003CTProgram, TList, TPlacement\u003E",
       "kind": "class",
       "scope": "product",
@@ -50023,7 +50023,7 @@
     },
     {
       "type": "SuperMetroid.Core.Compatibility.UnauthoredBoostCadence",
-      "kind": "static class",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -50032,33 +50032,7 @@
         "csharp/src/SuperMetroid.Core/Compatibility/UnauthoredBoostCadence.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.UnsignedDivision",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/UnsignedDivision.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Compatibility.WordCarry",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Compatibility/WordCarry.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.WrappingCountdown",
@@ -50072,6 +50046,38 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WrappingCountdownAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Compatibility/WrappingCountdownAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WrappingCountdownAccess.extension(SuperMetroid.Core.Compatibility.WrappingCountdown)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Compatibility/WrappingCountdownAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.WrappingCounter",
@@ -95318,19 +95324,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Gameplay.FrameClock",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Gameplay/FrameClock.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Gameplay.GameplayDisplayLatch",
       "kind": "record",
       "scope": "product",
@@ -99484,45 +99477,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Progression.SharedRandom",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Progression/SharedRandom.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Progression.SharedRandomDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Progression/SharedRandomDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Progression.SharedRandomState",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Progression/SharedRandomState.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Progression.SuperMetroidGameState",
@@ -137244,6 +137198,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Audio.SoundRequestCheckTimerVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Audio/SoundRequestCheckTimerVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Audio.SpcAllocationAddressesVerification",
       "kind": "static class",
       "scope": "test",
@@ -137398,19 +137365,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Verification.Audio.TickAccumulatorVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Audio/TickAccumulatorVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Verification.Bosses.BossBodyDisplay",

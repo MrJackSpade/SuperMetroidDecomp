@@ -13,8 +13,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Frontend.Intro;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Samus pose history publication during intro flashback and discovery.</summary>
 internal static class IntroPoseHistoryVerification

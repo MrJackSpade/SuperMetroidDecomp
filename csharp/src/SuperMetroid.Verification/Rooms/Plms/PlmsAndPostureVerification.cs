@@ -10,8 +10,8 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Rooms.Plms;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
 

@@ -36,7 +36,7 @@ public sealed class UnauthoredBoostCadence
     public const int LongestDelay = byte.MaxValue;
 
     /// <summary>The ten delays, by running frame: all zero until the getaway first draws its wings.</summary>
-    private IReadOnlyList<int> delays = new int[FrameCount];
+    private int[] delays = new int[FrameCount];
 
     /// <summary>
     /// Takes the delays a wing frame of the getaway leaves behind as it redraws the floor; they time the cadence until

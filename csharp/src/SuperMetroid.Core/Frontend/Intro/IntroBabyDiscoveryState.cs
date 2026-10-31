@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;

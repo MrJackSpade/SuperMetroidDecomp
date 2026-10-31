@@ -15,6 +15,7 @@ internal static class ZebetiteRecordStateVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.SetSpawnWords(EnemyDefinitionId.Zebetite, words => words);
         var state = new ZebetiteEnemyState(slot.Spawn.Population);
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<ZebetiteAiFunction>()[^1];

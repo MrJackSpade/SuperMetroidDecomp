@@ -68,6 +68,7 @@ internal static class CacatacBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
         slot.Position = FixedPosition<RoomPixels>.FromWhole(new(8, 112));
+        slot.SetSpawnWords(EnemyDefinitionId.Cacatac, words => words);
         CacatacBehavior.InitializeCacatac(slot);
         CacatacEnemyState state = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state.");
         AssertEqual(new Position16<RoomPixels>(unchecked((ushort)(8 - 16)), 112), state.LeftPatrolLimit, "Cacatac left limit wraps below the room's left edge");

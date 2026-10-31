@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// These values describe the chip's public register layout; mixer code should name the
 /// register it is handling instead of scattering raw addresses through control flow.
 /// </summary>
+[EncodingOwner("S-DSP register file addresses and field masks")]
 internal static class SnesDspRegisterLayout
 {
     /// <summary>The S-DSP exposes 128 byte-addressed registers.</summary>

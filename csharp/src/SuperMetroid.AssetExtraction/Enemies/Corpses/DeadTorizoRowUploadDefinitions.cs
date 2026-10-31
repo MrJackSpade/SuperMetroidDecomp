@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// uploads from its staged characters each main-AI call. Only the extraction reads them, to picture the steps each half
 /// can show.
 /// </summary>
+[EncodingOwner("bank-$A9 dead-Torizo row upload lists")]
 internal static class DeadTorizoRowUploadDefinitions
 {
     /// <summary>Twelve ten-tile body rows start at $7E:2000 and VRAM word$7060.</summary>

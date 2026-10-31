@@ -1,9 +1,11 @@
+using SuperMetroid.Core;
 using System.Collections.Frozen;
 using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The bank-$8D spritemap each enemy-projectile composition frame is stored at.</summary>
+[EncodingOwner("bank-$8D addresses of the enemy-projectile spritemaps")]
 internal static class EnemyProjectileCompositionDefinitions
 {
     /// <summary>The empty bank-$8D projectile spritemap at $8D:8000, which draws nothing.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using SuperMetroid.Core.Frontend.Options;
@@ -8,6 +9,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the options screen's pages, button labels and heading spritemaps (#1416): the import
 /// pipeline's private knowledge of the cartridge, decoded once into the installed options presentation.
 /// </summary>
+[EncodingOwner("cartridge addresses of the options screen pages, labels and headings")]
 internal static class GameOptionsSourceDefinitions
 {
     /// <summary>Bytes of one stored options page: its tilemap of two-byte cells.</summary>

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
@@ -6,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// tilemap, and the post-credits waiting, shooting and reward scenes. Each scene reuses VRAM, so
 /// its allocations alias the whole store.
 /// </summary>
+[EncodingOwner("ending VRAM allocations")]
 internal static class EndingVramLayout
 {
     /// <summary>VMADD $4000-$6FFF: the escape/explosion OBJ sheet <c>$8B:D8C1</c> uploads from <c>$7F:8000</c>.</summary>

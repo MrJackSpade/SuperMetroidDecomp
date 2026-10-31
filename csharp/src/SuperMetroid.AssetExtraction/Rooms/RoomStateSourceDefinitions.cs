@@ -1,8 +1,10 @@
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Where the cartridge keeps room-state records, the fields extraction reads from them, and each compiled state's pointer.</summary>
+[EncodingOwner("bank-$8F room-state record pointers and fields")]
 internal static class RoomStateSourceDefinitions
 {
     /// <summary>Bank $8F, which holds the room-state records.</summary>

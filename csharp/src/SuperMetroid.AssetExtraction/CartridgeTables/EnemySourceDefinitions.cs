@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers enemy and enemy-projectile codecs resolve.</summary>
+[EncodingOwner("cartridge regions and addresses of the enemy and enemy-projectile tables")]
 internal static class EnemySourceDefinitions
 {
     /// <summary>

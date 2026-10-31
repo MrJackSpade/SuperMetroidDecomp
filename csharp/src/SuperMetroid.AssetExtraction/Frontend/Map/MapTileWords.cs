@@ -1,9 +1,12 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>
 /// Named cartridge map cell words: the characters the map's exploration rules recognise and the hidden cells the pause
 /// screen, the room-select map and the HUD minimap show in place of unrevealed ones.
 /// </summary>
+[EncodingOwner("area map cell words of the hidden and recognised cells")]
 public static class MapTileWords
 {
     /// <summary>$90:AB00 recognizes character $028 and marks the map cell above Samus explored.</summary>

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
@@ -6,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// The dead Zoomer, Ripper and Skree corpses' staged art layouts (#1406): where each variant's characters are copied from
 /// the shared corpse sheet into work memory, and the columns its pixel movers walk. Only the extraction reads them.
 /// </summary>
+[EncodingOwner("bank-$A9 Tourian corpse work-memory layout")]
 internal static class DeadTourianCorpseStagingDefinitions
 {
     /// <summary>Dead Zoomer's three art variants.</summary>

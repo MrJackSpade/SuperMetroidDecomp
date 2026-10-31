@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the enemy species tables extraction reads (#1412): the import pipeline's private knowledge
 /// of the cartridge, decoded once into the installed colour documents and definitions.
 /// </summary>
+[EncodingOwner("cartridge addresses of the enemy species colour tables")]
 internal static class EnemySpeciesSourceDefinitions
 {
     /// <summary>The bytes of one RGB5 colour word.</summary>

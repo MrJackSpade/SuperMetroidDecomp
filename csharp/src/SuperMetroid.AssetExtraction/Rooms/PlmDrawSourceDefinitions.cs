@@ -7,6 +7,7 @@ using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
@@ -14,6 +15,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Where the cartridge stores each PLM draw (#1402): the import pipeline's private knowledge, used to read and verify
 /// a draw's level words when its artwork is extracted. Core identifies draws only semantically.
 /// </summary>
+[EncodingOwner("bank-$84 addresses of the PLM draws")]
 internal static class PlmDrawSourceDefinitions
 {
     /// <summary>Bank $84, where every PLM draw is stored.</summary>

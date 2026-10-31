@@ -1,8 +1,10 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Callbacks;
 
 /// <summary>Native Power Bomb callbacks that are a literal long return, distinct from zero/common and private handlers.</summary>
+[EncodingOwner("cartridge addresses of the enemy Power Bomb callbacks")]
 internal static class EnemyPowerBombCallbackDefinitions
 {
     /// <summary>$A2:804C, RTL_A2804C: ship pieces and growing shutter.</summary>

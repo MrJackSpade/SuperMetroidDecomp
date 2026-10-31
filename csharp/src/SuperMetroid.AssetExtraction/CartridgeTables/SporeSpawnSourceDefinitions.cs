@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -6,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps Spore Spawn's colour images (#1413): the import pipeline's private knowledge of the
 /// cartridge, decoded once into the installed Spore Spawn colour document.
 /// </summary>
+[EncodingOwner("cartridge addresses of Spore Spawn's colour tables")]
 internal static class SporeSpawnSourceDefinitions
 {
     /// <summary>$A5:E359, the spore colour image the initializer copies to sprite palette seven.</summary>

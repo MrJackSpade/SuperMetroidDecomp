@@ -1,8 +1,10 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Callbacks;
 
 /// <summary>Named cartridge enemy interaction callbacks, grouped by their native bank.</summary>
+[EncodingOwner("cartridge addresses of the enemy AI and interaction routines")]
 internal static class EnemyAiRoutineDefinitions
 {
     /// <summary>Shared bank-$A0 enemy interaction callbacks.</summary>

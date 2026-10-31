@@ -1,8 +1,10 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Enemies.Callbacks;
 
 /// <summary>Shot/bomb callback identities, not interchangeable with multibox header shortcuts.</summary>
+[EncodingOwner("cartridge addresses of the enemy shot callbacks")]
 internal static class EnemyShotCallbackDefinitions
 {
     /// <summary>$A2:804C, bank-local RTL used by headers and common hitboxes.</summary>

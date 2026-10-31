@@ -8,6 +8,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Crocomire colour and skeleton tables extraction reads (#1413): the import pipeline's
 /// private knowledge of the cartridge, decoded once into the installed Crocomire documents and sheets.
 /// </summary>
+[EncodingOwner("cartridge addresses of Crocomire's colour and skeleton tables")]
 internal static class CrocomireSourceDefinitions
 {
     /// <summary>$A4:B89D, the body and head colours restored after hurt flashes.</summary>

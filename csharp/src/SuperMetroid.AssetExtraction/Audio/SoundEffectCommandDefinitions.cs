@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Collections.Frozen;
 using SuperMetroid.Core.Audio;
 
@@ -7,6 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// The request number each sound has in its library of the installed sound program: the import pipeline's private
 /// knowledge of the cartridge's sound numbering, read only by <see cref="SoundEffectCommands"/>.
 /// </summary>
+[EncodingOwner("request numbers of the sound driver's three sound libraries")]
 internal static class SoundEffectCommandDefinitions
 {
     /// <summary>Each library-one sound's request number.</summary>

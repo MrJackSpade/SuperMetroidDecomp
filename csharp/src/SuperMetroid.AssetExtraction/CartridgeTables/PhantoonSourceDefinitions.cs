@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Phantoon tables extraction reads (#1413): the import pipeline's private knowledge of
 /// the cartridge, decoded once into the installed Phantoon colour document.
 /// </summary>
+[EncodingOwner("cartridge addresses of Phantoon's colour tables")]
 internal static class PhantoonSourceDefinitions
 {
     /// <summary>$A7:CB41, the eight consecutive sixteen-colour health palettes $A7:DC0F selects from.</summary>

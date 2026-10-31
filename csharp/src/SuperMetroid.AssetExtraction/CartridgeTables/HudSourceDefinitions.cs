@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -6,6 +8,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// and selection rows (#1416): the import pipeline's private knowledge, decoded once into the installed HUD and message
 /// documents.
 /// </summary>
+[EncodingOwner("cartridge addresses of the HUD tilemaps, glyph tables and message boxes")]
 internal static class HudSourceDefinitions
 {
     /// <summary>$80:988B, the HUD's static top row: a blank row with the minimap's border.</summary>

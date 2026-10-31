@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the game-over screen's text streams, Baby records and sprite placement (#1416): the
 /// import pipeline's private knowledge of the cartridge, decoded once into the installed game-over presentation.
 /// </summary>
+[EncodingOwner("cartridge addresses of the game-over text streams, Baby records and sprites")]
 internal static class GameOverSourceDefinitions
 {
     /// <summary>Bank $81, holding the text streams whose bank-relative pointers the menu's initialization at $81:9206 loads.</summary>

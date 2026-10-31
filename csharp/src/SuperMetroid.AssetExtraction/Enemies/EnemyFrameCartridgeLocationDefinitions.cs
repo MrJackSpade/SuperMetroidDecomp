@@ -9,6 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// the game never reads. Ordinary and extended compositions share the table; every frame lives in one enemy bank.
 /// </summary>
 [ArchitectureReview("large", "One data entry for each of the two thousand installed enemy frames; it holds no logic, and splitting it by family would only scatter one table the extractor reads as a whole.")]
+[EncodingOwner("cartridge addresses of the installed enemy frame records")]
 internal static class EnemyFrameCartridgeLocationDefinitions
 {
     /// <summary>The bank and bank-local word of each installed frame's record.</summary>

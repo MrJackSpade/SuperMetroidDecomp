@@ -1,6 +1,9 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>PPU register definitions shared by file-select and options composition.</summary>
+[EncodingOwner("object-selection register value of the menus")]
 internal static class MenuRenderDefinitions
 {
     /// <summary>

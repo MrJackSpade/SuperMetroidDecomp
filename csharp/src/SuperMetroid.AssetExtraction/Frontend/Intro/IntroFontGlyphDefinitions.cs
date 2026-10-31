@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>$95:D089: 144 intro font tiles uploaded by $8B:A485-A491. Authored one-bit strokes and precise contour choices remain typography content; dilation and atlas packing calculate.</summary>
+[EncodingOwner("intro font one-bit glyph strokes and their two-plane character bytes")]
 internal static class IntroFontGlyphDefinitions
 {
     /// <summary>$95:D089 tile $24 is the small period; tile $26 is its complete drawing shifted one pixel right for the opening card.</summary>

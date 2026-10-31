@@ -1,9 +1,12 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
 /// The SNES CPU-bus layout this LoROM cartridge sees (#1297): the WRAM and save-RAM banks, the system banks' low
 /// windows, the ROM window and the reserved windows no device drives.
 /// </summary>
+[EncodingOwner("SNES CPU bus windows a LoROM cartridge sees")]
 public static class SnesBusLayout
 {
     /// <summary>The bytes of one bank.</summary>

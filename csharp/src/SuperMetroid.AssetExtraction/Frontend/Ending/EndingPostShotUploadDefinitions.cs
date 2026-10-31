@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// Artwork bytes remain separate presentation assets; this table fixes only
 /// their native ordering, lengths and sources.
 /// </summary>
+[EncodingOwner("ending post-shot transfer schedule: sources, lengths and order")]
 internal static class EndingPostShotUploadDefinitions
 {
 

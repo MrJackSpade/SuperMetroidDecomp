@@ -1,7 +1,9 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge stores the room-effect tables the effect extractors read.</summary>
+[EncodingOwner("cartridge addresses of the layer-three effect tables")]
 internal static class RoomFxLayer3SourceDefinitions
 {
     /// <summary>$83:ABF0, table of layer-three effect tilemap pointers.</summary>

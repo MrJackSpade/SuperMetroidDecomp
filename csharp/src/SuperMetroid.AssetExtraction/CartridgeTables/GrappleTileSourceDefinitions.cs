@@ -1,8 +1,10 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge keeps the grapple's endpoint and rope characters (#1411).</summary>
+[EncodingOwner("cartridge addresses and strides of the grapple characters")]
 internal static class GrappleTileSourceDefinitions
 {
     /// <summary>$9A:8200, Tiles_GrappleBeam_Horizontal_Beam, the first endpoint character.</summary>

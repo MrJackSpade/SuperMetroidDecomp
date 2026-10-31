@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>The bank-$8D address the cartridge stores for each palette-FX record's timer word.</summary>
+[EncodingOwner("bank-$8D addresses of the palette-FX records")]
 internal static class PaletteFxRecordSourceDefinitions
 {
     /// <summary>Each record, by the bank-$8D address of its timer word; its colour words follow it.</summary>

@@ -1,6 +1,9 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>Bit layout and bounds shared by every command in the cartridge format.</summary>
+[EncodingOwner("compressed asset command header bits")]
 public static class SmCompressionCodes
 {
     /// <summary><c>$FF</c>: ends a compressed stream; this value takes precedence over the long-header marker.</summary>

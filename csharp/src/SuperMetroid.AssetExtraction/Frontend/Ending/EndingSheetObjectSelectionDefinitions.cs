@@ -7,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// The OBJ selection each ending sprite page was drawn with: where its characters begin and which sprite sizes its
 /// compositions use, which the ending's sheets are composed in (#1463).
 /// </summary>
+[EncodingOwner("object-selection register values of the ending sprite pages")]
 internal static class EndingSheetObjectSelectionDefinitions
 {
     /// <summary>The sprite-sheet selection of the escape and explosion scenes.</summary>

@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Video;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// knowledge, which decodes the installed starting image and native colour images into owners. Core never addresses a
 /// colour by these positions.
 /// </summary>
+[EncodingOwner("colour positions of gameplay's 256-colour image")]
 internal static class GameplayColourPositionDefinitions
 {
     /// <summary>The first background set's first colour.</summary>

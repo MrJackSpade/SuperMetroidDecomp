@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -8,6 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// bounding callbacks and the record shapes <see cref="IntroNarrationExtractor"/> checks.
 /// Extraction-only data; the simulation never reads it.
 /// </summary>
+[EncodingOwner("bank-$8C opening narration script records")]
 internal static class IntroNarrationScriptDefinitions
 {
     /// <summary>Bank containing the intro background-object streams and glyph records.</summary>

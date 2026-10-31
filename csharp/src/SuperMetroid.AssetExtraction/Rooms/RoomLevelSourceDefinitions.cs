@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.World.RoomStates;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Where the cartridge keeps each room level's compressed blocks, block types and background blocks.</summary>
+[EncodingOwner("cartridge addresses of the compressed room levels")]
 internal static class RoomLevelSourceDefinitions
 {
     /// <summary>Each level's compressed source, by the level the room states name.</summary>

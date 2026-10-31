@@ -1,9 +1,11 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>Control words in the bank-$81 file-select tilemap stream format.</summary>
+[EncodingOwner("bank-$81 file-select tilemap stream control words")]
 internal static class FileSelectTilemapFormat
 {
     /// <summary>Bank containing the file-select text streams.</summary>

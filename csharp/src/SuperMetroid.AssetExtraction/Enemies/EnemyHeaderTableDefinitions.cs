@@ -1,6 +1,9 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Where and how the bank-$B4 tables an enemy header's words select are laid out.</summary>
+[EncodingOwner("bank-$B4 enemy drop and vulnerability table layout")]
 internal static class EnemyHeaderTableDefinitions
 {
     /// <summary>The bank that holds the item-drop and vulnerability tables.</summary>

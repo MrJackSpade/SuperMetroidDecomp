@@ -1,6 +1,9 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Where each arm-cannon drawing descriptor selected by Samus pose starts in the drawing window.</summary>
+[EncodingOwner("arm-cannon drawing descriptor offsets in the bank-$90 drawing window")]
 internal static class ArmCannonDescriptorDefinitions
 {
     /// <summary>$90:C9DB, ArmCannonDrawingData_FacingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>

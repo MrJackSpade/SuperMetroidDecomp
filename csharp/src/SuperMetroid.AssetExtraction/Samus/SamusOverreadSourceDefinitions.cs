@@ -1,9 +1,12 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// Where on the cartridge, and how, Samus's glitch paths read past their data: extraction's private knowledge, which it
 /// decodes once into the Samus overread services (#1474).
 /// </summary>
+[EncodingOwner("cartridge regions Samus's glitch paths read past their data")]
 internal static class SamusOverreadSourceDefinitions
 {
     /// <summary>Bank $80, whose upper half the SpaceTime palette copy reads through its bank-$00 mirror.</summary>

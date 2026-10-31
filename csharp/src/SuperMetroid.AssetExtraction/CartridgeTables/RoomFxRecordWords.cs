@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -9,6 +10,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// cartridge table, the effect type into the bank-$83 dispatcher and page tables and the blend into the $89:AA02
 /// colours, so extraction reads those tables through them; the identities' own values are arbitrary.
 /// </summary>
+[EncodingOwner("room-FX record effect and palette-blend bytes")]
 internal static class RoomFxRecordWords
 {
     /// <summary>The dispatcher byte naming each <see cref="RoomFxType"/>.</summary>

@@ -1,9 +1,12 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>
 /// Where the cartridge keeps Mother Brain's fake-death room flash, for extraction and its ROM oracles only: the
 /// simulation runs the flash by frame index and never locates it.
 /// </summary>
+[EncodingOwner("bank-$AD addresses of Mother Brain's fake-death room flash lists")]
 internal static class MotherBrainRoomFlashSourceDefinitions
 {
     /// <summary><c>MotherBrain_FakeDeath_RoomPalette_InstructionList</c> at $A9:D046: the room flash's fourteen timed entries.</summary>

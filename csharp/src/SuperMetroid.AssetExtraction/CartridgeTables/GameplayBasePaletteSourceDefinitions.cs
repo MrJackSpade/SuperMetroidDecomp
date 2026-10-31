@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -5,6 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the gameplay base palettes (#1420): the import pipeline's private knowledge, decoded once
 /// into the installed base-palette document.
 /// </summary>
+[EncodingOwner("cartridge addresses of the gameplay base palettes")]
 internal static class GameplayBasePaletteSourceDefinitions
 {
     /// <summary>$9A:8000, the complete starting 256-colour image.</summary>

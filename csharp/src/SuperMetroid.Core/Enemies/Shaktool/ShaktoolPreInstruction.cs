@@ -1,19 +1,20 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// The five routines Shaktool's segments run before their instructions.
-/// Its values are arbitrary; verification's native view names each member's cartridge routine (#1412).
+/// How a Shaktool segment moves itself before its instructions run.
+/// Its values are arbitrary; verification's native view names the cartridge routines each member stands for (#1412).
 /// </summary>
 public enum ShaktoolPreInstruction
 {
-    /// <summary><c>$AA:DCAA</c>, native <c>RTS_AADCAA</c>: suspends segment motion during the collision-response instruction sequence until its reset callback restores the segment functions.</summary>
-    IdleAfterAttack = 1,
-    /// <summary><c>$AA:DCAB</c>, native <c>RTS_AADCAB</c>: no-op function for the first, anchoring saw piece; this is not the central head's orientation routine.</summary>
-    IdleHead,
-    /// <summary><c>$AA:DCAC</c>, native <c>Function_Shaktool_ArmPiece_SetPosition_HandleCurling</c>: positions an arm relative to the preceding record, then advances its neighbor angle according to the curling flags.</summary>
+    /// <summary>
+    /// The segment does not move itself: the anchoring saw always, and every segment while its collision response plays,
+    /// until the response's reset restores each segment's own motion.
+    /// </summary>
+    Idle = 1,
+    /// <summary>Positions an arm relative to the preceding segment, then advances its neighbour angle by the curling flags.</summary>
     OrbitPreviousSegment,
-    /// <summary><c>$AA:DCD7</c>, native <c>Function_Shaktool_Head</c>: performs the arm motion for the middle record and selects one of eight head animations from the adjacent segment angles and flip flag.</summary>
+    /// <summary>Moves the middle segment as an arm and picks one of eight head poses from the adjacent segment angles and the flip flag.</summary>
     OrbitAndOrientCenter,
-    /// <summary><c>$AA:DD25</c>, native <c>Function_Shaktool_FinalPiece</c>: collision-tests the final saw's orbital movement, updates the chain's curl state, and reverses its ends when obstructed.</summary>
+    /// <summary>Collision-tests the final saw's orbit, updates the chain's curl, and reverses the chain's ends when it is obstructed.</summary>
     DriveTailAndReverseAtWalls,
 }

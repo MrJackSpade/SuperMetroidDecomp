@@ -60,7 +60,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         }
 
         foreach (ShaktoolSegmentState? state in enemies.ShaktoolSegments.Take(7))
-            (state ?? throw new InvalidOperationException("Verification requires state.")).PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
+            (state ?? throw new InvalidOperationException("Verification requires state.")).PreInstruction = ShaktoolPreInstruction.Idle;
         AssertEqual(null, enemies.ShaktoolBehavior.ApplyShaktoolCue(
                 enemies.SlotTable.Slots[0], enemies.ShaktoolSegments[0] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[0]."),
                 new ShaktoolCue(ShaktoolCueKind.ResetFunctions)),
@@ -107,10 +107,16 @@ internal static class ShaktoolSegmentDefinitionsVerification
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeLayerAddress,
             definition => definition.Layer, "layer selection"));
 
-    /// <summary>Checks the initial per-segment pre-instruction callback selection.</summary>
-    private static void VerifyShaktoolCallbackSelection(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeCallbackAddress,
-            definition => ShaktoolNativeWords.ShaktoolPreInstructions.Word(definition.PreInstruction), "callback selection"));
+    /// <summary>Checks that each segment's initial pre-instruction is the one its cartridge callback word stands for.</summary>
+    private static void VerifyShaktoolCallbackSelection(SuperMetroidAddressSpace rom)
+    {
+        for (int index = 0; index < 7; index++)
+        {
+            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(ShaktoolSegmentDefinitions.NativeCallbackAddress + 2 * index);
+            AssertEqual(ShaktoolNativeWords.DecodePreInstruction(word, "Shaktool segment callback"), ShaktoolSegments.ForIndex(index).PreInstruction,
+                $"Shaktool callback selection {index}");
+        }
+    }
 
     /// <summary>Compares one seven-word native table with its compiled definition and rejects out-of-range segment indices.</summary>
     private static void VerifyShaktoolDefinitionField(SuperMetroidAddressSpace rom,

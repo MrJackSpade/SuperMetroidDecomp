@@ -89,8 +89,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         switch (state.PreInstruction)
         {
-            case ShaktoolPreInstruction.IdleAfterAttack:
-            case ShaktoolPreInstruction.IdleHead:
+            case ShaktoolPreInstruction.Idle:
                 return;
 
             case ShaktoolPreInstruction.OrbitPreviousSegment:
@@ -284,7 +283,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemySlot segment = group[index];
             ShaktoolSegmentState segmentState = RequireShaktoolState(segment);
             CalculateShaktoolAngularVelocity(segmentState);
-            segmentState.PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
+            segmentState.PreInstruction = ShaktoolPreInstruction.Idle;
             segmentState.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
                 ShaktoolPrograms.CollisionForSegment(index));
             segment.InstructionTimer = WrappingCountdown.Start(1);

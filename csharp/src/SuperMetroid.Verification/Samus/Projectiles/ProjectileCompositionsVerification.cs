@@ -130,7 +130,7 @@ internal static class ProjectileCompositionsVerification
         foreach (ushort coordinate in new ushort[] { 0, 100, 223, 255, 256, 303, 304, 0xffcf, 0xffd0 })
         foreach (ushort type in new ushort[] { 0, 0x10, 0x100, 0x200, 0x300, 0x500, 0x700, 0x800 })
         {
-            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             var bombs = new SamusBombProjectileSystem();
             var shot = shots.Slots[0];
             shot.Cursor = ProjectileFixtureCursors.Active; shot.SpritemapPointer = id;

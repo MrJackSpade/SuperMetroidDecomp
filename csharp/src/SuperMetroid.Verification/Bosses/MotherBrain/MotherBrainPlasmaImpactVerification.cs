@@ -31,7 +31,7 @@ internal static class MotherBrainPlasmaImpactVerification
         enemies.MotherBrainEncounter.MotherBrain = state;
         ((List<RoomEnemySlot>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
         var samus = new SamusState(InstalledFixtures.AnimationContinuation);
-        var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
+        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = InstalledFixtures.Projectiles.FrameBindings } };
         var bombs = new SamusBombProjectileSystem();
         var shot = shots.Slots[0];
         SeedChargedPlasma();

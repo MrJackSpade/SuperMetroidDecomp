@@ -791,12 +791,16 @@ internal sealed class RoomLoader
         // The destination reads the outgoing room only through this capture; from here on the room views show the
         // destination's parts as each step builds them.
         var carryOver = new RoomTransitionCarryOver(_room.Camera, _room.InheritedLayer1Position,
-            _room.Scope is { } outgoing ? SamusProjectileResidue.Of(outgoing.Projectiles) : SamusProjectileResidue.None,
             _room.Scope is { } gated
                 ? new EnemyDoorTransitionGates(gated.Enemies.RoomStatus.EnemyDoorTransitionActive,
                     gated.Enemies.Elevator.ElevatorDoorTransitionActive)
-                : default,
-            _room.Scope is { } previous ? EnemyRoomResidue.Of(previous.Enemies) : EnemyRoomResidue.None);
+                : default);
+        // The outgoing room's shots and enemy projectiles leave what the next room's start from (RoomHandOver).
+        if (_room.Scope is { } outgoing)
+        {
+            outgoing.Projectiles.HandOverTo(_room.HandOver);
+            outgoing.Enemies.HandOverTo(_room.HandOver);
+        }
         RoomScopeConstruction scope = _room.BeginConstruction(door, room, assets, entry.LoadStation);
         var wreckedShipTreadmill = new WreckedShipTreadmillAnimatedTilesState();
         scope.WreckedShipTreadmill = wreckedShipTreadmill;
@@ -930,7 +934,8 @@ internal sealed class RoomLoader
             loadingSamus.Shinespark.ResetProjectileEchoStorage();
         }
         var bombs = new SamusBombProjectileSystem();
-        var projectiles = new SamusProjectileSystem(_beamCharge, carryOver.ProjectileResidue, _samusOverreads);
+        var projectiles = new SamusProjectileSystem(_beamCharge, _samusOverreads);
+        projectiles.TakeOverFrom(_room.HandOver);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
@@ -997,10 +1002,11 @@ internal sealed class RoomLoader
         // equipment during initialization; its grant must not retroactively select the beam loaded for this room.
         _artwork.UpdateBeamTilesAndPalette(_player.Colours, _player.Samus?.EquippedBeams ?? 0);
 
-        // `$A0:8A1E` LoadEnemies builds the destination's enemy RAM, with the door-transition gates clear, over the
-        // projectile and first-free words the outgoing room's enemies left.
-        var enemies = new RoomEnemySystem(_enemySession, carryOver.EnemyResidue, CompiledRoomEnemyDefinitions.Instance, areaServices,
+        // The destination's enemies load with the door-transition gates clear; their projectile places start from what
+        // the outgoing room's left (RoomHandOver).
+        var enemies = new RoomEnemySystem(_enemySession, CompiledRoomEnemyDefinitions.Instance, areaServices,
             _bossArtwork, _areaArtwork);
+        enemies.TakeOverFrom(_room.HandOver);
         scope.Enemies = enemies;
         projectiles.Earthquakes.BindRoomEarthquake(enemies.Earthquake);
         enemies.Load(new RoomEnemyLoadRequest(

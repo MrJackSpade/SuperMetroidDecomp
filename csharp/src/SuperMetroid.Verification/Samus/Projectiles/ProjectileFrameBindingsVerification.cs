@@ -58,7 +58,7 @@ internal static class ProjectileFrameBindingsVerification
                 { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Damage = 30 };
             var installedBomb = new SamusBombProjectileSlot(0)
                 { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
-            var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
+            var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = stock } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             AssertTrue(nativeShot.InstructionTimer.RawValue is > 0 and < 0x8000,
                 "native inventory contains timed records");
@@ -107,7 +107,7 @@ internal static class ProjectileFrameBindingsVerification
         var edited = InstalledProjectileFrameBindings.Load(new MemoryStream(editedJson));
         var editedShot = new SamusProjectileSlot(0)
             { Cursor = SamusProjectileProgramAddresses.CursorAt(editedPointer), InstructionTimer = WrappingCountdown.Start(1), Damage = 30 };
-        new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = edited } }
+        new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads) { Animation = { FrameBindings = edited } }
             .Animation.RunProjectileInstructionHandler(editedShot);
         AssertEqual(replacement, editedShot.SpritemapPointer,
             "edited frame binding reaches the actual projectile instruction handler");

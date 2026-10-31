@@ -567,17 +567,15 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BossFrameResults.RemoveLiquidEffects, FrameResults.Gunship, BossFrameResults.RoomEffects());
 
     /// <summary>
-    /// Creates a room's enemy system: every enemy slot, each with its stable ordinal, starting from the words the replaced room's
-    /// enemies left, with the door-transition gates clear, without loading a population or binding memory, graphics,
-    /// random-number, or gameplay services.
+    /// Creates a room's enemy system: every enemy slot, each with its stable ordinal, with the door-transition gates
+    /// clear, without loading a population or binding memory, graphics, random-number, or gameplay services.
     /// </summary>
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
-    /// <param name="residue">The words the replaced room's enemies leave behind, or null for the session's first room.</param>
     /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
     /// <param name="services">The cartridge-state services the room's AI calls, or null when none is supplied.</param>
     /// <param name="bossArtwork">The session's installed boss artwork, or null for a system with its own, empty binding.</param>
     /// <param name="areaArtwork">The session's installed area artwork, or null for a system with its own, empty binding.</param>
-    internal RoomEnemySystem(EnemySession session, EnemyRoomResidue? residue = null,
+    internal RoomEnemySystem(EnemySession session,
         IRoomEnemyDefinitionSource? definitions = null, IRoomEnemyServices? services = null,
         BossArtworkBinding? bossArtwork = null, AreaArtworkBinding? areaArtwork = null)
     {
@@ -789,8 +787,28 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Species = EnemySpeciesRegistry.ForRetailRooms(new EnemyCommonParticipation(GetSharedReactions), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, BombTorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior,
             new RidleyEntityFactory(RidleyBehavior, CeresRidleyBehavior, RidleyEncounter), new InertEnemyFactory()]);
         SlotTable.InstallSlots(Species);
-        (residue ?? EnemyRoomResidue.None).ApplyTo(this);
     }
+
+    /// <summary>
+    /// Starts each enemy projectile place from the whole position and velocity the room this one replaces left
+    /// (<see cref="RoomHandOver"/>), before the population loads.
+    /// </summary>
+    internal void TakeOverFrom(RoomHandOver handOver)
+    {
+        Ensure.NotNull(handOver);
+        IReadOnlyList<RoomEnemyProjectileSlot> places = Projectiles.EnemyProjectiles;
+        for (int index = 0; index < places.Count; index++)
+        {
+            EnemyProjectileHandOver left = handOver.EnemyProjectile(index);
+            places[index].Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
+            places[index].Velocity = left.Velocity;
+        }
+    }
+
+    /// <summary>Leaves each enemy projectile place's whole position and velocity for the room that replaces this one (<see cref="RoomHandOver"/>).</summary>
+    internal void HandOverTo(RoomHandOver handOver) =>
+        Ensure.NotNull(handOver).LeaveEnemyProjectiles(
+            Projectiles.EnemyProjectiles.Select(place => new EnemyProjectileHandOver(place.Position.Whole, place.Velocity)));
 
     /// <summary>
     /// Re-asserts the door-transition gates over the loaded room: the population initialized with them clear, and the

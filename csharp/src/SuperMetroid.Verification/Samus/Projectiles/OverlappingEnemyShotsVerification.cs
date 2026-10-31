@@ -40,7 +40,7 @@ internal static class OverlappingEnemyShotsVerification
             enemy.SpritemapPointer = 1;
             interactive.Add(enemy);
         }
-        var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+        var shots = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         var bombs = new SamusBombProjectileSystem();
         var shot = shots.Slots[0];
         shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);

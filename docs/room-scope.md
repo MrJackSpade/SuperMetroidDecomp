@@ -52,12 +52,12 @@ room state here", so this order is kept line for line.
 | Graphics | `LoadRoom` | Room graphics, common gameplay sprite rows (`$82:E139`) |
 | FX | `LoadRoom` | Layer-3 FX (consumes the session RNG value), Ceres haze, sand/spike/treadmill tiles, palette FX |
 | Library BG | `LoadRoom` | The room state's library-background program |
-| Teardown | `LoadRoom` | Samus echo storage cleared; new bombs and Samus projectiles with the carried residue (`$82:E43A-$E472`) |
+| Teardown | `LoadRoom` | Samus echo storage cleared; the outgoing shots and enemy projectiles hand over to `RoomHandOver`; new bombs and Samus projectiles, whose shots start from it (`$82:E43A-$E472`) |
 | PLMs | `LoadRoom` | Area progress, PLM services, the room's PLM system and the shared runtime services; PLM population |
 | Door ASM | `LoadRoom` | Door setup code, then setup-callback PLM spawns |
 | Door closer | `LoadRoom` | Door-closing PLM after room PLMs, before enemies |
 | Beam | `LoadRoom` | Beam tiles and palette before enemy init (`$82:E4CC`) |
-| Enemies | `LoadRoom` | The room's `RoomEnemySystem` built with its definitions, services and carried residue and the door gates clear, then `Load` |
+| Enemies | `LoadRoom` | The room's `RoomEnemySystem` built with its definitions and services and the door gates clear, its projectile places started from `RoomHandOver`, then `Load` |
 | Post-enemy | `LoadRoom` | Ridley minimap, escape effects, gate projectile requests applied after the pool clear, pre-Phantoon projectile, enemy room effects, Tourian statues, graphics uploads, then the carried door gates re-asserted over the loaded enemies |
 
 Each room builds its `RoomEnemySystem`, with every species owner, at the enemy step, from its definitions and services.
@@ -80,16 +80,18 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
   escape progress, the critical-energy drop bias (`$0E1E`), the language flag, the random enemy counter, the death
   quota an empty population keeps, the staging surfaces, the Mode 7 transfer residue, the OBJ character table and the
   installed enemy artwork.
-- **`RoomMainScratch`** (`$07E1`) is never cleared by room loading (8933bb109). The Ceres hall debris timer and the
-  elevatube fraction depend on it.
+- **`RoomMainCarryover`**, the compatibility service for the value one room main leaves the next (#1470), is never
+  cleared by room loading (8933bb109). The Ceres hall debris timer, an escape room's diagonal quake and the elevatube
+  fraction depend on it.
 - **Camera tracking state and fraction words** survive door loading (`ScrollBoundaryCamera.InheritTrackingState`,
   `RetainSubpositions`; 80cc097fc, #1266). `InheritedLayer1Position` supplies them when there is no previous camera.
 - **Samus velocity** survives; only `ExtraDisplacement` is cleared.
 - **Beam charge, flare counters and the charge palette** survive `ResetProjectileData`: they live on the session
   `BeamChargeState`, which each room's `SamusProjectileSystem` receives at construction.
-- **Projectile slot residue**: the projectile-data reset clears a slot's whole position words but not its fraction
-  words, and leaves the Spazer special-attack phase (`$0CA4`). `RoomTransitionCarryOver.ProjectileResidue` carries
-  both into the next room's slots; the 100% movie diverges at update 23200 without them.
+- **Shot hand-over** (`RoomHandOver`, #1476): each shot slot's horizontal sub-pixel position survives the reset, and a
+  beam fired left reads it at its muzzle check; the 100% movie diverges at update 23200 without it. The vertical
+  sub-pixel position and the Spazer special-attack phase also survived the original reset, but every shot that reads
+  them writes them first, so neither is handed over.
 - **Room-FX session state**: the Fireflea darkness state and the COLDATA shadows are never cleared by room loading;
   they live on `RoomFxSession`, which each room's `RoomLayer3FxState` reads, with the host's installed FX catalogs.
 - **Palette-FX handler state**: the handler enable bit (`$1E79`) and the Norfair heat palette phases survive room
@@ -100,10 +102,11 @@ Each must become a named `RoomTransitionCarryOver` member or stay a field of a s
   The destination's enemies load with them clear, as the enemy load cleared them, and `RoomTransitionCarryOver.DoorGates`
   re-asserts them once the enemies are loaded, where `DoorTransitionState` used to. The Etecoon fanfare depends on them
   (0188ab9a2, #1194).
-- **Enemy residue**: enemy projectile deletion (`$86:8016/8154`) clears a slot's fractions but leaves its whole
-  coordinates and velocity for the next family initializer, and an empty population keeps the first-free enemy index.
-  `RoomTransitionCarryOver.EnemyResidue` carries both into the next room's enemy system; the 13%, 100%, lowc and Ridley
-  movies diverge in enemy projectiles without them.
+- **Enemy projectile hand-over** (`RoomHandOver`, #1476): enemy projectile deletion (`$86:8016/8154`) clears a
+  place's fractions but leaves its whole position and velocity for the next projectile that does not set them; the 13%,
+  100%, lowc and Ridley movies diverge in enemy projectiles without them. The first free enemy place is not handed over:
+  each room finds it from its own places (`EnemySlotOrder`, #1471). The enemy graphics set is not handed over either: a
+  room that loads none draws under the standard sprites alone, as stale tiles and colours are a presentation quirk.
 - **Session RNG and progression** stay session-lifetime (#1330); layer-3 FX reads the RNG value during the load.
 
 ## Deliberate resets

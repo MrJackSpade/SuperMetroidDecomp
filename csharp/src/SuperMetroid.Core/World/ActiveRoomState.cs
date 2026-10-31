@@ -79,6 +79,9 @@ internal sealed class ActiveRoomState
     /// <summary>The value one room's main leaves for the next, which room loading never clears.</summary>
     public RoomMainCarryover RoomMainCarryover { get; } = new();
 
+    /// <summary>What one room's shots and enemy projectiles leave for the next room's, which room loading never clears.</summary>
+    public RoomHandOver HandOver { get; } = new();
+
     /// <summary>
     /// Active layer-1 scroll-boundary state. It remains null until a room-specific scroll
     /// table is loaded; this prevents the runtime from silently assuming Landing Site.

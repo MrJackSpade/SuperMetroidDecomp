@@ -43,7 +43,7 @@ internal static class ChargeFlarePlacementVerification
             (entry.Value ?? throw new InvalidOperationException("Verification requires entry.Value."))["x"] = entry.Value.Required("x").GetValue<int>() + 7;
         var edited = Load(document);
         Suite(nameof(VerifyRuntimeFlarePlacement), () => VerifyRuntimeFlarePlacement(stock, edited));
-        var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+        var system = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
         var sprites = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
         var drawMetadata = new FlareMetadataDraw(system.Animation.DrawFlareComponentWithMetadata);
         var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, TurningFloorTransform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
@@ -100,7 +100,7 @@ internal static class ChargeFlarePlacementVerification
         AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject)) && beforeSystem.SequenceEqual(GraphDigest(system)), "Flare art edit changes neither Samus physics nor any projectile/timer state");
         foreach (bool hyper in new[] { false, true })
         {
-            var originalSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads); var editedSystem = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None, InstalledFixtures.SamusOverreads);
+            var originalSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads); var editedSystem = new SamusProjectileSystem(new BeamChargeState(), InstalledFixtures.SamusOverreads);
             foreach (var target in new[] { originalSystem, editedSystem })
             {
                 target.Charge.FlareCounter = 30;

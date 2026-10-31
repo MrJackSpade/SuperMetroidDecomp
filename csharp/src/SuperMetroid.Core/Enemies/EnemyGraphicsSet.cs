@@ -24,7 +24,8 @@ internal sealed class EnemyGraphicsSet
 
     /// <summary>
     /// The graphics set whose tiles and palettes the room draws under, which selects its installed sheets: the one it
-    /// loaded, or, when its population is empty and it loads none, the one it inherited.
+    /// loaded, or, when its population is empty and it loads none, the standard sprites alone
+    /// (<see cref="RoomEnemyGraphicsSetDefinitions.SessionStart"/>).
     /// </summary>
     internal RoomEnemyGraphicsSetDefinition LoadedSet { get; private set; } = RoomEnemyGraphicsSetDefinitions.SessionStart;
 
@@ -33,14 +34,6 @@ internal sealed class EnemyGraphicsSet
     /// or is inherited, which draws carry as they are published, so no draw reaches the set's live entries.
     /// </summary>
     internal GraphicsSetColourPlacement Placement { get; private set; }
-
-    /// <summary>Draws under the set the outgoing room left loaded, until this room loads its own.</summary>
-    /// <param name="graphicsSet">The outgoing room's loaded set.</param>
-    internal void Inherit(RoomEnemyGraphicsSetDefinition graphicsSet)
-    {
-        LoadedSet = Ensure.NotNull(graphicsSet);
-        Placement = GraphicsSetColourPlacement.Of(LoadedSet, Entries);
-    }
 
 
     /// <summary>

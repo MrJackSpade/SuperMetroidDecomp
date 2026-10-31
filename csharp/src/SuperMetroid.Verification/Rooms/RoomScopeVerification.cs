@@ -115,10 +115,10 @@ internal static class RoomScopeVerification
         VerificationAssert.AssertEqual(sourceProjectile.Velocity, destinationProjectile.Velocity,
             "an enemy projectile slot's velocity survives the load");
         SamusProjectileSlot destinationShot = destination.Projectiles.SlotTable.Slots[2];
-        VerificationAssert.AssertEqual(FixedPosition<RoomPixels>.FromWords(0, 0x4321, 0, 0x8765), destinationShot.Position,
-            "a slot's position fraction words survive the projectile-data reset; its whole words clear");
-        VerificationAssert.AssertEqual(SpazerComboPhase.FlyingUpTowardsPoint, destinationShot.AuxiliaryPhase,
-            "a slot's Spazer phase survives the projectile-data reset");
+        VerificationAssert.AssertEqual(FixedPosition<RoomPixels>.FromWords(0, 0x4321, 0, 0), destinationShot.Position,
+            "a shot slot starts the next room with the horizontal sub-pixel position the outgoing room's left (RoomHandOver), and nothing else of its position");
+        VerificationAssert.AssertEqual(SpazerComboPhase.Circling, destinationShot.AuxiliaryPhase,
+            "no Spazer phase is handed over: every Spazer special attack sets it before reading it");
         VerificationAssert.AssertEqual(previous.Position.X.Fraction, destination.Camera.Position.X.Fraction, "X fraction word carried");
         VerificationAssert.AssertEqual(previous.Position.Y.Fraction, destination.Camera.Position.Y.Fraction, "Y fraction word carried");
         VerificationAssert.AssertEqual(previous.IdealPosition, destination.Camera.IdealPosition, "ideal position carried");

@@ -128,8 +128,8 @@ internal sealed class MotherBrainCombat
             ? (ushort)14
             : (ushort)13);
 
-        int vulnerability = EnemyCollision.ReadProjectileVulnerability(head, projectileType);
-        if (vulnerability == byte.MaxValue)
+        EnemyWeaponVulnerability vulnerability = EnemyCollision.ReadProjectileVulnerability(head, projectileType);
+        if (vulnerability.FreezesWithoutDamage)
         {
             head.FrozenTimer = WrappingCountdown.Start(400);
             head.AiStates = head.AiStates | EnemyAiStates.Frozen;
@@ -137,7 +137,7 @@ internal sealed class MotherBrainCombat
             return;
         }
 
-        int damage = (projectileDamage >> 1) * (vulnerability & 127);
+        int damage = (projectileDamage >> 1) * vulnerability.Multiplier;
         if (damage == 0)
         {
             _projectiles.CreateEnemyProjectileDudShot(projectile);

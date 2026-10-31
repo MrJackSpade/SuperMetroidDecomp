@@ -53,7 +53,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.Timer = WrappingCountdown.Start(0);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.FrameCounter = 0;
-        slot.HurtAiTime = definition.HurtAiTime;
+        slot.HurtAiTime = definition.HurtFlashFrames;
         slot.Colouring = loaded.Colouring;
         slot.TileIndexBase = loaded.TileBase;
         slot.Spawn = new RoomEnemySpawnSnapshot(population);

@@ -295,6 +295,6 @@ internal sealed class NorfairRidleyDeath
 
         // $A6:C90B calls EnemyDeathAnimation(0): clear the slot immediately and
         // retain the fragment header/position in the shared explosion-to-pickup actor.
-        _deathsAndDrops.StartGenericEnemyDeath(fragment, deathAnimation: 0);
+        _deathsAndDrops.StartGenericEnemyDeath(fragment, deathAnimation: EnemyDeathExplosion.Small);
     }
 }

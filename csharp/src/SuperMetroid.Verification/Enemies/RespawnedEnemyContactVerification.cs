@@ -34,7 +34,7 @@ internal static class RespawnedEnemyContactVerification
             slot.DefinitionId == respawningEnemy && slot.Position.X.Whole == respawnX);
         AssertTrue(enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled),
             "the Hellway actor respawns when killed");
-        runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 0);
+        runtime.Enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: EnemyDeathExplosion.Small);
 
         StepUntil(
             () => enemy.DefinitionId == respawningEnemy,

@@ -121,7 +121,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // EnemyDeath clamps values above four to the small explosion. Queue that real
         // death program before clearing the actor so its artwork and sound can run.
         if (slot.DefinitionId != EnemyDefinitionId.None)
-            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: checked((ushort)slot.Health));
+            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosions.ForFirefleaHealth(slot.Health));
         else
         {
             // Common attacking contact already ran EnemyDeath ($A0:A48F), which returns A = 0
@@ -129,7 +129,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             // again on the cleared slot. Both values select the small explosion. It spawns at
             // (0,0) with the slot's current header (zero, or the placeholder), clears any
             // placeholder, and counts a second kill.
-            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: 0);
+            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: EnemyDeathExplosion.Small);
         }
         AdvanceFirefleaDarknessLevel();
     }

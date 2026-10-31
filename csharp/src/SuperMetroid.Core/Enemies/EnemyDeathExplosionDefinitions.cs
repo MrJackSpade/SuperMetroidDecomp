@@ -9,16 +9,15 @@ internal static class EnemyDeathExplosionDefinitions
     internal const EnemyDeathProjectileProgram NoDropTail = EnemyDeathProjectileProgram.RespawnTail;
 
     /// <summary>
-    /// The death program each death-animation selector starts: zero a small explosion, one the Samus-contact kill, two a
-    /// normal explosion, three Mini-Kraid's explosion and four a big explosion. The selector is a number because
-    /// callers pass computed values (some pass the enemy's remaining health), and its range check is observable.
+    /// The explosion a Fireflea's contact death starts for each remaining health from zero: the explosions in their
+    /// authored order.
     /// </summary>
-    internal static readonly EnemyDeathProjectileProgram[] Programs =
+    internal static readonly EnemyDeathExplosion[] ByFirefleaHealth =
     [
-        EnemyDeathProjectileProgram.SmallExplosion,
-        EnemyDeathProjectileProgram.KilledBySamusContact,
-        EnemyDeathProjectileProgram.NormalExplosion,
-        EnemyDeathProjectileProgram.MiniKraidExplosion,
-        EnemyDeathProjectileProgram.BigExplosion,
+        EnemyDeathExplosion.Small,
+        EnemyDeathExplosion.SamusContact,
+        EnemyDeathExplosion.Normal,
+        EnemyDeathExplosion.MiniKraid,
+        EnemyDeathExplosion.Big,
     ];
 }

@@ -52,8 +52,8 @@ internal sealed class EnemyPopulationLoader
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
             RoomEnemySlot slot = _slotTable.Slots[slotIndex];
             _dispatch.InitializeSlotFromDefinition(slot, population, definition);
-            if (definition.BossId != 0)
-                _roomStatus.BossId = definition.BossId;
+            if (definition.Boss is { } boss)
+                _roomStatus.Boss = boss;
             _dispatch.RunInitializationAi(slot, surroundings);
 
             // InitializeEnemies deliberately clears the init routine's immediate map.

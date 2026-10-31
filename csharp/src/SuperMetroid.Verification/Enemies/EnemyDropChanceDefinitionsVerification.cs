@@ -3,68 +3,58 @@ using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
-/// <summary>Checks the imported enemy drop table against the cartridge and the ROM-free selection path.</summary>
+/// <summary>Checks the imported enemy drop chances against the cartridge and the ROM-free selection path.</summary>
 internal static class EnemyDropChanceDefinitionsVerification
 {
-    /// <summary>Compares every native six-byte record and verifies that production selection rejects invalid restored pointers.</summary>
+    /// <summary>
+    /// Decodes every authored six-byte table, compares each chance with its cartridge byte, runs every table through
+    /// production selection, and checks that words naming no table are rejected.
+    /// </summary>
     internal static void VerifyEnemyDropChanceDefinitions(SuperMetroidAddressSpace rom)
     {
-        Span<byte> actual = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
-        for (int record = 0; record < EnemyDropChanceDefinitions.RecordCount; record++)
-        {
-            var table = new EnemyDropTable(record);
-            ushort pointer = EnemyDropChanceDefinitionsConstants.Pointer(table);
-            EnemyDropTables.Copy(table, actual);
-            for (int field = 0; field < actual.Length; field++)
-            {
-                int address = EnemyDropChanceDefinitions.NativeBank |
-                    unchecked((ushort)(pointer + field));
-                AssertEqual(rom.ReadCartridgeByte(address), actual[field],
-                    $"enemy drop record ${pointer:X4} byte {field}");
-            }
-        }
-
-        AssertEqual(EnemyDropChanceDefinitions.LastPointer,
-            EnemyDropChanceDefinitionsConstants.Pointer(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount - 1)),
-            "the last compiled drop table is the last native record");
-        AssertThrows<InvalidDataException>(
-            () => EnemyDropTables.Copy(new EnemyDropTable(-1), new byte[6]),
-            "enemy drop table below the catalog is rejected");
-        AssertThrows<InvalidDataException>(
-            () => EnemyDropTables.Copy(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount), new byte[6]),
-            "enemy drop table above the catalog is rejected");
-        AssertThrows<ArgumentException>(
-            () => EnemyDropTables.Copy(new EnemyDropTable(0), new byte[5]),
-            "short enemy drop destination");
-
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         var samus = new SamusState
         {
             Health = 99,
             MaxHealth = 99,
         };
-        // The fixture's population is empty; drop selection reads the compiled enemy definitions.
+        // The fixture's population is empty; drop selection reads the chances it is given.
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1], CompiledRoomEnemyDefinitions.Instance);
         var projectile = new RoomEnemyProjectileSlot(1);
-
-        for (int record = 0; record < EnemyDropChanceDefinitions.RecordCount; record++)
+        for (int table = 0; table < EnemyHeaderTableDefinitions.DropChancesCount; table++)
         {
-            var table = new EnemyDropTable(record);
-            projectile.DropChancesOverride = EnemyDropTables.At(table);
+            int word = EnemyHeaderTableDefinitions.FirstDropChances + table * EnemyHeaderTableDefinitions.DropChancesSize;
+            EnemyDropChances chances = EnemyHeaderTables.DropChances(cartridge, word)
+                ?? throw new InvalidOperationException($"Drop table ${word:X4} decoded as no drop.");
+            int[] bytes = [.. Enumerable.Range(0, EnemyHeaderTableDefinitions.DropChancesSize)
+                .Select(column => (int)rom.ReadCartridgeByte(EnemyHeaderTableDefinitions.TableBank | (word + column)))];
+            AssertEqual(new EnemyDropChances(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]), chances,
+                $"enemy drop table ${word:X4} chances in column order");
+
+            projectile.DropChancesOverride = chances;
             EnemyPickupKind selected = fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(projectile);
-            AssertTrue(Enum.IsDefined(selected),
-                $"production enemy drop table {record} returns a defined kind");
+            AssertTrue(Enum.IsDefined(selected), $"production enemy drop table ${word:X4} returns a defined kind");
         }
 
+        AssertEqual<EnemyDropChances?>(null, EnemyHeaderTables.DropChances(cartridge, 0), "a zero word drops nothing");
         AssertThrows<InvalidDataException>(
-            () => EnemyDropTables.At(new EnemyDropTable(EnemyDropChanceDefinitions.RecordCount)),
-            "production enemy drop rejects a table outside the catalog");
+            () => EnemyHeaderTables.DropChances(cartridge, EnemyHeaderTableDefinitions.FirstDropChances - EnemyHeaderTableDefinitions.DropChancesSize),
+            "a word below the tables is rejected");
+        AssertThrows<InvalidDataException>(
+            () => EnemyHeaderTables.DropChances(cartridge, EnemyHeaderTableDefinitions.FirstDropChances + 1),
+            "an unaligned word is rejected");
+        AssertThrows<InvalidDataException>(
+            () => EnemyHeaderTables.DropChances(cartridge, EnemyHeaderTableDefinitions.FirstDropChances +
+                EnemyHeaderTableDefinitions.DropChancesCount * EnemyHeaderTableDefinitions.DropChancesSize),
+            "a word past the tables is rejected");
         Console.WriteLine(
-            "Enemy drop chance definitions: all 118 native records match ROM and execute " +
-            "through production selection with RAM-only memory; tables outside the catalog reject without a ROM fallback.");
+            "Enemy drop chance definitions: all 118 authored tables decode to their cartridge chances and execute " +
+            "through production selection; words naming no table are rejected.");
     }
 
     /// <summary>Runs the drop table comparison using the retail ROM as the source oracle.</summary>

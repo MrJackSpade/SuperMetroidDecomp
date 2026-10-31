@@ -170,14 +170,16 @@ internal static class EnemyDefinitionsVerification
         byte Byte(int offset) => bus.ReadCartridgeByte(address + offset);
         byte bank = Byte(12);
         // The oracle decodes the header independently: the tile word's low fifteen bits are the tile set's size and bit 15
-        // its fixed-block placement; a +$2A word in the bank's ROM half is a leftover prototype pointer, not a variant.
+        // its fixed-block placement; a zero hurt byte is the standard four-frame flash; a +$2A word in the bank's ROM
+        // half is a leftover prototype pointer, not a variant.
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
         return new RoomEnemyDefinition(Word(0) & 0x7fff,
             (Word(0) & 0x8000) != 0 ? EnemyTilePlacement.AtFixedBlock : EnemyTilePlacement.FollowingPrevious,
-            Word(4), Word(6), new(Word(8), Word(10)), Byte(13),
-            SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, Word(14)), Word(16),
-            EnemyInteractionCallbacks.AiRoutine(bank, Word(18)), Word(20), EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
+            Word(4), Word(6), new(Word(8), Word(10)), Byte(13) == 0 ? 4 : Byte(13),
+            SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Library2, Word(14)), AreaBossWords.Decode(Word(16)),
+            EnemyInteractionCallbacks.AiRoutine(bank, Word(18)), EnemyInteractionCallbacks.AiRoutine(bank, Word(24)),
             SamusIdentityWords.GrappleAiRoutines.Decode(Word(26), "grapple AI routine"), EnemyInteractionCallbacks.HurtRoutine(Word(28)),
-            Word(34),
+            EnemyDeathExplosionWords.Selectors.Decode(Word(34), "enemy death explosion"),
             EnemyInteractionCallbacks.TryDecode(bank, Word(40)),
             EnemyInteractionCallbacks.Body(Word(40), EnemyInteractionCallbacks.IsLiteralNoOpPowerBomb(bank, Word(40))),
             Word(42) >= 0x8000 ? (ushort)0 : Word(42),
@@ -186,7 +188,7 @@ internal static class EnemyDefinitionsVerification
             EnemyInteractionCallbacks.TryDecode(bank, Word(50)),
             EnemyInteractionCallbacks.Body(Word(50), EnemyInteractionCallbacks.IsLiteralNoOpShot(bank, Word(50))),
             EnemyInteractionCallbacks.NoOpCallbackBody(bank),
-            Byte(57), EnemyHeaderTables.DropChances(Word(58)), EnemyHeaderTables.Vulnerability(Word(60)));
+            Byte(57), EnemyHeaderTables.DropChances(cartridge, Word(58)), EnemyHeaderTables.Vulnerability(cartridge, Word(60)));
     }
 
     /// <summary>Reads the bank-qualified words of a native enemy header that the decoded definition replaces.</summary>

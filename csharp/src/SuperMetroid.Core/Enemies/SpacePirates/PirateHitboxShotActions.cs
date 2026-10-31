@@ -42,13 +42,12 @@ internal static class PirateHitboxShotActions
         if (!IsBeamOrMissile(family))
             return PirateHitboxShotAction.Ignore;
 
-        EnemyVulnerabilityTable table = enemy.Definition.Vulnerability;
-        int vulnerabilityOffset = family switch
+        EnemyVulnerabilities vulnerabilities = enemy.Definition.Vulnerabilities;
+        EnemyWeaponVulnerability vulnerability = family switch
         {
-            SamusProjectileFamily.Beam => projectile.Type.BeamCombination.TableIndex,
-            SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
-            SamusProjectileFamily.SuperMissile =>
-                EnemyVulnerabilityDefinitions.SuperMissileOffset,
+            SamusProjectileFamily.Beam => vulnerabilities.ForBeam(projectile.Type.BeamCombination),
+            SamusProjectileFamily.Missile => vulnerabilities.Ordnance.Missile,
+            SamusProjectileFamily.SuperMissile => vulnerabilities.Ordnance.SuperMissile,
             SamusProjectileFamily.PowerBomb or
                 SamusProjectileFamily.Bomb or
                 SamusProjectileFamily.BeamExplosion or
@@ -57,9 +56,8 @@ internal static class PirateHitboxShotActions
             _ => throw new InvalidDataException(
                 $"Gold Ninja projectile family {family} has no vulnerability field."),
         };
-        int multiplier = EnemyVulnerabilityEntries.LowNibbleMultiplier(EnemyVulnerabilityEntries.Read(
-            table, vulnerabilityOffset));
-        return multiplier is not (0 or 15)
+        // The Gold Ninja reflects what does it no damage, freezing beams included.
+        return vulnerability.Multiplier != 0 && !vulnerability.FreezesWithoutDamage
             ? PirateHitboxShotAction.Normal
             : PirateHitboxShotAction.Reflect;
     }

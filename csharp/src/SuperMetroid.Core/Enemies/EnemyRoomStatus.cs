@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Progression;
+
+namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// Room-wide enemy publications read by the runtime: kill count, boss identity, Japanese text, Fireflea
@@ -29,10 +31,10 @@ internal sealed class EnemyRoomStatus
     /// <summary>How many kills the count records before it returns to zero.</summary>
     private const int KillCountPeriod = 65536;
     /// <summary>
-    /// Native BossID ($179C) for the loaded encounter, 0 through 65535: reset to zero on room load and published by
-    /// nonzero definition IDs or boss initialization; only compared for equality. Not an area boss-defeated flag.
+    /// The boss of the loaded encounter, or null: reset on room load and published by a boss definition in the
+    /// population or by boss initialization. Not an area boss-defeated flag.
     /// </summary>
-    public int BossId { get; internal set; }
+    public AreaBoss? Boss { get; internal set; }
     /// <summary>
     /// Fireflea darkness progression, 0 through <see cref="MaximumFirefleaDarknessLevel"/>: reset on room load and
     /// advanced by two per Fireflea death, where the advance rejects the step to 14. No producer wraps it, so the

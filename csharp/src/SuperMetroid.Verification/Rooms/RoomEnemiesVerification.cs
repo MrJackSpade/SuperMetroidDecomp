@@ -38,6 +38,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Rooms;
 
 using SuperMetroid.Verification.Enemies;
@@ -98,7 +99,7 @@ internal static void VerifyRoomEnemyLoading()
     // The first header is intentionally filled at every documented offset. Besides making
     // the parsed record useful to future damage/interaction translations, this catches a
     // one-word shift immediately rather than waiting for a distant enemy AI to misbehave.
-    WriteEnemyDefinition(bus, primaryDefinitionPointer, new EnemyDefinitionFields { TileDataSize = 0x0040, PalettePointer = 0x9000, Bank = 0xa2, TileDataAddress = 0xa29100, BossId = 0x1234, NamePointer = 0x9200, FieldSeed = 0x1100, HurtSound = 0x0036 });
+    WriteEnemyDefinition(bus, primaryDefinitionPointer, new EnemyDefinitionFields { TileDataSize = 0x0040, PalettePointer = 0x9000, Bank = 0xa2, TileDataAddress = 0xa29100, BossId = 3, NamePointer = 0x9200, FieldSeed = 0x1100, HurtSound = 0x0036 });
 
     // Bit fifteen selects the definition's encoded staging address instead of the ordinary
     // running $0800 offset. It is still part of the tile-index arithmetic in retail code.
@@ -158,7 +159,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(enemies.SlotTable.Slots[1], enemies.SlotTable.FindFreeSlot(), "a spawn takes the slot after the population");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "population terminator death quota");
     AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "room load clears killed-enemy count");
-    AssertEqual(0x1234, enemies.RoomStatus.BossId, "nonzero definition publishes room boss ID");
+    AssertEqual<AreaBoss?>(AreaBoss.Kraid, enemies.RoomStatus.Boss, "a boss definition publishes the room's boss");
     AssertEqual(2, enemies.GraphicsSet.Entries.Count, "terminated enemy graphics-set count");
 
     RoomEnemyGraphicsSetEntry ordinaryGraphics = enemies.GraphicsSet.Entries[0];
@@ -187,7 +188,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0, slot.TileIndexBase, "first graphics-set tile index");
     AssertEqual(EnemyCallbackBody.ImmediateReturn, slot.Definition.NoOpCallbackBody,
         "definition bank $A2 runs the shared no-op callback as an immediate return");
-    AssertEqual(0x5a, slot.HurtAiTime, "definition hurt-AI time copied into native slot");
+    AssertEqual(0x5a, slot.HurtAiTime, "definition hurt flash copied into the slot");
     AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
     AssertEqual(0, slot.FlashTimer.RawValue, "room load clears flash timer");
     AssertEqual(0, slot.InvincibilityTimer.RawValue, "room load clears invincibility timer");
@@ -198,7 +199,6 @@ internal static void VerifyRoomEnemyLoading()
     RoomEnemyDefinition definition = slot.Definition;
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(Library2Sound.ShotRio, definition.HurtSoundEffect, "definition hurt cry offset $0E");
-    AssertEqual(0x1114, definition.PartCount, "definition part count offset $14");
     AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
     AssertEqual(EnemyCallbackBody.Routine, definition.PowerBombReactionBody,
         "definition power-bomb reaction offset $28");
@@ -207,9 +207,9 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(EnemyTilePlacement.FollowingPrevious, definition.TilePlacement, "definition tile word's clear bit 15 follows the previous member");
     AssertEqual(EnemyTilePlacement.AtFixedBlock, bus.ReadEnemyDefinition(enemies.GraphicsSet.Entries[1].DefinitionId).TilePlacement,
         "special definition tile word's bit 15 places its tiles at the record's fixed block");
-    AssertEqual((EnemyDropTable?)new EnemyDropTable(3), definition.DropChances,
+    AssertEqual(EnemyHeaderTables.DropChances(bus, 0xf206), definition.DropChances,
         "definition item-drop table offset $3A");
-    AssertEqual(new EnemyVulnerabilityTable(2), definition.Vulnerability,
+    AssertEqual(EnemyHeaderTables.Vulnerability(bus, 0xec48), definition.Vulnerability,
         "definition vulnerability table offset $3C");
 
     // Repeating the installed-art load must preserve the same VRAM geometry while the
@@ -260,7 +260,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0, enemies.GraphicsSet.Entries.Count, "empty population skips graphics set");
     AssertEqual(enemies.SlotTable.Slots[0], enemies.SlotTable.FindFreeSlot(), "an empty population leaves the first slot free");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");
-    AssertEqual(0, enemies.RoomStatus.BossId, "room load clears boss ID before empty population");
+    AssertEqual<AreaBoss?>(null, enemies.RoomStatus.Boss, "room load clears the boss before an empty population");
     AssertEqual(0x4567, cgram.Colors[128], "empty population leaves CGRAM untouched");
     AssertEqual(0x5a, vram.ReadByte(0xe000), "empty population leaves enemy VRAM untouched");
     AssertTrue(ReferenceEquals(outgoingSet, enemies.GraphicsSet.LoadedSet),
@@ -452,8 +452,13 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ushort[] leftList = [8, 0xe527, 7, 0xe533, 8, 0xe527, 7, 0xe53f, 0x80ed, 0xe48b];
     SeedRipperInstructionLists(bus, rightList, leftList);
 
-    // The compiled native Ripper record makes Power Beam and missiles ineffective,
-    // freezes on Ice, and gives Super Missiles multiplier two.
+    // The native Ripper table, which the import decodes from these bytes, makes Power Beam and
+    // missiles ineffective, freezes on Ice, and gives Super Missiles multiplier two.
+    bus.WriteBytes(0xb40000 | vulnerabilityPointer,
+    [
+        0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff,
+        0x00, 0x02, 0x00, 0x02, 0x00, 0x00, 0x02, 0x00, 0x00, 0x02,
+    ]);
 
     SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetHeader(definitionPointer, new(0)));
 
@@ -1481,12 +1486,20 @@ internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionI
     WriteTestByte(bus, address + 13, 0x5a);
     WriteTestWord(bus, address + 16, fields.BossId);
     WriteTestWord(bus, address + 18, 0x804c); // Bank-local no-op initialization AI.
+    WriteTestWord(bus, address + 34, 0); // The small death explosion.
     WriteTestWord(bus, address + 24, 0x804c); // Bank-local no-op main AI.
     WriteTestWord(bus, address + 26, SamusIdentityWords.GrappleAiRoutines.Word(GrappleAiRoutine.Cancel)); // Grapple AI must be a real routine.
     WriteTestLong(bus, address + 54, fields.TileDataAddress);
     WriteTestByte(bus, address + 57, 5);
     WriteTestWord(bus, address + 58, 0xf206); // Item-drop table 3, six bytes each from $F1F4.
     WriteTestWord(bus, address + 60, 0xec48); // Vulnerability table 2, 22 bytes each from $EC1C.
+    // The import decodes the selected tables from the bus, so they carry the retail tables' bytes.
+    bus.WriteBytes(0xb4f206, [0x14, 0x03, 0x55, 0x89, 0x05, 0x05]);
+    bus.WriteBytes(0xb4ec48,
+    [
+        0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
+        0x02, 0x02, 0x04, 0x04, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
+    ]);
     WriteTestWord(bus, address + 62, fields.NamePointer);
 }
 

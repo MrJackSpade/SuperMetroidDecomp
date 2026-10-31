@@ -18,11 +18,11 @@ internal static class WreckedShipTreadmillBlockDefinitions
     public static readonly RoomTerrainBlock InactiveTreadmillBlock = RoomTerrainBlocks.BlankAir;
 
     /// <summary>The treadmill block written once Phantoon is dead: the blank block, as special air.</summary>
-    public static readonly RoomTerrainBlock ActiveTreadmillBlock = RoomTerrainBlock.Of(0xff, BlockMirroring.None, RoomCollisionType.SpecialAir);
+    public static readonly RoomTerrainBlock ActiveTreadmillBlock = RoomTerrainBlock.Of(255, BlockMirroring.None, RoomCollisionType.SpecialAir);
 
     /// <summary>The block behaviour that carries Samus rightwards.</summary>
-    public static readonly RoomBlockBehavior RightwardsBehavior = new(0x08);
+    public static readonly RoomBlockBehavior RightwardsBehavior = new(8);
 
     /// <summary>The block behaviour that carries Samus leftwards.</summary>
-    public static readonly RoomBlockBehavior LeftwardsBehavior = new(0x09);
+    public static readonly RoomBlockBehavior LeftwardsBehavior = new(9);
 }

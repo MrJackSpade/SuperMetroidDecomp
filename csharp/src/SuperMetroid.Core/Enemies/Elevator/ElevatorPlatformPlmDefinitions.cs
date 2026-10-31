@@ -20,38 +20,38 @@ internal static class ElevatorPlatformPlmDefinitions
     {
         [ElevatorPlatformDraw.First] =
         [
-            new(new(3, 0), [RoomTerrainBlock.Of(0x85, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
-            new(new(0, 1), [RoomTerrainBlock.Of(0x85, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock)]),
+            new(new(3, 0), [RoomTerrainBlock.Of(133, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 1), [RoomTerrainBlock.Of(133, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock)]),
             new(new(0, 0),
             [
-                RoomTerrainBlock.Of(0x88, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(0x89, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(0x89, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(0x88, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(136, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(137, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(137, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(136, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
             ]),
         ],
         [ElevatorPlatformDraw.Second] =
         [
-            new(new(3, 0), [RoomTerrainBlock.Of(0x86, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
-            new(new(0, 1), [RoomTerrainBlock.Of(0x86, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock)]),
+            new(new(3, 0), [RoomTerrainBlock.Of(134, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 1), [RoomTerrainBlock.Of(134, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock)]),
             new(new(0, 0),
             [
-                RoomTerrainBlock.Of(0x8a, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(0x8b, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(0x8b, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(0x8a, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(138, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(139, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(139, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(138, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
             ]),
         ],
         [ElevatorPlatformDraw.Third] =
         [
-            new(new(3, 0), [RoomTerrainBlock.Of(0x87, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
-            new(new(0, 1), [RoomTerrainBlock.Of(0x87, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock)]),
+            new(new(3, 0), [RoomTerrainBlock.Of(135, BlockMirroring.None, RoomCollisionType.SolidBlock)]),
+            new(new(0, 1), [RoomTerrainBlock.Of(135, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock)]),
             new(new(0, 0),
             [
-                RoomTerrainBlock.Of(0x8c, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(0x8d, BlockMirroring.None, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(0x8d, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
-                RoomTerrainBlock.Of(0x8c, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(140, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(141, BlockMirroring.None, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(141, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
+                RoomTerrainBlock.Of(140, BlockMirroring.Horizontal, RoomCollisionType.SolidBlock),
             ]),
         ],
     };

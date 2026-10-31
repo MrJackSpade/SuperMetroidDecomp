@@ -16,5 +16,5 @@ public static class GrowingShutterDefinitions
     internal const int SpeedCount = 24;
 
     /// <summary>How much faster each growth speed record is, in unsigned 16.16.</summary>
-    internal const int SpeedStep = 0x1000;
+    internal const int SpeedStep = 4096;
 }

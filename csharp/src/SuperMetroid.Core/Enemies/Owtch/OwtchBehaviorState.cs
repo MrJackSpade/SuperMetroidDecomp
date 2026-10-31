@@ -18,5 +18,5 @@ public enum OwtchBehaviorState
     /// <summary>Index 4, $A2:A53E Function_Owtch_4_Rising: moves up one world pixel per AI update until burial depth reaches zero, then chooses left or right from RNG bit $0100.</summary>
     Rising = 4,
     /// <summary>Retail index -1 produced at the left patrol bound; table underflow calls $A2:A49D SetOwtchInitialInstListPointer_MovingRight, whose animation instruction restores index 1.</summary>
-    LeftBoundaryUnderflow = 0xffff,
+    LeftBoundaryUnderflow = 65535,
 }

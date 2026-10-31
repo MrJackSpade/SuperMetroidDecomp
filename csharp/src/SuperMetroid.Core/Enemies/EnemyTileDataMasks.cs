@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyTileDataMasks
 {
     /// <summary>The bytes one fixed staging block spans.</summary>
-    internal const int StagingBlockByteCount = 0x200;
+    internal const int StagingBlockByteCount = 512;
 
     /// <summary>The bytes one enemy tile holds; a member's tile index base advances one per tile.</summary>
     internal const int TileByteCount = 32;

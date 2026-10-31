@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemyByteAngleDefinitions
 {
     /// <summary>An eighth of a turn.</summary>
-    internal const int EighthTurn = 0x20;
+    internal const int EighthTurn = 32;
 
     /// <summary>A quarter turn; adding it to an angle selects the cosine phase of a sine table.</summary>
-    internal const int QuarterTurn = 0x40;
+    internal const int QuarterTurn = 64;
 
     /// <summary>A half turn.</summary>
-    internal const int HalfTurn = 0x80;
+    internal const int HalfTurn = 128;
 }

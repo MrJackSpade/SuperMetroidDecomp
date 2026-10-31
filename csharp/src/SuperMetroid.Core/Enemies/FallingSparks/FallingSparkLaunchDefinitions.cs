@@ -14,13 +14,13 @@ public static class FallingSparkLaunchDefinitions
     /// </summary>
     internal static readonly SignedSixteenSixteen[] Launches =
     [
-        SignedSixteenSixteen.FromRaw(-0x4800),
-        SignedSixteenSixteen.FromRaw(-0x4000),
-        SignedSixteenSixteen.FromRaw(-0x2000),
-        SignedSixteenSixteen.FromRaw(-0x0100),
-        SignedSixteenSixteen.FromParts(0, 0x0100),
-        SignedSixteenSixteen.FromParts(0, 0x2000),
-        SignedSixteenSixteen.FromParts(0, 0x4000),
-        SignedSixteenSixteen.FromParts(unchecked((short)0xdbbd), 0x301a),
+        SignedSixteenSixteen.FromRaw(-18432),
+        SignedSixteenSixteen.FromRaw(-16384),
+        SignedSixteenSixteen.FromRaw(-8192),
+        SignedSixteenSixteen.FromRaw(-256),
+        SignedSixteenSixteen.FromParts(0, 256),
+        SignedSixteenSixteen.FromParts(0, 8192),
+        SignedSixteenSixteen.FromParts(0, 16384),
+        SignedSixteenSixteen.FromParts(unchecked((short)56253), 12314),
     ];
 }

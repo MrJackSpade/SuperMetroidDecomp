@@ -9,14 +9,14 @@ internal static class ShaktoolInstructionDefinitions
     /// </summary>
     internal static readonly Dictionary<int, ShaktoolProgram> OrientationPrograms = new()
     {
-        [0x00] = ShaktoolProgram.HeadAimingUp,
-        [0x20] = ShaktoolProgram.HeadAimingUpRight,
-        [0x40] = ShaktoolProgram.HeadAimingRight,
-        [0x60] = ShaktoolProgram.HeadAimingDownRight,
-        [0x80] = ShaktoolProgram.HeadAimingDown,
-        [0xa0] = ShaktoolProgram.HeadAimingDownLeft,
-        [0xc0] = ShaktoolProgram.HeadAimingLeft,
-        [0xe0] = ShaktoolProgram.HeadAimingUpLeft,
+        [0] = ShaktoolProgram.HeadAimingUp,
+        [32] = ShaktoolProgram.HeadAimingUpRight,
+        [64] = ShaktoolProgram.HeadAimingRight,
+        [96] = ShaktoolProgram.HeadAimingDownRight,
+        [128] = ShaktoolProgram.HeadAimingDown,
+        [160] = ShaktoolProgram.HeadAimingDownLeft,
+        [192] = ShaktoolProgram.HeadAimingLeft,
+        [224] = ShaktoolProgram.HeadAimingUpLeft,
     };
 
     /// <summary>

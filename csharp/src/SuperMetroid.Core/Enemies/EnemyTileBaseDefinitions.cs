@@ -28,7 +28,7 @@ public static class EnemyTileBaseDefinitions
     /// The characters Mother Brain's charging hand beam and the shards of her tank's glass draw from: those following her
     /// first 64, whatever their spawner's own (#1435).
     /// </summary>
-    public const int MotherBrainObjectCharacters = 0x40;
+    public const int MotherBrainObjectCharacters = 64;
 
     /// <summary>
     /// The character indexes, beside its own, each enemy's spawned objects draw from, so its spawned-object sheets are

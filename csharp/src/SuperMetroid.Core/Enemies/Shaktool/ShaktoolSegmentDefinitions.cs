@@ -16,7 +16,7 @@ internal static class ShaktoolSegmentDefinitions
     internal static readonly ShaktoolSegmentDefinition[] Segments =
     [
         new(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen, 0,
-            RotationAngle.FromRaw(0x0000), ShaktoolProgram.SawHandPrimaryPiece, 2,
+            RotationAngle.FromRaw(0), ShaktoolProgram.SawHandPrimaryPiece, 2,
             ShaktoolPreInstruction.IdleHead, 0),
         new(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision, 1,
             RotationAngle.NormalizeRaw(-2048 * 1), ShaktoolProgram.ArmPieceNormal, 4,

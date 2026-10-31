@@ -294,11 +294,11 @@ public sealed class RoomLayer3FxState
         if (!lavaOrAcid)
         {
             // $88:C4A3-C4BB: the rising function and tide; water leaves the RNG alone.
-            AdvanceLiquidMotion(system.RandomNumber, system.MainGameLoopCarry);
+            AdvanceLiquidMotion(system.RandomNumber, system.EarthquakeSoundDelay);
             return;
         }
         int random = system.RandomNumber;
-        AdvanceLiquidMotion(random, system.MainGameLoopCarry);
+        AdvanceLiquidMotion(random, system.EarthquakeSoundDelay);
         QueueLavaAmbientSound(random);
         system.SwapRandomBytes();
     }
@@ -351,13 +351,13 @@ public sealed class RoomLayer3FxState
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            StepLavaAcid(frame.Camera, frame.RandomNumber, frame.MainGameLoopCarry, frame.LiquidMotionAlreadyAdvanced);
+            StepLavaAcid(frame.Camera, frame.RandomNumber, frame.EarthquakeSoundDelay, frame.LiquidMotionAlreadyAdvanced);
             return;
         }
 
         if (RoomFxTypes.UsesWater(Type))
         {
-            StepWater(frame.Camera, frame.RandomNumber, frame.MainGameLoopCarry, frame.LiquidMotionAlreadyAdvanced);
+            StepWater(frame.Camera, frame.RandomNumber, frame.EarthquakeSoundDelay, frame.LiquidMotionAlreadyAdvanced);
             return;
         }
 
@@ -482,15 +482,14 @@ public sealed class RoomLayer3FxState
     /// clocks. Rising/tidal rooms retain their loaded surface words; the presently reported
     /// room has zero velocity and therefore exercises the cartridge's normal static branch.
     /// </summary>
-    [IndependentFlag("The main-loop carry and the liquid motion already advancing are independent facts of the frame.")]
     private void StepWater(
         Position16<RoomPixels> camera,
         int randomNumber,
-        bool mainGameLoopCarry,
+        PowerOnEarthquakeSoundDelay earthquakeSoundDelay,
         bool liquidMotionAlreadyAdvanced)
     {
         if (!liquidMotionAlreadyAdvanced)
-            AdvanceLiquidMotion(randomNumber, mainGameLoopCarry);
+            AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
         waterSurfaceScreenY = unchecked((short)(Surface.Y - camera.Y));
         Scroll = (camera.AsBg3Scroll() + waterDrift.WholePixels()).WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
 
@@ -519,9 +518,9 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>Advances rise and tide state before publishing the current liquid surface.</summary>
-    private void AdvanceLiquidMotion(int randomNumber, bool mainGameLoopCarry)
+    private void AdvanceLiquidMotion(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
-        StepLiquidRise(randomNumber, mainGameLoopCarry);
+        StepLiquidRise(randomNumber, earthquakeSoundDelay);
         StepLiquidTide();
         Surface = new(0, ComputeTidalYPosition());
     }
@@ -531,15 +530,14 @@ public sealed class RoomLayer3FxState
     /// surface and BG3 plane follow the room camera, while one of two sixteen-scanline BG2
     /// waveforms rotates at the cadence selected by the record's liquid-options byte.
     /// </summary>
-    [IndependentFlag("The main-loop carry and the liquid motion already advancing are independent facts of the frame.")]
     private void StepLavaAcid(
         Position16<RoomPixels> camera,
         int randomNumber,
-        bool mainGameLoopCarry,
+        PowerOnEarthquakeSoundDelay earthquakeSoundDelay,
         bool liquidMotionAlreadyAdvanced)
     {
         if (!liquidMotionAlreadyAdvanced)
-            AdvanceLiquidMotion(randomNumber, mainGameLoopCarry);
+            AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
         waterSurfaceScreenY = unchecked((short)(Surface.Y - camera.Y));
         // Lava/acid $88:B3B0 uses the same surface-relative BG3VOFS equation as water
         // $88:C48E. Zeroing it anchored the animated characters to the screen instead of
@@ -567,7 +565,7 @@ public sealed class RoomLayer3FxState
     /// 16.16 base position toward the target. Door-specific Norfair entries rely on this
     /// sequence to raise lava into the visible viewport.
     /// </summary>
-    private void StepLiquidRise(int randomNumber, bool mainGameLoopCarry)
+    private void StepLiquidRise(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
         switch (liquidRisePhase)
         {
@@ -583,14 +581,14 @@ public sealed class RoomLayer3FxState
             }
 
             case LiquidRisePhase.Waiting:
-                PublishRisingLiquidFeedback(randomNumber, mainGameLoopCarry);
+                PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
                 Timer = Timer.Decrement().Remaining;
                 if (Timer.IsZero)
                     liquidRisePhase = LiquidRisePhase.Moving;
                 return;
 
             case LiquidRisePhase.Moving:
-                PublishRisingLiquidFeedback(randomNumber, mainGameLoopCarry);
+                PublishRisingLiquidFeedback(randomNumber, earthquakeSoundDelay);
                 if (AdvanceBaseYToTarget())
                 {
                     YVelocity = default;
@@ -609,13 +607,13 @@ public sealed class RoomLayer3FxState
     /// writes used while lava or acid waits and moves. Sound cadence and screen shake are
     /// parallel outputs of the cartridge FX actor; neither is inferred by the renderer.
     /// </summary>
-    private void PublishRisingLiquidFeedback(int randomNumber, bool mainGameLoopCarry)
+    private void PublishRisingLiquidFeedback(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
         // Water's $88:C44C/$C458 callbacks only wait/move. Lava and acid's
         // parallel callbacks additionally request sound and a global earthquake.
         if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
             return;
-        HandleEarthquakeSoundEffect(randomNumber, mainGameLoopCarry);
+        HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
         EarthquakeRequest = new RoomFxEarthquakeRequest(
             RoomEarthquakeDefinitions.RisingLiquidType,
             RoomEarthquakeDefinitions.RisingLiquidTimerBits);
@@ -628,14 +626,14 @@ public sealed class RoomLayer3FxState
     /// replace those words; the independently retained rhythm supplies only delays.
     /// </summary>
     /// <param name="randomNumber">Current RNG word, sampled without advancing it; its low two bits add zero through three updates to the next earthquake-sound delay.</param>
-    /// <param name="mainGameLoopCarry">
-    /// Carry entering the routine. <c>QueueSound_Lib2_Max6</c> restores it with <c>PLP</c>,
-    /// so <c>ADC .baseTimer</c> at $88:B245 adds it. Both callers' HDMA objects are the first
-    /// their FX spawns after the door's <c>Delete_HDMAObjects</c>, so they run in slot zero,
-    /// which inherits <see cref="SharedGameState.MainGameLoopCarry"/>; a later slot would
-    /// see the clear carry from <c>CPX #$0C</c>.
+    /// <param name="earthquakeSoundDelay">
+    /// The frame the save file found at power-on adds to the next delay. <c>QueueSound_Lib2_Max6</c> restores the carry
+    /// with <c>PLP</c>, so <c>ADC .baseTimer</c> at $88:B245 adds it. Both callers' HDMA objects are the first their FX
+    /// spawns after the door's <c>Delete_HDMAObjects</c>, so they run in slot zero, which inherits the main loop's
+    /// power-on carry (<see cref="PowerOnEarthquakeSoundDelay"/>); a later slot would see the clear carry from
+    /// <c>CPX #$0C</c>.
     /// </param>
-    private void HandleEarthquakeSoundEffect(int randomNumber, bool mainGameLoopCarry)
+    private void HandleEarthquakeSoundEffect(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
         if (EarthquakeSoundTimer.IsNegative)
             return;
@@ -654,13 +652,13 @@ public sealed class RoomLayer3FxState
             MaximumQueued: SoundQueueLimit.Max6,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
         EarthquakeSoundTimer = WrappingCountdown.FromRaw(baseTimers[EarthquakeSoundSequenceIndex])
-            .AddFrames((randomNumber & 3) + (mainGameLoopCarry ? 1 : 0));
+            .AddFrames((randomNumber & 3) + earthquakeSoundDelay.ExtraFrames);
         EarthquakeSoundSequenceIndex++;
     }
 
     /// <summary>The statue HDMA pre-instructions call the same $88:B21D earthquake sound owner.</summary>
-    internal void PublishStatueEarthquakeSound(int randomNumber, bool mainGameLoopCarry) =>
-        HandleEarthquakeSoundEffect(randomNumber, mainGameLoopCarry);
+    internal void PublishStatueEarthquakeSound(int randomNumber, PowerOnEarthquakeSoundDelay earthquakeSoundDelay) =>
+        HandleEarthquakeSoundEffect(randomNumber, earthquakeSoundDelay);
 
     /// <summary>Ports <c>RaiseOrLowerFx</c> at $88:868C for the shared liquid words.</summary>
     private bool AdvanceBaseYToTarget()

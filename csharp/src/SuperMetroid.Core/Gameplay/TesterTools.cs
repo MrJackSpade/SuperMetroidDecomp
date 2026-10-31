@@ -32,12 +32,8 @@ internal sealed class TesterTools
             _system.ClearBossBits(area, BossBitMasks.AllKnown);
         _system.ClearEvent(EventNumber.ShaktoolClearedPath);
 
-        Span<byte> doors = stackalloc byte[SharedGameState.DoorBitByteCount];
-        for (int index = 0; index < doors.Length; index++)
-            doors[index] = _system.GetOpenedDoorByteRaw(index);
-        foreach (int bit in TesterEncounterResetDefinitions.EyeDoorBits)
-            doors[bit >> 3] &= unchecked((byte)~(1 << (bit & 7)));
-        _system.LoadOpenedDoorBytes(doors);
+        foreach (int door in TesterEncounterResetDefinitions.EyeDoorBits)
+            _system.Progress.OpenedDoors.Remove(door);
     }
     /// <summary>Tracks the Samus instance already granted full inventory to avoid reapplying it after ammo use.</summary>
     private SamusState? testerInventoryRecipient;
@@ -71,8 +67,8 @@ internal sealed class TesterTools
         _player.Samus.Missiles = _player.Samus.MaxMissiles = TesterInventoryDefinitions.Missiles;
         _player.Samus.SuperMissiles = _player.Samus.MaxSuperMissiles = TesterInventoryDefinitions.SuperMissiles;
         _player.Samus.PowerBombs = _player.Samus.MaxPowerBombs = TesterInventoryDefinitions.PowerBombs;
-        for (int bit = 0; bit < SharedGameState.ItemBitByteCount * 8; bit++)
-            _system.SetCollectedItemBit(bit);
+        for (int location = 0; location < PersistentProgress.RoomFlagCount; location++)
+            _system.SetCollectedItemBit(location);
         _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _player.Colours);
     }
 }

@@ -78,26 +78,35 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     }
 
     /// <summary>
+    /// The progress every attract demo plays with: every item location collected and every Chozo orb broken, no door
+    /// opened, no event or boss, every area's map acquired and every station used, and nothing explored.
+    /// </summary>
+    private static PersistentProgress DemoProgress()
+    {
+        var progress = new PersistentProgress();
+        for (int location = 0; location < PersistentProgress.RoomFlagCount; location++)
+        {
+            progress.CollectedItems.Add(location);
+            progress.ChozoOrbs.Add(location);
+        }
+        for (int areaIndex = 0; areaIndex < AreaIds.RetailCount; areaIndex++)
+        {
+            AreaId area = AreaIds.At(areaIndex);
+            progress.SetAreaMap(area, acquired: true);
+            for (int station = 0; station < PersistentProgress.StationsPerArea; station++)
+                progress.UsedStations(area).Add(station);
+        }
+        return progress;
+    }
+
+    /// <summary>
     /// Loads the bank-$82/$91 demo scene without consulting or writing a player save.
     /// Uses the ordinary room, PLM, enemy, FX, and graphics loaders with demo progression.
     /// </summary>
     internal void InitializeAttractDemo(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
-        byte[] itemBits = new byte[SharedGameState.ItemBitByteCount];
-        Array.Fill(itemBits, byte.MaxValue);
-        _system.LoadCollectedItemBytes(itemBits);
-        _system.LoadRoomChozoBytes(itemBits);
-        _system.LoadOpenedDoorBytes(new byte[SharedGameState.DoorBitByteCount]);
-        _system.LoadEventBytes(new byte[SharedGameState.EventByteCount]);
-        _system.LoadBossBytes(new byte[SharedGameState.AreaCount]);
-        byte[] mapStations = new byte[SharedGameState.MapStationByteCount];
-        mapStations.AsSpan(0, SharedGameState.AreaCount).Fill(byte.MaxValue);
-        _system.LoadMapStationBytes(mapStations);
-        byte[] usedStations = new byte[SharedGameState.UsedSaveStationByteCount];
-        Array.Fill(usedStations, byte.MaxValue);
-        _system.LoadUsedSaveStationBytes(usedStations);
-        _system.LoadExploredMapBytes(new byte[SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea]);
+        _system.Progress.CopyFrom(DemoProgress());
 
         _player.Samus = new SamusState(_animationContinuation)
         {

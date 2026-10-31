@@ -30,14 +30,17 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
     {
         var layout = landmarks ?? throw new InvalidOperationException(
             "Map boss markers require installed landmark layout.");
-        int remainingBits = system.GetBossBitsRaw(area);
+        // Each listed marker consumes the next defeated-boss flag in marker order, and a marker that is neither defeated
+        // nor shown by the area's map consumes one more; an empty entry consumes one.
+        BossBits defeated = system.GetBossBits(area);
+        int flag = 0;
         foreach (string? id in MapLandmarks.Bosses(area))
         {
             if (id is not null)
             {
                 Position16<MapPixels> point = layout.Get(id);
-                bool dead = (remainingBits & 1) != 0;
-                remainingBits >>= 1;
+                bool dead = flag < BossBitMasks.InMarkerOrder.Count && defeated.HasFlag(BossBitMasks.InMarkerOrder[flag]);
+                flag++;
                 if (dead)
                 {
                     Draw(MapSpriteId.MarkerDefeatedBoss, point, ScreenColourGroup.MapMarkers);
@@ -50,7 +53,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area)
                     continue;
                 }
             }
-            remainingBits >>= 1;
+            flag++;
         }
         void Draw(MapSpriteId id, Position16<MapPixels> position, ScreenColourGroup colouring) =>
             Add(entries, id, position, scroll, colouring);

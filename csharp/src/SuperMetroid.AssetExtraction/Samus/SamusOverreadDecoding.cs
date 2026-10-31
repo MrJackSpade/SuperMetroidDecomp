@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
@@ -207,7 +208,7 @@ internal static class SamusOverreadDecoding
         return ProgressionOverwrite(slice);
     }
 
-    /// <summary>Splits the copied prefix of the progression slice into each table's replaced leading entries.</summary>
+    /// <summary>Decodes the copied prefix of the progression slice into the events, bosses, orbs, items, doors, stations and maps it decides.</summary>
     /// <exception cref="InvalidDataException">The copied bytes are not a prefix of the slice, or split the loading state.</exception>
     private static SamusOverreadDocument.Overwrite? ProgressionOverwrite(byte?[] slice)
     {
@@ -218,8 +219,8 @@ internal static class SamusOverreadDecoding
             throw new InvalidDataException("SpaceTime's copy reaches progression other than from its start.");
         if (copied == 0)
             return null;
-        int[] Leading(int start, int end) =>
-            [.. slice[start..Math.Clamp(copied, start, end)].Select(value => (int)(value ?? throw new InvalidDataException("A copied progression byte is missing.")))];
+        byte[] Leading(int start, int end) =>
+            [.. slice[start..Math.Clamp(copied, start, end)].Select(value => value ?? throw new InvalidDataException("A copied progression byte is missing."))];
         int? loadingState = null;
         if (copied > ProgressionSliceLayout.LoadingGameStateOffset)
         {
@@ -230,14 +231,22 @@ internal static class SamusOverreadDecoding
                     value ?? throw new InvalidDataException("A copied loading-state byte is missing."))]);
         }
         return new SamusOverreadDocument.Overwrite(
-            Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset),
-            Leading(ProgressionSliceLayout.BossBitsOffset, ProgressionSliceLayout.RoomChozoBitsOffset),
-            Leading(ProgressionSliceLayout.RoomChozoBitsOffset, ProgressionSliceLayout.CollectedItemBitsOffset),
-            Leading(ProgressionSliceLayout.CollectedItemBitsOffset, ProgressionSliceLayout.OpenedDoorBitsOffset),
-            Leading(ProgressionSliceLayout.OpenedDoorBitsOffset, ProgressionSliceLayout.PaddingOffset),
-            Leading(ProgressionSliceLayout.UsedSaveStationsOffset, ProgressionSliceLayout.MapStationsOffset),
-            Leading(ProgressionSliceLayout.MapStationsOffset, ProgressionSliceLayout.LoadingGameStateOffset),
+            ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset)),
+            ProgressionTableCodec.AreaBossesPrefix(Leading(ProgressionSliceLayout.BossBitsOffset, ProgressionSliceLayout.RoomChozoBitsOffset))
+                .ToDictionary(area => area.Key.ToString(), area => (IReadOnlyList<string>)[.. BossFlagNames(area.Value)]),
+            ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.RoomChozoBitsOffset, ProgressionSliceLayout.CollectedItemBitsOffset)),
+            ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.CollectedItemBitsOffset, ProgressionSliceLayout.OpenedDoorBitsOffset)),
+            ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.OpenedDoorBitsOffset, ProgressionSliceLayout.PaddingOffset)),
+            ProgressionTableCodec.UsedStationsPrefix(Leading(ProgressionSliceLayout.UsedSaveStationsOffset, ProgressionSliceLayout.MapStationsOffset))
+                .ToDictionary(area => area.Key.ToString(), area => area.Value),
+            ProgressionTableCodec.AreaMapsPrefix(Leading(ProgressionSliceLayout.MapStationsOffset, ProgressionSliceLayout.LoadingGameStateOffset))
+                .ToDictionary(area => area.Key.ToString(), area => area.Value),
             loadingState);
+    }
+
+    /// <summary>The names of the boss flags <paramref name="bosses"/> holds.</summary>
+    private static IEnumerable<string> BossFlagNames(BossBits bosses) =>
+        BossBitMasks.InMarkerOrder.Where(flag => bosses.HasFlag(flag)).Select(flag => flag.ToString());
     }
 
     /// <summary>

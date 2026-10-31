@@ -144,13 +144,15 @@ internal sealed class SuperMetroidRuntime
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
     /// <param name="floorQueueResidue">The session's floor update residue, which outlives each runtime as WRAM does.</param>
     /// <param name="random">The session's random-number word, which outlives each runtime and is never copied.</param>
+    /// <param name="earthquakeSoundDelay">The frame the save file found at power-on adds to every earthquake rumble's delay.</param>
     internal SuperMetroidRuntime(HostGameplayOverrides overrides, IGameplayArtwork artwork,
-        FrameClock clock, SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue, SharedRandom random)
+        FrameClock clock, SuperMetroid.Core.Compatibility.FloorUpdateResidue floorQueueResidue, SharedRandom random,
+        PowerOnEarthquakeSoundDelay earthquakeSoundDelay)
     {
         Ensure.NotNull(artwork);
         SamusOverreads = artwork.SamusOverreads ?? throw new InvalidOperationException(
             "Gameplay requires the installed Samus overread services.");
-        System = new SharedGameState(random);
+        System = new SharedGameState(random, earthquakeSoundDelay);
         Display = new GameplayDisplayState();
         var spriteSets = new SpriteColourSets();
         Player = new SamusFrameState(spriteSets);
@@ -581,7 +583,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (Room.Camera is not null)
         {
-            Room.LoadedScope.Layer3Fx.Step(Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity, LiquidMotionAlreadyAdvanced = Room.LoadedScope.Layer3Fx.MovesLiquidBeforeMainLoop });
+            Room.LoadedScope.Layer3Fx.Step(Room.LoadedScope.ArtworkFrames, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, EarthquakeSoundDelay = System.EarthquakeSoundDelay, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity, LiquidMotionAlreadyAdvanced = Room.LoadedScope.Layer3Fx.MovesLiquidBeforeMainLoop });
             if (Room.LoadedScope.Layer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing

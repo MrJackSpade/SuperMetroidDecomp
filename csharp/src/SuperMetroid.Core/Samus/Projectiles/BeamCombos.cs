@@ -15,11 +15,11 @@ internal sealed class BeamCombos
     /// <summary>Spawns periodic Wave and other combo trails from their live particle slots.</summary>
     private readonly ProjectileTrails _trails;
     /// <summary>What the SpaceTime shot's runaway palette copy overwrites in saved progression.</summary>
-    private readonly SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>> _spaceTimeOverwrite;
+    private readonly SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> _spaceTimeOverwrite;
 
     /// <summary>Connects special beam activation and particle updates to shared projectile, charge, and trail owners.</summary>
     internal BeamCombos(ProjectileAnimation animation, BeamChargeState charge, ProjectileSlotTable slotTable, ProjectileTrails trails,
-        SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>> spaceTimeOverwrite)
+        SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> spaceTimeOverwrite)
     {
         _animation = animation;
         _charge = charge;
@@ -229,7 +229,7 @@ internal sealed class BeamCombos
     }
     /// <summary>
     /// Runs the SpaceTime shot's callback, which falls back into the beam palette's copy loop and, from an animation that
-    /// sends the copy far enough, copies on through saved progression (<see cref="SpaceTimeProgressionOverwrite{TCursor}"/>). Before the
+    /// sends the copy far enough, copies on through saved progression (<see cref="SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/>). Before the
     /// shot's first frame is installed, or with no animation, the copy starts low and ends long before progression, and
     /// only the progression part of the copy is kept (owner decision on #1318).
     /// </summary>

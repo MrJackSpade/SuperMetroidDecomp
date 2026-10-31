@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Keeps boss state named: a typed gameplay API accepts only the boss bits whose retail meanings are proven
+/// Keeps boss state named: a typed gameplay API accepts only the boss flags whose retail meanings are proven
 /// (<see cref="BossBitMasks.AllKnown"/>).
 /// </summary>
 public static class ProvenBossBits
@@ -15,7 +15,7 @@ public static class ProvenBossBits
             throw new ArgumentOutOfRangeException(
                 nameof(bits),
                 bits,
-                $"{context} contains unproven boss bits ${unknown.ToSaveByte():X2}.");
+                $"{context} contains boss flags the game does not name ({unknown}).");
         }
     }
 }

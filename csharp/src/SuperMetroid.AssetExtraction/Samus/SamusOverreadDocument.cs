@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Samus;
@@ -46,23 +47,23 @@ internal sealed record SamusOverreadDocument(
     /// <param name="Right">The right sparkle's offset.</param>
     internal sealed record Placement(Offset16<RoomPixels> Left, Offset16<RoomPixels> Right);
 
-    /// <summary>The leading entries of each progression table the copy replaces, and the loading state when reached.</summary>
-    /// <param name="Events">Story-event bitset bytes.</param>
-    /// <param name="AreaBosses">Per-area boss bitsets.</param>
-    /// <param name="ChozoOrbs">Opened-Chozo-orb bitset bytes.</param>
-    /// <param name="CollectedItems">Collected-item bitset bytes.</param>
-    /// <param name="OpenedDoors">Opened-door bitset bytes.</param>
-    /// <param name="UsedStations">Used save-station and elevator bitset bytes.</param>
-    /// <param name="MapStations">Acquired map-station bytes.</param>
+    /// <summary>What the copy turns on or off in progress, and the loading state it leaves when it reaches it (#1475).</summary>
+    /// <param name="Events">The story events, by number, the copy decides.</param>
+    /// <param name="AreaBosses">The defeated bosses the copy leaves, by area name, each as the names of its boss flags.</param>
+    /// <param name="ChozoOrbs">The Chozo orbs, by room-data number, the copy decides.</param>
+    /// <param name="CollectedItems">The item locations, by room-data number, the copy decides.</param>
+    /// <param name="OpenedDoors">The doors, by room-data number, the copy decides.</param>
+    /// <param name="UsedStations">The used stations, by station number, the copy decides, by area name.</param>
+    /// <param name="AreaMaps">Whether the copy leaves each area's map acquired, by area name.</param>
     /// <param name="SavedLoadingGameState">The saved loading state written, or null when the copy stops before it.</param>
     internal sealed record Overwrite(
-        IReadOnlyList<int> Events,
-        IReadOnlyList<int> AreaBosses,
-        IReadOnlyList<int> ChozoOrbs,
-        IReadOnlyList<int> CollectedItems,
-        IReadOnlyList<int> OpenedDoors,
-        IReadOnlyList<int> UsedStations,
-        IReadOnlyList<int> MapStations,
+        FlagOverwrite Events,
+        IReadOnlyDictionary<string, IReadOnlyList<string>> AreaBosses,
+        FlagOverwrite ChozoOrbs,
+        FlagOverwrite CollectedItems,
+        FlagOverwrite OpenedDoors,
+        IReadOnlyDictionary<string, FlagOverwrite> UsedStations,
+        IReadOnlyDictionary<string, bool> AreaMaps,
         int? SavedLoadingGameState);
 
     /// <summary>An animation position: a program and its step.</summary>

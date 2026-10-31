@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Map;
-
 namespace SuperMetroid.Diagnostics.Saves;
 
 /// <summary>Native SRAM directory and per-slot payload layout used by bank <c>$81</c>.</summary>
@@ -183,7 +181,7 @@ public static class SaveRamLayout
     public const int CompressedMapDataOffset = 0x015c;
 
     /// <summary>Byte length of the cartridge's interleaved explored-map payload for one save slot.</summary>
-    public const int CompressedMapDataByteCount = ExploredMapStorage.PackedByteCount;
+    public const int CompressedMapDataByteCount = 0x0500;
 
     /// <summary>$81:812B SaveSlotOffsets: first payload begins after the sixteen-byte checksum directory.</summary>
     private const ushort FirstSlotOffset = 0x0010;

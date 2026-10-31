@@ -142,17 +142,23 @@ public static class GameSaveJsonCodec
         DebugMode = slot.DebugFlag,
         NewFileMarker = slot.NewFileMarker,
         LoadingGameState = slot.LoadingGameState,
-        Progression = new SaveProgressionJsonDocument
-        {
-            Events = CaptureEvents(slot.EventBytes),
-            BossFlagsByAreaIndex = slot.BossBytes.Select(BossBitsCodec.FromSaveByte).ToArray(),
-            RoomChozoBits = CaptureSetBits(slot.RoomChozoBytes),
-            CollectedItemBits = CaptureSetBits(slot.CollectedItemBytes),
-            OpenedDoorBits = CaptureSetBits(slot.OpenedDoorBytes),
-            UsedSaveStationBits = CaptureSetBits(slot.UsedSaveStationBytes),
-            AcquiredMapStationBits = CaptureSetBits(slot.MapStationBytes),
-            ExploredAreas = CaptureExploredAreas(slot.ExploredMapBytes),
-        },
+        Progression = CaptureProgression(slot.Progression),
+    };
+
+    /// <summary>Lists each set of <paramref name="progress"/> by its identities.</summary>
+    private static SaveProgressionJsonDocument CaptureProgression(PersistentProgress progress) => new()
+    {
+        Events = [.. progress.Events.Members.Select(number => EventNumberCodec.TryFromEventNumber(number, out EventNumber named)
+            ? named.ToString()
+            : $"0x{number:X2}")],
+        DefeatedBosses = [.. RetailAreas.Select(area => new SaveAreaBossesJsonDocument(area, progress.DefeatedBosses(area)))],
+        BrokenChozoOrbs = [.. progress.ChozoOrbs.Members],
+        CollectedItems = [.. progress.CollectedItems.Members],
+        OpenedDoors = [.. progress.OpenedDoors.Members],
+        UsedStations = [.. RetailAreas.Select(area => new SaveAreaStationsJsonDocument(area, [.. progress.UsedStations(area).Members]))],
+        AcquiredMaps = [.. RetailAreas.Where(progress.HasAreaMap)],
+        ExploredAreas = [.. RetailAreas.Select(area => new ExploredAreaJsonDocument(area,
+            [.. progress.ExploredCells(area).Select(MapCoordinateJsonDocument.FromCell)]))],
     };
 
     /// <summary>Reconstructs the native save snapshot from one validated named slot.</summary>
@@ -201,29 +207,7 @@ public static class GameSaveJsonCodec
             GameTimeHours = slot.GameTime.Hours,
             SaveStation = slot.Checkpoint.SaveStation,
             Area = AreaIds.ToIndex(slot.Checkpoint.Area),
-            EventBytes = DecodeEvents(slot.Progression.Events),
-            BossFlags = slot.Progression.BossFlagsByAreaIndex.ToArray(),
-            RoomChozoBytes = DecodeSetBits(
-                slot.Progression.RoomChozoBits,
-                SharedGameState.RoomChozoBitByteCount,
-                "progression.roomChozoBits"),
-            CollectedItemBytes = DecodeSetBits(
-                slot.Progression.CollectedItemBits,
-                SharedGameState.ItemBitByteCount,
-                "progression.collectedItemBits"),
-            OpenedDoorBytes = DecodeSetBits(
-                slot.Progression.OpenedDoorBits,
-                SharedGameState.DoorBitByteCount,
-                "progression.openedDoorBits"),
-            UsedSaveStationBytes = DecodeSetBits(
-                slot.Progression.UsedSaveStationBits,
-                SharedGameState.UsedSaveStationByteCount,
-                "progression.usedSaveStationBits"),
-            MapStationBytes = DecodeSetBits(
-                slot.Progression.AcquiredMapStationBits,
-                SharedGameState.MapStationByteCount,
-                "progression.acquiredMapStationBits"),
-            ExploredMapBytes = DecodeExploredAreas(slot.Progression.ExploredAreas),
+            Progress = DecodeProgression(slot.Progression, "progression"),
         };
     }
 
@@ -306,27 +290,7 @@ public static class GameSaveJsonCodec
             slot.Controller.AimUp,
             slot.Controller.AimDown).RequireRetailPermutation();
 
-        SaveProgressionJsonDocument progression = slot.Progression;
-        if (progression.Events is null || progression.BossFlagsByAreaIndex is null ||
-            progression.RoomChozoBits is null || progression.CollectedItemBits is null ||
-            progression.OpenedDoorBits is null || progression.UsedSaveStationBits is null ||
-            progression.AcquiredMapStationBits is null || progression.ExploredAreas is null)
-            throw new InvalidDataException($"slots[{expectedSlot}].progression is incomplete");
-        _ = DecodeEvents(progression.Events);
-        if (progression.BossFlagsByAreaIndex.Length != SharedGameState.AreaCount ||
-            progression.BossFlagsByAreaIndex.Any(flags => (flags & ~AllBossFlags) != BossBits.None))
-            throw new InvalidDataException($"slots[{expectedSlot}].progression.bossFlagsByAreaIndex is invalid");
-        _ = DecodeSetBits(progression.RoomChozoBits, SharedGameState.RoomChozoBitByteCount,
-            $"slots[{expectedSlot}].progression.roomChozoBits");
-        _ = DecodeSetBits(progression.CollectedItemBits, SharedGameState.ItemBitByteCount,
-            $"slots[{expectedSlot}].progression.collectedItemBits");
-        _ = DecodeSetBits(progression.OpenedDoorBits, SharedGameState.DoorBitByteCount,
-            $"slots[{expectedSlot}].progression.openedDoorBits");
-        _ = DecodeSetBits(progression.UsedSaveStationBits, SharedGameState.UsedSaveStationByteCount,
-            $"slots[{expectedSlot}].progression.usedSaveStationBits");
-        _ = DecodeSetBits(progression.AcquiredMapStationBits, SharedGameState.MapStationByteCount,
-            $"slots[{expectedSlot}].progression.acquiredMapStationBits");
-        _ = DecodeExploredAreas(progression.ExploredAreas);
+        _ = DecodeProgression(slot.Progression, $"slots[{expectedSlot}].progression");
     }
 
     /// <summary>
@@ -356,130 +320,110 @@ public static class GameSaveJsonCodec
         return options;
     }
 
-    /// <summary>Lists set event bits by their named persistent event identities.</summary>
-    private static string[] CaptureEvents(ReadOnlySpan<byte> bytes) =>
-        CaptureSetBits(bytes).Select(bit => EventNumberCodec.TryFromEventBit(bit, out EventNumber named)
-            ? named.ToString()
-            : $"0x{bit:X2}").ToArray();
+    /// <summary>Every retail area, in area order.</summary>
+    private static IEnumerable<AreaId> RetailAreas => Enumerable.Range(0, AreaIds.RetailCount).Select(AreaIds.At);
 
-    /// <summary>Rebuilds event bytes from validated symbolic event names.</summary>
-    private static byte[] DecodeEvents(string[] events)
+    /// <summary>Rebuilds the persistent progress a validated document lists, rejecting anything out of place.</summary>
+    /// <param name="progression">The listed progress.</param>
+    /// <param name="property">The document's path, named in errors.</param>
+    private static PersistentProgress DecodeProgression(SaveProgressionJsonDocument progression, string property)
     {
-        if (events is null)
-            throw new InvalidDataException("progression.events is required");
-        var bits = new int[events.Length];
-        for (int index = 0; index < events.Length; index++)
+        if (progression.Events is null || progression.DefeatedBosses is null || progression.BrokenChozoOrbs is null ||
+            progression.CollectedItems is null || progression.OpenedDoors is null || progression.UsedStations is null ||
+            progression.AcquiredMaps is null || progression.ExploredAreas is null)
+            throw new InvalidDataException($"{property} is incomplete");
+        var progress = new PersistentProgress();
+        DecodeNumbers(DecodeEvents(progression.Events, $"{property}.events"), progress.Events, $"{property}.events");
+        DecodeNumbers(progression.BrokenChozoOrbs, progress.ChozoOrbs, $"{property}.brokenChozoOrbs");
+        DecodeNumbers(progression.CollectedItems, progress.CollectedItems, $"{property}.collectedItems");
+        DecodeNumbers(progression.OpenedDoors, progress.OpenedDoors, $"{property}.openedDoors");
+        foreach (AreaId area in DecodeAreaOrder(progression.DefeatedBosses.Select(entry => entry?.Area), $"{property}.defeatedBosses"))
         {
-            string value = events[index] ?? throw new InvalidDataException(
-                $"progression.events[{index}] is null");
-            if (Enum.TryParse(value, ignoreCase: true, out EventNumber named) && Enum.IsDefined(named))
-                bits[index] = named.ToEventBit();
-            else if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase) &&
-                     int.TryParse(value[2..], NumberStyles.AllowHexSpecifier,
-                         CultureInfo.InvariantCulture, out int raw))
-                bits[index] = raw;
-            else
-                throw new InvalidDataException(
-                    $"progression.events[{index}] '{value}' is not a known name or 0xNN bit");
+            BossBits bosses = progression.DefeatedBosses[AreaIds.ToIndex(area)].Bosses;
+            if ((bosses & ~AllBossFlags) != BossBits.None)
+                throw new InvalidDataException($"{property}.defeatedBosses names an unknown boss in {area}");
+            progress.SetDefeatedBosses(area, bosses);
         }
-        return DecodeSetBits(bits, SharedGameState.EventByteCount, "progression.events");
-    }
-
-    /// <summary>Lists set flag positions in byte-order for compact persistent state.</summary>
-    private static int[] CaptureSetBits(ReadOnlySpan<byte> bytes)
-    {
-        var result = new List<int>();
-        for (int byteIndex = 0; byteIndex < bytes.Length; byteIndex++)
+        foreach (AreaId area in DecodeAreaOrder(progression.UsedStations.Select(entry => entry?.Area), $"{property}.usedStations"))
         {
-            for (int bit = 0; bit < 8; bit++)
-            {
-                if ((bytes[byteIndex] & (1 << bit)) != 0)
-                    result.Add(byteIndex * 8 + bit);
-            }
+            int[] stations = progression.UsedStations[AreaIds.ToIndex(area)].Stations ??
+                throw new InvalidDataException($"{property}.usedStations of {area} is required");
+            DecodeNumbers(stations, progress.UsedStations(area), $"{property}.usedStations of {area}");
         }
-        return result.ToArray();
-    }
-
-    /// <summary>Rebuilds fixed-size bitfields while rejecting duplicates and out-of-range positions.</summary>
-    private static byte[] DecodeSetBits(int[] bits, int byteCount, string property)
-    {
-        if (bits is null)
-            throw new InvalidDataException($"{property} is required");
-        var result = new byte[byteCount];
-        int previous = -1;
-        for (int index = 0; index < bits.Length; index++)
+        int previousMap = -1;
+        foreach (AreaId area in progression.AcquiredMaps)
         {
-            int bit = bits[index];
-            if ((uint)bit >= byteCount * 8)
-                throw new InvalidDataException($"{property}[{index}]={bit} is outside the bit plane");
-            if (bit <= previous)
-                throw new InvalidDataException($"{property} must be strictly increasing without duplicates");
-            result[bit >> 3] |= unchecked((byte)(1 << (bit & 7)));
-            previous = bit;
+            int index = AreaIds.ToIndex(area);
+            if (index <= previousMap)
+                throw new InvalidDataException($"{property}.acquiredMaps must be in area order without duplicates");
+            progress.SetAreaMap(area, acquired: true);
+            previousMap = index;
         }
-        return result;
-    }
-
-    /// <summary>Splits SRAM exploration bytes into named per-area map data.</summary>
-    private static ExploredAreaJsonDocument[] CaptureExploredAreas(ReadOnlySpan<byte> bytes)
-    {
-        var areas = new ExploredAreaJsonDocument[SharedGameState.ExploredMapAreaCount];
-        foreach (AreaId area in Enum.GetValues<AreaId>())
+        foreach (AreaId area in DecodeAreaOrder(progression.ExploredAreas.Select(entry => entry?.Area), $"{property}.exploredAreas"))
         {
-            int areaIndex = AreaIds.ToIndex(area);
-            var tiles = new List<MapCoordinateJsonDocument>();
-            for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
-            {
-                for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
-                {
-                    var cell = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
-                    int byteIndex = areaIndex * SharedGameState.ExploredMapBytesPerArea +
-                        AreaMapPages.GetBitByteIndex(cell);
-                    if ((bytes[byteIndex] & AreaMapPages.GetBitMask(cell.X)) != 0)
-                        tiles.Add(MapCoordinateJsonDocument.FromCell(cell));
-                }
-            }
-            areas[areaIndex] = new ExploredAreaJsonDocument(area, tiles.ToArray());
-        }
-        return areas;
-    }
-
-    /// <summary>Rebuilds the cartridge's fixed exploration layout from seven area documents.</summary>
-    private static byte[] DecodeExploredAreas(ExploredAreaJsonDocument[] areas)
-    {
-        if (areas.Length != SharedGameState.ExploredMapAreaCount)
-            throw new InvalidDataException(
-                $"progression.exploredAreas must contain {SharedGameState.ExploredMapAreaCount} areas");
-        var result = new byte[
-            SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea];
-        for (int areaIndex = 0; areaIndex < areas.Length; areaIndex++)
-        {
-            ExploredAreaJsonDocument area = areas[areaIndex] ?? throw new InvalidDataException(
-                $"progression.exploredAreas[{areaIndex}] is null");
-            if (AreaIds.ToIndex(area.Area) != areaIndex)
-                throw new InvalidDataException(
-                    $"progression.exploredAreas[{areaIndex}].area is out of cartridge order");
-            if (area.Tiles is null)
-                throw new InvalidDataException(
-                    $"progression.exploredAreas[{areaIndex}].tiles is required");
+            MapCoordinateJsonDocument[] tiles = progression.ExploredAreas[AreaIds.ToIndex(area)].Tiles ??
+                throw new InvalidDataException($"{property}.exploredAreas of {area} requires tiles");
             int previousIndex = -1;
-            foreach (MapCoordinateJsonDocument tile in area.Tiles)
+            foreach (MapCoordinateJsonDocument tile in tiles)
             {
                 if (tile is null || !AreaMapLayout.Size.Contains(tile.Cell))
-                    throw new InvalidDataException(
-                        $"progression.exploredAreas[{areaIndex}] contains an invalid tile");
-                Position16<MapTiles> cell = tile.Cell;
-                int logicalIndex = AreaMapLayout.Size.RowMajorIndex(cell);
+                    throw new InvalidDataException($"{property}.exploredAreas of {area} contains an invalid tile");
+                int logicalIndex = AreaMapLayout.Size.RowMajorIndex(tile.Cell);
                 if (logicalIndex <= previousIndex)
-                    throw new InvalidDataException(
-                        $"progression.exploredAreas[{areaIndex}].tiles must be row-major and unique");
-                int byteIndex = areaIndex * SharedGameState.ExploredMapBytesPerArea +
-                    AreaMapPages.GetBitByteIndex(cell);
-                result[byteIndex] |= AreaMapPages.GetBitMask(cell.X);
+                    throw new InvalidDataException($"{property}.exploredAreas of {area} must be row-major and unique");
+                progress.SetExplored(area, tile.Cell, explored: true);
                 previousIndex = logicalIndex;
             }
         }
-        return result;
+        return progress;
     }
 
+    /// <summary>Requires one entry per retail area, in area order, and returns the areas.</summary>
+    private static List<AreaId> DecodeAreaOrder(IEnumerable<AreaId?> areas, string property)
+    {
+        var listed = new List<AreaId>();
+        foreach (AreaId? entry in areas)
+        {
+            if (entry is not { } area || AreaIds.ToIndex(area) != listed.Count)
+                throw new InvalidDataException($"{property}[{listed.Count}] is missing or out of area order");
+            listed.Add(area);
+        }
+        if (listed.Count != AreaIds.RetailCount)
+            throw new InvalidDataException($"{property} must contain {AreaIds.RetailCount} areas");
+        return listed;
+    }
+
+    /// <summary>The event numbers validated symbolic event names list.</summary>
+    private static int[] DecodeEvents(string[] events, string property)
+    {
+        var numbers = new int[events.Length];
+        for (int index = 0; index < events.Length; index++)
+        {
+            string value = events[index] ?? throw new InvalidDataException($"{property}[{index}] is null");
+            if (Enum.TryParse(value, ignoreCase: true, out EventNumber named) && Enum.IsDefined(named))
+                numbers[index] = named.ToEventNumber();
+            else if (value.StartsWith("0x", StringComparison.OrdinalIgnoreCase) &&
+                     int.TryParse(value[2..], NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out int raw))
+                numbers[index] = raw;
+            else
+                throw new InvalidDataException($"{property}[{index}] '{value}' is not a known name or 0xNN event number");
+        }
+        return numbers;
+    }
+
+    /// <summary>Turns on the listed flags, rejecting duplicates, disorder and numbers outside the range.</summary>
+    private static void DecodeNumbers(int[] numbers, NumberedFlags flags, string property)
+    {
+        int previous = -1;
+        for (int index = 0; index < numbers.Length; index++)
+        {
+            int number = numbers[index];
+            if ((uint)number >= (uint)flags.Capacity)
+                throw new InvalidDataException($"{property}[{index}]={number} is outside 0 through {flags.Capacity - 1}");
+            if (number <= previous)
+                throw new InvalidDataException($"{property} must be strictly increasing without duplicates");
+            flags.Add(number);
+            previous = number;
+        }
+    }
 }

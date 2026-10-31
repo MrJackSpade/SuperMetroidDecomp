@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>The frontend's shared state and its owners: the runtime, audio, display, save RAM, scenes, fades and demo counters that the game-state phases run against.</summary>
 internal sealed class FrontendSession
 {
-    /// <summary>Creates a reset-state session, reading the selected save slot and capturing the native boot carry.</summary>
+    /// <summary>Creates a reset-state session, reading the selected save slot and the earthquake rumble delay power-on gives.</summary>
     /// <param name="saves">The battery-backed saves the session reads and writes for its whole lifetime.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
     /// <param name="hostServices">The hardware-timing policies the session runs against for its whole lifetime.</param>
@@ -36,7 +36,7 @@ internal sealed class FrontendSession
         this.saves = Ensure.NotNull(saves);
         SelectedSaveSlot = saves.ReadSelectedSlot();
         // Construction is power-on: boot evaluates the saves once before entering MainGameLoop.
-        bootMainLoopCarry = saves.DetermineBootMainLoopCarry();
+        earthquakeSoundDelay = saves.EarthquakeSoundDelayAtPowerOn();
         bootDemoSetCount = saves.DetermineNumberOfDemoSets();
     }
 
@@ -58,8 +58,8 @@ internal sealed class FrontendSession
     internal readonly FrontendDisplay display;
     /// <summary>Battery-backed save slots and the menu selection; the host persists them.</summary>
     internal readonly SaveSlotStore saves;
-    /// <summary>Boot-time <see cref="SharedGameState.MainGameLoopCarry"/>; fixed for the session.</summary>
-    internal readonly bool bootMainLoopCarry;
+    /// <summary>The frame the save file found at power-on adds to every earthquake rumble's delay; fixed for the session.</summary>
+    internal readonly PowerOnEarthquakeSoundDelay earthquakeSoundDelay;
     /// <summary>Boot-time <c>NumberOfDemoSets</c> ($1F59); fixed for the session.</summary>
     internal readonly int bootDemoSetCount;
     /// <summary>Native music and SFX queues shared across menus and gameplay.</summary>
@@ -392,7 +392,7 @@ internal sealed class FrontendSession
             Purpose = purpose,
             Overrides = ConfiguredOptions.RuntimeOverrides(attract),
             Random = Random,
-            MainGameLoopCarry = bootMainLoopCarry,
+            EarthquakeSoundDelay = earthquakeSoundDelay,
             Layer1 = menuLayer1,
             Artwork = Artwork,
             Clock = frameClock,

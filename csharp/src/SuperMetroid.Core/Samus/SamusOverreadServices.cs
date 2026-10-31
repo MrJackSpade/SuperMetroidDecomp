@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -25,7 +26,7 @@ public sealed class SamusOverreadServices
     internal SamusOverreadServices(
         LaidOutProgramContinuation<SamusPoseId> animationContinuation,
         TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> trailStarts,
-        SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>> spaceTimeOverwrite,
+        SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> spaceTimeOverwrite,
         ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> chainsawFuseShift,
         ChargeFlareDelaysBelowPrograms chargeFlareDelays,
         PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission,
@@ -47,7 +48,7 @@ public sealed class SamusOverreadServices
     internal TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> TrailStarts { get; }
 
     /// <summary>What SpaceTime's palette copy overwrites in saved progression.</summary>
-    internal SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>> SpaceTimeOverwrite { get; }
+    internal SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>, ProgressionOverwrite> SpaceTimeOverwrite { get; }
 
     /// <summary>Where the Chainsaw beam's animation lands when its borrowed Power Bomb fuse speeds up.</summary>
     internal ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> ChainsawFuseShift { get; }

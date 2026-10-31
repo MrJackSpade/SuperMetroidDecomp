@@ -1,24 +1,24 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// The single conversion between a named <see cref="EventNumber"/> and its bit in the persistent event table that save
-/// slots, the shared progression state and room-state selection read. Nothing else turns an event into a bit index.
+/// The single conversion between a named <see cref="EventNumber"/> and the number the game gives that story event, which
+/// room data and saves use. Nothing else turns an event into its number.
 /// </summary>
-[EncodingOwner("save slot event table")]
+[EncodingOwner("story event numbering")]
 public static class EventNumberCodec
 {
-    /// <summary>The bit of the event table that records <paramref name="eventNumber"/>.</summary>
+    /// <summary>The number the game gives <paramref name="eventNumber"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="eventNumber"/> names no retail event.</exception>
-    public static int ToEventBit(this EventNumber eventNumber) =>
+    public static int ToEventNumber(this EventNumber eventNumber) =>
         Enum.IsDefined(eventNumber)
             ? (int)eventNumber
             : throw new ArgumentOutOfRangeException(nameof(eventNumber), eventNumber, "The event has no proven retail EventNumber identity.");
 
-    /// <summary>The named event that event-table bit <paramref name="bit"/> records, when the retail game names one.</summary>
-    public static bool TryFromEventBit(int bit, out EventNumber eventNumber)
+    /// <summary>The named event the game numbers <paramref name="number"/>, when the retail game names one.</summary>
+    public static bool TryFromEventNumber(int number, out EventNumber eventNumber)
     {
-        bool named = Enum.IsDefined((EventNumber)bit);
-        eventNumber = named ? (EventNumber)bit : default;
+        bool named = Enum.IsDefined((EventNumber)number);
+        eventNumber = named ? (EventNumber)number : default;
         return named;
     }
 }

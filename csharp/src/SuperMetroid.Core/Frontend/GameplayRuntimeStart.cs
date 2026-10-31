@@ -16,8 +16,8 @@ internal sealed record GameplayRuntimeStart
     /// <summary>The session's random-number word, which the runtime's system state reads and advances.</summary>
     public required SharedRandom Random { get; init; }
 
-    /// <summary>The boot-time main-loop carry the session captured at power-on.</summary>
-    public required bool MainGameLoopCarry { get; init; }
+    /// <summary>The frame the save file found at power-on adds to every earthquake rumble's delay, fixed for the session.</summary>
+    public required PowerOnEarthquakeSoundDelay EarthquakeSoundDelay { get; init; }
 
     /// <summary>The menu's retained NMI counters and layer-1 position, published to the new runtime.</summary>
     public required MenuLayer1Retention Layer1 { get; init; }

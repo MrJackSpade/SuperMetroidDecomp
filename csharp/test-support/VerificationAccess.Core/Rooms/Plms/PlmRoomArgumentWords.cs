@@ -98,7 +98,7 @@ internal static class PlmRoomArgumentWords
             DoorBitArgument door => checked((ushort)(door.DoorBit | (door.Persists ? 0 : NeverPersists))),
             GreyDoorArgument grey => checked((ushort)((grey.Door.Persists ? 0 : NeverPersists) |
                 (grey.ConditionIndex << GreyConditionShift) | grey.Door.DoorBit)),
-            SpentDoorArgument spent => unchecked((ushort)(NeverPersists | spent.OpenedDoorWindow)),
+            SpentDoorArgument spent => unchecked((ushort)(NeverPersists | spent.OpenedDoors.Sum(door => 1 << (door - spent.FirstDoor)))),
             StationArgument station => checked((ushort)station.Station),
             MetroidRoomArgument metroids => checked((ushort)(metroids.Entry * 2)),
             GateTriggerArgument gate => checked((ushort)(gate.Trigger * 2)),

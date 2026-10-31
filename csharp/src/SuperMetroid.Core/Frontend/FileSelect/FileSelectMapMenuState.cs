@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using System.Buffers.Binary;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Saves;
@@ -27,8 +26,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     private readonly AudioQueues audio;
     /// <summary>Saved Zebes area; Ceres bypasses this menu.</summary>
     private readonly int area;
-    /// <summary>Per-area used-station words restored from the selected save slot.</summary>
-    private readonly ushort[] usedStations = new ushort[FileSelectMapDefinitions.AreaCount];
+    /// <summary>The selected save's progress: its used stations label the area map's areas.</summary>
+    private readonly PersistentProgress savedProgress;
     /// <summary>Renders the six-area selection view during entry and area navigation.</summary>
     private readonly FileSelectAreaMapGraphics areaGraphics;
     /// <summary>Renders the selected area's room map, including exploration and markers.</summary>
@@ -77,11 +76,8 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
         if ((uint)area >= FileSelectMapDefinitions.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(slot), "Ceres does not use the Zebes save-selection map.");
         var system = new SharedGameState();
-        system.LoadMapStationBytes(slot.MapStationBytes);
-        system.LoadBossBytes(slot.BossBytes);
-        system.LoadExploredMapBytes(slot.ExploredMapBytes);
-        for (int index = 0; index < usedStations.Length; index++)
-            usedStations[index] = BinaryPrimitives.ReadUInt16LittleEndian(slot.UsedSaveStationBytes.AsSpan(index * 2));
+        system.Progress.CopyFrom(slot.Progression);
+        savedProgress = system.Progress;
         var typedArea = AreaIds.At(area);
         if (mapPresentation is null)
             throw new InvalidOperationException("File-select map requires installed map presentation assets.");
@@ -213,7 +209,7 @@ public sealed class FileSelectMapMenuState : IMenuFrontendScreen
     /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>
     public LayeredScene CaptureRenderSnapshot()
     {
-        LayeredScene Area(AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop) => areaGraphics.CaptureRenderSnapshot(usedStations, colorMath);
+        LayeredScene Area(AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop) => areaGraphics.CaptureRenderSnapshot(savedProgress, colorMath);
         LayeredScene Frame() => roomGraphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
         LayeredScene Room(FileSelectStationMarker? shownMarker) => roomGraphics.CaptureRenderSnapshot(Scroll.Scroll,
             shownMarker, drawArrows ? animations : null);

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Saves;
 
-/// <summary>Domain snapshot supplied to the native SRAM encoder.</summary>
+/// <summary>What a save station, checkpoint or save editor hands a save slot to keep: Samus, options and progress.</summary>
 public sealed record SuperMetroidSaveSnapshot
 {
     /// <summary>The seven configurable actions as a validated permutation of SNES button masks.</summary>
@@ -101,43 +101,10 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>The retail area index that owns <see cref="SaveStation"/>.</summary>
     public int Area { get; init; }
 
-    /// <summary>Eight persistent event bytes copied without reinterpretation from the shared game state.</summary>
-    public byte[] EventBytes { get; init; } = new byte[SharedGameState.EventByteCount];
+    /// <summary>The persistent progress to save; the snapshot owns this copy.</summary>
+    public PersistentProgress Progress { get; init; } = new();
 
-    /// <summary>
-    /// One boss-state flag set per native area slot, including any unproven bits a corrupting write left, which the
-    /// SRAM encoding carries losslessly.
-    /// </summary>
-    public BossBits[] BossFlags { get; init; } = new BossBits[SharedGameState.AreaCount];
-
-    /// <summary>The 64-byte room-indexed bitset for opened Chozo item orbs.</summary>
-    public byte[] RoomChozoBytes { get; init; } =
-        new byte[SharedGameState.RoomChozoBitByteCount];
-
-    /// <summary>The 64-byte room-indexed bitset for collected item PLMs.</summary>
-    public byte[] CollectedItemBytes { get; init; } =
-        new byte[SharedGameState.ItemBitByteCount];
-
-    /// <summary>The 64-byte room-indexed bitset for doors permanently opened by the player.</summary>
-    public byte[] OpenedDoorBytes { get; init; } =
-        new byte[SharedGameState.DoorBitByteCount];
-
-    /// <summary>The 16-byte per-area bitset for visited save stations and elevators.</summary>
-    public byte[] UsedSaveStationBytes { get; init; } =
-        new byte[SharedGameState.UsedSaveStationByteCount];
-
-    /// <summary>The 12-byte per-area bitset for activated map stations.</summary>
-    public byte[] MapStationBytes { get; init; } =
-        new byte[SharedGameState.MapStationByteCount];
-
-    /// <summary>
-    /// Unpacked explored-map bytes in area-major order; SRAM encoding interleaves the six
-    /// persisted Zebes areas and omits the Ceres prologue.
-    /// </summary>
-    public byte[] ExploredMapBytes { get; init; } = new byte[
-        SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea];
-
-    /// <summary>Captures the translated gameplay owners into a detached SRAM-encoding snapshot.</summary>
+    /// <summary>Captures the translated gameplay owners into a detached snapshot.</summary>
     /// <param name="samus">Source of player inventory, ammunition, energy, and reserve state.</param>
     /// <param name="system">Source of persistent events, bosses, room bits, maps, and load state.</param>
     /// <param name="context">The save location, timer, bindings and options a save snapshot records with Samus and system state (#633).</param>
@@ -147,40 +114,6 @@ public sealed record SuperMetroidSaveSnapshot
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(system);
-        var events = new byte[SharedGameState.EventByteCount];
-        var bosses = new BossBits[SharedGameState.AreaCount];
-        var roomChozo = new byte[SharedGameState.RoomChozoBitByteCount];
-        var collectedItems = new byte[SharedGameState.ItemBitByteCount];
-        var openedDoors = new byte[SharedGameState.DoorBitByteCount];
-        var usedSaveStations = new byte[SharedGameState.UsedSaveStationByteCount];
-        var mapStations = new byte[SharedGameState.MapStationByteCount];
-        var exploredMap = new byte[
-            SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea];
-        for (int index = 0; index < events.Length; index++)
-            events[index] = system.GetEventByteRaw(index);
-        for (int index = 0; index < bosses.Length; index++)
-            bosses[index] = BossBitsCodec.FromSaveByte(system.GetBossBitsRaw(index));
-        for (int index = 0; index < roomChozo.Length; index++)
-            roomChozo[index] = system.GetRoomChozoByteRaw(index);
-        for (int index = 0; index < collectedItems.Length; index++)
-            collectedItems[index] = system.GetCollectedItemByteRaw(index);
-        for (int index = 0; index < openedDoors.Length; index++)
-            openedDoors[index] = system.GetOpenedDoorByteRaw(index);
-        for (int index = 0; index < usedSaveStations.Length; index++)
-            usedSaveStations[index] = system.GetUsedSaveStationByteRaw(index);
-        for (int index = 0; index < mapStations.Length; index++)
-            mapStations[index] = system.GetMapStationByteRaw(index);
-        for (int areaIndex = 0; areaIndex < SharedGameState.ExploredMapAreaCount; areaIndex++)
-        {
-            for (int byteIndex = 0;
-                byteIndex < SharedGameState.ExploredMapBytesPerArea;
-                byteIndex++)
-            {
-                exploredMap[areaIndex * SharedGameState.ExploredMapBytesPerArea + byteIndex] =
-                    system.GetExploredMapByteRaw(areaIndex, byteIndex);
-            }
-        }
-
         return new SuperMetroidSaveSnapshot
         {
             ControllerBindings = (context.ControllerBindings ?? ControllerBindings.Default)
@@ -213,14 +146,7 @@ public sealed record SuperMetroidSaveSnapshot
             LoadingGameState = system.SavedLoadingGameState,
             SaveStation = context.SaveStation,
             Area = AreaIds.ToIndex(context.Area),
-            EventBytes = events,
-            BossFlags = bosses,
-            RoomChozoBytes = roomChozo,
-            CollectedItemBytes = collectedItems,
-            OpenedDoorBytes = openedDoors,
-            UsedSaveStationBytes = usedSaveStations,
-            MapStationBytes = mapStations,
-            ExploredMapBytes = exploredMap,
+            Progress = system.Progress.Copy(),
         };
     }
 }

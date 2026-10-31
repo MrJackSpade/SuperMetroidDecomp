@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Saves;
 
 /// <summary>
 /// The session's battery-backed saves as owned state (#1322): three slots (null is empty or invalid), the menu's
-/// selected slot and game completion. Gameplay, menus, checkpoints and JSON read and write it directly; SRAM is only
-/// the hosts' import and export format.
+/// selected slot and game completion. Gameplay, menus, checkpoints and JSON read and write it directly; the cartridge's
+/// save image is only the hosts' import and export format.
 /// </summary>
 public sealed class SaveSlotStore
 {
@@ -19,11 +19,11 @@ public sealed class SaveSlotStore
     private int selectedSlot;
 
     /// <summary>
-    /// The marker comparison's carry for the marker field of the SRAM image this store was decoded from, which depends
-    /// on its raw words; null once the marker is rewritten, or when the store was never decoded. Saving, copying or
-    /// clearing a slot leaves the field, as SRAM does.
+    /// The earthquake rumble delay the save image this store was imported from gives at power-on, which its host decided
+    /// from the image's raw completion mark; null once the mark is rewritten, or when the store was never imported.
+    /// Saving, copying or clearing a slot leaves the mark, as the cartridge does.
     /// </summary>
-    private bool? decodedMarkerCarry;
+    private PowerOnEarthquakeSoundDelay? importedEarthquakeDelay;
 
     /// <summary>Installed stock map rules that pack and unpack explored maps; the host binds them with its artwork.</summary>
     [NonSerialized] private IAreaMapSource? mapPresentation;
@@ -34,11 +34,17 @@ public sealed class SaveSlotStore
 
     /// <summary>
     /// A store imported from a save image a host decoded: its slots, the menu's selection, completion, whether the
-    /// marker field held the corrupt-SRAM signature, and the carry boot's marker comparison left.
+    /// completion mark held the corrupt-save signature, and the earthquake rumble delay the image's mark gives at power-on.
     /// </summary>
-    [IndependentFlag("Game completion, the corrupt marker and the marker carry are separate facts decoded from save RAM.")]
+    /// <param name="slots">The three slots; null is an empty or invalid slot.</param>
+    /// <param name="selectedSlot">The menu's selected slot.</param>
+    /// <param name="gameCompleted">Whether the mark holds the completed-game signature.</param>
+    /// <param name="corruptMarkerWritten">Whether the mark holds the corrupt-save signature.</param>
+    /// <param name="earthquakeDelay">The rumble delay the image's mark gives at power-on while a slot is valid.</param>
+    /// <param name="maps">Installed stock map rules that saving a slot requires.</param>
+    [IndependentFlag("Game completion and the corrupt marker are separate facts decoded from a save image.")]
     public static SaveSlotStore Imported(SuperMetroidSaveSlot?[] slots, int selectedSlot, bool gameCompleted,
-        bool corruptMarkerWritten, bool markerCarry, IAreaMapSource maps)
+        bool corruptMarkerWritten, PowerOnEarthquakeSoundDelay earthquakeDelay, IAreaMapSource maps)
     {
         Ensure.LengthEqual(slots, SlotCount);
         var store = new SaveSlotStore(maps)
@@ -46,7 +52,7 @@ public sealed class SaveSlotStore
             selectedSlot = selectedSlot,
             HasCompletedGame = gameCompleted,
             CorruptMarkerWritten = corruptMarkerWritten,
-            decodedMarkerCarry = markerCarry,
+            importedEarthquakeDelay = Ensure.NotNull(earthquakeDelay),
         };
         slots.CopyTo(store.slots, 0);
         return store;
@@ -66,8 +72,8 @@ public sealed class SaveSlotStore
     }
 
     /// <summary>
-    /// Ports <c>SaveToSRAM</c>: stores the slot the cartridge would read back, so fields SRAM does not keep (explored
-    /// bytes no stock tile occupies, Boolean words other than 0 and 1) read back as SRAM would return them.
+    /// Ports <c>SaveToSRAM</c>: stores the slot the cartridge would read back, so what a save does not keep (exploration
+    /// of map runs no stock cell occupies, Ceres's exploration) is gone when the slot is read back.
     /// </summary>
     public void SaveSlot(int slot, SuperMetroidSaveSnapshot snapshot)
     {
@@ -116,20 +122,18 @@ public sealed class SaveSlotStore
     }
 
     /// <summary>
-    /// The carry <c>DetermineNumberOfDemoSets</c> ($80:8261) returns at boot: set when no slot is valid, otherwise the
-    /// marker comparison's carry. Until the marker is rewritten, a store decoded from SRAM compares that image's raw
-    /// marker words; otherwise the marker the codec would encode.
+    /// The frame this save file adds at power-on to every earthquake rumble's delay
+    /// (<see cref="PowerOnEarthquakeSoundDelay"/>): one when no slot is valid, the game is completed or the mark holds
+    /// the corrupt-save signature, none for a valid save without either mark. Until the mark is rewritten, a store
+    /// imported from a save image gives the delay its host decided from that image's raw mark.
     /// </summary>
-    public bool DetermineBootMainLoopCarry()
+    public PowerOnEarthquakeSoundDelay EarthquakeSoundDelayAtPowerOn()
     {
         if (!AnySlotValid)
-            return true;
-        if (decodedMarkerCarry is { } decoded)
-            return decoded;
-        // Boot compares the marker field's words with the completion signature's from the last down. The completion
-        // signature matches, leaving the carry set; the corrupt-SRAM signature's last word is the larger, setting it; a
-        // cleared field's is the smaller, clearing it.
-        return HasCompletedGame || CorruptMarkerWritten;
+            return PowerOnEarthquakeSoundDelay.OneFrame;
+        if (importedEarthquakeDelay is { } imported)
+            return imported;
+        return HasCompletedGame || CorruptMarkerWritten ? PowerOnEarthquakeSoundDelay.OneFrame : PowerOnEarthquakeSoundDelay.None;
     }
 
     /// <summary>
@@ -162,19 +166,12 @@ public sealed class SaveSlotStore
     private bool AnySlotValid => slots.Any(slot => slot is not null);
 
     /// <summary>The marker field no longer holds the decoded image's words.</summary>
-    private void MarkerRewritten() => decodedMarkerCarry = null;
+    private void MarkerRewritten() => importedEarthquakeDelay = null;
 
     /// <summary>A copy of <paramref name="saved"/> as slot <paramref name="slot"/>, sharing no array with it.</summary>
     private static SuperMetroidSaveSlot Detached(SuperMetroidSaveSlot saved, int slot) => saved with
     {
         Slot = slot,
-        EventBytes = saved.EventBytes.ToArray(),
-        BossBytes = saved.BossBytes.ToArray(),
-        RoomChozoBytes = saved.RoomChozoBytes.ToArray(),
-        CollectedItemBytes = saved.CollectedItemBytes.ToArray(),
-        OpenedDoorBytes = saved.OpenedDoorBytes.ToArray(),
-        UsedSaveStationBytes = saved.UsedSaveStationBytes.ToArray(),
-        MapStationBytes = saved.MapStationBytes.ToArray(),
-        ExploredMapBytes = saved.ExploredMapBytes.ToArray(),
+        Progression = saved.Progression.Copy(),
     };
 }

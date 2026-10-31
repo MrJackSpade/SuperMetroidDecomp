@@ -17,12 +17,6 @@ internal static class SamusSourceDefinitions
     /// <summary>Bank <c>$93</c>, which holds the projectile definitions and animation lists.</summary>
     internal static readonly SnesAddress ProjectileDataBank = new(0x93, 0x0000);
 
-    /// <summary>$91:B20A, where Samus's pose delay programs start, after the pose pointer table.</summary>
-    internal static readonly SnesAddress PoseDelayPrograms = new(0x91, 0xb20a);
-
-    /// <summary>$91:B5D1, where the running cadences start: the word naming the ordinary stream.</summary>
-    internal static readonly SnesAddress RunningCadences = new(0x91, 0xb5d1);
-
     /// <summary>$90:C487, where the charge flare's delay programs start.</summary>
     internal static readonly SnesAddress ChargeFlarePrograms = new(0x90, 0xc487);
 

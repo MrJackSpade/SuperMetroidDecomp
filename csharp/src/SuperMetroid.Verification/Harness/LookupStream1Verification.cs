@@ -1241,25 +1241,22 @@ internal static class LookupStream1Verification
     /// <summary>Reads the native pose-to-cannon pointer table.</summary>
     private static byte LookupStream1CannonPosesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks invalid pose aliases against running-delay pointers and live mirrored WRAM mutations.</summary>
+    /// <summary>
+    /// Checks that the three numbers past the pose records name no program (#1473): the cartridge's table words for them
+    /// would be the first program's delay bytes, naming low-bank memory rather than a program, and no gameplay path gives
+    /// Samus one of those numbers, so the port gives them no animation.
+    /// </summary>
     internal static void VerifyLookupStream1AnimationAliases(CartridgeImportAddressSpace bus)
     {
-        for (int pose = 0xFD; pose <= 0xFF; pose++)
+        for (int pose = SamusAnimationProgramCodec.PoseCount; pose <= byte.MaxValue; pose++)
         {
-            int source = SamusAnimationDelayDefinitions.DelayStreamsAddress + (pose - 0xFD) * 2;
-            ushort expectedPointer = bus.ReadCartridgeWord(source);
-            ushort pointer = SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose);
-            AssertEqual(expectedPointer, pointer, $"animation alias ${pose:X2} reads its running-delay source");
-            var residue = new SuperMetroid.Core.Compatibility.RecordedFloorUpdateResidue();
-            for (int change = 0; change < 2; change++)
-            {
-                byte expected = (byte)(pose - 0xFD + change * 16);
-                residue.Write(pointer - SamusAnimationDelayDefinitions.FloorUpdateResidueOffset, expected);
-                AssertEqual(expected, SamusAnimationDelays.ReadAnimationByte(residue, pointer, 0),
-                    $"animation alias ${pose:X2} observes queue residue mutation {change}");
-            }
+            ushort word = bus.ReadCartridgeWord(SamusAnimationDelayDefinitions.PointerTableAddress + pose * sizeof(ushort));
+            AssertTrue(word < 0x8000, $"pose ${pose:X2}'s table word ${word:X4} names low-bank memory, not a program");
+            SamusPoseId adjacent = SamusPoseNumbering.FromNumber(pose);
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusAnimationDelays.ProgramForPose(adjacent),
+                $"pose ${pose:X2} has no animation program");
         }
-        Console.WriteLine("Animation aliases: three original running-delay words and six live WRAM mutations match.");
+        Console.WriteLine("Animation aliases: the three numbers past the pose records name low-bank memory and have no program.");
     }
 
     /// <summary>Checks HUD posture admission and grapple/non-grapple observations over all pose bytes.</summary>

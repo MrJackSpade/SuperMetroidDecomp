@@ -1,75 +1,54 @@
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Samus.Movement.RunningCadenceVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Poses;
 using SuperMetroid.Verification.Harness;
 
-/// <summary>Checks compiled Samus pose delay streams and their intentional mutable-WRAM overread alias.</summary>
+/// <summary>Checks Samus's typed pose animation programs against the cartridge's (#1473).</summary>
 internal static class SamusAnimationDelayDefinitionsVerification
 {
-    /// <summary>Checks the entire compiled pose-delay definition domain against retail.</summary>
+    /// <summary>
+    /// Decodes every pose's program from the cartridge and requires the typed program the pose animates by to hold the
+    /// same runs: each run's first frame, its delays and the instruction that ends it.
+    /// </summary>
     internal static void VerifySamusAnimationDelayDefinitions(ISnesAddressSpace bus)
     {
-        for (int pose = 0; pose < 256; pose++)
+        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        for (int number = 0; number < SamusAnimationProgramCodec.PoseCount; number++)
         {
-            int source = SamusAnimationDelayDefinitions.PointerTableAddress + pose * 2;
-            ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
-            AssertEqual(nativePointer,
-                SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose),
-                $"compiled Samus animation pointer for pose ${pose:X2}");
+            SamusPoseId pose = SamusPoseNumbering.FromNumber(number);
+            IReadOnlyList<SamusAnimationSequence> expected = SamusAnimationProgramCodec.Decode(cartridge, pose);
+            IReadOnlyList<SamusAnimationSequence> actual = SamusAnimationDelays.ProgramForPose(pose).Sequences;
+            AssertEqual(expected.Count, actual.Count, $"pose {pose} animation run count");
+            for (int run = 0; run < expected.Count; run++)
+            {
+                AssertEqual(expected[run].FirstFrame, actual[run].FirstFrame, $"pose {pose} run {run} first frame");
+                AssertSequenceEqual(expected[run].Delays, actual[run].Delays, $"pose {pose} run {run} delays");
+                AssertEqual(expected[run].End, actual[run].End, $"pose {pose} run {run} instruction");
+            }
         }
-        for (int source = SamusAnimationDelayDefinitions.PointerTableAddress;
-             source < SamusAnimationDelayDefinitions.DelayStreamsEndExclusive; source++)
-            AssertEqual(bus.ReadCartridgeByte(source),
-                SamusAnimationDelayDefinitions.ReadCompiledByte(source),
-                $"compiled Samus animation definition byte ${source:X6}");
 
-        // Semantic layout: contiguous segments, each ending in one command, and every real
-        // pose pointer selecting a segment start rather than a delay inside one.
-        ReadOnlySpan<SamusAnimationSegment> segments = SamusAnimationDelayPrograms.Segments;
-        AssertEqual(160, segments.Length, "Samus animation segment count");
-        int streamsStart = SamusAnimationDelayDefinitions.DelayStreamsAddress & ushort.MaxValue;
-        int expectedOffset = 0;
-        var segmentStarts = new HashSet<int>();
-        foreach (SamusAnimationSegment segment in segments)
-        {
-            AssertEqual(expectedOffset, segment.Offset, "Samus animation segments are contiguous");
-            segmentStarts.Add(streamsStart + segment.Offset);
-            expectedOffset += segment.Length;
-        }
-        AssertEqual(SamusAnimationDelayDefinitions.DelayStreamsEndExclusive - SamusAnimationDelayDefinitions.DelayStreamsAddress,
-            expectedOffset, "Samus animation segments end at the running-cadence pointer");
-        for (int pose = 0; pose < 0xFD; pose++)
-            AssertTrue(segmentStarts.Contains(SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose)),
-                $"pose ${pose:X2} animation pointer starts a segment");
+        // The three numbers past the pose records name no program: no gameplay path gives Samus one of them.
+        foreach (SamusPoseId adjacent in new[] { SamusPoseId.AdjacentCodePoseFD, SamusPoseId.AdjacentCodePoseFE, SamusPoseId.AdjacentCodePoseFF })
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusAnimationDelays.ProgramForPose(adjacent),
+                $"pose {adjacent} has no animation program");
 
-        // Poses $FD-$FF intentionally overread the first delay bytes as $0302.
-        // The resulting low-bank source is the Mode 7 queue residue, not immutable ROM data.
-        var residue = new SuperMetroid.Core.Compatibility.RecordedFloorUpdateResidue();
-        residue.Write(0x0302 - SamusAnimationDelayDefinitions.FloorUpdateResidueOffset, 0x5A);
-        AssertEqual((byte)0x5A,
-            SamusAnimationDelays.ReadAnimationByte(residue,
-                SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)0xFD), 0),
-            "invalid-pose animation overread keeps its mutable WRAM alias");
         var flashbackSamus = new SamusState
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
         };
         SamusPresentation.InitializeAnimation(flashbackSamus);
-        AssertEqual(SamusAnimationDelays.ListForPose(SamusPoseId.FacingLeftNormalPose),
-            flashbackSamus.AnimationDelayList,
-            "Mother Brain flashback pose initializes through compiled animation timing");
-        AssertThrows<InvalidDataException>(
-            () => SamusAnimationDelays.ReadAnimationByte(residue,
-                0xB5D1, 0),
-            "uncompiled immutable pose-delay addresses fail explicitly");
-        Console.WriteLine("Samus pose animation: 256 pointers and every stream byte match retail; mutable overread remains live.");
+        AssertEqual(SamusPoseId.FacingLeftNormalPose, flashbackSamus.AnimatedPose,
+            "Mother Brain flashback pose starts its typed animation program");
+        Console.WriteLine("Samus pose animation: all 253 typed programs match the cartridge's runs, delays and instructions.");
     }
 
-    /// <summary>Runs pose-delay and running-cadence checks against the retail ROM.</summary>
+    /// <summary>Runs pose-program and running-cadence checks against the retail ROM.</summary>
     [VerificationCommand("--mutable-animation-aliases")]
     internal static int MutableAnimationAliasesCommand()
     {

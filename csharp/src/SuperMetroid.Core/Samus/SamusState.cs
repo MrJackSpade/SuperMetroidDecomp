@@ -96,7 +96,10 @@ public sealed class SamusState
         return cancelled;
     }
 
-    /// <summary>Current animation-frame index, corresponding to WRAM <c>$0A96</c>.</summary>
+    /// <summary>
+    /// The animation frame shown: the number of the step of the pose's animation program the animation is on, which is
+    /// also the frame number of the pose's artwork.
+    /// </summary>
     [IntegerQuantity("frame index within the current pose animation")]
     public int AnimationFrame
     {
@@ -461,8 +464,17 @@ public sealed class SamusState
     /// </summary>
     public bool KnockbackActive { get; set; }
 
-    /// <summary>The active pose's byte-oriented delay program.</summary>
-    public SamusAnimationDelayList AnimationDelayList { get; internal set; }
+    /// <summary>
+    /// The pose the animation was last started for, whose program <see cref="AnimationFrame"/> steps through; none before
+    /// the animation is first started. Changing the pose to one with another program without restarting the animation
+    /// is a defect the next animation tick reports.
+    /// </summary>
+    public SamusPoseId? AnimatedPose { get; internal set; }
+
+    /// <summary>The animation program <see cref="AnimationFrame"/> steps through.</summary>
+    /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
+    internal SamusAnimationProgram AnimationProgram => SamusAnimationDelays.ProgramForPose(
+        AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."));
 
     /// <summary>
     /// Operand published by animation command $F8 through the native “super-special
@@ -486,8 +498,9 @@ public sealed class SamusState
     public ProjectileInheritanceRecords ProjectileInheritance { get; } = new();
 
     /// <summary>
-    /// The session's floor update residue, which her bank-$91 low-half delay reads alias. The room loader, attract
-    /// driver and intro bind it when they create her; a detached Samus that reaches such a read fails loudly.
+    /// The session's floor update residue, whose bytes time her run on the unauthored Speed Booster cadence
+    /// (<see cref="SuperMetroid.Core.Compatibility.UnauthoredBoostCadence"/>). The room loader, attract driver and intro
+    /// bind it when they create her; a detached Samus that reaches such a read fails loudly.
     /// </summary>
     public SuperMetroid.Core.Compatibility.IFloorUpdateResidue? FloorQueueResidue { get; set; }
 

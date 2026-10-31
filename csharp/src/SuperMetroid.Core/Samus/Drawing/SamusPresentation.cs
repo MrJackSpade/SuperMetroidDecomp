@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
@@ -39,9 +38,6 @@ internal sealed class SamusPresentation
     /// <summary>Host-bound normal suit colors; excluded from debugger-state graphs.</summary>
     [field: NonSerialized]
     public InstalledSamusSuitColors? SuitColors { get; set; }
-
-    /// <summary>Where the animation regions sit in their banks, which a restored index reading past its program needs.</summary>
-    public SamusAnimationWindows? AnimationWindows { get; set; }
 
     /// <summary>Host-bound animation colors; excluded from debugger-state graphs.</summary>
     [field: NonSerialized]
@@ -93,15 +89,14 @@ internal sealed class SamusPresentation
         // recomputes water/lava delay from the NEW pose radius at Y + radius - 1, while
         // Gravity Suit takes the ordinary speed-divisor path.
         samus.AnimationFrameBuffer = samus.LiquidPhysics.DeterminePoseChangeAnimationBuffer(samus);
-        samus.AnimationDelayList = ResolveAnimationDelayList(samus);
-        int initialDelay = ReadAnimationByte(samus, samus.AnimationFrame);
-        if (SamusAnimationDelays.IsCommand(initialDelay))
+        samus.AnimatedPose = samus.Pose;
+        if (samus.AnimationProgram.StepAt(samus.AnimationFrame) is not SamusAnimationDelay initialDelay)
         {
             throw new InvalidOperationException(
-                $"Samus pose {samus.Pose} cannot initialize directly on delay command ${initialDelay:X2}.");
+                $"Samus pose {samus.Pose} cannot start its animation on frame {samus.AnimationFrame}, which is not a delay.");
         }
 
-        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(initialDelay);
+        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(initialDelay.Ticks);
         samus.PendingTransitionalPose = null;
     }
 
@@ -123,7 +118,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>
-    /// Rebinds the delay-list pointer after a bank-$91 scripted controller writes Pose and
+    /// Restarts the animation's program after a bank-$91 scripted controller writes Pose and
     /// literal animation words without calling ordinary pose initialization.
     /// </summary>
     /// <remarks>
@@ -140,7 +135,7 @@ internal sealed class SamusPresentation
     {
         // Both drained controllers store only $0A1C; $0A1E/$0A1F keep the prior movement and collision radii.
         samus.WritePoseWithoutInitialization(pose);
-        samus.AnimationDelayList = ResolveAnimationDelayList(samus);
+        samus.AnimatedPose = pose;
         samus.AnimationFrame = frame;
         samus.AnimationFrameTimer = WrappingCountdown.FromRaw(timer);
         samus.PendingTransitionalPose = null;
@@ -233,24 +228,22 @@ internal sealed class SamusPresentation
         samus.AnimationFrameTimer = WrappingCountdown.FromRaw(timer);
     }
 
-    /// <summary>Consumes a pose delay byte or native animation command after the frame timer expires.</summary>
+    /// <summary>Runs the step the animation reaches when its frame timer expires: a frame's delay, or an instruction.</summary>
     private static void HandleAnimationDelay(SamusState samus, ControllerButton controllerInput,
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<SoundQueueAdmission>? queueEchoSound = null)
     {
-        int delayOrCommand = ReadAnimationByte(samus, samus.AnimationFrame);
-        if (!SamusAnimationDelays.IsCommand(delayOrCommand))
+        SamusAnimationProgramStep step = samus.AnimationProgram.StepAt(samus.AnimationFrame);
+        if (step is SamusAnimationDelay delay)
         {
-            // `$90:8554-$8568` replaces an ordinary running pose's per-pose delay list
-            // with the pointer stored at `$91:B5D1` whenever momentum flag `$0B3C` is set.
-            // Notice that this branch does NOT test the Dash button: releasing B retains
-            // the default running cadence until a transition/collision cancels momentum.
+            // While running with momentum the run's cadence, not the pose's own delays, times each frame. Releasing
+            // Dash keeps the cadence: only a transition or collision that cancels momentum ends it.
             int runningOrPoseDelay = samus.HorizontalSpeed.HasRunningMomentum &&
                 SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running
                 ? samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
                     ? samus.HorizontalSpeed.SpeedBoosterDelay(samus.FloorQueueResidue, samus.AnimationFrame)
                     : SamusRunningCadences.Delay(samus.FloorQueueResidue, SamusRunningCadence.Ordinary, samus.AnimationFrame)
-                : delayOrCommand;
+                : delay.Ticks;
             samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(runningOrPoseDelay);
             return;
         }
@@ -260,13 +253,11 @@ internal sealed class SamusPresentation
             (controllerInput & ControllerButton.B) != ControllerButton.None;
         if (activeDashAnimation)
         {
-            // `$90:852C-$8543` intercepts a command byte before the generic command table.
-            // The no-Speed-Booster route restarts frame zero and uses byte zero from the
-            // default running-delay stream. Returning here is important: native returns
-            // command number zero, whose handler does no further timer selection.
+            // An active Dash takes the instruction that closes the run before the pose's program does. Without the
+            // Speed Booster the run restarts at frame zero on the ordinary cadence, and nothing else runs.
             if (samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
             {
-                int stagedFrame = checked((ushort)samus.AnimationFrame);
+                int stagedFrame = samus.AnimationFrame;
                 if (samus.HorizontalSpeed.TryAdvanceSpeedBoosterAnimationStage(
                     samus.FloorQueueResidue,
                     movementType: SamusMovementType.Running,
@@ -281,8 +272,7 @@ internal sealed class SamusPresentation
                     return;
                 }
 
-                // A nonzero low counter byte makes `$90:852C` return the original command,
-                // so normal `$FE/$FF/...` dispatch below proceeds against the pose stream.
+                // A boost cadence countdown still running leaves the instruction to the pose's program below.
             }
             else
             {
@@ -293,162 +283,90 @@ internal sealed class SamusPresentation
             }
         }
 
-        switch (delayOrCommand & 15)
+        switch (step)
         {
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-                // `$90:8324-$8345` points all six instruction slots at the same CLC/RTS
-                // handler. Carry clear tells the caller to return immediately: native does
-                // not change the animation frame and, crucially, does not reload its timer.
-                // The outer routine has already advanced onto this command after a 1 -> 0
-                // expiration, so the timer remains zero for the rest of this gameplay frame.
-                // On the next frame DEC wraps it to `$FFFF`; BMI then advances once more,
-                // stepping over the no-op command and interpreting the following delay.
-                // `$F0` is used by the aimed-falling sequences `$6D-$70`; accepting it as a
-                // one-frame command is therefore live game behavior, not defensive parsing.
+            case SamusAnimationHold:
+                // The frame and timer stay as they are: the expired timer wraps on the next tick, which then moves on to
+                // the frame after this one. The aimed falling poses spend that extra tick before their held frame.
                 return;
 
-            case 6:
-                // $90:8346, command $F6: healthy Samus loops to zero; below 30 energy she
-                // advances past the command into the alternate breathing sequence.
-                samus.AnimationFrame = samus.Health < 30
-                    ? unchecked((ushort)(samus.AnimationFrame + 1))
-                    : (ushort)0;
+            case SamusAnimationLoopUnlessLowEnergy:
+                // Healthy Samus restarts her breathing; below 30 energy she continues into the drained breathing.
+                samus.AnimationFrame = samus.Health < 30 ? samus.AnimationFrame + 1 : 0;
                 break;
 
-            case 7:
-                // `$90:8360`, command `$F7`: install `$90:94CB`, then increment once more
-                // past the command byte. The outer animation routine already performed its
-                // ordinary pre-dispatch increment, so this second increment is essential.
+            case SamusAnimationInstallDrainedFall:
                 samus.Drained.InstallFallingMovementHandler(samus);
                 samus.AnimationFrame++;
                 break;
 
-            case 8:
-                // $90:8370 checks the ordinary input result before publishing a
-                // higher-priority animation transition. A jump selected by alpha
-                // must survive this final turn frame; checking held Jump instead
-                // would incorrectly accept inputs that never matched the ROM table.
+            case SamusAnimationTurnTransition turn:
+                // A jump the pose input already selected survives the turn's final frame; checking held Jump instead
+                // would accept inputs the pose input never matched.
                 if (!samus.Control.AlphaLocked && !demoPoseInput && prospectiveInputPose is
                     SamusPoseId.NeutralJumpTransitionRightPose or
                     SamusPoseId.NeutralJumpTransitionLeftPose or
                     SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
                     return;
                 if (!samus.Control.AlphaLocked && !demoPoseInput) samus.InputSnapshot.AutoJumpInputPending = true;
-                // $90:8370 falls through to command $FD's one-byte pose operand. For the
-                // grounded $25/$26 sequences this publishes $02/$01 through command three;
-                // it does NOT select a new delay or advance the visible animation frame.
-                // The runtime consumes this after AnimateNoFx, where Samus_HandleTransitions
-                // runs in the native frame. `$BF-$C4` use the same command to start their
-                // literal `$19/$1A` spin-jump operand after the grounded turn art finishes.
-                samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
-                    unchecked((ushort)(samus.AnimationFrame + 1))));
+                // The transition neither selects a new delay nor advances the shown frame; the pose transitions that
+                // follow the animation consume it.
+                samus.PendingTransitionalPose = turn.Pose;
                 return;
 
-            case 9:
-                // $90:839A, command $F9 eeee gg aa GG AA. The mask is a little-endian
-                // item word; unequipped/equipped each choose a grounded or airborne target
-                // according to BOTH halves of Y speed. `$37/$38` test Spring Ball bit $0002
-                // and use this command to finish ordinary morph entry without guessing
-                // whether the transition walked off a ledge.
-                int itemMask = BinaryPrimitives.ReadUInt16LittleEndian([ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2)))]);
-                bool itemEquipped = SamusAnimationItemOperand.HoldsAny(samus.EquippedItems, itemMask);
+            case SamusAnimationItemAirborneTransition itemAirborne:
+                // Moving vertically means either part of the vertical speed is nonzero. Morph entry uses this to finish
+                // without guessing whether the transition walked off a ledge.
                 bool movingVertically = samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
-                int targetOffset = itemEquipped
-                    ? movingVertically ? 6 : 5
-                    : movingVertically ? 4 : 3;
-                samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
-                    unchecked((ushort)(samus.AnimationFrame + targetOffset))));
+                samus.PendingTransitionalPose = samus.EquippedItems.HasAny(itemAirborne.Item)
+                    ? movingVertically ? itemAirborne.EquippedAirborne : itemAirborne.EquippedGrounded
+                    : movingVertically ? itemAirborne.UnequippedAirborne : itemAirborne.UnequippedGrounded;
                 return;
 
-            case 10:
-                // `$90:83F6`, unused command `$FA gg aa`: select one transitional pose
-                // when both halves of Y speed are zero and the other when either half is
-                // nonzero. Retail has no reachable active pose using this instruction, but
-                // preserving it completes the actual sixteen-entry interpreter instead of
-                // treating valid cartridge bytecode as corrupt data.
-                bool faMovingVertically = samus.Kinematics.YSpeed.Whole != 0 || samus.Kinematics.YSpeed.Fraction != 0;
-                samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
-                    unchecked((ushort)(samus.AnimationFrame + (faMovingVertically ? 2 : 1)))));
-                return;
-
-            case 11:
-                // `$90:841D`, command `$FB`, first checks TOP-boundary submersion. A fully
-                // submerged non-Gravity body is forced to the ordinary one-byte sequence;
-                // otherwise Screw Attack has priority over Space Jump. This top-edge test
-                // deliberately differs from jump launch/gravity's bottom-edge test.
-                samus.AnimationFrame += (
+            case SamusAnimationWallJumpSelect wallJump:
+                // The submersion test is on the body's top edge, unlike jump launch's bottom-edge test.
+                samus.AnimationFrame =
                     !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
-                    samus.LiquidPhysics.IsTopBoundarySubmerged(samus) ? 1 :
-                    samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack) ? 21 :
-                    samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? 11 : 1);
+                    samus.LiquidPhysics.IsTopBoundarySubmerged(samus) ? wallJump.OrdinaryFrame :
+                    samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack) ? wallJump.ScrewAttackFrame :
+                    samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ? wallJump.SpaceJumpFrame : wallJump.OrdinaryFrame;
                 break;
 
-            case 12:
-                // `$90:848B`, unused command `$FC eeee gg aa`: the little-endian item
-                // mask is followed by unequipped/equipped pose bytes. Poses `$3F/$40` are
-                // the only retail users (Spring Ball-aware Morph Ball selection), but the
-                // command still publishes through the ordinary transitional-pose seam.
-                int fcItemMask = BinaryPrimitives.ReadUInt16LittleEndian([ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 1))), ReadAnimationByte(samus, unchecked((ushort)(samus.AnimationFrame + 2)))]);
-                bool fcItemEquipped = SamusAnimationItemOperand.HoldsAny(samus.EquippedItems, fcItemMask);
-                samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
-                    unchecked((ushort)(samus.AnimationFrame + (fcItemEquipped ? 4 : 3)))));
+            case SamusAnimationItemTransition item:
+                samus.PendingTransitionalPose = samus.EquippedItems.HasAny(item.Item) ? item.Equipped : item.Unequipped;
                 return;
 
-            case 13:
-                // $90:83A0, command $FD pp: publish pose pp through the same command-three
-                // seam as $F8. Unlike F8, FD has no auto-jump special case before it falls
-                // through here. The one-frame $4B/$4C neutral-jump transitions use it.
-                samus.PendingTransitionalPose = SamusPoseNumbering.FromNumber(ReadAnimationByte(samus,
-                    unchecked((ushort)(samus.AnimationFrame + 1))));
+            case SamusAnimationTransition transition:
+                // Unlike a turn's transition, no selected jump supersedes it.
+                samus.PendingTransitionalPose = transition.Pose;
                 return;
 
-            case 14:
-                // $90:84C7, command $FE nn: move backward nn byte positions. The operand
-                // remains in the same delay stream and is not itself an animation frame.
-                int backwardCount = ReadAnimationByte(samus, samus.AnimationFrame + 1);
-                samus.AnimationFrame -= backwardCount;
-                break;
-
-            case 15:
-                // $90:84DB, command $FF: unconditional loop to the start of the sequence.
-                samus.AnimationFrame = 0;
+            case SamusAnimationRepeat repeat:
+                samus.AnimationFrame = repeat.Frame;
                 break;
 
             default:
-                throw new InvalidOperationException($"Samus animation command ${delayOrCommand:X2} has no handler.");
+                throw new InvalidOperationException($"Samus animation step {step} has no handler.");
         }
 
-        int selectedDelay = ReadAnimationByte(samus, samus.AnimationFrame);
-        if (SamusAnimationDelays.IsCommand(selectedDelay))
+        if (samus.AnimationProgram.StepAt(samus.AnimationFrame) is not SamusAnimationDelay selected)
         {
             throw new InvalidDataException(
-                $"Samus animation command ${delayOrCommand:X2} selected another command ${selectedDelay:X2}.");
+                $"Samus animation instruction {step} selected frame {samus.AnimationFrame}, which is not a delay.");
         }
-        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(selectedDelay);
+        samus.AnimationFrameTimer = WrappingCountdown.FromRaw(samus.AnimationFrameBuffer).AddFrames(selected.Ticks);
     }
 
-    /// <summary>Rejects animation updates after a pose change that did not refresh its delay list.</summary>
+    /// <summary>Rejects animation updates after a pose change that did not restart the animation for the new pose's program.</summary>
     private static void EnsureAnimationInitialized(SamusState samus)
     {
-        if (samus.AnimationDelayList != ResolveAnimationDelayList(samus))
+        if (samus.AnimatedPose is not { } animated ||
+            !ReferenceEquals(SamusAnimationDelays.ProgramForPose(animated), SamusAnimationDelays.ProgramForPose(samus.Pose)))
         {
             throw new InvalidOperationException(
                 "Samus animation was not initialized for the current pose. Call InitializeAnimation after changing Pose.");
         }
     }
-
-    /// <summary>Resolves the current pose's animation-delay program.</summary>
-    internal static SamusAnimationDelayList ResolveAnimationDelayList(SamusState samus) =>
-        SamusAnimationDelays.ListForPose(samus.Pose);
-
-    /// <summary>Reads one compiled delay byte from the animation list selected for this pose.</summary>
-    private static byte ReadAnimationByte(SamusState samus, int byteIndex) =>
-        SamusAnimationDelays.ReadAnimationByte(samus.FloorQueueResidue, samus.AnimationDelayList, byteIndex, samus.Presentation.AnimationWindows);
 
     /// <summary>
     /// Ports the standing and ordinary-running portions of <c>Samus_Draw</c> at

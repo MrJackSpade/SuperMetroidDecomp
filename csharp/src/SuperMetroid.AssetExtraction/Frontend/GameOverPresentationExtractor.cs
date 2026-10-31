@@ -31,7 +31,7 @@ public static class GameOverPresentationExtractor
         VerifyCompiledAnimation(bus);
 
         ushort[] tilemap = new ushort[GameOverPageDefinitions.TilemapCellCount];
-        Array.Fill(tilemap, GameOverPageDefinitions.BlankTile);
+        Array.Fill<ushort>(tilemap, GameOverPageDefinitions.BlankTile);
         foreach (GameOverTextStream stream in GameOverTexts.All)
             LoadText(stream);
 

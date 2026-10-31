@@ -13,14 +13,14 @@ internal static class PlanetZebesTitleGlyphDefinitions
     internal static readonly IReadOnlyDictionary<char, int> Tiles =
         new Dictionary<char, int>
         {
-            ['P'] = 0x8f,
-            ['L'] = 0x97,
-            ['A'] = 0x98,
-            ['N'] = 0x99,
-            ['E'] = 0x9a,
-            ['T'] = 0x9b,
-            ['Z'] = 0x9c,
-            ['B'] = 0x9d,
-            ['S'] = 0x9e,
+            ['P'] = 143,
+            ['L'] = 151,
+            ['A'] = 152,
+            ['N'] = 153,
+            ['E'] = 154,
+            ['T'] = 155,
+            ['Z'] = 156,
+            ['B'] = 157,
+            ['S'] = 158,
         };
 }

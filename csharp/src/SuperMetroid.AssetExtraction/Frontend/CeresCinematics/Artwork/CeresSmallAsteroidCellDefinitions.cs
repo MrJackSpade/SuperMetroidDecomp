@@ -4,9 +4,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 internal static class CeresSmallAsteroidCellDefinitions
 {
     /// <summary>Tile16E, top of the overlapping vertical asteroid pair in8C:90FE.</summary>
-    internal const int Vertical = 0x16e;
+    internal const int Vertical = 366;
     /// <summary>Tile1A0, left of the overlapping horizontal asteroid pair.</summary>
-    internal const int Horizontal = 0x1a0;
+    internal const int Horizontal = 416;
     /// <summary>Tile19D, small corner cell adjoining two large asteroid parts.</summary>
-    internal const int Corner = 0x19d;
+    internal const int Corner = 413;
 }

@@ -295,13 +295,13 @@ public static class SamusArmCannonArtworkFormat
     }
 
     /// <summary>$90:C9D9, ArmCannonDrawingData_Default: no cover is drawn.</summary>
-    private const byte HiddenDrawingMode = 0;
+    private const int HiddenDrawingMode = 0;
     /// <summary>$90:C9DE and other visible descriptor mode bytes: draw the cover normally.</summary>
-    private const byte NormalDrawingMode = 1;
+    private const int NormalDrawingMode = 1;
     /// <summary>$90:C9DC, ArmCannonDrawingData_FacingForward: forward-facing cover mode.</summary>
-    private const byte ForwardDrawingMode = 2;
+    private const int ForwardDrawingMode = 2;
     /// <summary>$90:CA05 and vertical-aim descriptors: initial diagonal selector changes to the next direction word after frame zero.</summary>
-    private const byte FrameDependentDirectionFlag = 1 << 7;
+    private const int FrameDependentDirectionFlag = 1 << 7;
     /// <summary>
     /// CostOfSBAsInPowerBombs, twelve word costs by beam index: the drawing window's final 24 bytes, which alias this
     /// independent mechanics owner and which the arm cannon's over-read reaches.

@@ -4,5 +4,5 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 internal static class GunshipLiftoffCharacterDefinitions
 {
     /// <summary>One takeoff page's 4-bpp OBJ characters, in bytes.</summary>
-    internal const ushort ByteCount = 0x0400;
+    internal const int ByteCount = 1024;
 }

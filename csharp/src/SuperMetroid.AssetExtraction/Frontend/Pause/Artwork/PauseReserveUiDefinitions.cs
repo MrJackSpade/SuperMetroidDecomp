@@ -21,25 +21,25 @@ public static class PauseReserveUiDefinitions
     /// <summary>$82:8FCE destination for the three reserve-supply digits.</summary>
     public const int DigitCell = 392;
     /// <summary>$82:8F70: the zero digit's tile, glyph 4 in palette two; digits zero through nine are consecutive.</summary>
-    public static BackgroundTile DigitZeroTile { get; } = new(0x04, 2, FlipHorizontally: false, FlipVertically: false, HighPriority: false);
+    public static BackgroundTile DigitZeroTile { get; } = new(4, 2, FlipHorizontally: false, FlipVertically: false, HighPriority: false);
     /// <summary>$82:ADE4/$ADF6 solid-arrow color six.</summary>
-    public const ushort SolidColor6 = 0x0156;
+    public static PaletteRgb5 SolidColor6 { get; } = new() { Red = 22, Green = 10, Blue = 0 };
     /// <summary>$82:ADDD/$ADEF solid-arrow color eleven.</summary>
-    public const ushort SolidColor11 = 0x039e;
+    public static PaletteRgb5 SolidColor11 { get; } = new() { Red = 30, Green = 28, Blue = 0 };
     /// <summary>BG palette selectors used by enabled and disabled reserve arrows.</summary>
     public const int EnabledPalette = 6, DisabledPalette = 7;
     /// <summary>First vertical arrow cell, number of vertical arrows, and row stride in cells.</summary>
-    public const int VerticalStartCell = 0x102 / 2, VerticalCount = 8, RowStrideCells = 0x40 / 2;
+    public const int VerticalStartCell = 258 / 2, VerticalCount = 8, RowStrideCells = 64 / 2;
     /// <summary>First horizontal arrow cell and number of adjacent horizontal arrows.</summary>
-    public const int HorizontalStartCell = 0x302 / 2, HorizontalCount = 2;
+    public const int HorizontalStartCell = 770 / 2, HorizontalCount = 2;
     /// <summary>$82:BF06-BF0A selects MODE at interface tiles $119-11B with palette one and priority.</summary>
-    internal const int ModeGlyph = 0x119, ModePrefixWords = 3;
+    internal const int ModeGlyph = 281, ModePrefixWords = 3;
     /// <summary>$82:BF0C-BF12 and BF22-BF28 share MANUAL at tiles $146-149, palette seven and priority.</summary>
-    internal const int ManualGlyph = 0x146;
+    internal const int ManualGlyph = 326;
     /// <summary>$82:BF2A-BF30 selects AUTO at tiles $156-159, palette seven and priority.</summary>
-    internal const int AutoGlyph = 0x156;
+    internal const int AutoGlyph = 342;
     /// <summary>$82:BF14-BF20 selects RESERVE TANK at tiles $80-86, palette seven and priority.</summary>
-    internal const int ReserveTankGlyph = 0x80;
+    internal const int ReserveTankGlyph = 128;
 
     /// <summary>Every reserve label, in document order.</summary>
     public static IReadOnlyList<PauseReserveLabel> Labels { get; } = Enum.GetValues<PauseReserveLabel>();

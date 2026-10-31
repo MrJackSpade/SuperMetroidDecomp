@@ -4,9 +4,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 internal static class EndingRewardSuitlessCellDefinitions
 {
     /// <summary>Tile$53, small inner hip edge in the lower-body composition.</summary>
-    internal const int InnerHipEdge = 0x53;
+    internal const int InnerHipEdge = 83;
     /// <summary>Tile$19, small upper-right cap of the jump-preparation pose.</summary>
-    internal const int CrouchRightCap = 0x19;
+    internal const int CrouchRightCap = 25;
     /// <summary>Tile$86, small left leg edge of the jump-preparation pose.</summary>
-    internal const int CrouchLeftLegEdge = 0x86;
+    internal const int CrouchLeftLegEdge = 134;
 }

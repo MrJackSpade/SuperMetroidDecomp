@@ -15,10 +15,10 @@ namespace SuperMetroid.AssetExtraction.Samus;
 internal static class SamusAtmosphereSheetComposer
 {
     /// <summary>The atmospheric type whose list the footstep splash draws.</summary>
-    private const byte FootstepType = (byte)SamusAtmosphericEffectType.FootstepSplash;
+    private const int FootstepType = (int)SamusAtmosphericEffectType.FootstepSplash;
 
     /// <summary>The atmospheric type whose shared list the lava spray and dust draw.</summary>
-    private const byte LavaAndDustType = (byte)SamusAtmosphericEffectType.LavaSurfaceDamage;
+    private const int LavaAndDustType = (int)SamusAtmosphericEffectType.LavaSurfaceDamage;
 
     /// <summary>What the atmosphere sheet composes with the body's spritemaps and atmospheric attributes.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs) =>

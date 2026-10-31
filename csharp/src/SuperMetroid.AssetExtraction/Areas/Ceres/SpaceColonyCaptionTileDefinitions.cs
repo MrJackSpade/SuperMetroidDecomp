@@ -27,14 +27,14 @@ internal static class SpaceColonyCaptionTileDefinitions
     /// Repeated C and O characters select the same drawing operation.</summary>
     internal static readonly IReadOnlyDictionary<char, BackgroundTile> Glyphs = new Dictionary<char, BackgroundTile>
     {
-        ['S'] = new(0x1ed, 0, highPriority: true),
-        ['P'] = new(0x1ee, 0, highPriority: true),
-        ['A'] = new(0x1ef, 0, highPriority: true),
-        ['C'] = new(0x1f7, 0, highPriority: true),
-        ['E'] = new(0x1f8, 0, highPriority: true),
-        ['O'] = new(0x1f9, 0, highPriority: true),
-        ['L'] = new(0x1fa, 0, highPriority: true),
-        ['N'] = new(0x1fb, 0, highPriority: true),
-        ['Y'] = new(0x1b9, 0, highPriority: true),
+        ['S'] = new(493, 0, highPriority: true),
+        ['P'] = new(494, 0, highPriority: true),
+        ['A'] = new(495, 0, highPriority: true),
+        ['C'] = new(503, 0, highPriority: true),
+        ['E'] = new(504, 0, highPriority: true),
+        ['O'] = new(505, 0, highPriority: true),
+        ['L'] = new(506, 0, highPriority: true),
+        ['N'] = new(507, 0, highPriority: true),
+        ['Y'] = new(441, 0, highPriority: true),
     };
 }

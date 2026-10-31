@@ -12,7 +12,7 @@ public static class GrappleTileDefinitions
     /// <summary>Sheet height in pixels: one row of sixteen 8-by-8 four-bit planar characters, totaling 512 encoded bytes.</summary>
     public const int Height = 8;
     /// <summary>OBJ character $20, where `$9B:BFA5` uploads the endpoint character; the four rope characters follow it.</summary>
-    public const int FirstCharacter = 0x20;
+    public const int FirstCharacter = 32;
     /// <summary>Installed tile identity for horizontal rope segments.</summary>
     internal const InstalledArtworkId Horizontal = InstalledArtworkId.GrappleHorizontalSegmentTiles;
     /// <summary>Installed tile identity for diagonal rope segments.</summary>

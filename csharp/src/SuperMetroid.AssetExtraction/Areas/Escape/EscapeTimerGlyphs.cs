@@ -90,7 +90,11 @@ internal static class EscapeTimerGlyphs
         return true;
     }
     /// <summary>Twenty digit half-tiles, then two separator tiles and the three-tile TIME label.</summary>
-    internal static byte FillInk(int pixel) => Tile(pixel) < 22 ? DigitFillPen : LabelFillPen;
+    internal static byte FillInk(int pixel)
+    {
+        if (Tile(pixel) < 22) return DigitFillPen;
+        return LabelFillPen;
+    }
 
     /// <summary>Native lower six/eight tiles B0:C200/C240 share zero lower B0:C140; zero upper B0:C000 reflects horizontally and lower rows0..6 reflect upper rows6..0. Upper eight at B0:C100 also reflects horizontally; the double separator repeats the single mark. Remaining original-font contours and spacing have the bounded reviewed disposition.</summary>
     internal static int SourcePixel(int pixel)

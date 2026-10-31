@@ -8,7 +8,7 @@ internal static class IndexedPngFormat
     /// <summary>Required byte count of an IHDR payload.</summary>
     internal const int HeaderLength = 13;
     /// <summary>PNG color-type value for palette-indexed pixels.</summary>
-    internal const byte IndexedColorType = 3;
+    internal const int IndexedColorType = 3;
     /// <summary>Asset loader limit for either image dimension.</summary>
     internal const int MaximumDimension = 2048;
     /// <summary>Asset loader's 16 MiB limit for the complete encoded PNG.</summary>

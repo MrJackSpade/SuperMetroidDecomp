@@ -21,17 +21,17 @@ internal static class MenuHeadingBorderDefinitions
     /// <summary>$82:D24B/D2F7/D41B: common outer traversal runs span six horizontal edge tiles; primary's paired center consumes one extra left tile.</summary>
     internal const int OuterRunLength = 6;
     /// <summary>$82:D24B and siblings: top-left corner artwork, first of the packed F9..FD corner and edge strip.</summary>
-    internal const int TopLeftCorner = 0xf9;
+    internal const int TopLeftCorner = 249;
     /// <summary>$82:D24B and siblings: horizontal edge artwork, shared by the top and bottom rows.</summary>
-    internal const int HorizontalEdge = 0xfa;
+    internal const int HorizontalEdge = 250;
     /// <summary>$82:D24B and siblings: top-right corner artwork.</summary>
-    internal const int TopRightCorner = 0xfb;
+    internal const int TopRightCorner = 251;
     /// <summary>$82:D24B and siblings: bottom-left corner artwork.</summary>
-    internal const int BottomLeftCorner = 0xfc;
+    internal const int BottomLeftCorner = 252;
     /// <summary>$82:D24B and siblings: bottom-right corner artwork.</summary>
-    internal const int BottomRightCorner = 0xfd;
+    internal const int BottomRightCorner = 253;
     /// <summary>$82:D24B and siblings: ED is the vertical edge artwork.</summary>
-    internal const int VerticalEdge = 0xed;
+    internal const int VerticalEdge = 237;
     /// <summary>$82:D2F7: selected center traversal reused identically for bottom and top rows; chosen native OAM order retained as authored ordering; geometry and repeated runs calculate.</summary>
     internal static readonly byte[] ControllerCenter = [0, 1, 7, 6, 5, 2, 4, 3];
     /// <summary>$82:D41B: selected shorter center traversal reused on both rows; chosen native OAM order retained as authored ordering; geometry and repeated runs calculate.</summary>

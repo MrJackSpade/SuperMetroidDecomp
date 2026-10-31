@@ -4,5 +4,5 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 internal static class IntroEggCrackingCellDefinitions
 {
     /// <summary>Tile$102,upper-left of the three-by-two cracked shell patch.</summary>
-    internal const int Patch = 0x102;
+    internal const int Patch = 258;
 }

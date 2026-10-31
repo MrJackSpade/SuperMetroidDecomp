@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 public static class EscapeTypewriterExtractor
 {
     /// <summary>$A6:C2D6: the control word that sets the character delay from the word that follows.</summary>
-    internal const ushort DelayCommand = 1;
+    internal const int DelayCommand = 1;
 
     /// <summary>Imports the Ceres and Zebes escape-warning text and line destinations from their native typewriter streams.</summary>
     /// <param name="bus">Non-null cartridge address space supplying the two warning programs.</param>

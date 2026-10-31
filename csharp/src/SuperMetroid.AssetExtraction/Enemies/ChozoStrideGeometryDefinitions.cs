@@ -26,7 +26,7 @@ internal static class ChozoStrideGeometryDefinitions
     internal sealed record FootHalf(int Tile, int OffsetFromLeft);
 
     /// <summary>$AA:E954/E959 and following poses: the support foot's left half.</summary>
-    internal static readonly FootHalf LeftHalf = new(0x170, 0);
+    internal static readonly FootHalf LeftHalf = new(368, 0);
     /// <summary>The support foot's right half, one glyph to the right of the left half.</summary>
-    internal static readonly FootHalf RightHalf = new(0x171, TilePixels);
+    internal static readonly FootHalf RightHalf = new(369, TilePixels);
 }

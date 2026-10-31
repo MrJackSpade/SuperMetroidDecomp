@@ -23,12 +23,12 @@ public static class RoomFxLiquidTilemapDefinitions
         int row = index / 32, column = index % 32;
         bool blank = type != RoomFxType.Lava && row == 0;
         int character;
-        if (blank) character = 0x4e;
+        if (blank) character = 78;
         else if (type == RoomFxType.Water)
-            character = row <= 4 ? 0x90 + 4 * (row - 1) + column % 4
-                : 0xa0 + 4 * ((row - 5) % 4) + column % 4;
+            character = row <= 4 ? 144 + 4 * (row - 1) + column % 4
+                : 160 + 4 * ((row - 5) % 4) + column % 4;
         else
-            character = row == (type == RoomFxType.Lava ? 0 : 1) ? 0x50 + column % 3 : 0x53;
+            character = row == (type == RoomFxType.Lava ? 0 : 1) ? 80 + column % 3 : 83;
         int palette = blank ? 3 : type == RoomFxType.Acid ? 0 : 6;
         return SnesBgTilemapWord.Create(character, palette,
             type == RoomFxType.Water && !blank, 0);

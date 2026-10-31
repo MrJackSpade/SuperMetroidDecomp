@@ -5,7 +5,7 @@ internal static class CeresVortexCellDefinitions
 {
     /// <summary>Tile1C0, first large vortex tile; eleven large pieces are packed
     /// eight per two-row atlas strip and rendered as a three-column grid.</summary>
-    internal const int Core = 0x1c0;
+    internal const int Core = 448;
     /// <summary>Tile1E6, small lower-edge drawing repeated across the final grid cell.</summary>
-    internal const int LowerEdge = 0x1e6;
+    internal const int LowerEdge = 486;
 }

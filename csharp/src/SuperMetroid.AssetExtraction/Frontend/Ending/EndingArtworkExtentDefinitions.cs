@@ -4,11 +4,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 public static class EndingArtworkExtentDefinitions
 {
     /// <summary>The bytes of one complete Mode 7 floor lane, also the full reward character sheet.</summary>
-    public const int FloorBytes = 0x4000;
+    public const int FloorBytes = 16384;
 
     /// <summary>The flyaway map bytes kept before the rest of the map is filled with the blank tile.</summary>
-    public const int FlyawayMapDataBytes = 0x0300;
+    public const int FlyawayMapDataBytes = 768;
 
     /// <summary>The blank floor tile that fills the flyaway map after its kept bytes.</summary>
-    public const byte FlyawayBlankTile = 0x8c;
+    public const int FlyawayBlankTile = 140;
 }

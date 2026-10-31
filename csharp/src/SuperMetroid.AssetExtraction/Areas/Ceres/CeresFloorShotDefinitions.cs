@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 internal static class CeresFloorShotDefinitions
 {
     /// <summary>The floor tile every cell outside a loaded view shows.</summary>
-    internal const byte BlankTile = 140;
+    internal const int BlankTile = 140;
 
     /// <summary>The cells of one view: 32 by 24.</summary>
     internal const int ViewCells = CeresDestructionMapFormat.CellsPerView;

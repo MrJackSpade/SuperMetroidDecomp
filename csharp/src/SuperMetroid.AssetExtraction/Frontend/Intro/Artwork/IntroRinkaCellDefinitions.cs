@@ -4,5 +4,5 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 internal static class IntroRinkaCellDefinitions
 {
     /// <summary>Tile$196, first of three adjacent top-left Rinka quadrant drawings.</summary>
-    internal const int FirstQuadrant = 0x196;
+    internal const int FirstQuadrant = 406;
 }

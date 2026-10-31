@@ -8,35 +8,35 @@ internal static class EndingLogoWrapTileDefinitions
     /// <summary>The atlas tile of each packed edge, cap, span and patch piece.</summary>
     internal static FrozenDictionary<EndingLogoWrapTile, int> Tiles { get; } = new Dictionary<EndingLogoWrapTile, int>
     {
-        [EndingLogoWrapTile.InnerSideTop] = 0x00,
-        [EndingLogoWrapTile.ClosingRightSpan] = 0x09,
-        [EndingLogoWrapTile.ClosingMiddleSpan] = 0x0b,
-        [EndingLogoWrapTile.ClosingLeftSpan] = 0x0d,
-        [EndingLogoWrapTile.ClosingOuterLeftTip] = 0x0f,
-        [EndingLogoWrapTile.InnerSideBottom] = 0x10,
-        [EndingLogoWrapTile.ClosingRightCorner] = 0x29,
-        [EndingLogoWrapTile.ClosingInnerLeftTip] = 0x2b,
-        [EndingLogoWrapTile.ClosingInnerRightTip] = 0x2c,
-        [EndingLogoWrapTile.LeftCap] = 0x48,
-        [EndingLogoWrapTile.RightCap] = 0x49,
-        [EndingLogoWrapTile.UpperSpanLeft] = 0x4c,
-        [EndingLogoWrapTile.UpperSpanRight] = 0x4e,
-        [EndingLogoWrapTile.PatchTopLeft] = 0x68,
-        [EndingLogoWrapTile.PatchTopRight] = 0x69,
-        [EndingLogoWrapTile.InnerEdgeLeft] = 0x6a,
-        [EndingLogoWrapTile.InnerEdgeRight] = 0x6b,
-        [EndingLogoWrapTile.PatchBottomLeft] = 0x78,
-        [EndingLogoWrapTile.PatchBottomRight] = 0x79,
+        [EndingLogoWrapTile.InnerSideTop] = 0,
+        [EndingLogoWrapTile.ClosingRightSpan] = 9,
+        [EndingLogoWrapTile.ClosingMiddleSpan] = 11,
+        [EndingLogoWrapTile.ClosingLeftSpan] = 13,
+        [EndingLogoWrapTile.ClosingOuterLeftTip] = 15,
+        [EndingLogoWrapTile.InnerSideBottom] = 16,
+        [EndingLogoWrapTile.ClosingRightCorner] = 41,
+        [EndingLogoWrapTile.ClosingInnerLeftTip] = 43,
+        [EndingLogoWrapTile.ClosingInnerRightTip] = 44,
+        [EndingLogoWrapTile.LeftCap] = 72,
+        [EndingLogoWrapTile.RightCap] = 73,
+        [EndingLogoWrapTile.UpperSpanLeft] = 76,
+        [EndingLogoWrapTile.UpperSpanRight] = 78,
+        [EndingLogoWrapTile.PatchTopLeft] = 104,
+        [EndingLogoWrapTile.PatchTopRight] = 105,
+        [EndingLogoWrapTile.InnerEdgeLeft] = 106,
+        [EndingLogoWrapTile.InnerEdgeRight] = 107,
+        [EndingLogoWrapTile.PatchBottomLeft] = 120,
+        [EndingLogoWrapTile.PatchBottomRight] = 121,
     }.ToFrozenDictionary();
 
     /// <summary>The atlas tile of each separately packed corner and side endpoint.</summary>
     internal static FrozenDictionary<EndingLogoWrapCorner, int> Corners { get; } = new Dictionary<EndingLogoWrapCorner, int>
     {
-        [EndingLogoWrapCorner.UpperSideEndpoint] = 0x01,
-        [EndingLogoWrapCorner.LowerSideEndpoint] = 0x20,
-        [EndingLogoWrapCorner.LeftCorner] = 0x5b,
-        [EndingLogoWrapCorner.InnerSideJunction] = 0x6c,
-        [EndingLogoWrapCorner.OuterSideJunction] = 0x6d,
+        [EndingLogoWrapCorner.UpperSideEndpoint] = 1,
+        [EndingLogoWrapCorner.LowerSideEndpoint] = 32,
+        [EndingLogoWrapCorner.LeftCorner] = 91,
+        [EndingLogoWrapCorner.InnerSideJunction] = 108,
+        [EndingLogoWrapCorner.OuterSideJunction] = 109,
     }.ToFrozenDictionary();
 
     /// <summary>The edge, cap, span or patch piece each of those atlas tiles holds.</summary>

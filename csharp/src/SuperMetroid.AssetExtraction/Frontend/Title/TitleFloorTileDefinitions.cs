@@ -22,7 +22,7 @@ internal static class TitleFloorTileDefinitions
     public const int FloorMapByteCount = 64 * 64;
 
     /// <summary>The floor character every cell outside the shown map holds.</summary>
-    public const byte FloorInitialMapByte = 255;
+    public const int FloorInitialMapByte = 255;
 
     /// <summary>One Baby Metroid animation page: four eight-bit characters.</summary>
     public const int BabyCharacterPageByteCount = 4 * 64;

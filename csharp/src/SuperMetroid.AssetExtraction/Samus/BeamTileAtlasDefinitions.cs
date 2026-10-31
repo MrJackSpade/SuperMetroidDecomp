@@ -178,15 +178,15 @@ public static class BeamTileAtlasDefinitions
     private const int SpazerDiagonalPulseRows = 6;
 
     /// <summary>$9A:F806/07/16/17, tile0 row3 x0: categorical dark-green edge base, palette pen4.</summary>
-    private const byte PlasmaEdgeBasePen = 4;
+    private const int PlasmaEdgeBasePen = 4;
     /// <summary>$9A:F806/07/16/17, tile0 row3 x1: categorical green edge highlight, palette pen2.</summary>
-    private const byte PlasmaEdgeHighlightPen = 2;
+    private const int PlasmaEdgeHighlightPen = 2;
     /// <summary>$9A:F806/07/16/17, tile0 row3 x3: categorical darkest edge shadow, palette pen15.</summary>
-    private const byte PlasmaEdgeShadowPen = 15;
+    private const int PlasmaEdgeShadowPen = 15;
     /// <summary>$9A:F808/09/18/19, tile0 row4 x0: categorical pale-green center highlight, palette pen5.</summary>
-    private const byte PlasmaCenterHighlightPen = 5;
+    private const int PlasmaCenterHighlightPen = 5;
     /// <summary>$9A:F808/09/18/19, tile0 row4 x1: categorical middle-green center ink, palette pen3.</summary>
-    private const byte PlasmaCenterMidPen = 3;
+    private const int PlasmaCenterMidPen = 3;
 
     /// <summary>Five independently reviewed categorical pen assignments in the first Plasma ribbon tile.</summary>
     /// <remarks>Issue1165 narrow nonsense retention: these are distinct painted pixel classes,

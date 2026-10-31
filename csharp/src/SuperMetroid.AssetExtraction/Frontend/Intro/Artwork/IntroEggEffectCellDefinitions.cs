@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 internal static class IntroEggEffectCellDefinitions
 {
     /// <summary>Tile$105, upper-left of the two-column shell-fragment patch.</summary>
-    internal const int FragmentStart = 0x105;
+    internal const int FragmentStart = 261;
     /// <summary>Tile$10D, moving slime and origin of the impact row/column traversal.</summary>
-    internal const int SlimeStart = 0x10d;
+    internal const int SlimeStart = 269;
 }

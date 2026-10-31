@@ -22,54 +22,54 @@ public static class PauseWireframeDefinitions
     /// <summary>Native packed body-piece rows advance sixteen BG characters within the pause interface artwork.</summary>
     internal const int PieceRowStride = 16;
     /// <summary>$82:D527 and corresponding variants: left helmet half starts at tile $1B3.</summary>
-    internal const int Helmet = 0x1b3;
+    internal const int Helmet = 435;
     /// <summary>$82:D531/$D751: Power/Varia shoulder pieces begin at $1BC/$1C0.</summary>
-    internal const int PowerShoulder = 0x1bc, VariaShoulder = 0x1c0;
+    internal const int PowerShoulder = 444, VariaShoulder = 448;
     /// <summary>$82:D571 and corresponding variants: common left arm strip starts at $170.</summary>
-    internal const int Arm = 0x170;
+    internal const int Arm = 368;
     /// <summary>$82:D595/$D7A5: Power lower torso and Varia torso strips begin at $1A4/$182.</summary>
-    internal const int PowerTorso = 0x1a4, VariaTorso = 0x182;
+    internal const int PowerTorso = 420, VariaTorso = 386;
     /// <summary>$82:D771: Varia chest row begins at tile $1E0.</summary>
-    internal const int VariaChest = 0x1e0;
+    internal const int VariaChest = 480;
     /// <summary>$82:D5B5/$D7D5: Power/Varia hip pieces begin at $1C4/$1CA.</summary>
-    internal const int PowerHip = 0x1c4, VariaHip = 0x1ca;
+    internal const int PowerHip = 452, VariaHip = 458;
     /// <summary>$82:D5D5/$D7F3: Power/Varia leg pieces begin at $1B6/$1E9.</summary>
-    internal const int PowerLeg = 0x1b6, VariaLeg = 0x1e9;
+    internal const int PowerLeg = 438, VariaLeg = 489;
     /// <summary>$82:D721 and Varia/Hi-Jump counterpart: boot toe piece begins at $198.</summary>
-    internal const int HiJumpFoot = 0x198;
+    internal const int HiJumpFoot = 408;
     /// <summary>$82:D555/D559: Power chest left/right strips start at $1EC/$17C.</summary>
-    internal const int PowerChestLeft = 0x1ec, PowerChestRight = 0x17c;
+    internal const int PowerChestLeft = 492, PowerChestRight = 380;
     /// <summary>$82:D561: common lower-chest left strip starts at $1F0.</summary>
-    internal const int LowerChestLeft = 0x1f0;
+    internal const int LowerChestLeft = 496;
     /// <summary>$82:D565/$D785: Power/Varia lower-chest center strips start at $1FC/$1F2.</summary>
-    internal const int PowerLowerChest = 0x1fc, VariaLowerChest = 0x1f2;
+    internal const int PowerLowerChest = 508, VariaLowerChest = 498;
     /// <summary>$82:D58B: Power inner cannon strip starts at $178 and continues one packed row below.</summary>
-    internal const int CannonInner = 0x178;
+    internal const int CannonInner = 376;
     /// <summary>$82:D58D: two-column outer cannon/arm strip starts at $186.</summary>
-    internal const int CannonOuter = 0x186;
+    internal const int CannonOuter = 390;
     /// <summary>$82:D72D: Hi-Jump outer foot starts at $19C and continues at $1AC.</summary>
-    internal const int HiJumpOuterFoot = 0x19c;
+    internal const int HiJumpOuterFoot = 412;
     /// <summary>$82:D815/D825: regular Varia ankle strip uses $17B/$18B.</summary>
-    internal const int VariaAnkle = 0x17b;
+    internal const int VariaAnkle = 379;
     /// <summary>$82:D703/D923: Hi-Jump collar starts at $179 and advances a packed row to $189.</summary>
-    internal const int HiJumpCollar = 0x179;
+    internal const int HiJumpCollar = 377;
     /// <summary>$82:D613/D615: two-character regular-foot upper strip starts at $19E.</summary>
-    internal const int RegularFootUpper = 0x19e;
+    internal const int RegularFootUpper = 414;
     /// <summary>$82:D621-D625: three-character regular toe strip starts at $1AD.</summary>
-    internal const int RegularFootToe = 0x1ad;
+    internal const int RegularFootToe = 429;
     /// <summary>$82:D61D/D62D: outer regular foot strip uses $1EE/$1FE.</summary>
-    internal const int RegularFootOuter = 0x1ee;
+    internal const int RegularFootOuter = 494;
     /// <summary>Common wireframe pieces use palette one with priority; StockTile expresses the chosen layering.</summary>
     internal const int CommonPiecePalette = 1;
 
     /// <summary>$82:D5B3: hand tip at the end of the common arm strip.</summary>
-    internal const int HandTip = 0x1c9;
+    internal const int HandTip = 457;
     /// <summary>$82:D605: regular Power ankle joins the shin to the foot.</summary>
-    internal const int RegularPowerAnkle = 0x18f;
+    internal const int RegularPowerAnkle = 399;
     /// <summary>$82:D611: regular boot's outer toe edge.</summary>
-    internal const int RegularToeEdge = 0x18e;
+    internal const int RegularToeEdge = 398;
     /// <summary>$82:D705: inner Power/Hi-Jump collar.</summary>
-    internal const int PowerHiJumpInnerCollar = 0x18c;
+    internal const int PowerHiJumpInnerCollar = 396;
     /// <summary>$82:D60F and counterparts: diagonal equipment-guide connector.</summary>
-    internal const int DiagonalConnector = 0x155;
+    internal const int DiagonalConnector = 341;
 }

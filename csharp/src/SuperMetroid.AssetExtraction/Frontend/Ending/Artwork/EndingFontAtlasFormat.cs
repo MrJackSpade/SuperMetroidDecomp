@@ -57,9 +57,9 @@ public static class EndingFontAtlasFormat
         _ => throw new InvalidOperationException($"Undefined {nameof(SpaceCell)} {space}."),
     };
     /// <summary>Font3 $97:E7DE, small/large alphabet and copyright digits: REQUIRED selected foreground pen1.</summary>
-    internal const byte GlyphFillInk = 1;
+    internal const int GlyphFillInk = 1;
     /// <summary>Font3 $97:E7DE, small/large alphabet and copyright digits: REQUIRED selected outline pen2.</summary>
-    internal const byte GlyphOutlineInk = 2;
+    internal const int GlyphOutlineInk = 2;
     /// <summary>Font3 $97:E7DE, small/large alphabet and copyright digits: REQUIRED one-pixel eight-neighbor outline extent.</summary>
     private const int GlyphOutlineWidth = 1;
 

@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 public static class CeresRidleyGetawayBoostDelayFiles
 {
     /// <summary>The value a list's control byte holds after its last descriptor.</summary>
-    private const byte ListEnd = 0;
+    private const int ListEnd = 0;
 
     /// <summary>Decodes each wing frame's delays and serializes the validated document.</summary>
     /// <param name="bus">Supported-cartridge address space holding the getaway's floor update lists and Samus's running cadences.</param>

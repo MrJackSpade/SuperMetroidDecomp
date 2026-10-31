@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
+/// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and its sound and music requests.</summary>
 [RoomLifetime]
 internal sealed class CrocomireEncounterAccess
 {
@@ -17,13 +17,16 @@ internal sealed class CrocomireEncounterAccess
     private readonly EnemyRoomBinding _room;
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Receives Crocomire's sound and music requests.</summary>
+    private readonly EnemyAudioQueue _audio;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireEncounterAccess(BossFrameResultBuilder frameResults, EnemyRoomBinding room, EnemyProjectileEngine projectiles)
+    internal CrocomireEncounterAccess(BossFrameResultBuilder frameResults, EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
         _frameResults = frameResults;
         _room = room;
         _projectiles = projectiles;
+        _audio = audio;
     }
 
     /// <summary>Debugger-visible Crocomire owner while the current room contains $DDBF.</summary>
@@ -32,11 +35,16 @@ internal sealed class CrocomireEncounterAccess
     /// <summary>Typed WRAM extension used by Crocomire's bridge/melting/skeleton graph.</summary>
     public CrocomireDeathState? CrocomireDeath { get; internal set; }
 
-    /// <summary>Delayed music publication from the current Crocomire frame.</summary>
-    public DelayedMusicRequest? LastCrocomireMusicRequest { get; internal set; }
+    /// <summary>
+    /// Requests one of Crocomire's sounds at the end of the enemy update. A later Crocomire sound in the same update
+    /// replaces it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
+    /// </summary>
+    internal void RequestCrocomireSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Crocomire, sound, SoundRequestPriority.Normal);
 
-    /// <summary>Most recent library-two sound publication of the current frame.</summary>
-    public SoundEffectId? LastCrocomireSoundEffect { get; internal set; }
+    /// <summary>Requests Crocomire's music change at the end of the enemy update, replacing an earlier one from the same update.</summary>
+    internal void RequestCrocomireMusic(MusicRequest request, MusicQueueDelay delay) =>
+        _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Crocomire, new DelayedMusicRequest(request, delay));
 
     /// <summary>Starts <paramref name="program"/> on the body from its first step on the next update, as a native list install does.</summary>
     internal static void StartCrocomireBodyProgram(CrocomireEnemyState state, CrocomireBodyProgram program)

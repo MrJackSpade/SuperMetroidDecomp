@@ -47,4 +47,6 @@ internal sealed record CrocomireBehaviorDependencies
     /// <summary>Room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
+    /// <summary>The enemy update's sound and music requests.</summary>
+    public required EnemyAudioQueue Audio { get; init; }
 }

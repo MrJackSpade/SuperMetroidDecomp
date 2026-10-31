@@ -136,7 +136,7 @@ internal sealed class KraidHead
             state.SpitRockRequestCount++;
             if (SpawnKraidSpitRock(body))
                 state.SpawnedSpitRockCount++;
-            _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.RockSpit);
+            _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
         }
     }
 
@@ -198,12 +198,12 @@ internal sealed class KraidHead
         switch (cue)
         {
             case KraidHeadCue.Roar:
-                _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.HeadRoar);
+                _access.RequestKraidSound(KraidSoundDefinitions.HeadRoar);
                 state.RoarRequestCount++;
                 return;
 
             case KraidHeadCue.DyingCry:
-                _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.HeadDyingCry);
+                _access.RequestKraidSound(KraidSoundDefinitions.HeadDyingCry);
                 return;
 
             default:

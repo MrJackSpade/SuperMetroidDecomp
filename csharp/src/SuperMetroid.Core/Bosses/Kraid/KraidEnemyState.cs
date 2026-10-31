@@ -146,8 +146,6 @@ public sealed class KraidEnemyState
     /// <summary>Number of private `$AF94` roar opcodes consumed from the head stream.</summary>
     public int RoarRequestCount { get; internal set; }
 
-    /// <summary>Last eight-frame-delayed music request made by the rise sequence.</summary>
-    public MusicRequest? MusicRequest { get; internal set; }
     /// <summary>Gets the number of growth-sequence ceiling rocks that acquired a live bank-$86 projectile slot.</summary>
     public int CeilingRockSpawnCount { get; internal set; }
 

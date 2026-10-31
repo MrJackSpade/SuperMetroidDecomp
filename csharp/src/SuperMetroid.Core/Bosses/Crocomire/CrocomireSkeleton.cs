@@ -66,9 +66,7 @@ internal sealed class CrocomireSkeleton
         if (samus is null || unchecked((short)(samus.Position.X.Whole - 640)) >= 0)
             return;
 
-        _access.LastCrocomireMusicRequest = new DelayedMusicRequest(
-            MusicRequest.SelectTrack(5),
-            MusicQueueDelay.Shortest);
+        _access.RequestCrocomireMusic(MusicRequest.SelectTrack(5), MusicQueueDelay.Shortest);
         _room.Services.RoomScroll.Write(3, RoomScrollState.RedBoundary);
         _room.Services.RoomScroll.Write(4, RoomScrollState.Blue);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(48, 3), PlmHeaderId.CreateCrocomireInvisibleWall);
@@ -115,7 +113,7 @@ internal sealed class CrocomireSkeleton
                     death.RumbleCooldown = death.RumbleCooldown.Decrement().Remaining;
                     // Repeat the oscillation: back to its return target.
                     state.RumbleStep--;
-                    _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.WallRumble;
+                    _access.RequestCrocomireSound(CrocomireSoundDefinitions.WallRumble);
                     return;
                 }
 
@@ -149,7 +147,7 @@ internal sealed class CrocomireSkeleton
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.CreateCrocomireInvisibleWall);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(112, 11), PlmHeaderId.ClearCrocomireBridge);
-        _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.Crumble;
+        _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
         body.Colouring = SharedSpriteColouring.Common;
         (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
@@ -158,7 +156,7 @@ internal sealed class CrocomireSkeleton
         foreach (RoomEnemyProjectileSlot projectile in _projectiles.EnemyProjectiles)
             projectile.Clear();
         SpawnCrocomireSpikeWallPieces();
-        _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.SpikeWallBreak;
+        _access.RequestCrocomireSound(CrocomireSoundDefinitions.SpikeWallBreak);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
@@ -194,7 +192,7 @@ internal sealed class CrocomireSkeleton
         if (unchecked((short)(state.Body.Position.X.Whole - 576)) < 0)
             return;
 
-        _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BigExplosion;
+        _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
         if (state.Tongue is { } tongue)
             tongue.Colouring = state.Body.Colouring;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
@@ -241,9 +239,7 @@ internal sealed class CrocomireSkeleton
     /// <summary>Marks Crocomire's boss encounter complete and releases the death-scene presentation.</summary>
     internal void CompleteCrocomireBoss(CrocomireEnemyState state)
     {
-        _access.LastCrocomireMusicRequest = new DelayedMusicRequest(
-            MusicRequest.SelectTrack(6),
-            MusicQueueDelay.Shortest);
+        _access.RequestCrocomireMusic(MusicRequest.SelectTrack(6), MusicQueueDelay.Shortest);
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking; // $A4:9B8D
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         _access.RequireCrocomireDeath().BossBitSet = true;

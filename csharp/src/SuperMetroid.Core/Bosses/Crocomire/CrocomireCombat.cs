@@ -513,9 +513,9 @@ internal sealed class CrocomireCombat
         bool evenSlot = projectile.SlotIndex % 2 == 0;
         projectile.Clear();
         if (evenSlot)
-            _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.Crumble;
+            _access.RequestCrocomireSound(CrocomireSoundDefinitions.Crumble);
         _projectiles.SpawnRoomGraphicsDustExplosion(impact, MiscDustAnimation.BigDustCloud);
-        _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BigExplosion;
+        _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
     }
 
     /// <summary>Ports bridge-fragment vertical collision and gravity at $86:92BA.</summary>

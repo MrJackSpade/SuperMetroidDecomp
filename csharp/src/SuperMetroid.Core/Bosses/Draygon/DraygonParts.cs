@@ -35,18 +35,21 @@ internal sealed class DraygonParts
     private readonly EnemyFrameContext _frameContext;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
+    /// <summary>Receives the sounds Draygon's programs and death request.</summary>
+    private readonly EnemyAudioQueue _audio;
 
 
-    /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonParts(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, EnemyFrameContext frameContext, BossArtworkBinding bossArtwork)
+    /// <summary>Builds the component from the encounter's collaborators.</summary>
+    internal DraygonParts(DraygonBehaviorDependencies dependencies)
     {
-        _bossArtwork = bossArtwork;
-        _room = room;
-        _projectiles = projectiles;
-        _earthquake = earthquake;
-        _spriteObjects = spriteObjects;
-        _presentation = presentation;
-        _frameContext = frameContext;
+        _bossArtwork = dependencies.BossArtwork;
+        _room = dependencies.Room;
+        _projectiles = dependencies.Projectiles;
+        _earthquake = dependencies.Earthquake;
+        _spriteObjects = dependencies.SpriteObjects;
+        _presentation = dependencies.Presentation;
+        _frameContext = dependencies.FrameContext;
+        _audio = dependencies.Audio;
     }
 
     /// <summary>The typed encounter extension while the retail Draygon population is loaded.</summary>
@@ -237,11 +240,8 @@ internal sealed class DraygonParts
             case DraygonCue.DisplaceBodyGraphics displace:
                 state.BodyGraphicsDisplacement = displace.Offset;
                 return null;
-            case DraygonCue.QueueSound { Sound.Library: SoundEffectLibrary.Library2 } sound:
-                state.LastSoundLibrary2 = sound.Sound;
-                return null;
-            case DraygonCue.QueueSound { Sound.Library: SoundEffectLibrary.Library3 } sound:
-                state.LastSoundLibrary3 = sound.Sound;
+            case DraygonCue.QueueSound sound:
+                RequestDraygonSound(sound.Sound);
                 return null;
             case DraygonCue.SpawnDyingObject dying:
                 SpawnRandomDyingDraygonObject(state, dying.Kind);
@@ -270,6 +270,21 @@ internal sealed class DraygonParts
     /// <summary>A linked Draygon part, failing if its record never loaded.</summary>
     internal static RoomEnemySlot RequirePart(RoomEnemySlot? part) =>
         part ?? throw new InvalidDataException("A Draygon program ran before all four parts loaded.");
+
+    /// <summary>
+    /// Requests a sound from one of Draygon's programs at the end of the enemy update. The dying cry and the fight's
+    /// other sounds are separate sources, so one of each survives an update; a later sound from the same source in
+    /// that update replaces the earlier one (the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>).
+    /// </summary>
+    private void RequestDraygonSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(
+            sound == DraygonSoundDefinitions.DyingCry ? EnemySoundSource.DraygonDeathCry : EnemySoundSource.DraygonCombat,
+            sound,
+            SoundRequestPriority.Normal);
+
+    /// <summary>Requests Draygon's music change at the end of the enemy update.</summary>
+    internal void RequestDraygonMusic(MusicRequest request) =>
+        _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Draygon, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
     /// <summary>Ports the eye direction partition at <c>$A5:C48D/C513</c>.</summary>
     internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, HorizontalDirection facing)

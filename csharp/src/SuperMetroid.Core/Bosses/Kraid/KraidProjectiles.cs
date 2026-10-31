@@ -445,7 +445,7 @@ internal sealed class KraidProjectiles
         if (charge.IsZero)
         {
             _access.Part(lint).Function = KraidAiFunction.LintFire;
-            _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.LintFire);
+            _access.RequestKraidSound(KraidSoundDefinitions.LintFire);
         }
     }
 

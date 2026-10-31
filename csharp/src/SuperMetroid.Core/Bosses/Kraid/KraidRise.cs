@@ -325,7 +325,7 @@ internal sealed class KraidRise
         rock.Velocity = new(new SignedEightEight(unchecked((ushort)(random & 1008))), SignedEightEight.FromSignedRaw(-1280));
         rock.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites));
         state.SpawnedRiseRockCount++;
-        _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.RockSpit);
+        _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
     }
 
     /// <summary>Dispatches the authored vertical rise and pause functions.</summary>
@@ -353,7 +353,7 @@ internal sealed class KraidRise
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseRocksEvery16Frames;
                 state.Parts[body.SlotIndex].RisingRockTimer = 120;
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(496);
-                state.MusicRequest = MusicRequest.SelectTrack(5);
+                _access.RequestKraidMusic(MusicRequest.SelectTrack(5));
                 state.ShowLowerBody();
                 return;
 

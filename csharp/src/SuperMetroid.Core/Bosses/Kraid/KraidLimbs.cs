@@ -101,7 +101,7 @@ internal sealed class KraidLimbs
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(10);
                 return null;
             case KraidPartCue.StepSound:
-                _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.Footstep);
+                _access.RequestKraidSound(KraidSoundDefinitions.Footstep);
                 return null;
             case KraidPartCue.StepLeft:
                 body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole - 3)));

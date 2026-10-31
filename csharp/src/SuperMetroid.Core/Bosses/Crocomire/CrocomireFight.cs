@@ -260,18 +260,18 @@ internal sealed class CrocomireFight
                 return null;
 
             case CrocomireBodyCueKind.Cry:
-                _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.Cry;
+                _access.RequestCrocomireSound(CrocomireSoundDefinitions.Cry);
                 return null;
             case CrocomireBodyCueKind.BigExplosionSound:
-                _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BigExplosion;
+                _access.RequestCrocomireSound(CrocomireSoundDefinitions.BigExplosion);
                 return null;
             case CrocomireBodyCueKind.SkeletonCollapseSound:
-                _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.SkeletonCollapse;
+                _access.RequestCrocomireSound(CrocomireSoundDefinitions.SkeletonCollapse);
                 return null;
             case CrocomireBodyCueKind.ShakeScreen:
                 _earthquake.EarthquakeType = 4;
                 _earthquake.EarthquakeTimer = WrappingCountdown.Start(5);
-                _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.ScreenShake;
+                _access.RequestCrocomireSound(CrocomireSoundDefinitions.ScreenShake);
                 return null;
 
             case CrocomireBodyCueKind.MoveLeft:
@@ -386,7 +386,7 @@ internal sealed class CrocomireFight
                 {
                     state.ProjectileCounter += 2;
                     SpawnCrocomireProjectile(state.Body, state.ProjectileCounter);
-                    _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.ProjectileSpit;
+                    _access.RequestCrocomireSound(CrocomireSoundDefinitions.ProjectileSpit);
                     return null;
                 }
                 state.FightFunction = CrocomireFightFunction.SteppingForward;
@@ -459,7 +459,7 @@ internal sealed class CrocomireFight
                     state.StepCounter = 1;
                     state.ReactionTimer = 10;
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
-                    _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.UnusedChargeInterrupted;
+                    _access.RequestCrocomireSound(CrocomireSoundDefinitions.UnusedChargeInterrupted);
                     return null;
                 }
                 state.FightFunction = CrocomireFightFunction.NearSpikeWallCharge;
@@ -539,7 +539,7 @@ internal sealed class CrocomireFight
                 if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) != CrocomireFightFlags.None)
                 {
                     state.StepCounter--;
-                    _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.ClawStrike;
+                    _access.RequestCrocomireSound(CrocomireSoundDefinitions.ClawStrike);
                     return CrocomireBodyProgram.MovingClaws;
                 }
                 state.FightFlags &= ~CrocomireFightFlags.ClawTouchedSamus;

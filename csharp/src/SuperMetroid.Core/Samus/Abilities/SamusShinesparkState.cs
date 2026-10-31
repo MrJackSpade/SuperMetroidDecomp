@@ -68,8 +68,8 @@ public sealed class SamusShinesparkState
     public SignedSixteenSixteen VerticalAcceleration { get; private set; }
 
     /// <summary>
-    /// Mirrors suit HDMA writes to shared WRAM $0DEC/$0DEE (substate/light-beam
-    /// position), which $90:D1FF later reads as the spark acceleration pair.
+    /// Mirrors the suit pickup's stage number and light-beam position, which share their
+    /// storage with the spark acceleration pair the spark later reads.
     /// A suspended windup must not retain its pre-pickup 7.0000 initializer.
     /// </summary>
     /// <param name="substate">The suit pickup's stage number, which becomes the acceleration's whole word.</param>
@@ -311,7 +311,7 @@ public sealed class SamusShinesparkState
         // $0A68 can admit this launch even after its movement was interrupted.
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
-        // A Reserve-Mode X-Ray HDMA object survives, but directional spark setup replaces
+        // A Reserve-Mode X-Ray cone effect survives, but directional spark setup replaces
         // the same shared special-palette dispatcher with handler six.
         samus.Xray.RelinquishPaletteHandler();
 

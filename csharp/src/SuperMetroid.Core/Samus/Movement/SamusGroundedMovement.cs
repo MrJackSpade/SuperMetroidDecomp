@@ -57,7 +57,7 @@ public static class SamusGroundedMovement
             // `$90:A397-$A3A4` publishes collision direction two and calls the bank-$94
             // downward mover with `$12.$14 = 0001.0000`. That entry deliberately skips
             // solid-enemy collision but retains ordinary room-block and behaviour scanning and the
-            // alternating left/right order selected from accepted-NMI parity.
+            // alternating left/right order selected from the frame counter's parity.
             vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 1 << 16, ScanLeftToRight = (frameCounter & 1) == 0, IncludeSolidEnemies = false, PublishDoorSideEffects = publishDoorSideEffects });
         }
 
@@ -473,7 +473,7 @@ public static class SamusGroundedMovement
             samus.HorizontalSpeed);
 
         // $94:9763 alternates its left-to-right and right-to-left horizontal scan order on
-        // the low bit of the accepted-NMI word. That parity can affect which simultaneous
+        // the frame counter's parity. That parity can affect which simultaneous
         // collision side effect wins, so it remains an explicit input even in this slice.
         return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (frameCounter & 1) == 0 });
     }

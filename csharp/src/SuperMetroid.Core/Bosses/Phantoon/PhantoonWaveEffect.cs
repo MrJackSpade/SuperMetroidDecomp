@@ -74,7 +74,7 @@ public sealed class PhantoonWaveEffect
 
     /// <summary>Runs one update of the wave: a pending setup consumes the update; later active updates end the wave once the eye's length is cleared or advance its phase and rebuild its shape.</summary>
     /// <param name="boss">Owning Phantoon state with initialized eye and mouth slots; their length, phase delta, amplitude, and base BG2 scroll remain boss-owned inputs.</param>
-    /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the accepted-NMI snapshot.</remarks>
+    /// <remarks>Does not publish the wave. Ending it keeps its last shape, and a new setup does not clear it; LatchDisplay owns the displayed snapshot.</remarks>
     public void Step(PhantoonEnemyState boss)
     {
         if (_pendingSetup)
@@ -98,7 +98,7 @@ public sealed class PhantoonWaveEffect
         _built = new(Phase, boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude, boss.BodyLayerPlacement.X);
     }
 
-    /// <summary>Latch the completed wave with the accepted NMI's other presentation state.</summary>
+    /// <summary>Latch the completed wave with the frame's other displayed presentation state.</summary>
     public void LatchDisplay() => DisplayedWave = Active ? CurrentWave : null;
 
     /// <summary>

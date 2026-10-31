@@ -190,8 +190,8 @@ internal static class SamusPoseMetadata
     /// own exactly: equipment-selected pose, its delay list, the radius-dependent lift and
     /// all motion words cleared by the routine. It does not write the collision radius;
     /// the next alpha's SetSamusRadius does. Runtime/debug callers remain responsible for
-    /// input lock, palette, grapple, and priming the first graphics DMA before their first
-    /// visible NMI.
+    /// input lock, palette, grapple, and priming the first graphics transfer before their first
+    /// displayed frame.
     /// </remarks>
     public static void ApplyForwardFacingPoseSetup(SamusState samus)
     {

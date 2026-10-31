@@ -186,7 +186,7 @@ internal enum EnemyProjectilePreInstruction
     /// <summary><c>PreInstruction_EnemyProjectile_GoldenTorizoEyeBeam</c> at $86:B38A. Golden Torizo eye beam: room collision impact lists.</summary>
         GoldenTorizoEyeBeam,
 
-    /// <summary><c>PreInst_EnemyProj_TourianStatueBaseDecoration_AllowProcess</c> at $86:BA37. Tourian entrance statue actors follow the HDMA vertical reveal.</summary>
+    /// <summary><c>PreInst_EnemyProj_TourianStatueBaseDecoration_AllowProcess</c> at $86:BA37. Tourian entrance statue actors follow the statue's per-line vertical reveal.</summary>
         TourianStatueBaseDecoration_AllowProcess,
 
     /// <summary><c>PreInst_EnemyProj_TourianStatue_Ridley_Phantoon_BaseDecor</c> at $86:BA42. Shared position-only tail used after the finished flag is set.</summary>

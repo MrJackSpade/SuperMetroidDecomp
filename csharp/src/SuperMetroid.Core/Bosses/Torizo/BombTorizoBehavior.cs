@@ -32,7 +32,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
     /// <summary>Exposes the two live CGRAM rows occupied by Torizo's body.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Provides the NMI counter used by Torizo instruction choices.</summary>
+    /// <summary>Provides the frame counter used by Torizo instruction choices.</summary>
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Spawns the orb drops and the death scatter after the authored sequences.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -252,7 +252,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Carries out one cue of Bomb or Golden Torizo's body program, returning the cursor a branch, call or return
     /// continues at, or null to run on. <paramref name="continuation"/> is the cursor just past the cue: the return
     /// point a call saves. <see cref="TorizoInstructionInputs.FrameCounterLow"/> is the low byte of
-    /// <c>NMI_FrameCounter</c> ($05B6), which both attack choosers ($AA:C5B9, $AA:D53B) add; only its bit 3 survives.
+    /// the frame counter, which both attack choosers add; only its bit 3 survives.
     /// </summary>
     internal AnimationProgramCursor<TorizoBodyProgram>? ApplyTorizoCue(
         RoomEnemySlot torizo,

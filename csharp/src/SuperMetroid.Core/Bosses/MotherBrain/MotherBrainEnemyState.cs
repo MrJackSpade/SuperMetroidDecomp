@@ -277,7 +277,7 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>
     /// Native <c>deathBeamAttackPhase</c> consumed by <c>$A9:B87D</c>. Despite the historical
-    /// symbol name, this is the ordinary phase-two red hand-beam attack, not the later HDMA
+    /// symbol name, this is the ordinary phase-two red hand-beam attack, not the later
     /// rainbow beam used when the head's health reaches zero.
     /// </summary>
     public MotherBrainHandBeamPhase HandBeamPhase { get; internal set; }

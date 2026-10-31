@@ -124,7 +124,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData? level,
         int frameCounterByte)
     {
-        // Echo AI needs only the NMI parity bit. Every body state needs both the active
+        // Echo AI needs only the frame counter's parity. Every body state needs both the active
         // Samus gravity words and authentic room collision, so fail loudly if a caller
         // attempts to run the family without the state that native code reads globally.
         if (state.Function == DachoraAiFunction.Echo)

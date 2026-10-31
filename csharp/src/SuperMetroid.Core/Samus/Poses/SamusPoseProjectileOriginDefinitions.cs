@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Physical projectile-origin corrections, separate from editable Samus graphics offsets.</summary>
 /// <remarks>
-/// Only FD..FF retain the exact adjacent X-ray HDMA instruction bytes documented below.
+/// Only FD..FF retain the exact adjacent X-ray cone code bytes documented below.
 /// They have no managed pose-origin meaning; deriving them as physical corrections would
 /// be nonsense. This narrow compatibility exception does not cover any real pose 00..FC.
 /// </remarks>

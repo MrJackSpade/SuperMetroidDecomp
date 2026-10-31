@@ -311,8 +311,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Cycles door colors and the room's Mode-7 elevator frame from slot zero's frame counter.</summary>
     internal void RunCeresDoorPaletteAnimation()
     {
-        // $A6:F850 selects six colors by NMI counter bits 3..5. Enemy FrameCounter advances
-        // at the same accepted-frame cadence in this runtime, so slot zero is the shared
+        // The door's palette cycle selects six colors by frame-counter bits 3..5. The enemy
+        // frame counter advances at the same cadence, so slot zero is the shared
         // timebase for the room-owned palette cycle.
         int frame = _slotTable.Slots[0].FrameCounter;
 

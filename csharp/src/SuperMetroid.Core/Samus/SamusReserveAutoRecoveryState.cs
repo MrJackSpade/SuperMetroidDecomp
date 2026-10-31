@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Samus;
 /// <remarks>
 /// This is an outer game-state owner, not an inventory convenience. It locks Samus, leaves
 /// ordinary state-eight gameplay running under the global time-freeze word, transfers one
-/// energy unit per accepted frame, and publishes the native library-three refill sound on
-/// every eighth accepted NMI.
+/// energy unit per frame, and publishes the library-three refill sound on
+/// every eighth frame of the frame counter.
 /// </remarks>
 public sealed class SamusReserveAutoRecoveryState
 {
@@ -29,7 +29,7 @@ public sealed class SamusReserveAutoRecoveryState
         // The pair suppresses animation as well as input/movement. A generic input
         // gate alone leaves AnimateSamus running during the frozen recovery frames.
         // If X-Ray installed its own pair earlier in this state-eight frame, command
-        // $1B replaces those handlers without deleting the independently running HDMA.
+        // $1B replaces those handlers without ending the independently running cone effect.
         // It leaves Mother Brain's rainbow-beam pair in place ($90:F414).
         bool rainbowBeam = samus.Control.Mode.Beta == SamusBetaHandler.RainbowBeam;
         if (!rainbowBeam)
@@ -40,7 +40,7 @@ public sealed class SamusReserveAutoRecoveryState
         IsActive = true;
     }
 
-    /// <summary>Runs <c>RefillHealthFromReserveTanks</c> once after the frame's accepted NMI.</summary>
+    /// <summary>Runs one reserve-tank refill step after the frame's gameplay.</summary>
     public SamusReserveAutoRecoveryStep StepAfterFrame(SamusState samus, int frameCounter)
     {
         Ensure.NotNull(samus);

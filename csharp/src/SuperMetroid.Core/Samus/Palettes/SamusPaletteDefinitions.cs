@@ -144,7 +144,7 @@ public static class SamusPaletteDefinitions
         public const int ResetBlue = 0;
     }
 
-    /// <summary>Fixed-color tables used by Power Bomb and Crystal Flash HDMA.</summary>
+    /// <summary>Fixed-color tables used by the Power Bomb and Crystal Flash explosion effects.</summary>
     public static class PowerBomb
     {
         /// <summary>The five-bit channel in each stored fixed-colour byte.</summary>

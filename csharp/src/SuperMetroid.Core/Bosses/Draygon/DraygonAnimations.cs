@@ -18,7 +18,6 @@ internal static class DraygonAnimations
         [P.BodyFacingLeftReset] =
         [
             Cue(new DraygonCue.StartPartPrograms(P.BodyFacingLeftIdle, P.EyeFacingLeftIdle, P.TailFacingLeftIdle, P.ArmsFacingLeftIdle)),
-            Cue(DraygonCue.BeginHudDraw.Instance),
             Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingLeft)),
             Show(22, 1),
             Hold,
@@ -26,7 +25,6 @@ internal static class DraygonAnimations
         [P.BodyFacingRightReset] =
         [
             Cue(new DraygonCue.StartPartPrograms(P.BodyFacingRightIdle, P.EyeFacingRightIdle, P.TailFacingRightIdle, P.ArmsFacingRightIdle)),
-            Cue(DraygonCue.BeginHudDraw.Instance),
             Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingRight)),
             Show(63, 1),
             Hold,
@@ -71,7 +69,6 @@ internal static class DraygonAnimations
         ],
         [P.BodyFacingLeftIdle] =
         [
-            Cue(DraygonCue.BeginHudDraw.Instance),
             Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingLeft)),
             Show(22, 1),
             Hold,
@@ -360,7 +357,6 @@ internal static class DraygonAnimations
         ],
         [P.BodyFacingRightIdle] =
         [
-            Cue(DraygonCue.BeginHudDraw.Instance),
             Cue(new DraygonCue.SetEyeFunction(DraygonEyeFunction.FacingRight)),
             Show(63, 1),
             Hold,

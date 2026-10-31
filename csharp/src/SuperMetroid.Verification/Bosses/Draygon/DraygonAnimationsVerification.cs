@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -65,6 +64,7 @@ internal static class DraygonAnimationsVerification
                 return steps.Count;
             }
 
+            cursor = SkipHudSplitCallbacks(cartridge, cursor);
             int address = (BodyBankNumber << 16) | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);
             ushort operand = cartridge.ReadCartridgeWord(address + 2);
@@ -123,6 +123,17 @@ internal static class DraygonAnimationsVerification
         throw new InvalidDataException($"Draygon {program} ran past its typed steps.");
     }
 
+    /// <summary>
+    /// Steps past native callbacks that only select the screen split drawing the HUD; the display draws the HUD on
+    /// its own, so the typed programs carry no step for them.
+    /// </summary>
+    private static ushort SkipHudSplitCallbacks(IImportCartridgeSource cartridge, ushort cursor)
+    {
+        while (SelectsHudSplit(cartridge.ReadCartridgeWord((BodyBankNumber << 16) | cursor)))
+            cursor = unchecked((ushort)(cursor + 2));
+        return cursor;
+    }
+
     /// <summary>Creates Draygon's four linked parts in a fresh enemy system.</summary>
     private static NewDraygonResult NewDraygon()
     {
@@ -171,7 +182,6 @@ internal static class DraygonAnimationsVerification
         AssertEqual(DraygonProgram.BodyFacingRightReset, state.Cursor(state.Body).Program, "the body's own frame keeps it in the reset");
         AssertEqual(DraygonFrameToolingDefinitions.Spritemap(new DraygonFrame(63)), state.Body.SpritemapPointer, "the reset shows the right-facing body frame");
         AssertEqual<DraygonEyeFunction?>(DraygonEyeFunction.FacingRight, state.Eye.SpeciesState<DraygonEyeState>()?.Function, "the reset gives the eye its tracking function");
-        AssertEqual(RoomLoadingInterruptCommand.BeginHudDraw, state.RoomLoadingIrqCommand, "the reset selects the HUD-draw interrupt");
     }
 
     /// <summary>
@@ -198,7 +208,7 @@ internal static class DraygonAnimationsVerification
             AssertEqual(native.Spritemap, arms.SpritemapPointer, $"{at}: frame");
             AssertEqual(native.NewFrame, arms.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(native.Counter, arms.Timer.RawValue, $"{at}: loop counter");
-            DraygonCue[] cues = [.. callbacks.Select(callback => CueOf(callback.Word, callback.Operands))];
+            DraygonCue[] cues = [.. callbacks.Where(callback => !SelectsHudSplit(callback.Word)).Select(callback => CueOf(callback.Word, callback.Operands))];
             AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Library2)?.Sound,
                 state.LastSoundLibrary2, $"{at}: library-2 sound");
             AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Library3)?.Sound,

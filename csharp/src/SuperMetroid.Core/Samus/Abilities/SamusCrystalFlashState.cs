@@ -86,7 +86,7 @@ public sealed class SamusCrystalFlashState
     /// </summary>
     public int BodyPaletteRecordOffset { get; private set; }
 
-    /// <summary>Set when `$90:D6C5` would spawn the two bank-$88 window HDMA objects.</summary>
+    /// <summary>Set when the raise finishes and the bubble's two per-line window effects start.</summary>
     public bool BubbleEffectRequested { get; private set; }
 
     /// <summary>Set when `$90:D6AA` queues sound-library-three effect one.</summary>
@@ -156,14 +156,14 @@ public sealed class SamusCrystalFlashState
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Special)
             throw new InvalidDataException("ROM pose $D3/$D4 no longer has movement type $1B.");
         SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
-        // Successful HDMA-owned activation publishes history directly, before
+        // Successful activation publishes history directly, before
         // installing its movement handler. Rejected activation must not shift it.
         samus.CommitPoseHistory();
 
         // The native routine reuses shinespark words but installs a distinct pointer. The
         // C# states stay separate so a debugger cannot mistake Crystal Flash for a spark.
         samus.Shinespark.RelinquishToCrystalFlash();
-        // Reserve Mode leaves X-Ray's HDMA object alive but Crystal Flash still replaces
+        // Reserve Mode leaves X-Ray's cone effect alive but Crystal Flash still replaces
         // the shared special-palette handler. Keep the greyout object; release only its
         // palette words so handler seven is the sole cartridge owner.
         samus.Xray.RelinquishPaletteHandler();
@@ -201,8 +201,8 @@ public sealed class SamusCrystalFlashState
 
     /// <summary>Executes one active handler call in the native beta-movement position.</summary>
     /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and handler-completion writes.</param>
-    /// <param name="frameCounter">Native accepted-NMI counter; ammunition drains only when its low three bits are zero.</param>
-    /// <returns>A value snapshot of the entry phase and retained bubble-HDMA request, even when this call changes phase.</returns>
+    /// <param name="frameCounter">The frame counter; ammunition drains only on every eighth frame.</param>
+    /// <returns>A value snapshot of the entry phase and retained bubble-effect request, even when this call changes phase.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidOperationException">No Flash movement handler is installed, or the phase/ammunition-family state is unsupported.</exception>
     public CrystalFlashMovementResult Step(
@@ -243,7 +243,7 @@ public sealed class SamusCrystalFlashState
             BubbleEffectRequested);
     }
 
-    /// <summary>Raises Samus two whole pixels for ten calls, then starts the drain phase and requests bubble HDMA.</summary>
+    /// <summary>Raises Samus two whole pixels for ten calls, then starts the drain phase and requests the bubble effect.</summary>
     private void StepRaising(SamusState samus)
     {
         // `$90:D678-$D67D` changes only the whole-pixel word. The subposition survives.
@@ -269,13 +269,13 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>
-    /// Consumes missiles, supers, then power bombs on each eighth NMI and restores 50 energy per decrement. Each
+    /// Consumes missiles, supers, then power bombs on each eighth frame and restores 50 energy per decrement. Each
     /// decrement is unchecked, so a kind the activation check let through with fewer than ten drains below zero.
     /// </summary>
     private void StepAmmoDrain(SamusState samus, int frameCounter)
     {
-        // All three pointed routines return immediately on seven of every eight accepted
-        // NMI frames. Main-loop frames do not own an independent Crystal Flash cadence.
+        // All three drains do nothing on seven of every eight frames of the frame counter;
+        // Crystal Flash keeps no cadence of its own.
         if ((frameCounter & 7) != 0)
             return;
 

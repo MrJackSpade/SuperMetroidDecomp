@@ -135,7 +135,7 @@ internal sealed class EnemyProjectileEngine
     /// <summary>The pixel offset within an 8-pixel half block.</summary>
     private const int HalfBlockPixelMask = 7;
 
-    /// <summary>The 16-bit NMI_FrameCounter ($05B6) for the current projectile pass.</summary>
+    /// <summary>The 16-bit frame counter for the current projectile pass.</summary>
     internal int CurrentFrame16 { get; private set; }
 
     /// <summary>All eighteen physical bank-$86 slots, including currently inactive slots.</summary>
@@ -224,10 +224,10 @@ internal sealed class EnemyProjectileEngine
         return hitCount;
     }
 
-    /// <summary>How many passes the standalone clock counts before it returns to zero, as the short NMI counter does.</summary>
+    /// <summary>How many passes the standalone clock counts before it returns to zero, as the byte-wide frame counter does.</summary>
     private const int StandaloneFrameCounter8Period = 256;
 
-    /// <summary>Fallback frame clock for standalone calls without a supplied NMI counter, 0 through 255.</summary>
+    /// <summary>Fallback frame clock for standalone calls without a supplied frame counter, 0 through 255.</summary>
     private int _standaloneFrameCounter8;
 
     /// <summary>Returns the standalone clock's current frame and advances it, wrapping after 255.</summary>

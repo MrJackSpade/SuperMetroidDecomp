@@ -1,10 +1,9 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>
-/// The next of the eight setup calls in the X-ray HDMA instruction list
-/// (<c>InstList_HDMAObject_Xray_0</c>, <c>$91:D22E-$D26F</c>) to run, or
-/// <see cref="Complete"/> once the list has installed <c>PreInstruction_Xray_Main</c>.
-/// Native code keeps this as the instruction-list position; the port names each call.
+/// The next of the eight setup updates of the X-ray cone effect to run, or
+/// <see cref="Complete"/> once setup has handed the cone to its per-update beam step.
+/// Each member names one setup update.
 /// </summary>
 public enum XraySetupStage
 {

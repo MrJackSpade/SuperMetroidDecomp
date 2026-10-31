@@ -229,8 +229,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports DraygonBody's main AI.</summary>
     internal void RunDraygonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        // Bank $A5 times turrets and smoke from NMI_FrameCounter ($05B6), never
-        // the separate 8-bit counter at $05B5; only its low bits are tested.
+        // Draygon times turrets and smoke from the frame counter, never the separate
+        // byte-wide frame counter; only its low bits are tested.
         RunDraygonBodyMain(slot, frame.Samus, unchecked((byte)_frameContext.FrameCounter));
     }
 

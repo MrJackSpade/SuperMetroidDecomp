@@ -71,7 +71,7 @@ public sealed class ScrollBoundaryCamera
         PreviousSamusPoint = (PreviousSamusPoint ?? default).WithWhole(samus);
 
     /// <summary>
-    /// The door IRQ writes only the travel axis's whole previous-position word, retaining the
+    /// The door-transition scroll writes only the travel axis's whole previous position, retaining the
     /// other axis and both fractions.
     /// </summary>
     internal void PublishDoorSamusTravelAxis(bool vertical, Position16<RoomPixels> samus)
@@ -121,7 +121,7 @@ public sealed class ScrollBoundaryCamera
         Position = Position.WithFractionsOf(retained);
 
     /// <summary>
-    /// Publishes the raw modular layer-one words owned by the door-opening IRQ.
+    /// Publishes the modular layer-one position the door-transition scroll owns.
     /// </summary>
     /// <remarks>
     /// The vertical transition routines deliberately begin outside the destination room:
@@ -131,7 +131,7 @@ public sealed class ScrollBoundaryCamera
     /// prevents ordinary loaders and debug callers from bypassing room-edge validation.
     /// </remarks>
     public void SetDoorTransitionPosition(Position16<RoomPixels> position) =>
-        // Door IRQ/setup writes integer layer-one positions, leaving both fractions intact.
+        // The door-transition setup and scroll write whole layer-one positions, leaving both fractions intact.
         Position = Position.WithWhole(position);
 
     /// <summary>

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 /// sample. The five initial paint magnitudes and these specific channel rates are
 /// selected text-color composition: replacing them invents different paint.
 /// The middle shade is copied target data, absent from the nine $A6:C164 glyphs.
-/// The separate NMI cadence and glyph pixels are not defined here.
+/// The separate frame-counter cadence and glyph pixels are not defined here.
 /// </summary>
 internal sealed class CeresRidleyAlarmColors
 {

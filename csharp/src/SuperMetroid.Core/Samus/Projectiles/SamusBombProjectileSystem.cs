@@ -87,7 +87,7 @@ public sealed class SamusBombProjectileSystem
     public BombProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
-    /// Sound guard after the HDMA update but before bomb pre-instructions. Native
+    /// Sound guard after the per-line effect update but before bomb pre-instructions. Native
     /// humanoid weapon production precedes those instructions; the split projectile
     /// owners must retain this earlier value when a bomb activates later in alpha.
     /// </summary>
@@ -103,7 +103,7 @@ public sealed class SamusBombProjectileSystem
         SuperMetroid.Core.Progression.SuperMetroidGameState gameState = SuperMetroid.Core.Progression.SuperMetroidGameState.MainGameplay)
     {
         Ensure.NotNull(samus);
-        // RunOneFrameOfGame invokes HdmaObjectHandler before GameState_8 reaches Samus's
+        // Each update runs the per-line display effects before gameplay reaches Samus's
         // frame handler. A power bomb spawned later by alpha consequently receives
         // its first radius update on the next frame, not on its fuse-expiration frame.
         bool crystalFlashWindowWasActive = PowerBombExplosion.Phase is
@@ -217,10 +217,10 @@ public sealed class SamusBombProjectileSystem
             }
             else if (slotExplosionStarted)
             {
-                // `$88:8AA9-$8AAC` queues library-one sound one through the ordinary
-                // Max15 entry immediately before setting explosion status `$8000` and
-                // allocating the two HDMA objects. Publish it from the same frame that
-                // Spawn installs the semantic bank-$88 owner.
+                // The explosion queues library-one sound one through the ordinary
+                // Max15 entry immediately before it marks the explosion active and
+                // starts its two per-line effects. Publish it from the same frame that
+                // Spawn installs the explosion's owner.
                 soundRequests.Add(new SoundRequest(
                     Library1Sound.PowerBombExplosion,
                     MaximumQueued: SoundQueueLimit.Max15,
@@ -276,8 +276,8 @@ public sealed class SamusBombProjectileSystem
         foreach (SamusBombProjectileSlot slot in InUpdateOrder)
         {
             // Type $0300 power bombs and type $0500 normal bombs both use the same bank-$93
-            // timed-spritemap interpreter. The large power-bomb flash itself is an HDMA
-            // color-math window and is composed separately from OAM.
+            // timed-spritemap interpreter. The large power-bomb flash itself is a per-line
+            // color-math window and is composed separately from the sprites.
             SamusProjectileFamily family = slot.Type.Family;
             if (slot.Cursor is null ||
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
@@ -286,7 +286,7 @@ public sealed class SamusBombProjectileSystem
             // `$93:835F-$8364` suppresses family `$0300` as soon as its shared
             // projectile-variable word reaches zero. `$90:C157` publishes that zero on
             // the detonation frame, so the small placed-bomb OBJ must disappear exactly
-            // when bank $88 begins the large HDMA explosion. Normal bomb explosions keep
+            // when the large explosion effect begins. Normal bomb explosions keep
             // drawing their bank-$93 spritemaps with a zero BombTimer and are unaffected.
             if (family == SamusProjectileFamily.PowerBomb && slot.BombTimer.IsZero)
                 continue;

@@ -40,7 +40,7 @@ public enum MotherBrainBodyFunction
     FakeDeathAscentSetupPhase2Brain,
     /// <summary><c>$A9:8D79 Function_MotherBrainBody_FakeDeath_Ascent_PauseForSuspense</c>: waits for signed underflow, then seeds the $20-count rising-preparation delay and falls into it.</summary>
     FakeDeathAscentPauseForSuspense,
-    /// <summary><c>$A9:8D8B Function_MotherBrainBody_FakeDeath_Ascent_PrepareMBForRising</c>: creates floor-clipping HDMA, installs the hidden head list, and starts leg-tile transfer with a $100-count later pause.</summary>
+    /// <summary><c>$A9:8D8B Function_MotherBrainBody_FakeDeath_Ascent_PrepareMBForRising</c>: starts the floor-clipping effect, installs the hidden head list, and starts leg-tile transfer with a $100-count later pause.</summary>
     FakeDeathAscentPrepareForRising,
     /// <summary><c>$A9:8DB4 Function_MotherBrainBody_FakeDeath_Ascent_LoadMBLegTiles</c>: processes one leg-tile transfer per call and decrements the suspense timer on the same call that finishes the list.</summary>
     FakeDeathAscentLoadLegTiles,
@@ -48,7 +48,7 @@ public enum MotherBrainBodyFunction
     FakeDeathAscentContinuePausing,
     /// <summary><c>$A9:8DEC Function_MotherBrainBody_FakeDeath_Ascent_StartMusic_Quake</c>: reveals the crouched body, starts boss music and earthquake, and enables the rising neck motion.</summary>
     FakeDeathAscentStartMusicAndEarthquake,
-    /// <summary><c>$A9:8E4D Function_MotherBrainBody_FakeDeath_Ascent_RaiseMotherBrain</c>: every fourth NMI count raises the body two pixels with dust and matching BG2 scroll, then removes rising HDMA and starts uncrouching.</summary>
+    /// <summary><c>$A9:8E4D Function_MotherBrainBody_FakeDeath_Ascent_RaiseMotherBrain</c>: every fourth frame of the frame counter raises the body two pixels with dust and matching BG2 scroll, then ends the floor-clipping effect and starts uncrouching.</summary>
     FakeDeathAscentRaiseMotherBrain,
     /// <summary><c>$A9:8E95 Function_MBBody_FakeDeath_Ascent_WaitForMBUncrouch</c>: waits for body bytecode to publish the standing pose before initializing grey-palette restoration.</summary>
     FakeDeathAscentWaitUntilUncrouched,
@@ -102,7 +102,7 @@ public enum MotherBrainBodyFunction
     SecondPhaseRainbowStartDrainingSamus,
     /// <summary><c>$A9:BA3C Function_MBBody_Phase2_FiringRainbowBeam_DrainingSamus</c>: applies beam damage, ammunition drain, forced wall-centering movement, and effects until timer underflow.</summary>
     SecondPhaseRainbowDrainingSamus,
-    /// <summary><c>$A9:BA5E Function_MBBody_Phase2_FiringRainbowBeam_FinishFiring</c>: narrows the beam to angular width $0200, stops HDMA/sound/earthquake, releases input, and starts the falling handoff.</summary>
+    /// <summary><c>$A9:BA5E Function_MBBody_Phase2_FiringRainbowBeam_FinishFiring</c>: narrows the beam to angular width $0200, stops the beam effect, sound and earthquake, releases input, and starts the falling handoff.</summary>
     SecondPhaseRainbowFinishFiring,
     /// <summary><c>$A9:BAC4 Function_MBBody_Phase2_FiringRainbowBeam_LetSamusFall</c>: changes the drained Samus controller/pose and falls directly into the first custom falling movement call.</summary>
     SecondPhaseRainbowLetSamusFall,

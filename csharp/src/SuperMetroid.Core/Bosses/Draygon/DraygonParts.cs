@@ -74,7 +74,6 @@ internal sealed class DraygonParts
         _frameContext.RequestFullSweep();
         Draygon = new DraygonEnemyState(body)
         {
-            RoomLoadingIrqCommand = RoomLoadingInterruptCommand.BeginHudDraw,
             MinimapDisabledAndBossTilesExplored = true,
             Function = DraygonAiFunction.IntroInitialDelay,
         };
@@ -228,9 +227,6 @@ internal sealed class DraygonParts
                 state.Tail.InstructionTimer = WrappingCountdown.Start(1);
                 state.Eye.InstructionTimer = WrappingCountdown.Start(1);
                 state.Body.InstructionTimer = WrappingCountdown.Start(1);
-                return null;
-            case DraygonCue.BeginHudDraw:
-                state.RoomLoadingIrqCommand = RoomLoadingInterruptCommand.BeginHudDraw;
                 return null;
             case DraygonCue.SetEyeFunction eyeFunction:
                 (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = eyeFunction.Function;

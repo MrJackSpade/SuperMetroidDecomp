@@ -151,7 +151,7 @@ internal sealed class CeresRidleyGetaway
             "The Ceres Ridley getaway requires the session's floor update residue.");
         var updates = new List<FloorUpdate>();
 
-        // $A6:ACBC advances the Baby capsule on every fourth NMI using 0,1,2,1. The transfer
+        // The Baby capsule advances on every fourth frame of the frame counter using 0,1,2,1. The transfer
         // lists patch only the two two-byte rows occupied by that animation in the map.
         if ((frameCounter & 3) == 0)
         {
@@ -159,7 +159,7 @@ internal sealed class CeresRidleyGetaway
             ApplyFloorAnimationFrame(CeresFloorAnimation.BabyFrameForPhase(state.GetawayBabyFrame), updates);
         }
 
-        // $A6:AD27 alternates the six sparse wing rows on every eighth NMI.
+        // The six sparse wing rows alternate on every eighth frame of the frame counter.
         if ((frameCounter & 7) == 0)
         {
             state.GetawayWingFrame = (state.GetawayWingFrame + 1) % 2;
@@ -355,7 +355,7 @@ internal sealed class CeresRidleyGetaway
     /// <summary>
     /// Ports ProcessSpriteTilesTransfers at $A6:C26E (#1406): shows the list's next page, one an update. A page of the
     /// timer-sprite list shows over the OBJ characters from this update's frame, as the cartridge's copy, made at this
-    /// update's NMI, shows in it; the background list's pages show nowhere, so each of its updates shows nothing.
+    /// update's displayed frame, shows in it; the background list's pages show nowhere, so each of its updates shows nothing.
     /// </summary>
     /// <returns>True once every page of the list has been shown.</returns>
     /// <exception cref="InvalidDataException">The cursor names no list.</exception>

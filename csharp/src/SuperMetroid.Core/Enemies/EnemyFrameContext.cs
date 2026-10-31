@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Per-pass enemy frame context: the random and NMI frame counters, the live Samus projectile system,
+/// Per-pass enemy frame context: the random number and the frame counter, the live Samus projectile system,
 /// and the frozen-time, process-all and deferred-camera flags for the current enemy pass.
 /// </summary>
 [RoomLifetime]
@@ -45,7 +45,7 @@ internal sealed class EnemyFrameContext
     /// <summary>Freeze flag captured during the enemy pass and retained for the draw hooks that follow it.</summary>
     internal bool TimeIsFrozen { get; private set; }
 
-    /// <summary>Defers init-AI layer-1 camera reads until the door loader installs its final camera after IRQ scrolling.</summary>
+    /// <summary>Defers init-AI layer-1 camera reads until the door loader installs its final camera after the door-transition scroll.</summary>
     internal bool DeferLoaderTimeCameraReads { get; private set; }
 
     /// <summary>Room load: records whether init AI defers its camera reads, and drops the previous room's projectiles.</summary>

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public sealed record ShinesparkFrame
 {
     /// <summary>
-    /// Accepted-NMI frame count, 0 through 65535 as the frame clock wraps it; only its parity is read, selecting the
+    /// The frame counter, 0 through 65535 as the frame clock wraps it; only its parity is read, selecting the
     /// vertical block-probe traversal order.
     /// </summary>
     public required int FrameCounter { get; init; }
@@ -27,7 +27,7 @@ public sealed record ShinesparkFrame
 
     /// <summary>
     /// Gameplay-clock frame count, 0 through 65535 as the clock wraps it, used by echo sampling independently of
-    /// NMI collision parity.
+    /// the frame counter's collision parity.
     /// </summary>
     public int GameTimeFrames { get; init; } = 0;
 

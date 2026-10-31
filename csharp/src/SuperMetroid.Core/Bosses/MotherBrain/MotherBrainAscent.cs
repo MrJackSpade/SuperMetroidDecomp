@@ -113,7 +113,7 @@ internal sealed class MotherBrainAscent
         state.Function = MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles;
         state.FunctionTimer = WrappingCountdown.Start(256);
 
-        // The first leg page shows on the same frame as HDMA creation.
+        // The first leg page shows on the same frame the floor-clipping effect starts.
         LoadMotherBrainLegTiles(state);
     }
 
@@ -190,7 +190,7 @@ internal sealed class MotherBrainAscent
     /// <summary>Moves the body upward through the authored rise while updating its head attachment.</summary>
     internal void RaiseMotherBrain(MotherBrainEnemyState state)
     {
-        // `$A9:8E4D` gates on NMI_FrameCounter ($05B6), not the separate 8-bit $05B5; the
+        // The rise gates on the frame counter, not the separate byte-wide frame counter; the
         // two advance together but are not aligned, so their low two bits differ.
         if ((_frameContext.FrameCounter & 3) != 0)
             return;

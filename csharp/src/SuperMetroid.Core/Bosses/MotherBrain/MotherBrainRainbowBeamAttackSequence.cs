@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// walks and posture changes, active beam, low-energy attack selection, final charge, the four
 /// frame-spread Baby tile transfers, spawn request, final-beam hold, painful stagger, live neck
 /// angles/brain coordinates, rear-room retreat, crouch, grey transition, and corpse handshake.
-/// Palette, HDMA, projectile, earthquake, VRAM, spawn, and sound writes are retained as
+/// Palette, beam-effect, projectile, earthquake, graphics, spawn, and sound writes are retained as
 /// inspectable requests; coordinate, resource, timer, instruction-list, and Samus-command
 /// mutations execute directly.
 /// </remarks>
@@ -62,7 +62,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>
-    /// Current byte angle produced by `$A9:BBA9` for the bank-$88 rainbow HDMA renderer.
+    /// Current byte angle of the rainbow beam's per-line effect.
     /// Exposing the translated movement owner's word lets the live room adapter publish the
     /// real beam geometry without maintaining a second aim calculation.
     /// </summary>

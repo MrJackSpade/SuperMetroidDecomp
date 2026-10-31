@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <para>
 /// The item PLM grants the equipment bit and displays bank $85's message first. Only after
 /// that synchronous message returns does <c>$91:D4E4/$91:D5BA</c> center and lock Samus,
-/// while one bank-$88 HDMA pre-instruction advances this seven-stage light-beam sequence
+/// while the light beam's per-line display effect advances this seven-stage sequence
 /// once per gameplay frame. This owner deliberately begins after the message rather than
 /// hiding those two independently observable lifetimes behind one host animation.
 /// </para>
@@ -48,7 +48,7 @@ public sealed class SamusSuitPickupState
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// HDMA-handler calls left before the instruction list installs the pre-instruction.
+    /// Effect updates left before the light beam's stage step is installed.
     /// The handler runs an object's pre-instruction before its instructions; the list's
     /// first call ends on a one-frame table entry and its second installs the
     /// pre-instruction and sleeps ($91:D5A2/$D67A), so the first stage runs on the third.
@@ -153,7 +153,7 @@ public sealed class SamusSuitPickupState
         _transformationSoundPending = true;
     }
 
-    /// <summary>Runs one installed bank-$88 HDMA pre-instruction.</summary>
+    /// <summary>Runs one update of the installed light-beam stage step.</summary>
     public void Step(SamusState samus, SamusColours colours)
     {
         Ensure.NotNull(samus);
@@ -203,7 +203,7 @@ public sealed class SamusSuitPickupState
     {
         int stageNumber = SharedScratchStageNumber(Stage);
         samus.Shinespark.ApplySuitPickupScratch(stageNumber, SharedScratchLightBeamWord());
-        // Suit setup and each HDMA phase write the same word Flash later reads as
+        // Suit setup and each light-beam stage write the same word Flash later reads as
         // its ammo-decrement counter. Suspending Flash's movement does not give it
         // a private copy of that word; Draygon's escape counter aliases it too.
         samus.CrystalFlash.SetSharedAmmoCounter(stageNumber);
@@ -368,7 +368,7 @@ public sealed class SamusSuitPickupState
             Stage = SamusSuitPickupStage.Finish;
     }
 
-    /// <summary>Clears the window and fixed-color effect, then releases Samus input after the last HDMA stage.</summary>
+    /// <summary>Clears the window and fixed-color effect, then releases Samus input after the last light-beam stage.</summary>
     private void Finish(SamusState samus)
     {
         FixedColor = new RgbColor(SamusPaletteDefinitions.SuitPickup.ResetRed, SamusPaletteDefinitions.SuitPickup.ResetGreen,

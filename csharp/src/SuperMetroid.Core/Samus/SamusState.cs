@@ -148,7 +148,7 @@ public sealed class SamusState
 
     /// <summary>
     /// X-ray admission, dedicated pose input/movement, beam-angle state, visor palette, and
-    /// teardown. Revealed-block tilemaps and window HDMA remain presentation-owned outputs.
+    /// teardown. Revealed-block tilemaps and the cone window remain presentation-owned outputs.
     /// </summary>
     public SamusXrayState Xray { get; } = new();
 

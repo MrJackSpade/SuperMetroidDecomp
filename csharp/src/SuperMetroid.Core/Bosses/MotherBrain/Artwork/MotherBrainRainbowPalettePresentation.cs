@@ -141,7 +141,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Applies the descending channel's changed bias after step eight.</summary>
         private static int Falling(int step) => 31 - 2 * step - (step >= 9 ? 1 : 0);
     }
-    /// <summary>Fixed-color backdrop used on the beam's first active HDMA frame.</summary>
+    /// <summary>Fixed-color backdrop used on the beam effect's first active frame.</summary>
     public RgbColor BeamInitialColor { get; }
 
     /// <summary>

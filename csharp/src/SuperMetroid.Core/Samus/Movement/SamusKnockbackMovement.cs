@@ -63,7 +63,7 @@ public static class SamusKnockbackMovement
     /// <param name="controllerInput">Held SNES button word used for the humanoid forward-held direction test; the Morph/Spring Ball branch ignores this input when selecting direction.</param>
     /// <param name="launch">How a knockback starts: its horizontal direction and timer (#633).</param>
     /// <param name="level">Optional live room geometry for hurt-pose expansion collision; null leaves that collision pass to explicitly positioned cinematic or diagnostic callers.</param>
-    /// <param name="frameCounter">Native NMI counter passed to pose-expansion block reactions when room geometry is supplied.</param>
+    /// <param name="frameCounter">The frame counter passed to pose-expansion block reactions when room geometry is supplied.</param>
     /// <param name="plms">Optional live PLM owner receiving those collision reactions.</param>
     /// <returns>
     /// True when the movement-type table installs the special knockback handler. False for

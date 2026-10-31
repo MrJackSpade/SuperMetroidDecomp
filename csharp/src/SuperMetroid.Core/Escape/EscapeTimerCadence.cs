@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Escape;
 internal static class EscapeTimerCadence
 {
     /// <summary>
-    /// $80:9EAB..9EB4 selects by global NMI phase. Distribute the period budget by cumulative
+    /// The countdown selects its step by the frame counter's phase. Distribute the period budget by cumulative
     /// floor, split each quarter with its odd unit first, then difference a fractional
     /// accumulator at consecutive frames. No sampled per-frame corrections are stored.
     /// </summary>

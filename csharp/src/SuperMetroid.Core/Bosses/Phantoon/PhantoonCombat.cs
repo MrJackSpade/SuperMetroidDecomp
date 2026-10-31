@@ -401,7 +401,7 @@ internal sealed class PhantoonCombat
         {
             orbit.StartDelay--;
         }
-        // $86:9B4C reads the 16-bit NMI_FrameCounter.
+        // The orbit reads the 16-bit frame counter.
         else if ((_projectiles.CurrentFrame16 & 1) != 0)
         {
             orbit.Radius--;
@@ -457,7 +457,7 @@ internal sealed class PhantoonCombat
         flame.InstructionTimer = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole - 8)));
         flame.Velocity = flame.Velocity.WithY(SignedEightEight.FromSignedRaw(-768));
-        // $86:99EB reads the 16-bit NMI_FrameCounter.
+        // The flame's drift reads the 16-bit frame counter.
         flame.Velocity = flame.Velocity.WithX(SignedEightEight.FromSignedRaw((frameCounter & 1) == 0 ? (short)128 : (short)-128));
     }
 

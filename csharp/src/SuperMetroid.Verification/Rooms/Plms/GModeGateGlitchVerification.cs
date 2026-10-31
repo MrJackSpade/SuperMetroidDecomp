@@ -379,7 +379,7 @@ internal static class GModeGateGlitchVerification
         int accessBlock = level.GetBlockIndex(new(stationX + 1, stationY));
         AssertTrue(plms.TryNotifyStationTouch(
                 accessBlock,
-                new RoomBlockBehavior((byte)StationAccessBehavior.EnergyRight)),
+                RoomBlockBehaviorCodec.StationAccess(StationAccessBehavior.EnergyRight)),
             "G-Mode fixture reaches the resident Energy Station through its real access setup");
         AssertTrue(samus.Control.AlphaLocked,
             "station setup executes Samus command six before the suspended PLM handler");

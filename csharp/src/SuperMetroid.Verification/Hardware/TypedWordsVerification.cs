@@ -453,14 +453,15 @@ internal static void VerifyTypedNativeWords()
     AssertTrue(!RoomBlockBehaviorValues.CollectibleTrigger.TryGetBlueDoorOrientation(out _),
         "non-door BTS rejects blue-door view");
 
-    for (byte stationValue = (byte)StationAccessBehavior.MapRight;
-         stationValue <= (byte)StationAccessBehavior.SaveFloor;
-         stationValue++)
+    foreach (StationAccessBehavior expectedAccess in Enum.GetValues<StationAccessBehavior>())
     {
+        ushort stationValue = PlmBlockBehaviorNativeWords.StationAccesses.Word(expectedAccess);
         var stationBehavior = new RoomBlockBehavior(stationValue);
         AssertTrue(stationBehavior.TryGetStationAccess(out StationAccessBehavior access),
             $"station BTS ${stationValue:X2} decodes");
-        AssertEqual((StationAccessBehavior)stationValue, access,
+        AssertEqual(expectedAccess, access,
+            $"station BTS ${stationValue:X2} decodes to its access");
+        AssertEqual(stationBehavior, RoomBlockBehaviorCodec.StationAccess(access),
             $"station BTS ${stationValue:X2} remains lossless");
     }
     AssertTrue(!RoomBlockBehaviorValues.ScrollTrigger.TryGetStationAccess(out _),

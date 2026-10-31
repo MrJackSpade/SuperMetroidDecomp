@@ -125,7 +125,7 @@ internal static class DownwardGatePlmsVerification
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(gateBlockIndex - 1).CollisionType,
             "left trigger table installs a shootable block");
-        AssertEqual((int)DownwardGateTriggerBehavior.BlueLeft,
+        AssertEqual((int)PlmBlockBehaviorNativeWords.DownwardGateTriggers.Word(DownwardGateTriggerBehavior.BlueLeft),
             level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior.Value,
             "argument zero installs retail blue-left BTS $46");
 
@@ -224,7 +224,9 @@ internal static class DownwardGatePlmsVerification
     {
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int gateBlockIndex) =
             CreateDownwardGateFixture(trigger);
-        int triggerBlockIndex = ((byte)trigger & 1) == 0
+        // The native trigger parameters alternate left (even) and right (odd), one pair per colour from blue.
+        int nativeTrigger = PlmBlockBehaviorNativeWords.DownwardGateTriggers.Word(trigger);
+        int triggerBlockIndex = (nativeTrigger & 1) == 0
             ? gateBlockIndex - 1
             : gateBlockIndex + 1;
         RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Behavior;
@@ -236,9 +238,9 @@ internal static class DownwardGatePlmsVerification
             $"{trigger} projectile ${projectile:X4} acceptance matches cartridge");
         StepDownwardGatePlm(plms, level);
         StepDownwardGatePlm(plms, level);
-        int color = ((byte)trigger - (byte)DownwardGateTriggerBehavior.BlueLeft) / 2;
+        int color = (nativeTrigger - PlmBlockBehaviorNativeWords.DownwardGateTriggers.Word(DownwardGateTriggerBehavior.BlueLeft)) / 2;
         RoomTerrainBlock expectedTriggerWord = RoomTerrainBlock.Of(0x0db - color,
-            ((byte)trigger & 1) == 0 ? BlockMirroring.None : BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock);
+            (nativeTrigger & 1) == 0 ? BlockMirroring.None : BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock);
         AssertEqual(expectedTriggerWord,
             level.GetCollisionBlockByIndex(triggerBlockIndex).Terrain,
             $"{trigger} compiled shot-trigger draw installs its physical block word");
@@ -257,7 +259,7 @@ internal static class DownwardGatePlmsVerification
         const byte gateX = 6;
         const byte gateY = 2;
         const int roomWidth = 16;
-        ushort argument = unchecked((ushort)(((byte)trigger - 0x46) * 2));
+        ushort argument = unchecked((ushort)((PlmBlockBehaviorNativeWords.DownwardGateTriggers.Word(trigger) - 0x46) * 2));
         // Supply imported placements directly. Cartridge header reads belong to import;
         // the guard below prohibits them only while the production runtime sets up slots.
         var population = new RoomPlmPopulation($"$8F:{populationPointer:X4}",

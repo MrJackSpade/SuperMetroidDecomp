@@ -392,18 +392,18 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Posture { Kind: TorizoPostureKind.StandUp } posture:
-                ApplyBombTorizoMapOffset(torizo, posture.MapOffset, move: BombTorizoPostureMove.StandUp);
+                ApplyBombTorizoPosture(torizo, posture.Step, move: BombTorizoPostureMove.StandUp);
                 return null;
 
             case TorizoCue.Posture { Kind: TorizoPostureKind.SitDown } posture:
-                ApplyBombTorizoMapOffset(torizo, posture.MapOffset, move: BombTorizoPostureMove.SitDown);
+                ApplyBombTorizoPosture(torizo, posture.Step, move: BombTorizoPostureMove.SitDown);
                 return null;
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkInstruction(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { TableOffset = walk.TableOffset, CollisionFacingRight = TorizoBodyProgram.FacingLeftTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightTurningRight });
+                return Choices.ProcessBombTorizoWalkInstruction(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoBodyProgram.FacingLeftTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightTurningRight });
 
             case TorizoCue.Walk { Kind: TorizoWalkKind.WalkFacelessBombTorizo } walk:
-                return Choices.ProcessBombTorizoWalkInstruction(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { TableOffset = walk.TableOffset, CollisionFacingRight = TorizoBodyProgram.FacingLeftFacelessTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightFacelessTurningRight });
+                return Choices.ProcessBombTorizoWalkInstruction(torizo, state, inputs.Samus, TorizoMovement.RequireBombTorizoLevel(inputs.Level), new TorizoWalkStep { Step = walk.Step, CollisionFacingRight = TorizoBodyProgram.FacingLeftFacelessTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightFacelessTurningRight });
 
             case TorizoCue.Branch { Kind: TorizoBranchKind.GoToIfRising } branch:
                 return state.Velocity.Y.SignedRawValue < 0 ? AnimationProgramCursor<TorizoBodyProgram>.Start(branch.Target) : null;
@@ -583,7 +583,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     state,
                     inputs.Samus,
                     TorizoMovement.RequireBombTorizoLevel(inputs.Level),
-                    walk.TableOffset);
+                    walk.Step);
 
             case TorizoCue.ShowArtwork showArtwork:
                 ShowTorizoArtwork(showArtwork.Swap);
@@ -599,13 +599,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         samus ?? throw new InvalidOperationException(
             "Golden Torizo instruction selection requires the active Samus actor.");
 
-    /// <summary>Applies or reverses the posture offset indexed by a Bomb Torizo movement table operand.</summary>
-    internal static void ApplyBombTorizoMapOffset(
+    /// <summary>Applies or reverses the displacement of a Bomb Torizo posture step.</summary>
+    internal static void ApplyBombTorizoPosture(
         RoomEnemySlot torizo,
-        int tableOffset,
+        int step,
         BombTorizoPostureMove move)
     {
-        Offset16<RoomPixels> displacement = BombTorizoMovement.Posture(tableOffset);
+        Offset16<RoomPixels> displacement = BombTorizoMovement.Posture(step);
         torizo.Position += move == BombTorizoPostureMove.SitDown ? -displacement : displacement;
     }
 

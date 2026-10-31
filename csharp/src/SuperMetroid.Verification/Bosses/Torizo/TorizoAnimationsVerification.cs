@@ -137,8 +137,9 @@ internal static class TorizoAnimationsVerification
                         {
                             TorizoOperand.Value => checked((ushort)(cue switch
                             {
-                                TorizoCue.Posture posture => posture.MapOffset,
-                                TorizoCue.Walk walk => walk.TableOffset,
+                                // The cartridge's operand is the step's byte offset into its word table.
+                                TorizoCue.Posture posture => posture.Step * sizeof(ushort),
+                                TorizoCue.Walk walk => walk.Step * sizeof(ushort),
                                 TorizoCue.ParameterizedSpawn spawn => spawn.Parameter,
                                 _ => throw new InvalidOperationException($"{at}: {cue} carries no value."),
                             })),

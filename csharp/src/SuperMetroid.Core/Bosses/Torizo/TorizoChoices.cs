@@ -126,9 +126,9 @@ internal sealed class TorizoChoices
         TorizoEnemyState state,
         SamusState? samus,
         RoomLevelData level,
-        int tableOffset)
+        int step)
     {
-        state.Velocity = state.Velocity.WithX(new SignedEightEight(GoldenTorizoWalk.Velocity(tableOffset)));
+        state.Velocity = state.Velocity.WithX(SignedEightEight.FromSignedRaw(GoldenTorizoWalk.Velocity(step)));
         int displacement = SixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
@@ -172,7 +172,7 @@ internal sealed class TorizoChoices
     /// <summary>Uses the walk table's velocity and wall branches, arming a 72-frame air transition when Samus crosses the facing test.</summary>
     internal AnimationProgramCursor<TorizoBodyProgram>? ProcessBombTorizoWalkInstruction(RoomEnemySlot torizo, TorizoEnemyState state, SamusState? samus, RoomLevelData level, TorizoWalkStep step)
     {
-        state.Velocity = state.Velocity.WithX(new SignedEightEight(BombTorizoMovement.WalkVelocity(step.TableOffset)));
+        state.Velocity = state.Velocity.WithX(SignedEightEight.FromSignedRaw(BombTorizoMovement.WalkVelocity(step.Step)));
         int displacement = SixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {

@@ -21,10 +21,12 @@ internal static class BombTorizoMovementDefinitionsVerification
         const int normalWalkAddress = 0xaac4bd;
         const int facelessWalkAddress = 0xaac532;
 
-        for (ushort tableOffset = 0; tableOffset < 32; tableOffset += 2)
+        // The cartridge's tables hold one word per step; the eight vertical words repeat for both facings.
+        for (int step = 0; step < BombTorizoMovement.PostureStepCount; step++)
         {
+            int tableOffset = step * 2;
             Offset16<RoomPixels> displacement =
-                BombTorizoMovement.Posture(tableOffset);
+                BombTorizoMovement.Posture(step);
             int wrappedYOffset = tableOffset & 0x000f;
 
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((standingXAddress + tableOffset))),
@@ -41,52 +43,53 @@ internal static class BombTorizoMovementDefinitionsVerification
                 $"Bomb Torizo sitting Y offset ${tableOffset:X2}");
         }
 
-        for (ushort tableOffset = 0; tableOffset < 40; tableOffset += 2)
+        for (int step = 0; step < BombTorizoMovement.WalkStepCount; step++)
         {
-            ushort velocity = BombTorizoMovement.WalkVelocity(tableOffset);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((normalWalkAddress + tableOffset)), velocity,
-                $"Bomb Torizo normal walk velocity ${tableOffset:X2}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((facelessWalkAddress + tableOffset)), velocity,
-                $"Bomb Torizo faceless walk velocity ${tableOffset:X2}");
+            int tableOffset = step * 2;
+            int velocity = BombTorizoMovement.WalkVelocity(step);
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((normalWalkAddress + tableOffset))), velocity,
+                $"Bomb Torizo normal walk velocity step {step}");
+            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((facelessWalkAddress + tableOffset))), velocity,
+                $"Bomb Torizo faceless walk velocity step {step}");
         }
 
         AssertThrows<InvalidDataException>(
-            () => BombTorizoMovement.Posture(1),
-            "Bomb Torizo odd posture offset");
+            () => BombTorizoMovement.Posture(-1),
+            "Bomb Torizo negative posture step");
         AssertThrows<InvalidDataException>(
-            () => BombTorizoMovement.Posture(32),
-            "Bomb Torizo posture offset outside table");
+            () => BombTorizoMovement.Posture(BombTorizoMovement.PostureStepCount),
+            "Bomb Torizo posture step outside table");
         AssertThrows<InvalidDataException>(
-            () => BombTorizoMovement.WalkVelocity(1),
-            "Bomb Torizo odd walk offset");
+            () => BombTorizoMovement.WalkVelocity(-1),
+            "Bomb Torizo negative walk step");
         AssertThrows<InvalidDataException>(
-            () => BombTorizoMovement.WalkVelocity(40),
-            "Bomb Torizo walk offset outside table");
+            () => BombTorizoMovement.WalkVelocity(BombTorizoMovement.WalkStepCount),
+            "Bomb Torizo walk step outside table");
 
 
-        for (ushort tableOffset = 0; tableOffset < 32; tableOffset += 2)
+        for (int step = 0; step < BombTorizoMovement.PostureStepCount; step++)
         foreach (bool subtract in new[] { false, true })
         {
             Offset16<RoomPixels> expected =
-                BombTorizoMovement.Posture(tableOffset);
+                BombTorizoMovement.Posture(step);
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
 
-            BombTorizoBehavior.ApplyBombTorizoMapOffset(slot, tableOffset, subtract ? BombTorizoPostureMove.SitDown : BombTorizoPostureMove.StandUp);
+            BombTorizoBehavior.ApplyBombTorizoPosture(slot, step, subtract ? BombTorizoPostureMove.SitDown : BombTorizoPostureMove.StandUp);
             int sign = subtract ? -1 : 1;
             AssertEqual(unchecked((ushort)(1000 + sign * expected.X)), slot.Position.X.Whole,
-                $"Bomb Torizo posture X ${tableOffset:X2} subtract {subtract}");
+                $"Bomb Torizo posture X step {step} subtract {subtract}");
             AssertEqual(unchecked((ushort)(500 + sign * expected.Y)), slot.Position.Y.Whole,
-                $"Bomb Torizo posture Y ${tableOffset:X2} subtract {subtract}");
+                $"Bomb Torizo posture Y step {step} subtract {subtract}");
         }
 
         var guarded = NewBombTorizoMovementReadGuard(rom);
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new RoomTerrainBlock[4096], new RoomBlockBehavior[4096], new RoomBlockAppearance[4096]));
 
-        for (ushort tableOffset = 0; tableOffset < 40; tableOffset += 2)
+        for (int step = 0; step < BombTorizoMovement.WalkStepCount; step++)
         {
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
@@ -94,13 +97,13 @@ internal static class BombTorizoMovementDefinitionsVerification
                 Radius = new(8, 8),
             };
             var state = new TorizoEnemyState(slot, isGolden: false);
-            var next = enemies.BombTorizoBehavior.Choices.ProcessBombTorizoWalkInstruction(slot, state, null, level, new TorizoWalkStep { TableOffset = tableOffset, CollisionFacingRight = TorizoBodyProgram.FacingLeftTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightTurningRight });
+            var next = enemies.BombTorizoBehavior.Choices.ProcessBombTorizoWalkInstruction(slot, state, null, level, new TorizoWalkStep { Step = step, CollisionFacingRight = TorizoBodyProgram.FacingLeftTurningLeft, CollisionFacingLeft = TorizoBodyProgram.FacingRightTurningRight });
 
-            AssertEqual(BombTorizoMovement.WalkVelocity(tableOffset),
-                state.Velocity.X.RawValue,
-                $"Bomb Torizo walk consumer velocity ${tableOffset:X2}");
+            AssertEqual(BombTorizoMovement.WalkVelocity(step),
+                (int)state.Velocity.X.SignedRawValue,
+                $"Bomb Torizo walk consumer velocity step {step}");
             AssertTrue(next is null,
-                $"Bomb Torizo walk consumer runs on without a wall ${tableOffset:X2}");
+                $"Bomb Torizo walk consumer runs on without a wall step {step}");
         }
 
         Console.WriteLine(

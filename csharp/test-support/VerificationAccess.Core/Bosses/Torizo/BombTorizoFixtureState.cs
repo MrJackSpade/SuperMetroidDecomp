@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal static class BombTorizoFixtureState
 {
     /// <summary>
-    /// Binds a new Torizo state to <paramref name="torizo"/>, with the posture and low bits of the authored
+    /// Binds a new Torizo state to <paramref name="torizo"/>, with the posture latches of the authored
     /// <paramref name="parameter1"/> word.
     /// </summary>
     /// <returns>The bound state.</returns>
@@ -15,7 +15,6 @@ internal static class BombTorizoFixtureState
         var state = new TorizoEnemyState(torizo, isGolden)
         {
             Posture = TorizoParameterFlagWords.PostureOf(parameter1),
-            PostureParameterLowBits = TorizoParameterFlagWords.PostureLowBitsOf(parameter1),
         };
         behavior.Access.TorizoState = state;
         return state;

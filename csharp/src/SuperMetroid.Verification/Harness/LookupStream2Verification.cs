@@ -2230,8 +2230,8 @@ internal static class LookupStream2Verification
                 if (original.TileRow * 16 + original.TileColumn is < 0x160 or > 0x162) continue;
                 parts[index] = original with { OffsetX = original.OffsetX + 1 };
                 Check(Load());
-                for (ushort offset = 0; offset <= 38; offset++)
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalk.Velocity(offset), "Edited foot artwork does not change native walking words/windows");
+                for (int step = 0; step < GoldenTorizoWalk.StepCount; step++)
+                    AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaad59a + step * 2)), GoldenTorizoWalk.Velocity(step), "Edited foot artwork does not change the walking steps");
                 parts[index] = original;
                 edits++;
             }

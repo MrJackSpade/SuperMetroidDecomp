@@ -21,13 +21,13 @@ internal abstract record TorizoCue
 
     /// <summary>Stands Bomb Torizo up or sits it down, moving it by a movement-table entry.</summary>
     /// <param name="Kind">Which way the posture changes.</param>
-    /// <param name="MapOffset">The movement-table offset the posture change applies, from zero to 38.</param>
-    internal sealed record Posture(TorizoPostureKind Kind, int MapOffset) : TorizoCue;
+    /// <param name="Step">The posture step the change applies, one of <see cref="BombTorizoMovement.PostureStepCount"/> steps.</param>
+    internal sealed record Posture(TorizoPostureKind Kind, int Step) : TorizoCue;
 
     /// <summary>One walking step of a Torizo, read from its walking table.</summary>
     /// <param name="Kind">Which Torizo walks.</param>
-    /// <param name="TableOffset">The walking-table offset of the step, from zero to 38.</param>
-    internal sealed record Walk(TorizoWalkKind Kind, int TableOffset) : TorizoCue;
+    /// <param name="Step">The walking step, one of the walking Torizo's twenty steps.</param>
+    internal sealed record Walk(TorizoWalkKind Kind, int Step) : TorizoCue;
 
     /// <summary>Spawns a Torizo projectile with a spawn parameter.</summary>
     /// <param name="Kind">What the cue spawns.</param>

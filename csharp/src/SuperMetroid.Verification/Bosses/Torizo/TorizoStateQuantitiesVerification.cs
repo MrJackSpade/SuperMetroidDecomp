@@ -10,7 +10,7 @@ namespace SuperMetroid.Verification.Bosses.Torizo;
 /// <summary>
 /// Checks Torizo's widened state: the decision and space-jump counts wrap to zero past their largest value, the
 /// animation lock follows its cues, the jump acceleration changes only the vertical velocity, and the posture and
-/// behaviour cues keep the parameter words' other bits.
+/// behaviour cues replace or add only the latches they name.
 /// </summary>
 internal static class TorizoStateQuantitiesVerification
 {
@@ -50,15 +50,13 @@ internal static class TorizoStateQuantitiesVerification
         AssertEqual((short)-768, jump.X.SignedRawValue, "the jump acceleration leaves the horizontal velocity unchanged");
         AssertEqual((short)24, jump.Y.SignedRawValue, "the jump acceleration adds to the vertical velocity across zero");
 
-        const int lowParameterBits = 4660;
-        state.PostureParameterLowBits = lowParameterBits;
+        state.Posture = TorizoPostureFlags.TurningAround;
         Apply(TorizoCueKind.SteppedRightWithLeftFoot);
-        // The cartridge's parameter-1 posture bits: facing right $8000, the opposite leg forward $2000, turning $4000.
-        AssertEqual(lowParameterBits + 0xa000,
-            TorizoParameterWords.ToParameterWord(state.Posture, state.PostureParameterLowBits), "a stepping cue replaces the posture bits and keeps parameter 1's low bits");
+        AssertEqual(TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward, state.Posture,
+            "a stepping cue replaces all three posture latches");
         Apply(TorizoCueKind.SetTurningAround);
-        AssertEqual(lowParameterBits + 0xe000, TorizoParameterWords.ToParameterWord(state.Posture, state.PostureParameterLowBits),
-            "the turning cue adds its posture bit alone");
+        AssertEqual(TorizoPostureFlags.FacingRight | TorizoPostureFlags.OppositeLegForward | TorizoPostureFlags.TurningAround,
+            state.Posture, "the turning cue adds its posture latch alone");
 
         state.Behavior = TorizoBehaviorFlags.Stunned | TorizoBehaviorFlags.FaceBlownUp;
         Apply(TorizoCueKind.UnmarkStunned);
@@ -66,7 +64,7 @@ internal static class TorizoStateQuantitiesVerification
         Apply(TorizoCueKind.MarkFaceBlownUp);
         AssertEqual(TorizoBehaviorFlags.FaceBlownUp, state.Behavior, "setting a held latch leaves the word unchanged");
 
-        Console.WriteLine("Torizo state quantities: count wraps, animation lock, jump acceleration and parameter flag words pass.");
+        Console.WriteLine("Torizo state quantities: count wraps, animation lock, jump acceleration and posture and behaviour latches pass.");
     }
 
     /// <summary>Runs Torizo's state quantity checks.</summary>

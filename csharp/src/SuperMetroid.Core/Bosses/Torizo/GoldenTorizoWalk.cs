@@ -1,25 +1,25 @@
-using System.Buffers.Binary;
-
 namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>Golden Torizo's instruction-owned whole-pixel walking displacements.</summary>
+/// <summary>
+/// Golden Torizo's walking displacements, one per walking step: the first half of the steps walk left and the second
+/// half walk right, each advancing the body by its stride phase's planted-foot movement.
+/// </summary>
+/// <remarks>
+/// The cartridge's walking instruction reads a word table by a byte operand, so an odd operand would read a word
+/// straddling two entries. Every walking cue in Golden Torizo's programs carries an even operand (steps 0 to 19 here),
+/// so no retail path reaches a straddled read and none is reproduced (#1473).
+/// </remarks>
 public static class GoldenTorizoWalk
 {
-    /// <summary>$AA:D59A, walking instruction velocities: twenty signed words in left/right groups.</summary>
-    private static short Displacement(int index) =>
-        (short)((index < 10 ? -1 : 1) * GoldenTorizoStride.HorizontalAdvance(index % 10));
+    /// <summary>The number of walking steps: one left-walking and one right-walking step per stride phase.</summary>
+    public static int StepCount => GoldenTorizoStrideDefinitions.SupportFootXs.Length * 2;
 
-    /// <summary>Preserves complete byte-indexed word windows; normal instruction operands are even.</summary>
-    public static ushort Velocity(int byteOffset)
+    /// <summary>The signed whole-pixel displacement of a walking step.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="step"/> is not a walking step.</exception>
+    public static int Velocity(int step)
     {
-        if (byteOffset is < 0 or > 38) throw new ArgumentOutOfRangeException(nameof(byteOffset));
-        int value = unchecked((ushort)Displacement(byteOffset >> 1));
-        if ((byteOffset & 1) == 0)
-            return (ushort)value;
-        // An odd offset reads the little-endian word straddling two table words.
-        Span<byte> table = stackalloc byte[2 * sizeof(ushort)];
-        BinaryPrimitives.WriteUInt16LittleEndian(table, (ushort)value);
-        BinaryPrimitives.WriteUInt16LittleEndian(table[sizeof(ushort)..], unchecked((ushort)Displacement((byteOffset >> 1) + 1)));
-        return BinaryPrimitives.ReadUInt16LittleEndian(table[1..]);
+        if ((uint)step >= (uint)StepCount) throw new ArgumentOutOfRangeException(nameof(step));
+        int phases = GoldenTorizoStrideDefinitions.SupportFootXs.Length;
+        return (step < phases ? -1 : 1) * GoldenTorizoStride.HorizontalAdvance(step % phases);
     }
 }

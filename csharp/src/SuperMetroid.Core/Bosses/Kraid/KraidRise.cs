@@ -25,9 +25,9 @@ internal sealed class KraidRise
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Provides the native body and seven part slots.</summary>
+    /// <summary>Provides the body and seven part slots.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Applies Kraid palettes, background tiles, and OAM presentation.</summary>
+    /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Coordinates Zebetite behavior registered alongside Kraid's room actors.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
@@ -60,7 +60,7 @@ internal sealed class KraidRise
         if (body.SlotIndex != 0)
         {
             throw new InvalidDataException(
-                $"Kraid body requires native slot zero, not slot {body.SlotIndex}.");
+                $"Kraid body requires the first enemy slot, not slot {body.SlotIndex}.");
         }
 
         _access.Kraid = new KraidEnemyState();
@@ -68,7 +68,7 @@ internal sealed class KraidRise
         KraidEncounterAccess.AttachKraidPart(body, state);
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
         {
-            // `$A7:A959` installs the dead-room BG palette before the shared part initializer
+            // The defeated-room initializer installs the dead-room background palette before the shared part initializer
             // marks every physical actor invisible/deleted/non-interactive. Its two calls
             // immediately before that initializer are not cosmetic bookkeeping: they
             // restore the defeated arena on every room load so the broken ceiling and
@@ -77,20 +77,20 @@ internal sealed class KraidRise
             state.BodyAppearance = KraidBodyAppearance.Hidden;
             ShowKraidRoomBackdrop();
             _frameResults.KraidPlms.AddRange(KraidPlmDefinitions.DefeatedRoom);
-            // The body owns `$A7:C715-$C815`: a defeated room's body starts at hiding his body layer's halves and
+            // The body owns the sinking: a defeated room's body starts at hiding his body layer's halves and
             // the death's four-update wait. The other seven physical records take their own dead initializer and
-            // remain deleted as on cartridge.
+            // remain deleted as in the original game.
             state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathHideUpperBody;
             return;
         }
 
-        // $A7:A9E4-A9E7.
+        // Kraid's fight tracks the camera like a boss.
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.BossTracking;
         ApplyKraidScrolls(layout: KraidScrollLayout.Initial);
         state.EjectionLimit = new Position16<RoomPixels>(0, 324);
         state.InitialHealth = body.Health;
 
-        // `$A7:AAC6` readies his body, whose halves rise, head, growth and death functions show on independently
+        // Kraid's initialization readies his body, whose halves rise, head, growth and death functions show on independently
         // timed updates.
         state.InitializeBodyLayer();
         state.HurtFrame = 0;
@@ -103,8 +103,8 @@ internal sealed class KraidRise
         state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(64);
         state.Parts[0].NextFunction = KraidAiFunction.RaiseKraidThroughFloor;
 
-        // Background palette three's target colors are written at CGRAM palette eleven in
-        // native target-palette storage. The software renderer exposes that buffer directly.
+        // Background palette three's target colors are written at palette eleven in
+        // target-palette storage. The software renderer exposes that buffer directly.
         LoadKraidColorBand(KraidPaletteSource.InitialTarget, _presentation.BossColours().KraidSprites);
         _earthquake.EarthquakeType = 5;
     }
@@ -134,7 +134,7 @@ internal sealed class KraidRise
             ? KraidBodyAppearance.InFrontOfSprites
             : throw new InvalidOperationException($"Kraid's growth reached a body that appears {state.BodyAppearance}.");
 
-    /// <summary>Copies one Kraid palette source band to its CGRAM destination.</summary>
+    /// <summary>Copies one Kraid palette source band to its colour run.</summary>
     internal void LoadKraidColorBand(KraidPaletteSource source, ColourRun destination)
     {
         for (int color = 0; color < KraidPalettes.BandColors; color++)
@@ -205,10 +205,10 @@ internal sealed class KraidRise
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowFadeInRoomBackground;
                 // The original game clears the value it kept the ceiling rocks in, which is the function timer again.
                 state.Parts[body.SlotIndex].FunctionTimer = WrappingCountdown.Start(0);
-                // $A7:ADB0 DrawKraidsRoomBackground zeroes the shared numerator.
+                // DrawKraidsRoomBackground zeroes the shared numerator.
                 _presentation.GradualColorChange.Reset();
-                // `$A7:AD9A` queues this character upload on the same frame that it
-                // initializes palette-six fading. Without it, BG1's authored repeating
+                // The background redraw queues this character upload on the same frame that it
+                // initializes palette-six fading. Without it, the foreground's authored repeating
                 // room-background blocks decode an uninitialized character as transparent,
                 // exposing the filler rectangle of Kraid's body layer above his head.
                 ShowKraidRoomBackdrop();
@@ -317,7 +317,7 @@ internal sealed class KraidRise
         rock.StartAnimation(new KraidRockAnimation(kind == RoomEnemyProjectileKind.KraidRisingRockRight
             ? KraidRockProgram.RisingRightPose
             : KraidRockProgram.SharedPose));
-        // $86:9D17 tests bit zero: clear complements the offset to the left.
+        // The rock initializer tests bit zero: clear complements the offset to the left.
         int randomOffset = random & 63;
         if ((random & 1) == 0)
             randomOffset = CoordinateAxis.AsSigned(~randomOffset);
@@ -397,9 +397,9 @@ internal sealed class KraidRise
                 if (CoordinateAxis.Difference(body.Position.Y.Whole, 457) < 0)
                 {
                     body.Position = body.Position.WithWholeX(176);
-                    // `$C97B` does not leave execution at setup routine `$ADE9`.
-                    // That JSR immediately installs `$AEA4`, seeds the random thinking
-                    // timer and selects roar list entry `$96DA` for the first attack.
+                    // The rise's last step does not leave execution at the fight setup.
+                    // That setup immediately installs the thinking function, seeds the random thinking
+                    // timer and selects the roar list for the first attack.
                     state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
                     _head.SetupKraidFirstPhaseThinking(body, state);
 
@@ -470,8 +470,8 @@ internal sealed class KraidRise
 
     /// <summary>
     /// Ports <c>RestrictSamusXPositionToFirstScreen</c>. It writes the integer X
-    /// and previous X words only, so the camera's $90:95A0 compare sees Samus's subsequent
-    /// movement away from $100 as a scroll.
+    /// and previous X words only, so the camera's horizontal follow sees Samus's subsequent
+    /// movement away from 256 as a scroll.
     /// </summary>
     private static void RestrictSamusToKraidFirstScreen(SamusState? samus)
     {
@@ -482,7 +482,7 @@ internal sealed class KraidRise
         }
     }
 
-    /// <summary>Adds native signed vertical motion to the body position with fixed-point wraparound.</summary>
+    /// <summary>Adds signed vertical motion to the body position with fixed-point wraparound.</summary>
     private static void AddSignedKraidVerticalDisplacement(
         RoomEnemySlot body,
         int displacement)

@@ -7,14 +7,14 @@ internal readonly record struct BotwoonHeadProgram(BotwoonHeadProgramKind Kind, 
     internal static BotwoonHeadProgram Hidden => new(BotwoonHeadProgramKind.Hidden, BotwoonFacing.Up);
 
     /// <summary>
-    /// The visible moving head for a cartridge byte angle: its octant selects one of the eight
+    /// The visible moving head for a byte angle: its octant selects one of the eight
     /// closed-mouth programs.
     /// </summary>
     internal static BotwoonHeadProgram MovingToward(Bearing bearing) =>
         new(BotwoonHeadProgramKind.Moving, BotwoonAnimations.FacingOfOctant(bearing.RawValue >> 5));
 
     /// <summary>
-    /// The spitting head for a cartridge byte angle, biased half an octant so Samus is aimed at the
+    /// The spitting head for a byte angle, biased half an octant so Samus is aimed at the
     /// nearest octant.
     /// </summary>
     internal static BotwoonHeadProgram SpittingToward(Bearing bearing) =>

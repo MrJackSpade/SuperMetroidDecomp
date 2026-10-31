@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's encounter-wide state and the values the cartridge keeps in the body's common
+/// Draygon's encounter-wide state and the values the game keeps in the body's common
 /// record, which are emptied with the record when the body is killed (<see cref="ClearWithRecord"/>). The four visible
 /// enemy records remain physical <see cref="RoomEnemySlot"/> instances; the eye's record values live in its own
 /// <see cref="DraygonEyeState"/>.
@@ -15,9 +15,9 @@ public sealed class DraygonEnemyState
     /// <summary>Anchors the encounter-wide state to Draygon's physical body slot.</summary>
     internal DraygonEnemyState(RoomEnemySlot body) => Body = body;
 
-    /// <summary>Native enemy slot $0000, which owns encounter movement, health, and the body-function dispatcher.</summary>
+    /// <summary>The first enemy slot, which owns encounter movement, health, and the body-function dispatcher.</summary>
     public RoomEnemySlot Body { get; }
-    /// <summary>Where each part's typed program resumes, keyed by the part's record; it replaces the native instruction pointers.</summary>
+    /// <summary>Where each part's typed program resumes, keyed by the part's record; it replaces the instruction pointers.</summary>
     private readonly Dictionary<RoomEnemySlot, AnimationProgramCursor<DraygonProgram>> _cursors = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>Where <paramref name="part"/>'s program resumes.</summary>
@@ -29,11 +29,11 @@ public sealed class DraygonEnemyState
     /// <summary>Sets where <paramref name="part"/>'s program resumes.</summary>
     internal void SetCursor(RoomEnemySlot part, AnimationProgramCursor<DraygonProgram> cursor) => _cursors[Ensure.NotNull(part)] = cursor;
 
-    /// <summary>Native enemy slot $0040, installed by the eye initializer; tracks Samus using coordinates copied from the body.</summary>
+    /// <summary>The second enemy slot, installed by the eye initializer; tracks Samus using coordinates copied from the body.</summary>
     public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Draygon's eye part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>Native enemy slot $0080, installed by the tail initializer; its instruction lists drive whips and the final release handshake.</summary>
+    /// <summary>The third enemy slot, installed by the tail initializer; its animation scripts drive whips and the final release handshake.</summary>
     public RoomEnemySlot Tail { get => field ?? throw new InvalidOperationException("Draygon's tail part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>Native enemy slot $00C0, installed by the arms initializer; its animation follows the body's authoritative coordinates.</summary>
+    /// <summary>The fourth enemy slot, installed by the arms initializer; its animation follows the body's authoritative coordinates.</summary>
     public RoomEnemySlot Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
 
 
@@ -68,8 +68,8 @@ public sealed class DraygonEnemyState
     public int IntroDanceStep { get; internal set; }
 
     /// <summary>
-    /// Signed pixel offset written by the tail-whip instruction $A5:9E0A and added to the body's
-    /// BG2 scroll words, displacing the body graphics without moving the enemy records.
+    /// Signed pixel offset written by the tail-whip step and added to the body's
+    /// layer scroll, displacing the body graphics without moving the enemy records.
     /// </summary>
     public Offset16<BackgroundPixels> BodyGraphicsDisplacement { get; internal set; }
 
@@ -92,7 +92,7 @@ public sealed class DraygonEnemyState
     /// <summary>How many heights the swoop path was built with, not counting the starting height after them.</summary>
     public int SwoopPathEntryCount { get; internal set; }
 
-    /// <summary>Native long facing word: zero left, one right.</summary>
+    /// <summary>Long facing word: zero left, one right.</summary>
     public bool FacingRight { get; internal set; }
 
     /// <summary>Number of physical object-$18 breath bubbles admitted during a swoop.</summary>
@@ -105,7 +105,7 @@ public sealed class DraygonEnemyState
     /// </summary>
     public RotationAngle GoopYOscillationAngle { get; internal set; }
 
-    /// <summary>Native long count initialized to sixteen when a firing pass begins.</summary>
+    /// <summary>Long count initialized to sixteen when a firing pass begins.</summary>
     public WrappingCountdown GoopCounter { get; internal set; }
 
     /// <summary>Count of wall-turret projectiles admitted to the shared pool; disabled cannons and exhausted allocations do not increment it.</summary>
@@ -121,8 +121,8 @@ public sealed class DraygonEnemyState
     public SignedSixteenSixteen SpiralXRadius { get; internal set; }
 
     /// <summary>
-    /// Native center point <c>$7E:7810/$7812</c> of the carry spiral, initialized to ($100, $180).
-    /// The Y axis carries its fractional companion word: retail subtracts <c>$0000.4000</c> each
+    /// Center point of the carry spiral, initialized to (256, 384).
+    /// The Y axis carries its fractional part: retail subtracts a quarter pixel each
     /// spiral frame, lifting the center by one pixel every four. X has no fractional word and
     /// stays whole.
     /// </summary>
@@ -139,19 +139,19 @@ public sealed class DraygonEnemyState
     /// </summary>
     public RotationAngle SpiralAngleDelta { get; internal set; }
 
-    /// <summary>Native <c>$7E:7818</c> countdown for an incidental 64-frame tail whip.</summary>
+    /// <summary>Countdown for an incidental 64-frame tail whip.</summary>
     public WrappingCountdown TailWhipTimer { get; internal set; }
 
     /// <summary>Debugger-visible proof that the physical chase reached its grab window.</summary>
     public int SuccessfulGrabs { get; internal set; }
 
-    /// <summary>Number of ROM tail-hit opcodes that actually damaged grabbed Samus.</summary>
+    /// <summary>Number of tail-hit steps that actually damaged grabbed Samus.</summary>
     public int TailWhipHits { get; internal set; }
 
 
     /// <summary>
-    /// The installed health-palette band 0-7 (native <c>$7E:781C</c> holds twice this, since the threshold table is
-    /// word-addressed); null until a band is installed.
+    /// The installed health-palette band 0-7 (the game stores twice this, since the threshold table is
+    /// indexed by word); null until a band is installed.
     /// </summary>
     public int? HealthPaletteBand { get; internal set; }
 
@@ -169,7 +169,7 @@ public sealed class DraygonEnemyState
     /// <summary>True after terminal burial invokes the persistent area-boss-defeated callback; prevents repeating that persistence write.</summary>
     public bool BossDefeatPersisted { get; internal set; }
 
-    /// <summary>Set when the init routine schedules Evir tiles for VRAM $6D00.</summary>
+    /// <summary>Set when the init routine schedules the intro Evirs' tiles.</summary>
     public bool IntroEvirGraphicsLoaded { get; internal set; }
 
     /// <summary>Number of physical object-$3B intro Evirs admitted to the shared pool.</summary>
@@ -179,12 +179,12 @@ public sealed class DraygonEnemyState
     public int TurretCadenceChecks { get; internal set; }
 
     /// <summary>
-    /// Exact extra-enemy WRAM words disabled by Draygon setup or a destroyed room PLM.
-    /// This is the shared storage observed by bank $A5's firing selector.
+    /// The wall cannons disabled by Draygon setup or a destroyed room PLM.
+    /// This is the shared state Draygon's firing selector observes.
     /// </summary>
     internal HashSet<DraygonWallCannon> DisabledCannons { get; } = [];
 
-    /// <summary>Bank-$A5 body-function address; body main AI dispatches this before copying coordinates to the three parts.</summary>
+    /// <summary>The body function; body main AI dispatches this before copying coordinates to the three parts.</summary>
     public DraygonAiFunction Function { get; internal set; }
 
     /// <summary>
@@ -218,7 +218,7 @@ public sealed class DraygonEnemyState
     /// <summary>The unsigned 16.16 horizontal speed the swoop and goop passes add to or subtract from the body's X.</summary>
     internal uint SwoopVelocity { get; set; }
 
-    /// <summary>Empties the values the cartridge keeps in the body's common record.</summary>
+    /// <summary>Empties the values the game keeps in the body's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = DraygonAiFunction.None;

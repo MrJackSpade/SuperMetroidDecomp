@@ -99,14 +99,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.DeathSequenceIndex == CrocomireDeathPhase.Fighting)
         {
             BridgeCollapse.HandleCrocomireBridgeThreshold(state);
-            // The native word write runs even on the frame that starts bridge collapse.
+            // The word write runs even on the frame that starts bridge collapse.
             // Later death phases retain these zones until the skeleton enters the river.
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen,
                 samus is not null && CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireCameraDefinitions.BridgeVisibleSamusX) >= 0
                     ? RoomScrollState.RedBoundary : RoomScrollState.Blue);
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.Blue);
-            // Main state zero always finishes through $A4:8B5B, including the frame in
-            // which $8D5E changes the death index to two.
+            // Main state zero always finishes through the body-layer placement, including the frame in
+            // which the bridge approach changes the death index to two.
             BodyLayer.PlaceCrocomireBodyLayer(state);
         }
         else

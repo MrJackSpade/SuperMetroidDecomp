@@ -31,17 +31,17 @@ internal sealed class KraidEncounterAccess
     internal void RequestKraidMusic(MusicRequest request) =>
         _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Kraid, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Rejects a body part loaded outside its cartridge-defined slot index.</summary>
+    /// <summary>Rejects a body part loaded outside its defined slot index.</summary>
     internal static void EnsureKraidSlot(RoomEnemySlot slot, int expectedSlot, string part)
     {
         if (slot.SlotIndex != expectedSlot)
         {
             throw new InvalidDataException(
-                $"Kraid {part} requires native slot {expectedSlot}, not {slot.SlotIndex}.");
+                $"Kraid {part} requires enemy slot {expectedSlot}, not {slot.SlotIndex}.");
         }
     }
 
-    /// <summary>Ports `$A7:A943`: preserve raw upper flags while installing `$0700`.</summary>
+    /// <summary>Marks a Kraid part dead: preserves its upper flags while installing the dead properties.</summary>
     internal static void MarkKraidPartDead(RoomEnemySlot slot) =>
         slot.Properties = slot.Properties.Replace(
             EnemyProperties.SolidToSamus |
@@ -54,7 +54,7 @@ internal sealed class KraidEncounterAccess
                 EnemyProperties.Deleted |
                 EnemyProperties.Invisible);
 
-    /// <summary>Installs <paramref name="program"/> as the part's program, as a native list-pointer store does; the caller sets the timer.</summary>
+    /// <summary>Installs <paramref name="program"/> as the part's program, as a list-pointer store does; the caller sets the timer.</summary>
     internal void SetKraidPartProgram(RoomEnemySlot part, KraidPartProgram program) =>
         RequireKraidState(part).Parts[part.SlotIndex].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(program);
 

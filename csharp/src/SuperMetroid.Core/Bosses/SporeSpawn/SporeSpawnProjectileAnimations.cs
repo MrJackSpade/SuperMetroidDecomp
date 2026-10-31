@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnProjectileProgram;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spore Spawn's typed projectile programs (#641), in place of their bank-$86 lists.</summary>
+/// <summary>Spore Spawn's typed projectile programs (#641), in place of their lists.</summary>
 internal static class SporeSpawnProjectileAnimations
 {
     /// <summary>The emitter's release poses' dwells.</summary>
@@ -63,7 +63,7 @@ internal static class SporeSpawnProjectileAnimations
     private static AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Cue(SporeSpawnProjectileCue cue) =>
         AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Publish(cue);
 
-    /// <summary>Holds the last frame, as the native sleep and deletion do.</summary>
+    /// <summary>Holds the last frame, as the script's sleep and deletion do.</summary>
     private static AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue> Hold =>
         AnimationProgramStep<SporeSpawnProjectileProgram, SporeSpawnProjectileFrame, SporeSpawnProjectileCue>.Hold;
 }

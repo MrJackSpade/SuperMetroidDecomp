@@ -1,15 +1,15 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Kraid's part functions, held in each part's <c>$0FA8</c> word and the <c>$7800</c> next-function alias. Each
-/// member names the bank-$A7 routine it ports; the word stores the member, not the routine's address. Members are
-/// declared in the cartridge's address order, which Kraid's death tests compare, and start at one.
+/// Kraid's part functions, held in each part's function and its next-function alias. Each
+/// member names the routine it ports; the part stores the member, not the routine. Members are
+/// declared in the game's authored order, which Kraid's death tests compare, and start at one.
 /// </summary>
 public enum KraidAiFunction
 {
     /// <summary>A cleared record holds no function.</summary>
     None = 0,
-    /// <summary>$A7:804B RTS: an explicit no-op function retaining the part slot.</summary>
+    /// <summary>An explicit no-op function retaining the part slot.</summary>
     NoOperation = 1,
     /// <summary>Breaks ceiling platforms into their authored room mutations as Kraid grows.</summary>
     GrowBreakCeilingPlatforms,
@@ -55,13 +55,13 @@ public enum KraidAiFunction
     ProcessHeadInstructionAndTimer,
     /// <summary>Counts the second-phase foot's think delay and selects a walking target.</summary>
     FootSecondPhaseThinking,
-    /// <summary>The native backward-walk entry moving the body toward its rightward target.</summary>
+    /// <summary>The backward-walk entry moving the body toward its rightward target.</summary>
     FootSecondPhaseWalkingRight,
     /// <summary>Walks to the second-phase starting point before its setup delay.</summary>
     FootSecondPhaseWalkToStart,
     /// <summary>Initializes second-phase foot thinking after the starting-point walk.</summary>
     FootSecondPhaseInitialize,
-    /// <summary>The native forward-walk entry moving the body toward its leftward target.</summary>
+    /// <summary>The forward-walk entry moving the body toward its leftward target.</summary>
     FootSecondPhaseWalkingLeft,
     /// <summary>Runs the open-mouth head stream, spat-rock cadence, and reopen continuation.</summary>
     MainAttackWithMouthOpen,

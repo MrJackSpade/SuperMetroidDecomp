@@ -87,8 +87,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.SporeSpawn, sound, SoundRequestPriority.Normal);
 
     /// <summary>
-    /// Runs the global scrolling-finished callback installed by live Spore Spawn at
-    /// <c>$A5:EAD7-$EADA</c>. Bank $90 invokes it after both ordinary camera axes have
+    /// Runs the global scrolling-finished callback installed by live Spore Spawn.
+    /// The camera invokes it after both ordinary camera axes have
     /// finished and before background streaming observes the final layer-one words.
     /// </summary>
     /// <param name="camera">Live room camera whose layer-one Y is raised to the arena minimum of 464 room pixels when the hook is active.</param>
@@ -99,8 +99,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (SporeSpawn?.ScrollClampHookActive != true)
             return;
 
-        // `$90:9589` loads $01D0, compares it with layer1_y_pos, and returns on BCC.
-        // Equality deliberately performs the harmless native store; a larger camera Y is
+        // The hook loads the arena minimum of 464, compares it with layer1_y_pos, and returns when it is below.
+        // Equality deliberately performs the harmless store; a larger camera Y is
         // already below the arena ceiling and is therefore left untouched.
         if (SporeSpawnScrollingHooks.FightMinimumLayerOneY < camera.PixelPosition.Y)
             return;
@@ -133,8 +133,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         SporeSpawn = state;
 
-        // Native writes these sixteen colors to target-palette row F. Room loading currently
-        // presents completed fades directly, so install the identical final words in CGRAM
+        // Writes these sixteen colors to target-palette row F. Room loading currently
+        // presents completed fades directly, so install the identical final colours now
         // while retaining the independent target copy above.
         for (int color = 0; color < SporeSpawnColorDefinitions.ColorsPerFrame; color++)
         {
@@ -162,7 +162,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialAlive);
         body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 128);
 
-        // `flag_process_all_enemies = FFFF` is a global bank-$A0 activity override, not an
+        // `flag_process_all_enemies = FFFF` is a global activity override, not an
         // enemy property. Preserve that distinction so all room actors use the same scan.
         _frameContext.RequestFullSweep();
         state.ScrollClampHookActive = true;
@@ -403,7 +403,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         SporeSpawnEnemyState state = RequireSporeSpawnState(body);
         AnimationProgramCursor<SporeSpawnBodyProgram> cursor = state.BodyProgram;
-        // The open-pulse and death-burst repeats count the body's timer word, as the native timer commands do.
+        // The open-pulse and death-burst repeats count the body's timer word, as the timer commands do.
         EnemyProgramAnimation.Run(body, SporeSpawnAnimations.Programs, ref cursor, SporeSpawnFrameDefinitions.ShownFrames.Of,
             (cue, continuation) =>
             {
@@ -437,7 +437,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
                 {
                     // The extended collision walker has already selected the vulnerable
-                    // core. $ED5A rejects this projectile family before common damage.
+                    // core. The core's shot reaction rejects this projectile family before common damage.
                     c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                     return true;
                 }
@@ -470,7 +470,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
     /// <summary>
     /// Whether the vulnerable core accepts the projectile (<c>SporeSpawn_Shot</c>): a charged beam, or any family but an
-    /// uncharged beam and a missile explosion. The cartridge tests the family nibble's low three bits, which only those
+    /// uncharged beam and a missile explosion. The original game tests the family nibble's low three bits, which only those
     /// two families (nibbles 0 and 8) leave clear.
     /// </summary>
     private static bool SporeSpawnAcceptsProjectile(SamusProjectileType projectileType) =>
@@ -485,7 +485,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Function = SporeSpawnFunction.Moving;
 
-            // Below 400 health the native code doubles angular speed while preserving its
+            // Below 400 health the code doubles angular speed while preserving its
             // current sign. At exactly 400 it leaves the existing delta untouched.
             if (body.Health < 400)
             {
@@ -493,7 +493,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             // Only the first damaging hit during an open phase reverses direction and
-            // closes the head. Opcode $E771 clears this guard when the list permits it.
+            // closes the head. The open-phase step clears this guard when the list permits it.
             if (!state.Damaged)
             {
                 state.AngleDelta = -state.AngleDelta;
@@ -535,10 +535,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.InvincibilityTimer = WrappingCountdown.Start(0);
         body.FlashTimer = WrappingCountdown.Start(0);
         body.AiStates = EnemyAiStates.None;
-        // Literal property $0400 removes the dead body from the interactive-enemy list.
+        // The intangible property removes the dead body from the interactive-enemy list.
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
-        // The 65C816 loop clears native projectile indexes $1A..$00: physical slots 13..0.
+        // The 65C816 loop clears projectile indexes $1A..$00: physical slots 13..0.
         // Slots 14..17 are the stalk and deliberately survive for the death animation.
         for (int projectileSlot = 0; projectileSlot <= 13; projectileSlot++)
             _projectiles.EnemyProjectiles[projectileSlot].Clear();
@@ -613,7 +613,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Loads sprite, level, and background death colors into CGRAM or fade targets.</summary>
+    /// <summary>Loads sprite, level, and background death colors into the current colours or fade targets.</summary>
     internal void LoadSporeSpawnDeathPalette(int step, SporeSpawnPaletteCopy copy)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
@@ -699,7 +699,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SpriteGraphics SporeSpawnGraphicsIndex =
         SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.SporeSpawnBody));
 
-    /// <summary>Ports projectile definition $86:DE6C and initializer $86:DCA3.</summary>
+    /// <summary>Spawns Spore Spawn's stalk projectile and runs its initializer.</summary>
     internal void SpawnSporeSpawnStalk(RoomEnemySlot body, int spawnArgument)
     {
         if (spawnArgument is < 0 or > 3)
@@ -719,7 +719,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             SporeSpawnProjectiles.StalkYOffset(spawnArgument));
     }
 
-    /// <summary>Ports projectile definition $86:DE88 and initializer $86:DCD4.</summary>
+    /// <summary>Spawns Spore Spawn's spore-spawner projectile and runs its initializer.</summary>
     internal void SpawnSporeSpawnSpawner(RoomEnemySlot body, int spawnArgument)
     {
         if (spawnArgument is < 0 or > 3)
@@ -738,7 +738,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spawner.State = new SporeSpawnEmitterState();
     }
 
-    /// <summary>Ports projectile definition $86:DE7A and initializer $86:DC8D.</summary>
+    /// <summary>Spawns one spore projectile and runs its initializer.</summary>
     internal void SpawnSporeSpawnSpore(Position16<RoomPixels> position)
     {
         RoomEnemyProjectileSlot? spore = _projectiles.AllocateEnemyProjectile();
@@ -793,16 +793,16 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         emitter.ReleaseWait = emitter.ReleaseWait.Decrement().Remaining;
     }
 
-    /// <summary>Ports projectile instruction $86:DC5A's complete property-word replace.</summary>
+    /// <summary>Runs the spore's impact step, which replaces its whole property set.</summary>
     internal static void SetSporeSpawnImpactProperties(RoomEnemyProjectileSlot spore)
     {
         if (spore.Kind != RoomEnemyProjectileKind.SporeSpawnSpore)
         {
             throw new InvalidOperationException(
-                $"Projectile {spore.Kind} reached Spore Spawn property opcode $DC5A.");
+                $"Projectile {spore.Kind} reached Spore Spawn's spore impact step.");
         }
 
-        // Literal $3000: damage zero, high priority, Samus collision enabled, projectile
+        // The new properties: damage zero, high priority, Samus collision enabled, projectile
         // collision disabled, and deletion on contact. Priority is not split by this host's
         // draw queue, but every collision bit is retained explicitly.
         spore.Damage = 0;
@@ -811,13 +811,13 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         spore.BlocksSamusProjectiles = false;
     }
 
-    /// <summary>Ports projectile instruction $86:DC61.</summary>
+    /// <summary>Runs the spore's drop-request step.</summary>
     internal void RequestSporeSpawnSporeDrop(RoomEnemyProjectileSlot spore)
     {
         if (spore.Kind != RoomEnemyProjectileKind.SporeSpawnSpore)
         {
             throw new InvalidOperationException(
-                $"Projectile {spore.Kind} reached Spore Spawn drop opcode $DC61.");
+                $"Projectile {spore.Kind} reached Spore Spawn's spore drop step.");
         }
         SporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
@@ -844,7 +844,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             SporeSpawnCollision.IsFrame(enemy.Frame)))
             return null;
 
-        // These twelve OAM frames are selected by Spore Spawn. Old visual
+        // These twelve frames are selected by Spore Spawn. Old visual
         // overrides may carry Draygon-prefixed keys, but every rectangle
         // and callback comes from the compiled gameplay catalog.
         foreach (EnemyCollisionComponent component in

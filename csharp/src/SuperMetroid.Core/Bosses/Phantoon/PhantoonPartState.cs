@@ -65,7 +65,7 @@ public sealed class PhantoonPartState
     /// <summary>The mouth's updates before its next casual flame.</summary>
     public WrappingCountdown CasualFlameHold { get; internal set; }
 
-    /// <summary>The body's figure-eight speed in whole path entries per update, as the cartridge stores it.</summary>
+    /// <summary>The body's figure-eight speed in whole path entries per update, as the original game stores it.</summary>
     public int SpeedWhole { get; internal set => field = InRecordRange(value); }
 
     /// <summary>Whether the eye's figure-eight runs the path backwards.</summary>
@@ -148,7 +148,7 @@ public sealed class PhantoonPartState
     public PhantoonWaveLength? WaveLength { get; internal set; }
 
     /// <summary>
-    /// The mouth's control of Phantoon's layer while Phantoon is not semi-transparent. The cartridge keeps it in the
+    /// The mouth's control of Phantoon's layer while Phantoon is not semi-transparent. The original game keeps it in the
     /// mouth's first parameter word and tests only its low byte; every part initialization overwrites the mouth's with
     /// <see cref="PhantoonLayerControl.Hidden"/> (a zero low byte) before the blending owner reads it, so the spawn
     /// parameter it replaces is never observed.
@@ -159,7 +159,7 @@ public sealed class PhantoonPartState
     public bool FlameRainRequested { get => _parameterTwo != 0; internal set => _parameterTwo = value ? 1 : 0; }
 
     /// <summary>
-    /// The tentacles' hit-reaction marker, one or two, which no reader consumes. The cartridge keeps
+    /// The tentacles' hit-reaction marker, one or two, which no reader consumes. The original game keeps
     /// <see cref="HurtFlashShown"/> in the same value, so setting the marker also clears that flag.
     /// </summary>
     public int HitReaction
@@ -188,7 +188,7 @@ public sealed class PhantoonPartState
         _parameterTwo = 0;
     }
 
-    /// <summary>Empties the values the cartridge keeps in the part's common record.</summary>
+    /// <summary>Empties the values the game keeps in the part's common record.</summary>
     internal void ClearWithRecord()
     {
         StartingFlameIndex = 0;

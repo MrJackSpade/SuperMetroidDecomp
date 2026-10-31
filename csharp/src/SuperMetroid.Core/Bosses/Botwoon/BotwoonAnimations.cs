@@ -4,7 +4,7 @@ using SegmentStep = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
-/// <summary>The typed animations that replace Botwoon's native instruction lists (#641).</summary>
+/// <summary>The typed animations that replace Botwoon's instruction lists (#641).</summary>
 internal static class BotwoonAnimations
 {
     /// <summary>Number of frames in a body link's cycle.</summary>
@@ -13,7 +13,7 @@ internal static class BotwoonAnimations
     /// <summary>Number of frames in the spit's cycle.</summary>
     internal const int SpitPhaseCount = 5;
 
-    /// <summary>Native clockwise octant order used by head and segment selectors.</summary>
+    /// <summary>Clockwise octant order used by head and segment selectors.</summary>
     private static readonly BotwoonFacing[] Octants =
     [
         BotwoonFacing.Up, BotwoonFacing.UpRight, BotwoonFacing.Right, BotwoonFacing.DownRight,
@@ -49,11 +49,11 @@ internal static class BotwoonAnimations
         }).Append(KeyValuePair.Create(BotwoonSegmentProgram.Hidden, StillSegment(new(BotwoonProjectileFrameKind.Hidden, BotwoonFacing.Up, 0))))
             .Append(KeyValuePair.Create(BotwoonSegmentProgram.Spit, SpitCycle())).ToDictionary());
 
-    /// <summary>The facing of cartridge angle octant <paramref name="octant"/>, zero (up) through seven, clockwise.</summary>
+    /// <summary>The facing of angle octant <paramref name="octant"/>, zero (up) through seven, clockwise.</summary>
     internal static BotwoonFacing FacingOfOctant(int octant) =>
         (uint)octant < (uint)Octants.Length
             ? Octants[octant]
-            : throw new ArgumentOutOfRangeException(nameof(octant), octant, "A cartridge angle octant is zero through seven.");
+            : throw new ArgumentOutOfRangeException(nameof(octant), octant, "An angle octant is zero through seven.");
 
     /// <summary>
     /// The head's collision half-extents facing <paramref name="facing"/>: tall vertically, wide
@@ -85,7 +85,7 @@ internal static class BotwoonAnimations
         HeadStep.Publish(BotwoonHeadCue.ApplyFacingRadius),
         HeadStep.Publish(BotwoonHeadCue.QueueSpitSound),
         HeadStep.Publish(BotwoonHeadCue.ReachSpitFrame),
-        // The cartridge holds the open mouth longer only when spitting left ($B3:93B9 is $19, the rest $10).
+        // The original game holds the open mouth longer only when spitting left (25 frames, the rest 16).
         HeadStep.Show(BotwoonHeadFrame.Open(facing), facing == BotwoonFacing.Left ? MouthOpenAfterSpitLeft : MouthOpenAfterSpit),
         HeadStep.Hold,
     ];

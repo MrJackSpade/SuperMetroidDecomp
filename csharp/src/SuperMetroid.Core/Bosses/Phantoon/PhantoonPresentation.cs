@@ -57,7 +57,7 @@ internal sealed class PhantoonPresentation
         state.Parts[eye.SlotIndex].FadeNumerator = numerator + 1;
     }
 
-    /// <summary>Interpolates one RGB5 color during Phantoon's fade using native channel rounding.</summary>
+    /// <summary>Interpolates one RGB5 color during Phantoon's fade using channel rounding.</summary>
     /// <param name="numerator">The fade's step, 0 through 65535.</param>
     /// <param name="denominator">The fade's step count, 0 through 65535.</param>
     /// <param name="current">The colour now shown.</param>
@@ -83,10 +83,10 @@ internal sealed class PhantoonPresentation
             return current;
         if (numerator - 1 == denominator)
             return target;
-        // $A7:DCF1 divides the absolute component delta in 8.8 fixed point,
+        // The fade step divides the absolute component delta in 8.8 fixed point,
         // then applies its sign before selecting the high byte. Integer division
         // of the signed delta both adds an extra fade step and rounds darkening
-        // in the wrong direction. The native divisor is an eight-bit register; the steps left are 1 through the
+        // in the wrong direction. The divisor is an eight-bit register; the steps left are 1 through the
         // denominator (at most 12), because the first and last steps return above, so it never wraps or reaches zero.
         int remainingSteps = denominator - numerator + 1;
         int quotient = EightEight.FromWhole(Math.Abs(target - current)) / remainingSteps;
@@ -131,7 +131,7 @@ internal sealed class PhantoonPresentation
         (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
             "Phantoon health palette requires installed artwork.")).ResolveHealth(healthBand, color);
 
-    /// <summary>Restarts a part's program with a one-tick timer, as a native list-pointer store does.</summary>
+    /// <summary>Restarts a part's program with a one-tick timer, as a list-pointer store does.</summary>
     internal static void InstallPhantoonProgram(
         PhantoonEnemyState state,
         RoomEnemySlot slot,

@@ -4,14 +4,14 @@ using TongueStep = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's typed tongue and projectile animations (#641), in place of their native lists.</summary>
+/// <summary>Crocomire's typed tongue and projectile animations (#641), in place of their lists.</summary>
 internal static class CrocomireAnimations
 {
     /// <summary>Frames in the mouth projectile's looping flight.</summary>
     internal const int MouthPhaseCount = 6;
     /// <summary>Frames in the shot projectile's explosion.</summary>
     internal const int ShotPhaseCount = 5;
-    /// <summary>The bridge and spike frames last the native maximum, so their loops never advance in play.</summary>
+    /// <summary>The bridge and spike frames last the maximum, so their loops never advance in play.</summary>
     private const int StillFrameDuration = 32767;
 
     /// <summary>The tongue's programs: the fight loop, the hidden tongue's bare sleep, and the melting loop.</summary>

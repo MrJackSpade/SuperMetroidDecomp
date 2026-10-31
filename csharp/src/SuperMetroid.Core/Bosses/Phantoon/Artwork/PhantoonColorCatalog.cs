@@ -22,13 +22,13 @@ public sealed class PhantoonColorCatalog
         selection = new(PhantoonColors.HealthEdits(healthBands), PhantoonColors.FadeOutEdits(fadeOut), PhantoonColors.PowerEdits(powerOn));
 
     /// <summary>
-    /// $A7:CB41..CC40 health targets, selected by $A7:DC0F. All healthy material
+    /// Phantoon's health targets, selected by the health-palette update. All healthy material
     /// shades and red-tinted bands calculate; supplied edits remain independent
     /// across every ink and band, including the healthy endpoints.
     /// </summary>
     public RgbColor ResolveHealth(int band, int color) => PhantoonColors.Health(selection.HealthEdits, band, color);
     /// <summary>
-    /// $A7:DBB1 fades every
+    /// The fade-out step fades every
     /// body palette component to black. Independent supplied target edits override it.
     /// </summary>
     public RgbColor ResolveFadeOut(int color) => PhantoonColors.FadeOut(selection.FadeOutEdits, color);

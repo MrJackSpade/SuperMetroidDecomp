@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// The callbacks of Kraid's six-byte sinking/death records; each member names the bank-$A7 routine it ports.
+/// The callbacks of Kraid's six-byte sinking/death records; each member names the routine it ports.
 /// </summary>
 public enum KraidSinkCallback
 {
     /// <summary>
-    /// <c>RTS_A7C6A6</c>. Rows that only clear another strip of his body
-    /// select this callback so the indirect JSR returns without spawning rocks or PLMs.
+    /// The empty callback. Rows that only clear another strip of his body
+    /// select this callback so it returns without spawning rocks or PLMs.
     /// </summary>
     NoOperation,
 

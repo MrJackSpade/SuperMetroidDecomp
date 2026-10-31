@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 /// </summary>
 public sealed class RoomPlmDraygonCannonVisualCatalog
 {
-    /// <summary>Canonical identity of the selected visual frames, excluding native mechanics.</summary>
+    /// <summary>Canonical identity of the selected visual frames, excluding gameplay mechanics.</summary>
     public string ContentIdentity => DraygonCannonArtwork.ContentIdentity(this);
 
     /// <summary>Owned edited appearances by canonical frame pointer; null retains compiled stock appearance.</summary>
@@ -24,9 +24,9 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
         customBlocks = new PlmVisualOverrides(entries, "Draygon cannon", DraygonCannonDraws.TryGetByVisualId,
             DraygonCannonDraws.All.Count());
 
-    /// <summary>Resolves a cannon block's selected appearance by projecting native run-local indices into the flattened authored frame.</summary>
+    /// <summary>Resolves a cannon block's selected appearance by projecting run-local indices into the flattened authored frame.</summary>
     /// <param name="draw">The draw whose appearance is resolved.</param>
-    /// <param name="runIndex">Zero-based ordinal of the frame's native draw run.</param>
+    /// <param name="runIndex">Zero-based ordinal of the frame's draw run.</param>
     /// <param name="blockIndex">Zero-based cell ordinal within that run, not a flattened entry index.</param>
     /// <returns>The selected block and mirroring, or visual bits from the compiled terrain block when unchanged.</returns>
     /// <exception cref="InvalidDataException">The draw is not a supported cannon frame.</exception>

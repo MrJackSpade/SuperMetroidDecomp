@@ -325,7 +325,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         slot.Family = new DraygonCannonPlmState(cannon);
         if (slot.Header == PlmHeaderId.DraygonCannonFacingRightDestroyed)
         {
-            // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
+            // The cannon setup only moves the original argument to PLM_Variable and seeds three.
             // Its list begins at the damage instruction, which owns the terrain mutation.
             slot.HitCounter = DraygonCannonDefinitions.HitsToDestroy;
             slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPrograms.DestroyProgram(orientation)));
@@ -364,7 +364,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     }
 
     /// <summary>
-    /// <c>$84:8ACD</c> on the cannon's hit counter: counts a hit and reports whether it destroys the cannon. The
+    /// The hit-count step on the cannon's hit counter: counts a hit and reports whether it destroys the cannon. The
     /// destroying hit marks the counter spent and removes the missile wake.
     /// </summary>
     internal static bool CountHit(PlmSlot slot)
@@ -382,8 +382,8 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         return true;
     }
 
-    /// <summary>Disables the matching bank-$A5 cannon firing word and changes both room blocks to destroyed terrain.</summary>
-    /// <summary>Destroys the cannon: disables its bank-$A5 firing word and writes its destroyed terrain.</summary>
+    /// <summary>Disables the matching cannon firing word and changes both room blocks to destroyed terrain.</summary>
+    /// <summary>Destroys the cannon: disables its firing word and writes its destroyed terrain.</summary>
     internal void DamageDraygonCannon(
         RoomLevelData level,
         PlmSlot slot)

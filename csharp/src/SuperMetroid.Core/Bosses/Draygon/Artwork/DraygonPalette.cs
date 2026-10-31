@@ -63,7 +63,7 @@ internal static class DraygonPalette
     /// <summary>The white flash preserves the backdrop; all visible inks are white.</summary>
     private static RgbColor StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaint.ClearTarget : DraygonColorCatalog.FlashInk;
 
-    /// <summary>Installs the selected opening colors at their native CGRAM destination.</summary>
+    /// <summary>Installs the selected opening colors in their place among the colours.</summary>
     internal static void ApplyIntro(DraygonColorCatalog colors, GameplayColours colours)
     {
         ColourRunSequence intro = new BossColours(colours).DraygonIntro;
@@ -102,7 +102,7 @@ internal static class DraygonPalette
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
-    /// <summary>Writes the selected colors in index order to a native CGRAM palette view.</summary>
+    /// <summary>Writes the selected colors in index order to a colour run.</summary>
     private static void ApplyCalculated(ColourRun destination, int count, Func<int, RgbColor> resolve)
     {
         for (int color = 0; color < count; color++) destination.Write(color, resolve(color));

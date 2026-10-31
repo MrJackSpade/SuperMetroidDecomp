@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// No complete stock palette is stored. Independently supplied inks belong to the catalog.
 /// </summary>
 /// <remarks>
-/// Native $A4:8A99-8AA9 copies the wall/projectile targets, $8CEF-8CF8 restores
-/// body inks, $9870-9879 copies spike colors and $999E-99A8 copies arm colors.
+/// Initialization copies the wall/projectile targets, the hurt restoration restores
+/// body inks, the death sequence copies spike colors and the wall break copies arm colors.
 /// These consumers install selected pen colors without deriving them from a
 /// physical state. The residual named hues/intensities and material assignments
 /// are the illustration content itself: replacing them with a generated color
@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// </remarks>
 internal static class CrocomirePaintDefinitions
 {
-    /// <summary>Copied OBJ ink-zero metadata $3800; OBJ rendering skips ink zero.</summary>
+    /// <summary>Copied sprite ink-zero metadata; sprite rendering skips ink zero.</summary>
     internal const int TransparentBlue = 14;
     /// <summary>Saturated red hide highlight with selected warm green and blue channels.</summary>
     internal const int HideHighlightGreen = 15, HideHighlightBlue = 3;

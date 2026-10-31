@@ -17,11 +17,11 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// </remarks>
 public sealed class KraidPartState
 {
-    /// <summary>Where the part's typed program resumes; it replaces the native instruction pointer.</summary>
+    /// <summary>Where the part's typed program resumes; it replaces the instruction pointer.</summary>
     internal AnimationProgramCursor<KraidPartProgram> Cursor { get; set; }
 
     /// <summary>
-    /// Gets the function a part's function timer installs when it expires. The cartridge keeps it in the same word as
+    /// Gets the function a part's function timer installs when it expires. The original game keeps it in the same word as
     /// <see cref="ThinkTimer"/>; no part reads one after writing the other (the foot writes its think timer whenever it
     /// starts a second-phase walk and its next function whenever it starts a timed phase), so each is held on its own.
     /// </summary>
@@ -36,10 +36,10 @@ public sealed class KraidPartState
     /// </summary>
     public bool AlternateSpawn { get; internal set; }
 
-    /// <summary>Whether this fingernail has launched at least once (its parameter one); the cartridge sets it and nothing reads it back.</summary>
+    /// <summary>Whether this fingernail has launched at least once (its parameter one); the original game sets it and nothing reads it back.</summary>
     public bool NailLaunched { get; internal set; }
 
-    /// <summary>The bank-$A7 function the part dispatches.</summary>
+    /// <summary>The function the part dispatches.</summary>
     public KraidAiFunction Function { get; internal set; }
 
     /// <summary>The updates before the part's function timer installs <see cref="NextFunction"/>.</summary>
@@ -61,7 +61,7 @@ public sealed class KraidPartState
     /// <summary>The body's head-instruction timer.</summary>
     public WrappingCountdown HeadTimer { get; internal set; }
 
-    /// <summary>A lint's X offset from the body, as the cartridge stores it: zero or minus sixteen wrapped to 65520.</summary>
+    /// <summary>A lint's X offset from the body, as the original game stores it: zero or minus sixteen wrapped to 65520.</summary>
     public int LintXOffset
     {
         get;
@@ -78,7 +78,7 @@ public sealed class KraidPartState
     /// <summary>A fingernail's signed 16.16 velocity in pixels per update.</summary>
     public FixedVector<RoomPixels> NailVelocity { get; internal set; }
 
-    /// <summary>Empties the values the cartridge keeps in the part's common record.</summary>
+    /// <summary>Empties the values the game keeps in the part's common record.</summary>
     [IntendedDuplicate("each state clears its own record values; the shared shape is only the assignment of zero")]
     internal void ClearWithRecord()
     {

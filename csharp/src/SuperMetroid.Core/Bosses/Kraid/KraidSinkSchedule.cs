@@ -5,8 +5,8 @@ internal static class KraidSinkSchedule
 {
     /// <summary>
     /// ShrinkingKraidTable: twenty-eight rows spaced eight pixels
-    /// apart, terminated by FFFF. Six rows crumble platforms; the remaining rows
-    /// invoke the distinct empty RTS. Tilemap offsets are presentation data.
+    /// apart, terminated by an end marker. Six rows crumble platforms; the remaining rows
+    /// invoke the distinct empty callback. Tilemap offsets are presentation data.
     /// </summary>
     public static KraidSinkCallback? CallbackAt(int y)
     {

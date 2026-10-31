@@ -4,7 +4,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// Spore Spawn's ceiling PLM programs (#1296), in place of their bank-$84 instruction lists: the crumble plays its
+/// Spore Spawn's ceiling PLM programs (#1296), in place of their instruction lists: the crumble plays its
 /// sound and three images and runs into the clear.
 /// </summary>
 internal static class SporeSpawnCeilingPlmProgramDefinitions

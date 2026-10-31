@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.Kraid.KraidPartProgram;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's typed part programs (#641), in place of their bank-$A7 instruction lists.</summary>
+/// <summary>Kraid's typed part programs (#641), in place of their instruction lists.</summary>
 internal static class KraidAnimations
 {
     /// <summary>Every foot, arm, lint and fingernail program.</summary>
@@ -352,7 +352,7 @@ internal static class KraidAnimations
     private static AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue> FallInto(KraidPartProgram program) =>
         AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.FallInto(program);
 
-    /// <summary>Holds the last frame: the native sleep.</summary>
+    /// <summary>Holds the last frame: the script's sleep.</summary>
     private static AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue> Hold =>
         AnimationProgramStep<KraidPartProgram, KraidPartFrame, KraidPartCue>.Hold;
 }

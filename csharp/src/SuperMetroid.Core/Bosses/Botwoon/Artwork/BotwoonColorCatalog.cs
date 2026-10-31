@@ -14,10 +14,10 @@ public sealed class BotwoonColorCatalog
     /// <summary>Retains the validated color rows as runtime paint definitions.</summary>
     internal BotwoonColorCatalog(RgbColor[][] rows) => health = new(rows);
 
-    /// <summary>Gets one compiled BGR555 word from an independently editable health-band palette.</summary>
+    /// <summary>Gets one compiled colour from an independently editable health-band palette.</summary>
     /// <param name="band">Health-band index from zero through seven.</param>
     /// <param name="color">Color index from zero through fifteen within the complete palette.</param>
-    /// <returns>The selected packed SNES color word.</returns>
+    /// <returns>The selected colour.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Either index is outside its authored range.</exception>
     public RgbColor HealthColor(int band, int color) => BotwoonHealthColors.Read(health, band, color);
 }

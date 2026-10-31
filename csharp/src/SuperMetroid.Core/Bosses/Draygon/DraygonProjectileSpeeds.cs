@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Speed parameters bank $A5 passes in A to <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c>,
-/// which stores A into <c>EnemyProjectile_InitParam0</c> before the initializer.
+/// Speed parameters Draygon passes to the enemy-projectile spawn,
+/// which stores them in the projectile's first initialization parameter before the initializer.
 /// </summary>
 public static class DraygonProjectileSpeeds
 {
@@ -10,7 +10,7 @@ public static class DraygonProjectileSpeeds
     public const int WallTurret = 3;
 
     /// <summary>
-    /// <c>LDA #$0002</c> and $A5:9FD6. Despite the disassembly's note that the
+    /// Two, passed by the goop spawn. Despite the disassembly's note that the
     /// goop instructions do not set parameter zero, the spawn routine stores this A value.
     /// </summary>
     public const int Goop = 2;

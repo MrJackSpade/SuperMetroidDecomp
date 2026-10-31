@@ -2,18 +2,18 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>
-/// Stock Kraid colors for the five native sources (room backdrop $A7:86C7, initial target
-/// Health $A7:B3D3, death arm $A7:B4F3, secondary $A7:B513). Shared structure
+/// Stock Kraid colors for the five sources (room backdrop, initial target,
+/// health, death arm, secondary). Shared structure
 /// calculates in <see cref="KraidPaint"/>: the white hit flash, the backdrop-blue transparent slot, the endpoint band's
 /// eight-shade hide ramp, the death arm's reuse of the first health band and the secondary
 /// copy of health. Health bands two through seven interpolate in <see cref="KraidHealthBands"/>.
 /// Retained here as authored paint: the hull, eye and claw colors, the final health band's
 /// shades, the death arm's three darkened hull colors, the backdrop and target paints and the
-/// two color-six health steps the cartridge sets off the interpolation.
+/// two color-six health steps the original game sets off the interpolation.
 /// </summary>
 internal static class KraidPaintDefinitions
 {
-    /// <summary>Largest SNES RGB5 channel value used by the hit-flash and bright paint endpoints.</summary>
+    /// <summary>Largest RGB5 channel value used by the hit-flash and bright paint endpoints.</summary>
     internal const int Rgb5Maximum = (1 << 5) - 1;
     /// <summary>Health palette bands, including the flash and final hide endpoints.</summary>
     internal const int Bands = KraidPalettes.HealthBandCount;
@@ -60,7 +60,7 @@ internal static class KraidPaintDefinitions
         new(3, 0, 0), new(24, 24, 24), White, RgbColor.Black,
     ];
 
-    /// <summary>The two color-six health steps the cartridge sets off the interpolation, by band and color.</summary>
+    /// <summary>The two color-six health steps the original game sets off the interpolation, by band and color.</summary>
     internal static readonly Dictionary<KraidPaintCell, RgbColor> HealthSteps = new()
     {
         [new(5, 6)] = new(17, 20, 10),

@@ -13,11 +13,11 @@ public static class KraidRockLaunchDefinitions
     private static SignedEightEight FastestLeft { get; } = SignedEightEight.FromSignedRaw(-19 * 64);
 
     /// <summary>
-    /// Selects one of four launch speeds, each assigned two of the eight native
+    /// Selects one of four launch speeds, each assigned two of the eight
     /// RNG-bit choices. Preserves every ushort input and never advances RNG.
     /// </summary>
     /// <remarks>
-    /// $A7:BC0D-BC14 selects a launch category from RNG bits1..3, not a motion
+    /// The rock spit selects a launch category from RNG bits1..3, not a motion
     /// sample or chronological random-number generator. Preserve the original
     /// branch assignment even though each speed has the same one-quarter weight.
     /// </remarks>

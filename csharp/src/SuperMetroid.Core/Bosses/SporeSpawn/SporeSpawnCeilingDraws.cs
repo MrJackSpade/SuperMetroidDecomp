@@ -47,7 +47,7 @@ internal static class SporeSpawnCeilingDraws
             ? id
             : throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {frame}.");
 
-    /// <summary>Finds the native physical square associated with an editable ceiling-frame key.</summary>
+    /// <summary>Finds the physical square associated with an editable ceiling-frame key.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         ShotBlockPlmDraws.FindByVisualId(All, VisualId, id, out list);

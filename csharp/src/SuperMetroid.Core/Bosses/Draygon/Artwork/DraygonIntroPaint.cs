@@ -16,10 +16,10 @@ internal sealed class DraygonIntroPaint
     internal readonly DraygonMaterialPaint primary;
     /// <summary>Final eight colors, aliased to the Ceres escape-door surface material.</summary>
     internal readonly CeresDoorEscapeSurfacePaint surface;
-    /// <summary>Independent edit of the copied clear target, or null when it retains the native value.</summary>
+    /// <summary>Independent edit of the copied clear target, or null when it retains the value.</summary>
     internal readonly RgbColor? clearEdit;
 
-    /// <summary>Splits the 25 copied CGRAM colors into primary, clear-target, and door-surface aliases.</summary>
+    /// <summary>Splits the 25 copied colours into primary, clear-target, and door-surface aliases.</summary>
     internal DraygonIntroPaint(ReadOnlySpan<RgbColor> colors)
     {
         Ensure.LengthEqual(colors, 25);

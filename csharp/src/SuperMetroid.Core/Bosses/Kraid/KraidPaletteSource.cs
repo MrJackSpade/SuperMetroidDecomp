@@ -5,7 +5,7 @@ public enum KraidPaletteSource
 {
     /// <summary>Sixteen RGB5 colors for background palette six, restored in the defeated room and used by backdrop fades.</summary>
     RoomBackdrop,
-    /// <summary>Kraid initialization's spritePalette3: sixteen rock colors staged in native target OBJ palette three, exposed at global CGRAM palette eleven by the runtime.</summary>
+    /// <summary>Kraid initialization's spritePalette3: sixteen rock colors staged in target sprite palette three, exposed at global palette eleven by the runtime.</summary>
     InitialTarget,
     /// <summary>Palette_Kraid_BG_HurtFlash and eight following health bands: 144 colors selected for background palette seven, also supplying eye-transition targets.</summary>
     Health,

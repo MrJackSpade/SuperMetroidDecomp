@@ -18,9 +18,9 @@ internal sealed class KraidDeath
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Provides the native body and seven part slots.</summary>
+    /// <summary>Provides the body and seven part slots.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Applies Kraid palettes, background tiles, and OAM presentation.</summary>
+    /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
@@ -52,8 +52,8 @@ internal sealed class KraidDeath
     /// <summary>
     /// Once the body has sunk, his body is hidden: the upper half of his body layer shows his blank on
     /// this update and the lower half on the next. His body layer stays shown in place of the room's background layer:
-    /// on the cartridge his body overwrote the room's, so showing it again draws a stale strip of it across the top of
-    /// the screen (#1427). A defeated room's reload hides his body here too. The one update in which the cartridge's
+    /// on the original game his body overwrote the room's, so showing it again draws a stale strip of it across the top of
+    /// the screen (#1427). A defeated room's reload hides his body here too. The one update in which the game's
     /// half-cleared layer still shows a strip of body is not reproduced.
     /// </summary>
     private static void HideKraidUpperBody(KraidEnemyState state)
@@ -205,7 +205,7 @@ internal sealed class KraidDeath
     }
 
     /// <summary>
-    /// Ports the shared body of <c>$A7:C843</c>/<c>$A7:C851</c>: a living Kraid, or a dead
+    /// Runs the shared body of both death-drop checks: a living Kraid, or a dead
     /// one whose camera has left the room's left edge, gets <c>SetEnemyPropertiesToDead</c>.
     /// </summary>
     private void MarkKraidDeadUnlessDeadAtLeftEdge(RoomEnemySlot body, int cameraX)
@@ -228,7 +228,7 @@ internal sealed class KraidDeath
         state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFadeOut;
         state.HeadProgram = KraidHeadAnimations.DeathAfterEntryFrame;
         state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(KraidHeadAnimations.DeathEntryDuration);
-        // $A7:C3A8-$C3E8 clear the fingernails' respawn bit, then run EnemyDeath for the
+        // The death clears the fingernails' respawn bit, then runs EnemyDeath for the
         // nails, then the three lints. The death runs without choosing an explosion, so each
         // part leaves the first death explosion.
         foreach (int slot in new[] { 6, 7 })
@@ -267,12 +267,12 @@ internal sealed class KraidDeath
         for (int slot = 2; slot <= 5; slot++)
             _slotTable.Slots[slot].Properties = otherProperties;
         state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathHideUpperBody;
-        // $A7:C594 returns the camera to distance index zero before the death drop.
+        // The death returns the camera to distance index zero before the death drop.
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking;
 
-        // $A0:B8EE fills the same sixteen-projectile pool used by ordinary deaths. Each
+        // The death drops fill the same sixteen-projectile pool used by ordinary deaths. Each
         // pickup gets a random position in Kraid's 256x64 floor strip and independently
-        // rolls header $E2BF's six-byte chance table.
+        // rolls Kraid's six-entry chance table.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Kraid,
             count: 16,
@@ -281,20 +281,20 @@ internal sealed class KraidDeath
             yBase: 352,
             yMask: 63);
         state.DeathDropRequestCount = 16;
-        // $A7:C59B continues into DrawKraidsRoomBackground, which zeroes the shared numerator.
+        // The death continues into DrawKraidsRoomBackground, which zeroes the shared numerator.
         _presentation.GradualColorChange.Reset();
     }
 
-    /// <summary>Consumes native sink-table entries as the body descends.</summary>
+    /// <summary>Consumes sink-table entries as the body descends.</summary>
     internal void ProcessKraidSinkTable(RoomEnemySlot body, KraidEnemyState state)
     {
         if (KraidSinkSchedule.CallbackAt(body.Position.Y.Whole) is KraidSinkCallback function)
         {
             state.SinkTableEventCount++;
-            // Every eight-pixel sinking row invokes its cartridge callback, including the
-            // deliberately empty RTS used by rows whose only job is clearing a strip of his body.
-            // Do not merge that address with the adjacent $C6A7 crumble routine: they are
-            // distinct legal indirect-JSR targets in the retail table.
+            // Every eight-pixel sinking row invokes its callback, including the
+            // deliberately empty callback used by rows whose only job is clearing a strip of his body.
+            // Do not merge that callback with the adjacent crumble callback: they are
+            // distinct legal callbacks in the retail table.
             if (KraidPlms.ForSinkCallback(function) is { } request)
             {
                 // Each sinking rock starts at the left pixel edge of the removed block.

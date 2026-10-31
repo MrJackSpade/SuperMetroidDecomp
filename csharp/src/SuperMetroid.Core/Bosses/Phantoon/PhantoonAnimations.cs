@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartProgram;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed body, eye, tentacle and mouth programs (#641), in place of their bank-$A7 lists.</summary>
+/// <summary>Phantoon's typed body, eye, tentacle and mouth programs (#641), in place of their lists.</summary>
 internal static class PhantoonAnimations
 {
     /// <summary>The eyelid's dwell on each of its two moving poses.</summary>
@@ -77,7 +77,7 @@ internal static class PhantoonAnimations
         [P.MouthInitial] = Still(new(F.Mouth, 0)),
     });
 
-    /// <summary>Shows one frame for an update, then holds it as the native sleep does.</summary>
+    /// <summary>Shows one frame for an update, then holds it as the script's sleep does.</summary>
     private static AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>[] Still(PhantoonPartFrame frame) =>
         [Show(frame, 1), Hold];
 
@@ -97,7 +97,7 @@ internal static class PhantoonAnimations
     private static AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue> FallInto(PhantoonPartProgram program) =>
         AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the script's sleep does.</summary>
     private static AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue> Hold =>
         AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>.Hold;
 }

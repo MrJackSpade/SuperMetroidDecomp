@@ -10,7 +10,7 @@ public static class CrocomireColorDefinitions
     public const int InitialWallCount = 17;
 
     /// <summary>
-    /// The colours of the initial projectile transfer the port carries: sprite set 5's sixteen. The cartridge's seventeenth,
+    /// The colours of the initial projectile transfer the port carries: sprite set 5's sixteen. The game's seventeenth,
     /// the skeleton arm's first source word, lands on sprite set 6's transparent colour 0 and is not carried (#1436).
     /// </summary>
     public const int InitialProjectileCount = 16;

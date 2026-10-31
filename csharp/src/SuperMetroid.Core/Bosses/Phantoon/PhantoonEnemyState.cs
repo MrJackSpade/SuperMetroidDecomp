@@ -5,25 +5,25 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
 /// Debugger-facing state shared by Phantoon's four consecutive physical enemy records.
-/// Most gameplay words deliberately remain on those records: native code aliases the same
+/// Most gameplay words deliberately remain on those records: code aliases the same
 /// offsets by adding enemy indexes <c>$00/$40/$80/$C0</c>, and flattening them would hide
 /// exactly the relationships a decompilation is supposed to expose.
 /// </summary>
 public sealed class PhantoonEnemyState
 {
-    /// <summary>Attaches shared encounter state to the physical body slot at native index $00.</summary>
+    /// <summary>Attaches shared encounter state to the physical body slot at index $00.</summary>
     internal PhantoonEnemyState(RoomEnemySlot body) => Body = body;
 
-    /// <summary>Gets physical slot zero, the native $00 body owner of function dispatch, health, motion, and shared encounter words.</summary>
+    /// <summary>Gets physical slot zero, the $00 body owner of function dispatch, health, motion, and shared encounter words.</summary>
     public RoomEnemySlot Body { get; }
 
     /// <summary>The record values of the body, eye, tentacles and mouth, in slot order.</summary>
     public PhantoonPartState[] Parts { get; } = [new(), new(), new(), new()];
-    /// <summary>Gets the native $40 eye record, attached by part initialization and sharing the body's position while retaining its own animation/palette counters.</summary>
+    /// <summary>Gets the $40 eye record, attached by part initialization and sharing the body's position while retaining its own animation/palette counters.</summary>
     public RoomEnemySlot Eye { get => field ?? throw new InvalidOperationException("Phantoon's eye part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>Gets the native $80 tentacle record, attached by part initialization and positioned from the body after its AI pass.</summary>
+    /// <summary>Gets the $80 tentacle record, attached by part initialization and positioned from the body after its AI pass.</summary>
     public RoomEnemySlot Tentacles { get => field ?? throw new InvalidOperationException("Phantoon's tentacle part is not attached; part initialization attaches it."); internal set; }
-    /// <summary>Gets the native $C0 mouth record, attached by part initialization and also retaining the wave/blending control words.</summary>
+    /// <summary>Gets the $C0 mouth record, attached by part initialization and also retaining the wave/blending control words.</summary>
     public RoomEnemySlot Mouth { get => field ?? throw new InvalidOperationException("Phantoon's mouth part is not attached; part initialization attaches it."); internal set; }
 
     /// <summary>Each part's typed program cursor (#641), by its slot offset from the body: body, eye, tentacles, mouth.</summary>
@@ -49,15 +49,15 @@ public sealed class PhantoonEnemyState
     public Position16<BackgroundPixels> BodyLayerPlacement { get; internal set; }
 
     /// <summary>
-    /// Whether Phantoon draws translucent: the native layer-blending bit <c>$4000</c>, the only bit Phantoon sets or
-    /// clears; $88:E44E tests it to select the translucent blending configuration $1A.
+    /// Whether Phantoon draws translucent: the layer-blending bit, the only bit Phantoon sets or
+    /// clears; the blending update tests it to select the translucent blending configuration.
     /// </summary>
     public bool SemiTransparent { get; internal set; }
 
 
     /// <summary>The eight requested/allocated starting flames are counted independently.</summary>
     public int StartingFlameRequests { get; internal set; }
-    /// <summary>Gets the number of introductory flame requests that acquired a live bank-$86 projectile slot.</summary>
+    /// <summary>Gets the number of introductory flame requests that acquired a live projectile slot.</summary>
     public int StartingFlamesSpawned { get; internal set; }
 
     /// <summary>Position zero through two in the repeating three-sound materialization cycle; the next materialization plays this one and advances it.</summary>
@@ -79,7 +79,7 @@ public sealed class PhantoonEnemyState
     public bool ItemDropRequested { get; internal set; }
     /// <summary>Gets whether the terminal activation routine has published the persistent area-boss defeat bit.</summary>
     public bool BossDefeatPersisted { get; internal set; }
-    /// <summary>Gets whether the powered Wrecked Ship fade over CGRAM entries zero through 111 and the final deletion/door/music handoff have completed.</summary>
+    /// <summary>Gets whether the powered Wrecked Ship fade over colours zero through 111 and the final deletion/door/music handoff have completed.</summary>
     public bool WreckedShipPowerPaletteComplete { get; internal set; }
 
     /// <summary>
@@ -91,6 +91,6 @@ public sealed class PhantoonEnemyState
     /// <summary>Gets the encounter's lazily created wave effect, which advances the per-line ripple separately from display latching.</summary>
     public PhantoonWaveEffect Wave => field ??= new();
 
-    /// <summary>Gets the encounter's lazily created bank-$88 blending owner, retaining live transparency control and separately latched blending/mosaic display state.</summary>
+    /// <summary>Gets the encounter's lazily created blending owner, retaining live transparency control and separately latched blending/mosaic display state.</summary>
     public PhantoonBlendingState Blending => field ??= new();
 }

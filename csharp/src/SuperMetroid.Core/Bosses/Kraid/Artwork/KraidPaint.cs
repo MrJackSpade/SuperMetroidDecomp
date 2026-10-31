@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Bosses.Kraid.Artwork.KraidPaintDefinitions;
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>
-/// Paints Kraid's stock colors for the five native sources from the authored inks in
+/// Paints Kraid's stock colors for the five sources from the authored inks in
 /// <see cref="KraidPaintDefinitions"/>: the hit flash, the first band's hide ramp, the death arm's reuse of the first
 /// band and the secondary copy of health calculate here.
 /// </summary>

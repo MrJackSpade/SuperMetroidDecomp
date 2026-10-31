@@ -6,7 +6,7 @@ public static class PhantoonTimerDefinitions
     /// <summary>Japan/USA initial flame countdown is 120 frames. PAL uses 96.</summary>
     public const int InitialFlameDelayFrames = 120;
 
-    /// <summary>Three selected exposure tiers used by the native RNG-bucket policies.</summary>
+    /// <summary>Three selected exposure tiers used by the RNG-bucket policies.</summary>
     internal enum DurationChoice
     {
         /// <summary>Shortest open-eye, closed-eye, or rain-hiding interval for its phase.</summary>
@@ -43,13 +43,13 @@ public static class PhantoonTimerDefinitions
         [DurationChoice.Medium, DurationChoice.Long, DurationChoice.Short, DurationChoice.Medium,
          DurationChoice.Short, DurationChoice.Medium, DurationChoice.Short, DurationChoice.Short];
 
-    /// <summary>$A7:CD45 and D03F-D075/D60D-D65B: selected shortest fifteen-call opportunity to hit the open eye. The waiting state has no movement-derived duration; changing this choice changes the attack opportunity.</summary>
+    /// <summary>Selected shortest fifteen-call opportunity to hit the open eye. The waiting state has no movement-derived duration; changing this choice changes the attack opportunity.</summary>
     internal const int ShortestVulnerableExposureFrames = 15;
-    /// <summary>$A7:CD53 and D5E7-D60C: selected closed-eye moving phase lasts4 exposure units, then6 times that for medium, then doubles for long. Expiry opens the eye at its current position, independently of path completion; these ratios select attack pacing.</summary>
+    /// <summary>Selected closed-eye moving phase lasts4 exposure units, then6 times that for medium, then doubles for long. Expiry opens the eye at its current position, independently of path completion; these ratios select attack pacing.</summary>
     internal const int EyeShortScale = 4;
     /// <summary>The medium closed-eye duration is six times the phase's short base.</summary>
     internal const int EyeMediumScale = 6;
-    /// <summary>$A7:CD63 and D7D5-D829: selected hidden wait begins only after fading completes. Its shortest duration is two exposure units, with doubled medium/long tiers; the next location is chosen only on expiry, so neither fading nor travel determines this wait.</summary>
+    /// <summary>Selected hidden wait begins only after fading completes. Its shortest duration is two exposure units, with doubled medium/long tiers; the next location is chosen only on expiry, so neither fading nor travel determines this wait.</summary>
     internal const int RainShortScale = 2;
     /// <summary>Exposure and hidden-wait tiers, plus the long closed-eye phase, double the preceding tier. These selected phase timings do not exempt separately timed swoop, fade, placement or projectile behavior.</summary>
     internal const int TierDoubling = 2;

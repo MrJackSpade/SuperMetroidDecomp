@@ -2,10 +2,10 @@ using static SuperMetroid.Core.Bosses.Phantoon.PhantoonTimerDefinitions;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Allocation-free calculated view of one native eight-bucket Phantoon phase-timer table.</summary>
+/// <summary>Allocation-free calculated view of one eight-bucket Phantoon phase-timer table.</summary>
 public readonly struct PhantoonTimerSchedule : IReadOnlyList<int>
 {
-    /// <summary>Selects which native phase's buckets and duration scale this view exposes.</summary>
+    /// <summary>Selects which phase's buckets and duration scale this view exposes.</summary>
     private readonly TimerKind kind;
     /// <summary>Binds a calculated schedule to one Phantoon combat phase.</summary>
     internal PhantoonTimerSchedule(TimerKind kind) => this.kind = kind;
@@ -33,7 +33,7 @@ public readonly struct PhantoonTimerSchedule : IReadOnlyList<int>
             });
         }
     }
-    /// <summary>Enumerates all eight calculated durations in native bucket order.</summary>
+    /// <summary>Enumerates all eight calculated durations in bucket order.</summary>
     /// <returns>An enumerator over the phase durations.</returns>
     public IEnumerator<int> GetEnumerator()
     {

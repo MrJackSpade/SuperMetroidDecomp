@@ -63,7 +63,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, BossArtwork = _bossArtwork, Audio = _audio });
     }
 
-    /// <summary>Native per-update increase in introductory wave amplitude.</summary>
+    /// <summary>Per-update increase in introductory wave amplitude.</summary>
     internal const int PhantoonIntroAmplitudeDelta = 64;
     /// <summary>Wave amplitude at which the intro advances to the next phase.</summary>
     internal const int PhantoonIntroMaximumAmplitude = 3072;
@@ -76,7 +76,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.SlotIndex != 0)
         {
             throw new InvalidDataException(
-                $"Phantoon body requires native slot zero, not slot {body.SlotIndex}.");
+                $"Phantoon body requires the first enemy slot, not slot {body.SlotIndex}.");
         }
 
         Combat.Phantoon = new PhantoonEnemyState(body);
@@ -85,8 +85,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // drawn on it.
         _presentation.AttachBossBody(new BossBodyCanvas(_bossArtwork.Body(BossBodyOwner.Phantoon), BossBodyDefinitions.SharedBodyRows));
 
-        // Target BG palette seven is black at fight start. In the software PPU CGRAM is the
-        // renderer-visible incarnation of native current/target palette storage; clearing
+        // Target background palette seven is black at fight start. In the renderer the colours are the
+        // renderer-visible incarnation of current/target palette storage; clearing
         // these exact sixteen words makes the later health-palette interpolation observable.
         _presentation.BossColours().PhantoonBody.Fill(RgbColor.Black);
 
@@ -266,8 +266,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The source contains a documented X-register bug that makes only the slot-zero
         // invocation run this synchronization block. Our main dispatcher likewise calls it
         // only for the body, then copies the updated point into the three drawing records.
-        // $A7:CEB2 tests the X the function returned with: $DAD7 leaves it at the VRAM
-        // write-stack index, so that frame skips the part sync and BG2 scroll entirely.
+        // The synchronization tests the X the function returned with: the wave setup leaves it at the background
+        // write-stack index, so that frame skips the part sync and body-layer scroll entirely.
         if (dispatched == PhantoonAiFunction.AlmostDead)
             return;
         state.Mouth.Position = state.Mouth.Position.WithWholeX(body.Position.X.Whole);
@@ -329,7 +329,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Runs a Phantoon part's program where the enemy instruction interpreter would: the frame expires on the update
-    /// its native timer would, and a newly shown frame raises the new-frame flag.
+    /// its timer would, and a newly shown frame raises the new-frame flag.
     /// </summary>
     internal void AdvancePhantoonPartAnimation(RoomEnemySlot part)
     {
@@ -338,7 +338,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
         AnimationProgramCursor<PhantoonPartProgram> cursor = state.PartProgram(part);
         // Writing the cursor back after the cues lets the program's own sleep overwrite a cue's install on this
-        // part, as the native Sleep does. Phantoon's part lists load no loop counter.
+        // part, as the Sleep does. Phantoon's part lists load no loop counter.
         EnemyProgramAnimation.Run(part, PhantoonAnimations.Programs, ref cursor, PhantoonPartFrameSpritemaps.ShownFrames.Of,
             (cue, continuation) =>
             {
@@ -368,7 +368,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case PhantoonPartCue.BeginEyeTracking:
                 BeginPhantoonEyeTracking(state);
                 // The advance resumes its own cursor after the cue, so the program's hold overwrites the
-                // eye program this installs, as the native Sleep does; the body's program survives.
+                // eye program this installs, as the Sleep does; the body's program survives.
                 return;
 
             case PhantoonPartCue.PickNewPattern:
@@ -415,8 +415,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RunPhantoonMain(slot, frame.Samus, frame.Camera);
     }
 
-    /// <summary>Binds the native hurt callback used after a vulnerable-eye hit.</summary>
-    /// <remarks>$A7:DD3F owns every Phantoon hurt frame. It alternates palette seven between white and the new health
+    /// <summary>Binds the hurt callback used after a vulnerable-eye hit.</summary>
+    /// <remarks>Phantoon's hurt AI owns every Phantoon hurt frame. It alternates palette seven between white and the new health
     /// band; body movement/main AI resumes only after common flash timing clears handler bit two.</remarks>
     internal void AddPhantoonHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.PhantoonBody,

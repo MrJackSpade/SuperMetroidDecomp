@@ -1,79 +1,79 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's body, melting and skeleton animation programs, declared in the order the cartridge authors them
-/// in bank $A4. The fight AI depends on that order: it asks whether the program it is running lies at or after
-/// a given program, as the native routines compare instruction pointers.
+/// Crocomire's body, melting and skeleton animation programs, declared in the order the original game authors them.
+/// The fight AI depends on that order: it asks whether the program it is running lies at or after
+/// a given program, as the original routines compare script positions.
 /// </summary>
 public enum CrocomireBodyProgram
 {
-    /// <summary><c>InstList_Crocomire_Initial</c>.</summary>
+    /// <summary>Crocomire animation script: initial.</summary>
     Initial,
-    /// <summary><c>UNUSED_InstList_Crocomire_ChargeForwardOneStep_A4BAEA</c>.</summary>
+    /// <summary>Unused Crocomire animation script: charge forward one step.</summary>
     UnusedChargeForwardOneStep,
-    /// <summary><c>InstList_Crocomire_ProjectileAttack_0</c>.</summary>
+    /// <summary>Crocomire animation script: projectile attack, part 0.</summary>
     ProjectileAttack,
-    /// <summary><c>InstList_Crocomire_ProjectileAttack_1</c>.</summary>
+    /// <summary>Crocomire animation script: projectile attack, part 1.</summary>
     ProjectileAttackLoop,
-    /// <summary><c>InstList_Crocomire_StepForwardAfterDelay</c>.</summary>
+    /// <summary>Crocomire animation script: step forward after delay.</summary>
     StepForwardAfterDelay,
-    /// <summary><c>InstList_Crocomire_StepForward</c>.</summary>
+    /// <summary>Crocomire animation script: step forward.</summary>
     StepForward,
-    /// <summary><c>InstList_Crocomire_StepBack</c>.</summary>
+    /// <summary>Crocomire animation script: step back.</summary>
     StepBack,
-    /// <summary><c>InstList_Crocomire_SteppingBack</c>.</summary>
+    /// <summary>Crocomire animation script: stepping back.</summary>
     SteppingBack,
-    /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage</c>.</summary>
+    /// <summary>Crocomire animation script: wait for first second damage.</summary>
     WaitForFirstSecondDamage,
-    /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_MovingClaws</c>.</summary>
+    /// <summary>Crocomire animation script: wait for first second damage, moving claws.</summary>
     MovingClaws,
-    /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_Roar</c>.</summary>
+    /// <summary>Crocomire animation script: wait for first second damage, roar.</summary>
     Roar,
-    /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_RoarCloseMouth_0</c>.</summary>
+    /// <summary>Crocomire animation script: wait for first second damage, roar close mouth, part 0.</summary>
     RoarCloseMouth,
-    /// <summary><c>InstList_Crocomire_WaitForFirstSecondDamage_RoarCloseMouth_1</c>.</summary>
+    /// <summary>Crocomire animation script: wait for first second damage, roar close mouth, part 1.</summary>
     RoarCloseMouthLoop,
-    /// <summary><c>InstList_Crocomire_PowerBombReaction_MouthFullyOpen</c>.</summary>
+    /// <summary>Crocomire animation script: power Bomb reaction, mouth fully open.</summary>
     PowerBombReactionMouthFullyOpen,
-    /// <summary><c>InstList_Crocomire_PowerBombReaction_MouthPartiallyOpen</c>.</summary>
+    /// <summary>Crocomire animation script: power Bomb reaction, mouth partially open.</summary>
     PowerBombReactionMouthPartiallyOpen,
-    /// <summary><c>InstList_Crocomire_PowerBombReaction_MouthNotOpen_0</c>.</summary>
+    /// <summary>Crocomire animation script: power Bomb reaction, mouth not open, part 0.</summary>
     PowerBombReactionMouthNotOpen,
-    /// <summary><c>InstList_Crocomire_PowerBombReaction_MouthNotOpen_1</c>.</summary>
+    /// <summary>Crocomire animation script: power Bomb reaction, mouth not open, part 1.</summary>
     PowerBombReactionMouthNotOpenLoop,
-    /// <summary><c>InstList_CrocomireTongue_NearSpikeWallCharge_0</c>.</summary>
+    /// <summary>Crocomire tongue animation script: near spike wall charge, part 0.</summary>
     NearSpikeWallCharge,
-    /// <summary><c>InstList_CrocomireTongue_NearSpikeWallCharge_1</c>.</summary>
+    /// <summary>Crocomire tongue animation script: near spike wall charge, part 1.</summary>
     NearSpikeWallChargeLoop,
-    /// <summary><c>InstList_Crocomire_BackOffFromSpikeWall</c>.</summary>
+    /// <summary>Crocomire animation script: back off from spike wall.</summary>
     BackOffFromSpikeWall,
-    /// <summary><c>InstList_Crocomire_Melting1_TopRow</c>.</summary>
+    /// <summary>Crocomire animation script: melting 1, top row.</summary>
     MeltingOneTopRow,
-    /// <summary><c>InstList_Crocomire_Melting1_Top2Rows</c>.</summary>
+    /// <summary>Crocomire animation script: melting 1, top 2 rows.</summary>
     MeltingOneTopTwoRows,
-    /// <summary><c>InstList_Crocomire_Melting1_Top3Rows</c>.</summary>
+    /// <summary>Crocomire animation script: melting 1, top 3 rows.</summary>
     MeltingOneTopThreeRows,
-    /// <summary><c>InstList_Crocomire_Melting1_Top4Rows</c>.</summary>
+    /// <summary>Crocomire animation script: melting 1, top 4 rows.</summary>
     MeltingOneTopFourRows,
-    /// <summary><c>InstList_Crocomire_Melting2_TopRow</c>.</summary>
+    /// <summary>Crocomire animation script: melting 2, top row.</summary>
     MeltingTwoTopRow,
-    /// <summary><c>InstList_Crocomire_Melting2_Top2Rows</c>.</summary>
+    /// <summary>Crocomire animation script: melting 2, top 2 rows.</summary>
     MeltingTwoTopTwoRows,
-    /// <summary><c>InstList_Crocomire_Melting2_Top3Rows</c>.</summary>
+    /// <summary>Crocomire animation script: melting 2, top 3 rows.</summary>
     MeltingTwoTopThreeRows,
-    /// <summary><c>InstList_Crocomire_Melting2_Top4Rows</c>.</summary>
+    /// <summary>Crocomire animation script: melting 2, top 4 rows.</summary>
     MeltingTwoTopFourRows,
-    /// <summary><c>InstList_CrocomireTongue_BridgeCollapsed</c>.</summary>
+    /// <summary>Crocomire tongue animation script: bridge collapsed.</summary>
     BridgeCollapsed,
-    /// <summary><c>InstList_CrocomireCorpse_Skeleton_Falling</c>.</summary>
+    /// <summary>Crocomire corpse animation script: skeleton, falling.</summary>
     SkeletonFalling,
-    /// <summary><c>InstList_CrocomireCorpse_Skeleton_FallsApart_0</c>.</summary>
+    /// <summary>Crocomire corpse animation script: skeleton, falls apart, part 0.</summary>
     SkeletonFallsApart,
-    /// <summary><c>InstList_CrocomireCorpse_Skeleton_1</c>.</summary>
+    /// <summary>Crocomire corpse animation script: skeleton, part 1.</summary>
     SkeletonStable,
-    /// <summary><c>InstList_CrocomireCorpse_Skeleton_Dead</c>.</summary>
+    /// <summary>Crocomire corpse animation script: skeleton, dead.</summary>
     Dead,
-    /// <summary><c>InstList_CrocomireCorpse_Skeleton_FlowingDownTheRiver</c>.</summary>
+    /// <summary>Crocomire corpse animation script: skeleton, flowing down the river.</summary>
     SkeletonFlowingDownRiver,
 
 }

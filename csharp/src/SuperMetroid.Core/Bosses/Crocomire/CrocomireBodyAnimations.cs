@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.Crocomire.CrocomireBodyProgram;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Crocomire's typed body programs (#641), in place of its bank-$A4 instruction lists.</summary>
+/// <summary>Crocomire's typed body programs (#641), in place of its instruction lists.</summary>
 internal static class CrocomireBodyAnimations
 {
     /// <summary>Every body, melting and skeleton program.</summary>
@@ -580,7 +580,7 @@ internal static class CrocomireBodyAnimations
     private static AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> FallInto(CrocomireBodyProgram program) =>
         AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.FallInto(program);
 
-    /// <summary>Holds the last frame: the native sleep.</summary>
+    /// <summary>Holds the last frame: the script's sleep.</summary>
     private static AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue> Hold =>
         AnimationProgramStep<CrocomireBodyProgram, CrocomireBodyFrame, CrocomireBodyCue>.Hold;
 }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed part programs (#641), in the authored order of their bank-$A7 lists.</summary>
+/// <summary>Phantoon's typed part programs (#641), in the authored order of their lists.</summary>
 internal enum PhantoonPartProgram
 {
     /// <summary>The body with no hitbox.</summary>

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// Five bounded physical block-draw layouts for Crocomire's bridge and
 /// three-column arena wall. Bridge runs repeat one block;
 /// wall columns use consecutive tiles, two alternating rows and a final base row.
-/// Clear/create share artwork and differ only in whether the blocks are solid. Native
+/// Clear/create share artwork and differ only in whether the blocks are solid. The
 /// continuation offsets are relative to the origin, not the preceding column.
 /// </summary>
 internal static class CrocomireArenaPlmDrawDefinitions

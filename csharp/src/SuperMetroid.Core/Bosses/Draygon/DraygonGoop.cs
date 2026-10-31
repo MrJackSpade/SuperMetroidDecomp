@@ -42,8 +42,8 @@ internal sealed class DraygonGoop
         SamusState? samus,
         int frameCounterLow)
     {
-        // Only the rightward setup calls HandleFiringWallTurret; the leftward entry at
-        // $8C8E omits it. That asymmetry changes the random seed and is therefore material.
+        // Only the rightward setup calls HandleFiringWallTurret; the leftward setup omits it.
+        // That asymmetry changes the random seed and is therefore material.
         if (direction == HorizontalDirection.Right)
             _turrets.ObserveDraygonTurretCadence(state, samus, frameCounterLow);
 
@@ -197,7 +197,7 @@ internal sealed class DraygonGoop
 
         table.AddFrameBehavior(context =>
         {
-            // $86:8DFF deletes a power-bombed shot, then still moves the released slot.
+            // The goop's power-bomb step deletes a power-bombed shot, then still moves the released slot.
             DeleteEnemyProjectileIfPowerBombed(context.Projectile, context.Samus);
             MoveDraygonProjectile(context.Projectile);
             DeleteDraygonProjectileOutsideRoom(context.Projectile);
@@ -282,7 +282,7 @@ internal sealed class DraygonGoop
         RoomEnemyProjectileSlot goop,
         SamusState? samus)
     {
-        // $86:8D99 runs the power-bomb deletion first, then attaches regardless.
+        // The goop's attach step runs the power-bomb deletion first, then attaches regardless.
         DeleteEnemyProjectileIfPowerBombed(goop, samus);
         if (samus is null)
             return;

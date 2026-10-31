@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Native contact geometry and response definitions for Kraid's private AI.</summary>
+/// <summary>Contact geometry and response definitions for Kraid's private AI.</summary>
 internal static class KraidContactDefinitions
 {
     /// <summary>
@@ -17,11 +17,11 @@ internal static class KraidContactDefinitions
     /// </summary>
     internal const int ShotLeftBoundAfterDud = 6;
 
-    /// <summary>Hitbox_KraidLint.left ($92B7, -24) minus two.</summary>
+    /// <summary>Hitbox_KraidLint.left (-24) minus two.</summary>
     internal const int LintLeadingEdge = -26;
-    /// <summary>Hitbox_KraidLint.top ($92B9, -4) plus two.</summary>
+    /// <summary>Hitbox_KraidLint.top (-4) plus two.</summary>
     internal const int LintTop = -2;
-    /// <summary>Hitbox_KraidLint.bottom ($92BD, 6) minus two.</summary>
+    /// <summary>Hitbox_KraidLint.bottom (6) minus two.</summary>
     internal const int LintBottom = 4;
     /// <summary>Added lint push width and signed upper clamp.</summary>
     internal const int LintPush = 16;

@@ -3,12 +3,12 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
-/// <summary>OAM composition roots for Crocomire's falling, collapsing, stable and river skeleton.</summary>
+/// <summary>Sprite composition roots for Crocomire's falling, collapsing, stable and river skeleton.</summary>
 internal static class CrocomireSkeletonVisualDefinitions
 {
-    /// <summary>Thirty-three corpse roots selected by the compiled bank-$A4 programs.</summary>
+    /// <summary>Thirty-three corpse roots selected by the compiled programs.</summary>
     internal const int FrameCount = 33;
-    /// <summary>The collapse poses contain thirteen OAM components, not eight.</summary>
+    /// <summary>The collapse poses contain thirteen sprite components, not eight.</summary>
     internal const int MaximumComponents = 13;
 
 

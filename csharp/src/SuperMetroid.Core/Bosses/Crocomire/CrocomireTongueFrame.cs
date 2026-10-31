@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>The nine frames Crocomire's tongue shows; each member names the bank-$A4 frame it replaced (#1413: the values are arbitrary).</summary>
+/// <summary>The nine frames Crocomire's tongue shows; each member names the frame it replaced (#1413: the values are arbitrary).</summary>
 internal enum CrocomireTongueFrame
 {
     /// <summary>First one-component fight frame.</summary>

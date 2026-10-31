@@ -133,7 +133,7 @@ internal sealed class PhantoonDeath
         state.MosaicBlockSize = PhantoonDeathDefinitions.InitialMosaicSize;
 
         // The body remains the BG2 producer. Eye/tentacle/mouth become invisible and ignore
-        // Samus while preserving every unrelated raw property bit exactly as $DA6C does.
+        // Samus while preserving every unrelated raw property bit exactly as the death step does.
         EnemyProperties hiddenPartProperties = body.Properties.Replace(
             EnemyProperties.RunsAnimationScript,
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
@@ -215,7 +215,7 @@ internal sealed class PhantoonDeath
         if (!AdvanceWreckedShipPowerPalette(state.Parts[state.Eye.SlotIndex]))
             return;
 
-        // $A0:B95D scatters sixteen room-graphics pickups over the visible boss arena.
+        // The death drops scatter sixteen room-graphics pickups over the visible boss arena.
         // The coordinates are absolute room coordinates, not offsets from Phantoon's body.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.PhantoonBody,
@@ -240,7 +240,7 @@ internal sealed class PhantoonDeath
         state.WreckedShipPowerPaletteComplete = true;
     }
 
-    /// <summary>Ports $A7:DC5A: steps every background set the power-on fades toward its powered colours.</summary>
+    /// <summary>Steps every background set the power-on fades toward its powered colours.</summary>
     internal bool AdvanceWreckedShipPowerPalette(PhantoonPartState eye)
     {
         int denominator = eye.FadeDenominator;

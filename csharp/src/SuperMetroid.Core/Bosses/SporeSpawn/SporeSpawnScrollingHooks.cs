@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// Cartridge definitions owned by Spore Spawn's bank-$90 scrolling-finished hook.
+/// Definitions owned by Spore Spawn's scrolling-finished hook.
 /// </summary>
 public static class SporeSpawnScrollingHooks
 {
     /// <summary>
     /// <c>ScrollingFinishedHook_SporeSpawnFight</c>. The routine
-    /// prevents layer one from moving above Y <c>$01D0</c> while the live encounter owns
+    /// prevents layer one from moving above Y 464 while the live encounter owns
     /// the global scrolling-finished callback.
     /// </summary>
     public const int FightMinimumLayerOneY = 464;

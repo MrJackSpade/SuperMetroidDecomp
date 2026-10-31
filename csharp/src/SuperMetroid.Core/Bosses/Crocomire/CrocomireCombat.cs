@@ -21,7 +21,7 @@ internal sealed class CrocomireCombat
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Resolves Crocomire body and tongue contact with Samus.</summary>
     private readonly EnemyCollision _collision;
-    /// <summary>Produces the native distributed drops at skeleton collapse.</summary>
+    /// <summary>Produces the distributed drops at skeleton collapse.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
@@ -200,7 +200,7 @@ internal sealed class CrocomireCombat
         body.InvincibilityTimer = WrappingCountdown.Start(0);
 
         // The off-screen branch bypasses projectile-family selection and still publishes
-        // the pending-hit state. This wrapped signed comparison is the cartridge's exact
+        // the pending-hit state. This wrapped signed comparison is the game's exact
         // `body left edge - (camera + 256)` test.
         bool bodyLeftEdgeIsOnScreen = CoordinateAxis.Difference(
             body.Position.X.Whole - body.Radius.X - 256, state.Camera.X) < 0;
@@ -236,7 +236,7 @@ internal sealed class CrocomireCombat
             {
                 // Both regional constants are eight. Keep the branch
                 // explicit because the source distinguishes projectile-attack state even
-                // though this ROM revision stores identical delay values.
+                // though this release stores identical delay values.
                 body.FrameHold = body.FrameHold.AddFrames(
                     state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8);
             }
@@ -261,7 +261,7 @@ internal sealed class CrocomireCombat
         _projectiles.SpawnRoomGraphicsDustExplosion(projectile, animationIndex);
     }
 
-    /// <summary>Ports $A4:B992 without applying normal power-bomb HP damage.</summary>
+    /// <summary>Runs Crocomire's power-bomb reaction without applying normal power-bomb HP damage.</summary>
     private void ResolveCrocomirePowerBombReaction(RoomEnemySlot body)
     {
         CrocomireEnemyState state = _access.RequireCrocomire(body);
@@ -284,7 +284,7 @@ internal sealed class CrocomireCombat
     }
 
     /// <summary>
-    /// Selects the fully-open, part-open or closed reaction from the mouth of the frame shown, as $A4:B9D8 does
+    /// Selects the fully-open, part-open or closed reaction from the mouth of the frame shown, as the power-bomb reaction does
     /// by scanning the frame's spritemap. Before any frame is shown the body has no spritemap and reacts closed.
     /// </summary>
     private static CrocomireBodyProgram SelectCrocomirePowerBombProgram(CrocomireEnemyState state) =>
@@ -297,7 +297,7 @@ internal sealed class CrocomireCombat
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        // The native setup performs one horizontal collision move and deliberately ignores
+        // The setup performs one horizontal collision move and deliberately ignores
         // carry. It also writes the graphics word of physical projectile slot zero rather
         // than the current slot; retain that shipped indexing bug for debugger parity.
         EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
@@ -308,7 +308,7 @@ internal sealed class CrocomireCombat
         // Spawn parameters are 2,4,...,18. The last index reads one word beyond the declared
         // nine-word gradient table. The compiled definition includes those exact setup
         // instruction bytes; do not clamp the final shot to the last authored gradient.
-        // The native angle starts at up, not right: Y uses negative cosine.
+        // The angle starts at up, not right: Y uses negative cosine.
         projectile.Velocity = CalculateCrocomireProjectileVelocity(EnemyMath.CalculateBearing(
             new(-64, CrocomireVolley.GradientForSpawnParameter(projectile.StateOf<CrocomireProjectileState>().VolleyParameter))));
         projectile.FrameBehavior =
@@ -327,10 +327,10 @@ internal sealed class CrocomireCombat
         }
     }
 
-    /// <summary>Projects a projectile angle into signed 8.8 X/Y speed using native word shifts.</summary>
+    /// <summary>Projects a projectile angle into signed 8.8 X/Y speed using word shifts.</summary>
     internal static EightEightVector<RoomPixels> CalculateCrocomireProjectileVelocity(Bearing bearing)
     {
-        // Preserve the two native word shifts, including negative two's-complement bits. The
+        // Preserve the two word shifts, including negative two's-complement bits. The
         // table is read with the bearing unconverted, so X is its sine and Y its negative cosine.
         return new(
             WordWrap.Signed(Trigonometry.SignedSine(bearing.ReinterpretAsTableAngle()) *
@@ -441,8 +441,8 @@ internal sealed class CrocomireCombat
             return null;
 
         // Physical body components and their hitbox lists are compiled
-        // independently of Crocomire's replaceable OAM/BG2 presentation.
-        // Preserve native component/hitbox order: the first overlap wins.
+        // independently of Crocomire's replaceable sprite/body-layer presentation.
+        // Preserve component/hitbox order: the first overlap wins.
         foreach (EnemyCollisionComponent component in
                  CrocomireBodyCollision.ComponentsAt(enemy.Frame))
         {
@@ -473,7 +473,7 @@ internal sealed class CrocomireCombat
             return null;
 
         // These nine selected frames have one component each, but both
-        // referenced native hitbox lists are empty. Validate the exact
+        // referenced hitbox lists are empty. Validate the exact
         // engine-owned frame identity and return no touch/shot reaction.
         CrocomireTongueCollisionComponent component =
             CrocomireTongueCollision.ComponentAt(enemy.Frame);

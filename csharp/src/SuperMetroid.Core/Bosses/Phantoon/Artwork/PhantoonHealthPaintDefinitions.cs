@@ -2,13 +2,13 @@ namespace SuperMetroid.Core.Bosses.Phantoon.Artwork;
 
 /// <summary>
 /// Phantoon's selected olive hide, iris and red eye-surround paints,
-/// and their red health tint across $CB41-CC40. The material endpoints and selected
-/// shade/tint policy describe the native illustration; inventing different hues
+/// and their red health tint across the eight health bands. The material endpoints and selected
+/// shade/tint policy describe the illustration; inventing different hues
 /// would redraw it. All shades and all 128 outputs calculate, without residual samples.
 /// </summary>
 /// <remarks>
-/// Native $A7:DC0F-DC49 selects and copies a palette word after independently choosing
-/// a health band. Source BG2 masks identify hide/mouth/tentacle inks1-8, pupil glint9,
+/// The health-palette update selects and copies a palette after independently choosing
+/// a health band. Source body-layer masks identify hide/mouth/tentacle inks1-8, pupil glint9,
 /// iris10-12 and eye-surround13-15. Ink0 starts black and follows the same tint rule.
 /// Only this color composition is retained; health thresholds, collision, timings,
 /// pixels and Wrecked Ship power-on colors are independent obligations.

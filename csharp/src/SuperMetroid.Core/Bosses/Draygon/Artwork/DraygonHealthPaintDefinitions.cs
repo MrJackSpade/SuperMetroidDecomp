@@ -10,7 +10,7 @@ internal static class DraygonHealthPaintDefinitions
     /// <summary>Five-bit red channel ceiling used by the critical endpoint.</summary>
     internal const int Maximum = (1 << 5) - 1;
     /// <summary>
-    /// $A5:96AF-96B6 (also normal palette slots9..12):
+    /// The healthy band (also normal palette slots9..12):
     /// selected gold material steps red5/green6. Red leads green by one shade,
     /// producing red25..10 and green24..6; blue is zero. These material choices
     /// describe categorical belly paint. Replacing these gold-channel choices,

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 public static class CrocomireDeathPhases
 {
     /// <summary>
-    /// The dispatcher entry after <paramref name="phase"/>, as the native death handlers
+    /// The dispatcher entry after <paramref name="phase"/>, as the death handlers
     /// advance variable A by one table word. <see cref="CrocomireDeathPhase.RiverSkeletonDetour"/> is the last
     /// table entry and has no successor.
     /// </summary>

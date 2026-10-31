@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal static class PhantoonEyeGaze
 {
     /// <summary>
-    /// $A7:D40D-$D41E selects the eye program from Samus's relative octant. The unused
-    /// code5 retains the native downward selection; all other values name a direction.
+    /// The eye's gaze update selects the eye program from Samus's relative octant. The unused
+    /// code5 retains the downward selection; all other values name a direction.
     /// </summary>
-    /// <param name="direction">Native relative-direction selector, 0..8, with four and the unused five both selecting down.</param>
+    /// <param name="direction">Relative-direction selector, 0..8, with four and the unused five both selecting down.</param>
     /// <returns>The eye's gaze program; the caller owns starting it and resetting its instruction timer.</returns>
     /// <exception cref="InvalidDataException">The direction exceeds the nine authored selectors.</exception>
     internal static PhantoonPartProgram EyeProgram(int direction) =>

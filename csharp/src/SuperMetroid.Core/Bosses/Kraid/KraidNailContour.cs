@@ -11,7 +11,7 @@ internal static class KraidNailContour
     internal static int TopAt(int record) =>
         CoordinateAxis.Wrap(KraidNailContourDefinitions.Tops[CheckRecord(record)]);
 
-    /// <summary>Returns the native selected left offset for a wrapped nail-minus-body Y word.</summary>
+    /// <summary>Returns the selected left offset for a wrapped nail-minus-body Y word.</summary>
     public static int LeftOffset(int relativeY)
     {
         for (int record = 0; record < KraidNailContourDefinitions.RecordCount; record++)

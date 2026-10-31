@@ -4,7 +4,7 @@ using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonFlameProgram;
 
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed flame programs (#641), in place of their bank-$86 lists.</summary>
+/// <summary>Phantoon's typed flame programs (#641), in place of their lists.</summary>
 internal static class PhantoonFlameAnimations
 {
     /// <summary>Poses in the idle, bouncing and starting loops.</summary>
@@ -102,7 +102,7 @@ internal static class PhantoonFlameAnimations
     private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> FallInto(P program) =>
         AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep and deletion do.</summary>
+    /// <summary>Holds the last frame, as the script's sleep and deletion do.</summary>
     private static AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue> Hold =>
         AnimationProgramStep<PhantoonFlameProgram, PhantoonFlameFrame, PhantoonFlameCue>.Hold;
 }

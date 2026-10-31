@@ -22,7 +22,7 @@ internal static class CrocomireTongueCollision
             ? component
             : throw new InvalidOperationException($"Undefined CrocomireTongueFrame {frame}.");
 
-    /// <summary>Confirms both native tongue hitbox lists contain no collision boxes.</summary>
+    /// <summary>Confirms both tongue hitbox lists contain no collision boxes.</summary>
     internal static int HitboxCountAt(CrocomireTongueHitboxList list) =>
         CrocomireTongueCollisionDefinitions.HitboxCounts.TryGetValue(list, out int count)
             ? count

@@ -28,7 +28,7 @@ public sealed class PhantoonBlendingState
     /// </summary>
     /// <param name="boss">Encounter state read without mutation or retention; its mouth must exist when the active, non-semitransparent branch reads its control byte.</param>
     /// <param name="roomDefault">This pass's room blending configuration, not the previous pass's result.</param>
-    /// <remarks>Semi-transparency takes precedence over removal. This advances setup/deletion state but does not publish display state, write CGRAM, or update the boss.</remarks>
+    /// <remarks>Semi-transparency takes precedence over removal. This advances setup/deletion state but does not publish display state, write colours, or update the boss.</remarks>
     public void Step(PhantoonEnemyState boss, LayerBlendingConfiguration roomDefault)
     {
         // The effect pass resets configuration from the room every pass.

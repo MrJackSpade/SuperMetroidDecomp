@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// </summary>
 internal static class CrocomirePalette
 {
-    /// <summary>Hashes each complete resolved transfer in native color order.</summary>
+    /// <summary>Hashes each complete resolved transfer in the original color order.</summary>
     internal static string ContentIdentity(CrocomireColorCatalog colors) =>
         SelectedPresentationHash.Create("CrocomireColorCatalog-v1", content =>
         {
@@ -36,7 +36,7 @@ internal static class CrocomirePalette
         return edits;
     }
 
-    /// <summary>Returns an edited color or calculates the corresponding native stock paint.</summary>
+    /// <summary>Returns an edited color or calculates the corresponding stock paint.</summary>
     internal static RgbColor Get(Dictionary<CrocomireColorKey, RgbColor> edits, Band band, int index)
     {
         if ((uint)index >= CrocomireColorCatalog.Counts[band]) throw new ArgumentOutOfRangeException(nameof(index));
@@ -45,14 +45,14 @@ internal static class CrocomirePalette
             : CrocomireColorCatalog.StockPaint[band](index);
     }
 
-    /// <summary>Installs the native initialization transfers in order: the wall row, then the projectile row.</summary>
+    /// <summary>Installs the initialization transfers in order: the wall row, then the projectile row.</summary>
     internal static void ApplyInitial(CrocomireColorCatalog colors, BossColours destination)
     {
         Apply(colors, destination.CrocomireInitialWall, Band.InitialWall);
         Apply(colors, destination.CrocomireInitialProjectile, Band.InitialProjectile);
     }
 
-    /// <summary>Writes one complete material band to its selected CGRAM destination.</summary>
+    /// <summary>Writes one complete material band to its selected colour run.</summary>
     internal static void Apply(CrocomireColorCatalog colors, ColourRun destination, Band band) =>
         Apply(colors, new ColourRunSequence(destination), band);
 

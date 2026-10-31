@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// The state of Crocomire's tongue actor. Its offset is a value the cartridge keeps in the tongue's common record, so it
+/// The state of Crocomire's tongue actor. Its offset is a value the game keeps in the tongue's common record, so it
 /// is emptied with the record when the tongue is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class CrocomireTongueState
@@ -13,6 +13,6 @@ public sealed class CrocomireTongueState
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>Empties the values the cartridge keeps in the tongue's common record.</summary>
+    /// <summary>Empties the values the game keeps in the tongue's common record.</summary>
     internal void ClearWithRecord() => BodyXOffset = 0;
 }

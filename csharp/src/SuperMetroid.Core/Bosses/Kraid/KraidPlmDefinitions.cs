@@ -15,15 +15,15 @@ public static class KraidPlmDefinitions
     /// </summary>
     public static readonly PlmSpawnRequest LiveDeathSpikes = new(new(5, 27), PlmHeaderId.CrumbleKraidSpikes);
 
-    /// <summary>$A7:C168 SpawnPLMToClearTheCeiling: clear ceiling blocks from (2,18).</summary>
+    /// <summary>SpawnPLMToClearTheCeiling: clear ceiling blocks from (2,18).</summary>
     private static PlmSpawnRequest ClearCeiling => new(new(2, 18), PlmHeaderId.ClearKraidCeiling);
 
-    /// <summary>$A7:C171 SpawnPLMToClearTheSpikes: clear spike blocks from (5,27).</summary>
+    /// <summary>SpawnPLMToClearTheSpikes: clear spike blocks from (5,27).</summary>
     private static PlmSpawnRequest ClearSpikes => new(new(5, 27), PlmHeaderId.ClearKraidSpikes);
 
     /// <summary>
-    /// The nine calls in <c>$A7:AC4D</c>, indexed by Kraid variable F / 2: the ceiling callbacks at ACD7..AD3A
-    /// selected by $A7:ACC5. Each block lies directly above its paired rock center on row 18; column 2 uses the
+    /// The nine calls of Kraid's ceiling crumble, indexed by Kraid variable F / 2: the ceiling callbacks
+    /// it selects. Each block lies directly above its paired rock center on row 18; column 2 uses the
     /// left-edge background, then odd and even columns alternate variants 2 and 3.
     /// </summary>
     public static IReadOnlyList<PlmSpawnRequest> GrowthCeiling { get; } = new List<PlmSpawnRequest>
@@ -40,16 +40,14 @@ public static class KraidPlmDefinitions
     }.AsReadOnly();
 
     /// <summary>
-    /// The hardcoded PLMs spawned by defeated-room initialization at
-    /// <c>$A7:C168</c> and <c>$A7:C171</c>
-    /// , in native call order.
+    /// The hardcoded PLMs spawned by defeated-room initialization, in call order.
     /// </summary>
     public static IReadOnlyList<PlmSpawnRequest> DefeatedRoom { get; } = [ClearCeiling, ClearSpikes];
 
     /// <summary>
     /// The platform mutation paired with each sinking-table callback, or none for the no-operation callback. The
-    /// surviving platforms share the ceiling row and alternate background blocks by column parity, as in the native
-    /// C691..C714 inline arguments.
+    /// surviving platforms share the ceiling row and alternate background blocks by column parity, as in the
+    /// sinking callbacks' inline arguments.
     /// </summary>
     public static IReadOnlyDictionary<KraidSinkCallback, PlmSpawnRequest?> SinkMutations { get; } =
         new Dictionary<KraidSinkCallback, PlmSpawnRequest?>

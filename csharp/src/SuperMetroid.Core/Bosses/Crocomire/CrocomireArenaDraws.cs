@@ -63,7 +63,7 @@ internal static class CrocomireArenaDraws
         }
     }
 
-    /// <summary>Reconstructs one supported bridge or wall draw with its native run offsets.</summary>
+    /// <summary>Reconstructs one supported bridge or wall draw with its run offsets.</summary>
     internal static bool TryGet(PlmDraw draw, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;

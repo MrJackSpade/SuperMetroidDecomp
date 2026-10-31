@@ -29,10 +29,10 @@ internal sealed class CrocomireEncounterAccess
         _audio = audio;
     }
 
-    /// <summary>Debugger-visible Crocomire owner while the current room contains $DDBF.</summary>
+    /// <summary>Debugger-visible Crocomire owner while the current room contains Crocomire.</summary>
     public CrocomireEnemyState? Crocomire { get; internal set; }
 
-    /// <summary>Typed WRAM extension used by Crocomire's bridge/melting/skeleton graph.</summary>
+    /// <summary>Typed extended state used by Crocomire's bridge/melting/skeleton graph.</summary>
     public CrocomireDeathState? CrocomireDeath { get; internal set; }
 
     /// <summary>
@@ -46,7 +46,7 @@ internal sealed class CrocomireEncounterAccess
     internal void RequestCrocomireMusic(MusicRequest request, MusicQueueDelay delay) =>
         _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Crocomire, new DelayedMusicRequest(request, delay));
 
-    /// <summary>Starts <paramref name="program"/> on the body from its first step on the next update, as a native list install does.</summary>
+    /// <summary>Starts <paramref name="program"/> on the body from its first step on the next update, as a list install does.</summary>
     internal static void StartCrocomireBodyProgram(CrocomireEnemyState state, CrocomireBodyProgram program)
     {
         state.BodyCursor = AnimationProgramCursor<CrocomireBodyProgram>.Start(program);
@@ -66,7 +66,7 @@ internal sealed class CrocomireEncounterAccess
         CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire death extension is not initialized for the current room.");
 
-    /// <summary>Queues a native PLM block change for later room processing.</summary>
+    /// <summary>Queues a PLM block change for later room processing.</summary>
     internal void PublishCrocomirePlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
         _frameResults.CrocomirePlms.Add(new PlmSpawnRequest(block, header));
 

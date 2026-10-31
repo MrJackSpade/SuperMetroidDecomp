@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal static class DraygonBurialEvirs
 {
     /// <summary>
-    /// $A5:A1AF subspeeds are the absolute unit-circle components scaled by $FFFF
-    /// and truncated. $A5:A1C7 positions use the same six angles on the radius508
-    /// circle, floor to pixels, then wrap signed X into the native word. The angle
-    /// at $A5:A1DF selects the movement signs; its unused zero padding is not state.
+    /// The burial subspeeds are the absolute unit-circle components scaled by 65,535
+    /// and truncated. The spawn positions use the same six angles on the radius508
+    /// circle, floor to pixels, then wrap signed X into the word. The angle
+    /// selects the movement signs; its unused zero padding is not state.
     /// </summary>
     internal static DraygonBurialEvirDefinition ForEntry(int entry)
     {

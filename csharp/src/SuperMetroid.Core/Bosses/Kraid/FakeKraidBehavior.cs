@@ -44,7 +44,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>
     /// Carries out one cue of Mini-Kraid's animations. The action choice continues at the step or spit animation it
-    /// selects, as the native opcode returns that list; every other cue runs on.
+    /// selects, as the opcode returns that list; every other cue runs on.
     /// </summary>
     private FakeKraidProgram? ApplyFakeKraidCue(RoomEnemySlot slot, FakeKraidCue cue, SamusState? samus, RoomLevelData? level, Position16<RoomPixels> camera)
     {
@@ -58,8 +58,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case FakeKraidCueKind.ChooseAction:
                 return SelectFakeKraidAction(slot.RequireSpeciesState<FakeKraidEnemyState>());
             case FakeKraidCueKind.PlayCrySound:
-                // `$A6:9BB2` queues sound $16 only while the actor origin is inside the
-                // inclusive 256x256 native screen rectangle.
+                // The spit step queues its sound only while the actor origin is inside the
+                // inclusive 256x256 screen rectangle.
                 if (FakeKraidOriginIsOnScreen(slot, camera))
                     RequestFakeKraidSound(KraidSoundDefinitions.MiniKraidCry);
                 return null;
@@ -108,7 +108,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The routine reads the already-published global random word; it does not advance
         // the RNG. Use the read callback when available and reserve NextRandom for older
-        // isolated callers that did not expose that native seam.
+        // isolated callers that did not expose that seam.
         int random = ReadFakeKraidRandomNumber();
         int seedDelay = (random & 3) + 2;
         state.WalkStepTimer = WrappingCountdown.FromRaw(seedDelay);
@@ -158,7 +158,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports animation opcode <c>$A6:9B26</c>.</summary>
+    /// <summary>Runs Mini-Kraid's walk step.</summary>
     private void ProcessFakeKraidWalkInstruction(
         RoomEnemySlot slot,
         FakeKraidEnemyState state,
@@ -202,7 +202,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             : -4;
     }
 
-    /// <summary>Ports animation opcode <c>$A6:9B74</c> and returns the animation it continues at.</summary>
+    /// <summary>Runs Mini-Kraid's action choice and returns the animation it continues at.</summary>
     private FakeKraidProgram SelectFakeKraidAction(
         FakeKraidEnemyState state)
     {
@@ -226,7 +226,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             : FakeKraidProgram.FireSpitFacingRight;
     }
 
-    /// <summary>Ports animation opcodes <c>$A6:9BC4</c>/<c>$A6:9C02</c>.</summary>
+    /// <summary>Runs Mini-Kraid's left and right spit steps.</summary>
     internal void SpawnFakeKraidSpitPair(
         RoomEnemySlot slot,
         FakeKraidEnemyState state,
@@ -327,11 +327,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Clear();
     }
 
-    /// <summary>Samples the room random word without advancing it for the native action choice.</summary>
+    /// <summary>Samples the room random word without advancing it for the action choice.</summary>
     private int ReadFakeKraidRandomNumber() =>
         _room.Random.Read();
 
-    /// <summary>Tests the actor origin against the inclusive native 256-pixel camera rectangle for its cry.</summary>
+    /// <summary>Tests the actor origin against the inclusive 256-pixel camera rectangle for its cry.</summary>
     private static bool FakeKraidOriginIsOnScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>

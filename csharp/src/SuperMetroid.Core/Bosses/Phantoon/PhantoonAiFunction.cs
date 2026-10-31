@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// The phase of Phantoon's encounter the body runs each update. Each member names the bank-$A7 routine it replaced;
+/// The phase of Phantoon's encounter the body runs each update. Each member names the routine it replaced;
 /// the values are arbitrary identities (#1413), and the main AI dispatches on the member.
 /// </summary>
 public enum PhantoonAiFunction

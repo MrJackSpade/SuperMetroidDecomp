@@ -105,8 +105,8 @@ internal sealed class DraygonDeath
 
         _parts.StartDraygonProgram(body, DraygonProgram.Delete);
 
-        // $A0:B917 uses Draygon's body header for sixteen independent drops over the
-        // lower half of the arena. Do this before deleting the body so the native event is
+        // The death drops use Draygon's body header for sixteen independent drops over the
+        // lower half of the arena. Do this before deleting the body so the event is
         // represented by real pickup actors rather than only a debugger-visible flag.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.DraygonBody,
@@ -193,7 +193,7 @@ internal sealed class DraygonDeath
         }
     }
 
-    /// <summary>Moves the body along a native sine-table angle at the supplied speed.</summary>
+    /// <summary>Moves the body along a sine-table angle at the supplied speed.</summary>
     private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, ByteAngle movementAngle, int speed)
     {
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(

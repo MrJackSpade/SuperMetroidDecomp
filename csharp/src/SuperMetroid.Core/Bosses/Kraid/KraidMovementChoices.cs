@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Native Kraid second-phase position-dependent target/timer distributions.</summary>
+/// <summary>Kraid second-phase position-dependent target/timer distributions.</summary>
 public static class KraidMovementChoices
 {
     /// <summary>A named second-phase destination: one of Kraid's X positions in room pixels.</summary>
@@ -27,19 +27,19 @@ public static class KraidMovementChoices
     }
 
     /// <summary>
-    /// $A7:BA7D position/pointer records and BA95..BB0C target/timer pairs.
-    /// Unlisted positions select the 0160 row. RNG choices four through seven
-    /// all select its final record, preserving the native half-probability choice.
+    /// Kraid's movement position/choice records and their target/timer pairs.
+    /// Unlisted positions select the 352 row. RNG choices four through seven
+    /// all select its final record, preserving the half-probability choice.
     /// </summary>
     /// <remarks>
     /// Position and weighted branch select named movement destinations, not a sampled
     /// numerical curve. The pause policy distinguishes the first two branches and the
     /// third branch at the leftmost, middle and right positions. Independently checked
-    /// against all native pairs and both complete selector domains for #1165.
+    /// against all pairs and both complete selector domains for #1165.
     /// </remarks>
     public static KraidMovementChoice Select(int position, int random)
     {
-        // The $A7:BA7D record search ends on the starting row for every unlisted position.
+        // The movement record search ends on the starting row for every unlisted position.
         Destination row = Destination.Records.FirstOrDefault(record => record.X == position) ?? Destination.Starting;
         int choice = Math.Min((random & 28) >> 2, 4);
         Destination target = choice switch

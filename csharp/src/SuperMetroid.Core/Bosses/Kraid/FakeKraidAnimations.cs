@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.Kraid.FakeKraidProgram;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Mini-Kraid's action choice, step and spit animations as typed programs (#641), in place of their bank-$A6 lists. Generated from the verified native lists: each
+/// Mini-Kraid's action choice, step and spit animations as typed programs (#641), in place of their lists. Generated from the verified lists: each
 /// frame shows a <see cref="FakeKraidFrame"/> pose and each callback becomes a <see cref="FakeKraidCue"/> with its typed operands.
 /// </summary>
 internal static class FakeKraidAnimations

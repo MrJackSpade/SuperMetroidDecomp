@@ -3,7 +3,7 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// The body programs Crocomire's fight and death test as groups (#1452). The cartridge compares the body's
+/// The body programs Crocomire's fight and death test as groups (#1452). The original game compares the body's
 /// instruction-list pointer against one list's address, so each test admits the programs it lays out on one side of
 /// that list; each group names those programs instead of ordering the program identities.
 /// </summary>

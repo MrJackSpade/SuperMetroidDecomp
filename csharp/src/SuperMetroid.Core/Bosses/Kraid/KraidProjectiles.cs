@@ -18,7 +18,7 @@ internal sealed class KraidProjectiles
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves nail and foot movement against room terrain.</summary>
     private readonly EnemyTerrain _terrain;
-    /// <summary>Provides the native body and seven part slots.</summary>
+    /// <summary>Provides the body and seven part slots.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Checks mouth, body, and part collisions against Samus and shots.</summary>
     private readonly EnemyCollision _collision;
@@ -322,9 +322,9 @@ internal sealed class KraidProjectiles
     }
 
     /// <summary>
-    /// Native horizontal wall/contour reflections and BEE2 negate
+    /// Horizontal wall/contour reflections and the nail's reflection negate
     /// each word independently. Do not propagate fractional borrow as a normal
-    /// fixed-point negation would; the resulting nonzero-fraction quirk is native.
+    /// fixed-point negation would; the resulting nonzero-fraction quirk is the original's.
     /// </summary>
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) =>
         SignedSixteenSixteen.FromParts(WordWrap.Signed(-velocity.WholeWord), WordWrap.Unsigned(-velocity.Fraction));
@@ -464,7 +464,7 @@ internal sealed class KraidProjectiles
             part.LintTravel = 0;
         }
 
-        // Native checks support after moving and even on the frame that hides the lint.
+        // Checks support after moving and even on the frame that hides the lint.
         // Publish carry for Samus's later movement dispatcher, rather than teleporting
         // her here. The clamp changes only the whole word; retain the fractional borrow.
         if (samus is not null && EnemyCollision.IsEnemyTouchingSamusFromBelow(lint, samus))
@@ -478,7 +478,7 @@ internal sealed class KraidProjectiles
         }
     }
 
-    /// <summary>Adds native signed horizontal motion to the body position with word wraparound.</summary>
+    /// <summary>Adds signed horizontal motion to the body position with word wraparound.</summary>
     private static void AddSignedKraidHorizontalDisplacement(
         RoomEnemySlot slot,
         int displacement)
@@ -488,7 +488,7 @@ internal sealed class KraidProjectiles
         slot.Position = slot.Position.WithX(FixedCoordinate.FromRaw(unchecked(position)));
     }
 
-    /// <summary>Updates a spit rock's flight and removes it at its native boundary.</summary>
+    /// <summary>Updates a spit rock's flight and removes it at its boundary.</summary>
     internal static void RunKraidRockFrameBehavior(
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)

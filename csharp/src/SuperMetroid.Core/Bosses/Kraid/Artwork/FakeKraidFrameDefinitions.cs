@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>
-/// The presentation boundary of Mini-Kraid's programs (#641): the bank-$A6 spritemap each
+/// The presentation boundary of Mini-Kraid's programs (#641): the spritemap each
 /// <see cref="FakeKraidFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class FakeKraidFrameDefinitions

@@ -17,7 +17,7 @@ internal static class CrocomireMeltingDefinitions
 
     /// <summary>
     /// Bands of the second melt image. Its seventh band shows what follows the image's six rows of characters, as the
-    /// cartridge shows it.
+    /// shows it.
     /// </summary>
     public const int SecondPassBandCount = 7;
 
@@ -40,7 +40,7 @@ internal static class CrocomireMeltingDefinitions
     public const int DistortionLines = 256;
 
     /// <summary>
-    /// The body-layer cells a melt image's drawing shows, from the layer's first: the sixteen rows the cartridge's transfer
+    /// The body-layer cells a melt image's drawing shows, from the layer's first: the sixteen rows the game's transfer
     /// leads the image with, then the eight rows the image covers.
     /// </summary>
     public const int ShownMeltCells = 768;

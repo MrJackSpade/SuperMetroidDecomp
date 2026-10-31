@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
 /// Where Draygon's body shows on his body layer (#1354): the simulation body position and the layer placement that puts
-/// the body image there, as <c>$A5:9342</c> derives it after enemies draw.
+/// the body image there, as the body draw derives it after enemies draw.
 /// </summary>
 /// <param name="BodyPosition">Draygon's body position.</param>
 /// <param name="LayerPlacement">The layer position shown at the screen's top-left, which puts the body image at the body position.</param>

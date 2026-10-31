@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's fight latches. The cartridge sets, clears and tests each one on its own, so they compose; it keeps
+/// Crocomire's fight latches. The original game sets, clears and tests each one on its own, so they compose; it keeps
 /// them in body variable B above the mouth-hit count (<see cref="CrocomireEnemyState.HitCount"/>), and the values here
 /// are arbitrary bits (#1413). The unused attack branches give some latches meanings that the retail fight never
 /// reaches.

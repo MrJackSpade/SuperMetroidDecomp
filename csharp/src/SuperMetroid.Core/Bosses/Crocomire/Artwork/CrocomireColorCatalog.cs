@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// </summary>
 public sealed class CrocomireColorCatalog
 {
-    /// <summary>Canonical selected colors preserve the five native transfer labels/order.</summary>
+    /// <summary>Canonical selected colors preserve the five transfer labels/order.</summary>
     public string ContentIdentity => CrocomirePalette.ContentIdentity(this);
 
-    /// <summary>Five native transfer roles whose overlapping stock sources stay independently editable.</summary>
+    /// <summary>Five transfer roles whose overlapping stock sources stay independently editable.</summary>
     internal enum Band
     {
         /// <summary>Eight body and head inks restored on nonwhite hurt-flash updates.</summary>
@@ -27,7 +27,7 @@ public sealed class CrocomireColorCatalog
         WallSpikes,
     }
 
-    /// <summary>The five transfers in native order, each with the label its content identity hashes it under.</summary>
+    /// <summary>The five transfers in authored order, each with the label its content identity hashes it under.</summary>
     internal static readonly CrocomireTransferLabel[] IdentityOrder =
     [
         new(Band.FightBody, "fightBody"),
@@ -37,7 +37,7 @@ public sealed class CrocomireColorCatalog
         new(Band.WallSpikes, "wallSpikes"),
     ];
 
-    /// <summary>Each named material's calculated native paint; supplied edits never alias across fields.</summary>
+    /// <summary>Each named material's calculated paint; supplied edits never alias across fields.</summary>
     internal static readonly Dictionary<Band, Func<int, RgbColor>> StockPaint = new()
     {
         [Band.FightBody] = CrocomirePaint.FightBody,
@@ -47,7 +47,7 @@ public sealed class CrocomireColorCatalog
         [Band.WallSpikes] = CrocomirePaint.WallSpikes,
     };
 
-    /// <summary>The native transfer length of each Crocomire material role.</summary>
+    /// <summary>The transfer length of each Crocomire material role.</summary>
     internal static readonly Dictionary<Band, int> Counts = new()
     {
         [Band.FightBody] = CrocomireColorDefinitions.FightBodyCount,
@@ -60,7 +60,7 @@ public sealed class CrocomireColorCatalog
     /// <summary>Independently supplied differences; every unedited stock ink is calculated.</summary>
     internal readonly Dictionary<CrocomireColorKey, RgbColor> edits;
 
-    /// <summary>Retains only colors that differ from their calculated native material paint.</summary>
+    /// <summary>Retains only colors that differ from their calculated material paint.</summary>
     internal CrocomireColorCatalog(RgbColor[] fightBody, RgbColor[] initialWall,
         RgbColor[] initialProjectile, RgbColor[] skeletonArm, RgbColor[] wallSpikes) =>
         edits = CrocomirePalette.Edits(new()
@@ -72,21 +72,21 @@ public sealed class CrocomireColorCatalog
             [Band.WallSpikes] = wallSpikes,
         });
 
-    /// <summary>Installs the native initialization transfers in order: seventeen wall words at CGRAM 160–176, then sixteen projectile words at 208–223.</summary>
+    /// <summary>Installs the initialization transfers in order: seventeen wall colours at colours 160–176, then sixteen projectile colours at 208–223.</summary>
     public void ApplyInitial(GameplayColours colours) => CrocomirePalette.ApplyInitial(this, new BossColours(colours));
 
-    /// <summary>Restores the eight selected body/head BG inks role at CGRAM 112–119; the actor separately decides whether a hurt update should show white instead.</summary>
+    /// <summary>Restores the eight selected body/head background inks at colours 112–119; the actor separately decides whether a hurt update should show white instead.</summary>
     public void ApplyFightBody(GameplayColours colours) =>
         CrocomirePalette.Apply(this, new BossColours(colours).CrocomireFightBody, Band.FightBody);
 
-    /// <summary>Installs the sixteen skeleton-arm OBJ inks corresponding to $A4:B8FD at CGRAM 144–159 when the wall-break sequence begins.</summary>
+    /// <summary>Installs the sixteen skeleton-arm sprite inks at colours 144–159 when the wall-break sequence begins.</summary>
     public void ApplySkeletonArm(GameplayColours colours) =>
         CrocomirePalette.Apply(this, new BossColours(colours).CrocomireSkeletonArm, Band.SkeletonArm);
 
-    /// <summary>Installs the sixteen wall-spike OBJ inks corresponding to $A4:B91D at CGRAM 176–191 when the rumble script reaches its terminator.</summary>
+    /// <summary>Installs the sixteen wall-spike sprite inks at colours 176–191 when the rumble script reaches its terminator.</summary>
     public void ApplyWallSpikes(GameplayColours colours) =>
         CrocomirePalette.Apply(this, new BossColours(colours).CrocomireWallSpikes, Band.WallSpikes);
 
-    /// <summary>Returns an edited color or calculates the corresponding native stock paint.</summary>
+    /// <summary>Returns an edited color or calculates the corresponding stock paint.</summary>
     internal RgbColor Get(Band band, int index) => CrocomirePalette.Get(edits, band, index);
 }

@@ -3,33 +3,33 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>The sixteen ordered rectangle lists Kraid's arm components collide with.</summary>
 internal enum KraidArmHitboxList
 {
-    /// <summary>Hitbox_KraidArm_0.</summary>
+    /// <summary>Kraid arm hitbox 0.</summary>
     Articulated0,
-    /// <summary>Hitbox_KraidArm_1.</summary>
+    /// <summary>Kraid arm hitbox 1.</summary>
     Articulated1,
-    /// <summary>Hitbox_KraidArm_2.</summary>
+    /// <summary>Kraid arm hitbox 2.</summary>
     Articulated2,
-    /// <summary>Hitbox_KraidArm_3.</summary>
+    /// <summary>Kraid arm hitbox 3.</summary>
     Articulated3,
-    /// <summary>Hitbox_KraidArm_4.</summary>
+    /// <summary>Kraid arm hitbox 4.</summary>
     Articulated4,
-    /// <summary>Hitbox_KraidArm_5.</summary>
+    /// <summary>Kraid arm hitbox 5.</summary>
     Articulated5,
-    /// <summary>Hitbox_KraidArm_6.</summary>
+    /// <summary>Kraid arm hitbox 6.</summary>
     Articulated6,
-    /// <summary>Hitbox_KraidArm_8.</summary>
+    /// <summary>Kraid arm hitbox 8.</summary>
     ConnectorSecond,
-    /// <summary>Hitbox_KraidArm_9.</summary>
+    /// <summary>Kraid arm hitbox 9.</summary>
     ConnectorThird,
-    /// <summary>Hitbox_KraidArm_A.</summary>
+    /// <summary>Kraid arm hitbox: a.</summary>
     ConnectorFinal,
-    /// <summary>Hitbox_KraidArm_F.</summary>
+    /// <summary>Kraid arm hitbox: f.</summary>
     ConnectorInitial,
-    /// <summary>Hitbox_KraidArm_10.</summary>
+    /// <summary>Kraid arm hitbox 10.</summary>
     BodyFinal,
-    /// <summary>Hitbox_KraidArm_11.</summary>
+    /// <summary>Kraid arm hitbox 11.</summary>
     BodyMiddle,
-    /// <summary>Hitbox_KraidArm_12.</summary>
+    /// <summary>Kraid arm hitbox 12.</summary>
     BodyInitial,
     /// <summary>the first dying/preparing-to-lunge list.</summary>
     FinalPoseFirst,

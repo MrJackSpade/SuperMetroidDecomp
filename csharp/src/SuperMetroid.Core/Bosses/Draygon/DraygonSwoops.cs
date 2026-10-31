@@ -78,7 +78,7 @@ internal sealed class DraygonSwoops
         state.SwoopEntry = frameCount;
     }
 
-    /// <summary>Ports the descending half (right) and <c>$A5:8A00</c> (left).</summary>
+    /// <summary>Runs the descending half of the swoop, right and left.</summary>
     internal void DescendDraygonSwoop(
         DraygonEnemyState state,
         SamusState? samus,
@@ -119,7 +119,7 @@ internal sealed class DraygonSwoops
     }
 
     /// <summary>
-    /// Ports the ascending half and random next-attack choice (right) and $A5:8A90 (left). Only the leftward
+    /// Runs the ascending half and random next-attack choice, right and left. Only the leftward
     /// ascent emits breath bubbles. At the top the rightward swoop chooses the left swoop or goop; the leftward one
     /// returns to the left reset point first and chooses the right swoop, at the reset height, or goop.
     /// </summary>
@@ -203,9 +203,9 @@ internal sealed class DraygonSwoops
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the left apex.");
 
-        // The reset coordinate is negative in the retail room. $A5:8A66 explicitly
+        // The reset coordinate is negative in the retail room. The left ascent explicitly
         // negates it and adds the body's positive arena X, yielding the wrapped distance
-        // from the current point back to X=$FFB0.
+        // from the current point back to X=-80.
         int resetX = state.LeftSideReset.X;
         int distance = CoordinateAxis.AsSigned(resetX) < 0
             ? CoordinateAxis.Wrap(
@@ -217,7 +217,7 @@ internal sealed class DraygonSwoops
 
     /// <summary>
     /// Sets the swoop's 16.16 horizontal velocity: the whole-pixel distance promoted to 16.16 and divided by the path's
-    /// frame count, the quotient native code splits into the var_D/E whole and subpixel words.
+    /// frame count, the quotient code splits into the var_D/E whole and subpixel words.
     /// </summary>
     /// <param name="state">Draygon's state, which receives the velocity.</param>
     /// <param name="distance">The whole-pixel distance, 0 through 65535.</param>

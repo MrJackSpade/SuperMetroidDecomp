@@ -16,9 +16,9 @@ internal sealed class KraidHead
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Provides the native body and seven part slots.</summary>
+    /// <summary>Provides the body and seven part slots.</summary>
     private readonly EnemySlotTable _slotTable;
-    /// <summary>Applies Kraid palettes, background tiles, and OAM presentation.</summary>
+    /// <summary>Applies Kraid palettes, background tiles, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
@@ -111,7 +111,7 @@ internal sealed class KraidHead
             state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(90);
 
             // Bits 2 and 8-15 are populated by body/mouth projectile handling. Preserve
-            // the cartridge arithmetic now so adding collision cannot change sequencing.
+            // the original game arithmetic now so adding collision cannot change sequencing.
             if ((state.MouthFlags & KraidMouthFlags.ReopenPending) != KraidMouthFlags.None)
             {
                 state.RemoveOneMouthReopen();
@@ -129,7 +129,7 @@ internal sealed class KraidHead
         }
 
         // The open-mouth tilemap remains installed for 64 frames. Retail emits a rock on
-        // every sixteenth timer value, including the entry frame after `$AF3D` reloads it.
+        // every sixteenth timer value, including the entry frame after the open-mouth setup reloads it.
         if (state.DisplayedHeadFrame is { MouthStage: KraidHeadFrame.FullyOpenMouthStage } &&
             state.Parts[body.SlotIndex].HeadTimer.IsOnMultipleOf(16))
         {
@@ -180,7 +180,7 @@ internal sealed class KraidHead
             case AnimationProgramAdvance<KraidHeadFrame>.Show shown:
                 state.Parts[body.SlotIndex].HeadTimer = WrappingCountdown.Start(shown.Duration);
                 state.DisplayedHeadFrame = shown.Frame;
-                // `$A7:AF5D` draws the pose straight over the upper half of his body; the next showing of that half covers it.
+                // The head draw draws the pose straight over the upper half of his body; the next showing of that half covers it.
                 state.ShowHead(shown.Frame);
                 return 1;
 
@@ -289,7 +289,7 @@ internal sealed class KraidHead
             RgbColor target = _background.ReadKraidColor(KraidPaletteSource.Health, sourceColor + eye);
             int red = current.Red;
             int green = current.Green;
-            // Native decrements toward any differing target and masks each field, so a
+            // Decrements toward any differing target and masks each field, so a
             // channel below its target wraps within its five bits without borrowing.
             if (red != target.Red)
             {

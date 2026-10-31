@@ -18,7 +18,7 @@ internal static class SporeSpawnProjectiles
     internal static Offset16<RoomPixels> MovementAt(int offset) =>
         new(Movement[offset], Movement[WordWrap.LowByte(offset + 1)]);
 
-    /// <summary>Accepts only the four stalk or ceiling-emitter ordinals used by the native spawn routines.</summary>
+    /// <summary>Accepts only the four stalk or ceiling-emitter ordinals used by the spawn routines.</summary>
     private static int SpawnIndex(int spawnArgument)
     {
         if (spawnArgument is < 0 or > 3)

@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonPatternDefinitions
 {
     /// <summary>
-    /// The figure-eight cursor and world X/Y of each of the eight native
-    /// random buckets; each native record also has an unused zero word. Patterns zero and four share the same body
+    /// The figure-eight cursor and world X/Y of each of the eight
+    /// random buckets; each record also has an unused zero word. Patterns zero and four share the same body
     /// placement.
     /// </summary>
     internal static readonly PhantoonRainPlacementDefinition[] RainPlacements =
@@ -29,7 +29,7 @@ public static class PhantoonPatternDefinitions
     /// </summary>
     /// <remarks>
     /// Issue1165 narrow nonsense exception: these are arbitrary random-bucket assignments,
-    /// not direction, phase or geometric selectors. Native eye variable B has no reader;
+    /// not direction, phase or geometric selectors. Eye variable B has no reader;
     /// managed Phantoon reads of variable B address the other body/mouth/tentacle slots.
     /// The marker remains exposed state, so replacing this with a different 50/50 selection
     /// changes exact RNG-to-state behavior. Boolean cases would merely recite the same bucket
@@ -38,7 +38,7 @@ public static class PhantoonPatternDefinitions
     public static ReadOnlySpan<byte> ShotEyeMarkers => [6, 6, 8, 8, 6, 8, 6, 8];
 
     /// <summary>
-    /// The eye program of each relative-octant selector 0..8. The unused code 5 retains the native
+    /// The eye program of each relative-octant selector 0..8. The unused code 5 retains the
     /// downward selection; all other values name a direction.
     /// </summary>
     internal static readonly PhantoonPartProgram[] EyePrograms =

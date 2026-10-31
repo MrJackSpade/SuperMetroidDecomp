@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Cartridge-owned collision for Draygon's BG2 and ordinary OAM frames. The
+/// Owned collision for Draygon's body-layer and ordinary sprite frames. The
 /// visual streams referenced by these frames are independently replaceable;
 /// editing their artwork cannot move a hitbox or change a callback.
 /// </summary>
@@ -32,7 +32,7 @@ internal static class DraygonCollisionDefinitions
     /// <summary>The empty list of the BG2 frames in which the body cannot be hit or touched.</summary>
     internal static readonly EnemyCollisionHitbox[] EmptyHitboxes = [];
 
-    /// <summary>Ordinary OAM art has no collision components.</summary>
+    /// <summary>Ordinary sprite art has no collision components.</summary>
     internal static readonly ImmutableArray<EnemyCollisionComponent> NoComponents = [];
     /// <summary>The left-facing body's one zero-offset component.</summary>
     internal static readonly ImmutableArray<EnemyCollisionComponent> FirstBodyComponents = [new(Offset16<RoomPixels>.Zero, FirstBodyHitboxes)];
@@ -42,8 +42,8 @@ internal static class DraygonCollisionDefinitions
     internal static readonly ImmutableArray<EnemyCollisionComponent> EmptyBodyComponents = [new(Offset16<RoomPixels>.Zero, EmptyHitboxes)];
 
     /// <summary>
-    /// Each Draygon frame's collision components. Every BG2 body frame has one zero-offset component: the first eight and
-    /// final frame of each facing use that facing's body hitboxes and the frames between use the empty list. Ordinary OAM
+    /// Each Draygon frame's collision components. Every body-layer frame has one zero-offset component: the first eight and
+    /// final frame of each facing use that facing's body hitboxes and the frames between use the empty list. Ordinary sprite
     /// frames have no collision components.
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, ImmutableArray<EnemyCollisionComponent>> FrameComponents = new()

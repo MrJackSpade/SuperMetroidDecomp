@@ -3,7 +3,7 @@ using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>A Fake Kraid spit or spike's typed program: it shows its pose, then holds as the native sleep does.</summary>
+/// <summary>A Fake Kraid spit or spike's typed program: it shows its pose, then holds as the script's sleep does.</summary>
 /// <param name="pose">The pose to show.</param>
 internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
     : EnemyProjectileProgramAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue>(pose)

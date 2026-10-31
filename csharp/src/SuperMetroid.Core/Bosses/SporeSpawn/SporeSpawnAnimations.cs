@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnBodyProgram;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
-/// <summary>Spore Spawn's typed body programs (#641), in place of its bank-$A5 lists.</summary>
+/// <summary>Spore Spawn's typed body programs (#641), in place of its lists.</summary>
 internal static class SporeSpawnAnimations
 {
     /// <summary>How long the living room waits before the descent.</summary>
@@ -147,7 +147,7 @@ internal static class SporeSpawnAnimations
     private static AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> FallInto(SporeSpawnBodyProgram program) =>
         AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the script's sleep does.</summary>
     private static AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue> Hold =>
         AnimationProgramStep<SporeSpawnBodyProgram, SporeSpawnFrame, SporeSpawnCue>.Hold;
 }

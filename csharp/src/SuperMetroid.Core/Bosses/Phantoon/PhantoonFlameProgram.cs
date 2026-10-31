@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Phantoon's typed flame programs (#641), in the authored order of their bank-$86 lists.</summary>
+/// <summary>Phantoon's typed flame programs (#641), in the authored order of their lists.</summary>
 internal enum PhantoonFlameProgram
 {
     /// <summary>The destroyable flame's three-pose idle loop.</summary>

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// Four native two-by-two physical ceiling draws. Each list has two
+/// Four two-by-two physical ceiling draws. Each list has two
 /// horizontal runs, calculated without a stored layout cache. Editable visible
 /// block selections remain a separate asset.
 /// </summary>

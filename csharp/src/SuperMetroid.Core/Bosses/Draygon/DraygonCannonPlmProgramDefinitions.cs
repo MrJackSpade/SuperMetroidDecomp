@@ -4,7 +4,7 @@ using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.B
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's cannon PLM programs (#1296), in place of their bank-$84 instruction lists. A shielded cannon sleeps behind
+/// Draygon's cannon PLM programs (#1296), in place of their instruction lists. A shielded cannon sleeps behind
 /// its shield; a missile wakes it into the hit program, which counts the hit and flashes the shield; the third hit
 /// destroys it, and a destroyed cannon smokes forever.
 /// </summary>

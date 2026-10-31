@@ -1,105 +1,105 @@
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>
-/// Draygon's body, eye, tail and arms programs, in the order the cartridge authors them. The four parts
+/// Draygon's body, eye, tail and arms programs, in the order the original game authors them. The four parts
 /// run programs of one set: a body cue starts all four, and the arms' dying program runs on into the body's.
 /// </summary>
 public enum DraygonProgram
 {
-    /// <summary><c>InstList_Draygon_Sleep</c>.</summary>
+    /// <summary>Draygon animation script: sleep.</summary>
     Sleep,
-    /// <summary><c>InstList_DraygonBody_FacingLeft_Reset</c>.</summary>
+    /// <summary>Draygon body animation script: facing left, reset.</summary>
     BodyFacingLeftReset,
-    /// <summary><c>InstList_DraygonBody_FacingRight_Reset</c>.</summary>
+    /// <summary>Draygon body animation script: facing right, reset.</summary>
     BodyFacingRightReset,
-    /// <summary><c>InstList_DraygonArms_FacingLeft_Idle_0</c>.</summary>
+    /// <summary>Draygon arms animation script: facing left, idle, part 0.</summary>
     ArmsFacingLeftIdle,
-    /// <summary><c>InstList_DraygonArms_FacingLeft_NearSwoopApex</c>.</summary>
+    /// <summary>Draygon arms animation script: facing left, near swoop apex.</summary>
     ArmsFacingLeftNearSwoopApex,
-    /// <summary><c>InstList_DraygonArms_FacingLeft_Grab</c>.</summary>
+    /// <summary>Draygon arms animation script: facing left, grab.</summary>
     ArmsFacingLeftGrab,
-    /// <summary><c>InstList_DraygonArms_FacingLeft_Dying</c>.</summary>
+    /// <summary>Draygon arms animation script: facing left, dying.</summary>
     ArmsFacingLeftDying,
-    /// <summary><c>InstList_DraygonBody_FacingLeft_Idle</c>.</summary>
+    /// <summary>Draygon body animation script: facing left, idle.</summary>
     BodyFacingLeftIdle,
-    /// <summary><c>InstList_DraygonBody_Dying_0</c>.</summary>
+    /// <summary>Draygon body animation script: dying, part 0.</summary>
     BodyDying,
-    /// <summary><c>InstList_DraygonBody_Dying_1</c>.</summary>
+    /// <summary>Draygon body animation script: dying, part 1.</summary>
     BodyDyingExplosions,
-    /// <summary><c>InstList_DraygonBody_Dying_2</c>.</summary>
+    /// <summary>Draygon body animation script: dying, part 2.</summary>
     BodyDyingExplosionsLoop,
-    /// <summary><c>InstList_Draygon_Delete</c>.</summary>
+    /// <summary>Draygon animation script: delete.</summary>
     Delete,
-    /// <summary><c>InstList_DraygonBody_FacingLeft_FireGoop</c>.</summary>
+    /// <summary>Draygon body animation script: facing left, fire goop.</summary>
     BodyFacingLeftFireGoop,
-    /// <summary><c>InstList_DraygonBody_FacingLeft_Roar</c>.</summary>
+    /// <summary>Draygon body animation script: facing left, roar.</summary>
     BodyFacingLeftRoar,
-    /// <summary><c>InstList_DraygonEye_FacingLeft_Idle</c>.</summary>
+    /// <summary>Draygon eye animation script: facing left, idle.</summary>
     EyeFacingLeftIdle,
-    /// <summary><c>InstList_DraygonEye_FacingLeft_Dying_0</c>.</summary>
+    /// <summary>Draygon eye animation script: facing left, dying, part 0.</summary>
     EyeFacingLeftDying,
-    /// <summary><c>InstList_DraygonEye_FacingLeft_Dying_1</c>.</summary>
+    /// <summary>Draygon eye animation script: facing left, dying, part 1.</summary>
     EyeFacingLeftDyingLoop,
-    /// <summary><c>InstList_DraygonEye_FacingLeft_Dead</c>.</summary>
+    /// <summary>Draygon eye animation script: facing left, dead.</summary>
     EyeFacingLeftDead,
-    /// <summary><c>InstList_DraygonEye_FacingLeft_LookingLeft</c>.</summary>
+    /// <summary>Draygon eye animation script: facing left, looking left.</summary>
     EyeFacingLeftLookingLeft,
-    /// <summary><c>InstList_DraygonEye_FacingLeft_LookingRight</c>.</summary>
+    /// <summary>Draygon eye animation script: facing left, looking right.</summary>
     EyeFacingLeftLookingRight,
-    /// <summary><c>InstList_DraygonEye_FacingLeft_LookingUp</c>.</summary>
+    /// <summary>Draygon eye animation script: facing left, looking up.</summary>
     EyeFacingLeftLookingUp,
-    /// <summary><c>InstList_DraygonEye_FacingLeft_LookingDown</c>.</summary>
+    /// <summary>Draygon eye animation script: facing left, looking down.</summary>
     EyeFacingLeftLookingDown,
-    /// <summary><c>InstList_DraygonTail_FacingLeft_Idle_0</c>.</summary>
+    /// <summary>Draygon tail animation script: facing left, idle, part 0.</summary>
     TailFacingLeftIdle,
-    /// <summary><c>InstList_DraygonTail_FacingLeft_FakeTailWhip</c>.</summary>
+    /// <summary>Draygon tail animation script: facing left, fake tail whip.</summary>
     TailFacingLeftInitialFakeWhip,
-    /// <summary><c>InstList_DraygonTail_FacingLeft_FinalTailWhips_0</c>.</summary>
+    /// <summary>Draygon tail animation script: facing left, final tail whips, part 0.</summary>
     TailFacingLeftFinalWhips,
-    /// <summary><c>InstList_DraygonTail_FacingLeft_FinalTailWhips_1</c>.</summary>
+    /// <summary>Draygon tail animation script: facing left, final tail whips, part 1.</summary>
     TailFacingLeftFinalWhipsLoop,
-    /// <summary><c>InstList_DraygonTail_FacingLeft_TailWhip</c>.</summary>
+    /// <summary>Draygon tail animation script: facing left, tail whip.</summary>
     TailFacingLeftWhip,
-    /// <summary><c>InstList_DraygonTail_FacingLeft_TailFlail</c>.</summary>
+    /// <summary>Draygon tail animation script: facing left, tail flail.</summary>
     TailFacingLeftFlail,
-    /// <summary><c>InstList_DraygonArms_FacingRight_Idle_0</c>.</summary>
+    /// <summary>Draygon arms animation script: facing right, idle, part 0.</summary>
     ArmsFacingRightIdle,
-    /// <summary><c>InstList_DraygonArms_FacingRight_NearSwoopApex</c>.</summary>
+    /// <summary>Draygon arms animation script: facing right, near swoop apex.</summary>
     ArmsFacingRightNearSwoopApex,
-    /// <summary><c>InstList_DraygonArms_FacingRight_Grab</c>.</summary>
+    /// <summary>Draygon arms animation script: facing right, grab.</summary>
     ArmsFacingRightGrab,
-    /// <summary><c>InstList_DraygonArms_FacingRight_Dying_0</c>.</summary>
+    /// <summary>Draygon arms animation script: facing right, dying, part 0.</summary>
     ArmsFacingRightDying,
-    /// <summary><c>InstList_DraygonBody_FacingRight_Idle</c>.</summary>
+    /// <summary>Draygon body animation script: facing right, idle.</summary>
     BodyFacingRightIdle,
-    /// <summary><c>InstList_DraygonBody_FacingRight_FireGoop</c>.</summary>
+    /// <summary>Draygon body animation script: facing right, fire goop.</summary>
     BodyFacingRightFireGoop,
-    /// <summary><c>InstList_DraygonBody_FacingRight_Roar</c>.</summary>
+    /// <summary>Draygon body animation script: facing right, roar.</summary>
     BodyFacingRightRoar,
-    /// <summary><c>InstList_DraygonEye_FacingRight_Idle</c>.</summary>
+    /// <summary>Draygon eye animation script: facing right, idle.</summary>
     EyeFacingRightIdle,
-    /// <summary><c>InstList_DraygonEye_FacingRight_Dying_0</c>.</summary>
+    /// <summary>Draygon eye animation script: facing right, dying, part 0.</summary>
     EyeFacingRightDying,
-    /// <summary><c>InstList_DraygonEye_FacingRight_Dying_1</c>.</summary>
+    /// <summary>Draygon eye animation script: facing right, dying, part 1.</summary>
     EyeFacingRightDyingLoop,
-    /// <summary><c>InstList_DraygonEye_FacingRight_Dead</c>.</summary>
+    /// <summary>Draygon eye animation script: facing right, dead.</summary>
     EyeFacingRightDead,
-    /// <summary><c>InstList_DraygonEye_FacingRight_LookingRight</c>.</summary>
+    /// <summary>Draygon eye animation script: facing right, looking right.</summary>
     EyeFacingRightLookingRight,
-    /// <summary><c>InstList_DraygonEye_FacingRight_LookingLeft</c>.</summary>
+    /// <summary>Draygon eye animation script: facing right, looking left.</summary>
     EyeFacingRightLookingLeft,
-    /// <summary><c>InstList_DraygonEye_FacingRight_LookingUp</c>.</summary>
+    /// <summary>Draygon eye animation script: facing right, looking up.</summary>
     EyeFacingRightLookingUp,
-    /// <summary><c>InstList_DraygonEye_FacingRight_LookingDown</c>.</summary>
+    /// <summary>Draygon eye animation script: facing right, looking down.</summary>
     EyeFacingRightLookingDown,
-    /// <summary><c>InstList_DraygonTail_FacingRight_Idle_0</c>.</summary>
+    /// <summary>Draygon tail animation script: facing right, idle, part 0.</summary>
     TailFacingRightIdle,
-    /// <summary><c>InstList_DraygonTail_FacingRight_FinalTailWhips_0</c>.</summary>
+    /// <summary>Draygon tail animation script: facing right, final tail whips, part 0.</summary>
     TailFacingRightFinalWhips,
-    /// <summary><c>InstList_DraygonTail_FacingRight_FinalTailWhips_1</c>.</summary>
+    /// <summary>Draygon tail animation script: facing right, final tail whips, part 1.</summary>
     TailFacingRightFinalWhipsLoop,
-    /// <summary><c>InstList_DraygonTail_FacingRight_TailWhip_0</c>.</summary>
+    /// <summary>Draygon tail animation script: facing right, tail whip, part 0.</summary>
     TailFacingRightWhip,
-    /// <summary><c>InstList_DraygonTail_FacingRight_TailFlail_0</c>.</summary>
+    /// <summary>Draygon tail animation script: facing right, tail flail, part 0.</summary>
     TailFacingRightFlail,
 }

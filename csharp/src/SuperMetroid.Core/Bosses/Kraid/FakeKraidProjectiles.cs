@@ -17,9 +17,9 @@ internal static class FakeKraidProjectiles
     }
 
     /// <summary>Selects a fixed body launch position.
-    /// Native $A6:9AC2..9B10 selects one of three independent spike timers at byte
-    /// offsets0/2/4; the managed boundary divides that selector by two.
-    /// $86:9E4E adds this signed integer offset with16-bit wrap, independently of
+    /// The spit step selects one of three independent spike timers by
+    /// row; the managed boundary takes the row directly.
+    /// The spike initializer adds this signed integer offset with16-bit wrap, independently of
     /// animation and facing.</summary>
     internal static int SpikeYOffset(int row) => (uint)row < (uint)FakeKraidProjectileDefinitions.Rows.Length
         ? FakeKraidProjectileDefinitions.SpikeYOffsets.TryGetValue(FakeKraidProjectileDefinitions.Rows[row], out int offset)

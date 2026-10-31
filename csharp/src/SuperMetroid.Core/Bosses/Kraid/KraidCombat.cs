@@ -189,7 +189,7 @@ internal sealed class KraidCombat
                 {
                     RoomSpriteObjectSlot? dud = _spriteObjects.SpawnRoomSpriteObject(
                         shot.Position, RoomSpriteObjectKind.EnemyProjectileDud, graphics: default);
-                    bounds.LeaveAfterDud(dud?.SlotIndex, shot.Position.X, shot.Position.Y, KraidContactDefinitions.ShotLeftBoundAfterDud);
+                    bounds.LeaveAfterDud(dud?.SlotIndex, shot.Position, KraidContactDefinitions.ShotLeftBoundAfterDud);
                     _audio.QueueEnemySound(Library1Sound.DudShot, maximumQueued: SoundQueueLimit.Max3);
                 }
                 shots.MarkCollision(index);
@@ -233,7 +233,7 @@ internal sealed class KraidCombat
                 if (!OverlapsKraidBody(ref bounds, body, shot))
                     continue;
                 SpawnKraidArmShotExplosion(shot.Type, shot.Position);
-                bounds.LeaveAfterBodyHit(shot.Position.X, shot.Position.Y);
+                bounds.LeaveAfterBodyHit(shot.Position);
                 shots.MarkCollision(index);
                 if (shot.Type.IsChargedBeam)
                     state.MouthFlags |= KraidMouthFlags.Hit;

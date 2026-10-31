@@ -64,7 +64,7 @@ internal sealed class MotherBrainBody
     /// Runs a falling tube's program where the enemy instruction interpreter would: its pose shows on the update the
     /// native timer expires, raising the new-frame flag, and the native sleep then keeps it.
     /// </summary>
-    internal void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
+    internal static void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
     {
         CountdownStep instructionTimer = tube.InstructionTimer.Decrement();
         tube.InstructionTimer = instructionTimer.Remaining;

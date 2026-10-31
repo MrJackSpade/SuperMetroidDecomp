@@ -86,16 +86,21 @@ internal static class Census
                 uncompiled.Add(project.Name);
                 continue;
             }
-            var analyzers = project.AnalyzerReferences
+            var analyzerReferences = project.AnalyzerReferences
                 .Where(reference => reference.Display?.Contains("SuperMetroid.EnsureAnalyzer", StringComparison.Ordinal) == true &&
                     !reference.Display.Contains("CodeFixes", StringComparison.Ordinal))
-                .SelectMany(reference => reference.GetAnalyzers(project.Language))
                 .ToArray();
-            if (analyzers.Length == 0)
+            if (analyzerReferences.Length == 0)
             {
                 Console.WriteLine($"{project.Name}: no EnsureAnalyzer reference");
                 continue;
             }
+            var analyzers = analyzerReferences.SelectMany(reference => reference.GetAnalyzers(project.Language)).ToArray();
+            // A referenced analyzer that loads nothing has not been built: counting zero findings would be a false pass.
+            if (analyzers.Length == 0)
+                throw new InvalidOperationException(
+                    $"{project.Name} references {string.Join(", ", analyzerReferences.Select(reference => reference.FullPath))}, " +
+                    "which loads no analyzers; build csharp/src/SuperMetroid.EnsureAnalyzer -c Release first.");
             var withAnalyzers = compilation.WithAnalyzers([.. analyzers], project.AnalyzerOptions);
             var result = await withAnalyzers.GetAnalysisResultAsync(CancellationToken.None);
             var diagnostics = result.GetAllDiagnostics()

@@ -5,11 +5,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireRumbleDefinitions
 {
     /// <summary>
-    /// The last oscillation's timing as authored. The rumble ends at the next step, before either value is used.
-    /// </summary>
-    private const int EndMarker = 32896;
-
-    /// <summary>
     /// $A4:98FA: selected final repeat counter3 in the shake/sound performance.
     /// This counts completed oscillations, not elapsed frames. The consumer adds
     /// one final traversal before loading the next phase.
@@ -24,7 +19,8 @@ internal static class CrocomireRumbleDefinitions
     /// Negative extrema double after each two-cycle buildup, reaching amplitude 4 at phase 4, then halve each phase
     /// through phase 6. Cooldown rises by four from eight, saturates at sixteen for two cycles, then halves; the final
     /// selected repeat count belongs to the authored shake cadence. The six live approach deltas rise from one to two
-    /// for the middle pair, then return to one; the seventh phase carries the end marker.
+    /// for the middle pair, then return to one. The last negative target ends the rumble, so like a return target it
+    /// carries no next phase.
     /// </remarks>
     internal static ImmutableArray<CrocomireRumbleDefinition> All { get; } =
     [
@@ -41,6 +37,6 @@ internal static class CrocomireRumbleDefinitions
         new(1, 0, 0),
         new(-2, FinalDecayHold, 1),
         new(1, 0, 0),
-        new(-1, EndMarker, EndMarker),
+        new(-1, 0, 0),
     ];
 }

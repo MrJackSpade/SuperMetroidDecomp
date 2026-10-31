@@ -21,7 +21,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     {
         MotherBrainPart.Body => species.Body.InitializeMotherBrainBody,
         MotherBrainPart.Head => species.Head.InitializeMotherBrainHead,
-        MotherBrainPart.Tubes => species.FakeDeath.InitializeMotherBrainFallingTube,
+        MotherBrainPart.Tubes => MotherBrainFakeDeath.InitializeMotherBrainFallingTube,
         _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
     };
 
@@ -37,7 +37,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => MotherBrainPartDefinitions.Parts[Slot.DefinitionId] switch
     {
-        MotherBrainPart.Tubes => (enemy, _) => species.Body.AdvanceMotherBrainTubeAnimation(enemy),
+        MotherBrainPart.Tubes => (enemy, _) => MotherBrainBody.AdvanceMotherBrainTubeAnimation(enemy),
         MotherBrainPart.Body or MotherBrainPart.Head => species.AdvanceMotherBrainBodyTypedAnimation,
         _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
     };

@@ -43,8 +43,10 @@ internal static class CrocomireRumbleDefinitionsVerification
             if (definition.TargetYOffset >= 0)
                 continue;
 
-            expectedWords[targetIndex + 1] = (ushort)definition.Cooldown;
-            expectedWords[targetIndex + 2] = (ushort)definition.Delta;
+            // The last target ends the rumble, so the schedule carries no next phase where the cartridge holds its marker.
+            bool last = step == stepCount - 1;
+            expectedWords[targetIndex + 1] = last ? RumbleEndMarker : (ushort)definition.Cooldown;
+            expectedWords[targetIndex + 2] = last ? RumbleEndMarker : (ushort)definition.Delta;
             assigned[targetIndex + 1] = true;
             assigned[targetIndex + 2] = true;
         }
@@ -126,10 +128,15 @@ internal static class CrocomireRumbleDefinitionsVerification
                 AssertEqual(referenceY, unchecked((ushort)death.RumbleYOffset),
                     $"Crocomire rumble frame {frames} Y offset");
             }
-            AssertEqual(referenceCooldown, death.RumbleCooldown.RawValue,
-                $"Crocomire rumble frame {frames} cooldown");
-            AssertEqual(referenceDelta, death.RumbleDelta,
-                $"Crocomire rumble frame {frames} delta");
+            // The terminator also loads its marker as the next phase's cooldown and delta, which nothing reads because
+            // the rumble ends at the next step; production loads no next phase there, so the comparison stops once the marker is loaded.
+            if (referenceDelta != 0x8080)
+            {
+                AssertEqual(referenceCooldown, death.RumbleCooldown.RawValue,
+                    $"Crocomire rumble frame {frames} cooldown");
+                AssertEqual(referenceDelta, death.RumbleDelta,
+                    $"Crocomire rumble frame {frames} delta");
+            }
             AssertEqual(referenceDeathIndex, (ushort)((ushort)state.DeathSequenceIndex * 2),
                 $"Crocomire rumble frame {frames} death index");
         }

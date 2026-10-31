@@ -22,7 +22,12 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyShutterBehavior()
     {
         VerifyPose(EnemyDefinitionId.ShutterGrowing, ShutterProgram.GrowingTenPixels,
-            (enemies, slot) => ShuttersBehavior.InitializeGrowingShutter(slot),
+            (enemies, slot) =>
+            {
+                slot.SetSpawnSettings(new GrowingShutterSpawnSettings(
+                    Wait: GrowingShutterWait.SamusNear, Growth: GrowingShutterGrowth.Down, ActivationDistance: 144, GrowthSpeedIndex: 16));
+                ShuttersBehavior.InitializeGrowingShutter(slot);
+            },
             enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Program);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
         {

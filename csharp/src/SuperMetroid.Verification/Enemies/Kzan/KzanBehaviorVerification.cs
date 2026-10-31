@@ -23,6 +23,7 @@ internal static class KzanBehaviorVerification
         slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.Position = slot.Position.WithWholeY(128);
+        slot.SetSpawnSettings(new KzanSpawnSettings(FallSpeedIndex: 64, FallWait: 112, FallDistance: 80));
         KzanBehavior.InitializeKzanTop(slot);
         AssertEqual(AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle),
             (enemies.SlotTable.Slots[0].EntityState<KzanEntity, KzanEnemyState>() ?? throw new InvalidOperationException("The Kzan has no state.")).Program,

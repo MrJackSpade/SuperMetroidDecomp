@@ -1,4 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Samus;
@@ -47,8 +48,7 @@ internal static class BeetomOwnedStateVerification
         // The next Beetom set up in the slot inherits the facing its predecessor left; a Beetom in another slot does not.
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
         enemies.BeetomBehavior.InitializeBeetom(slot, new SamusState(InstalledFixtures.AnimationContinuation), 0);
-        BeetomEnemyState successor = enemies.BeetomStates[0]
-            ?? throw new InvalidOperationException("The re-initialized Beetom has no state.");
+        BeetomEnemyState successor = Ensure.NotNull(enemies.BeetomStates[0]);
         AssertTrue(!ReferenceEquals(state, successor), "re-initialization sets up a new Beetom");
         AssertTrue(successor.FacingRight, "a new Beetom inherits the facing the slot's previous Beetom left");
         RoomEnemySlot otherSlot = enemies.SlotTable.Slots[1];

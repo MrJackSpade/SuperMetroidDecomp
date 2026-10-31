@@ -26454,19 +26454,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueExtensionWords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueExtensionWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueFrame",
       "kind": "record struct",
       "scope": "product",
@@ -26504,6 +26491,19 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianPlms",
@@ -34302,6 +34302,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonNativeWords.SharedValue",
+      "kind": "enum",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Draygon/DraygonNativeWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonPart",
       "kind": "enum",
       "scope": "product",
@@ -35393,19 +35409,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.KraidBehavior.KraidCollisionScratch",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBehavior.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidBehavior.KraidCollisionShot",
@@ -39944,19 +39947,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainExtensionWords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainExtensionWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainFakeDeath",
@@ -49285,6 +49275,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.EnemyProjectileHandOver",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/EnemyProjectileHandOver.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.FirstSlotFallAcceleration",
       "kind": "static class",
       "scope": "product",
@@ -49454,6 +49457,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.KraidPassBounds",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/KraidPassBounds.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.LaidOutProgramContinuation\u003CTProgram\u003E",
       "kind": "class",
       "scope": "product",
@@ -49552,7 +49568,7 @@
     },
     {
       "type": "SuperMetroid.Core.Compatibility.PowerBombRadiusAfterKill",
-      "kind": "static class",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -49561,7 +49577,7 @@
         "csharp/src/SuperMetroid.Core/Compatibility/PowerBombRadiusAfterKill.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay",
@@ -49629,6 +49645,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Compatibility.RoomHandOver",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/RoomHandOver.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Compatibility.RoomMainCarryover",
       "kind": "class",
       "scope": "product",
@@ -49637,6 +49666,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Compatibility/RoomMainCarryover.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SlotInheritance\u003CTOccupant\u003E",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SlotInheritance.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -54276,19 +54318,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomExtensionWords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomExtensionWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Beetom.BeetomFrame",
       "kind": "record struct",
       "scope": "product",
@@ -55135,19 +55164,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Bull.BullExtensionWords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Bull/BullExtensionWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Bull.BullFrame",
       "kind": "record struct",
       "scope": "product",
@@ -55755,20 +55771,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Choot/ChootEntity.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Choot.ChootExtensionWords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Choot/ChootExtensionWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Choot.ChootFallingPath",
@@ -56986,19 +56989,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperExtensionWords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadSidehopperExtensionWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperLaunchDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -57325,19 +57315,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianEntity.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianExtensionWords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianExtensionWords.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -61764,20 +61741,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Fireflea/FirefleaEntity.cs"
       ],
       "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Fireflea.FirefleaExtensionWords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Fireflea/FirefleaExtensionWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Fireflea.FirefleaFrame",
@@ -64707,19 +64671,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanEntity.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Kzan.KzanExtensionWords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanExtensionWords.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -70610,19 +70561,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperEntity.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Ripper.RipperExtensionWords",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperExtensionWords.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -121963,32 +121901,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileResidue",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileResidue.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileResidue.SlotResidue",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileResidue.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Projectiles.SamusProjectileRomDataCollision",
       "kind": "static class",
       "scope": "test",
@@ -124365,32 +124277,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.World.EnemyRoomResidue",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/EnemyRoomResidue.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.World.EnemyRoomResidue.ProjectileResidue",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/EnemyRoomResidue.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.World.EscapeDiagonalQuakeState",

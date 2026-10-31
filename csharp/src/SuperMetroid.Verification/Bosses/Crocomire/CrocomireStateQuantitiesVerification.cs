@@ -163,7 +163,7 @@ internal static class CrocomireStateQuantitiesVerification
     {
         AssertEqual(acceleration, state.VerticalAcceleration, $"{at}: acceleration word");
         AssertEqual(speed, state.VerticalSpeed, $"{at}: speed word");
-        AssertEqual((int)LittleEndianBytes.HighByte(subposition), state.VerticalSubpixel, $"{at}: subpixel");
+        AssertEqual(LittleEndianBytes.HighByte(subposition), state.VerticalSubpixel, $"{at}: subpixel");
         AssertEqual(y, state.Body.Position.Y.Whole, $"{at}: Y");
     }
 

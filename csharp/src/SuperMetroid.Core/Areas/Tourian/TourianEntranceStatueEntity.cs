@@ -17,5 +17,5 @@ internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior 
     public EnemyMainAiHandler? FindMain() => EnemyNoOpAi.Main;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceTourianEntranceStatueTypedAnimation;
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => TourianEntranceStatueBehavior.AdvanceTourianEntranceStatueTypedAnimation;
 }

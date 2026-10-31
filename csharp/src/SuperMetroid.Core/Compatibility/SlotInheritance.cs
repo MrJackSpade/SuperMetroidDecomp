@@ -37,8 +37,7 @@ public sealed class SlotInheritance<TOccupant>
     /// <returns>The new occupant.</returns>
     public TOccupant Inherit(int slot, Func<TOccupant?, TOccupant> occupy)
     {
-        ArgumentNullException.ThrowIfNull(occupy);
-        TOccupant occupant = occupy(_occupants[slot]);
+        TOccupant occupant = Ensure.NotNull(occupy)(_occupants[slot]);
         _occupants[slot] = occupant;
         return occupant;
     }

@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 

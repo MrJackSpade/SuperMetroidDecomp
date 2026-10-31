@@ -27,9 +27,6 @@ public struct KraidPassBounds
     /// <summary>The bottom a mouth hit that does no damage leaves per slot number of its dud flash.</summary>
     private const int BottomPerDudFlashSlot = 2;
 
-    /// <summary>The lower vertical bound, as a wrapped room coordinate.</summary>
-    private int _bottom;
-
     /// <summary>The upper vertical bound, as a wrapped room coordinate.</summary>
     private int _top;
 
@@ -37,18 +34,18 @@ public struct KraidPassBounds
     private int _left;
 
     /// <summary>The lower vertical bound the next projectile is tested against, as a wrapped room coordinate.</summary>
-    public readonly int Bottom => _bottom;
+    public int Bottom { readonly get; private set; }
 
     /// <summary>Places the mouth rectangle at the start of a pass.</summary>
     /// <param name="left">The rectangle's left edge in room pixels.</param>
     /// <param name="top">The rectangle's top edge in room pixels.</param>
     /// <param name="bottom">The rectangle's bottom edge in room pixels.</param>
     public static KraidPassBounds Placed(int left, int top, int bottom) =>
-        new() { _left = Wrap(left), _top = Wrap(top), _bottom = Wrap(bottom) };
+        new() { _left = Wrap(left), _top = Wrap(top), Bottom = Wrap(bottom) };
 
     /// <summary>Whether a projectile whose top edge is <paramref name="shotTop"/> reaches above the bottom bound.</summary>
     /// <param name="shotTop">The projectile's top edge in room pixels.</param>
-    public readonly bool IsAboveBottom(int shotTop) => unchecked((short)(shotTop - 1 - _bottom)) < 0;
+    public readonly bool IsAboveBottom(int shotTop) => unchecked((short)(shotTop - 1 - Bottom)) < 0;
 
     /// <summary>Whether a projectile reaches below the top bound and right of the left bound.</summary>
     /// <param name="shotBottom">The projectile's bottom edge in room pixels.</param>
@@ -65,36 +62,34 @@ public struct KraidPassBounds
 
     /// <summary>Leaves a projectile's right edge as the bottom, as the body contour test does.</summary>
     /// <param name="shotRight">The projectile's right edge in room pixels.</param>
-    public void LeaveRightEdgeAsBottom(int shotRight) => _bottom = Wrap(shotRight);
+    public void LeaveRightEdgeAsBottom(int shotRight) => Bottom = Wrap(shotRight);
 
     /// <summary>Leaves the bounds a damaging mouth hit leaves.</summary>
     /// <param name="bottom">The bottom <see cref="KraidMouthHitBound"/> gives for the hit.</param>
     /// <param name="top">The top far above the room the hit leaves.</param>
     public void LeaveAfterMouthHit(int bottom, int top)
     {
-        _bottom = Wrap(bottom);
+        Bottom = Wrap(bottom);
         _top = Wrap(top);
     }
 
     /// <summary>Leaves the bounds a mouth hit that does no damage leaves.</summary>
     /// <param name="dudFlashSlot">The slot of the dud flash the hit spawned, or null when no slot was free.</param>
-    /// <param name="shotX">The projectile's X in room pixels.</param>
-    /// <param name="shotY">The projectile's Y in room pixels.</param>
+    /// <param name="shot">The projectile's position in room pixels.</param>
     /// <param name="left">The fixed left bound the flash leaves.</param>
-    public void LeaveAfterDud(int? dudFlashSlot, int shotX, int shotY, int left)
+    public void LeaveAfterDud(int? dudFlashSlot, Position16<RoomPixels> shot, int left)
     {
-        _bottom = dudFlashSlot is { } slot ? Ensure.AtLeastZero(slot) * BottomPerDudFlashSlot : Wrap(shotX);
-        _top = Wrap(shotY);
+        Bottom = dudFlashSlot is { } slot ? Ensure.AtLeastZero(slot) * BottomPerDudFlashSlot : shot.X;
+        _top = shot.Y;
         _left = Wrap(left);
     }
 
     /// <summary>Leaves the bounds a body hit leaves.</summary>
-    /// <param name="shotX">The projectile's X in room pixels.</param>
-    /// <param name="shotY">The projectile's Y in room pixels.</param>
-    public void LeaveAfterBodyHit(int shotX, int shotY)
+    /// <param name="shot">The projectile's position in room pixels.</param>
+    public void LeaveAfterBodyHit(Position16<RoomPixels> shot)
     {
-        _bottom = Wrap(shotX);
-        _top = Wrap(shotY);
+        Bottom = shot.X;
+        _top = shot.Y;
     }
 
     /// <summary>A room coordinate as the bounds hold it, wrapped into the sixteen-bit range the comparisons read.</summary>

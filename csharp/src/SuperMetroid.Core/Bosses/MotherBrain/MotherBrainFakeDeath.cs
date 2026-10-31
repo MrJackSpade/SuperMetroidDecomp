@@ -299,7 +299,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Ports falling-tube initialization $A9:8B35.</summary>
-    internal void InitializeMotherBrainFallingTube(RoomEnemySlot tube)
+    internal static void InitializeMotherBrainFallingTube(RoomEnemySlot tube)
     {
         MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
         MotherBrainTubePiece piece = settings.Piece;

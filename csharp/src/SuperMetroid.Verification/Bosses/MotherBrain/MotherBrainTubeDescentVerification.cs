@@ -22,7 +22,7 @@ internal static class MotherBrainTubeDescentVerification
         tube.Position = tube.Position.WithWhole(new(128, 128));
         state.Head.Position = state.Head.Position.WithWholeY(72);
         tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);
-        enemies.MotherBrainBehavior.FakeDeath.InitializeMotherBrainFallingTube(tube);
+        MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube);
         Action<RoomEnemySlot> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;
         uint expectedPosition = SixteenSixteen.FromWhole((uint)tube.Position.Y.Whole);
         int speed = 0, movingFramesBeforeHide = 0, hiddenFramesBeforeLanding = 0;

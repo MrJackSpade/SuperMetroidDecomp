@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Escape;
 /// <summary>Native $80:9EEC..9F6B countdown quantization expressed as hierarchical rational scheduling.</summary>
 internal static class EscapeTimerCadenceDefinitions
 {
-    /// <summary>$80:9EAE AND #$7F selects a128-NMI-frame periodic countdown schedule.</summary>
+    /// <summary>The countdown repeats its schedule every 128 frames of the frame counter.</summary>
     internal const int PeriodFrames = 128;
     /// <summary>Decimal timer time unit: one second contains100 centiseconds.</summary>
     internal const int CentisecondsPerSecond = 100;

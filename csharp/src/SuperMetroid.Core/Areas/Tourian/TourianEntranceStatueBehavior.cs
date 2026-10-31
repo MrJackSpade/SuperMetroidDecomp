@@ -110,7 +110,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         Position16<RoomPixels> anchor = projectile.StateOf<AnchoredProjectileState>().Anchor;
         projectile.Position = projectile.Position.WithWholeX(anchor.X);
 
-        // $86:BA42 adds layer1_y_pos and subtracts HDMA's layer1_y_pos + displacement.
+        // The statue base adds the layer-one Y position and subtracts the reveal effect's layer-one Y plus displacement.
         // The camera terms cancel here; ordinary OBJ drawing subtracts the camera once.
         // This keeps all sprite pieces attached to the descending BG2 statue artwork.
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(anchor.Y - TourianEntranceStatueVerticalOffset)));

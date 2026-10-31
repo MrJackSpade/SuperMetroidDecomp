@@ -12,7 +12,7 @@ internal sealed class EnemyProcessingWindow
 {
     /// <summary>Frame policy that can force off-screen enemies into the active list.</summary>
     private readonly EnemyFrameContext _frameContext;
-    /// <summary>HDMA behavior stepped before enemy selection in the main-loop prologue.</summary>
+    /// <summary>Per-line display effect stepped before enemy selection at the start of the update.</summary>
     private readonly MorphBallEyeBehavior _morphBallEyeBehavior;
     /// <summary>Room load guard for selection against a valid enemy population.</summary>
     private readonly EnemyRoomBinding _room;
@@ -39,14 +39,14 @@ internal sealed class EnemyProcessingWindow
     internal IReadOnlyList<RoomEnemySlot> InteractiveEnemies => _interactiveEnemies;
 
     /// <summary>
-    /// Runs the bank-$88 morph-ball eye beam HDMA object, then
+    /// Runs the morph-ball eye's beam effect, then
     /// <c>Determine_Which_Enemies_to_Process</c> ($A0:8EB6).
     /// </summary>
     /// <remarks>
     /// Game state eight calls $A0:8EB6 first ($82:8B47), before Samus's handlers. The grapple
     /// endpoint scan therefore sees this frame's interactive list, including an actor that
-    /// `$86:EF10` respawned at the end of the previous frame. The HDMA objects run earlier
-    /// still, in the main-loop prologue: that order is observable on spawn (one-frame pending
+    /// `$86:EF10` respawned at the end of the previous frame. The per-line display effects run
+    /// earlier still, at the start of the update: that order is observable on spawn (one-frame pending
     /// initialization) and shutdown (the full beam sees the body's cleared activation word on
     /// the following frame).
     /// </remarks>

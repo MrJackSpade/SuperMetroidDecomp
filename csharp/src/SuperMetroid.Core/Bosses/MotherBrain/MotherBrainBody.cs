@@ -460,7 +460,7 @@ internal sealed class MotherBrainBody
             _motherBrainEncounter.MotherBrain.LastSoundEffectLibrary3 = Library3Sound.MotherBrainFootstep;
     }
 
-    /// <summary>Places her body layer for the current motion; the accepted frame publishes it with her body (#1356).</summary>
+    /// <summary>Places her body layer for the current motion; the displayed frame publishes it with her body (#1356).</summary>
     internal static void PlaceMotherBrainBodyLayer(
         MotherBrainEnemyState state,
         Position16<BackgroundPixels> placement)

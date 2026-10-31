@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
-/// <summary>Resource identity and schema for the native Ceres approach palette.</summary>
+/// <summary>Resource identity and schema for the Ceres approach palette.</summary>
 public static class CeresFlightPaletteFormat
 {
     /// <summary>Supported revision of the full 256-color RGB5 palette JSON schema.</summary>

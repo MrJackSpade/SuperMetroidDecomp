@@ -12,7 +12,7 @@ public sealed class CeresDestructionActorPlacements
     /// <summary>Custom placements, or null when all three actors use their compiled spawn positions.</summary>
     internal readonly CeresDestructionActorPlacement[]? placements;
 
-    /// <summary>Stores an owned layout only if at least one actor differs from the native default.</summary>
+    /// <summary>Stores an owned layout only if at least one actor differs from the stock default.</summary>
     private CeresDestructionActorPlacements(CeresDestructionActorPlacement[] placements)
     {
         bool stock = true;
@@ -21,8 +21,8 @@ public sealed class CeresDestructionActorPlacements
         this.placements = stock ? null : placements;
     }
 
-    /// <summary>Resolves the selected starting placement of one persistent destruction-scene actor, using native defaults when the complete layout is unchanged.</summary>
-    /// <param name="actorIndex">Zero-based $8B:C27C-$C295 spawn-order index: large asteroids, small asteroids, then the stationary vortex.</param>
+    /// <summary>Resolves the selected starting placement of one persistent destruction-scene actor, using stock defaults when the complete layout is unchanged.</summary>
+    /// <param name="actorIndex">Zero-based spawn-order index: large asteroids, small asteroids, then the stationary vortex.</param>
     /// <returns>The fixed actor identity and encoded whole-pixel starting screen coordinates.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The index is outside 0 through 2.</exception>
     public CeresDestructionActorPlacement this[int actorIndex]
@@ -35,7 +35,7 @@ public sealed class CeresDestructionActorPlacements
         }
     }
 
-    /// <summary>Resolves native named-actor initializer placement without a second stock lookup.</summary>
+    /// <summary>Resolves the named actor's initializer placement without a second stock lookup.</summary>
     private static CeresDestructionActorPlacement DefaultPlacement(int index)
     {
         var actor = CeresDestructionActors.InitialActor(index);
@@ -54,7 +54,7 @@ public sealed class CeresDestructionActorPlacements
         }
     });
 
-    /// <summary>Loads the supported layout schema, requiring the three persistent actor IDs in native order and unsigned sixteen-bit starting coordinates.</summary>
+    /// <summary>Loads the supported layout schema, requiring the three persistent actor IDs in spawn order and unsigned sixteen-bit starting coordinates.</summary>
     /// <param name="json">Readable JSON stream, left open after deserialization.</param>
     /// <returns>Validated persistent-actor placements, without changing asteroid motion/wrap, vortex behavior, explosion spawn events, or later Zebes artwork.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>

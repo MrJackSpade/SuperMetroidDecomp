@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>$8B:E7BB/E812: bounded post-credits star records, independent of explosion stars.</summary>
+/// <summary>Bounded post-credits star records, independent of explosion stars.</summary>
 internal sealed class EndingShootingStars
 {
     /// <summary>One state record per authored post-credits star, retained across scene updates.</summary>

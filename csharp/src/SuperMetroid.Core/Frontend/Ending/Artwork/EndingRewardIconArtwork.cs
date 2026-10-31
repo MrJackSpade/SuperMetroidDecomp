@@ -19,7 +19,7 @@ public class EndingRewardIconArtwork
         CharacterCount = characterCount;
     }
 
-    /// <summary>The 16384 row-ordered tile indices the sixteen reward-chunk uploads at native $8B:F682 lay out.</summary>
+    /// <summary>The 16384 row-ordered tile indices the sixteen reward-chunk loads lay out.</summary>
     public ReadOnlyMemory<byte> Map { get; }
 
     /// <summary>The installed Mode 7 characters.</summary>

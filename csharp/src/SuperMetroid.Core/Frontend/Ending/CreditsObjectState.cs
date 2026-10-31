@@ -6,11 +6,11 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// The single scrolling credits object at <c>$8B:9932-$8B:99FD</c>.
+/// The single scrolling credits object.
 /// </summary>
 /// <remarks>
 /// The roll's rows are the staff lines' pre-composed pictures (#1467), laid out by <see cref="CreditsRollRows"/>. The
-/// object keeps the native half-pixel cadence and takes one more row each time the roll scrolls eight pixels; the
+/// object keeps the half-pixel cadence and takes one more row each time the roll scrolls eight pixels; the
 /// screen shows the last <see cref="RowsHeld"/> rows taken, each at its place on the roll, so a row is taken one screen
 /// below the view and leaves the plane only after it has scrolled out of view at the top.
 /// </remarks>
@@ -20,7 +20,7 @@ internal sealed class CreditsObjectState
     internal const int RowsHeld = 32;
     /// <summary>The roll's plane in cells: a screen wide, and as tall as the sixteen-bit scroll reaches.</summary>
     private static readonly Extent16<TilemapCells> PlaneCells = new(32, PicturedPlane.MaximumCells);
-    /// <summary>Native 16.16 credits scroll; only the vertical axis moves, half a pixel per accepted update, wrapping at sixteen bits.</summary>
+    /// <summary>16.16 credits scroll; only the vertical axis moves, half a pixel per accepted update, wrapping at sixteen bits.</summary>
     private FixedPosition<TilePlanePixels> scroll;
     /// <summary>Last whole scroll position that caused a row to be taken.</summary>
     private Position16<TilePlanePixels> previousCopiedScroll;
@@ -51,7 +51,7 @@ internal sealed class CreditsObjectState
         scroll = scroll.AdvanceY(EndingMotionDefinitions.CreditsScrollVelocity);
 
         // A new row is taken whenever the scroll advances eight whole pixels, i.e. every sixteen NTSC frames. The
-        // wrapped signed distance is the cartridge's test.
+        // // wrapped signed distance is the game's test.
         if ((ScrollPosition - (previousCopiedScroll + RowAdvance)).Y < 0)
             return;
 

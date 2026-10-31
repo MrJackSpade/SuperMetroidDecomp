@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Frontend.CeresCinematics.CeresFlightActorDefiniti
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>
-/// Selects the five rear-view actors of Samus's flight toward Ceres (<see cref="CeresFlightActorDefinitions"/>) in native spawn
+/// Selects the five rear-view actors of Samus's flight toward Ceres (<see cref="CeresFlightActorDefinitions"/>) in spawn
 /// order, with their installed layout ids.
 /// </summary>
 internal static class CeresFlightActors
@@ -20,10 +20,10 @@ internal static class CeresFlightActors
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
-    /// <summary>Selects the five named actors spawned by $8B:BE3B..BE5C.</summary>
-    /// <remarks>#1165 independently verifies each native spawn identity, definition triple,
+    /// <summary>Selects the five named actors spawned for the flight.</summary>
+    /// <remarks>#1165 independently verifies each spawn identity, definition triple,
     /// initializer branch and motion callback. This is actor-type dispatch: large debris,
-    /// station, small debris, vortex and rear stars select their own native behavior and
+    /// station, small debris, vortex and rear stars select their own behavior and
     /// placement. The selected initializer parameters are not samples of a numerical curve.
     /// Named cases replace the earlier blanket retention claims; no output table or cache
     /// is retained. Inputs outside 0..4 still throw. The instruction programs have separate

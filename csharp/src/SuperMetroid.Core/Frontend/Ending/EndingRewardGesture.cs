@@ -4,10 +4,10 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Runs E342's reward gesture actors until their native jumping-actor handoff.</summary>
+/// <summary>Runs the reward gesture actors until their jumping-actor handoff.</summary>
 internal sealed class EndingRewardGesture
 {
-    /// <summary>Reward actor set in native spawn order, advanced before inactive actors are removed.</summary>
+    /// <summary>Reward actor set in spawn order, advanced before inactive actors are removed.</summary>
     private readonly List<IntroDiscoverySprite> actors = [];
     /// <summary>Signals that the jumping-actor handoff must be consumed before another gesture tick.</summary>
     public bool JumpRequested { get; private set; }

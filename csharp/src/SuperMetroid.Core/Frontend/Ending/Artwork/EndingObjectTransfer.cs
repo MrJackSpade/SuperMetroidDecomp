@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
-/// <summary>The native ending and credits transfers whose exact byte lengths the catalog enforces.</summary>
+/// <summary>The ending and credits artwork loads whose exact byte lengths the catalog enforces.</summary>
 public enum EndingObjectTransfer
 {
     /// <summary>Atmospheric-cloud OBJ character sheet.</summary>

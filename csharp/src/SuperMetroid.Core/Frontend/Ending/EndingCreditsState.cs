@@ -11,14 +11,14 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
-/// Bank $8B's state-$27 ending owner, from <c>$8B:D443</c> through the credits and
+/// The ending owner, from the escape's end through the credits and
 /// post-credit result screen.
 /// </summary>
 /// <remarks>
 /// This is deliberately a cinematic state machine rather than a video or a host-authored
 /// slideshow. Backgrounds, character art, palettes, spritemaps, and animation durations
-/// preserve cartridge behavior; editable text and fonts come from installed assets. The named phases merely replace the native
-/// <c>cinematic_function</c> address, making the same coroutine boundaries debuggable in C#.
+/// preserve the game's behavior; editable text and fonts come from installed assets. The named phases merely replace the
+/// game's <c>cinematic_function</c> entries, making the same coroutine boundaries debuggable in C#.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
 internal sealed class EndingCreditsState : IFrontendScreen
@@ -53,7 +53,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     private readonly bool japaneseText;
     /// <summary>The ending's screen: its palette, the pictures its scenes have loaded and its text pages (#1358, #1467).</summary>
     internal readonly EndingScreen screen = new();
-    /// <summary>Dynamic cinematic actors in native slot traversal order.</summary>
+    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     internal readonly List<EndingSprite> sprites = [];
     /// <summary>The post-credits staging page.</summary>
     private readonly EndingTextPage postCreditsPage = new();
@@ -212,8 +212,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 break;
 
             case EndingCreditsPhase.ZebesExplosionAnimation:
-                // The EE9D actor owns the remaining timing. Its F32B opcode publishes the
-                // exact 120-frame post-explosion music wait, just as on the cartridge.
+                // // The explosion actor owns the remaining timing. Its music step publishes the
+                // // exact 120-frame post-explosion music wait, just as the game does.
                 EscapeScenes.StepSprites();
                 break;
 
@@ -299,7 +299,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
             case EndingCreditsPhase.PostCreditsWaitingBackdrop:
                 if (--Stage.PhaseTimer <= 0)
                 {
-                    // Function 132 shows the complete $8C:DC9B result panel in rows nine through seventeen before the
+                    // // Function 132 shows the complete result panel in rows nine through seventeen before the
                     // following 180-frame hold.
                     _ = InstalledArtwork.EndingText ?? throw new InvalidOperationException("Post-credits text requires installed ending text.");
                     postCreditsPage.Write(EndingPictureNames.ResultPanel, EndingResultTextLayout.ResultPanelCell);
@@ -336,7 +336,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
                         CreditsRoll.ShowRewardCopyright();
                         break;
                     }
-                    // E342 replaces the idle actors with the cartridge gesture lists.
+                    // // The reward step replaces the idle actors with the gesture animations.
                     // BG1/BG2 are disabled during this OBJ-only animation.
                     sprites.Clear();
                     CurrentRewardGesture = new EndingRewardGesture(Stage.EndingReward);
@@ -426,13 +426,13 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 throw new InvalidOperationException($"Undefined {nameof(EndingCreditsPhase)} {Stage.Phase}.");
         }
 
-        // The native cinematic invokes the shared bank-$8D interpreter after actors.
+        // // The cinematic invokes the shared palette-FX interpreter after actors.
         Stage.PaletteFxSystem.Step(new ScreenPaletteFxColours(screen.Palette), InstalledArtwork.PaletteFxArtwork ?? throw new InvalidOperationException(
                 "Ending palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (Stage.PaletteFxSystem.SoundRequests.Count != 0 || Stage.PaletteFxSystem.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
-        // $8B:D46B follows cinematic actors even while a text-only TM masks OBJ.
-        // F734 enables the already-initialized records when the credits finish.
+        // // The ending follows cinematic actors even while a text-only main screen hides sprites.
+        // // The credits' end enables the already-initialized records when the credits finish.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Stage.Phase))
             (CreditsRoll.ShootingStars ??= new EndingShootingStars()).Step();
         Flyaway.CinematicFrame++;

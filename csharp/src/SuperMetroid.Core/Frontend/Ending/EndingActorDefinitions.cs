@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// The ending's scene actors: where each starts, which of the screen's colours it draws in and which cinematic program it runs
-/// (#1416: moved from the deleted ending catalog; the cartridge's constructor and instruction-list locations are the
+/// (#1416: moved from the deleted ending catalog; where the original constructors and animation scripts lie is the
 /// cinematic import's).
 /// </summary>
 internal static class EndingActorDefinitions

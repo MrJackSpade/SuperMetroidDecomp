@@ -13,7 +13,7 @@ internal static class EndingLogoActors
     private static EndingLogoActorKind KindAt(int index, string parameter) =>
         (uint)index < (uint)ActorKinds.Length ? ActorKinds[index] : throw new ArgumentOutOfRangeException(parameter);
 
-    /// <summary>Named native actor cases; allocation index is not a sampled numeric curve.</summary>
+    /// <summary>Named actor cases; allocation index is not a sampled numeric curve.</summary>
     public static CinematicActorDefinition Actor(int index) => KindAt(index, nameof(index)) switch
     {
         EndingLogoActorKind.UpperS => UpperS,

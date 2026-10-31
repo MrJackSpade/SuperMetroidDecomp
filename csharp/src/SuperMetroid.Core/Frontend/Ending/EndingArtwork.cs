@@ -28,7 +28,7 @@ internal sealed class EndingArtwork
     /// <summary>Whether the credits and reward art have been loaded.</summary>
     private bool creditsAssetsLoaded;
 
-    /// <summary>Whether the reward landing has started queuing its icon chunks on the actor's native instruction boundary.</summary>
+    /// <summary>Whether the reward landing has started queuing its icon chunks on the actor's animation-step boundary.</summary>
     private bool rewardIconUploading;
 
     /// <summary>Rebinds the installed sprite sheets after a catalog reload or state restoration.</summary>
@@ -102,9 +102,9 @@ internal sealed class EndingArtwork
     }
 
     /// <summary>
-    /// Rebinds authored ending colors after state restoration. The current CGRAM image
+    /// Rebinds authored ending colors after state restoration. The current colour image
     /// remains serialized live state: overwriting it here would discard a partially
-    /// completed native fade or palette-FX step. Future native palette transfers and
+    /// completed fade or palette-FX step. Future palette loads and
     /// target-color reads use the newly selected resource.
     /// </summary>
     internal void BindPaletteArtwork(EndingPaletteSet? value)
@@ -114,8 +114,8 @@ internal sealed class EndingArtwork
     }
 
     /// <summary>
-    /// Uses the same editable bank-$8D color payloads as gameplay while leaving
-    /// ending-specific object allocation, palette destinations and timing native.
+    /// Uses the same editable palette-FX color payloads as gameplay while leaving
+    /// ending-specific object allocation, palette destinations and timing as the game has them.
     /// Rebinding affects future interpreter reads without resetting a live fade.
     /// </summary>
     internal void BindPaletteFxColors(RoomPaletteFxPresentation? value)

@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// </summary>
 public sealed class CeresFlightActorPlacements
 {
-    /// <summary>Edited actor positions, or null when all five match their native placements.</summary>
+    /// <summary>Edited actor positions, or null when all five match their stock placements.</summary>
     internal readonly CeresFlightActorPlacement[]? placements;
 
-    /// <summary>Retains supplied placements only when at least one differs from the native layout.</summary>
+    /// <summary>Retains supplied placements only when at least one differs from the stock layout.</summary>
     private CeresFlightActorPlacements(CeresFlightActorPlacement[] placements)
     {
         bool stock = true;
@@ -21,8 +21,8 @@ public sealed class CeresFlightActorPlacements
         this.placements = stock ? null : placements;
     }
 
-    /// <summary>Resolves one selected rear-view actor's starting screen placement, using its native default when the complete layout is unchanged.</summary>
-    /// <param name="actorIndex">Zero-based native spawn-order index: large asteroids, station under attack, small asteroids, vortex, then rear stars.</param>
+    /// <summary>Resolves one selected rear-view actor's starting screen placement, using its stock default when the complete layout is unchanged.</summary>
+    /// <param name="actorIndex">Zero-based spawn-order index: large asteroids, station under attack, small asteroids, vortex, then rear stars.</param>
     /// <returns>The fixed actor identity and encoded whole-pixel X/Y coordinates for that slot.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The index is outside 0 through 4.</exception>
     public CeresFlightActorPlacement this[int actorIndex]
@@ -35,7 +35,7 @@ public sealed class CeresFlightActorPlacements
         }
     }
 
-    /// <summary>Resolves native named-actor initializer placement without a second stock lookup.</summary>
+    /// <summary>Resolves the named actor's initializer placement without a second stock lookup.</summary>
     private static CeresFlightActorPlacement DefaultPlacement(int index)
     {
         var actor = CeresFlightActors.RearViewActor(index);
@@ -54,7 +54,7 @@ public sealed class CeresFlightActorPlacements
         }
     });
 
-    /// <summary>Loads the supported layout schema, requiring all five fixed actor IDs in native order and unsigned sixteen-bit starting coordinates.</summary>
+    /// <summary>Loads the supported layout schema, requiring all five fixed actor IDs in spawn order and unsigned sixteen-bit starting coordinates.</summary>
     /// <param name="json">Readable JSON stream, left open after deserialization.</param>
     /// <returns>Validated starting visual placements without changing instruction programs, physical motion, or the front-view star field.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>

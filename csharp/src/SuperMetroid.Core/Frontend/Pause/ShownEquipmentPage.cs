@@ -61,7 +61,7 @@ internal sealed record ShownEquipmentPage(ImmutableArray<ShownEquipmentLabel> La
             : cells == PauseEquipmentLabelDefinitions.BeamWords && cells < labelCells ? shown with { Head = state }
             : cells > labelCells && cells <= PauseEquipmentLabelDefinitions.EquipmentWords ? label == PauseEquipmentLabelId.Plasma && cells == PauseEquipmentLabelDefinitions.EquipmentWords
                 ? ShownEquipmentLabel.Whole(label, state)
-                : throw new InvalidDataException($"Pause label {label} cannot supply a {cells}-cell native overrun.")
+                : throw new InvalidDataException($"Pause label {label} cannot supply a {cells}-cell overrun.")
             : throw new ArgumentOutOfRangeException(nameof(cells), cells, $"No equipment button writes {cells} cells of {label}.");
         return this with
         {

@@ -78,7 +78,7 @@ public sealed class CeresFlightPalette
     }
 
     /// <summary>
-    /// $8C:E5E9: the sprite sets repeat the background sets of the same identity in every visible colour except the
+    /// The approach palette: the sprite sets repeat the background sets of the same identity in every visible colour except the
     /// sprites' own set and their own five hue colours; every transparent colour repeats its owner's, and the first
     /// background sets repeat the neutral fill. These are colour relationships, not exemptions for their painted inputs.
     /// </summary>
@@ -91,7 +91,7 @@ public sealed class CeresFlightPalette
         return NeutralFillColours.Contains(cell) ? NeutralFill : cell;
     }
 
-    /// <summary>$8C:E6AB-E6BA and E7AB-E7BA: eight colors interpolate RGB5 endpoints with nearest-integer rounding.</summary>
+    /// <summary>Two eight-colour runs interpolate RGB5 endpoints with nearest-integer rounding.</summary>
     private static bool IsRampInterior(ScreenColourCell cell) => RampInterior.Contains(cell);
 
     /// <summary>Calculates repeated colours or interpolated ramp colors from independent inputs.</summary>

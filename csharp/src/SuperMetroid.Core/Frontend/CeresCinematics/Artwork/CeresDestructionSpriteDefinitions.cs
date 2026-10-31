@@ -5,7 +5,7 @@ public static class CeresDestructionSpriteDefinitions
 {
     /// <summary>
     /// The 23 published compositions: the seven backdrops in <see cref="CeresDestructionBackdrop"/> order, six small blasts,
-    /// four large blasts, then six station blasts. Original OAM part counts describe stock geometry without restricting
+    /// four large blasts, then six station blasts. Original sprite part counts describe stock geometry without restricting
     /// edited compositions.
     /// </summary>
     public static IReadOnlyList<CeresDestructionSpriteFrameDefinition> Frames { get; } =

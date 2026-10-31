@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Sixteen-step logo RGB5 interpolation, stored as two caller-supplied endpoints.
-/// Original $8C:EFE9..F3E8 channels use biased truncation: divide the endpoint times
+/// The original channels use biased truncation: divide the endpoint times
 /// remaining steps by15, rounding up only a remainder of14. Every remainder0..14
 /// occurs in the original data and has this same result across both palette families.
 /// Thus (channel*remaining+1)/15 reproduces all1536 channels without correction entries.
@@ -20,9 +20,9 @@ internal sealed class EndingLogoPaletteFade
     private const int BackgroundEndpointStep = EndingLogoDefinitions.PaletteSteps - 1;
     /// <summary>The step whose sprite colours are the sprites' endpoint: the first, not yet darkened.</summary>
     private const int SpriteEndpointStep = 0;
-    /// <summary>Caller-supplied drawing colors. Stock $8C:EFE9 uses independent yellow
+    /// <summary>Caller-supplied drawing colors. The stock colours use independent yellow
     /// face, blue/cyan edging, orange-sector shades and a dark outline, as confirmed by
-    /// the original $99:E089 tiles and final OAM compositions. These selected hues are
+    /// the original logo tiles and final sprite compositions. These selected hues are
     /// retained artwork; numerical cases would merely recite the drawing's palette.
     /// Temporal samples are calculated separately, not covered by this disposition.</summary>
     private readonly RgbColor[] spriteEndpoint;

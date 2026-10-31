@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// Outer game-state timing for the final Ceres elevator hold and blackout.
 /// </summary>
 /// <remarks>
-/// Room main <c>$89:ACC3</c> owns admission to this sequence, while bank <c>$82</c>
+/// The Ceres room's main routine owns admission to this sequence, while the outer dispatcher
 /// owns the subsequent states $20 and $21. Keeping this object outside the room state is
 /// intentional: the room continues running through both states, but it cannot restart the
-/// departure because its native <c>game_state == 8</c> predicate no longer succeeds.
+/// departure because its <c>game_state == 8</c> predicate no longer succeeds.
 /// </remarks>
 public sealed class CeresDepartureState
 {
 
-    /// <summary>Current bank-$82 portion of the departure sequence.</summary>
+    /// <summary>Current portion of the departure sequence.</summary>
     public CeresDeparturePhase Phase { get; private set; } = CeresDeparturePhase.Inactive;
 
     /// <summary>Live state-$20 countdown seeded to 60 by Samus code two.</summary>
@@ -48,7 +48,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.HoldingOnElevator)
             throw new InvalidOperationException("Ceres departure hold is not active.");
 
-        // The native routine decrements after GameState_8 returns, then accepts both zero
+        // // The game decrements after GameState_8 returns, then accepts both zero
         // and signed underflow. Begin() always seeds 60, so zero is the reachable result;
         // preserving the signed check documents and tests the actual 16-bit contract.
         HoldFramesRemaining = HoldFramesRemaining.Decrement().Remaining;

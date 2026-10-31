@@ -5,15 +5,15 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>
 /// Editable initial screen positions for the six Ceres-to-Zebes reveal actors.
-/// Their native instruction lists, slide acceleration, deletion, and phase handoffs
-/// remain in compiled cartridge mechanics.
+/// Their animation scripts, slide acceleration, deletion, and phase handoffs
+/// remain in compiled game mechanics.
 /// </summary>
 public sealed class CeresRevealActorPlacements
 {
-    /// <summary>Explicit authored positions, or null when all six actors use their compiled native placements.</summary>
+    /// <summary>Explicit authored positions, or null when all six actors use their compiled stock placements.</summary>
     internal readonly CeresRevealActorPlacement[]? placements;
 
-    /// <summary>Collapses an all-stock layout to native placement lookup while retaining edited actor positions.</summary>
+    /// <summary>Collapses an all-stock layout to the stock placement lookup while retaining edited actor positions.</summary>
     private CeresRevealActorPlacements(CeresRevealActorPlacement[] placements)
     {
         bool stock = true;
@@ -22,7 +22,7 @@ public sealed class CeresRevealActorPlacements
         this.placements = stock ? null : placements;
     }
 
-    /// <summary>Returns the selected initial placement for one actor in the native $8B:C810-C831 Zebes-reveal spawn order.</summary>
+    /// <summary>Returns the selected initial placement for one actor in the Zebes-reveal spawn order.</summary>
     /// <param name="actorIndex">Index 0..5: planet, upper-left stars, upper-right stars, lower-left stars, lower-right stars, then Planet Zebes title.</param>
     /// <returns>Named screen-pixel placement used when creating the actor, without changing its instruction list or motion policy.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The actor index is outside 0..5.</exception>
@@ -36,7 +36,7 @@ public sealed class CeresRevealActorPlacements
         }
     }
 
-    /// <summary>Resolves native named-actor initializer placement without a second stock lookup.</summary>
+    /// <summary>Resolves the named actor's initializer placement without a second stock lookup.</summary>
     private static CeresRevealActorPlacement DefaultPlacement(int index)
     {
         var actor = CeresDestructionActors.ZebesActor(index);
@@ -57,7 +57,7 @@ public sealed class CeresRevealActorPlacements
 
     /// <summary>Validates the six fixed reveal-actor identities and compiles their editable initial positions from ceres-zebes-reveal-actors.json.</summary>
     /// <param name="json">UTF-8 JSON source read from its current position and left open.</param>
-    /// <returns>Selected placements for the reveal, with stock positions resolved from the compiled native initializers.</returns>
+    /// <returns>Selected placements for the reveal, with stock positions resolved from the compiled initializers.</returns>
     /// <exception cref="ArgumentNullException">The source stream is null.</exception>
     /// <exception cref="InvalidDataException">The JSON, schema version, six-entry order, actor identity, or unsigned 16-bit coordinate is invalid.</exception>
     public static CeresRevealActorPlacements Load(Stream json)

@@ -14,7 +14,7 @@ internal sealed class EndingStage
     private readonly int gameTimeHours;
     /// <summary>The ending's screen: its palette and the graphics transfers its scenes have made (#1358).</summary>
     private readonly EndingScreen screen ;
-    /// <summary>Dynamic cinematic actors in native slot traversal order.</summary>
+    /// <summary>Dynamic cinematic actors in slot traversal order.</summary>
     private readonly List<EndingSprite> sprites ;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -35,7 +35,7 @@ internal sealed class EndingStage
     [IntegerQuantity("screen brightness level, zero through fifteen")]
     internal int Brightness { get; set; }
 
-    /// <summary>Mode-7 translation; only X uses a subpixel because native Y has no fractional word.</summary>
+    /// <summary>Mode-7 translation; only X uses a subpixel because the game's Y has no fractional word.</summary>
     internal FixedPosition<FloorPixels> FloorPosition { get; set; }
 
     /// <summary>
@@ -52,10 +52,10 @@ internal sealed class EndingStage
 
     /// <summary>Reloadable object character art for clouds, explosion and reward actors.</summary>
     [field: NonSerialized] internal EndingObjectArtwork? ObjectArtwork { get; set; }
-    /// <summary>Current bank-$8B cinematic-function replacement, including terminal display states.</summary>
+    /// <summary>Current cinematic-function replacement, including terminal display states.</summary>
     public EndingCreditsPhase Phase { get; internal set; }
 
-    /// <summary>Selects suitless, helmetless or armored presentation from native clear-time hour thresholds.</summary>
+    /// <summary>Selects suitless, helmetless or armored presentation from the clear-time hour thresholds.</summary>
     public EndingReward EndingReward =>
         gameTimeHours < EndingSequenceDefinitions.Rewards.SuitlessMaximumHoursExclusive
         ? EndingReward.Suitless
@@ -63,14 +63,14 @@ internal sealed class EndingStage
             ? EndingReward.Helmetless
             : EndingReward.Armored;
 
-    /// <summary>Requires installed ending font art before a native VRAM transfer.</summary>
+    /// <summary>Requires installed ending font art before it is loaded.</summary>
     internal EndingFontAtlas ResolveEndingFont()
     {
         return EndingFont ?? throw new InvalidOperationException(
             "Ending font requires installed presentation assets.");
     }
 
-    /// <summary>Clears VRAM and installs the selected ending scene's Mode-7 map and characters.</summary>
+    /// <summary>Clears the display and installs the selected ending scene's Mode-7 map and characters.</summary>
     internal void LoadFloor(EndingFloorSceneId scene)
     {
         _ = FloorArtwork ?? throw new InvalidOperationException(
@@ -79,7 +79,7 @@ internal sealed class EndingStage
         screen.LoadFloor(scene);
     }
 
-    /// <summary>Allocates or replaces a native cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>
+    /// <summary>Allocates or replaces a cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>
     internal void SpawnSprite(
         Position16<ScreenPixels> position,
         ScreenColourGroup colouring,
@@ -119,7 +119,7 @@ internal sealed class EndingStage
             definition.Program,
             role);
 
-    /// <summary>Native scene boundaries clear slots but retain installed color ownership.</summary>
+    /// <summary>Scene boundaries clear slots but retain installed color ownership.</summary>
     internal void ResetPaletteFx()
     {
         PaletteFxSystem = new RoomPaletteFxSystem(new PaletteFxSessionState());
@@ -136,7 +136,7 @@ internal sealed class EndingStage
     private EndingPalette Palette(EndingPaletteId id) =>
         (PaletteArtwork ?? throw new InvalidOperationException("Ending palettes require installed artwork."))[id];
 
-    /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their native handoffs.</summary>
+    /// <summary>Moves animal and star actors and deletes subordinate explosion layers at their handoffs.</summary>
     internal void StepEndingSpriteFrameBehavior(EndingSprite wrapper)
     {
         IntroDiscoverySprite sprite = wrapper.Sprite;
@@ -160,14 +160,14 @@ internal sealed class EndingStage
                 break;
             case EndingSpriteRole.ExplosionStarsRight:
             case EndingSpriteRole.ExplosionStarsLeft:
-                // The right starfield runs no flyaway pre-instruction until its list installs $F35A.
+                // // The right starfield runs no flyaway frame behaviour until its animation installs one.
                 if (sprite.FrameBehavior is CinematicSpriteFrameBehavior.ZebesExplosionStarsWaitForFlyaway or CinematicSpriteFrameBehavior.ZebesExplosionStarsMoving)
                     StepFlyawayStars(sprite, sprite.FrameBehavior.Value);
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
             case EndingSpriteRole.ExplosionAfterglow:
-                // F39B deletes the afterglow at the same native null-function handoff.
+                // // The finale deletes the afterglow at the same null-function handoff.
                 if (Phase == EndingCreditsPhase.OperationSuccessfulText)
                     sprite.Delete();
                 break;
@@ -270,7 +270,7 @@ internal sealed class EndingStage
     [field: NonSerialized]
     internal EndingPaletteSet? PaletteArtwork { get; private set; }
 
-    /// <summary>Raises native brightness one step every two calls until full brightness.</summary>
+    /// <summary>Raises screen brightness one step every two calls until full brightness.</summary>
     internal bool StepFastFadeIn()
     {
         if (fadeCounter-- <= 0)
@@ -281,7 +281,7 @@ internal sealed class EndingStage
         return Brightness == 15;
     }
 
-    /// <summary>Lowers native brightness one step every two calls until blank.</summary>
+    /// <summary>Lowers screen brightness one step every two calls until blank.</summary>
     internal bool StepFastFadeOut()
     {
         if (fadeCounter-- <= 0)
@@ -292,7 +292,7 @@ internal sealed class EndingStage
         return Brightness == 0;
     }
 
-    /// <summary>Raises native brightness one step every four calls for the post-credits reveal.</summary>
+    /// <summary>Raises screen brightness one step every four calls for the post-credits reveal.</summary>
     internal bool StepSlowFadeIn()
     {
         if (fadeCounter-- <= 0)
@@ -315,13 +315,13 @@ internal sealed class EndingStage
     /// <summary>
     /// Selects current host artwork after a debugger-state restore. The active
     /// backdrop is refreshed without resetting actors, palette, transform or music.
-    /// During the native flyaway DMA, already-uploaded chunks are reapplied last.
+    /// During the flyaway's artwork loading, already-loaded chunks are reapplied last.
     /// </summary>
     internal void BindFloorArtwork(EndingFloorArtwork? value)
     {
         FloorArtwork = value;
     }
 
-    /// <summary>Selects the palettes later native palette transfers and target-color reads use.</summary>
+    /// <summary>Selects the palettes later palette loads and target-color reads use.</summary>
     internal void BindPaletteArtwork(EndingPaletteSet? value) => PaletteArtwork = value;
 }

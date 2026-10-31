@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
-/// <summary>Native reward jump/landing actor owner, ending at F604's screen-shot request.</summary>
+/// <summary>Reward jump/landing actor owner, ending at the screen-shot request.</summary>
 internal sealed class EndingRewardJump
 {
     /// <summary>Selects the armored head offsets used during the launch animation.</summary>
@@ -39,8 +39,8 @@ internal sealed class EndingRewardJump
     /// <summary>Advances head before body, including shared gravity, landing uploads, and instruction effects.</summary>
     public void Step()
     {
-        // Native fixed slots put the head above the body in the descending handler.
-        // Both pre-instructions use the shared Samus velocity, so each call accelerates it.
+        // // Fixed slots put the head above the body in the descending handler.
+        // // Both frame behaviours use the shared Samus velocity, so each call accelerates it.
         if (head is { IsActive: true })
         {
             if (head.FrameBehavior == CinematicSpriteFrameBehavior.RewardHeadFlight)

@@ -4,21 +4,21 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// <summary>Fixed actor metadata and physical motion for Ceres destruction and Zebes reveal.</summary>
 internal static class CeresDestructionActorDefinitions
 {
-    /// <summary>Number of persistent scene actors allocated by <c>$8B:C27C-$C295</c>.</summary>
+    /// <summary>Number of persistent scene actors allocated when the destruction begins.</summary>
     public const int InitialActorCount = 3;
 
-    /// <summary>Number of reveal actors allocated by <c>$8B:C810-$C831</c>.</summary>
+    /// <summary>Number of reveal actors allocated when Zebes is revealed.</summary>
     public const int ZebesActorCount = 6;
 
-    /// <summary>$8B:CEA3, CinematicSpriteObjectDefinitions_Zebes: initializer C83B,
-    /// waiting callback C84E, list CCAB; operands C83C/C842/C848 set its placement/palette.
-    /// C857 selects slide callback C85D, whose C862 operand accelerates by 64/256 pixels.</summary>
+    /// <summary>The Zebes planet actor: its initializer,
+    /// waiting callback and list; its operands set its placement/palette.
+    /// Its slide callback accelerates by 64/256 pixels.</summary>
     internal static CeresDestructionActorDefinition ZebesPlanet =>
         new(CinematicSpriteFrameBehavior.Zebes, CinematicSpriteProgram.ZebesPlanet,
             new(136, 111), ScreenColourGroup.CeresDestructionZebes, 0, false, 64, CinematicSpriteFrameBehavior.ZebesSlideSceneAway, false);
 
-    /// <summary>$8B:CEAF, CinematicSpriteObjectDefinitions_PlanetZebesText: initializer C992,
-    /// no-op 93D9, list CCBB. Operands C993/C999/C99F center the title at (128,186), palette zero.
+    /// <summary>The PLANET ZEBES text actor: its initializer,
+    /// an empty callback and its list. Its operands center the title at (128,186), palette zero.
     /// Its program deletes before scene sliding, so it has no slide callback or acceleration.</summary>
     internal static CeresDestructionActorDefinition ZebesTitle =>
         new(CinematicSpriteFrameBehavior.NoOp, CinematicSpriteProgram.ZebesTitle,

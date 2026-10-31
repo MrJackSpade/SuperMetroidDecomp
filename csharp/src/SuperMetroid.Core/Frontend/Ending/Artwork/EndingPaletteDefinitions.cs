@@ -10,9 +10,9 @@ public static class EndingPaletteDefinitions
     /// <summary>Installation manifest filename identifying the independently selected ending palette files.</summary>
     public const string ManifestFileName = "ending-palettes-manifest.json";
 
-    /// <summary>Full editable resource sizes, not individual CGRAM transfer lengths:
-    /// four 256-color bank-$8C allocations, two 16-color palettes, and sixteen pairs
-    /// of 16-color crossfade palettes. Native credits transfers can select a subset.</summary>
+    /// <summary>Full editable resource sizes, not individual palette load lengths:
+    /// four 256-color allocations, two 16-color palettes, and sixteen pairs
+    /// of 16-color crossfade palettes. The credits' palette loads can select a subset.</summary>
     internal static readonly IReadOnlyDictionary<EndingPaletteId, int> ColorCounts =
         new Dictionary<EndingPaletteId, int>
         {

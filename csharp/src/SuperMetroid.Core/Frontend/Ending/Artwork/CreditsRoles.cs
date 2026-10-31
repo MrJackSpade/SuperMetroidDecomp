@@ -3,17 +3,17 @@ using static SuperMetroid.Core.Frontend.Ending.Artwork.CreditsRollDefinitions;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
-/// The credits' 67 staff roles in native order (<see cref="CreditsRollDefinitions"/>), each with its document key, glyph
+/// The credits' 67 staff roles in roll order (<see cref="CreditsRollDefinitions"/>), each with its document key, glyph
 /// style and preceding blank rows.
 /// </summary>
 public static class CreditsRoles
 {
-    /// <summary>Fixed native role order without duplicating the 67 role descriptors in storage.</summary>
+    /// <summary>Fixed role order without duplicating the 67 role descriptors in storage.</summary>
     private static readonly CreditRoles Roles = new();
-    /// <summary>Calculated read-only view of all 67 required credit roles in native order, with fixed one-/two-row styles and preceding blank-row counts; wording remains editable content.</summary>
+    /// <summary>Calculated read-only view of all 67 required credit roles in roll order, with fixed one-/two-row styles and preceding blank-row counts; wording remains editable content.</summary>
     public static IReadOnlyList<CreditsLineDefinition> Lines => Roles;
 
-    /// <summary>Calculates role identity, glyph style, and spacing from native line order.</summary>
+    /// <summary>Calculates role identity, glyph style, and spacing from line order.</summary>
     private sealed class CreditRoles : IReadOnlyList<CreditsLineDefinition>
     {
         /// <summary>The 67 staff roles present in the retail credits stream.</summary>

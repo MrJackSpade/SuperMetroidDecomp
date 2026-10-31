@@ -550,7 +550,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>RinkasDeathAnimation(0)</c> at $A0:A410.</summary>
     internal void RunRinkaDeathAnimation(RoomEnemySlot slot)
     {
-        _deathsAndDrops.RecordRespawnScratch(slot);
+        _deathsAndDrops.RecordKill(slot);
         bool respawns = slot.Properties.HasAny(EnemyProperties.RespawnIfKilled);
         RoomEnemySpawnSnapshot survivingSpawnSnapshot = slot.Spawn;
 

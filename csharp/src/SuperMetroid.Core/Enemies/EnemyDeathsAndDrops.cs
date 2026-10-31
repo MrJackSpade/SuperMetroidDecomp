@@ -26,13 +26,15 @@ internal sealed class EnemyDeathsAndDrops
     private readonly IEnemyDispatch _dispatch;
 
     /// <summary>Connects death animation, pickup, and respawn processing to the room systems.</summary>
-    internal EnemyDeathsAndDrops(EnemyRoomStatus roomStatus, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemySlotTable slotTable, IEnemyDispatch dispatch)
+    internal EnemyDeathsAndDrops(EnemyRoomStatus roomStatus, EnemyProjectileEngine projectiles, EnemyRoomBinding room,
+        EnemySlotTable slotTable, IEnemyDispatch dispatch, PowerBombRadiusAfterKill powerBombRadius)
     {
         _roomStatus = roomStatus;
         _projectiles = projectiles;
         _room = room;
         _slotTable = slotTable;
         _dispatch = dispatch;
+        _powerBombRadius = powerBombRadius;
     }
     /// <summary>Bank-$86 callback that checks pickup lifetime, Grapple, and Samus contact.</summary>
     private const EnemyProjectilePreInstruction EnemyPickupPreInstruction =
@@ -61,29 +63,15 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>The library-two enemy-killed cry that <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) queues.</summary>
     internal static readonly SoundEffectId EnemyKilledSound = Library2Sound.EnemyKilled;
 
+    /// <summary>Tells a power bomb's sweep in progress of each kill, which resizes its horizontal reach.</summary>
+    private readonly PowerBombRadiusAfterKill _powerBombRadius;
+
     /// <summary>
-    /// Scratch word `$12` as last written by <c>EnemyDeath</c> ($A0:A3E6) or
-    /// <c>RinkaDeath</c> ($A0:A437): the dying actor's respawn property bit as its word,
-    /// zero or 16384 (<see cref="RespawnScratchWord"/> is the only producer). The
-    /// power-bomb walker at $A0:A306 keeps its horizontal radius in that same word, so a
-    /// kill inside its loop resizes the explosion for every lower slot that frame; the
-    /// walker reads it back as an ordinary radius, so no wider value can reach it.
+    /// Tells a power bomb's sweep in progress that <paramref name="enemy"/> is dying, as every death does when it starts
+    /// (<see cref="PowerBombRadiusAfterKill"/>).
     /// </summary>
-    private int? _enemyDeathRespawnScratch;
-
-    /// <summary>Records a dying actor's respawn word in scratch <c>$12</c>, as <c>EnemyDeath</c> and <c>RinkaDeath</c> do.</summary>
-    internal void RecordRespawnScratch(RoomEnemySlot enemy) => _enemyDeathRespawnScratch = RespawnScratchWord(enemy);
-
-    /// <summary>Clears scratch <c>$12</c>'s death record.</summary>
-    internal void ClearRespawnScratch() => _enemyDeathRespawnScratch = null;
-
-    /// <summary>Takes the death record a kill left in scratch <c>$12</c>, clearing it.</summary>
-    internal int? TakeRespawnScratch()
-    {
-        int? scratch = _enemyDeathRespawnScratch;
-        _enemyDeathRespawnScratch = null;
-        return scratch;
-    }
+    internal void RecordKill(RoomEnemySlot enemy) =>
+        _powerBombRadius.RecordKill(enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled));
 
     /// <summary>
     /// Ports <c>EnemyDeathAnimation</c> at $A0:A3AF. The enemy is cleared immediately,
@@ -94,7 +82,7 @@ internal sealed class EnemyDeathsAndDrops
         RoomEnemySlot enemy,
         EnemyDeathExplosion deathAnimation)
     {
-        RecordRespawnScratch(enemy);
+        RecordKill(enemy);
         // $A0:A3AF installs the dropped-grapple function before clearing the enemy.
         // Equality is deliberate: this is not a general test for any set grapple bit.
         if (enemy.AiStates == EnemyAiStates.Grappled)
@@ -128,10 +116,6 @@ internal sealed class EnemyDeathsAndDrops
         }
         _roomStatus.RecordKill();
     }
-
-    /// <summary>The horizontal radius a kill inside a power bomb's sweep leaves the sweep with (<see cref="PowerBombRadiusAfterKill"/>).</summary>
-    internal static int RespawnScratchWord(RoomEnemySlot enemy) =>
-        PowerBombRadiusAfterKill.Of(enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled));
 
     /// <summary>Keeps a killed respawning slot occupied by replacing its header with the respawn placeholder.</summary>
     internal void InstallRespawnPlaceholder(RoomEnemySlot enemy)

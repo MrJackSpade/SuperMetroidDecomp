@@ -12,11 +12,11 @@ public static class PauseReserveTankDefinitions
     /// <summary>The sprite palette every reserve-gauge part is drawn with.</summary>
     public const int Palette = 3;
     /// <summary>$82:C1D6: screen X of the first tank's anchor.</summary>
-    internal const int FirstAnchorX = 0x18;
+    internal const int FirstAnchorX = 24;
     /// <summary>$82:C1D6..C1E2: horizontal distance between neighbouring tank anchors, one eight-pixel column.</summary>
     internal const int AnchorStride = 8;
     /// <summary>$82:C1D6..C1E2: screen Y shared by every anchor, Y96 minus the draw bias.</summary>
-    internal const int AnchorY = 0x5f;
+    internal const int AnchorY = 95;
     /// <summary>$82:B3D9: the two identical eight-entry partial-fill tables together hold sixteen entries.</summary>
     internal const int PartialMapEntries = 16;
 

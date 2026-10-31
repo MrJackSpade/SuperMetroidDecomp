@@ -49,10 +49,10 @@ internal static class IntroRinkaDefinitions
     /// <summary>The values <see cref="IntroRinkaLaunches.Rinka"/> selects, in index order.</summary>
     internal static readonly IntroRinkaPhysicalDefinition[] Rinkas =
     [
-        new(new(0x0070, 0x0048), 0),
-        new(new(0x00c0, 0x0038), -1),
-        new(new(0x0080, 0x0030), 0),
-        new(new(0x00e8, 0x0050), -1),
+        new(new(112, 72), 0),
+        new(new(192, 56), -1),
+        new(new(128, 48), 0),
+        new(new(232, 80), -1),
     ];
 
     /// <summary>The Rinkas' shared half-pixel X/Y velocity.</summary>

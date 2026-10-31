@@ -8,7 +8,7 @@ internal static class CeresFlightActorDefinitions
     public const int RearViewActorCount = 5;
 
     /// <summary><c>$8B:BEC2</c>, signed-8.8 acceleration applied to the opening star field.</summary>
-    public const ushort FrontStarAcceleration = 0x0080;
+    public const ushort FrontStarAcceleration = 128;
 
     /// <summary>
     /// <c>$8B:CF0F</c> with initializer parameter zero: opening star field and its
@@ -28,9 +28,9 @@ internal static class CeresFlightActorDefinitions
     public static CeresFlightActorDefinition FrontStars => new(
         ActivePreInstruction: CinematicSpritePreInstruction.CeresStars,
         Program: CinematicSpriteProgram.CeresStars,
-        Position: new(0x0070, 0x0057),
+        Position: new(112, 87),
         Colouring: ScreenColourGroup.CeresFlightSpaceObjects,
-        InitialTimer: 0xfc00,
+        InitialTimer: 64512,
         HorizontalDelta: 0,
         WrapX: false);
 
@@ -39,21 +39,21 @@ internal static class CeresFlightActorDefinitions
     /// CE4B selects the large-asteroid loop. The destruction scene substitutes CE7F/CC3F.</summary>
     internal static CeresFlightActorDefinition LargeAsteroids =>
         new(CinematicSpritePreInstruction.CeresLargeAsteroids, CinematicSpriteProgram.CeresLargeAsteroid,
-            new(80, 159), ScreenColourGroup.CeresFlightSpaceObjects, 0, 0x4000, true);
+            new(80, 159), ScreenColourGroup.CeresFlightSpaceObjects, 0, 16384, true);
 
     /// <summary>$8B:CE85, CinematicSpriteObjectDefinitions_CeresUnderAttack.
     /// BF4C initializes (116,160), palette0C00; BF5F adds 1/16 pixel with nine-bit X wrap;
     /// CC47 selects the station-under-attack loop.</summary>
     internal static CeresFlightActorDefinition StationUnderAttack =>
         new(CinematicSpritePreInstruction.CeresUnderAttack, CinematicSpriteProgram.CeresUnderAttack,
-            new(116, 160), ScreenColourGroup.CeresFlightStation, 0, 0x1000, true);
+            new(116, 160), ScreenColourGroup.CeresFlightStation, 0, 4096, true);
 
     /// <summary>$8B:CE8B, CinematicSpriteObjectDefinitions_CeresSmallAsteroids.
     /// BF76 initializes (128,96), palette0800; BF89 adds 1/32 pixel with nine-bit X wrap;
     /// CC4F selects the small-asteroid loop. Both Ceres scenes share this identity.</summary>
     internal static CeresFlightActorDefinition SmallAsteroids =>
         new(CinematicSpritePreInstruction.CeresSmallAsteroid, CinematicSpriteProgram.CeresSmallAsteroid,
-            new(128, 96), ScreenColourGroup.CeresFlightSpaceObjects, 0, 0x0800, true);
+            new(128, 96), ScreenColourGroup.CeresFlightSpaceObjects, 0, 2048, true);
 
     /// <summary>$8B:CE91, CinematicSpriteObjectDefinitions_CeresPurpleSpaceVortex, parameter1.
     /// BFA0 takes the nonzero branch to (224,87), palette0800, preserving BFC6 movement;
@@ -75,5 +75,5 @@ internal static class CeresFlightActorDefinitions
 
     /// <summary>$8B:BFCB, subtraction immediate2000: signed16.16 movement of -1/8 pixel,
     /// with borrow into the whole X word and no nine-bit mask.</summary>
-    private const int VortexHorizontalDelta = -0x2000;
+    private const int VortexHorizontalDelta = -8192;
 }

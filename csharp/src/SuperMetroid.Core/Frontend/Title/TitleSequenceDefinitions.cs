@@ -96,7 +96,7 @@ public static class TitleSequenceDefinitions
         /// <summary>The copyright's white on the skipped-to title screen.</summary>
         public static RgbColor CopyrightWhite => RgbColor.White;
         /// <summary>The skip-only copyright colour, kept under its historical Red name.</summary>
-        public static RgbColor CopyrightRed => RgbColor.FromWord(0x7d80);
+        public static RgbColor CopyrightRed => new RgbColor(0, 12, 31);
     }
 
     /// <summary>Holds, fades and the buttons that skip.</summary>

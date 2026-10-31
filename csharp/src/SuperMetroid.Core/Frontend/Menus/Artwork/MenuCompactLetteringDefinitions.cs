@@ -10,15 +10,15 @@ internal static class MenuCompactLetteringDefinitions
     /// <summary>The labels in ascending order of their first cell, the order their glyphs are first captured in.</summary>
     internal static readonly MenuLetteringStrip[] Strips =
     [
-        new("CRATERIA", [new(0x00, 0x03)], new(1, 1), false),
-        new("BRINSTAR", [new(0x04, 0x07)], new(1, 1), false),
-        new("TOURIAN", [new(0x08, 0x09), new(0x20), new(0x32)], new(3, 1), false),
-        new("NORFAIR", [new(0x10), new(0x12, 0x14)], new(3, 1), false),
-        new("MARIDIA", [new(0x15, 0x16), new(0x18, 0x19)], new(3, 1), false),
-        new("SHIP", [new(0x44, 0x45)], new(1, 0), false),
-        new("WRECKED", [new(0x53, 0x56)], new(1, 1), false),
-        new("EXIT", [new(0x5f), new(0xb7)], new(1, 1), false),
-        new("SELECT", [new(0xa5, 0xa7)], new(0, 1), true),
-        new("START", [new(0xa8, 0xaa)], new(2, 1), true),
+        new("CRATERIA", [new(0, 3)], new(1, 1), false),
+        new("BRINSTAR", [new(4, 7)], new(1, 1), false),
+        new("TOURIAN", [new(8, 9), new(32), new(50)], new(3, 1), false),
+        new("NORFAIR", [new(16), new(18, 20)], new(3, 1), false),
+        new("MARIDIA", [new(21, 22), new(24, 25)], new(3, 1), false),
+        new("SHIP", [new(68, 69)], new(1, 0), false),
+        new("WRECKED", [new(83, 86)], new(1, 1), false),
+        new("EXIT", [new(95), new(183)], new(1, 1), false),
+        new("SELECT", [new(165, 167)], new(0, 1), true),
+        new("START", [new(168, 170)], new(2, 1), true),
     ];
 }

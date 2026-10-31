@@ -81,18 +81,14 @@ internal sealed class DraygonIntro
             return;
         }
 
-        // The dance moves only the first four slots in processing order. Its latency lookup unexpectedly uses the first
-        // four of eight entries, producing 128 inert frames; retain that retail quirk rather than choosing the seemingly
-        // intended entries.
+        // The dance moves only the first four slots in processing order, each once it has waited out its start delay.
         foreach (RoomSpriteObjectSlot sprite in _spriteObjects.InProcessingOrder.Take(DraygonIntroDanceDefinitions.EvirCount))
         {
-            int streamIndex = state.FightIntroDanceIndex +
-                DraygonIntroDance.MovementLatencyForSlot(sprite.SlotIndex);
-            if (streamIndex < 0 || !sprite.IsActive)
+            int step = state.IntroDanceStep - DraygonIntroDance.StartDelayForSlot(sprite.SlotIndex);
+            if (step < 0 || !sprite.IsActive)
                 continue;
 
-            DraygonIntroMovement movement =
-                DraygonIntroDance.ResolveMovement(streamIndex);
+            DraygonIntroMovement movement = DraygonIntroDance.Movement(step);
 
             if (movement.DeletesSprite)
             {
@@ -103,8 +99,7 @@ internal sealed class DraygonIntro
             sprite.Position += movement.Delta;
         }
 
-        state.FightIntroDanceIndex += DraygonIntroDanceDefinitions.StreamIndexAdvance;
-        state.IntroDanceFrames++;
+        state.IntroDanceStep++;
         state.FunctionTimer = state.FunctionTimer.AddFrames(1);
     }
 }

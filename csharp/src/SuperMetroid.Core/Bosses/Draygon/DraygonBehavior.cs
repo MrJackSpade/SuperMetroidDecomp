@@ -217,8 +217,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The swoop acceleration, in 1/256 pixel per frame per frame, an eye hit may not reach (a signed compare of the difference).</summary>
     internal const int DraygonSwoopAccelerationLimit = 160;
 
-    /// <summary>The swoop-path byte offset (sample 26) at which the arms reach for the swoop's apex.</summary>
-    internal const ushort DraygonSwoopApexArmsByteOffset = 104;
+    /// <summary>The swoop path entry at which the arms reach for the swoop's apex, and return to rest on the climb.</summary>
+    internal const int DraygonSwoopApexArmsEntry = 26;
 
     /// <summary>Advances Draygon's typed animation.</summary>
     internal void AdvanceDraygonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)

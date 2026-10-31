@@ -164,7 +164,7 @@ internal sealed class DraygonGoop
         if (!offScreen)
             return;
 
-        state.SwoopOffset = state.SwoopEndOffset;
+        state.SwoopEntry = state.SwoopPathEntryCount;
         if (direction == HorizontalDirection.Right)
         {
             state.Function = DraygonAiFunction.SwoopLeftSetup;

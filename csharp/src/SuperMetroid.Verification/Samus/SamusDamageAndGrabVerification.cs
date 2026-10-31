@@ -660,8 +660,8 @@ internal static void VerifySamusGrabbedByDraygon()
     ];
     for (int index = 0; index < leftPoses.Length; index++)
     {
-        WritePoseDefinition(bus, (int)leftPoses[index], leftDefinitions[index]);
-        WritePoseDefinition(bus, (int)rightPoses[index], rightDefinitions[index]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(leftPoses[index]), leftDefinitions[index]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(rightPoses[index]), rightDefinitions[index]);
 
         // `$BA-$BD/$EC-$EF` use stationary `$B2B4`; `$BE/$F0` use six-frame `$B53C`.
         ushort leftDelay = index == 4 ? (ushort)0xb53c : (ushort)0xb2b4;

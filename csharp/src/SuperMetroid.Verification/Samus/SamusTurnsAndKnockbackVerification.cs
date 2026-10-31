@@ -54,7 +54,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     foreach (bool locked in new[] { false, true })
     {
         SamusPoseId source = SamusPoseId.TurningLeftToRightPose;
-        WritePoseDefinition(bus, (int)source, [4, 14, 0xff, 0xfb, 8, 0, 21, 0]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(source), [4, 14, 0xff, 0xfb, 8, 0, 21, 0]);
         // Retail pose $26 has 02,02,02,F8,01. Its compiled pointer and
         // command stream are immutable gameplay definitions, so drive the six
         // native ticks that reach F8 instead of rewriting fake-bus ROM bytes.
@@ -186,8 +186,8 @@ internal static void VerifySamusAerialTurnsAndWallJump()
             ? left ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose
             : left ? SamusPoseId.NormalJumpForwardLeftPose : SamusPoseId.NormalJumpForwardRightPose;
         byte direction = left ? (byte)4 : (byte)8;
-        WritePoseDefinition(bus, (int)source, [direction, falling ? (byte)24 : (byte)23, 0xff, 0xfb, 8, 0, 19, 0]);
-        WritePoseDefinition(bus, (int)target, [direction, falling ? (byte)6 : (byte)2, 0xff, 2, 8, 0, 19, 0]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(source), [direction, falling ? (byte)24 : (byte)23, 0xff, 0xfb, 8, 0, 19, 0]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(target), [direction, falling ? (byte)6 : (byte)2, 0xff, 2, 8, 0, 19, 0]);
         // All four retail turn streams have three two-tick frames followed
         // by F8 and the corresponding jump/fall target. The compiled delay
         // definitions supersede fake-bus ROM writes here too.
@@ -764,7 +764,7 @@ floorLevel, downKnockback, frameCounter: 0);
         AssertEqual(
             pose,
             ball.Pose,
-            $"morphed type ${(byte)SamusPoseMetadata.ReadMovementType(ball):X2} retains pose");
+            $"morphed type ${SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(ball)):X2} retains pose");
         AssertEqual(expectedDirection, (ushort)ball.KnockbackDirection,
             $"morphed pose ${(int)SamusPoseNumbering.Number(pose):X2} chooses direction from facing only");
         AssertEqual(preservedFrame, ball.AnimationFrame,

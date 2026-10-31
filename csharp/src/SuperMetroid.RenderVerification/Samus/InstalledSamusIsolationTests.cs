@@ -532,9 +532,9 @@ internal sealed class InstalledSamusIsolationTests
     /// <summary>Runs windup, directional flight, crash, and energy drain for one shinespark pose.</summary>
     private void CheckShinespark(SamusPoseId target)
     {
-        bool left = ((int)target & 1) == 0;
+        bool left = (SamusPoseNumbering.Number(target) & 1) == 0;
         Pair pair = Create(left ? SamusPoseId.ShinesparkWindupLeftPose : SamusPoseId.ShinesparkWindupRightPose);
-        string context = $"shinespark pose {(int)target:X2}";
+        string context = $"shinespark pose {SamusPoseNumbering.Number(target):X2}";
         pair.Apply(context + " admission", actor =>
         {
             Require(actor.Samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage), "Spark charge rejected");
@@ -595,7 +595,7 @@ internal sealed class InstalledSamusIsolationTests
     private void CheckDeath(SamusPoseId source, SamusEquipmentFlags suit)
     {
         Pair pair = Create(source, suit);
-        string context = $"death source {(int)source:X2}, suit {suit.ToEquipmentWord():X4}";
+        string context = $"death source {SamusPoseNumbering.Number(source):X2}, suit {suit.ToEquipmentWord():X4}";
         pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Samus, new(0, 240)), draw: false);
         int frames = 0;
         while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)

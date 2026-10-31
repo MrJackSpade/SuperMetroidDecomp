@@ -850,7 +850,7 @@ internal static void VerifySamusGroundedReversal()
         // independently rather than allowing two cases to share a forgiving stream.
         ushort turnStreamAddress = (ushort)(0xc300 + caseIndex * 0x10);
         WritePoseAnimationDelays(bus, testCase.SelectedTurn, turnStreamAddress,
-            [0x02, 0x02, 0x02, 0xf8, (byte)testCase.Destination]);
+            [0x02, 0x02, 0x02, 0xf8, SamusPoseNumbering.Number(testCase.Destination)]);
 
         var aimedTurn = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = testCase.SourcePose };
         aimedTurn.Kinematics.Position = aimedTurn.Kinematics.Position.WithWhole(new(64, 27));
@@ -949,7 +949,7 @@ internal static void VerifySamusGroundedReversal()
         var testCase = crouchedTurnCases[caseIndex];
         ushort turnStreamAddress = (ushort)(0xc800 + caseIndex * 0x10);
         WritePoseAnimationDelays(bus, testCase.SelectedTurn, turnStreamAddress,
-            [0x02, 0x02, 0x02, 0xf8, (byte)testCase.Destination]);
+            [0x02, 0x02, 0x02, 0xf8, SamusPoseNumbering.Number(testCase.Destination)]);
 
         var crouchedTurn = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = testCase.SourcePose };
         crouchedTurn.Kinematics.Position = crouchedTurn.Kinematics.Position.WithWhole(new(64, 32));
@@ -1653,15 +1653,15 @@ internal static void VerifySamusMoonwalking()
     foreach ((SamusPoseId target, _, SamusPoseId fallback, _) in stable)
     {
         var candidate = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = fallback };
-        WritePoseAnimationDelays(bus, target, (ushort)(0xc200 + (int)target), [2]);
+        WritePoseAnimationDelays(bus, target, (ushort)(0xc200 + SamusPoseNumbering.Number(target)), [2]);
         SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(candidate, target, moonwalkEnabled: true);
-        AssertEqual(target, candidate.Pose, $"enabled Moonwalk retains candidate ${(int)target:X2}");
+        AssertEqual(target, candidate.Pose, $"enabled Moonwalk retains candidate ${SamusPoseNumbering.Number(target):X2}");
 
         // Command two's zero-controller fallback is immediate for movement type `$10` and
         // uses the target record's byte two. This helper applies that already-read byte at
         // the normal end-of-frame transition seam.
         SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(candidate, fallback, moonwalkEnabled: true);
-        AssertEqual(fallback, candidate.Pose, $"moonwalk ${(int)target:X2} fallback byte");
+        AssertEqual(fallback, candidate.Pose, $"moonwalk ${SamusPoseNumbering.Number(target):X2} fallback byte");
     }
 
     // A flat row of type-$8 solids isolates horizontal sign and the shared downward probe.
@@ -1730,9 +1730,9 @@ floor, walker, frameCounter: 0);
     ];
     foreach ((_, SamusPoseId target, byte[] definition, SamusPoseId spinTarget) in turns)
     {
-        WritePoseDefinition(bus, (int)target, definition);
-        WritePoseAnimationDelays(bus, target, (ushort)(0xc300 + ((int)target - 0xbf) * 8),
-            [0x02, 0x02, 0x02, 0xf8, (byte)spinTarget]);
+        WritePoseDefinition(bus, SamusPoseNumbering.Number(target), definition);
+        WritePoseAnimationDelays(bus, target, (ushort)(0xc300 + (SamusPoseNumbering.Number(target) - 0xbf) * 8),
+            [0x02, 0x02, 0x02, 0xf8, SamusPoseNumbering.Number(spinTarget)]);
     }
 
     // Spin endpoints and dry-air constants are read through production code after `$F8`.
@@ -1752,11 +1752,11 @@ floor, walker, frameCounter: 0);
         SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
         AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(sourceMuzzleDirection),
             turn.PendingTransitionShot, "all six Moonwalk jump routes publish their original muzzle direction");
-        AssertEqual(target, turn.Pose, $"moonwalk ${(int)source:X2} selects exact turn ${(int)target:X2}");
+        AssertEqual(target, turn.Pose, $"moonwalk ${SamusPoseNumbering.Number(source):X2} selects exact turn ${SamusPoseNumbering.Number(target):X2}");
         AssertEqual(SamusAccelerationMode.Turning, turn.HorizontalSpeed.AccelerationMode,
-            $"moonwalk turn ${(int)target:X2} preserves reversal mode");
+            $"moonwalk turn ${SamusPoseNumbering.Number(target):X2} preserves reversal mode");
         AssertEqual(SamusVerticalDirection.None, turn.Kinematics.YDirection,
-            $"moonwalk turn ${(int)target:X2} remains grounded before completion");
+            $"moonwalk turn ${SamusPoseNumbering.Number(target):X2} remains grounded before completion");
     }
 
     // Exercise the terminal command on one mirrored route. Six decrements consume three

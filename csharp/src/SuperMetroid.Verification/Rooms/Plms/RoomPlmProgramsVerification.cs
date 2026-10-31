@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Progression;
 using static SuperMetroid.Verification.Rooms.Plms.NativePlmListDefinitions;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmNativeListAddresses;
 
@@ -114,7 +115,7 @@ internal static class RoomPlmProgramsVerification
                 cue = new ScriptedRoomPlmCue.Command(ScriptedRoomPlmCueKind.MoveRightFourBlocks);
                 return true;
             case RoomPlmInstruction.GotoIfEventSet:
-                AssertEqual((ushort)SuperMetroid.Core.Progression.EventNumber.LowerNorfairChozoLoweredAcid, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "Chozo hand event");
+                AssertEqual(EventNumber.LowerNorfairChozoLoweredAcid.ToEventNumber(), cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "Chozo hand event");
                 AssertEqual(ScriptedRoomEntries.Single(entry => entry.Program == ScriptedRoomPlmProgram.LowerNorfairChozoHandLowered).Entry,
                     cartridge.ReadCartridgeWord(ProgramBank | (cursor + 4)), "Chozo hand lowered-acid target");
                 cue = new ScriptedRoomPlmCue.Command(ScriptedRoomPlmCueKind.ContinueIfLowerNorfairAcidLowered);
@@ -1180,7 +1181,7 @@ internal static class RoomPlmProgramsVerification
         switch (cue)
         {
             case NoobTubeCue.SkipIfBroken:
-                AssertEqual((ushort)NoobTubePlmDefinitions.BrokenEvent, Operand(2), "n00b tube skip event");
+                AssertEqual(NoobTubePlmDefinitions.BrokenEvent.ToEventNumber(), Operand(2), "n00b tube skip event");
                 AssertEqual(NoobTubeProgram.AlreadyBroken, Entry(Operand(4)), "n00b tube skip target");
                 break;
             case NoobTubeCue.LinkBreak:
@@ -1194,7 +1195,7 @@ internal static class RoomPlmProgramsVerification
                 AssertEqual(SoundRequestPriority.Normal, NoobTubePlmProgramDefinitions.BreakSoundPriority, "n00b tube break sound priority");
                 break;
             case NoobTubeCue.SetBrokenEvent:
-                AssertEqual((ushort)NoobTubePlmDefinitions.BrokenEvent, Operand(2), "n00b tube broken event");
+                AssertEqual(NoobTubePlmDefinitions.BrokenEvent.ToEventNumber(), Operand(2), "n00b tube broken event");
                 break;
             case NoobTubeCue.LinkInputWait:
             case NoobTubeCue.ArmPowerBombWake:

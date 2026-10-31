@@ -23,7 +23,7 @@ public static class PauseReserveTankExtractor
         for (int index = 0; index < anchors.Length; index++)
             anchors[index] = new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveTankXPositions + index * 2), checked((ushort)y));
         var frames = new Dictionary<string, SpriteVisualPart[]>();
-        foreach (var definition in PauseReserveTankParts.Frames()) frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, (ushort)definition.Id));
+        foreach (var definition in PauseReserveTankParts.Frames()) frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, PauseReserveTankVisualWords.Ordinals.Word(definition.Id)));
         using var output = new MemoryStream();
         PauseReserveTankSourcePresentation.Write(output, new() { Version = PauseReserveTankDefinitions.Version,
             Palette = PauseReserveTankDefinitions.Palette, Anchors = anchors, Frames = frames });

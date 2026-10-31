@@ -183,15 +183,19 @@ internal sealed class ClosedPresentationAudit
     {
         foreach (IArgumentOperation argument in operation.Arguments)
         {
-            string parameter = (argument.Parameter ?? throw new InvalidOperationException("Verification requires argument.Parameter.")).Name;
+            IParameterSymbol parameter = argument.Parameter ?? throw new InvalidOperationException("Verification requires argument.Parameter.");
             IOperation value = argument.Value is IConversionOperation conversion ? conversion.Operand : argument.Value;
             if (argument.Value.ConstantValue is { HasValue: true, Value: not null } constant)
-                yield return new ConstantSelection(parameter, constant.Value);
+                yield return new ConstantSelection(parameter.Name, constant.Value, parameter.Type);
             else if (value is IObjectCreationOperation creation)
                 foreach (IArgumentOperation component in creation.Arguments)
                     if (component.Value.ConstantValue is { HasValue: true, Value: not null } part)
-                        yield return new ConstantSelection(parameter + "." + ComponentName((component.Parameter ?? throw new InvalidOperationException(
-                            "Verification requires component.Parameter.")).Name), part.Value);
+                    {
+                        IParameterSymbol componentParameter = component.Parameter ?? throw new InvalidOperationException(
+                            "Verification requires component.Parameter.");
+                        yield return new ConstantSelection(parameter.Name + "." + ComponentName(componentParameter.Name), part.Value,
+                            componentParameter.Type);
+                    }
         }
     }
 
@@ -205,7 +209,7 @@ internal sealed class ClosedPresentationAudit
     /// <summary>Rejects literal arguments outside the reviewed finite identities or numeric index ranges.</summary>
     private static string? InvalidConstantIndex(IInvocationOperation operation, string provider)
     {
-        foreach ((string parameter, object constantValue) in ConstantSelections(operation))
+        foreach ((string parameter, object constantValue, ITypeSymbol type) in ConstantSelections(operation))
         {
             var owner = new PresentationParameter(Type:provider, Method:operation.TargetMethod.Name, Parameter:parameter);
             if (constantValue is string name &&
@@ -218,7 +222,8 @@ internal sealed class ClosedPresentationAudit
             int[]? identities = ClosedPresentationIdentityDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             ProviderIndexDomain? range = ClosedPresentationIndexDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             if (identities is null && range is null) continue;
-            int number = Convert.ToInt32(constantValue);
+            if (ConstantDomainNumbers.Of(type, constantValue) is not int number)
+                return $"Constant {owner.Parameter}={constantValue} names no {type.Name}.";
             if (identities is not null && !identities.Contains(number))
                 return $"Constant {owner.Parameter}={number} is not owned by the reviewed {owner.Type}.{owner.Method} resource domain.";
             if (range is null) continue;

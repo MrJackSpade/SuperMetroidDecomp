@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
@@ -103,7 +104,7 @@ internal sealed class LowPercentIntroReplayChecks
                 break;
             case 1884:
                 // $8B:B90B: Rinka zero, stepped in its spawn pass, strikes Samus on native's update.
-                AssertEqual((byte)0x54, (byte)(flashback ?? throw new InvalidOperationException("Verification requires flashback.")).Pose, "update 1884 Rinka knockback pose");
+                AssertEqual((byte)0x54, SamusPoseNumbering.Number((flashback ?? throw new InvalidOperationException("Verification requires flashback.")).Pose), "update 1884 Rinka knockback pose");
                 break;
             case 2050:
                 // $90:EB02 cleared the run's movement records, so the missile inherits nothing.

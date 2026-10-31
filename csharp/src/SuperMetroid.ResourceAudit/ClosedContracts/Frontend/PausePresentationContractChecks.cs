@@ -51,7 +51,7 @@ internal static class PausePresentationContractChecks
                     selector.Draw(oam, sheet, 0, 1, int.MaxValue);
                     selector.Draw(oam, sheet, 0, 2, 0);
                     tanks.Draw(oam, sheet, PauseReserveTankVisual.Full, PauseReserveTankDefinitions.AnchorCount - 1);
-                    tanks.Draw(oam, sheet, 0, 0);
+                    tanks.Draw(oam, sheet, (PauseReserveTankVisual)99, 0);
                     tanks.Anchor(PauseReserveTankDefinitions.AnchorCount);
                     tanks.Anchor(0);
                 }

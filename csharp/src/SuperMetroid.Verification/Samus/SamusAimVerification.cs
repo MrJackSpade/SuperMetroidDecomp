@@ -84,8 +84,8 @@ internal static void VerifySamusStandingAimMovement()
         SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, target);
         GroundedMovementResult result = SamusGroundedMovement.StepStanding(
 level, samus, frameCounter: 0, controllerInput: 0);
-        AssertTrue(result.Vertical.Collided, $"right aim pose ${(int)target:X2} remains grounded");
-        AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, $"right aim pose ${(int)target:X2} clears base speed");
+        AssertTrue(result.Vertical.Collided, $"right aim pose ${SamusPoseNumbering.Number(target):X2} remains grounded");
+        AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, $"right aim pose ${SamusPoseNumbering.Number(target):X2} clears base speed");
     }
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(samus, SamusPoseId.StandingAimUpRightPose);
     AssertEqual(0x01, SamusPoseNumbering.Number(SamusPoseMetadata.ReadNoInputFallbackPose(samus)), "right aimed no-input fallback");
@@ -128,7 +128,7 @@ level, samus, frameCounter: 0, controllerInput: 0);
         SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, target);
         GroundedMovementResult result = SamusGroundedMovement.StepStanding(
 level, leftSamus, frameCounter: 1, controllerInput: 0);
-        AssertTrue(result.Vertical.Collided, $"left aim pose ${(int)target:X2} remains grounded");
+        AssertTrue(result.Vertical.Collided, $"left aim pose ${SamusPoseNumbering.Number(target):X2} remains grounded");
     }
     SamusGroundedPoseTransitions.ApplyGroundedAimTransition(leftSamus, SamusPoseId.StandingAimUpLeftPose);
     AssertEqual(0x02, SamusPoseNumbering.Number(SamusPoseMetadata.ReadNoInputFallbackPose(leftSamus)), "left aimed no-input fallback");
@@ -596,13 +596,13 @@ internal static void VerifySamusGunExtendedMovement()
     ]);
 
     AssertEqual(0x0b,
-        (byte)(SamusPoseTransitionTable.Find(SamusPoseId.MovingRightNormalPose, ControllerButton.Right | ControllerButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, ControllerButton.Right | ControllerButton.X, 0).")).ProspectivePose,
+        SamusPoseNumbering.Number((SamusPoseTransitionTable.Find(SamusPoseId.MovingRightNormalPose, ControllerButton.Right | ControllerButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, ControllerButton.Right | ControllerButton.X, 0).")).ProspectivePose),
         "Shot+Right selects running gun extension");
     AssertEqual(0x13,
-        (byte)(SamusPoseTransitionTable.Find(SamusPoseId.NeutralJumpRightPose, ControllerButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, ControllerButton.X, 0).")).ProspectivePose,
+        SamusPoseNumbering.Number((SamusPoseTransitionTable.Find(SamusPoseId.NeutralJumpRightPose, ControllerButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, ControllerButton.X, 0).")).ProspectivePose),
         "Shot selects neutral-jump gun extension");
     AssertEqual(0x67,
-        (byte)(SamusPoseTransitionTable.Find(SamusPoseId.FallingRightPose, ControllerButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, ControllerButton.X, 0).")).ProspectivePose,
+        SamusPoseNumbering.Number((SamusPoseTransitionTable.Find(SamusPoseId.FallingRightPose, ControllerButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, ControllerButton.X, 0).")).ProspectivePose),
         "Shot selects falling gun extension");
 
     SamusPoseTransitionLookup heldRightAndShot = SamusPoseTransitionTable.Lookup(

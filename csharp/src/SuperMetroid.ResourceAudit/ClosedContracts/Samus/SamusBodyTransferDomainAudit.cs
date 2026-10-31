@@ -10,9 +10,10 @@ internal static class SamusBodyTransferDomainAudit
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(InstalledSamusBodyArtwork).FullName) return null;
-        int? Constant(string name) => operation.Arguments.FirstOrDefault(argument => argument.Parameter?.Name == name)?
-            .Value.ConstantValue is { HasValue: true, Value: not null } value ? Convert.ToInt32(value.Value) : null;
-        if (operation.TargetMethod.Name == "Frame" && Constant("pose") is int pose && pose >= InstalledSamusBodyArtwork.PoseCount)
+        if (operation.TargetMethod.Name == "Frame" &&
+            operation.Arguments.FirstOrDefault(argument => argument.Parameter?.Name == "pose") is
+                { Parameter: { } parameter, Value.ConstantValue: { HasValue: true, Value: not null } constant } &&
+            ConstantDomainNumbers.Of(parameter.Type, constant.Value) is not (int and < InstalledSamusBodyArtwork.PoseCount))
             return "Known Samus pose has no admitted body frame list.";
         return null;
     }

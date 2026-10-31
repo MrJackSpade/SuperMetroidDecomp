@@ -204,14 +204,14 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
         var spin = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = source };
         SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(spin, spinTarget);
         AssertEqual(spinTarget, spin.Pose,
-            $"aimed standing turn ${(int)source:X2} accepts facing spin jump");
+            $"aimed standing turn ${SamusPoseNumbering.Number(source):X2} accepts facing spin jump");
         AssertEqual(SamusVerticalDirection.Up, spin.Kinematics.YDirection,
-            $"aimed standing turn ${(int)source:X2} spin launches upward");
+            $"aimed standing turn ${SamusPoseNumbering.Number(source):X2} spin launches upward");
 
         var neutral = new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = source };
         SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(neutral, neutralTarget);
         AssertEqual(neutralTarget, neutral.Pose,
-            $"aimed standing turn ${(int)source:X2} accepts facing neutral jump");
+            $"aimed standing turn ${SamusPoseNumbering.Number(source):X2} accepts facing neutral jump");
     }
     AssertThrows<InvalidOperationException>(
         () => SamusAerialPoseTransitions.ApplyOrdinaryJumpTransition(new SamusState(InstalledFixtures.AnimationContinuation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { Pose = SamusPoseId.TurningRightToLeftCrouchingPose }, SamusPoseId.SpinJumpLeftPose),

@@ -304,7 +304,7 @@ level, SamusPoseId.StandingTransitionRightPose, frameCounter: 1),
         AssertTrue(
             SamusPosturePoseTransitions.TryApplyPostureTransition(aimedSamus, 
 level, aimedCrouchTransitions[index], unchecked((ushort)index)),
-            $"aimed crouch transition ${(int)(aimedCrouchTransitions[index]):X2} begins");
+            $"aimed crouch transition ${SamusPoseNumbering.Number(aimedCrouchTransitions[index]):X2} begins");
         AssertEqual(16, aimedSamus.Kinematics.Radius.Y, "aimed crouch transition radius");
         AssertEqual(48, aimedSamus.Position.Y.Whole, "aimed crouch keeps feet aligned");
         SamusPostureMovement.StepCrouchStandTransition(
@@ -324,7 +324,7 @@ level, aimedSamus, unchecked((ushort)index));
         AssertTrue(
             SamusPosturePoseTransitions.TryApplyPostureTransition(aimedSamus, 
 level, aimedStandTransitions[index], unchecked((ushort)index)),
-            $"aimed stand transition ${(int)(aimedStandTransitions[index]):X2} begins");
+            $"aimed stand transition ${SamusPoseNumbering.Number(aimedStandTransitions[index]):X2} begins");
         AssertEqual(16, aimedSamus.Kinematics.Radius.Y, "aimed standing commit retains crouch radius");
         AssertEqual(43, aimedSamus.Position.Y.Whole, "aimed stand keeps feet aligned");
         SamusPoseMetadata.RefreshCollisionRadii(aimedSamus);
@@ -352,7 +352,7 @@ level, aimedStandTransitions[index], unchecked((ushort)index)),
     })
     {
         SamusGroundedPoseTransitions.ApplyGroundedAimTransition(crouchAim, target);
-        AssertEqual(16, crouchAim.Kinematics.Radius.Y, $"right crouch aim ${(int)target:X2} radius");
+        AssertEqual(16, crouchAim.Kinematics.Radius.Y, $"right crouch aim ${SamusPoseNumbering.Number(target):X2} radius");
     }
     AssertThrows<InvalidOperationException>(
         () => SamusGroundedPoseTransitions.ApplyGroundedAimTransition(crouchAim, SamusPoseId.CrouchingAimUpLeftPose),

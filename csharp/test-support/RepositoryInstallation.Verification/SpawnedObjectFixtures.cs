@@ -76,7 +76,7 @@ internal static class SpawnedObjectFixtures
     internal static EnemyPresentation Presentation(RoomStateSettings state)
     {
         ArgumentNullException.ThrowIfNull(state);
-        var session = new EnemySession { TileArtwork = InstalledFixtures.EnemyTiles, Sheets = InstalledFixtures.EnemySheets };
+        var session = new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()) { TileArtwork = InstalledFixtures.EnemyTiles, Sheets = InstalledFixtures.EnemySheets };
         var room = new EnemyRoomBinding(session, CompiledRoomEnemyDefinitions.Instance, services: null);
         var graphics = new EnemyGraphicsSet(room);
         graphics.LoadGraphicsSet(CompiledRoomEnemyDefinitions.Instance, state.EnemyGraphicsSet, new SpriteColourSets());

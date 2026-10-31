@@ -51,18 +51,18 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
         state.Function = KzanEnemyFunction.WaitingToFall;
 
-        // init0's low byte names the linear-speed row the fall starts at. Retail values
-        // include 64, the table's final NTSC row.
-        state.FallingSpeedRow = slot.Spawn.Population.Parameter1Settings.First;
+        // The spawn settings name the linear-speed row the fall starts at. Retail values include 64, the table's
+        // final NTSC row.
+        state.FallingSpeedRow = slot.SpawnSettings<KzanSpawnSettings>().FallSpeedIndex;
         state.InitialFallingSpeed = EnemyLinearSpeeds.Row(state.FallingSpeedRow).Positive;
 
         // init1 packs two unrelated bytes: the high byte is fall distance in pixels and the
         // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
         // on its first DEC rather than triggering immediately.
         var spawn = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
-        state.FallingTarget = spawn + new Offset16<RoomPixels>(0, slot.Spawn.Population.Parameter2Settings.Second);
+        state.FallingTarget = spawn + new Offset16<RoomPixels>(0, slot.SpawnSettings<KzanSpawnSettings>().FallDistance);
         state.RisingTarget = spawn;
-        state.FallWaitTimerResetValue = slot.Spawn.Population.Parameter2Settings.First;
+        state.FallWaitTimerResetValue = slot.SpawnSettings<KzanSpawnSettings>().FallWait;
         state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
     }
 
@@ -124,7 +124,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.FallWaitTimer = WrappingCountdown.Start(state.FallWaitTimerResetValue);
-        state.FallingSpeedRow = slot.Spawn.Population.Parameter1Settings.First;
+        state.FallingSpeedRow = slot.SpawnSettings<KzanSpawnSettings>().FallSpeedIndex;
         state.Function = KzanEnemyFunction.Falling;
     }
 

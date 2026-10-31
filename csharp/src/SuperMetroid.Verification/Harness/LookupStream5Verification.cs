@@ -1226,7 +1226,7 @@ internal static class LookupStream5Verification
             state.AimAngle = new Bearing(checked((byte)angle));
             begin(slot, state);
             int direction = unchecked((byte)(angle + 16)) >> 5;
-            AssertEqual(direction, state.DirectionIndex,
+            AssertEqual(YappingMawAnimationDefinitions.Aims.At(direction), state.Aim,
                 "Actual angle quantization/wrap retained");
             Check(direction, "Actual begin-extension held offset");
         }
@@ -1257,7 +1257,7 @@ internal static class LookupStream5Verification
                 var enemies = new RoomEnemySystem(new EnemySession());
                 var slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
-                slot.SetSpawnParameter2((ushort)(0x8000 | direction));
+                slot.SetSpawnParameter2(EnemyDefinitionId.Eye, (ushort)(0x8000 | direction));
                 slot.Position = slot.Position.WithWhole(new(origin, origin));
                 new Action<RoomEnemySlot>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(slot);
                 AssertEqual(unchecked((ushort)(origin + expected.First)), slot.Position.X.Whole, "Actual mount X with native wrap");
@@ -1745,7 +1745,7 @@ internal static class LookupStream5Verification
     {
         for (ushort variant = 0; variant < 7; variant++)
         {
-            var actual = CeresDoorInitializations.For(variant);
+            var actual = CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(variant));
             AssertEqual(ReadVerificationWord(rom, 0xa6f52c + 2 * variant), NativeEnemyProgramOracle.EntryOf(CeresDoorNativeListAddresses.Entries, actual.Program), "Ceres door original instruction dispatch");
             AssertEqual(ReadVerificationWord(rom, 0xa6f72b + 2 * variant), CeresNativeWords.DoorFunctions.Word(actual.MainFunction), "Ceres door original function dispatch");
         }
@@ -1762,8 +1762,8 @@ internal static class LookupStream5Verification
             AssertEqual(ReadVerificationWord(rom, 0xa8af67 + 2 * index), NativeEnemyProgramOracle.EntryOf(MagdolliteNativeListAddresses.Entries, actual.BodyProgram), "Magdollite original body program");
             AssertEqual(ReadVerificationWord(rom, 0xa8af79 + 2 * index), actual.OverlayYOffset, "Magdollite original overlay offset");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorInitializations.For(7), "Ceres door upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorInitializations.For(ushort.MaxValue), "Ceres door full-word rejection");
+        AssertThrows<InvalidDataException>(() => CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(7)), "Ceres door upper bound");
+        AssertThrows<InvalidDataException>(() => CeresDoorInitializations.For(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.CeresDoor(ushort.MaxValue)), "Ceres door full-word rejection");
         AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)6), "Ceres steam upper bound");
         AssertThrows<InvalidDataException>(() => CeresSteamInitializations.Initialization((CeresSteamVariant)ushort.MaxValue), "Ceres steam full-word rejection");
         AssertThrows<InvalidDataException>(() => MagdolliteRise.Phase(-1), "Magdollite lower bound");
@@ -1990,7 +1990,7 @@ internal static class LookupStream5Verification
                 var system = new RoomEnemySystem(new EnemySession()) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual } };
                 var cgram = new SamusColourRig();
                 system.Presentation.BindColours(cgram.Gameplay);
-                var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
+                var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(EnemyDefinitionId.CeresDoor, variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
                 int destination = variant == 3 ? CeresDoorVisualConstants.NormalTargetColor : CeresDoorVisualConstants.ActiveTargetColor;
                 for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), cgram.Colors[destination + color], "Actual normal/target initializer copy");
@@ -2052,7 +2052,7 @@ internal static class LookupStream5Verification
                 var system = new RoomEnemySystem(new EnemySession()) { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaSourceArtwork { CeresDoorVisual = visual } };
                 var cgram = new SamusColourRig();
                 system.Presentation.BindColours(cgram.Gameplay);
-                var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(variant);
+                var slot = system.SlotTable.Slots[0]; slot.SetSpawnParameter1(EnemyDefinitionId.CeresDoor, variant);
                 new Action<RoomEnemySlot>(system.CeresDoorBehavior.InitializeCeresDoor)(slot);
                 int destination = CeresDoorVisualConstants.ActiveTargetColor;
                 for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), cgram.Colors[destination + color], "Actual escape initializer copy");

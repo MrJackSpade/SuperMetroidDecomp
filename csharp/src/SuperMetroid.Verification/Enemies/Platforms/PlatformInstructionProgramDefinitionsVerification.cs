@@ -59,8 +59,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
                 ? EnemyDefinitionId.Kamer2
                 : EnemyDefinitionId.Tripper, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.SetSpawnParameter1((ushort)testCase.Direction);
-            slot.SetSpawnParameter2(0x0101);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Tripper, (ushort)testCase.Direction);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Tripper, 0x0101);
             slot.Position = slot.Position.WithWholeY(0x0100);
             PlatformsBehavior.InitializePlatform(slot);
 

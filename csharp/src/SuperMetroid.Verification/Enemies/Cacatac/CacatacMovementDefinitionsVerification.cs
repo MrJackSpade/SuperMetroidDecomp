@@ -25,8 +25,8 @@ internal static class CacatacMovementDefinitionsVerification
                 AssertEqual(native, CacatacPatrol.TravelDistance(distanceIndex),
                     $"compiled Cacatac travel distance {distanceIndex}");
 
-                slot.SetSpawnParameter1(0);
-                slot.SetSpawnParameter2(distanceIndex);
+                slot.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
+                slot.SetSpawnParameter2(EnemyDefinitionId.Cacatac, distanceIndex);
                 slot.Position = slot.Position.WithWholeX(spawnX);
                 initialize(slot);
                 CacatacEnemyState state = (enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires enemies.CacatacStates[0]."));

@@ -32,7 +32,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.SetSpawnParameter1((ushort)variant);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Steam, (ushort)variant);
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, ControllerButton.None];

@@ -129,14 +129,9 @@ internal sealed class EnemyDeathsAndDrops
         _roomStatus.RecordKill();
     }
 
-    /// <summary>
-    /// Publishes the dying enemy's respawn property bit, as the word the cartridge stores, into the shared scratch
-    /// word: 16384 for a respawning enemy, otherwise zero.
-    /// </summary>
+    /// <summary>The horizontal radius a kill inside a power bomb's sweep leaves the sweep with (<see cref="PowerBombRadiusAfterKill"/>).</summary>
     internal static int RespawnScratchWord(RoomEnemySlot enemy) =>
-        enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled)
-            ? EnemyProperties.RespawnIfKilled.ToWord()
-            : 0;
+        PowerBombRadiusAfterKill.Of(enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled));
 
     /// <summary>Keeps a killed respawning slot occupied by replacing its header with the respawn placeholder.</summary>
     internal void InstallRespawnPlaceholder(RoomEnemySlot enemy)

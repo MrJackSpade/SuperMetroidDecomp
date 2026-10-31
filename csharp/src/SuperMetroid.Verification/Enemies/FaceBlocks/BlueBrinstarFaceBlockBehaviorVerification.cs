@@ -61,8 +61,8 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(64);
-        slot.SetSpawnParameter2(parameter2);
+        slot.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
+        slot.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, parameter2);
         slot.Position = slot.Position.WithWhole(new(256, 256));
         enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(slot, null);
         return new BlueBrinstarFaceBlockBehaviorCreateResult(enemies, slot, enemies.BlueBrinstarFaceBlockStates[0] ?? throw new InvalidOperationException("The face block has no state."));

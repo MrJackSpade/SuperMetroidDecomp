@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Sparks.Artwork;
 using SuperMetroid.Core.Enemies.FallingSparks;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.Sparks;
 
@@ -67,22 +66,17 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         // Native masks the selector to two bits, but both tables contain only three authored
         // words. The compiled definition preserves selector three's two adjacent-code reads;
         // a later main pass still reports its exact nonsensical function if selected.
-        SparkMovementDefinition definition = SparkStarts.InitialState(checked((ushort)slot.Spawn.Population.Parameter1));
+        SparkMovementDefinition definition = SparkStarts.InitialState(slot.SpawnSettings<SparkSpawnSettings>().InitialState);
         state.Function = definition.Function;
-        state.BaseFunctionTime = slot.Spawn.Population.Parameter2;
+        state.BaseFunctionTime = slot.SpawnSettings<SparkSpawnSettings>().BaseFunctionTime;
         SetSparkFunctionTimer(state, additionalTime: 0);
 
         slot.InstructionTimer = WrappingCountdown.Start(1);
         state.Program = definition.Program is { } program ? AnimationProgramCursor<SparkProgram>.Start(program) : null;
         slot.Timer = WrappingCountdown.Start(0);
-
-        if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
-            return;
-
-        // This is intentionally *not* `ORA #$0100`, which would force invisibility. The retail
-        // instruction is the absolute-memory form `ORA $0100`, a disassembly-noted bug; see
-        // SparkMovementDefinitions.StackPagePropertyOverlay for the exempted value it ORs.
-        slot.Properties = EnemyPropertyWord.FromWord((ushort)(slot.Properties.ToWord() | SparkMovementDefinitions.StackPagePropertyOverlay));
+        // Before Phantoon's defeat the original initializer also ORs a stack-page word into the properties, a
+        // disassembly-noted bug; that word depends on upload-queue history the port does not keep, so it is exempt under
+        // the emulation scope limits (owner decision on #1318) and Spark keeps its population properties.
     }
 
     /// <summary>Ports the indirect main dispatcher at <c>$A8:E68E</c>.</summary>

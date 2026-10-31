@@ -23,22 +23,6 @@ internal static class RidleyExplosionDefinitions
     internal const int WholePixelSpeed = 256;
     /// <summary>The tail tip's sixteen orientations.</summary>
     internal const int TailTipOrientationCount = 16;
-    /// <summary>The part each authored spawn parameter of the breakup's embedded population records selects.</summary>
-    internal static readonly ParameterVariants<RidleyExplosionPart> PartParameters = new(new Dictionary<int, RidleyExplosionPart>
-    {
-        [0] = RidleyExplosionPart.Tail0,
-        [2] = RidleyExplosionPart.Tail1,
-        [4] = RidleyExplosionPart.Tail2,
-        [6] = RidleyExplosionPart.Tail3,
-        [8] = RidleyExplosionPart.Tail4,
-        [10] = RidleyExplosionPart.Tail5,
-        [12] = RidleyExplosionPart.TailTip,
-        [14] = RidleyExplosionPart.Wings,
-        [16] = RidleyExplosionPart.Legs,
-        [18] = RidleyExplosionPart.OpenHeadAndNeck,
-        [20] = RidleyExplosionPart.Torso,
-        [22] = RidleyExplosionPart.Claw,
-    });
 
     /// <summary>
     /// The breakup's allocation order: the tail from tip to base, then wings, legs, torso, head and claw. Enemy-slot
@@ -83,9 +67,8 @@ internal static class RidleyExplosionDefinitions
         [RidleyExplosionPart.TailTip] = 6,
     }.ToFrozenDictionary();
 
-    /// <summary>The definition of the part an authored spawn parameter selects.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The parameter selects no part.</exception>
-    public static RidleyExplosionPartDefinition GetPart(int parameter) => new(Lifetimes[PartParameters.Decode(parameter)]);
+    /// <summary>The definition of <paramref name="part"/>.</summary>
+    public static RidleyExplosionPartDefinition GetPart(RidleyExplosionPart part) => new(Lifetimes[part]);
 
     /// <summary>
     /// Returns one of the ten body-relative positions consumed cyclically by

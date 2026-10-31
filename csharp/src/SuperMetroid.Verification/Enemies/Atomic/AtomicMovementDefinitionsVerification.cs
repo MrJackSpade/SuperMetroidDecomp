@@ -35,15 +35,15 @@ internal static class AtomicMovementDefinitionsVerification
 
         for (ushort selector = 0; selector < 4; selector++)
         {
-            slot.SetSpawnParameter1(selector);
-            slot.SetSpawnParameter2((ushort)(selector * 7));
+            slot.SetSpawnParameter1(EnemyDefinitionId.Atomic, selector);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Atomic, (ushort)(selector * 7));
             AtomicBehavior.InitializeAtomic(slot);
             AtomicEnemyState state = enemies.AtomicStates[0] ?? throw new InvalidOperationException("Verification requires enemies.AtomicStates[0].");
             AtomicProgram program = AtomicSpins.InitialProgram(selector);
             AssertEqual(AnimationProgramCursor<AtomicProgram>.Start(program), state.Program,
                 $"Atomic initializer animation {selector}");
 
-            EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter2);
+            EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<AtomicSpawnSettings>().SpeedIndex);
             AssertEqual(speeds.Positive, state.Speed, $"Atomic positive speed {selector}");
             AssertEqual(speeds.Negative, state.NegativeSpeed, $"Atomic negative speed {selector}");
 

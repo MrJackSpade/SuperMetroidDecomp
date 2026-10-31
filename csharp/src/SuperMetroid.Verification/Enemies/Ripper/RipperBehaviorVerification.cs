@@ -29,7 +29,7 @@ internal static class RipperBehaviorVerification
             AssertEqual(definition, EnemyDefinitionIds.FromHeaderPointer(CartridgeImportSource.Require(rom).ReadCartridgeWord(record)),
                 $"retail Ripper population ${record:X6} definition");
             ushort extra = CartridgeImportSource.Require(rom).ReadCartridgeWord(record + 10);
-            AssertTrue(!EnemyExtraPropertyWord.FromWord(extra).HasAny(EnemyExtraProperties.UsesExtendedSpritemap),
+            AssertTrue(!SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.ExtraFlagsOf(extra).HasAny(EnemyExtraProperties.UsesExtendedSpritemap),
                 $"retail Ripper population ${record:X6} uses ordinary OAM");
         }
 
@@ -49,9 +49,9 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GRipper);
-            slot.SetSpawnSettings(new GRipperSpawnSettings(SpeedIndex: 1, GRipperStartDirection.Right));
-            slot.SetSpawnParameter1(0);
-            slot.SetSpawnParameter2(ushort.MaxValue);
+            slot.SetSpawnSettings(new GRipperSpawnSettings(SpeedIndex: 1, GRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
+            slot.SetSpawnParameter1(EnemyDefinitionId.GRipper, 0);
+            slot.SetSpawnParameter2(EnemyDefinitionId.GRipper, ushort.MaxValue);
             enemies.RipperBehavior.InitializeGRipper(slot);
             VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
@@ -60,9 +60,9 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.GRipper);
-            slot.SetSpawnSettings(new GRipperSpawnSettings(SpeedIndex: 1, GRipperStartDirection.Right));
-            slot.SetSpawnParameter1(0);
-            slot.SetSpawnParameter2(ushort.MaxValue);
+            slot.SetSpawnSettings(new GRipperSpawnSettings(SpeedIndex: 1, GRipperStartDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
+            slot.SetSpawnParameter1(EnemyDefinitionId.GRipper, 0);
+            slot.SetSpawnParameter2(EnemyDefinitionId.GRipper, ushort.MaxValue);
             enemies.RipperBehavior.InitializeGRipper(slot);
             enemies.RipperBehavior.ReverseRipperVariant(slot, RipperProgram.GRipperMovingRight, RipperProgram.GRipperMovingLeft);
             VerifyInstalledLoop(enemies, slot, RipperProgram.GRipperMovingLeft, "GRipper left reversal");
@@ -72,8 +72,8 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.Ripper2);
-            slot.SetSpawnParameter1(1);
-            slot.SetSpawnParameter2(initialDirection);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
             enemies.RipperBehavior.InitializeRipper2(slot);
             VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }
@@ -82,8 +82,8 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.Ripper);
-            slot.SetSpawnParameter1(1);
-            slot.SetSpawnParameter2(initialDirection);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
             enemies.RipperBehavior.InitializeRipper(slot);
             VerifyInstalledLoop(enemies, slot, expectedProgram, context);
         }

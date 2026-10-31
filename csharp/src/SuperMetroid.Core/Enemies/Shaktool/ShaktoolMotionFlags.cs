@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>
-/// Shaktool's motion state: reversal, straightening and orbital direction. The values are arbitrary bits; the population's
-/// first parameter carries the initial state in its top three bits (<c>ShaktoolBehavior.InitialMotionFlags</c>).
+/// Shaktool's motion state: reversal, straightening and orbital direction. The values are arbitrary bits; the population
+/// entry names the initial state.
 /// </summary>
 [Flags]
 internal enum ShaktoolMotionFlags

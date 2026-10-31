@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Yard;
@@ -23,18 +24,18 @@ internal static class YardDirectionDefinitionsVerification
         for (ushort direction = 0; direction < 8; direction++)
         {
             YardDirectionDefinition definition =
-                YardDirections.ForDirection(direction);
+                YardDirections.ForDirection(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
             int record = directionAddress + direction * 8;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingProgram),
                 $"Yard direction {direction} crawling list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), (ushort)definition.PropertyBits,
-                $"Yard direction {direction} property bits");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), CrawlerAnimationDefinitions.Orientations.PositionOf(definition.BlockSide),
+                $"Yard direction {direction} block side");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
                 $"Yard direction {direction} hiding list");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), definition.AirborneFacingDirection == YardAirborneFacing.Right ? (ushort)1 : (ushort)0,
                 $"Yard direction {direction} airborne facing");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((oppositeAddress + direction * 2)),
-                definition.OppositeDirection,
+                SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.NumberOf(definition.OppositeDirection),
                 $"Yard direction {direction} opposite");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((movementAddress + direction * 2)),
                 YardNativeWords.YardMovementFunctions.Word(definition.MovementFunction),
@@ -55,9 +56,7 @@ internal static class YardDirectionDefinitionsVerification
                 $"Yard airborne ${source:X6} facing {facing} hiding list");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => YardDirections.ForDirection(8),
-            "Yard invalid direction definition");
+
         AssertThrows<InvalidDataException>(
             () => YardDirections.ForAirborneFacing((YardAirborneFacing)2),
             "Yard invalid airborne facing definition");
@@ -68,16 +67,15 @@ internal static class YardDirectionDefinitionsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.SetSpawnSettings(new YardSpawnSettings(direction));
-            slot.SetSpawnParameter1(0);
-            slot.Properties = EnemyPropertyWord.FromWord(0x4000);
+            slot.SetSpawnSettings(new YardSpawnSettings(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction), SpeedIndex: 0));
+            slot.Properties = EnemyProperties.RespawnIfKilled;
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);
 
             YardEnemyState state = enemies.YardStates[0] ??
                 throw new InvalidDataException("Yard initializer produced no typed state.");
             YardDirectionDefinition initial =
-                YardDirections.ForDirection(direction);
+                YardDirections.ForDirection(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
             AssertYardDirectionState(slot, state, initial,
                 $"Yard initializer direction {direction}",
                 assertMovementFunction: false);
@@ -87,7 +85,7 @@ internal static class YardDirectionDefinitionsVerification
             // The population selector does not initialize the live direction word;
             // animation bytecode normally publishes it before a turn. Seed each of the
             // eight legal bytecode values to exercise the production turn dispatcher.
-            state.Direction = direction;
+            state.Direction = SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction);
             state.MovementFunction = initial.MovementFunction;
             bool turned = YardEnemyBehavior.TurnYardAround(slot, state);
             AssertTrue(turned, $"Yard direction {direction} production turn");
@@ -104,8 +102,7 @@ internal static class YardDirectionDefinitionsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.SetSpawnSettings(new YardSpawnSettings(direction));
-            slot.SetSpawnParameter1(0);
+            slot.SetSpawnSettings(new YardSpawnSettings(SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction), SpeedIndex: 0));
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
@@ -149,8 +146,8 @@ internal static class YardDirectionDefinitionsVerification
     {
         AssertEqual(AnimationProgramCursor<YardProgram>.Start(expected.CrawlingProgram), state.Program,
             $"{name} crawling list");
-        AssertEqual(expected.PropertyBits, (byte)(slot.Properties.FamilyData & 3),
-            $"{name} property bits");
+        AssertEqual(expected.BlockSide, state.BlockSide,
+            $"{name} block side");
         AssertEqual((YardProgram?)expected.HidingProgram, state.HidingProgram,
             $"{name} hiding list");
         AssertEqual(expected.AirborneFacingDirection, state.AirborneFacingDirection,

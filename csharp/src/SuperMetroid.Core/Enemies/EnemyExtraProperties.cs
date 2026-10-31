@@ -1,21 +1,21 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Independently combinable bits in the native enemy extra-property word whose behavior is
-/// already proven by the live room-enemy path.
+/// The enemy's additional engine properties: how it draws and whether its animation just installed a frame. The
+/// cartridge treats them as independently composable bits.
 /// </summary>
 [Flags]
 public enum EnemyExtraProperties
 {
-    /// <summary>No translated extra-property behavior is enabled.</summary>
+    /// <summary>No additional property is set.</summary>
     None = 0,
 
     /// <summary>
     /// Selects the extended-spritemap path and admits the actor even when its ordinary
     /// radius-based visibility test would reject it.
     /// </summary>
-    UsesExtendedSpritemap = 0x0004,
+    UsesExtendedSpritemap = 1 << 2,
 
     /// <summary>Set when the instruction interpreter installs a new timed frame.</summary>
-    NewInstructionFrame = 0x8000,
+    NewInstructionFrame = 1 << 15,
 }

@@ -1,11 +1,9 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled crawler and Yard velocity definitions against
 /// native speed tables and production sign application.</summary>
@@ -15,10 +13,9 @@ internal static class CrawlerSpeedsVerification
     /// and Yard direction transforms across the effective ushort input domain.</summary>
     internal static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {
-        var reset = new Func<RoomEnemySlot, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>>(
-            CrawlersBehavior.ResetCrawlerVelocitiesFromProperties);
-        var setYard = new Action<YardEnemyState, int>(YardEnemyBehavior.SetYardCrawlingVelocities);
-        var slot = new RoomEnemySystem(new EnemySession()).SlotTable.Slots[0];
+        var reset = new Func<CrawlerSurfaceOrientation, int, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>>(
+            CrawlersBehavior.ResetCrawlerVelocities);
+        var setYard = new Action<YardEnemyState, YardDirection>(YardEnemyBehavior.SetYardCrawlingVelocities);
         var yard = new YardEnemyState();
         int speedParameter = 0;
         for (ushort parameter = 0; parameter < 32; parameter++)
@@ -30,14 +27,14 @@ internal static class CrawlerSpeedsVerification
             yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = EnemyPropertyWord.FromWord((ushort)(0xa000 | property));
-                EightEightVector<RoomPixels> velocity = reset(slot, speedParameter, new(new SignedEightEight(123), new SignedEightEight(456)));
+                // The block side is the crawler's two low property bits in the cartridge.
+                EightEightVector<RoomPixels> velocity = reset(CrawlerAnimationDefinitions.Orientations.At(property), speedParameter, new(new SignedEightEight(123), new SignedEightEight(456)));
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue, "Real crawler X reset without bus");
                 AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue, "Real crawler Y reset without bus");
             }
             for (ushort direction = 0; direction < 8; direction++)
             {
-                setYard(yard, direction);
+                setYard(yard, SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
                 int address = 0xa3cd82 + direction * 8;
                 AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(address)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)))), yard.CrawlingVelocity.X.RawValue, "Real Yard X reset without bus");
                 AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)))), yard.CrawlingVelocity.Y.RawValue, "Real Yard Y reset without bus");
@@ -49,8 +46,7 @@ internal static class CrawlerSpeedsVerification
         {
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = EnemyPropertyWord.FromWord(property);
-                EightEightVector<RoomPixels> velocity = reset(slot, speedParameter,
+                EightEightVector<RoomPixels> velocity = reset(CrawlerAnimationDefinitions.Orientations.At(property), speedParameter,
                     new(new SignedEightEight((ushort)magnitude), new SignedEightEight((ushort)~magnitude)));
                 AssertEqual(property == 0 ? unchecked((ushort)-magnitude) : (ushort)magnitude, velocity.X.RawValue, "Crawler sentinel X sign");
                 AssertEqual(property == 2 ? unchecked((ushort)-(ushort)~magnitude) : (ushort)~magnitude, velocity.Y.RawValue, "Crawler sentinel Y sign");
@@ -58,13 +54,13 @@ internal static class CrawlerSpeedsVerification
             for (ushort direction = 0; direction < 8; direction++)
             {
                 int address = 0xa3cd82 + direction * 8;
-                var actual = YardCrawlVelocity.Apply((ushort)magnitude, direction);
+                var actual = YardCrawlVelocity.Apply((ushort)magnitude, SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
                 AssertEqual(unchecked((ushort)((magnitude ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(address)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)))), actual.X.RawValue, "Yard exhaustive native X sign");
                 AssertEqual(unchecked((ushort)((magnitude ^ CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4))) + CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)))), actual.Y.RawValue, "Yard exhaustive native Y sign");
             }
         }
         AssertThrows<InvalidDataException>(() => CrawlerSpeeds.ForParameter(32), "Crawler invalid speed");
-        AssertThrows<InvalidDataException>(() => YardCrawlVelocity.Apply(1, 8), "Yard invalid direction");
+
         Console.WriteLine("Compiled crawling speeds: both 32-word copies, 384 real resets, 262144 sentinel resets and 524288 Yard sign pairs match native values without a bus.");
     }
 

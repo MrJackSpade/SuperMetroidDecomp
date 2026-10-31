@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Crawlers;
+
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>
@@ -5,8 +7,8 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// </summary>
 internal readonly record struct YardDirectionDefinition(
     YardProgram CrawlingProgram,
-    int PropertyBits,
+    CrawlerSurfaceOrientation BlockSide,
     YardProgram HidingProgram,
     YardAirborneFacing AirborneFacingDirection,
-    int OppositeDirection,
+    YardDirection OppositeDirection,
     YardMovementFunction MovementFunction);

@@ -8,12 +8,12 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 internal static class RidleyBreakup
 {
-    /// <summary>Spawns every part's authored parameter in the breakup's allocation order.</summary>
-    internal static void SpawnInBreakupOrder(Action<int> spawn)
+    /// <summary>Spawns every part in the breakup's allocation order.</summary>
+    internal static void SpawnInBreakupOrder(Action<RidleyExplosionPart> spawn)
     {
         Ensure.NotNull(spawn);
         foreach (RidleyExplosionPart part in BreakupOrder)
-            spawn(PartParameters.Parameter(part));
+            spawn(part);
     }
 
     /// <summary>

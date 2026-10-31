@@ -1,42 +1,28 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>
-/// The named flag sets and the validation shared by <see cref="EnemyPropertyWord"/> and <see cref="EnemyExtraPropertyWord"/>.
-/// </summary>
+/// <summary>The set, clear and test operations behaviours apply to an enemy's <see cref="EnemyProperties"/> and <see cref="EnemyExtraProperties"/>.</summary>
 public static class EnemyPropertyFlagExtensions
 {
-    /// <summary>Every engine property flag the cartridge defines; together they fill the property word's high byte.</summary>
-    internal const EnemyProperties NamedProperties =
-        EnemyProperties.Invisible |
-        EnemyProperties.Deleted |
-        EnemyProperties.IgnoreSamusCollision |
-        EnemyProperties.ProcessOffScreen |
-        EnemyProperties.BlocksPlasmaBeam |
-        EnemyProperties.ProcessInstructions |
-        EnemyProperties.RespawnIfKilled |
-        EnemyProperties.SolidToSamus;
+    /// <summary>Whether any of <paramref name="flags"/> is set.</summary>
+    public static bool HasAny(this EnemyProperties properties, EnemyProperties flags) => (properties & flags) != EnemyProperties.None;
 
-    /// <summary>Rejects low-byte values before changing the named high-byte property flags.</summary>
-    internal static void ValidateKnown(EnemyProperties flags)
-    {
-        if ((flags & ~NamedProperties) != EnemyProperties.None)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(flags), flags, "EnemyProperties accepts only named high-byte flags.");
-        }
-    }
+    /// <summary>These properties with <paramref name="flags"/> set.</summary>
+    public static EnemyProperties With(this EnemyProperties properties, EnemyProperties flags) => properties | flags;
 
-    /// <summary>The extra-property flags whose engine behavior is translated.</summary>
-    internal const EnemyExtraProperties TranslatedExtraFlags =
-        EnemyExtraProperties.UsesExtendedSpritemap | EnemyExtraProperties.NewInstructionFrame;
+    /// <summary>These properties with <paramref name="flags"/> cleared.</summary>
+    public static EnemyProperties Without(this EnemyProperties properties, EnemyProperties flags) => properties & ~flags;
 
-    /// <summary>Rejects extra-property bits whose behavior has not been translated.</summary>
-    internal static void ValidateKnown(EnemyExtraProperties flags)
-    {
-        if ((flags & ~TranslatedExtraFlags) != EnemyExtraProperties.None)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(flags), flags, "EnemyExtraProperties accepts only proven flags.");
-        }
-    }
+    /// <summary>These properties with <paramref name="clear"/> cleared, then <paramref name="set"/> set.</summary>
+    public static EnemyProperties Replace(this EnemyProperties properties, EnemyProperties clear, EnemyProperties set) =>
+        (properties & ~clear) | set;
+
+    /// <summary>Whether any of <paramref name="flags"/> is set.</summary>
+    public static bool HasAny(this EnemyExtraProperties properties, EnemyExtraProperties flags) =>
+        (properties & flags) != EnemyExtraProperties.None;
+
+    /// <summary>These additional properties with <paramref name="flags"/> set.</summary>
+    public static EnemyExtraProperties With(this EnemyExtraProperties properties, EnemyExtraProperties flags) => properties | flags;
+
+    /// <summary>These additional properties with <paramref name="flags"/> cleared.</summary>
+    public static EnemyExtraProperties Without(this EnemyExtraProperties properties, EnemyExtraProperties flags) => properties & ~flags;
 }

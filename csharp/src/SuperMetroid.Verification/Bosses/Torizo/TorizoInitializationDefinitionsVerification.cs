@@ -33,10 +33,12 @@ internal static class TorizoInitializationDefinitionsVerification
             void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.Definition);
-            for (int properties = 0; properties <= ushort.MaxValue; properties++)
+            // Every combination of engine properties (#1472: the property word's low byte is species settings, not
+            // an engine property), with the additional properties the complement names.
+            for (int properties = 0; properties <= ushort.MaxValue; properties += 256)
             {
-                actor.Properties = EnemyPropertyWord.FromWord((ushort)properties);
-                actor.ExtraProperties = EnemyExtraPropertyWord.FromWord((ushort)~properties);
+                actor.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(properties);
+                actor.ExtraProperties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.ExtraFlagsOf((ushort)~properties);
                 actor.Radius = new(0xffff, 0xffff);
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
                 actor.Health = 0x3456;
@@ -50,10 +52,10 @@ internal static class TorizoInitializationDefinitionsVerification
                     ?? throw new InvalidOperationException("Verification requires the initialized Torizo state.");
                 AssertEqual(native[2], TorizoNativeListAddresses.Entry(started.BodyProgram.Program), "Real Torizo initial program selection");
                 AssertEqual(AnimationProgramCursor<TorizoBodyProgram>.Start(started.BodyProgram.Program), started.BodyProgram, "Real Torizo starts its initial program");
-                AssertEqual((ushort)(properties | native[3]), actor.Properties.ToWord(), "All population property bits preserved by native OR");
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.EngineFlagsOf(properties | native[3]), actor.Properties, "All population properties preserved by native OR");
                 AssertEqual(native[4], actor.Radius.X, "Real Torizo X hitbox radius");
                 AssertEqual(native[5], actor.Radius.Y, "Real Torizo Y hitbox radius");
-                AssertEqual((ushort)((ushort)~properties | (ushort)EnemyExtraProperties.UsesExtendedSpritemap), actor.ExtraProperties.ToWord(), "Extended map flag preserves population extra properties");
+                AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.ExtraFlagsOf((ushort)~properties) | EnemyExtraProperties.UsesExtendedSpritemap, actor.ExtraProperties, "Extended map flag preserves population extra properties");
                 AssertEqual((ushort)0x1234, actor.Position.X.Fraction, "Torizo initialization preserves X fraction");
                 AssertEqual((ushort)0xabcd, actor.Position.Y.Fraction, "Torizo initialization preserves Y fraction");
                 AssertEqual(0x3456, actor.Health, "Torizo initialization preserves population health");
@@ -65,11 +67,11 @@ internal static class TorizoInitializationDefinitionsVerification
                 AssertEqual((ushort)0x100, state.Velocity.Y.RawValue, "Initial falling velocity");
             }
             defeated = true;
-            actor.Properties = EnemyPropertyWord.FromWord(0x1234);
+            actor.Properties = EnemyProperties.BlocksPlasmaBeam | EnemyProperties.IgnoreSamusCollision;
             actor.Position = actor.Position.WithWhole(new(0x1111, 0x2222));
             actor.InstructionTimer = WrappingCountdown.Start(0x3333);
             initialize(actor);
-            AssertEqual((ushort)(0x1234 | (ushort)EnemyProperties.Deleted), actor.Properties.ToWord(), "Defeated Torizo is deleted before initialization writes");
+            AssertEqual(EnemyProperties.BlocksPlasmaBeam | EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted, actor.Properties, "Defeated Torizo is deleted before initialization writes");
             AssertEqual((ushort)0x1111, actor.Position.X.Whole, "Defeated Torizo preserves X");
             AssertEqual((ushort)0x2222, actor.Position.Y.Whole, "Defeated Torizo preserves Y");
             AssertEqual((ushort)0x3333, actor.InstructionTimer.RawValue, "Defeated Torizo leaves its animation untouched");

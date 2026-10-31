@@ -17,8 +17,8 @@ internal static class MotherBrainTubeDescentVerification
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = enemies.SlotTable.Slots[1] };
         enemies.MotherBrainEncounter.MotherBrain = state;
         var tube = enemies.SlotTable.Slots[2];
-        tube.SetSpawnParameter1(8);
-        tube.SetSpawnParameter2(0);
+        tube.SetSpawnParameter1(EnemyDefinitionId.MotherBrainTubes, 8);
+        tube.SetSpawnParameter2(EnemyDefinitionId.MotherBrainTubes, 0);
         tube.Position = tube.Position.WithWhole(new(128, 128));
         state.Head.Position = state.Head.Position.WithWholeY(72);
         tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);

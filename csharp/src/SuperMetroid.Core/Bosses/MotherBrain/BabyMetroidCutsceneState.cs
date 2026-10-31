@@ -45,7 +45,7 @@ public sealed class BabyMetroidCutsceneState
         BabyMetroidCutscenePhase.Inactive;
 
     /// <summary>Enemy properties after initialization ORs in <c>$3000</c>.</summary>
-    public EnemyPropertyWord Properties { get; private set; }
+    public EnemyProperties Properties { get; private set; }
 
     /// <summary>
     /// Whether the onion-ring hit flash shows the shared white palette this update instead of
@@ -175,10 +175,10 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public void Initialize(
         FixedPosition<RoomPixels> previousOccupant,
-        EnemyPropertyWord? populationProperties = null)
+        EnemyProperties? populationProperties = null)
     {
-        Properties = (populationProperties ?? new EnemyPropertyWord(
-            EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen)).With(
+        Properties = (populationProperties ??
+            (EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen)).With(
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.ProcessInstructions);
         HitFlashPaletteShown = false;

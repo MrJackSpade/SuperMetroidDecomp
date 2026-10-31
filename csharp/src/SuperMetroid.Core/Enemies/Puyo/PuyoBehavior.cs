@@ -52,7 +52,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new PuyoEnemyState
         {
             YSpeedTableIndex = 0,
-            HopCooldownTimer = WrappingCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter1)),
+            HopCooldownTimer = WrappingCountdown.Start(slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown),
             Function = PuyoEnemyFunction.Grounded,
             // InitAI never writes the airborne function or the inactive extended words. The room loader's
             // cleared enemy allocation therefore leaves them empty until InitiateHop owns
@@ -108,7 +108,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Function = PuyoEnemyFunction.Airborne;
-        state.HopCooldownTimer = WrappingCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter1));
+        state.HopCooldownTimer = WrappingCountdown.Start(slot.SpawnSettings<PuyoSpawnSettings>().HopCooldown);
         state.HoppingAnimationActive = true;
         InitiatePuyoHop(slot, state, samus);
     }
@@ -122,7 +122,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (IsNormalHop(state.HopType))
         {
             int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)));
-            state.HopType = distance < slot.Spawn.Population.Parameter2
+            state.HopType = distance < slot.SpawnSettings<PuyoSpawnSettings>().HopDistance
                 ? PuyoHopType.NormalBig
                 : PuyoHopType.NormalSmall;
         }

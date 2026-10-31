@@ -143,7 +143,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         return new SporeSpawnProgramFrame(
             NativeBodyInstruction(steps, state), slot.InstructionTimer.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,
-            checked((ushort)slot.Health), slot.Properties.ToWord(), slot.ExtraProperties.ToWord(),
+            checked((ushort)slot.Health), SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.Properties), SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Encode(slot.ExtraProperties),
             state.Function, state.Angle.TableIndex, checked((ushort)state.MaximumXRadius),
             state.DeathStarted, state.DeathDropRequested);
     }

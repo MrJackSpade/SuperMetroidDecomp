@@ -50,7 +50,9 @@ internal static class CorpseRotPicturesVerification
     private static void VerifyRot(RoomHeaderDefinition room, EnemyDefinitionId enemy, int parameter)
     {
         SuperMetroidRuntime runtime = LoadRoom(room);
-        RoomEnemySlot slot = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == enemy && slot.Spawn.Population.Parameter1 == parameter);
+        // The parameter is the cartridge's even corpse selector: twice the corpse's variant.
+        RoomEnemySlot slot = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == enemy &&
+            slot.Spawn.Population.SpawnSettings is CorpseSpawnSettings corpse && corpse.Variant * 2 == parameter);
         string context = $"dead {enemy} {parameter}";
         Rot rot = StartRot(runtime, slot);
         IEnemySheetSource sheets = runtime.EnemySession.Sheets ?? throw new InvalidOperationException("The runtime loads the enemy sheets.");

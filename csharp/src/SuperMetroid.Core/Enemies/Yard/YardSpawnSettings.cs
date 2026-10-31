@@ -1,5 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
-/// <summary>Which of its eight crawling directions a Yard starts in (#1471).</summary>
-/// <param name="Direction">The starting direction's position among the Yard's eight directions.</param>
-public sealed record YardSpawnSettings(int Direction) : EnemySpawnSettings;
+/// <summary>Which of its eight crawling directions a Yard starts in, and how fast it crawls (#1471, #1472).</summary>
+/// <param name="Direction">The direction it starts crawling in.</param>
+/// <param name="SpeedIndex">Its crawl speed, 0 through 65535.</param>
+internal sealed record YardSpawnSettings(YardDirection Direction, int SpeedIndex) : EnemySpawnSettings
+{
+    /// <summary>Its crawl speed, 0 through 65535.</summary>
+    public int SpeedIndex { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, SpeedIndex);
+}

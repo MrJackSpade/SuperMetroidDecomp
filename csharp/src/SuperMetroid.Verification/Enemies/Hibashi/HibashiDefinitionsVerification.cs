@@ -25,12 +25,12 @@ internal static class HibashiDefinitionsVerification
 
         RoomEnemySlot graphics = enemies.SlotTable.Slots[0];
         graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
-        graphics.SetSpawnParameter2(0);
+        graphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         graphics.Position = graphics.Position.WithWholeY(0x0200);
         initialize(graphics);
         RoomEnemySlot hitbox = enemies.SlotTable.Slots[1];
         hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.Definition);
-        hitbox.SetSpawnParameter2(1);
+        hitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
         initialize(hitbox);
 
@@ -66,14 +66,14 @@ internal static class HibashiDefinitionsVerification
         RoomEnemySlot programGraphics = programSystem.SlotTable.Slots[0];
         programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.Definition);
         programGraphics.Bind(programGraphics.DefinitionId, default(RoomEnemyDefinition));
-        programGraphics.SetSpawnParameter2(0);
+        programGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
         initializeProgram(programGraphics);
 
         RoomEnemySlot programHitbox = programSystem.SlotTable.Slots[1];
         programHitbox.Bind(EnemyDefinitionId.Hibashi, programHitbox.Definition);
         programHitbox.Bind(programHitbox.DefinitionId, default(RoomEnemyDefinition));
-        programHitbox.SetSpawnParameter2(1);
+        programHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         programHitbox.Position = programHitbox.Position.WithWhole(programGraphics.Position.Whole);
         initializeProgram(programHitbox);
 
@@ -81,13 +81,13 @@ internal static class HibashiDefinitionsVerification
         RoomEnemySlot twinGraphics = programSystem.SlotTable.Slots[2];
         twinGraphics.Bind(EnemyDefinitionId.Hibashi, twinGraphics.Definition);
         twinGraphics.Bind(twinGraphics.DefinitionId, programGraphics.Definition);
-        twinGraphics.SetSpawnParameter2(0);
+        twinGraphics.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 0);
         twinGraphics.Position = twinGraphics.Position.WithWhole(new(448, 512));
         initializeProgram(twinGraphics);
         RoomEnemySlot twinHitbox = programSystem.SlotTable.Slots[3];
         twinHitbox.Bind(EnemyDefinitionId.Hibashi, twinHitbox.Definition);
         twinHitbox.Bind(twinHitbox.DefinitionId, programGraphics.Definition);
-        twinHitbox.SetSpawnParameter2(1);
+        twinHitbox.SetSpawnParameter2(EnemyDefinitionId.Hibashi, 1);
         twinHitbox.Position = twinHitbox.Position.WithWhole(twinGraphics.Position.Whole);
         initializeProgram(twinHitbox);
 

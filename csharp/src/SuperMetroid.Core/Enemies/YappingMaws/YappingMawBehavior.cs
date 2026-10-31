@@ -89,13 +89,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Function = YappingMawAiFunction.WaitingForSamus,
             Origin = slot.Position.Whole,
-            ActivationDistance = slot.Spawn.Population.Parameter1,
+            ActivationDistance = slot.SpawnSettings<YappingMawSpawnSettings>().ActivationDistance,
             RetractedDelayTimer = WrappingCountdown.Start(YappingMawRetractedDelayFrames),
             OriginalColouring = slot.Colouring,
         };
         slot.SetSpeciesState(state);
 
-        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(slot.Spawn.Population.Parameter2 == 0
+        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
             ? YappingMawProgram.AttackingDown
             : YappingMawProgram.AttackingUp);
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -119,7 +119,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 RoomEnemyProjectileKind.YappingMawBody,
                 slot.Graphics);
             body.Position = body.Position.WithWhole(slot.Position.Whole);
-            body.InstallAnimation(new YappingMawBodyProjectileAnimation(slot.Spawn.Population.Parameter2 == 0
+            body.InstallAnimation(new YappingMawBodyProjectileAnimation(slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                 ? YappingMawBodyProjectileProgram.FacingDown
                 : YappingMawBodyProjectileProgram.FacingUp));
             state.BodyProjectiles[parameter] = body;
@@ -128,8 +128,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // CreateSpriteAtPos uses object number 56 for parameter zero and 57 otherwise. Its
         // returned native index is represented by the retained physical slot reference.
         state.RootSpriteObject = _spriteObjects.SpawnRoomSpriteObject(
-            new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + (slot.Spawn.Population.Parameter2 == 0 ? -8 : 8)))),
-            slot.Spawn.Population.Parameter2 == 0
+            new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down ? -8 : 8)))),
+            slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Down
                 ? RoomSpriteObjectKind.YappingMawRootVariantZero
                 : RoomSpriteObjectKind.YappingMawRootVariantOne,
             slot.Graphics);
@@ -233,9 +233,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 checked((ushort)(state.SegmentRadius / 2)))));
 
         // Eight 32-unit sectors, each centred on its direction: the aim is turned a half sector before quantizing.
-        int direction = unchecked((byte)(state.AimAngle.RawValue + 16)) / 32;
-        state.DirectionIndex = direction;
-        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawBites.AttackForDirection(direction));
+        YappingMawAim aim = YappingMawAnimationDefinitions.Aims.At(unchecked((byte)(state.AimAngle.RawValue + 16)) / 32);
+        state.Aim = aim;
+        state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawBites.AttackForDirection(aim));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
@@ -319,24 +319,24 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // art. Preserve parameter-zero's early-return quirk: on its shared-list branches it
         // skips the final held-Samus placement on this one transition frame.
         bool skipHeldPlacement = false;
-        if (slot.Spawn.Population.Parameter2 != 0)
+        if (slot.SpawnSettings<YappingMawSpawnSettings>().Attack == VerticalDirection.Up)
         {
-            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.DirectionIndex switch
+            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.Aim switch
             {
-                2 => YappingMawProgram.CooldownUpRight,
-                6 => YappingMawProgram.CooldownUpLeft,
+                YappingMawAim.Right => YappingMawProgram.CooldownUpRight,
+                YappingMawAim.Left => YappingMawProgram.CooldownUpLeft,
                 _ => YappingMawProgram.CooldownUp,
             });
         }
         else
         {
-            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.DirectionIndex switch
+            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.Aim switch
             {
-                2 => YappingMawProgram.CooldownDownRight,
-                6 => YappingMawProgram.CooldownDownLeft,
+                YappingMawAim.Right => YappingMawProgram.CooldownDownRight,
+                YappingMawAim.Left => YappingMawProgram.CooldownDownLeft,
                 _ => YappingMawProgram.CooldownDown,
             });
-            skipHeldPlacement = state.DirectionIndex is not (2 or 6);
+            skipHeldPlacement = state.Aim is not (YappingMawAim.Right or YappingMawAim.Left);
         }
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);

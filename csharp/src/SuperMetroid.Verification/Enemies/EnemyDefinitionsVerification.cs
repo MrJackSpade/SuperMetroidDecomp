@@ -118,9 +118,11 @@ internal static class EnemyDefinitionsVerification
             ushort[] words = Enumerable.Range(0, 8)
                 .Select(wordIndex => ReadVerificationWord(rom, address + wordIndex * 2))
                 .ToArray();
-            // The native record's instruction list decodes to no spawn settings: the piece runs its typed program (#641).
+            // The native record decodes to the piece and its fall delay; its instruction list is unread: the piece runs
+            // its typed program (#641).
             EnemyDefinitionId nativeEnemy = EnemyDefinitionIds.FromHeaderPointer(words[0]);
-            var native = new RoomEnemyPopulationRecord(nativeEnemy, new(words[1], words[2]), EnemySpawnSettingsCodec.Decode(nativeEnemy, words[3]), EnemyPropertyWord.FromWord(words[4]), EnemyExtraPropertyWord.FromWord(words[5]), words[6], words[7]);
+            RoomEnemyPopulationRecord native = RoomEnemyPopulationRecordCodec.Decode(
+                nativeEnemy, words[1], words[2], words[3], words[4], words[5], words[6], words[7]);
             AssertEqual(native, MotherBrainFallingTubes.Get(piece),
                 $"Mother Brain falling-tube record {piece} matches the native placement words");
 

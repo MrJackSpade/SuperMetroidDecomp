@@ -13,8 +13,7 @@ public static class KiHunterMotionDefinitions
     /// <summary>$A8:F186 low byte, fallingWingsArcRadius, used by detached-wing setup and both arcs.</summary>
     public const byte DetachedWingRadius = 48;
 
-    /// <summary>The bit of parameter one that makes the Ki-Hunter start without wings; its wing record starts deleted.</summary>
-    public const int WinglessParameterBit = 15;
+
 
     /// <summary>A leftward swoop's angular acceleration: minus an eighth of a table step per frame.</summary>
     public static SignedSixteenSixteen LeftSwoopAcceleration { get; } = SignedSixteenSixteen.FromRaw(-OneEighth);

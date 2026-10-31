@@ -18,7 +18,7 @@ internal static class WalkingSpacePirateOwnedStateVerification
         slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
-        slot.SetSpawnParameter2(48);
+        slot.SetSpawnParameter2(EnemyDefinitionId.PirateGreyWalking, 48);
         WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);
         WalkingSpacePirateEnemyState state = enemies.WalkingSpacePirateStates[0]
             ?? throw new InvalidOperationException("The walking Pirate has no state.");

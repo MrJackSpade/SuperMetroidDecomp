@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Yard;
 
@@ -56,9 +57,14 @@ public sealed class YardEnemyState
     public int IdleCrawlingSpeedIndex { get; internal set; }
     /// <summary>The live crawl-speed index (parameter one): the population's, or 8 while crawling aggressively after a landing.</summary>
     public int CrawlingSpeedIndex { get; internal set; }
-    /// <summary>Native extension offset $0E: live surface orientation index 0..7, ordered right/up, right/down, left/up, left/down, upside-down/left, upside-down/right, upright/left, upright/right; only direction instructions or turns publish it.</summary>
-    [PackedFields("surface orientation word 0-7 whose bit zero selects positive motion and whose values below four are walls; YardDirectionDefinitions decodes it")]
-    public int Direction { get; internal set; }
+    /// <summary>The live surface direction; only direction instructions or turns publish it.</summary>
+    public YardDirection Direction { get; internal set; }
+
+    /// <summary>
+    /// The side of its block the Yard holds, which signs the crawl velocity the shared crawler reset gives it after a
+    /// landing; emptied with the record.
+    /// </summary>
+    public CrawlerSurfaceOrientation BlockSide { get; internal set; }
     /// <summary>Native extension offset $10: mutually exclusive behavior 0 normal crawling, 1 aggressive crawling, 2 hiding, 3 dropped, 4 kicked, or 5 beam-launched, controlling look-at, solidity, touch, and airborne decisions.</summary>
     public YardBehavior Behavior { get; internal set; }
     /// <summary>Native parallel $7E:8000 flag: set by a horizontal airborne collision and cleared by a vertical bounce; a record of bounce state rather than a per-frame event.</summary>
@@ -68,6 +74,7 @@ public sealed class YardEnemyState
     internal void ClearWithRecord()
     {
         CrawlingVelocity = default;
+        BlockSide = CrawlerSurfaceOrientation.UpsideRight;
         AirborneFacingDirection = YardAirborneFacing.Left;
         ConsecutiveTurnCounter = 0;
         MovementFunction = null;

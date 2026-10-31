@@ -102,7 +102,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             DrainAccumulator = 0,
             Function = MetroidAiFunction.Homing,
-            IceDamageToFreeze = slot.Spawn.Population.Parameter2,
+            IceDamageToFreeze = slot.SpawnSettings<MetroidSpawnSettings>().IceDamageToFreeze,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus);

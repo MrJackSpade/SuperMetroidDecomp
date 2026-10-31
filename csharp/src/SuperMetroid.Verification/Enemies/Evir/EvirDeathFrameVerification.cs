@@ -29,10 +29,10 @@ internal static class EvirDeathFrameVerification
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Health = slot.Definition.Health;
             slot.SpritemapPointer = 0x8b59;
-            slot.Properties = EnemyPropertyWord.FromWord(index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision);
-            slot.SetSpawnParameter1(index == 7 ? (ushort)1 : (ushort)0);
+            slot.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Evir, index == 7 ? (ushort)1 : (ushort)0);
             // The body bobs at speed record 8, one of the two records retail Evirs use.
-            if (index == 6) slot.SetSpawnParameter2(8);
+            if (index == 6) slot.SetSpawnParameter2(EnemyDefinitionId.Evir, 8);
             if (index == 8) initializeProjectile(slot); else initialize(slot, samus);
         }
         var body = enemies.SlotTable.Slots[6];

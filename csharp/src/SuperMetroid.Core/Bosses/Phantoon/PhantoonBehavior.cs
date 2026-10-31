@@ -101,29 +101,27 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePhantoonPart(RoomEnemySlot part)
     {
         PhantoonEnemyState state = Combat.RequirePhantoonState(part);
-        PhantoonPartProgram program = part.Spawn.Population.Parameter2 switch
+        // Each part is its own enemy, so the part's identity selects its program and its place in the state.
+        PhantoonPartProgram program = part.DefinitionId switch
         {
-            1 => PhantoonPartProgram.EyeClosed,
-            2 => PhantoonPartProgram.Tentacles,
-            3 => PhantoonPartProgram.MouthInitial,
-            _ => throw new InvalidDataException(
-                $"Phantoon part slot {part.SlotIndex} has invalid part index ${part.Spawn.Population.Parameter2:X4}."),
+            EnemyDefinitionId.PhantoonEye => PhantoonPartProgram.EyeClosed,
+            EnemyDefinitionId.PhantoonTentacles => PhantoonPartProgram.Tentacles,
+            EnemyDefinitionId.PhantoonMouth => PhantoonPartProgram.MouthInitial,
+            _ => throw new InvalidDataException($"Phantoon part slot {part.SlotIndex} holds {part.DefinitionId}, not a Phantoon part."),
         };
         InitializePhantoonPart(part, program);
 
-        switch (part.Spawn.Population.Parameter2)
+        switch (part.DefinitionId)
         {
-            case 1:
+            case EnemyDefinitionId.PhantoonEye:
                 state.Eye = part;
                 break;
-            case 2:
+            case EnemyDefinitionId.PhantoonTentacles:
                 state.Tentacles = part;
                 break;
-            case 3:
+            default:
                 state.Mouth = part;
                 break;
-            default:
-                throw new InvalidOperationException($"Phantoon part slot {part.SlotIndex} has invalid part index ${part.Spawn.Population.Parameter2:X4}.");
         }
     }
 
@@ -139,7 +137,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         part.TileIndexBase = state.Body.TileIndexBase;
         state.PartProgram(part) = AnimationProgramCursor<PhantoonPartProgram>.Start(program);
         PhantoonPartState words = state.Parts[part.SlotIndex];
-        words.InstallSpawnParameters(part.Spawn.Population);
+        words.StartPart();
         part.SetSpeciesState(words, words.ClearWithRecord);
         state.Parts[part.SlotIndex].Function = PhantoonAiFunction.SpawnStartingFlames;
 

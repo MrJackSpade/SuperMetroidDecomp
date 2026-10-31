@@ -26,7 +26,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         {
             ushort parameter = unchecked((ushort)(role * 2));
             EscapeEtecoonInitialization initialization =
-                EscapeEtecoons.Initialization(parameter);
+                EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(parameter));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((xTable + parameter)), initialization.Position.X,
                 $"escape Etecoon role {role} X");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((yTable + parameter)), initialization.Position.Y,
@@ -42,11 +42,9 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"escape Etecoon role {role} speed");
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => EscapeEtecoons.Initialization(6),
+        AssertThrows<InvalidDataException>(() => EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(6)),
             "escape Etecoon selector after authored roles");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => EscapeEtecoons.Initialization(0xffff),
+        AssertThrows<InvalidDataException>(() => EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(0xffff)),
             "escape Etecoon wrapping restored selector");
 
         var guarded = NewEscapeEtecoonDefinitionGuard(rom);
@@ -55,14 +53,14 @@ internal static class EscapeEtecoonDefinitionsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().HasEvent = _ => false;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.SetSpawnParameter1(parameter);
+            slot.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, parameter);
             slot.Position = slot.Position.WithWhole(new(0xaaaa, 0xbbbb));
             slot.Bind(EnemyDefinitionId.EtecoonEscape, slot.Definition);
             enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(slot);
 
             int role = parameter >> 1;
             EscapeEtecoonInitialization expected =
-                EscapeEtecoons.Initialization(parameter);
+                EscapeEtecoons.Initialization(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.EscapeEtecoonRole(parameter));
             EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
                 throw new InvalidDataException("Escape Etecoon initializer omitted typed state.");
             AssertEqual(expected.Position.X, slot.Position.X.Whole,
@@ -148,7 +146,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
         etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.Definition);
         etecoon.Bind(etecoon.DefinitionId, default(RoomEnemyDefinition));
-        etecoon.SetSpawnParameter1(0);
+        etecoon.SetSpawnParameter1(EnemyDefinitionId.EtecoonEscape, 0);
         enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon);
         return enemies;
     }

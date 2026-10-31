@@ -110,10 +110,9 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.LowerPatrol = state.UpperPatrol + new Offset16<RoomPixels>(0, 32);
         state.SpawnPosition = body.Position.Whole;
 
-        // Parameter bit 15 selects the permanently ground-bound form used by two red
-        // Ki-Hunters. Its following wing record starts deleted and the body skips every
-        // later detachment side effect.
-        if ((body.Spawn.Population.Parameter1 >> KiHunterMotionDefinitions.WinglessParameterBit & 1) != 0)
+        // A wingless Ki-Hunter is the permanently ground-bound form. Its following wing
+        // record starts deleted and the body skips every later detachment side effect.
+        if (body.SpawnSettings<KiHunterSpawnSettings>().Wingless)
         {
             state.HasLostWings = true;
             state.Function = KiHunterEnemyFunction.FallingAfterWingLoss;
@@ -133,7 +132,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = KiHunterEnemyFunction.FollowBody;
         wings.Colouring = body.Colouring;
         wings.TileIndexBase = body.TileIndexBase;
-        if ((body.Spawn.Population.Parameter1 >> KiHunterMotionDefinitions.WinglessParameterBit & 1) != 0)
+        if (body.SpawnSettings<KiHunterSpawnSettings>().Wingless)
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
     }
 
@@ -563,11 +562,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The native routine assigns exactly $0200, stripping processing and any other
             // population flags rather than merely ORing the deleted bit.
-            wings.Properties = new EnemyPropertyWord(EnemyProperties.Deleted);
+            wings.Properties = EnemyProperties.Deleted;
             return;
         }
 
-        if (body.Health <= wings.Spawn.Population.Parameter1)
+        if (body.Health <= wings.SpawnSettings<KiHunterWingsSpawnSettings>().DetachHealth)
         {
             if (!bodyState.HasLostWings)
             {

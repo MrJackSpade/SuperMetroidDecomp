@@ -236,13 +236,13 @@ public sealed class PhantoonPartState
     public int ShotPattern { get => _parameterTwo; internal set => _parameterTwo = Word(value); }
 
     /// <summary>
-    /// Installs the part's spawn parameters, which the part's words hold until a phase overwrites them. Retail parts are
-    /// numbered one through three, so no part starts with its hurt flash shown.
+    /// Starts a part's words empty: the eye's wave mode off. The original copied the part's number into the second word,
+    /// which no reader consumes before a phase overwrites it (#1472).
     /// </summary>
-    internal void InstallSpawnParameters(RoomEnemyPopulationRecord population)
+    internal void StartPart()
     {
-        _parameterOne = population.Parameter1;
-        _parameterTwo = population.Parameter2;
+        _parameterOne = 0;
+        _parameterTwo = 0;
     }
 
     /// <summary>Empties the values the cartridge keeps in the part's common record.</summary>

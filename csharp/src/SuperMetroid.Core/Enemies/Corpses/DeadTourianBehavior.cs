@@ -86,13 +86,12 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         DeadTourianCorpseProfile profile =
             ProfileForDeadTourianCorpse(slot.DefinitionId);
-        if ((slot.Spawn.Population.Parameter1 & 1) != 0 || slot.Spawn.Population.Parameter1 / 2 >= profile.VariantCount)
+        int variantIndex = slot.SpawnSettings<CorpseSpawnSettings>().Variant;
+        if (variantIndex >= profile.VariantCount)
         {
             throw new InvalidDataException(
-                $"Dead {profile.Species} parameter 1 ${slot.Spawn.Population.Parameter1:X4} has no retail variant.");
+                $"Dead {profile.Species} variant {variantIndex} has no retail variant.");
         }
-
-        int variantIndex = slot.Spawn.Population.Parameter1 / 2;
         DeadTourianCorpseDefinition definition =
             DeadTourianCorpses.For(profile.Species, variantIndex);
         var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variantIndex, profile, new CorpseRotSchedule(definition.RowCount))

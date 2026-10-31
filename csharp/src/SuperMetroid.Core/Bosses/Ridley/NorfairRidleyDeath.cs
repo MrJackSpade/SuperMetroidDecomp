@@ -193,22 +193,20 @@ internal sealed class NorfairRidleyDeath
 
         RidleyBreakup.SpawnInBreakupOrder(SpawnPart);
 
-        void SpawnPart(int parameter)
+        void SpawnPart(RidleyExplosionPart part)
         {
-            // The embedded records at $A6:C987-$CA46 all use the same zero position,
-            // property $2C00, and one even parameter. Initialization replaces position and
-            // instruction from the still-live shared Ridley joints below.
+            // The embedded entries all use the same zero position and properties and name one
+            // body part. Initialization replaces position and instruction from the still-live
+            // shared Ridley joints below.
             RoomEnemyPopulationRecord population = new(
                 EnemyDefinitionId.RidleyExplosion,
                 Position: Position16<RoomPixels>.Zero,
-                SpawnSettings: EnemySpawnSettings.None,
-                Properties: new EnemyPropertyWord(
+                Properties:
                     EnemyProperties.ProcessInstructions |
                     EnemyProperties.ProcessOffScreen |
-                    EnemyProperties.IgnoreSamusCollision),
-                ExtraProperties: new EnemyExtraPropertyWord(EnemyExtraProperties.None),
-                Parameter1: parameter,
-                Parameter2: 0);
+                    EnemyProperties.IgnoreSamusCollision,
+                ExtraProperties: EnemyExtraProperties.None,
+                SpawnSettings: new RidleyExplosionSpawnSettings(part));
             // The explosion's initialization AI ($A6:C696) starts each part from the still-live shared Ridley joints.
             if (_dispatch.SpawnEnemy(population) is null)
             {
@@ -224,7 +222,7 @@ internal sealed class NorfairRidleyDeath
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        RidleyExplosionPart part = RidleyExplosionDefinitions.PartParameters.Decode(fragment.Spawn.Population.Parameter1);
+        RidleyExplosionPart part = fragment.Spawn.Population.SpawnSettingsOf<RidleyExplosionSpawnSettings>().Part;
 
         fragment.InstructionTimer = WrappingCountdown.Start(1);
         fragment.Timer = WrappingCountdown.Start(0);
@@ -236,7 +234,7 @@ internal sealed class NorfairRidleyDeath
             RidleyExplosionDefinitions.FragmentSpeedWholePixel.Of(random) * RidleyExplosionDefinitions.WholePixelSpeed;
         var fragmentState = new RidleyExplosionFragmentState
         {
-            Lifetime = WrappingCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(fragment.Spawn.Population.Parameter1).Lifetime),
+            Lifetime = WrappingCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(part).Lifetime),
             Velocity = new(SignedEightEight.FromSignedRaw((short)(unchecked((short)random) < 0
                 ? -horizontalMagnitude
                 : horizontalMagnitude)), default),

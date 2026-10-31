@@ -28,7 +28,7 @@ internal static class YardAnimations
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingLeft)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideUpMovingLeft)),
-            Cue(new YardCue.SetDirection(Direction: 6)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideUpMovingLeft)),
             Show(0, 9),
             Show(1, 13),
             Show(2, 9),
@@ -48,7 +48,7 @@ internal static class YardAnimations
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingDown)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideLeftMovingDown)),
-            Cue(new YardCue.SetDirection(Direction: 3)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideLeftMovingDown)),
             Show(6, 9),
             Show(7, 13),
             Show(8, 9),
@@ -68,7 +68,7 @@ internal static class YardAnimations
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingRight)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideDownMovingRight)),
-            Cue(new YardCue.SetDirection(Direction: 5)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideDownMovingRight)),
             Show(12, 9),
             Show(13, 13),
             Show(14, 9),
@@ -88,7 +88,7 @@ internal static class YardAnimations
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingUp)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideRightMovingUp)),
-            Cue(new YardCue.SetDirection(Direction: 0)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideRightMovingUp)),
             Show(18, 9),
             Show(19, 13),
             Show(20, 9),
@@ -108,7 +108,7 @@ internal static class YardAnimations
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingRight)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideUpMovingRight)),
-            Cue(new YardCue.SetDirection(Direction: 7)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideUpMovingRight)),
             Show(32, 9),
             Show(33, 13),
             Show(34, 9),
@@ -128,7 +128,7 @@ internal static class YardAnimations
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingDown)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideRightMovingDown)),
-            Cue(new YardCue.SetDirection(Direction: 1)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideRightMovingDown)),
             Show(38, 9),
             Show(39, 13),
             Show(40, 9),
@@ -148,7 +148,7 @@ internal static class YardAnimations
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingLeft)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideDownMovingLeft)),
-            Cue(new YardCue.SetDirection(Direction: 4)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideDownMovingLeft)),
             Show(44, 9),
             Show(45, 13),
             Show(46, 9),
@@ -168,7 +168,7 @@ internal static class YardAnimations
         [
             Cue(new YardCue.SetMovementFunction(MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingUp)),
             Cue(new YardCue.SetHidingProgram(OptionalTarget: P.HidingUpsideLeftMovingUp)),
-            Cue(new YardCue.SetDirection(Direction: 2)),
+            Cue(new YardCue.SetDirection(Direction: YardDirection.UpsideLeftMovingUp)),
             Show(50, 9),
             Show(51, 13),
             Show(52, 9),

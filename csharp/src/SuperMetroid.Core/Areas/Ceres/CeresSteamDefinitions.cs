@@ -8,17 +8,6 @@ public static class CeresSteamDefinitions
     /// <summary>The random selection $A6:EFD9 draws for a vent's activation delay, before adding one: 32 delays.</summary>
     internal static readonly RandomSampleField ActivationDelay = new(0, 5);
 
-    /// <summary>The variant each authored population parameter-one value selects.</summary>
-    internal static readonly ParameterVariants<CeresSteamVariant> Variants = new(new Dictionary<int, CeresSteamVariant>
-    {
-        [0] = CeresSteamVariant.Up,
-        [1] = CeresSteamVariant.Left,
-        [2] = CeresSteamVariant.Down,
-        [3] = CeresSteamVariant.Right,
-        [4] = CeresSteamVariant.RotatingElevatorLeft,
-        [5] = CeresSteamVariant.RotatingElevatorRight,
-    });
-
 
     /// <summary>
     /// The parallel instruction/function tables at <c>$A6:EFF5-$A6:F00C</c>, indexed

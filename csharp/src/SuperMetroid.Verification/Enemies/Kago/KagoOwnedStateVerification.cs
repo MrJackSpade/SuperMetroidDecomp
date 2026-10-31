@@ -17,7 +17,7 @@ internal static class KagoOwnedStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Kago, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(10);
+        slot.SetSpawnParameter1(EnemyDefinitionId.Kago, 10);
         KagoBehavior.InitializeKago(slot);
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException("Kago initializer did not publish typed state.");
         AssertTrue(state.Function is not null, "an initialized Kago has a behaviour");

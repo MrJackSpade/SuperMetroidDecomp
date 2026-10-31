@@ -30,16 +30,16 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// fully translated: death sets `$0400`, then fade completion sets `$0100` and clears
     /// `$2000` with the cartridge's literal OR/AND sequence.
     /// </summary>
-    public EnemyPropertyWord BodyProperties { get; internal set; }
+    public EnemyProperties BodyProperties { get; internal set; }
 
     /// <summary>Exact brain enemy property word; death/rotting sets raw bits `$0400/$0100`.</summary>
-    public EnemyPropertyWord BrainProperties { get; internal set; }
+    public EnemyProperties BrainProperties { get; internal set; }
 
     /// <summary>Second brain property word cleared when the rot animation completes.</summary>
-    public EnemyExtraPropertyWord BrainProperties2 { get; internal set; }
+    public EnemyExtraProperties BrainProperties2 { get; internal set; }
 
     /// <summary>Second body property word cleared when the faded body becomes non-interactive.</summary>
-    public EnemyExtraPropertyWord BodyProperties2 { get; internal set; }
+    public EnemyExtraProperties BodyProperties2 { get; internal set; }
 
     /// <summary>Shared Mother Brain hitbox-enable word cleared at both death boundaries.</summary>
     public bool HitboxesEnabled { get; internal set; } = true;

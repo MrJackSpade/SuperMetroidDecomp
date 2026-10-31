@@ -88,7 +88,7 @@ internal static class PipeBugBehaviorVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            slot.SetSpawnParameter2(24);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Geega, 24);
             PipeBugEnemyState state = Initialize(enemies, slot, EnemyDefinitionId.Geega, 0);
             AssertEqual(SignedSixteenSixteen.FromRaw(onePixel + onePixel / 2), state.PositiveVelocity, "yellow Pipe Bug speed record 24 is 1.5 pixels");
             state.Function = PipeBugEnemyFunction.YellowArcRight;
@@ -129,7 +129,7 @@ internal static class PipeBugBehaviorVerification
     {
         slot.Bind(definition, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnParameter1(parameter);
+        slot.SetSpawnParameter1(definition, parameter);
         switch (definition)
         {
             case EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo:

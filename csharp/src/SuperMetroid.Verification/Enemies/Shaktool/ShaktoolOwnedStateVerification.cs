@@ -64,7 +64,7 @@ internal static class ShaktoolOwnedStateVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];
             slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.SetSpawnParameter2(unchecked((ushort)(index * 2)));
+            slot.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             enemies.ShaktoolBehavior.InitializeShaktool(slot);
         }

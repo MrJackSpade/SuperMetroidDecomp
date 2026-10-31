@@ -43,16 +43,8 @@ public sealed class BoulderEnemyState
     /// <summary>Variable D. Its deliberate zero-to-$FFFF underflow ends the bounce phase.</summary>
     public WrappingCountdown BounceCounter { get; internal set; }
 
-    /// <summary>
-    /// Parameter one's high byte (0 through 255): zero rolls right, any other value rolls left, and two also breaks the
-    /// boulder on its first impact.
-    /// </summary>
-    [PackedFields("population parameter high byte: zero rolls right, any other value rolls left, and two also breaks on first impact")]
-    public int DirectionSelector
-    {
-        get;
-        internal set => field = checked((ushort)value);
-    }
+    /// <summary>How the boulder rolls, as its population entry names it; emptied with the record to rolling right.</summary>
+    public BoulderRoll Roll { get; internal set; }
 
     /// <summary>
     /// The window, relative to the boulder, that Samus's displacement must enter to start it. X is the signed pixel
@@ -83,6 +75,6 @@ public sealed class BoulderEnemyState
         TravelSpeedAccumulator = 0;
         BounceSpeedAccumulator = 0;
         BounceCounter = WrappingCountdown.Start(0);
-        DirectionSelector = 0;
+        Roll = BoulderRoll.Right;
     }
 }

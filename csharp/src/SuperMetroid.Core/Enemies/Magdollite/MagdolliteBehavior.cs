@@ -11,13 +11,6 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 [RoomLifetime]
 internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The part each authored population parameter-one value selects.</summary>
-    private static readonly ParameterVariants<MagdollitePart> Parts = new(new Dictionary<int, MagdollitePart>
-    {
-        [0] = MagdollitePart.Head,
-        [1] = MagdollitePart.RisingBody,
-        [2] = MagdollitePart.TrackingOverlay,
-    });
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
@@ -64,12 +57,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>NorfairLavaMan_Init</c> at $A8:AF8B.</summary>
     internal void InitializeMagdollite(RoomEnemySlot slot, SamusState? samus)
     {
-        if (!Parts.TryDecode(slot.Spawn.Population.Parameter1, out MagdollitePart part))
-        {
-            throw new InvalidDataException(
-                $"Magdollite slot {slot.SlotIndex} has invalid part parameter ${slot.Spawn.Population.Parameter1:X4}.");
-        }
-
+        MagdollitePart part = slot.SpawnSettings<MagdolliteSpawnSettings>().Part;
         var state = new MagdolliteEnemyState(part);
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -88,8 +76,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException($"Undefined {nameof(MagdollitePart)} {state.Part}.");
         }
 
-        // Parameter two's high byte names the linear-speed row Magdollite rises and sinks at.
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter2Settings.Second);
+        // The spawn settings name the linear-speed row Magdollite rises and sinks at.
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.SpawnSettings<MagdolliteSpawnSettings>().SpeedIndex);
         state.DownwardVelocity = speeds.Positive;
         state.UpwardVelocity = speeds.Negative;
 
@@ -222,7 +210,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         overlayState.AttackTimer = WrappingCountdown.Start(0);
-        int range = unchecked((byte)head.Spawn.Population.Parameter2);
+        int range = head.SpawnSettings<MagdolliteSpawnSettings>().Range;
         if (!EnemyMath.IsWithinStrictModularDistance(head.Position.X.Whole, samus.Position.X.Whole, range))
             return;
 
@@ -497,22 +485,31 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Finds and validates the retail-ordered head, body and overlay around any one component.</summary>
     private MagdolliteComposite RequireMagdolliteComposite(RoomEnemySlot member)
     {
-        int headIndex = member.SlotIndex - checked(member.Spawn.Population.Parameter1);
+        int headIndex = member.SlotIndex - SlotsAfterHead(member.SpawnSettings<MagdolliteSpawnSettings>().Part);
         if (headIndex < 0 || headIndex + 2 >= EnemySlotOrder.Capacity)
             throw new InvalidDataException($"Magdollite slot {member.SlotIndex} has no complete composite.");
 
         RoomEnemySlot head = _slotTable.Slots[headIndex];
         RoomEnemySlot body = _slotTable.Slots[headIndex + 1];
         RoomEnemySlot overlay = _slotTable.Slots[headIndex + 2];
-        if (head.DefinitionId != EnemyDefinitionId.Magdollite || head.Spawn.Population.Parameter1 != 0 ||
-            body.DefinitionId != EnemyDefinitionId.Magdollite || body.Spawn.Population.Parameter1 != 1 ||
-            overlay.DefinitionId != EnemyDefinitionId.Magdollite || overlay.Spawn.Population.Parameter1 != 2)
+        if (head.DefinitionId != EnemyDefinitionId.Magdollite || head.SpawnSettings<MagdolliteSpawnSettings>().Part != MagdollitePart.Head ||
+            body.DefinitionId != EnemyDefinitionId.Magdollite || body.SpawnSettings<MagdolliteSpawnSettings>().Part != MagdollitePart.RisingBody ||
+            overlay.DefinitionId != EnemyDefinitionId.Magdollite || overlay.SpawnSettings<MagdolliteSpawnSettings>().Part != MagdollitePart.TrackingOverlay)
         {
             throw new InvalidDataException(
-                $"Magdollite slot {member.SlotIndex} is not inside a retail-ordered 0/1/2 composite.");
+                $"Magdollite slot {member.SlotIndex} is not inside a retail-ordered head, body and overlay composite.");
         }
         return new(head, body, overlay);
     }
+
+    /// <summary>How many slots after its composite's head a part's slot lies: the head, then the body, then the overlay.</summary>
+    private static int SlotsAfterHead(MagdollitePart part) => part switch
+    {
+        MagdollitePart.Head => 0,
+        MagdollitePart.RisingBody => 1,
+        MagdollitePart.TrackingOverlay => 2,
+        _ => throw new InvalidOperationException($"Undefined {nameof(MagdollitePart)} {part}."),
+    };
 
     /// <summary>Ports the global graphics-drawn palette hook at $A8:B0B2.</summary>
     internal void StepMagdollitePaletteAnimation()

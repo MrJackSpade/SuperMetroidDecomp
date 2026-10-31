@@ -19,7 +19,7 @@ internal static class RioOwnedStateVerification
         enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
-        follower.SetSpawnParameter1(EnemyParameterMasks.FollowerBit);
+        follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, EnemyParameterMasks.FollowerBit);
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
         NorfairRioEnemyState parentState = parent.EntityState<NorfairRioEntity, NorfairRioEnemyState>()
             ?? throw new InvalidOperationException("The Norfair Rio parent has no state.");

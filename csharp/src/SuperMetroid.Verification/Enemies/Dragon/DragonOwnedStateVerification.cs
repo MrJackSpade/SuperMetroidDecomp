@@ -19,7 +19,7 @@ internal static class DragonOwnedStateVerification
         DragonBehavior.InitializeDragon(body);
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];
         wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
-        wing.SetSpawnParameter1(1);
+        wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);
         DragonBehavior.InitializeDragon(wing);
         DragonEnemyState bodyState = enemies.DragonStates[0] ?? throw new InvalidOperationException("The Dragon body has no state.");
         DragonEnemyState wingState = enemies.DragonStates[1] ?? throw new InvalidOperationException("The Dragon wing has no state.");

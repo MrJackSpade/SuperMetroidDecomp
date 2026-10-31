@@ -72,7 +72,7 @@ internal static class YardTrajectoriesVerification
             var actor = enemies.SlotTable.Slots[0];
             var state = enemies.YardStates[0];
             actor.Position = FixedPosition<RoomPixels>.FromWhole(new(256, unchecked((ushort)(256 - actor.Radius.Y))));
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Direction = direction;
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Direction = SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction);
             state.AirborneFacingDirection = facing;
             state.MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = YardBehavior.Dropped;

@@ -34,7 +34,7 @@ internal static class KraidArmSamusContactVerification
         // Native update 35724: the arm and Samus as they stand when EnemyMain tests contact.
         arm.Position = arm.Position.WithWhole(new(0x00b0, 0x01df));
         arm.SpritemapPointer = 0x90fd;
-        arm.Properties = EnemyPropertyWord.FromWord(0x2800);
+        arm.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0x2800);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x007f, 0x019a));
         samus.Kinematics.Radius = new(5, 19);

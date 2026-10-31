@@ -86,9 +86,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Dachora</c> at <c>$A7:F4DD</c>.</summary>
     internal static void InitializeDachora(RoomEnemySlot slot)
     {
+        DachoraSpawnSettings settings = slot.SpawnSettings<DachoraSpawnSettings>();
         var state = new DachoraEnemyState
         {
-            FacingRight = slot.Spawn.Population.Parameter1 != 0,
+            FacingRight = settings.Facing == HorizontalDirection.Right || settings.Echo,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -99,19 +100,17 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        int direction = unchecked((short)slot.Spawn.Population.Parameter1);
-        if (direction < 0)
+        if (settings.Echo)
         {
-            // A negative direction identifies an echo. Its low bit selects the same facing
-            // convention as the body, while variable D later becomes its eight-frame life.
-            state.Program = AnimationProgramCursor<DachoraProgram>.Start((direction & 1) != 0
+            // An echo faces the way the body does, while variable D later becomes its eight-frame life.
+            state.Program = AnimationProgramCursor<DachoraProgram>.Start(settings.Facing == HorizontalDirection.Right
                 ? DachoraProgram.EchoRight
                 : DachoraProgram.EchoLeft);
             state.Function = DachoraAiFunction.Echo;
             return;
         }
 
-        state.Program = AnimationProgramCursor<DachoraProgram>.Start(direction != 0
+        state.Program = AnimationProgramCursor<DachoraProgram>.Start(settings.Facing == HorizontalDirection.Right
             ? DachoraProgram.IdleRight
             : DachoraProgram.IdleLeft);
         state.Function = DachoraAiFunction.WaitingForSamus;

@@ -86,7 +86,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // Native keeps only parameter two bit zero, moved to the sign bit. This looks
         // backwards until main AI is read: activation requires the Samus delta sign to be
         // *different* from this marker.
-        state.FacesRight = (slot.Spawn.Population.Parameter2 & 1) != 0;
+        state.FacesRight = slot.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right;
         state.Activated = false;
         state.LastHorizontalDelta = 0;
     }
@@ -108,7 +108,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
             return;
 
         int verticalDelta = unchecked((ushort)(samus.Position.Y.Whole - slot.Position.Y.Whole));
-        if (AbsoluteFaceBlockDelta(verticalDelta) >= slot.Spawn.Population.Parameter1)
+        if (AbsoluteFaceBlockDelta(verticalDelta) >= slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
         // Variable B is written after the Y test but before the X test, including on frames
@@ -116,7 +116,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // is preserved rather than collapsing the two comparisons into host geometry.
         int horizontalDelta = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         state.LastHorizontalDelta = horizontalDelta;
-        if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.Spawn.Population.Parameter1)
+        if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.SpawnSettings<FaceBlockSpawnSettings>().TriggerDistance)
             return;
 
         bool samusToTheLeft = EnemyMath.IsNegative16(horizontalDelta);

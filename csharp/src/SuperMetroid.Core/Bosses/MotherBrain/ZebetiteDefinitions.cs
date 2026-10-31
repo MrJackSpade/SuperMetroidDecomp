@@ -14,11 +14,11 @@ internal static class ZebetiteDefinitions
 
     /// <summary>Embedded primary spawn record at <c>$A6:FCE1-$A6:FCF0</c>.</summary>
     internal static readonly RoomEnemyPopulationRecord PrimarySpawn =
-        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemySpawnSettings.None, new EnemyPropertyWord(EnemyProperties.ProcessInstructions), new EnemyExtraPropertyWord(EnemyExtraProperties.None), 0, 0);
+        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
 
     /// <summary>Embedded linked-half spawn record at <c>$A6:FCF9-$A6:FD08</c>.</summary>
     internal static readonly RoomEnemyPopulationRecord LinkedSpawn =
-        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemySpawnSettings.None, new EnemyPropertyWord(EnemyProperties.ProcessInstructions), new EnemyExtraPropertyWord(EnemyExtraProperties.None), 2, 0);
+        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyProperties.ProcessInstructions, EnemyExtraProperties.None, new ZebetiteSpawnSettings(ZebetiteHalf.Linked));
 
     /// <summary>The exact embedded enemy population record of each half.</summary>
     internal static readonly Dictionary<ZebetiteHalf, RoomEnemyPopulationRecord> SpawnPopulations = new()

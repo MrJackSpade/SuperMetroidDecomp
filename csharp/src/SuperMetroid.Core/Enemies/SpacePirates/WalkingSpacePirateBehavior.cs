@@ -100,7 +100,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // Parameter-one bit zero is the only initial-facing selector. Bit fifteen is an
         // independent projectile-flinch option and must not accidentally select right art.
-        var parameterFlags = SpacePirateParameters.Walking(slot.Spawn.Population.Parameter1);
+        WalkingSpacePirateSpawnSettings settings = slot.SpawnSettings<WalkingSpacePirateSpawnSettings>();
+        WalkingSpacePirateParameterFlags parameterFlags = settings.Options;
         state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(
             (parameterFlags & WalkingSpacePirateParameterFlags.StartsFacingRight) != WalkingSpacePirateParameterFlags.None
             ? WalkingSpacePirateProgram.WalkingRight
@@ -109,8 +110,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // Native ADC/SBC wrap at 16 bits. A modded patrol radius can therefore straddle the
         // world-coordinate seam; keeping ushort arithmetic preserves its signed CMP behavior.
-        state.RightPost = new(unchecked((ushort)(slot.Position.X.Whole + slot.Spawn.Population.Parameter2)), 0);
-        state.LeftPost = new(unchecked((ushort)(slot.Position.X.Whole - slot.Spawn.Population.Parameter2)), 0);
+        state.RightPost = new(unchecked((ushort)(slot.Position.X.Whole + settings.PatrolReach)), 0);
+        state.LeftPost = new(unchecked((ushort)(slot.Position.X.Whole - settings.PatrolReach)), 0);
     }
 
     /// <summary>Ports <c>MainAI_PirateWalking</c> at <c>$B2:FD32</c>.</summary>
@@ -142,7 +143,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // Parameter-one bit fifteen enables the retail flinch detector after normal AI.
         // The detector is intentionally allowed to replace a list selected just above.
-        if (((SpacePirateParameters.Walking(slot.Spawn.Population.Parameter1) &
+        if (((slot.SpawnSettings<WalkingSpacePirateSpawnSettings>().Options &
                 WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != WalkingSpacePirateParameterFlags.None) &&
             samus is not null)
             TryTriggerWalkingSpacePirateFlinch(slot, state, samus, samusProjectiles);
@@ -400,7 +401,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
         // stationary until list opcode A050 installs and immediately executes movement.
         projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86A05B;
-        projectile.State = new PirateLaserState((SpacePirateParameters.Walking(checked((ushort)source.Spawn.Population.Parameter1)) &
+        projectile.State = new PirateLaserState((source.SpawnSettings<WalkingSpacePirateSpawnSettings>().Options &
             WalkingSpacePirateParameterFlags.SlowLaserAndProjectileFlinch) != WalkingSpacePirateParameterFlags.None);
 
         // A009 replaces the projectile definition's property word with enemy damage OR

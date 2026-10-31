@@ -40,7 +40,7 @@ internal static class RidleyShotHealthStageVerification
         // Native update 56046: Ridley on frame $E983, both Super Missile slots on his body.
         ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));
         ridley.SpritemapPointer = 0xe983;
-        ridley.Properties = EnemyPropertyWord.FromWord(0x3800);
+        ridley.Properties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0x3800);
         ridley.InvincibilityTimer = WrappingCountdown.Start(0);
         ridley.InstructionTimer = WrappingCountdown.Start(0x7fff);
         ridley.Health = 9340;

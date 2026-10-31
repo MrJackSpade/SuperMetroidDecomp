@@ -85,7 +85,15 @@ internal static class NativeEnemyFamilyStateImport
             phantoonPartRecord.SwoopVelocity = new(new SignedEightEight(words.C), new SignedEightEight(words.D));
             phantoonPartRecord.FunctionTimer = words.E;
             phantoonPartRecord.WavyPhaseDelta = words.F;
-            PhantoonNativeWords.Import(phantoonPartRecord, slot.Spawn.Population.Parameter2, words.C, words.E, words.F);
+            // The cartridge numbers the body zero and the eye, tentacles and mouth one through three.
+            int partNumber = slot.DefinitionId switch
+            {
+                EnemyDefinitionId.PhantoonEye => 1,
+                EnemyDefinitionId.PhantoonTentacles => 2,
+                EnemyDefinitionId.PhantoonMouth => 3,
+                _ => 0,
+            };
+            PhantoonNativeWords.Import(phantoonPartRecord, partNumber, words.C, words.E, words.F);
         }
         if (slot.SpeciesState<KraidPartState>() is { } kraidPartRecord)
         {
@@ -385,7 +393,13 @@ internal static class NativeEnemyFamilyStateImport
             boulderRecord.TravelSpeedAccumulator = words.B;
             boulderRecord.BounceSpeedAccumulator = words.C;
             boulderRecord.BounceCounter = WrappingCountdown.FromRaw(words.D);
-            boulderRecord.DirectionSelector = words.E;
+            boulderRecord.Roll = words.E switch
+            {
+                0 => BoulderRoll.Right,
+                1 => BoulderRoll.Left,
+                2 => BoulderRoll.LeftBreakingOnImpact,
+                _ => throw new InvalidDataException($"Recorded Boulder roll {words.E} is not a roll."),
+            };
         }
         if (slot.SpeciesState<RinkaEnemyState>() is { } rinkaRecord)
         {
@@ -440,7 +454,7 @@ internal static class NativeEnemyFamilyStateImport
             segment.TargetAngle = RotationAngle.FromRaw(words.A);
             segment.OrbitAngle = RotationAngle.FromRaw(words.B);
             segment.AngularVelocity = Index(words.C, 1020, "Shaktool angular velocity");
-            ImportShaktoolOrientation(segment, slot.Spawn.Population.Parameter2 >> 1, words.D);
+            ImportShaktoolOrientation(segment, slot.SpawnSettings<ShaktoolSpawnSettings>().Segment, words.D);
             segment.OwnerSlotIndex = SlotIndex(words.E, "Shaktool owner");
             segment.PreInstruction = words.F == 0 ? null : ShaktoolNativeWords.ShaktoolPreInstructions.Decode(words.F, "recorded ShaktoolPreInstruction");
         }
@@ -509,7 +523,7 @@ internal static class NativeEnemyFamilyStateImport
         {
             holtz.Velocity = new(new SignedEightEight(words.D), new SignedEightEight(words.C));
             holtz.Function = words.F == 0 ? null : RiosNativeWords.LowerNorfairRioEnemyFunctions.Decode(words.F, "recorded LowerNorfairRioEnemyFunction");
-            holtz.IsFollower = (slot.Spawn.Population.Parameter1 & EnemyParameterMasks.FollowerBit) != 0;
+            holtz.IsFollower = slot.SpawnSettings<EnemyFollowerSpawnSettings>().FollowsParent;
         }
         if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {

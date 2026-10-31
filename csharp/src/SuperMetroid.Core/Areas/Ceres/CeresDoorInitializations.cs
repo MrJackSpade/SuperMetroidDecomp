@@ -1,10 +1,9 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>Selects a Ceres door's behaviour from its population parameter (<see cref="CeresDoorInitializationDefinitions"/>).</summary>
+/// <summary>Selects a Ceres door's behaviour from its variant (<see cref="CeresDoorInitializationDefinitions"/>).</summary>
 internal static class CeresDoorInitializations
 {
-    /// <summary>The main function and instruction program population variant <paramref name="variant"/> selects.</summary>
-    internal static CeresDoorInitializationDefinition For(int variant) =>
-        Ensure.Listed(CeresDoorInitializationDefinitions.Initializations,
-            CeresDoorInitializationDefinitions.Variants.Decode(variant));
+    /// <summary>The main function and instruction program <paramref name="variant"/> starts with.</summary>
+    internal static CeresDoorInitializationDefinition For(CeresDoorVariant variant) =>
+        Ensure.Listed(CeresDoorInitializationDefinitions.Initializations, variant);
 }

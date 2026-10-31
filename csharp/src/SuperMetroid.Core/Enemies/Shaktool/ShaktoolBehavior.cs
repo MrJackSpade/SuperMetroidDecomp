@@ -44,20 +44,18 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Shaktool_Init</c> at <c>$AA:DE43</c>, establishing the segment's orbit and owner-slot offset.</summary>
     internal void InitializeShaktool(RoomEnemySlot slot)
     {
-        if ((slot.Spawn.Population.Parameter2 & 1) != 0 || slot.Spawn.Population.Parameter2 > 12)
-        {
-            throw new InvalidDataException(
-                $"Shaktool parameter two ${slot.Spawn.Population.Parameter2:X4} is not an even index 0..12.");
-        }
+        ShaktoolSpawnSettings settings = slot.SpawnSettings<ShaktoolSpawnSettings>();
+        int segmentIndex = settings.Segment;
+        if (segmentIndex > 6)
+            throw new InvalidDataException($"Shaktool segment {segmentIndex} is not one of its seven segments.");
 
-        int segmentIndex = slot.Spawn.Population.Parameter2 >> 1;
         ShaktoolSegmentDefinition definition = ShaktoolSegments.ForIndex(segmentIndex);
         var state = new ShaktoolSegmentState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // The population's first parameter holds the chain's initial motion flags; the chain then writes its flags
-        // to every segment together.
-        state.MotionFlags = InitialMotionFlags(slot.Spawn.Population.Parameter1);
+        // The population entry names the chain's initial motion; the chain then writes its flags to every segment
+        // together.
+        state.MotionFlags = settings.Motion;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
         state.TargetAngle = RotationAngle.Zero;
@@ -136,17 +134,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = previous.Position.Advance(ShaktoolOrbitTables.Displacement(state.OrbitAngle.ToByteAngle()));
     }
 
-    /// <summary>
-    /// The chain's initial motion state from the population's first parameter: bit 13 reversed once, bit 14
-    /// straightening, bit 15 clockwise. No other bit of the word is read.
-    /// </summary>
-    private static ShaktoolMotionFlags InitialMotionFlags(int parameter)
-    {
-        static bool Has(int parameter, int bit) => (parameter >> bit & 1) != 0;
-        return (Has(parameter, 13) ? ShaktoolMotionFlags.ReversedOnce : 0) |
-            (Has(parameter, 14) ? ShaktoolMotionFlags.Straightening : 0) |
-            (Has(parameter, 15) ? ShaktoolMotionFlags.Clockwise : 0);
-    }
 
     /// <summary>Ports the common orbit step at <c>$AA:DCAC</c>.</summary>
     private void AdvanceShaktoolOrbit(RoomEnemySlot slot, ShaktoolSegmentState state)
@@ -519,7 +506,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             ownerSlotIndex + ShaktoolSegmentCount > _slotTable.Slots.Count)
             throw new InvalidDataException($"Shaktool post-shot owner slot {ownerSlotIndex} is invalid.");
         for (int index = 0; index < ShaktoolSegmentCount; index++)
-            _slotTable.Slots[ownerSlotIndex + index].Properties = new EnemyPropertyWord(EnemyProperties.Deleted);
+            _slotTable.Slots[ownerSlotIndex + index].Properties = EnemyProperties.Deleted;
     }
 
     /// <summary>Runs the native post-common lethal-shot tail for bomb hits.</summary>

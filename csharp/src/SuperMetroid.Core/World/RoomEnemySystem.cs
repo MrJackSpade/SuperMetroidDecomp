@@ -953,9 +953,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
                     // Test the clock before decrementing: reaching zero retains frozen
                     // dispatch for this call. Ice removal instead takes the thaw branch
-                    // immediately. That branch stores the remaining AI bits into BOTH
-                    // words; replacing the clock with literal zero loses retail behavior
-                    // when hurt and frozen dispatch coexist.
+                    // immediately. That branch leaves the freeze clock at the remainder
+                    // ThawedFreezeLeftover names rather than zero, which matters when hurt
+                    // and frozen dispatch coexist.
                     slot.FlashTimer = WrappingCountdown.Start(0);
                     bool thaw = slot.FrozenTimer.IsZero ||
                         (frame.Samus is not null &&
@@ -965,7 +965,9 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     else
                     {
                         slot.AiStates = slot.AiStates & ~EnemyAiStates.Frozen;
-                        slot.FrozenTimer = WrappingCountdown.FromRaw(slot.AiStates.Word);
+                        slot.FrozenTimer = WrappingCountdown.Start(ThawedFreezeLeftover.Of(
+                            (slot.AiStates & EnemyAiStates.Grappled) != EnemyAiStates.None,
+                            (slot.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None));
                     }
                     foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
                         handler(slot);

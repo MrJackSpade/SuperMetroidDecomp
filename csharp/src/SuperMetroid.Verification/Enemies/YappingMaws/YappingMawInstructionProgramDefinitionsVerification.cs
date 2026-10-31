@@ -27,7 +27,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     {
         for (int direction = 0; direction < 8; direction++)
         {
-            YappingMawProgram entry = YappingMawBites.AttackForDirection(direction);
+            YappingMawProgram entry = YappingMawBites.AttackForDirection(YappingMawAnimationDefinitions.Aims.At(direction));
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
                 NewYappingMawInstructionSystem(entry);
             object?[] arguments =
@@ -92,8 +92,8 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
             slot.Position = slot.Position.WithWhole(new(128, 128));
-            slot.SetSpawnParameter1(128);
-            slot.SetSpawnParameter2(parameter2);
+            slot.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 128);
+            slot.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, parameter2);
             enemies.YappingMawBehavior.InitializeYappingMaw(slot);
             YappingMawEnemyState state = enemies.YappingMawStates[0] ??
                 throw new InvalidOperationException(
@@ -145,7 +145,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             YappingMawBehavior.BeginYappingMawExtension(slot, state);
             AssertEqual(RotationAngle.FromTableIndex(checked((byte)curl)), state.CurlAngle, $"Yapping Maw aim {aim} curl wraps around the turn");
             AssertEqual(mirrored, state.MirroredBend, $"Yapping Maw aim {aim} bend");
-            AssertEqual(direction, state.DirectionIndex, $"Yapping Maw aim {aim} sector");
+            AssertEqual(YappingMawAnimationDefinitions.Aims.At(direction), state.Aim, $"Yapping Maw aim {aim} sector");
         }
 
         static ClockedEnemyAiFrame Frame(SamusState samus) => new(
@@ -161,8 +161,8 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
         slot.Position = slot.Position.WithWhole(new(128, 128));
-        slot.SetSpawnParameter1(checked((ushort)activationDistance));
-        slot.SetSpawnParameter2(1);
+        slot.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, checked((ushort)activationDistance));
+        slot.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, 1);
         enemies.YappingMawBehavior.InitializeYappingMaw(slot);
         YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
         return new NewInitializedYappingMawResult(enemies, slot, state);

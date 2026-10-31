@@ -597,12 +597,12 @@ internal sealed class CeresRidleyFlight
         // population records embedded at $A6:AA2F/$AA3F. Keeping these as real slots makes
         // their layer-two OAM order, off-screen processing, and $F7A5 visibility dispatcher
         // flow through the same scheduler as the cartridge instead of painting host panels.
-        SpawnCeresRidleyGetawayWall(new(8, 127), parameter1: 5);
-        SpawnCeresRidleyGetawayWall(new(248, 127), parameter1: 6);
+        SpawnCeresRidleyGetawayWall(new(8, 127), CeresDoorVariant.RidleyEscapeFloorLeftWall);
+        SpawnCeresRidleyGetawayWall(new(248, 127), CeresDoorVariant.RidleyEscapeFloorRightWall);
     }
 
-    /// <summary>Initializes one native wall actor at its authored position and variant parameter.</summary>
-    private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, int parameter1)
+    /// <summary>Initializes one wall at its authored position and variant.</summary>
+    private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, CeresDoorVariant variant)
     {
         RoomEnemySlot wall = _slotTable.FindFreeSlot() ??
             throw new InvalidOperationException("Ceres Ridley getaway has no free enemy slot for a Mode-7 wall.");
@@ -611,13 +611,11 @@ internal sealed class CeresRidleyFlight
         RoomEnemyPopulationRecord population = new(
             EnemyDefinitionId.CeresDoor,
             Position: position,
-            SpawnSettings: EnemySpawnSettings.None,
-            Properties: new EnemyPropertyWord(
+            Properties:
                 EnemyProperties.ProcessInstructions |
-                EnemyProperties.ProcessOffScreen),
-            ExtraProperties: new EnemyExtraPropertyWord(EnemyExtraProperties.None),
-            Parameter1: parameter1,
-            Parameter2: 0);
+                EnemyProperties.ProcessOffScreen,
+            ExtraProperties: EnemyExtraProperties.None,
+            SpawnSettings: new CeresDoorSpawnSettings(variant));
         _dispatch.InitializeSlotFromDefinition(wall, population, definition);
         _dispatch.RunInitializationAi(wall, EnemySpawnSurroundings.None);
         _slotTable.CoverSpawn(wall);

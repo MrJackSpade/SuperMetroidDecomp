@@ -108,7 +108,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
             enemies.Presentation.BindColours(cgram.Gameplay);
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
-            statue.SetSpawnParameter2(variant);
+            statue.SetSpawnParameter2(EnemyDefinitionId.Chozo, variant);
             initialize(enemies, statue);
             for (int color = 0; color < ChozoAndTubeColorDefinitions.ColorCount; color++)
                 AssertEqual(resolve(color),

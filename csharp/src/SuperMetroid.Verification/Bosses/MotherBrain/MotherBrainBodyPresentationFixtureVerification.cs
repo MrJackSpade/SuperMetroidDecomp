@@ -54,7 +54,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Body.SpritemapPointer = frame;
-            Body.ExtraProperties = EnemyExtraPropertyWord.FromWord((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
+            Body.ExtraProperties = SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.DecodeExtra((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
                 (fresh ? EnemyExtraProperties.NewInstructionFrame : 0)));
         }
 

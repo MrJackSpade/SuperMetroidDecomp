@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <summary>
 /// Proven parameter-one bits consumed by wall Space Pirate code. The low bit chooses the
 /// starting wall; the high bit independently selects the slower retail jump/laser timing.
-/// No other parameter-one bits are interpreted by <c>$B2:EF9F-$F11F</c>. The values are arbitrary bits;
-/// <see cref="SpacePirateParameters.Wall"/> decodes them from the parameter.
+/// The values are arbitrary bits; the population entry names them.
 /// </summary>
 [Flags]
 public enum WallSpacePirateParameterFlags

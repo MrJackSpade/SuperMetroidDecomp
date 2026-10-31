@@ -30,10 +30,10 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-            slot.SetSpawnParameter1(parameter);
+            slot.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
             enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
-                AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatues.InitialProgram(parameter)),
+                AnimationProgramCursor<TourianEntranceStatueProgram>.Start(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)),
                 enemies.TourianEntranceStatueBehavior.Extensions[slot.SlotIndex].Program,
                 $"Tourian entrance-statue initializer parameter {parameter}");
 

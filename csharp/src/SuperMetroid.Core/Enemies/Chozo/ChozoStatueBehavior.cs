@@ -90,14 +90,14 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             "Tube crack colors require installed artwork.")).ApplyTubeCracks(ChozoAndTubeColours());
     }
 
-    /// <summary>Ports $AA:E725-$E7A1 for both shipped parameter-two variants.</summary>
+    /// <summary>Ports $AA:E725-$E7A1 for both shipped statues.</summary>
     internal void InitializeChozoStatue(RoomEnemySlot statue)
     {
-        int variant = statue.Spawn.Population.Parameter2;
-        if ((variant & 1) != 0 || variant > 2)
+        int variant = statue.SpawnSettings<ChozoStatueSpawnSettings>().Variant;
+        if (variant > 1)
         {
             throw new InvalidDataException(
-                $"Chozo statue parameter two ${variant:X4} is outside its two-entry ROM table.");
+                $"Chozo statue variant {variant} is outside its two-entry table.");
         }
 
         // The original ORs $2000, $0800, and the otherwise unnamed high bit. Keep $8000 raw:

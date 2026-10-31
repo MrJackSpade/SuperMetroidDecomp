@@ -15,7 +15,7 @@ public sealed class ZebetiteEnemyState
     /// </summary>
     internal ZebetiteEnemyState(RoomEnemyPopulationRecord population)
     {
-        IsSecondaryHalf = population.Parameter1 != 0;
+        IsSecondaryHalf = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half == ZebetiteHalf.Linked;
     }
 
     /// <summary>

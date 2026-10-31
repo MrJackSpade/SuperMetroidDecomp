@@ -45,12 +45,12 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        MorphBallEyePlacement placement = MorphBallEyePlacement.Of(slot.Spawn.Population.Parameter2);
+        MorphBallEyePlacement placement = MorphBallEyePlacement.Of(slot.SpawnSettings<MorphBallEyeSpawnSettings>());
         if (!placement.IsBeamMount)
         {
             // Parameter one bit zero is a fixed mounting direction, not a live facing test.
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
-            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((slot.Spawn.Population.Parameter1 & 1) == 0
+            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(slot.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
                 ? MorphBallEyeProgram.FacingRightClosed
                 : MorphBallEyeProgram.FacingLeftClosed);
             return;
@@ -113,7 +113,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.FunctionTimer = WrappingCountdown.Start(EyeTransitionDuration);
         eye.InstructionTimer = WrappingCountdown.Start(1);
-        state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Spawn.Population.Parameter1 & 1) == 0
+        state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
             ? MorphBallEyeProgram.FacingRightActivating
             : MorphBallEyeProgram.FacingLeftActivating);
         state.Function = MorphBallEyeAiFunction.Activating;
@@ -152,7 +152,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
             LastMorphBallEyeSoundEffect = EnemySoundEffectDefinitions.EyeDeactivationSound;
             state.IsActivated = false;
             state.FunctionTimer = WrappingCountdown.Start(EyeTransitionDuration);
-            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Spawn.Population.Parameter1 & 1) == 0
+            state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(eye.SpawnSettings<MorphBallEyeSpawnSettings>().Facing == HorizontalDirection.Right
                 ? MorphBallEyeProgram.FacingRightDeactivating
                 : MorphBallEyeProgram.FacingLeftDeactivating);
             state.Function = MorphBallEyeAiFunction.Deactivating;
@@ -292,7 +292,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = MorphBallEyeBeam.Body
             ?? throw new InvalidDataException("Morph-ball eye beam has no eye body.");
         if (body.DefinitionId != EnemyDefinitionId.Eye ||
-            MorphBallEyePlacement.Of(body.Spawn.Population.Parameter2).IsBeamMount)
+            body.SpawnSettings<MorphBallEyeSpawnSettings>().IsBeamMount)
         {
             throw new InvalidDataException(
                 $"Morph-ball eye beam lost its body in enemy slot {body.SlotIndex}.");

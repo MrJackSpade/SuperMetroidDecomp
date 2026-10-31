@@ -141,13 +141,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             SpawnTopCenter = new Position16<RoomPixels>(
                 slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))),
             Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus,
-            Velocity = new Offset16<RoomPixels>(unchecked((short)slot.Spawn.Population.Parameter1), 0),
+            Velocity = new Offset16<RoomPixels>(checked((short)slot.SpawnSettings<TurtleSpawnSettings>().Speed), 0),
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(unchecked((short)slot.Spawn.Population.Parameter1) < 0
+        state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(slot.SpawnSettings<TurtleSpawnSettings>().Speed < 0
             ? MamaTurtleProgram.BabyCrawlingLeft
             : MamaTurtleProgram.BabyCrawlingRight);
     }

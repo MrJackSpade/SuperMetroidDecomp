@@ -63,7 +63,7 @@ internal sealed class DraygonDeath
         state.FunctionTimer = WrappingCountdown.Start(DraygonBehavior.DraygonDeathWaitFramesUs);
         _parts.StartDraygonProgram(body, DraygonProgram.Sleep);
 
-        EnemyPropertyWord deletedPartProperties = body.Properties.With(EnemyProperties.Deleted);
+        EnemyProperties deletedPartProperties = body.Properties.With(EnemyProperties.Deleted);
         state.Tail.Properties = deletedPartProperties;
         state.Arms.Properties = deletedPartProperties;
         RoomEnemySlot eye = state.Eye;
@@ -115,7 +115,7 @@ internal sealed class DraygonDeath
             xMask: byte.MaxValue,
             yBase: 352,
             yMask: 63);
-        EnemyPropertyWord deletedProperties = body.Properties.With(EnemyProperties.Deleted);
+        EnemyProperties deletedProperties = body.Properties.With(EnemyProperties.Deleted);
         body.Properties = deletedProperties;
         state.Eye.Properties = deletedProperties;
         if (!state.BossDefeatPersisted)

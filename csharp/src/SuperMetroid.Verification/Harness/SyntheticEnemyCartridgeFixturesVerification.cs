@@ -20,10 +20,12 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         int address = 0xa10000 | population;
         foreach (RoomEnemyPopulationRecord record in records)
         {
+            SuperMetroid.AssetExtraction.Enemies.PopulationEntryWords words =
+                SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Encode(record);
             WriteTestWords(bus, address,
-                TestAddressSpace.FixtureHeaderPointer(record.DefinitionId), record.Position.X, record.Position.Y,
-                checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(record.SpawnSettings)), record.Properties.ToWord(), record.ExtraProperties.ToWord(),
-                checked((ushort)record.Parameter1), checked((ushort)record.Parameter2));
+                TestAddressSpace.FixtureHeaderPointer(record.DefinitionId), checked((ushort)words.X), checked((ushort)words.Y),
+                checked((ushort)words.Initialization), checked((ushort)words.Properties), checked((ushort)words.ExtraProperties),
+                checked((ushort)words.Parameter1), checked((ushort)words.Parameter2));
             address += 16;
         }
         WriteTestWord(bus, address, 0xffff);

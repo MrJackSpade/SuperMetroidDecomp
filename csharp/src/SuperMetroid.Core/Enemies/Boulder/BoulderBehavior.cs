@@ -75,7 +75,8 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InitialPosition = slot.Position.Whole;
         state.PreviousY = slot.Position.Y;
 
-        int initialYOffset = slot.Spawn.Population.Parameter2Settings.Second;
+        BoulderSpawnSettings settings = slot.SpawnSettings<BoulderSpawnSettings>();
+        int initialYOffset = settings.Drop;
         if (initialYOffset == 0)
         {
             // A zero high byte is not “no offset.” Native substitutes one pixel and sets
@@ -85,23 +86,32 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.InitialPosition.Y - initialYOffset)));
 
-        int horizontalReach = -slot.Spawn.Population.Parameter2Settings.First;
+        int horizontalReach = -settings.TriggerReach;
 
         // The population entry's trigger height is the strict Samus-Y threshold.
-        int verticalReach = slot.Spawn.Population.SpawnSettingsOf<BoulderSpawnSettings>().TriggerHeight;
-        state.DirectionSelector = slot.Spawn.Population.Parameter1Settings.Second;
-        if (state.DirectionSelector == 0)
+        int verticalReach = settings.TriggerHeight;
+        state.Roll = settings.Roll;
+        switch (settings.Roll)
         {
-            horizontalReach = -horizontalReach;
-            state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Right);
-        }
-        else
-        {
-            state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Left);
+            case BoulderRoll.Right:
+                horizontalReach = -horizontalReach;
+                state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Right);
+                break;
+            case BoulderRoll.Left:
+            case BoulderRoll.LeftBreakingOnImpact:
+                state.Program = AnimationProgramCursor<BoulderProgram>.Start(BoulderProgram.Left);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(BoulderRoll)} {settings.Roll}.");
         }
         state.TriggerReach = Offset16<RoomPixels>.Of(horizontalReach, verticalReach);
 
-        state.VerticalCompensation = new Offset16<RoomPixels>(0, (byte)slot.Spawn.Population.Parameter1 == 0 ? (short)2 : (short)5);
+        state.VerticalCompensation = new Offset16<RoomPixels>(0, settings.Landing switch
+        {
+            BoulderLanding.Standard => (short)2,
+            BoulderLanding.Deep => (short)5,
+            _ => throw new InvalidOperationException($"Undefined {nameof(BoulderLanding)} {settings.Landing}."),
+        });
     }
 
     /// <summary>Dispatches wait, fall, rebound, roll, and inert phases with required Samus and terrain state.</summary>
@@ -145,7 +155,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         int deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
-        bool enteredHorizontalWindow = state.DirectionSelector != 0
+        bool enteredHorizontalWindow = state.Roll != BoulderRoll.Right
             ? deltaX < 0 && unchecked((short)(deltaX - state.TriggerReach.X)) >= 0
             : deltaX >= 0 && unchecked((short)(deltaX - state.TriggerReach.X)) < 0;
         if (!enteredHorizontalWindow)
@@ -204,7 +214,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
             LastBoulderSoundEffect = BoulderImpactSound;
-            if (state.DirectionSelector == 2)
+            if (state.Roll == BoulderRoll.LeftBreakingOnImpact)
             {
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 _projectiles.SpawnRoomGraphicsDustExplosion(
@@ -285,7 +295,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the quadratic speed sample and signs it according to the spawn direction selector.</summary>
     private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
-        EnemyQuadraticSpeeds.Row(unchecked((byte)(EightEight.WholeOf(state.TravelSpeedAccumulator)))).Toward(state.DirectionSelector != 0 ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        EnemyQuadraticSpeeds.Row(unchecked((byte)(EightEight.WholeOf(state.TravelSpeedAccumulator)))).Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
     /// <summary>Adds or subtracts a quadratic table sample from the actor's wrapped 16.16 Y position.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, int accumulator, VerticalDirection direction)

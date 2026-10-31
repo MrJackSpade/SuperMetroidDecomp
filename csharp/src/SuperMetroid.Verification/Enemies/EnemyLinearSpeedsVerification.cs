@@ -37,13 +37,13 @@ internal static class EnemyLinearSpeedsVerification
         for (int index = 0; index < EnemyLinearSpeedDefinitions.RowCount; index++)
         {
             EnemyLinearSpeedRow expected = EnemySpeedTableCodec.LinearRow(cartridge, EnemySpeedTableCodec.LinearTable, index);
-            slot.SetSpawnParameter1(0);
-            slot.SetSpawnParameter2(LittleEndianBytes.Word(0, unchecked((byte)index)));
+            slot.SetSpawnParameter1(EnemyDefinitionId.Cacatac, 0);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Cacatac, LittleEndianBytes.Word(0, unchecked((byte)index)));
             slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
             cacatac(slot);
             var c = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Verification requires c.");
             AssertEqual(expected, new EnemyLinearSpeedRow(c.RightVelocity, c.LeftVelocity), "Cacatac native speed setup");
-            slot.SetSpawnParameter2((ushort)index);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Owtch, (ushort)index);
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             owtch(slot);
             var o = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Verification requires o.");

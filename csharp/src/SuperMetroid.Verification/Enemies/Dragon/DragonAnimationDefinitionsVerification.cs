@@ -75,8 +75,8 @@ internal static class DragonAnimationDefinitionsVerification
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
         wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
-        body.SetSpawnParameter1(0);
-        wing.SetSpawnParameter1(1);
+        body.SetSpawnParameter1(EnemyDefinitionId.Dragon, 0);
+        wing.SetSpawnParameter1(EnemyDefinitionId.Dragon, 1);
         wing.Position = wing.Position.WithWholeX(0x0100);
         body.Position = body.Position.WithWholeX(0x0100);
         wing.Position = wing.Position.WithWholeY(0x0100);

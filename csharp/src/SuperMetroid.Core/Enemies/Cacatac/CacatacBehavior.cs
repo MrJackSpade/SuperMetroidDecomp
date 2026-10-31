@@ -54,29 +54,22 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Cacatac</c> at $A2:9F48.</summary>
     internal static void InitializeCacatac(RoomEnemySlot slot)
     {
-        int directionParameter = slot.Spawn.Population.Parameter1Settings.First;
-        int distanceIndex = slot.Spawn.Population.Parameter2Settings.First;
-        int speedIndex = slot.Spawn.Population.Parameter2Settings.Second;
-        if (!CacatacProjectileDefinitions.Directions.TryDecode(directionParameter, out CacatacDirection direction))
-        {
-            throw new InvalidDataException(
-                $"Cacatac parameter one ${slot.Spawn.Population.Parameter1:X4} selects direction " +
-                $"{directionParameter}, outside its three-word function table.");
-        }
+        CacatacSpawnSettings settings = slot.SpawnSettings<CacatacSpawnSettings>();
+        CacatacDirection direction = settings.Direction;
+        int distanceIndex = settings.DistanceIndex;
+        int speedIndex = settings.SpeedIndex;
         if (distanceIndex >= 6)
         {
             throw new InvalidDataException(
-                $"Cacatac parameter two ${slot.Spawn.Population.Parameter2:X4} selects travel-distance " +
-                $"index {distanceIndex}, outside its six-word table.");
+                $"Cacatac travel-distance index {distanceIndex} is outside its six-word table.");
         }
         if (speedIndex >= EnemyLinearSpeedDefinitions.RowCount)
         {
             throw new InvalidDataException(
-                $"Cacatac parameter two ${slot.Spawn.Population.Parameter2:X4} selects linear-speed " +
-                $"index {speedIndex}, outside the NTSC retail table.");
+                $"Cacatac linear-speed index {speedIndex} is outside the NTSC retail table.");
         }
 
-        bool upsideUp = slot.Spawn.Population.Parameter1Settings.Second != 0;
+        bool upsideUp = settings.UpsideUp;
         slot.Frame = EnemyFrameId.Empty;
 
         var travel = new Offset16<RoomPixels>(checked((short)CacatacPatrol.TravelDistance((byte)distanceIndex)), 0);

@@ -55,8 +55,8 @@ internal static class MagdolliteApexThresholdVerification
             {
                 RoomEnemySlot member = enemies.SlotTable.Slots[part];
                 member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
-                member.SetSpawnParameter1((ushort)part);
-                member.SetSpawnParameter2(0);
+                member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)part);
+                member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
                 member.Position = FixedPosition<RoomPixels>.FromWhole(new(472, 672));
                 enemies.MagdolliteBehavior.InitializeMagdollite(member, null);
             }
@@ -87,8 +87,8 @@ internal static class MagdolliteApexThresholdVerification
             {
                 RoomEnemySlot member = enemies.SlotTable.Slots[headSlot + part];
                 member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
-                member.SetSpawnParameter1((ushort)part);
-                member.SetSpawnParameter2(0);
+                member.SetSpawnParameter1(EnemyDefinitionId.Magdollite, (ushort)part);
+                member.SetSpawnParameter2(EnemyDefinitionId.Magdollite, 0);
                 member.Position = member.Position.WithWhole(new(0x01d8, 0x02a0));
                 initialize(member, null);
             }

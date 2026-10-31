@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies;
 
-/// <summary>Verification access to enemy property-word queries production does not use.</summary>
+/// <summary>Verification access to enemy property queries production does not use.</summary>
 internal static class EnemyPropertyFlagExtensionsAccess
 {
-    /// <summary>Tests whether all requested named high-byte properties are set.</summary>
-    internal static bool HasAll(this EnemyPropertyWord word, EnemyProperties flags) => (word.Flags & flags) == flags;
+    /// <summary>Tests whether all requested properties are set.</summary>
+    internal static bool HasAll(this EnemyProperties properties, EnemyProperties flags) => (properties & flags) == flags;
 }

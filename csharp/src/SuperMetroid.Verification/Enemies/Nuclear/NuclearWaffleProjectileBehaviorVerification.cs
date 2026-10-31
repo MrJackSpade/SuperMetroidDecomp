@@ -18,8 +18,8 @@ internal static class NuclearWaffleProjectileBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot owner = enemies.SlotTable.Slots[0];
         owner.Bind(EnemyDefinitionId.Puromi, owner.Definition);
-        owner.SetSpawnParameter1(8193);
-        owner.SetSpawnParameter2(8192);
+        owner.SetSpawnParameter1(EnemyDefinitionId.Puromi, 8193);
+        owner.SetSpawnParameter2(EnemyDefinitionId.Puromi, 8192);
         owner.Position = owner.Position.WithWhole(new(384, 512));
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(owner);
         RoomEnemyProjectileSlot[] links = [.. (enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Verification requires the Nuclear Waffle's state."))

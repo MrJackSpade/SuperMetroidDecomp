@@ -25,7 +25,7 @@ internal static class NorfairLavaJumperOwnedStateVerification
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(parent);
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
         follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
-        follower.SetSpawnParameter1(EnemyParameterMasks.FollowerBit);
+        follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, EnemyParameterMasks.FollowerBit);
         enemies.NorfairLavaJumpingEnemyBehavior.InitializeNorfairLavaJumpingEnemy(follower);
         NorfairLavaJumpingEnemyState parentState = enemies.NorfairLavaJumpingEnemyStates[0] ?? throw new InvalidOperationException("The parent has no state.");
         NorfairLavaJumpingEnemyState followerState = enemies.NorfairLavaJumpingEnemyStates[1] ?? throw new InvalidOperationException("The follower has no state.");

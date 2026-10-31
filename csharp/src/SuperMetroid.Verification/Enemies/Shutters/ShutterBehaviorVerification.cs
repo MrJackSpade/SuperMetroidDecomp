@@ -70,8 +70,7 @@ internal static class ShutterBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(definition, slot.Definition);
         slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition));
-        slot.SetSpawnSettings(new ShutterSpawnSettings(SpeedIndex: 0, PrimaryDirection: 0));
-        slot.SetSpawnParameter1(2);
+        slot.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(2, 0));
         return slot;
     }
 
@@ -92,7 +91,8 @@ internal static class ShutterBehaviorVerification
                 "vertical initial dispatch selects a function without installing it");
         }
         foreach (int mode in new[] { 5, 6, 128, 255 })
-            AssertThrows<InvalidDataException>(() => ShuttersBehavior.DecodeTriggerMode(mode, "Vertical"), "vertical shutter invalid trigger mode");
+            AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.ShutterShootable,
+                SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(mode, 0)), "vertical shutter invalid trigger mode");
     }
 
     /// <summary>Checks horizontal shutter function installation and invalid trigger-mode rejection.</summary>
@@ -109,7 +109,8 @@ internal static class ShutterBehaviorVerification
             AssertEqual(native, ShuttersNativeWords.HorizontalShutterFunctions.Word(state.Function ?? throw new InvalidOperationException("The shutter installed no function.")), "horizontal shutter installs native initial function pointer");
         }
         foreach (int mode in new[] { 5, 6, 128, 255 })
-            AssertThrows<InvalidDataException>(() => ShuttersBehavior.DecodeTriggerMode(mode, "Horizontal"), "horizontal shutter invalid trigger mode");
+            AssertThrows<InvalidDataException>(() => SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.ShutterHorizShootable,
+                SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(mode, 0)), "horizontal shutter invalid trigger mode");
     }
 
     /// <summary>
@@ -193,8 +194,8 @@ internal static class ShutterBehaviorVerification
         {
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
-            slot.SetSpawnSettings(new ShutterSpawnSettings(SpeedIndex: 0, primaryDirection));
-            slot.SetSpawnParameter1(LittleEndianBytes.Word(0, travelDistance));
+            slot.SetSpawnWords(EnemyDefinitionId.ShutterHorizShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
+                LittleEndianBytes.Word(0, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
             ShuttersBehavior.InitializeHorizontalShutter(slot);
             HorizontalShutterEnemyState state = slot.SpeciesState<HorizontalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the horizontal shutter state.");
@@ -238,8 +239,8 @@ internal static class ShutterBehaviorVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.ShutterShootable);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
-            slot.SetSpawnSettings(new ShutterSpawnSettings(speedIndex, primaryDirection));
-            slot.SetSpawnParameter1(LittleEndianBytes.Word(0, travelDistance));
+            slot.SetSpawnWords(EnemyDefinitionId.ShutterShootable, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
+                LittleEndianBytes.Word(speedIndex, primaryDirection), 0, 0, LittleEndianBytes.Word(0, travelDistance), 0));
             ShuttersBehavior.InitializeVerticalShutter(slot);
             VerticalShutterEnemyState state = slot.SpeciesState<VerticalShutterEnemyState>()
                 ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");

@@ -43,10 +43,11 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
 
-        int angularSpeedIndex = slot.Spawn.Population.Parameter1Settings.First;
-        state.OrbitRadius = slot.Spawn.Population.Parameter1Settings.Second;
-        int direction = slot.Spawn.Population.Parameter2Settings.First;
-        state.WaitingTimerReset = slot.Spawn.Population.Parameter2Settings.Second;
+        NuclearWaffleSpawnSettings settings = slot.SpawnSettings<NuclearWaffleSpawnSettings>();
+        int angularSpeedIndex = settings.AngularSpeedIndex;
+        state.OrbitRadius = settings.OrbitRadius;
+        int direction = settings.Direction;
+        state.WaitingTimerReset = settings.WaitTime;
         state.WaitingTimer = WrappingCountdown.Start(state.WaitingTimerReset);
         state.Function = NuclearWaffleEnemyFunction.Waiting;
 

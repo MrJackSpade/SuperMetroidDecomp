@@ -19,8 +19,8 @@ internal static class StokeOwnedStateVerification
         for (int record = 0; record < EnemyLinearSpeedDefinitions.RowCount; record++)
         {
             slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
-            slot.SetSpawnParameter1((ushort)StokeDirection.Right);
-            slot.SetSpawnParameter2((ushort)record);
+            slot.SetSpawnParameter1(EnemyDefinitionId.Stoke, (ushort)StokeDirection.Right);
+            slot.SetSpawnParameter2(EnemyDefinitionId.Stoke, (ushort)record);
             StokeBehavior.InitializeStoke(slot);
             state = enemies.StokeStates[0] ?? throw new InvalidOperationException("The initialized Stoke has no state.");
             SignedSixteenSixteen right = EnemyLinearSpeeds.Row(record).Positive;

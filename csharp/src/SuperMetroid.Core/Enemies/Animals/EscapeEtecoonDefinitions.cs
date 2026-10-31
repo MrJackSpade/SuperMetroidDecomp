@@ -3,16 +3,6 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>Fixed initialization definitions for the three escape Etecoon actors.</summary>
 internal static class EscapeEtecoonDefinitions
 {
-    /// <summary>The role each authored even population parameter-one value selects.</summary>
-    internal static readonly ParameterVariants<EscapeEtecoonRole> Roles = new(new Dictionary<int, EscapeEtecoonRole>
-    {
-        [0] = EscapeEtecoonRole.LeftWalker,
-        [2] = EscapeEtecoonRole.RightWalker,
-        [4] = EscapeEtecoonRole.WaitForEscapeEvent,
-    });
-
-    /// <summary>The parameter bit the cartridge clears before dispatching on the role.</summary>
-    internal const int IgnoredParameterBit = 1;
 
     /// <summary>
     /// $B3:E718..E735 InitializationAI_EtecoonEscape: the position, action, program and horizontal speed each of the

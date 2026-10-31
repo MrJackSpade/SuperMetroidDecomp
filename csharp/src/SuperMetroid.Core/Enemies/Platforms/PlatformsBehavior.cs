@@ -11,12 +11,6 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 [RoomLifetime]
 internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <summary>The horizontal movement each authored population parameter-one value selects.</summary>
-    private static readonly ParameterVariants<PlatformHorizontalMovement> HorizontalMovements = new(new Dictionary<int, PlatformHorizontalMovement>
-    {
-        [0] = PlatformHorizontalMovement.Left,
-        [1] = PlatformHorizontalMovement.Right,
-    });
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer2, EnemyDefinitionId.Tripper];
@@ -67,13 +61,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.IsSuspensorPlatform = isKamer;
         // Main AI dispatches the complete word through a two-entry table, so a value outside it is corrupt room
         // data and is rejected here rather than normalized to rightward movement.
-        state.XMovement = HorizontalMovements.Decode(slot.Spawn.Population.Parameter1);
+        PlatformSpawnSettings settings = slot.SpawnSettings<PlatformSpawnSettings>();
+        state.XMovement = settings.Movement;
 
         state.Program = AnimationProgramCursor<PlatformProgram>.Start(PlatformPrograms.SelectProgram(
             isKamer, axis: Axis.Horizontal, state.XMovement));
 
-        // The low byte names the linear-speed row the platform moves at.
-        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(slot.Spawn.Population.Parameter2Settings.First);
+        // The spawn settings name the linear-speed row the platform moves at.
+        EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(settings.SpeedIndex);
         state.RightSpeed = speeds.Positive;
         state.LeftSpeed = speeds.Negative;
 
@@ -83,7 +78,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.VerticallyStillArtInstalled = false;
         state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole) + new Offset16<RoomPixels>(0, 1);
         state.YSpeedTableIndex = 0;
-        state.MaximumYSpeedTableIndex = slot.Spawn.Population.Parameter2Settings.Second;
+        state.MaximumYSpeedTableIndex = settings.MaximumYSpeedIndex;
     }
 
     /// <summary>Ports <c>MainAI_Tripper_Kamer2</c> at $A3:9D16.</summary>

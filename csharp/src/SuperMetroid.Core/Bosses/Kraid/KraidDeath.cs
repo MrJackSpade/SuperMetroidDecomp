@@ -256,10 +256,10 @@ internal sealed class KraidDeath
             return;
 
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        EnemyPropertyWord armProperties = _slotTable.Slots[1].Properties.With(
+        EnemyProperties armProperties = _slotTable.Slots[1].Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
         _slotTable.Slots[1].Properties = armProperties;
-        EnemyPropertyWord otherProperties = armProperties.Replace(
+        EnemyProperties otherProperties = armProperties.Replace(
             EnemyProperties.SolidToSamus |
                 EnemyProperties.ProcessInstructions |
                 EnemyProperties.ProcessOffScreen,

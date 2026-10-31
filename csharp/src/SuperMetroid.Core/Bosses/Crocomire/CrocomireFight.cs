@@ -133,11 +133,7 @@ internal sealed class CrocomireFight
             throw new InvalidOperationException("Crocomire's tongue initialized before its body.");
         state.Tongue = slot;
         CrocomireBodyLayer.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Fight, WrappingCountdown.Start(1));
-        slot.ExtraProperties = slot.ExtraProperties
-            .With(EnemyExtraProperties.UsesExtendedSpritemap)
-            .WithUntranslatedBits(
-                EnemyExtraPropertyRawBits.CrocomireInitializerBit0400,
-                "Crocomire initializer");
+        slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         var tongueState = new CrocomireTongueState { BodyXOffset = CrocomireBehavior.CrocomireTongueBodyXOffset };
         slot.SetSpeciesState(tongueState, tongueState.ClearWithRecord);
         slot.Colouring = new GraphicsSetMemberColouring(EnemyDefinitionId.Crocomire);

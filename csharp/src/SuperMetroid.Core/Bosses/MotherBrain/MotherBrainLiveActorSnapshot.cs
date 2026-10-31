@@ -13,10 +13,10 @@ internal sealed record MotherBrainLiveActorSnapshot
     public required MotherBrainForm Form { get; init; }
 
     /// <summary>Exact body enemy property word touched by `$A9:AEE1` and `$A9:AFF7`. Keeping the raw flags avoids guessing names for engine-wide enemy-property bits before bank `$A0` is fully translated: death sets `$0400`, then fade completion sets `$0100` and clears `$2000` with the cartridge's literal OR/AND sequence.</summary>
-    public required SuperMetroid.Core.Enemies.EnemyPropertyWord BodyProperties { get; init; }
+    public required SuperMetroid.Core.Enemies.EnemyProperties BodyProperties { get; init; }
 
     /// <summary>Second body property word cleared when the faded body becomes non-interactive.</summary>
-    public required SuperMetroid.Core.Enemies.EnemyExtraPropertyWord BodyExtraProperties { get; init; }
+    public required SuperMetroid.Core.Enemies.EnemyExtraProperties BodyExtraProperties { get; init; }
 
     /// <summary>Mother Brain brain-slot room position used by `$A9:BB82/$BB8F`'s aim vector.</summary>
     public required Position16<RoomPixels> Brain { get; init; }
@@ -25,10 +25,10 @@ internal sealed record MotherBrainLiveActorSnapshot
     public required int BrainHealth { get; init; }
 
     /// <summary>Exact brain enemy property word; death/rotting sets raw bits `$0400/$0100`.</summary>
-    public required SuperMetroid.Core.Enemies.EnemyPropertyWord BrainProperties { get; init; }
+    public required SuperMetroid.Core.Enemies.EnemyProperties BrainProperties { get; init; }
 
     /// <summary>Second brain property word cleared when the rot animation completes.</summary>
-    public required SuperMetroid.Core.Enemies.EnemyExtraPropertyWord BrainExtraProperties { get; init; }
+    public required SuperMetroid.Core.Enemies.EnemyExtraProperties BrainExtraProperties { get; init; }
 
     /// <summary>Lower neck angle updated by the brain-slot handler at <c>$A9:9072</c>. The final beam has already lowered it to <c>$3000</c> before the Baby interrupts the body.</summary>
     public required RotationAngle LowerNeckAngle { get; init; }

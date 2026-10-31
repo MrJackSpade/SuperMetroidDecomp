@@ -4,16 +4,12 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// <summary>
 /// The state of one Choot. The function, ascent index, falling cursor, loop counter, pattern and its loop advance
 /// are values the cartridge keeps in the enemy's common record, so they are emptied with that record when the enemy
-/// is killed (<see cref="ClearWithRecord"/>); the rest live in the slot's <see cref="ChootExtensionWords"/>.
+/// is killed (<see cref="ClearWithRecord"/>). The rest are the Choot's own too: setup writes the spawn and falling
+/// positions and the starting ascent index, activation writes the jump delay and the apex writes the falling origin,
+/// each before it is read, so nothing a previous Choot in the slot left reaches a new one.
 /// </summary>
 public sealed class ChootEnemyState
 {
-    /// <summary>The slot's Choot extension words, kept for the room across occupants.</summary>
-    private readonly ChootExtensionWords _words;
-
-    /// <summary>Binds one Choot to its slot's extension words.</summary>
-    internal ChootEnemyState(ChootExtensionWords words) => _words = words;
-
     /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<ChootProgram> Program { get; set; }
 
@@ -39,42 +35,22 @@ public sealed class ChootEnemyState
     public int FallingPatternYDistance { get; internal set; }
 
     /// <summary>The initial room position in whole pixels, restored after the last falling-pattern loop.</summary>
-    public Position16<RoomPixels> SpawnPosition
-    {
-        get => _words.SpawnPosition;
-        internal set => _words.SpawnPosition = value;
-    }
+    public Position16<RoomPixels> SpawnPosition { get; internal set; }
 
     /// <summary>Spawn X and the wrapped whole-pixel spawn Y minus the computed jump height, installed as the position and falling origin at the apex transition.</summary>
-    public Position16<RoomPixels> InitialFallingPosition
-    {
-        get => _words.InitialFallingPosition;
-        internal set => _words.InitialFallingPosition = value;
-    }
+    public Position16<RoomPixels> InitialFallingPosition { get; internal set; }
 
     /// <summary>The whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by <see cref="FallingPatternYDistance"/> at every stream terminator.</summary>
-    public Position16<RoomPixels> FallingOrigin
-    {
-        get => _words.FallingOrigin;
-        internal set => _words.FallingOrigin = value;
-    }
+    public Position16<RoomPixels> FallingOrigin { get; internal set; }
 
     /// <summary>The ascent record index calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedTableIndex"/> when the jump cycle finishes.</summary>
-    public int InitialYSpeedTableIndex
-    {
-        get => _words.InitialYSpeedTableIndex;
-        internal set => _words.InitialYSpeedTableIndex = value;
-    }
+    public int InitialYSpeedTableIndex { get; internal set; }
 
     /// <summary>
     /// Parameter-two countdown. The jump begins only after decrementing through zero to
-    /// <c>$FFFF</c>, so a population delay of zero launches on the first preparation frame.
+    /// below zero, so a population delay of zero launches on the first preparation frame.
     /// </summary>
-    public WrappingCountdown JumpDelayTimer
-    {
-        get => _words.JumpDelayTimer;
-        internal set => _words.JumpDelayTimer = value;
-    }
+    public WrappingCountdown JumpDelayTimer { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
     internal void ClearWithRecord()

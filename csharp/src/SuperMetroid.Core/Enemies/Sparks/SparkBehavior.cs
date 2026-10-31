@@ -2,7 +2,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Sparks.Artwork;
 using SuperMetroid.Core.Enemies.FallingSparks;
-using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.Sparks;
 

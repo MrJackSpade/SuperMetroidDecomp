@@ -1,11 +1,9 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Crawlers;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled crawler and Yard velocity definitions against
 /// native speed tables and production sign application.</summary>

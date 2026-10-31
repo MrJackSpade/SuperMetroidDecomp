@@ -1,11 +1,9 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Sbug;
 using SuperMetroid.Verification.Harness;

@@ -67,8 +67,9 @@ internal static class PoseProjectileOriginVerification
                 g.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
                 SamusGrappleMovement.BeginFiring(samus);
-                bool held = pose is (int)SamusPoseNumbering.Number(SamusPoseId.DraygonGrabbedMovingLeftPose) or (int)SamusPoseNumbering.Number(SamusPoseId.DraygonGrabbedMovingRightPose);
-                int firingDirection = held ? (pose == (int)SamusPoseNumbering.Number(SamusPoseId.DraygonGrabbedMovingLeftPose) ? 7 : 2) : rom.ReadCartridgeByte(0x91b629 + pose * 8 + 3);
+                SamusPoseId poseId = SamusPoseNumbering.FromNumber(pose);
+                bool held = poseId is SamusPoseId.DraygonGrabbedMovingLeftPose or SamusPoseId.DraygonGrabbedMovingRightPose;
+                int firingDirection = held ? (poseId == SamusPoseId.DraygonGrabbedMovingLeftPose ? 7 : 2) : rom.ReadCartridgeByte(0x91b629 + pose * 8 + 3);
                 if ((firingDirection & 0xf0) != 0)
                 {
                     AssertEqual(GrapplePhase.CancelPending, g.Phase, "Artwork cannot enable Grapple in a restricted authored pose");

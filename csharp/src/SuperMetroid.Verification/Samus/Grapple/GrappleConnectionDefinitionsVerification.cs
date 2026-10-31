@@ -229,14 +229,14 @@ internal static class GrappleConnectionDefinitionsVerification
         {
             int sourcePose = Enumerable.Range(0, 253).First(pose =>
                 GrappleCancellationAndDropRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
-                pose is not ((int)SamusPoseNumbering.Number(SamusPoseId.GrappleSwingRightPose) or (int)SamusPoseNumbering.Number(SamusPoseId.GrappleSwingLeftPose)));
+                SamusPoseNumbering.FromNumber(pose) is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose));
             samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY((ushort)radius);
             AssertEqual(GrappleCancellationAndDropRomByte(rom, (radius < 17 ? 0x9bc9c4 : 0x9bc9ba) + direction), drop(guard, samus), "Actual directional drop at every radius");
         }
         foreach (int sourcePose in Enumerable.Range(0, 253).Where(pose =>
             GrappleCancellationAndDropRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) >= 10 &&
-            pose is not ((int)SamusPoseNumbering.Number(SamusPoseId.GrappleSwingRightPose) or (int)SamusPoseNumbering.Number(SamusPoseId.GrappleSwingLeftPose))))
+            SamusPoseNumbering.FromNumber(pose) is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose)))
         foreach (ushort radius in new ushort[] { 0, 16, 17, ushort.MaxValue })
         {
             samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);

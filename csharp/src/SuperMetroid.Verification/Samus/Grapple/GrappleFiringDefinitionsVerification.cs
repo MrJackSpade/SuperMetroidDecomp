@@ -59,7 +59,7 @@ internal static class GrappleFiringDefinitionsVerification
         {
             SamusPoseId[] aimingPoses = Enumerable.Range(0, 253).Where(pose =>
                 GrappleFiringDefinitionsRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
-                pose is not ((int)SamusPoseNumbering.Number(SamusPoseId.DraygonGrabbedMovingLeftPose) or (int)SamusPoseNumbering.Number(SamusPoseId.DraygonGrabbedMovingRightPose)))
+                SamusPoseNumbering.FromNumber(pose) is not (SamusPoseId.DraygonGrabbedMovingLeftPose or SamusPoseId.DraygonGrabbedMovingRightPose))
                 .Select(pose => SamusPoseNumbering.FromNumber(pose)).ToArray();
             int offset = direction * 2;
             short vx = Word(0x9bc0db + offset), vy = Word(0x9bc0ef + offset);

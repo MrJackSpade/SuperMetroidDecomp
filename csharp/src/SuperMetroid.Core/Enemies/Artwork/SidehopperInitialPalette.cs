@@ -2,14 +2,14 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// $A9:EBCC-EBEA and $F8C6-F8E4 share the initial Sidehopper palette. The drain
+/// The drain's first row and the live target share the initial Sidehopper palette. The drain
 /// imports its first15 words; the live target imports16. White slots1/9 and
 /// repeated slots14=11/15=12 and the body/detail/claw shades calculate. The standalone16-color target uses reviewed paints; the shifted15-color stock auxiliary has a separate calculated paint owner.
 /// Each instance owns its supplied content; edits never couple separate catalogs.
 /// </summary>
 internal sealed class SidehopperInitialPalette
 {
-    /// <summary>$A9:EBD2/EBD4 and $F8CC/F8CE: cyan body/leg colors3180 and18C0.
+    /// <summary>Cyan body/leg colors3180 and18C0.
     /// The exact shadow halves each RGB5 channel. This selected ratio is reviewed for the standalone target only; the shifted auxiliary disposition is separate.</summary>
     private const int BodyShadowDivisor = 2;
     /// <summary>Independent source paints for calculated slots, or the full supplied palette for noncalculated content.</summary>
@@ -67,7 +67,7 @@ internal sealed class SidehopperInitialPalette
             _ => independentOrSupplied[color - 5],
         };
     }
-    /// <summary>$A9:EBDA/$F8D4, inner-detail ink7 is the channel-floor midpoint
+    /// <summary>Inner-detail ink7 is the channel-floor midpoint
     /// of installed inner-detail paints at slots6/8 (5EC0/35A0).</summary>
     internal static RgbColor DetailMidpoint(RgbColor light, RgbColor dark)
     {
@@ -78,7 +78,7 @@ internal sealed class SidehopperInitialPalette
     {
         return light.Map((_, a) => (a / BodyShadowDivisor));
     }
-    /// <summary>$A9:EBE2/$F8DC: yellow claw shade0237 is the ceiling-channel midpoint of039C/00D1.
+    /// <summary>Yellow claw shade0237 is the ceiling-channel midpoint of039C/00D1.
     /// Independently supplied light/dark endpoints remain editable.</summary>
     internal static RgbColor ClawMidpoint(RgbColor light, RgbColor dark)
     {

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// $A9:F8A6-F8C4 and $EC8C-ECAA share corpse paint. Slot5 is white; slots8..15
+/// The corpse target and the drain's last row share corpse paint. Slot5 is white; slots8..15
 /// interpolate RGB5 endpoints to nearest over seven intervals. The auxiliary
 /// import includes only slots0..14; its stock paint has a separate calculated owner. This helper preserves independently supplied15-color content. The standalone16-word target uses reviewed paints and material composition.
 /// </summary>
@@ -79,7 +79,7 @@ internal sealed class SidehopperCorpsePalette
         return Interpolate(independentOrSupplied[7], independentOrSupplied[8], color - 8);
     }
 
-    /// <summary>Interpolates RGB5 channels with the cartridge's seven-interval nearest rounding.</summary>
+    /// <summary>Interpolates RGB5 channels with the game's seven-interval nearest rounding.</summary>
     internal static RgbColor Interpolate(RgbColor start, RgbColor end, int phase)
     {
         return start.Zip(end, (_, a, b) => ((a * (7 - phase) + b * phase + 3) / 7));

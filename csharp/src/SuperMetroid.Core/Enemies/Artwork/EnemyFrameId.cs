@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
 /// The frames an enemy shows: every installed spritemap and extended frame in schema order, and the shared empty frames
-/// every enemy bank repeats. Each is named for its owner and its place among that owner's frames (the pose, index or part
+/// every enemy family repeats. Each is named for its owner and its place among that owner's frames (the pose, index or part
 /// its frame table selects it by); each cites its installed composition, whose name also gives its installed sheet key
 /// (<see cref="EnemyFrameSheetKeys"/>), so a frame's name never reaches a file.
 /// </summary>
@@ -4008,8 +4008,8 @@ public enum EnemyFrameId
     KraidFoot33,
     /// <summary><c>kraid_foot_standing</c>, an installed extended frame.</summary>
     KraidFootStanding,
-    /// <summary>The empty spritemap at the same offset in every enemy bank: an enemy showing it draws nothing.</summary>
+    /// <summary>The shared empty spritemap: an enemy showing it draws nothing.</summary>
     Empty,
-    /// <summary>The visually empty one-component extended frame at the same offset in every enemy bank.</summary>
+    /// <summary>The shared visually empty one-component extended frame.</summary>
     EmptyExtended,
 }

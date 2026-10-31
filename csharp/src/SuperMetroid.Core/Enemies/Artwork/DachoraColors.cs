@@ -39,7 +39,7 @@ internal static class DachoraColors
     }
 
     /// <summary>
-    /// $A7:F245..F2C4: frame k raises each color's blue channel toward min(blue + 16, 31),
+    /// Frame k raises each color's blue channel toward min(blue + 16, 31),
     /// rounding to nearest over three steps; red and green keep the normal color. The first
     /// frame's transparent slot is the authored flash backdrop, later frames keep the normal one.
     /// </summary>
@@ -55,7 +55,7 @@ internal static class DachoraColors
     }
 
     /// <summary>
-    /// $A7:F2C5..F344: frame k fades every channel toward white by k/5, as
+    /// Frame k fades every channel toward white by k/5, as
     /// channel + floor(k * (31 - channel) / 5); the transparent slot keeps the normal color.
     /// </summary>
     private static RgbColor ShineColor(RgbColor[] normal, int frame, int color)

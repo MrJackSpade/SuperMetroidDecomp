@@ -21,15 +21,15 @@ public sealed class MagdollitePaletteCycle
             }
         });
 
-    /// <summary>Four independently authored glow colors underlying the native row rotations.</summary>
+    /// <summary>Four independently authored glow colors underlying the row rotations.</summary>
     private readonly RgbColor[] colors;
-    /// <summary>Later-row cells that differ from the native rotation of the first row.</summary>
+    /// <summary>Later-row cells that differ from the rotation of the first row.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> edits = [];
 
     /// <summary>
-    /// Palette_Magdollite_Glow_0..3 at $A8:AC2E-AC34 rotates left one color per
-    /// phase in the four native OBJ rows. Preserve arbitrary edited later rows
-    /// as deviations from that rotation, without rebuilding the native table.
+    /// Palette_Magdollite_Glow_0..3 rotates left one color per
+    /// phase in the four OBJ rows. Preserve arbitrary edited later rows
+    /// as deviations from that rotation, without rebuilding the table.
     /// </summary>
     internal MagdollitePaletteCycle(RgbColor[][] frames)
     {
@@ -40,10 +40,10 @@ public sealed class MagdollitePaletteCycle
                 edits.Add(new ColourCell(frame, color), frames[frame][color]);
     }
 
-    /// <summary>Returns one selected glow color, using the first row's native left rotation unless the requested later-row cell was independently edited.</summary>
+    /// <summary>Returns one selected glow color, using the first row's left rotation unless the requested later-row cell was independently edited.</summary>
     /// <param name="frame">Zero-based palette-cycle row 0..3, not an elapsed-update count.</param>
     /// <param name="color">Zero-based glow color 0..3, corresponding to OBJ palette colors nine through twelve.</param>
-    /// <returns>Packed SNES BGR555 color from the selected row.</returns>
+    /// <returns>Packed BGR555 color from the selected row.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The row or color index is outside 0..3.</exception>
     public RgbColor Resolve(int frame, int color)
     {

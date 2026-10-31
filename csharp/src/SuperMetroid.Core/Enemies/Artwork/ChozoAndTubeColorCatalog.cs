@@ -21,13 +21,13 @@ public sealed class ChozoAndTubeColorCatalog
             ChozoAndTubeColors.StatueEdits(ChozoStatuePalette.WreckedShip, wreckedShip),
             ChozoAndTubeColors.StatueEdits(ChozoStatuePalette.LowerNorfair, lowerNorfair));
 
-    /// <summary>Gets packed RGB5 tube-crack ink 0–31 corresponding to $AA:E2DD; the stock second sixteen-color half repeats the first, while supplied edits remain independent.</summary>
+    /// <summary>Gets packed RGB5 tube-crack ink 0–31; the stock second sixteen-color half repeats the first, while supplied edits remain independent.</summary>
     public RgbColor ResolveTubeCracks(int color) => ChozoAndTubeColors.TubeCrack(this, color);
 
-    /// <summary>Installs the tube-crack image at CGRAM 144–175, matching palette-only initializer $AA:E716; tube destruction and the initializer actor's removal remain runtime behavior.</summary>
+    /// <summary>Installs the tube-crack image at palette colours 144–175, matching the palette-only tube-crack initializer; tube destruction and the initializer actor's removal remain runtime behavior.</summary>
     public void ApplyTubeCracks(ColourRunSequence destination) => ChozoAndTubeColors.ApplyTubeCracks(this, destination);
-    /// <summary>Installs the 32 selected Wrecked Ship Chozo inks at CGRAM 144–175, replacing the $AA:E31D image copied by initializer $AA:E75C.</summary>
+    /// <summary>Installs the 32 selected Wrecked Ship Chozo inks at palette colours 144–175, replacing the stock image the Wrecked Ship statue initializer copies.</summary>
     public void ApplyWreckedShip(ColourRunSequence destination) => ChozoAndTubeColors.ApplyStatue(this, destination, ChozoStatuePalette.WreckedShip);
-    /// <summary>Installs the 32 selected Lower Norfair Chozo inks at CGRAM 144–175, replacing the $AA:E35D image copied by initializer $AA:E784.</summary>
+    /// <summary>Installs the 32 selected Lower Norfair Chozo inks at palette colours 144–175, replacing the stock image the Lower Norfair statue initializer copies.</summary>
     public void ApplyLowerNorfair(ColourRunSequence destination) => ChozoAndTubeColors.ApplyStatue(this, destination, ChozoStatuePalette.LowerNorfair);
 }

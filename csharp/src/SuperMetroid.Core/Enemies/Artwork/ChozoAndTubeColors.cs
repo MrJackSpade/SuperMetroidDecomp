@@ -57,7 +57,7 @@ internal static class ChozoAndTubeColors
             : TubeColor(colors.selection.TubeColorSeeds, color);
     }
 
-    /// <summary>$AA:E2DD: two equal16-color halves; colors8..15 linearly shade RGB5(31,27,29) to(0,0,1).</summary>
+    /// <summary>Two equal16-color halves; colors8..15 linearly shade RGB5(31,27,29) to(0,0,1).</summary>
     private static RgbColor TubeColor(RgbColor[] seeds, int color)
     {
         int local = color % 16;
@@ -78,7 +78,7 @@ internal static class ChozoAndTubeColors
         return edits.TryGetValue(new ColourCell(0, color), out RgbColor edited) ? edited : ChozoStatuePaint.Color(palette, color);
     }
 
-    /// <summary>Expands a statue variant into its ordered 32-color CGRAM image for identity hashing.</summary>
+    /// <summary>Expands a statue variant into its ordered 32-color palette image for identity hashing.</summary>
     private static RgbColor[] Statue(ChozoAndTubeColorCatalog colors, ChozoStatuePalette palette) =>
         Enumerable.Range(0, ChozoAndTubeColorDefinitions.ColorCount).Select(color => Statue(colors, palette, color)).ToArray();
 

@@ -18,7 +18,7 @@ public sealed class EnemyPaletteSheet
     /// <summary>Retains the validated sixteen-color array after JSON decoding.</summary>
     internal EnemyPaletteSheet(RgbColor[] colors) => this.colors = colors;
 
-    /// <summary>Copies all sixteen selected colors, including color zero, into consecutive current CGRAM entries; the room graphics-set owner selects the destination and controls palette animation.</summary>
+    /// <summary>Copies all sixteen selected colors, including color zero, into consecutive current palette colours; the room graphics-set owner selects the destination and controls palette animation.</summary>
     /// <param name="destination">The sixteen-colour OBJ palette row the room graphics-set record selects.</param>
     public void LoadTo(ColourRun destination) => destination.CopyFrom(colors);
 }

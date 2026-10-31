@@ -14,7 +14,6 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Enemies.Callbacks;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -219,9 +218,9 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                     $"Draygon list {pointer:X4} box {index} right");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
                     $"Draygon list {pointer:X4} box {index} bottom");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch),
+                AssertEqual(EnemyReactionAccess.Of(0xa5, CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), shot: false), (EnemyReaction?)box.Touch,
                     $"Draygon list {pointer:X4} box {index} touch reaction");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot),
+                AssertEqual(EnemyReactionAccess.Of(0xa5, CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), shot: true), (EnemyReaction?)box.Shot,
                     $"Draygon list {pointer:X4} box {index} shot reaction");
             }
         }
@@ -242,9 +241,8 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             AssertEqual(pointer != 0xa36b, found,
                 $"Draygon frame {pointer:X4} shot overlap without ROM reads");
             if (found)
-                AssertEqual(EnemyAiRoutineDefinitions.BankA5.DraygonShot.Offset,
-                    (ushort)(arguments[^1] ?? throw new InvalidOperationException("Verification requires arguments[^1].")),
-                    $"Draygon frame {pointer:X4} selected shot callback");
+                AssertEqual((EnemyReaction?)EnemyReaction.DraygonShot, ExtendedHitboxWalker.Reaction(arguments),
+                    $"Draygon frame {pointer:X4} selected shot reaction");
         }
 
         AssertThrows<InvalidDataException>(

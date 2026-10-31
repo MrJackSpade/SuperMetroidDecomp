@@ -335,8 +335,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "editable walking Pirate component moves live OAM by one pixel");
         AssertEqual(stockOam.LowTable[1], editedOam.LowTable[1],
             "walking Pirate X edit does not move visual Y");
-        AssertEqual(GetTouchCallback(stock, editedPointer),
-            GetTouchCallback(edited, editedPointer),
+        AssertEqual(GetTouchReaction(stock, editedPointer),
+            GetTouchReaction(edited, editedPointer),
             "editable walking Pirate component does not move the compiled hitbox");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
                 .Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .ExtendedFrames.")).TryGet(EnemyExtendedFrameDefinitions.Bank,
@@ -385,8 +385,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "editable wall-Pirate component moves live OAM by one pixel");
         AssertEqual(stockWall.LowTable[1], movedWall.LowTable[1],
             "wall-Pirate X edit does not move visual Y");
-        AssertEqual(GetTouchCallback(stock, wallPointer),
-            GetTouchCallback(editedWall, wallPointer),
+        AssertEqual(GetTouchReaction(stock, wallPointer),
+            GetTouchReaction(editedWall, wallPointer),
             "editable wall-Pirate component does not move its compiled hitbox");
         AssertTrue(LoadExtendedFrameOverride().TryGet(EnemyExtendedFrameDefinitions.Bank,
                     wallPointer, out _),
@@ -440,8 +440,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "editable Ninja component moves live OAM by one pixel");
         AssertEqual(stockNinja.LowTable[1], movedNinja.LowTable[1],
             "Ninja X edit does not move visual Y");
-        AssertEqual(GetTouchCallback(stock, ninjaPointer),
-            GetTouchCallback(editedNinja, ninjaPointer),
+        AssertEqual(GetTouchReaction(stock, ninjaPointer),
+            GetTouchReaction(editedNinja, ninjaPointer),
             "editable Ninja component does not move its compiled hitbox");
         AssertTrue(LoadExtendedFrameOverride().TryGet(EnemyExtendedFrameDefinitions.Bank,
                     ninjaPointer, out _),
@@ -1178,8 +1178,8 @@ internal static class EnemyExtendedFrameArtworkVerification
             "Pirate remap fixture uses visibly distinct native frames");
         AssertTrue(remappedOam.ImageEquals(targetOam),
             "Pirate display binding changes live OAM without reading the source frame");
-        AssertEqual(GetTouchCallback(stock, sourcePointer),
-            GetTouchCallback(swapped, sourcePointer),
+        AssertEqual(GetTouchReaction(stock, sourcePointer),
+            GetTouchReaction(swapped, sourcePointer),
             "Pirate display binding cannot move the compiled hitbox callback");
         AssertTrue(LoadExtendedFrameOverride().TryGetDisplay(EnemyExtendedFrameDefinitions.Bank,
                     sourcePointer, out _),
@@ -1386,8 +1386,8 @@ internal static class EnemyExtendedFrameArtworkVerification
         return oam;
     }
 
-    /// <summary>Samples a stock Space Pirate hitbox through the production collision walker and returns its touch callback.</summary>
-    private static ushort GetTouchCallback(InstalledEnemyArtwork art,
+    /// <summary>Samples a stock Space Pirate hitbox through the production collision walker and returns its touch reaction.</summary>
+    private static EnemyReaction? GetTouchReaction(InstalledEnemyArtwork art,
         ushort pointer)
     {
         var enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
@@ -1407,7 +1407,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             [slot, new Position16<RoomPixels>(sampleX, sampleY), new Extent16<RoomPixels>(0, 0), false, (ushort)0];
         AssertTrue(ExtendedHitboxWalker.Find(enemies, arguments),
             "Space Pirate stock hitbox contains its sampled point");
-        return (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4]."));
+        return ExtendedHitboxWalker.Reaction(arguments);
     }
 
     /// <summary>

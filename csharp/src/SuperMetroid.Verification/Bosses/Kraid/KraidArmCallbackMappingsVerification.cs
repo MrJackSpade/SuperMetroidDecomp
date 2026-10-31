@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidArmCollisionDefinitions
 using static SuperMetroid.Verification.Bosses.Kraid.KraidArmPhysicalFrameMappingsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
@@ -12,17 +13,17 @@ internal static class KraidArmCallbackMappingsVerification
     /// <summary>Checks the touch callback selected for every native arm rectangle.</summary>
     internal static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false,
-            rectangle => KraidHitboxCallbackCodec.ToCallbackWord(KraidArmCollision.TouchCallback(rectangle))));
+            KraidArmCollision.TouchReaction));
     /// <summary>Checks the shot callback selected for every native arm rectangle.</summary>
     internal static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true,
-            rectangle => KraidHitboxCallbackCodec.ToCallbackWord(KraidArmCollision.ShotCallback(rectangle))));
+            KraidArmCollision.ShotReaction));
 
     /// <summary>
-    /// Compares the 24 compiled rectangles' typed reactions, converted through the callback codec the shared walker
-    /// uses, with the corresponding ROM hitbox callback fields and bounds.
+    /// Compares the 24 compiled rectangles' typed reactions with the reactions the import decodes from the corresponding
+    /// ROM hitbox callback fields.
     /// </summary>
-    private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot, Func<int, ushort> calculate)
+    private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot, Func<int, EnemyReaction> calculate)
     {
         var selectedLists = new SortedSet<ushort>();
         foreach (ushort frame in NativeKraidArmPhysicalFrames(rom))
@@ -42,11 +43,10 @@ internal static class KraidArmCallbackMappingsVerification
             foreach (var box in actual)
             {
                 AssertEqual(actual[index], box, "Arm rectangle enumeration order");
-                ushort expected = ReadKraidArmInstructionWord(rom, (ushort)(pointer + 2 + 12 * index + (shot ? 10 : 8)));
-                AssertEqual(expected, calculate(rectangle), "Original arm callback field");
-                AssertEqual(expected, shot
-                    ? KraidHitboxCallbackCodec.ToCallbackWord(box.Shot)
-                    : KraidHitboxCallbackCodec.ToCallbackWord(box.Touch), "Arm callback through rectangle view");
+                EnemyReaction? expected = EnemyReactionAccess.Of(0xa7,
+                    ReadKraidArmInstructionWord(rom, (ushort)(pointer + 2 + 12 * index + (shot ? 10 : 8))), shot);
+                AssertEqual(expected, (EnemyReaction?)calculate(rectangle), "Original arm reaction field");
+                AssertEqual(expected, (EnemyReaction?)(shot ? box.Shot : box.Touch), "Arm reaction through rectangle view");
                 index++;
                 rectangle++;
             }

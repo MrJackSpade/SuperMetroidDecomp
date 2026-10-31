@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.World.Artwork;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Verification.Bosses;
 
@@ -46,9 +47,16 @@ internal static class BossDisplayBindingsOracleVerification
                 ushort[][] boxes = physical[component].Boxes;
                 AssertEqual(boxes.Length, (int)source.ReadCartridgeWord(Address(hitbox)), frame.Name + " native hitbox list count");
                 for (int index = 0; index < boxes.Length; index++)
-                for (int field = 0; field < boxes[index].Length; field++)
-                    AssertEqual(source.ReadCartridgeWord((Address(hitbox) + 2 + index * 12 + field * 2)), boxes[index][field],
-                        frame.Name + " native rectangle/touch/shot record");
+                {
+                    for (int field = 0; field < boxes[index].Length; field++)
+                        AssertEqual(source.ReadCartridgeWord((Address(hitbox) + 2 + index * 12 + field * 2)), boxes[index][field],
+                            frame.Name + " native rectangle record");
+                    EnemyReaction[] reactions = physical[component].Reactions[index];
+                    AssertEqual(EnemyReactionAccess.Of(frame.Bank, source.ReadCartridgeWord((Address(hitbox) + 2 + index * 12 + 8)), shot: false),
+                        (EnemyReaction?)reactions[0], frame.Name + " native touch reaction");
+                    AssertEqual(EnemyReactionAccess.Of(frame.Bank, source.ReadCartridgeWord((Address(hitbox) + 2 + index * 12 + 10)), shot: true),
+                        (EnemyReaction?)reactions[1], frame.Name + " native shot reaction");
+                }
             }
             if (source.ReadCartridgeWord(Address(visual)) == EnemyBg2FrameLayoutConstants.StreamMarker)
             {
@@ -90,19 +98,20 @@ internal static class BossDisplayBindingsOracleVerification
     {
         CrocomireBg2FrameDefinitionsConstants.Bank => CrocomireBodyCollision.ComponentsAt(frame.Pointer)
             .SelectToArray(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
-                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())),
+                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom)).ToArray(),
+                part.Hitboxes.Select(box => new[] { box.Touch, box.Shot }).ToArray())),
         PhantoonBg2FrameDefinitionsConstants.Bank => PhantoonCollision.ComponentsAt(frame.Pointer)
             .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
-                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
-                    PhantoonHitboxCallbackCodec.ToCallbackWord(box.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
+                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom)).ToArray(),
+                part.Hitboxes.Select(box => new[] { box.Touch, box.Shot }).ToArray())).ToArray(),
         DraygonBg2FrameToolingDefinitions.Bank => DraygonCollision.ComponentsAt(frame.Pointer)
             .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
-                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
-                    DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
+                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom)).ToArray(),
+                part.Hitboxes.Select(box => new[] { box.Touch, box.Shot }).ToArray())).ToArray(),
         _ => throw new InvalidDataException("Unknown native oracle family."),
     };
 
-    /// <summary>Arranges one hitbox's bounds and callbacks in cartridge record order.</summary>
-    private static ushort[] Words(int left, int top, int right, int bottom, ushort touch, ushort shot) =>
-        [unchecked((ushort)left), unchecked((ushort)top), unchecked((ushort)right), unchecked((ushort)bottom), touch, shot];
+    /// <summary>Arranges one hitbox's bounds in cartridge record order.</summary>
+    private static ushort[] Words(int left, int top, int right, int bottom) =>
+        [unchecked((ushort)left), unchecked((ushort)top), unchecked((ushort)right), unchecked((ushort)bottom)];
 }

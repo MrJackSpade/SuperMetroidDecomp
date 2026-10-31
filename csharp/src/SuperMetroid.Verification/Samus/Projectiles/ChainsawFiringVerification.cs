@@ -146,8 +146,7 @@ internal static class ChainsawFiringVerification
         target.Bind((EnemyDefinitionId)0x9000, target.Definition);
         target.Bind(target.DefinitionId, default(RoomEnemyDefinition) with
         {
-            Shot = EnemyInteractionCallback.NormalEnemyShot,
-            ShotBody = EnemyCallbackBody.Routine,
+            Shot = EnemyReaction.NormalEnemyShot,
         });
         target.Position = target.Position.WithWhole(new(139, 123));
         target.Radius = new(16, 16);

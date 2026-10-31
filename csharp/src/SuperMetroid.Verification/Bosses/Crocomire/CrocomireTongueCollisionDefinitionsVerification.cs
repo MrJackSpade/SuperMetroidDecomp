@@ -120,9 +120,9 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
                 bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire tongue $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                AssertEqual((ushort)(nativeArguments[^1] ?? throw new InvalidOperationException("Verification requires nativeArguments[^1].")),
-                    (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
-                    "Crocomire tongue native/compiled callback parity");
+                AssertEqual(ExtendedHitboxWalker.NativeReaction(CrocomireTongueCollisionDefinitionsConstants.Bank, nativeArguments),
+                    ExtendedHitboxWalker.Reaction(compiledArguments),
+                    "Crocomire tongue native/compiled reaction parity");
                 AssertTrue(!compiledHit,
                     "empty native Crocomire tongue hitbox list cannot hit Samus or shots");
                 probes++;

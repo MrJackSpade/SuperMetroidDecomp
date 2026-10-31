@@ -41,7 +41,7 @@ internal static class MockballBoostContactVerification
             enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
             enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
-                Touch = EnemyInteractionCallback.NormalEnemyTouch, TouchBody = EnemyCallbackBody.Routine,
+                Touch = EnemyReaction.NormalEnemyTouch,
             });
             enemy.Radius = new(8, 8);
             enemy.Frame = EnemyFrameId.SkulteraSwimLeft0; // Contact admits only an enemy showing a frame.

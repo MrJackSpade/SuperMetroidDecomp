@@ -73,8 +73,8 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top, "Oum top");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), box.Right, "Oum right");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom, "Oum bottom");
-                AssertEqual(rom.ReadCartridgeWord((record + 8)), EnemyInteractionCallbackAccess.Word(box.TouchAi), "Oum touch callback");
-                AssertEqual(rom.ReadCartridgeWord((record + 10)), EnemyInteractionCallbackAccess.Word(box.ShotAi), "Oum shot callback");
+                AssertEqual(EnemyReactionAccess.Of(0xa2, rom.ReadCartridgeWord((record + 8)), shot: false), (EnemyReaction?)box.TouchAi, "Oum touch callback");
+                AssertEqual(EnemyReactionAccess.Of(0xa2, rom.ReadCartridgeWord((record + 10)), shot: true), (EnemyReaction?)box.ShotAi, "Oum shot callback");
                 boxesChecked++;
             }
 
@@ -105,9 +105,9 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                         bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                         AssertEqual(nativeHit, compiledHit,
                             $"Oum $A2:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                        AssertEqual((ushort)(nativeArguments[^1] ?? throw new InvalidOperationException("Verification requires nativeArguments[^1].")),
-                            (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
-                            $"Oum $A2:{frame:X4} callback {x:X4},{y:X4}, shot={shot}");
+                        AssertEqual(ExtendedHitboxWalker.NativeReaction(MaridiaLargeSnailCollisionDefinitions.Bank, nativeArguments),
+                            ExtendedHitboxWalker.Reaction(compiledArguments),
+                            $"Oum $A2:{frame:X4} reaction {x:X4},{y:X4}, shot={shot}");
                         probes++;
                     }
                 }

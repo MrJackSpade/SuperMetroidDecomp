@@ -62,8 +62,8 @@ internal static class KraidFootCoordinateMappingsVerification
         AssertEqual(unchecked((short)Word(0x9457)), shared.Top, "Original shared hitbox top");
         AssertEqual(unchecked((short)Word(0x9459)), shared.Right, "Original shared hitbox right");
         AssertEqual(unchecked((short)Word(0x945b)), shared.Bottom, "Original shared hitbox bottom");
-        AssertEqual(Word(0x945d), KraidHitboxCallbackCodec.ToCallbackWord(shared.Touch), "Original shared hitbox touch callback");
-        AssertEqual(Word(0x945f), KraidHitboxCallbackCodec.ToCallbackWord(shared.Shot), "Original shared hitbox shot callback");
+        AssertEqual(EnemyReactionAccess.Of(0xa7, Word(0x945d), shot: false), (EnemyReaction?)shared.Touch, "Original shared hitbox touch callback");
+        AssertEqual(EnemyReactionAccess.Of(0xa7, Word(0x945f), shot: true), (EnemyReaction?)shared.Shot, "Original shared hitbox shot callback");
         KraidCollisionHitbox expected = shared;
         int count = 0;
         foreach (var box in boxes) { AssertEqual(expected, box, "Shared rectangle enumeration"); count++; }

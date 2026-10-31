@@ -114,10 +114,10 @@ internal static class SpacePirateCollisionDefinitionsVerification
                     expected.Right, "Space Pirate native hitbox right");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 6))))),
                     expected.Bottom, "Space Pirate native hitbox bottom");
-                AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 8)))),
-                    SpacePirateHitboxCallbackCodec.ToCallbackWord(expected.Touch), "Space Pirate native touch callback");
-                AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 10)))),
-                    SpacePirateHitboxCallbackCodec.ToCallbackWord(expected.Shot), "Space Pirate native shot callback");
+                AssertEqual(EnemyReactionAccess.Of(0xb2, rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 8)))), shot: false),
+                    (EnemyReaction?)expected.Touch, "Space Pirate native touch callback");
+                AssertEqual(EnemyReactionAccess.Of(0xb2, rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 10)))), shot: true),
+                    (EnemyReaction?)expected.Shot, "Space Pirate native shot callback");
                 rectangleCount++;
             }
         }
@@ -191,16 +191,16 @@ internal static class SpacePirateCollisionDefinitionsVerification
                         {
                             ushort radiusX = unchecked((ushort)((xi + yi) & 1));
                             ushort radiusY = unchecked((ushort)((xi + yi * 2) & 1));
-                            (bool nativeHit, ushort nativeCallback) = Invoke(
+                            (bool nativeHit, EnemyReaction? nativeReaction) = Invoke(
                                 native.Enemies, native.Slot, xs[xi], ys[yi],
                                 radiusX, radiusY, mode);
-                            (bool compiledHit, ushort compiledCallback) = Invoke(
+                            (bool compiledHit, EnemyReaction? compiledReaction) = Invoke(
                                 compiled.Enemies, compiled.Slot, xs[xi], ys[yi],
                                 radiusX, radiusY, mode);
                             AssertEqual(nativeHit, compiledHit,
                                 $"Space Pirate frame $B2:{frame.Pointer:X4} native overlap");
-                            AssertEqual(nativeCallback, compiledCallback,
-                                $"Space Pirate frame $B2:{frame.Pointer:X4} native callback");
+                            AssertEqual(nativeReaction, compiledReaction,
+                                $"Space Pirate frame $B2:{frame.Pointer:X4} native reaction");
                             probes++;
                         }
                     }
@@ -250,10 +250,13 @@ internal static class SpacePirateCollisionDefinitionsVerification
         {
             object?[] arguments =
                 [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, ControllerButton.None];
-            bool hit = slot.DefinitionId == (EnemyDefinitionId)0xffff
+            bool native = slot.DefinitionId == (EnemyDefinitionId)0xffff;
+            bool hit = native
                 ? ReferenceExtendedCollision(rom, SpacePirateFrameBank, arguments)
                 : ExtendedHitboxWalker.Find(enemies, arguments);
-            return new HitboxResult(hit, (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4].")));
+            return new HitboxResult(hit, native
+                ? ExtendedHitboxWalker.NativeReaction(SpacePirateFrameBank, arguments)
+                : ExtendedHitboxWalker.Reaction(arguments));
         }
     }
 

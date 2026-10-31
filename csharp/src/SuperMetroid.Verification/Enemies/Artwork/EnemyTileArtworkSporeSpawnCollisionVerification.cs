@@ -71,8 +71,8 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                 bool installedFound = ExtendedHitboxWalker.Find(installed, installedArguments);
                 AssertEqual(nativeFound, installedFound,
                     $"Spore Spawn frame {frame.Pointer:X4} native overlap at {x},{y}, shot={shot}");
-                AssertEqual(nativeCallback,
-                    (ushort)(installedArguments[^1] ?? throw new InvalidOperationException("Verification requires installedArguments[^1].")),
+                AssertEqual(EnemyReactionAccess.Of(0xa5, nativeCallback, shot != 0),
+                    ExtendedHitboxWalker.Reaction(installedArguments),
                     $"Spore Spawn frame {frame.Pointer:X4} callback at {x},{y}, shot={shot}");
                 callbackComparisons++;
             }
@@ -114,9 +114,9 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                     $"{at} box {index} right");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
                     $"{at} box {index} bottom");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), SporeSpawnHitboxCallbackCodec.ToCallbackWord(box.Touch),
+                AssertEqual(EnemyReactionAccess.Of(0xa5, CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), shot: false), (EnemyReaction?)box.Touch,
                     $"{at} box {index} touch callback");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), SporeSpawnHitboxCallbackCodec.ToCallbackWord(box.Shot),
+                AssertEqual(EnemyReactionAccess.Of(0xa5, CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), shot: true), (EnemyReaction?)box.Shot,
                     $"{at} box {index} shot callback");
             }
         }

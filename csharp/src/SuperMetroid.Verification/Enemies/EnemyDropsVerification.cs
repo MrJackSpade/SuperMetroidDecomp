@@ -70,8 +70,7 @@ internal static class EnemyDropsVerification
         enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
         enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
         {
-            Touch = EnemyInteractionCallback.NormalEnemyTouch,
-            TouchBody = EnemyCallbackBody.Routine,
+            Touch = EnemyReaction.NormalEnemyTouch,
         });
         SeedContactDeathVulnerability(fixture.Bus);
         enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
@@ -85,7 +84,7 @@ internal static class EnemyDropsVerification
         AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
-        AssertEqual(EnemyAiRoutine.CommonNoOp, enemy.Definition.MainAi,
+        AssertEqual(EnemyAiRoutine.Inert, enemy.Definition.MainAi,
             "cached header follows replacement identity into native no-op AI");
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, SamusColours = colours.Samus, ResolveSamusContactBeforeAi = true });
         AssertEqual(0, fixture.System.ActiveEnemies.Count, "placeholder remains excluded next frame");

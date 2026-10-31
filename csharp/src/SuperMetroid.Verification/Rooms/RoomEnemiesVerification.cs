@@ -186,8 +186,6 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
     AssertEqual(3, slot.PaletteRowIn(enemies), "graphics-set OBJ palette row holding the slot's colours");
     AssertEqual(0, slot.TileIndexBase, "first graphics-set tile index");
-    AssertEqual(EnemyCallbackBody.ImmediateReturn, slot.Definition.NoOpCallbackBody,
-        "definition bank $A2 runs the shared no-op callback as an immediate return");
     AssertEqual(0x5a, slot.HurtAiTime, "definition hurt flash copied into the slot");
     AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
     AssertEqual(0, slot.FlashTimer.RawValue, "room load clears flash timer");
@@ -200,8 +198,8 @@ internal static void VerifyRoomEnemyLoading()
     // The import decodes the +$0E cry byte to its library-two sound rather than retaining the word.
     AssertEqual<SoundEffectId?>(Library2Sound.ShotRio, definition.HurtSoundEffect, "definition hurt cry offset $0E");
     AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
-    AssertEqual(EnemyCallbackBody.Routine, definition.PowerBombReactionBody,
-        "definition power-bomb reaction offset $28");
+    AssertTrue(definition.PowerBombReaction is { } powerBomb && powerBomb != EnemyReaction.Ignore,
+        "definition power-bomb reaction offset $28 names a reacting routine");
     // The tile word decodes to the tile set's size and placement; where the tiles sit is the import's to read.
     AssertEqual(0x0040, definition.TileByteCount, "definition tile set size, the tile word's low fifteen bits");
     AssertEqual(EnemyTilePlacement.FollowingPrevious, definition.TilePlacement, "definition tile word's clear bit 15 follows the previous member");

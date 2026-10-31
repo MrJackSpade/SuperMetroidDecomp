@@ -2,6 +2,7 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
 
@@ -48,19 +49,15 @@ internal static class MotherBrainHitboxCallbacksVerification
                     AssertEqual(cartridge.ReadCartridgeWord(entry + 2), unchecked((ushort)hitbox.Top), $"{at} top");
                     AssertEqual(cartridge.ReadCartridgeWord(entry + 4), unchecked((ushort)hitbox.Right), $"{at} right");
                     AssertEqual(cartridge.ReadCartridgeWord(entry + 6), unchecked((ushort)hitbox.Bottom), $"{at} bottom");
-                    AssertEqual(cartridge.ReadCartridgeWord(entry + 8), MotherBrainHitboxCallbackCodec.ToCallbackWord(hitbox.Touch),
+                    AssertEqual(EnemyReactionAccess.Of(0xa9, cartridge.ReadCartridgeWord(entry + 8), shot: false), (EnemyReaction?)hitbox.Touch,
                         $"{at} touch reaction");
-                    AssertEqual(cartridge.ReadCartridgeWord(entry + 10), MotherBrainHitboxCallbackCodec.ToCallbackWord(hitbox.Shot),
+                    AssertEqual(EnemyReactionAccess.Of(0xa9, cartridge.ReadCartridgeWord(entry + 10), shot: true), (EnemyReaction?)hitbox.Shot,
                         $"{at} shot reaction");
                     rectangles++;
                 }
             }
         }
 
-        AssertThrows<InvalidOperationException>(() => MotherBrainHitboxCallbackCodec.ToCallbackWord((MotherBrainHitboxTouch)0),
-            "an undefined touch reaction has no callback");
-        AssertThrows<InvalidOperationException>(() => MotherBrainHitboxCallbackCodec.ToCallbackWord((MotherBrainHitboxShot)0),
-            "an undefined shot reaction has no callback");
         Console.WriteLine(
             $"Mother Brain hitbox callbacks: {MotherBrainBodyVisualDefinitions.FrameCount} frame roots and {rectangles} rectangles match the cartridge's edges and callbacks.");
     }

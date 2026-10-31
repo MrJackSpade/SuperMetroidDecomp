@@ -1,10 +1,12 @@
+using SuperMetroid.Core.Enemies;
+
 namespace SuperMetroid.Verification.Harness;
 
-/// <summary>The first, second, third, fourth, fifth and sixth of one lookup stream5 expected.</summary>
-/// <param name="First">The first.</param>
-/// <param name="Second">The second.</param>
-/// <param name="Third">The third.</param>
-/// <param name="Fourth">The fourth.</param>
-/// <param name="Fifth">The fifth.</param>
-/// <param name="Sixth">The sixth.</param>
-internal readonly record struct LookupStream5Expected(int First, int Second, int Third, int Fourth, ushort Fifth, ushort Sixth);
+/// <summary>One Phantoon hitbox's four bounds and its touch and shot reactions.</summary>
+/// <param name="First">The left bound.</param>
+/// <param name="Second">The top bound.</param>
+/// <param name="Third">The right bound.</param>
+/// <param name="Fourth">The bottom bound.</param>
+/// <param name="Fifth">The touch reaction.</param>
+/// <param name="Sixth">The shot reaction.</param>
+internal readonly record struct LookupStream5Expected(int First, int Second, int Third, int Fourth, EnemyReaction? Fifth, EnemyReaction? Sixth);

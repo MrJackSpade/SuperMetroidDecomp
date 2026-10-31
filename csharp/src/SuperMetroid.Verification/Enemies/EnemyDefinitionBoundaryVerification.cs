@@ -164,9 +164,9 @@ internal static class EnemyDefinitionBoundaryVerification
             AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address + 2)), box.Top, $"{context} rectangle {i} top");
             AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address + 4)), box.Right, $"{context} rectangle {i} right");
             AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address + 6)), box.Bottom, $"{context} rectangle {i} bottom");
-            AssertEqual(rom.ReadCartridgeWordFixedBank(address + 8), TorizoHitboxCallbackCodec.ToCallbackWord(box.Touch),
+            AssertEqual(EnemyReactionAccess.Of(0xaa, rom.ReadCartridgeWordFixedBank(address + 8), shot: false), (EnemyReaction?)box.Touch,
                 $"{context} rectangle {i} touch reaction");
-            AssertEqual(rom.ReadCartridgeWordFixedBank(address + 10), TorizoHitboxCallbackCodec.ToCallbackWord(box.Shot),
+            AssertEqual(EnemyReactionAccess.Of(0xaa, rom.ReadCartridgeWordFixedBank(address + 10), shot: true), (EnemyReaction?)box.Shot,
                 $"{context} rectangle {i} shot reaction");
         }
     }

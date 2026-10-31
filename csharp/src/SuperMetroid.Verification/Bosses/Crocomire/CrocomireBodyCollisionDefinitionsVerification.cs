@@ -86,9 +86,9 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                 bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                 AssertEqual(nativeHit, compiledHit,
                     $"Crocomire $A4:{frame:X4} overlap {x:X4},{y:X4}, shot={shot}");
-                AssertEqual((ushort)(nativeArguments[^1] ?? throw new InvalidOperationException("Verification requires nativeArguments[^1].")),
-                    (ushort)(compiledArguments[^1] ?? throw new InvalidOperationException("Verification requires compiledArguments[^1].")),
-                    $"Crocomire $A4:{frame:X4} selected callback");
+                AssertEqual(ExtendedHitboxWalker.NativeReaction(CrocomireBodyCollision.Bank, nativeArguments),
+                    ExtendedHitboxWalker.Reaction(compiledArguments),
+                    $"Crocomire $A4:{frame:X4} selected reaction");
                 probes++;
             }
         }
@@ -126,9 +126,9 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                 $"{at}: $A4:{list:X4} hitbox {index} right");
             AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 6))), hitbox.Bottom,
                 $"{at}: $A4:{list:X4} hitbox {index} bottom");
-            AssertEqual(rom.ReadCartridgeWord((address + 8)), CrocomireHitboxCallbackCodec.ToCallbackWord(hitbox.Touch),
+            AssertEqual(EnemyReactionAccess.Of(0xa4, rom.ReadCartridgeWord((address + 8)), shot: false), (EnemyReaction?)hitbox.Touch,
                 $"{at}: $A4:{list:X4} hitbox {index} touch callback");
-            AssertEqual(rom.ReadCartridgeWord((address + 10)), CrocomireHitboxCallbackCodec.ToCallbackWord(hitbox.Shot),
+            AssertEqual(EnemyReactionAccess.Of(0xa4, rom.ReadCartridgeWord((address + 10)), shot: true), (EnemyReaction?)hitbox.Shot,
                 $"{at}: $A4:{list:X4} hitbox {index} shot callback");
         }
     }

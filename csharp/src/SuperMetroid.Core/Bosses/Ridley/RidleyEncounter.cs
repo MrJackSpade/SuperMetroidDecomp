@@ -94,17 +94,4 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
 
         return Ridley;
     }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (Ridley?.LastDeathSoundEffect is { } ridleyDeath)
-            audio.QueueEnemySound(ridleyDeath, priority: SoundRequestPriority.Low);
-    }
-
-    /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacyMusic(EnemyAudioQueue audio)
-    {
-        audio.QueueLegacyMusic(Ridley?.MusicRequest, MusicQueueDelay.Shortest);
-    }
 }

@@ -750,7 +750,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             head.Properties = head.Properties.With(EnemyProperties.Deleted);
             state.BossBitSet = true;
             _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
-            // `$B3:9B32` invokes QueueMusic_Delayed8(3) only after the complete 192-frame
+            // `$B3:9B32` invokes the shortest-delay request for track three only after the complete 192-frame
             // wall-explosion phase, not when health first reaches zero.
             _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.Botwoon, new DelayedMusicRequest(
                 MusicRequest.SelectTrack(3),

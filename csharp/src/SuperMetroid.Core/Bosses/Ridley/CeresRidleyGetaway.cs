@@ -272,7 +272,7 @@ internal sealed class CeresRidleyGetaway
                     // $A6:C09F also queues music track seven after installing the final
                     // static warning tilemap page. The frontend consumes this typed request
                     // through the same bank-$80 queue used by every other music producer.
-                    state.MusicRequest = MusicRequest.SelectTrack(7);
+                    _audio.RequestRidleyMusic(MusicRequest.SelectTrack(7));
                     state.FunctionTimer = WrappingCountdown.Start(6);
                     state.CeresEscapeTextDelayTimer = WrappingCountdown.Start(128);
                 }

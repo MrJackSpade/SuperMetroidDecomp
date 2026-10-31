@@ -177,7 +177,7 @@ internal sealed class MotherBrainAscent
         state.Body.Properties = state.Body.Properties.Without(EnemyProperties.Invisible);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
         MotherBrainBody.PlaceMotherBrainBodyLayer(state, new(unchecked((ushort)-27), unchecked((ushort)-217)));
-        state.RequestMusic(MusicRequest.SelectTrack(5), MusicQueueDelay.Shortest);
+        _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(5), MusicQueueDelay.Shortest);
         _earthquake.EarthquakeType = 2;
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
         state.NeckAngleDelta = 80;
@@ -221,7 +221,7 @@ internal sealed class MotherBrainAscent
         MiscDustAnimation animation = (SharedRandomState.UpperByte(random) & 1) == 0 ? MiscDustAnimation.SmallDustCloud : MiscDustAnimation.ShortBigDustCloud;
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(MotherBrainBehavior.MotherBrainAscentDustXPositions[state.BodySubFunctionTimer.RawValue], 212), animation);
-        state.LastSoundEffect = MotherBrainSoundDefinitions.AscentDust;
+        _motherBrainEncounter.RequestBodySound(MotherBrainSoundDefinitions.AscentDust);
     }
 
     /// <summary>Holds the body phase until its slow uncrouch animation ends.</summary>

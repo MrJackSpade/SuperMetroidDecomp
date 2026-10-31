@@ -8,13 +8,9 @@ internal abstract record MotherBrainHeadCue
     {
     }
 
-    /// <summary>Queues a library-two sound.</summary>
-    /// <param name="Sound">The sound queued.</param>
-    internal sealed record QueueSound(SoundEffectId Sound) : MotherBrainHeadCue;
-
-    /// <summary>Queues a library-three sound.</summary>
-    /// <param name="Sound">The sound queued.</param>
-    internal sealed record QueueLibrary3Sound(SoundEffectId Sound) : MotherBrainHeadCue;
+    /// <summary>Requests a sound: a roar, an attack cry or the onion rings.</summary>
+    /// <param name="Sound">The sound requested.</param>
+    internal sealed record PlaySound(SoundEffectId Sound) : MotherBrainHeadCue;
 
     /// <summary>Lobs a bomb with its afterburn count.</summary>
     /// <param name="Afterburns">The afterburn count the bomb lobs with.</param>
@@ -27,11 +23,8 @@ internal abstract record MotherBrainHeadCue
     /// <summary>A cue without operands.</summary>
     internal static MotherBrainHeadCue Of(MotherBrainHeadCueKind kind) => new Command(kind);
 
-    /// <summary>Queues library-two <paramref name="sound"/>.</summary>
-    internal static MotherBrainHeadCue Sound2(SoundEffectId sound) => new QueueSound(sound);
-
-    /// <summary>Queues library-three <paramref name="sound"/>.</summary>
-    internal static MotherBrainHeadCue Sound3(SoundEffectId sound) => new QueueLibrary3Sound(sound);
+    /// <summary>Requests <paramref name="sound"/>.</summary>
+    internal static MotherBrainHeadCue Sound(SoundEffectId sound) => new PlaySound(sound);
 
     /// <summary>Lobs a bomb with <paramref name="afterburns"/> afterburns.</summary>
     internal static MotherBrainHeadCue Bomb(int afterburns) => new SpawnBomb(afterburns);

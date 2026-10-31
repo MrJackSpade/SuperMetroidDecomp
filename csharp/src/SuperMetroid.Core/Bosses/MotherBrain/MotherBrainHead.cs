@@ -293,12 +293,8 @@ internal sealed class MotherBrainHead
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnBigPurpleBreath }:
                 SpawnMotherBrainPurpleBreathBig(state);
                 return null;
-            // `QueueSoundX_Lib2_Max6` / `QueueSoundX_Lib3_Max6`.
-            case MotherBrainHeadCue.QueueSound queueSound:
-                _audio.QueueEnemySound(queueSound.Sound, priority: SoundRequestPriority.Normal);
-                return null;
-            case MotherBrainHeadCue.QueueLibrary3Sound queueLibrary3Sound:
-                _audio.QueueEnemySound(queueLibrary3Sound.Sound, priority: SoundRequestPriority.Normal);
+            case MotherBrainHeadCue.PlaySound playSound:
+                _audio.QueueEnemySound(playSound.Sound, priority: SoundRequestPriority.Normal);
                 return null;
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.DisableNeckMovement }:
                 state.NeckMovementEnabled = false;

@@ -25,10 +25,13 @@ internal sealed class NorfairRidleyDeath
     private readonly RidleyProjectiles _ridleyProjectiles;
     /// <summary>Raises the arena liquid during Ridley's reveal.</summary>
     private readonly EnemyRoomFx _roomFx;
+    /// <summary>Receives the death's explosion sounds and music change.</summary>
+    private readonly EnemyAudioQueue _audio;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal NorfairRidleyDeath(IEnemyDispatch dispatch, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops, RidleyEncounter ridleyEncounter, RidleyProjectiles ridleyProjectiles, EnemyRoomFx roomFx)
+    internal NorfairRidleyDeath(IEnemyDispatch dispatch, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops, RidleyEncounter ridleyEncounter, RidleyProjectiles ridleyProjectiles, EnemyRoomFx roomFx, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _dispatch = dispatch;
         _room = room;
         _deathsAndDrops = deathsAndDrops;
@@ -157,7 +160,7 @@ internal sealed class NorfairRidleyDeath
             yBase: 320,
             yMask: 63);
         RidleyDeathDropRequested = true;
-        state.MusicRequest = MusicRequest.SelectTrack(3);
+        _audio.RequestRidleyMusic(MusicRequest.SelectTrack(3));
         body.Properties = body.Properties.With(EnemyProperties.Deleted);
         state.Function = RidleyAiFunction.NorfairDeathComplete;
     }
@@ -181,7 +184,7 @@ internal sealed class NorfairRidleyDeath
         _ridleyProjectiles.SpawnRidleyDust(
             body.Position.Whole + RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount),
             MiscDustAnimation.SmallExplosion);
-        state.LastDeathSoundEffect = RidleySoundDefinitions.DeathExplosion;
+        _audio.RequestRidleyDeathExplosionSound();
     }
 
     /// <summary>Allocates the body and tail pieces that continue moving after the intact body hides.</summary>

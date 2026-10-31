@@ -67,7 +67,7 @@ internal sealed class MotherBrainRainbowAndDeath
         foreach (var explosion in step.DeathExplosions)
         {
             SpawnMotherBrainDeathExplosion(explosion);
-            state.LastSoundEffectLibrary3 = explosion.SoundEffect;
+            _motherBrainEncounter.RequestCueSound(explosion.SoundEffect);
         }
         if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects &&
             step.PhaseAfter != step.PhaseBefore)
@@ -109,13 +109,13 @@ internal sealed class MotherBrainRainbowAndDeath
         foreach (var dust in step.CorpseDustRequests)
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);
-            // $A9:B252 queues the rot dust through QueueSound_Lib2_Max3.
+            // The rot dust's sound competes at low priority.
             if (dust.SoundEffectQueued)
                 _audio.QueueEnemySound(dust.SoundEffect, priority: SoundRequestPriority.Low);
         }
-        if (step.MusicStopQueued) state.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
-        if (step.EscapeMusicQueued) state.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.BossFight1), MusicQueueDelay.Shortest);
-        if (step.EscapeMusicTrackQueued) state.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathDefinitions.EscapeMusicTrack), MusicQueueDelay.Shortest);
+        if (step.MusicStopQueued) _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
+        if (step.EscapeMusicQueued) _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.BossFight1), MusicQueueDelay.Shortest);
+        if (step.EscapeMusicTrackQueued) _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MotherBrainDeathDefinitions.EscapeMusicTrack), MusicQueueDelay.Shortest);
         foreach (MotherBrainSpritePage page in step.EscapeSequencePages) _motherBrainEncounter.ShowSpritePage(page);
         if (step.EscapeTypewriterSetupRequested)
         {
@@ -132,7 +132,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (step.EscapeDoorExplosion is { } doorDust)
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(doorDust.Position, doorDust.Animation);
-            // $A9:B346 queues the door explosion through QueueSound_Lib2_Max3.
+            // The door explosion's sound competes at low priority.
             _audio.QueueEnemySound(doorDust.SoundEffect, priority: SoundRequestPriority.Low);
         }
         if (step.EscapeDoorPlm is { } doorPlm)
@@ -251,7 +251,7 @@ internal sealed class MotherBrainRainbowAndDeath
             typewriterFinished = text.Step(out EscapeTypewriterGlyph? glyph);
             if (glyph is { } typed)
                 WriteZebesTypewriterGlyph(typed);
-            if (text.ClickRequested) state.LastSoundEffectLibrary3 = EscapeTypewriterDefinitions.ZebesClick;
+            if (text.ClickRequested) _motherBrainEncounter.RequestCueSound(EscapeTypewriterDefinitions.ZebesClick);
         }
         MotherBrainRainbowBeamAttackStepResult step = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext.RandomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.IsActive != false, RandomNumberSeed = MotherBrainRandomSample.FromGenerator(_room.Random.Read()), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _room.Session.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer, CameraCheckpoint = _room.RainbowBeamCameraCheckpoint });
         _frameResults.MotherBrainDeathStep = step;
@@ -357,13 +357,13 @@ internal sealed class MotherBrainRainbowAndDeath
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
             // stops the same looping voice. Preserve the command selected by the sequence.
-            state.LastSoundEffectLibrary1 = sequence.State.RainbowBeamSoundPlaying
+            _motherBrainEncounter.RequestRainbowBeamSound(sequence.State.RainbowBeamSoundPlaying
                 ? MotherBrainSoundDefinitions.StartRainbowDrain
-                : MotherBrainSoundDefinitions.StopRainbowDrain;
+                : MotherBrainSoundDefinitions.StopRainbowDrain);
         if (current.ChargeSoundQueued || current.FinalBeamSoundQueued)
-            state.LastSoundEffect = Library2Sound.Silence;
+            _motherBrainEncounter.RequestBodySound(Library2Sound.Silence);
         if (current.Explosion is not null)
-            state.LastSoundEffect = Library2Sound.SmallExplosion;
+            _motherBrainEncounter.RequestBodySound(Library2Sound.SmallExplosion);
 
         // `$BA0F` seeds the short quake, `$BA27` replaces it with the full drain duration,
         // and `$BA93` clears it when the beam contracts below its minimum width.
@@ -382,7 +382,7 @@ internal sealed class MotherBrainRainbowAndDeath
             current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
         {
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(0);
-            state.LastSoundEffectLibrary1 = MotherBrainSoundDefinitions.StopRainbowDrain;
+            _motherBrainEncounter.RequestRainbowBeamSound(MotherBrainSoundDefinitions.StopRainbowDrain);
         }
 
         if (sharedProjectiles is not null)

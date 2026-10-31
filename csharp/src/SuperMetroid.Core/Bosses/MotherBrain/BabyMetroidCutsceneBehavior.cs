@@ -157,7 +157,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             // `$A9:C7B7` clears the complete shared word and queues only one `$72`, even
             // when several rings incremented it before this later enemy slot ran.
             state.PendingBabyCryCount = 0;
-            state.LastSoundEffect = ShitroidSoundDefinitions.DrainCry;
+            _motherBrainEncounter.RequestBodySound(ShitroidSoundDefinitions.DrainCry);
         }
         BabyMetroidCutsceneStepResult step = baby.Step(
             target,
@@ -217,19 +217,19 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         {
             _audio.QueueEnemySound(Library3Sound.BabyMetroidDeath, priority: SoundRequestPriority.Normal);
             SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorPresentation.ApplyBabyMetroidDeathBlackout(_presentation.Colours);
-            state.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
+            _motherBrainEncounter.RequestMusic(MusicRequest.Stop, MusicQueueDelay.Shortest);
         }
         if (step.SamusThemeStarted)
         {
-            state.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.SamusThemeUpperCrateria),
+            _motherBrainEncounter.RequestMusic(MusicRequest.LoadDataSet(MusicDataSet.SamusThemeUpperCrateria),
                 MusicQueueDelay.Shortest);
-            state.RequestMusic(MusicRequest.SelectTrack(MotherBrainBabyMetroidDefinitions.SamusThemeMusicTrack),
+            _motherBrainEncounter.RequestMusic(MusicRequest.SelectTrack(MotherBrainBabyMetroidDefinitions.SamusThemeMusicTrack),
                 MusicQueueDelay.Shortest);
         }
         if (step.LatchSoundQueued)
-            state.LastSoundEffectLibrary1 = MotherBrainSoundDefinitions.StartRainbowDrain;
+            _motherBrainEncounter.RequestRainbowBeamSound(MotherBrainSoundDefinitions.StartRainbowDrain);
         if (step.AmbientCrySoundQueued)
-            state.LastSoundEffect = ShitroidSoundDefinitions.RemorseCry;
+            _motherBrainEncounter.RequestBodySound(ShitroidSoundDefinitions.RemorseCry);
 
         foreach (BabyMetroidReleaseDustRequest dust in step.ReleaseDustClouds)
             _projectiles.SpawnRoomGraphicsDustExplosion(dust.Position, dust.Animation);
@@ -237,8 +237,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         if (step.DeathExplosion is { } explosion)
         {
             _projectiles.SpawnRoomGraphicsDustExplosion(explosion.Position, explosion.Animation);
-            // $A9:CDF4 queues the explosion through QueueSound_Lib3_Max3.
-            state.LastSoundEffectLibrary3 = explosion.SoundEffect;
+            // The explosion competes at low priority (MotherBrainEncounter.RequestCueSound).
+            _motherBrainEncounter.RequestCueSound(explosion.SoundEffect);
         }
 
         if (step.BabyFadeShade is int shade)

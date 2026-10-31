@@ -218,7 +218,7 @@ internal static class MotherBrainAnimations
             Cue(MotherBrainHeadCueKind.ShakeBrain),
             Show(8, 4),
             Show(9, 4),
-            HeadCue(MotherBrainHeadCue.Sound2(MotherBrainSoundDefinitions.Roar)),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)),
             FallInto(H.DyingDroolBurst),
         ],
         [H.DyingDroolBurst] =
@@ -282,7 +282,7 @@ internal static class MotherBrainAnimations
             Cue(MotherBrainHeadCueKind.QueueBabyMetroidAttackSound),
             Show(10, 8),
             Cue(MotherBrainHeadCueKind.SpawnOnionRing),
-            HeadCue(MotherBrainHeadCue.Sound3(MotherBrainSoundDefinitions.OnionRings)),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)),
             Show(10, 3),
             Cue(MotherBrainHeadCueKind.SpawnOnionRing),
             Show(10, 3),
@@ -338,7 +338,7 @@ internal static class MotherBrainAnimations
         if (kind == MotherBrainStretchKind.Attack) steps.Add(Cue(MotherBrainHeadCueKind.SpawnDrool));
         steps.Add(Show(wide, 2));
         steps.Add(Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath));
-        steps.Add(HeadCue(MotherBrainHeadCue.Sound2(MotherBrainSoundDefinitions.Roar)));
+        steps.Add(HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.Roar)));
         foreach (int duration in new[] { 16, 16, 32 })
         {
             if (kind == MotherBrainStretchKind.Attack) steps.Add(Cue(MotherBrainHeadCueKind.SpawnDrool));
@@ -356,14 +356,14 @@ internal static class MotherBrainAnimations
             Cue(MotherBrainHeadCueKind.DisableNeckMovement),
             Show(2, 4),
             Show(3, 4),
-            HeadCue(MotherBrainHeadCue.Sound2(MotherBrainSoundDefinitions.AttackCry)),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
             Show(4, 8),
         };
         for (int ring = 0; ring < rings; ring++)
         {
             steps.Add(Cue(MotherBrainHeadCueKind.AimOnionRingsAtSamus));
             steps.Add(Cue(MotherBrainHeadCueKind.SpawnOnionRing));
-            if (ring == 0) steps.Add(HeadCue(MotherBrainHeadCue.Sound3(MotherBrainSoundDefinitions.OnionRings)));
+            if (ring == 0) steps.Add(HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.OnionRings)));
             steps.Add(Show(4, ring == rings - 1 ? 16 : 3));
         }
         steps.AddRange(
@@ -389,7 +389,7 @@ internal static class MotherBrainAnimations
             Cue(MotherBrainHeadCueKind.DisableNeckMovement),
             Show(head + 2, 4),
             Show(head + 3, 4),
-            HeadCue(MotherBrainHeadCue.Sound2(MotherBrainSoundDefinitions.AttackCry)),
+            HeadCue(MotherBrainHeadCue.Sound(MotherBrainSoundDefinitions.AttackCry)),
             Show(head + 4, 8),
             HeadCue(MotherBrainHeadCue.Bomb(afterburns)),
             Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),

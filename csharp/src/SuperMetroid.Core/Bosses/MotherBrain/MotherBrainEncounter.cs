@@ -14,9 +14,15 @@ internal sealed class MotherBrainEncounter
 {
     /// <summary>Sprite presentation owner whose frames picture the pages the encounter shows.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Receives the encounter's sound and music requests.</summary>
+    private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Binds the encounter's page selections to sprite presentation.</summary>
-    internal MotherBrainEncounter(EnemyPresentation presentation) => _presentation = presentation;
+    /// <summary>Binds the encounter's page selections to sprite presentation and its requests to the enemy audio queue.</summary>
+    internal MotherBrainEncounter(EnemyPresentation presentation, EnemyAudioQueue audio)
+    {
+        _presentation = presentation;
+        _audio = audio;
+    }
 
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain { get; internal set; }
@@ -38,39 +44,32 @@ internal sealed class MotherBrainEncounter
             _presentation.ShowRotRow(row, step);
     }
 
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (MotherBrain?.LastSoundEffect is SoundEffectId motherBrainLibrary2)
-            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary2, SoundEffectLibrary.Library2), priority: SoundRequestPriority.Normal);
-        if (MotherBrain?.LastSoundEffectLibrary1 is SoundEffectId motherBrainLibrary1)
-            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary1, SoundEffectLibrary.Library1), priority: SoundRequestPriority.Normal);
-        if (MotherBrain?.LastSoundEffectLibrary3 is SoundEffectId motherBrainLibrary3)
-        {
-            // Explosion instruction $13 is QueueSfx3_Max3; the other translated library-
-            // three Mother Brain instructions use Max6.
-            SoundRequestPriority priority = motherBrainLibrary3 == MotherBrainSoundDefinitions.Explosion ? SoundRequestPriority.Low : SoundRequestPriority.Normal;
-            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary3, SoundEffectLibrary.Library3), priority);
-        }
-    }
+    /// <summary>
+    /// Requests a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the
+    /// cutscene, at the end of the enemy update. A later sound from this source in the same update replaces it: the
+    /// update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
+    /// </summary>
+    internal void RequestBodySound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MotherBrainBody, sound, SoundRequestPriority.Normal);
+
+    /// <summary>Requests the rainbow beam's drain sound starting or stopping, at the end of the enemy update.</summary>
+    internal void RequestRainbowBeamSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MotherBrainRainbowBeam, sound, SoundRequestPriority.Normal);
 
     /// <summary>
-    /// Each published slot stands for one of the cartridge's per-library sound queues, so a sound
-    /// recorded in a slot must belong to that slot's library.
+    /// Requests a sound a Mother Brain program cue or explosion makes, at the end of the enemy update. Mother Brain's
+    /// explosion competes at low priority; every other cue sound at normal priority.
     /// </summary>
-    private static SoundEffectId RequireLibrary(SoundEffectId sound, SoundEffectLibrary library) =>
-        sound.Library == library ? sound : throw new InvalidOperationException(
-            $"Mother Brain published {sound} in its {library} sound slot.");
+    internal void RequestCueSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(
+            EnemySoundSource.MotherBrainCue,
+            sound,
+            sound == MotherBrainSoundDefinitions.Explosion ? SoundRequestPriority.Low : SoundRequestPriority.Normal);
 
-    /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacyMusic(EnemyAudioQueue audio)
-    {
-        if (MotherBrain is not null)
-        {
-            foreach (DelayedMusicRequest request in MotherBrain.MusicRequests)
-            {
-                audio.QueueMusic(new DelayedMusicRequest(request.Request, request.Delay));
-            }
-        }
-    }
+    /// <summary>
+    /// Requests one music change at the end of the enemy update. Mother Brain's changes come in sequences (stop, load a
+    /// data set, select a track), so every request in an update is kept in order.
+    /// </summary>
+    internal void RequestMusic(MusicRequest request, MusicQueueDelay delay) =>
+        _audio.AppendMusicAtUpdateEnd(EnemyMusicSource.MotherBrain, new DelayedMusicRequest(request, delay));
 }

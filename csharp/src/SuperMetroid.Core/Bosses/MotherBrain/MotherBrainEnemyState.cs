@@ -70,18 +70,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Independent wrapping word countdown used by selected tube spawn stages; expiration occurs after decrement sets the sign bit.</summary>
     public WrappingCountdown TubeCollapseTimer { get; internal set; }
 
-    /// <summary>Exact delayed music writes made during the most recent enemy frame.</summary>
-    public IReadOnlyList<DelayedMusicRequest> MusicRequests => _musicRequests;
-
-    /// <summary>Last library-two fake-death/tube sound emitted during this enemy frame.</summary>
-    public SoundEffectId? LastSoundEffect { get; internal set; }
-
-    /// <summary>Last library-one rainbow-beam sound emitted during this enemy frame.</summary>
-    public SoundEffectId? LastSoundEffectLibrary1 { get; internal set; }
-
-    /// <summary>Last library-three sound emitted by a Mother Brain private opcode.</summary>
-    public SoundEffectId? LastSoundEffectLibrary3 { get; internal set; }
-
     /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
     public int SpawnedFallingTubeCount { get; internal set; }
 
@@ -373,20 +361,9 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public int OnionRingsTargetAngle { get; internal set; }
 
-    /// <summary>Music commands emitted during the current enemy frame.</summary>
-    private readonly List<DelayedMusicRequest> _musicRequests = new();
-
-    /// <summary>Clears one-frame encounter requests and diagnostic witnesses before AI advances.</summary>
+    /// <summary>Clears the one-update rainbow palette witness before AI advances.</summary>
     internal void BeginFrame()
     {
-        _musicRequests.Clear();
-        LastSoundEffect = null;
-        LastSoundEffectLibrary1 = null;
-        LastSoundEffectLibrary3 = null;
         RainbowBeamPaletteRequested = false;
     }
-
-    /// <summary>Queues one music request with its delay for this frame.</summary>
-    internal void RequestMusic(MusicRequest request, MusicQueueDelay delay) =>
-        _musicRequests.Add(new DelayedMusicRequest(request, delay));
 }

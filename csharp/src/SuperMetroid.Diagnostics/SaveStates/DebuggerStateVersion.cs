@@ -9,7 +9,8 @@ internal enum DebuggerStateVersion
     /// <summary>
     /// Named delegate signatures, the installed-content identity with its named component table,
     /// and the build's exact object-graph layout, with the SPC player inside the game's audio
-    /// session rather than beside the game, and the room and its state named in the header instead of addressed.
+    /// session rather than beside the game, and the room, its state and the game state named in the header instead of
+    /// addressed or numbered.
     /// </summary>
-    Current = 8,
+    Current = 9,
 }

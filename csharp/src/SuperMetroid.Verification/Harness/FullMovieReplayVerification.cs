@@ -1,4 +1,5 @@
 ﻿using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Input;
@@ -279,11 +280,11 @@ internal static class FullMovieReplayVerification
                 Console.Error.WriteLine("Recent converted inputs: " + string.Join(", ", recentInputs));
                 throw new InvalidDataException(
                     $"{movie.Name} movie first divergence after update {update} (source frame {step.SourceFrame}, " +
-                    $"native state {Word(memory, MovieDesyncMemory.GameState):X2}, port state {(ushort)game.GameState:X2}): " +
+                    $"native state {Word(memory, MovieDesyncMemory.GameState):X2}, port state {GameStateNumberCodec.Encode(game.GameState):X2}): " +
                     string.Join("; ", mismatches));
             }
             if (update % 10000 == 0)
-                Console.WriteLine($"Update {update}/{updates.Count} (source frame {step.SourceFrame}) matches; state {(ushort)game.GameState:X2}.");
+                Console.WriteLine($"Update {update}/{updates.Count} (source frame {step.SourceFrame}) matches; state {game.GameState}.");
         }
         if (lastUpdate != 0 && updates[lastUpdate - 1].ExpectedRecord is null)
             throw new InvalidOperationException($"Update {lastUpdate} has no native checkpoint to stop at.");
@@ -295,7 +296,7 @@ internal static class FullMovieReplayVerification
     {
         var samus = game.RuntimeForVerification?.Player.Samus;
         string Native(int address) => Word(memory, address).ToString("X4");
-        Console.WriteLine($"trace {update}@{step.SourceFrame} in={step.Input:X4} state={(ushort)game.GameState:X2}/{Native(MovieDesyncMemory.GameState)} " +
+        Console.WriteLine($"trace {update}@{step.SourceFrame} in={step.Input:X4} state={GameStateNumberCodec.Encode(game.GameState):X2}/{Native(MovieDesyncMemory.GameState)} " +
             $"door={game.DoorTransitionPhaseForVerification}/{Native(0x099c)} rng={game.DispatcherRandomNumber:X4}/{Native(MovieDesyncMemory.Random)}");
         if (game.Session.ScreenAs<IntroCinematicState>() is { } intro)
             Console.WriteLine($"  intro port={intro.Phase} native cinematic={Native(0x1f51)}");
@@ -395,7 +396,7 @@ internal static class FullMovieReplayVerification
             if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");
         }
 
-        Check("Game state", (ushort)game.GameState, MovieDesyncMemory.GameState);
+        Check("Game state", GameStateNumberCodec.Encode(game.GameState), MovieDesyncMemory.GameState);
         bool doorTransition = game.GameState is SuperMetroidGameState.HitDoorBlock or
             SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB;
         if (!doorTransition)

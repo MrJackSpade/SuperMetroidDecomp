@@ -1116,7 +1116,7 @@ internal static class RidleyFullMovieVerification
             // directly, unlike the independently retained word counter above.
             AssertEqual(memory[NativeSnapshotMemory.NmiCounterByte], runtime.Clock.Counter8,
                 $"update {frame}: byte NMI counter including native door IRQ reset");
-            Check("Game state", (ushort)game.GameState, NativeSnapshotMemory.GameState);
+            Check("Game state", GameStateNumberCodec.Encode(game.GameState), NativeSnapshotMemory.GameState);
             Check("Enemy door gate", runtime.Enemies.RoomStatus.EnemyDoorTransitionActive ? (ushort)1 : (ushort)0, NativeSnapshotMemory.EnemyDoorTransition);
             // Native LoadDoorHeader publishes the destination room pointer before
             // loading its room/state data. The port keeps that identity in the pending

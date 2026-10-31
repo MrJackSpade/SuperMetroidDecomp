@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>One native game state's dispatch and the per-state facts the main loop reads around it.</summary>
+/// <summary>One game state's update and the per-state facts the game reads around it.</summary>
 internal interface IGamePhase
 {
     /// <summary>The state this phase dispatches.</summary>
@@ -19,7 +19,7 @@ internal interface IGamePhase
     /// <summary>The state's current status for hosts and diagnostics.</summary>
     string Name { get; }
 
-    /// <summary>True when the next update resumes this state's dispatch after its own NMI wait instead of entering the main loop.</summary>
+    /// <summary>True when the next update continues this state's step that waits out a frame of the display, instead of starting a new update.</summary>
     bool ResumesFrameWait { get; }
 
     /// <summary>Runs one dispatch of the state.</summary>

@@ -16,12 +16,11 @@ using SuperMetroid.Core.World.RoomStates;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Top-level C# counterpart of bank $82's <c>RunOneFrameOfGameInner</c> dispatcher.
+/// The game: each update runs the phase of the current <see cref="SuperMetroidGameState"/> and the audio around it.
 /// </summary>
 /// <remarks>
-/// The dispatcher is intentionally narrow while the front end is translated incrementally:
-/// every supported state owns its cartridge-derived logic and framebuffer, and unsupported
-/// transitions stop on a named native state instead of silently jumping to a debug room.
+/// Every state owns its own logic and display, and a transition always names the state it enters, so an
+/// unexpected state stops the game with its name instead of continuing somewhere arbitrary.
 /// </remarks>
 public sealed class SuperMetroidGame
 {
@@ -96,7 +95,7 @@ public sealed class SuperMetroidGame
     /// </remarks>
     /// <param name="saves">The battery-backed saves the session owns.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
-    /// <param name="hostServices">The hardware-timing policies; replay verification supplies recorded evidence here.</param>
+    /// <param name="hostServices">The compatibility services and display policy; replay verification supplies recorded evidence here.</param>
     /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
     internal SuperMetroidGame(
         SaveSlotStore saves,
@@ -125,7 +124,7 @@ public sealed class SuperMetroidGame
     /// every following update also synthesizes host PCM (<see cref="CopyAudioFrame"/>).
     /// </summary>
     /// <remarks>
-    /// Binding affects presentation only. Each update advances the session's SPC port model and
+    /// Binding affects presentation only. Each update advances the session's sound acceptance clock and
     /// its sound-effect acknowledgements whether or not audio is bound, so gameplay is identical
     /// with audio enabled, disabled, or without an output device.
     /// </remarks>
@@ -139,10 +138,10 @@ public sealed class SuperMetroidGame
     public void CopyAudioFrame(Span<short> destination) => Session.audioSession.CopyFrame(destination);
 
 
-    /// <summary>Current value of the native game-state word at WRAM $0998.</summary>
+    /// <summary>The phase the game is in.</summary>
     public SuperMetroidGameState GameState { get => Session.GameState; internal set => Session.GameState = value; }
 
-    /// <summary>Wrapping frame counter corresponding to the game's 16-bit NMI counter, 0 through 65535.</summary>
+    /// <summary>The wrapping count of updates the game has run, 0 through 65535.</summary>
     public int FrameNumber
     {
         get;
@@ -162,25 +161,24 @@ public sealed class SuperMetroidGame
     public DoorDefinition? GameplayActiveDoor => Session.Runtime?.Room.ActiveDoor;
 
 
-    /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
+    /// <summary>Runs one update and returns its status.</summary>
     public FrontendFrame Step(ControllerButton controllerInput)
     {
-        // Derive the door-owned native disable flag before any producer can queue
-        // audio. This also restores its meaning for legacy snapshots without adding
-        // another serialized flag that could disagree with the coroutine phase.
+        // Derive whether the door transition has disabled sound effects before any producer
+        // can queue audio, from the phase itself rather than a second serialized flag that
+        // could disagree with it.
         GamePhaseAudio phaseAudio = Phases.Of(Session.GameState).Audio;
         Session.audio.DoorTransitionSoundsDisabled = phaseAudio == GamePhaseAudio.DoorTransitionSoundsDisabled;
         bool pauseInputEpilogue = phaseAudio == GamePhaseAudio.PauseInputEpilogue;
         bool messageWasActive = Session.Runtime?.MessageBox.IsActive == true;
         bool doorAudioDispatch = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
         DoorTransitionPhase startingDoorPhase = Session.doorTransition.Phase;
-        // An update that resumes a dispatch after its NMI wait never reaches the main loop's
-        // music prologue ($88:84B9) or its sound handler ($82:89EF).
+        // An update that continues a phase's step waiting out a frame of the display runs
+        // neither the update's music processing nor its sound processing.
         bool resumesFrameWait = NextUpdateResumesFrameWait;
-        // MainGameLoop runs the music queue ($82:894B) before dispatching any game state, so
-        // a dispatch that waits on HasQueuedMusic sees this update's queue. Sound handlers
-        // run after its coroutine returns. An accepted IRQ/NMI alone runs neither handler,
-        // and a message box's lag frames run only the box's own calls (below).
+        // Music processing runs before any phase, so a phase that waits on HasQueuedMusic
+        // sees this update's queue; sound processing runs after the phase returns. A
+        // message box's updates run only the box's own audio processing (below).
         bool prologueMusicDispatch = !resumesFrameWait && !messageWasActive &&
             (!doorAudioDispatch || phaseAudio != GamePhaseAudio.DoorTransitionSoundsDisabled ||
              startingDoorPhase is not (DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading));
@@ -200,11 +198,11 @@ public sealed class SuperMetroidGame
         Phases.Of(Session.GameState).Step(controllerInput, gameplayAudio);
 
         Session.CollectTranslatedAudioRequests(gameplayAudio);
-        // DisplayMessageBox ($85:8080) calls CancelSoundEffects before its first
-        // NMI wait. Publish earlier gameplay requests first, then cancel once at
-        // this entry boundary; repeating it during the wait would cancel the
-        // message's own cursor/saving sounds. A loaded active message is not an
-        // entry and must not inject a new command merely because the host resumed.
+        // Opening a message box cancels sound effects before the box's first update.
+        // Publish earlier gameplay requests first, then cancel once at this entry
+        // boundary; repeating it while the box is shown would cancel the message's
+        // own cursor and saving sounds. A loaded active message is not an entry and
+        // must not inject a new command merely because the host resumed.
         if (!messageWasActive && Session.Runtime?.MessageBox.IsActive == true)
             Session.audio.QueueCancelSoundEffects();
         bool musicHandler = false;
@@ -213,14 +211,14 @@ public sealed class SuperMetroidGame
             ? 1 : 0;
         if (messageWasActive)
         {
-            // A message-box lag frame runs exactly the routine's own audio calls.
+            // A message-box update runs exactly the box's own audio processing.
             MessageBoxFrameAudio boxAudio = Session.GameplayRuntime.MessageBox.LastFrameAudio;
             musicHandler = boxAudio.MusicHandlerCalls != 0;
             soundHandlers = boxAudio.SoundHandlerCalls;
         }
         else if (Session.Runtime?.MessageBox.IsActive == true)
         {
-            // The opening dispatch's HandleSounds runs only once the routine returns.
+            // The opening update's sound processing runs only once the box closes.
             soundHandlers = 0;
         }
         IReadOnlyList<AudioRequest> trailingAudioRequests = Session.audio.AdvanceFrame(Session.HostServices.SoundAcknowledgements.ForNextUpdate(Session.audioSession.Acknowledgements, Session.audio.SentSoundRequests),
@@ -231,7 +229,7 @@ public sealed class SuperMetroidGame
         // The sound acceptance clock acts on this update's requests during the update's own
         // samples; its acknowledgements become visible to the next update's sound handlers.
         Session.AdvanceAudio(audioRequests);
-        // $82:8AB0 runs after the pause dispatcher returns, even though Samus's
+        // The pause phases publish held input after they return, even though Samus's
         // draw-time epilogue did not run. Preserve its held-only publication;
         // updating the press edge or auto-jump timer here would invent gameplay.
         if (pauseInputEpilogue)
@@ -239,7 +237,7 @@ public sealed class SuperMetroidGame
         return CurrentFrame;
     }
 
-    /// <summary>One phase per reachable game state, in native state order; each runs that state's dispatch.</summary>
+    /// <summary>One phase per game state; each runs that state's update.</summary>
     [field: NonSerialized]
     private GamePhaseTable Phases => field ??= new GamePhaseTable(
         [
@@ -260,8 +258,8 @@ public sealed class SuperMetroidGame
                 step: (controllerInput, _) => MenuPhases.DispatchFileSelectMenus(controllerInput),
                 name: () => Session.ActiveFileSelect.Phase.ToString(),
                 resumesFrameWait: () => Session.ScreenAs<FileSelectMenuState>()?.ResumesAfterFrameWait == true),
-            // The map's final dispatch resumes after its forced-blank NMI wait.
-            // The final map dispatch latched its load request, then waited for this NMI ($81:AF8C).
+            // The map's final update latched its load request, blanked the display and waits
+            // out one frame; the next update continues that step.
             new GamePhase(SuperMetroidGameState.FileSelectMap,
                 DispatchRandomStep.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => MenuPhases.DispatchFileSelectMap(controllerInput),
@@ -270,7 +268,7 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.LoadingGameData,
                 DispatchRandomStep.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => LoadingPhases.DispatchLoadingGameData(controllerInput),
-                name: () => $"Loading Landing Site ({Session.GameLoading.WaitsRemaining} NMI waits)",
+                name: () => $"Loading Landing Site ({Session.GameLoading.WaitsRemaining} updates)",
                 resumesFrameWait: () => Session.ResumesGameLoadingWait),
             new GamePhase(SuperMetroidGameState.MainGameplayFadeIn,
                 DispatchRandomStep.RuntimeOwned,
@@ -304,8 +302,8 @@ public sealed class SuperMetroidGame
                 step: (controllerInput, _) => PausePhases.DispatchPausing(controllerInput),
                 name: () => "Pausing: load pause assets",
                 audio: GamePhaseAudio.PauseInputEpilogue),
-            // $82:894F runs once before each pause-only dispatcher as well.
-            // Fade states $0C/$12 run StepFrame and retain its own RNG call.
+            // The random generator advances once before each pause-only phase as well. The
+            // pause fades run gameplay, which advances it itself.
             new GamePhase(SuperMetroidGameState.PausedA,
                 DispatchRandomStep.Advance,
                 step: (controllerInput, _) => PausePhases.DispatchPausedA(controllerInput),
@@ -354,12 +352,12 @@ public sealed class SuperMetroidGame
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, _) => DeathPhases.DispatchDeathFlashing(controllerInput),
                 name: () => nameof(SuperMetroidGameState.DeathExplosionWhiteOut)),
-            // State $19 only fades; MainGameLoop's RNG call precedes it as any dispatch.
+            // The final black-out only fades; the random generator advances before it as before any phase.
             new GamePhase(SuperMetroidGameState.DeathFinalBlackOut,
                 DispatchRandomStep.Advance,
                 step: (controllerInput, _) => DeathPhases.DispatchDeathFinalBlackOut(controllerInput),
                 name: () => nameof(SuperMetroidGameState.DeathFinalBlackOut)),
-            // Game-over indexes zero and one resume inside their own NMI waits.
+            // The game-over menu's first two steps each wait out a frame of the display.
             new GamePhase(SuperMetroidGameState.GameOverMenu,
                 DispatchRandomStep.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => MenuPhases.DispatchGameOverMenu(controllerInput),
@@ -386,7 +384,7 @@ public sealed class SuperMetroidGame
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchBlackoutFromCeres(controllerInput, gameplayAudio),
                 name: () => $"Ceres blackout (brightness {Session.ceresDeparture.Brightness})"),
-            // $82:8B0E shares the intro's state-$1E/$22/$25 handler and its prologue call.
+            // The Ceres destruction cinematics share the intro's cinematic phase and its random advance.
             new GamePhase(SuperMetroidGameState.CeresGoesBoom,
                 DispatchRandomStep.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => CinematicPhases.DispatchCeresGoesBoom(controllerInput),
@@ -396,7 +394,7 @@ public sealed class SuperMetroidGame
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchTimeUp(controllerInput, gameplayAudio),
                 name: () => nameof(SuperMetroidGameState.TimeUp)),
-            // $24 fades without a gameplay call; its HDMA objects still run until it clears them.
+            // The time-up black-out fades without gameplay; its per-line effects still run until it clears them.
             new GamePhase(SuperMetroidGameState.WhitingOutFromTimeUp,
                 DispatchRandomStep.NonGameplayLineEffectsThenAdvance,
                 step: (controllerInput, _) => CinematicPhases.DispatchWhitingOutFromTimeUp(controllerInput),
@@ -410,8 +408,8 @@ public sealed class SuperMetroidGame
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchSamusEscapesFromZebes(controllerInput, gameplayAudio),
                 name: () => $"Zebes escape fade-out ({Session.EscapeFade.Brightness})"),
-            // State $27 is dispatched by MainGameLoop after its RNG call, except while the
-            // ending setup resumes inside its own NMI waits.
+            // The ending runs after the random advance, except while its setup waits out
+            // frames of the display.
             new GamePhase(SuperMetroidGameState.EndingAndCredits,
                 DispatchRandomStep.AdvanceUnlessResumingWait,
                 step: (_, _) => CinematicPhases.DispatchEndingAndCredits(),
@@ -437,13 +435,12 @@ public sealed class SuperMetroidGame
                 DispatchRandomStep.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => AttractPhases.DispatchAttractDemo(controllerInput, gameplayAudio),
                 name: () => nameof(SuperMetroidGameState.TransitionFromDemoB)),
-        ],
-        [SuperMetroidGameState.Unused03, SuperMetroidGameState.Unused1c, SuperMetroidGameState.DebugGameOverMenu]);
+        ]);
 
     /// <summary>Reads the current status without advancing the dispatcher.</summary>
     public FrontendFrame CurrentFrame => new(Session.GameState, PhaseName, FrameNumber);
 
-    /// <summary>Human-readable active subphase for diagnostics without changing native state.</summary>
+    /// <summary>Human-readable active subphase for diagnostics, without changing state.</summary>
     private string PhaseName => Phases.Of(Session.GameState).Name;
 
     /// <summary>
@@ -514,32 +511,33 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>
-    /// True when the next update resumes a frontend dispatch after its own NMI wait instead
-    /// of entering MainGameLoop. Such an update makes no main-loop RNG call.
+    /// True when the next update continues a phase's step that waits out a frame of the display, instead of
+    /// starting a new update of the phase. Such an update makes no per-update random advance.
     /// </summary>
     internal bool NextUpdateResumesFrameWait => Phases.Of(Session.GameState).ResumesFrameWait;
 
     /// <summary>
-    /// Preserves the bank-$82 main-loop RNG call through title/file selection and
-    /// loading. These menu dispatchers return once per frame; they do not run the
-    /// gameplay runtime's prologue. SRAM contains no copy of the live RNG word.
+    /// Advances the random generator once per update through the title, file selection and
+    /// loading. These phases run once per update and do not run gameplay, which advances it
+    /// itself. Saves keep no copy of the generator.
     /// </summary>
     internal void AdvanceMenuRandom()
     {
         switch (Phases.Of(Session.GameState).RandomStep)
         {
             case DispatchRandomStep.Reseed:
-                // Only the reset vector reseeds. A continued save must keep the word
-                // produced by gameplay and the game-over/file-map waiting frames.
+                // Only power-on and soft reset reseed. A continued save must keep the value
+                // produced by gameplay and the game-over and file-map waiting updates.
                 Session.Random.SeedPowerOn();
                 Session.frameClock.Reset();
                 Session.menuLayer1.Reset();
-                // State zero is itself dispatched by MainGameLoop after its first
-                // GenerateRandomNumber call; it is not the reset vector's seed store.
+                // The reset phase itself runs after the first advance; the seed alone is
+                // not what it sees.
                 Session.Random.Generate();
                 break;
             case DispatchRandomStep.NonGameplayLineEffectsThenAdvance:
-                // HDMA runs before $0D disables it; lava swaps the live RNG bytes.
+                // The per-line effects run before the pause preparation stops them; lava
+                // swaps the generator's live bytes.
                 Session.GameplayRuntime.DoorTransition.AdvanceNonGameplayMainLoopRandom(perLineEffects: PerLineEffectProcessing.Run, Session.GameplayRuntime.Room.LoadedScope.Plms, Session.GameplayRuntime.Room.LoadedScope);
                 break;
             case DispatchRandomStep.AdvanceUnlessResumingWait:
@@ -554,7 +552,7 @@ public sealed class SuperMetroidGame
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DispatchRandomStep)} {Phases.Of(Session.GameState).RandomStep}.");
         }
-        // Gameplay retains its existing call after accepted NMI/HDMA processing.
-        // Do not advance here for runtime frames or nested NMI-waiting coroutines.
+        // Gameplay advances the generator itself after its per-line effects. Do not
+        // advance here for gameplay updates or for an update that continues a waiting step.
     }
 }

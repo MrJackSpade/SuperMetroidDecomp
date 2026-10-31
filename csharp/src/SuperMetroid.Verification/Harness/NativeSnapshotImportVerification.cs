@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -63,10 +64,12 @@ internal static class NativeSnapshotImportVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Options.MoonwalkEnabled = W(NativeSnapshotMemory.MoonwalkOption) != 0;
-        runtime.System.LoadCollectedItemBytes(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, SharedGameState.ItemBitByteCount));
-        runtime.System.LoadBossBytes(memory.AsSpan(NativeSnapshotMemory.BossBits, SharedGameState.AreaCount));
-        runtime.System.LoadEventBytes(memory.AsSpan(NativeSnapshotMemory.Events, SharedGameState.EventByteCount));
-        runtime.System.LoadOpenedDoorBytes(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, SharedGameState.DoorBitByteCount));
+        // The initial import reads the native progression tables through the cartridge's table codec.
+        PersistentProgress progress = runtime.System.Progress;
+        ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), progress.CollectedItems);
+        ProgressionTableCodec.ReadAreaBosses(memory.AsSpan(NativeSnapshotMemory.BossBits, ProgressionTableCodec.AreaBossByteCount), progress);
+        ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), progress.Events);
+        ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), progress.OpenedDoors);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(W(NativeSnapshotMemory.Room)), new Position16<RoomPixels>(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
         ScrollBoundaryCamera camera = runtime.Room.LoadedCamera;
         // The room load wrote only the integer layer-one words; import the native fractions,
@@ -119,13 +122,15 @@ internal static class NativeSnapshotImportVerification
         HudItem highlightedHudItem = HudItems.Decode(W(NativeSnapshotMemory.PreviousHudSelection));
         runtime.Room.LoadedCamera.Scrolls.Storage.Load(memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount));
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
-        byte[] initialMaps = memory.AsSpan(NativeSnapshotMemory.SavedExploredMaps,
-            SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea).ToArray();
-        memory.AsSpan(NativeSnapshotMemory.LiveExploredMap, SharedGameState.ExploredMapBytesPerArea)
-            .CopyTo(initialMaps.AsSpan(W(NativeSnapshotMemory.CurrentArea) * SharedGameState.ExploredMapBytesPerArea));
-        runtime.System.LoadExploredMapBytes(initialMaps);
-        runtime.System.LoadUsedSaveStationBytes(memory.AsSpan(NativeSnapshotMemory.SaveElevatorMarkers, SharedGameState.UsedSaveStationByteCount));
-        runtime.System.LoadMapStationBytes(memory.AsSpan(NativeSnapshotMemory.MapStationMarkers, SharedGameState.MapStationByteCount));
+        // The current area's exploration lives in its live plane; every other area's in the saved planes.
+        for (int area = 0; area < AreaIds.RetailCount; area++)
+        {
+            int plane = area == W(NativeSnapshotMemory.CurrentArea) ? NativeSnapshotMemory.LiveExploredMap :
+                NativeSnapshotMemory.SavedExploredMaps + area * ProgressionTableCodec.ExploredPlaneByteCount;
+            ProgressionTableCodec.ReadExploredPlane(memory.AsSpan(plane, ProgressionTableCodec.ExploredPlaneByteCount), AreaIds.At(area), progress);
+        }
+        ProgressionTableCodec.ReadUsedStations(memory.AsSpan(NativeSnapshotMemory.SaveElevatorMarkers, ProgressionTableCodec.UsedStationByteCount), progress);
+        ProgressionTableCodec.ReadAreaMaps(memory.AsSpan(NativeSnapshotMemory.MapStationMarkers, ProgressionTableCodec.MapStationByteCount), progress);
 
         SamusState samus = runtime.Player.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");

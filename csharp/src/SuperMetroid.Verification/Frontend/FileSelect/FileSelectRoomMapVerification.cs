@@ -111,8 +111,8 @@ internal static class FileSelectRoomMapVerification
     {
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
-        snapshot.MapStationBytes[4] = 1;
-        snapshot.UsedSaveStationBytes[8] = 1;
+        snapshot.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true);
+        snapshot.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
         var cancel = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
@@ -130,7 +130,8 @@ internal static class FileSelectRoomMapVerification
         AssertTrue(cancel.Render().SequenceEqual(control.Render()),
             "room cancel must retain the map/icons drawn before input until next coroutine call");
         var system = new SharedGameState();
-        system.LoadMapStationBytes(slot.MapStationBytes);
+        system.SetAreaMapAcquired(AreaId.Maridia);
+        AssertTrue(slot.Progression.HasAreaMap(AreaId.Maridia), "the saved slot holds the Maridia map");
         RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
         var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Palettes, maps.WorldArtwork, MenuSheetFixtures.For(maps));
@@ -311,13 +312,13 @@ internal static class FileSelectRoomMapVerification
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99,
             LoadingGameState = savedArea == 6 ? SaveLoadingGameStateCodec.Word(SaveLoadingGameState.CeresElevatorArrival) : SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame) };
-        snapshot.UsedSaveStationBytes[savedArea * 2] = 1;
+        snapshot.Progress.UsedStations(AreaIds.At(savedArea)).Add(0);
         if (savedArea < 6)
         {
             var station = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
             var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Station 0 has no room.")).Pointer);
             var cell = room.MapPosition + new Offset16<MapTiles>(checked(LittleEndianBytes.HighByte(station.SamusPosition.X)), checked((short)((LittleEndianBytes.HighByte(station.SamusPosition.Y)) + 1)));
-            snapshot.ExploredMapBytes[savedArea * 256 + AreaMapPages.GetBitByteIndex(cell)] |= AreaMapPages.GetBitMask(cell.X);
+            snapshot.Progress.SetExplored(AreaIds.At(savedArea), cell, explored: true);
         }
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);

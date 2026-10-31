@@ -24,7 +24,7 @@ internal static class RetailLoadAppearanceTests
         SuperMetroid.Core.Saves.SaveSlotStore Saves(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
         {
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
-            save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
+            save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
             var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create(bus));
             saves.SaveSlot(0, save);
             return saves;

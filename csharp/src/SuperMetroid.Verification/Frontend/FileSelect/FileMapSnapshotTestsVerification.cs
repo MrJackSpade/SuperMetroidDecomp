@@ -29,7 +29,7 @@ internal static class FileMapSnapshotTestsVerification
         {
             var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
-            save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
+            save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
             saves.SaveSlot(0, save);
             var legacy = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
             var capture = new FileSelectMapMenuState(new AudioQueues(), (saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")), 0, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()));
@@ -61,7 +61,7 @@ internal static class FileMapSnapshotTestsVerification
         SuperMetroid.Core.Saves.SaveSlotStore Saves()
         {
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
-            save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
+            save.Progress.SetAreaMap(SuperMetroid.Core.Progression.AreaId.Maridia, acquired: true); save.Progress.UsedStations(SuperMetroid.Core.Progression.AreaId.Maridia).Add(0);
             var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
             saves.SaveSlot(0, save);
             return saves;

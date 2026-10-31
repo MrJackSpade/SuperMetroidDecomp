@@ -846,23 +846,23 @@ internal static void VerifyCartridgeRoomStateSelection()
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer),
         "room selector default inline state");
 
-    var eventBytes = new byte[SharedGameState.EventByteCount];
-    eventBytes[0] = 1;
+    var eventBytes = new NumberedFlags(PersistentProgress.EventCount);
+    eventBytes.Add(0);
     AssertEqual((ushort)0x9100,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
             new RoomStateSelectionContext(eventBytes, BossBits.None, false, false)),
         "room selector event branch");
     AssertEqual((ushort)0x9120,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.AreaTorizo, false, false)),
+            new RoomStateSelectionContext(null, BossBits.AreaTorizo, false, false)),
         "room selector boss branch");
     AssertEqual((ushort)0x9140,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, true, false)),
+            new RoomStateSelectionContext(null, BossBits.None, true, false)),
         "room selector Morph Ball and missiles branch");
     AssertEqual((ushort)0x9160,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, false, true)),
+            new RoomStateSelectionContext(null, BossBits.None, false, true)),
         "room selector power-bomb branch");
 
     // The interpreter must return at the first successful command; later facts do not
@@ -880,7 +880,7 @@ internal static void VerifyCartridgeRoomStateSelection()
     AssertEqual((ushort)0x9180,
         SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.SelectStatePointer(bus, roomPointer,
             new RoomStateSelectionContext(
-                Array.Empty<byte>(),
+                null,
                 RoomStateSelectorOperands.MainAreaBoss,
                 false,
                 false)),

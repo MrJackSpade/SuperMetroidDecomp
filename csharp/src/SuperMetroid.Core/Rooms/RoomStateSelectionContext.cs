@@ -20,7 +20,7 @@ public readonly record struct RoomStateSelectionContext(
     /// <exception cref="ArgumentOutOfRangeException">The number is outside the game's event numbers.</exception>
     public bool IsEventSet(int eventNumber)
     {
-        Ensure.BetweenInclusive(0, PersistentProgress.EventCount - 1, eventNumber);
+        _ = Ensure.BetweenInclusive(0, PersistentProgress.EventCount - 1, eventNumber);
         return Events?.Contains(eventNumber) == true;
     }
 

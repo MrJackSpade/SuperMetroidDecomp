@@ -57,7 +57,7 @@ internal static class MapStaticPalettesVerification
         AssertTrue(!nativeWorld.RenderBackgrounds().SequenceEqual(world.RenderBackgrounds()), "world palette edit changes rendered pixels");
 
         var system = new SharedGameState();
-        system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
+        system.Progress.ExploreEveryCell();
         var room = new FileSelectRoomMapGraphics(system, AreaId.Crateria, mapPresentation: original, sheets: MenuSheetFixtures.For(original));
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original, SpriteSheets = MenuSheetFixtures.For(original) });
         var roomBefore = room.RenderBackgrounds(new(0, 0)).ToArray(); var pauseBefore = pause.Render();

@@ -111,21 +111,21 @@ internal static class RoomMainCodeCatalogVerification
         var contexts = new List<RoomStateSelectionContext>
         {
             default,
-            new(Array.Empty<byte>(), BossBits.None, HasMorphBallAndMissiles: true, HasPowerBombs: false),
-            new(Array.Empty<byte>(), BossBits.None, HasMorphBallAndMissiles: false, HasPowerBombs: true),
+            new(null, BossBits.None, HasMorphBallAndMissiles: true, HasPowerBombs: false),
+            new(null, BossBits.None, HasMorphBallAndMissiles: false, HasPowerBombs: true),
         };
         for (int bit = 0; bit < 8; bit++)
         {
             contexts.Add(new RoomStateSelectionContext(
-                Array.Empty<byte>(),
+                null,
                 unchecked((BossBits)(1 << bit)),
                 false,
                 false));
         }
-        for (int eventIndex = 0; eventIndex < SharedGameState.EventByteCount * 8; eventIndex++)
+        for (int eventIndex = 0; eventIndex < PersistentProgress.EventCount; eventIndex++)
         {
-            var events = new byte[SharedGameState.EventByteCount];
-            events[eventIndex >> 3] = unchecked((byte)(1 << (eventIndex & 7)));
+            var events = new NumberedFlags(PersistentProgress.EventCount);
+            events.Add(eventIndex);
             contexts.Add(new RoomStateSelectionContext(events, BossBits.None, false, false));
         }
         return contexts.ToArray();

@@ -18,7 +18,7 @@ internal static class RetailPauseTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var system = new SharedGameState();
-        system.LoadExploredMapBytes(Enumerable.Repeat(byte.MaxValue, 7 * 256).ToArray());
+        system.Progress.ExploreEveryCell();
         var pause = new PauseMenuState(new PauseMenuEntry
         {
             Samus = new SamusState(InstalledFixtures.AnimationContinuation), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0),

@@ -1,5 +1,5 @@
 using SuperMetroid.Diagnostics.Saves;
-using SuperMetroid.Core.Progression;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.Core.Saves;
 
 namespace SuperMetroid.Verification.Saves;
@@ -42,18 +42,18 @@ internal static class SaveRamLayoutVerification
             new PayloadRegion(SaveRamLayout.DebugFlagOffset, 2, "debug flag"),
             new PayloadRegion(SaveRamLayout.NewFileMarkerOffset, 2, "new-file marker"),
             new PayloadRegion(SaveRamLayout.IconCancelOffset, 2, "icon-cancel option"),
-            new PayloadRegion(SaveRamLayout.EventsOffset, SharedGameState.EventByteCount, "event bits"),
-            new PayloadRegion(SaveRamLayout.BossBitsOffset, SharedGameState.AreaCount, "boss bits"),
+            new PayloadRegion(SaveRamLayout.EventsOffset, ProgressionTableCodec.EventByteCount, "event bits"),
+            new PayloadRegion(SaveRamLayout.BossBitsOffset, ProgressionTableCodec.AreaBossByteCount, "boss bits"),
             new PayloadRegion(SaveRamLayout.RoomChozoBitsOffset,
-                SharedGameState.RoomChozoBitByteCount, "room Chozo bits"),
+                ProgressionTableCodec.RoomFlagByteCount, "room Chozo bits"),
             new PayloadRegion(SaveRamLayout.CollectedItemBitsOffset,
-                SharedGameState.ItemBitByteCount, "collected-item bits"),
+                ProgressionTableCodec.RoomFlagByteCount, "collected-item bits"),
             new PayloadRegion(SaveRamLayout.OpenedDoorBitsOffset,
-                SharedGameState.DoorBitByteCount, "opened-door bits"),
+                ProgressionTableCodec.RoomFlagByteCount, "opened-door bits"),
             new PayloadRegion(SaveRamLayout.UsedSaveStationsOffset,
-                SharedGameState.UsedSaveStationByteCount, "used save stations"),
+                ProgressionTableCodec.UsedStationByteCount, "used save stations"),
             new PayloadRegion(SaveRamLayout.MapStationsOffset,
-                SharedGameState.MapStationByteCount, "map stations"),
+                ProgressionTableCodec.MapStationByteCount, "map stations"),
             new PayloadRegion(SaveRamLayout.SaveStationOffset, 2, "save station"),
             new PayloadRegion(SaveRamLayout.AreaOffset, 2, "area"),
             new PayloadRegion(SaveRamLayout.CompressedMapDataOffset,

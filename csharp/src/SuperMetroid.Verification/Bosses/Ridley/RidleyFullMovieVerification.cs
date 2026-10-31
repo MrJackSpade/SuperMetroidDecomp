@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
@@ -239,7 +240,9 @@ internal static class RidleyFullMovieVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.Hud.EnableMinimapAfterDoorEntry();
-            runtime.System.LoadExploredMapBytes(new byte[SharedGameState.ExploredMapAreaCount * SharedGameState.ExploredMapBytesPerArea]);
+            foreach (AreaId area in Enum.GetValues<AreaId>())
+                foreach (Position16<MapTiles> cell in runtime.System.Progress.ExploredCells(area).ToList())
+                    runtime.System.Progress.SetExplored(area, cell, explored: false);
             if (defeated) runtime.System.SetBossBits(AreaId.Norfair, BossBits.AreaBoss);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
             var room = runtime.Room.LoadedRoom;
@@ -981,19 +984,36 @@ internal static class RidleyFullMovieVerification
                         mismatches.Add($"{name}[{index}]: native={expected:X2} port={actual:X2}");
                 }
             }
-            CheckBytes("Boss bits", SharedGameState.AreaCount, runtime.System.GetBossBitsRaw, NativeSnapshotMemory.BossBits);
-            CheckBytes("Event bits", SharedGameState.EventByteCount, runtime.System.GetEventByteRaw, NativeSnapshotMemory.Events);
-            CheckBytes("Collected item bits", SharedGameState.ItemBitByteCount, runtime.System.GetCollectedItemByteRaw, NativeSnapshotMemory.CollectedItemBits);
-            CheckBytes("Opened door bits", SharedGameState.DoorBitByteCount, runtime.System.GetOpenedDoorByteRaw, NativeSnapshotMemory.OpenedDoors);
+            // Progress is compared as the native tables decode: each event, boss, item, door, station and map.
+            var nativeProgress = new PersistentProgress();
+            ProgressionTableCodec.ReadAreaBosses(memory.AsSpan(NativeSnapshotMemory.BossBits, ProgressionTableCodec.AreaBossByteCount), nativeProgress);
+            ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.Events, ProgressionTableCodec.EventByteCount), nativeProgress.Events);
+            ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.CollectedItemBits, ProgressionTableCodec.RoomFlagByteCount), nativeProgress.CollectedItems);
+            ProgressionTableCodec.ReadFlags(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, ProgressionTableCodec.RoomFlagByteCount), nativeProgress.OpenedDoors);
+            ProgressionTableCodec.ReadUsedStations(memory.AsSpan(NativeSnapshotMemory.SaveElevatorMarkers, ProgressionTableCodec.UsedStationByteCount), nativeProgress);
+            ProgressionTableCodec.ReadAreaMaps(memory.AsSpan(NativeSnapshotMemory.MapStationMarkers, ProgressionTableCodec.MapStationByteCount), nativeProgress);
+            PersistentProgress portProgress = runtime.System.Progress;
+            void CheckFlags(string name, NumberedFlags actual, NumberedFlags expected)
+            {
+                if (!actual.SetEquals(expected))
+                    mismatches.Add($"{name}: native=[{string.Join(",", expected.Members)}] port=[{string.Join(",", actual.Members)}]");
+            }
+            CheckFlags("Events", portProgress.Events, nativeProgress.Events);
+            CheckFlags("Collected items", portProgress.CollectedItems, nativeProgress.CollectedItems);
+            CheckFlags("Opened doors", portProgress.OpenedDoors, nativeProgress.OpenedDoors);
+            foreach (AreaId area in Enum.GetValues<AreaId>())
+            {
+                if (portProgress.DefeatedBosses(area) != nativeProgress.DefeatedBosses(area))
+                    mismatches.Add($"{area} bosses: native={nativeProgress.DefeatedBosses(area)} port={portProgress.DefeatedBosses(area)}");
+                CheckFlags($"{area} used stations", portProgress.UsedStations(area), nativeProgress.UsedStations(area));
+                if (portProgress.HasAreaMap(area) != nativeProgress.HasAreaMap(area))
+                    mismatches.Add($"{area} map: native={nativeProgress.HasAreaMap(area)} port={portProgress.HasAreaMap(area)}");
+            }
             if (game.GameState is not (SuperMetroidGameState.HitDoorBlock or
                 SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
                 for (int tile = 0; tile < HudStateConstants.MutableTileCount; tile++)
                     Check($"HUD tile {tile}", runtime.Hud.TileWords[tile], NativeSnapshotMemory.HudTilemap + tile * 2);
             Check("Previous HUD selection", runtime.Hud.PreviousSelectedItem.ToWord(), NativeSnapshotMemory.PreviousHudSelection);
-            CheckBytes("Save/elevator markers", SharedGameState.UsedSaveStationByteCount,
-                runtime.System.GetUsedSaveStationByteRaw, NativeSnapshotMemory.SaveElevatorMarkers);
-            CheckBytes("Map-station markers", SharedGameState.MapStationByteCount,
-                runtime.System.GetMapStationByteRaw, NativeSnapshotMemory.MapStationMarkers);
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
                 // $82:8B44 draws before $A0:9169 ages hurt timers. A final one
@@ -1075,11 +1095,15 @@ internal static class RidleyFullMovieVerification
                 Check("Minimap disabled", runtime.Hud.MinimapDisabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.MinimapDisabled);
                 CheckBytes("Room scroll storage", RoomScrollGrid.StorageByteCount,
                     runtime.Room.LoadedCamera.Scrolls.ReadStorage, NativeSnapshotMemory.ScrollStorage);
-                for (int area = 0; area < SharedGameState.ExploredMapAreaCount; area++)
-                    CheckBytes($"Explored map {area}", SharedGameState.ExploredMapBytesPerArea,
-                        index => runtime.System.GetExploredMapByteRaw(area, index),
-                        area == W(NativeSnapshotMemory.CurrentArea) ? NativeSnapshotMemory.LiveExploredMap :
-                            NativeSnapshotMemory.SavedExploredMaps + area * SharedGameState.ExploredMapBytesPerArea);
+                for (int area = 0; area < AreaIds.RetailCount; area++)
+                {
+                    int plane = area == W(NativeSnapshotMemory.CurrentArea) ? NativeSnapshotMemory.LiveExploredMap :
+                        NativeSnapshotMemory.SavedExploredMaps + area * ProgressionTableCodec.ExploredPlaneByteCount;
+                    ProgressionTableCodec.ReadExploredPlane(memory.AsSpan(plane, ProgressionTableCodec.ExploredPlaneByteCount),
+                        AreaIds.At(area), nativeProgress);
+                    if (!nativeProgress.ExploredCells(AreaIds.At(area)).SequenceEqual(portProgress.ExploredCells(AreaIds.At(area))))
+                        mismatches.Add($"Explored map {AreaIds.At(area)} differs");
+                }
             }
             // Only the reference's proven hardware-upload NMI count is normalized;
             // gameplay state is never copied back into the production runtime.

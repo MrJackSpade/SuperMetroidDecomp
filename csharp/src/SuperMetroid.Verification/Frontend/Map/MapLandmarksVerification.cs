@@ -27,14 +27,11 @@ internal static class MapLandmarksVerification
         int cases = 0;
         foreach (AreaId area in Enum.GetValues<AreaId>())
         foreach (bool downloaded in new[] { false, true })
-        for (int bits = 0; bits <= byte.MaxValue; bits++)
+        for (int bits = 0; bits <= (int)BossBitMasks.AllKnown; bits++)
         {
+            // Every combination of the named boss flags; no routine tests any other (#1475).
             var system = new SharedGameState();
-            // SRAM preserves all eight bits, including unnamed ones; use its raw
-            // restore boundary rather than passing unnamed flags to the gameplay API.
-            byte[] bossBytes = new byte[SharedGameState.AreaCount];
-            bossBytes[(int)area] = (byte)bits;
-            system.LoadBossBytes(bossBytes);
+            system.Progress.SetDefeatedBosses(area, (BossBits)bits);
             if (downloaded) system.SetAreaMapAcquired(area);
             var native = new FileSelectMapIcons(system, area);
             var installed = new FileSelectMapIcons(system, area);
@@ -43,7 +40,7 @@ internal static class MapLandmarksVerification
             installed.BindLandmarks(original.Landmarks);
             installed.BindSprites(MenuSheetFixtures.MapSprites(original.Sprites));
             AssertTrue(Draw(native, area).SequenceEqual(Draw(installed, area)), $"landmark OAM {area}/{bits}/{downloaded}");
-            AssertEqual((byte)bits, system.GetBossBitsRaw(area), "landmark drawing preserves boss state");
+            AssertEqual((BossBits)bits, system.GetBossBits(area), "landmark drawing preserves boss state");
             AssertEqual(downloaded, system.HasAreaMap(area), "landmark drawing preserves map acquisition");
             cases++;
         }
@@ -68,7 +65,7 @@ internal static class MapLandmarksVerification
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.WreckedShip })
         {
             var system = new SharedGameState(); system.SetAreaMapAcquired(area); system.SetBossBits(area, (BossBits)1);
-            system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
+            system.Progress.ExploreEveryCell();
             var marker = new FileSelectStationMarker(area, 0, original.SaveMarkers);
             var native = new FileSelectRoomMapGraphics(system, area,
                 mapPresentation: original, sheets: MenuSheetFixtures.For(original));

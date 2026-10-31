@@ -138,11 +138,10 @@ internal static class MapLoadAnchorsVerification
                         system.MarkExploredMapTile(typedArea, new(0, 0));
                         system.MarkExploredMapTile(typedArea, new(63, 31));
                     }
-                    if (visibility == 2) system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
+                    if (visibility == 2) system.Progress.ExploreEveryCell();
                     if (visibility == 3)
                     {
-                        var stations = new byte[SharedGameState.MapStationByteCount]; stations[area] = 1;
-                        system.LoadMapStationBytes(stations);
+                        system.SetAreaMapAcquired(area);
                     }
                     var native = new FileSelectMapScroll(SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea), system, expected);
                     var compiled = new FileSelectMapScroll(catalog.Get(typedArea), system, actual);
@@ -185,8 +184,8 @@ internal static class MapLoadAnchorsVerification
         {
             var saves = stationSaves;
             var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)area, SaveStation = (ushort)station, Health = 99, MaxHealth = 99 };
-            snapshot.MapStationBytes[(int)area] = 1;
-            snapshot.UsedSaveStationBytes[(int)area * 2 + station / 8] = (byte)(1 << (station % 8));
+            snapshot.Progress.SetAreaMap(area, acquired: true);
+            snapshot.Progress.UsedStations(area).Add(station);
             saves.SaveSlot(0, snapshot);
             byte[] before = ReadSram();
             var slot = saves.ReadSlot(0);

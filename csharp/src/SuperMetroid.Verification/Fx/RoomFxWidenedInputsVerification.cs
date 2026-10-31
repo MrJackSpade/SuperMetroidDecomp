@@ -19,7 +19,7 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => Conditions(-1), "negative palette-FX Samus Y");
 
         AssertEqual(ushort.MaxValue, Frame(ushort.MaxValue).FirefleaDarknessLevel, "Fireflea darkness keeps the largest word");
-        AssertEqual(0, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = false }.FirefleaDarknessLevel,
+        AssertEqual(0, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None }.FirefleaDarknessLevel,
             "Fireflea darkness defaults to none");
         AssertThrows<ArgumentOutOfRangeException>(() => Frame(ushort.MaxValue + 1), "Fireflea darkness above the word");
         AssertThrows<ArgumentOutOfRangeException>(() => Frame(-1), "negative Fireflea darkness");
@@ -49,9 +49,9 @@ internal static class RoomFxWidenedInputsVerification
         static PaletteFxConditions Conditions(int samusY) =>
             new() { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false };
         static RoomLayer3FxFrame Frame(int darkness) =>
-            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = false, FirefleaDarknessLevel = darkness };
+            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None, FirefleaDarknessLevel = darkness };
         static RoomLayer3FxFrame FrameRandom(int randomNumber) =>
-            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = false, RandomNumber = randomNumber };
+            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, EarthquakeSoundDelay = SuperMetroid.Core.Compatibility.PowerOnEarthquakeSoundDelay.None, RandomNumber = randomNumber };
         static RoomFxLoadSource LoadSource(int randomNumber) =>
             new() { Fx = null, Door = null, RandomNumber = randomNumber, Room = null, SuppliedDefinition = null };
     }

@@ -118,8 +118,8 @@ internal static class MapPaletteCycleVerification
 
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var saved = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
-        saved.MapStationBytes[(int)AreaId.Maridia] = 1;
-        saved.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
+        saved.Progress.SetAreaMap(AreaId.Maridia, acquired: true);
+        saved.Progress.UsedStations(AreaId.Maridia).Add(0);
         saves.SaveSlot(0, saved);
         var slot = saves.ReadSlot(0);
         var nativeMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));

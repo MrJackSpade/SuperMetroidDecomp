@@ -35,16 +35,20 @@ internal static class BossResetOnLoadVerification
             Missiles = 12, MaxMissiles = 25,
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = SamusEquipmentFlags.MorphBall,
-            BossFlags = Enumerable.Repeat(BossBitMasks.AllKnown, SharedGameState.AreaCount).ToArray(),
-            EventBytes = Enumerable.Repeat((byte)0xff, SharedGameState.EventByteCount).ToArray(),
-            OpenedDoorBytes = Enumerable.Repeat((byte)0xff, SharedGameState.DoorBitByteCount).ToArray(),
-            CollectedItemBytes = Enumerable.Repeat((byte)0xa5, SharedGameState.ItemBitByteCount).ToArray(),
-            RoomChozoBytes = Enumerable.Repeat((byte)0x5a, SharedGameState.RoomChozoBitByteCount).ToArray(),
         };
+        // Every boss of every area, every event and door, and alternating pickups and orbs.
+        for (int area = 0; area < AreaIds.RetailCount; area++)
+            snapshot.Progress.SetDefeatedBosses(AreaIds.At(area), BossBitMasks.AllKnown);
+        PersistentProgressAccess.FillAll(snapshot.Progress.Events);
+        PersistentProgressAccess.FillAll(snapshot.Progress.OpenedDoors);
+        for (int location = 0; location < PersistentProgress.RoomFlagCount; location++)
+        {
+            snapshot.Progress.CollectedItems.Set(location, location % 3 == 0);
+            snapshot.Progress.ChozoOrbs.Set(location, location % 3 == 1);
+        }
         // Escape is outside this tester option's scope. Keep this particular save
         // out of escape so room selection can demonstrate both Torizo encounters.
-        snapshot.EventBytes[(int)EventNumber.ZebesTimebombSet >> 3] &=
-            unchecked((byte)~(1 << ((int)EventNumber.ZebesTimebombSet & 7)));
+        snapshot.Progress.ClearEvent(EventNumber.ZebesTimebombSet);
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
@@ -53,26 +57,24 @@ internal static class BossResetOnLoadVerification
         {
             var runtime = CreateRetailRuntimeFixture();
             runtime.RoomLoader.InitializeSavedGame(slot, resetBossesOnLoad: enabled);
-            for (int area = 0; area < SharedGameState.AreaCount; area++)
+            for (int area = 0; area < AreaIds.RetailCount; area++)
             {
-                bool resetArea = enabled && area < AreaIds.RetailCount && area != (int)AreaId.Tourian;
-                AssertEqual(resetArea ? (byte)0 : (byte)0x07, runtime.System.GetBossBitsRaw(area),
+                bool resetArea = enabled && AreaIds.At(area) != AreaId.Tourian;
+                AssertEqual(resetArea ? BossBits.None : BossBitMasks.AllKnown, runtime.System.GetBossBits(area),
                     $"boss/miniboss/Torizo load policy area {area}, enabled={enabled}");
             }
-            for (int bit = 0; bit < SharedGameState.EventByteCount * 8; bit++)
+            for (int number = 0; number < PersistentProgress.EventCount; number++)
             {
-                bool expected = (snapshot.EventBytes[bit >> 3] & (1 << (bit & 7))) != 0 &&
-                    !(enabled && bit == (int)EventNumber.ShaktoolClearedPath);
-                AssertEqual(expected, runtime.System.HasEventRaw(bit),
-                    $"only Shaktool's encounter event resets; event {bit}, enabled={enabled}");
+                bool expected = snapshot.Progress.Events.Contains(number) &&
+                    !(enabled && number == EventNumber.ShaktoolClearedPath.ToEventNumber());
+                AssertEqual(expected, runtime.System.Progress.Events.Contains(number),
+                    $"only Shaktool's encounter event resets; event {number}, enabled={enabled}");
             }
-            for (int bit = 0; bit < SharedGameState.DoorBitByteCount * 8; bit++)
+            for (int bit = 0; bit < PersistentProgress.RoomFlagCount; bit++)
                 AssertEqual(!(enabled && eyeBits.Contains((ushort)bit)), runtime.System.HasOpenedDoorBit(bit),
                     $"only eye-door deaths reset; door {bit}, enabled={enabled}");
-            for (int index = 0; index < SharedGameState.ItemBitByteCount; index++)
-                AssertEqual(snapshot.CollectedItemBytes[index], runtime.System.GetCollectedItemByteRaw(index), "pickups preserved");
-            for (int index = 0; index < SharedGameState.RoomChozoBitByteCount; index++)
-                AssertEqual(snapshot.RoomChozoBytes[index], runtime.System.GetRoomChozoByteRaw(index), "Chozo orbs preserved");
+            AssertTrue(snapshot.Progress.CollectedItems.SetEquals(runtime.System.Progress.CollectedItems), "pickups preserved");
+            AssertTrue(snapshot.Progress.ChozoOrbs.SetEquals(runtime.System.Progress.ChozoOrbs), "Chozo orbs preserved");
             AssertEqual(slot.CollectedItems, runtime.Player.IntroducedSamus.CollectedItems, "collected inventory preserved");
             AssertEqual(slot.EquippedItems, runtime.Player.IntroducedSamus.EquippedItems, "equipment selection preserved");
             AssertEqual(slot.Health, runtime.Player.IntroducedSamus.Health, "health preserved");
@@ -91,7 +93,7 @@ internal static class BossResetOnLoadVerification
             AssertTrue(runtime.System.HasAnyBossBits(AreaId.Brinstar, BossBits.AreaMiniBoss),
                 "subsequent defeat persists until another explicit save load");
         }
-        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).BossBytes.SequenceEqual(slot.BossBytes),
+        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).Progression.SameAs(slot.Progression),
             "loading with reset does not rewrite the stored save");
         Console.WriteLine("Boss reset: disabled defaults, strict INI, full saved-state preservation, outside-Tourian flags, five eye doors, Spore/Torizo/Shaktool room selection and load-only application pass.");
     }

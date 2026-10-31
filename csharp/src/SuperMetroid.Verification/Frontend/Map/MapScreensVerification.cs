@@ -31,7 +31,7 @@ internal static class MapScreensVerification
     {
         var guard = NewMapScreenGuard(bus);
         var system = new SharedGameState();
-        system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
+        system.Progress.ExploreEveryCell();
         for (int index = 0; index < MapScreenDefinitions.ZebesAreas; index++)
         {
             var native = World(bus, original, index);
@@ -166,8 +166,8 @@ internal static class MapScreensVerification
     {
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var data = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
-        data.MapStationBytes[(int)AreaId.Maridia] = 1;
-        data.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
+        data.Progress.SetAreaMap(AreaId.Maridia, acquired: true);
+        data.Progress.UsedStations(AreaId.Maridia).Add(0);
         saves.SaveSlot(0, data);
         var slot = saves.ReadSlot(0);
         var control = new FileSelectMapMenuState(new AudioQueues(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original, MenuSheetFixtures.For(original));
@@ -192,7 +192,7 @@ internal static class MapScreensVerification
             AssertTrue(control.Render().SequenceEqual(changed.Render()), "restored menu retains exact load fade pixels");
         }
         AssertTrue(changed.LoadRequested, "screen fixture reaches load handoff");
-        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).ToSnapshot().MapStationBytes.SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
+        AssertTrue((saves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires saves.ReadSlot(0).")).Progression.HasAreaMap(AreaId.Maridia), "screen edits preserve saved map progression");
     }
 
     /// <summary>Forbids runtime cartridge reads across all migrated world pages, room frames, labels, and map character sheets.</summary>

@@ -243,7 +243,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             for (int area = 1; area <= 4; area++)
                 runtime.System.SetBossBits(area, BossBits.AreaBoss);
             for (int greyEvent = 6; greyEvent <= 9; greyEvent++)
-                runtime.System.SetEventRaw(greyEvent);
+                runtime.System.Progress.Events.Add(greyEvent);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Statues);
             AssertTrue(runtime.TourianStatues.Enabled,
                 "retail Tourian statue room enables grey animation programs");

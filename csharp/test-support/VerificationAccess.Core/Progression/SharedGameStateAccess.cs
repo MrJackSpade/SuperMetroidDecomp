@@ -13,29 +13,13 @@ internal static class SharedGameStateAccess
         internal static uint Multiply16By16(ushort left, ushort right) => (uint)left * right;
     }
 
-    /// <summary>Resolves a Chozo-room bit into the native 64-byte persistent table.</summary>
-    private static ProgressionBit RoomChozoBit(int bitIndex) =>
-        SharedGameState.ResolvePersistentRoomBit(bitIndex, SharedGameState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.");
-
-    /// <summary>Reads and sets the room Chozo bit table and addresses explored-map bytes by retail area.</summary>
+    /// <summary>Reads and sets the broken Chozo orbs, which production carries only through saves.</summary>
     extension(SharedGameState self)
     {
-        /// <summary>Whether the room's Chozo-statue bit is set in the native 64-byte table.</summary>
-        internal bool HasRoomChozoBit(int bitIndex)
-        {
-            (int byteIndex, int bitMask) = RoomChozoBit(bitIndex);
-            return (self.RoomChozoBits[byteIndex] & bitMask) != 0;
-        }
+        /// <summary>Whether the Chozo orb room data numbers <paramref name="orb"/> has been broken.</summary>
+        internal bool HasRoomChozoBit(int orb) => self.Progress.ChozoOrbs.Contains(orb);
 
-        /// <summary>Sets the room's Chozo-statue bit in the native 64-byte table.</summary>
-        internal void SetRoomChozoBit(int bitIndex)
-        {
-            (int byteIndex, int bitMask) = RoomChozoBit(bitIndex);
-            self.RoomChozoBits[byteIndex] |= checked((byte)bitMask);
-        }
-
-        /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
-        internal byte GetExploredMapByteRaw(AreaId areaIndex, int byteIndex) =>
-            self.GetExploredMapByteRaw(AreaIds.ToIndex(areaIndex), byteIndex);
+        /// <summary>Records the Chozo orb room data numbers <paramref name="orb"/> as broken.</summary>
+        internal void SetRoomChozoBit(int orb) => self.Progress.ChozoOrbs.Add(orb);
     }
 }

@@ -3,8 +3,8 @@ using static SuperMetroid.Core.Areas.Ceres.CeresShaftRotationDefinitions;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
-/// Turns the Ceres escape shaft (<see cref="CeresShaftRotationDefinitions"/>): each wrapping phase's record, with its delay ramp
-/// and Mode 7 coefficients.
+/// Turns the Ceres escape shaft (<see cref="CeresShaftRotationDefinitions"/>): each rotation step's delay ramp and
+/// turning-floor coefficients.
 /// </summary>
 public static class CeresShaftRotation
 {
@@ -20,29 +20,26 @@ public static class CeresShaftRotation
     /// construction is independently compared with all69 native timer words and both
     /// wrapped phase aliases; it does not assert which historical tool authored the ramps.
     /// </remarks>
-    private static ushort Timer(int magnitude) => magnitude switch
+    private static int Timer(int magnitude) => magnitude switch
     {
         0 => 1,
-        <= 15 => (ushort)((magnitude + 3) / 4),
-        <= 21 => (ushort)(5 + (magnitude - 16) / 2),
-        <= 26 => (ushort)(8 + magnitude - 22),
-        <= 33 => (ushort)(12 + 2 * (magnitude - 26)),
+        <= 15 => (magnitude + 3) / 4,
+        <= 21 => 5 + (magnitude - 16) / 2,
+        <= 26 => 8 + magnitude - 22,
+        <= 33 => 12 + 2 * (magnitude - 26),
         34 => 60,
         _ => throw new ArgumentOutOfRangeException(nameof(magnitude)),
     };
 
-    /// <summary>Resolves the native wrapping six-byte offset, including encoded reverse phases.</summary>
-    public static CeresShaftRotationDefinition Read(int phase)
+    /// <summary>The rotation of <paramref name="step"/>, one of the shaft's <see cref="RecordCount"/> steps.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="step"/> is not one of the shaft's rotation steps.</exception>
+    public static CeresShaftRotationDefinition Read(int step)
     {
-        // Multiplication wraps before indexing: $8044 selects record 68, not a
-        // negative index. Reject non-record offsets instead of inventing ROM data.
-        int offset = unchecked((ushort)(6 * phase));
-        int record = offset / 6;
-        if (offset % 6 != 0 || record >= RecordCount)
-            throw new InvalidDataException($"Ceres shaft rotation phase ${phase:X4} does not select an authored record.");
-        int sine = record - 34;
+        if ((uint)step >= RecordCount)
+            throw new InvalidDataException($"Ceres shaft rotation step {step} is outside its {RecordCount} steps.");
+        int sine = step - CenterStep;
         int magnitude = Math.Abs(sine);
-        int cosine = (ushort)(256 - (magnitude * magnitude + 255) / 512);
-        return new(Timer(magnitude), unchecked((ushort)sine), cosine);
+        int cosine = 256 - (magnitude * magnitude + 255) / 512;
+        return new(Timer(magnitude), sine, cosine);
     }
 }

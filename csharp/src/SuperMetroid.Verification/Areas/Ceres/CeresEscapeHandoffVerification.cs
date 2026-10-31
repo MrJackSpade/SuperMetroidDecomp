@@ -157,7 +157,7 @@ internal static class CeresEscapeHandoffVerification
         for (int i = 0; i < 33; i++)
             StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
         AssertEqual(68, state.RotationStep, "shaft forward sweep enters the reverse sweep at step 68");
-        AssertTrue(state.RotatingBackward, "shaft forward sweep reverses after step 67");
+        AssertEqual(CeresShaftSweep.Backward, state.Sweep, "shaft forward sweep reverses after step 67");
         AssertEqual(0x8044, carryover.Countdown.RawValue, "the following room inherits the reverse step as phase $8044");
         StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, carryover));
         AssertEqual(67, state.RotationStep, "shaft reverse sweep counts down");

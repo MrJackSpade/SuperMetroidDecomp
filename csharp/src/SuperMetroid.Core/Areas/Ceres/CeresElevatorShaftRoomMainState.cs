@@ -40,8 +40,8 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <summary>The shaft's turn step: its rotation record, 0 through 68.</summary>
     public int RotationStep { get; private set; }
 
-    /// <summary>Whether the turn is sweeping backward, from step 68 down to 1, rather than forward from 0 to 67.</summary>
-    public bool RotatingBackward { get; private set; }
+    /// <summary>Which way the turn is sweeping: forward from step 0 to 67, or backward from step 68 down to 1.</summary>
+    public CeresShaftSweep Sweep { get; private set; }
 
     /// <summary>True after the elevator bounds have admitted Samus once.</summary>
     public bool DepartureRequested { get; private set; }
@@ -65,7 +65,7 @@ public sealed class CeresElevatorShaftRoomMainState
         if (active)
         {
             RotationStep = InitialRotationIndex;
-            carryover.LeaveTurnStep(RotationStep, RotatingBackward);
+            LeaveTurnStep(carryover);
             RotationTimer = WrappingCountdown.Start(InitialRotationTimer);
         }
     }
@@ -131,32 +131,32 @@ public sealed class CeresElevatorShaftRoomMainState
         // Both sweeps read the record of the current step.
         var record = CeresShaftRotation.Read(RotationStep);
         RotationTimer = WrappingCountdown.FromRaw(record.Timer);
-        int sine = record.Sine;
-        int cosine = record.Cosine;
         Transform = new TurningFloorTransform(
-            MatrixA: unchecked((short)cosine),
-            MatrixB: unchecked((short)sine),
-            MatrixC: unchecked((short)-sine),
+            MatrixA: record.Cosine,
+            MatrixB: record.Sine,
+            MatrixC: -record.Sine,
             Center: CeresShaftRotationCenter);
 
         // Steps 0..67 sweep forward; after 67 the turn reverses at step 68. The backward sweep counts down until
         // step 1 hands over to forward step 0, so the backward sweep never reaches step 0 itself.
-        if (RotatingBackward)
+        switch (Sweep)
         {
-            if (RotationStep == 1)
-                RotatingBackward = false;
-            RotationStep--;
+            case CeresShaftSweep.Backward:
+                if (RotationStep == 1)
+                    Sweep = CeresShaftSweep.Forward;
+                RotationStep--;
+                break;
+            case CeresShaftSweep.Forward when RotationStep == LastForwardStep:
+                Sweep = CeresShaftSweep.Backward;
+                RotationStep = FirstBackwardStep;
+                break;
+            case CeresShaftSweep.Forward:
+                RotationStep++;
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CeresShaftSweep)} {Sweep}.");
         }
-        else if (RotationStep == LastForwardStep)
-        {
-            RotatingBackward = true;
-            RotationStep = FirstBackwardStep;
-        }
-        else
-        {
-            RotationStep++;
-        }
-        carryover.LeaveTurnStep(RotationStep, RotatingBackward);
+        LeaveTurnStep(carryover);
 
         return new(Transform, MatrixChanged: true, DepartureRequestedThisFrame);
     }
@@ -173,6 +173,10 @@ public sealed class CeresElevatorShaftRoomMainState
         samus.Kinematics.YSpeed.Whole == 0 &&
         samus.Kinematics.YSpeed.Fraction == 0;
 
+
+    /// <summary>Leaves the shaft's turn step and sweep for the following room's main.</summary>
+    private void LeaveTurnStep(RoomMainCarryover carryover) =>
+        carryover.LeaveTurnStep(RotationStep, backward: Sweep == CeresShaftSweep.Backward);
 
     /// <summary>Starts the shaft at the door ASM's identity matrix and fixed rotation center.</summary>
     private static TurningFloorTransform CreateInitialTransform() => new(

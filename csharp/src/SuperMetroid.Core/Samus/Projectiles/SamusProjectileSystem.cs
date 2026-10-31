@@ -70,37 +70,30 @@ public sealed class SamusProjectileSystem
     internal ProjectileTrails Trails { get; }
 
     /// <summary>
-    /// The installed cartridge bytes the trail, HUD-admission and SpaceTime glitch paths read; null until the host binds
-    /// the installation.
+    /// Whether the posture-transition admission admits weapons for a pose outside its table, which the beam producer and
+    /// the Grapple admission consult.
     /// </summary>
-    [field: NonSerialized]
-    internal InstalledSamusOverreads? Overreads
-    {
-        get;
-        set
-        {
-            field = value;
-            Trails.Overreads = value;
-            Animation.Overreads = value;
-        }
-    }
+    internal PostureAdmissionBeyondTransitions<SamusPoseId> PostureAdmission { get; }
 
     /// <summary>Creates one room's five projectile slots, eighteen trail slots and the owners that run them.</summary>
     /// <param name="charge">The held beam charge, flare and charge palette, which outlive each room's projectiles.</param>
     /// <param name="residue">The words the previous room's projectile slots leave behind.</param>
-    internal SamusProjectileSystem(BeamChargeState charge, SamusProjectileResidue residue)
+    /// <param name="overreads">The installed services reproducing the glitch reads the shots, trails and flare make.</param>
+    internal SamusProjectileSystem(BeamChargeState charge, SamusProjectileResidue residue, SamusOverreadServices overreads)
     {
+        Ensure.NotNull(overreads);
         Charge = Ensure.NotNull(charge);
+        PostureAdmission = overreads.PostureAdmission;
         SlotTable = new ProjectileSlotTable();
         Earthquakes = new ProjectileEarthquakes();
         ImpactAudio = new ProjectileImpactAudio();
-        Animation = new ProjectileAnimation(Charge, SlotTable);
+        Animation = new ProjectileAnimation(Charge, SlotTable, overreads.ChargeFlareDelays);
         TerrainCollision = new ProjectileTerrainCollision(Animation, Earthquakes, ImpactAudio);
         EnemyImpacts = new ProjectileEnemyImpacts(Animation, Earthquakes, SlotTable, TerrainCollision);
-        Trails = new ProjectileTrails(SlotTable);
-        Chainsaw = new ChainsawPowerBombCallback(Animation);
+        Trails = new ProjectileTrails(SlotTable, overreads.TrailStarts);
+        Chainsaw = new ChainsawPowerBombCallback(Animation, overreads.ChainsawFuseShift);
         Shinespark = new ShinesparkEchoProjectile(Animation, SlotTable);
-        Combos = new BeamCombos(Animation, Charge, SlotTable, Trails);
+        Combos = new BeamCombos(Animation, Charge, SlotTable, Trails, overreads.SpaceTimeOverwrite);
         Firing = new BeamFiring(Animation, Charge, Combos, SlotTable, TerrainCollision);
         Motion = new ProjectileMotion(Animation, SlotTable, TerrainCollision, Trails);
         Ensure.NotNull(residue).ApplyTo(SlotTable.Slots);
@@ -357,7 +350,7 @@ public sealed class SamusProjectileSystem
         // ordinary crouch/stand transitions still run their native beam producer.
         bool preservesPostureCharge = hudHandler == SamusHudHandler.Transition &&
             !SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose,
-                grappleActive: samus.Grapple.Phase != GrapplePhase.Inactive, Overreads);
+                grappleActive: samus.Grapple.Phase != GrapplePhase.Inactive, PostureAdmission);
         if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
             !SamusPoseMetadata.IsStableBallPose(samus.Pose))
         {
@@ -478,7 +471,7 @@ public sealed class SamusProjectileSystem
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SpacetimePaletteCopyTail)
             {
-                BeamCombos.RunSpacetimePaletteCopyTail(terrain.Progression, Overreads, slot);
+                Combos.RunSpacetimePaletteCopyTail(terrain.Progression, slot);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.ChainsawPowerBomb)
             {
@@ -487,8 +480,7 @@ public sealed class SamusProjectileSystem
                     samus,
                     slot,
                     sharedProjectiles,
-                    terrain.Plms,
-                    Overreads);
+                    terrain.Plms);
                 projectileDeleted |= !slot.IsActive;
             }
             else if (slot.PreInstruction ==

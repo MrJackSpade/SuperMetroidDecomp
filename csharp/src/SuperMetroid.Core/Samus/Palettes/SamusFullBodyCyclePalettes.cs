@@ -23,15 +23,15 @@ public static class SamusFullBodyCyclePalettes
 
     /// <summary>
     /// Reads the active Speed Booster palette anywhere in the three suits' consecutive lists. Gravity's steps four and
-    /// five, inherited from the shared Screw Attack step, instead read the instruction bytes after the lists.
+    /// five, inherited from the shared Screw Attack step, instead copy the colours read past the lists.
     /// </summary>
     /// <param name="suit">The suit Samus shows.</param>
     /// <param name="step">The cycle step, counted from the suit's first entry.</param>
     internal static SpeedBoosterPaletteSource ReadActiveSpeedBoosterPalette(SamusSuit suit, int step) =>
         new SpeedBoosterPaletteSelection(suit, step) switch
         {
-            (SamusSuit.Gravity, GravityExpansionOverrunStep) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.Expansion),
-            (SamusSuit.Gravity, GravityGrappleCodeOverrunStep) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.GrappleCode),
+            (SamusSuit.Gravity, GravityExpansionOverrunStep) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.FirstStepPastCycle),
+            (SamusSuit.Gravity, GravityGrappleCodeOverrunStep) => SpeedBoosterPaletteSource.Of(SpeedBoosterPaletteOverrun.SecondStepPastCycle),
             _ => SpeedBoosterPaletteSource.Of(ReadCompiledList(suit, step, SpeedBoosterSteps,
                 SamusFullBodyCycleFamily.SpeedBooster, PaletteCycleShape.Linear)),
         };

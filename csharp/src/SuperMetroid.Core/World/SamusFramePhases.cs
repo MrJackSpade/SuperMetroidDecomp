@@ -120,7 +120,7 @@ internal sealed class SamusFramePhases
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
-                 (_player.DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, projectiles.Overreads)) &&
+                 (_player.DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus, projectiles.PostureAdmission)) &&
                  ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & ControllerButton.X) != ControllerButton.None)
         {
             // Normal HUD item four now reaches the same bank-$9B actor as the

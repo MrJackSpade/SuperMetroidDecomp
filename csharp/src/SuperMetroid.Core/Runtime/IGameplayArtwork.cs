@@ -134,8 +134,8 @@ internal interface IGameplayArtwork
     /// <summary>Timed projectile frame sprite choices.</summary>
     InstalledProjectileFrameBindings? ProjectileFrameBindings { get; }
 
-    /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
-    InstalledSamusOverreads? SamusOverreads { get; }
+    /// <summary>The compatibility services reproducing what Samus's glitch paths read, decoded from the player's cartridge.</summary>
+    SamusOverreadServices? SamusOverreads { get; }
 
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     InstalledSpriteSheets? SpriteSheets { get; }

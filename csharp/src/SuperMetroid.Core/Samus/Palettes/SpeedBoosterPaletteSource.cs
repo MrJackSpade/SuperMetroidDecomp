@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>
 /// What one active Speed Booster cycle phase copies into Samus's suit colors: a cycle palette, or, for Gravity's two
-/// phases past its list, the instruction bytes that follow the lists.
+/// steps past its list, the colours read past the lists.
 /// </summary>
 internal readonly record struct SpeedBoosterPaletteSource
 {

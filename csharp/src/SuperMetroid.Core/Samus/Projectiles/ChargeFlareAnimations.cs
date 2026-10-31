@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using static SuperMetroid.Core.Samus.Projectiles.ChargeFlareAnimationDefinitions;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -9,23 +8,19 @@ internal static class ChargeFlareAnimations
     /// <summary>
     /// The delay or command byte at <paramref name="frame"/> of charge-flare <paramref name="component"/>'s program: zero
     /// the main flare, one the slow sparks, two the fast sparks. The index wraps within sixteen bits, so a frame past a
-    /// program's end reads the following programs, and one wrapping below a program's start reads the words naming them,
-    /// whose values are the programs' places in <paramref name="windows"/>.
+    /// program's end reads the following programs, and one wrapping below the first program's start reads the delays
+    /// <paramref name="below"/> decoded there.
     /// </summary>
-    internal static byte ReadDelay(int component, int frame, SamusAnimationWindows? windows)
+    internal static byte ReadDelay(int component, int frame, ChargeFlareDelaysBelowPrograms below)
     {
+        Ensure.NotNull(below);
         int offset = unchecked((ushort)(Start(component) + frame));
         if (offset < RegionByteCount)
             return ReadByte(offset);
-        int tableByte = unchecked((ushort)(offset + ProgramTableByteCount));
-        if (tableByte >= ProgramTableByteCount)
+        int distanceBelow = ushort.MaxValue + 1 - offset;
+        if (distanceBelow > ProgramTableByteCount)
             throw new InvalidDataException($"Charge-flare cadence byte {offset} is outside the compiled programs.");
-        int program = (windows ?? throw new InvalidOperationException(
-            "A charge-flare read below its programs needs the installed Samus overread catalog's animation windows.")).ChargeFlarePrograms
-            + Start(tableByte / sizeof(ushort));
-        Span<byte> programWord = stackalloc byte[sizeof(ushort)];
-        BinaryPrimitives.WriteUInt16LittleEndian(programWord, unchecked((ushort)program));
-        return programWord[tableByte % sizeof(ushort)];
+        return checked((byte)below.DelayBelow(distanceBelow));
     }
 
     /// <summary>The main flare's delay or command byte at <paramref name="frame"/>, read without wrapping, as the grapple flare reads it.</summary>

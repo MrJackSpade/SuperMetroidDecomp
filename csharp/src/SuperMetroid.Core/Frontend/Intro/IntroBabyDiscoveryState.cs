@@ -35,9 +35,8 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Sets up the native scene's Samus state, partial room collision map, actors, and demo input list.</summary>
     /// <param name="random">The session's random-number word, which the demo's Samus animation draws from.</param>
     /// <param name="audio">The audio owner the scene's sounds publish to, or null for none.</param>
-    /// <param name="existingSamus">The flashback's Samus the scene carries on with, or null for a new one.</param>
-    public IntroBabyDiscoveryState(SharedRandom random, AudioQueues? audio = null,
-        SamusState? existingSamus = null)
+    /// <param name="existingSamus">The flashback's Samus the scene carries on with.</param>
+    public IntroBabyDiscoveryState(SharedRandom random, SamusState existingSamus, AudioQueues? audio = null)
     {
         this.random = Ensure.NotNull(random);
 
@@ -46,9 +45,8 @@ internal sealed class IntroBabyDiscoveryState
         egg = CreateActor(IntroBabyActorDefinitions.Egg);
         confusedBaby = CreateActor(IntroBabyActorDefinitions.ConfusedBaby);
 
-        // Native scene setup reuses Samus WRAM, including transition history. Standalone
-        // diagnostics may start with a fresh owner, but the full intro carries it forward.
-        Samus = existingSamus ?? new SamusState();
+        // Native scene setup reuses Samus WRAM, including transition history: the intro carries the flashback's Samus forward.
+        Samus = Ensure.NotNull(existingSamus);
         Samus.Pose = SamusPoseId.FacingLeftNormalPose;
         Samus.Position = Samus.Position.WithWhole(new(376, 147));
         Samus.SelectedHudItem = HudItem.Beam;

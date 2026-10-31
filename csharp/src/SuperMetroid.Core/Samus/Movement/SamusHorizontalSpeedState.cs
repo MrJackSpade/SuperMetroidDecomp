@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
@@ -342,8 +343,14 @@ public sealed class SamusHorizontalSpeedState
     /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
     /// </summary>
     /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
-    public bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame, InstalledSamusSuitColors? suitColors = null, SamusFullBodyCycleColours? cycleColors = null,
-        InstalledSamusOverreads? overreads = null)
+    /// <param name="colours">Samus's colours, which the copied palette replaces.</param>
+    /// <param name="frame">What this update's palette handler reads of Samus.</param>
+    /// <param name="overrunColours">The colours Gravity copies on the Speed Booster steps past its cycle.</param>
+    /// <param name="suitColors">The installed normal suit colours.</param>
+    /// <param name="cycleColors">The installed full-body cycle colours.</param>
+    internal bool UpdateSpeedBoosterPalette(SamusColours colours, SpeedBoosterPaletteFrame frame,
+        SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> overrunColours,
+        InstalledSamusSuitColors? suitColors = null, SamusFullBodyCycleColours? cycleColors = null)
     {
         Ensure.NotNull(colours);
 
@@ -423,7 +430,7 @@ public sealed class SamusHorizontalSpeedState
 
         SpeedBoosterPaletteSource source = SamusFullBodyCyclePalettes.ReadActiveSpeedBoosterPalette(
             suit, CyclePaletteStep);
-        SamusSpeedBoosterPalette.Apply(colours, source, cycleColors, overreads);
+        SamusSpeedBoosterPalette.Apply(colours, source, cycleColors, overrunColours);
 
         // The native clamp is AFTER the copy. Screw Attack can leave step four or five in
         // this shared step; retain that one bounded overrun before pinning the last step.

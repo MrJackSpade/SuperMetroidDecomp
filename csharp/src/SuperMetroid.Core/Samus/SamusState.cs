@@ -474,7 +474,11 @@ public sealed class SamusState
     /// <summary>The step of the animated pose's program that Samus's animation frame is on.</summary>
     /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
     internal SamusAnimationProgramStep AnimationStep => SamusAnimationDelays.StepFor(
-        AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame);
+        AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame,
+        _animationContinuation);
+
+    /// <summary>What an animation frame past her pose's program reads, the session's installed service.</summary>
+    private readonly LaidOutProgramContinuation<SamusPoseId> _animationContinuation;
 
     /// <summary>
     /// Operand published by animation command $F8 through the native “super-special
@@ -512,8 +516,10 @@ public sealed class SamusState
 
     /// <summary>Creates independent player state and owned movement/special-sequence children, binding live kinematics back to this owner and seeding its collision pose with the standing-right default.</summary>
     /// <remarks>Construction performs no cartridge reads and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
-    public SamusState()
+    /// <param name="animationContinuation">What an animation frame past her pose's program reads, the session's installed service.</param>
+    internal SamusState(LaidOutProgramContinuation<SamusPoseId> animationContinuation)
     {
+        _animationContinuation = Ensure.NotNull(animationContinuation);
         HudSelection = new SamusHudSelection();
         InputSnapshot = new SamusInputSnapshot();
         Presentation = new SamusPresentation();

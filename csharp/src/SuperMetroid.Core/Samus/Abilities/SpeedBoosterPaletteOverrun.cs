@@ -1,10 +1,13 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>The two instruction words past the Gravity list that Speed Booster reads as bank-$9B palette pointers, valued by the word.</summary>
+/// <summary>
+/// The two Speed Booster steps, inherited from a Screw Attack cycle, at which Gravity's read runs past the end of its own
+/// cycle list; each copies the colours <see cref="SpeedBoosterOverrunColours{TPhase, TColour}"/> holds for it.
+/// </summary>
 internal enum SpeedBoosterPaletteOverrun
 {
-    /// <summary>$91:DAC7, the AD 68 prefix of LDA $0A68 immediately after the Gravity list; interpreted as a bank-$9B pointer.</summary>
-    Expansion,
-    /// <summary>$91:DAC9, the 0A C9 instruction-boundary word following that prefix; interpreted as a bank-$9B pointer.</summary>
-    GrappleCode,
+    /// <summary>Step four, the first past Gravity's list, which copies black.</summary>
+    FirstStepPastCycle,
+    /// <summary>Step five, the second past Gravity's list, which copies the colours the Grapple handler's code reads as.</summary>
+    SecondStepPastCycle,
 }

@@ -293,7 +293,9 @@ internal sealed class MenuGamePhases(FrontendSession session)
     private IntroCinematicState CreateIntroCinematic(bool japaneseText)
     {
         var cinematic = new IntroCinematicState(
-session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
+            session.Artwork.SamusOverreads ?? throw new InvalidOperationException(
+                "The opening cinematic's flashbacks require the installed Samus overread services."),
+            session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
             session.Artwork.BeamPalettes, session.Artwork.SamusBodyArt, japaneseText)
         {
             Random = session.Random,

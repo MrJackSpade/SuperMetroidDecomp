@@ -1,51 +1,51 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// The Chainsaw callback (<c>$90:B0AC</c>), reached by uncharged beam combination thirteen: it runs the Power Bomb
-/// pre-instruction over the shot. Its misaligned store into the cached window registers is a presentation quirk the
-/// port drops (#1407).
+/// The Chainsaw callback, reached by uncharged beam combination thirteen: it runs the Power Bomb pre-instruction over the
+/// shot. Its misaligned store into the cached window registers is a presentation quirk the port drops (#1407).
 /// </summary>
 internal sealed class ChainsawPowerBombCallback
 {
     /// <summary>Projectile animation owner used when the callback clears its slot.</summary>
     private readonly ProjectileAnimation _animation;
+    /// <summary>Where the shot's animation lands when the borrowed fuse speeds up.</summary>
+    private readonly ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> _fuseShift;
 
-    /// <summary>Connects the callback to projectile animation cleanup.</summary>
-    internal ChainsawPowerBombCallback(ProjectileAnimation animation)
+    /// <summary>Connects the callback to projectile animation cleanup and the fuse's animation shift.</summary>
+    internal ChainsawPowerBombCallback(ProjectileAnimation animation,
+        ChainsawFuseAnimationShift<AnimationProgramCursor<SamusProjectileProgram>> fuseShift)
     {
         _animation = animation;
+        _fuseShift = Ensure.NotNull(fuseShift);
     }
 
-    /// <summary>Runs the Power Bomb fuse over the shot, then the bank-$94 boundary dispatcher.</summary>
+    /// <summary>Runs the Power Bomb fuse over the shot, then the Power Bomb boundary reactions.</summary>
     internal void RunPowerBombPreInstruction(
         RoomLevelData level,
         SamusState samus,
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles,
-        ISamusRoomPlms? roomPlms,
-        InstalledSamusOverreads? overreads)
+        ISamusRoomPlms? roomPlms)
     {
-        InstalledProjectileListPositions Lists() => (overreads ?? throw new InvalidOperationException(
-            "The chainsaw window store needs the installed Samus overread catalog.")).ProjectileLists;
         // The misaligned callback runs the Power Bomb fuse over the shot, from a zero fuse.
         PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.ChainsawPowerBombFuse, sharedProjectiles.PowerBombExplosion.IsArmed);
         slot.ChainsawPowerBombFuse = fuse.Timer;
-        // On a beam the fuse's fast-list switch adds its offset to the beam's own list pointer, so where it lands is
-        // the native list layout's: a glitch the port reproduces through that layout.
+        // On a beam the fuse's switch to the fast animation moves the beam's own animation as far as a bomb's fast
+        // animation lies from its slow one, which lands wherever the original game laid an animation out there.
         if (fuse.FastAnimation && slot.Cursor is { } live)
-            slot.Cursor = Lists().Offset(live, SamusPowerBombFuseData.FastAnimationOffset);
+            slot.Cursor = _fuseShift.Shift(live);
 
         if (fuse.SpawnExplosion)
             sharedProjectiles.PowerBombExplosion.Spawn(slot.Position.Whole);
         if (fuse.DeleteProjectile)
             _animation.ClearProjectile(slot);
 
-        // `$90:B0AE` always falls through from PowerBomb_Func3 to `$94:9CAC`, even
-        // when the zero-timer/no-flag branch just cleared the projectile. The latter
-        // case consequently dispatches as no projectile, while both paths
-        // use the global Power Bomb centre/radius rather than the Chainsaw's position.
+        // The callback always falls through from the fuse to the Power Bomb boundary reactions, even when the
+        // zero-timer/no-flag branch just cleared the projectile. The latter case consequently dispatches as no
+        // projectile, while both paths use the global Power Bomb centre/radius rather than the Chainsaw's position.
         // Preserve the inclusive edge traversal and its synchronous PLM mutations.
         var reactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(

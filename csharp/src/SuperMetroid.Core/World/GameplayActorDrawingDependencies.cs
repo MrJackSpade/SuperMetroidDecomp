@@ -40,4 +40,7 @@ internal sealed record GameplayActorDrawingDependencies
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
 
+    /// <summary>The colours Gravity copies on the Speed Booster steps past its cycle.</summary>
+    public required SpeedBoosterOverrunColours<SuperMetroid.Core.Samus.Abilities.SpeedBoosterPaletteOverrun, RgbColor> SpeedBoosterOverrunColours { get; init; }
+
 }

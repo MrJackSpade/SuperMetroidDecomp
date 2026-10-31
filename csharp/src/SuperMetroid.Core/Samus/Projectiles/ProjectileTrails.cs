@@ -9,14 +9,15 @@ internal sealed class ProjectileTrails
     /// <summary>Projectile-owned left and right trail pairs shared with the slot allocator.</summary>
     private readonly ProjectileSlotTable _slotTable;
 
-    /// <summary>The installed placements a trail reads past its placement list's records; null until bound.</summary>
-    [field: NonSerialized]
-    internal InstalledSamusOverreads? Overreads { get; set; }
+    /// <summary>Where a trail starts when its read passes its placement list.</summary>
+    private readonly TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> _starts;
 
     /// <summary>Uses the owning projectile table so trail allocation and drawing see the same slots.</summary>
-    internal ProjectileTrails(ProjectileSlotTable slotTable)
+    internal ProjectileTrails(ProjectileSlotTable slotTable,
+        TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> starts)
     {
         _slotTable = slotTable;
+        _starts = Ensure.NotNull(starts);
     }
 
     /// <summary>Selects native trail lists and positions both sides from the shot's current animation record.</summary>
@@ -51,7 +52,7 @@ internal sealed class ProjectileTrails
 
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
-        int animationFrame = GetTrailAnimationFrame(projectile, Overreads);
+        int animationFrame = GetTrailAnimationFrame(projectile, _starts);
         ProjectileTrailFamilyGroup group = projectile.Type.Echo is not null
             ? ProjectileTrailFamilyGroup.SpecialBeamAttack
             : projectile.Type.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged;
@@ -62,7 +63,7 @@ internal sealed class ProjectileTrails
         // scratch: its exact appearance would need direct-page emulation the port does not model, so it is exempt (owner
         // decision on #1318).
         if (leftProgram is not { } left || rightProgram is not { } right || list is not { } placements ||
-            ProjectileTrailPlacements.Start(placements, animationFrame, Overreads) is not { } placement)
+            ProjectileTrailPlacements.Start(placements, animationFrame, _starts) is not { } placement)
             return;
 
         // The search tests only the left timer. A right stream can still be alive in malformed or debug-edited state and
@@ -82,13 +83,16 @@ internal sealed class ProjectileTrails
             .WithY(AddOffset(projectile.Position.Y.Whole, placement.Right.Y));
     }
 
-    /// <summary>Reads the native word immediately before the shot's next instruction pointer.</summary>
-    internal static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile, InstalledSamusOverreads? overreads)
+    /// <summary>
+    /// The animation frame a trail reads from <paramref name="projectile"/>: the frame of the record its animation last
+    /// installed, or for a list that has just started the frame <paramref name="starts"/> decoded for it.
+    /// </summary>
+    internal static int GetTrailAnimationFrame(SamusProjectileSlot projectile,
+        TrailStartPastPlacements<SamusProjectileProgram, ProjectileTrailPlacementList, ProjectileTrailPlacement> starts)
     {
-        // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
-        // The upstream C port's timer-one lookahead is absent from the pinned ROM.
+        // The trail reads the record before the animation's next position, not a lookahead at the next phase.
         return SamusProjectilePrograms.PrecedingAnimationFrame(projectile.Cursor
-            ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."), overreads);
+            ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."), starts);
     }
 
     /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with 16-bit position wrap.</summary>

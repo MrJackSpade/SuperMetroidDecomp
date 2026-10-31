@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -13,14 +14,18 @@ internal sealed class BeamCombos
     private readonly ProjectileSlotTable _slotTable;
     /// <summary>Spawns periodic Wave and other combo trails from their live particle slots.</summary>
     private readonly ProjectileTrails _trails;
+    /// <summary>What the SpaceTime shot's runaway palette copy overwrites in saved progression.</summary>
+    private readonly SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>> _spaceTimeOverwrite;
 
     /// <summary>Connects special beam activation and particle updates to shared projectile, charge, and trail owners.</summary>
-    internal BeamCombos(ProjectileAnimation animation, BeamChargeState charge, ProjectileSlotTable slotTable, ProjectileTrails trails)
+    internal BeamCombos(ProjectileAnimation animation, BeamChargeState charge, ProjectileSlotTable slotTable, ProjectileTrails trails,
+        SpaceTimeProgressionOverwrite<AnimationProgramCursor<SamusProjectileProgram>> spaceTimeOverwrite)
     {
         _animation = animation;
         _charge = charge;
         _slotTable = slotTable;
         _trails = trails;
+        _spaceTimeOverwrite = Ensure.NotNull(spaceTimeOverwrite);
     }
     /// <summary>
     /// Angle step the Ice and Plasma special attacks add to every orbiting slot's angle each update: four, or minus
@@ -223,36 +228,21 @@ internal sealed class BeamCombos
         }
     }
     /// <summary>
-    /// Executes the observable tail of the malformed $90:AD16 callback. The callback
-    /// starts on the second operand byte of a long store, so $C1 $7E is first decoded as
-    /// an irrelevant compare. It then increments the projectile loop's X and inherited Y
-    /// before conditionally falling back into LoadBeamPalette's copy loop at $90:AD12.
+    /// Runs the SpaceTime shot's callback, which falls back into the beam palette's copy loop and, from an animation high
+    /// in its bank, copies on through saved progression (<see cref="SpaceTimeProgressionOverwrite{TCursor}"/>). Before the
+    /// shot's first frame is installed, or with no animation, the copy starts low and ends long before progression, and
+    /// only the progression part of the copy is kept (owner decision on #1318).
     /// </summary>
-    internal static void RunSpacetimePaletteCopyTail(
-        SuperMetroid.Core.Progression.SharedGameState? progression,
-        InstalledSamusOverreads? overreads,
-        SamusProjectileSlot slot)
+    /// <param name="progression">The session's progression, which the copy overwrites; required when it reaches it.</param>
+    /// <param name="slot">The SpaceTime shot.</param>
+    internal void RunSpacetimePaletteCopyTail(SharedGameState? progression, SamusProjectileSlot slot)
     {
-        int inheritedY = slot.Sprite is null
-            ? unchecked((ushort)(slot.Type.BeamCombination.TableIndex *
-                SamusFiringTableDefinitions.InitialSpeedRowBytes))
-            : unchecked((ushort)((overreads ?? throw new InvalidOperationException(
-                "The SpaceTime palette copy needs the installed Samus overread catalog.")).ProjectileLists.Position(slot.Cursor) -
-                InstalledProjectileListPositions.TimedRecordByteCount));
-        // The copy inherits the projectile update's position as its destination: it starts at sprite palette six's
-        // colour one past the slot's ordinal.
-        int x = (slot.SlotIndex + 1) * sizeof(ushort);
-        int y = unchecked((ushort)(inheritedY + sizeof(ushort)));
-        while (unchecked((short)(y - SpacetimeBeamCopyDefinitions.PaletteByteCount)) < 0)
-        {
-            new SpacetimeBeamCorruptionMemory(
-                progression ?? throw new InvalidOperationException(
-                    "SpaceTime's palette-copy overwrite writes progression; the frame must pass it."),
-                overreads ?? throw new InvalidOperationException(
-                    "SpaceTime's palette-copy overwrite reads cartridge bytes; the Samus overread catalog must be installed.")).CopyPaletteWord(x, y);
-            x = unchecked((ushort)(x + sizeof(ushort)));
-            y = unchecked((ushort)(y + sizeof(ushort)));
-        }
+        Ensure.NotNull(slot);
+        if (slot.Sprite is null || slot.Cursor is not { } cursor)
+            return;
+        if (_spaceTimeOverwrite.For(cursor, slot.SlotIndex) is { } overwrite)
+            (progression ?? throw new InvalidOperationException(
+                "SpaceTime's palette-copy overwrite writes progression; the frame must pass it.")).Overwrite(overwrite);
     }
     /// <summary>Runs $90:DB06/$DC9C, including paired-hit cleanup and retagging the primary particles as falling trails.</summary>
     internal SoundEffectId? StepSpazerCombo(SamusState samus,

@@ -80,6 +80,8 @@ internal sealed class RoomLoader
     private readonly PlmShotBlockVisuals _shotBlockVisuals;
     /// <summary>Resets Samus projectiles for the destination room.</summary>
     private readonly BeamChargeState _beamCharge;
+    /// <summary>The installed services reproducing Samus's glitch reads, handed to every Samus and projectile system built here.</summary>
+    private readonly SamusOverreadServices _samusOverreads;
     /// <summary>Holds the active room, camera, selected door, and load-station identity.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>The Fireflea state, the room's fixed colour and installed FX artwork each room's layer-3 FX reads.</summary>
@@ -116,6 +118,7 @@ internal sealed class RoomLoader
         _player = dependencies.Player;
         _shotBlockVisuals = dependencies.ShotBlockVisuals;
         _beamCharge = dependencies.BeamCharge;
+        _samusOverreads = Ensure.NotNull(dependencies.SamusOverreads);
         _room = dependencies.Room;
         _roomFx = dependencies.RoomFx;
         _paletteFxSession = dependencies.PaletteFxSession;
@@ -270,7 +273,7 @@ internal sealed class RoomLoader
     internal void RestoreSavedPlayerState(SuperMetroidSaveSlot slot, bool resetBossesOnLoad = false)
     {
         Ensure.NotNull(slot);
-        _player.Samus = new SamusState
+        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation)
         {
             FloorQueueResidue = _enemySession.FloorQueueResidue,
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -305,7 +308,7 @@ internal sealed class RoomLoader
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a tester grant already applied to her is not repeated.
         // $91:E12F clears Pose; the port's constructor defaults to the right-facing pose.
-        var samus = new SamusState { FloorQueueResidue = _enemySession.FloorQueueResidue, Pose = 0, AnimationFrame = 0 };
+        var samus = new SamusState(_samusOverreads.AnimationContinuation) { FloorQueueResidue = _enemySession.FloorQueueResidue, Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
         _tester.CarryInventoryGrant(carried, samus);
@@ -927,7 +930,7 @@ internal sealed class RoomLoader
             loadingSamus.Shinespark.ResetProjectileEchoStorage();
         }
         var bombs = new SamusBombProjectileSystem();
-        var projectiles = new SamusProjectileSystem(_beamCharge, carryOver.ProjectileResidue);
+        var projectiles = new SamusProjectileSystem(_beamCharge, carryOver.ProjectileResidue, _samusOverreads);
         scope.BombProjectiles = bombs;
         scope.Projectiles = projectiles;
         _artwork.BindProjectiles(projectiles, bombs);
@@ -1156,7 +1159,7 @@ internal sealed class RoomLoader
         if (_room.ActiveRoom is null || _room.ActiveLoadStation is null)
             throw new InvalidOperationException("The starting Ceres room must be loaded before Samus setup.");
 
-        _player.Samus = new SamusState
+        _player.Samus = new SamusState(_samusOverreads.AnimationContinuation)
         {
             FloorQueueResidue = _enemySession.FloorQueueResidue,
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,

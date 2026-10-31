@@ -4,33 +4,23 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>Applies installed Speed Booster cycle colors or native overrun words to Samus's suit palette.</summary>
+/// <summary>Applies installed Speed Booster cycle colors, or the colours Gravity reads past its cycle, to Samus's suit palette.</summary>
 internal static class SamusSpeedBoosterPalette
 {
     /// <summary>
-    /// Copies the selected installed cycle into CGRAM. The native expansion and grapple-code
-    /// overruns instead copy their operand-driven bus words through the 15-bit CGRAM port,
-    /// preserving the unrolled cartridge read behavior.
+    /// Copies the selected installed cycle into the suit colours. A step past Gravity's cycle instead copies the colours
+    /// <paramref name="overrunColours"/> decoded for it.
     /// </summary>
     internal static void Apply(SamusColours colours, SpeedBoosterPaletteSource source,
-        SamusFullBodyCycleColours? colors, InstalledSamusOverreads? overreads)
+        SamusFullBodyCycleColours? colors, SpeedBoosterOverrunColours<SpeedBoosterPaletteOverrun, RgbColor> overrunColours)
     {
         if (source.Overrun is { } overrun)
         {
-            for (int index = 0; index < SamusPaletteDefinitions.Common.ColoursPerRow; index++)
-            {
-                // The native unrolled copy uses LDA $0000..001E,X; the expansion window's open
-                // bus returns the operand's high byte for every word.
-                // Arbitrary bus words reach CGRAM through its fifteen-bit data port.
-                colours.Suit.Write(index, RgbColor.FromWordIgnoringTopBit(overrun switch
-                {
-                    SpeedBoosterPaletteOverrun.Expansion => SpeedBoosterPaletteOverrunDefinitions.ExpansionOpenBusWord,
-                    SpeedBoosterPaletteOverrun.GrappleCode => (overreads ?? throw new InvalidOperationException(
-                            "The Speed Booster grapple-code overrun needs the installed Samus overread catalog."))
-                        .SpeedBoosterGrappleCodeWord(index),
-                    _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterPaletteOverrun)} {overrun}."),
-                }));
-            }
+            IReadOnlyList<RgbColor> copied = overrunColours.Colours(overrun);
+            if (copied.Count != SamusPaletteDefinitions.Common.ColoursPerRow)
+                throw new InvalidDataException($"The Speed Booster step {overrun} copies {copied.Count} colours, not one suit row.");
+            for (int index = 0; index < copied.Count; index++)
+                colours.Suit.Write(index, copied[index]);
             return;
         }
         (colors ?? throw new InvalidOperationException(

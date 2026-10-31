@@ -178,8 +178,8 @@ public sealed record GameArtwork : IGameplayArtwork
     /// <summary>The Ceres door and escape overlay and the Tourian statues' colors.</summary>
     public AreaArtworkBundle? AreaArtwork { get; init; }
 
-    /// <summary>The cartridge bytes Samus's glitch paths read, extracted from the player's cartridge.</summary>
-    public InstalledSamusOverreads? SamusOverreads { get; init; }
+    /// <summary>The compatibility services reproducing what Samus's glitch paths read, decoded from the player's cartridge.</summary>
+    public SamusOverreadServices? SamusOverreads { get; init; }
 
     /// <summary>The pre-coloured sprite sheets drawn families select their frames from.</summary>
     public InstalledSpriteSheets? SpriteSheets { get; init; }

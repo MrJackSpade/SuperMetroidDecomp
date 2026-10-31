@@ -14,12 +14,18 @@ internal static class SamusAnimationDelays
     /// <summary>The step of <paramref name="pose"/>'s program at frame <paramref name="frame"/>.</summary>
     /// <exception cref="InvalidDataException">No step of the pose's program is numbered <paramref name="frame"/>.</exception>
     /// <remarks>
-    /// A frame past the program's end reads the program laid out after it through <see cref="Continuation"/>; frame
-    /// targets that program names are shifted back to this pose's frames.
+    /// A frame past the program's end reads the program laid out after it through <paramref name="continuation"/>, which
+    /// names each program by a pose that animates by it; frame targets that program names are shifted back to this pose's
+    /// frames.
     /// </remarks>
-    internal static SamusAnimationProgramStep StepFor(SamusPoseId pose, int frame)
+    /// <param name="pose">The pose whose program is read.</param>
+    /// <param name="frame">Samus's animation frame.</param>
+    /// <param name="continuation">What a frame past a program's end reads.</param>
+    internal static SamusAnimationProgramStep StepFor(SamusPoseId pose, int frame, LaidOutProgramContinuation<SamusPoseId> continuation)
     {
-        SamusAnimationProgram program = ProgramOf(pose);
+        Ensure.NotNull(continuation);
+        SamusPoseId read = pose;
+        SamusAnimationProgram program = ProgramOf(read);
         int readFrame = frame;
         int shift = 0;
         SamusAnimationProgramStep? step = program.TryStepAt(readFrame);
@@ -27,11 +33,12 @@ internal static class SamusAnimationDelays
         {
             if (readFrame < program.FrameCount)
                 throw new InvalidDataException($"Samus animation frame {frame} is not a step of pose {pose}'s program.");
-            LaidOutProgramContinuation<SamusAnimationProgram>.Read read = Continuation.ReadPast(program, readFrame)
+            LaidOutProgramContinuation<SamusPoseId>.Read past = continuation.ReadPast(read, readFrame)
                 ?? throw new InvalidDataException($"Samus animation frame {frame} of pose {pose} reads past every program.");
-            program = read.Program;
-            readFrame = read.Frame;
-            shift += read.Shift;
+            read = past.Program;
+            program = ProgramOf(read);
+            readFrame = past.Frame;
+            shift += past.Shift;
             step = program.TryStepAt(readFrame);
         }
         return shift == 0 ? step : step switch
@@ -42,10 +49,6 @@ internal static class SamusAnimationDelays
             _ => step,
         };
     }
-
-    /// <summary>What a frame past a program's end reads.</summary>
-    private static readonly LaidOutProgramContinuation<SamusAnimationProgram> Continuation =
-        new(SamusAnimationLayoutDefinitions.LaidOut);
 
     /// <summary>The animation program of <paramref name="pose"/>.</summary>
     private static SamusAnimationProgram ProgramOf(SamusPoseId pose)

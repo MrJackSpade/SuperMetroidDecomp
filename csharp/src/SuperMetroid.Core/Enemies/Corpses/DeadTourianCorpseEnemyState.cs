@@ -7,16 +7,13 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 public sealed class DeadTourianCorpseEnemyState
 {
-    /// <summary>Captures the selected corpse variant's rot schedule and callback profile for one slot.</summary>
-    internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, CorpseRottingProgram rotting, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotTable rotTable)
+    /// <summary>Captures the selected corpse variant's callback profile and its own rot schedule for one slot.</summary>
+    internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, DeadTourianBehavior.DeadTourianCorpseProfile profile, CorpseRotSchedule rot)
     {
         Slot = slot;
-        RotTable = Ensure.NotNull(rotTable);
+        Rot = Ensure.NotNull(rot);
         Species = species;
         VariantIndex = variantIndex;
-        YLimit = rotting.YLimit;
-        LateMoveEntryIndex = rotting.LateMoveEntryIndex;
-        WrapOffset = rotting.WrapOffset;
         Profile = profile;
     }
 
@@ -28,16 +25,10 @@ public sealed class DeadTourianCorpseEnemyState
     public DeadTourianCorpseSpecies Species { get; }
     /// <summary>Zero-based variant within the species, obtained by dividing the even native parameter-1 table-byte offset by two; Rippers allow 0–1, Zoomers and Skrees 0–2.</summary>
     public int VariantIndex { get; }
-    /// <summary>The corpse's (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row: 16 for Zoomer and Ripper, 32 for Skree.</summary>
-    internal CorpseRotTable RotTable { get; }
+    /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows, 16 for Zoomer and Ripper, 32 for Skree.</summary>
+    internal CorpseRotSchedule Rot { get; }
     /// <summary>The kind of corpse whose staged characters this one rots, with every other corpse of the kind.</summary>
     internal RottingCorpseKind Flesh { get; init; }
-    /// <summary>Exclusive pixel-row Y limit and final entry index, equal to sprite height minus one; reaching it completes an entry.</summary>
-    public int YLimit { get; }
-    /// <summary>First entry index that uses destructive moves even during the last delay updates, equal to sprite height minus two.</summary>
-    public int LateMoveEntryIndex { get; }
-    /// <summary>Byte displacement added when rows 6 or 7 move across an 8-pixel tile boundary: 84 for three-column Zoomer/Ripper blocks, 52 for two-column Skree blocks.</summary>
-    public int WrapOffset { get; }
     /// <summary>
     /// Pre-rot AI calls counted after solid Samus collision, from 0 through <see cref="LargestPreRotDelayCount"/>; the
     /// sixteenth switches to rotting and the corpse never returns to the delay. Touch/shot callbacks enter rotting directly.

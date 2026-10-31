@@ -43,6 +43,12 @@ internal static class CorpseStagingGeometryDefinitions
         return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
     }
 
+    /// <summary>
+    /// The bytes a pixel row's two-row fall from a character's last two rows carries back into the next character row,
+    /// on top of the row of characters it skips: the planes-0/1 words of the character's six rows above them.
+    /// </summary>
+    internal const int WrapCarryBack = 12;
+
     /// <summary>The rows of characters <paramref name="species"/>'s staged corpse lays out and the characters in each.</summary>
     internal static CorpseRotationExtent RotationExtent(RottingCorpseSpecies species) => species switch
         {

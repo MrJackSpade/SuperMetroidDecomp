@@ -46,9 +46,6 @@ internal sealed class EnemyRoomBinding
     /// <summary>The session's installed enemy presentation; drawing and named artwork transfers require it.</summary>
     internal EnemyTileArtworkCatalog? Artwork => Session.TileArtwork;
 
-    /// <summary>The session's enemy staging surfaces; they outlive each room, as the cartridge's WRAM does.</summary>
-    internal EnemyStagingSurfaces Staging => Session.Staging;
-
     /// <summary>The session's floor update residue, which Ceres Ridley's getaway writes.</summary>
     internal SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue => Session.FloorQueueResidue;
 

@@ -14,6 +14,8 @@ public static class MotherBrainCorpseArtworkDefinitions
 
     /// <summary>$A9:E08B-$E130 extracts six tile rows of the right-hand corpse frame.</summary>
     public const int RowCount = 6;
+    /// <summary>The corpse's visible pixel rows, eight to each tile row; its rot schedule drops every one.</summary>
+    public const int PixelRowCount = RowCount * 8;
     /// <summary>$A9:EA40/$EB0B address seven 32-byte 4bpp tile columns per staging row.</summary>
     public const int ColumnCount = 7;
     /// <summary>One SNES 4bpp 8-by-8 tile occupies 32 bytes in the corpse staging image.</summary>

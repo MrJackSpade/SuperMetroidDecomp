@@ -1,37 +1,28 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>
-/// One dead sidehopper's corpse state: its silhouette, rot table and schedule, hop, palette and contact progress. The
+/// One dead sidehopper's corpse state: its silhouette, rot schedule, hop, palette and contact progress. The
 /// values the cartridge keeps in the enemy's common record are emptied with it when the enemy is killed (<see
 /// cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class DeadSidehopperEnemyState
 {
-    /// <summary>Captures one corpse's silhouette and rot schedule.</summary>
-    internal DeadSidehopperEnemyState(RoomEnemySlot slot, int graphicsVariant, CorpseRottingProgram rotting, CorpseRotTable rotTable)
+    /// <summary>Captures one corpse's silhouette and its own rot schedule.</summary>
+    internal DeadSidehopperEnemyState(RoomEnemySlot slot, int graphicsVariant, CorpseRotSchedule rot)
     {
         Slot = slot;
-        RotTable = Ensure.NotNull(rotTable);
+        Rot = Ensure.NotNull(rot);
         GraphicsVariant = graphicsVariant;
-        YLimit = rotting.YLimit;
-        LateMoveEntryIndex = rotting.LateMoveEntryIndex;
-        WrapOffset = rotting.WrapOffset;
     }
 
     /// <summary>The physical enemy slot owning this corpse's positions, native AI words, collision properties, and instruction list.</summary>
     public RoomEnemySlot Slot { get; }
     /// <summary>Silhouette selected by the population parameter: 0 for the initially living Shitroid victim or 2 for the already dead Tourian corpse, selecting initial graphics and row-copy column layouts.</summary>
     public int GraphicsVariant { get; }
-    /// <summary>The corpse's (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row.</summary>
-    internal CorpseRotTable RotTable { get; }
+    /// <summary>The corpse's own rot schedule: the fall of each of its pixel rows.</summary>
+    internal CorpseRotSchedule Rot { get; }
     /// <summary>The kind of corpse whose staged characters this one rots, with every other corpse of the kind.</summary>
     internal RottingCorpseKind Flesh { get; init; }
-    /// <summary>Sprite height less one, 39: a moved pixel row completes when its next Y reaches this boundary; also identifies the final entry.</summary>
-    public int YLimit { get; }
-    /// <summary>Sprite height less two, 38: this entry and the final entry use destructive moves even during the last three delay calls.</summary>
-    public int LateMoveEntryIndex { get; }
-    /// <summary>Byte displacement, 148, added to the destination of pixel rows 6 and 7 so their two-pixel fall lands in the next tile row.</summary>
-    public int WrapOffset { get; }
 
     /// <summary>
     /// Holding the current bank-$A9 dead-sidehopper AI function pointer; none once a kill has emptied the record.

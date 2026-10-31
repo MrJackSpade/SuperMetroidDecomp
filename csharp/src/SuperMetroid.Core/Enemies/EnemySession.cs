@@ -48,9 +48,6 @@ public sealed class EnemySession : ISpriteObjectPage
     /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota. 0 through 255.</summary>
     internal int DeathQuota { get; set; }
 
-    /// <summary>The session's enemy staging surfaces; they outlive each room, as the cartridge's WRAM does.</summary>
-    internal EnemyStagingSurfaces Staging { get; } = new();
-
     /// <summary>The session's floor update residue, which Ceres Ridley's getaway writes; the runtime binds it.</summary>
     internal SuperMetroid.Core.Compatibility.FloorUpdateResidue? FloorQueueResidue { get; set; }
 

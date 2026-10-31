@@ -1396,7 +1396,7 @@ internal static class LookupStream5Verification
                 AssertEqual(minimumOperands[column] == 0 ? 0 : Word(minimumOperands[column]),
                     CorpseStagingGeometryDefinitions.SidehopperColumnMinimumY(variant, column), "Native missing top-row clipping");
             }
-            CorpseRowGeometry geometry = CorpseRowGeometry.Sidehopper(variant, wrap: 148);
+            CorpseRowGeometry geometry = CorpseRowGeometry.Sidehopper(variant);
             foreach (ushort y in new ushort[] { 0, 7, 8, 37, 38 })
             foreach (bool move in new[] { false, true })
             {

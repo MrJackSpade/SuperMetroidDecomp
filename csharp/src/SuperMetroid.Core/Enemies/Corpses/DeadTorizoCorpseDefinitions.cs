@@ -1,17 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>Compiled bank-$A9 corpse-rotting metadata for the dead Torizo actor.</summary>
+/// <summary>How the dead Torizo's corpse rots.</summary>
 internal static class DeadTorizoCorpseDefinitions
 {
-    /// <summary>
-    /// <c>CorpseRottingDefinitions_Torizo</c> at <c>$A9:DD58-$A9:DD67</c> and
-    /// its derived wrap offset from <c>CorpseRottingTileRowOffsets_Torizo+2</c>
-    /// at <c>$A9:E228</c>.
-    /// </summary>
-    internal static readonly DeadTorizoCorpseDefinition Corpse = new(
-        RotTableOffset: 0,
-        EntryCount: 0x0060,
-        WrapOffset: 0x0134);
+    /// <summary>The corpse's height in pixel rows, each of which its rot schedule drops.</summary>
+    internal const int RowCount = 96;
 
     /// <summary>The dead Torizo's kind of rotting corpse, which its sheet's rot pictures are named for (#1406).</summary>
     internal static readonly RottingCorpseKind Kind = new(RottingCorpseSpecies.Torizo, 0);

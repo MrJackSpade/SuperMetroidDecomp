@@ -1,27 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>Compiled bank-$A9 corpse-rotting metadata for both dead sidehopper variants.</summary>
+/// <summary>How both dead sidehopper variants' corpses rot.</summary>
 internal static class DeadSidehopperCorpseDefinitions
 {
-    /// <summary>
-    /// <c>CorpseRottingDefinitions_Sidehopper_Param1_0</c> at <c>$A9:DD68-$A9:DD77</c>,
-    /// used by the initially living Shitroid victim.
-    /// </summary>
+    /// <summary>The initially living Shitroid victim's corpse.</summary>
     internal static readonly DeadSidehopperCorpseDefinition InitiallyAlive = new(
-        RotTableOffset: 0,
         Kind: new(RottingCorpseSpecies.Sidehopper, 0),
-        EntryCount: 0x0028,
-        WrapOffset: 0x0094);
+        RowCount: 40);
 
-    /// <summary>
-    /// <c>CorpseRottingDefinitions_Sidehopper_Param1_2</c> at <c>$A9:DD78-$A9:DD87</c>,
-    /// used by the already dead Tourian sidehopper.
-    /// </summary>
+    /// <summary>The already dead Tourian sidehopper's corpse.</summary>
     internal static readonly DeadSidehopperCorpseDefinition InitiallyDead = new(
-        RotTableOffset: 0xa0,
         Kind: new(RottingCorpseSpecies.Sidehopper, 1),
-        EntryCount: 0x0028,
-        WrapOffset: 0x0094);
+        RowCount: 40);
 
     /// <summary>
     /// The palette stage of a corpse placed already dead: the largest stage, so every "stage of 8 or more" test reads it as

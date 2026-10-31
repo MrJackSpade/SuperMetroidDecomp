@@ -12,7 +12,7 @@ internal static class DeadTorizoRecordStateVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession());
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var state = new DeadTorizoEnemyState(slot, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 }, new CorpseRotTable(1));
+        var state = new DeadTorizoEnemyState(slot, new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount));
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = DeadTorizoFunction.Rotting;
         state.Velocity = new(new SignedEightEight(2), new SignedEightEight(9));

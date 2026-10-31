@@ -523,7 +523,7 @@ internal sealed class MotherBrainAttacks
         SamusState samus,
         SamusBombProjectileSystem? sharedProjectiles)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(_room.Staging);
+        var sequence = new MotherBrainRainbowBeamAttackSequence();
         MotherBrainRainbowAndDeath.SynchronizeLiveMotherBrainRainbowActor(state, sequence);
         // Word $0FF2 keeps the fake-death ascent dust's last value; the death explosions
         // start from it. Word $0FF0 then holds a bank-$A9 sub-function pointer, always

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -20,7 +19,6 @@ internal static class WorkRamCellVerification
         Suite(nameof(VerifyCpuBusCellShapeRejection), VerifyCpuBusCellShapeRejection);
         Suite(nameof(VerifyWramLowWindowMirror), VerifyWramLowWindowMirror);
         Suite(nameof(VerifyCpuBusWritesLowByteFirst), VerifyCpuBusWritesLowByteFirst);
-        Suite(nameof(VerifyCpuBusTypedRoundTrips), VerifyCpuBusTypedRoundTrips);
         Console.WriteLine("WRAM cell primitives verified.");
     }
 
@@ -99,13 +97,6 @@ internal static class WorkRamCellVerification
                 new RecordedBusWrite(0x7e1000, 0xcd), new RecordedBusWrite(0x7e1001, 0xab),
                 new RecordedBusWrite(0x7e2002, 0x34), new RecordedBusWrite(0x7e2003, 0x12),
             }), "word writes are low byte then high byte, in call order");
-    }
-
-    /// <summary>Representative typed domain views round-trip their values through the bus.</summary>
-    private static void VerifyCpuBusTypedRoundTrips()
-    {
-        var scratch = new EnemyStagingSurfaces();
-        AssertThrows<InvalidDataException>(() => scratch.RotTable(-4, 2), "a rot table must lie inside the rotting heap");
     }
 
     /// <summary>A real address space that records each write in order.</summary>

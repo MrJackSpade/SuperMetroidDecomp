@@ -9,11 +9,11 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Enemies;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.World;
 
 /// <summary>Checks that replacement effect artwork changes pixels without changing Crocomire or Mother Brain timing.</summary>
 internal static class EnemyEffectIsolationVerification
@@ -113,39 +113,31 @@ internal static class EnemyEffectIsolationVerification
         Console.WriteLine("  Crocomire replacement: both maps/images, band selection per update, 54 calls per dissolve, erase/HDMA/smoke/phase timing unchanged.");
     }
 
-    /// <summary>Compares two corpse images through all 118 rot calls, checking row completion and RAM-to-VRAM transfers.</summary>
+    /// <summary>Compares two corpses through all 118 rot calls, checking row falls, dust and the steps shown.</summary>
     internal static void VerifyMotherBrainRotIsolation()
     {
-        var baselineEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        EnemyStagingSurfaces baseline = baselineEnemies.Room.Staging;
-        EnemyStagingSurfaces edited = editedEnemies.Room.Staging;
         var baselineRot = new MotherBrainCorpseRottingState();
         var editedRot = new MotherBrainCorpseRottingState();
-        baselineRot.Initialize(baseline);
-        editedRot.Initialize(edited);
         int finished = 0;
         // Entry i waits 2*i calls and needs max(1,ceil(i/2)) destructive moves. The last
         // entry therefore completes on 94+24=118; different pixels cannot alter that.
         for (int call = 1; call <= 118; call++)
         {
             ushort seed = unchecked((ushort)(call * 37));
-            short[] rowYBefore = Enumerable.Range(0, MotherBrainCorpseRottingState.EntryCount)
-                .Select(index => MotherBrainCorpseRottingState.ReadEntry(baseline, index).YOffset)
-                .ToArray();
-            var expected = baselineRot.Step(baseline, new Position16<RoomPixels>(100, 120), MotherBrainRandomSample.FromGenerator(seed), (ushort)call);
-            var actual = editedRot.Step(edited, new Position16<RoomPixels>(100, 120), MotherBrainRandomSample.FromGenerator(seed), (ushort)call);
+            bool[] fallenBefore = [.. baselineRot.Schedule.Rows.Select(row => row.HasFallen)];
+            var expected = baselineRot.Step(new Position16<RoomPixels>(100, 120), MotherBrainRandomSample.FromGenerator(seed), (ushort)call);
+            var actual = editedRot.Step(new Position16<RoomPixels>(100, 120), MotherBrainRandomSample.FromGenerator(seed), (ushort)call);
             AssertEqual(call < 118, expected.StillRotting, "exact corpse lifetime");
             AssertEqual(expected.StillRotting, actual.StillRotting, "corpse lifetime independent of pixels");
             AssertAnimationValues(baselineRot, editedRot, "corpse counters at call " + call);
             AssertEqual<int?>(call < 118 ? call : null, expected.ShownRotStep, "every active call shows the step just taken, completion shows none");
             AssertEqual<int?>(expected.ShownRotStep, actual.ShownRotStep, "same corpse showing schedule");
             AssertTrue(expected.DustRequests.SequenceEqual(actual.DustRequests), "same completion dust and audio");
-            // Rows finished by this call, in table order: `$DBDF` marks a completed row
-            // `$FFFF`, except the final row, which completes as the call returns carry clear.
+            // Rows fallen by this call, bottom row first: each is marked fallen, except the last
+            // row, whose fall ends the rot.
             int[] finishedRows = Enumerable.Range(0, MotherBrainCorpseRottingState.EntryCount)
-                .Where(index => rowYBefore[index] >= 0 &&
-                    (MotherBrainCorpseRottingState.ReadEntry(baseline, index).YOffset < 0 ||
+                .Where(index => !fallenBefore[index] &&
+                    (baselineRot.Schedule.Rows[index].HasFallen ||
                         (!expected.StillRotting && index == MotherBrainCorpseRottingState.EntryCount - 1)))
                 .ToArray();
             AssertEqual(finishedRows.Length, expected.DustRequests.Count, "one dust request per completed corpse row");
@@ -160,8 +152,12 @@ internal static class EnemyEffectIsolationVerification
                 finished++;
             }
             for (int index = 0; index < MotherBrainCorpseRottingState.EntryCount; index++)
-                AssertEqual(MotherBrainCorpseRottingState.ReadEntry(baseline, index),
-                    MotherBrainCorpseRottingState.ReadEntry(edited, index), "every corpse row's Y/delay is independent of artwork");
+            {
+                CorpseRowFall baselineRow = baselineRot.Schedule.Rows[index], editedRow = editedRot.Schedule.Rows[index];
+                AssertEqual(baselineRow.PixelRow, editedRow.PixelRow, "every corpse row's pixel row is independent of artwork");
+                AssertEqual(baselineRow.DelayCalls, editedRow.DelayCalls, "every corpse row's delay is independent of artwork");
+                AssertEqual(baselineRow.HasFallen, editedRow.HasFallen, "every corpse row's fall is independent of artwork");
+            }
         }
         AssertEqual(MotherBrainCorpseRottingState.EntryCount, finished, "each of the 48 completion callbacks fires exactly once");
         AssertEqual(118u, baselineRot.ProcessCallCount, "fixed corpse completion clock");

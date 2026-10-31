@@ -41,6 +41,10 @@ public static class CoordinateAxis
     /// <param name="coordinate">The coordinate or computed displacement.</param>
     public static int AsSigned(int coordinate) => unchecked((short)coordinate);
 
+    /// <summary>A coordinate computed in thirty-two-bit unsigned arithmetic, read as a signed position on the axis.</summary>
+    /// <param name="coordinate">The computed coordinate; only its low sixteen bits are read.</param>
+    public static int AsSigned(uint coordinate) => unchecked((short)coordinate);
+
     /// <summary>
     /// The distance between two coordinates regardless of direction, 0 through 32768: the magnitude of their wrapped
     /// signed <see cref="Difference"/>. The farthest wrapped difference, -32768, keeps its magnitude 32768.

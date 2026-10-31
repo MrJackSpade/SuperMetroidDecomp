@@ -851,7 +851,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                  SporeSpawnCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (SporeSpawnCollisionHitbox hitbox in component.Hitboxes)
+            foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),

@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireCorpseCollisionDefinitions
 {
     /// <summary>The corpse's two body rectangles.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] CorpseBody = [new(-38, -16, 0, 31, EnemyReaction.Ignore, EnemyReaction.CrocomireDustHitboxShot), new(0, -29, 26, 28, EnemyReaction.Ignore, EnemyReaction.CrocomireDustHitboxShot)];
+    private static readonly EnemyCollisionHitbox[] CorpseBody = [new(-38, -16, 0, 31, EnemyReaction.Ignore, EnemyReaction.CrocomireDustHitboxShot), new(0, -29, 26, 28, EnemyReaction.Ignore, EnemyReaction.CrocomireDustHitboxShot)];
     /// <summary>The corpse's empty list, for components without collision.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] CorpseEmpty = [];
+    private static readonly EnemyCollisionHitbox[] CorpseEmpty = [];
 
     /// <summary>Physical component offsets and hitbox lists for each of the 33 corpse frames.</summary>
     /// <remarks>The hitbox lists precede the frames that reference them: static fields initialise in declaration

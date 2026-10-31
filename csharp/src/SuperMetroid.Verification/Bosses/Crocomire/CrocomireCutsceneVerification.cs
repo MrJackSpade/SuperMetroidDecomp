@@ -45,7 +45,7 @@ internal static class CrocomireCutsceneVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 2))), component.Offset.Y, "corpse native component Y");
                 // The ROM names the component's hitbox list by address; the compiled component holds that list.
                 ushort list = rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 6));
-                IReadOnlyList<CrocomireBodyCollisionHitbox> boxes = component.Hitboxes;
+                IReadOnlyList<EnemyCollisionHitbox> boxes = component.Hitboxes;
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | list), boxes.Count, "corpse native hitbox count");
                 for (int boxIndex = 0; boxIndex < boxes.Count; boxIndex++)
                 {

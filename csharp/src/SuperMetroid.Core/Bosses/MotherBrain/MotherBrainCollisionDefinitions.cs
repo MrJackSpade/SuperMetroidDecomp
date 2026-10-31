@@ -13,68 +13,68 @@ internal static class MotherBrainCollisionDefinitions
 {
 
     /// <summary>$A9:A4AC, <c>Hitbox_MotherBrainBody_0</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA4AC =
+    internal static readonly EnemyCollisionHitbox[] ListA4AC =
     [
         new(-20, -21, 16, 23, EnemyReaction.MotherBrainHeadTouch, EnemyReaction.MotherBrainHeadShot),
     ];
 
     /// <summary>$A9:A4C8, <c>Hitbox_MotherBrainBody_2</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA4C8 =
+    internal static readonly EnemyCollisionHitbox[] ListA4C8 =
         [];
 
     /// <summary>$A9:A4CA, <c>Hitbox_MotherBrainBody_3</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA4CA =
+    internal static readonly EnemyCollisionHitbox[] ListA4CA =
     [
         new(-23, -1, 23, 7, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
     /// <summary>$A9:A4D8, <c>Hitbox_MotherBrainBody_4</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA4D8 =
+    internal static readonly EnemyCollisionHitbox[] ListA4D8 =
         [];
 
     /// <summary>$A9:A4DA, <c>Hitbox_MotherBrainBody_5</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA4DA =
+    internal static readonly EnemyCollisionHitbox[] ListA4DA =
     [
         new(-23, -2, 23, 7, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
     /// <summary>$A9:A4E8, <c>Hitbox_MotherBrainBody_6</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA4E8 =
+    internal static readonly EnemyCollisionHitbox[] ListA4E8 =
     [
         new(-32, -24, 20, 52, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(-24, -42, 13, -25, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
     /// <summary>$A9:A504, <c>Hitbox_MotherBrainBody_8</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA504 =
+    internal static readonly EnemyCollisionHitbox[] ListA504 =
     [
         new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(28, -41, 57, -30, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
     /// <summary>$A9:A51E, <c>Hitbox_MotherBrainBody_9</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA51E =
+    internal static readonly EnemyCollisionHitbox[] ListA51E =
     [
         new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(28, -41, 54, -30, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
     /// <summary>$A9:A538, <c>Hitbox_MotherBrainBody_A</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA538 =
+    internal static readonly EnemyCollisionHitbox[] ListA538 =
     [
         new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(29, -43, 45, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
     /// <summary>$A9:A552, <c>Hitbox_MotherBrainBody_B</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA552 =
+    internal static readonly EnemyCollisionHitbox[] ListA552 =
     [
         new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(29, -48, 68, -40, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
     ];
 
     /// <summary>$A9:A56C, <c>Hitbox_MotherBrainBody_C</c>.</summary>
-    internal static readonly MotherBrainCollisionHitbox[] ListA56C =
+    internal static readonly EnemyCollisionHitbox[] ListA56C =
     [
         new(4, -59, 28, -24, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),
         new(28, -41, 58, -31, EnemyReaction.Ignore, EnemyReaction.MotherBrainBodyShot),

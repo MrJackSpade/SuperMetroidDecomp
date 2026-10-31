@@ -9,9 +9,9 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
     private const ushort FirstList = 0xd034;
 
     /// <summary>The hitbox lists laid over their native run.</summary>
-    private static readonly CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox> NativeLists =
-        CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox>.HitboxLists(
-            new CollisionRecordRun<MaridiaLargeSnailCollisionHitbox>(FirstList, MaridiaLargeSnailCollisionDefinitions.Lists));
+    private static readonly CollisionRecordRuns<EnemyCollisionHitbox> NativeLists =
+        CollisionRecordRuns<EnemyCollisionHitbox>.HitboxLists(
+            new CollisionRecordRun<EnemyCollisionHitbox>(FirstList, MaridiaLargeSnailCollisionDefinitions.Lists));
 
     /// <summary>Native views of the catalog.</summary>
     extension(MaridiaLargeSnailCollisionDefinitions)
@@ -32,8 +32,8 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
             : throw new InvalidDataException($"Oum frame $A2:{frame:X4} has no compiled collision.");
 
         /// <summary>The hitbox list at native address <paramref name="list"/>.</summary>
-        internal static ReadOnlySpan<MaridiaLargeSnailCollisionHitbox> HitboxesAt(ushort list) =>
-            NativeLists.TryGet(list, out MaridiaLargeSnailCollisionHitbox[] hitboxes)
+        internal static ReadOnlySpan<EnemyCollisionHitbox> HitboxesAt(ushort list) =>
+            NativeLists.TryGet(list, out EnemyCollisionHitbox[] hitboxes)
                 ? hitboxes
                 : throw new InvalidDataException($"Oum hitbox list $A2:{list:X4} is not compiled.");
     }

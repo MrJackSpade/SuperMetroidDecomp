@@ -20,25 +20,25 @@ internal static class SporeSpawnCollisionDefinitions
     internal const EnemyReaction Dud = EnemyReaction.DudShot;
 
     /// <summary>Builds the trailing vulnerable rectangle with active or dud shot response.</summary>
-    private static SporeSpawnCollisionHitbox InnerPoint(EnemyReaction shot) => new(-15, -24, 14, 23, Touch, shot);
+    private static EnemyCollisionHitbox InnerPoint(EnemyReaction shot) => new(-15, -24, 14, 23, Touch, shot);
 
     /// <summary>Head rectangles shared by the closed and open lists, which differ only in touch AI.</summary>
-    private static SporeSpawnCollisionHitbox[] Head(EnemyReaction touch) =>
+    private static EnemyCollisionHitbox[] Head(EnemyReaction touch) =>
         [new(-41, -30, 41, 30, touch, Dud), new(-16, -45, 15, -30, touch, Dud)];
 
     /// <summary>Two closed-head shell rectangles without an active touch response.</summary>
-    internal static readonly SporeSpawnCollisionHitbox[] ClosedHeadList = Head(Inert);
+    internal static readonly EnemyCollisionHitbox[] ClosedHeadList = Head(Inert);
     /// <summary>Two open-head shell rectangles with active touch response.</summary>
-    internal static readonly SporeSpawnCollisionHitbox[] OpenHeadList = Head(Touch);
+    internal static readonly EnemyCollisionHitbox[] OpenHeadList = Head(Touch);
     /// <summary>Wider head rectangles used by the first opening pose.</summary>
-    internal static readonly SporeSpawnCollisionHitbox[] ExtendedHeadList =
+    internal static readonly EnemyCollisionHitbox[] ExtendedHeadList =
         [new(-44, -35, 43, 33, Touch, Dud), new(-16, -49, 15, -35, Touch, Dud)];
     /// <summary>
     /// The six moving heads' upper and lower shell bands, inner point and crown, indexed by opening step. Each step widens
     /// the vertical shell spacing and raises the crown; the last head's inner point extends one pixel farther at both
     /// vertical ends, and the fully open frames hold it.
     /// </summary>
-    internal static readonly SporeSpawnCollisionHitbox[][] MovingHeadLists =
+    internal static readonly EnemyCollisionHitbox[][] MovingHeadLists =
     [
         [new(-45, -38, 44, -9, Touch, Dud), new(-45, 8, 44, 35, Touch, Dud), InnerPoint(Shot), new(-16, -54, 16, -22, Touch, Dud)],
         [new(-43, -44, 42, -13, Touch, Dud), new(-44, 12, 42, 42, Touch, Dud), InnerPoint(Shot), new(-16, -58, 16, -42, Touch, Dud)],
@@ -48,15 +48,15 @@ internal static class SporeSpawnCollisionDefinitions
         [new(-44, -55, 43, -25, Touch, Dud), new(-45, 24, 43, 55, Touch, Dud), new(-15, -25, 14, 24, Touch, Shot), new(-16, -69, 16, -48, Touch, Dud)],
     ];
     /// <summary>Single trailing point that accepts the Spore Spawn shot callback.</summary>
-    internal static readonly SporeSpawnCollisionHitbox[] ShotPointList = [InnerPoint(Shot)];
+    internal static readonly EnemyCollisionHitbox[] ShotPointList = [InnerPoint(Shot)];
     /// <summary>Single trailing point that rejects shots through the dud callback.</summary>
-    internal static readonly SporeSpawnCollisionHitbox[] DudPointList = [InnerPoint(Dud)];
+    internal static readonly EnemyCollisionHitbox[] DudPointList = [InnerPoint(Dud)];
 
     /// <summary>The trailing-point hitboxes by oscillation phase B, C, D, C: only phase D's point rejects shots; the mirrored point shares the active list.</summary>
-    private static readonly SporeSpawnCollisionHitbox[][] InnerPointsByPhase = [ShotPointList, ShotPointList, DudPointList, ShotPointList];
+    private static readonly EnemyCollisionHitbox[][] InnerPointsByPhase = [ShotPointList, ShotPointList, DudPointList, ShotPointList];
 
     /// <summary>The opening poses' head lists, in pose order; the moving heads follow the wider first pose.</summary>
-    internal static readonly SporeSpawnCollisionHitbox[][] OpeningHeadLists = [ExtendedHeadList, .. MovingHeadLists];
+    internal static readonly EnemyCollisionHitbox[][] OpeningHeadLists = [ExtendedHeadList, .. MovingHeadLists];
 
     /// <summary>The dead root's one inactive head component.</summary>
     internal static readonly SporeSpawnCollisionComponent[] DeadComponents = [new(Offset16<RoomPixels>.Zero, ClosedHeadList)];
@@ -70,7 +70,7 @@ internal static class SporeSpawnCollisionDefinitions
         [.. Enumerable.Range(0, 3).Select(phase => HeadAndPoint(MovingHeadLists[^1], phase))];
 
     /// <summary>A zero-offset head followed by its zero-offset inner point at <paramref name="phase"/>.</summary>
-    private static SporeSpawnCollisionComponent[] HeadAndPoint(SporeSpawnCollisionHitbox[] head, int phase) =>
+    private static SporeSpawnCollisionComponent[] HeadAndPoint(EnemyCollisionHitbox[] head, int phase) =>
         [new(Offset16<RoomPixels>.Zero, head), new(Offset16<RoomPixels>.Zero, InnerPointsByPhase[phase])];
 
     /// <summary>

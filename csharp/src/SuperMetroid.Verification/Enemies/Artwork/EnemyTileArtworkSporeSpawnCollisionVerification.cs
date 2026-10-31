@@ -97,7 +97,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         Console.WriteLine($"  Spore Spawn collision: {frameCount} roots, {seenLists.Count} lists and {callbackComparisons} live touch/shot comparisons match the cartridge with installed ROM reads denied.");
 
         // Compares one compiled hitbox list with the cartridge list its component names.
-        void AssertHitboxListMatchesRom(ushort pointer, IReadOnlyList<SporeSpawnCollisionHitbox> hitboxes, string at)
+        void AssertHitboxListMatchesRom(ushort pointer, IReadOnlyList<EnemyCollisionHitbox> hitboxes, string at)
         {
             int list = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, pointer));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
@@ -105,7 +105,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
             for (int index = 0; index < hitboxes.Count; index++)
             {
                 int record = list + 2 + index * 12;
-                SporeSpawnCollisionHitbox box = hitboxes[index];
+                EnemyCollisionHitbox box = hitboxes[index];
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), unchecked((ushort)box.Left),
                     $"{at} box {index} left");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)box.Top),

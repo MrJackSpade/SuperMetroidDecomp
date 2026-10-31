@@ -30,7 +30,7 @@ internal static class KraidArmCollisionDefinitionsAccess
     extension(KraidArmCollision)
     {
         /// <summary>The hitboxes of the list at bank-$A7 address <paramref name="pointer"/>.</summary>
-        internal static ImmutableArray<KraidCollisionHitbox> HitboxesAt(ushort pointer) =>
+        internal static ImmutableArray<EnemyCollisionHitbox> HitboxesAt(ushort pointer) =>
             KraidArmCollision.HitboxesAt(HitboxListAt(pointer));
 
         /// <summary>The components of the arm frame at native address <paramref name="pointer"/>, when it is one.</summary>

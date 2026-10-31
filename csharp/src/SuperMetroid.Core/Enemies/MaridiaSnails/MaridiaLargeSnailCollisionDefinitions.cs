@@ -21,7 +21,7 @@ internal static class MaridiaLargeSnailCollisionDefinitions
     private const EnemyReaction NoShot = EnemyReaction.Ignore;
 
     /// <summary>The 30 hitbox lists, one per frame in frame order; the rectangles are fitted to the drawings.</summary>
-    internal static readonly MaridiaLargeSnailCollisionHitbox[][] Lists =
+    internal static readonly EnemyCollisionHitbox[][] Lists =
     [
         [new(-16, -17, -8, 16, SafeTouch, Shot), new(-8, -17, 14, 16, SafeTouch, NoShot)],
         [new(-16, -17, 14, 16, SafeTouch, NoShot)],
@@ -56,7 +56,7 @@ internal static class MaridiaLargeSnailCollisionDefinitions
     ];
 
     /// <summary>Each of the 30 one-component Oum frames, whose single zero-offset component holds its hitbox list.</summary>
-    internal static EnemyFrameCollision<MaridiaLargeSnailCollisionHitbox> Frames { get; } = new()
+    internal static EnemyFrameCollision<EnemyCollisionHitbox> Frames { get; } = new()
     {
         { EnemyFrameId.OumPose0, Lists[0] },
         { EnemyFrameId.OumPose1, Lists[1] },

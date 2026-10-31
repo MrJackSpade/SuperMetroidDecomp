@@ -35,7 +35,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             "compiled Space Pirate extended-frame count");
         AssertEqual(147, SpacePirateCollisionDefinitions.ListCount,
             "compiled Space Pirate hitbox-list count");
-        CollisionRecordRuns<SpacePirateCollisionHitbox> nativeLists = NativeHitboxLists();
+        CollisionRecordRuns<EnemyCollisionHitbox> nativeLists = NativeHitboxLists();
         int componentCount = 0;
         var nativeRanges = new HashSet<int>();
         for (int index = 0; index < SpacePirateCollisionDefinitions.FrameCount;
@@ -103,7 +103,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             Block(list.Pointer, 2 + list.Rectangles.Length * 12);
             for (int rectangle = 0; rectangle < list.Rectangles.Length; rectangle++)
             {
-                SpacePirateCollisionHitbox expected = list.Rectangles[rectangle];
+                EnemyCollisionHitbox expected = list.Rectangles[rectangle];
                 ushort address = unchecked((ushort)(list.Pointer + 2 +
                     rectangle * 12));
                 AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | address)), expected.Left,
@@ -169,7 +169,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 foreach (SpacePirateCollisionComponent component in
                          frame.Components)
                 {
-                    foreach (SpacePirateCollisionHitbox hitbox in component.Hitboxes)
+                    foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
                     {
                         ushort componentX = unchecked((ushort)(originX + component.Offset.X));
                         ushort componentY = unchecked((ushort)(originY + component.Offset.Y));
@@ -261,9 +261,9 @@ internal static class SpacePirateCollisionDefinitionsVerification
     }
 
     /// <summary>Lays the catalog's hitbox lists over the oracle's native runs, so each list's bank-$B2 address derives from its run.</summary>
-    private static CollisionRecordRuns<SpacePirateCollisionHitbox> NativeHitboxLists()
+    private static CollisionRecordRuns<EnemyCollisionHitbox> NativeHitboxLists()
     {
-        var runs = new List<CollisionRecordRun<SpacePirateCollisionHitbox>>();
+        var runs = new List<CollisionRecordRun<EnemyCollisionHitbox>>();
         int first = 0;
         foreach ((ushort start, int count) in SpacePirateHitboxListNativeAddresses.Runs)
         {
@@ -272,13 +272,13 @@ internal static class SpacePirateCollisionDefinitionsVerification
         }
         AssertEqual(SpacePirateCollisionDefinitions.HitboxLists.Length, first,
             "native Space Pirate hitbox-list runs cover every catalog list");
-        return CollisionRecordRuns<SpacePirateCollisionHitbox>.HitboxLists([.. runs]);
+        return CollisionRecordRuns<EnemyCollisionHitbox>.HitboxLists([.. runs]);
     }
 
     /// <summary>The native bank-$B2 address of the catalog hitbox list a collision component references.</summary>
     private static ushort NativeListPointer(
-        CollisionRecordRuns<SpacePirateCollisionHitbox> nativeLists,
-        IReadOnlyList<SpacePirateCollisionHitbox> hitboxes)
+        CollisionRecordRuns<EnemyCollisionHitbox> nativeLists,
+        IReadOnlyList<EnemyCollisionHitbox> hitboxes)
     {
         int index = Array.FindIndex(SpacePirateCollisionDefinitions.HitboxLists, list => ReferenceEquals(list, hitboxes));
         return index >= 0

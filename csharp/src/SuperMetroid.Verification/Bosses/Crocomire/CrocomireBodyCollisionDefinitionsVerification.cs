@@ -44,7 +44,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         // The cartridge names each component's hitbox list by address; only this oracle knows those addresses.
         // Each compiled component must hold the list the ROM names: the same rectangles and callbacks, and the same
         // list instance as every other component naming that address.
-        var seenLists = new Dictionary<ushort, IReadOnlyList<CrocomireBodyCollisionHitbox>>();
+        var seenLists = new Dictionary<ushort, IReadOnlyList<EnemyCollisionHitbox>>();
         int probes = 0;
         foreach (ushort frame in frames)
         {
@@ -64,7 +64,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                     $"Crocomire $A4:{frame:X4} component {index} Y");
                 ushort list = rom.ReadCartridgeWord((address + 6));
                 AssertNativeHitboxList(rom, list, component.Hitboxes, $"Crocomire $A4:{frame:X4} component {index}");
-                if (seenLists.TryGetValue(list, out IReadOnlyList<CrocomireBodyCollisionHitbox>? shared))
+                if (seenLists.TryGetValue(list, out IReadOnlyList<EnemyCollisionHitbox>? shared))
                     AssertTrue(ReferenceEquals(shared, component.Hitboxes),
                         $"Crocomire $A4:{frame:X4} component {index} shares the list every component naming $A4:{list:X4} holds");
                 else
@@ -110,14 +110,14 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
     /// <paramref name="list"/>: its count word, then each twelve-byte rectangle and callback record.
     /// </summary>
     internal static void AssertNativeHitboxList(IImportCartridgeSource rom, ushort list,
-        IReadOnlyList<CrocomireBodyCollisionHitbox> hitboxes, string at)
+        IReadOnlyList<EnemyCollisionHitbox> hitboxes, string at)
     {
         AssertEqual(rom.ReadCartridgeWord((0xa40000 | list)), checked((ushort)hitboxes.Count),
             $"{at}: $A4:{list:X4} hitbox count");
         for (int index = 0; index < hitboxes.Count; index++)
         {
             int address = 0xa40000 | unchecked((ushort)(list + 2 + index * 12));
-            CrocomireBodyCollisionHitbox hitbox = hitboxes[index];
+            EnemyCollisionHitbox hitbox = hitboxes[index];
             AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), hitbox.Left,
                 $"{at}: $A4:{list:X4} hitbox {index} left");
             AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), hitbox.Top,

@@ -154,12 +154,12 @@ internal static class EnemyDefinitionBoundaryVerification
     /// <summary>Checks one compiled Torizo hitbox list against the ROM list at <paramref name="list"/>.</summary>
     private static void AssertNativeTorizoHitboxList(IImportCartridgeSource rom, int list, TorizoHitboxList actual, string context)
     {
-        IReadOnlyList<GoldenTorizoCollisionHitbox> boxes = actual.Rectangles;
+        IReadOnlyList<EnemyCollisionHitbox> boxes = actual.Rectangles;
         AssertEqual(rom.ReadCartridgeWordFixedBank(list), boxes.Count, $"{context} rectangle count");
         for (int i = 0; i < boxes.Count; i++)
         {
             int address = list + 2 + i * 12;
-            GoldenTorizoCollisionHitbox box = boxes[i];
+            EnemyCollisionHitbox box = boxes[i];
             AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address)), box.Left, $"{context} rectangle {i} left");
             AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address + 2)), box.Top, $"{context} rectangle {i} top");
             AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(address + 4)), box.Right, $"{context} rectangle {i} right");

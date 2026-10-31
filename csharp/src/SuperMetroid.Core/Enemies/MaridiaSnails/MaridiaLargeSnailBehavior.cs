@@ -604,7 +604,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         // Oum's 30 native frames each have one (0,0) component, but the
         // ordered regions change with roll and attack direction. Keep
         // those rectangles and callback identities independent of OAM.
-        foreach (MaridiaLargeSnailCollisionHitbox hitbox in
+        foreach (EnemyCollisionHitbox hitbox in
                  MaridiaLargeSnailCollisionDefinitions.Frames.Of(enemy.Frame))
         {
             int left = CoordinateAxis.Wrap(enemy.Position.X.Whole + hitbox.Left);
@@ -613,7 +613,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             int bottom = CoordinateAxis.Wrap(enemy.Position.Y.Whole + hitbox.Bottom);
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
-            reaction = probe.SelectsShot ? hitbox.ShotAi : hitbox.TouchAi;
+            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
             return true;
         }
         return false;

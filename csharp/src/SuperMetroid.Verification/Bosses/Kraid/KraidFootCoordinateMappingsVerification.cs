@@ -57,14 +57,14 @@ internal static class KraidFootCoordinateMappingsVerification
         ushort Word(int pointer) => LittleEndianBytes.Word(KraidFootSharedHitboxRomByte(rom, 0xa70000 | pointer), KraidFootSharedHitboxRomByte(rom, 0xa70000 | (pointer + 1)));
         var boxes = KraidFootCollisionDefinitionsConstants.HitboxesAt(0x9453);
         AssertEqual(Word(0x9453), boxes.Length, "Native shared rectangle count");
-        KraidCollisionHitbox shared = boxes[0];
+        EnemyCollisionHitbox shared = boxes[0];
         AssertEqual(unchecked((short)Word(0x9455)), shared.Left, "Original shared hitbox left");
         AssertEqual(unchecked((short)Word(0x9457)), shared.Top, "Original shared hitbox top");
         AssertEqual(unchecked((short)Word(0x9459)), shared.Right, "Original shared hitbox right");
         AssertEqual(unchecked((short)Word(0x945b)), shared.Bottom, "Original shared hitbox bottom");
         AssertEqual(EnemyReactionAccess.Of(0xa7, Word(0x945d), shot: false), (EnemyReaction?)shared.Touch, "Original shared hitbox touch callback");
         AssertEqual(EnemyReactionAccess.Of(0xa7, Word(0x945f), shot: true), (EnemyReaction?)shared.Shot, "Original shared hitbox shot callback");
-        KraidCollisionHitbox expected = shared;
+        EnemyCollisionHitbox expected = shared;
         int count = 0;
         foreach (var box in boxes) { AssertEqual(expected, box, "Shared rectangle enumeration"); count++; }
         AssertEqual(1, count, "One enumerated rectangle");

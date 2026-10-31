@@ -738,7 +738,7 @@ internal static class LookupStream5Verification
                 ushort listPointer = ReadVerificationWord(rom, record + 6);
                 lists.Add(listPointer);
                 int address = 0xa70000 | listPointer;
-                IReadOnlyList<PhantoonCollisionHitbox> hitboxes = component.Hitboxes;
+                IReadOnlyList<EnemyCollisionHitbox> hitboxes = component.Hitboxes;
                 AssertEqual(ReadVerificationWord(rom, address), hitboxes.Count, "Native hitbox extent");
                 for (int hitbox = 0; hitbox < hitboxes.Count; hitbox++)
                 {
@@ -748,7 +748,7 @@ internal static class LookupStream5Verification
                         unchecked((short)ReadVerificationWord(rom, native + 6)),
                         EnemyReactionAccess.Of(0xa7, ReadVerificationWord(rom, native + 8), shot: false),
                         EnemyReactionAccess.Of(0xa7, ReadVerificationWord(rom, native + 10), shot: true));
-                    PhantoonCollisionHitbox actual = hitboxes[hitbox];
+                    EnemyCollisionHitbox actual = hitboxes[hitbox];
                     LookupStream5Expected compiled = new LookupStream5Expected(actual.Left, actual.Top, actual.Right, actual.Bottom,
                         actual.Touch, actual.Shot);
                     AssertEqual(expected, compiled, "Native shape and callback pair");

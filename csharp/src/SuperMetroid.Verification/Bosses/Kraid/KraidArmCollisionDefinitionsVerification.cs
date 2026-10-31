@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidArmPhysicalFrameMapping
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
@@ -48,13 +49,13 @@ internal static class KraidArmCollisionDefinitionsVerification
         int hitboxCount = 0;
         foreach (ushort pointer in original)
         {
-            System.Collections.Immutable.ImmutableArray<KraidCollisionHitbox> compiled =
+            System.Collections.Immutable.ImmutableArray<EnemyCollisionHitbox> compiled =
                 KraidArmCollision.HitboxesAt(pointer);
             AssertEqual(ReadKraidArmInstructionWord(rom, pointer), compiled.Length,
                 $"Kraid arm hitbox count $A7:{pointer:X4}");
             for (int index = 0; index < compiled.Length; index++)
             {
-                KraidCollisionHitbox hitbox = compiled[index];
+                EnemyCollisionHitbox hitbox = compiled[index];
                 ushort record = unchecked((ushort)(pointer + 2 + index * 12));
                 AssertEqual(unchecked((short)ReadKraidArmInstructionWord(rom, record)),
                     hitbox.Left, $"Kraid arm hitbox left $A7:{record:X4}");

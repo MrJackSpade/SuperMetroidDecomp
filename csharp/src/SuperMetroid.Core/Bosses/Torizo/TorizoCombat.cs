@@ -311,10 +311,10 @@ internal sealed class TorizoCombat
                  TorizoCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            IReadOnlyList<GoldenTorizoCollisionHitbox> rectangles = component.Hitboxes.Rectangles;
+            IReadOnlyList<EnemyCollisionHitbox> rectangles = component.Hitboxes.Rectangles;
             for (int index = 0; index < rectangles.Count; index++)
             {
-                GoldenTorizoCollisionHitbox hitbox = rectangles[index];
+                EnemyCollisionHitbox hitbox = rectangles[index];
                 if (!probe.Overlaps(
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
                         CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),

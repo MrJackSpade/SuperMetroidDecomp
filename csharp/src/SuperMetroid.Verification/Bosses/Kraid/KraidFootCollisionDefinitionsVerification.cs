@@ -43,9 +43,9 @@ internal static class KraidFootCollisionDefinitionsVerification
             AssertTrue(KraidFootCollision.TryGetComponents(selectedFrame, out _),
                 $"Kraid foot frame $A7:{selectedFrame:X4} is a compiled physical frame");
 
-        System.Collections.Immutable.ImmutableArray<KraidCollisionHitbox> hitboxes =
+        System.Collections.Immutable.ImmutableArray<EnemyCollisionHitbox> hitboxes =
             KraidFootCollisionDefinitionsConstants.HitboxesAt(KraidFootCollisionDefinitionsConstants.HitboxList);
-        KraidCollisionHitbox box = hitboxes[0];
+        EnemyCollisionHitbox box = hitboxes[0];
 
         int probes = 0;
         // A foot shows only installed frames; the catalog's stride also spans $8F35, which no composition shows.

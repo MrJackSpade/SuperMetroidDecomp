@@ -174,13 +174,13 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
                 checkedLists.Add(listPointer);
                 int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, listPointer));
-                IReadOnlyList<PhantoonCollisionHitbox> hitboxes = component.Hitboxes;
+                IReadOnlyList<EnemyCollisionHitbox> hitboxes = component.Hitboxes;
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), checked((ushort)hitboxes.Count),
                     $"Phantoon {frame.Name} component {index} rectangle count");
                 for (int hitboxIndex = 0; hitboxIndex < hitboxes.Count; hitboxIndex++)
                 {
                     int address = listAddress + 2 + hitboxIndex * 12;
-                    PhantoonCollisionHitbox hitbox = hitboxes[hitboxIndex];
+                    EnemyCollisionHitbox hitbox = hitboxes[hitboxIndex];
                     AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), hitbox.Left,
                         "Phantoon compiled left bound");
                     AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), hitbox.Top,

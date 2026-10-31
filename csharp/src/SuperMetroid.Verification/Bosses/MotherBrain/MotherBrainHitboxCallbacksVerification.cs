@@ -43,7 +43,7 @@ internal static class MotherBrainHitboxCallbacksVerification
                 for (int box = 0; box < compiled.Hitboxes.Count; box++)
                 {
                     int entry = list + 2 + box * HitboxRecordBytes;
-                    MotherBrainCollisionHitbox hitbox = compiled.Hitboxes[box];
+                    EnemyCollisionHitbox hitbox = compiled.Hitboxes[box];
                     string at = $"frame {frame.Name} component {component} rectangle {box}";
                     AssertEqual(cartridge.ReadCartridgeWord(entry), unchecked((ushort)hitbox.Left), $"{at} left");
                     AssertEqual(cartridge.ReadCartridgeWord(entry + 2), unchecked((ushort)hitbox.Top), $"{at} top");

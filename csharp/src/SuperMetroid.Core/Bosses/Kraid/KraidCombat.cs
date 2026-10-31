@@ -336,7 +336,7 @@ internal sealed class KraidCombat
         foreach (KraidCollisionComponent component in footComponents)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (KraidCollisionHitbox hitbox in component.Hitboxes)
+            foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
@@ -366,7 +366,7 @@ internal sealed class KraidCombat
         foreach (KraidCollisionComponent component in kraidComponents)
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (KraidCollisionHitbox hitbox in component.Hitboxes)
+            foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),

@@ -17,7 +17,7 @@ internal static class SpacePirateCollisionDefinitions
     /// verification oracle owns where each list lies in the cartridge. Lists that repeat another list's
     /// rectangles stay separate records, as authored.
     /// </summary>
-    internal static readonly SpacePirateCollisionHitbox[][] HitboxLists =
+    internal static readonly EnemyCollisionHitbox[][] HitboxLists =
     [
         [new(0, 0, 0, 0, EnemyReaction.NormalEnemyTouch, EnemyReaction.NormalEnemyShot)],
         [new(-18, -19, 6, 0, EnemyReaction.SpacePirateTouch, EnemyReaction.SpacePirateShot)],

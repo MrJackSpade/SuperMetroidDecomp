@@ -447,7 +447,7 @@ internal sealed class CrocomireCombat
                  CrocomireBodyCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (CrocomireBodyCollisionHitbox hitbox in component.Hitboxes)
+            foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),

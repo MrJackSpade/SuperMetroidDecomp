@@ -670,7 +670,7 @@ internal sealed class PhantoonCombat
                  PhantoonCollision.ComponentsAt(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (PhantoonCollisionHitbox hitbox in component.Hitboxes)
+            foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
                         CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),

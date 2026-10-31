@@ -14,10 +14,10 @@ internal static class SpacePirateHitboxes
                  SpacePirateCollisionDefinitions.Frames.Of(enemy.Frame))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            IReadOnlyList<SpacePirateCollisionHitbox> hitboxes = component.Hitboxes;
+            IReadOnlyList<EnemyCollisionHitbox> hitboxes = component.Hitboxes;
             for (int index = 0; index < hitboxes.Count; index++)
             {
-                SpacePirateCollisionHitbox hitbox = hitboxes[index];
+                EnemyCollisionHitbox hitbox = hitboxes[index];
                 int left = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left);
                 int top = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top);
                 int right = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right);

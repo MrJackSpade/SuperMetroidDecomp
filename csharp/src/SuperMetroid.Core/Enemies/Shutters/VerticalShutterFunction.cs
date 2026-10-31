@@ -24,6 +24,6 @@ public enum VerticalShutterFunction
     StoppedAfterMovingUp,
     /// <summary>Waits for signed timer underflow before moving up or restoring proximity waiting.</summary>
     StoppedAfterMovingDown,
-    /// <summary>Inert endpoint selected by rest time $0FF0; eligible reaction modes can still reactivate it.</summary>
+    /// <summary>Inert endpoint selected by rest time 4080; eligible reaction modes can still reactivate it.</summary>
     PermanentNoOp,
 }

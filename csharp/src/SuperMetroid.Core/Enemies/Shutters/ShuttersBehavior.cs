@@ -250,7 +250,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samus's four-pixel correction when pushing against a horizontal shutter.</summary>
     private const int HorizontalShutterManualPushPixels = 4;
 
-    /// <summary>Ports <c>HorizontalShutter_Init</c>/$A2:F11E.</summary>
+    /// <summary>Initializes a horizontal shutter.</summary>
     internal static void InitializeHorizontalShutter(RoomEnemySlot slot)
     {
         var state = new HorizontalShutterEnemyState();
@@ -460,7 +460,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Position.Whole,
             samus.Kinematics.Radius);
 
-    /// <summary>Ports the stationary/manual ejection portion of touch AI $A2:F3D8.</summary>
+    /// <summary>Runs the stationary/manual ejection portion of the shutter's touch AI.</summary>
     private static void TouchHorizontalShutter(
         RoomEnemySlot slot,
         SamusState samus,
@@ -481,7 +481,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the movement-trigger tail shared by shot and power-bomb AI $A2:F41A.</summary>
+    /// <summary>Runs the movement-trigger tail shared by shot and power-bomb AI.</summary>
     private static void ReactHorizontalShutter(RoomEnemySlot slot)
     {
         HorizontalShutterEnemyState state = slot.RequireSpeciesState<HorizontalShutterEnemyState>();
@@ -551,7 +551,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports $A0:AD70. Its bottom edge is 256 pixels, deliberately not the 224-line visible
+    /// Tests whether the shutter is on screen for sound. Its bottom edge is 256 pixels, deliberately not the 224-line visible
     /// viewport, because the original sound admission test uses a square screen window.
     /// </summary>
     private static bool IsShutterCenterOnScreen(
@@ -574,7 +574,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Lets bombs trigger shootable vertical shutters without ordinary damage AI.</summary>
     internal void AddShuttersBombReactions(EnemySharedReactions table)
     {
-        // `$A2:F0A2` never calls common shot AI. Bomb collision has already marked the physical bomb, then the
+        // The shutter's shot reaction never calls common shot AI. Bomb collision has already marked the physical bomb, then the
         // callback only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
         table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
                                   c.SelectedShotAi == EnemyReaction.ShootableVerticalShutterShot,
@@ -675,7 +675,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyReaction.ShootableVerticalShutterShot)
         {
-            // $F0A2 goes directly to the shutter reaction instead of normal shot AI. The collision walker
+            // The shot reaction goes directly to the shutter reaction instead of normal shot AI. The collision walker
             // has nevertheless already marked the colliding projectile, including Super Missile quake side effects.
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
@@ -706,7 +706,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses Samus contact to react vertical shutters or manually eject her from stopped horizontal ones.</summary>
     internal void AddShuttersTouch(EnemySharedReactions table)
     {
-        // $F09D does not enter common contact damage. Body overlap is itself the trigger, and $F0B6 decides
+        // The touch reaction does not enter common contact damage. Body overlap is itself the trigger, and the reaction test decides
         // whether this population mode may start moving.
         table.AddTouch(slot => IsVerticalShutterDefinition(slot.DefinitionId) &&
                                EnemyCollision.TouchAi(slot) == EnemyReaction.VerticalShutterTouch,
@@ -716,7 +716,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                                EnemyCollision.TouchAi(slot) == EnemyReaction.HorizontalShutterTouch,
             context =>
             {
-                // $F3D8 provides manual ejection only after a permanently stopped shutter.
+                // The touch AI provides manual ejection only after a permanently stopped shutter.
                 // The main AI's subsequent nonzero contact-damage-index check reuses the
                 // shot reaction, allowing Screw/Speed contact to trigger modes three/four.
                 TouchHorizontalShutter(context.Slot, context.Samus, context.ControllerInput);
@@ -724,7 +724,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                     ReactHorizontalShutter(context.Slot);
             });
     }
-    /// <summary>Ports $A2:EE05/$A2:EE12 and their shared tail.</summary>
+    /// <summary>Initializes a vertical shutter through either initializer and their shared tail.</summary>
     internal static void InitializeVerticalShutter(RoomEnemySlot slot)
     {
         if (!IsVerticalShutterDefinition(slot.DefinitionId))
@@ -782,7 +782,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         Position16<RoomPixels> camera)
     {
-        // The initial function JSRs through its parameter table during this very AI
+        // The initial function calls through its parameter table during this very AI
         // call; it does not spend a frame installing the selected wait function.
         // Keep Initial live until activation writes the moving function, as does.
         switch (state.Function == VerticalShutterFunction.Initial
@@ -946,7 +946,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports $A2:F0B6. Timer, proximity and immediate shutters merely make the acknowledgement sound;
+    /// Decides whether a reaction may start the shutter. Timer, proximity and immediate shutters merely make the acknowledgement sound;
     /// a one-shot reaction reacts once, while a repeatable reaction may be reactivated after every stop.
     /// </summary>
     private void ReactVerticalShutter(

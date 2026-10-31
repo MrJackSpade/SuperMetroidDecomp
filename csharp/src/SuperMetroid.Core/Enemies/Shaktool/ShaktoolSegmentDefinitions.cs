@@ -5,7 +5,7 @@ internal static class ShaktoolSegmentDefinitions
 {
     /// <summary>
     /// The seven physical linked-segment definitions, primary saw first. Properties: the end saws have
-    /// $2800, the five internal pieces $2C00. Owner distance: how many slots each segment sits after the
+    /// the animation-script and process-off-screen properties, the five internal pieces also intangibility. Owner distance: how many slots each segment sits after the
     /// chain's first segment, its owner: its own index. The joints integrate symmetric increments 1,2,3,4,3,2 into
     /// steps 0,1,3,6,10,13,15: the initial neighbor angle is -2048 times the step, wrapped to a 16-bit turn,
     /// and the initial curling angle delta is 32 times it, the same curvature at 1/64 of the angle's

@@ -7,7 +7,7 @@ internal enum ShaktoolCueKind
     Lower,
     /// <summary>Lowers the segment one pixel away from the head's facing.</summary>
     LowerAwayFromCenter,
-    /// <summary>Does nothing: the RTL stub between the two long attack pauses.</summary>
+    /// <summary>Does nothing: the empty step between the two long attack pauses.</summary>
     Nothing,
     /// <summary>Raises the segment one pixel toward its target angle.</summary>
     Raise,

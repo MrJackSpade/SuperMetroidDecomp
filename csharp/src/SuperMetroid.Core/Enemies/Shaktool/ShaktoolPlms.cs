@@ -23,7 +23,7 @@ internal sealed class ShaktoolPlms
         _events = events;
         _slotTable = slotTable;
     }
-    /// <summary>Runs $8F:C8D3's hardcoded spawn and $84:B8DC's scroll setup.</summary>
+    /// <summary>Spawns the Shaktool room's controller PLM and runs its scroll setup.</summary>
     public bool TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);

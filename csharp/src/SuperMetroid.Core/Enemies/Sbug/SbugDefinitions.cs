@@ -6,12 +6,12 @@ internal static class SbugDefinitions
     /// <summary>Enemy frames in each leg of the zigzag; the legs alternate left and right as the frame counter advances.</summary>
     internal const int ZigZagLegFrames = 16;
 
-    /// <summary>Facings a reversal advances the custom facing by: $A3:A565 adds four bytes to the facing table's byte offset.</summary>
+    /// <summary>Facings a reversal advances the custom facing by: the reversal adds four bytes to the facing table's byte offset.</summary>
     internal const int ReversalFacingStep = 2;
 
     /// <summary>
-    /// Facings a reversed custom facing wraps within: $A3:A565 masks the byte offset with $0007 rather than the expected
-    /// $000E, so a reversal folds every facing into the first four; preserved as the game does.
+    /// Facings a reversed custom facing wraps within: the reversal masks the byte offset with 7 rather than the expected
+    /// 14, so a reversal folds every facing into the first four; preserved as the game does.
     /// </summary>
     internal const int FoldedFacingCount = 4;
 

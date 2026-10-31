@@ -12,9 +12,9 @@ public enum SbugEnemyFunction
     ActivateMoveForward,
     /// <summary>Selects alternating side movement without moving on this invocation.</summary>
     ActivateZigZag,
-    /// <summary>Resets shared RNG to $000B and selects the collision-aware random-direction chooser.</summary>
+    /// <summary>Resets shared RNG to 11 and selects the collision-aware random-direction chooser.</summary>
     ActivateRandomUntilCollision,
-    /// <summary>Sets the $0200 long countdown, resets shared RNG to $000B, and selects its direction chooser.</summary>
+    /// <summary>Sets the 512-update long countdown, resets shared RNG to 11, and selects its direction chooser.</summary>
     ActivateRandomAndReverseWhenFar,
     /// <summary>Initializes the 32-update forward segment without moving yet.</summary>
     ActivateMoveForwardThenWait,

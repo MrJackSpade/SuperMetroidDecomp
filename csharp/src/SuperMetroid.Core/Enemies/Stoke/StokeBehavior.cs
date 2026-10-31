@@ -122,7 +122,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the shared body of moving-left <c>$8A43</c> and moving-right <c>$8A5C</c>.</summary>
+    /// <summary>Runs the shared body of moving left and moving right.</summary>
     private void RunMovingStoke(
         RoomEnemySlot slot,
         StokeEnemyState state,
@@ -139,7 +139,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (attackRoll >= 2)
             return;
 
-        // The attack list owns Stoke until its trailing goto reaches $8932/$8958 and that
+        // The attack animation owns Stoke until its trailing branch reaches the resume-moving cue and that
         // wrapper's command installs the corresponding moving function again.
         state.Function = StokeAiFunction.IdleDuringAttack;
         SetStokeProgram(slot, state, attackingProgram);
@@ -158,7 +158,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // $A0:BC76 is a probe, not MoveEnemyDown: it computes a candidate Y coordinate and
+        // The attachment probe is not MoveEnemyDown: it computes a candidate Y coordinate and
         // scans for any level word with bit 15 set without changing Stoke's Y/subposition.
         // Conflating it with vertical movement makes the actor sink two pixels every frame.
         if (!StokeHasSolidFloorTwoPixelsBelow(level, slot))
@@ -188,7 +188,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Instructions <c>$A2:8990</c> (left) and <c>$A2:899D</c> (right): resume movement in <paramref name="direction"/>.</summary>
+    /// <summary>Animation cues for left and right: resume movement in <paramref name="direction"/>.</summary>
     private static void SetStokeMoving(StokeEnemyState state, StokeDirection direction)
     {
         state.Function = StokeAiFunction.Moving;
@@ -218,8 +218,8 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyStokeCue(slot, state, cue));
 
     /// <summary>
-    /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> followed by Stoke projectile
-    /// initializer <c>$86:DB18</c>: the projectile flies one pixel per update in Stoke's facing.
+    /// Spawns a Stoke projectile and initializes it:
+    /// the projectile flies one pixel per update in Stoke's facing.
     /// </summary>
     internal void SpawnStokeProjectile(RoomEnemySlot stoke, StokeDirection direction)
     {
@@ -237,14 +237,14 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             new SignedEightEight(0));
     }
 
-    /// <summary>Ports pre-instruction <c>$86:DB5B</c>: the projectile flies sideways at its speed until it leaves the view.</summary>
+    /// <summary>Runs the projectile's per-frame behaviour: the projectile flies sideways at its speed until it leaves the view.</summary>
     internal static void RunStokeProjectileFrameBehavior(
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
         projectile.Position = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta());
 
-        // Stoke's $DBB6 helper is another byte-for-byte clone of Cacatac's $DAC2 cull.
+        // Stoke's projectile cull is a byte-for-byte clone of Cacatac's.
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
 }

@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>
-/// The routine Wrecked Ship Spark's main AI runs. Its values are arbitrary; verification's view names each
-/// member's cartridge routine (#1412).
+/// The routine Wrecked Ship Spark's main AI runs. Its values are arbitrary.
 /// </summary>
 public enum SparkEnemyFunction
 {

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 internal static class ShaktoolInstructionDefinitions
 {
     /// <summary>
-    /// $AA:DD15-$DD24 over the eight head animations stored from $AA:DAA4: the head animation of each eighth-turn
+    /// The head animation of each eighth-turn
     /// direction bucket. The direction buckets start at up; program storage starts two eighth-turns earlier at left.
     /// </summary>
     internal static readonly Dictionary<int, ShaktoolProgram> OrientationPrograms = new()
@@ -20,7 +20,7 @@ internal static class ShaktoolInstructionDefinitions
     };
 
     /// <summary>
-    /// $AA:DF13 and $AA:DF21: collision and dormant-attack behavior by body part: primary saw, rear arm, front arm,
+    /// Collision and dormant-attack behavior by body part: primary saw, rear arm, front arm,
     /// head, front arm, rear arm, final saw.
     /// </summary>
     internal static readonly ShaktoolSegmentInstructionDefinition[] SegmentInstructions =

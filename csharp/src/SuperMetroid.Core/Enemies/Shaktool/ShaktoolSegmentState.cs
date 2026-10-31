@@ -30,7 +30,7 @@ public sealed class ShaktoolSegmentState
     public bool OrientationReversed { get; internal set; }
     /// <summary>
     /// The final saw's curl progress: the angular increments accumulated since the chain last reached its target,
-    /// from 0 through $F3FB. Reaching $F000 starts the chain straightening, which stops the accumulation.
+    /// from 0 through 62459. Reaching 61440 starts the chain straightening, which stops the accumulation.
     /// </summary>
     public int CurlProgress { get; internal set; }
     /// <summary>The slot of the first segment of the seven-segment chain, whose segments occupy consecutive slots.</summary>

@@ -13,7 +13,7 @@ public static class ShaktoolOrbitTables
     /// </remarks>
     internal static int Sample(int index) => (int)UnquantizedSample(index);
 
-    /// <summary>Evaluates Shaktool's native-angle sine with 24 decimal Taylor terms instead of platform math functions.</summary>
+    /// <summary>Evaluates Shaktool's byte-angle sine with 24 decimal Taylor terms instead of platform math functions.</summary>
     /// <remarks>Terms through x^47/47! keep full-cycle remainder and decimal roundoff below 1e-19 before scaling; the original-table proof checks both bounds at every index.</remarks>
     internal static decimal UnquantizedSample(int index)
     {
@@ -29,7 +29,7 @@ public static class ShaktoolOrbitTables
         }
         return 3072 * sum;
     }
-    /// <summary>$AA:DC2A segment placement selects negative cosine for Y and
+    /// <summary>Segment placement selects negative cosine for Y and
     /// the 64-word-shifted sine for X. Both are 8.8 displacements promoted to 16.16
     /// before addition to the preceding segment's position.</summary>
     public static FixedVector<RoomPixels> Displacement(ByteAngle angle) => new(

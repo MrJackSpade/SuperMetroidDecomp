@@ -42,7 +42,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case SparkCueKind.BecomeIntangible:
-                // Flicker-out: property bit $0400 removes the actor from every ordinary Samus, beam and grapple
+                // Flicker-out: the intangibility property removes the actor from every ordinary Samus, beam and grapple
                 // collision pass.
                 slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 break;
@@ -117,7 +117,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Reproduces <c>DEC; BEQ</c>. A zero countdown wraps to <c>$FFFF</c> and therefore does
+    /// Reproduces the decrement-then-test-zero countdown. A zero countdown wraps to -1 and therefore does
     /// not expire for another 65,535 actor frames; it must not be treated as immediately due.
     /// </summary>
     internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state)

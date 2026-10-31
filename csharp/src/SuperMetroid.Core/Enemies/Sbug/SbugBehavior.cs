@@ -28,7 +28,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>Random-wandering activation resets the shared enemy RNG to $000B.</summary>
+    /// <summary>Random-wandering activation resets the shared enemy RNG to 11.</summary>
     private const int SbugRandomSeed = 11;
     /// <summary>Random and forward-then-wait legs last $20 enemy frames before selection changes.</summary>
     private const int SbugMovementSegmentFrames = 32;
@@ -44,12 +44,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!SbugMovementDefinitions.ActivationBehaviors.TryAt(behavior, out _))
         {
             throw new InvalidDataException(
-                $"Sbug activation behavior {behavior} exceeds the seven-entry ROM table.");
+                $"Sbug activation behavior {behavior} is not one of the seven activation behaviours.");
         }
 
         var state = new SbugEnemyState(slot)
         {
-            // Enemy extension arrays are cleared with room WRAM before initialization: no loop
+            // Enemy extension arrays are cleared with the room before initialization: no loop
             // is requested or installed until the first direction is selected.
             RequestedProgram = null,
             InstalledProgram = null,
@@ -57,9 +57,9 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // $A3:A183 uses the game-derived unsigned quarter-circle magnitudes and lets
-        // $A0:B691 apply signs later from the original angle. The side velocities instead use the signed,
-        // intentionally imperfect eight-bit multiply routine/$B0C6.
+        // The forward velocity uses the game-derived unsigned quarter-circle magnitudes and lets
+        // the shared helper apply signs later from the original angle. The side velocities instead use the signed,
+        // intentionally imperfect eight-bit multiply routine.
         int speed = Ensure.BetweenInclusive(0, byte.MaxValue, state.Speed);
         RotationAngle leftAngle = state.InitialAngle.AddTableUnits(-EnemyByteAngleDefinitions.EighthTurn);
         RotationAngle rightAngle = state.InitialAngle.AddTableUnits(EnemyByteAngleDefinitions.EighthTurn);
@@ -176,7 +176,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = SbugMovement.ActivationFunction(state.ActivationBehavior);
     }
 
-    /// <summary>Converts Samus's cartridge bearing into Sbug's angular convention and chosen direction.</summary>
+    /// <summary>Converts Samus's bearing into Sbug's angular convention and chosen direction.</summary>
     private static void ActivateSbugTowardOrAway(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -240,8 +240,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Collision-aware Sbug movement requires room level data.");
 
-        // $A3:A648 stops at the first colliding axis. The common movers also perform the
-        // cartridge's wall alignment, so a collision frame must not receive a second raw
+        // The movement stops at the first colliding axis. The common movers also perform the
+        // game's wall alignment, so a collision frame must not receive a second raw
         // position adjustment here.
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
@@ -288,7 +288,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         SbugEnemyState state,
         SbugEnemyFunction movement)
     {
-        // AND #$00FF / SBC #$0040 / AND #$00FF creates an unsigned byte delta; the later
+        // Masking to a byte, subtracting 64 and masking again creates an unsigned byte delta; the later
         // trigonometry reads only the heading's low byte, which the turn wraps within.
         int randomLow = SharedRandomState.LowerByte(_room.Random.Generate());
         int angleDelta = WordWrap.LowByte(randomLow - EnemyByteAngleDefinitions.QuarterTurn);
@@ -321,8 +321,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CustomXVelocity = NegateSbugWordsIndependently(state.CustomXVelocity);
         state.CustomYVelocity = NegateSbugWordsIndependently(state.CustomYVelocity);
 
-        // $A3:A565 advances the facing table's byte offset by four and masks it with $0007
-        // rather than the expected $000E. Preserve that oddity: the facing advances by two
+        // The reversal advances the facing table's byte offset by four and masks it with 7
+        // rather than the expected 14. Preserve that oddity: the facing advances by two
         // and folds into the first four facings.
         state.CustomFacing = (state.CustomFacing + SbugDefinitions.ReversalFacingStep) % SbugDefinitions.FoldedFacingCount;
         SetSbugFacing(slot, state, state.CustomFacing);
@@ -409,7 +409,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Reproduces the eight-bit sine multiply and independent negative-word conversion.</summary>
     internal static SignedSixteenSixteen CalculateSignedSbugComponent(ByteAngle angle, int speed, int phase)
     {
-        // $A0:B0DA multiplies two bytes, swaps the product's bytes into 16.16 words, then
+        // The eight-bit sine multiplication multiplies two bytes, swaps the product's bytes into 16.16 words, then
         // (when negative) negates those words independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
         ByteAngle tableAngle = angle.AddTableUnits(phase);

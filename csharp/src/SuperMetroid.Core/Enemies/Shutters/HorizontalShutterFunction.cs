@@ -24,6 +24,6 @@ public enum HorizontalShutterFunction
     StoppedAfterMovingLeft,
     /// <summary>Waits for signed timer underflow before moving left or restoring proximity waiting.</summary>
     StoppedAfterMovingRight,
-    /// <summary>Inert endpoint for rest time $0FF0, retaining stationary manual ejection and eligible reaction activation.</summary>
+    /// <summary>Inert endpoint for rest time 4080, retaining stationary manual ejection and eligible reaction activation.</summary>
     PermanentNoOp,
 }

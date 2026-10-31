@@ -31,7 +31,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case SkulteraCueKind.DrawAboveScenery:
                 // The right-facing swim promotes the fish above foreground scenery only after its first
-                // instruction tick, exactly like the ROM.
+                // animation tick, exactly like the game.
                 slot.Layer = 6;
                 break;
             case SkulteraCueKind.DrawBelowScenery:
@@ -115,7 +115,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the mirrored swimming functions/$91AB</c>.</summary>
+    /// <summary>Runs the mirrored swimming functions.</summary>
     private void SwimSkultera(
         RoomEnemySlot slot,
         SkulteraEnemyState state,
@@ -173,7 +173,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             : SkulteraProgram.TurningLeft);
     }
 
-    /// <summary>Ports the mirrored turn completion functions/$9256</c>.</summary>
+    /// <summary>Runs the mirrored turn completion functions.</summary>
     private static void FinishSkulteraTurn(
         RoomEnemySlot slot,
         SkulteraEnemyState state,

@@ -12,9 +12,9 @@ using SuperMetroid.Core.World;
 internal static class SparkMovementDefinitionsVerification
 {
     /// <summary>
-    /// The three authored selectors start the native list and function, and selector three keeps its native function
-    /// overread while its list word, the following main-AI function pointer, starts no animation. Flicker-on makes the
-    /// Spark tangible and runs into the active loop; flicker-out makes it intangible and holds; both loops run on time.
+    /// The three authored selectors start the native list and function, and no other initial state is accepted.
+    /// Flicker-on makes the Spark tangible and runs into the active loop; flicker-out makes it intangible and holds; both
+    /// loops run on time.
     /// </summary>
     internal static void VerifySparkMovementDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -22,29 +22,28 @@ internal static class SparkMovementDefinitionsVerification
         enemies.VerificationServices().IsAreaBossDefeated = () => true;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Spark, slot.Definition);
-        for (ushort selector = 0; selector < 4; selector++)
+        for (ushort selector = 0; selector < 3; selector++)
         {
             ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.InstructionListTable + selector * 2);
             var nativeFunction = SparksNativeWords.SparkEnemyFunctions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.FunctionTable + selector * 2),
                 $"Spark selector {selector}'s function");
             SparkMovementDefinition definition = SparkStarts.InitialState(selector);
-            ushort list = definition.Program is { } program
-                ? NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, program)
-                : SparksNativeWords.SparkEnemyFunctions.Word(SparkEnemyFunction.AlwaysActive);
-            AssertEqual(nativeList, list, $"Spark list selector {selector}");
+            AssertEqual(nativeList, NativeEnemyProgramOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Program),
+                $"Spark list selector {selector}");
             AssertEqual(nativeFunction, definition.Function, $"Spark function selector {selector}");
 
             slot.SetSpawnParameter1(EnemyDefinitionId.Spark, selector);
             slot.SetSpawnParameter2(EnemyDefinitionId.Spark, 5);
             enemies.SparkBehavior.InitializeSpark(slot);
             SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
-            AssertEqual(definition.Program is { } started ? AnimationProgramCursor<SparkProgram>.Start(started) : null,
+            AssertEqual(AnimationProgramCursor<SparkProgram>.Start(definition.Program),
                 state.Program, $"Spark production animation selector {selector}");
             AssertEqual(nativeFunction, state.Function, $"Spark production function selector {selector}");
         }
-        foreach (ushort highBits in new ushort[] { 4, 0x0100, 0xffff })
-            AssertEqual(SparkStarts.InitialState((ushort)(highBits & 3)), SparkStarts.InitialState(highBits),
-                $"Spark selector mask {highBits:X4}");
+        foreach (int unauthored in new[] { 3, 4, 0xffff })
+            AssertThrows<ArgumentOutOfRangeException>(
+                () => new SparkSpawnSettings(InitialState: unauthored, BaseFunctionTime: 0),
+                $"Spark unauthored initial state {unauthored}");
 
         foreach (SparkProgram loop in new[] { SparkProgram.Active, SparkProgram.Emitter })
         {
@@ -61,7 +60,7 @@ internal static class SparkMovementDefinitionsVerification
         EnemyInstructionRunner.ShownFrames(off, 40);
         AssertTrue(off.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Spark flicker-out makes the actor intangible");
         AssertEqual(SparkProgram.FlickerOut, offState.Program?.Program, "Spark flicker-out holds");
-        Console.WriteLine("  Spark: four native selections, the selector-three overread, both loops and both flickers with their collision cues pass.");
+        Console.WriteLine("  Spark: three native selections, the unauthored-state rejection, both loops and both flickers with their collision cues pass.");
     }
 
     /// <summary>A Spark running <paramref name="program"/> from its first step.</summary>

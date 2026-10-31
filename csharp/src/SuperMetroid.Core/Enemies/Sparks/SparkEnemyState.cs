@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// </summary>
 public sealed class SparkEnemyState
 {
-    /// <summary>Where the typed animation (#641) resumes; none when the selected list word is not an animation.</summary>
+    /// <summary>Where the typed animation (#641) resumes; none until the Spark is initialized.</summary>
     internal AnimationProgramCursor<SparkProgram>? Program { get; set; }
 
     /// <summary>The always-active, intermittent or falling-spark behaviour; none once a kill has emptied the record.</summary>

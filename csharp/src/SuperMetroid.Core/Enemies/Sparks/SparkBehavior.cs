@@ -63,20 +63,16 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new SparkEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Native masks the selector to two bits, but both tables contain only three authored
-        // words. The compiled definition preserves selector three's two adjacent-code reads;
-        // a later main pass still reports its exact nonsensical function if selected.
         SparkMovementDefinition definition = SparkStarts.InitialState(slot.SpawnSettings<SparkSpawnSettings>().InitialState);
         state.Function = definition.Function;
         state.BaseFunctionTime = slot.SpawnSettings<SparkSpawnSettings>().BaseFunctionTime;
         SetSparkFunctionTimer(state, additionalTime: 0);
 
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        state.Program = definition.Program is { } program ? AnimationProgramCursor<SparkProgram>.Start(program) : null;
+        state.Program = AnimationProgramCursor<SparkProgram>.Start(definition.Program);
         slot.Timer = WrappingCountdown.Start(0);
-        // Before Phantoon's defeat the original initializer also ORs a stack-page word into the properties, a
-        // disassembly-noted bug; that word depends on upload-queue history the port does not keep, so it is exempt under
-        // the emulation scope limits (owner decision on #1318) and Spark keeps its population properties.
+        // Spark keeps its population properties: the original initializer's extra property change before Phantoon's
+        // defeat is exempt under the emulation scope limits (owner decision on #1318).
     }
 
     /// <summary>Ports the indirect main dispatcher at <c>$A8:E68E</c>.</summary>
@@ -113,7 +109,6 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
                 SetSparkFunctionTimer(state, additionalTime: 0);
                 return;
 
-            case SparkEnemyFunction.AdjacentCode:
             case null:
             default:
                 throw new InvalidDataException(
@@ -167,9 +162,8 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         SparkEnemyState state = slot.RequireSpeciesState<SparkEnemyState>();
-        // Selector three's list word is the main-AI function pointer that follows the table: code, not a list.
-        AnimationProgramCursor<SparkProgram> cursor = state.Program ?? throw new InvalidDataException(
-            "Spark selector three starts at the main-AI function pointer, which is not an animation list.");
+        AnimationProgramCursor<SparkProgram> cursor = state.Program ?? throw new InvalidOperationException(
+            "Spark animation runs before the Spark is initialized.");
         EnemyProgramAnimation.Run(slot, SparkAnimations.Programs, ref cursor, SparkFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplySparkCue(slot, cue));
         state.Program = cursor;

@@ -15,6 +15,5 @@ internal static class SparksNativeWords
         [SparkEnemyFunction.IntermittentInactive] = 0xe695,
         [SparkEnemyFunction.IntermittentActive] = 0xe6b7,
         [SparkEnemyFunction.EmitFallingSparks] = 0xe6dc,
-        [SparkEnemyFunction.AdjacentCode] = 0x54ae,
     });
 }

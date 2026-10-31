@@ -21,7 +21,7 @@ public static class RoomScrollStates
     /// past the three authored states, such as one a short explicit table copies from the following room definition,
     /// scrolls as <see cref="RoomScrollState.Green"/> does.
     /// </summary>
-    public static RoomScrollState FromStorageByte(byte value) => value switch
+    public static RoomScrollState FromStorageByte(int value) => value switch
     {
         0 => RoomScrollState.RedBoundary,
         1 => RoomScrollState.Blue,

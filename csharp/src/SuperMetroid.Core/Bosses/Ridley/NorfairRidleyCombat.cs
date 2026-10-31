@@ -223,7 +223,7 @@ internal sealed class NorfairRidleyCombat
             state,
             new Position16<RoomPixels>(
                 direction == VerticalDirection.Down ? RidleyMovementTargets.DescendingPogoX(facing) : RidleyMovementTargets.AscendingPogoX(facing),
-                samus is null ? 352 : Math.Min(samus.Position.Y.Whole, 352)),
+                samus is null ? 352 : int.Min(samus.Position.Y.Whole, 352)),
             ReadRidleyHealthMovementDivisorIndex(state));
         state.TailWhipRequest = 1;
 
@@ -302,7 +302,7 @@ internal sealed class NorfairRidleyCombat
         if (samus is not null && SamusMovementUsesRidleyGrab(samus) &&
             RidleyClawOverlapsSamus(slot, state, samus, new Extent16<RoomPixels>(4, 4)))
         {
-            state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(-Math.Max(
+            state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(-int.Max(
                 512,
                 Math.Abs(state.Velocity.Y.SignedRawValue))));
             state.TailFunctionIndex = RidleyTailFunction.Neutral;

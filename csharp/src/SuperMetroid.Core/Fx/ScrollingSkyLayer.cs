@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="VerticalScroll">The layer-one Y the bands are positioned from; the sky's BG2 vertical scroll, wrapping at 16 bits.</param>
 /// <param name="BandOffsets">The whole-pixel horizontal offset in each of the 23 band data slots.</param>
 /// <param name="BandsShown">False on a frozen frame, whose terminated table leaves every band unshifted.</param>
-public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<ushort> BandOffsets, bool BandsShown)
+public sealed record ScrollingSkyLayer(int VerticalScroll, ImmutableArray<int> BandOffsets, bool BandsShown)
 {
     /// <summary>The world rows a sixteen-bit row position covers before it wraps.</summary>
     private const int WorldRows = ushort.MaxValue + 1;

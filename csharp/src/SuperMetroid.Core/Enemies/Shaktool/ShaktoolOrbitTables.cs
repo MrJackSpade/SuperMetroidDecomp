@@ -11,7 +11,7 @@ public static class ShaktoolOrbitTables
     /// corrective samples. Reflection, true pi or direct negative cosine differ.
     /// This exact convention does not identify the original authoring software.
     /// </remarks>
-    internal static int Sample(int index) => WordWrap.Signed(UnquantizedSample(index));
+    internal static int Sample(int index) => (int)UnquantizedSample(index);
 
     /// <summary>Evaluates Shaktool's native-angle sine with 24 decimal Taylor terms instead of platform math functions.</summary>
     /// <remarks>Terms through x^47/47! keep full-cycle remainder and decimal roundoff below 1e-19 before scaling; the original-table proof checks both bounds at every index.</remarks>

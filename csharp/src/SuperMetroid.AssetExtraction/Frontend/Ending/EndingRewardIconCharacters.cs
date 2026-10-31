@@ -29,7 +29,7 @@ public sealed class EndingRewardIconCharacters : EndingRewardIconArtwork
     {
         Ensure.NotNull(mapJson);
         Ensure.NotNull(charactersPng);
-        byte[] map = ReadMapCells(mapJson);
+        byte[] map = Array.ConvertAll(ReadMapCells(mapJson), tile => checked((byte)tile));
         IndexedPngImage image = IndexedPng.Read(charactersPng,
             new(EndingFloorArtworkFormat.CharacterWidth, EndingFloorArtworkFormat.CharacterHeight));
         if (image.Colours.Length != 256)

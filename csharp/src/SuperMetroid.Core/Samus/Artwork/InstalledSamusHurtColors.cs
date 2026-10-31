@@ -10,7 +10,7 @@ public sealed class InstalledSamusHurtColors
     /// <summary>Optional independent edit to the intro palette's transparent-slot word.</summary>
     internal readonly RgbColor? introZero;
     /// <summary>Intro shade levels that differ from the calculated native levels.</summary>
-    internal readonly Dictionary<int, byte> introLevels;
+    internal readonly Dictionary<int, int> introLevels;
     /// <summary>Intro colors whose full RGB5 words cannot be derived from their shade levels.</summary>
     internal readonly Dictionary<ColourCell, RgbColor> introOverrides;
     /// <summary>Hurt colors that differ from the corresponding intro-derived native flash shade.</summary>
@@ -23,7 +23,7 @@ public sealed class InstalledSamusHurtColors
         introZero = intro[0] == SamusHurtColorDefinitions.IntroTransparentWord ? null : intro[0];
         introLevels = Enumerable.Range(1, 15)
             .Where(index => (intro[index].Red) != SamusHurtColorLevels.DefaultIntroLevel(index))
-            .ToDictionary(index => index, index => WordWrap.LowByte(intro[index].Red));
+            .ToDictionary(index => index, index => intro[index].Red);
         introOverrides = Enumerable.Range(1, 15)
             .Where(index => intro[index] != SamusHurtColorLevels.IntroFromLevel(IntroLevel(index)))
             .ToDictionary(index => new ColourCell(0, index), index => intro[index]);

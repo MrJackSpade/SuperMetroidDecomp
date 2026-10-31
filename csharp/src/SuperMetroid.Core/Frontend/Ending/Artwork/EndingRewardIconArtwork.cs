@@ -28,7 +28,7 @@ public class EndingRewardIconArtwork
     /// <summary>Reads and validates the full 128x128 map's ordered tile indices.</summary>
     /// <param name="mapJson">Version-1 JSON containing 16384 row-ordered tile indices, each in the range 0..255.</param>
     /// <exception cref="InvalidDataException">The map schema is invalid.</exception>
-    internal static byte[] ReadMapCells(Stream mapJson)
+    internal static int[] ReadMapCells(Stream mapJson)
     {
         Ensure.NotNull(mapJson);
         EndingFloorMapDocument map;

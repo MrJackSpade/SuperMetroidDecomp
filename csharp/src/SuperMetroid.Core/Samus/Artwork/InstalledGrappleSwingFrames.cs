@@ -7,9 +7,9 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class InstalledGrappleSwingFrames
 {
     /// <summary>Copied edited angle mapping; null retains the compiled nearest-eight-angle rule.</summary>
-    internal readonly byte[]? frames;
+    internal readonly int[]? frames;
     /// <summary>Stores a separate frame table only when an edited angle differs from the stock selector.</summary>
-    private InstalledGrappleSwingFrames(byte[] frames)
+    private InstalledGrappleSwingFrames(int[] frames)
     {
         for (int angle = 0; angle < frames.Length; angle++)
             if (frames[angle] != GrappleSwingFrameDefinitions.FrameForAngle(new ByteAngle(WordWrap.LowByte(angle))))
@@ -47,7 +47,7 @@ public sealed class InstalledGrappleSwingFrames
         if (document.Version != GrappleSwingFrameDefinitions.Version || document.Frames is null || document.Frames.Length != GrappleSwingFrameDefinitions.AngleCount ||
             document.Frames.Any(frame => frame is < 0 or >= GrappleSwingFrameDefinitions.FrameCount))
             throw new InvalidDataException("Grapple swing frames require version 1 and 256 frame indices in 0..31.");
-        return new(document.Frames.Select(frame => WordWrap.LowByte(frame)).ToArray());
+        return new(document.Frames.ToArray());
     }
     /// <summary>Serializes a swing-frame document as indented camel-case UTF-8 JSON and validates it through <see cref="Load"/> before returning the bytes.</summary>
     /// <param name="document">Document containing the supported version and all 256 valid orientation-frame selections.</param>

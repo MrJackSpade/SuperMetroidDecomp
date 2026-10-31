@@ -96,7 +96,7 @@ public sealed class RoomScrollGrid
     /// does not know the C# array ended there, so camera code must observe the explored-map
     /// byte that follows rather than throw or manufacture a clamped scroll cell.
     /// </remarks>
-    public byte ReadCameraStorage(int index)
+    public int ReadCameraStorage(int index)
     {
         if ((uint)index > ushort.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(index));

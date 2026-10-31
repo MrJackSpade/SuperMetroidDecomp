@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Bosses.Phantoon.PhantoonTimerDefinitions;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Allocation-free calculated view of one native eight-bucket Phantoon phase-timer table.</summary>
-public readonly struct PhantoonTimerSchedule : IReadOnlyList<ushort>
+public readonly struct PhantoonTimerSchedule : IReadOnlyList<int>
 {
     /// <summary>Selects which native phase's buckets and duration scale this view exposes.</summary>
     private readonly TimerKind kind;
@@ -17,14 +17,14 @@ public readonly struct PhantoonTimerSchedule : IReadOnlyList<ushort>
     /// <summary>Calculates the selected phase duration in gameplay updates.</summary>
     /// <param name="index">Bucket index from zero through seven, normally selected by masked RNG or frame bits.</param>
     /// <returns>The exact short, medium, or long duration for this schedule.</returns>
-    public ushort this[int index]
+    public int this[int index]
     {
         get
         {
             DurationChoice choice = Choices[index];
             int shortest = ShortestVulnerableExposureFrames * (kind == TimerKind.EyeClosed ? EyeShortScale : kind == TimerKind.RainHiding ? RainShortScale : 1);
             int medium = shortest * (kind == TimerKind.EyeClosed ? EyeMediumScale : TierDoubling);
-            return CoordinateAxis.Wrap(choice switch
+            return WordWrap.Unsigned(choice switch
             {
                 DurationChoice.Short => shortest,
                 DurationChoice.Medium => medium,
@@ -35,7 +35,7 @@ public readonly struct PhantoonTimerSchedule : IReadOnlyList<ushort>
     }
     /// <summary>Enumerates all eight calculated durations in native bucket order.</summary>
     /// <returns>An enumerator over the phase durations.</returns>
-    public IEnumerator<ushort> GetEnumerator()
+    public IEnumerator<int> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }

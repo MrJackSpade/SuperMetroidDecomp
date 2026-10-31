@@ -310,7 +310,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int quarter = magnitude >> 2;
         int half = magnitude >> 1;
         int threeQuarters = quarter + half;
-        Span<ushort> positions = stackalloc ushort[4]
+        Span<int> positions = stackalloc int[4]
         {
             Ensure.BetweenInclusive(0, ushort.MaxValue, firstPosition),
             CoordinateAxis.Wrap(anchor + (negative ? -quarter : quarter)),

@@ -54,9 +54,6 @@ internal static class ChargeFlareAnimations
     }
 
     /// <summary>Distinguishes a flare delay-stream command byte from an ordinary delay.</summary>
-    internal static bool TryDecodeCommand(int streamByte, out ChargeFlareDelayCommand command)
-    {
-        command = default;
-        return (uint)streamByte <= byte.MaxValue && CommandBytes.TryGetValue(WordWrap.LowByte(streamByte), out command);
-    }
+    internal static bool TryDecodeCommand(int streamByte, out ChargeFlareDelayCommand command) =>
+        CommandBytes.TryGetValue(streamByte, out command);
 }

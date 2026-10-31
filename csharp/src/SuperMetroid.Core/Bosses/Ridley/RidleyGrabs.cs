@@ -10,7 +10,7 @@ internal static class RidleyGrabs
     internal static bool CanGrab(SamusMovementType movement) => Policy(movement) != GrabPolicy.Immune;
 
     /// <summary>$A6:BC98 loads6 frames for morphed overflow; $A6:BC9D otherwise loads10.</summary>
-    internal static ushort ReleaseIntangibilityFrames(SamusMovementType movement) =>
+    internal static int ReleaseIntangibilityFrames(SamusMovementType movement) =>
         Policy(movement) == GrabPolicy.Morphed
             ? RidleySamusInteractionDefinitions.MorphedReleaseIntangibilityFrames
             : RidleySamusInteractionDefinitions.OrdinaryReleaseIntangibilityFrames;

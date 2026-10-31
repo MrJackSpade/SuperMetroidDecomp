@@ -429,8 +429,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 RoomEnemySlot[] group = GetShaktoolGroup(slot);
                 // Flipping the direction's top bit turns it half a turn.
-                ByteAngle centerDirection = new(checked(WordWrap.LowByte(RequireShaktoolState(group[3]))
-                    .OrientationBucket));
+                ByteAngle centerDirection = new(RequireShaktoolState(group[3]).OrientationBucket);
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.LowerAwayFromCenter

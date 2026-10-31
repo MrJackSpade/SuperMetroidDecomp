@@ -88,7 +88,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     {
         if (!HasBands)
             return null;
-        var offsets = ImmutableArray.CreateBuilder<ushort>(_fixedHorizontalScrolls.Length);
+        var offsets = ImmutableArray.CreateBuilder<int>(_fixedHorizontalScrolls.Length);
         for (int slot = 0; slot < _fixedHorizontalScrolls.Length; slot++)
             offsets.Add(GetDataSlotPosition(slot));
         return new ScrollingSkyLayer(layer1YPosition, offsets.MoveToImmutable(), BandsShown);

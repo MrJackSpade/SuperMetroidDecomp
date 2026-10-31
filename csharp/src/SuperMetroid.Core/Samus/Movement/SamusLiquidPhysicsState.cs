@@ -720,14 +720,14 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        ushort[] xPositions =
+        int[] xPositions =
         [
             CoordinateAxis.Wrap(samus.Position.X.Whole + 6),
             samus.Position.X.Whole,
             samus.Position.X.Whole,
             CoordinateAxis.Wrap(samus.Position.X.Whole - 6),
         ];
-        ushort[] timers = [3, BreathBubbleHeldTimer, BreathBubbleHeldTimer, 3];
+        int[] timers = [3, BreathBubbleHeldTimer, BreathBubbleHeldTimer, 3];
         for (int slot = 0; slot < SamusAtmosphericEffectsState.SlotCount; slot++)
         {
             AtmosphericEffects.SetSlot(

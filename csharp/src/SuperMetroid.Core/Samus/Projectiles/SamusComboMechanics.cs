@@ -67,7 +67,7 @@ internal static class SamusComboMechanics
     /// lookup of its own; preserve this existing algorithm.</remarks>
     internal static Offset16<RoomPixels> GetSineOffset(ByteAngle angle, int amplitude)
     {
-        short Component(int phase)
+        int Component(int phase)
         {
             int sample = Trigonometry.SignedSine(new ByteAngle(phase));
             int magnitude = EightEight.Multiply(Math.Abs(sample), WordWrap.LowByte(amplitude));

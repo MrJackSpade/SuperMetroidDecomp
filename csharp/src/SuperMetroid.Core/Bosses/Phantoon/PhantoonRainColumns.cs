@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Computed $A7:CFC2 first-flame column lookup, indexed by the eight rain patterns rather than by individual flames.</summary>
-public readonly struct PhantoonRainColumns : IReadOnlyList<byte>
+public readonly struct PhantoonRainColumns : IReadOnlyList<int>
 {
     /// <summary>Eight pattern-to-first-column entries; each pattern's caller subsequently emits eight flames across nine wrapping columns.</summary>
     public int Count => PhantoonPatternDefinitions.RainPlacements.Length;
@@ -9,7 +9,7 @@ public readonly struct PhantoonRainColumns : IReadOnlyList<byte>
     /// <param name="pattern">Native rain-pattern index, 0..7.</param>
     /// <returns>A column from 0..8; following eight consecutive columns leaves the body placement's column empty.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The pattern is outside the eight-entry lookup.</exception>
-    public byte this[int pattern]
+    public int this[int pattern]
     {
         get
         {
@@ -17,12 +17,12 @@ public readonly struct PhantoonRainColumns : IReadOnlyList<byte>
             int origin = PhantoonFlameSpawns.RainX(0);
             int spacing = PhantoonFlameSpawns.RainX(1) - origin;
             int bodyColumn = (PhantoonFlameRain.RainPlacement(pattern).Position.X - origin) / spacing;
-            return WordWrap.LowByte((bodyColumn + 1) % PhantoonPatternDefinitions.RainColumnCount);
+            return (bodyColumn + 1) % PhantoonPatternDefinitions.RainColumnCount;
         }
     }
     /// <summary>Enumerates each pattern's first flame column in native pattern order, without advancing RNG or spawning flames.</summary>
     /// <returns>An enumerator over the eight computed column selectors.</returns>
-    public IEnumerator<byte> GetEnumerator()
+    public IEnumerator<int> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }

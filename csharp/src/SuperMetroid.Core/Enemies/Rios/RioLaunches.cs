@@ -4,6 +4,6 @@ namespace SuperMetroid.Core.Enemies.Rios;
 public static class RioLaunches
 {
     /// <summary>$A2:C1C1: RNG bit two selects one of two adjacent downward velocities.</summary>
-    public static ushort NorfairYVelocity(int random) =>
+    public static int NorfairYVelocity(int random) =>
         (random & 4) == 0 ? RioLaunchDefinitions.NorfairFastYVelocity : RioLaunchDefinitions.NorfairSlowYVelocity;
 }

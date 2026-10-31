@@ -27,7 +27,7 @@ public class EndingFloorSceneArtwork
     /// <summary>Reads and validates a 128x64 map's ordered tile indices.</summary>
     /// <param name="mapJson">Version-1 JSON containing 8192 ordered tile indices in the range 0..255.</param>
     /// <exception cref="InvalidDataException">The map schema is invalid.</exception>
-    internal static byte[] ReadMapCells(Stream mapJson) =>
+    internal static int[] ReadMapCells(Stream mapJson) =>
         ReadMap(Ensure.NotNull(mapJson)).Tiles.Select(tile => Ensure.BetweenInclusive(0, byte.MaxValue, tile)).ToArray();
 
     /// <summary>Serializes an ending backdrop map, validating the complete encoded document before writing any bytes to the destination.</summary>

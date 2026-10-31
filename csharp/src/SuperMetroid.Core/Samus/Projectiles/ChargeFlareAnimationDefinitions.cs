@@ -26,8 +26,8 @@ internal static class ChargeFlareAnimationDefinitions
     internal const int RestartByte = 255;
 
     /// <summary>The command each command byte of a delay stream encodes; every other stream byte is a delay.</summary>
-    internal static readonly FrozenDictionary<byte, ChargeFlareDelayCommand> CommandBytes =
-        new Dictionary<byte, ChargeFlareDelayCommand>
+    internal static readonly FrozenDictionary<int, ChargeFlareDelayCommand> CommandBytes =
+        new Dictionary<int, ChargeFlareDelayCommand>
         {
             [RewindByte] = ChargeFlareDelayCommand.Rewind,
             [RestartByte] = ChargeFlareDelayCommand.Restart,

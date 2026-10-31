@@ -222,7 +222,7 @@ public static class ProgressionTableCodec
         Ensure.LengthEqual(plane, ExploredPlaneByteCount);
         plane.Clear();
         foreach (Position16<MapTiles> cell in progress.ExploredCells(area))
-            plane[AreaMapPages.GetBitByteIndex(cell)] |= AreaMapPages.GetBitMask(cell.X);
+            plane[AreaMapPages.GetBitByteIndex(cell)] |= checked((byte)AreaMapPages.GetBitMask(cell.X));
     }
 
     /// <summary>Whether flag <paramref name="number"/> of a bit table is set.</summary>

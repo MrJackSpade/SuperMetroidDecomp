@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// tileset's colours; the HUD, the minimap and the message box show the two HUD sets, and the room's tiles, its
 /// background and the bosses drawn on the background show the six tile sets. Which colour group of an installed image
 /// draws in which set is decided by the import pipeline when it installs the image, and only the import pipeline and the
-/// native boundary know where each set lies among the cartridge's colours.
+/// rendering boundary know where each set lies among the game's colours.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverter<BackgroundColourSet>))]
 public enum BackgroundColourSet

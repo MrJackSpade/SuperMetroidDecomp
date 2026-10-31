@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Input;
 /// <summary>
 /// Named combinations of the player's controller buttons; <see cref="ControllerWordCodec"/> converts a recorded controller word.
 /// Keeping these combinations beside <see cref="ControllerButton"/> prevents gameplay code from
-/// reintroducing opaque masks such as <c>$0300</c> for the horizontal directions.
+/// reintroducing opaque masks for the horizontal directions.
 /// </summary>
 public static class ControllerButtons
 {

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// A two-dimensional signed native 8.8 velocity or acceleration: each axis is one
+/// A two-dimensional signed 8.8 velocity or acceleration: each axis is one
 /// <see cref="SignedEightEight"/> word, added to a <see cref="FixedPosition{TSpace}"/> after
 /// promotion to 16.16 (<see cref="ToSixteenSixteen"/>).
 /// </summary>
@@ -38,6 +38,6 @@ public readonly record struct EightEightVector<TSpace>(SignedEightEight X, Signe
         new(SignedEightEight.Wrapped(vector.X.SignedRawValue * factor),
             SignedEightEight.Wrapped(vector.Y.SignedRawValue * factor));
 
-    /// <summary>The same velocity as the native 16.16 displacement used by position adders.</summary>
+    /// <summary>The same velocity as the 16.16 displacement used by position adders.</summary>
     public FixedVector<TSpace> ToSixteenSixteen() => new(X.ToSixteenSixteenDelta(), Y.ToSixteenSixteenDelta());
 }

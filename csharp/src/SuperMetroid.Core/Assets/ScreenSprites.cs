@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// A frontend screen's sprite entries (#1358, #1392): each placed pre-coloured frame becomes a whole-frame draw, in
-/// emission order, frontmost first. Screens publish these draws instead of writing OAM. Frames land as the cartridge
+/// emission order, frontmost first. Screens publish these draws instead of writing sprite records. Frames land as the game
 /// places their objects: nine-bit X, eight-bit Y read by the spritemap loader the origin selects, and the 128-object
 /// limit. The placed frames are the screen's state, and the draws are made from them.
 /// </summary>
@@ -54,13 +54,13 @@ public sealed class ScreenSprites
     /// Places a whole pre-coloured frame at <paramref name="origin"/> (#1392), standing for the objects of its
     /// composition; a frame of no parts places nothing. The loader's vertical-wrap hiding hides only parts an image
     /// clips, so the frame needs none. A frame the 128-object limit cuts short places its first parts as their own
-    /// pre-coloured images, as the cartridge's loader keeps the parts that fit and drops the rest.
+    /// pre-coloured images, as the game's loader keeps the parts that fit and drops the rest.
     /// </summary>
     /// <param name="frame">The frame placed.</param>
     /// <param name="origin">Where the frame's origin lands.</param>
     /// <param name="paletteOverride">The colours the draw shows the frame's palette-inheriting parts in, or null for the ones they were coloured in.</param>
     /// <param name="side">
-    /// Which spritemap loader the cartridge draws the frame with: on screen, the origin's low Y byte lies on or below the
+    /// Which spritemap loader draws the frame: on screen, the origin's low Y byte lies on or below the
     /// screen; off screen, it lies above it.
     /// </param>
     public void AddImage(SpriteSheetFrame frame, Position16<SpritePixels> origin, DrawnColouring? paletteOverride = null,
@@ -81,9 +81,9 @@ public sealed class ScreenSprites
     }
 
     /// <summary>
-    /// Places a pre-coloured frame of one object written straight to OAM (#1392), with no spritemap loader: the object
-    /// lands at <paramref name="position"/>, and a Y below the screen wraps above it as the PPU wraps it. Like a direct
-    /// OAM store, the object index wraps after the last object instead of stopping, and the frame then ends at the
+    /// Places a pre-coloured frame of one object written straight to the sprite list (#1392), with no spritemap loader: the object
+    /// lands at <paramref name="position"/>, and a Y below the screen wraps above it as the screen wraps it. Like a direct
+    /// sprite-list store, the object index wraps after the last object instead of stopping, and the frame then ends at the
     /// wrapped index.
     /// </summary>
     /// <exception cref="ArgumentException">The frame is not one object at its origin.</exception>

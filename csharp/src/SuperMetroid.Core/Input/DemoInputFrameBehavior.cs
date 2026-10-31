@@ -16,7 +16,7 @@ public enum DemoInputFrameBehavior
     AttractCheckLeave,
 
     /// <summary>
-    /// The diagonal-shinespark demonstration's routine: unless Samus is held by Draygon (the cartridge's actual
+    /// The diagonal-shinespark demonstration's routine: unless Samus is held by Draygon (the game's actual
     /// comparison, not the shinespark its name suggests), it continues the shinespark input and installs
     /// <see cref="AttractCheckLeave"/>.
     /// </summary>

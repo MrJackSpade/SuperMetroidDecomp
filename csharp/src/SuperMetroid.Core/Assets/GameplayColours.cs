@@ -34,7 +34,7 @@ public sealed class GameplayColours
     /// <summary>The sprite sets as a frame shows them now, each with the colours the owners hold for it over its own.</summary>
     public ShownColourSets ShownSprites() => ShownColourSets.Of(SpriteSets, new ShownOverSprites(owners));
 
-    /// <summary>Gives every owner its starting colours: the cartridge's initial colours, decoded by owner.</summary>
+    /// <summary>Gives every owner its starting colours: the game's initial colours, decoded by owner.</summary>
     public void LoadStarting(GameplayStartingColours starting)
     {
         Ensure.NotNull(starting);

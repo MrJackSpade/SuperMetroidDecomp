@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Input;
 /// so they deliberately do not appear in this type.
 /// </summary>
 /// <remarks>
-/// Most translated bank-$90/$91 routines already compare their input against the default
-/// action bits. <see cref="Normalize"/> is the single equivalent of the cartridge loading
+/// Most movement routines already compare their input against the default
+/// action bits. <see cref="Normalize"/> is the single equivalent of the game loading
 /// those configurable words before each comparison: it converts physical buttons into the
 /// canonical action bits without making every movement routine own a second binding table.
 /// </remarks>
@@ -20,12 +20,12 @@ public readonly record struct ControllerBindings(
     ControllerButton AimUp,
     ControllerButton AimDown)
 {
-    /// <summary>The literal bindings installed by <c>NewSaveFile</c> at <c>$81:B2CB</c>.</summary>
+    /// <summary>The literal bindings a new save file installs.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165: NTSC J/U v1.0 ROM and bank_81.asm agree on all
-    /// seven immediate/store pairs: Shoot=X/$09B2, Jump=A/$09B4, Dash=B/$09B6,
-    /// ItemSelect=Select/$09BA, ItemCancel=Y/$09B8, AimUp=R/$09BE, and
-    /// AimDown=L/$09BC. The constructor and action indexer use menu row order
+    /// Independently reviewed for #1165: the new-save bindings are
+    /// Shoot=X, Jump=A, Dash=B,
+    /// ItemSelect=Select, ItemCancel=Y, AimUp=R, and
+    /// AimDown=L. The constructor and action indexer use menu row order
     /// 0..6, which differs from the bindings' storage order for the final four fields.
     /// These are named action-to-button cases. The existing constructor and bounded
     /// action indexer already express that mapping without a stored lookup table.
@@ -46,14 +46,14 @@ public readonly record struct ControllerBindings(
 
     /// <summary>
     /// Physical button admitted by <c>GameOptions_ControllerSettings_SetBinding</c>, in the same order
-    /// as ROM table <c>$82:F575</c>. Its final Left/Right entries are not examined by that
+    /// as the options menu's button list. Its final Left/Right entries are not examined by that
     /// routine; only these first seven can be assigned in an ordinary retail options menu.
     /// </summary>
     /// <remarks>
-    /// Independently reviewed for #1165: NTSC J/U v1.0 ROM and Controller_Input_Bitmasks in
+    /// Independently reviewed for #1165: the options menu's button list holds
     /// bank_82.asm agree on all nine little-endian words: X, A, B, Select, Y, L, R,
     /// Left, Right. The managed seven-word prefix matches exactly; the final two words
-    /// remain adjacent ROM data, not assignable actions. Native set-binding starts at
+    /// follow the list, not assignable actions. Setting a binding starts at
     /// byte offset 12 and scans backward to zero; Save_GameOptionsMenu_ControllerBindings
     /// indexes the same seven choices. The managed menu scans these cases backward and
     /// AssignAndSwap validates membership through the inverse mapping. Each case selects
@@ -133,14 +133,14 @@ public readonly record struct ControllerBindings(
                 return result.WithAction(other, displaced);
         }
 
-        // A corrupt SRAM permutation can omit the selected physical button. Native scans
+        // // A corrupt saved permutation can omit the selected physical button. The game scans
         // six peers and then leaves the displaced value nowhere; matching that behavior is
         // safer than inventing a repair policy at runtime.
         return result;
     }
 
     /// <summary>
-    /// Converts one physical SNES sample into the default action layout expected by the
+    /// Converts one physical controller sample into the default action layout expected by the
     /// translated gameplay routines while preserving non-configurable directions and Start.
     /// </summary>
     public ControllerButton Normalize(ControllerButton physicalInput)

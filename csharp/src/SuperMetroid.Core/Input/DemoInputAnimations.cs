@@ -6,7 +6,7 @@ using P = SuperMetroid.Core.Input.DemoInputProgram;
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// The demo-input objects' programs (#1300), in place of their bank-$91 lists. Generated from the verified native lists:
+/// The demo-input objects' programs (#1300). Generated from the verified demo recordings:
 /// each six-byte input record shows a <see cref="DemoInputFrame"/> for its duration, each object routine becomes a
 /// <see cref="DemoInputCue"/>, and the lists' gotos and deletes end their programs.
 /// </summary>

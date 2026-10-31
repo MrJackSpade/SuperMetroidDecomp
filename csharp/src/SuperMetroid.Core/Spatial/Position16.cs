@@ -30,6 +30,15 @@ public readonly record struct Position16<TSpace>
     [IntegerQuantity("vertical coordinate")]
     public ushort Y { get; init; }
 
+    /// <summary>Splits the position into its coordinates, as the positional record it replaced did.</summary>
+    /// <param name="x">The horizontal coordinate.</param>
+    /// <param name="y">The vertical coordinate.</param>
+    public void Deconstruct(out ushort x, out ushort y)
+    {
+        x = X;
+        y = Y;
+    }
+
     /// <summary>The origin.</summary>
     public static Position16<TSpace> Zero => default;
 

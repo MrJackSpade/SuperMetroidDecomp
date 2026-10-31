@@ -22,6 +22,10 @@ public static class CoordinateAxis
     /// <param name="coordinate">The computed coordinate, which may lie outside the space.</param>
     public static int Wrap(int coordinate) => unchecked((ushort)coordinate);
 
+    /// <summary>A coordinate computed in thirty-two-bit unsigned arithmetic, wrapped onto the axis, 0 through 65535.</summary>
+    /// <param name="coordinate">The computed coordinate, which may lie past either end of the axis.</param>
+    public static int Wrap(uint coordinate) => unchecked((ushort)coordinate);
+
     /// <summary>
     /// The signed distance from <paramref name="from"/> to <paramref name="to"/> across the wrapping space,
     /// -32768 through 32767: the coordinates' difference wrapped to sixteen bits and read as signed.

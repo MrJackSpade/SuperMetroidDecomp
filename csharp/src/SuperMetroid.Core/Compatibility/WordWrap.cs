@@ -27,9 +27,17 @@ public static class WordWrap
     /// <param name="value">The computed value, which may lie outside sixteen bits.</param>
     public static int Unsigned(int value) => unchecked((ushort)value);
 
+    /// <summary>A thirty-two-bit unsigned sum or product wrapped to a sixteen-bit quantity, 0 through 65535.</summary>
+    /// <param name="value">The computed value, which may lie outside sixteen bits.</param>
+    public static int Unsigned(uint value) => unchecked((ushort)value);
+
     /// <summary>The value wrapped to a sixteen-bit quantity and read as signed, -32768 through 32767.</summary>
     /// <param name="value">The computed value, which may lie outside sixteen bits.</param>
     public static int Signed(int value) => unchecked((short)value);
+
+    /// <summary>A thirty-two-bit unsigned sum or product wrapped to a sixteen-bit quantity and read as signed.</summary>
+    /// <param name="value">The computed value, which may lie outside sixteen bits.</param>
+    public static int Signed(uint value) => unchecked((short)value);
 
     /// <summary>The value's low eight bits, 0 through 255: an eight-bit quantity computed past either end wraps.</summary>
     /// <param name="value">The computed value, which may lie outside eight bits.</param>

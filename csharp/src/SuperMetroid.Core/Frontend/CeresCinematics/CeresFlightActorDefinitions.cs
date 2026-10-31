@@ -8,7 +8,7 @@ internal static class CeresFlightActorDefinitions
     public const int RearViewActorCount = 5;
 
     /// <summary><c>$8B:BEC2</c>, signed-8.8 acceleration applied to the opening star field.</summary>
-    public const ushort FrontStarAcceleration = 128;
+    public const int FrontStarAcceleration = 128;
 
     /// <summary>
     /// <c>$8B:CF0F</c> with initializer parameter zero: opening star field and its
@@ -68,7 +68,7 @@ internal static class CeresFlightActorDefinitions
     internal static CeresFlightActorDefinition RearStars => FrontStars with
     {
         ActivePreInstruction = CinematicSpritePreInstruction.CeresPurpleSpaceVortex,
-        Position = FrontStars.Position.WithX(unchecked((ushort)-32)),
+        Position = FrontStars.Position.WithX(WordWrap.Unsigned(-32)),
         InitialTimer = 0,
         HorizontalDelta = VortexHorizontalDelta,
     };

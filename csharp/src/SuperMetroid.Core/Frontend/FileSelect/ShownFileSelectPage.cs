@@ -73,7 +73,7 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableArray<S
         {
             if ((uint)column >= FileSelectPresentationDefinitions.Width || (uint)row >= FileSelectPresentationDefinitions.Height)
                 throw new InvalidDataException("File-select energy tanks escaped the menu page.");
-            yield return new PlacedFrame(FileSelectParts.TankFrame(tank < filled, tens), new(checked((ushort)column), checked((ushort)row)));
+            yield return new PlacedFrame(FileSelectParts.TankFrame(tank < filled, tens), new(column, row));
             column++;
             if (--rowRemaining == 0)
             {
@@ -93,5 +93,5 @@ internal sealed record ShownFileSelectPage(FileSelectPage Page, ImmutableArray<S
 
     /// <summary>The cell <paramref name="columns"/> to the right of <paramref name="anchor"/>.</summary>
     private static Position16<TilemapCells> Right(Position16<TilemapCells> anchor, int columns) =>
-        new(checked((ushort)(anchor.X + columns)), anchor.Y);
+        new(anchor.X + columns, anchor.Y);
 }

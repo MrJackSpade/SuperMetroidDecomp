@@ -24,7 +24,7 @@ public readonly struct PhantoonTimerSchedule : IReadOnlyList<ushort>
             DurationChoice choice = Choices[index];
             int shortest = ShortestVulnerableExposureFrames * (kind == TimerKind.EyeClosed ? EyeShortScale : kind == TimerKind.RainHiding ? RainShortScale : 1);
             int medium = shortest * (kind == TimerKind.EyeClosed ? EyeMediumScale : TierDoubling);
-            return (ushort)(choice switch
+            return CoordinateAxis.Wrap(choice switch
             {
                 DurationChoice.Short => shortest,
                 DurationChoice.Medium => medium,

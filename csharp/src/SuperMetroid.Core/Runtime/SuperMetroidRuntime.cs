@@ -788,7 +788,7 @@ internal sealed class SuperMetroidRuntime
                 Room.LoadedScope.BombProjectiles.PowerBombExplosion;
             Room.LoadedScope.Enemies.Collision.ResolveOrdinaryPowerBombHits(
                 powerBomb.Position,
-                checked((byte)powerBomb.ExplosionRadius.WholePixels),
+                Ensure.BetweenInclusive(0, byte.MaxValue, powerBomb.ExplosionRadius.WholePixels),
                 samus);
         }
     }

@@ -23,14 +23,14 @@ internal static class MetroidBehaviorDefinitions
     internal static readonly SoundEffectId[] RandomCries = [FirstCry, SecondCry, ThirdCry, FirstCry, SecondCry, ThirdCry, SecondCry, ThirdCry];
 
     /// <summary>A sixteenth of a health point, in the units of the drain accumulator.</summary>
-    private const ushort SixteenthHealth = 4096;
+    private const int SixteenthHealth = 4096;
 
     /// <summary>Gravity Suit Samus loses one health each time this fraction underflows the drain accumulator: three sixteenths.</summary>
-    internal const ushort GravityDrainFraction = 3 * SixteenthHealth;
+    internal const int GravityDrainFraction = 3 * SixteenthHealth;
 
     /// <summary>Varia Suit Samus's drain fraction: six sixteenths.</summary>
-    internal const ushort VariaDrainFraction = 6 * SixteenthHealth;
+    internal const int VariaDrainFraction = 6 * SixteenthHealth;
 
     /// <summary>Suitless Samus's drain fraction: twelve sixteenths.</summary>
-    internal const ushort PowerSuitDrainFraction = 12 * SixteenthHealth;
+    internal const int PowerSuitDrainFraction = 12 * SixteenthHealth;
 }

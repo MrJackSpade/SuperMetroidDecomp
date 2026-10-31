@@ -4,5 +4,5 @@ namespace SuperMetroid.Core.Samus.Movement;
 public static class SamusAutoJumpDefinitions
 {
     /// <summary>$90:E926 compares nonzero $0AF4 against nine using signed 16-bit subtraction.</summary>
-    public const ushort TimerComparisonLimit = 9;
+    public const int TimerComparisonLimit = 9;
 }

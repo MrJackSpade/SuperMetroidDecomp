@@ -51,7 +51,7 @@ internal sealed class EndingFlyaway
         screen.Palette.Colours(ScreenColourGroup.EndingFlashSpriteTransparent).Fill(RgbColor.Black);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         _stage.PaletteFxSystem.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
-        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
+        _stage.FloorPosition = new(_stage.FloorPosition.X.WithWhole(WordWrap.Unsigned(-72)), new(WordWrap.Unsigned(-104), 0));
         _stage.FloorZoom = EndingMotionDefinitions.PlanetEscapeInitialScale;
         _stage.FloorAngle = RotationAngle.NormalizeTableIndex(-112);
         _stage.PhaseTimer = 192;
@@ -153,7 +153,7 @@ internal sealed class EndingFlyaway
     /// <summary>Adds the same five-bit <paramref name="white"/> component to all three channels of the composed screen.</summary>
     internal static ScreenTintLayer WhiteAddition(int white)
     {
-        return new(checked((byte)white), checked((byte)white), checked((byte)white));
+        return new(white, white, white);
     }
 
     /// <summary>Decreases the flyaway white component at its cartridge interval.</summary>

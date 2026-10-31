@@ -34,10 +34,10 @@ internal sealed class IntroEggParticle
     private const int FragmentBits = 8;
 
     /// <summary>The fragment number the spawn stores, 0 through 5; it never changes.</summary>
-    private int Fragment => unchecked((byte)sprite.GeneralTimer);
+    private int Fragment => WordWrap.LowByte(sprite.GeneralTimer);
 
     /// <summary>The frames the fragment has fallen, 0 through 255: its gravity-table index.</summary>
-    private int FramesFallen => unchecked((byte)(sprite.GeneralTimer >> FragmentBits));
+    private int FramesFallen => WordWrap.LowByte(sprite.GeneralTimer >> FragmentBits);
 
     /// <summary>Applies native 16.16 fragment velocity and gravity, redirecting to deletion once it reaches the floor.</summary>
     public void Step()
@@ -55,7 +55,7 @@ internal sealed class IntroEggParticle
         // exactly matching the actor's whole/subposition addition order.
         AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotion.FragmentX(Fragment));
         AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotion.FragmentY(FramesFallen));
-        if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)
+        if (CoordinateAxis.Difference(sprite.WholePosition.Y, 168) >= 0)
         {
             // Native code primes the shared one-word delete list, which the generic handler
             // consumes later in this same object call.
@@ -63,7 +63,7 @@ internal sealed class IntroEggParticle
         }
         else
         {
-            sprite.GeneralTimer = unchecked((ushort)(sprite.GeneralTimer + 256));
+            sprite.GeneralTimer = WordWrap.Unsigned(sprite.GeneralTimer + 256);
         }
 
         sprite.Step();

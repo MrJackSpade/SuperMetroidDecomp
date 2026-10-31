@@ -116,7 +116,7 @@ public class GameplayHudPresentation
         for (int digit = 0; digit < count; digit++)
         {
             yield return new HudDigitPlacement((value / divisor) % GameplayHudDefinitions.Numerals,
-                Drawn(anchor + new Offset16<TilemapCells>(checked((short)digit), 0)));
+                Drawn(anchor + new Offset16<TilemapCells>(digit, 0)));
             divisor /= GameplayHudDefinitions.Numerals;
         }
     }

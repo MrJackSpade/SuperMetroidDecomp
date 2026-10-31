@@ -28,9 +28,9 @@ internal static class EndingCloudMotion
         if (side)
         {
             int direction = wrapper.Role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB ? -1 : 1;
-            sprite.WholePosition += new Offset16<ScreenPixels>((short)direction, (short)(direction * 2));
+            sprite.WholePosition += new Offset16<ScreenPixels>(WordWrap.Signed(direction), WordWrap.Signed(direction * 2));
         }
         else
-            sprite.WholePosition += new Offset16<ScreenPixels>(0, (short)(top ? 1 : -1));
+            sprite.WholePosition += new Offset16<ScreenPixels>(0, WordWrap.Signed(top ? 1 : -1));
     }
 }

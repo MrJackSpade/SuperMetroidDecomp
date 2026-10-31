@@ -81,7 +81,7 @@ internal sealed class KraidHead
     private static int HealthBand(RoomEnemySlot body, KraidEnemyState state)
     {
         int band = KraidHealthThresholdDefinitions.EighthCount - 1;
-        while (band != 0 && unchecked((short)(body.Health - state.HealthEighthThreshold(band))) < 0)
+        while (band != 0 && WordWrap.Signed(body.Health - state.HealthEighthThreshold(band)) < 0)
             band--;
         return band;
     }
@@ -95,9 +95,9 @@ internal sealed class KraidHead
     internal void SetupKraidFirstPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         state.Parts[body.SlotIndex].Function = KraidAiFunction.MainloopThinking;
-        _slotTable.Slots[2].Position = _slotTable.Slots[2].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 20)));
-        _slotTable.Slots[3].Position = _slotTable.Slots[3].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 46)));
-        _slotTable.Slots[4].Position = _slotTable.Slots[4].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 112)));
+        _slotTable.Slots[2].Position = _slotTable.Slots[2].Position.WithWrappedWholeY(body.Position.Y.Whole - 20);
+        _slotTable.Slots[3].Position = _slotTable.Slots[3].Position.WithWrappedWholeY(body.Position.Y.Whole + 46);
+        _slotTable.Slots[4].Position = _slotTable.Slots[4].Position.WithWrappedWholeY(body.Position.Y.Whole + 112);
         state.ThinkingTimer = WrappingCountdown.FromRaw(ReadKraidThinkingTimer());
     }
 
@@ -145,14 +145,14 @@ internal sealed class KraidHead
     /// head (the result is zero); otherwise the result is the remaining time before this update's decrement, or the
     /// executed command's result when the decrement reached zero.
     /// </summary>
-    internal ushort ProcessKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
+    internal int ProcessKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
     {
         WrappingCountdown headTimer = state.Parts[body.SlotIndex].HeadTimer;
         if (headTimer.IsZero)
             return 0;
         CountdownStep step = headTimer.Decrement();
         state.Parts[body.SlotIndex].HeadTimer = step.Remaining;
-        return step.IsZero ? ExecuteKraidHeadInstruction(body, state) : checked((ushort)headTimer.RemainingFrames);
+        return step.IsZero ? ExecuteKraidHeadInstruction(body, state) : Ensure.BetweenInclusive(0, ushort.MaxValue, headTimer.RemainingFrames);
     }
 
     /// <summary>
@@ -160,7 +160,7 @@ internal sealed class KraidHead
     /// head timer and uploads its image (the result is one), and a program's end leaves the cursor there (the result is
     /// <see cref="ushort.MaxValue"/>).
     /// </summary>
-    internal ushort ExecuteKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
+    internal int ExecuteKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
     {
         AnimationProgramCursor<KraidHeadProgram> cursor = state.HeadProgram ?? throw new InvalidDataException(
             "Kraid's head program has not been started.");
@@ -324,7 +324,7 @@ internal sealed class KraidHead
             graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites)));
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
         int random = _access.ReadKraidRandomNumber();
-        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(body.Position.X.Whole + 16)), unchecked((ushort)(body.Position.Y.Whole - 96))));
+        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + 16), CoordinateAxis.Wrap(body.Position.Y.Whole - 96)));
         rock.Velocity = rock.Velocity.WithX(KraidRockLaunchDefinitions.FromRandom(random));
         rock.Velocity = rock.Velocity.WithY(SignedEightEight.FromSignedRaw(-1024));
         rock.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites));
@@ -332,12 +332,12 @@ internal sealed class KraidHead
     }
 
     /// <summary>Derives a nonzero multiple-of-64 thinking delay from the room RNG.</summary>
-    internal ushort ReadKraidThinkingTimer()
+    internal int ReadKraidThinkingTimer()
     {
         int random = _room.Random.Read();
         int value = random & 7;
         if (value == 0)
             value = 2;
-        return unchecked((ushort)(value << 6));
+        return WordWrap.Unsigned(value << 6);
     }
 }

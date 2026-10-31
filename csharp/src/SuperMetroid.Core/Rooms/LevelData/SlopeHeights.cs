@@ -15,7 +15,7 @@ public static class SlopeHeights
     /// Bounds are checked before arithmetic. Geometric clipping never clamps input;
     /// behaviour mirroring, collision comparison and world-coordinate wrapping stay in callers.
     /// </remarks>
-    public static byte Read(int shape, int column)
+    public static int Read(int shape, int column)
     {
         if ((uint)shape >= 32) throw new ArgumentOutOfRangeException(nameof(shape));
         if ((uint)column >= 16) throw new ArgumentOutOfRangeException(nameof(column));
@@ -38,7 +38,7 @@ public static class SlopeHeights
             27 or 28 => EncodeSteepHeight(32 - 16 * (shape - 27) - 2 * column),
             _ => EncodeSteepHeight(48 - 16 * (shape - 29) - 3 * column),
         };
-        return (byte)height;
+        return WordWrap.LowByte(height);
     }
 
     /// <summary>Preserves the cartridge's encoded twenty-height overhang above a full block while clipping negative steep-slope heights to zero.</summary>

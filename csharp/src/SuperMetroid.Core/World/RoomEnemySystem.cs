@@ -900,7 +900,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         FrameContext.BeginFrame(frame.TimeIsFrozen, frame.SamusProjectiles, frame.SamusColours, frame.FrameCounter);
         Audio.PowerBomb = frame.SharedProjectiles?.PowerBombExplosion;
         var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(
-            frame.FrameCounterLowByte ?? unchecked((byte)FrameContext.RandomEnemyCounter)));
+            frame.FrameCounterLowByte ?? WordWrap.LowByte(FrameContext.RandomEnemyCounter)));
         FrameResults.Begin();
         BossFrameResults.Begin();
         BeginEnemySoundRequestFrame();

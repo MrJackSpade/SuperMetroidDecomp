@@ -572,13 +572,13 @@ public sealed class SamusXrayState
                 return;
             if (candidate < 0)
             {
-                Angle = RotationAngle.FromTableIndex(checked((byte)AngularWidth));
+                Angle = RotationAngle.FromTableIndex(AngularWidth);
                 return;
             }
 
             Angle = Angle.AddTableUnits(-1);
             if (Angle.TableIndex - AngularWidth < 0)
-                Angle = RotationAngle.FromTableIndex(checked((byte)AngularWidth));
+                Angle = RotationAngle.FromTableIndex(AngularWidth);
             return;
         }
 
@@ -659,7 +659,7 @@ public sealed class SamusXrayState
         // turn stand-up glitch. It does not consume an ordinary input slot.
         samus.CommitPoseHistory();
         if (radiusDifference >= 0)
-            samus.Position -= new Offset16<RoomPixels>(0, unchecked((short)radiusDifference));
+            samus.Position -= new Offset16<RoomPixels>(0, WordWrap.Signed(radiusDifference));
 
         // `$91:E2AD` restores both normal Samus handler pointers. X-Mode can arrange for
         // an active spark to own the movement word while the old visor effect reaches this

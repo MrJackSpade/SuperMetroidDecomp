@@ -41,15 +41,15 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     private const int MaridiaLargeSnailAttackSelector = 4;
 
     /// <summary>Strict horizontal range in which Oum can push or carry Samus.</summary>
-    private const ushort MaridiaLargeSnailPushingXDistance = 24;
+    private const int MaridiaLargeSnailPushingXDistance = 24;
     /// <summary>Strict vertical range required for Samus to be in Oum's pushing band.</summary>
-    private const ushort MaridiaLargeSnailPushingYDistance = 32;
+    private const int MaridiaLargeSnailPushingYDistance = 32;
     /// <summary>Strict horizontal range used when a completed cooldown permits attack.</summary>
-    private const ushort MaridiaLargeSnailAttackXDistance = 32;
+    private const int MaridiaLargeSnailAttackXDistance = 32;
     /// <summary>Frames initially held before Oum may rotate into an attack.</summary>
-    private const ushort MaridiaLargeSnailInitialAttackCooldown = 128;
+    private const int MaridiaLargeSnailInitialAttackCooldown = 128;
     /// <summary>Number of impacts in Oum's landing or ledge-fall settling sequence.</summary>
-    private const ushort MaridiaLargeSnailInitialBounceCount = 3;
+    private const int MaridiaLargeSnailInitialBounceCount = 3;
     /// <summary>Per-frame 8.8 index change in the quadratic vertical speed table.</summary>
     private const int MaridiaLargeSnailBounceAcceleration = 384;
     /// <summary>Maximum falling speed-table index before the next impact.</summary>
@@ -145,7 +145,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
 
         state.RequestedInstructionListIndex = 0;
-        if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
+        if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
         {
             state.MovingLeft = true;
             state.RequestedInstructionListIndex = 1;
@@ -205,7 +205,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             {
                 state.RequestedInstructionListIndex = 0;
                 state.MovingLeft = false;
-                if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
+                if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
                 {
                     state.RequestedInstructionListIndex = 1;
                     state.MovingLeft = true;
@@ -255,7 +255,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 if (!_terrain.MoveEnemyVertically(
                         level,
                         slot,
-                        EnemyQuadraticSpeeds.Row(checked((ushort)EightEight.WholeOf(state.YSpeedTableIndex))).Positive))
+                        EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, EightEight.WholeOf(state.YSpeedTableIndex))).Positive))
                 {
                     return;
                 }
@@ -279,7 +279,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
                 // The rising half reads the negative member of the same quadratic row. The record is not
                 // negative here, so its whole part is the row the cartridge's sign-clearing AND selects.
-                int tableIndex = checked((ushort)EightEight.WholeOf(state.YSpeedTableIndex));
+                int tableIndex = Ensure.BetweenInclusive(0, ushort.MaxValue, EightEight.WholeOf(state.YSpeedTableIndex));
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,
@@ -308,7 +308,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             // Native temporarily extends the whole-pixel move sixteen pixels toward Samus,
             // performs collision, then retracts the center. Net velocity remains the table
             // speed while wall clipping naturally transfers the lost distance to Samus.
-            speed = speed.WithWholePixels(unchecked((short)(speed.WholePixels + (state.MovingLeft ? -16 : 16))));
+            speed = speed.WithWholePixels(WordWrap.Signed(speed.WholePixels + (state.MovingLeft ? -16 : 16)));
         }
 
         int displacement = speed.RawValue;
@@ -319,8 +319,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
         if (temporarilyReachTowardSamus)
         {
-            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-                slot.Position.X.Whole + (state.MovingLeft ? 16 : -16))));
+            slot.Position = slot.Position.WithWrappedWholeX(
+                slot.Position.X.Whole + (state.MovingLeft ? 16 : -16));
         }
 
         if (!collided)
@@ -352,7 +352,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         }
 
         state.SamusInPushingRange = true;
-        state.SamusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
+        state.SamusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
     }
 
     /// <summary>Publishes Oum's vertical platform motion and sideward push into Samus's extra displacement.</summary>
@@ -366,19 +366,19 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         {
             // Unlike most moving-platform producers, Oum assigns—not adds—the vertical
             // displacement word. This preserves the last touching Oum's native ownership.
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(unchecked((short)(
-                slot.Position.Y.Whole - state.PreviousPosition.Y)));
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(CoordinateAxis.Difference(
+                slot.Position.Y.Whole, state.PreviousPosition.Y));
         }
 
         if (!state.SamusInPushingRange)
             return;
 
-        int deltaX = unchecked((ushort)(slot.Position.X.Whole - state.PreviousPosition.X));
-        bool movedLeft = unchecked((short)deltaX) < 0;
+        int deltaX = CoordinateAxis.Wrap(slot.Position.X.Whole - state.PreviousPosition.X);
+        bool movedLeft = CoordinateAxis.AsSigned(deltaX) < 0;
         if (movedLeft != state.SamusIsLeft)
             return;
 
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(deltaX)), 0);
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(CoordinateAxis.AsSigned(deltaX), 0);
     }
 
     /// <summary>Records an opposing controller direction to stop the following frame's roll.</summary>
@@ -390,7 +390,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (!state.SamusInPushingRange)
             return;
 
-        int deltaX = unchecked((short)(slot.Position.X.Whole - state.PreviousPosition.X));
+        int deltaX = CoordinateAxis.Difference(slot.Position.X.Whole, state.PreviousPosition.X);
         bool stop;
         if (deltaX == 0)
         {
@@ -424,19 +424,19 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         RoomEnemySlot slot,
         SamusState samus)
     {
-        int xDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
-            samus.Position.X.Whole - slot.Position.X.Whole)));
+        int xDistance = CoordinateAxis.Distance(
+            samus.Position.X.Whole, slot.Position.X.Whole);
         bool centerWithinSamusRadius = xDistance < samus.Kinematics.Radius.X;
-        int remainingX = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
+        int remainingX = CoordinateAxis.Wrap(xDistance - samus.Kinematics.Radius.X);
         if (!centerWithinSamusRadius && remainingX >= slot.Radius.X)
             return false;
 
-        int biasedSamusY = unchecked((ushort)(samus.Position.Y.Whole + 3));
-        if (unchecked((short)(biasedSamusY - slot.Position.Y.Whole)) >= 0)
+        int biasedSamusY = CoordinateAxis.Wrap(samus.Position.Y.Whole + 3);
+        if (CoordinateAxis.Difference(biasedSamusY, slot.Position.Y.Whole) >= 0)
             return false;
 
-        int verticalDistance = unchecked((ushort)(slot.Position.Y.Whole - biasedSamusY));
-        int remainingY = unchecked((ushort)(verticalDistance - samus.Kinematics.Radius.Y));
+        int verticalDistance = CoordinateAxis.Wrap(slot.Position.Y.Whole - biasedSamusY);
+        int remainingY = CoordinateAxis.Wrap(verticalDistance - samus.Kinematics.Radius.Y);
         return verticalDistance < samus.Kinematics.Radius.Y ||
             remainingY == slot.Radius.Y ||
             remainingY < slot.Radius.Y;
@@ -497,10 +497,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         if (MaridiaLargeSnailTouchesSamusFromBelow(slot, samus))
             return;
 
-        int shove = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
-            ? unchecked((ushort)-4)
-            : (ushort)4;
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(shove)), 0);
+        int shove = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
+            ? WordWrap.Unsigned(-4)
+            : 4;
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(WordWrap.Signed(shove), 0);
     }
 
     /// <summary>
@@ -607,10 +607,10 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         foreach (MaridiaLargeSnailCollisionHitbox hitbox in
                  MaridiaLargeSnailCollisionDefinitions.Frames.Of(enemy.Frame))
         {
-            int left = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Left));
-            int top = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Top));
-            int right = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Right));
-            int bottom = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Bottom));
+            int left = CoordinateAxis.Wrap(enemy.Position.X.Whole + hitbox.Left);
+            int top = CoordinateAxis.Wrap(enemy.Position.Y.Whole + hitbox.Top);
+            int right = CoordinateAxis.Wrap(enemy.Position.X.Whole + hitbox.Right);
+            int bottom = CoordinateAxis.Wrap(enemy.Position.Y.Whole + hitbox.Bottom);
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
             callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;

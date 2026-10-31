@@ -43,7 +43,7 @@ public sealed class EscapeTimerPresentation
         {
             DrawFrame(EscapeTimerComposition.DigitGlyph(value / DigitBase), anchor);
             DrawFrame(EscapeTimerComposition.DigitGlyph(value % DigitBase),
-                anchor + new Offset16<SpritePixels>(checked((short)DigitSpacing), 0));
+                anchor + new Offset16<SpritePixels>(DigitSpacing, 0));
         }
 
         void DrawFrame(EscapeTimerGlyph glyph, Offset16<SpritePixels> anchor) =>

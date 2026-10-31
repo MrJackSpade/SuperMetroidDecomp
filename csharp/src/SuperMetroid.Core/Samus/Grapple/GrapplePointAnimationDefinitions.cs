@@ -11,5 +11,5 @@ internal static class GrapplePointAnimationDefinitions
     /// </summary>
     internal const int SourceWordFrames = 128;
     /// <summary>$9B:BFC6/C645 NTSC delay: five, decremented through zero for a six-call interval.</summary>
-    internal const ushort Delay = 5;
+    internal const int Delay = 5;
 }

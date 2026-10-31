@@ -78,7 +78,7 @@ internal sealed class CrocomireEncounterAccess
     {
         int random = ReadCrocomireRandom();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset + (random & 7))), unchecked((ushort)(state.Body.Position.Y.Whole + state.Body.Radius.Y - 16))),
+            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + xOffset + (random & 7)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + state.Body.Radius.Y - 16)),
             MiscDustAnimation.BigDustCloud);
     }
 }

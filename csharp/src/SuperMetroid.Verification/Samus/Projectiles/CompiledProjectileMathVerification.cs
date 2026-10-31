@@ -37,14 +37,14 @@ internal static class CompiledProjectileMathVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + i * 2;
             native[i] = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        var enemy = new Func<ushort, byte, ushort>((speed, angle) => EnemyMath.MultiplySineSample(speed, new ByteAngle(angle)));
-        var baby = new Func<ushort, byte, ushort>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new ByteAngle(babyAngle)));
-        var rainbow = new Func<ushort, RotationAngle, ushort>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(rainbowSpeed, rainbowAngle));
-        var fly = new Func<int, short>(FliesBehavior.ReadSignedSineCosine);
-        var glass = new Func<int, ushort>(MotherBrainProjectiles.ReadSignedSineSample);
-        var eye = new Func<int, short>(EyeDoorBehavior.ReadEyeDoorAcceleration);
-        var rio = new Func<byte, ushort>(angle => RioBehavior.ReadRioSignedSineCosineSample(new ByteAngle(angle)));
-        var shaktool = new Func<int, ushort>(ShaktoolBehavior.ReadShaktoolCommonSineSample);
+        var enemy = new Func<ushort, byte, int>((speed, angle) => EnemyMath.MultiplySineSample(speed, new ByteAngle(angle)).RawValue);
+        var baby = new Func<ushort, byte, int>((babySpeed, babyAngle) => BabyMetroidCutsceneState.CalculateVelocityComponent(babySpeed, new ByteAngle(babyAngle)).RawValue);
+        var rainbow = new Func<ushort, RotationAngle, int>((rainbowSpeed, rainbowAngle) => MotherBrainRainbowBeamSamusMovement.CalculateYVelocity(rainbowSpeed, rainbowAngle).RawValue);
+        var fly = new Func<int, int>(FliesBehavior.ReadSignedSineCosine);
+        var glass = new Func<int, int>(MotherBrainProjectiles.ReadSignedSineSample);
+        var eye = new Func<int, int>(EyeDoorBehavior.ReadEyeDoorAcceleration);
+        var rio = new Func<byte, int>(angle => RioBehavior.ReadRioSignedSineCosineSample(new ByteAngle(angle)));
+        var shaktool = new Func<int, int>(ShaktoolBehavior.ReadShaktoolCommonSineSample);
         var phantoon = new Func<ushort, ushort, int>((angle, radius) => PhantoonCombat.ReadPhantoonFlameComponent(new ByteAngle(unchecked((byte)angle)), radius));
         var arc = new Action<RoomEnemyProjectileSlot, int>(NoobTubeBehavior.MoveNoobTubeProjectileHorizontallyAlongArc);
         var crocomire = new Func<byte, EightEightVector<RoomPixels>>(bearing => CrocomireCombat.CalculateCrocomireProjectileVelocity(new Bearing(bearing)));
@@ -77,7 +77,7 @@ internal static class CompiledProjectileMathVerification
             // Subtract a quarter-turn so the rainbow wrapper's explicit cosine
             // offset should select the same sample. Poison the fractional byte.
             var cosineAngle = RotationAngle.FromTableIndex(unchecked((byte)(angle - 64))).AddRaw(255);
-            if (Trigonometry.MultiplySignedSine((ushort)speed, new ByteAngle((byte)angle)) != expected ||
+            if (Trigonometry.MultiplySignedSine((ushort)speed, new ByteAngle((byte)angle)).RawValue != expected ||
                 enemy((ushort)speed, (byte)angle) != expected || baby((ushort)speed, (byte)angle) != expected ||
                 rainbow((ushort)speed, cosineAngle) != expected)
                 throw new InvalidDataException($"Signed projectile product differs: angle={angle}, speed={speed}.");

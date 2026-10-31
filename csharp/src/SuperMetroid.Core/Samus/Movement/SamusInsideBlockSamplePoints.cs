@@ -10,8 +10,8 @@ public static class SamusInsideBlockSamplePoints
     public static void Visit(int yPosition, int yRadius, Action<int, SamusInsideBlockPoint> visit)
     {
         Ensure.NotNull(visit);
-        int bottom = unchecked((ushort)(yPosition + yRadius - 1));
-        int top = unchecked((ushort)(yPosition - yRadius));
+        int bottom = CoordinateAxis.Wrap(yPosition + yRadius - 1);
+        int top = CoordinateAxis.Wrap(yPosition - yRadius);
         visit(bottom, SamusInsideBlockPoint.Bottom);
         if (((yPosition ^ bottom) & ~15) != 0)
             visit(yPosition, SamusInsideBlockPoint.Center);

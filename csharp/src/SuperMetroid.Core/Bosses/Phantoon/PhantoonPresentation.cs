@@ -91,7 +91,7 @@ internal sealed class PhantoonPresentation
         int remainingSteps = denominator - numerator + 1;
         int quotient = EightEight.FromWhole(Math.Abs(target - current)) / remainingSteps;
         int signedStep = target < current ? -quotient : quotient;
-        return UnsignedEightEight.Whole((ushort)(EightEight.FromWhole(current) + signedStep));
+        return UnsignedEightEight.Whole(CoordinateAxis.Wrap(EightEight.FromWhole(current) + signedStep));
     }
 
     /// <summary>Changes BG2 wave amplitude toward its current phase target.</summary>
@@ -103,7 +103,7 @@ internal sealed class PhantoonPresentation
         if (mouth.WaveAmplitudeShrinking)
         {
             int previous = mouth.WaveAmplitude;
-            mouth.WaveAmplitude = unchecked((ushort)(mouth.WaveAmplitude - delta));
+            mouth.WaveAmplitude = WordWrap.Unsigned(mouth.WaveAmplitude - delta);
             if (previous < delta)
             {
                 mouth.WaveAmplitude = 0;
@@ -112,7 +112,7 @@ internal sealed class PhantoonPresentation
             return false;
         }
 
-        mouth.WaveAmplitude = unchecked((ushort)(mouth.WaveAmplitude + delta));
+        mouth.WaveAmplitude = WordWrap.Unsigned(mouth.WaveAmplitude + delta);
         if (mouth.WaveAmplitude >= maximum)
             mouth.WaveAmplitude = maximum;
         return false;

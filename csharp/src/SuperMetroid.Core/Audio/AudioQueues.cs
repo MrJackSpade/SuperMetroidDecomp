@@ -27,11 +27,11 @@ public sealed class AudioQueues
         AudioQueueDefinitions.SoundLibraryCount,
         AudioQueueDefinitions.SoundCapacity];
     /// <summary>Next unread position in each library's SFX ring.</summary>
-    internal readonly byte[] SoundReadPositions =
-        new byte[AudioQueueDefinitions.SoundLibraryCount];
+    internal readonly int[] SoundReadPositions =
+        new int[AudioQueueDefinitions.SoundLibraryCount];
     /// <summary>Next insertion position in each library's SFX ring.</summary>
-    internal readonly byte[] SoundWritePositions =
-        new byte[AudioQueueDefinitions.SoundLibraryCount];
+    internal readonly int[] SoundWritePositions =
+        new int[AudioQueueDefinitions.SoundLibraryCount];
     /// <summary>Per-library request phase, from request through acknowledged withdrawal.</summary>
     internal readonly byte[] SoundStates = new byte[AudioQueueDefinitions.SoundLibraryCount];
     /// <summary>The sound currently awaiting each library's acknowledgement, or none.</summary>
@@ -271,7 +271,7 @@ public sealed class AudioQueues
         int write = SoundWritePositions[queue];
         int next = NextSoundPosition(write);
         SoundQueues[queue, write] = soundEffect;
-        SoundWritePositions[queue] = (byte)next;
+        SoundWritePositions[queue] = WordWrap.LowByte(next);
         SoundQueues[queue, next] = null;
         return admission;
     }
@@ -456,7 +456,7 @@ public sealed class AudioQueues
         SoundEffectId? sound = SoundQueues[queue, read];
         requests.Add(AudioRequest.ForSound(SoundEffectLibraries.FromQueueIndex(queue), sound));
         _currentSounds[queue] = sound;
-        SoundReadPositions[queue] = (byte)NextSoundPosition(read);
+        SoundReadPositions[queue] = WordWrap.LowByte(NextSoundPosition(read));
         SoundStates[queue] = 1;
     }
 

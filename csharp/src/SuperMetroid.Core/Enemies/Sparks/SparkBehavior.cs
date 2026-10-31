@@ -139,7 +139,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     private void SetSparkFunctionTimer(SparkEnemyState state, int additionalTime)
     {
         int baseTime = state.BaseFunctionTime;
-        if (unchecked((short)baseTime) < 0)
+        if (WordWrap.Signed(baseTime) < 0)
         {
             Func<int> nextRandom = _room.Random.Generate;
             baseTime = (nextRandom() & 63) + 4;

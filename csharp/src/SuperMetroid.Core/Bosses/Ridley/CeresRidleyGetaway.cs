@@ -139,8 +139,8 @@ internal sealed class CeresRidleyGetaway
         // The getaway frame's velocity is added to the vertical word and subtracted from the
         // horizontal word.
         state.FloorOffset = new Offset16<FloorPixels>(
-            unchecked((short)(state.FloorOffset.X - frame.Velocity.X)),
-            unchecked((short)(state.FloorOffset.Y + frame.Velocity.Y)));
+            WordWrap.Signed(state.FloorOffset.X - frame.Velocity.X),
+            WordWrap.Signed(state.FloorOffset.Y + frame.Velocity.Y));
 
         UpdateCeresRidleyFloorPalette(zoom);
         state.FloorAngle = state.FloorAngle.AddRaw(48);
@@ -174,7 +174,7 @@ internal sealed class CeresRidleyGetaway
     /// which has no positive counterpart, negates to itself.
     /// </summary>
     internal static SignedEightEight NegateFloorCoefficient(SignedEightEight coefficient) =>
-        SignedEightEight.FromSignedRaw(unchecked((short)-coefficient.SignedRawValue));
+        SignedEightEight.FromSignedRaw(WordWrap.Signed(-coefficient.SignedRawValue));
 
     /// <summary>
     /// The perspective floor's transform as the getaway last turned and moved it, before room shake, or null while the
@@ -191,8 +191,8 @@ internal sealed class CeresRidleyGetaway
     private static void UpdateCeresRidleyFloorMatrix(RidleyEnemyState state)
     {
         ByteAngle angle = state.FloorAngle.ToByteAngle();
-        var diagonal = new SignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
-        var offDiagonal = new SignedEightEight(EnemyMath.MultiplySineSample(checked((ushort)state.FloorZoom), angle));
+        var diagonal = EnemyMath.MultiplySineSample(Ensure.BetweenInclusive(0, ushort.MaxValue, state.FloorZoom), angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue));
+        var offDiagonal = EnemyMath.MultiplySineSample(Ensure.BetweenInclusive(0, ushort.MaxValue, state.FloorZoom), angle);
         state.FloorMatrixA = diagonal;
         state.FloorMatrixB = offDiagonal;
         state.FloorMatrixC = NegateFloorCoefficient(offDiagonal);

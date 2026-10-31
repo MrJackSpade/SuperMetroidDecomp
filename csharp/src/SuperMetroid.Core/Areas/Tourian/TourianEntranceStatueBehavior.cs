@@ -113,7 +113,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         // The statue base adds the layer-one Y position and subtracts the reveal effect's layer-one Y plus displacement.
         // The camera terms cancel here; ordinary OBJ drawing subtracts the camera once.
         // This keeps all sprite pieces attached to the descending BG2 statue artwork.
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(anchor.Y - TourianEntranceStatueVerticalOffset)));
+        projectile.Position = projectile.Position.WithWrappedWholeY(anchor.Y - TourianEntranceStatueVerticalOffset);
     }
 
     /// <summary>Registers the shared pre-instruction for base, Ridley, and Phantoon decoration actors.</summary>

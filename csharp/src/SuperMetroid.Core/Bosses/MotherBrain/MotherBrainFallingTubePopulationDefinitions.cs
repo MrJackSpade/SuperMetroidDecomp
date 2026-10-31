@@ -14,7 +14,7 @@ internal static class MotherBrainFallingTubePopulationDefinitions
         MotherBrainTubePiece.BottomMiddleRight, MotherBrainTubePiece.Main);
 
     /// <summary>$A9:8B27: selected center X for the main tube; remains required.</summary>
-    internal const ushort CenterX = 128;
+    internal const int CenterX = 128;
     /// <summary>$A9:8AE7/8AF7: chosen outside-piece horizontal distance from the center; remains required.</summary>
     internal const int OuterOffset = 32;
     /// <summary>$A9:8B07/8B17: chosen inside-piece horizontal distance from the center; remains required.</summary>
@@ -30,5 +30,5 @@ internal static class MotherBrainFallingTubePopulationDefinitions
     /// <summary>$A9:AE5D: main tube composition reaches y40+8=48 below its origin; required geometry.</summary>
     internal const int MainBottom = 48;
     /// <summary>$A9:8B33: main-tube delay decremented at $8BCB before falling; remains required.</summary>
-    internal const ushort MainFallDelay = 32;
+    internal const int MainFallDelay = 32;
 }

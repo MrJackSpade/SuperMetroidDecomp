@@ -27,6 +27,6 @@ internal static class CrocomireBridgeFragmentDefinitions
     internal const int FragmentCount = 11;
 
     /// <summary>Returns the authored X position of the <paramref name="fragment"/>th fragment the collapse launches.</summary>
-    internal static ushort XPosition(int fragment) =>
-        (ushort)(FirstColumnX + 16 * (AuthoredCrumbleColumnOrder[Ensure.BetweenInclusive(0, FragmentCount - 1, fragment)] - 1));
+    internal static int XPosition(int fragment) =>
+        CoordinateAxis.Wrap(FirstColumnX + 16 * (AuthoredCrumbleColumnOrder[Ensure.BetweenInclusive(0, FragmentCount - 1, fragment)] - 1));
 }

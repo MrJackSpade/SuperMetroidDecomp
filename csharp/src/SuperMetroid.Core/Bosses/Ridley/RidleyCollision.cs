@@ -16,10 +16,10 @@ internal static class RidleyCollision
         Offset16<ScreenPixels> relative = (position + InteractionWindowMargin).RelativeToCamera(camera);
         int relativeX = relative.X;
         int relativeY = relative.Y;
-        return unchecked((short)position.X) < 0 || unchecked((short)position.Y) < 0 ||
+        return CoordinateAxis.AsSigned(position.X) < 0 || CoordinateAxis.AsSigned(position.Y) < 0 ||
             relativeX < 0 || relativeY < 0 ||
-            unchecked((short)(relativeX - 320)) >= 0 ||
-            unchecked((short)(relativeY - 288)) >= 0;
+            CoordinateAxis.Difference(relativeX, 320) >= 0 ||
+            CoordinateAxis.Difference(relativeY, 288) >= 0;
     }
 
     /// <summary>Each body frame's components in native order: one for forward Ridley, four for each side-facing pose.</summary>

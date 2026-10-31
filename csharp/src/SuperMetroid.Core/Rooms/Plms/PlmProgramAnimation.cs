@@ -82,12 +82,12 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
             {
                 case AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep show:
                     Cursor = next;
-                    slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)show.Duration);
+                    slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(show.Duration));
                     Draw(show.Frame, slot, context);
                     return;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.WaitStep wait:
                     Cursor = next;
-                    slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)wait.Duration);
+                    slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(wait.Duration));
                     return;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.CueStep cue:
                     Cursor = next;

@@ -70,7 +70,7 @@ internal sealed class TourianUnlockBehavior
     public void SpawnTourianSoul(int parameter)
     {
         if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, parameter) is not { } soul) return;
-        soul.Velocity = soul.Velocity.WithY(new SignedEightEight(unchecked((ushort)-1024)));
+        soul.Velocity = soul.Velocity.WithY(SignedEightEight.Wrapped(-1024));
     }
 
     /// <summary>Allocates an unlock effect at the statue's native eye position; null when every slot is busy.</summary>
@@ -97,9 +97,9 @@ internal sealed class TourianUnlockBehavior
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
             projectile.Position = projectile.Position.WithWholeY((TourianStatueWaterSurface + SplashAboveSurface).Y);
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
-        int angle = unchecked((byte)((_room.Random.Generate() & 63) - 32));
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)Trigonometry.SignedNegativeCosineWord(angle + 64))));
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(4 * Trigonometry.SignedNegativeCosineWord(angle)))));
+        int angle = WordWrap.LowByte((_room.Random.Generate() & 63) - 32);
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedNegativeCosineWord(angle + 64)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(4 * Trigonometry.SignedNegativeCosineWord(angle)));
     }
 
     /// <summary>Runs native splash, soul, or particle motion and requests deletion at their exit boundaries.</summary>
@@ -122,7 +122,7 @@ internal sealed class TourianUnlockBehavior
                 {
                     projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
                 }
-                projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue - 128))));
+                projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue - 128));
                 return true;
             case EnemyProjectilePreInstruction.TourianStatueParticleMotion:
                 // A splash marks the update the particle crosses the surface in either direction: the wrapped
@@ -136,7 +136,7 @@ internal sealed class TourianUnlockBehavior
                 {
                     projectile.StartAnimation(new TourianStatueProjectileAnimation(TourianStatueProjectileProgram.Delete));
                 }
-                else projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + (16)))));
+                else projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + (16)));
                 return true;
             case EnemyProjectilePreInstruction.None:
             case EnemyProjectilePreInstruction.PrePhantoonRoom:
@@ -282,7 +282,7 @@ internal sealed class TourianUnlockBehavior
                     SpawnTourianParticleChild(projectile, RoomEnemyProjectileKind.TourianStatueTail);
                     break;
                 case TourianStatueProjectileCue.MoveDown moveDown:
-                    projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + moveDown.Pixels)));
+                    projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + moveDown.Pixels);
                     break;
                 case TourianStatueProjectileCue.StartMoving startMoving:
                     projectile.PreInstruction = startMoving.Movement;

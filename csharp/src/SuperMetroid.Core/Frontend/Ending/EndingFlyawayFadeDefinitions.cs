@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingFlyawayFadeDefinitions
 {
     /// <summary>The full white intensity, out of 31, of the white wash Func120 starts the flyaway under.</summary>
-    public const byte InitialWhite = 31;
+    public const int InitialWhite = 31;
     /// <summary>Func120 initializes the first Func122 fade countdown to one.</summary>
     public const int InitialCountdown = 1;
     /// <summary>Func122 decreases fixed white once every eight calls thereafter.</summary>

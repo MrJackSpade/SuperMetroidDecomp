@@ -36,29 +36,29 @@ public readonly record struct TurningFloorTransform(
     {
         // `$8B:8A52` forms both distances with 16-bit subtraction before treating the
         // products as signed. In particular, vertical distance points upward: centre Y - Y.
-        int horizontalDistance = unchecked((ushort)(world.X - Center.X));
-        int verticalDistance = unchecked((ushort)(Center.Y - world.Y));
+        int horizontalDistance = CoordinateAxis.Wrap(world.X - Center.X);
+        int verticalDistance = CoordinateAxis.Wrap(Center.Y - world.Y);
 
         // The original helper multiplies two signed 16-bit values into a 32-bit result.
         // Each product is shifted independently, truncated to a word, and only then added
         // to the other term. Do not combine these into a wider host expression: overflow
         // between the two `$26` additions is authentic 65816 behavior.
-        int transformedHorizontalDistance = unchecked((ushort)(
+        int transformedHorizontalDistance = CoordinateAxis.Wrap(
             MultiplySigned8Point8(horizontalDistance, MatrixA) +
-            MultiplySigned8Point8(verticalDistance, MatrixB)));
-        int transformedVerticalDistance = unchecked((ushort)(
+            MultiplySigned8Point8(verticalDistance, MatrixB));
+        int transformedVerticalDistance = CoordinateAxis.Wrap(
             MultiplySigned8Point8(horizontalDistance, MatrixC) +
-            MultiplySigned8Point8(verticalDistance, MatrixA)));
+            MultiplySigned8Point8(verticalDistance, MatrixA));
 
         return new Position16<RoomPixels>(
-            unchecked((ushort)(Center.X + transformedHorizontalDistance)),
-            unchecked((ushort)(Center.Y - transformedVerticalDistance)));
+            CoordinateAxis.Wrap(Center.X + transformedHorizontalDistance),
+            CoordinateAxis.Wrap(Center.Y - transformedVerticalDistance));
     }
 
     /// <summary>Multiplies a distance word, read as signed, by a signed coefficient and truncates the shifted result to the cartridge's 16-bit intermediate.</summary>
-    private static ushort MultiplySigned8Point8(int distance, int coefficient)
+    private static int MultiplySigned8Point8(int distance, int coefficient)
     {
-        int product = unchecked((short)distance) * coefficient;
-        return unchecked((ushort)EightEight.WholeOf(product));
+        int product = CoordinateAxis.AsSigned(distance) * coefficient;
+        return CoordinateAxis.Wrap(EightEight.WholeOf(product));
     }
 }

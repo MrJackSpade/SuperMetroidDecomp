@@ -13,7 +13,7 @@ internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState
     private const int SwayPeriod = 512;
 
     /// <summary>The debris's own horizontal position, with its fraction; the drawn position follows it or hides.</summary>
-    internal FixedCoordinate X { get; set; } = new(unchecked((ushort)column), 0);
+    internal FixedCoordinate X { get; set; } = new(CoordinateAxis.Wrap(column), 0);
 
     /// <summary>How far through its sway the falling debris is, in half-angle units, 0 through 511.</summary>
     internal int SwayPhase
@@ -23,7 +23,7 @@ internal sealed class NoobTubeDebrisState(int column) : EnemyProjectileState
     }
 
     /// <summary>The angle whose sine is the sway's sideways speed: the phase's angle with its quarter-turn bit set.</summary>
-    internal ByteAngle SwayAngle => new(unchecked((byte)((SwayPhase >> 1) | QuarterTurn)));
+    internal ByteAngle SwayAngle => new(WordWrap.LowByte((SwayPhase >> 1) | QuarterTurn));
 
     /// <summary>Moves the sway on by <paramref name="step"/> half-angle units, wrapping at a full swing.</summary>
     internal void AdvanceSway(int step) => SwayPhase = (SwayPhase + step) % SwayPeriod;

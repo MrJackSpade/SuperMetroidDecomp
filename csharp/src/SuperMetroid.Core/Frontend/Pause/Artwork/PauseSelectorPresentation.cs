@@ -30,7 +30,7 @@ public abstract class PauseSelectorPresentation
     {
         string name = PauseSelectorAnchors.Anchor(category, item);
         var basis = PauseSelectorAnchors.StockAnchor(category, item);
-        return anchorOverrides.TryGetValue(name, out var value) ? new(checked((ushort)(value.X ?? basis.X)), checked((ushort)(value.Y ?? basis.Y))) : basis;
+        return anchorOverrides.TryGetValue(name, out var value) ? new(value.X ?? basis.X, value.Y ?? basis.Y) : basis;
     }
     /// <summary>Wraps a nonnegative animation phase into the authored phase count.</summary>
     public int NormalizePhase(int phase) => phase >= 0 ? phase % PhaseCount : throw new ArgumentOutOfRangeException(nameof(phase));

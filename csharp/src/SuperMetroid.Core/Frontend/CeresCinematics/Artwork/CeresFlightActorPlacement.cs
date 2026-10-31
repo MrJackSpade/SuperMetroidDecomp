@@ -6,7 +6,7 @@ public sealed record CeresFlightActorPlacement
 {
     /// <summary>The validated spawn position as one native screen-pixel value.</summary>
     [System.Text.Json.Serialization.JsonIgnore]
-    public Position16<ScreenPixels> Position => new(checked((ushort)X), checked((ushort)Y));
+    public Position16<ScreenPixels> Position => new(X, Y);
 
     /// <summary>Case-sensitive actor-role identity required to match its native spawn-order slot, not an editable instruction or behavior selector.</summary>
     public required string Id { get; init; }

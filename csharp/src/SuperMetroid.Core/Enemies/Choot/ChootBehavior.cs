@@ -14,7 +14,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ChootEntity(slot, common);
 
     /// <summary>Samus must be within 80 horizontal pixels for a waiting Choot to arm its jump timer.</summary>
-    private const ushort ChootActivationDistance = 80;
+    private const int ChootActivationDistance = 80;
 
     /// <summary>Ports <c>InitAI_Choot</c> at <c>$A2:DF76</c>, selecting a falling pattern and calculating ascent speed from native parameters.</summary>
     internal static void InitializeChoot(RoomEnemySlot slot)
@@ -36,11 +36,11 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The SNES multiplier consumes only the loop count's low byte; the authored loop advance is
         // already below 256. Retail loop counts are nonzero.
-        int jumpHeight = unchecked((ushort)(
-            slot.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance));
+        int jumpHeight = CoordinateAxis.Wrap(
+            slot.SpawnSettings<ChootSpawnSettings>().PatternLoops * state.FallingPatternYDistance);
         state.InitialYSpeedTableIndex = CalculateInitialChootYSpeedTableIndex(jumpHeight);
-        state.InitialFallingPosition = state.SpawnPosition.WithY(unchecked((ushort)(
-            state.SpawnPosition.Y - jumpHeight)));
+        state.InitialFallingPosition = state.SpawnPosition.WithY(CoordinateAxis.Wrap(
+            state.SpawnPosition.Y - jumpHeight));
         state.YSpeedTableIndex = state.InitialYSpeedTableIndex;
     }
 
@@ -82,10 +82,10 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // GetSignedYMinusX treats the wrapped word as signed before taking its magnitude.
         // In particular, $8000 remains $8000 after negation; ordinary Math.Abs(short) would
         // throw and a wider subtraction would disagree near the world-coordinate seam.
-        int distance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int distance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
         if (EnemyMath.IsNegative16(distance))
-            distance = unchecked((ushort)-distance);
-        if (unchecked((short)(distance - ChootActivationDistance)) >= 0)
+            distance = CoordinateAxis.Wrap(-distance);
+        if (CoordinateAxis.Difference(distance, ChootActivationDistance) >= 0)
             return;
 
         state.JumpDelayTimer = WrappingCountdown.Start(slot.SpawnSettings<ChootSpawnSettings>().JumpDelay);
@@ -138,8 +138,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FallingPatternFrame);
         if (point.IsTerminator)
         {
-            state.FallingOrigin = state.FallingOrigin.WithY(unchecked((ushort)(
-                state.FallingOrigin.Y + state.FallingPatternYDistance)));
+            state.FallingOrigin = state.FallingOrigin.WithY(CoordinateAxis.Wrap(
+                state.FallingOrigin.Y + state.FallingPatternYDistance));
             state.FallingPatternFrame = 0;
             state.FallingPatternLoopCounter = state.FallingPatternLoopCounter.Decrement().Remaining;
             if (!state.FallingPatternLoopCounter.IsNegative)
@@ -172,7 +172,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             accumulatedDistance = unchecked(accumulatedDistance +
                 (uint)EnemyQuadraticSpeeds.Row(tableIndex).Positive);
             int wholeDistance = FixedCoordinate.WholeOf(unchecked((int)accumulatedDistance));
-            if (unchecked((short)(wholeDistance - jumpHeight)) >= 0)
+            if (CoordinateAxis.Difference(wholeDistance, jumpHeight) >= 0)
                 return tableIndex;
         }
 

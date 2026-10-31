@@ -64,7 +64,7 @@ public sealed class CrawlerEnemyState
     /// </summary>
     internal void ApplyFallingGravity()
     {
-        if (unchecked((short)(FallingYVelocity.WholeWord - 4)) < 0)
+        if (WordWrap.Signed(FallingYVelocity.WholeWord - 4) < 0)
             FallingYVelocity += SignedSixteenSixteen.FromRaw(SixteenSixteen.FromWhole(1) / 2);
     }
     /// <summary>Attached bank-$A3 AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer. Native $7E:7806,x.</summary>
@@ -77,6 +77,6 @@ public sealed class CrawlerEnemyState
     public int ConsecutiveTurnCounter
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 }

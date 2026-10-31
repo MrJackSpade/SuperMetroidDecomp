@@ -24,7 +24,7 @@ internal sealed class EndingRewardJump
     /// <summary>Set when the body crosses the graphics sheet switch height and Samus is drawn from her falling sheet.</summary>
     public bool FallingSheetSelected { get; private set; }
     /// <summary>Whole-pixel body height used to select the falling and landed instruction lists.</summary>
-    public int BodyY => unchecked((short)body.WholePosition.Y);
+    public int BodyY => CoordinateAxis.AsSigned(body.WholePosition.Y);
 
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
     public EndingRewardJump(EndingReward reward, Action<int> queueGraphicsUpload)
@@ -46,7 +46,7 @@ internal sealed class EndingRewardJump
             if (head.PreInstruction == CinematicSpritePreInstruction.RewardHeadFlight)
             {
                 Move(head);
-                if (unchecked((short)head.WholePosition.Y) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
+                if (CoordinateAxis.AsSigned(head.WholePosition.Y) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
             }
             head.Step(HandleCue);
         }
@@ -101,10 +101,10 @@ internal sealed class EndingRewardJump
                 Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
                 return;
             case CinematicSpriteCueKind.PrepareHead:
-                RequireHead().WholePosition = new((ushort)(helmeted ? 118 : 120), 120);
+                RequireHead().WholePosition = new(WordWrap.Unsigned(helmeted ? 118 : 120), 120);
                 return;
             case CinematicSpriteCueKind.LaunchHead:
-                RequireHead().WholePosition = new((ushort)(helmeted ? 120 : 121), (ushort)(helmeted ? 114 : 116));
+                RequireHead().WholePosition = new(WordWrap.Unsigned(helmeted ? 120 : 121), WordWrap.Unsigned(helmeted ? 114 : 116));
                 return;
             case CinematicSpriteCueKind.Shoot:
                 body.SetColouring(ScreenColourGroup.EndingShootingSamus);

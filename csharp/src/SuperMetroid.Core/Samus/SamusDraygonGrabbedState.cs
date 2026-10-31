@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus;
 public sealed class SamusDraygonGrabbedState
 {
     /// <summary>Native escape threshold stored at `$90:E095`.</summary>
-    public const ushort EscapeButtonCounterTarget = 60;
+    public const int EscapeButtonCounterTarget = 60;
 
     /// <summary>True while `$90:E2A1` is installed as Samus's timer/hack handler.</summary>
     public bool IsActive { get; private set; }
@@ -45,14 +45,14 @@ public sealed class SamusDraygonGrabbedState
     internal void SetSharedEscapeCounter(int value) => EscapeButtonCounter = value;
 
     /// <summary>The counter after one counted press: the shared word advances with sixteen-bit wraparound.</summary>
-    private static int CountPress(int counter) => unchecked((ushort)(counter + 1));
+    private static int CountPress(int counter) => WordWrap.Unsigned(counter + 1);
 
     /// <summary>
     /// Whether a counted press reached the target. The cartridge compares the shared word with a signed subtraction,
     /// so a word of 32828 or more, left by another owner, reads as below it.
     /// </summary>
     private static bool ReachedEscapeTarget(int counter) =>
-        unchecked((short)(counter - EscapeButtonCounterTarget)) >= 0;
+        CoordinateAxis.Difference(counter, EscapeButtonCounterTarget) >= 0;
 
     /// <summary>
     /// WRAM <c>DraygonEscapePreviousDpadInput</c>. Native stores the entire masked D-pad
@@ -123,7 +123,7 @@ public sealed class SamusDraygonGrabbedState
         OwnerPosition = ownerPosition;
         OwnerFacingRight = draygonFacingRight;
 
-        samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(draygonFacingRight ? (short)8 : (short)-8, 40));
+        samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(draygonFacingRight ? 8 : -8, 40));
 
         // The native routine writes whole positions only. It does not clear subpositions,
         // so preserving the split low words is intentional even though the actor overwrites

@@ -15,11 +15,11 @@ public static class BullMotion
     /// VerifyCompiledBullMovement covers all eight values through 104 real
     /// initializer combinations and rejects selector 8 without a ROM bus.
     /// </remarks>
-    public static ushort MaximumSpeed(int selector)
+    public static int MaximumSpeed(int selector)
     {
         if (selector >= MaximumSpeedCount)
             throw new InvalidDataException($"Bull maximum-speed selector {selector} has no compiled authored entry.");
-        return (ushort)(SlowestMaximumSpeed + selector * MaximumSpeedStep);
+        return WordWrap.Unsigned(SlowestMaximumSpeed + selector * MaximumSpeedStep);
     }
 
     /// <summary>Returns the authored frame intervals selected by population parameter one.</summary>
@@ -31,7 +31,7 @@ public static class BullMotion
     }
 
     /// <summary>The compass angle an immune shot from projectile direction <paramref name="direction"/> moves the Bull at.</summary>
-    internal static ushort ShotAngle(int direction)
+    internal static int ShotAngle(int direction)
     {
         if ((uint)direction >= ShotAngles.Length)
             throw new InvalidDataException($"Bull immune-shot reaction received invalid projectile direction {direction}.");

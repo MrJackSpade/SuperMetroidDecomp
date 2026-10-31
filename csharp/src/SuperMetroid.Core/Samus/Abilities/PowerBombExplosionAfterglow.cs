@@ -11,11 +11,11 @@ public static class PowerBombExplosionAfterglow
     /// this operand independent of editable RGB preserves the native fade count,
     /// signed-timer cadence and cleanup frame without storing presentation colors.
     /// </summary>
-    public static byte CrystalFlashAfterglowSteps(int consumedRadius)
+    public static int CrystalFlashAfterglowSteps(int consumedRadius)
     {
         if ((uint)consumedRadius >= CrystalFlashRadiusLimit)
             throw new ArgumentOutOfRangeException(nameof(consumedRadius),
                 "Crystal Flash consumes a radius below its compiled expansion limit.");
-        return (byte)(CrystalFlashInitialFadeSteps + (consumedRadius >> CrystalFlashColorRadiusShift));
+        return WordWrap.LowByte(CrystalFlashInitialFadeSteps + (consumedRadius >> CrystalFlashColorRadiusShift));
     }
 }

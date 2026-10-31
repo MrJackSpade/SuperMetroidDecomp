@@ -60,7 +60,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>$8002: a negative atmospheric timer, so the slot neither moves nor draws while it holds.</summary>
-    private const ushort BreathBubbleHeldTimer = SamusAtmosphericEffectsState.DelayedStartMarker | 2;
+    private const int BreathBubbleHeldTimer = SamusAtmosphericEffectsState.DelayedStartMarker | 2;
 
     /// <summary>Audio requests published by movement, liquid effects, and landing during one Samus handler frame.</summary>
     private readonly List<SoundRequest> _soundRequests = [];
@@ -219,7 +219,7 @@ public sealed class SamusLiquidPhysicsState
             return SamusLiquidMedium.Air;
         // Samus_GetBottom_R18 samples the current pose definition, even before the next
         // movement pass publishes its radius to the live collision state.
-        int bottom = unchecked((ushort)(samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1));
+        int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
         return DetermineRawMediumAtBoundary(bottom);
     }
 
@@ -276,20 +276,20 @@ public sealed class SamusLiquidPhysicsState
     /// Returns the extra animation delay used by <c>$91:FB08</c> while installing a changed
     /// pose. That routine samples <c>Y + radius - 1</c>, not the normal bottom boundary.
     /// </summary>
-    public ushort DeterminePoseChangeAnimationBuffer(SamusState samus)
+    public int DeterminePoseChangeAnimationBuffer(SamusState samus)
     {
         Ensure.NotNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
-            return checked((ushort)samus.XSpeedDivisor);
+            return Ensure.BetweenInclusive(0, ushort.MaxValue, samus.XSpeedDivisor);
 
-        int bottomMinusOne = unchecked((ushort)(
-            samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1));
+        int bottomMinusOne = CoordinateAxis.Wrap(
+            samus.Position.Y.Whole + SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
         SamusLiquidMedium medium = DetermineRawMediumAtBoundary(bottomMinusOne);
         return medium switch
         {
             SamusLiquidMedium.Water => 3,
             SamusLiquidMedium.LavaOrAcid => 2,
-            SamusLiquidMedium.Air => checked((ushort)samus.XSpeedDivisor),
+            SamusLiquidMedium.Air => Ensure.BetweenInclusive(0, ushort.MaxValue, samus.XSpeedDivisor),
             _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
     }
@@ -381,7 +381,7 @@ public sealed class SamusLiquidPhysicsState
             SamusLiquidDamageRate damageRate = fxKind == RoomFxType.Lava
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid;
-            AccumulatePeriodicDamage(checked((ushort)damageRate.SubDamage), checked((ushort)damageRate.WholeDamage));
+            AccumulatePeriodicDamage(Ensure.BetweenInclusive(0, ushort.MaxValue, damageRate.SubDamage), Ensure.BetweenInclusive(0, ushort.MaxValue, damageRate.WholeDamage));
             if ((frameCounter & 7) == 0 && samus.Health >= 71)
                 QueueSound(Library3Sound.IncrementalEnergy, priority: SoundRequestPriority.Low);
 
@@ -397,7 +397,7 @@ public sealed class SamusLiquidPhysicsState
 
         // `$90:8078` publishes the X-speed divisor and clears the remembered medium. Only
         // water (bit zero set) owns an exit splash; lava/acid simply clears `$0AD2`.
-        samus.AnimationFrameBuffer = checked((ushort)samus.XSpeedDivisor);
+        samus.AnimationFrameBuffer = Ensure.BetweenInclusive(0, ushort.MaxValue, samus.XSpeedDivisor);
         bool exitedWater = LiquidPhysicsType == SamusLiquidMedium.Water;
         LiquidPhysicsType = SamusLiquidMedium.Air;
         if (exitedWater)
@@ -445,7 +445,7 @@ public sealed class SamusLiquidPhysicsState
         // landing. Anything else, including a whole speed of $8005 or more, falls to the
         // sub-speed test: with no sub-speed it returns before both sound and graphics, and
         // otherwise it is a soft landing.
-        bool hardLanding = impactYSpeed.Whole != 0 && unchecked((short)(impactYSpeed.Whole - 5)) >= 0;
+        bool hardLanding = impactYSpeed.Whole != 0 && WordWrap.Signed(impactYSpeed.Whole - 5) >= 0;
         if (!hardLanding && impactYSpeed.Fraction == 0)
             return;
 
@@ -570,8 +570,8 @@ public sealed class SamusLiquidPhysicsState
     {
         // GetBottom_R18 uses the current pose definition and includes the last
         // occupied pixel; the live collision radius can still belong to the old pose.
-        int bottom = unchecked((ushort)(samus.Position.Y.Whole +
-            SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1));
+        int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole +
+            SamusPoseCollisionRadii.ReadVerticalRadius(samus.Pose) - 1);
 
         // Both `$91:F116` and `$91:F166` suppress their particles when Samus's current
         // bottom is genuinely below active water or lava/acid. `DetermineRawMedium...`
@@ -582,9 +582,9 @@ public sealed class SamusLiquidPhysicsState
 
         int rightOffset = type == SamusAtmosphericEffectType.FootstepSplash ? 4 : 8;
         int leftSeparation = type == SamusAtmosphericEffectType.FootstepSplash ? 7 : 16;
-        int firstX = unchecked((ushort)(samus.Position.X.Whole + rightOffset));
-        int secondX = unchecked((ushort)(firstX - leftSeparation));
-        int y = type == SamusAtmosphericEffectType.FootstepSplash ? unchecked((ushort)(bottom - 4)) : bottom;
+        int firstX = CoordinateAxis.Wrap(samus.Position.X.Whole + rightOffset);
+        int secondX = CoordinateAxis.Wrap(firstX - leftSeparation);
+        int y = type == SamusAtmosphericEffectType.FootstepSplash ? WordWrap.Unsigned(bottom - 4) : bottom;
 
         // Landing owns effect slots two and three, not the running-foot
         // slots zero/one. Both begin immediately on frame zero with timer three.
@@ -615,8 +615,8 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        int appliedSubDamage = checked((ushort)PeriodicSubDamage);
-        int appliedDamage = checked((ushort)PeriodicDamage);
+        int appliedSubDamage = Ensure.BetweenInclusive(0, ushort.MaxValue, PeriodicSubDamage);
+        int appliedDamage = Ensure.BetweenInclusive(0, ushort.MaxValue, PeriodicDamage);
         int divisorShift = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? 2
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
@@ -627,8 +627,8 @@ public sealed class SamusLiquidPhysicsState
             // Native reads the overlapping word `$0A4D`: fractional high byte followed by
             // whole-damage low byte. Shifting that 8.8 quantity and splitting it back is not
             // equivalent to independently shifting both 16-bit words when a carry crosses.
-            int overlappingDamage = EightEight.FromSixteenSixteen(unchecked((byte)appliedDamage), appliedSubDamage);
-            overlappingDamage = unchecked((ushort)(overlappingDamage >> divisorShift));
+            int overlappingDamage = EightEight.FromSixteenSixteen(WordWrap.LowByte(appliedDamage), appliedSubDamage);
+            overlappingDamage = WordWrap.Unsigned(overlappingDamage >> divisorShift);
             appliedSubDamage = SixteenSixteen.FromEightEight(EightEight.FractionOf(overlappingDamage));
             appliedDamage = EightEight.WholeOf(overlappingDamage);
         }
@@ -636,7 +636,7 @@ public sealed class SamusLiquidPhysicsState
         // `$90:EA11` deliberately jumps to the native crash handler if the signed whole
         // word is negative. Reachable environmental rates never do this; throwing retains
         // the corruption/overflow guard instead of converting it into plausible damage.
-        if (unchecked((short)appliedDamage) < 0)
+        if (WordWrap.Signed(appliedDamage) < 0)
             throw new InvalidDataException("Periodic whole damage overflowed into the signed-negative range.");
 
         samus.TakeFractionalEnergyDamage(appliedSubDamage, appliedDamage);
@@ -672,16 +672,16 @@ public sealed class SamusLiquidPhysicsState
         {
             AtmosphericEffects.SetSlot(
                 0, SamusAtmosphericEffectType.DivingSplash, animationFrame: 0, animationTimer: 2,
-                new(samus.Position.X.Whole, checked((ushort)FxYPosition)));
+                new(samus.Position.X.Whole, FxYPosition));
             return;
         }
 
         AtmosphericEffects.SetSlot(
             0, SamusAtmosphericEffectType.FootstepSplash, animationFrame: 0, animationTimer: 3,
-            new(unchecked((ushort)(samus.Position.X.Whole + 4)), unchecked((ushort)(bottom - 4))));
+            new(CoordinateAxis.Wrap(samus.Position.X.Whole + 4), WordWrap.Unsigned(bottom - 4)));
         AtmosphericEffects.SetSlot(
             1, SamusAtmosphericEffectType.FootstepSplash, animationFrame: 0, animationTimer: 3,
-            new(unchecked((ushort)(samus.Position.X.Whole - 3)), unchecked((ushort)(bottom - 4))));
+            new(CoordinateAxis.Wrap(samus.Position.X.Whole - 3), WordWrap.Unsigned(bottom - 4)));
     }
 
     /// <summary>Creates a bubble every 128 frames only when Samus's mouth is underwater and particle slot two is free.</summary>
@@ -691,8 +691,8 @@ public sealed class SamusLiquidPhysicsState
         int frameCounter,
         SharedRandom random)
     {
-        int mouthY = unchecked((ushort)(top - 24));
-        if (unchecked((short)(mouthY - FxYPosition)) < 0 ||
+        int mouthY = WordWrap.Unsigned(top - 24);
+        if (CoordinateAxis.Difference(mouthY, FxYPosition) < 0 ||
             (frameCounter & 127) != 0 ||
             !AtmosphericEffects.Slots[2].IsEmpty)
         {
@@ -701,7 +701,7 @@ public sealed class SamusLiquidPhysicsState
 
         AtmosphericEffects.SetSlot(
             2, SamusAtmosphericEffectType.Bubbles, animationFrame: 0, animationTimer: 3,
-            new(samus.Position.X.Whole, unchecked((ushort)(top + 6))));
+            new(samus.Position.X.Whole, WordWrap.Unsigned(top + 6)));
         int sample = random.Generate();
         QueueSound((sample & 1) != 0 ? Library2Sound.LowBubbles : Library2Sound.HighBubbles, priority: SoundRequestPriority.Normal);
     }
@@ -712,7 +712,7 @@ public sealed class SamusLiquidPhysicsState
         int top,
         int frameCounter)
     {
-        if (unchecked((short)(top - LavaAcidYPosition)) >= 0 ||
+        if (CoordinateAxis.Difference(top, LavaAcidYPosition) >= 0 ||
             // The cartridge tests one bit of slot zero's effect, which the lava spray, bubbles and both dusts set.
             AtmosphericEffects.Slots[0].Type is SamusAtmosphericEffectType.LavaSurfaceDamage or SamusAtmosphericEffectType.Bubbles or
                 SamusAtmosphericEffectType.Dust or SamusAtmosphericEffectType.AlternateDust)
@@ -722,17 +722,17 @@ public sealed class SamusLiquidPhysicsState
 
         ushort[] xPositions =
         [
-            unchecked((ushort)(samus.Position.X.Whole + 6)),
+            CoordinateAxis.Wrap(samus.Position.X.Whole + 6),
             samus.Position.X.Whole,
             samus.Position.X.Whole,
-            unchecked((ushort)(samus.Position.X.Whole - 6)),
+            CoordinateAxis.Wrap(samus.Position.X.Whole - 6),
         ];
         ushort[] timers = [3, BreathBubbleHeldTimer, BreathBubbleHeldTimer, 3];
         for (int slot = 0; slot < SamusAtmosphericEffectsState.SlotCount; slot++)
         {
             AtmosphericEffects.SetSlot(
                 slot, SamusAtmosphericEffectType.LavaSurfaceDamage, animationFrame: 0, timers[slot],
-                new(xPositions[slot], checked((ushort)LavaAcidYPosition)));
+                new(xPositions[slot], LavaAcidYPosition));
         }
 
         if ((frameCounter & 1) == 0)
@@ -797,12 +797,12 @@ public sealed class SamusLiquidPhysicsState
     {
         bool directionIsFour = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         int firstX = directionIsFour
-            ? unchecked((ushort)(samus.Position.X.Whole - 12))
-            : unchecked((ushort)(samus.Position.X.Whole + 12));
+            ? CoordinateAxis.Wrap(samus.Position.X.Whole - 12)
+            : CoordinateAxis.Wrap(samus.Position.X.Whole + 12);
         int secondX = directionIsFour
-            ? unchecked((ushort)(samus.Position.X.Whole + 8))
-            : unchecked((ushort)(samus.Position.X.Whole - 8));
-        int y = unchecked((ushort)(samus.Position.Y.Whole + 16));
+            ? CoordinateAxis.Wrap(samus.Position.X.Whole + 8)
+            : CoordinateAxis.Wrap(samus.Position.X.Whole - 8);
+        int y = CoordinateAxis.Wrap(samus.Position.Y.Whole + 16);
         AtmosphericEffects.SetSlot(0, type, 0, BreathBubbleHeldTimer, Position16<RoomPixels>.Of(firstX, y));
         AtmosphericEffects.SetSlot(1, type, 0, 3, Position16<RoomPixels>.Of(secondX, y));
     }
@@ -819,7 +819,7 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     private SamusLiquidMedium DetermineRawMediumAtBoundary(int boundary)
     {
-        if (unchecked((short)FxYPosition) >= 0)
+        if (CoordinateAxis.AsSigned(FxYPosition) >= 0)
             return WaterAffectsBoundary(boundary) ? SamusLiquidMedium.Water : SamusLiquidMedium.Air;
         return IsBelowSurface(LavaAcidYPosition, boundary) ? SamusLiquidMedium.LavaOrAcid : SamusLiquidMedium.Air;
     }
@@ -831,8 +831,8 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>Uses native signed 16-bit subtraction and rejects a negative absent-surface sentinel.</summary>
     internal static bool IsBelowSurface(int surface, int boundary) =>
-        unchecked((short)surface) >= 0 &&
-        unchecked((short)(surface - boundary)) < 0;
+        CoordinateAxis.AsSigned(surface) >= 0 &&
+        CoordinateAxis.Difference(surface, boundary) < 0;
 
     /// <summary>Ports $91:FA76's pose-entry dust writes, shared by ordinary and grapple wall jumps.</summary>
     internal void SpawnWallJumpDust(SamusState samus)
@@ -842,7 +842,7 @@ public sealed class SamusLiquidPhysicsState
         // through the wall-jump frame. Liquid suppression leaves all previous slot words
         // intact, even when Gravity Suit makes movement itself behave as though the room
         // were dry.
-        int bottom = unchecked((ushort)(samus.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1));
+        int bottom = CoordinateAxis.Wrap(samus.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1);
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
         int offset = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)
@@ -850,6 +850,6 @@ public sealed class SamusLiquidPhysicsState
             : SamusWallJumpDustDefinitions.HorizontalOffset;
         AtmosphericEffects.SetSlot(SamusWallJumpDustDefinitions.Slot,
             SamusWallJumpDustDefinitions.Type, 0, SamusWallJumpDustDefinitions.InitialTimer,
-            Position16<RoomPixels>.Of(unchecked((ushort)(samus.Position.X.Whole + offset)), bottom));
+            Position16<RoomPixels>.Of(CoordinateAxis.Wrap(samus.Position.X.Whole + offset), bottom));
     }
 }

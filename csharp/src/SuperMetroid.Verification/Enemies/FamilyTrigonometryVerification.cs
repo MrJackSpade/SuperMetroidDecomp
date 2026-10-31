@@ -16,7 +16,7 @@ internal static class FamilyTrigonometryVerification
     /// <summary>Compares all 256 signed sine samples and Bull's production lookup with retail words.</summary>
     internal static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
     {
-        Func<byte, short> bullSample = angle => BullBehavior.ReadBullSignedSine(new ByteAngle(angle));
+        Func<byte, int> bullSample = angle => BullBehavior.ReadBullSignedSine(new ByteAngle(angle));
         for (int angle = 0; angle < 256; angle++)
         {
             int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
@@ -39,8 +39,8 @@ internal static class FamilyTrigonometryVerification
             .Select(i => Read(EnemyMathReferenceData.ShaktoolOrbit + i * 2)).ToArray();
         Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(rom));
         var bullMove = new Action<RoomEnemySlot, BullEnemyState>(BullBehavior.MoveBull);
-        var mawX = new Func<ushort, ushort, ushort>((angle, length) => YappingMawBehavior.CalculateYappingMawX(new ByteAngle(unchecked((byte)angle)), length));
-        var mawY = new Func<ushort, ushort, ushort>((angle, length) => YappingMawBehavior.CalculateYappingMawY(new ByteAngle(unchecked((byte)angle)), length));
+        var mawX = new Func<ushort, ushort, int>((angle, length) => YappingMawBehavior.CalculateYappingMawX(new ByteAngle(unchecked((byte)angle)), length));
+        var mawY = new Func<ushort, ushort, int>((angle, length) => YappingMawBehavior.CalculateYappingMawY(new ByteAngle(unchecked((byte)angle)), length));
         Suite(nameof(VerifyShaktoolOrbitAlgorithm), () => VerifyShaktoolOrbitAlgorithm(rom));
 
         ushort MawReference(int angle, int length)

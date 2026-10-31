@@ -75,7 +75,7 @@ public sealed class CeresElevatorArrivalState
                 // Samus. That one-pixel separation is visible throughout the descent.
                 pad.Position = pad.Position.WithY(MovingPadUnder(samus).Y);
                 samus.Position += new Offset16<RoomPixels>(0, 1);
-                if ((short)unchecked((ushort)(
+                if (CoordinateAxis.AsSigned(CoordinateAxis.Wrap(
                     samus.Position.Y.Whole - CeresElevatorArrivalDefinitions.LandingThresholdY)) >= 0)
                 {
                     samus.Position = samus.Position.WithWholeY(CeresElevatorArrivalDefinitions.LandingSamusY);
@@ -113,7 +113,7 @@ public sealed class CeresElevatorArrivalState
 
     /// <summary>The moving pad's position: Samus's whole position, <c>MovingPadYOffset</c> lower.</summary>
     private static Position16<RoomPixels> MovingPadUnder(SamusState samus) =>
-        samus.Position.Whole + new Offset16<RoomPixels>(0, (short)CeresElevatorArrivalDefinitions.MovingPadYOffset);
+        samus.Position.Whole + new Offset16<RoomPixels>(0, CoordinateAxis.AsSigned(CeresElevatorArrivalDefinitions.MovingPadYOffset));
 
     /// <summary>Creates one arrival actor from its compiled definition and room position.</summary>
     private static CeresElevatorProjectile LoadProjectile(
@@ -143,7 +143,7 @@ public sealed class CeresElevatorArrivalState
         switch (advance)
         {
             case AnimationProgramAdvance<CeresElevatorArrivalPose>.Show shown:
-                projectile.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+                projectile.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 projectile.Pose = shown.Frame;
                 return;
             case AnimationProgramAdvance<CeresElevatorArrivalPose>.Stop:

@@ -7,7 +7,7 @@ internal static class SamusProjectileAccelerations
 {
     /// <summary>Resolves aligned native speed and acceleration words, including beam-selector overreads into missile data.</summary>
     /// <param name="offset">The word's offset from the start of <see cref="SamusFiringTableDefinitions"/>.</param>
-    internal static ushort ReadWord(int offset)
+    internal static int ReadWord(int offset)
     {
         int speedOffset = offset - SamusFiringTableDefinitions.HorizontalVerticalSpeeds;
         // Native data starts at an odd offset. Only aligned words in that layout
@@ -39,12 +39,12 @@ internal static class SamusProjectileAccelerations
     /// magnitude onto the selected signed axis; diagonal magnitudes remain the
     /// native missile54 / super182, while beam acceleration uses16 on either axis.
     /// </summary>
-    private static ushort Acceleration(int direction, bool yAxis, int cardinal, int diagonal)
+    private static int Acceleration(int direction, bool yAxis, int cardinal, int diagonal)
     {
         int octant = (direction - (direction >= 5 ? 1 : 0)) & 7;
         int sign = yAxis
             ? octant is 0 or 1 or 7 ? -1 : octant is 3 or 4 or 5 ? 1 : 0
             : octant is >= 1 and <= 3 ? 1 : octant is >= 5 and <= 7 ? -1 : 0;
-        return unchecked((ushort)(sign * ((octant & 1) == 0 ? cardinal : diagonal)));
+        return WordWrap.Unsigned(sign * ((octant & 1) == 0 ? cardinal : diagonal));
     }
 }

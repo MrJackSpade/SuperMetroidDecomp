@@ -211,8 +211,8 @@ public sealed class RoomLayer3FxState
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 
-        BaseY = BaseY.WithWhole(checked((ushort)(definition.BaseYPosition ?? UnnamedSurfaceY)));
-        TargetSurface = new(0, checked((ushort)(definition.TargetYPosition ?? UnnamedSurfaceY)));
+        BaseY = BaseY.WithWhole(definition.BaseYPosition ?? UnnamedSurfaceY);
+        TargetSurface = new(0, definition.TargetYPosition ?? UnnamedSurfaceY);
         YVelocity = definition.YVelocity;
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
@@ -254,7 +254,7 @@ public sealed class RoomLayer3FxState
             // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
             // element index that is bits two and three of the original random word.
             rainWindVelocity = new Offset16<OverlaySubpixels>(
-                unchecked((short)AtmosphereDrift.RainHorizontalVelocity((source.RandomNumber >> 2) & 3)), 0);
+                WordWrap.Signed(AtmosphereDrift.RainHorizontalVelocity((source.RandomNumber >> 2) & 3)), 0);
         }
     }
 
@@ -310,7 +310,7 @@ public sealed class RoomLayer3FxState
     /// </summary>
     private void QueueLavaAmbientSound(int random)
     {
-        if (Type != RoomFxType.Lava || unchecked((short)Surface.Y) < 0)
+        if (Type != RoomFxType.Lava || CoordinateAxis.AsSigned(Surface.Y) < 0)
             return;
         lavaSoundTimer = lavaSoundTimer.Decrement().Remaining;
         if (!lavaSoundTimer.IsZero)
@@ -375,14 +375,14 @@ public sealed class RoomLayer3FxState
             // $88:DA47 samples each signed accumulator before adding its velocity.
             // Unlike rain, spores are anchored to the current camera, not its delta.
             Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
-            drift = drift.WithY(unchecked((short)(drift.Y - AtmosphereDriftDefinitions.SporesVerticalVelocity)));
+            drift = drift.WithY(WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.SporesVerticalVelocity));
             return;
         }
 
         // `$88:DB36` anchors fog to layer one and moves its texture by -$40/+50 in 8.8.
         Scroll = frame.Camera.AsBg3Scroll() + drift.WholePixels();
-        drift = new(unchecked((short)(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity)),
-            unchecked((short)(drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity)));
+        drift = new(WordWrap.Signed(drift.X + AtmosphereDriftDefinitions.FogHorizontalVelocity),
+            WordWrap.Signed(drift.Y - AtmosphereDriftDefinitions.FogVerticalVelocity));
     }
 
     /// <summary>
@@ -395,7 +395,7 @@ public sealed class RoomLayer3FxState
         if (Type is not (RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid))
             return;
         Surface = new(0, BaseY.Whole);
-        waterSurfaceScreenY = unchecked((short)(Surface.Y - camera.Y));
+        waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
         Scroll = camera.AsBg3Scroll().WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
     }
 
@@ -430,11 +430,11 @@ public sealed class RoomLayer3FxState
     {
         // Each value is a word the writer copies; the checked conversions reject anything wider.
         if (baseYPosition is int baseY)
-            BaseY = BaseY.WithWhole(checked((ushort)baseY));
+            BaseY = BaseY.WithWhole(baseY);
         if (targetYPosition is int targetY)
-            TargetSurface = new(0, checked((ushort)targetY));
+            TargetSurface = new(0, targetY);
         if (packedYVelocity is int velocity)
-            YVelocity = new(checked((ushort)velocity));
+            YVelocity = new(velocity);
         if (timer is int newTimer)
             Timer = WrappingCountdown.FromRaw(newTimer);
     }
@@ -447,8 +447,8 @@ public sealed class RoomLayer3FxState
         RoomFxRecordDefinition definition)
     {
         Ensure.NotNull(definition);
-        BaseY = BaseY.WithWhole(checked((ushort)(definition.BaseYPosition ?? UnnamedSurfaceY)));
-        TargetSurface = new(0, checked((ushort)(definition.TargetYPosition ?? UnnamedSurfaceY)));
+        BaseY = BaseY.WithWhole(definition.BaseYPosition ?? UnnamedSurfaceY);
+        TargetSurface = new(0, definition.TargetYPosition ?? UnnamedSurfaceY);
         YVelocity = definition.YVelocity;
         Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = definition.LiquidOptions;
@@ -490,7 +490,7 @@ public sealed class RoomLayer3FxState
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
-        waterSurfaceScreenY = unchecked((short)(Surface.Y - camera.Y));
+        waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
         Scroll = (camera.AsBg3Scroll() + waterDrift.WholePixels()).WithY(ComputeLiquidVerticalScroll(Surface.Y, camera.Y));
 
         waterBg3WaveTimer = waterBg3WaveTimer.Decrement().Remaining;
@@ -538,7 +538,7 @@ public sealed class RoomLayer3FxState
     {
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, earthquakeSoundDelay);
-        waterSurfaceScreenY = unchecked((short)(Surface.Y - camera.Y));
+        waterSurfaceScreenY = CoordinateAxis.Difference(Surface.Y, camera.Y);
         // Lava/acid $88:B3B0 uses the same surface-relative BG3VOFS equation as water
         // $88:C48E. Zeroing it anchored the animated characters to the screen instead of
         // beginning their first texture row immediately below the liquid boundary.
@@ -663,7 +663,7 @@ public sealed class RoomLayer3FxState
     /// <summary>Ports <c>RaiseOrLowerFx</c> at $88:868C for the shared liquid words.</summary>
     private bool AdvanceBaseYToTarget()
     {
-        if (unchecked((short)TargetSurface.Y) < 0)
+        if (CoordinateAxis.AsSigned(TargetSurface.Y) < 0)
             return true;
 
         int velocity = YVelocity.SignedRawValue;
@@ -674,17 +674,17 @@ public sealed class RoomLayer3FxState
 
         if (velocity >= 0)
         {
-            if (unchecked((short)candidate) < 0)
+            if (WordWrap.Signed(candidate) < 0)
                 candidate = ushort.MaxValue;
-            BaseY = BaseY.WithWhole(checked((ushort)candidate));
+            BaseY = BaseY.WithWhole(candidate);
             if (candidate <= TargetSurface.Y)
                 return false;
         }
         else
         {
-            if (unchecked((short)candidate) < 0)
+            if (WordWrap.Signed(candidate) < 0)
                 candidate = 0;
-            BaseY = BaseY.WithWhole(checked((ushort)candidate));
+            BaseY = BaseY.WithWhole(candidate);
             if (candidate > TargetSurface.Y)
                 return false;
         }
@@ -722,7 +722,7 @@ public sealed class RoomLayer3FxState
         }
 
         // $88:B2DF/$B316 index the negative-cosine prefix, not the sine origin.
-        int sample = Trigonometry.SignedNegativeCosineWord(checked((byte)EightEight.WholeOf(TidePhase)));
+        int sample = Trigonometry.SignedNegativeCosineWord(Ensure.BetweenInclusive(0, byte.MaxValue, EightEight.WholeOf(TidePhase)));
         TideFixedOffset = SixteenSixteen.FromEightEight(sample * scale);
         AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);
     }
@@ -731,7 +731,7 @@ public sealed class RoomLayer3FxState
     private void AdvanceTidePhase(int delta) => TidePhase = (TidePhase + delta) % TidePhasePeriod;
 
     /// <summary>Adds signed fixed-point tide displacement to the base liquid surface.</summary>
-    private ushort ComputeTidalYPosition()
+    private int ComputeTidalYPosition()
     {
         uint baseFixed = BaseY.RawValue;
         return FixedCoordinate.WholeOf(unchecked((int)(baseFixed + (uint)TideFixedOffset)));
@@ -746,16 +746,16 @@ public sealed class RoomLayer3FxState
         (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != RoomLiquidOptions.None;
 
     /// <summary>Computes native BG3 vertical scroll from the liquid surface relative to camera Y.</summary>
-    private static ushort ComputeLiquidVerticalScroll(int surfaceY, int cameraY)
+    private static int ComputeLiquidVerticalScroll(int surfaceY, int cameraY)
     {
-        if (unchecked((short)surfaceY) < 0)
+        if (CoordinateAxis.AsSigned(surfaceY) < 0)
             return 0;
-        int relative = unchecked((short)(surfaceY - cameraY));
+        int relative = CoordinateAxis.Difference(surfaceY, cameraY);
         if (relative <= 0)
-            return unchecked((ushort)(((relative ^ 31) & 31) | 256));
+            return WordWrap.Unsigned(((relative ^ 31) & 31) | 256);
         return relative < 256
-            ? unchecked((byte)~relative)
-            : (ushort)0;
+            ? WordWrap.LowByte(~relative)
+            : 0;
     }
 
     /// <summary>Creates one room's effect state, with no FX record selected, over the session's carried state.</summary>
@@ -807,7 +807,7 @@ public sealed class RoomLayer3FxState
 
     /// <summary>Water's surface drift each frame its <see cref="RoomLiquidOptions.SurfaceDrift"/> option is set.</summary>
     private static readonly Offset16<OverlaySubpixels> WaterDriftVelocity =
-        new(unchecked((short)WaterWaveDefinitions.HorizontalSubscrollVelocity), 0);
+        new(WordWrap.Signed(WaterWaveDefinitions.HorizontalSubscrollVelocity), 0);
 
     /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>
     private enum LiquidRisePhase

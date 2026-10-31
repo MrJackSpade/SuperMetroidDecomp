@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Audio;
 /// <param name="Start">The start.</param>
 /// <param name="Next">The next.</param>
 /// <param name="State">The state.</param>
-internal readonly record struct SoundQueueState(byte Start, byte Next, byte State);
+internal readonly record struct SoundQueueState(int Start, int Next, int State);

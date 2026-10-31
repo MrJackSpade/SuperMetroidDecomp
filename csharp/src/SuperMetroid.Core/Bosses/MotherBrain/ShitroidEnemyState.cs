@@ -52,7 +52,7 @@ public sealed class ShitroidEnemyState
     public int PaletteDelay
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>Gets the current AI state's general-purpose countdown.</summary>

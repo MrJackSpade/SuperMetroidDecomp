@@ -14,7 +14,7 @@ public sealed class MapArrowVisual
         PhaseCount = durations.Length;
         for (int phase = 0; phase < durations.Length; phase++)
             if (durations[phase] != MenuSelectorTiming.Duration(phase))
-                (durationOverrides ??= new()).Add(phase, (byte)durations[phase]);
+                (durationOverrides ??= new()).Add(phase, WordWrap.LowByte(durations[phase]));
     }
     /// <summary>Screen-pixel anchor used when composing this direction's OAM sprite.</summary>
     public Position16<SpritePixels> Position { get; }
@@ -25,7 +25,7 @@ public sealed class MapArrowVisual
     /// <remarks>$82:C137 holds the initial phase for15 ticks and every following
     /// phase for2. The original14-phase cycle repeats this rule without a cache.
     /// Custom cycle lengths and individual delays remain document-owned inputs.</remarks>
-    public byte Duration(int phase)
+    public int Duration(int phase)
     {
         if ((uint)phase >= (uint)PhaseCount) throw new ArgumentOutOfRangeException(nameof(phase));
         return durationOverrides is not null && durationOverrides.ContainsKey(phase)

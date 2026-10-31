@@ -11,7 +11,7 @@ internal static class SamusProjectileCooldowns
     /// Unused beam combinations, padding and unused non-beam kinds remain zero.
     /// </summary>
     /// <param name="offset">The byte's offset from the start of <see cref="SamusFiringTableDefinitions"/>.</param>
-    internal static byte ReadByte(int offset)
+    internal static int ReadByte(int offset)
     {
         int index = offset - SamusFiringTableDefinitions.UnchargedCooldowns;
         if ((uint)index < 32)
@@ -21,7 +21,7 @@ internal static class SamusProjectileCooldowns
             int combination = index % SamusFiringTableDefinitions.ChargedRowOffset;
             if (combination >= SamusFiringTableDefinitions.CombinationCount)
                 return 0;
-            return (byte)(charged ? 30 : combination == PlasmaIce ? 12 : 15);
+            return WordWrap.LowByte(charged ? 30 : combination == PlasmaIce ? 12 : 15);
         }
         if (offset is >= (SamusFiringTableDefinitions.UnchargedCooldowns + 32) and < SamusFiringTableDefinitions.NonBeamCooldowns)
             return 0;

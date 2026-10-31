@@ -294,15 +294,15 @@ public sealed class SamusBombProjectileSystem
             // $93:837F admits X in [-48,304). Y is admitted only when the high byte of
             // the wrapped room-relative word is zero, i.e. [0,255]. OAM itself clips the
             // bottom 32 scanlines outside this runtime's 224-line rendered viewport.
-            int screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
-            int screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
+            int screenX = CoordinateAxis.Difference(slot.Position.X.Whole, layer1.X);
+            int screenY = CoordinateAxis.Wrap(slot.Position.Y.Whole - layer1.Y);
             if (screenX < -48 || screenX >= 304 || ScreenConversions.IsOutsideSpriteRange(screenY))
                 continue;
 
             SpriteSheetFrame image = artwork.Sheet.Frame(ProjectileSheetFrames.ProjectileFrame(
                 slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.")));
             sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slot.Index), image,
-                Position16<ScreenPixels>.Of(unchecked((ushort)screenX), screenY), SpriteMirror.None));
+                Position16<ScreenPixels>.Of(CoordinateAxis.Wrap(screenX), screenY), SpriteMirror.None));
         }
     }
 
@@ -338,7 +338,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>$90:F4C2: the flare count from which a charging beam's loop is audible.</summary>
-    private const ushort ChargeSoundFlareThreshold = 16;
+    private const int ChargeSoundFlareThreshold = 16;
 
     /// <summary>Ticks the shared shot cooldown, or holds it at $20 during X-Ray time freeze.</summary>
     private void StepCooldown(bool timeIsFrozen)
@@ -475,7 +475,7 @@ public sealed class SamusBombProjectileSystem
                 MorphBallBombDefinitions.DownChargeTimeoutUpdates)
         {
             samus.BombSpreadChargeTimeoutCounter =
-                unchecked((ushort)(samus.BombSpreadChargeTimeoutCounter + 1));
+                WordWrap.Unsigned(samus.BombSpreadChargeTimeoutCounter + 1);
             return BombSpreadAdmission.Charging;
         }
 
@@ -503,7 +503,7 @@ public sealed class SamusBombProjectileSystem
             // The held charge adds up to three whole pixels of upward launch speed; the negated whole word
             // wraps exactly as the cartridge's sixteen-bit subtraction from zero does.
             slot.BombSpreadLaunchVelocity = SignedSixteenSixteen.FromParts(
-                unchecked((short)-(launch.YSpeed.Whole + verticalModifier)), launch.YSpeed.Fraction);
+                WordWrap.Signed(-(launch.YSpeed.Whole + verticalModifier)), launch.YSpeed.Fraction);
             slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
         }
 
@@ -562,7 +562,7 @@ public sealed class SamusBombProjectileSystem
         SamusProjectileHeader header = SamusProjectileSelection.Select(SamusProjectileSelectorTable.NonBeam, slot.Type.Family.TableRow);
 
         slot.Damage = SamusProjectileDamage.Read(header);
-        if (unchecked((short)slot.Damage) < 0)
+        if (WordWrap.Signed(slot.Damage) < 0)
             throw new InvalidDataException($"Bomb header {header} has crash-marker damage ${slot.Damage:X4}.");
 
         slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaders.Program(header, 0));
@@ -678,7 +678,7 @@ public sealed class SamusBombProjectileSystem
         // Gravity adds with the fraction carrying into the whole word and the whole word wrapping at sixteen bits,
         // which is the signed 16.16 value's wrapping addition.
         slot.BombSpreadVerticalVelocity += SignedSixteenSixteen.FromParts(
-            unchecked((short)samus.YAcceleration.Whole), samus.YAcceleration.Fraction);
+            WordWrap.Signed(samus.YAcceleration.Whole), samus.YAcceleration.Fraction);
 
         int previousY = slot.Position.Y.Whole;
         int previousYSub = slot.Position.Y.Fraction;
@@ -724,7 +724,7 @@ public sealed class SamusBombProjectileSystem
             return true;
         }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+        RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
         if (!SamusBlockCollision.TryResolveExtension(level, ref block))
             return false;
 
@@ -782,13 +782,13 @@ public sealed class SamusBombProjectileSystem
         // intentionally visited twice; synchronous PLM terrain mutation means the second
         // visit can observe a different collision type than the first.
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(checked((ushort)x), checked((ushort)top)), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, top), reactions, roomPlms, areaIndex, projectileType);
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(checked((ushort)left), checked((ushort)y)), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(left, y), reactions, roomPlms, areaIndex, projectileType);
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(checked((ushort)x), checked((ushort)bottom)), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(x, bottom), reactions, roomPlms, areaIndex, projectileType);
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(checked((ushort)right), checked((ushort)y)), reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(right, y), reactions, roomPlms, areaIndex, projectileType);
     }
 
     /// <summary>Visits the normal bomb's five-block cross in native order when its fuse reaches zero.</summary>
@@ -820,7 +820,7 @@ public sealed class SamusBombProjectileSystem
 
             CollectSingleBombedBlockReaction(
                 level,
-                new Position16<RoomBlocks>(checked((ushort)x), checked((ushort)y)),
+                new Position16<RoomBlocks>(x, y),
                 reactions,
                 roomPlms,
                 areaIndex,
@@ -1054,7 +1054,7 @@ public sealed class SamusBombProjectileSystem
         if (duration == 0)
             throw new InvalidDataException($"Bomb record {frame.Record} has zero duration.");
         SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
-        slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)duration);
+        slot.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(duration));
         slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;
         slot.Radius = record.Radius;
         slot.Cursor = cursor;
@@ -1079,8 +1079,8 @@ public sealed class SamusBombProjectileSystem
                 continue;
             }
 
-            int xDistance = Math.Abs((short)(slot.Position.X.Whole - samus.Position.X.Whole));
-            int yDistance = Math.Abs((short)(slot.Position.Y.Whole - samus.Position.Y.Whole));
+            int xDistance = CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole);
+            int yDistance = CoordinateAxis.Distance(slot.Position.Y.Whole, samus.Position.Y.Whole);
             if (xDistance >= slot.Radius.X + samus.Kinematics.Radius.X ||
                 yDistance >= slot.Radius.Y + samus.Kinematics.Radius.Y)
             {
@@ -1098,7 +1098,7 @@ public sealed class SamusBombProjectileSystem
             // earlier ones exactly as the ascending assembly loop does.
             publishedDirection = samus.Position.X.Whole == slot.Position.X.Whole
                 ? SamusBombJumpDirection.Straight
-                : unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
+                : CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
                     ? SamusBombJumpDirection.Left
                     : SamusBombJumpDirection.Right;
             SamusPoseMetadata.PublishBombJumpDirection(samus, publishedDirection);

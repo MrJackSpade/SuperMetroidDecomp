@@ -100,7 +100,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 // than performing an unsigned branch; ordinary room parameters are small,
                 // but the distinction remains visible at the $8000 wrap boundary.
                 state.CooldownTimer = WrappingCounter.IncrementWord(state.CooldownTimer);
-                if (unchecked((short)(state.CooldownTimer - state.CooldownTime)) < 0)
+                if (WordWrap.Signed(state.CooldownTimer - state.CooldownTime) < 0)
                     return;
 
                 state.ShowsActiveAnimation = true;
@@ -121,7 +121,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.Y.Whole,
                         slot.Position.Y.Whole,
-                        checked((ushort)state.YProximity)))
+                        Ensure.BetweenInclusive(0, ushort.MaxValue, state.YProximity)))
                 {
                     return;
                 }
@@ -232,11 +232,11 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         // definition. Namihe's mouth is four pixels lower than Fune's in the shared art.
         FuneNamiheSpawnSettings sourceSettings = source.SpawnSettings<FuneNamiheSpawnSettings>();
         if (FuneNamiheSetup.Of(sourceSettings).IsNamihe)
-            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
+            projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 4);
 
         var velocities = EnemyFireballLaunches.NamiFuneVelocities(sourceSettings.LaunchIndex);
         projectile.Velocity = new(
-            new SignedEightEight(checked((ushort)(direction == HorizontalDirection.Right ? velocities.Right : velocities.Left))),
+            new SignedEightEight(direction == HorizontalDirection.Right ? velocities.Right : velocities.Left),
             new SignedEightEight(0));
     }
 

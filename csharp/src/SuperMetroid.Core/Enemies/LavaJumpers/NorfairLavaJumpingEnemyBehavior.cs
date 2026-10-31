@@ -28,9 +28,9 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     }
 
     /// <summary>8.8 velocity increment applied after each moving frame.</summary>
-    private const ushort NorfairLavaJumpingEnemyGravity = 56;
+    private const int NorfairLavaJumpingEnemyGravity = 56;
     /// <summary>Unsigned rising-velocity threshold that switches to the visible jump list.</summary>
-    private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = unchecked((ushort)-1024);
+    private static readonly int NorfairLavaJumpingEnemyAnimationSwitchVelocity = SignedEightEight.FromSignedRaw(-1024).RawValue;
 
     /// <summary>Ports <c>NorfairLavajumpingEnemy_Init</c> at $A2:BE99.</summary>
     internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)

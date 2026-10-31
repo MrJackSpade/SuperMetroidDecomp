@@ -470,7 +470,7 @@ public sealed class SuperMetroidGame
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);
-        var identity = new RenderFrameIdentity(hostSequence, hostGeneration, unchecked((ushort)(FrameNumber + 1)));
+        var identity = new RenderFrameIdentity(hostSequence, hostGeneration, WordWrap.Unsigned(FrameNumber + 1));
         Session.display.BeginCapture(identity);
         try
         {

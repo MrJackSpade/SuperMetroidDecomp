@@ -36,7 +36,7 @@ internal static class GrappleFiring
             _ => 0,
         };
         int octant = direction <= 4 ? direction : direction - 1;
-        return new(new EightEightVector<RoomPixels>(x, y), RotationAngle.FromRaw(unchecked((ushort)(RotationAngle.HalfTurn.RawValue + RotationAngle.QuarterTurn.RawValue / 2 * octant))));
+        return new(new EightEightVector<RoomPixels>(x, y), RotationAngle.FromRaw(WordWrap.Unsigned(RotationAngle.HalfTurn.RawValue + RotationAngle.QuarterTurn.RawValue / 2 * octant)));
     }
 
     /// <summary>$9B:C122/$C172 X and $C136/$C186 Y hand anchors selected by firing pose.
@@ -65,7 +65,7 @@ internal static class GrappleFiring
         {
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpFacingLeft => -16,
             SamusProjectileDirection.UpRight or SamusProjectileDirection.UpLeft => -12,
-            SamusProjectileDirection.Right or SamusProjectileDirection.Left => running ? (short)-2 : (short)2,
+            SamusProjectileDirection.Right or SamusProjectileDirection.Left => running ? -2 : 2,
             SamusProjectileDirection.DownRight or SamusProjectileDirection.DownLeft => 0,
             SamusProjectileDirection.DownFacingRight or SamusProjectileDirection.DownFacingLeft => 6,
             _ => throw new InvalidOperationException($"Undefined {nameof(SamusProjectileDirection)} {aim}."),

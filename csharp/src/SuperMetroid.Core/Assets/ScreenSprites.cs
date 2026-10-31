@@ -96,7 +96,7 @@ public sealed class ScreenSprites
         int index = next % Capacity;
         // An object's Y wraps above the screen exactly where the off-screen loader reads an origin.
         placed[index] = new ScreenObject(position, frame, 1, null,
-            (byte)position.Y >= ScreenGeometry.ScreenHeightPixels ? SpriteOrigin.OffScreen : SpriteOrigin.OnScreen);
+            WordWrap.LowByte(position.Y) >= ScreenGeometry.ScreenHeightPixels ? SpriteOrigin.OffScreen : SpriteOrigin.OnScreen);
         next = index + 1;
     }
 
@@ -117,9 +117,9 @@ public sealed class ScreenSprites
         int screenX = nineBitX >= XRange / 2 ? nineBitX - XRange : nineBitX;
         // The loaders read only the origin's low Y byte: the on-screen loader places it on or below the screen, so a
         // frame just below the bottom still shows the parts that reach up into it, and the off-screen loader above it.
-        int imageY = (byte)placedObject.Position.Y - (placedObject.Side == SpriteOrigin.OffScreen ? ByteRange : 0);
+        int imageY = WordWrap.LowByte(placedObject.Position.Y) - (placedObject.Side == SpriteOrigin.OffScreen ? ByteRange : 0);
         return new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), placedObject.Image,
-            new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)imageY)), SpriteMirror.None,
+            new Position16<ScreenPixels>(CoordinateAxis.Wrap(screenX), CoordinateAxis.Wrap(imageY)), SpriteMirror.None,
             placedObject.PaletteOverride);
     }
 

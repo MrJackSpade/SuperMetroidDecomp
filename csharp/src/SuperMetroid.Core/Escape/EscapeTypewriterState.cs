@@ -100,7 +100,7 @@ public sealed class EscapeTypewriterState
             }
             if (ProgramCharacterIndex == 0)
                 Cell = line.Cell;
-            int character = (byte)line.Text[ProgramCharacterIndex++];
+            int character = WordWrap.LowByte(line.Text[ProgramCharacterIndex++]);
             glyph = TypeCharacter(character);
             return false;
         }

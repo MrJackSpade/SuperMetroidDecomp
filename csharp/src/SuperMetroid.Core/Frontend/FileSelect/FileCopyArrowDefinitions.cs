@@ -8,7 +8,7 @@ public static class FileCopyArrowDefinitions
     /// <summary>$81:9A09: subsequent arrow palette rotation delay.</summary>
     internal const int PaletteDelay = 4;
     /// <summary>$82:BB0E: all file-copy arrows use screen X = $14.</summary>
-    internal const ushort OriginX = 20;
+    internal const int OriginX = 20;
 
     /// <summary>The file-copy arrow shapes: short and long, downward and upward.</summary>
     internal const int ShapeCount = 4;

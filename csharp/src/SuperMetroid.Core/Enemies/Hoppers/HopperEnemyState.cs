@@ -23,7 +23,7 @@ public sealed class HopperEnemyState
     public int YSpeedTableIndex
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>Signed whole-pixel horizontal velocity; the fractional word is always zero. Only three or its negation is stored.</summary>
@@ -36,7 +36,7 @@ public sealed class HopperEnemyState
     public int YSpeedTableIndexDelta
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>Native extension offset $00's installed landed or jumping animation: where the typed program (#641) resumes.</summary>

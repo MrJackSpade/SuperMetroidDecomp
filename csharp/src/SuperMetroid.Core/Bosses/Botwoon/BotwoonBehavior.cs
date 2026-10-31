@@ -351,8 +351,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restricts target distance to the signed angle routine's supported range.</summary>
-    private static short ClampBotwoonTargetDelta(int value) =>
-        (short)(value < -256 ? -255 : value >= 256 ? 255 : value);
+    private static int ClampBotwoonTargetDelta(int value) =>
+        WordWrap.Signed(value < -256 ? -255 : value >= 256 ? 255 : value);
 
     /// <summary>Uses health phase, current hole, and native RNG to choose an authored path.</summary>
     private void ChooseBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
@@ -579,7 +579,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         head.Layer = 2;
         Bearing bearing = EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - head.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - head.Position.Y.Whole))));
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, head.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, head.Position.Y.Whole)));
         InstallBotwoonHeadProgram(head, state, BotwoonHeadProgram.SpittingToward(bearing));
         state.SpitAngle = bearing.ToTableAngle().ToAngle();
         state.HeadFunction = state.Function == BotwoonEnemyFunction.SpitWhileHidden
@@ -632,7 +632,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         if (advance is not AnimationProgramAdvance<BotwoonHeadFrame>.Show shown)
             throw new InvalidOperationException($"Botwoon's head program ended an update with {advance}.");
-        head.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+        head.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         head.Frame = BotwoonVisualDefinitions.HeadFrames.Of(shown.Frame);
         head.ExtraProperties = head.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
@@ -699,9 +699,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates the defeated head down to Y=200, then hides it and waits for body landing.</summary>
     private void RunBotwoonHeadFall(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        int displacement = EnemyQuadraticSpeeds.Row(checked((ushort)(state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep))).Positive;
+        int displacement = EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep)).Positive;
         head.Position = head.Position.AdvanceY(SignedSixteenSixteen.FromRaw(displacement));
-        if (unchecked((short)(head.Position.Y.Whole - 200)) < 0)
+        if (CoordinateAxis.Difference(head.Position.Y.Whole, 200) < 0)
         {
             state.DeathFallAccumulator += BotwoonDeathFallAcceleration;
             return;
@@ -730,8 +730,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int random = _room.Random.Generate();
             var position = new Position16<RoomPixels>(
-                unchecked((ushort)((random & 127) + 64)),
-                unchecked((ushort)((SharedRandomState.UpperByte(random) & 63) + 128)));
+                WordWrap.Unsigned((random & 127) + 64),
+                WordWrap.Unsigned((SharedRandomState.UpperByte(random) & 63) + 128));
             _deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 position,
                 head.Definition.DropChances);
@@ -767,7 +767,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.LargeExplosionTimer = WrappingCountdown.Start(12);
                 _spriteObjects.SpawnRoomSpriteObject(
-                    new(unchecked((ushort)((_room.Random.Generate() & 31) + 232)), unchecked((ushort)(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8))),
+                    new(WordWrap.Unsigned((_room.Random.Generate() & 31) + 232), WordWrap.Unsigned(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8)),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
                     graphics: SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles));
                 RequestBotwoonSound(BotwoonSoundDefinitions.Explosion);
@@ -782,7 +782,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 for (int explosion = 0; explosion < 2; explosion++)
                 {
                     _spriteObjects.SpawnRoomSpriteObject(
-                        new(unchecked((ushort)((_room.Random.Generate() & 63) + 224)), unchecked((ushort)(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8))),
+                        new(WordWrap.Unsigned((_room.Random.Generate() & 63) + 224), WordWrap.Unsigned(state.WallExplosionFrame + (_room.Random.Generate() & 31) - 8)),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
                         graphics: SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles));
                 }
@@ -817,8 +817,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         ByteAngle angle,
         int magnitude)
     {
-        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, checked((ushort)magnitude));
-        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, checked((ushort)magnitude));
+        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, Ensure.BetweenInclusive(0, ushort.MaxValue, magnitude));
+        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, Ensure.BetweenInclusive(0, ushort.MaxValue, magnitude));
         int xDisplacement = EnemyMath.CosineIsNegative(angle) ? -xMagnitude : xMagnitude;
         int yDisplacement = EnemyMath.SineIsNegative(angle) ? -yMagnitude : yMagnitude;
         head.Position = head.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
@@ -1020,11 +1020,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonEnemyState state,
         int randomEnemyCounter)
     {
-        int displacement = EnemyQuadraticSpeeds.Row(unchecked((ushort)(EightEight.WholeOf(segment.Velocity.Y.RawValue)))).Positive;
+        int displacement = EnemyQuadraticSpeeds.Row(WordWrap.Unsigned(EightEight.WholeOf(segment.Velocity.Y.RawValue))).Positive;
         segment.Position = segment.Position.AdvanceY(SignedSixteenSixteen.FromRaw(displacement));
-        if (unchecked((short)(segment.Position.Y.Whole - 200)) < 0)
+        if (CoordinateAxis.Difference(segment.Position.Y.Whole, 200) < 0)
         {
-            segment.Velocity = segment.Velocity.WithY(new SignedEightEight(unchecked((ushort)(segment.Velocity.Y.RawValue + 192))));
+            segment.Velocity = segment.Velocity.WithY(SignedEightEight.Wrapped(segment.Velocity.Y.RawValue + 192));
             segment.InstructionTimer = WrappingCountdown.Start(0);
             ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
             return;
@@ -1073,10 +1073,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         spit.StateOf<AngledFlightState>().Advance(spit);
 
-        if (unchecked((short)(spit.Position.X.Whole - camera.X)) < 0 ||
-            unchecked((short)(camera.X + 256 - spit.Position.X.Whole)) < 0 ||
-            unchecked((short)(spit.Position.Y.Whole - camera.Y)) < 0 ||
-            unchecked((short)(camera.Y + 256 - spit.Position.Y.Whole)) < 0)
+        if (CoordinateAxis.Difference(spit.Position.X.Whole, camera.X) < 0 ||
+            CoordinateAxis.AsSigned(camera.X + 256 - spit.Position.X.Whole) < 0 ||
+            CoordinateAxis.Difference(spit.Position.Y.Whole, camera.Y) < 0 ||
+            CoordinateAxis.AsSigned(camera.Y + 256 - spit.Position.Y.Whole) < 0)
         {
             spit.Clear();
         }

@@ -190,13 +190,13 @@ internal sealed class DraygonParts
         {
             case AnimationProgramAdvance<DraygonFrame>.Show shown:
                 state.SetCursor(part, cursor);
-                part.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+                part.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                 part.Frame = DraygonFrameDefinitions.ShownFrames.Of(shown.Frame);
                 part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Wait waiting:
                 state.SetCursor(part, cursor);
-                part.InstructionTimer = WrappingCountdown.FromRaw((ushort)waiting.Duration);
+                part.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(waiting.Duration));
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Hold:
                 // The native sleep: the timer wraps from zero and the last frame stays.
@@ -293,17 +293,17 @@ internal sealed class DraygonParts
         // target must not suppress the periodic particle. It shares the real pool.
         if ((eye.FrameCounter & DraygonEyeEffects.CadenceMask) == 0)
             _projectiles.SpawnRoomGraphicsDustExplosion(
-                new(unchecked((ushort)(eye.Position.X.Whole + (facing == HorizontalDirection.Right
-                    ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset))), unchecked((ushort)(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset))),
+                new(CoordinateAxis.Wrap(eye.Position.X.Whole + (facing == HorizontalDirection.Right
+                    ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset)), CoordinateAxis.Wrap(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
                 DraygonEyeEffects.DustVariant);
         if (samus is null)
             return;
 
         Position16<RoomPixels> gaze = eye.Position.Whole +
-            new Offset16<RoomPixels>((short)(facing == HorizontalDirection.Right ? 24 : -24), -32);
+            new Offset16<RoomPixels>(CoordinateAxis.AsSigned(facing == HorizontalDirection.Right ? 24 : -24), -32);
         int angle = EnemyMath.CalculateBearing(samus.Position.Whole - gaze).RawValue;
         DraygonEyeState eyeState = eye.RequireSpeciesState<DraygonEyeState>();
-        if (angle == (byte)eyeState.LookAngle)
+        if (angle == WordWrap.LowByte(eyeState.LookAngle))
             return;
 
         eyeState.LookAngle = angle;
@@ -335,7 +335,7 @@ internal sealed class DraygonParts
         RoomSpriteObjectKind kind)
     {
         int random = _room.Random.Generate();
-        Offset16<RoomPixels> scatter = new((short)((random & 127) - 64), (short)((SharedRandomState.UpperByte(random) & 127) - 64));
+        Offset16<RoomPixels> scatter = new(WordWrap.Signed((random & 127) - 64), WordWrap.Signed((SharedRandomState.UpperByte(random) & 127) - 64));
         if (_spriteObjects.SpawnRoomSpriteObject(
                 state.Body.Position.Whole + scatter,
                 kind,
@@ -370,7 +370,7 @@ internal sealed class DraygonParts
 
         state.TailWhipHits++;
         _spriteObjects.SpawnRoomSpriteObject(
-            new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + 16))),
+            new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + 16)),
             RoomSpriteObjectKind.DustCloud,
             graphics: default);
     }
@@ -387,10 +387,10 @@ internal sealed class DraygonParts
             RoomEnemyProjectileKind.DraygonGoop,
             graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.DraygonGoop)));
         goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.Goop));
-        goop.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + (movingRight ? 24 : -28))), unchecked((ushort)(state.Body.Position.Y.Whole - 16))));
+        goop.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + (movingRight ? 24 : -28)), CoordinateAxis.Wrap(state.Body.Position.Y.Whole - 16)));
 
         int random = _room.Random.Generate();
-        ByteAngle angle = new(unchecked((byte)((random & 63) + (movingRight ? 192 : 128))));
+        ByteAngle angle = new(WordWrap.LowByte((random & 63) + (movingRight ? 192 : 128)));
         SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
         state.GoopProjectilesSpawned++;
     }

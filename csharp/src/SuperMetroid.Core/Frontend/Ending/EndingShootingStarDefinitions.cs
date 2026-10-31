@@ -6,15 +6,15 @@ internal static class EndingShootingStarDefinitions
     /// <summary>$8B:E80B / Initialize_ShootingStars creates forty sixteen-byte records.</summary>
     internal const int Count = 40;
     /// <summary>$8B:E7F2 and $E983 initialize/reset both coordinates to the screen center.</summary>
-    internal const ushort Origin = 128;
+    internal const int Origin = 128;
     /// <summary>$8B:E7EB and $E97D initialize/reset the invisible animation lead-in.</summary>
-    internal const ushort InitialTimer = 32;
+    internal const int InitialTimer = 32;
     /// <summary>$8B:E84A doubles acceleration from the second visible animation frame.</summary>
     internal const int DoubleAccelerationFrame = 2;
     /// <summary>$8B:E90B/$E91F center each small OBJ four pixels before its position.</summary>
-    internal const ushort SpriteOffset = 4;
+    internal const int SpriteOffset = 4;
     /// <summary>The <see cref="SpriteOffset"/> centering applied on both axes.</summary>
-    internal static Offset16<ScreenPixels> SpriteCenter => new((short)SpriteOffset, (short)SpriteOffset);
+    internal static Offset16<ScreenPixels> SpriteCenter => new(CoordinateAxis.AsSigned(SpriteOffset), CoordinateAxis.AsSigned(SpriteOffset));
     /// <summary>$8B:E9CF / ShootingStar_Table: X/Y acceleration, animation period, initial delay.</summary>
     private static readonly EndingShootingStarDefinition[] records = [
         new(new(16, -16), 6, 8), new(new(12, -1), 6, 0), new(new(13, -10), 6, 6), new(new(8, -16), 6, 0),

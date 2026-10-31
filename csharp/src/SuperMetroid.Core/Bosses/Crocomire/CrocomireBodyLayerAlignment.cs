@@ -10,6 +10,6 @@ internal static class CrocomireBodyLayerAlignment
         frame is { } shown && CrocomireBodyLayerPlacementDefinitions.Corrections.TryGetValue(shown, out int correction) ? correction : 0;
 
     /// <summary>Applies the signed correction with native sixteen-bit wrapping.</summary>
-    internal static ushort VerticalPlacement(int bodyY, EnemyFrameId? frame) =>
-        unchecked((ushort)(CrocomireBodyLayerPlacementDefinitions.VerticalOrigin - bodyY + Correction(frame)));
+    internal static int VerticalPlacement(int bodyY, EnemyFrameId? frame) =>
+        CoordinateAxis.Wrap(CrocomireBodyLayerPlacementDefinitions.VerticalOrigin - bodyY + Correction(frame));
 }

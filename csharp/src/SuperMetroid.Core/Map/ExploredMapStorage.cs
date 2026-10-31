@@ -49,7 +49,7 @@ public static class ExploredMapStorage
         int runStart = cell.X / RunCellCount * RunCellCount;
         for (int x = runStart; x < runStart + RunCellCount; x++)
         {
-            if (stockRules.IsDiscoverable(new Position16<MapTiles>(checked((ushort)x), cell.Y)))
+            if (stockRules.IsDiscoverable(new Position16<MapTiles>(x, cell.Y)))
                 return true;
         }
         return false;

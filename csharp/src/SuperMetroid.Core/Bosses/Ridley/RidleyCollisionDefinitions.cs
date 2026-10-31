@@ -39,7 +39,7 @@ internal static class RidleyCollisionDefinitions
         Forward,
     }
     /// <summary>$A6:EADB, the forward frame's single component Y offset, authored for its drawing.</summary>
-    internal const short ForwardYOffset = -6;
+    internal const int ForwardYOffset = -6;
 
     /// <summary>Hitbox_Ridley_FacingLeft_MouthClosed: the closed-mouth head of left-facing Ridley.</summary>
     internal static readonly EnemyHitboxRectangle[] LeftHeadMouthClosed =

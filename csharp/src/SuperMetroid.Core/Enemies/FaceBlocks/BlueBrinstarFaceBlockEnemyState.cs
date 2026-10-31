@@ -25,7 +25,7 @@ public sealed class BlueBrinstarFaceBlockEnemyState
     public int LastHorizontalDelta
     {
         get;
-        internal set => field = unchecked((short)value);
+        internal set => field = WordWrap.Signed(value);
     }
 
     /// <summary>

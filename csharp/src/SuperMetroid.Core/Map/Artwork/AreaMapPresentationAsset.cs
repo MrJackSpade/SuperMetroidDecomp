@@ -36,7 +36,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
         for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
         {
-            var cell = new Position16<MapTiles>(checked((ushort)x), checked((ushort)y));
+            var cell = new Position16<MapTiles>(x, y);
             int i = Index(cell);
             discoverable[i] = rules.IsDiscoverable(cell);
             station[i] = rules.IsRevealedByMapStation(cell);

@@ -176,7 +176,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // XBA/AND #$00FF discards the product's fractional byte. Boyon has no Y subposition
         // integration here: each frame moves by exactly the product's high byte.
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + (EightEight.WholeOf(state.Speed)))));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + (EightEight.WholeOf(state.Speed)));
         if (EnemyMath.IsNegative16(state.SpeedTableIndex - state.InitialBounceSpeedTableIndex))
             return;
 
@@ -189,7 +189,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveBoyonRising(RoomEnemySlot slot, BoyonEnemyState state)
     {
         state.Speed = MultiplyBoyonCurveEntry(state);
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (EightEight.WholeOf(state.Speed)))));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - (EightEight.WholeOf(state.Speed)));
         if (state.RetreatSpeedTableIndex())
             state.BounceMovement = BoyonBounceMovement.Falling;
     }
@@ -208,7 +208,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         _ = state; // Retains a symmetric family-helper signature for debugger inspection.
-        int distance = Math.Abs((int)unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)));
+        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole);
         return EnemyMath.IsNegative16(distance - slot.SpawnSettings<BoyonSpawnSettings>().TriggerDistance);
     }
 

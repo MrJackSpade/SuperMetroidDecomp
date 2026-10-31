@@ -19,28 +19,28 @@ public static class XrayScopeDefinitions
         /// <summary>The visor shade count, which ends the full-beam cycle.</summary>
         public const int FullCycleEndShade = SamusPaletteDefinitions.Visor.CycleEndShade;
         /// <summary>Frames between visor color advances.</summary>
-        public const ushort FrameDelay = SamusPaletteDefinitions.Visor.FrameDelay;
+        public const int FrameDelay = SamusPaletteDefinitions.Visor.FrameDelay;
     }
 
     /// <summary>Angle bands selecting the five standing/crouching X-ray animation frames.</summary>
     public static class AnimationAngles
     {
         /// <summary>Right-facing boundary between frames zero and one.</summary>
-        public const byte RightFrameOne = 25;
+        public const int RightFrameOne = 25;
         /// <summary>Right-facing boundary between frames one and two.</summary>
-        public const byte RightFrameTwo = 50;
+        public const int RightFrameTwo = 50;
         /// <summary>Right-facing boundary between frames two and three.</summary>
-        public const byte RightFrameThree = 75;
+        public const int RightFrameThree = 75;
         /// <summary>Right-facing boundary between frames three and four.</summary>
-        public const byte RightFrameFour = 100;
+        public const int RightFrameFour = 100;
         /// <summary>Left-facing boundary between frames four and three.</summary>
-        public const byte LeftFrameFour = 153;
+        public const int LeftFrameFour = 153;
         /// <summary>Left-facing boundary between frames three and two.</summary>
-        public const byte LeftFrameThree = 178;
+        public const int LeftFrameThree = 178;
         /// <summary>Left-facing boundary between frames two and one.</summary>
-        public const byte LeftFrameTwo = 203;
+        public const int LeftFrameTwo = 203;
         /// <summary>Left-facing boundary between frames one and zero.</summary>
-        public const byte LeftFrameOne = 228;
+        public const int LeftFrameOne = 228;
     }
 
     /// <summary>How the X-ray scope's cone widens.</summary>

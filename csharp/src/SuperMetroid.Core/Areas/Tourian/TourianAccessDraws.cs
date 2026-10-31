@@ -48,7 +48,7 @@ internal static class TourianAccessDraws
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[rows];
         for (int row = 0; row < rows; row++)
             runs[row] = new(PlmRunDirection.Horizontal, Enumerable.Repeat(block, 4).ToArray(),
-                new(0, (sbyte)(row + 1 < rows ? row + 1 : 0)));
+                new(0, WordWrap.SignedLowByte(row + 1 < rows ? row + 1 : 0)));
         return new(PlmDraw.Of(draw), runs);
     }
 }

@@ -36,26 +36,26 @@ public static class GrappleBeamDefinitions
     public static class Physics
     {
         /// <summary><c>$9B:C745-C74C</c>, firing handler's accepted-connection tail: automatically retract eight pixels per frame after the connection helper clears its delta.</summary>
-        public const short InitialConnectionRetraction = -8;
+        public const int InitialConnectionRetraction = -8;
         /// <summary>Per-frame downward angular acceleration.</summary>
-        public const short GravityMagnitude = 24;
+        public const int GravityMagnitude = 24;
         /// <summary>Per-frame angular acceleration contributed by directional input.</summary>
-        public const short DirectionInputMagnitude = 12;
+        public const int DirectionInputMagnitude = 12;
         /// <summary>Correction applied when velocity opposes the current swing direction.</summary>
-        public const short VelocityCorrectionMagnitude = 5;
+        public const int VelocityCorrectionMagnitude = 5;
         /// <summary>Maximum signed angular velocity.</summary>
-        public const short MaximumAngularVelocity = 1152;
+        public const int MaximumAngularVelocity = 1152;
         /// <summary>Angular impulse applied by Jump during a swing.</summary>
-        public const short JumpImpulseMagnitude = 768;
+        public const int JumpImpulseMagnitude = 768;
     }
 
     /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>
     public static class Firing
     {
         /// <summary>$9B:C51E initializes GrappleBeam_PoseChangeAutoFireTimer to ten; $C490 decrements before checking the pose.</summary>
-        public const ushort PoseChangeAutoFireFrames = 10;
+        public const int PoseChangeAutoFireFrames = 10;
         /// <summary>$9B:C51E uses a six-pixel graphics Y offset for moving Draygon-held poses.</summary>
-        public const sbyte DraygonMovingGraphicsYOffset = 6;
+        public const int DraygonMovingGraphicsYOffset = 6;
         /// <summary>Number of direction records represented by every firing table.</summary>
         public const int DirectionCount = 10;
     }
@@ -76,7 +76,7 @@ public static class GrappleBeamDefinitions
         /// <summary>$94:B07A, DrawGrappleBeam: a segment is off screen when either whole coordinate reaches this extent.</summary>
         public const int ViewportExtent = 256;
         /// <summary>$94:B18B-B197: each rope animation record lasts five visits to its slot.</summary>
-        public const ushort SegmentAnimationDelay = 5;
+        public const int SegmentAnimationDelay = 5;
         /// <summary>$94:B18B-B197: four successive rope animation records before the goto.</summary>
         public const int SegmentAnimationFrameCount = 4;
     }

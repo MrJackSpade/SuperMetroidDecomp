@@ -16,9 +16,9 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
         /// <summary>The run writes its one block, followed by signed zero X/Y termination.</summary>
         internal const int Count = 1;
         /// <summary>The one-block record leaves the next draw position in its current column.</summary>
-        internal const sbyte NextX = 0;
+        internal const int NextX = 0;
         /// <summary>The one-block record leaves the next draw position in its current row.</summary>
-        internal const sbyte NextY = 0;
+        internal const int NextY = 0;
     }
 
     /// <summary>The terrain each draw installs.</summary>

@@ -6,19 +6,19 @@ public static class SlopeSpeedDefinitions
     /// <summary>$94:8588, unity coefficient for square/flat/V/overhang profiles without slope scaling.</summary>
     /// <remarks>Family membership follows native height profiles. The coefficients are authored tuning: cos(atan r),
     /// 1/(1+r^2) and linear-in-rise all fail to reproduce them (see residualScalarInputsReview).</remarks>
-    internal const ushort Unscaled = 256;
+    internal const int Unscaled = 256;
     /// <summary>$94:85C0/85C4, four-pixel/two-pixel descending stair profiles 14/15.</summary>
-    internal const ushort DescendingStairs = 176;
+    internal const int DescendingStairs = 176;
     /// <summary>$94:85D0/85D8/85DC, unit-rise full/clipped triangle profiles 18/20/21.</summary>
-    internal const ushort UnitRise = 192;
+    internal const int UnitRise = 192;
     /// <summary>$94:85E0/85E4, lower/upper half-rise profiles 22/23.</summary>
-    internal const ushort HalfRise = 216;
+    internal const int HalfRise = 216;
     /// <summary>$94:85E8..85F0, three consecutive third-rise profiles 24..26.</summary>
-    internal const ushort ThirdRise = 240;
+    internal const int ThirdRise = 240;
     /// <summary>$94:85F4/85F8, upper/lower double-rise profiles 27/28.</summary>
-    internal const ushort DoubleRise = 128;
+    internal const int DoubleRise = 128;
     /// <summary>$94:85FC..8604, three consecutive triple-rise profiles 29..31.</summary>
-    internal const ushort TripleRise = 80;
+    internal const int TripleRise = 80;
 
     /// <summary>
     /// $94:8588 + 4*shape, adjustedDistanceMultiplier in the non-square horizontal

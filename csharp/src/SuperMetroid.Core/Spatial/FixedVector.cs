@@ -16,8 +16,8 @@ public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, Signed
     /// <summary>Assembles both axes from the native whole and fraction words, each 0 through 65535.</summary>
     [SpatialComponents("Native codec: the four WRAM words of one displacement.")]
     public static FixedVector<TSpace> FromWords(int xWhole, int xFraction, int yWhole, int yFraction) =>
-        new(SignedSixteenSixteen.FromParts(unchecked((short)Ensure.BetweenInclusive(0, ushort.MaxValue, xWhole)), xFraction),
-            SignedSixteenSixteen.FromParts(unchecked((short)Ensure.BetweenInclusive(0, ushort.MaxValue, yWhole)), yFraction));
+        new(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, xWhole)), xFraction),
+            SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(Ensure.BetweenInclusive(0, ushort.MaxValue, yWhole)), yFraction));
 
     /// <summary>A whole-pixel displacement with zero fraction words.</summary>
     public static FixedVector<TSpace> FromWholePixels(Offset16<TSpace> offset) =>

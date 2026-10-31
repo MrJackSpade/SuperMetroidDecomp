@@ -79,7 +79,7 @@ internal sealed class CreditsObjectState
             if (pictures[row] is not { } picture)
                 continue;
             int top = (row + RowsHeld) * ScreenGeometry.BackgroundTileSizePixels;
-            placed.Add(new PlacedPlanePicture(rows.Frame(picture), new Position16<TilePlanePixels>(0, checked((ushort)top))));
+            placed.Add(new PlacedPlanePicture(rows.Frame(picture), new Position16<TilePlanePixels>(0, top)));
         }
         return new PicturedPlane(PlaneCells, placed.ToImmutable());
     }

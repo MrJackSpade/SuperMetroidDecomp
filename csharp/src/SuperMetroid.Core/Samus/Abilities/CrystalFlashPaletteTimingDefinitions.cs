@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Samus.Abilities;
 internal static class CrystalFlashPaletteTimingDefinitions
 {
     /// <summary>Number of authored Crystal Flash body-palette timing records.</summary>
-    public const ushort RecordCount = 10;
+    public const int RecordCount = 10;
 
     /// <summary>Bytes occupied by each interleaved palette-pointer/timer record.</summary>
-    public const ushort RecordByteCount = 4;
+    public const int RecordByteCount = 4;
 
     /// <summary>Every authored body-palette record remains active for ten handler calls.</summary>
-    public const ushort AuthoredDuration = 10;
+    public const int AuthoredDuration = 10;
 }

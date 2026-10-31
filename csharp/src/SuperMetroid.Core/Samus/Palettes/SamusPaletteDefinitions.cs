@@ -21,7 +21,7 @@ public static class SamusPaletteDefinitions
     public static class Visor
     {
         /// <summary>Timer reloaded after one visor color is copied.</summary>
-        public const ushort FrameDelay = 5;
+        public const int FrameDelay = 5;
         /// <summary>The first visor shade of the three-shade steady visor cycle; the shades before it widen the X-ray beam.</summary>
         public const int CycleFirstShade = 3;
         /// <summary>The visor shade count, which ends the steady visor cycle.</summary>
@@ -148,7 +148,7 @@ public static class SamusPaletteDefinitions
     public static class PowerBomb
     {
         /// <summary>The five-bit channel in each stored fixed-colour byte.</summary>
-        public const byte ComponentMask = 0b1_1111;
+        public const int ComponentMask = 0b1_1111;
         /// <summary>Number of pre-explosion fixed-color triplets.</summary>
         public const int PreExplosionColorCount = 16;
         /// <summary>Number of explosion fixed-color triplets addressed by radius.</summary>

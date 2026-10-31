@@ -56,7 +56,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
     public bool BandsShown { get; private set; } = hasBands;
 
     /// <summary>Integer per-line data words, indexed like the 23 four-byte slots at $7E:9F80.</summary>
-    public ushort GetDataSlotPosition(int slot)
+    public int GetDataSlotPosition(int slot)
     {
         if ((uint)slot >= _fixedHorizontalScrolls.Length)
             throw new ArgumentOutOfRangeException(nameof(slot));
@@ -76,7 +76,7 @@ public sealed class ScrollingSkyState(ScrollingSkyChunkTable variant, bool hasBa
 
         BandsShown = HasBands;
         if (HasBands) AdvanceHorizontalScrolls();
-        Bg2Scroll = new Position16<BackgroundPixels>(0, checked((ushort)layer1YPosition));
+        Bg2Scroll = new Position16<BackgroundPixels>(0, layer1YPosition);
     }
 
     /// <summary>

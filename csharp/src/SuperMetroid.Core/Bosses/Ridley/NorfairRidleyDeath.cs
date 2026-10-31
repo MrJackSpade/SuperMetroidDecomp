@@ -238,7 +238,7 @@ internal sealed class NorfairRidleyDeath
         var fragmentState = new RidleyExplosionFragmentState
         {
             Lifetime = WrappingCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(part).Lifetime),
-            Velocity = new(SignedEightEight.FromSignedRaw((short)(unchecked((short)random) < 0
+            Velocity = new(SignedEightEight.FromSignedRaw(WordWrap.Signed(WordWrap.Signed(random) < 0
                 ? -horizontalMagnitude
                 : horizontalMagnitude)), default),
         };
@@ -250,8 +250,8 @@ internal sealed class NorfairRidleyDeath
             RidleyTailSegment tail = state.TailSegments[tailIndex];
             fragment.Position = fragment.Position.WithWhole(tail.Position);
             int tailTipOrientation =
-                unchecked((byte)(unchecked((byte)tail.Angle) +
-                    unchecked((byte)state.TailSegments[5].Angle) + 8)) / 16;
+                WordWrap.LowByte(WordWrap.LowByte(tail.Angle) +
+                    WordWrap.LowByte(state.TailSegments[5].Angle) + 8) / 16;
             StartRidleyBreakupProgram(state, fragment, RidleyBreakup.SelectTailFrame(
                 part,
                 tailTipOrientation));
@@ -284,8 +284,8 @@ internal sealed class NorfairRidleyDeath
         int horizontal = fragmentState.Velocity.X.SignedRawValue;
         int magnitude = Math.Max(0, Math.Abs(horizontal) - 4);
         var velocity = new EightEightVector<RoomPixels>(
-            new SignedEightEight(unchecked((ushort)(horizontal < 0 ? -magnitude : magnitude))),
-            new SignedEightEight(unchecked((ushort)(fragmentState.Velocity.Y.RawValue + 4))));
+            SignedEightEight.Wrapped(horizontal < 0 ? -magnitude : magnitude),
+            SignedEightEight.Wrapped(fragmentState.Velocity.Y.RawValue + 4));
         fragmentState.Velocity = velocity;
         fragment.Position = fragment.Position.Advance(new(velocity.X.ToSixteenSixteenDelta(), velocity.Y.ToSixteenSixteenDelta()));
 

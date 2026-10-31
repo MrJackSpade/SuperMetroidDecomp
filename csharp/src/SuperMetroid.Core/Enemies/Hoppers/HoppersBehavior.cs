@@ -57,7 +57,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Native global RNG seed written when a Hopper initializes.</summary>
-    private const ushort HopperRandomSeed = 37;
+    private const int HopperRandomSeed = 37;
     /// <summary>Terminal quadratic-speed table index used to cap the falling half of a hop.</summary>
     private const int MaximumHopperYSpeedTableIndex = 64;
 
@@ -193,7 +193,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Hopper direction selection requires Samus.");
 
-        HopperHopDirection direction = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
+        HopperHopDirection direction = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
             ? HopperHopDirection.Backward
             : HopperHopDirection.Forward;
         state.Function = new HopperHop(surface, direction) switch
@@ -216,7 +216,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // “Backward” is the leftward branch selected when Samus is left of the actor. The
         // initial setup always writes +3, so only this branch negates the whole-pixel word.
         if (direction == HopperHopDirection.Backward)
-            state.XVelocity = unchecked((short)-state.XVelocity);
+            state.XVelocity = WordWrap.Signed(-state.XVelocity);
 
         SetHopperProgram(slot, state, ReadHopperProgram(state, surface, HopperPhase.Jumping));
         state.Function = new HopperHop(surface, direction) switch
@@ -249,7 +249,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // Inequality expresses that table exactly. Equality reverses both phases, making
         // each actor collide with its starting surface and then migrate to the opposite one.
         bool useNegativeSpeed = (surface == HopperSurface.Ceiling) != movingAwayFromSurface;
-        int verticalDisplacement = EnemyQuadraticSpeeds.Row(checked((ushort)state.YSpeedTableIndex)).Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        int verticalDisplacement = EnemyQuadraticSpeeds.Row(Ensure.BetweenInclusive(0, ushort.MaxValue, state.YSpeedTableIndex)).Toward(useNegativeSpeed ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
         // Every native movement entry resolves Y first. A collision while rising reverses
         // X and changes to the falling half without performing horizontal motion that frame.
@@ -258,7 +258,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (movingAwayFromSurface)
             {
-                state.XVelocity = unchecked((short)-state.XVelocity);
+                state.XVelocity = WordWrap.Signed(-state.XVelocity);
                 state.Falling = true;
             }
             else
@@ -272,7 +272,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         int horizontalDisplacement = SixteenSixteen.FromWhole(state.XVelocity);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
-            state.XVelocity = unchecked((short)-state.XVelocity);
+            state.XVelocity = WordWrap.Signed(-state.XVelocity);
             if (movingAwayFromSurface)
             {
                 // Rising code treats a wall exactly like a ceiling/floor interruption and
@@ -315,13 +315,13 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         int accumulatedHeight = 0;
         for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
         {
-            tableIndex = unchecked((ushort)(tableIndex + tableIndexDelta));
+            tableIndex = WordWrap.Unsigned(tableIndex + tableIndexDelta);
 
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every
             // initial jump row.
             int heightIncrement = EnemyQuadraticSpeeds.Row(tableIndex).CoarseToward(EnemySpeedSign.Positive);
-            accumulatedHeight = unchecked((ushort)(accumulatedHeight + heightIncrement));
-            if (unchecked((short)(accumulatedHeight - jumpHeight)) >= 0)
+            accumulatedHeight = CoordinateAxis.Wrap(accumulatedHeight + heightIncrement);
+            if (CoordinateAxis.Difference(accumulatedHeight, jumpHeight) >= 0)
                 return tableIndex;
         }
 

@@ -83,7 +83,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.CurrentYOffset = 0;
         state.PreviousYOffset = EnemyMath.ReadEightBitNegativeSineProduct(
             state.Angle.ToByteAngle(),
-            checked((ushort)state.Radius));
+            Ensure.BetweenInclusive(0, ushort.MaxValue, state.Radius));
     }
 
     /// <summary>Ports <c>MainAI_Skultera</c> at <c>$A3:912B</c>.</summary>
@@ -139,7 +139,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.CurrentYOffset = EnemyMath.ReadEightBitNegativeSineProduct(
             state.Angle.ToByteAngle(),
-            checked((ushort)state.Radius));
+            Ensure.BetweenInclusive(0, ushort.MaxValue, state.Radius));
         // Both offsets lie within the radius either way, so their difference never wraps.
         int yDifference = state.CurrentYOffset - state.PreviousYOffset;
         if (_terrain.MoveEnemyVertically(level, slot, SixteenSixteen.FromWhole(yDifference)))

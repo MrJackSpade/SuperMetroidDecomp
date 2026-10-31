@@ -23,5 +23,5 @@ internal static class MotherBrainGlassShardDefinitions
     };
 
     /// <summary>Every emitter sits two blocks below the PLM origin.</summary>
-    internal const short EmitterY = 2 * 16;
+    internal const int EmitterY = 2 * 16;
 }

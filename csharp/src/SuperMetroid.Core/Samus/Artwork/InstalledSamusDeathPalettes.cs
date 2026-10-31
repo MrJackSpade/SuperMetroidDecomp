@@ -464,16 +464,16 @@ public sealed class InstalledSamusDeathPalettes
     /// <param name="frame">Explosion drawing index 0..8, selecting one of the nine native timing/selector records.</param>
     /// <returns>A row index 0..9 for both foreground palette families, not a RGB5 word or countdown duration.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside 0..8.</exception>
-    public ushort ExplosionPaletteIndex(int frame)
+    public int ExplosionPaletteIndex(int frame)
     {
         int expected = DefaultExplosionPaletteIndex(frame);
-        return checked((ushort)(explosionPaletteIndices.ContainsKey(frame) ? explosionPaletteIndices[frame] : expected));
+        return Ensure.BetweenInclusive(0, ushort.MaxValue, explosionPaletteIndices.ContainsKey(frame) ? explosionPaletteIndices[frame] : expected);
     }
 
     /// <summary>Maps frame zero to base row zero and later frames past the flash-only row.</summary>
-    private static ushort DefaultExplosionPaletteIndex(int frame)
+    private static int DefaultExplosionPaletteIndex(int frame)
     {
         if ((uint)frame >= SamusDeathExplosionTimingDefinitions.RecordCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(frame == 0 ? 0 : frame + 1);
+        return WordWrap.Unsigned(frame == 0 ? 0 : frame + 1);
     }
 }

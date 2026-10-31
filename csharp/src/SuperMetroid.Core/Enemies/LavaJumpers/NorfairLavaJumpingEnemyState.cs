@@ -42,7 +42,7 @@ public sealed class NorfairLavaJumpingEnemyState
     /// <summary>One update's gravity: adds <paramref name="gravity"/> to the velocity's word, wrapping as the cartridge's addition does.</summary>
     /// <param name="gravity">The 8.8 gravity step.</param>
     internal void ApplyGravity(int gravity) =>
-        YVelocity = new SignedEightEight(unchecked((ushort)(YVelocity.RawValue + gravity)));
+        YVelocity = SignedEightEight.Wrapped(YVelocity.RawValue + gravity);
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
     internal void ClearWithRecord()

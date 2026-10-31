@@ -37,6 +37,6 @@ internal sealed class TorizoEncounterAccess
     {
         // $AA:C58B calls Torizo_Func_12, whose operand is the facing bit XOR the sign of
         // enemyX-SamusX, rather than the SamusX-enemyX test used by the walkers.
-        return FacesRight(torizo) == unchecked((short)(torizo.Position.X.Whole - samus.Position.X.Whole)) < 0;
+        return FacesRight(torizo) == CoordinateAxis.Difference(torizo.Position.X.Whole, samus.Position.X.Whole) < 0;
     }
 }

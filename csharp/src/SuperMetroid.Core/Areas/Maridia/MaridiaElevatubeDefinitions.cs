@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Areas.Maridia;
 internal static class MaridiaElevatubeDefinitions
 {
     /// <summary>The room X, in whole pixels, the tube holds Samus at on every update.</summary>
-    internal const ushort SamusCenterX = 128;
+    internal const int SamusCenterX = 128;
 
     /// <summary>The room Y, in whole pixels, a ride entered from Oasis to the south starts at.</summary>
-    internal const ushort SouthStartingY = 2496;
+    internal const int SouthStartingY = 2496;
 
     /// <summary>A south entry's starting velocity: one pixel per update, upward.</summary>
     internal static readonly SignedEightEight SouthStartingVelocity = SignedEightEight.FromSignedRaw(-256);
@@ -19,7 +19,7 @@ internal static class MaridiaElevatubeDefinitions
     internal static readonly SignedEightEight SouthAcceleration = SignedEightEight.FromSignedRaw(-32);
 
     /// <summary>The room Y, in whole pixels, a ride entered from Plasma Spark to the north starts at.</summary>
-    internal const ushort NorthStartingY = 64;
+    internal const int NorthStartingY = 64;
 
     /// <summary>A north entry's starting velocity: one pixel per update, downward.</summary>
     internal static readonly SignedEightEight NorthStartingVelocity = SignedEightEight.FromSignedRaw(256);

@@ -89,7 +89,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 // MakeMotherBrainWalkForwards reports carry only for a strictly overshot
                 // target or the independent X `$80` limit. Equality still requests a walk.
                 bool reachedForwardTarget =
-                    unchecked((short)(Phase3TargetXPosition - _state.Body.Position.X)) < 0 ||
+                    CoordinateAxis.Difference(Phase3TargetXPosition, _state.Body.Position.X) < 0 ||
                     MotherBrainLateFightState.AtLeastBySignedDifference(_state.Body.Position.X, 128);
                 if (reachedForwardTarget)
                 {
@@ -225,7 +225,7 @@ internal sealed class MotherBrainThirdPhaseFight
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseRecoverSetupForFighting;
         _state.FunctionTimer = WrappingCountdown.Start(32);
         requests.BodyWalkRequested = _state.RequestWalkBackward(
-            unchecked((ushort)(_state.Body.Position.X - 14)),
+            CoordinateAxis.Wrap(_state.Body.Position.X - 14),
             animationDelay: 2).Requested;
         return false;
     }

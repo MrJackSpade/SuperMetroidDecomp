@@ -147,13 +147,13 @@ internal sealed class CrocomireFight
     {
         if (samus is null || state.DeathSequenceIndex != CrocomireDeathPhase.Fighting)
             return;
-        int leftEdge = unchecked((ushort)(
-            body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X));
-        if (unchecked((short)(leftEdge - samus.Position.X.Whole)) >= 0)
+        int leftEdge = CoordinateAxis.Wrap(
+            body.Position.X.Whole - body.Radius.X - samus.Kinematics.Radius.X);
+        if (CoordinateAxis.Difference(leftEdge, samus.Position.X.Whole) >= 0)
             return;
 
         _collision.ResolveNormalEnemyTouch(body, samus);
-        samus.Position = samus.Position.WithWholeX((ushort)leftEdge);
+        samus.Position = samus.Position.WithWrappedWholeX(leftEdge);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(-4, -1));
     }
 
@@ -183,7 +183,7 @@ internal sealed class CrocomireFight
             return;
         if (advance is not AnimationProgramAdvance<CrocomireTongueFrame>.Show shown)
             throw new InvalidOperationException($"Crocomire's tongue program ended an update with {advance}.");
-        tongue.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+        tongue.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(shown.Frame);
         tongue.ExtraProperties = tongue.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
@@ -219,7 +219,7 @@ internal sealed class CrocomireFight
                 throw new InvalidOperationException($"Crocomire's body program ended an update with {advance}.");
             return;
         }
-        body.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+        body.InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
         state.BodyFrame = shown.Frame;
         body.Frame = CrocomireBodyFrameSpritemaps.ShownFrames.Of(shown.Frame);
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
@@ -293,7 +293,7 @@ internal sealed class CrocomireFight
                     return CrocomireBodyProgram.BackOffFromSpikeWall;
                 }
                 int random = _access.ReadCrocomireRandom();
-                int baseOffset = unchecked((short)(random - 2048)) >= 0 ? -32 : 32;
+                int baseOffset = WordWrap.Signed(random - 2048) >= 0 ? -32 : 32;
                 _access.SpawnCrocomireDust(state, baseOffset + (random & 15));
                 return null;
             case CrocomireBodyCueKind.MoveRightIfOnScreen:
@@ -327,7 +327,7 @@ internal sealed class CrocomireFight
 
     /// <summary>Whether the body's left edge lies within 260 pixels right of the camera: the step-back moves' on-screen test.</summary>
     private static bool CrocomireBodyIsOnScreen(RoomEnemySlot body, int cameraX) =>
-        unchecked((short)(body.Position.X.Whole - body.Radius.X - 260 - cameraX)) < 0;
+        CoordinateAxis.Difference(body.Position.X.Whole - body.Radius.X - 260, cameraX) < 0;
 
     /// <summary>Ports $A4:86B3-$8A39, including the shipped but normally unused states.</summary>
     private CrocomireBodyProgram? RunCrocomireFightInstruction(
@@ -346,8 +346,8 @@ internal sealed class CrocomireFight
                 return CrocomireBodyProgram.StepForward;
 
             case CrocomireFightFunction.Sleeping:
-                if (samus is not null && EnemyMath.WrappedMagnitude(unchecked((ushort)(
-                        state.Body.Position.X.Whole - samus.Position.X.Whole))) < 224)
+                if (samus is not null && CoordinateAxis.Distance(
+                        state.Body.Position.X.Whole, samus.Position.X.Whole) < 224)
                 {
                     state.FightFlags |= CrocomireFightFlags.Engaged;
                     state.FightFunction = CrocomireFightFunction.WaitingForFirstDamage;
@@ -365,8 +365,8 @@ internal sealed class CrocomireFight
                         return CrocomireBodyProgram.StepBack;
                     }
                 }
-                if (unchecked((short)(
-                        state.Body.Position.X.Whole - CrocomireBehavior.CrocomireSpikeWallThreshold)) < 0)
+                if (CoordinateAxis.Difference(
+                        state.Body.Position.X.Whole, CrocomireBehavior.CrocomireSpikeWallThreshold) < 0)
                 {
                     state.FightFunction = CrocomireFightFunction.NearSpikeWallCharge;
                     return CrocomireBodyProgram.NearSpikeWallCharge;
@@ -410,8 +410,8 @@ internal sealed class CrocomireFight
                 return CrocomireBodyProgram.StepForward;
 
             case CrocomireFightFunction.BackingOffSpikeWall:
-                if (unchecked((short)(
-                        state.Body.Position.X.Whole - CrocomireBehavior.CrocomireSpikeWallThreshold)) >= 0)
+                if (CoordinateAxis.Difference(
+                        state.Body.Position.X.Whole, CrocomireBehavior.CrocomireSpikeWallThreshold) >= 0)
                 {
                     state.FightFunction = CrocomireFightFunction.SteppingForward;
                     return CrocomireBodyProgram.StepForward;
@@ -494,7 +494,7 @@ internal sealed class CrocomireFight
                 return CrocomireBodyProgram.Initial;
 
             case CrocomireFightFunction.MoveUntilSamusUnused:
-                if (unchecked((short)(state.Body.Position.X.Whole - 672)) < 0)
+                if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 672) < 0)
                 {
                     state.FightFunction = CrocomireFightFunction.MoveClawsUnused;
                     state.StepCounter = 3;
@@ -582,7 +582,7 @@ internal sealed class CrocomireFight
     {
         int random = _access.ReadCrocomireRandom();
         int offset = random & 31;
-        if (unchecked((short)(random - 4096)) >= 0)
+        if (WordWrap.Signed(random - 4096) >= 0)
             offset = -offset;
         _access.SpawnCrocomireDust(state, offset);
     }
@@ -607,7 +607,7 @@ internal sealed class CrocomireFight
             graphics: SpriteGraphics.CharacterZeroIn(SharedSpriteColouring.EnemyProjectiles));
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.Mouth));
         projectile.Velocity = new(SignedEightEight.FromSignedRaw(-512), new SignedEightEight(1));
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole - 32)), unchecked((ushort)(body.Position.Y.Whole - 16))));
+        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole - 32), CoordinateAxis.Wrap(body.Position.Y.Whole - 16)));
         projectile.GeneralTimer = 0;
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
         projectile.State = new CrocomireProjectileState(spawnParameter);

@@ -56,7 +56,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         NuclearWaffleSweepDefinition sweep = NuclearWaffleSweeps.Sweep(direction);
         state.SweepsForward = direction != 0;
         state.SweepStartAngle = sweep.StartAngle;
-        state.SweepAngle = SignedSixteenSixteen.FromParts(checked((short)sweep.StartAngle), 0);
+        state.SweepAngle = SignedSixteenSixteen.FromParts(sweep.StartAngle, 0);
         state.SweepEndAngle = sweep.EndAngle;
         state.SegmentSpacing = sweep.SegmentSpacing;
         state.InterleavedSegmentOffset = sweep.InterleavedSegmentOffset;
@@ -106,7 +106,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.WaitingTimer = WrappingCountdown.Start(state.WaitingTimerReset);
-        state.SweepAngle = SignedSixteenSixteen.FromParts(checked((short)state.SweepStartAngle), 0);
+        state.SweepAngle = SignedSixteenSixteen.FromParts(state.SweepStartAngle, 0);
         state.Function = NuclearWaffleEnemyFunction.Sweeping;
         state.HeadOrientationState = NuclearWaffleTurnState.BeforeTurns;
         Array.Clear(state.ProjectileOrientationStates);
@@ -328,7 +328,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// only the angle's position within one turn.
     /// </summary>
     private static Position16<RoomPixels> NuclearWaffleOrbitPoint(NuclearWaffleEnemyState state, int angle) =>
-        state.Origin + EnemyMath.CircleOffset(new ByteAngle(unchecked((byte)angle)), checked((ushort)state.OrbitRadius));
+        state.Origin + EnemyMath.CircleOffset(new ByteAngle(WordWrap.LowByte(angle)), Ensure.BetweenInclusive(0, ushort.MaxValue, state.OrbitRadius));
 
     /// <summary>Advances the signed 16.16 sweep angle by the angular speed, carrying from its fraction.</summary>
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state) =>

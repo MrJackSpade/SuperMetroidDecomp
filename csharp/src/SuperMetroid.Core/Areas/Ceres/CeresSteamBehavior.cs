@@ -76,7 +76,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         }
     }
     /// <summary>Health restored by steam's main and touch routines so the vent cannot be destroyed.</summary>
-    private const ushort CeresSteamIndestructibleHealth = 32767;
+    private const int CeresSteamIndestructibleHealth = 32767;
 
     /// <summary>Ports <c>CeresSteam_Init</c> at <c>$A6:EFB1</c>.</summary>
     internal void InitializeCeresSteam(RoomEnemySlot slot)
@@ -203,10 +203,10 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             foreach (EnemyHitboxRectangle hitbox in
                      component.Hitboxes)
             {
-                int left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                int top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                int right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                int bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                int left = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left);
+                int top = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top);
+                int right = CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right);
+                int bottom = CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom);
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
                 callback = CeresSteamHitboxCallbackCodec.ToCallback(probe.SelectShotCallback);

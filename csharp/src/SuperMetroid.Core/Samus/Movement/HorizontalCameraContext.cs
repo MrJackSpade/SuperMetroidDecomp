@@ -50,5 +50,5 @@ public readonly record struct HorizontalCameraContext(
     }
 
     /// <summary>The pose facing byte of a left-facing pose.</summary>
-    private const byte LeftFacingPose = 4;
+    private const int LeftFacingPose = 4;
 }

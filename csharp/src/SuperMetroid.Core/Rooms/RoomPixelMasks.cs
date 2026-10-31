@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Rooms;
 internal static class RoomPixelMasks
 {
     /// <summary>The largest fraction: the position sits just short of the next whole pixel.</summary>
-    internal const ushort LastFraction = ushort.MaxValue;
+    internal const int LastFraction = ushort.MaxValue;
 }

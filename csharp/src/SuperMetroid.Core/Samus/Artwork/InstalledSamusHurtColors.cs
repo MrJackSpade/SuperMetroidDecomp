@@ -23,7 +23,7 @@ public sealed class InstalledSamusHurtColors
         introZero = intro[0] == SamusHurtColorDefinitions.IntroTransparentWord ? null : intro[0];
         introLevels = Enumerable.Range(1, 15)
             .Where(index => (intro[index].Red) != SamusHurtColorLevels.DefaultIntroLevel(index))
-            .ToDictionary(index => index, index => (byte)(intro[index].Red));
+            .ToDictionary(index => index, index => WordWrap.LowByte(intro[index].Red));
         introOverrides = Enumerable.Range(1, 15)
             .Where(index => intro[index] != SamusHurtColorLevels.IntroFromLevel(IntroLevel(index)))
             .ToDictionary(index => new ColourCell(0, index), index => intro[index]);
@@ -49,7 +49,7 @@ public sealed class InstalledSamusHurtColors
     }
 
     /// <summary>Gets an independently edited intro shade level or its native default.</summary>
-    private byte IntroLevel(int index) => introLevels.ContainsKey(index) ? introLevels[index] : SamusHurtColorLevels.DefaultIntroLevel(index);
+    private int IntroLevel(int index) => introLevels.ContainsKey(index) ? introLevels[index] : SamusHurtColorLevels.DefaultIntroLevel(index);
     /// <summary>Gets an edited intro color or derives it from the selected shade level.</summary>
     private RgbColor Intro(int index) => index == 0 ? introZero ?? SamusHurtColorDefinitions.IntroTransparentWord : introOverrides.TryGetValue(new ColourCell(0, index), out RgbColor value)
         ? value : SamusHurtColorLevels.IntroFromLevel(IntroLevel(index));

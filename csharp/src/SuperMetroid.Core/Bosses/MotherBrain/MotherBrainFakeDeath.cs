@@ -358,7 +358,7 @@ internal sealed class MotherBrainFakeDeath
     private static MotherBrainFallingTubeState AccelerateMotherBrainTube(RoomEnemySlot tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        tubeState.FallSpeed = new SignedEightEight(unchecked((ushort)(tubeState.FallSpeed.RawValue + 6)));
+        tubeState.FallSpeed = SignedEightEight.Wrapped(tubeState.FallSpeed.RawValue + 6);
         tube.Position = tube.Position.AdvanceY(tubeState.FallSpeed.ToSixteenSixteenDelta());
         return tubeState;
     }
@@ -374,7 +374,7 @@ internal sealed class MotherBrainFakeDeath
             tube.Properties = tube.Properties.With(EnemyProperties.Invisible);
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
             throw new InvalidOperationException("A falling main tube has no Mother Brain encounter state.");
-        state.Head.Position = state.Head.Position.WithWholeY(unchecked((ushort)(tube.Position.Y.Whole - 56)));
+        state.Head.Position = state.Head.Position.WithWrappedWholeY(tube.Position.Y.Whole - 56);
         if (state.Head.Position.Y.Whole < 196)
         {
             SpawnMotherBrainTubeSmoke(tube);
@@ -414,7 +414,7 @@ internal sealed class MotherBrainFakeDeath
         tubeState.SmokeDelay = WrappingCountdown.Start(8);
         tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) & 3;
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(tube.Position.X.Whole + MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex])), 208),
+            new(CoordinateAxis.Wrap(tube.Position.X.Whole + MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex]), 208),
             MiscDustAnimation.SmallDustCloud);
     }
 
@@ -546,8 +546,8 @@ internal sealed class MotherBrainFakeDeath
                 MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
             _ => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
         };
-        _access.RequestMotherBrainPlm(new(2, (ushort)firstRow), firstHeader);
-        _access.RequestMotherBrainPlm(new(2, (ushort)(firstRow + 1)), secondHeader);
+        _access.RequestMotherBrainPlm(new(2, CoordinateAxis.Wrap(firstRow)), firstHeader);
+        _access.RequestMotherBrainPlm(new(2, CoordinateAxis.Wrap(firstRow + 1)), secondHeader);
         state.Function = next;
     }
 

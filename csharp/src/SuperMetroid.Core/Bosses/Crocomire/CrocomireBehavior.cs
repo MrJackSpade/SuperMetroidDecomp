@@ -60,9 +60,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Body X threshold at which Crocomire begins breaking the arena bridge.</summary>
-    internal const ushort CrocomireBridgeThreshold = 1600;
+    internal const int CrocomireBridgeThreshold = 1600;
     /// <summary>Body X threshold at the spiked wall that starts the death sequence.</summary>
-    internal const ushort CrocomireSpikeWallThreshold = 768;
+    internal const int CrocomireSpikeWallThreshold = 768;
     /// <summary>The melt's BG2 distortion step stops growing at 80 pixels (8.8).</summary>
     internal const int MaximumCrocomireDistortionStep = 20480;
 
@@ -102,7 +102,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             // The native word write runs even on the frame that starts bridge collapse.
             // Later death phases retain these zones until the skeleton enters the river.
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeLeftScreen,
-                samus is not null && unchecked((short)(samus.Position.X.Whole - CrocomireCameraDefinitions.BridgeVisibleSamusX)) >= 0
+                samus is not null && CoordinateAxis.Difference(samus.Position.X.Whole, CrocomireCameraDefinitions.BridgeVisibleSamusX) >= 0
                     ? RoomScrollState.RedBoundary : RoomScrollState.Blue);
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.Blue);
             // Main state zero always finishes through $A4:8B5B, including the frame in

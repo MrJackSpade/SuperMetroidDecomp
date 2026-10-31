@@ -135,7 +135,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         // GenerateRandomNumber advances the global seed before the comparison. Only low
         // byte sums zero and one attack; byte wrapping is intentional and observable.
         int random = _room.Random.Generate();
-        int attackRoll = unchecked((byte)((byte)slot.FrameCounter + (byte)random));
+        int attackRoll = WordWrap.LowByte(WordWrap.LowByte(slot.FrameCounter) + SharedRandomState.LowerByte(random));
         if (attackRoll >= 2)
             return;
 
@@ -231,7 +231,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.StokeProjectile,
             stoke.Graphics);
-        projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(unchecked((ushort)(stoke.Position.Y.Whole + 2)), stoke.Position.Y.Fraction));
+        projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(CoordinateAxis.Wrap(stoke.Position.Y.Whole + 2), stoke.Position.Y.Fraction));
         projectile.Velocity = new(
             SignedEightEight.FromSignedRaw(direction == StokeDirection.Left ? -StokeProjectileSpeed : StokeProjectileSpeed),
             new SignedEightEight(0));

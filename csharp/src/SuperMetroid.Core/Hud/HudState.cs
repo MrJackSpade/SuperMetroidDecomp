@@ -235,12 +235,12 @@ public sealed class HudState
         int centerY = frame.RoomMap.Y + RoomGridConversions.PixelToScreen(frame.Samus.Y) + 1;
         if ((uint)centerY >= 32)
             return;
-        MinimapCenter = new((ushort)centerX, (ushort)centerY);
+        MinimapCenter = new(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY));
 
         // Exploration is persistent game state, not HUD-local rendering state. Earlier
         // builds kept this bit in HudState, which made the minimap look correct until a
         // save/load or HUD reconstruction silently erased the visited route.
-        system.MarkExploredMapTile(frame.AreaIndex, new Position16<MapTiles>(unchecked((ushort)centerX), unchecked((ushort)centerY)));
+        system.MarkExploredMapTile(frame.AreaIndex, new Position16<MapTiles>(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY)));
         bool hasAreaMap = system.HasAreaMap(frame.AreaIndex);
         int columns = GameplayHudPresentation.MinimapSize.X;
 
@@ -257,7 +257,7 @@ public sealed class HudState
                     continue;
                 }
 
-                var cell = new Position16<MapTiles>(unchecked((ushort)mapX), unchecked((ushort)mapY));
+                var cell = new Position16<MapTiles>(CoordinateAxis.Wrap(mapX), CoordinateAxis.Wrap(mapY));
                 bool explored = system.IsMapTileExplored(frame.AreaIndex, cell);
                 if (!AreaMapVisibility.IsVisible(
                         explored,
@@ -278,7 +278,7 @@ public sealed class HudState
                 // cell acquires the explored shade on the next minimap update.
                 if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
                     frame.PresentationMap.RevealsCellAbove(cell))
-                    system.MarkExploredMapTile(frame.AreaIndex, new Position16<MapTiles>(unchecked((ushort)centerX), unchecked((ushort)(centerY - 1))));
+                    system.MarkExploredMapTile(frame.AreaIndex, new Position16<MapTiles>(CoordinateAxis.Wrap(centerX), CoordinateAxis.Wrap(centerY - 1)));
             }
         }
 
@@ -328,7 +328,7 @@ public sealed class HudState
         for (int index = 0; index < Minimap.Length; index++)
         {
             if (Minimap[index] is { } cell)
-                images.Add(art.MinimapCell(new(checked((ushort)(index % columns)), checked((ushort)(index / columns))), cell));
+                images.Add(art.MinimapCell(new(index % columns, index / columns), cell));
         }
         return new ShownHud(images.ToImmutable());
     }

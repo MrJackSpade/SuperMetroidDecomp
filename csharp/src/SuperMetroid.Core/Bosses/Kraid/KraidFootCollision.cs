@@ -8,27 +8,27 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidFootCollision
 {
     /// <summary>The fixed component moves two pixels left per frame, then retraces.</summary>
-    internal static short FirstX(int frame)
+    internal static int FirstX(int frame)
     {
         CheckFrame(frame);
-        return (short)(8 - 2 * Math.Min(frame, 34 - frame));
+        return WordWrap.Signed(8 - 2 * Math.Min(frame, 34 - frame));
     }
 
     /// <summary>The fixed component rises, turns at native pose A/B, then descends and holds.</summary>
-    internal static short FirstY(int frame)
+    internal static int FirstY(int frame)
     {
         CheckFrame(frame);
-        return (short)(frame < 10 ? 40 - frame : frame == 10 ? 29 : frame < 18 ? 28 + 2 * (frame - 11) : 40);
+        return WordWrap.Signed(frame < 10 ? 40 - frame : frame == 10 ? 29 : frame < 18 ? 28 + 2 * (frame - 11) : 40);
     }
 
     /// <summary>Moving-foot horizontal placement within native poses0,1,2,3 and the return sequence.</summary>
     /// <remarks>Independently reviewed for #1165 against bank_A7.asm. Pose changes
     /// occur at frames5,10,11,21,23,31; frame17 reverses travel. Each pose's
     /// placement advances by two pixels. Pose2 at frame10 is the raised transition.</remarks>
-    internal static short SecondX(int frame)
+    internal static int SecondX(int frame)
     {
         CheckFrame(frame);
-        return (short)(frame switch
+        return WordWrap.Signed(frame switch
         {
             < 5 => -2 * frame,
             < 10 => 5 - 2 * (frame - 5),
@@ -42,10 +42,10 @@ internal static class KraidFootCollision
     }
 
     /// <summary>Moving-foot vertical placement: rise, raised pose2, descent, then pose-specific holds.</summary>
-    internal static short SecondY(int frame)
+    internal static int SecondY(int frame)
     {
         CheckFrame(frame);
-        return (short)(frame switch
+        return WordWrap.Signed(frame switch
         {
             < 5 => -frame,
             < 10 => -15 - (frame - 5),

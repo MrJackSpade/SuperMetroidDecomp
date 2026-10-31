@@ -86,8 +86,8 @@ internal sealed class BombTorizoHandPlms
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
             fragment,
             // The native fragment spawn carries both block coordinates as bytes.
-            new(checked((byte)(slot.BlockIndex % _bombTorizoHandRoomWidth)),
-                checked((byte)(slot.BlockIndex / _bombTorizoHandRoomWidth)))));
+            new(slot.BlockIndex % _bombTorizoHandRoomWidth,
+                slot.BlockIndex / _bombTorizoHandRoomWidth)));
 
     /// <summary>
     /// <c>$84:D3C7</c>: despite its name, always queues gameplay track six with the shared eight-frame delay.

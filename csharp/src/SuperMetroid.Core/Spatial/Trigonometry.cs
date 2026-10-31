@@ -20,20 +20,20 @@ public static class Trigonometry
     /// Bull adds a quarter-turn for X, while Yapping Maw negates and narrows its
     /// input angle before sampling. Individual investigation: #625 / #909.
     /// </remarks>
-    public static short SignedSixteenBitSine(ByteAngle angle)
+    public static int SignedSixteenBitSine(ByteAngle angle)
     {
-        int magnitude = UnsignedHalfWave(angle.RawValue & 127) >> 1;
-        return (short)(angle.RawValue < 128 ? magnitude : -magnitude);
+        int magnitude = UnsignedHalfWave(angle.HalfWaveIndex) >> 1;
+        return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
     /// <summary>$86:C26C/$C27A, CalculateSine/Cosine: multiply unsigned speed by
     /// the $A0:B443 signed sample, keep product bits 8..23, then restore the sign.
     /// Callers add a quarter-turn themselves when selecting cosine.</summary>
-    public static ushort MultiplySignedSine(int speed, ByteAngle angle)
+    public static SignedEightEight MultiplySignedSine(int speed, ByteAngle angle)
     {
         int sample = SignedSine(angle);
         int magnitude = EightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, speed) * Math.Abs(sample));
-        return unchecked((ushort)(sample < 0 ? -magnitude : magnitude));
+        return SignedEightEight.Wrapped(sample < 0 ? -magnitude : magnitude);
     }
 
     /// <summary>$A0:B443-$B642, SineCosineTables_8bitSine_SignExtended and
@@ -45,11 +45,11 @@ public static class Trigonometry
     /// sine view. The backend's scroll-wave shader (#1468) draws ripples from
     /// these same samples.
     /// Individual investigation: #625 / #910.</remarks>
-    public static short SignedSine(ByteAngle angle)
+    public static int SignedSine(ByteAngle angle)
     {
-        int halfWaveIndex = angle.RawValue & 127;
+        int halfWaveIndex = angle.HalfWaveIndex;
         int magnitude = halfWaveIndex == 64 ? 256 : EightBitHalfWave(halfWaveIndex);
-        return (short)(angle.RawValue < 128 ? magnitude : -magnitude);
+        return angle.IsInSecondHalf ? -magnitude : magnitude;
     }
 
     /// <summary>$A0:B3C3-$B642, SineCosineTables_NegativeCosine_SignExtended
@@ -61,10 +61,10 @@ public static class Trigonometry
     /// Independently reviewed for #1165 against all 320 original words, prefix bounds
     /// and byte-phase aliases. Keep this existing view; do not duplicate its storage.
     /// </remarks>
-    public static short SignedNegativeCosineWord(int index)
+    public static int SignedNegativeCosineWord(int index)
     {
         if ((uint)index >= 320) throw new ArgumentOutOfRangeException(nameof(index));
-        return SignedSine(unchecked(new ByteAngle((byte)(index - 64))));
+        return SignedSine(ByteAngle.Wrapped(index - 64));
     }
 
     /// <summary>$A0:B143 SineCosineTables_8bitSine and cosine continuation:
@@ -75,10 +75,10 @@ public static class Trigonometry
     /// Invalid indices throw ArgumentOutOfRangeException.
     /// Sign, radius truncation and separate whole/fraction negation stay in callers.
     /// </remarks>
-    public static byte EightBitHalfWave(int index)
+    public static int EightBitHalfWave(int index)
     {
         if ((uint)index >= 128) throw new ArgumentOutOfRangeException(nameof(index));
-        return (byte)Math.Min(255, (int)(256 * UnitHalfWave(index)));
+        return Math.Min(255, (int)(256 * UnitHalfWave(index)));
     }
 
     /// <summary>$A0:B7EE UnsignedSineTable:
@@ -90,10 +90,10 @@ public static class Trigonometry
     /// This identifies the exact numerical convention, not the historical authoring tool.
     /// Invalid indices throw ArgumentOutOfRangeException.
     /// </remarks>
-    public static ushort UnsignedHalfWave(int index)
+    public static int UnsignedHalfWave(int index)
     {
         if ((uint)index >= 128) throw new ArgumentOutOfRangeException(nameof(index));
-        return (ushort)(65535 * UnitHalfWave(index));
+        return (int)(65535 * UnitHalfWave(index));
     }
 
     /// <summary>Reflects into the first quadrant and evaluates sine with exact endpoints and twelve decimal Taylor terms.</summary>

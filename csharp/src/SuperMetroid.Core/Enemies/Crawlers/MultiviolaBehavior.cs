@@ -25,13 +25,13 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Quarter-turn sine-table offset used for the horizontal cosine magnitude.</summary>
-    private const ushort MultiviolaCosineOffset = 64;
+    private const int MultiviolaCosineOffset = 64;
     /// <summary>Half-turn sine-table offset used for the vertical magnitude.</summary>
-    private const ushort MultiviolaSineOffset = 128;
+    private const int MultiviolaSineOffset = 128;
     /// <summary>Angle bits toggled after collision with a vertical surface.</summary>
-    private const ushort MultiviolaHorizontalReflection = 64;
+    private const int MultiviolaHorizontalReflection = 64;
     /// <summary>Angle bits toggled after collision with a horizontal surface.</summary>
-    private const ushort MultiviolaVerticalReflection = 192;
+    private const int MultiviolaVerticalReflection = 192;
 
     /// <summary>Ports <c>InitAI_Multiviola</c> at $A2:B3E0.</summary>
     internal static void InitializeMultiviola(RoomEnemySlot slot)
@@ -94,20 +94,20 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The heading's low byte, the table angle the sign tests and sine products read.</summary>
-    private static ByteAngle HeadingAngle(MultiviolaEnemyState state) => new(unchecked((byte)state.Heading));
+    private static ByteAngle HeadingAngle(MultiviolaEnemyState state) => new(WordWrap.LowByte(state.Heading));
 
     /// <summary>
     /// Recreates $A0:B643's unsigned |cos|/|sin| products of the heading and speed.
     /// </summary>
     private static void CalculateMultiviolaVelocityMagnitudes(MultiviolaEnemyState state)
     {
-        int magnitude = checked((ushort)state.Speed);
+        int magnitude = Ensure.BetweenInclusive(0, ushort.MaxValue, state.Speed);
         int xProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            checked(new ByteAngle(unchecked((byte)((ushort)state.Heading)))),
+            checked(new ByteAngle(WordWrap.LowByte(WordWrap.Unsigned(state.Heading)))),
             magnitude,
             MultiviolaCosineOffset);
         int yProduct = EnemyMath.ReadUnsignedSineMagnitudeProduct(
-            checked(new ByteAngle(unchecked((byte)((ushort)state.Heading)))),
+            checked(new ByteAngle(WordWrap.LowByte(WordWrap.Unsigned(state.Heading)))),
             magnitude,
             MultiviolaSineOffset);
         state.Velocity = new FixedVector<RoomPixels>(
@@ -136,7 +136,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the native separate-word complement and fractional increment, including its missing carry.</summary>
     private static SignedSixteenSixteen NegateWithoutFractionCarry(SignedSixteenSixteen axis) =>
         SignedSixteenSixteen.FromParts(
-            unchecked((short)~axis.WholeWord), unchecked((ushort)(~axis.Fraction + 1)));
+            CoordinateAxis.AsSigned(~axis.WholeWord), WordWrap.Unsigned(~axis.Fraction + 1));
 
     /// <summary>Advances Multiviola's typed animation.</summary>
     internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>

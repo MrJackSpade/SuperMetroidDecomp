@@ -24,13 +24,13 @@ public static class LiquidEffects
     /// checked against supported NTSC J/U v1.0 and pinned bank_88.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d).
     /// Reject outside the original sixteen-word span before periodic folding.</remarks>
-    public static short WaterWaveDisplacement(int index)
+    public static int WaterWaveDisplacement(int index)
     {
         if ((uint)index >= WaterWaveDefinitions.WaveDisplacementCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         int position = index & 3;
         int magnitude = Math.Min(position, 3 - position);
-        return (short)((index & 4) == 0 ? magnitude : -magnitude);
+        return WordWrap.Signed((index & 4) == 0 ? magnitude : -magnitude);
     }
 
     /// <summary>
@@ -40,12 +40,12 @@ public static class LiquidEffects
     /// rotates all sixteen samples; its two unequal zero gaps are preserved.
     /// No sinusoidal interpolation or extrapolation is implied.
     /// </summary>
-    public static short HeatHorizontalWaveDisplacement(int index)
+    public static int HeatHorizontalWaveDisplacement(int index)
     {
         if ((uint)index >= LavaAcidWaveDefinitions.WaveDisplacementCount) throw new ArgumentOutOfRangeException(nameof(index));
         int positivePulse = (uint)(index - 2) < 4 ? 1 : 0;
         int negativePulse = (uint)(index - 8) < 4 ? 1 : 0;
-        return (short)(positivePulse - negativePulse);
+        return WordWrap.Signed(positivePulse - negativePulse);
     }
 
     /// <summary>

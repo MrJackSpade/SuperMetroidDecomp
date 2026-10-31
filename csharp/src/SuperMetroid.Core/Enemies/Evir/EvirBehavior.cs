@@ -59,18 +59,18 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Strict horizontal distance required before aiming the projectile.</summary>
-    private const ushort EvirActivationDistance = 128;
+    private const int EvirActivationDistance = 128;
     /// <summary>Whole-pixel magnitude passed through the native trig multipliers.</summary>
-    private const ushort EvirProjectileSpeed = 4;
+    private const int EvirProjectileSpeed = 4;
     /// <summary>Margin beyond each camera edge that starts projectile regeneration.</summary>
-    private const ushort EvirFarOffscreenDistance = 256;
+    private const int EvirFarOffscreenDistance = 256;
 
     /// <summary>The library-two sound the spit plays when it is launched or regenerates.</summary>
     private static readonly SoundEffectId EvirSpitSound =
         EnemySoundEffectDefinitions.EvirSpitSound;
 
     /// <summary>The horizontal distance, in room pixels, from the mouth at which the regenerating spit starts.</summary>
-    private const short RegenerationStartDistance = 8;
+    private const int RegenerationStartDistance = 8;
 
     /// <summary>Ports <c>InitAI_Evir</c> at $A8:87E0.</summary>
     internal void InitializeEvir(RoomEnemySlot slot, SamusState? samus)
@@ -256,7 +256,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Evir facing AI requires the active Samus actor.");
-        state.Facing = unchecked((short)(activeSamus.Position.X.Whole - body.Position.X.Whole)) < 0
+        state.Facing = CoordinateAxis.Difference(activeSamus.Position.X.Whole, body.Position.X.Whole) < 0
             ? EvirFacing.Left
             : EvirFacing.Right;
         RequestEvirInstruction(
@@ -273,8 +273,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EnemyDefinitionId.Evir, "arms body", update == EvirArmsUpdate.Initialization);
         EvirEnemyState bodyState = body.RequireSpeciesState<EvirEnemyState>();
         state.Facing = bodyState.Facing;
-        arms.Position = arms.Position.WithWhole(new(unchecked((ushort)(
-            body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 10))));
+        arms.Position = arms.Position.WithWhole(new(CoordinateAxis.Wrap(
+            body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4)), CoordinateAxis.Wrap(body.Position.Y.Whole + 10)));
         RequestEvirInstruction(
             arms,
             state,
@@ -293,8 +293,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             "projectile body");
         EvirEnemyState bodyState = body.RequireSpeciesState<EvirEnemyState>();
         state.Facing = bodyState.Facing;
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
-            body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 18))));
+        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
+            body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4)), CoordinateAxis.Wrap(body.Position.Y.Whole + 18)));
     }
 
     /// <summary>Aims at nearby Samus using the native angle transform and signed 16.16 speed tables.</summary>
@@ -321,7 +321,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // CalculateAngleOfSamusFromEnemy returns zero up/clockwise. The two native angle
         // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
         ByteAngle transformedAngle = EnemyMath.CalculateBearing(
-            new(unchecked((short)(activeSamus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(activeSamus.Position.Y.Whole - projectile.Position.Y.Whole)))).ToTableAngle();
+            new(CoordinateAxis.Difference(activeSamus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(activeSamus.Position.Y.Whole, projectile.Position.Y.Whole))).ToTableAngle();
         SignedSixteenSixteen x = EnemyMath.ReadEightBitCosineFixedProduct(
             transformedAngle,
             EvirProjectileSpeed);
@@ -411,11 +411,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Instruction $A8:879B.</summary>
     private void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
-        state.RegenerationOffset = new(EvirBodyFacesRight(slot) ? (short)-RegenerationStartDistance : RegenerationStartDistance, 0);
+        state.RegenerationOffset = new(EvirBodyFacesRight(slot) ? CoordinateAxis.AsSigned(-RegenerationStartDistance) : RegenerationStartDistance, 0);
 
     /// <summary>Instruction $A8:87B6.</summary>
     private void AdvanceEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
-        state.RegenerationOffset += new Offset16<RoomPixels>(EvirBodyFacesRight(slot) ? (short)1 : (short)-1, 0);
+        state.RegenerationOffset += new Offset16<RoomPixels>(EvirBodyFacesRight(slot) ? 1 : -1, 0);
 
     /// <summary>
     /// Both regeneration instructions test <c>Evir.instList-$80,X</c>: the installed list

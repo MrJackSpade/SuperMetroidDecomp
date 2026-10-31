@@ -91,7 +91,7 @@ public sealed class YappingMawEnemyState
     /// does by the sign of their difference wrapped to sixteen bits.
     /// </summary>
     internal bool IsWithinActivationDistance(int distance) =>
-        unchecked((short)(distance - ActivationDistance)) < 0;
+        CoordinateAxis.Difference(distance, ActivationDistance) < 0;
 
     /// <summary>Native variable 30: the mouth currently owns Samus's input/position.</summary>
     public bool HasGrabbedSamus { get; internal set; }

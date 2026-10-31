@@ -6,8 +6,22 @@ namespace SuperMetroid.Core.Spatial;
 /// is the form with a fraction, whose whole units are this value.
 /// </summary>
 [EncodingOwner("sine-table byte angle")]
-public readonly record struct ByteAngle(byte RawValue)
+public readonly record struct ByteAngle
 {
+    /// <summary>The angle of <paramref name="rawValue"/> table units, 0 through 255.</summary>
+    /// <param name="rawValue">The angle in table units, 0 through 255.</param>
+    public ByteAngle(int rawValue) => RawValue = checked((byte)rawValue);
+
+    /// <summary>The angle in table units, 0 through 255.</summary>
+    public byte RawValue { get; init; }
+
+    /// <summary>
+    /// The angle a computation in table units lands on: a turn past a full turn, or below zero, continues around the
+    /// circle, as the game's angle arithmetic wraps.
+    /// </summary>
+    /// <param name="units">The computed angle in table units, which may lie outside one turn.</param>
+    public static ByteAngle Wrapped(int units) => new(unchecked((byte)units));
+
     /// <summary>One quarter turn: up.</summary>
     public static ByteAngle QuarterTurn { get; } = new(0x40);
 
@@ -24,19 +38,19 @@ public readonly record struct ByteAngle(byte RawValue)
     public bool IsInSecondHalf => RawValue >= HalfTurn.RawValue;
 
     /// <summary>Adds signed table units with the cartridge's byte wraparound.</summary>
-    public ByteAngle AddTableUnits(int delta) => new(unchecked((byte)(RawValue + delta)));
+    public ByteAngle AddTableUnits(int delta) => Wrapped(RawValue + delta);
 
     /// <summary>
     /// This angle carried into the half turn from zero up to (not including) <see cref="HalfTurn"/>, keeping its
     /// position within the half turn: an angle in the other half turns back by a half turn.
     /// </summary>
-    public ByteAngle InFirstHalfTurn() => new((byte)(RawValue % HalfTurn.RawValue));
+    public ByteAngle InFirstHalfTurn() => new(RawValue % HalfTurn.RawValue);
 
     /// <summary>
     /// This angle carried into the half turn from <see cref="HalfTurn"/> up to a full turn, keeping its position within
     /// the half turn: an angle in the other half turns on by a half turn.
     /// </summary>
-    public ByteAngle InSecondHalfTurn() => new((byte)(RawValue % HalfTurn.RawValue + HalfTurn.RawValue));
+    public ByteAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
 
     /// <summary>This angle as the high byte of an 8.8 <see cref="RotationAngle"/>.</summary>
     public RotationAngle ToAngle() => RotationAngle.FromTableIndex(RawValue);

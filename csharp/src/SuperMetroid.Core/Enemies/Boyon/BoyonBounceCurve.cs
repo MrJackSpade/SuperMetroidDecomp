@@ -7,7 +7,7 @@ public static class BoyonBounceCurve
 {
     /// <summary>The hardware multiplier parameter one's low byte selects.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside zero through seven.</exception>
-    public static ushort InitialMultiplier(int index) =>
+    public static int InitialMultiplier(int index) =>
         (uint)index < (uint)InitialMultipliers.Length
             ? InitialMultipliers[index]
             : throw new ArgumentOutOfRangeException(nameof(index));
@@ -22,8 +22,8 @@ public static class BoyonBounceCurve
     /// authored height through the real initializer and rejects selector 9.
     /// </remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside zero through eight.</exception>
-    public static ushort InitialHeight(int index) => (uint)index < InitialHeightCount
-        ? (ushort)(LowestInitialHeight + index * InitialHeightStep)
+    public static int InitialHeight(int index) => (uint)index < InitialHeightCount
+        ? CoordinateAxis.Wrap(LowestInitialHeight + index * InitialHeightStep)
         : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>The native curve is k(k+1)/2, with explicit byte saturation beyond its stored samples.</summary>
@@ -36,10 +36,10 @@ public static class BoyonBounceCurve
     /// VerifyCompiledBoyonSpeeds checks all ROM bytes, all 65,536 input indices, and
     /// every low-byte multiplier through the real production calculation.
     /// </remarks>
-    public static byte Sample(int index) => index < StoredSampleCount
-        ? (byte)(index * (index + 1) / 2)
+    public static int Sample(int index) => index < StoredSampleCount
+        ? WordWrap.LowByte(index * (index + 1) / 2)
         : byte.MaxValue;
 
     /// <summary>Only the multiplier's low byte reaches the multiply; the product is 0 through 65025.</summary>
-    public static int Multiply(int index, int multiplier) => Sample(index) * unchecked((byte)multiplier);
+    public static int Multiply(int index, int multiplier) => Sample(index) * WordWrap.LowByte(multiplier);
 }

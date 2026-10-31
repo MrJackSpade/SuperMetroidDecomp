@@ -16,5 +16,5 @@ internal static class EnemyDrawRange
     internal static bool Contains(Position16<SpritePixels> origin) => Axis(origin.X) && Axis(origin.Y);
 
     /// <summary>Whether one coordinate, read as a signed screen position, lies within the drawn range.</summary>
-    private static bool Axis(int coordinate) => unchecked((short)coordinate) is >= First and <= Last;
+    private static bool Axis(int coordinate) => CoordinateAxis.AsSigned(coordinate) is >= First and <= Last;
 }

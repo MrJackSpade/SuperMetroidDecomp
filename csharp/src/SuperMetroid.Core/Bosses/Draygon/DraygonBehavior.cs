@@ -208,7 +208,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <c>$FFB0</c>: the X Draygon parks at off the left edge (-80 as a signed word); a goop pass leftwards ends once
     /// the body crosses it.
     /// </summary>
-    internal const ushort DraygonOffscreenLeftX = unchecked((ushort)-80);
+    internal static readonly int DraygonOffscreenLeftX = CoordinateAxis.Wrap(-80);
 
     /// <summary>Distance from the left-side reset point to the right-side one: 672 pixels to the right.</summary>
     internal static readonly Offset16<RoomPixels> DraygonRightSideResetDistance = new(672, 0);
@@ -236,7 +236,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Draygon times turrets and smoke from the frame counter, never the separate
         // byte-wide frame counter; only its low bits are tested.
-        RunDraygonBodyMain(slot, frame.Samus, unchecked((byte)_frameContext.FrameCounter));
+        RunDraygonBodyMain(slot, frame.Samus, WordWrap.LowByte(_frameContext.FrameCounter));
     }
 
     /// <summary>Ports DraygonEye's main AI.</summary>
@@ -251,15 +251,15 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Parts.RunDraygonPartMain(slot, frame.Samus);
     }
     /// <summary>Arena X coordinate to which Draygon drifts before burial.</summary>
-    internal const ushort DraygonDeathTargetX = 256;
+    internal const int DraygonDeathTargetX = 256;
     /// <summary>Arena Y coordinate at which the death drift hands off to burial.</summary>
-    internal const ushort DraygonDeathTargetY = 480;
+    internal const int DraygonDeathTargetY = 480;
     /// <summary>Y threshold below the room where Draygon's burial is complete.</summary>
-    internal const ushort DraygonBurialFinishedY = 576;
+    internal const int DraygonBurialFinishedY = 576;
     /// <summary>Native wait before the burial Evirs and sinking phase proceed.</summary>
-    internal const ushort DraygonDeathWaitFramesUs = 416;
+    internal const int DraygonDeathWaitFramesUs = 416;
     /// <summary>Whole-pixel speed of Draygon's direct chase before the carry spiral.</summary>
-    internal const ushort DraygonChaseSpeed = 2;
+    internal const int DraygonChaseSpeed = 2;
     /// <summary>The carry spiral's target and initial center, ($100, $180).</summary>
     internal static readonly Position16<RoomPixels> DraygonSpiralTarget = new(256, 384);
     /// <summary>Initial angular position used when the Samus-carry spiral begins: three quarters of a turn.</summary>
@@ -269,15 +269,15 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The carry spiral's per-frame radius growth: one eighth of a pixel.</summary>
     internal static readonly SignedSixteenSixteen DraygonSpiralRadiusGrowth = SignedSixteenSixteen.FromParts(0, 8192);
     /// <summary>Largest radius reached by the expanding carry spiral.</summary>
-    internal const ushort DraygonMaximumSpiralRadius = 160;
+    internal const int DraygonMaximumSpiralRadius = 160;
     /// <summary>Upper room boundary for the spiral center's vertical lift.</summary>
-    internal const ushort DraygonMinimumSpiralCenterY = 64;
+    internal const int DraygonMinimumSpiralCenterY = 64;
     /// <summary>The spiral center's per-frame 16.16 lift, -$0000.4000.</summary>
     internal static readonly SignedSixteenSixteen DraygonSpiralCenterLift = SignedSixteenSixteen.FromRaw(-16384);
     /// <summary>Number of AI calls in Draygon's tail-whip phase.</summary>
-    internal const ushort DraygonTailWhipDuration = 64;
+    internal const int DraygonTailWhipDuration = 64;
     /// <summary>Countdown value that triggers the first tail-whip animation step.</summary>
-    internal const ushort DraygonTailWhipStartFrame = 63;
+    internal const int DraygonTailWhipStartFrame = 63;
 
     /// <summary>
     /// Implements bank $84's write through <c>PLM_Variable</c>. Cannon setup names one of

@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Enemies.Choot;
 internal static class ChootPatternDefinitions
 {
     /// <summary>$A2:D974, also DD42/DF5C: selected normal/slow loop-origin advance 30, authored with its drawn path.</summary>
-    private const ushort NormalLoopYDistance = 30;
+    private const int NormalLoopYDistance = 30;
     /// <summary>$A2:DA9E: selected wide loop-origin advance 28, authored with its drawn path.</summary>
-    private const ushort WideLoopYDistance = 28;
+    private const int WideLoopYDistance = 28;
     /// <summary>$A2:DBC8: selected very-wide loop-origin advance 32, authored with its drawn path.</summary>
-    private const ushort VeryWideLoopYDistance = 32;
+    private const int VeryWideLoopYDistance = 32;
 
     /// <summary>
     /// $A2:DF5E-$DF67 selects normal, wide, very wide, slow and very slow motion.

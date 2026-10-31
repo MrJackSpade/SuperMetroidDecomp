@@ -44,7 +44,7 @@ public sealed class KiHunterEnemyState
     public int DetachedSpeedIndex
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public sealed class KiHunterEnemyState
     public int DetachedSpeedAccumulator
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public sealed class KiHunterEnemyState
     public int AnimationChangeAngle
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -85,7 +85,7 @@ public sealed class KiHunterEnemyState
     public int SwoopAngle
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -140,7 +140,7 @@ public sealed class KiHunterEnemyState
     public bool HasLostWings { get; internal set; }
 
     /// <summary>Adds one quadratic-table word to <see cref="DetachedSpeedAccumulator"/>, wrapping as the cartridge's word does.</summary>
-    internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = unchecked((ushort)(DetachedSpeedAccumulator + step));
+    internal void AccumulateDetachedSpeed(int step) => DetachedSpeedAccumulator = WordWrap.Unsigned(DetachedSpeedAccumulator + step);
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

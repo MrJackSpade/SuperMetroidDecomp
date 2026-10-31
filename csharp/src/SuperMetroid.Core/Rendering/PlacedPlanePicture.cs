@@ -19,6 +19,6 @@ public readonly record struct PlacedPlanePicture(SpriteSheetFrame Picture, Posit
         int height = plane.Y * ScreenGeometry.BackgroundTileSizePixels;
         int left = cell.X * ScreenGeometry.BackgroundTileSizePixels - picture.Origin.X;
         int top = cell.Y * ScreenGeometry.BackgroundTileSizePixels - picture.Origin.Y;
-        return new(picture, new((ushort)(((left % width) + width) % width), (ushort)(((top % height) + height) % height)));
+        return new(picture, new(CoordinateAxis.Wrap(((left % width) + width) % width), CoordinateAxis.Wrap(((top % height) + height) % height)));
     }
 }

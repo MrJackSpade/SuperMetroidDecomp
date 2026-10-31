@@ -14,7 +14,7 @@ internal static class CeresPerspectiveFloors
     /// <param name="layer1Scroll">Layer 1's scroll in the frame that shows the floor.</param>
     internal static PerspectiveFloor ElevatorShaft(TurningFloorTransform shaft, Position16<RoomPixels> layer1Scroll) => new(
         new AffineTransform(shaft.MatrixA, shaft.MatrixB, shaft.MatrixC, shaft.MatrixA, shaft.Center.AsFloorWord(),
-            new Offset16<FloorPixels>(unchecked((short)layer1Scroll.X), unchecked((short)layer1Scroll.Y))),
+            new Offset16<FloorPixels>(CoordinateAxis.AsSigned(layer1Scroll.X), CoordinateAxis.AsSigned(layer1Scroll.Y))),
         BelowPerspectiveFloor.Nothing);
 
     /// <summary>The floor Ceres Ridley's getaway flies over, with the room's layer 2 below it.</summary>

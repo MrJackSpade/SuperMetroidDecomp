@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal static class CeresRidleyAfterburnDefinitions
 {
     /// <summary>The signed 8.8 speed of every directional afterburn, fourteen pixels per frame.</summary>
-    private const short Speed = 3584;
+    private const int Speed = 3584;
 
     /// <summary><c>EnemyProjectile_RidleyHorizontalAfterburn_Right</c>'s velocity.</summary>
     internal static EightEightVector<RoomPixels> Right => new(Speed, 0);

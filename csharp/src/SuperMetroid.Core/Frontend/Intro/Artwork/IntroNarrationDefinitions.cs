@@ -16,11 +16,11 @@ public static class IntroNarrationDefinitions
     /// <summary>Last permitted text row in BG tile cells, sixteen, inclusive.</summary>
     public const int LastTextRow = 16;
     /// <summary>Five cinematic background-object updates between character records, including spaces; independent of host elapsed time.</summary>
-    public const ushort CharacterDelayFrames = 5;
+    public const int CharacterDelayFrames = 5;
     /// <summary>One-update duration of the no-op marker at the beginning of each native page stream.</summary>
-    public const ushort InitialMarkerDelayFrames = 1;
+    public const int InitialMarkerDelayFrames = 1;
     /// <summary>128 cinematic background-object updates held after the final page starts caret blinking and before its finish callback.</summary>
-    public const ushort FinalPageHoldFrames = 128;
+    public const int FinalPageHoldFrames = 128;
     /// <summary>Every character the narration supports.</summary>
     public const string Alphabet = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,'!";
 }

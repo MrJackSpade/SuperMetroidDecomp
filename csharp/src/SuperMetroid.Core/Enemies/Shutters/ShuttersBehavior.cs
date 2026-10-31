@@ -23,9 +23,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ShuttersEntity(this, slot, common);
 
     /// <summary>Each growing section advances sixteen pixels before its final placement.</summary>
-    private const short GrowingShutterSectionLength = 16;
+    private const int GrowingShutterSectionLength = 16;
     /// <summary>Intermediate sections stop seven pixels inside their full-size endpoint.</summary>
-    private const short GrowingShutterIntermediateInset = 7;
+    private const int GrowingShutterIntermediateInset = 7;
     /// <summary>AI updates of endpoint rest per unit of a shutter's population rest parameter.</summary>
     private const int RestUpdatesPerParameterUnit = 16;
 
@@ -200,7 +200,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         int wholeDelta = (slot.Position.Whole - state.PreviousPosition).Y;
         if (wholeDelta < 0)
         {
-            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, checked((short)wholeDelta));
+            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, wholeDelta);
         }
     }
 
@@ -216,7 +216,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             ? target
             : target + new Offset16<RoomPixels>(0, direction == VerticalDirection.Up
                 ? GrowingShutterIntermediateInset
-                : (short)-GrowingShutterIntermediateInset);
+                : WordWrap.Signed(-GrowingShutterIntermediateInset));
         slot.Position = slot.Position.WithWholeY(placed.Y);
         state.GrowthLevel += 1;
 
@@ -231,7 +231,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidDataException(
                 $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
         };
-        int radius = checked((ushort)(8 + state.GrowthLevel * 8));
+        int radius = Ensure.BetweenInclusive(0, ushort.MaxValue, 8 + state.GrowthLevel * 8);
         InstallGrowingShutterProgram(slot, state, program, radius);
     }
 
@@ -245,10 +245,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<ShutterProgram>.Start(program);
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
-        slot.Radius = slot.Radius.WithY(checked((ushort)yRadius));
+        slot.Radius = slot.Radius.WithY(yRadius);
     }
     /// <summary>Samus's four-pixel correction when pushing against a horizontal shutter.</summary>
-    private const short HorizontalShutterManualPushPixels = 4;
+    private const int HorizontalShutterManualPushPixels = 4;
 
     /// <summary>Ports <c>HorizontalShutter_Init</c> at $A2:F111/$A2:F11E.</summary>
     internal static void InitializeHorizontalShutter(RoomEnemySlot slot)
@@ -276,7 +276,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FunctionTimer = WrappingCountdown.Start(settings.ProximityOrWaitTime);
 
         Position16<RoomPixels> spawn = slot.Position.Whole;
-        var travel = new Offset16<RoomPixels>(checked((short)state.TravelDistance), 0);
+        var travel = new Offset16<RoomPixels>(state.TravelDistance, 0);
         state.LeftEndpoint = spawn;
         state.RightEndpoint = spawn + travel;
         if (state.PrimaryDirection == ShutterHeading.LeftOrUp)
@@ -404,7 +404,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         ControllerButton controllerInput,
         HorizontalDirection direction)
     {
-        bool samusLeftOfShutter = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
+        bool samusLeftOfShutter = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
         state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) && samusLeftOfShutter == (direction == HorizontalDirection.Left);
         SignedSixteenSixteen velocity = direction == HorizontalDirection.Left ? state.LeftVelocity : state.RightVelocity;
         slot.Position = slot.Position.AdvanceX(velocity);
@@ -470,7 +470,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Function != HorizontalShutterFunction.PermanentNoOp)
             return;
 
-        bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
+        bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
         if (samusIsLeft && controllerInput.HasAny(ControllerButton.Right))
         {
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(-HorizontalShutterManualPushPixels).WithFractionY(0);
@@ -544,9 +544,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         int maximumDistance)
     {
-        int distance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
-        if (unchecked((short)distance) < 0)
-            distance = unchecked((ushort)-distance);
+        int distance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
+        if (CoordinateAxis.AsSigned(distance) < 0)
+            distance = CoordinateAxis.Wrap(-distance);
         return distance < maximumDistance;
     }
 
@@ -557,10 +557,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsShutterCenterOnScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
-        unchecked((short)(slot.Position.X.Whole - camera.X)) >= 0 &&
-        unchecked((short)(camera.X + 256 - slot.Position.X.Whole)) >= 0 &&
-        unchecked((short)(slot.Position.Y.Whole - camera.Y)) >= 0 &&
-        unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) >= 0;
+        CoordinateAxis.Difference(slot.Position.X.Whole, camera.X) >= 0 &&
+        CoordinateAxis.AsSigned(camera.X + 256 - slot.Position.X.Whole) >= 0 &&
+        CoordinateAxis.Difference(slot.Position.Y.Whole, camera.Y) >= 0 &&
+        CoordinateAxis.AsSigned(camera.Y + 256 - slot.Position.Y.Whole) >= 0;
 
     /// <summary>Publishes the activation sound only when the shutter center lies in the 256-pixel camera square.</summary>
     private void QueueShutterActivationSoundIfOnScreen(
@@ -756,7 +756,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FunctionTimer = WrappingCountdown.Start(settings.ProximityOrWaitTime);
 
         Position16<RoomPixels> spawn = slot.Position.Whole;
-        var travel = new Offset16<RoomPixels>(0, checked((short)state.TravelDistance));
+        var travel = new Offset16<RoomPixels>(0, state.TravelDistance);
         state.UpperEndpoint = spawn;
         state.LowerEndpoint = spawn + travel;
         if (state.PrimaryDirection == ShutterHeading.LeftOrUp)

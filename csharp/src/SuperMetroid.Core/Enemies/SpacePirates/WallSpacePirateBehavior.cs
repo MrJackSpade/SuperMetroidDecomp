@@ -79,8 +79,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         // The USA/Japan build uses byte angles. Bit fifteen selects 63 two-step frames;
         // clearing it selects 32 four-step frames with adjusted endpoints. These values are
         // not approximations: they are the literal $BE/$42/$02 and $C0/$40/$04 branches.
-        state.RightJumpTargetAngle = RotationAngle.FromTableIndex(slowJump ? (byte)190 : (byte)192);
-        state.LeftJumpTargetAngle = RotationAngle.FromTableIndex(slowJump ? (byte)66 : (byte)64);
+        state.RightJumpTargetAngle = RotationAngle.FromTableIndex(slowJump ? 190 : 192);
+        state.LeftJumpTargetAngle = RotationAngle.FromTableIndex(slowJump ? 66 : 64);
         state.JumpAngleDelta = slowJump ? 2 : 4;
 
         SnapWallSpacePirateXToTile(slot);
@@ -166,19 +166,19 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         // Native math rewrites both whole positions every frame ($B2:F0F9/$F113) and leaves
         // the fractions untouched. The jump ellipse is parameter2 pixels wide and
         // parameter2/4 pixels tall.
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
+        slot.Position = slot.Position.WithWrappedWholeX(
             state.WallJumpArcCenter.X +
             EnemyMath.ReadEightBitNegativeSineProduct(
                 state.WallJumpArcAngle.ToByteAngle(),
-                (ushort)(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 1)))));
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
+                CoordinateAxis.Wrap(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 1)));
+        slot.Position = slot.Position.WithWrappedWholeY(
             state.WallJumpArcCenter.Y -
-            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle.ToByteAngle(), (ushort)(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 2)))));
+            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle.ToByteAngle(), CoordinateAxis.Wrap(slot.SpawnSettings<WallSpacePirateSpawnSettings>().JumpSpan >> 2)));
     }
 
     /// <summary>Allows the fire-and-jump sequence when Samus is within the strict vertical detection band.</summary>
     private static bool WallSpacePirateCanAttack(RoomEnemySlot slot, SamusState samus) =>
-        Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))) <
+        CoordinateAxis.Distance(samus.Position.Y.Whole, slot.Position.Y.Whole) <
             WallPirateSamusDetectionBand;
 
     /// <summary>Applies the native split alignment rule when a Pirate starts or lands on a wall.</summary>
@@ -189,7 +189,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         int x = slot.Position.X.Whole;
         slot.Position = slot.Position.WithWholeX(RoomGridConversions.OffsetWithinBlock(x) < 11
             ? RoomGridConversions.HalfBlockStart(x)
-            : unchecked((ushort)(RoomGridConversions.BlockStart(x) + 16)));
+            : CoordinateAxis.Wrap(RoomGridConversions.BlockStart(x) + 16));
     }
 
     /// <summary>Starts a selected wall-Pirate list on its first instruction frame.</summary>
@@ -267,9 +267,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         int signedHalfSpan = direction == HorizontalDirection.Right
             ? span >> 1
             : -(span >> 1);
-        state.WallJumpDestination = new(unchecked((ushort)(slot.Position.X.Whole + signedSpan)), 0);
+        state.WallJumpDestination = new(CoordinateAxis.Wrap(slot.Position.X.Whole + signedSpan), 0);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
-            unchecked((ushort)(slot.Position.X.Whole + signedHalfSpan)),
+            CoordinateAxis.Wrap(slot.Position.X.Whole + signedHalfSpan),
             slot.Position.Y.Whole);
         state.WallJumpArcAngle = direction == HorizontalDirection.Right ? RotationAngle.QuarterTurn : RotationAngle.ThreeQuarterTurn;
     }

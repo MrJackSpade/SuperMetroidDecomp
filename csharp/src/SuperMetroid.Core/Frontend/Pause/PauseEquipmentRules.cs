@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal static class PauseEquipmentRules
 {
     /// <summary>$82:BF04 ReserveTank_TransferEnergyPerFrame: one energy per selected manual-transfer tick.</summary>
-    public const ushort ReserveEnergyPerFrame = 1;
+    public const int ReserveEnergyPerFrame = 1;
 
     /// <summary>Selects the upgrade flag belonging to a named category/item control.
     /// Native82:C04C..C067 has five beam, six suit/misc and three boot words in menu

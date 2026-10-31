@@ -45,5 +45,5 @@ public static class CeresCinematicPictures
 
     /// <summary>The plane pixel of cell (<paramref name="column"/>, <paramref name="row"/>)'s upper-left corner.</summary>
     private static Position16<TilePlanePixels> Corner(int column, int row) => new(
-        checked((ushort)(column * ScreenGeometry.BackgroundTileSizePixels)), checked((ushort)(row * ScreenGeometry.BackgroundTileSizePixels)));
+        column * ScreenGeometry.BackgroundTileSizePixels, row * ScreenGeometry.BackgroundTileSizePixels);
 }

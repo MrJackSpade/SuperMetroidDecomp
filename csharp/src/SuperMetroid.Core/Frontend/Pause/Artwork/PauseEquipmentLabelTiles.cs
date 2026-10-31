@@ -101,7 +101,7 @@ public static class PauseEquipmentLabelTiles
             Position16<TilemapCells> first = label.Category switch
             {
                 PauseEquipmentCategory.Beams => new Position16<TilemapCells>(4, 16),
-                PauseEquipmentCategory.Suits => new Position16<TilemapCells>(21, checked((ushort)(9 + (label.Item >= 2 ? 2 : 0)))),
+                PauseEquipmentCategory.Suits => new Position16<TilemapCells>(21, 9 + (label.Item >= 2 ? 2 : 0)),
                 PauseEquipmentCategory.Boots => new Position16<TilemapCells>(21, 19),
                 PauseEquipmentCategory.Reserves => throw new InvalidDataException("Unknown equipment label category."),
                 _ => throw new InvalidDataException("Unknown equipment label category."),

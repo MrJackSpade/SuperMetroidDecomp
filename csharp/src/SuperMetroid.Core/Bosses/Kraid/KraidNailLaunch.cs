@@ -14,5 +14,5 @@ public static class KraidNailLaunch
     /// </remarks>
     public static FixedVector<RoomPixels> FromSiblingVelocity(int siblingYWhole) =>
         FixedVector<RoomPixels>.FromWords(KraidNailLaunchDefinitions.LeftwardWhole, 0,
-            unchecked((short)siblingYWhole) < 0 ? KraidNailLaunchDefinitions.DownwardWhole : KraidNailLaunchDefinitions.UpwardWhole, 0);
+            CoordinateAxis.AsSigned(siblingYWhole) < 0 ? KraidNailLaunchDefinitions.DownwardWhole : KraidNailLaunchDefinitions.UpwardWhole, 0);
 }

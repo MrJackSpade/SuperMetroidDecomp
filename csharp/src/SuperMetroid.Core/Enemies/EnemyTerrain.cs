@@ -56,15 +56,15 @@ internal sealed class EnemyTerrain
         int targetCenter = FixedCoordinate.WholeOf(unchecked((int)newPosition));
         bool movingLeft = displacement < 0;
         int targetEdge = movingLeft
-            ? unchecked((ushort)(targetCenter - slot.Radius.X))
-            : unchecked((ushort)(targetCenter + slot.Radius.X - 1));
+            ? CoordinateAxis.Wrap(targetCenter - slot.Radius.X)
+            : CoordinateAxis.Wrap(targetCenter + slot.Radius.X - 1);
 
-        int topPixel = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
-        int bottomPixel = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
-        int spanMinusOne = unchecked((ushort)(bottomPixel - RoomGridConversions.BlockStart(topPixel))) >> 4;
+        int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
+        int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
+        int spanMinusOne = CoordinateAxis.Wrap(bottomPixel - RoomGridConversions.BlockStart(topPixel)) >> 4;
         // $A0:C6E2-$C716: the 8-bit multiplier forms (top row & $FF) * width, the target
         // column is added unbounded, and each scanned row adds the width again.
-        int firstIndex = unchecked((byte)(topPixel >> 4)) * level.Size.X + (targetEdge >> 4);
+        int firstIndex = WordWrap.LowByte(topPixel >> 4) * level.Size.X + (targetEdge >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
@@ -93,16 +93,16 @@ internal sealed class EnemyTerrain
         // center. That prevents a large corrupt displacement from snapping through a wall.
         if (movingLeft)
         {
-            int aligned = unchecked((ushort)(RoomGridConversions.BlockEnd(targetEdge) + slot.Radius.X + 1));
+            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + slot.Radius.X + 1);
             if (aligned <= slot.Position.X.Whole)
-                slot.Position = slot.Position.WithWholeX(checked((ushort)aligned));
+                slot.Position = slot.Position.WithWholeX(aligned);
             slot.Position = slot.Position.WithFractionX(0);
         }
         else
         {
-            int aligned = unchecked((ushort)(RoomGridConversions.BlockStart(targetEdge) - slot.Radius.X));
+            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - slot.Radius.X);
             if (aligned >= slot.Position.X.Whole)
-                slot.Position = slot.Position.WithWholeX(checked((ushort)aligned));
+                slot.Position = slot.Position.WithWholeX(aligned);
             slot.Position = slot.Position.WithFractionX(RoomPixelMasks.LastFraction);
         }
         return true;
@@ -122,20 +122,20 @@ internal sealed class EnemyTerrain
         int targetCenter = FixedCoordinate.WholeOf(unchecked((int)newPosition));
         bool movingUp = displacement < 0;
         int targetEdge = movingUp
-            ? unchecked((ushort)(targetCenter - slot.Radius.Y))
-            : unchecked((ushort)(targetCenter + slot.Radius.Y - 1));
+            ? CoordinateAxis.Wrap(targetCenter - slot.Radius.Y)
+            : CoordinateAxis.Wrap(targetCenter + slot.Radius.Y - 1);
 
-        int leftPixel = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
-        int rightPixel = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
-        int spanMinusOne = unchecked((ushort)(rightPixel - RoomGridConversions.BlockStart(leftPixel))) >> 4;
+        int leftPixel = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X);
+        int rightPixel = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1);
+        int spanMinusOne = CoordinateAxis.Wrap(rightPixel - RoomGridConversions.BlockStart(leftPixel)) >> 4;
         // $A0:C7D0-$C7F0: (target row & $FF) * width plus the left column, then each
         // scanned column steps to the next native block index.
-        int firstIndex = unchecked((byte)(targetEdge >> 4)) * level.Size.X + (leftPixel >> 4);
+        int firstIndex = WordWrap.LowByte(targetEdge >> 4) * level.Size.X + (leftPixel >> 4);
         bool collided = false;
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
             int remaining = spanMinusOne - scanIndex;
-            if (EnemyVerticalProbeIsSolid(level, slot, EnemyMoverBlockIndex(firstIndex + scanIndex), new EnemyVerticalProbe { TargetCenter = new(slot.Position.X.Whole, checked((ushort)targetCenter)), TargetEdge = new(slot.Position.X.Whole, checked((ushort)targetEdge)), MovingUp = movingUp, Remaining = remaining, SpanMinusOne = spanMinusOne }))
+            if (EnemyVerticalProbeIsSolid(level, slot, EnemyMoverBlockIndex(firstIndex + scanIndex), new EnemyVerticalProbe { TargetCenter = new(slot.Position.X.Whole, targetCenter), TargetEdge = new(slot.Position.X.Whole, targetEdge), MovingUp = movingUp, Remaining = remaining, SpanMinusOne = spanMinusOne }))
             {
                 collided = true;
                 break;
@@ -152,16 +152,16 @@ internal sealed class EnemyTerrain
         // The native outer helper performs this conditional coarse alignment afterward.
         if (movingUp)
         {
-            int aligned = unchecked((ushort)(RoomGridConversions.BlockEnd(targetEdge) + slot.Radius.Y + 1));
+            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockEnd(targetEdge) + slot.Radius.Y + 1);
             if (aligned <= slot.Position.Y.Whole)
-                slot.Position = slot.Position.WithWholeY(checked((ushort)aligned));
+                slot.Position = slot.Position.WithWholeY(aligned);
             slot.Position = slot.Position.WithFractionY(0);
         }
         else
         {
-            int aligned = unchecked((ushort)(RoomGridConversions.BlockStart(targetEdge) - slot.Radius.Y));
+            int aligned = CoordinateAxis.Wrap(RoomGridConversions.BlockStart(targetEdge) - slot.Radius.Y);
             if (aligned >= slot.Position.Y.Whole)
-                slot.Position = slot.Position.WithWholeY(checked((ushort)aligned));
+                slot.Position = slot.Position.WithWholeY(aligned);
             slot.Position = slot.Position.WithFractionY(RoomPixelMasks.LastFraction);
         }
         return true;
@@ -178,15 +178,15 @@ internal sealed class EnemyTerrain
     {
         uint target = unchecked(slot.Position.Y.RawValue + (uint)unsignedDistance);
         int targetCenter = FixedCoordinate.WholeOf(unchecked((int)target));
-        int targetEdge = unchecked((ushort)(targetCenter + slot.Radius.Y - 1));
+        int targetEdge = CoordinateAxis.Wrap(targetCenter + slot.Radius.Y - 1);
         int row = targetEdge >> 4;
-        int firstColumn = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
-        int lastColumn = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
+        int firstColumn = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
+        int lastColumn = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) >> 4;
         for (int column = firstColumn; column <= lastColumn; column++)
         {
             if ((uint)column >= level.Size.X ||
                 (uint)row >= level.Size.Y ||
-                level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).Terrain.StopsAttachment)
+                level.GetCollisionBlock(new(CoordinateAxis.Wrap(column), CoordinateAxis.Wrap(row))).Terrain.StopsAttachment)
             {
                 return true;
             }
@@ -208,11 +208,11 @@ internal sealed class EnemyTerrain
         int targetCenter = FixedCoordinate.WholeOf(unchecked((int)(position + (uint)displacement)));
         bool movingLeft = displacement < 0;
         int targetEdge = movingLeft
-            ? unchecked((ushort)(targetCenter - slot.Radius.X))
-            : unchecked((ushort)(targetCenter + slot.Radius.X - 1));
+            ? CoordinateAxis.Wrap(targetCenter - slot.Radius.X)
+            : CoordinateAxis.Wrap(targetCenter + slot.Radius.X - 1);
 
-        int topPixel = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
-        int bottomPixel = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
+        int topPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y);
+        int bottomPixel = CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int firstRow = topPixel >> 4;
         int lastRow = bottomPixel >> 4;
         int column = targetEdge >> 4;
@@ -220,7 +220,7 @@ internal sealed class EnemyTerrain
         {
             if ((uint)column >= level.Size.X ||
                 (uint)row >= level.Size.Y ||
-                level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).Terrain.StopsAttachment)
+                level.GetCollisionBlock(new(CoordinateAxis.Wrap(column), CoordinateAxis.Wrap(row))).Terrain.StopsAttachment)
             {
                 return true;
             }
@@ -238,16 +238,16 @@ internal sealed class EnemyTerrain
         uint position = slot.Position.Y.RawValue;
         int center = FixedCoordinate.WholeOf(unchecked((int)(position + (uint)displacement)));
         int edge = displacement < 0
-            ? unchecked((ushort)(center - slot.Radius.Y))
-            : unchecked((ushort)(center + slot.Radius.Y - 1));
+            ? CoordinateAxis.Wrap(center - slot.Radius.Y)
+            : CoordinateAxis.Wrap(center + slot.Radius.Y - 1);
         int blockY = edge >> 4;
-        int firstBlockX = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
-        int lastBlockX = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
+        int firstBlockX = CoordinateAxis.Wrap(slot.Position.X.Whole - slot.Radius.X) >> 4;
+        int lastBlockX = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - 1) >> 4;
         if ((uint)blockY >= level.Size.Y) return true;
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
             if ((uint)blockX >= level.Size.X ||
-                level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY))).Terrain.StopsAttachment)
+                level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY))).Terrain.StopsAttachment)
                 return true;
         }
         return false;
@@ -338,7 +338,7 @@ internal sealed class EnemyTerrain
     /// The movers index <c>LevelData,X</c> with a 16-bit byte offset, so the block index
     /// wraps at $8000 blocks.
     /// </summary>
-    private static int EnemyMoverBlockIndex(int index) => unchecked((ushort)(index << 1)) >> 1;
+    private static int EnemyMoverBlockIndex(int index) => WordWrap.Unsigned(index << 1) >> 1;
 
     /// <summary>
     /// Reads a block for the bank-$A0 movers, which never bound the index to the authored
@@ -518,7 +518,7 @@ internal sealed class EnemyTerrain
             int adjustment = height - edgeWithinBlock - 1;
             if (adjustment > 0)
                 return false;
-            slot.Position = slot.Position.WithY(new(unchecked((ushort)(targetCenter - adjustment)), 0));
+            slot.Position = slot.Position.WithY(new(CoordinateAxis.Wrap(targetCenter - adjustment), 0));
             return true;
         }
 
@@ -528,7 +528,7 @@ internal sealed class EnemyTerrain
         int downwardAdjustment = height - bottomWithinBlock - 1;
         if (height - bottomWithinBlock != 1 && downwardAdjustment >= 0)
             return false;
-        slot.Position = slot.Position.WithY(new(unchecked((ushort)(targetCenter + downwardAdjustment)), RoomPixelMasks.LastFraction));
+        slot.Position = slot.Position.WithY(new(CoordinateAxis.Wrap(targetCenter + downwardAdjustment), RoomPixelMasks.LastFraction));
         return true;
     }
 
@@ -548,12 +548,12 @@ internal sealed class EnemyTerrain
         bool adjustedFloor = AlignAgainstSlopeAtPixel(
             level,
             slot,
-            new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1))),
+            new(slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1)),
             surface: SlopeSurface.Top);
         bool adjustedCeiling = AlignAgainstSlopeAtPixel(
             level,
             slot,
-            new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))),
+            new(slot.Position.X.Whole, CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y)),
             surface: SlopeSurface.Underside);
         return adjustedFloor || adjustedCeiling;
     }
@@ -573,7 +573,7 @@ internal sealed class EnemyTerrain
             return false;
         }
 
-        RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+        RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
         if (block.CollisionType != RoomCollisionType.Slope ||
             !block.Behavior.IsNonSquareSlope)
             return false;
@@ -591,8 +591,8 @@ internal sealed class EnemyTerrain
         if (adjustment >= 0)
             return false;
         slot.Position = slot.Position.WithWholeY(surface == SlopeSurface.Underside
-            ? unchecked((ushort)(slot.Position.Y.Whole - adjustment))
-            : unchecked((ushort)(slot.Position.Y.Whole + adjustment)));
+            ? CoordinateAxis.Wrap(slot.Position.Y.Whole - adjustment)
+            : CoordinateAxis.Wrap(slot.Position.Y.Whole + adjustment));
         return true;
     }
 

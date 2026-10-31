@@ -128,7 +128,7 @@ internal sealed class DraygonCombat
     internal static void AdvanceDraygonShotAcceleration(DraygonEnemyState state)
     {
         EightEightVector<RoomPixels> candidate = state.SwoopAcceleration + DraygonBehavior.DraygonShotSwoopAccelerationStep;
-        if (unchecked((short)(candidate.Y.RawValue - DraygonBehavior.DraygonSwoopAccelerationLimit)) < 0)
+        if (WordWrap.Signed(candidate.Y.RawValue - DraygonBehavior.DraygonSwoopAccelerationLimit) < 0)
             state.SwoopAcceleration = candidate;
     }
 
@@ -248,10 +248,10 @@ internal sealed class DraygonCombat
             foreach (DraygonCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
-                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
                 callback = probe.SelectShotCallback
                     ? DraygonHitboxCallbackCodec.ToCallback(hitbox.Shot)

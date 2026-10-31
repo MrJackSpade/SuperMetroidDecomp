@@ -9,7 +9,7 @@ internal static class CrocomireRumbleDefinitions
     /// This counts completed oscillations, not elapsed frames. The consumer adds
     /// one final traversal before loading the next phase.
     /// </summary>
-    private const ushort FinalDecayHold = 3;
+    private const int FinalDecayHold = 3;
 
     /// <summary>
     /// The rumble's targets in the order it visits them: seven oscillations, each a return target followed by a

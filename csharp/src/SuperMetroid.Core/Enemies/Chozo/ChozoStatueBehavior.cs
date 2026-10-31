@@ -160,7 +160,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         int triggerBlockX = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.X : ChozoStatueRoomDefinitions.LowerNorfairTriggerX;
         int triggerBlockY = state.IsWreckedShip ? ChozoStatueRoomDefinitions.WreckedShipHandBlock.Y : ChozoStatueRoomDefinitions.LowerNorfairTriggerY;
-        int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(new(unchecked((ushort)triggerBlockX), unchecked((ushort)triggerBlockY)));
+        int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(new(CoordinateAxis.Wrap(triggerBlockX), CoordinateAxis.Wrap(triggerBlockY)));
         RoomCollisionBlock triggerBlock = level.GetCollisionBlockByIndex(triggerBlockIndex);
 
         // Both setup routines clear only the block's collision kind. Its behaviour and
@@ -321,7 +321,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The two 32-word tables are joint offsets indexed by the same record.
         // Writing Samus after collision reproduces the native cutscene's absolute ownership.
-        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + motion.SamusOffset.X)), unchecked((ushort)(statue.Position.Y.Whole + motion.SamusOffset.Y))));
+        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + motion.SamusOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + motion.SamusOffset.Y)));
     }
 
     /// <summary>Spawns a plug-crumble PLM and spike-footstep only when the offset floor block has the native special type.</summary>
@@ -331,7 +331,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         Offset16<RoomPixels> footstepOffset)
     {
         Position16<RoomPixels> probe = new(
-            unchecked((ushort)(statue.Position.X.Whole + footstepOffset.X)), unchecked((ushort)(statue.Position.Y.Whole + 28)));
+            CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28));
         RoomCollisionBlock current = level.GetCollisionBlockAtPixel(probe);
         int belowIndex = current.Index + level.Size.X;
         if (!level.IsLogicalBlockIndex(belowIndex) ||
@@ -358,7 +358,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
             graphics: default);
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + footstepOffset.X)), unchecked((ushort)(statue.Position.Y.Whole + 28))));
+        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(statue.Position.X.Whole + footstepOffset.X), CoordinateAxis.Wrap(statue.Position.Y.Whole + 28)));
     }
 
     /// <summary>Restores Samus controls, publishes the native overlapping scroll writes and queues slope-access terrain.</summary>

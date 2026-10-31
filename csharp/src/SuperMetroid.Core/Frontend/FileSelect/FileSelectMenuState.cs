@@ -214,7 +214,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
             "File select requires installed menu presentation assets.")).FileSelect;
         // The backdrop, the page, its slots' fields and its slot letters are the menus' pictures (#1467).
         return MenuRenderSnapshotCapture.Capture(screen, screen.PagePictures(FileSelectParts.BackgroundFrame),
-            screen.CellPictures(ShownPage.Pictures(presentation)), 0, checked((byte)brightness.Level));
+            screen.CellPictures(ShownPage.Pictures(presentation)), 0, Ensure.BetweenInclusive(0, byte.MaxValue, brightness.Level));
     }
 
     /// <summary>Builds the current border, missile, helmet, and optional copy-arrow sprite entries from menu phase.</summary>
@@ -249,7 +249,7 @@ public sealed class FileSelectMenuState : IMenuFrontendScreen
         {
             (int shape, int y) = FileCopyArrows.Select(operationSourceSlot, copyTargetSlot);
             sprites.AddImage(sheet.Frame(FileCopyArrowDefinitions.FrameName(shape)),
-                new Position16<SpritePixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)));
+                new Position16<SpritePixels>(FileCopyArrowDefinitions.OriginX, y));
         }
         sprites.FinishFrame();
     }

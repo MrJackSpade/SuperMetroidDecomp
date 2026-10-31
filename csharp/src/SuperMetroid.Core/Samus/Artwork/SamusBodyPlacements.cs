@@ -11,10 +11,10 @@ internal static class SamusBodyPlacements
     /// with the already calculated physical projectile correction. Installed visual
     /// overrides remain independent. FD..FF adjacent instruction observations are excluded.
     /// </summary>
-    internal static sbyte DefaultGraphicsYOffset(SamusPoseId pose)
+    internal static int DefaultGraphicsYOffset(SamusPoseId pose)
     {
         if (!SamusPoseNumbering.HasRecord(pose)) throw new ArgumentOutOfRangeException(nameof(pose));
-        return unchecked((sbyte)SuperMetroid.Core.Samus.Poses.SamusPoseProjectileOrigins.ReadYOffset(pose));
+        return WordWrap.SignedLowByte(SuperMetroid.Core.Samus.Poses.SamusPoseProjectileOrigins.ReadYOffset(pose));
     }
 
     /// <summary>Landing left-facing copies use their right-facing row; each source default follows the named landing/recovery phase.</summary>
@@ -25,7 +25,7 @@ internal static class SamusBodyPlacements
     }
 
     /// <summary>$90:8D28..8D38: named landing compression, standing recovery, inactive padding and adjacent instruction observation.</summary>
-    internal static byte DefaultLandingByte(int index)
+    internal static int DefaultLandingByte(int index)
     {
         int source = LandingSourceIndex(index);
         if (source == LandingDataBytes) return AdjacentLandingPlb;
@@ -35,6 +35,6 @@ internal static class SamusBodyPlacements
         if (frame > recoveryFrame) return 0;
         SuperMetroid.Core.Samus.Poses.SamusPoseId pose = frame == recoveryFrame ? SuperMetroid.Core.Samus.Poses.SamusPoseId.FacingRightNormalPose
             : spin ? SuperMetroid.Core.Samus.Poses.SamusPoseId.SpinLandingRightPose : SuperMetroid.Core.Samus.Poses.SamusPoseId.NormalLandingRightPose;
-        return unchecked((byte)DefaultGraphicsYOffset(pose));
+        return WordWrap.LowByte(DefaultGraphicsYOffset(pose));
     }
 }

@@ -386,7 +386,7 @@ public sealed class SamusHorizontalSpeedState
                 return paletteCopied;
             }
 
-            if (unchecked((short)(frame.AnimationFrame - 27)) >= 0)
+            if (WordWrap.Signed(frame.AnimationFrame - 27) >= 0)
             {
                 // Carry clear at `$91:DA48` asks the outer palette dispatcher to copy
                 // the normal suit palette for frames 27 onward. Frames 1..26 cycle below.
@@ -609,7 +609,7 @@ public sealed class SamusHorizontalSpeedState
         if (!SpeedEchoesDeparting)
         {
             SpeedEchoIndex = DepartingSpeedEchoIndex;
-            Offset16<RoomPixels> velocity = new(facing == SamusFacingDirection.Left ? (short)-8 : (short)8, 0);
+            Offset16<RoomPixels> velocity = new(facing == SamusFacingDirection.Left ? -8 : 8, 0);
             FirstSpeedEchoVelocity = velocity;
             SecondSpeedEchoVelocity = velocity;
         }
@@ -720,18 +720,18 @@ public sealed class SamusHorizontalSpeedState
         int yPosition = echo.Y;
         if (yPosition != samusPosition.Y)
         {
-            yPosition = unchecked((short)(yPosition - samusPosition.Y)) < 0
-                ? unchecked((ushort)(yPosition + 2))
-                : unchecked((ushort)(yPosition - 2));
+            yPosition = CoordinateAxis.Difference(yPosition, samusPosition.Y) < 0
+                ? CoordinateAxis.Wrap(yPosition + 2)
+                : CoordinateAxis.Wrap(yPosition - 2);
         }
 
         Offset16<RoomPixels> velocity = slot == 0
             ? FirstSpeedEchoVelocity
             : SecondSpeedEchoVelocity;
-        xPosition = unchecked((ushort)(xPosition + velocity.X));
+        xPosition = CoordinateAxis.Wrap(xPosition + velocity.X);
         bool crossedSamus = velocity.X < 0
-            ? unchecked((short)(xPosition - samusPosition.X)) < 0
-            : unchecked((short)(xPosition - samusPosition.X)) >= 0;
+            ? CoordinateAxis.Difference(xPosition, samusPosition.X) < 0
+            : CoordinateAxis.Difference(xPosition, samusPosition.X) >= 0;
         if (crossedSamus)
             xPosition = 0;
 
@@ -805,7 +805,7 @@ public sealed class SamusHorizontalSpeedState
 
             // The native BMI tests only the signed high word. Once deceleration crosses
             // below zero it clears both halves and returns to acceleration mode zero.
-            if (unchecked((short)BaseSpeed.Whole) < 0)
+            if (WordWrap.Signed(BaseSpeed.Whole) < 0)
             {
                 BaseSpeed = default;
                 AccelerationMode = SamusAccelerationMode.Accelerating;
@@ -849,7 +849,7 @@ public sealed class SamusHorizontalSpeedState
             // the deceleration-allowed routine. The distinction between the two native
             // entry points is the bit test above and their carry result, not the subtract.
             SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
-            if (unchecked((short)BaseSpeed.Whole) < 0)
+            if (WordWrap.Signed(BaseSpeed.Whole) < 0)
             {
                 BaseSpeed = default;
                 AccelerationMode = SamusAccelerationMode.Accelerating;
@@ -865,9 +865,9 @@ public sealed class SamusHorizontalSpeedState
         // deliberately *not* considered a cap: $90:9B5A returns carry clear in that case.
         int maximumWhole = entry.MaximumSpeed.WholeWord;
         int maximumFraction = entry.MaximumSpeed.Fraction;
-        bool exceedsMaximum = unchecked((short)(BaseSpeed.Whole - maximumWhole)) > 0 ||
+        bool exceedsMaximum = WordWrap.Signed(BaseSpeed.Whole - maximumWhole) > 0 ||
             (BaseSpeed.Whole == maximumWhole &&
-             unchecked((short)(BaseSpeed.Fraction - maximumFraction)) > 0);
+             WordWrap.Signed(BaseSpeed.Fraction - maximumFraction) > 0);
         if (exceedsMaximum)
         {
             SetBaseFixed(unchecked((uint)entry.MaximumSpeed.RawValue));
@@ -929,8 +929,8 @@ public sealed class SamusHorizontalSpeedState
         int wholeProduct = DecelerationMultiplier * entry.Deceleration.WholeWord;
         int fractionProduct = DecelerationMultiplier * EightEight.WholeOf(entry.Deceleration.Fraction);
         return SignedSixteenSixteen.FromParts(
-            unchecked((short)EightEight.WholeOf(wholeProduct)),
-            unchecked((ushort)fractionProduct));
+            CoordinateAxis.AsSigned(EightEight.WholeOf(wholeProduct)),
+            WordWrap.Unsigned(fractionProduct));
     }
 
     /// <summary>Compares split words with the cartridge's signed subtraction and strict low-word tie rule.</summary>
@@ -940,30 +940,30 @@ public sealed class SamusHorizontalSpeedState
         int comparisonHigh,
         int comparisonLow)
     {
-        if (unchecked((short)(valueHigh - comparisonHigh)) < 0)
+        if (WordWrap.Signed(valueHigh - comparisonHigh) < 0)
             return false;
 
         return valueHigh != comparisonHigh ||
-               (unchecked((short)(valueLow - comparisonLow)) >= 0 && valueLow != comparisonLow);
+               (WordWrap.Signed(valueLow - comparisonLow) >= 0 && valueLow != comparisonLow);
     }
 
     /// <summary>Clamps the whole-pixel part to plus or minus fifteen while preserving fractional displacement.</summary>
     private static int ClampDisplacement(int displacement)
     {
-        int high = unchecked((short)(SixteenSixteen.WholeOf(displacement)));
-        int low = unchecked((ushort)displacement);
+        int high = CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(displacement));
+        int low = WordWrap.Unsigned(displacement);
 
         if (high < 0)
         {
-            if (unchecked((short)(high + 15)) < 0)
+            if (WordWrap.Signed(high + 15) < 0)
                 high = -15;
         }
-        else if (unchecked((short)(high - 16)) >= 0)
+        else if (WordWrap.Signed(high - 16) >= 0)
         {
             high = 15;
         }
 
-        return unchecked((int)(SixteenSixteen.Compose((ushort)high, low)));
+        return unchecked((int)(SixteenSixteen.Compose(WordWrap.Unsigned(high), low)));
     }
 
 }

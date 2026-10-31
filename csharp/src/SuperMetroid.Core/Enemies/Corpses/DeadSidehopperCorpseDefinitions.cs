@@ -17,5 +17,5 @@ internal static class DeadSidehopperCorpseDefinitions
     /// The palette stage of a corpse placed already dead: the largest stage, so every "stage of 8 or more" test reads it as
     /// finished, exactly as the cartridge's all-ones word does.
     /// </summary>
-    internal const ushort NoPaletteStage = ushort.MaxValue;
+    internal const int NoPaletteStage = ushort.MaxValue;
 }

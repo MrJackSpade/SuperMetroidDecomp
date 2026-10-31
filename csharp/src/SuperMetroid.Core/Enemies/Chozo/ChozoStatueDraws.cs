@@ -19,9 +19,9 @@ internal static class ChozoStatueDraws
         /// <summary>The cells in one run, rejecting an invalid run index.</summary>
         public int BlockCount(int run) => Strip(run).Cells.Length;
         /// <summary>The next run's horizontal offset.</summary>
-        public sbyte NextX(int run) => checked((sbyte)Strip(run).Next.X);
+        public int NextX(int run) => Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, Strip(run).Next.X);
         /// <summary>The next run's vertical offset.</summary>
-        public sbyte NextY(int run) => checked((sbyte)Strip(run).Next.Y);
+        public int NextY(int run) => Ensure.BetweenInclusive(sbyte.MinValue, sbyte.MaxValue, Strip(run).Next.Y);
         /// <summary>One cell's complete terrain block.</summary>
         public RoomTerrainBlock BlockAt(int run, int cell)
         {

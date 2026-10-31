@@ -51,7 +51,7 @@ internal static class MotherBrainNeckKinematics
                 break;
             }
             case MotherBrainNeckMovement.BobUp: // Bob up to $9000 unless the brain is already above Y=$3C.
-                if (unchecked((short)(brainY - 60)) < 0)
+                if (CoordinateAxis.Difference(brainY, 60) < 0)
                 {
                     lowerMovementIndex = MotherBrainNeckMovement.BobDown;
                 }
@@ -100,7 +100,7 @@ internal static class MotherBrainNeckKinematics
             case MotherBrainNeckMovement.None:
                 break;
             case MotherBrainNeckMovement.BobDown: // Bob down; Samus below the brain forces both halves back upward.
-                if (unchecked((short)(brainY + 4 - samusY)) >= 0)
+                if (CoordinateAxis.AsSigned(brainY + 4 - samusY) >= 0)
                 {
                     lowerMovementIndex = MotherBrainNeckMovement.BobUp;
                     upperMovementIndex = MotherBrainNeckMovement.BobUp;
@@ -195,12 +195,12 @@ internal static class MotherBrainNeckKinematics
             CalculateSignedComponent(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue), distance));
 
     /// <summary>Exact signed multiply/high-word behavior of <c>$A9:C46C</c>.</summary>
-    internal static short CalculateSignedComponent(
+    internal static int CalculateSignedComponent(
         ByteAngle angle,
         int distance)
     {
         int sine = Trigonometry.SignedSine(angle);
-        int product = sine * unchecked((sbyte)distance);
-        return unchecked((short)EightEight.WholeOf(product));
+        int product = sine * WordWrap.SignedLowByte(distance);
+        return CoordinateAxis.AsSigned(EightEight.WholeOf(product));
     }
 }

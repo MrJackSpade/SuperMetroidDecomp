@@ -30,9 +30,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Samus must be within 64 pixels on each axis to trigger a launch.</summary>
-    private const ushort PolypProximity = 64;
+    private const int PolypProximity = 64;
     /// <summary>Each Polyp initializer resets the shared enemy random seed to $0011.</summary>
-    private const ushort PolypRandomSeed = 17;
+    private const int PolypRandomSeed = 17;
 
     /// <summary>Ports <c>InitAI_Polyp</c> at $A2:B570.</summary>
     internal void InitializePolyp(RoomEnemySlot slot)
@@ -115,11 +115,11 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static bool IsWithinPolypAxis(int samusCoordinate, int enemyCoordinate)
     {
-        int difference = unchecked((ushort)(samusCoordinate - enemyCoordinate));
+        int difference = CoordinateAxis.Wrap(samusCoordinate - enemyCoordinate);
         int magnitude = EnemyMath.IsNegative16(difference)
-            ? unchecked((ushort)-difference)
+            ? WordWrap.Unsigned(-difference)
             : difference;
-        return unchecked((short)(magnitude - PolypProximity)) < 0;
+        return WordWrap.Signed(magnitude - PolypProximity) < 0;
     }
 
     /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling routine.</summary>
@@ -171,7 +171,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.PreInstruction = PolypRockPreInstruction;
         projectile.State = new PolypRockState(initialYSpeed);
-        projectile.Velocity = new(new SignedEightEight(checked((ushort)xVelocity)), new SignedEightEight(0));
+        projectile.Velocity = new(new SignedEightEight(xVelocity), new SignedEightEight(0));
         projectile.Position = source.Position;
     }
 
@@ -245,12 +245,12 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         int fraction = SixteenSixteen.FractionOf(speed);
         // Both fractions are words, so their sum fits an int; a sum past the word carries into the whole pixel.
         int fractionalSum = projectile.Position.Y.Fraction + fraction;
-        projectile.Position = projectile.Position.WithFractionY(unchecked((ushort)fractionalSum));
+        projectile.Position = projectile.Position.WithFractionY(WordWrap.Unsigned(fractionalSum));
         if (fractionalSum > ushort.MaxValue)
-            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
+            projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 1);
 
-        int whole = unchecked((ushort)SixteenSixteen.WholeOf(speed));
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + whole)));
+        int whole = WordWrap.Unsigned(SixteenSixteen.WholeOf(speed));
+        projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + whole);
     }
 
     /// <summary>Ports $86:BCF4's split signed-8.8 horizontal addition.</summary>

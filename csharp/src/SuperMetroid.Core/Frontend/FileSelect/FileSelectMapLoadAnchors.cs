@@ -22,11 +22,11 @@ public static class FileSelectMapLoadAnchors
     public static Position16<MapPixels> Get(AreaId area, int stationIndex)
     {
         _ = MapSaveMarkers.Id(area, stationIndex);
-        LoadStationEntry station = LoadStations.Get(area, (byte)stationIndex);
+        LoadStationEntry station = LoadStations.Get(area, WordWrap.LowByte(stationIndex));
         RoomHeaderDefinition room = station.Room ??
             throw new InvalidOperationException($"{area} station {stationIndex} has no room.");
         Position16<RoomPixels> samus = station.SamusPosition;
-        return new((ushort)((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) << 3),
-            (ushort)((room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y) + 1) << 3));
+        return new(CoordinateAxis.Wrap((room.MapPosition.X + RoomGridConversions.PixelToScreen(samus.X)) << 3),
+            CoordinateAxis.Wrap((room.MapPosition.Y + RoomGridConversions.PixelToScreen(samus.Y) + 1) << 3));
     }
 }

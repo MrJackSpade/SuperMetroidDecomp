@@ -47,7 +47,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Native 8.8 speed assigned at the start of a divekick jump and descent.</summary>
-    private const ushort NinjaPirateInitialDiveSpeed = 1536;
+    private const int NinjaPirateInitialDiveSpeed = 1536;
     /// <summary>Maximum horizontal distance at which an idle ninja activates.</summary>
     private const int NinjaPirateActivationDistance = 128;
     /// <summary>Strict distance on both axes for a reaction to the highest occupied projectile.</summary>
@@ -93,29 +93,29 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // sum. That adjustment is why the final span can differ slightly from parameter two.
         int requestedLeft = startsAtLeft
             ? slot.Position.X.Whole
-            : unchecked((ushort)(slot.Position.X.Whole - settings.PostDistance));
+            : CoordinateAxis.Wrap(slot.Position.X.Whole - settings.PostDistance);
         int requestedRight = startsAtLeft
-            ? unchecked((ushort)(slot.Position.X.Whole + settings.PostDistance))
+            ? CoordinateAxis.Wrap(slot.Position.X.Whole + settings.PostDistance)
             : slot.Position.X.Whole;
-        int requestedHalfSpan = unchecked((ushort)(requestedRight - requestedLeft));
+        int requestedHalfSpan = CoordinateAxis.Wrap(requestedRight - requestedLeft);
         requestedHalfSpan >>= 1;
-        state.PostsMidpoint = new(unchecked((ushort)(requestedLeft + requestedHalfSpan)), 0);
+        state.PostsMidpoint = new(CoordinateAxis.Wrap(requestedLeft + requestedHalfSpan), 0);
 
         // `$B2:F632` truncates the half-span to one byte before moving it to the high byte.
         // The do/while always executes once, including a zero-span debug population.
-        int distanceInSubpixels = unchecked((ushort)EightEight.FromWhole((byte)requestedHalfSpan));
+        int distanceInSubpixels = CoordinateAxis.Wrap(EightEight.FromWhole(WordWrap.LowByte(requestedHalfSpan)));
         int speed = 0;
         int accumulatedDistance = 0;
         do
         {
-            speed = unchecked((ushort)(speed + 32));
-            accumulatedDistance = unchecked((ushort)(accumulatedDistance + speed));
+            speed = WordWrap.Unsigned(speed + 32);
+            accumulatedDistance = WordWrap.Unsigned(accumulatedDistance + speed);
         }
-        while (unchecked((short)(accumulatedDistance - distanceInSubpixels)) < 0);
+        while (CoordinateAxis.Difference(accumulatedDistance, distanceInSubpixels) < 0);
 
         state.CalculatedSpinJumpSpeed = speed;
         int adjustedHalfSpan = UnsignedEightEight.Whole(accumulatedDistance);
-        var halfSpan = new Offset16<RoomPixels>(checked((short)adjustedHalfSpan), 0);
+        var halfSpan = new Offset16<RoomPixels>(adjustedHalfSpan, 0);
         state.RightPost = state.PostsMidpoint + halfSpan;
         state.LeftPost = state.PostsMidpoint - halfSpan;
         slot.Position = slot.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));
@@ -201,14 +201,14 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         SamusState samus,
         SamusProjectileSystem? samusProjectiles)
     {
-        if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) >=
+        if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) >=
             NinjaPirateActivationDistance)
         {
             _ = TryNinjaPirateProjectileFlinch(slot, state, samus, samusProjectiles);
             return;
         }
 
-        NinjaSpacePirateProgram active = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
+        NinjaSpacePirateProgram active = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
             ? NinjaSpacePirateProgram.ActiveFacingRight
             : NinjaSpacePirateProgram.ActiveFacingLeft;
         state.ActiveProgram = active;
@@ -256,9 +256,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             }
         }
         if (projectile is null ||
-            Math.Abs(unchecked((short)(projectile.Position.X.Whole - slot.Position.X.Whole))) >=
+            CoordinateAxis.Distance(projectile.Position.X.Whole, slot.Position.X.Whole) >=
                 NinjaPirateFlinchDistance ||
-            Math.Abs(unchecked((short)(projectile.Position.Y.Whole - slot.Position.Y.Whole))) >=
+            CoordinateAxis.Distance(projectile.Position.Y.Whole, slot.Position.Y.Whole) >=
                 NinjaPirateFlinchDistance)
         {
             return false;
@@ -267,7 +267,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         InstallNinjaPirateInstruction(
             slot,
             state,
-            unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
+            CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
                 ? NinjaSpacePirateProgram.FlinchFacingRight
                 : NinjaSpacePirateProgram.FlinchFacingLeft);
         return true;
@@ -276,9 +276,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Starts a facing kick when Samus is within the strict contact range.</summary>
     private static bool TryNinjaPirateStandingKick(RoomEnemySlot slot, NinjaSpacePirateEnemyState state, SamusState samus)
     {
-        if (Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole))) >=
+        if (CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) >=
                 NinjaPirateKickDistance ||
-            Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))) >=
+            CoordinateAxis.Distance(samus.Position.Y.Whole, slot.Position.Y.Whole) >=
                 NinjaPirateKickDistance)
         {
             return false;
@@ -287,7 +287,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         InstallNinjaPirateInstruction(
             slot,
             state,
-            unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
+            CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
                 ? NinjaSpacePirateProgram.KickFacingRight
                 : NinjaSpacePirateProgram.KickFacingLeft);
         return true;
@@ -325,7 +325,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
         if (slot.Position.X.Whole == state.LeftPost.X)
         {
-            if (unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0)
+            if (CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0)
                 return;
             InstallNinjaPirateInstruction(
                 slot,
@@ -334,7 +334,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        if (unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) >= 0)
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) >= 0)
             return;
         InstallNinjaPirateInstruction(
             slot,
@@ -366,7 +366,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // even though all three accepted values select the same list.
         int choice;
         do
-            choice = unchecked((ushort)(_room.Random.Generate() & 3));
+            choice = WordWrap.Unsigned(_room.Random.Generate() & 3);
         while (choice == 0);
 
         InstallNinjaPirateInstruction(
@@ -385,9 +385,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         VerticalDirection vertical)
     {
         int xPixels = EightEight.WholeOf(state.Speed.RawValue);
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (direction == HorizontalDirection.Right ? xPixels : -xPixels))));
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole +
-            (vertical == VerticalDirection.Up ? -NinjaPirateSpinVerticalPixels : NinjaPirateSpinVerticalPixels))));
+        slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (direction == HorizontalDirection.Right ? xPixels : -xPixels));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole +
+            (vertical == VerticalDirection.Up ? -NinjaPirateSpinVerticalPixels : NinjaPirateSpinVerticalPixels));
 
         if (vertical == VerticalDirection.Up)
         {
@@ -432,7 +432,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (EightEight.WholeOf(state.Speed.RawValue)))));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - (EightEight.WholeOf(state.Speed.RawValue)));
         state.ChangeSpeed(-64);
         if (state.Speed.SignedRawValue >= 0)
             return;
@@ -462,8 +462,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 "Ninja Space Pirate divekick movement requires room collision data.");
         }
 
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
-            (direction == HorizontalDirection.Right ? NinjaPirateDiveHorizontalPixels : -NinjaPirateDiveHorizontalPixels))));
+        slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
+            (direction == HorizontalDirection.Right ? NinjaPirateDiveHorizontalPixels : -NinjaPirateDiveHorizontalPixels));
 
         // MoveEnemyDownBy_14_12 receives the high speed byte as the signed integer word and
         // the low byte as only the low eight bits of the fractional word. This odd packing is
@@ -499,8 +499,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         HorizontalDirection direction)
     {
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
-            (direction == HorizontalDirection.Right ? NinjaPirateReturnWalkPixels : -NinjaPirateReturnWalkPixels))));
+        slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
+            (direction == HorizontalDirection.Right ? NinjaPirateReturnWalkPixels : -NinjaPirateReturnWalkPixels));
         bool reachedPost = direction == HorizontalDirection.Right
             ? (slot.Position.Whole - state.RightPost).X >= 0
             : (slot.Position.Whole - state.LeftPost).X < 0;
@@ -524,14 +524,14 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     {
         SpriteGraphics graphics = SpriteGraphics.Emptied;
         if (_spriteObjects.SpawnRoomSpriteObject(
-                new(unchecked((ushort)(slot.Position.X.Whole - 8)), unchecked((ushort)(slot.Position.Y.Whole + 28))),
+                new(CoordinateAxis.Wrap(slot.Position.X.Whole - 8), CoordinateAxis.Wrap(slot.Position.Y.Whole + 28)),
                 RoomSpriteObjectKind.NinjaPirateLandingDust,
                 graphics) is not null)
         {
             state.LandingDustCount++;
         }
         if (_spriteObjects.SpawnRoomSpriteObject(
-                new(unchecked((ushort)(slot.Position.X.Whole + 8)), unchecked((ushort)(slot.Position.Y.Whole + 28))),
+                new(CoordinateAxis.Wrap(slot.Position.X.Whole + 8), CoordinateAxis.Wrap(slot.Position.Y.Whole + 28)),
                 RoomSpriteObjectKind.NinjaPirateLandingDust,
                 graphics) is not null)
         {
@@ -583,19 +583,19 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // Outbound motion follows the throw direction while decelerating to zero; inbound
         // motion reverses direction and accelerates indefinitely until the 256x256 camera
         // check deletes the claw. Y advances one pixel on both halves of the flight.
-        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(projectile.Position.X.Whole +
-            (outbound ? direction * pixels : -direction * pixels))));
-        claw.Speed = unchecked((ushort)(claw.Speed + (outbound ? -NinjaPirateClawSpeedChange : NinjaPirateClawSpeedChange)));
+        projectile.Position = projectile.Position.WithWrappedWholeX(projectile.Position.X.Whole +
+            (outbound ? direction * pixels : -direction * pixels));
+        claw.Speed = WordWrap.Unsigned(claw.Speed + (outbound ? -NinjaPirateClawSpeedChange : NinjaPirateClawSpeedChange));
         if (outbound && claw.Speed == 0)
             claw.Outbound = false;
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));
+        projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole + 1);
 
-        int right = unchecked((ushort)(camera.X + 256));
-        int bottom = unchecked((ushort)(camera.Y + 256));
-        bool offScreen = unchecked((short)(projectile.Position.X.Whole - camera.X)) < 0 ||
-            unchecked((short)(projectile.Position.X.Whole - right)) >= 0 ||
-            unchecked((short)(projectile.Position.Y.Whole - camera.Y)) < 0 ||
-            unchecked((short)(projectile.Position.Y.Whole - bottom)) >= 0;
+        int right = CoordinateAxis.Wrap(camera.X + 256);
+        int bottom = CoordinateAxis.Wrap(camera.Y + 256);
+        bool offScreen = CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
+            CoordinateAxis.Difference(projectile.Position.X.Whole, right) >= 0 ||
+            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
+            CoordinateAxis.Difference(projectile.Position.Y.Whole, bottom) >= 0;
         if (offScreen)
             projectile.Clear();
     }
@@ -629,7 +629,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                     throw new InvalidOperationException(
                         "Ninja Space Pirate facing selection requires the active Samus actor.");
                 }
-                state.ActiveProgram = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
+                state.ActiveProgram = CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0
                     ? NinjaSpacePirateProgram.ActiveFacingRight
                     : NinjaSpacePirateProgram.ActiveFacingLeft;
                 slot.InstructionTimer = WrappingCountdown.Start(1);

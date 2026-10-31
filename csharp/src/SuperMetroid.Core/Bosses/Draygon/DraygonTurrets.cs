@@ -65,7 +65,7 @@ internal sealed class DraygonTurrets
         // low byte. ConvertAngleToXy stores unsigned magnitudes; the pre-instruction applies
         // signs from this retained angle on every frame.
         ByteAngle flightAngle = EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - turret.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - turret.Position.Y.Whole)))).ToTableAngle();
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, turret.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, turret.Position.Y.Whole))).ToTableAngle();
         DraygonParts.SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
         // The definition says $8DFF, but init replaces it with RTS until the 84-frame muzzle

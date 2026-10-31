@@ -55,8 +55,8 @@ internal static class RidleySamusInteractionDefinitions
     };
 
     /// <summary>$A6:BC98 loads6 frames for morphed overflow.</summary>
-    internal const ushort MorphedReleaseIntangibilityFrames = 6;
+    internal const int MorphedReleaseIntangibilityFrames = 6;
 
     /// <summary>$A6:BC9D otherwise loads10.</summary>
-    internal const ushort OrdinaryReleaseIntangibilityFrames = 10;
+    internal const int OrdinaryReleaseIntangibilityFrames = 10;
 }

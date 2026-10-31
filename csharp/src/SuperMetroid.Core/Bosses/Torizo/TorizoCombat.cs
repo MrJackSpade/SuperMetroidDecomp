@@ -101,7 +101,7 @@ internal sealed class TorizoCombat
     {
         // $84:8000 selects one of eight health bands using bits 11..14 of health, clamping
         // the upper half to the last band; each band resolves its colours from the installed health palettes.
-        int healthBand = checked((ushort)health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
+        int healthBand = Ensure.BetweenInclusive(0, ushort.MaxValue, health) / TorizoCombatDefinitions.HealthPerPaletteBand % TorizoCombatDefinitions.HealthPaletteBands;
         int band = Math.Min(healthBand, TorizoCombatDefinitions.LastHealthBand);
         var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Golden Torizo health palettes require installed artwork.");
@@ -316,10 +316,10 @@ internal sealed class TorizoCombat
             {
                 GoldenTorizoCollisionHitbox hitbox = rectangles[index];
                 if (!probe.Overlaps(
-                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
-                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
                 callback = probe.SelectShotCallback
                     ? TorizoHitboxCallbackCodec.ToCallback(hitbox.Shot)

@@ -72,14 +72,14 @@ public static class SamusSolidEnemyCollision
             // Samus is already embedded in. A negative native/BPL result skips that enemy.
             int gap = direction switch
             {
-                SamusCollisionDirection.Left => unchecked((ushort)(
-                    state.Position.X.Whole - state.Radius.X - enemy.Position.X - enemy.Radius.X)),
-                SamusCollisionDirection.Right => unchecked((ushort)(
-                    enemy.Position.X - enemy.Radius.X - state.Position.X.Whole - state.Radius.X)),
-                SamusCollisionDirection.Up => unchecked((ushort)(
-                    state.Position.Y.Whole - state.Radius.Y - enemy.Position.Y - enemy.Radius.Y)),
-                SamusCollisionDirection.Down => unchecked((ushort)(
-                    enemy.Position.Y - enemy.Radius.Y - state.Position.Y.Whole - state.Radius.Y)),
+                SamusCollisionDirection.Left => CoordinateAxis.Wrap(
+                    state.Position.X.Whole - state.Radius.X - enemy.Position.X - enemy.Radius.X),
+                SamusCollisionDirection.Right => CoordinateAxis.Wrap(
+                    enemy.Position.X - enemy.Radius.X - state.Position.X.Whole - state.Radius.X),
+                SamusCollisionDirection.Up => CoordinateAxis.Wrap(
+                    state.Position.Y.Whole - state.Radius.Y - enemy.Position.Y - enemy.Radius.Y),
+                SamusCollisionDirection.Down => CoordinateAxis.Wrap(
+                    enemy.Position.Y - enemy.Radius.Y - state.Position.Y.Whole - state.Radius.Y),
                 // Probe rejected values outside zero through three above. Keep a throwing
                 // arm anyway so this switch stays honest if the public enum later grows.
                 SamusCollisionDirection.NonDirectionalProbe => throw new InvalidOperationException("Unreachable collision direction."),
@@ -141,12 +141,12 @@ public static class SamusSolidEnemyCollision
     /// </summary>
     private static int RoundNegative(FixedCoordinate target, FixedCoordinate reach)
     {
-        int whole = unchecked((ushort)(target.Whole - reach.Whole));
+        int whole = CoordinateAxis.Wrap(target.Whole - reach.Whole);
 
         // SEC/SBC sets carry when no unsigned borrow occurred. Model that borrow explicitly,
         // because the subtraction below keeps only the fraction word.
         bool borrowed = target.Fraction < reach.Fraction;
-        int fraction = unchecked((ushort)(target.Fraction - reach.Fraction));
+        int fraction = CoordinateAxis.Wrap(target.Fraction - reach.Fraction);
         // `$A0:A931/$A980`: after a borrow the DEC sets Z from the whole target, so the BEQ
         // tests that word rather than the fraction and a second DEC follows unless it is 0.
         if (borrowed)
@@ -170,12 +170,12 @@ public static class SamusSolidEnemyCollision
     /// </summary>
     private static int RoundPositive(FixedCoordinate target, FixedCoordinate reach)
     {
-        int whole = unchecked((ushort)(target.Whole + reach.Whole));
+        int whole = CoordinateAxis.Wrap(target.Whole + reach.Whole);
 
         // CLC/ADC carries the fractional overflow into the whole word before the native
         // nonzero-fraction INC performs its outward pixel rounding.
         int fractionSum = target.Fraction + reach.Fraction;
-        int fraction = unchecked((ushort)fractionSum);
+        int fraction = WordWrap.Unsigned(fractionSum);
         // `$A0:A959/$A9A7`: after a carry the INC sets Z from the whole target, so the BEQ
         // tests that word rather than the fraction and a second INC follows unless it is 0.
         if (fractionSum > ushort.MaxValue)
@@ -201,17 +201,17 @@ public static class SamusSolidEnemyCollision
     {
         // `$A0:A9F1` obtains a 16-bit absolute center delta with EOR #$FFFF / INC. This
         // intentionally leaves $8000 unchanged, matching the native two's-complement edge.
-        int signedDelta = unchecked((ushort)(secondPosition - firstPosition));
-        int absoluteDelta = unchecked((short)signedDelta) >= 0
+        int signedDelta = CoordinateAxis.Wrap(secondPosition - firstPosition);
+        int absoluteDelta = WordWrap.Signed(signedDelta) >= 0
             ? signedDelta
-            : unchecked((ushort)(~signedDelta + 1));
+            : WordWrap.Unsigned(~signedDelta + 1);
 
         // The assembly subtracts the enemy radius first. Borrow means overlap immediately;
         // otherwise BCC after CMP accepts only a remainder smaller than Samus's radius.
         if (absoluteDelta < secondRadius)
             return true;
 
-        int remainder = unchecked((ushort)(absoluteDelta - secondRadius));
+        int remainder = CoordinateAxis.Wrap(absoluteDelta - secondRadius);
         return remainder < firstRadius;
     }
 }

@@ -50,7 +50,7 @@ internal sealed class CrocomireBridgeCollapse
     {
         RoomEnemySlot body = state.Body;
         HandleCrocomireBridgeApproach(body);
-        if (unchecked((short)(body.Position.X.Whole - CrocomireBehavior.CrocomireBridgeThreshold)) < 0)
+        if (CoordinateAxis.Difference(body.Position.X.Whole, CrocomireBehavior.CrocomireBridgeThreshold) < 0)
             return;
 
         CrocomireBridgeCollapseStarted = true;
@@ -82,7 +82,7 @@ internal sealed class CrocomireBridgeCollapse
     private void HandleCrocomireBridgeApproach(RoomEnemySlot body)
     {
         CrocomireDeathState death = _access.RequireCrocomireDeath();
-        if (unchecked((short)(body.Position.X.Whole - 1536)) < 0)
+        if (CoordinateAxis.Difference(body.Position.X.Whole, 1536) < 0)
         {
             death.BridgeDustAt1536Spawned = false;
             death.BridgeBlockAt1568Crumbling = false;
@@ -90,7 +90,7 @@ internal sealed class CrocomireBridgeCollapse
             return;
         }
 
-        if (unchecked((short)(body.Position.X.Whole - 1552)) < 0)
+        if (CoordinateAxis.Difference(body.Position.X.Whole, 1552) < 0)
         {
             if (!death.BridgeDustAt1536Spawned)
             {
@@ -103,7 +103,7 @@ internal sealed class CrocomireBridgeCollapse
         // $A4:8DA4-8DDB: one block deep crumbles the first bridge block. The flag
         // resets at $8DDC and $8E2D sit behind comparisons these ranges already passed
         // and never execute.
-        if (unchecked((short)(body.Position.X.Whole - 1568)) < 0)
+        if (CoordinateAxis.Difference(body.Position.X.Whole, 1568) < 0)
         {
             if (!death.BridgeBlockAt1568Crumbling)
             {
@@ -116,7 +116,7 @@ internal sealed class CrocomireBridgeCollapse
         }
 
         // $A4:8DED-8E2C: two blocks deep crumbles the next pair.
-        if (unchecked((short)(body.Position.X.Whole - 1584)) < 0 &&
+        if (CoordinateAxis.Difference(body.Position.X.Whole, 1584) < 0 &&
             !death.BridgeBlocksAt1584Crumbling)
         {
             death.BridgeBlocksAt1584Crumbling = true;
@@ -144,7 +144,7 @@ internal sealed class CrocomireBridgeCollapse
     {
         for (int blockX = 97; blockX <= 106; blockX++)
             _access.PublishCrocomirePlm(
-                new Position16<RoomBlocks>((ushort)blockX, 11), PlmHeaderId.ClearCrocomireBridgeBlock);
+                new Position16<RoomBlocks>(CoordinateAxis.Wrap(blockX), 11), PlmHeaderId.ClearCrocomireBridgeBlock);
 
         for (int puff = 0; puff < CrocomireBehavior.CrocomireBridgeDustCount; puff++)
             _projectiles.SpawnRoomGraphicsDustExplosion(CrocomireBridgeDustPosition(puff), MiscDustAnimation.BigDustCloud);
@@ -158,7 +158,7 @@ internal sealed class CrocomireBridgeCollapse
     /// </summary>
     internal static Position16<RoomPixels> CrocomireBridgeDustPosition(int puff) =>
         (uint)puff < CrocomireBehavior.CrocomireBridgeDustCount
-            ? new Position16<RoomPixels>((ushort)(1536 + 16 * puff), (ushort)(puff is 0 or 2 ? 176 : 192))
+            ? new Position16<RoomPixels>(WordWrap.Unsigned(1536 + 16 * puff), WordWrap.Unsigned(puff is 0 or 2 ? 176 : 192))
             : throw new ArgumentOutOfRangeException(nameof(puff));
 
     /// <summary>
@@ -168,7 +168,7 @@ internal sealed class CrocomireBridgeCollapse
     /// <exception cref="InvalidDataException">The row lies outside his body layer.</exception>
     private void ClearCrocomireSinkRow()
     {
-        int row = unchecked((ushort)(_bodyLayer.Placement.Y + SinkRowDepth)) / BossBodyDefinitions.CellPixels;
+        int row = CoordinateAxis.Wrap(_bodyLayer.Placement.Y + SinkRowDepth) / BossBodyDefinitions.CellPixels;
         int firstCell = row * BossBodyDefinitions.ColumnCount;
         _bodyLayer.WorkingBody.Clear(firstCell, BossBodyDefinitions.ColumnCount);
         _bodyLayer.ShowCrocomireWorkingCells(firstCell, BossBodyDefinitions.ColumnCount);
@@ -228,7 +228,7 @@ internal sealed class CrocomireBridgeCollapse
         _bodyLayer.PlaceCrocomireBodyLayer(state);
         RoomEnemySlot body = state.Body;
 
-        if (unchecked((short)(body.Position.Y.Whole - 280)) >= 0)
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, 280) >= 0)
         {
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             state.DeathPhaseDelay = WrappingCountdown.Start(48);
@@ -253,8 +253,8 @@ internal sealed class CrocomireBridgeCollapse
 
         int travelled = state.VerticalSubpixel + speed;
         state.VerticalSubpixel = EightEight.FractionOf(travelled);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(
-            body.Position.Y.Whole + EightEight.WholeOf(travelled))));
+        body.Position = body.Position.WithWrappedWholeY(
+            body.Position.Y.Whole + EightEight.WholeOf(travelled));
     }
 
     /// <summary>
@@ -270,7 +270,7 @@ internal sealed class CrocomireBridgeCollapse
     {
         _bodyLayer.LevelCrocomireMeltDistortion(_bodyLayer.Placement.Y);
         RoomEnemySlot body = state.Body;
-        if (unchecked((short)(body.Position.Y.Whole - 218)) < 0)
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, 218) < 0)
         {
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             return;
@@ -291,8 +291,8 @@ internal sealed class CrocomireBridgeCollapse
 
         int remaining = state.VerticalSubpixel - speed;
         state.VerticalSubpixel = EightEight.FractionOf(remaining);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(
-            body.Position.Y.Whole + EightEight.WholeOf(remaining))));
+        body.Position = body.Position.WithWrappedWholeY(
+            body.Position.Y.Whole + EightEight.WholeOf(remaining));
     }
 
     /// <summary>Selects the body melting program for the rows still above the acid.</summary>
@@ -354,7 +354,7 @@ internal sealed class CrocomireBridgeCollapse
         projectile.Position = projectile.Position.WithWholeY(187).WithFractionX(0).WithFractionY(0);
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(0));
         // $86:92A5 reads RandomNumberSeed; it does not advance it.
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)((_room.Random.Read() & 63) + 64))));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped((_room.Random.Read() & 63) + 64));
         // The fragments draw in the wall colours Crocomire's encounter installs.
         projectile.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.CrocomireWall));
     }

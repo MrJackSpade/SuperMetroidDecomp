@@ -18,28 +18,28 @@ public static class GameOptionsPositions
 
     /// <summary>The primary page's cursor row for selected row 0..4: evenly spaced, with the authored gap after row 1.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The row is outside the five rows.</exception>
-    public static ushort PrimaryY(int row)
+    public static int PrimaryY(int row)
     {
         if ((uint)row >= GameOptionsDefinitions.Rows.PrimaryCount) throw new ArgumentOutOfRangeException(nameof(row));
         int raise = row >= GameOptionsDefinitions.Cursors.PrimaryFirstRaisedRow ? GameOptionsDefinitions.Cursors.PrimaryLowerRowsRaise : 0;
-        return (ushort)(GameOptionsDefinitions.Cursors.PrimaryFirstY + GameOptionsDefinitions.Cursors.PrimaryRowSpacing * row - raise);
+        return CoordinateAxis.Wrap(GameOptionsDefinitions.Cursors.PrimaryFirstY + GameOptionsDefinitions.Cursors.PrimaryRowSpacing * row - raise);
     }
 
     /// <summary>The controller page's cursor row for selected row 0..8; Exit and Reset account for the page's scroll.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The row is outside the nine rows.</exception>
-    public static ushort ControllerY(int row)
+    public static int ControllerY(int row)
     {
         if ((uint)row >= GameOptionsDefinitions.Rows.ControllerCount) throw new ArgumentOutOfRangeException(nameof(row));
         int scroll = row >= GameOptionsDefinitions.Rows.ControllerExit ? GameOptionsDefinitions.ControllerScrollLimit : 0;
-        return (ushort)(GameOptionsDefinitions.Cursors.ControllerFirstY + GameOptionsDefinitions.Cursors.ControllerRowSpacing * row - scroll);
+        return CoordinateAxis.Wrap(GameOptionsDefinitions.Cursors.ControllerFirstY + GameOptionsDefinitions.Cursors.ControllerRowSpacing * row - scroll);
     }
 
     /// <summary>The special page's cursor row for selected row 0..2.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The row is outside the three rows.</exception>
-    public static ushort SpecialY(int row)
+    public static int SpecialY(int row)
     {
         if ((uint)row >= GameOptionsDefinitions.Rows.SpecialCount) throw new ArgumentOutOfRangeException(nameof(row));
-        return (ushort)(GameOptionsDefinitions.Cursors.SpecialFirstY + GameOptionsDefinitions.Cursors.SpecialRowSpacing * row);
+        return CoordinateAxis.Wrap(GameOptionsDefinitions.Cursors.SpecialFirstY + GameOptionsDefinitions.Cursors.SpecialRowSpacing * row);
     }
 
     /// <summary>The primary page's row at cursor position <paramref name="row"/>, or null past the page's last row.</summary>
@@ -50,7 +50,7 @@ public static class GameOptionsPositions
 
     /// <summary>The column of a page's heading.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The page is not an options page.</exception>
-    internal static ushort HeadingX(GameOptionsPage page) => page switch
+    internal static int HeadingX(GameOptionsPage page) => page switch
     {
         GameOptionsPage.Primary => GameOptionsDefinitions.Headings.PrimaryX,
         GameOptionsPage.Controller => GameOptionsDefinitions.Headings.ControllerX,

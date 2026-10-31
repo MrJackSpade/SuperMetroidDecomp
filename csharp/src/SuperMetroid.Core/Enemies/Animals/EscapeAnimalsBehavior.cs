@@ -37,9 +37,9 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Whole-pixel horizontal step used by each Dachora movement-list callback.</summary>
-    private const ushort EscapeDachoraPixelsPerCallback = 6;
+    private const int EscapeDachoraPixelsPerCallback = 6;
     /// <summary>Lava Y threshold tested by both families' acid-height branch instructions.</summary>
-    private const ushort EscapeAnimalLavaBranchY = 206;
+    private const int EscapeAnimalLavaBranchY = 206;
     /// <summary>One unit of 16.16 downward acceleration applied during Etecoon's exit.</summary>
     private const int EscapeEtecoonGravity = 1 << 16;
     /// <summary>Signed 16.16 horizontal speed, 3.5 pixels, used when Etecoon exits without a wall collision.</summary>
@@ -198,7 +198,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             case EscapeEtecoonCue.GoToIfAcidHigh goToIfAcidHigh:
                 return EscapeAnimalLavaY(samus) >= EscapeAnimalLavaBranchY ? null : goToIfAcidHigh.Target;
             case EscapeEtecoonCue.Move move:
-                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + move.Offset)));
+                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + move.Offset);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EscapeEtecoonCueKind)} {cue}.");
@@ -215,10 +215,10 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             case EscapeDachoraCueKind.GoToIfCrittersEscaped:
                 return HasCrittersEscaped() ? cue.Target : null;
             case EscapeDachoraCueKind.MoveLeft:
-                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole - EscapeDachoraPixelsPerCallback)));
+                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole - EscapeDachoraPixelsPerCallback);
                 return null;
             case EscapeDachoraCueKind.MoveRight:
-                slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + EscapeDachoraPixelsPerCallback)));
+                slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + EscapeDachoraPixelsPerCallback);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EscapeDachoraCueKind)} {cue.Kind}.");

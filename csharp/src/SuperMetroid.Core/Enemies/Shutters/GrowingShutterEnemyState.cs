@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 public sealed class GrowingShutterEnemyState
 {
     /// <summary>Pixels between consecutive growth sections' origins along the growth direction.</summary>
-    private const short SectionOriginSpacing = 8;
+    private const int SectionOriginSpacing = 8;
 
     /// <summary>The number of growth sections, each with a stored origin; a fully grown shutter is at this level.</summary>
     internal const int SectionCount = 4;
@@ -78,7 +78,7 @@ public sealed class GrowingShutterEnemyState
     internal void PlaceSectionOrigins(bool growsUp)
     {
         Position16<RoomPixels> spawn = _slot.Position.Whole;
-        var spacing = new Offset16<RoomPixels>(0, growsUp ? (short)-SectionOriginSpacing : SectionOriginSpacing);
+        var spacing = new Offset16<RoomPixels>(0, growsUp ? CoordinateAxis.AsSigned(-SectionOriginSpacing) : SectionOriginSpacing);
         Position16<RoomPixels> origin = spawn;
         for (int level = 0; level < SectionCount; level++)
         {

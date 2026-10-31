@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus;
 public sealed class SamusCeresRidleyEjectionState
 {
     /// <summary>Native signed whole-pixel downward speed threshold during Ridley's shove.</summary>
-    private const ushort TerminalDownwardSpeed = 5;
+    private const int TerminalDownwardSpeed = 5;
 
     /// <summary>True while `$90:E12E/$E1C8` owns Samus movement.</summary>
     public bool IsActive { get; private set; }
@@ -86,13 +86,13 @@ public sealed class SamusCeresRidleyEjectionState
             // The gamma initialization owns this shift. Request/BeginFrame must
             // not publish it early, and subsequent shove frames must not repeat it.
             samus.CommitPoseHistory();
-            samus.Position = samus.Position.WithWholeY(unchecked((ushort)(
-                samus.Position.Y.Whole - (21 - samus.Kinematics.Radius.Y))));
+            samus.Position = samus.Position.WithWrappedWholeY(
+                samus.Position.Y.Whole - (21 - samus.Kinematics.Radius.Y));
 
             // The side is selected from screen X, not world X. Exact center belongs to the
             // rightward branch because the native BMI tests a signed `(screenX - 128)`.
-            int screenX = unchecked((ushort)(samus.Position.X.Whole - layer1X));
-            PushDirection = unchecked((short)(screenX - 128)) < 0
+            int screenX = CoordinateAxis.Wrap(samus.Position.X.Whole - layer1X);
+            PushDirection = CoordinateAxis.Difference(screenX, 128) < 0
                 ? CeresRidleyShoveDirection.Left
                 : CeresRidleyShoveDirection.Right;
             samus.Kinematics.YSpeed = new UnsignedSixteenSixteen(TerminalDownwardSpeed, 0);
@@ -136,7 +136,7 @@ public sealed class SamusCeresRidleyEjectionState
         // `$90:8F5A` accelerates only while the signed whole speed is below five. The
         // resulting 16.16 word is passed directly to MoveDown; unlike the common falling
         // wrapper, this path adds no extra one-pixel downward bias.
-        if (unchecked((short)(samus.Kinematics.YSpeed.Whole - TerminalDownwardSpeed)) < 0)
+        if (WordWrap.Signed(samus.Kinematics.YSpeed.Whole - TerminalDownwardSpeed) < 0)
         {
             uint accelerated = unchecked(
                 samus.Kinematics.VerticalSpeedFixed +

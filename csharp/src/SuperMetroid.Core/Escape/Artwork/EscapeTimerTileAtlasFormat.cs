@@ -17,12 +17,12 @@ public static class EscapeTimerTileAtlasFormat
     public const int Height = 8;
 
     /// <summary>First native upload size, $0200 bytes, containing characters 0..15 from source $B0:C000.</summary>
-    public const ushort FirstByteCount = 16 * 32;
+    public const int FirstByteCount = 16 * 32;
     /// <summary>The first page's first OBJ character, $1E0.</summary>
     public const int FirstCharacter = EscapeTextArtworkDefinitions.TimerFirstCharacter;
 
     /// <summary>Second native upload size, $0120 bytes, containing the remaining characters 16..24 from source $B0:C200.</summary>
-    public const ushort SecondByteCount = 9 * 32;
+    public const int SecondByteCount = 9 * 32;
     /// <summary>The second page's first OBJ character, $1F0, after the first page's sixteen.</summary>
     public const int SecondCharacter = FirstCharacter + FirstByteCount / 32;
 

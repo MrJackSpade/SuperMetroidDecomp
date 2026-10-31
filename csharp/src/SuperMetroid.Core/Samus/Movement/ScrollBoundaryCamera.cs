@@ -99,8 +99,8 @@ public sealed class ScrollBoundaryCamera
         // the first vertical movement applies the cell-specific exact maximum.
         int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + 31;
         var clamped = new Position16<RoomPixels>(
-            (ushort)Math.Clamp(requested.X, 0, maxX),
-            (ushort)Math.Clamp(requested.Y, 0, maxY));
+            CoordinateAxis.Wrap(Math.Clamp(requested.X, 0, maxX)),
+            CoordinateAxis.Wrap(Math.Clamp(requested.Y, 0, maxY)));
         Position = FixedPosition<RoomPixels>.FromWhole(clamped);
         IdealPosition = clamped;
     }
@@ -191,7 +191,7 @@ public sealed class ScrollBoundaryCamera
             || context.TurningAgainstMomentum;
         bool useFacingRightTarget = backwards ^ !context.FacesLeft;
         int targetOffset = HorizontalCameraTargets.Offset(context.CameraDistanceIndex, useFacingRightTarget);
-        IdealPosition = IdealPosition.WithX(unchecked((ushort)(current.X.Whole - targetOffset)));
+        IdealPosition = IdealPosition.WithX(CoordinateAxis.Wrap(current.X.Whole - targetOffset));
 
         if (IdealPosition.X == Position.X.Whole)
             return;
@@ -215,11 +215,11 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     public void TrackGrappleSlowScrolling(Position16<RoomPixels> samus, bool timeIsFrozen = false)
     {
-        if (unchecked((short)samus.X) >= 0)
+        if (CoordinateAxis.AsSigned(samus.X) >= 0)
         {
             SetWholeX(StepTowardDeadZone(Position.X.Whole, samus.X,
                 GrappleSlowScrollDefinitions.LeftEdgeX, GrappleSlowScrollDefinitions.RightEdgeX));
-            if (unchecked((short)samus.Y) >= 0)
+            if (CoordinateAxis.AsSigned(samus.Y) >= 0)
             {
                 SetWholeY(StepTowardDeadZone(Position.Y.Whole, samus.Y,
                     GrappleSlowScrollDefinitions.TopEdgeY, GrappleSlowScrollDefinitions.BottomEdgeY));
@@ -235,12 +235,12 @@ public sealed class ScrollBoundaryCamera
     private static int StepTowardDeadZone(int camera, int samus, int nearEdge, int farEdge)
     {
         if (samus < camera)
-            return unchecked((ushort)(camera - GrappleSlowScrollDefinitions.Step));
-        int onScreen = unchecked((ushort)(samus - camera));
+            return CoordinateAxis.Wrap(camera - GrappleSlowScrollDefinitions.Step);
+        int onScreen = CoordinateAxis.Wrap(samus - camera);
         if (onScreen >= farEdge)
-            return unchecked((ushort)(camera + GrappleSlowScrollDefinitions.Step));
+            return CoordinateAxis.Wrap(camera + GrappleSlowScrollDefinitions.Step);
         if (onScreen < nearEdge)
-            return unchecked((ushort)(camera - GrappleSlowScrollDefinitions.Step));
+            return CoordinateAxis.Wrap(camera - GrappleSlowScrollDefinitions.Step);
         return camera;
     }
 
@@ -266,7 +266,7 @@ public sealed class ScrollBoundaryCamera
         // literal $90:9666-$90:9681: upward motion subtracts down_scroller, all else
         // subtracts up_scroller.
         int targetOffset = context.YDirection == SamusVerticalDirection.Up ? context.DownScroller : context.UpScroller;
-        IdealPosition = IdealPosition.WithY(unchecked((ushort)(current.Y.Whole - targetOffset)));
+        IdealPosition = IdealPosition.WithY(CoordinateAxis.Wrap(current.Y.Whole - targetOffset));
 
         if (IdealPosition.Y == Position.Y.Whole)
             return;
@@ -303,14 +303,14 @@ public sealed class ScrollBoundaryCamera
         // this original word, even if the live position is first clamped to a room edge.
         int proposed = Position.X.Whole;
 
-        if ((short)Position.X.Whole < 0)
+        if (CoordinateAxis.AsSigned(Position.X.Whole) < 0)
             SetWholeX(0);
 
-        int roomMaximum = (ushort)(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
+        int roomMaximum = CoordinateAxis.Wrap(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
         if (Position.X.Whole > roomMaximum)
             SetWholeX(roomMaximum);
 
-        int row = (EightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
+        int row = (EightEight.WholeOf(CoordinateAxis.Wrap(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int currentCell = row + (EightEight.WholeOf(Position.X.Whole));
 
         if (Scrolls.ReadCameraState(currentCell) == RoomScrollState.RedBoundary)
@@ -319,7 +319,7 @@ public sealed class ScrollBoundaryCamera
             // If the next cell is also red, discard the fractional screen position and stay
             // on this cell's left edge instead of allowing the viewport to enter it.
             int rightBoundary = NextScreenStart(Position.X.Whole);
-            int candidate = unchecked((ushort)(proposed + Speed.X.WholeWord + 2));
+            int candidate = WordWrap.Unsigned(proposed + Speed.X.WholeWord + 2);
             if (candidate >= rightBoundary)
             {
                 SetWholeX(rightBoundary);
@@ -341,7 +341,7 @@ public sealed class ScrollBoundaryCamera
         // toward the current cell's left edge. If the candidate itself lands in red, round
         // up to the next screen boundary. Signed comparison reproduces BMI at $80:A5F9.
         int leftBoundary = ScreenStart(Position.X.Whole);
-        int leftCandidate = unchecked((ushort)(proposed - Speed.X.WholeWord - 2));
+        int leftCandidate = WordWrap.Unsigned(proposed - Speed.X.WholeWord - 2);
         if (SignedDifference(leftCandidate, leftBoundary) < 0)
         {
             SetWholeX(leftBoundary);
@@ -363,7 +363,7 @@ public sealed class ScrollBoundaryCamera
         if (timeIsFrozen)
             return;
 
-        int centeredXScreen = EightEight.WholeOf((ushort)(Position.X.Whole + HalfScreen));
+        int centeredXScreen = EightEight.WholeOf(CoordinateAxis.Wrap(Position.X.Whole + HalfScreen));
         int preClampCell = (EightEight.WholeOf(Position.Y.Whole)) * Scrolls.Size.X + centeredXScreen;
 
         // Blue scroll cells align the 224-line gameplay viewport to the top of the screen;
@@ -374,10 +374,10 @@ public sealed class ScrollBoundaryCamera
             : 31;
         int proposed = Position.Y.Whole;
 
-        if ((short)Position.Y.Whole < 0)
+        if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)
             SetWholeY(0);
 
-        int roomMaximum = unchecked((ushort)((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment));
+        int roomMaximum = CoordinateAxis.Wrap((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment);
         if (Position.Y.Whole > roomMaximum)
             SetWholeY(roomMaximum);
 
@@ -387,7 +387,7 @@ public sealed class ScrollBoundaryCamera
             // A red current cell pushes downward toward its bottom boundary. As in the X
             // routine, a second red cell beyond the candidate causes screen-edge rounding.
             int bottomBoundary = NextScreenStart(Position.Y.Whole);
-            int candidate = unchecked((ushort)(proposed + Speed.Y.WholeWord + 2));
+            int candidate = WordWrap.Unsigned(proposed + Speed.Y.WholeWord + 2);
             if (candidate >= bottomBoundary)
             {
                 SetWholeY(bottomBoundary);
@@ -406,14 +406,14 @@ public sealed class ScrollBoundaryCamera
             RoomScrollState.RedBoundary)
             return;
 
-        int topBoundary = unchecked((ushort)(ScreenStart(Position.Y.Whole) + verticalAlignment));
+        int topBoundary = CoordinateAxis.Wrap(ScreenStart(Position.Y.Whole) + verticalAlignment);
 
         // CMP/BCC at $80:A82D only pulls the camera upward when it is strictly below the
         // aligned boundary. Equality intentionally does nothing.
         if (topBoundary >= Position.Y.Whole)
             return;
 
-        int upwardCandidate = unchecked((ushort)(proposed - Speed.Y.WholeWord - 2));
+        int upwardCandidate = WordWrap.Unsigned(proposed - Speed.Y.WholeWord - 2);
         if (SignedDifference(upwardCandidate, topBoundary) < 0)
         {
             SetWholeY(topBoundary);
@@ -440,7 +440,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
         }
 
-        int roomMaximum = (ushort)(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
+        int roomMaximum = CoordinateAxis.Wrap(RoomGridConversions.ScreenToPixels(Scrolls.Size.X - 1));
         if (Position.X.Whole > roomMaximum)
         {
             SetWholeX(roomMaximum);
@@ -449,13 +449,13 @@ public sealed class ScrollBoundaryCamera
 
         // The horizontal routines sample the row containing the screen's vertical center
         // (Y+$80), then the screen immediately to the right of the camera's high X byte.
-        int row = (EightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
+        int row = (EightEight.WholeOf(CoordinateAxis.Wrap(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int rightCell = row + (EightEight.WholeOf(Position.X.Whole)) + 1;
         if (Scrolls.ReadCameraState(rightCell) != RoomScrollState.RedBoundary)
             return;
 
         int boundary = ScreenStart(Position.X.Whole);
-        int candidate = unchecked((ushort)(proposed - Speed.X.WholeWord - 2));
+        int candidate = WordWrap.Unsigned(proposed - Speed.X.WholeWord - 2);
         if (SignedDifference(candidate, boundary) < 0)
             candidate = boundary;
         SetWholeX(candidate);
@@ -471,19 +471,19 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithX(new FixedCoordinate(IdealPosition.X, 0));
         }
 
-        if ((short)Position.X.Whole < 0)
+        if (CoordinateAxis.AsSigned(Position.X.Whole) < 0)
         {
             SetWholeX(0);
             return;
         }
 
-        int row = (EightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
+        int row = (EightEight.WholeOf(CoordinateAxis.Wrap(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int currentCell = row + (EightEight.WholeOf(Position.X.Whole));
         if (Scrolls.ReadCameraState(currentCell) != RoomScrollState.RedBoundary)
             return;
 
         int boundary = NextScreenStart(Position.X.Whole);
-        int candidate = unchecked((ushort)(proposed + Speed.X.WholeWord + 2));
+        int candidate = WordWrap.Unsigned(proposed + Speed.X.WholeWord + 2);
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeX(candidate);
@@ -507,7 +507,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
         }
 
-        int boundary = unchecked((ushort)((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment));
+        int boundary = CoordinateAxis.Wrap((RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + verticalAlignment);
         bool beyondRoomBottom = boundary < Position.Y.Whole;
         bool blockedBelow = false;
         if (!beyondRoomBottom)
@@ -519,14 +519,14 @@ public sealed class ScrollBoundaryCamera
                 RoomScrollState.RedBoundary;
             if (blockedBelow)
             {
-                boundary = unchecked((ushort)(ScreenStart(Position.Y.Whole) + verticalAlignment));
+                boundary = CoordinateAxis.Wrap(ScreenStart(Position.Y.Whole) + verticalAlignment);
                 blockedBelow = boundary < Position.Y.Whole;
             }
         }
 
         if (beyondRoomBottom || blockedBelow)
         {
-            int candidate = unchecked((ushort)(proposed - Speed.Y.WholeWord - 2));
+            int candidate = WordWrap.Unsigned(proposed - Speed.Y.WholeWord - 2);
             if (SignedDifference(candidate, boundary) < 0)
                 candidate = boundary;
             SetWholeY(candidate);
@@ -543,7 +543,7 @@ public sealed class ScrollBoundaryCamera
             Position = Position.WithY(new FixedCoordinate(IdealPosition.Y, 0));
         }
 
-        if ((short)Position.Y.Whole < 0)
+        if (CoordinateAxis.AsSigned(Position.Y.Whole) < 0)
         {
             SetWholeY(0);
             return;
@@ -554,7 +554,7 @@ public sealed class ScrollBoundaryCamera
             return;
 
         int boundary = NextScreenStart(Position.Y.Whole);
-        int candidate = unchecked((ushort)(proposed + Speed.Y.WholeWord + 2));
+        int candidate = WordWrap.Unsigned(proposed + Speed.Y.WholeWord + 2);
         if (candidate >= boundary)
             candidate = boundary;
         SetWholeY(candidate);
@@ -563,19 +563,19 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Samples the scroll cell at the camera's horizontal midpoint for vertical boundaries.</summary>
     private int VerticalCellIndex()
     {
-        int xScreenAtCenter = EightEight.WholeOf((ushort)(Position.X.Whole + HalfScreen));
+        int xScreenAtCenter = EightEight.WholeOf(CoordinateAxis.Wrap(Position.X.Whole + HalfScreen));
         int yScreen = EightEight.WholeOf(Position.Y.Whole);
         return yScreen * Scrolls.Size.X + xScreenAtCenter;
     }
 
     /// <summary>Interprets modular coordinate subtraction with the cartridge's signed 16-bit comparison.</summary>
-    private static int SignedDifference(int left, int right) => unchecked((short)(left - right));
+    private static int SignedDifference(int left, int right) => WordWrap.Signed(left - right);
 
     /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the AND #$FF00 alignment).</summary>
-    private static ushort ScreenStart(int pixel) => RoomGridConversions.ScreenStart(pixel);
+    private static int ScreenStart(int pixel) => RoomGridConversions.ScreenStart(pixel);
 
     /// <summary>The first pixel of the following scroll screen, wrapping at sixteen bits.</summary>
-    private static ushort NextScreenStart(int pixel) => unchecked((ushort)(ScreenStart(pixel) + 2 * HalfScreen));
+    private static int NextScreenStart(int pixel) => CoordinateAxis.Wrap(ScreenStart(pixel) + 2 * HalfScreen);
 
     /// <summary>
     /// $90:96C3/$90:9702: compares only the integer words as signed 16-bit values, then

@@ -31,7 +31,7 @@ public sealed class ProjectileInheritanceRecords
     /// </summary>
     internal int CameraYSubspeed
     {
-        set => WriteWord(CameraYSubspeedOffset, checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
+        set => WriteWord(CameraYSubspeedOffset, Ensure.BetweenInclusive(0, ushort.MaxValue, Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
     }
 
     /// <summary>Stores one movement call's signed 16.16 distance: the integer word, then the fraction word.</summary>
@@ -39,7 +39,7 @@ public sealed class ProjectileInheritanceRecords
     {
         int offset = RecordOffset(direction);
         WriteWord(offset, FixedCoordinate.WholeOf(signedDisplacement));
-        WriteWord(offset + 2, unchecked((ushort)signedDisplacement));
+        WriteWord(offset + 2, WordWrap.Unsigned(signedDisplacement));
     }
 
     /// <summary>The native alpha tail zeroes the four distance records, leaving the camera subspeed.</summary>
@@ -50,7 +50,7 @@ public sealed class ProjectileInheritanceRecords
     {
         int upward = LaunchVelocityWord(SamusCollisionDirection.Up);
         int upContribution = upward <= byte.MaxValue ? 0 : (upward >> 2) | 3 << 14; // An arithmetic shift by two fills both top bits.
-        int x = unchecked((short)(direction switch
+        int x = WordWrap.Signed(direction switch
         {
             SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight =>
                 baseSpeed + LaunchVelocityWord(SamusCollisionDirection.Right),
@@ -59,8 +59,8 @@ public sealed class ProjectileInheritanceRecords
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.DownFacingRight or
                 SamusProjectileDirection.DownFacingLeft or SamusProjectileDirection.UpFacingLeft => 0,
             _ => throw new InvalidOperationException($"Undefined projectile direction {direction}."),
-        }));
-        int y = unchecked((short)(direction switch
+        });
+        int y = WordWrap.Signed(direction switch
         {
             SamusProjectileDirection.UpFacingRight or SamusProjectileDirection.UpRight or
                 SamusProjectileDirection.UpLeft or SamusProjectileDirection.UpFacingLeft => -baseSpeed + upContribution,
@@ -69,20 +69,20 @@ public sealed class ProjectileInheritanceRecords
                 baseSpeed + LaunchVelocityWord(SamusCollisionDirection.Down),
             SamusProjectileDirection.Right or SamusProjectileDirection.Left => 0,
             _ => throw new InvalidOperationException($"Undefined projectile direction {direction}."),
-        }));
+        });
         return new(x, y);
     }
 
     /// <summary>The overlapping word one byte before <paramref name="direction"/>'s record.</summary>
-    private ushort LaunchVelocityWord(SamusCollisionDirection direction) => ReadWord(RecordOffset(direction) - 1);
+    private int LaunchVelocityWord(SamusCollisionDirection direction) => ReadWord(RecordOffset(direction) - 1);
 
     /// <summary>Reads the little-endian word whose low byte is at <paramref name="offset"/>.</summary>
-    private ushort ReadWord(int offset) => BinaryPrimitives.ReadUInt16LittleEndian(Bytes.AsSpan(offset));
+    private int ReadWord(int offset) => BinaryPrimitives.ReadUInt16LittleEndian(Bytes.AsSpan(offset));
 
     /// <summary>Writes <paramref name="value"/> little-endian at <paramref name="offset"/>.</summary>
     private void WriteWord(int offset, int value)
     {
-        BinaryPrimitives.WriteUInt16LittleEndian(Bytes.AsSpan(offset), checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
+        BinaryPrimitives.WriteUInt16LittleEndian(Bytes.AsSpan(offset), Ensure.BetweenInclusive(0, ushort.MaxValue, Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
     }
 
     /// <summary>Maps left, right, up, or down to its native 16.16 record offset.</summary>

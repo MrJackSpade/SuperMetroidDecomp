@@ -223,7 +223,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// </summary>
     public bool RequestBabyStumbleBackward()
     {
-        int targetX = unchecked((ushort)(State.Body.Position.X - 1));
+        int targetX = CoordinateAxis.Wrap(State.Body.Position.X - 1);
         return State.MakeBodyWalkBackwards(targetX, MotherBrainBodyProgram.WalkBackwardReallyFast).Requested;
     }
 

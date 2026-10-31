@@ -45,25 +45,25 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Native $A7:F4CB vertical proximity threshold for activating the bird.</summary>
     private const int DachoraActivationYDistance = 64;
     /// <summary>Native warning interval before Dachora starts its leftward run.</summary>
-    private const ushort DachoraBlinkDuration = 120;
+    private const int DachoraBlinkDuration = 120;
     /// <summary>Native stored-shine countdown before Dachora launches.</summary>
-    private const ushort DachoraChargeDuration = 60;
+    private const int DachoraChargeDuration = 60;
     /// <summary>Accepted-frame interval between echo position captures.</summary>
-    private const ushort DachoraEchoPositionInterval = 1;
+    private const int DachoraEchoPositionInterval = 1;
     /// <summary>Accepted-frame lifetime of each Dachora shine echo.</summary>
-    private const ushort DachoraEchoLifetime = 8;
+    private const int DachoraEchoLifetime = 8;
     /// <summary>The bird's run speed cap: eight pixels per update.</summary>
     private static readonly SignedSixteenSixteen DachoraMaximumSpeed = SignedSixteenSixteen.FromParts(8, 0);
     /// <summary>Dachora's running acceleration: a sixteenth of a pixel per update, every update.</summary>
     private static readonly SignedSixteenSixteen DachoraAcceleration = SignedSixteenSixteen.FromParts(0, 4096);
     /// <summary>The shinespark's upward speed cap in whole pixels per update; the fraction is kept.</summary>
-    private const short DachoraShinesparkMaximumWholeSpeed = 15;
+    private const int DachoraShinesparkMaximumWholeSpeed = 15;
     /// <summary>The fall's speed cap: ten pixels per update.</summary>
     private static readonly SignedSixteenSixteen DachoraMaximumFallSpeed = SignedSixteenSixteen.FromParts(10, 0);
     /// <summary>Scripted room X where Dachora reverses its leftward run.</summary>
-    private const ushort DachoraLeftTurnX = 96;
+    private const int DachoraLeftTurnX = 96;
     /// <summary>Scripted room X where Dachora begins its stored-shine demonstration.</summary>
-    private const ushort DachoraShinesparkX = 1152;
+    private const int DachoraShinesparkX = 1152;
 
     /// <summary>Library-two sound queued when Samus wakes the tutorial Dachora.</summary>
     private static readonly SoundEffectId DachoraActivationSound =
@@ -226,7 +226,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!hitWall)
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
 
-        if (!hitWall && unchecked((short)(slot.Position.X.Whole - DachoraLeftTurnX)) >= 0)
+        if (!hitWall && CoordinateAxis.Difference(slot.Position.X.Whole, DachoraLeftTurnX) >= 0)
             return;
 
         InstallDachoraInstruction(slot, state, DachoraProgram.RunningRight);
@@ -257,14 +257,14 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
-        if (unchecked((short)(slot.Position.X.Whole - DachoraShinesparkX)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, DachoraShinesparkX) < 0)
             return;
 
         InstallDachoraInstruction(slot, state, DachoraProgram.ChargeRight);
         state.Function = DachoraAiFunction.ChargingShinespark;
         state.StartCharging(WrappingCountdown.Start(DachoraChargeDuration));
         state.SetPaletteCycle(frame: 0, ticks: 0);
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 8)));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 8);
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraChargeSound, priority: SoundRequestPriority.Normal);
     }
 
@@ -278,7 +278,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraEnemyState state,
         RoomLevelData level)
     {
-        if (unchecked((short)(state.Speed.WholePixels - DachoraMaximumSpeed.WholePixels)) >= 0)
+        if (WordWrap.Signed(state.Speed.WholePixels - DachoraMaximumSpeed.WholePixels) >= 0)
         {
             if (state.PaletteFrame == 0 && state.PaletteTicks == 1)
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraSpeedBoosterSound, priority: SoundRequestPriority.Normal);
@@ -303,8 +303,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The cartridge compares the whole and fraction words separately, each by the sign of its difference
         // from the cap's; a fraction with its top bit set therefore also counts as below the cap.
         SignedSixteenSixteen speed = state.Speed;
-        bool belowMaximum = unchecked((short)(speed.WholePixels - DachoraMaximumSpeed.WholePixels)) < 0 ||
-            unchecked((short)(speed.Fraction - DachoraMaximumSpeed.Fraction)) < 0;
+        bool belowMaximum = WordWrap.Signed(speed.WholePixels - DachoraMaximumSpeed.WholePixels) < 0 ||
+            WordWrap.Signed(speed.Fraction - DachoraMaximumSpeed.Fraction) < 0;
         if (belowMaximum)
         {
             speed += DachoraAcceleration;
@@ -342,7 +342,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (RoomEnemySlot echo in echoes)
             echo.RequireSpeciesState<DachoraEnemyState>().EchoLifetime = WrappingCountdown.Start(0);
         state.VerticalAcceleration = SignedSixteenSixteen.Zero;
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 8)));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 8);
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraLaunchSound, priority: SoundRequestPriority.Normal);
 
         DachoraProgram echoList = state.FacingRight
@@ -367,7 +367,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The cap replaces only the whole word, compared by the sign of its word difference; the fraction is kept.
         SignedSixteenSixteen speed = state.Speed;
-        SignedSixteenSixteen capped = unchecked((short)(speed.WholePixels - DachoraShinesparkMaximumWholeSpeed)) >= 0
+        SignedSixteenSixteen capped = WordWrap.Signed(speed.WholePixels - DachoraShinesparkMaximumWholeSpeed) >= 0
             ? speed.WithWholePixels(DachoraShinesparkMaximumWholeSpeed)
             : speed;
         int upwardDisplacement = unchecked(-capped.RawValue);
@@ -400,7 +400,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         state.Speed += SamusGravity(samus);
-        if (unchecked((short)(state.Speed.WholePixels - DachoraMaximumFallSpeed.WholePixels)) >= 0)
+        if (WordWrap.Signed(state.Speed.WholePixels - DachoraMaximumFallSpeed.WholePixels) >= 0)
             state.Speed = DachoraMaximumFallSpeed;
 
         if (!_terrain.MoveEnemyVertically(
@@ -546,12 +546,12 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Uses wrapped signed positions and a strict native proximity threshold on one axis.</summary>
     private static bool DachoraWithinAxis(int actor, int samus, int distance) =>
-        Math.Abs(unchecked((short)(actor - samus))) < distance;
+        Math.Abs(WordWrap.Signed(actor - samus)) < distance;
 
     /// <summary>Samus's current gravity per update, which the shinespark and fall accumulate.</summary>
     private static SignedSixteenSixteen SamusGravity(SamusState samus) =>
         SignedSixteenSixteen.FromParts(
-            unchecked((short)samus.Kinematics.YAcceleration.Whole),
+            WordWrap.Signed(samus.Kinematics.YAcceleration.Whole),
             samus.Kinematics.YAcceleration.Fraction);
 
     /// <summary>Advances Dachora's typed animation.</summary>

@@ -50,15 +50,15 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Fixed-point lookahead distance for the right wall probe.</summary>
     private const int EtecoonRightWallProbe = 32 << 16;
     /// <summary>Room X where the left teaching route stops and begins hopping.</summary>
-    private const ushort EtecoonFirstTeachingX = 537;
+    private const int EtecoonFirstTeachingX = 537;
     /// <summary>Room X where the right teaching route begins a jump or return.</summary>
-    private const ushort EtecoonRunStartX = 600;
+    private const int EtecoonRunStartX = 600;
     /// <summary>Room X where the long jump switches back to running art.</summary>
-    private const ushort EtecoonLongJumpMidpointX = 680;
+    private const int EtecoonLongJumpMidpointX = 680;
     /// <summary>Room X where the long route installs its landing jump.</summary>
-    private const ushort EtecoonLongJumpEndX = 840;
+    private const int EtecoonLongJumpEndX = 840;
     /// <summary>Last X that permits the alternate wait before another teaching jump.</summary>
-    private const ushort EtecoonLongRunMaximumX = 832;
+    private const int EtecoonLongRunMaximumX = 832;
 
     /// <summary>Y speed for an ordinary Etecoon hop.</summary>
     /// <remarks>These are the literal eight ROM words at $A7:E900-$E90F. Keeping them named beside their consumers
@@ -232,7 +232,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         state.Function = EtecoonAiFunction.InitialJump;
-        if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
+        if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonJumpSound, priority: SoundRequestPriority.Normal);
     }
 
@@ -252,7 +252,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 EtecoonIsWithinX(slot, samus, EtecoonNearbyDistance))
             {
                 int direction = DetermineEtecoonDirectionToSamus(slot, samus);
-                if (unchecked((short)(direction - 5)) < 0)
+                if (WordWrap.Signed(direction - 5) < 0)
                 {
                     InstallEtecoonInstruction(slot, state, EtecoonProgram.LookRightAtSamusAndRunLeft);
                     state.Head(side: HorizontalDirection.Left);
@@ -358,7 +358,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             }
             state.Function = EtecoonAiFunction.WallPause;
             state.FunctionTimer = WrappingCountdown.Start(8);
-            if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
+            if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonWallSound, priority: SoundRequestPriority.Normal);
             return;
         }
@@ -438,7 +438,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(slot, state, level);
-        if (unchecked((short)(slot.Position.X.Whole - EtecoonFirstTeachingX)) >= 0)
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonFirstTeachingX) >= 0)
             return;
 
         state.FunctionTimer = WrappingCountdown.Start(11);
@@ -453,7 +453,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(slot, state, level);
-        if (unchecked((short)(slot.Position.X.Whole - EtecoonRunStartX)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonRunStartX) < 0)
             return;
 
         state.FunctionTimer = WrappingCountdown.Start(11);
@@ -468,7 +468,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(slot, state, level);
-        if (unchecked((short)(slot.Position.X.Whole - EtecoonRunStartX)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonRunStartX) < 0)
             return;
 
         state.Function = EtecoonAiFunction.LongJump;
@@ -485,7 +485,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         MoveEtecoonHorizontally(slot, state, level);
         MoveEtecoonVertically(slot, state, samus, level);
-        if (unchecked((short)(slot.Position.X.Whole - EtecoonLongJumpMidpointX)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonLongJumpMidpointX) < 0)
             return;
 
         InstallEtecoonInstruction(slot, state, EtecoonProgram.RunningRight);
@@ -499,7 +499,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(slot, state, level);
-        if (unchecked((short)(slot.Position.X.Whole - EtecoonLongJumpEndX)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonLongJumpEndX) < 0)
             return;
 
         InstallEtecoonInstruction(slot, state, EtecoonProgram.JumpingRight);
@@ -539,7 +539,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FunctionTimer = WrappingCountdown.Start(11);
             InstallEtecoonInstruction(slot, state, EtecoonProgram.HoppingFacingLeft);
             state.Function = (state.Route & 2) != 0 &&
-                unchecked((short)(slot.Position.X.Whole - EtecoonLongRunMaximumX)) < 0
+                CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonLongRunMaximumX) < 0
                     ? EtecoonAiFunction.WaitForSamusBeforeLongRun
                     : EtecoonAiFunction.IdleBetweenTeachingJumps;
             return;
@@ -563,8 +563,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Four teaching hops are counted. Native then clears only the count, keeping the
         // heading used by the airborne states. The count wraps at 256 and is compared by the
         // sign of its difference from four, as the cartridge compares it.
-        state.TeachingHops = unchecked((byte)(state.TeachingHops + 1));
-        bool fewerThanFourTeachingJumps = unchecked((short)(state.TeachingHops * 256 - 1024)) < 0;
+        state.TeachingHops = WordWrap.LowByte(state.TeachingHops + 1);
+        bool fewerThanFourTeachingJumps = WordWrap.Signed(state.TeachingHops * 256 - 1024) < 0;
         if (!fewerThanFourTeachingJumps)
         {
             // `$A7:EDFD` clears the completed counter before testing route two.
@@ -584,7 +584,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
+        if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonJumpSound, priority: SoundRequestPriority.Normal);
     }
 
@@ -609,7 +609,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity);
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
             state.Function = EtecoonAiFunction.TeachingJump;
-            if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
+            if (CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
                 _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Etecoon, EtecoonJumpSound, priority: SoundRequestPriority.Normal);
         }
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -622,7 +622,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         MoveEtecoonHorizontally(slot, state, level);
-        if (unchecked((short)(slot.Position.X.Whole - EtecoonRunStartX)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.X.Whole, EtecoonRunStartX) < 0)
             return;
 
         state.Function = EtecoonAiFunction.ReturnJump;
@@ -674,7 +674,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         int displacement = state.Velocity.Y.RawValue;
-        if (unchecked((short)(state.Velocity.Y.WholeWord - 5)) < 0)
+        if (WordWrap.Signed(state.Velocity.Y.WholeWord - 5) < 0)
         {
             AddEtecoonFixed(
                 state,
@@ -691,7 +691,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int fractionIncrement)
     {
         SignedSixteenSixteen increment =
-            SignedSixteenSixteen.FromParts(unchecked((short)wholeIncrement), fractionIncrement);
+            SignedSixteenSixteen.FromParts(WordWrap.Signed(wholeIncrement), fractionIncrement);
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + increment);
     }
 
@@ -716,29 +716,29 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         SamusState samus,
         int distance) =>
-        Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) < distance;
+        CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) < distance;
 
     /// <summary>Checks strict wrapped vertical distance from an Etecoon to Samus.</summary>
     private static bool EtecoonIsWithinY(
         RoomEnemySlot slot,
         SamusState samus,
         int distance) =>
-        Math.Abs(unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole))) < distance;
+        CoordinateAxis.Distance(slot.Position.Y.Whole, samus.Position.Y.Whole) < distance;
 
     /// <summary>Ports <c>DetermineDirectionOfSamusFromEnemy</c> for the facing branch.</summary>
-    private static ushort DetermineEtecoonDirectionToSamus(
+    private static int DetermineEtecoonDirectionToSamus(
         RoomEnemySlot slot,
         SamusState samus)
     {
-        int deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
-        int deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
+        int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole);
+        int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole);
         if (Math.Abs(deltaY) < EtecoonDirectionBand)
-            return deltaX < 0 ? (ushort)7 : (ushort)2;
+            return deltaX < 0 ? 7 : 2;
         if (Math.Abs(deltaX) < EtecoonDirectionBand)
-            return deltaY < 0 ? (ushort)0 : (ushort)4;
+            return deltaY < 0 ? 0 : 4;
         if (deltaX < 0)
-            return deltaY < 0 ? (ushort)8 : (ushort)6;
-        return deltaY < 0 ? (ushort)1 : (ushort)3;
+            return deltaY < 0 ? 8 : 6;
+        return deltaY < 0 ? 1 : 3;
     }
 
     /// <summary>Restarts an authored Etecoon animation at timer one.</summary>

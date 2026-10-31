@@ -10,5 +10,5 @@ internal static class PauseFadeTiming
     public const int CounterReload = 1;
 
     /// <summary>The fully lit screen brightness level, the top of the 0 (black) through 15 range.</summary>
-    public const byte FullyLit = 15;
+    public const int FullyLit = 15;
 }

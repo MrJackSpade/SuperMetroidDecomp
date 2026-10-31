@@ -21,12 +21,12 @@ internal static class DraygonBurialEvirs
         double x = Math.Cos(radians), y = Math.Sin(radians);
         return new(
             FixedVector<RoomPixels>.FromWords(
-                0, (ushort)Math.Floor(ushort.MaxValue * Math.Abs(x)),
-                0, (ushort)Math.Floor(ushort.MaxValue * y)),
+                0, (int)Math.Floor(ushort.MaxValue * Math.Abs(x)),
+                0, WordWrap.Unsigned((int)Math.Floor(ushort.MaxValue * y))),
             new Position16<RoomPixels>(
-                unchecked((ushort)(int)Math.Floor(CenterX + Radius * x)),
-                (ushort)Math.Floor(CenterY - Radius * y)),
-            new ByteAngle(unchecked((byte)((ushort)angle))));
+                CoordinateAxis.Wrap((int)Math.Floor(CenterX + Radius * x)),
+                CoordinateAxis.Wrap((int)Math.Floor(CenterY - Radius * y))),
+            ByteAngle.Wrapped(angle));
     }
 
     /// <summary>

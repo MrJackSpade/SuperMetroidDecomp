@@ -277,8 +277,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // BG fetches start on physical scanline one; OBJ coordinates already use
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
         Position16<TilePlanePixels> mapScroll = new(
-            ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : (ushort)0,
-            unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + ScreenGeometry.BackgroundRowOffset)));
+            ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : 0,
+            CoordinateAxis.Wrap((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + ScreenGeometry.BackgroundRowOffset));
         // The map page is a grid of the area map's cell pictures, the equipment page the pictures of what it last uploaded
         // and the frame the area's backdrop and button pictures (#1467).
         DisplayLayer bg1 = ScreenMode == PauseScreenMode.Map
@@ -295,7 +295,7 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             new SpriteDepthLayer(2), bg2 with { Priority = true }, InFront(bg1),
             new SpriteDepthLayer(3), hud with { Priority = true },
         ];
-        return new(screen.Paint(), layers, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
+        return new(screen.Paint(), layers, Transition == PauseMenuTransition.None ? 15 : TransitionBrightness);
     }
 
     /// <summary><paramref name="layer"/>, the map page's grid or the equipment page, drawing only its front-tier pixels.</summary>
@@ -465,17 +465,17 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
             "Pause map requires installed map presentation assets.")).Get(area);
         bool IsVisible(int x, int y)
         {
-            bool explored = system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y)));
+            bool explored = system.IsMapTileExplored(area, new(x, y));
             // Native scroll bounds select one bit plane, unlike tile rendering, which
             // also displays explored secrets. Unioning the planes moves the map's center
             // after a secret is explored even though the downloaded bounds are unchanged.
             if (mapRevealMode == MapRevealMode.None)
-                return hasAreaMap ? map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))) : explored;
+                return hasAreaMap ? map.IsRevealedByMapStation(new(x, y)) : explored;
             return AreaMapVisibility.IsVisible(
                 explored,
                 hasAreaMap,
-                map.IsRevealedByMapStation(new(checked((ushort)x), checked((ushort)y))),
-                map.IsDiscoverable(new(checked((ushort)x), checked((ushort)y))),
+                map.IsRevealedByMapStation(new(x, y)),
+                map.IsDiscoverable(new(x, y)),
                 mapRevealMode);
         }
 
@@ -516,11 +516,11 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
 
         // Every map word below keeps its sixteen-bit wrap where it is computed; the signed
         // tests read those words as the cartridge's branches do.
-        int minimumX = unchecked((ushort)(left * 8 - (area == AreaId.Maridia ? 24 : 0)));
-        int maximumX = unchecked((ushort)(right * 8));
-        int minimumY = unchecked((ushort)(top * 8));
-        int maximumY = unchecked((ushort)(bottom * 8));
-        CurrentMapScrollBounds = new PauseMapScroll(new((ushort)minimumX, (ushort)minimumY), new((ushort)maximumX, (ushort)maximumY));
+        int minimumX = WordWrap.Unsigned(left * 8 - (area == AreaId.Maridia ? 24 : 0));
+        int maximumX = WordWrap.Unsigned(right * 8);
+        int minimumY = WordWrap.Unsigned(top * 8);
+        int maximumY = WordWrap.Unsigned(bottom * 8);
+        CurrentMapScrollBounds = new PauseMapScroll(new(CoordinateAxis.Wrap(minimumX), CoordinateAxis.Wrap(minimumY)), new(CoordinateAxis.Wrap(maximumX), CoordinateAxis.Wrap(maximumY)));
 
         // SetupMapScrollingForPauseMenu($80) uses 16-bit ADC/SBC throughout. These local
         // helpers retain wrapping before every signed branch so an edge-of-map position
@@ -528,39 +528,39 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         // The player's map cell: the room's map origin plus Samus's room screen, with the
         // map convention's one-row downward offset.
         Position16<MapPixels> player = SamusMapCell().ToMapPixels();
-        int horizontal = unchecked((ushort)(
-            minimumX + unchecked((ushort)(maximumX - minimumX)) / 2 - 128));
-        int horizontalScreenPosition = unchecked((ushort)(player.X - horizontal));
-        int distanceFromRightClamp = unchecked((short)(224 - horizontalScreenPosition));
+        int horizontal = CoordinateAxis.Wrap(
+            minimumX + CoordinateAxis.Wrap(maximumX - minimumX) / 2 - 128);
+        int horizontalScreenPosition = CoordinateAxis.Wrap(player.X - horizontal);
+        int distanceFromRightClamp = CoordinateAxis.Difference(224, horizontalScreenPosition);
         if (distanceFromRightClamp >= 0)
         {
-            int distanceFromLeftClamp = unchecked((ushort)(32 - horizontalScreenPosition));
-            if (unchecked((short)distanceFromLeftClamp) >= 0)
-                horizontal = unchecked((ushort)(horizontal - distanceFromLeftClamp));
+            int distanceFromLeftClamp = CoordinateAxis.Wrap(32 - horizontalScreenPosition);
+            if (CoordinateAxis.AsSigned(distanceFromLeftClamp) >= 0)
+                horizontal = CoordinateAxis.Wrap(horizontal - distanceFromLeftClamp);
         }
         else
         {
-            horizontal = unchecked((ushort)(horizontal - distanceFromRightClamp));
+            horizontal = CoordinateAxis.Wrap(horizontal - distanceFromRightClamp);
         }
 
-        int verticalMiddle = unchecked((ushort)(
-            minimumY + unchecked((ushort)(maximumY - minimumY)) / 2 + 16));
-        int verticalCenterOffset = unchecked((ushort)((128 - verticalMiddle) & ~7));
-        int vertical = unchecked((ushort)-verticalCenterOffset);
-        int playerMapY = unchecked((ushort)(player.Y + verticalCenterOffset));
-        int distanceFromTopClamp = unchecked((short)(64 - playerMapY));
+        int verticalMiddle = CoordinateAxis.Wrap(
+            minimumY + CoordinateAxis.Wrap(maximumY - minimumY) / 2 + 16);
+        int verticalCenterOffset = WordWrap.Unsigned((128 - verticalMiddle) & ~7);
+        int vertical = CoordinateAxis.Wrap(-verticalCenterOffset);
+        int playerMapY = CoordinateAxis.Wrap(player.Y + verticalCenterOffset);
+        int distanceFromTopClamp = WordWrap.Signed(64 - playerMapY);
         if (distanceFromTopClamp >= 0)
         {
-            vertical = unchecked((ushort)(vertical - distanceFromTopClamp));
-            if (unchecked((short)(vertical + 40)) < 0)
-                vertical = unchecked((ushort)-40);
+            vertical = CoordinateAxis.Wrap(vertical - distanceFromTopClamp);
+            if (WordWrap.Signed(vertical + 40) < 0)
+                vertical = WordWrap.Unsigned(-40);
         }
-        MapScrollPosition = new((ushort)horizontal, (ushort)vertical);
+        MapScrollPosition = new(WordWrap.Unsigned(horizontal), WordWrap.Unsigned(vertical));
     }
 
     /// <summary>Maps Samus's current room screen to the area map with its one-row Y convention.</summary>
     private Position16<MapTiles> SamusMapCell() =>
-        roomMapPosition + new Offset16<MapTiles>(checked((short)(EightEight.WholeOf(samus.Position.X.Whole))), checked((short)((EightEight.WholeOf(samus.Position.Y.Whole)) + 1)));
+        roomMapPosition + new Offset16<MapTiles>(EightEight.WholeOf(samus.Position.X.Whole), (EightEight.WholeOf(samus.Position.Y.Whole)) + 1);
 
     /// <summary>Draws the animated Samus map marker at the scrolled screen position.</summary>
     private void DrawMapPositionIndicator()

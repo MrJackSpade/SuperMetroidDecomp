@@ -43,15 +43,15 @@ public static class GameOptionsDefinitions
     public static class Cursors
     {
         /// <summary>The primary page's cursor column.</summary>
-        public const ushort PrimaryX = 24;
+        public const int PrimaryX = 24;
         /// <summary>The controller page's cursor column.</summary>
-        public const ushort ControllerX = 40;
+        public const int ControllerX = 40;
         /// <summary>The cursor's column while a page phase shows no cursor (including scrolling): off screen.</summary>
-        public const ushort HiddenX = 384;
+        public const int HiddenX = 384;
         /// <summary>The hidden cursor's row.</summary>
-        public const ushort HiddenY = 16;
+        public const int HiddenY = 16;
         /// <summary>The special page's cursor column.</summary>
-        public const ushort SpecialX = 16;
+        public const int SpecialX = 16;
         /// <summary>The primary page's first row.</summary>
         public const int PrimaryFirstY = 56;
         /// <summary>Pixels between primary rows.</summary>
@@ -74,12 +74,12 @@ public static class GameOptionsDefinitions
     public static class Headings
     {
         /// <summary>The row every heading's top edge is at.</summary>
-        public const ushort HeadingY = 16;
+        public const int HeadingY = 16;
         /// <summary>The primary page heading's column.</summary>
-        public const ushort PrimaryX = 124;
+        public const int PrimaryX = 124;
         /// <summary>The controller page heading's column.</summary>
-        public const ushort ControllerX = 132;
+        public const int ControllerX = 132;
         /// <summary>The special page heading's column.</summary>
-        public const ushort SpecialX = 128;
+        public const int SpecialX = 128;
     }
 }

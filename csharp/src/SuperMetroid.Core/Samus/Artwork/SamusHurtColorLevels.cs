@@ -20,11 +20,11 @@ internal static class SamusHurtColorLevels
     };
 
     /// <summary>$9B:A3A2..A3BE: main gray shades plus half shades; the lowest half deliberately rounds darker.</summary>
-    internal static byte DefaultIntroLevel(int index)
+    internal static int DefaultIntroLevel(int index)
     {
         int Main(int step) => OutlineLevel + (FullIntensity - OutlineLevel) * step / MainShadeIntervals;
         int Half(int step, int rounding) => (Main(step) + Main(step + 1) + rounding) / 2;
-        return (byte)(IntroLevelSourceIndex(index) switch
+        return WordWrap.LowByte(IntroLevelSourceIndex(index) switch
         {
             1 => Main(1),
             2 => Main(2),

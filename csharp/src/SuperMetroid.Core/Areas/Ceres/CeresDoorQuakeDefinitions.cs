@@ -15,5 +15,5 @@ namespace SuperMetroid.Core.Areas.Ceres;
 internal static class CeresDoorQuakeDefinitions
 {
     /// <summary>$A6:A323 is the negative four-pixel quake impulse, following the neutral word at $A6:A321.</summary>
-    internal const short Impulse = -4;
+    internal const int Impulse = -4;
 }

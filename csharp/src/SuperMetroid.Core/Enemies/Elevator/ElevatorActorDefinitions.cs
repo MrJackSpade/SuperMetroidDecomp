@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 public static class ElevatorActorDefinitions
 {
     /// <summary>$A3:9612, Elevator_Func_4: Samus's center is 26 pixels above the platform.</summary>
-    public const ushort SamusYOffset = 26;
+    public const int SamusYOffset = 26;
 
     /// <summary>
     /// $A3:94E2, ElevatorInputMaskTable: newly pressed inputs that begin downward

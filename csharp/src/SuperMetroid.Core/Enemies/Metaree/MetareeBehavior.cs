@@ -33,17 +33,17 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Maximum strict horizontal separation for starting a dive, regardless of Samus's vertical side.</summary>
-    private const ushort MetareeHorizontalActivationDistance = 72;
+    private const int MetareeHorizontalActivationDistance = 72;
     /// <summary>Unsigned Y separation divisor used to choose NTSC dive speed.</summary>
-    private const ushort MetareeDiveDivisorNtsc = 24;
+    private const int MetareeDiveDivisorNtsc = 24;
     /// <summary>Whole-pixel downward speed added even for zero vertical separation.</summary>
-    private const ushort MetareeMinimumYVelocity = 4;
+    private const int MetareeMinimumYVelocity = 4;
     /// <summary>Whole-pixel X steering toward Samus, reevaluated every airborne frame.</summary>
-    private const ushort MetareeHorizontalDiveSpeed = 2;
+    private const int MetareeHorizontalDiveSpeed = 2;
     /// <summary>Ground-impact countdown before the actor deletes itself.</summary>
-    private const ushort MetareeBurrowLifetimeNtsc = 21;
+    private const int MetareeBurrowLifetimeNtsc = 21;
     /// <summary>Burrow countdown value that spawns the particle burst.</summary>
-    private const ushort MetareeParticleFrameNtsc = 8;
+    private const int MetareeParticleFrameNtsc = 8;
 
     /// <summary>Starts the idle list directly and initializes the slot's dive, burrow, and instruction-change state.</summary>
     internal static void InitializeMetaree(RoomEnemySlot slot)
@@ -113,14 +113,14 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         // absolute value, and performs an unsigned compare. It notably does *not* check that
         // Samus is below the actor; preserving that retail bug matters to the velocity math.
         int horizontalDistance = Math.Abs(
-            unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)));
+            CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole));
         if (horizontalDistance >= MetareeHorizontalActivationDistance)
             return;
 
         // The SNES unsigned-divider input is the wrapped 16-bit Y difference. If Samus is
         // above Metaree, this deliberately creates the cartridge's enormous dive velocity
         // instead of sanitizing the old bug into modern signed physics.
-        int verticalDifference = unchecked((ushort)(samus.Position.Y.Whole - slot.Position.Y.Whole));
+        int verticalDifference = CoordinateAxis.Wrap(samus.Position.Y.Whole - slot.Position.Y.Whole);
         state.YVelocity = verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity;
         state.RequestedInstructionListIndex = SkreeMetareeAnimationPhase.PreparingAttack;
         InstallRequestedMetareeInstruction(slot, state);
@@ -167,13 +167,13 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Unlike common movement, Metaree applies whole-pixel words directly and leaves
         // both subpositions untouched. Horizontal steering re-evaluates Samus every frame.
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + state.YVelocity)));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + state.YVelocity);
         bool metareeIsLeftOfSamus =
-            unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0;
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
+            CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) < 0;
+        slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
             (metareeIsLeftOfSamus
                 ? MetareeHorizontalDiveSpeed
-                : -MetareeHorizontalDiveSpeed))));
+                : -MetareeHorizontalDiveSpeed));
     }
 
     /// <summary>Moves down one pixel per burrow frame, emits debris at timer eight, then saves graphics indexes to the spawn record and deletes the actor.</summary>
@@ -190,7 +190,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.BurrowTimer.IsAt(MetareeParticleFrameNtsc))
             _projectiles.SpawnMetalParticleBurst(slot, MetareeParticleDefinitions.Burst);
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }
 
     /// <summary>Changes the instruction pointer only when the requested animation phase differs from the installed one.</summary>

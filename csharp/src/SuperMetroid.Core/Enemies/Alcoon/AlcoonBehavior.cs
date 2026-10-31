@@ -70,9 +70,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Maximum horizontal distance for activation, after the landing-height check.</summary>
-    private const ushort AlcoonEmergeXDistance = 80;
+    private const int AlcoonEmergeXDistance = 80;
     /// <summary>Distance from spawn that causes an emerged Alcoon to jump back underground.</summary>
-    private const ushort AlcoonHideXDistance = 112;
+    private const int AlcoonHideXDistance = 112;
     /// <summary>Guards the initializer's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
@@ -164,15 +164,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Alcoon proximity AI requires the active Samus actor.");
 
-        if (EnemyMath.WrappedMagnitude(unchecked((ushort)(state.LandingPosition.Y - samus.Position.Y.Whole))) >= 32)
+        if (CoordinateAxis.Distance(state.LandingPosition.Y, samus.Position.Y.Whole) >= 32)
             return;
 
-        int signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int signedXDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
         if (EnemyMath.WrappedMagnitude(signedXDistance) >= AlcoonEmergeXDistance)
             return;
 
         SetupAlcoonJumpMovement(state);
-        if (unchecked((short)signedXDistance) < 0)
+        if (CoordinateAxis.AsSigned(signedXDistance) < 0)
         {
             state.Velocity = state.Velocity.WithWholeX(-2);
             InstallAlcoonInstruction(slot, state, AlcoonProgram.AirborneLeftLookingUp);
@@ -222,8 +222,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
-        if (unchecked((short)signedXDistance) < 0)
+        int signedXDistance = CoordinateAxis.Wrap(samus.Position.X.Whole - slot.Position.X.Whole);
+        if (CoordinateAxis.AsSigned(signedXDistance) < 0)
         {
             state.Velocity = state.Velocity.WithWholeX(-2);
             InstallAlcoonInstruction(slot, state, AlcoonProgram.WalkingLeft);
@@ -254,7 +254,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // walking actor fall by the same amount before the remainder of main AI runs.
         _terrain.MoveEnemyVertically(level, slot, 2 << 16);
 
-        int spawnDistance = unchecked((ushort)(state.SpawnPosition.X - slot.Position.X.Whole));
+        int spawnDistance = CoordinateAxis.Wrap(state.SpawnPosition.X - slot.Position.X.Whole);
         if (EnemyMath.WrappedMagnitude(spawnDistance) >= AlcoonHideXDistance)
         {
             state.Function = AlcoonEnemyFunction.HidingRising;
@@ -271,7 +271,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.StepCounter.IsZero)
             return;
 
-        bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
+        bool samusIsLeft = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
         bool movingLeft = state.Velocity.X.WholePixels < 0;
         if (samusIsLeft != movingLeft)
             return;
@@ -298,7 +298,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunAlcoonHidingFall(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(slot, state);
-        if (unchecked((short)(slot.Position.Y.Whole - state.SpawnPosition.Y)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.SpawnPosition.Y) < 0)
         {
             AccelerateAlcoonY(state);
             return;
@@ -354,7 +354,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         Func<int> readRandomNumber = _room.Random.Read;
-        int count = unchecked((ushort)(readRandomNumber() & 3));
+        int count = WordWrap.Unsigned(readRandomNumber() & 3);
         state.StepCounter = WrappingCountdown.FromRaw(count == 0 ? 2 : count);
         return state.Velocity.X.WholePixels < 0
             ? AlcoonProgram.WalkingLeft
@@ -381,7 +381,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int oldVelocity = state.Velocity.X.WholePixels;
-        state.Velocity = state.Velocity.WithWholeX(unchecked((short)-oldVelocity));
+        state.Velocity = state.Velocity.WithWholeX(WordWrap.Signed(-oldVelocity));
         return oldVelocity >= 0
             ? AlcoonProgram.WalkingLeftLoop
             : AlcoonProgram.WalkingRightLoop;
@@ -415,11 +415,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             (state, cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
 
     /// <summary>Initial horizontal fireball speed in native 8.8 units.</summary>
-    private const ushort AlcoonFireballGraphicsHorizontalSpeed = 1024;
+    private const int AlcoonFireballGraphicsHorizontalSpeed = 1024;
     /// <summary>Horizontal speed at which fireball deceleration stops.</summary>
-    private const ushort AlcoonFireballTerminalHorizontalSpeed = 512;
+    private const int AlcoonFireballTerminalHorizontalSpeed = 512;
     /// <summary>Native 8.8 horizontal speed reduction applied per fireball update.</summary>
-    private const ushort AlcoonFireballHorizontalDeceleration = 64;
+    private const int AlcoonFireballHorizontalDeceleration = 64;
 
     /// <summary>
     /// Ports <c>InitAI_EnemyProjectile_AlcoonFireball</c> at <c>$86:9EB2</c>. The parameter
@@ -448,9 +448,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.AlcoonFireball,
             alcoon.Graphics);
-        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(alcoon.Position.X.Whole + (movingLeft ? -16 : 16))), unchecked((ushort)(alcoon.Position.Y.Whole - 12))));
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(alcoon.Position.X.Whole + (movingLeft ? -16 : 16)), CoordinateAxis.Wrap(alcoon.Position.Y.Whole - 12)));
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(movingLeft
-            ? unchecked((ushort)-AlcoonFireballGraphicsHorizontalSpeed)
+            ? WordWrap.Unsigned(-AlcoonFireballGraphicsHorizontalSpeed)
             : AlcoonFireballGraphicsHorizontalSpeed));
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(EnemyFireballLaunches.AlcoonYVelocity(yVelocityTableByteOffset)));
     }
@@ -470,19 +470,19 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int velocity = unchecked((short)projectile.Velocity.X.RawValue);
+        int velocity = projectile.Velocity.X.SignedRawValue;
         if (velocity < 0)
         {
-            velocity = unchecked((short)(velocity + AlcoonFireballHorizontalDeceleration));
+            velocity = WordWrap.Signed(velocity + AlcoonFireballHorizontalDeceleration);
             if (velocity >= unchecked(-AlcoonFireballTerminalHorizontalSpeed))
                 velocity = unchecked(-AlcoonFireballTerminalHorizontalSpeed);
         }
         else
         {
-            velocity = unchecked((short)(velocity - AlcoonFireballHorizontalDeceleration));
+            velocity = WordWrap.Signed(velocity - AlcoonFireballHorizontalDeceleration);
             if (velocity < AlcoonFireballTerminalHorizontalSpeed)
-                velocity = unchecked((short)AlcoonFireballTerminalHorizontalSpeed);
+                velocity = WordWrap.Signed(AlcoonFireballTerminalHorizontalSpeed);
         }
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)velocity)));
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(velocity));
     }
 }

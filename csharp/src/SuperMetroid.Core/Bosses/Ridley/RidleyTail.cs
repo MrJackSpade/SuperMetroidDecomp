@@ -111,14 +111,14 @@ internal sealed class RidleyTail
             bool targetsIdle = state.ClockwiseWhipTarget is null && state.CounterClockwiseWhipTarget is null;
             if (state.TailWhipRequest != 0 && targetsIdle)
             {
-                AimCeresRidleyTailWhip(state, samus, unchecked(new ByteAngle((byte)(state.TailWhipRequest - 1))));
+                AimCeresRidleyTailWhip(state, samus, unchecked(new ByteAngle(WordWrap.LowByte(state.TailWhipRequest - 1))));
             }
             else if (state.IdleTailWhipEnabled)
             {
                 // Read the existing seed; this branch never advances the cartridge RNG.
                 if (SharedRandomState.LowerByte(_room.Random.Read()) >= 240)
-                    AimCeresRidleyTailWhip(state, samus, unchecked(new ByteAngle((byte)(state.TailWhipRequest - 1))));
-                else if (samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 128)
+                    AimCeresRidleyTailWhip(state, samus, unchecked(new ByteAngle(WordWrap.LowByte(state.TailWhipRequest - 1))));
+                else if (samus is not null && CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128)
                     AimCeresRidleyTailWhip(state, samus, additionalAngle: new ByteAngle(0));
             }
 
@@ -158,8 +158,8 @@ internal sealed class RidleyTail
             foreach (var projectile in projectiles.Slots.Take(5))
             {
                 if (projectile.Type.Family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)) continue;
-                if (Math.Abs((short)(projectile.Position.X.Whole - tip.Position.X)) - projectile.Radius.X >= 64 ||
-                    Math.Abs((short)(projectile.Position.Y.Whole - tip.Position.Y)) - projectile.Radius.Y >= 64) continue;
+                if (CoordinateAxis.Distance(projectile.Position.X.Whole, tip.Position.X) - projectile.Radius.X >= 64 ||
+                    CoordinateAxis.Distance(projectile.Position.Y.Whole, tip.Position.Y) - projectile.Radius.Y >= 64) continue;
                 aim = projectile.Position.Whole;
                 break;
             }
@@ -173,7 +173,7 @@ internal sealed class RidleyTail
             // forbidden forward interval clamp to $E8 before bank-$3F expansion.
             if (targetByte is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
                 targetByte = RidleyTailDefinitions.ForbiddenForwardEnd;
-            int target = unchecked((ushort)(RidleyTailDefinitions.LeftWhipTargetBase + targetByte - additional));
+            int target = CoordinateAxis.Wrap(RidleyTailDefinitions.LeftWhipTargetBase + targetByte - additional);
             if (target < root.Angle)
             {
                 state.ClockwiseWhipTarget = target;
@@ -184,7 +184,7 @@ internal sealed class RidleyTail
         {
             if (targetByte is >= RidleyTailDefinitions.ForbiddenForwardStart and < RidleyTailDefinitions.ForbiddenForwardEnd)
                 targetByte = RidleyTailDefinitions.ForbiddenForwardStart;
-            int target = unchecked((ushort)(RidleyTailDefinitions.RightWhipTargetBase + targetByte + additional));
+            int target = CoordinateAxis.Wrap(RidleyTailDefinitions.RightWhipTargetBase + targetByte + additional);
             if (target >= root.Angle)
             {
                 state.CounterClockwiseWhipTarget = target;
@@ -234,7 +234,7 @@ internal sealed class RidleyTail
                     }
                     else
                     {
-                        segment.Angle = unchecked((ushort)(next + 1));
+                        segment.Angle = WordWrap.Unsigned(next + 1);
                     }
                 }
                 else
@@ -247,7 +247,7 @@ internal sealed class RidleyTail
                     }
                     else
                     {
-                        segment.Angle = unchecked((ushort)(next + 1));
+                        segment.Angle = WordWrap.Unsigned(next + 1);
                     }
                 }
             }
@@ -270,7 +270,7 @@ internal sealed class RidleyTail
                     }
                     else
                     {
-                        segment.Angle = unchecked((ushort)next);
+                        segment.Angle = WordWrap.Unsigned(next);
                     }
                 }
                 else
@@ -282,7 +282,7 @@ internal sealed class RidleyTail
                     }
                     else
                     {
-                        segment.Angle = unchecked((ushort)next);
+                        segment.Angle = WordWrap.Unsigned(next);
                     }
                 }
             }
@@ -299,15 +299,15 @@ internal sealed class RidleyTail
     private static void UpdateRidleyTailSegmentOffset(RidleyEnemyState state, int index)
     {
         RidleyTailSegment segment = state.TailSegments[index];
-        ByteAngle angle = new(unchecked((byte)segment.Angle));
+        ByteAngle angle = new(WordWrap.LowByte(segment.Angle));
         if (index != 0)
             angle = angle.AddTableUnits(state.TailSegments[index - 1].Angle);
         int distanceInPixels = EightEight.WholeOf(segment.Distance);
         // $A9:C46C reads the middle/high bytes of the signed Mode 7 product.
         // An arithmetic shift preserves its floor for negative fractional pixels.
         segment.Offset = new Offset16<RoomPixels>(
-            unchecked((short)(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle)))),
-            unchecked((short)(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))))));
+            CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle))),
+            CoordinateAxis.AsSigned(EightEight.Multiply(distanceInPixels, Trigonometry.SignedSine(angle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)))));
     }
 
     /// <summary>Ends a joint's active whip and flips its movement direction for the next activation.</summary>
@@ -384,11 +384,11 @@ internal sealed class RidleyTail
             !state.MovementAnimationEnabled || state.TailSegments.Length != 7)
             return false;
         RidleyTailSegment tip = state.TailSegments[6];
-        int dx = Math.Abs(unchecked((short)(samus.Position.X.Whole - tip.Position.X)));
-        int dy = Math.Abs(unchecked((short)(samus.Position.Y.Whole - tip.Position.Y)));
+        int dx = CoordinateAxis.Distance(samus.Position.X.Whole, tip.Position.X);
+        int dy = CoordinateAxis.Distance(samus.Position.Y.Whole, tip.Position.Y);
         if (dx >= samus.Kinematics.Radius.X + 14 || dy >= samus.Kinematics.Radius.Y + 14)
             return false;
-        EnemyCollision.ApplyNormalEnemyTouchDamage(samus, checked((ushort)state.TailDamage), tip.Position.X);
+        EnemyCollision.ApplyNormalEnemyTouchDamage(samus, Ensure.BetweenInclusive(0, ushort.MaxValue, state.TailDamage), tip.Position.X);
         return true;
     }
 
@@ -405,7 +405,7 @@ internal sealed class RidleyTail
         for (int index = tipIndex; index >= 2; index--)
         {
             RidleyTailSegment segment = state.TailSegments[index];
-            Position16<RoomPixels> probe = segment.Position + new Offset16<RoomPixels>(0, (short)(index == tipIndex ? 16 : 18));
+            Position16<RoomPixels> probe = segment.Position + new Offset16<RoomPixels>(0, WordWrap.Signed(index == tipIndex ? 16 : 18));
             if ((probe.X >> 4) >= level.Size.X || (probe.Y >> 4) >= level.Size.Y)
                 continue;
             if (level.GetCollisionBlockAtPixel(probe).CollisionType != RoomCollisionType.Air)
@@ -425,7 +425,7 @@ internal sealed class RidleyTail
         {
             RidleyTailSegment segment = state.TailSegments[index];
             segment.Distance = RidleyTailReach.RestDistance(index);
-            segment.Angle = unchecked((ushort)(RidleyTailDefinitions.MirrorAxisAngle.RawValue - segment.Angle));
+            segment.Angle = WordWrap.Unsigned(RidleyTailDefinitions.MirrorAxisAngle.RawValue - segment.Angle);
             segment.Clockwise = true;
         }
     }
@@ -477,8 +477,8 @@ internal sealed class RidleyTail
                 continue;
             }
 
-            int xDistance = Math.Abs(unchecked((short)(projectile.Position.X.Whole - joint.Position.X)));
-            int yDistance = Math.Abs(unchecked((short)(projectile.Position.Y.Whole - joint.Position.Y)));
+            int xDistance = CoordinateAxis.Distance(projectile.Position.X.Whole, joint.Position.X);
+            int yDistance = CoordinateAxis.Distance(projectile.Position.Y.Whole, joint.Position.Y);
             if (xDistance >= projectile.Radius.X + radius ||
                 yDistance >= projectile.Radius.Y + radius)
             {
@@ -534,7 +534,7 @@ internal sealed class RidleyTail
     {
         if (state.TailSegments.All(segment => segment.Active) &&
             (SharedRandomState.LowerByte(_room.Random.Read()) >= 240 ||
-             samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 128) &&
+             samus is not null && CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < 128) &&
             state.ClockwiseWhipTarget is null && state.CounterClockwiseWhipTarget is null)
         {
             state.ClockwiseWhipTarget = RidleyTailDefinitions.PogoWhipAngle.RawValue;

@@ -65,9 +65,9 @@ internal sealed class NoobTubeBehavior
             case RoomEnemyProjectileKind.NoobTubeCrack:
                 if (request.Parameter != 0)
                     throw new InvalidDataException("N00b-tube crack parameter must be zero.");
-                projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
-                    blockX * 16 + NoobTubeDebrisDefinitions.CrackXOffset)), unchecked((ushort)(
-                    blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset))));
+                projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
+                    blockX * 16 + NoobTubeDebrisDefinitions.CrackXOffset), CoordinateAxis.Wrap(
+                    blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset)));
                 projectile.State = new NoobTubeCrackState();
                 return;
 
@@ -80,9 +80,9 @@ internal sealed class NoobTubeBehavior
                 projectile.State = new NoobTubeDebrisState(
                     blockX * 16 + NoobTubeDebrisDefinitions.CrackXOffset +
                     NoobTubeDebrisDefinitions.ShardOffsets[index].X);
-                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
+                projectile.Position = projectile.Position.WithWrappedWholeY(
                     blockY * 16 + NoobTubeDebrisDefinitions.CrackYOffset +
-                    NoobTubeDebrisDefinitions.ShardOffsets[index].Y)));
+                    NoobTubeDebrisDefinitions.ShardOffsets[index].Y);
                 projectile.StartAnimation(new NoobTubeProjectileAnimation(ShardPrograms[index]));
                 projectile.Velocity = NoobTubeDebrisDefinitions.ShardVelocities[index];
                 return;
@@ -96,8 +96,8 @@ internal sealed class NoobTubeBehavior
                     "released-air bubble");
                 projectile.State = new NoobTubeDebrisState(
                     blockX * 16 + NoobTubeDebrisDefinitions.BubbleOffsets[index].X);
-                projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-                    blockY * 16 + NoobTubeDebrisDefinitions.BubbleOffsets[index].Y)));
+                projectile.Position = projectile.Position.WithWrappedWholeY(
+                    blockY * 16 + NoobTubeDebrisDefinitions.BubbleOffsets[index].Y);
                 projectile.Velocity = projectile.Velocity.WithY(NoobTubeDebrisDefinitions.BubbleInitialYVelocity);
                 return;
             }
@@ -258,7 +258,7 @@ internal sealed class NoobTubeBehavior
                     crack.ShownX = projectile.Position.X.Whole;
                 projectile.Position = projectile.Position.WithWholeX((_projectiles.CurrentFrame8 & 1) != 0
                     ? NoobTubeDebrisDefinitions.HiddenXPosition
-                    : checked((ushort)crack.ShownX));
+                    : Ensure.BetweenInclusive(0, ushort.MaxValue, crack.ShownX));
                 return;
             }
 
@@ -417,7 +417,7 @@ internal sealed class NoobTubeBehavior
     {
         NoobTubeDebrisState debris = projectile.StateOf<NoobTubeDebrisState>();
         int sine = Trigonometry.SignedSine(debris.SwayAngle);
-        AdvanceNoobTubeShardX(projectile, SignedEightEight.FromSignedRaw(checked((short)(sine >> 2))));
+        AdvanceNoobTubeShardX(projectile, SignedEightEight.FromSignedRaw(sine >> 2));
         debris.AdvanceSway(angleStep);
     }
 
@@ -450,8 +450,8 @@ internal sealed class NoobTubeBehavior
                 // Odd frames show the first pose at the shard's column; even frames the reflected pose, mirrored across the tube.
                 int column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
                 projectile.Position = projectile.Position.WithWholeX(oddFrame
-                    ? checked((ushort)column)
-                    : unchecked((ushort)(NoobTubeDebrisDefinitions.ShardMirrorSpan - column)));
+                    ? Ensure.BetweenInclusive(0, ushort.MaxValue, column)
+                    : CoordinateAxis.Wrap(NoobTubeDebrisDefinitions.ShardMirrorSpan - column));
                 ShardAnimation(projectile).ShowsReflectedPose = !oddFrame;
                 break;
             case NoobTubeProjectileCueKind.FlickerHidden:

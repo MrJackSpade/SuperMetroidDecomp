@@ -21,7 +21,7 @@ internal static class AreaAnimatedTileObjects
         0 => AnimatedTileObject.HorizontalSpikes,
         1 => AnimatedTileObject.VerticalSpikes,
         _ => areaIndex < AreaIds.RetailCount
-            ? SelectAreaObject(AreaIds.FromIndex((byte)areaIndex, "Animated-tile area"), bit)
+            ? SelectAreaObject(AreaIds.FromIndex(WordWrap.LowByte(areaIndex), "Animated-tile area"), bit)
             : AnimatedTileObject.Empty,
     };
 

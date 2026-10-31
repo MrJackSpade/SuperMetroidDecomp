@@ -73,7 +73,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         bool upsideUp = settings.Mounting == CacatacMounting.Floor;
         slot.Frame = EnemyFrameId.Empty;
 
-        var travel = new Offset16<RoomPixels>(checked((short)CacatacPatrol.TravelDistance((byte)distanceIndex)), 0);
+        var travel = new Offset16<RoomPixels>(CacatacPatrol.TravelDistance(WordWrap.LowByte(distanceIndex)), 0);
         Position16<RoomPixels> spawn = slot.Position.Whole;
         EnemyLinearSpeedRow speeds = EnemyLinearSpeeds.Row(speedIndex);
         var state = new CacatacEnemyState
@@ -146,7 +146,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the 3/256 random attack gate at $A2:A01C.</summary>
     private void MaybeStartCacatacAttack(RoomEnemySlot slot, CacatacEnemyState state)
     {
-        int decision = unchecked((byte)(_room.Random.Generate() + slot.FrameCounter));
+        int decision = WordWrap.LowByte(_room.Random.Generate() + slot.FrameCounter);
         if (decision >= 3)
             return;
 
@@ -241,12 +241,12 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        int right = unchecked((ushort)(camera.X + 256));
-        int bottom = unchecked((ushort)(camera.Y + 256));
-        bool outside = unchecked((short)(projectile.Position.X.Whole - camera.X)) < 0 ||
-            unchecked((short)(right - projectile.Position.X.Whole)) < 0 ||
-            unchecked((short)(projectile.Position.Y.Whole - camera.Y)) < 0 ||
-            unchecked((short)(bottom - projectile.Position.Y.Whole)) < 0;
+        int right = CoordinateAxis.Wrap(camera.X + 256);
+        int bottom = CoordinateAxis.Wrap(camera.Y + 256);
+        bool outside = CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
+            CoordinateAxis.Difference(right, projectile.Position.X.Whole) < 0 ||
+            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
+            CoordinateAxis.Difference(bottom, projectile.Position.Y.Whole) < 0;
         if (outside)
             projectile.Clear();
     }

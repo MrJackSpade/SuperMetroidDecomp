@@ -21,9 +21,9 @@ public static class TitleSequenceDefinitions
     public static class Music
     {
         /// <summary>The title music's track for the normal opening sequence.</summary>
-        public const byte OpeningTrack = 5;
+        public const int OpeningTrack = 5;
         /// <summary>The track the skip path selects before rebuilding the title screen.</summary>
-        public const byte ImmediateTitleTrack = 6;
+        public const int ImmediateTitleTrack = 6;
     }
 
     /// <summary>The four title cards: where each draws and with which sprite palette.</summary>

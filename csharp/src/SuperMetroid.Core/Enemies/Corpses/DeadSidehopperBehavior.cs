@@ -251,7 +251,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state,
         RoomLevelData? level)
     {
-        bool beforeTerrainBoundary = unchecked((short)(slot.Position.X.Whole - 544)) < 0;
+        bool beforeTerrainBoundary = CoordinateAxis.Difference(slot.Position.X.Whole, 544) < 0;
         int horizontalDisplacement = SixteenSixteen.FromEightEight(state.Velocity.X.SignedRawValue);
         if (beforeTerrainBoundary)
         {
@@ -271,17 +271,17 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         // Upward motion accelerates by $20 in signed 8.8; falling motion accelerates by
         // $80. The sign test is performed before the addition in the cartridge.
         int acceleration = state.Velocity.Y.SignedRawValue < 0
-            ? (ushort)32
-            : (ushort)128;
+            ? 32
+            : 128;
         state.Velocity = state.Velocity.WithY(
-            new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue + acceleration))));
+            SignedEightEight.Wrapped(state.Velocity.Y.RawValue + acceleration));
         if (beforeTerrainBoundary)
         {
             MoveDeadSidehopperAxisDirect(
                 slot,
                 axis: Axis.Vertical,
                 state.Velocity.Y.RawValue);
-            return unchecked((short)(slot.Position.Y.Whole - 184)) >= 0;
+            return CoordinateAxis.Difference(slot.Position.Y.Whole, 184) >= 0;
         }
 
         int verticalDisplacement = SixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue);
@@ -298,7 +298,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         int velocity)
     {
         FixedCoordinate current = axis == Axis.Horizontal ? slot.Position.X : slot.Position.Y;
-        FixedCoordinate moved = current.AddEightEightToHighFraction(checked((ushort)velocity));
+        FixedCoordinate moved = current.AddEightEightToHighFraction(Ensure.BetweenInclusive(0, ushort.MaxValue, velocity));
         if (axis == Axis.Horizontal)
         {
             slot.Position = slot.Position.WithX(moved);

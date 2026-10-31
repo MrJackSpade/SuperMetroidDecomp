@@ -9,10 +9,10 @@ internal static class WorkRobotPaletteTimingDefinitions
 {
 
     /// <summary>Number of authored palette records before the terminator.</summary>
-    public const ushort RecordCount = 6;
+    public const int RecordCount = 6;
 
     /// <summary>Four color words plus one timer word per record.</summary>
-    public const ushort RecordByteCount = 10;
+    public const int RecordByteCount = 10;
 
     /// <summary>The duration of each authored palette record: a three-record cadence of 64 ticks then 16 and 16.</summary>
     /// <remarks>

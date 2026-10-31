@@ -24,7 +24,7 @@ internal sealed class IntroScientistCutsceneState
             definition.Colouring,
             definition.Program);
         baby.InstallPreInstruction(definition.PreInstruction);
-        Background = delivery ? new(32, 8) : new(0, unchecked((ushort)-24));
+        Background = delivery ? new(32, 8) : new(0, WordWrap.Unsigned(-24));
     }
 
     /// <summary>The laboratory page's BG1 scroll.</summary>
@@ -73,7 +73,7 @@ internal sealed class IntroScientistCutsceneState
                 baby.WholePosition += new Offset16<ScreenPixels>(1, 0);
             }
             else if (Scene == IntroLaboratoryScene.Examination &&
-                unchecked((short)(Background.Y - 8)) < 0)
+                CoordinateAxis.Difference(Background.Y, 8) < 0)
             {
                 // ADA6 moves the second laboratory page down from -24 to +8 while the
                 // examined baby rises by the same 32 pixels.

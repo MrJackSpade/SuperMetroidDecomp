@@ -39,10 +39,10 @@ internal sealed class IntroEggSlimeDrop
     private const int TrajectoryBits = 8;
 
     /// <summary>The drop's horizontal trajectory number, 0 through 3; it never changes.</summary>
-    private int Drop => unchecked((byte)sprite.GeneralTimer);
+    private int Drop => WordWrap.LowByte(sprite.GeneralTimer);
 
     /// <summary>The frames the drop has fallen, 0 through 255: its gravity-table index.</summary>
-    private int FramesFallen => unchecked((byte)(sprite.GeneralTimer >> TrajectoryBits));
+    private int FramesFallen => WordWrap.LowByte(sprite.GeneralTimer >> TrajectoryBits);
 
     /// <summary>Applies index-specific horizontal motion and parity-specific gravity until Y $A8, then runs the puddle list in place.</summary>
     public void Step()
@@ -64,7 +64,7 @@ internal sealed class IntroEggSlimeDrop
             AddVelocity(axis: Axis.Vertical, IntroEggMotion.SlimeY(
                 FramesFallen, odd: (sprite.GeneralTimer & 1) != 0));
 
-            if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)
+            if (CoordinateAxis.Difference(sprite.WholePosition.Y, 168) >= 0)
             {
                 // $AAB3 changes both list and pre-instruction, freezing the impact point
                 // while CD71 plays four ten-frame puddle frames and deletes the actor.
@@ -75,7 +75,7 @@ internal sealed class IntroEggSlimeDrop
             }
             else
             {
-                sprite.GeneralTimer = unchecked((ushort)(sprite.GeneralTimer + 256));
+                sprite.GeneralTimer = WordWrap.Unsigned(sprite.GeneralTimer + 256);
             }
         }
 

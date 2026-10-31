@@ -8,15 +8,15 @@ internal static class GoldenTorizoCodeDefinitions
     /// <summary>$AA:C919 CMP operand: exactly held A+B+X+Y, with no other controller bits.</summary>
     internal const ControllerButton ControllerChord = ControllerButton.A | ControllerButton.B | ControllerButton.X | ControllerButton.Y;
     /// <summary>$AA:C91E immediate: current and maximum energy, exactly 700 rather than 799.</summary>
-    internal const ushort Energy = 700;
+    internal const int Energy = 700;
     /// <summary>$AA:C927 immediate: current and maximum reserve energy; reserve mode is not written.</summary>
-    internal const ushort ReserveEnergy = 300;
+    internal const int ReserveEnergy = 300;
     /// <summary>$AA:C930 immediate: current and maximum missiles.</summary>
-    internal const ushort Missiles = 100;
+    internal const int Missiles = 100;
     /// <summary>$AA:C939 immediate: current and maximum Super Missiles.</summary>
-    internal const ushort SuperMissiles = 20;
+    internal const int SuperMissiles = 20;
     /// <summary>$AA:C942 immediate: current and maximum Power Bombs.</summary>
-    internal const ushort PowerBombs = 20;
+    internal const int PowerBombs = 20;
     /// <summary>
     /// $AA:C94B immediate: every item but the Screw Attack, replacing the collected and equipped items without merging
     /// prior upgrades. The cartridge's word also sets bit 4, which names no item and no retail routine tests.

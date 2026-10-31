@@ -161,8 +161,8 @@ internal sealed class EnemyDeathsAndDrops
         {
             int random = _room.Random.Generate();
             SpawnEnemyDropFromEnemyHeader(new(
-                unchecked((ushort)((random & xMask) + xBase)),
-                unchecked((ushort)((SharedRandomState.UpperByte(random) & yMask) + yBase))), definitionId);
+                WordWrap.Unsigned((random & xMask) + xBase),
+                WordWrap.Unsigned((SharedRandomState.UpperByte(random) & yMask) + yBase)), definitionId);
         }
     }
 
@@ -176,8 +176,8 @@ internal sealed class EnemyDeathsAndDrops
         {
             int random = _room.Random.Generate();
             SpawnEnemyDropFromEnemyHeader(new(
-                unchecked((ushort)(origin.X + EnemyDropMasks.HorizontalScatter.Of(random) - 16)),
-                unchecked((ushort)(origin.Y + EnemyDropMasks.VerticalScatter.Of(random) - 16))), definitionId);
+                CoordinateAxis.Wrap(origin.X + EnemyDropMasks.HorizontalScatter.Of(random) - 16),
+                CoordinateAxis.Wrap(origin.Y + EnemyDropMasks.VerticalScatter.Of(random) - 16)), definitionId);
         }
     }
 
@@ -302,14 +302,14 @@ internal sealed class EnemyDeathsAndDrops
         int random;
         do
         {
-            random = unchecked((byte)_room.Random.Generate());
+            random = SharedRandomState.LowerByte(_room.Random.Generate());
         }
         while (random == 0);
 
         int majorAdjustedBudget = byte.MaxValue;
         int accumulated = 0;
-        int combinedEnergy = unchecked((ushort)(
-            samus.Health + samus.ReserveEnergy));
+        int combinedEnergy = WordWrap.Unsigned(
+            samus.Health + samus.ReserveEnergy);
         if (combinedEnergy < 30)
             _room.Session.CriticalEnergyDropBias = true;
         else if (combinedEnergy >= 50)
@@ -321,7 +321,7 @@ internal sealed class EnemyDeathsAndDrops
         int enabledMask;
         if (_room.Session.CriticalEnergyDropBias)
         {
-            pooledMinorWeight = unchecked((byte)(table.SmallEnergy + table.BigEnergy));
+            pooledMinorWeight = WordWrap.LowByte(table.SmallEnergy + table.BigEnergy);
             enabledMask = EnemyDropMasks.Energy;
         }
         else
@@ -331,25 +331,25 @@ internal sealed class EnemyDeathsAndDrops
             if (samus.Health != samus.MaxHealth ||
                 samus.ReserveEnergy != samus.MaxReserveEnergy)
             {
-                pooledMinorWeight = unchecked((byte)(
-                    pooledMinorWeight + table.SmallEnergy + table.BigEnergy));
+                pooledMinorWeight = WordWrap.LowByte(
+                    pooledMinorWeight + table.SmallEnergy + table.BigEnergy);
                 enabledMask |= EnemyDropMasks.Energy;
             }
             if (samus.Missiles != samus.MaxMissiles)
             {
-                pooledMinorWeight = unchecked((byte)(pooledMinorWeight + table.Missile));
+                pooledMinorWeight = WordWrap.LowByte(pooledMinorWeight + table.Missile);
                 enabledMask |= EnemyDropMasks.Missile;
             }
             if (samus.SuperMissiles != samus.MaxSuperMissiles)
             {
-                majorAdjustedBudget = unchecked((byte)(
-                    majorAdjustedBudget - table.SuperMissile));
+                majorAdjustedBudget = WordWrap.LowByte(
+                    majorAdjustedBudget - table.SuperMissile);
                 enabledMask |= EnemyDropMasks.SuperMissile;
             }
             if (samus.PowerBombs != samus.MaxPowerBombs)
             {
-                majorAdjustedBudget = unchecked((byte)(
-                    majorAdjustedBudget - table.PowerBomb));
+                majorAdjustedBudget = WordWrap.LowByte(
+                    majorAdjustedBudget - table.PowerBomb);
                 enabledMask |= EnemyDropMasks.PowerBomb;
             }
         }
@@ -366,8 +366,8 @@ internal sealed class EnemyDeathsAndDrops
 
                 // The SNES multiply result is sixteen bits and division truncates toward
                 // zero. Inputs are bytes, so ordinary integer arithmetic is identical.
-                accumulated = unchecked((ushort)(accumulated +
-                    majorAdjustedBudget * table.Of(EnemyDropTables.ForProbabilityColumn(accumulatorIndex)) / pooledMinorWeight));
+                accumulated = CoordinateAxis.Wrap(accumulated +
+                    majorAdjustedBudget * table.Of(EnemyDropTables.ForProbabilityColumn(accumulatorIndex)) / pooledMinorWeight);
                 if (accumulated >= random)
                     return EnemyDropTables.ForProbabilityColumn(accumulatorIndex);
             }
@@ -387,7 +387,7 @@ internal sealed class EnemyDeathsAndDrops
             if (!enabled)
                 continue;
 
-            accumulated = unchecked((ushort)(accumulated + table.Of(EnemyDropTables.ForProbabilityColumn(accumulatorIndex))));
+            accumulated = CoordinateAxis.Wrap(accumulated + table.Of(EnemyDropTables.ForProbabilityColumn(accumulatorIndex)));
             if (accumulated >= random)
                 return EnemyDropTables.ForProbabilityColumn(accumulatorIndex);
         }
@@ -546,7 +546,7 @@ internal sealed class EnemyDeathsAndDrops
 
     /// <summary>Measures the absolute distance between native 16-bit coordinates.</summary>
     private static int AbsoluteWrappedDelta(int left, int right) =>
-        Math.Abs((int)unchecked((short)(left - right)));
+        Math.Abs(WordWrap.Signed(left - right));
 
     /// <summary>
     /// Executes instruction $86:EF10 for the respawning enemy a death actor retains.

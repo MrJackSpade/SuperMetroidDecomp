@@ -26,13 +26,13 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>$A8:9B17 combines the 120-frame appearance delay with an additional 160-frame startup wait.</summary>
-    private const ushort WreckedShipGhostInitialDelay = 280;
+    private const int WreckedShipGhostInitialDelay = 280;
     /// <summary>Frames the ghost remains visible after its appearance cycle enters bobbing.</summary>
-    private const ushort WreckedShipGhostVisibleDuration = 120;
+    private const int WreckedShipGhostVisibleDuration = 120;
     /// <summary>Samus tracking must remain within the positional margin this long before spawning.</summary>
-    private const ushort WreckedShipGhostStablePositionDuration = 64;
+    private const int WreckedShipGhostStablePositionDuration = 64;
     /// <summary>Samus's facing must remain stable for this many tracking calls.</summary>
-    private const ushort WreckedShipGhostStableDirectionDuration = 16;
+    private const int WreckedShipGhostStableDirectionDuration = 16;
     /// <summary>Initial whole-pixel vertical speed of the visible bobbing cycle.</summary>
     private static readonly SignedSixteenSixteen WreckedShipGhostInitialVerticalVelocity = SignedSixteenSixteen.FromParts(1, 0);
     /// <summary>Fractional vertical acceleration applied to the bobbing ghost.</summary>
@@ -254,7 +254,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
             // only on red and does not saturate the others: a full green or blue carries
             // into the next field exactly as the word sum does, and CGRAM keeps 15 bits.
             palette.Write(color,
-                RgbColor.FromWordIgnoringTopBit(unchecked((ushort)(current.ToWord() + WreckedShipGhostAppearanceDefinitions.ColorStepEachChannel))));
+                RgbColor.FromWordIgnoringTopBit(WordWrap.Unsigned(current.ToWord() + WreckedShipGhostAppearanceDefinitions.ColorStepEachChannel)));
             colorsChanged++;
         }
 

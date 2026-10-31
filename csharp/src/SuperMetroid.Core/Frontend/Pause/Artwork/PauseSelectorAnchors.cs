@@ -31,7 +31,7 @@ public static class PauseSelectorAnchors
         _ = Anchor(category, item);
         Position16<ScreenPixels> origin = Ensure.Listed(CategoryOrigins, category);
         int gap = category == PauseEquipmentCategory.Suits && item >= SuitsLowerGroupFirstItem ? SuitsLowerGroupGap : 0;
-        return new(checked((ushort)(origin.X - DrawBias)), checked((ushort)(origin.Y + gap + item * ItemRowStride - DrawBias)));
+        return new(origin.X - DrawBias, origin.Y + gap + item * ItemRowStride - DrawBias);
     }
     /// <summary>Selects the visual animation role for an equipment category, sharing the Equipment role between suit/miscellaneous items and boots.</summary>
     /// <param name="category">Native equipment category: 0 reserves, 1 beams, 2 suit/miscellaneous items, or 3 boots.</param>

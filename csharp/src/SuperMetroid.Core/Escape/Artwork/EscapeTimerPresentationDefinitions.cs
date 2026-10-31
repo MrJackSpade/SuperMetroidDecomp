@@ -76,5 +76,5 @@ public static class EscapeTimerPresentationDefinitions
         };
 
     /// <summary>The tens-digit origin of the <paramref name="group"/>th two-digit group.</summary>
-    private static Offset16<SpritePixels> GroupAnchor(int group) => new(checked((short)((3 * group * 2 - 7) * GlyphWidth / 2)), 0);
+    private static Offset16<SpritePixels> GroupAnchor(int group) => new((3 * group * 2 - 7) * GlyphWidth / 2, 0);
 }

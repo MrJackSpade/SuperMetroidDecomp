@@ -60,8 +60,8 @@ internal sealed class EyeDoorBehavior
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
 
         var block = new Position16<RoomBlocks>(
-            checked((ushort)(request.PlmBlockIndex % roomWidthInBlocks)),
-            checked((ushort)(request.PlmBlockIndex / roomWidthInBlocks)));
+            request.PlmBlockIndex % roomWidthInBlocks,
+            request.PlmBlockIndex / roomWidthInBlocks);
         switch (kind)
         {
             case RoomEnemyProjectileKind.EyeDoorProjectile:
@@ -251,15 +251,15 @@ internal sealed class EyeDoorBehavior
         Position16<RoomBlocks> block)
     {
         MiscDustProjectileProgram program = MiscDustProjectiles.Program(animation);
-        MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(checked((ushort)placementIndex));
+        MiscDustPlacementDefinition placement = MiscDustProjectiles.SmokePlacement(Ensure.BetweenInclusive(0, ushort.MaxValue, placementIndex));
 
         int random = _room.Random.Read();
         // Native stores only the list pointer, keeping the definition's one-update timer.
         projectile.InstallAnimation(new MiscDustProjectileAnimation(program));
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
-            unchecked((short)(8 + placement.Base.X + (random & placement.RandomMask.X))),
-            unchecked((short)(8 + placement.Base.Y + (SharedRandomState.UpperByte(random) & placement.RandomMask.Y)))));
+            CoordinateAxis.AsSigned(8 + placement.Base.X + (random & placement.RandomMask.X)),
+            CoordinateAxis.AsSigned(8 + placement.Base.Y + (SharedRandomState.UpperByte(random) & placement.RandomMask.Y))));
 
         // $E4FA advances the global seed after sampling it for both coordinates.
         _room.Random.Generate();
@@ -279,10 +279,10 @@ internal sealed class EyeDoorBehavior
 
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
         int angle = shot.Heading.RawValue;
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)(projectile.Velocity.X.RawValue +
-            ReadEyeDoorAcceleration(angle)))));
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue +
-            ReadEyeDoorAcceleration(angle - 64)))));
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(projectile.Velocity.X.RawValue +
+            ReadEyeDoorAcceleration(angle)));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue +
+            ReadEyeDoorAcceleration(angle - 64)));
 
         SharedGameState system = _eyeDoorProjectileSystem ??
             throw new InvalidOperationException("A live eye-door projectile has no door-bit owner.");
@@ -297,23 +297,23 @@ internal sealed class EyeDoorBehavior
     {
         MoveEyeDoorEffectHorizontally(projectile, level);
         bool collidedVertically = MoveEyeDoorEffectVertically(projectile, level);
-        if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0 && collidedVertically)
+        if (projectile.Velocity.Y.SignedRawValue >= 0 && collidedVertically)
         {
-            projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 4)));
+            projectile.Position = projectile.Position.WithWrappedWholeY(projectile.Position.Y.Whole - 4);
             // The floor splash stops the drop's movement, as the native list switch does.
             projectile.PreInstruction = EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
             projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.HitFloor));
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + 12))));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(projectile.Velocity.Y.RawValue + 12));
     }
 
     /// <summary>Scales one signed sine-table sample to the eye shot's per-frame acceleration.</summary>
-    internal static short ReadEyeDoorAcceleration(int tableIndex)
+    internal static int ReadEyeDoorAcceleration(int tableIndex)
     {
-        int sample = Trigonometry.SignedSine(unchecked(new ByteAngle((byte)tableIndex)));
-        return unchecked((short)(sample >> 4));
+        int sample = Trigonometry.SignedSine(unchecked(new ByteAngle(WordWrap.LowByte(tableIndex))));
+        return WordWrap.Signed(sample >> 4);
     }
 
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the native list switch does.</summary>
@@ -353,10 +353,10 @@ internal sealed class EyeDoorBehavior
     {
         EyeDoorShotState shot = projectile.StateOf<EyeDoorShotState>();
         shot.Heading = new ByteAngle(EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).RawValue);
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, projectile.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, projectile.Position.Y.Whole))).RawValue);
         int angle = shot.Heading.RawValue;
-        projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)angle)))));
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)Trigonometry.SignedSine(new ByteAngle((byte)(angle - 64))))));
+        projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Wrapped(Trigonometry.SignedSine(new ByteAngle(WordWrap.LowByte(angle)))));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(Trigonometry.SignedSine(new ByteAngle(WordWrap.LowByte(angle - 64)))));
     }
 
     /// <summary>Advances horizontal subpixels or snaps to the first solid leading edge.</summary>
@@ -365,19 +365,19 @@ internal sealed class EyeDoorBehavior
         RoomLevelData level)
     {
         FixedCoordinate moved = projectile.Position.AdvanceX(projectile.Velocity.X.ToSixteenSixteenDelta()).X;
-        int edge = unchecked((short)projectile.Velocity.X.RawValue) < 0
-            ? unchecked((ushort)(moved.Whole - projectile.Radius.X))
-            : unchecked((ushort)(moved.Whole + projectile.Radius.X - 1));
+        int edge = projectile.Velocity.X.SignedRawValue < 0
+            ? CoordinateAxis.Wrap(moved.Whole - projectile.Radius.X)
+            : CoordinateAxis.Wrap(moved.Whole + projectile.Radius.X - 1);
         if (EyeDoorEffectEdgeIsSolid(
             level,
             edge,
-            unchecked((ushort)(projectile.Position.Y.Whole - projectile.Radius.Y)),
-            unchecked((ushort)(projectile.Position.Y.Whole + projectile.Radius.Y - 1)),
+            CoordinateAxis.Wrap(projectile.Position.Y.Whole - projectile.Radius.Y),
+            CoordinateAxis.Wrap(projectile.Position.Y.Whole + projectile.Radius.Y - 1),
             edge: Axis.Horizontal))
         {
             projectile.Position = projectile.Position.WithFractionX(0);
             projectile.Position = projectile.Position.WithWholeX(SnapEnemyProjectileAxis(projectile.Position.X.Whole, edge, projectile.Radius.X,
-                movingBack: unchecked((short)projectile.Velocity.X.RawValue) < 0));
+                movingBack: projectile.Velocity.X.SignedRawValue < 0));
             return true;
         }
 
@@ -390,17 +390,17 @@ internal sealed class EyeDoorBehavior
     /// toward the move. Moving forward it never pulls the projectile back, and moving back it
     /// never pushes it forward, so a projectile that starts inside a block keeps its position.
     /// </summary>
-    private static ushort SnapEnemyProjectileAxis(int current, int edge, int radius, bool movingBack)
+    private static int SnapEnemyProjectileAxis(int current, int edge, int radius, bool movingBack)
     {
         if (movingBack)
         {
             // The far face of the blocking block: the last pixel of its sixteen, plus one.
-            int face = unchecked((ushort)((edge | 15) + 1 + radius));
-            return checked((ushort)(face <= current ? face : current));
+            int face = WordWrap.Unsigned((edge | 15) + 1 + radius);
+            return Ensure.BetweenInclusive(0, ushort.MaxValue, face <= current ? face : current);
         }
         // The near face of the blocking block: its first pixel.
-        int near = unchecked((ushort)((edge & ~15) - radius));
-        return checked((ushort)(near >= current ? near : current));
+        int near = WordWrap.Unsigned((edge & ~15) - radius);
+        return Ensure.BetweenInclusive(0, ushort.MaxValue, near >= current ? near : current);
     }
 
     /// <summary>Advances vertical subpixels or snaps to the first solid leading edge.</summary>
@@ -409,19 +409,19 @@ internal sealed class EyeDoorBehavior
         RoomLevelData level)
     {
         FixedCoordinate moved = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta()).Y;
-        int edge = unchecked((short)projectile.Velocity.Y.RawValue) < 0
-            ? unchecked((ushort)(moved.Whole - projectile.Radius.Y))
-            : unchecked((ushort)(moved.Whole + projectile.Radius.Y - 1));
+        int edge = projectile.Velocity.Y.SignedRawValue < 0
+            ? CoordinateAxis.Wrap(moved.Whole - projectile.Radius.Y)
+            : CoordinateAxis.Wrap(moved.Whole + projectile.Radius.Y - 1);
         if (EyeDoorEffectEdgeIsSolid(
             level,
             edge,
-            unchecked((ushort)(projectile.Position.X.Whole - projectile.Radius.X)),
-            unchecked((ushort)(projectile.Position.X.Whole + projectile.Radius.X - 1)),
+            CoordinateAxis.Wrap(projectile.Position.X.Whole - projectile.Radius.X),
+            CoordinateAxis.Wrap(projectile.Position.X.Whole + projectile.Radius.X - 1),
             edge: Axis.Vertical))
         {
             projectile.Position = projectile.Position.WithFractionY(0);
             projectile.Position = projectile.Position.WithWholeY(SnapEnemyProjectileAxis(projectile.Position.Y.Whole, edge, projectile.Radius.Y,
-                movingBack: unchecked((short)projectile.Velocity.Y.RawValue) < 0));
+                movingBack: projectile.Velocity.Y.SignedRawValue < 0));
             return true;
         }
 
@@ -443,9 +443,9 @@ internal sealed class EyeDoorBehavior
         int spanEndPixel,
         Axis edge)
     {
-        int fixedBlock = unchecked((ushort)fixedAxisPixel) >> 4;
-        int startBlock = unchecked((ushort)spanStartPixel) >> 4;
-        int extraBlocks = unchecked((ushort)(spanEndPixel - (spanStartPixel & ~15))) >> 4;
+        int fixedBlock = CoordinateAxis.Wrap(fixedAxisPixel) >> 4;
+        int startBlock = CoordinateAxis.Wrap(spanStartPixel) >> 4;
+        int extraBlocks = CoordinateAxis.Wrap(spanEndPixel - (spanStartPixel & ~15)) >> 4;
         int width = level.Size.X;
         int linear = edge == Axis.Vertical ? fixedBlock * width + startBlock : startBlock * width + fixedBlock;
         int step = edge == Axis.Vertical ? 1 : width;
@@ -458,7 +458,7 @@ internal sealed class EyeDoorBehavior
             }
             int blockX = tested == 0 ? (edge == Axis.Vertical ? startBlock : fixedBlock) : linear % width;
             int blockY = tested == 0 ? (edge == Axis.Vertical ? fixedBlock : startBlock) : linear / width;
-            int blockIndex = EnemyTerrain.ResolveEnemyCollisionBlockIndex(level, new(unchecked((ushort)(blockX)), unchecked((ushort)(blockY))));
+            int blockIndex = EnemyTerrain.ResolveEnemyCollisionBlockIndex(level, new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
             if (blockIndex < 0)
                 return true;
 

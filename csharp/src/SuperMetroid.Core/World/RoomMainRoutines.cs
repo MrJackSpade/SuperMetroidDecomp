@@ -43,8 +43,8 @@ internal sealed class RoomMainRoutines
 
         var death = room.Enemies.RoomMainHooks.CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire's comeback room callback has no death state.");
-        _backgroundScroll.SetBg1VerticalScroll(unchecked((ushort)(
-            _backgroundScroll.Layer1Position.Y + _backgroundScroll.Bg1Offset.Y + death.RumbleYOffset)));
+        _backgroundScroll.SetBg1VerticalScroll(CoordinateAxis.Wrap(
+            _backgroundScroll.Layer1Position.Y + _backgroundScroll.Bg1Offset.Y + death.RumbleYOffset));
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ internal sealed class RoomMainRoutines
             return;
 
         int random = _system.RandomNumber;
-        bool dark = unchecked((short)random) < 0;
+        bool dark = WordWrap.Signed(random) < 0;
         room.Enemies.Projectiles.SpawnCeresFallingDebris(
             CeresFallingDebrisX(random & 15),
             dark,
@@ -126,7 +126,7 @@ internal sealed class RoomMainRoutines
     /// $8F:E551: sixteen debris columns, sixteen pixels apart from X $50 through $F0, then
     /// thirty-two pixels apart through $190.
     /// </summary>
-    internal static ushort CeresFallingDebrisX(int column) => (uint)column < 16
-        ? (ushort)(column <= 10 ? 80 + 16 * column : 240 + 32 * (column - 10))
+    internal static int CeresFallingDebrisX(int column) => (uint)column < 16
+        ? CoordinateAxis.Wrap(column <= 10 ? 80 + 16 * column : 240 + 32 * (column - 10))
         : throw new ArgumentOutOfRangeException(nameof(column));
 }

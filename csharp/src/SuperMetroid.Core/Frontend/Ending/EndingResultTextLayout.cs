@@ -29,14 +29,14 @@ public static class EndingResultTextLayout
         SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Charge;
 
     /// <summary>The clear time's hours tens digit's screen X.</summary>
-    public const ushort HoursTensX = 156;
+    public const int HoursTensX = 156;
 
     /// <summary>The clear time's hours units digit's screen X.</summary>
-    public const ushort HoursUnitsX = 164;
+    public const int HoursUnitsX = 164;
 
     /// <summary>The clear time's minutes tens digit's screen X, to the right of the colon.</summary>
-    public const ushort MinutesTensX = 180;
+    public const int MinutesTensX = 180;
 
     /// <summary>The clear time's minutes units digit's screen X.</summary>
-    public const ushort MinutesUnitsX = 188;
+    public const int MinutesUnitsX = 188;
 }

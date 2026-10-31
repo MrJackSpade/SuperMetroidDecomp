@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class SpeedBoosterEscapeStageDefinitions
 {
     /// <summary>Native byte width of each live target-X, maximum-FX-Y, velocity record.</summary>
-    internal const ushort RecordByteCount = 6;
+    internal const int RecordByteCount = 6;
 
     /// <summary>Native byte offset of the terminal $8000 target-X sentinel.</summary>
-    internal const ushort TerminatorOffset = 18;
+    internal const int TerminatorOffset = 18;
 
     /// <summary>$84:B876: eastern checkpoint action, reached first while escaping left.</summary>
     internal static readonly SpeedBoosterEscapeStageDefinition EasternCheckpoint = new(1835, 447, SignedEightEight.FromSignedRaw(-176));

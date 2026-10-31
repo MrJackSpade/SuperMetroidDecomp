@@ -26,10 +26,10 @@ public sealed class CeresElevatorShaftRoomMainState
     private const int FirstBackwardStep = 68;
 
     /// <summary>Initial turn timer written by door ASM <c>$8F:E4E0</c>.</summary>
-    public const ushort InitialRotationTimer = 60;
+    public const int InitialRotationTimer = 60;
 
     /// <summary>Native state-$20 hold written by <c>SamusCode_02_ReachCeresElevator</c>.</summary>
-    public const ushort DepartureHoldFrames = 60;
+    public const int DepartureHoldFrames = 60;
 
     /// <summary>Whether the active room owns this room-main routine.</summary>
     public bool IsActive { get; private set; }
@@ -180,7 +180,7 @@ public sealed class CeresElevatorShaftRoomMainState
 
     /// <summary>Starts the shaft at the door ASM's identity matrix and fixed rotation center.</summary>
     private static TurningFloorTransform CreateInitialTransform() => new(
-        MatrixA: (short)EightEight.FromWhole(1),
+        MatrixA: CoordinateAxis.AsSigned(EightEight.FromWhole(1)),
         MatrixB: 0,
         MatrixC: 0,
         Center: CeresShaftRotationCenter);

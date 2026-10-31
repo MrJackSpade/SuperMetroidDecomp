@@ -473,7 +473,7 @@ internal sealed class MotherBrainRainbowAttackPhases
                 // finish-off function. It starts one complete really-slow forward
                 // body animation when Mother Brain is standing and left of `$80`.
                 requests.BodyWalkRequested = RequestWalkForwardReallySlow(
-                    unchecked((ushort)(_state.Body.Position.X + 16))).Requested;
+                    CoordinateAxis.Wrap(_state.Body.Position.X + 16)).Requested;
                 _state.BabyMetroidPagesShown = 0;
                 _state.BabyMetroidSpawned = false;
                 _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOff;

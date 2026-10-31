@@ -77,7 +77,7 @@ internal sealed class DraygonGoop
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot position a goop pass without Samus.");
 
-        if (EnemyMath.WrappedMagnitude(unchecked((ushort)(state.Body.Position.X.Whole - samus.Position.X.Whole))) < 208)
+        if (CoordinateAxis.Distance(state.Body.Position.X.Whole, samus.Position.X.Whole) < 208)
         {
             state.Function = direction == HorizontalDirection.Right
                 ? DraygonAiFunction.GoopRightTail
@@ -123,8 +123,8 @@ internal sealed class DraygonGoop
         MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
         int x = state.Body.Position.X.Whole;
         bool crossedExit = direction == HorizontalDirection.Right
-            ? unchecked((short)x) >= 0 && x >= 672
-            : unchecked((short)x) < 0 && unchecked((short)(x - DraygonBehavior.DraygonOffscreenLeftX)) < 0;
+            ? CoordinateAxis.AsSigned(x) >= 0 && x >= 672
+            : CoordinateAxis.AsSigned(x) < 0 && CoordinateAxis.Difference(x, DraygonBehavior.DraygonOffscreenLeftX) < 0;
         if (crossedExit)
             FinishDraygonGoopFiring(state, direction == HorizontalDirection.Right);
     }
@@ -159,8 +159,8 @@ internal sealed class DraygonGoop
         MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
         int x = state.Body.Position.X.Whole;
         bool offScreen = direction == HorizontalDirection.Right
-            ? unchecked((short)x) >= 0 && x >= 672
-            : unchecked((short)x) < 0 && unchecked((short)(x - DraygonBehavior.DraygonOffscreenLeftX)) < 0;
+            ? CoordinateAxis.AsSigned(x) >= 0 && x >= 672
+            : CoordinateAxis.AsSigned(x) < 0 && CoordinateAxis.Difference(x, DraygonBehavior.DraygonOffscreenLeftX) < 0;
         if (!offScreen)
             return;
 
@@ -181,8 +181,8 @@ internal sealed class DraygonGoop
     /// <summary>Applies the goop pass's horizontal motion and one-step Y oscillation.</summary>
     internal static void MoveDraygonAlongGoopPath(DraygonEnemyState state, bool movingRight)
     {
-        state.Body.Position = state.Body.Position.WithWholeY(unchecked((ushort)(
-            384 + EnemyMath.ReadEightBitCosineProduct(state.GoopYOscillationAngle.ToByteAngle(), 32))));
+        state.Body.Position = state.Body.Position.WithWholeY(WordWrap.Unsigned(
+            384 + EnemyMath.ReadEightBitCosineProduct(state.GoopYOscillationAngle.ToByteAngle(), 32)));
         state.GoopYOscillationAngle = state.GoopYOscillationAngle.AddTableUnits(1);
         DraygonMovement.MoveDraygonHorizontally(state, movingRight);
     }
@@ -267,8 +267,8 @@ internal sealed class DraygonGoop
             return;
         }
 
-        int xDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - goop.Position.X.Whole)));
-        int yDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.Y.Whole - goop.Position.Y.Whole)));
+        int xDistance = CoordinateAxis.Distance(samus.Position.X.Whole, goop.Position.X.Whole);
+        int yDistance = CoordinateAxis.Distance(samus.Position.Y.Whole, goop.Position.Y.Whole);
         if (xDistance < 16 && yDistance < 20)
         {
             goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileProgram.GoopTouch));
@@ -286,8 +286,8 @@ internal sealed class DraygonGoop
         DeleteEnemyProjectileIfPowerBombed(goop, samus);
         if (samus is null)
             return;
-        int nextDivisor = unchecked((ushort)(samus.XSpeedDivisor + 1));
-        if (unchecked((short)(nextDivisor - 6)) >= 0)
+        int nextDivisor = WordWrap.Unsigned(samus.XSpeedDivisor + 1);
+        if (WordWrap.Signed(nextDivisor - 6) >= 0)
             return;
 
         samus.XSpeedDivisor = nextDivisor;
@@ -317,7 +317,7 @@ internal sealed class DraygonGoop
         }
 
         DraygonGoopAttachedState attached = goop.StateOf<DraygonGoopAttachedState>();
-        goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + attached.StackPosition * 4 - 12))));
+        goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole + attached.StackPosition * 4 - 12)));
         // The attachment lifetime counts down (DEC then BNE): the goop falls off when it reaches zero.
         CountdownStep lifetime = attached.Lifetime.Decrement();
         attached.Lifetime = lifetime.Remaining;
@@ -332,8 +332,8 @@ internal sealed class DraygonGoop
     {
         goop.Clear();
         samus.XSpeedDivisor = samus.XSpeedDivisor == 0
-            ? (ushort)0
-            : unchecked((ushort)(samus.XSpeedDivisor - 1));
+            ? 0
+            : WordWrap.Unsigned(samus.XSpeedDivisor - 1);
     }
 
     /// <summary>
@@ -351,8 +351,8 @@ internal sealed class DraygonGoop
             return;
         // `LSR; ADC $12; LSR` carries the first shift's low bit into the addition.
         int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + (horizontalRadius & 1)) >> 1;
-        int xDistance = Math.Abs(unchecked((short)(powerBomb.Position.X - projectile.Position.X.Whole)));
-        int yDistance = Math.Abs(unchecked((short)(powerBomb.Position.Y - projectile.Position.Y.Whole)));
+        int xDistance = CoordinateAxis.Distance(powerBomb.Position.X, projectile.Position.X.Whole);
+        int yDistance = CoordinateAxis.Distance(powerBomb.Position.Y, projectile.Position.Y.Whole);
         if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
             return;
         projectile.ReleaseIdentityOnly();
@@ -362,6 +362,6 @@ internal sealed class DraygonGoop
 
     /// <summary>Tests the projectile against the 512-by-512-pixel Draygon arena bounds.</summary>
     private static bool IsOutsideDraygonRoom(RoomEnemyProjectileSlot projectile) =>
-        unchecked((short)projectile.Position.X.Whole) < 0 || projectile.Position.X.Whole >= 512 ||
-        unchecked((short)projectile.Position.Y.Whole) < 0 || projectile.Position.Y.Whole >= 512;
+        CoordinateAxis.AsSigned(projectile.Position.X.Whole) < 0 || projectile.Position.X.Whole >= 512 ||
+        CoordinateAxis.AsSigned(projectile.Position.Y.Whole) < 0 || projectile.Position.Y.Whole >= 512;
 }

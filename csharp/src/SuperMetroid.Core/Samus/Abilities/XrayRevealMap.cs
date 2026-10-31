@@ -35,7 +35,7 @@ public static class XrayRevealMap
         for (int row = 0; row < XrayRevealLayout.MetatileRows; row++)
         for (int col = 0; col < XrayRevealLayout.MetatileColumns; col++)
             Place(col, row, Copied(col, row));
-        int firstBlock = (byte)(layer1Position.Y >> 4) * level.Size.X + (layer1Position.X >> 4);
+        int firstBlock = WordWrap.LowByte(layer1Position.Y >> 4) * level.Size.X + (layer1Position.X >> 4);
         for (int row = 0; row < XrayRevealLayout.MetatileRows; row++)
         {
             int first = firstBlock + row * level.Size.X;
@@ -84,8 +84,8 @@ public static class XrayRevealMap
         // The BG1 block shown at the cell's scrolled position, mirrored as the level mirrors it.
         RevealedBlock? Copied(int col, int row)
         {
-            int x = unchecked((ushort)(((bg1Scroll.X >> 4) + col) * RoomLevelPlane.BlockPixels - bg1Offset.X));
-            int y = unchecked((ushort)(((bg1Scroll.Y >> 4) + row) * RoomLevelPlane.BlockPixels - bg1Offset.Y));
+            int x = CoordinateAxis.Wrap(((bg1Scroll.X >> 4) + col) * RoomLevelPlane.BlockPixels - bg1Offset.X);
+            int y = CoordinateAxis.Wrap(((bg1Scroll.Y >> 4) + row) * RoomLevelPlane.BlockPixels - bg1Offset.Y);
             if (x >= bg1.Size.X * RoomLevelPlane.BlockPixels || y >= bg1.Size.Y * RoomLevelPlane.BlockPixels)
                 return null;
             RoomBlockCell cell = bg1.Cells[y / RoomLevelPlane.BlockPixels * bg1.Size.X + x / RoomLevelPlane.BlockPixels];

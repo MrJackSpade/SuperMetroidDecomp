@@ -83,7 +83,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
                 throw new InvalidDataException(
                     $"Scroll PLM program at block {slot.BlockIndex} ended without a terminator.");
             int scrollIndex = program.Span[offset];
-            if (unchecked((sbyte)scrollIndex) < 0)
+            if (WordWrap.SignedLowByte(scrollIndex) < 0)
             {
                 FinishScrollMutation(level, slot);
                 return true;

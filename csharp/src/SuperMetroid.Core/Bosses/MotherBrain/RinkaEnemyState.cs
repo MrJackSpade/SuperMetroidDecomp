@@ -27,7 +27,7 @@ public sealed class RinkaEnemyState
     public int SpawnResourceToken
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>Wrapping 16-bit countdown used both before flight and before special respawn.</summary>

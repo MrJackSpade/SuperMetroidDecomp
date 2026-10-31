@@ -159,7 +159,7 @@ internal sealed class ProjectileEnemyImpacts
             if (!slot.Type.IsFamily(SamusProjectileFamily.Missile))
                 continue;
 
-            if (unchecked((short)(slot.Position.X.Whole - 84)) >= 0)
+            if (CoordinateAxis.Difference(slot.Position.X.Whole, 84) >= 0)
                 return false;
 
             _terrainCollision.KillMissile(slot, sharedProjectiles);

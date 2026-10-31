@@ -127,8 +127,8 @@ internal sealed class CeresRidleyBehavior
 
             case RidleyAiFunction.CeresLiftoffAccelerating:
                 // $A6:A6AF adds -16 to the 8.8 Y velocity before the common movement pass.
-                state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - 16))));
-                if (unchecked((short)(slot.Position.Y.Whole - 112)) < 0)
+                state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue - 16));
+                if (CoordinateAxis.Difference(slot.Position.Y.Whole, 112) < 0)
                 {
                     state.Function = RidleyAiFunction.CeresLiftoffDecelerating;
                     CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(slot, state);
@@ -331,9 +331,9 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>The fastest 8.8 speed the acceleration clamps to toward a lower target: five pixels per update.</summary>
-    internal const ushort CeresRidleyMaximumSpeed = 1280;
+    internal const int CeresRidleyMaximumSpeed = 1280;
     /// <summary>The fastest 8.8 speed toward a higher target, as the native two's-complement word.</summary>
-    internal const ushort CeresRidleyMinimumSpeed = unchecked((ushort)-1280);
+    internal static readonly int CeresRidleyMinimumSpeed = WordWrap.Unsigned(-1280);
 
     /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
     internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>

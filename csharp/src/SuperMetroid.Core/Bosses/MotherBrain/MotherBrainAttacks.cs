@@ -73,12 +73,12 @@ internal sealed class MotherBrainAttacks
     private static bool TryWalkMotherBrainBackwardsForHandBeam(
         MotherBrainEnemyState state)
     {
-        int targetMinusBody = unchecked((short)(40 - state.Body.Position.X.Whole));
+        int targetMinusBody = CoordinateAxis.Difference(40, state.Body.Position.X.Whole);
         if (targetMinusBody >= 0)
             return true;
         if (state.Pose != MotherBrainBodyPose.Standing)
             return false;
-        if (unchecked((short)(state.Body.Position.X.Whole - 48)) < 0)
+        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 48) < 0)
             return true;
 
         MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.WalkBackwardSlow);
@@ -176,7 +176,7 @@ internal sealed class MotherBrainAttacks
         state.AttackCooldown = WrappingCountdown.Start(64);
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
-        int randomLow = unchecked((byte)_room.Random.Read());
+        int randomLow = SharedRandomState.LowerByte(_room.Random.Read());
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         if (!Enum.IsDefined(movementType))
         {
@@ -211,8 +211,8 @@ internal sealed class MotherBrainAttacks
             return;
         }
 
-        int verticalDistance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
-            state.Head.Position.Y.Whole + 4 - samus.Position.Y.Whole)));
+        int verticalDistance = EnemyMath.WrappedMagnitude(CoordinateAxis.Wrap(
+            state.Head.Position.Y.Whole + 4 - samus.Position.Y.Whole));
         ReadOnlySpan<byte> thresholds = verticalDistance < 32
             ? [16, 32, 208]
             : [64, 128, 192];
@@ -269,7 +269,7 @@ internal sealed class MotherBrainAttacks
         if (random < 65408)
         {
             int targetX = random >= 24576 ? 64 : 96;
-            int targetMinusBody = unchecked((short)(targetX - state.Body.Position.X.Whole));
+            int targetMinusBody = CoordinateAxis.Difference(targetX, state.Body.Position.X.Whole);
             if (targetMinusBody < 0)
             {
                 state.BodyTargetXPosition = targetX;
@@ -360,12 +360,12 @@ internal sealed class MotherBrainAttacks
         MotherBrainEnemyState state,
         int targetX)
     {
-        int targetMinusBody = unchecked((short)(targetX - state.Body.Position.X.Whole));
+        int targetMinusBody = CoordinateAxis.Difference(targetX, state.Body.Position.X.Whole);
         if (targetMinusBody >= 0)
             return true;
         if (state.Pose != MotherBrainBodyPose.Standing)
             return false;
-        if (unchecked((short)(state.Body.Position.X.Whole - 48)) < 0)
+        if (CoordinateAxis.Difference(state.Body.Position.X.Whole, 48) < 0)
             return true;
 
         MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.WalkBackwardMedium);
@@ -425,7 +425,7 @@ internal sealed class MotherBrainAttacks
         // CMP/BPL tests the sign bit of the wrapped 16-bit subtraction. Normal arena
         // coordinates cannot overflow signed range, but expressing the native flag test
         // explicitly keeps debugger-edited/wrapped coordinates cartridge-faithful too.
-        int headMinusSamus = unchecked((short)(head.Position.Y.Whole - samus.Position.Y.Whole));
+        int headMinusSamus = CoordinateAxis.Difference(head.Position.Y.Whole, samus.Position.Y.Whole);
         MotherBrainNeckMovement targetIndex = headMinusSamus >= 0
             ? MotherBrainNeckMovement.Raise
             : MotherBrainNeckMovement.Lower;

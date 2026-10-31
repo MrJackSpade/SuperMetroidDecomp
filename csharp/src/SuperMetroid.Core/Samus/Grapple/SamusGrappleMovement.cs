@@ -74,8 +74,8 @@ public static class SamusGrappleMovement
         int physicalYOffset = movingHeld ? GrappleBeamDefinitions.Firing.DraygonMovingGraphicsYOffset :
             SamusPoseProjectileOrigins.ReadYOffset(samus.Pose);
 
-        grapple.OriginOffset = new(origin.X, unchecked((short)(origin.Y - physicalYOffset)));
-        grapple.FlareOffset = new(flare.X, unchecked((short)(flare.Y - graphicsYOffset)));
+        grapple.OriginOffset = new(origin.X, CoordinateAxis.Difference(origin.Y, physicalYOffset));
+        grapple.FlareOffset = new(flare.X, CoordinateAxis.Difference(flare.Y, graphicsYOffset));
 
         // The endpoint offset is a signed 16.16 displacement from Samus plus the origin
         // table. $9B:C51E clears all four words, not merely their whole halves.
@@ -126,7 +126,7 @@ public static class SamusGrappleMovement
         int whole = FixedCoordinate.WholeOf(unchecked((int)rotated));
         if (velocity < 0)
             whole |= ushort.MaxValue & ~63; // The rotate's sign fills the top ten bits.
-        return SignedSixteenSixteen.FromParts(unchecked((short)whole), unchecked((ushort)rotated));
+        return SignedSixteenSixteen.FromParts(WordWrap.Signed(whole), WordWrap.Unsigned(rotated));
     }
 
     /// <summary>
@@ -229,8 +229,8 @@ public static class SamusGrappleMovement
             // A connection is the native carry+overflow result. $94:A8DA centers the point in
             // the accepted 16x16 block before bank $9B chooses the swing/locked pose.
             grapple.Anchor = new(
-                unchecked((ushort)((grapple.Anchor.X & ~15) | 8)),
-                unchecked((ushort)((grapple.Anchor.Y & ~15) | 8)));
+                CoordinateAxis.Wrap((grapple.Anchor.X & ~15) | 8),
+                CoordinateAxis.Wrap((grapple.Anchor.Y & ~15) | 8));
             return ConnectAcceptedFiringCore(
                 samus,
                 grapple,
@@ -685,14 +685,14 @@ public static class SamusGrappleMovement
         new(ClampPreviousAxis(current.X, previous.X), ClampPreviousAxis(current.Y, previous.Y));
 
     /// <summary>Limits one axis of the previous position to twelve pixels using wrapped 16-bit displacement.</summary>
-    private static ushort ClampPreviousAxis(int current, int previous)
+    private static int ClampPreviousAxis(int current, int previous)
     {
-        int displacement = unchecked((short)(current - previous));
+        int displacement = WordWrap.Signed(current - previous);
         if (displacement >= 13)
-            return unchecked((ushort)(current - 12));
+            return WordWrap.Unsigned(current - 12);
         if (displacement < -12)
-            return unchecked((ushort)(current + 12));
-        return checked((ushort)previous);
+            return WordWrap.Unsigned(current + 12);
+        return Ensure.BetweenInclusive(0, ushort.MaxValue, previous);
     }
 
     /// <summary>Queues firing cleanup while leaving ordinary Samus movement in control of this update.</summary>
@@ -729,7 +729,7 @@ public static class SamusGrappleMovement
         int blockX = endpoint.X >> 4;
         int blockY = endpoint.Y >> 4;
         RoomCollisionBlock initialBlock =
-            level.GetCollisionBlockOrEdgeSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+            level.GetCollisionBlockOrEdgeSolid(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
         if (initialBlock.Index < 0)
         {
             // The edge-solid block outside the room dispatches as an ordinary solid endpoint: carry
@@ -1119,7 +1119,7 @@ public static class SamusGrappleMovement
         return RotationAngle.NormalizeTableIndex(quadrant switch
         {
             0 => RotationAngle.HalfTurn.TableIndex - reciprocalEighths,
-            1 => unchecked((byte)reciprocalEighths),
+            1 => WordWrap.LowByte(reciprocalEighths),
             2 => reciprocalEighths + RotationAngle.HalfTurn.TableIndex,
             _ => 256 - reciprocalEighths,
         });
@@ -1191,7 +1191,7 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>$9B:C6B2: held moving poses aim away from Draygon; Down wins over Up.</summary>
-    private static byte ReadDraygonHeldDirection(SamusPoseId pose, ControllerButton input)
+    private static int ReadDraygonHeldDirection(SamusPoseId pose, ControllerButton input)
     {
         bool left = pose == SamusPoseId.DraygonGrabbedMovingLeftPose;
         bool outward = (input & (left ? ControllerButton.Left : ControllerButton.Right)) != ControllerButton.None;

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus;
 internal static class SamusSpinSoundFrames
 {
     /// <summary>$90:F451, SamusCommand_1C: first wall-jump frame selecting Space Jump audio.</summary>
-    public const ushort SpaceJump = 13;
+    public const int SpaceJump = 13;
     /// <summary>$90:F44C, SamusCommand_1C: first wall-jump frame selecting Screw Attack audio.</summary>
-    public const ushort ScrewAttack = 23;
+    public const int ScrewAttack = 23;
 }

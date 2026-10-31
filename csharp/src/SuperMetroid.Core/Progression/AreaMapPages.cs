@@ -24,11 +24,11 @@ public static class AreaMapPages
     }
 
     /// <summary>Returns the MSB-first mask used by both cartridge one-bit planes.</summary>
-    public static byte GetBitMask(int mapX)
+    public static int GetBitMask(int mapX)
     {
         if ((uint)mapX >= AreaMapLayout.WidthInTiles)
             throw new ArgumentOutOfRangeException(nameof(mapX));
-        return unchecked((byte)(AreaMapLayout.FirstCellBit >> (mapX & 7)));
+        return WordWrap.LowByte(AreaMapLayout.FirstCellBit >> (mapX & 7));
     }
 
     /// <summary>Rejects coordinates outside the two 32-by-32 native map pages.</summary>

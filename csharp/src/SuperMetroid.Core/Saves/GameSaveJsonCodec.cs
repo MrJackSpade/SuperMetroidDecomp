@@ -101,7 +101,7 @@ public static class GameSaveJsonCodec
     {
         Slot = slot.Slot,
         Checkpoint = new SaveCheckpointJsonDocument(
-            AreaIds.FromIndex(checked((byte)slot.Area), $"slot {slot.Slot} checkpoint"),
+            AreaIds.FromIndex(Ensure.BetweenInclusive(0, byte.MaxValue, slot.Area), $"slot {slot.Slot} checkpoint"),
             slot.SaveStation),
         Resources = new SaveResourcesJsonDocument(
             slot.Health,

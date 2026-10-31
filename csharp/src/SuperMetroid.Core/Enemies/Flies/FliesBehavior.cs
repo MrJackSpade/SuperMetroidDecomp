@@ -87,7 +87,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.RetreatTimer = state.RetreatTimer.Decrement().Remaining;
         }
-        else if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) <
+        else if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) <
             FlyAttackHorizontalRange)
         {
             SetFlyToAttackSamus(slot, state, samus);
@@ -111,10 +111,10 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         int angle = EnemyMath.CalculateBearing(
-            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle().RawValue;
+            new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ReinterpretAsTableAngle().RawValue;
         state.Velocity = new(
-            unchecked((short)(ReadSignedSineCosine(angle + 64) * 2)),
-            unchecked((short)(ReadSignedSineCosine(angle) * 4)));
+            WordWrap.Signed(ReadSignedSineCosine(angle + 64) * 2),
+            WordWrap.Signed(ReadSignedSineCosine(angle) * 4));
         state.TargetHeight = new Position16<RoomPixels>(0, samus.Position.Y.Whole);
         state.Function = FlyEnemyFunction.AttackSamus;
     }
@@ -139,8 +139,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
         int tableIndex = state.Angle.TableIndex;
-        slot.Position = slot.Position.AdvanceX(new SignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex + 64))).ToSixteenSixteenDelta());
-        slot.Position = slot.Position.AdvanceY(new SignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex))).ToSixteenSixteenDelta());
+        slot.Position = slot.Position.AdvanceX(SignedEightEight.Wrapped(ReadSignedSineCosine(tableIndex + 64)).ToSixteenSixteenDelta());
+        slot.Position = slot.Position.AdvanceY(SignedEightEight.Wrapped(ReadSignedSineCosine(tableIndex)).ToSixteenSixteenDelta());
     }
 
     /// <summary>Applies the fixed-point dive or retreat velocity to the enemy position.</summary>
@@ -150,7 +150,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Reads the cartridge's negative-cosine table, including the phase-offset range used for horizontal motion.</summary>
-    internal static short ReadSignedSineCosine(int index)
+    internal static int ReadSignedSineCosine(int index)
     {
         // The backing table begins with negative cosine at index zero, sine at index 64,
         // and continues far enough for every byte angle plus the cosine phase offset.

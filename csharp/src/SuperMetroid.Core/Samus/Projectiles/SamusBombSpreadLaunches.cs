@@ -14,7 +14,7 @@ internal static class SamusBombSpreadLaunches
     {
         if ((uint)index >= 5) throw new ArgumentOutOfRangeException(nameof(index));
         int radius = Math.Abs(index - 2);
-        return new((ushort)(100 + radius * 10),
+        return new(WordWrap.Unsigned(100 + radius * 10),
             BombSpreadHorizontalVelocity.Of(index < 2, radius / 2, radius % 2 * 128),
             radius == 0 ? CentreRise : new UnsignedSixteenSixteen(2 - radius, 0));
     }

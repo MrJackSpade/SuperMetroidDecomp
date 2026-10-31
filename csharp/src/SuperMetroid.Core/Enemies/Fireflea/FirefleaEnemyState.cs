@@ -29,7 +29,7 @@ public sealed class FirefleaEnemyState
     public int Radius
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>

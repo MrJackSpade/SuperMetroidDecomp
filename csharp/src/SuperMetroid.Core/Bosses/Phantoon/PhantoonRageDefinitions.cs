@@ -12,7 +12,7 @@ internal static class PhantoonRageDefinitions
     /// <summary>$A7:D8F4: round count before closing the eye and fading out.</summary>
     internal const int WaveCount = 8;
     /// <summary>$A7:D8F9: AI calls separating successive waves.</summary>
-    internal const ushort WaveInterval = 128;
+    internal const int WaveInterval = 128;
     /// <summary>$A7:D8E6: library-three sound emitted once after each complete wave.</summary>
     internal static SoundEffectId WaveSound => Library3Sound.PhantoonSuperMissiled;
     /// <summary>The wave sound's request priority.</summary>

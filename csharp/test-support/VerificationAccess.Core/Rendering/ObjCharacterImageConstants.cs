@@ -62,7 +62,7 @@ internal static class ObjCharacterImageConstants
                 for (ushort column = 0; column < placed.Size.X; column++)
                 {
                     int character = placed.CharacterAt(new(column, row), out Position16<CharacterPixels> at);
-                    byte colour = composition.Artwork.ColorIndex(character, at);
+                    int colour = composition.Artwork.ColorIndex(character, at);
                     if (colour == 0)
                         continue;
                     int pixel = (placed.Position.Y - top + row) * size.X + placed.Position.X - left + column;

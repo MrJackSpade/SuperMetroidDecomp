@@ -15,7 +15,7 @@ public readonly record struct PowerBombRadius
     public int RawValue { get; }
 
     /// <summary>The whole pixels of the value, 0 through 255; the fraction is dropped.</summary>
-    public int WholePixels => UnsignedEightEight.Whole(checked((ushort)RawValue));
+    public int WholePixels => UnsignedEightEight.Whole(Ensure.BetweenInclusive(0, ushort.MaxValue, RawValue));
 
     /// <summary>A zero radius or a stationary speed.</summary>
     public static PowerBombRadius Zero => default;
@@ -55,5 +55,5 @@ public readonly record struct PowerBombRadius
     }
 
     /// <summary>Reduces an intermediate sum to its sixteen-bit wrapped value.</summary>
-    private static PowerBombRadius Wrap(int value) => new(unchecked((ushort)value));
+    private static PowerBombRadius Wrap(int value) => new(WordWrap.Unsigned(value));
 }

@@ -21,7 +21,7 @@ public sealed class NinjaSpacePirateEnemyState
     public int CalculatedSpinJumpSpeed
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>Native variable C: the active stance animation, facing Samus, that becoming active continues at.</summary>
@@ -78,7 +78,7 @@ public sealed class NinjaSpacePirateEnemyState
     /// Changes <see cref="Speed"/> by <paramref name="delta"/> 1/256-pixel units, wrapping as the cartridge's
     /// sixteen-bit speed does.
     /// </summary>
-    internal void ChangeSpeed(int delta) => Speed = new SignedEightEight(unchecked((ushort)(Speed.RawValue + delta)));
+    internal void ChangeSpeed(int delta) => Speed = SignedEightEight.Wrapped(Speed.RawValue + delta);
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

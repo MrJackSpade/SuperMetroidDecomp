@@ -36,7 +36,7 @@ internal sealed class TorizoChoices
     {
         if (samus is null)
             return null;
-        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)));
+        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
         bool isGroundedBall = samus.Pose is
             SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallMovingRightPose or
             SamusPoseId.MorphBallMovingLeftPose or SamusPoseId.SpringBallGroundRightPose or
@@ -62,7 +62,7 @@ internal sealed class TorizoChoices
     {
         if (samus is null)
             return null;
-        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)));
+        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
         if (!_access.BombTorizoFunction12IsNonNegative(torizo, samus) ||
             distance < 32 || distance >= 96 || !TorizoRandomDefinitions.MediumRangeAttack.AllClear(_room.Random.Generate()))
         {
@@ -83,7 +83,7 @@ internal sealed class TorizoChoices
     {
         if (samus is null)
             return null;
-        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)));
+        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
         if (distance < 112 || !_access.BombTorizoFunction12IsNonNegative(torizo, samus))
             return null;
         ControllerButton heldButtons = controllerInput;
@@ -108,7 +108,7 @@ internal sealed class TorizoChoices
     {
         if (samus is null)
             return null;
-        int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)));
+        int distance = CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole);
         if (state.DecisionCounter < 8 &&
             (distance >= 32 || !_access.BombTorizoFunction12IsNonNegative(torizo, samus)))
         {
@@ -153,7 +153,7 @@ internal sealed class TorizoChoices
         TorizoEnemyState state)
     {
         state.Velocity = new EightEightVector<RoomPixels>(
-            _access.FacesRight(torizo) ? (short)512 : (short)-512, -1472);
+            _access.FacesRight(torizo) ? 512 : -512, -1472);
         state.JumpAcceleration = new EightEightVector<RoomPixels>(0, 40);
         torizo.InstructionTimer = WrappingCountdown.Start(1);
     }
@@ -164,7 +164,7 @@ internal sealed class TorizoChoices
         TorizoEnemyState state)
     {
         state.Velocity = new EightEightVector<RoomPixels>(
-            _access.FacesRight(torizo) ? (short)-768 : (short)768, -1152);
+            _access.FacesRight(torizo) ? -768 : 768, -1152);
         state.JumpAcceleration = new EightEightVector<RoomPixels>(0, 40);
         torizo.InstructionTimer = WrappingCountdown.Start(1);
     }
@@ -199,7 +199,7 @@ internal sealed class TorizoChoices
         AnimationProgramCursor<TorizoBodyProgram> continuation,
         TorizoBodyProgram target)
     {
-        if (samus is null || Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole))) >= 56)
+        if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= 56)
             return null;
         if (BombTorizoParameterMatchesSamusDelta(torizo, samus))
             return null;
@@ -214,7 +214,7 @@ internal sealed class TorizoChoices
         SamusState? samus,
         TorizoBodyProgram target)
     {
-        if (samus is null || Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole))) >= 32 ||
+        if (samus is null || CoordinateAxis.Distance(samus.Position.X.Whole, torizo.Position.X.Whole) >= 32 ||
             !_access.BombTorizoFunction12IsNonNegative(torizo, samus))
         {
             return null;
@@ -223,7 +223,7 @@ internal sealed class TorizoChoices
         // $AA:C22D launches away from the currently faced direction at 3 px/frame and
         // starts with -4.5 px/frame vertical speed, adding 40/256 px/frame each tick.
         state.Velocity = new EightEightVector<RoomPixels>(
-            _access.FacesRight(torizo) ? (short)-768 : (short)768, -1152);
+            _access.FacesRight(torizo) ? -768 : 768, -1152);
         state.JumpAcceleration = new EightEightVector<RoomPixels>(0, 40);
         torizo.InstructionTimer = WrappingCountdown.Start(1);
         return AnimationProgramCursor<TorizoBodyProgram>.Start(target);
@@ -241,6 +241,6 @@ internal sealed class TorizoChoices
         // Keep that subtraction direction explicit: Torizo_Func_12 below deliberately uses
         // the inverse delta, and collapsing both tests into one "faces Samus" helper silently
         // reverses one family of ROM branches.
-        return _access.FacesRight(torizo) == unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)) < 0;
+        return _access.FacesRight(torizo) == CoordinateAxis.Difference(samus.Position.X.Whole, torizo.Position.X.Whole) < 0;
     }
 }

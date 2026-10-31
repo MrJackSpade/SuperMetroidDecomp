@@ -14,7 +14,7 @@ internal static class GrappleConnections
     {
         if ((uint)index >= SpecialAngleCount) throw new ArgumentOutOfRangeException(nameof(index));
         SpecialConnection stop = AuthoredStops[index >> 1];
-        return (index & 1) == 0 ? stop : new(RotationAngle.FromRaw(unchecked((ushort)(ReflectionAngle - stop.Angle.RawValue))), SamusPoseMirror.Of(stop.Pose),
+        return (index & 1) == 0 ? stop : new(RotationAngle.FromRaw(WordWrap.Unsigned(ReflectionAngle - stop.Angle.RawValue)), SamusPoseMirror.Of(stop.Pose),
             stop.SamusOffset.MirroredX(), stop.Function);
     }
 

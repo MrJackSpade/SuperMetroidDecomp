@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 internal static class WreckedShipTreadmillBlockDefinitions
 {
     /// <summary>The treadmill row's first block column, the same in both doors' setup.</summary>
-    public const byte BlockX = 4;
+    public const int BlockX = 4;
 
     /// <summary>The treadmill row's block row, the same in both doors' setup.</summary>
-    public const byte BlockY = 9;
+    public const int BlockY = 9;
 
     /// <summary>The consecutive blocks in the row that setup and activation write.</summary>
     public const int BlockCount = 56;

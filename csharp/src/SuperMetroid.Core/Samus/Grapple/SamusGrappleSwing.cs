@@ -16,9 +16,9 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // $9B:BD9B-BDB1: a fast swing selects the slow-scrolling camera branch.
-        int angularSpeed = unchecked((ushort)Math.Abs(grapple.AngularVelocity));
-        grapple.SlowScrolling = unchecked((short)(angularSpeed -
-            GrappleSlowScrollDefinitions.FastSwingAngularSpeed)) >= 0;
+        int angularSpeed = WordWrap.Unsigned(Math.Abs(grapple.AngularVelocity));
+        grapple.SlowScrolling = WordWrap.Signed(angularSpeed -
+            GrappleSlowScrollDefinitions.FastSwingAngularSpeed) >= 0;
         // $94:AC11 calls the same position helper used by terrain probes. Besides scaling the
         // signed table components, it applies the block-side 7/8 endpoint bias documented in
         // CalculateCollisionPoint; using one helper prevents visible art from disagreeing
@@ -44,7 +44,7 @@ public static class SamusGrappleSwing
             SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
         SamusPresentation.SetGrappleSwingAnimationFrame(samus, artFrame);
-        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ropeStart.Pixel.X + offset.X)), unchecked((ushort)(ropeStart.Pixel.Y + offset.Y))));
+        samus.Position = samus.Position.WithWhole(new(CoordinateAxis.Wrap(ropeStart.Pixel.X + offset.X), CoordinateAxis.Wrap(ropeStart.Pixel.Y + offset.Y)));
     }
 
 
@@ -86,7 +86,7 @@ public static class SamusGrappleSwing
 
 
     /// <summary>Reads the signed negative-cosine table used to project grapple angles into room coordinates.</summary>
-    internal static short ReadSignedSine(int index)
+    internal static int ReadSignedSine(int index)
     {
         return Trigonometry.SignedNegativeCosineWord(index);
     }
@@ -280,11 +280,11 @@ public static class SamusGrappleSwing
         // $9B:BCFF adds the small correction when velocity and angle have opposite signs.
         // This looks unusual in decimal, but preserving the 16-bit sign-bit comparison is
         // essential around the $0000/$FFFF angle seam.
-        if (((unchecked((ushort)velocity) ^ grapple.Angle.RawValue) &
+        if (((WordWrap.Unsigned(velocity) ^ grapple.Angle.RawValue) &
              RotationAngle.HalfTurn.RawValue) != 0)
             velocity += grapple.VelocityCorrection;
 
-        grapple.AngularVelocity = unchecked((short)Math.Clamp(
+        grapple.AngularVelocity = WordWrap.Signed(Math.Clamp(
             velocity,
             -GrappleBeamDefinitions.Physics.MaximumAngularVelocity,
             GrappleBeamDefinitions.Physics.MaximumAngularVelocity));
@@ -326,7 +326,7 @@ public static class SamusGrappleSwing
         // $94:ACFE first converts angular velocity into an angle delta, then walks from the
         // current high angle byte to the target one byte at a time. Fractional-only motion
         // within the same byte has no sweep, exactly as the target-byte equality branch.
-        int combined = unchecked((short)(grapple.AngularVelocity + grapple.JumpImpulse));
+        int combined = WordWrap.Signed(grapple.AngularVelocity + grapple.JumpImpulse);
         int factor = grapple.Submerged ? 160 : 256;
         int magnitude = EightEight.Multiply(Math.Abs(combined), factor);
         if (magnitude == 0)
@@ -345,19 +345,19 @@ public static class SamusGrappleSwing
              lastSafeAngleByte != targetAngleByte && angleSteps < 256;
              angleSteps++)
         {
-            int candidateAngleByte = unchecked((byte)(lastSafeAngleByte + byteDirection));
+            int candidateAngleByte = WordWrap.LowByte(lastSafeAngleByte + byteDirection);
             GrappleSwingCollisionResult collision = ProbeSwingingBody(
                 level,
                 samus,
                 grapple,
-                new ByteAngle((byte)candidateAngleByte));
+                new ByteAngle(WordWrap.LowByte(candidateAngleByte)));
             if (collision.Collided)
             {
                 // $94:ADB4/$AE84 restore the last safe whole angle byte and force the
                 // fractional half-byte `$80`. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
                 grapple.Angle = RotationAngle.FromRaw(
-                    RotationAngle.FromTableIndex((byte)lastSafeAngleByte).AddRaw(128).RawValue);
+                    RotationAngle.FromTableIndex(WordWrap.LowByte(lastSafeAngleByte)).AddRaw(128).RawValue);
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&
@@ -451,18 +451,18 @@ public static class SamusGrappleSwing
         // negative one. This one-pixel asymmetry is observable in both collision probes and
         // Samus positioning, and the adjusted endpoint remains stored after the helper.
         grapple.Anchor = new(
-            unchecked((ushort)((grapple.Anchor.X & ~15) | (xSine >= 0 ? 8 : 7))),
-            unchecked((ushort)((grapple.Anchor.Y & ~15) | (yNegativeCosine >= 0 ? 8 : 7))));
+            CoordinateAxis.Wrap((grapple.Anchor.X & ~15) | (xSine >= 0 ? 8 : 7)),
+            CoordinateAxis.Wrap((grapple.Anchor.Y & ~15) | (yNegativeCosine >= 0 ? 8 : 7)));
 
         Position16<RoomPixels> point = grapple.Anchor + new Offset16<RoomPixels>(
-            unchecked((short)ScaleCoordinate(xSine, distance)),
-            unchecked((short)ScaleCoordinate(yNegativeCosine, distance)));
+            CoordinateAxis.AsSigned(ScaleCoordinate(xSine, distance)),
+            CoordinateAxis.AsSigned(ScaleCoordinate(yNegativeCosine, distance)));
 
         // The native helper masks each shifted coordinate to one byte. Rooms are authored
         // within that domain; preserving the mask matters at 16-bit world-coordinate wrap.
         return new GrappleCollisionPoint(
             Pixel: point,
-            Block: new(unchecked((byte)(point.X >> 4)), unchecked((byte)(point.Y >> 4))));
+            Block: new(WordWrap.LowByte(point.X >> 4), WordWrap.LowByte(point.Y >> 4)));
     }
 
 
@@ -573,13 +573,13 @@ public static class SamusGrappleSwing
         int damage = block == SwingSpikeBlock.Solid
             ? behavior switch
             {
-                0 => (ushort)60,
-                1 => (ushort)16,
-                _ => (ushort)0,
+                0 => 60,
+                1 => 16,
+                _ => 0,
             }
             : behavior == 2
-                ? (ushort)16
-                : (ushort)0;
+                ? 16
+                : 0;
         if (damage == 0)
             return;
 
@@ -592,6 +592,6 @@ public static class SamusGrappleSwing
 
 
     /// <summary>Negates an arithmetic-shifted half, preserving the cartridge's rounding for odd negative values.</summary>
-    private static short NegatedArithmeticHalf(int value) =>
-        unchecked((short)-(value >> 1));
+    private static int NegatedArithmeticHalf(int value) =>
+        WordWrap.Signed(-(value >> 1));
 }

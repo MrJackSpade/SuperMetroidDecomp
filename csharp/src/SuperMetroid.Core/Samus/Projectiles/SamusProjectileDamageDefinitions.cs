@@ -9,9 +9,9 @@ internal static class SamusProjectileDamageDefinitions
     /// <summary>The damage unused projectile $25 starts with.</summary>
     [SuppressMessage("Design", "SME6447", Justification =
         "A projectile's damage, 61440 hit points; damage is a plain count that no typed fixed-point or address form expresses.")]
-    internal const ushort Projectile25Damage = 61440;
+    internal const int Projectile25Damage = 61440;
     /// <summary>The damage a Shinespark echo starts with.</summary>
-    internal const ushort ShinesparkEchoDamage = 4096;
+    internal const int ShinesparkEchoDamage = 4096;
 
     /// <summary>The value each key selects; Beam looks it up.</summary>
     internal static readonly IReadOnlyDictionary<SamusProjectileHeader, SamusBeamCombination> Beams = new Dictionary<SamusProjectileHeader, SamusBeamCombination>

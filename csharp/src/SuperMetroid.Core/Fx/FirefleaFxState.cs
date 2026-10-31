@@ -43,7 +43,7 @@ public sealed class FirefleaFxState
         if (step.IsZero)
         {
             timer = WrappingCountdown.Start(FirefleaFxDefinitions.FlashDuration);
-            if (unchecked((short)(darkness - FirefleaFxDefinitions.SteadyDarknessThreshold)) < 0)
+            if (WordWrap.Signed(darkness - FirefleaFxDefinitions.SteadyDarknessThreshold) < 0)
             {
                 index++;
                 if (index >= FirefleaFxDefinitions.FlashCount) index = 0;
@@ -53,9 +53,9 @@ public sealed class FirefleaFxState
         }
         Timer = timer;
 
-        int shade = unchecked((byte)(
+        int shade = WordWrap.LowByte(
             FirefleaShades.FlashingShade(index) +
-            FirefleaShades.DarknessShade(darkness)));
+            FirefleaShades.DarknessShade(darkness));
         // Each of the cartridge's three writes carries the shade as its five-bit intensity. Past the darkness ramp the
         // shade's upper bits only select channels the other writes set to the same value.
         int intensity = shade & RgbColor.MaxChannel;

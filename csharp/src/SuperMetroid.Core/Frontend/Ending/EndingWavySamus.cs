@@ -15,7 +15,7 @@ internal static class EndingWavySamus
     /// </summary>
     /// <param name="age">The frames the wait has run, from one.</param>
     internal static ScrollWave? WaveAtAge(int age) => age < FirstWaveAge ? null
-        : new ScrollWave(0, Amplitude, new ByteAngle(unchecked((byte)(InitialAngle + AngleStepPerFrame * (age - 1)))),
+        : new ScrollWave(0, Amplitude, new ByteAngle(WordWrap.LowByte(InitialAngle + AngleStepPerFrame * (age - 1))),
             Period, 0, ScreenGeometry.ScreenHeightPixels);
 
     /// <summary>The plane's vertical scroll at cinematic age <paramref name="age"/>: it climbs from zero as the wait runs.</summary>

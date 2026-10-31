@@ -7,7 +7,7 @@ internal static class IntroCinematicMotion
     public static uint Packed(FixedCoordinate position) => new FixedCoordinate(position.Whole, position.Fraction).RawValue;
 
     /// <summary>One axis from a native 32-bit whole:fraction value.</summary>
-    public static FixedCoordinate Unpacked(uint value) => new(FixedCoordinate.WholeOf(unchecked((int)value)), unchecked((ushort)value));
+    public static FixedCoordinate Unpacked(uint value) => new(FixedCoordinate.WholeOf(unchecked((int)value)), WordWrap.Unsigned(value));
 
     /// <summary>Adds a native whole/fraction velocity pair to one axis.</summary>
     public static FixedCoordinate AddSixteenSixteen(
@@ -18,12 +18,12 @@ internal static class IntroCinematicMotion
         // the signed whole-word sum. Packing them produces precisely that wrap/carry model.
         // Each velocity word keeps its low sixteen bits.
         SignedSixteenSixteen
-            .FromParts(unchecked((short)wholeVelocity), unchecked((ushort)fractionalVelocity))
+            .FromParts(WordWrap.Signed(wholeVelocity), WordWrap.Unsigned(fractionalVelocity))
             .AddTo(position.Whole, position.Fraction);
 
     /// <summary>Adds a packed signed 16.16 delta (whole word in the high half) to one axis.</summary>
     public static FixedCoordinate AddSignedSixteenSixteen(FixedCoordinate position, int fixedDelta) =>
-        AddSixteenSixteen(position, FixedCoordinate.WholeOf(fixedDelta), unchecked((ushort)fixedDelta));
+        AddSixteenSixteen(position, FixedCoordinate.WholeOf(fixedDelta), WordWrap.Unsigned(fixedDelta));
 
     /// <summary>Adds a signed 8.8 velocity to one axis.</summary>
     public static FixedCoordinate AddEightEight(

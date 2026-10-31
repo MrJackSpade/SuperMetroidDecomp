@@ -132,7 +132,7 @@ public sealed class DemoInputState
             switch (advance)
             {
                 case AnimationProgramAdvance<DemoInputFrame>.Show shown:
-                    InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
+                    InstructionTimer = WrappingCountdown.FromRaw(WordWrap.Unsigned(shown.Duration));
                     Held = shown.Frame.Held;
                     NewlyPressed = shown.Frame.NewlyPressed;
                     Cursor = cursor;

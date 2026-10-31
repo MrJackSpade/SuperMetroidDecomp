@@ -16,14 +16,14 @@ public static class TourianStatueSequenceDefinitions
     public const int DescentDistance = 240;
 
     /// <summary>The earthquake the descent shakes the room with: type thirteen.</summary>
-    public const ushort DescentEarthquakeType = 13;
+    public const int DescentEarthquakeType = 13;
 
     /// <summary>The timer bit the descent keeps setting, so the shake lasts at least 32 updates past its end.</summary>
-    public const ushort DescentEarthquakeTimer = 32;
+    public const int DescentEarthquakeTimer = 32;
 
     /// <summary>The earthquake a release shakes the room with: type one.</summary>
-    public const ushort ReleaseEarthquakeType = 1;
+    public const int ReleaseEarthquakeType = 1;
 
     /// <summary>The timer bit a release sets, so the shake lasts at least 32 updates.</summary>
-    public const ushort ReleaseEarthquakeTimer = 32;
+    public const int ReleaseEarthquakeTimer = 32;
 }

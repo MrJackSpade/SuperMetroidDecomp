@@ -212,7 +212,7 @@ internal sealed class GatePlms : IPlmFamilySource
         int gateX = slot.BlockIndex % level.Size.X;
         int gateY = slot.BlockIndex / level.Size.X;
         return (samus.Position.X.Whole >> 4) == gateX &&
-            unchecked((ushort)((samus.Position.Y.Whole >> 4) - gateY)) <
+            CoordinateAxis.Wrap((samus.Position.Y.Whole >> 4) - gateY) <
                 DownwardGateDefinitions.GateHeightInBlocks;
     }
 

@@ -67,9 +67,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Strict distance around Samus that changes Beetom's action selection.</summary>
-    private const ushort BeetomProximityDistance = 96;
+    private const int BeetomProximityDistance = 96;
     /// <summary>Input changes required to dislodge an attached draining Beetom.</summary>
-    private const ushort BeetomMashCount = 64;
+    private const int BeetomMashCount = 64;
 
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, ControllerButton controllerInput)
@@ -101,7 +101,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         SetBeetomInstructionList(
             slot,
             state,
-            unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
+            CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0
                 ? BeetomProgram.CrawlingLeft
                 : BeetomProgram.CrawlingRight);
         state.Function = BeetomEnemyFunction.DecideAction;
@@ -119,7 +119,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case BeetomEnemyFunction.DecideAction:
                 RequireBeetomSamus(samus);
-                state.Function = EnemyMath.WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole))) < BeetomProximityDistance
+                state.Function = CoordinateAxis.Distance(samus.Position.X.Whole, slot.Position.X.Whole) < BeetomProximityDistance
                     ? BeetomEnemyFunction.DecideActionSamusInProximity
                     : BeetomEnemyFunction.DecideActionSamusNotInProximity;
                 return;
@@ -282,7 +282,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Aims the lunge toward Samus using the native signed horizontal difference.</summary>
     private static void StartBeetomLunge(RoomEnemySlot slot, BeetomEnemyState state, SamusState samus)
     {
-        bool left = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
+        bool left = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
         state.YSpeedTableIndex = state.InitialLungeYSpeedIndex;
         state.FacingRight = !left;
         state.Function = state.FacingRight ? BeetomEnemyFunction.LungeRight : BeetomEnemyFunction.LungeLeft;
@@ -335,16 +335,16 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native ledge probe temporarily moves the center eight pixels ahead, then
         // performs a real one-pixel downward collision move. Restore only the whole words,
         // preserving collision-produced subposition just as bank $A8 does.
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? -8 : 8))));
+        slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? -8 : 8));
         if (!_terrain.MoveEnemyVertically(level, slot, 1 << 16))
         {
             state.Function = direction == HorizontalDirection.Left ? BeetomEnemyFunction.StartCrawlingRight : BeetomEnemyFunction.StartCrawlingLeft;
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 1)));
-            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? 8 : -8))));
+            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 1);
+            slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? 8 : -8));
             return;
         }
 
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? 8 : -8))));
+        slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? 8 : -8));
         int displacement = direction == HorizontalDirection.Left ? -(1 << 14) : 1 << 14;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             state.Function = direction == HorizontalDirection.Left ? BeetomEnemyFunction.StartCrawlingRight : BeetomEnemyFunction.StartCrawlingLeft;
@@ -415,7 +415,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!state.ButtonCounter.IsZero)
         {
-            slot.Position = slot.Position.WithWhole(new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole - 4))));
+            slot.Position = slot.Position.WithWhole(new(samus.Position.X.Whole, CoordinateAxis.Wrap(samus.Position.Y.Whole - 4)));
             if (controllerInput != state.PreviousController1Input)
             {
                 state.PreviousController1Input = controllerInput;
@@ -472,11 +472,11 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         int accumulatedHeight = 0;
         for (int iteration = 0; iteration < ushort.MaxValue; iteration++)
         {
-            tableIndex = unchecked((ushort)(tableIndex + tableIndexDelta));
+            tableIndex = WordWrap.Unsigned(tableIndex + tableIndexDelta);
             // The height sums each row's coarse speed, in 256ths of a pixel; summing full speeds changes every arc.
-            accumulatedHeight = unchecked((ushort)(accumulatedHeight +
-                EnemyQuadraticSpeeds.Row(tableIndex).CoarseToward(EnemySpeedSign.Positive)));
-            if (unchecked((short)(accumulatedHeight - targetHeight)) >= 0)
+            accumulatedHeight = WordWrap.Unsigned(accumulatedHeight +
+                EnemyQuadraticSpeeds.Row(tableIndex).CoarseToward(EnemySpeedSign.Positive));
+            if (CoordinateAxis.Difference(accumulatedHeight, targetHeight) >= 0)
                 return tableIndex;
         }
         throw new InvalidDataException("Beetom initial-speed calculation did not reach its ROM target height.");
@@ -515,9 +515,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((slot.FrameCounter & 63) != 63)
             return;
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? unchecked((ushort)(slot.Definition.Damage >> 2))
+            ? WordWrap.Unsigned(slot.Definition.Damage >> 2)
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? unchecked((ushort)(slot.Definition.Damage >> 1))
+                ? WordWrap.Unsigned(slot.Definition.Damage >> 1)
                 : slot.Definition.Damage;
         samus.Health = samus.Health <= damage
             ? 0

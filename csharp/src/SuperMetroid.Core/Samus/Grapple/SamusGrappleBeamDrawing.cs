@@ -87,8 +87,8 @@ public static class SamusGrappleBeamDrawing
             grapple.FlareAnimationTimer = WrappingCountdown.FromRaw(delay);
         }
 
-        int screenX = unchecked((ushort)(grapple.BeamStart.X - layer1.X));
-        int screenY = unchecked((ushort)(grapple.BeamStart.Y - layer1.Y));
+        int screenX = CoordinateAxis.Wrap(grapple.BeamStart.X - layer1.X);
+        int screenY = CoordinateAxis.Wrap(grapple.BeamStart.Y - layer1.Y);
         // The assembly tests only Y's high byte. X is allowed to wrap into high OAM, while
         // any Y outside unsigned screen rows `$00-$FF` suppresses the whole spritemap.
         if (ScreenConversions.IsOutsideSpriteRange(screenY))
@@ -96,8 +96,8 @@ public static class SamusGrappleBeamDrawing
 
         // The first word of both native facing rows is zero. Grapple uses the
         // shared main flare only; charge-spark direction offsets do not apply.
-        int tableIndex = unchecked((ushort)(
-            grapple.FlareAnimationFrame + SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset));
+        int tableIndex = CoordinateAxis.Wrap(
+            grapple.FlareAnimationFrame + SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset);
         // Flare compositions name characters $50-$5D of the standard OBJ sheet, which no beam or trail upload covers,
         // so the loaded beams' projectile sheet shows them as the standard page does.
         if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteSelection.Contains(tableIndex))
@@ -128,7 +128,7 @@ public static class SamusGrappleBeamDrawing
         for (int slot = 0; slot < grapple.SegmentAnimationFrames.Length; slot++)
         {
             grapple.SegmentAnimationTimers[slot] = WrappingCountdown.Start(1);
-            grapple.SegmentAnimationFrames[slot] = unchecked((byte)(slot & 3));
+            grapple.SegmentAnimationFrames[slot] = slot & 3;
             grapple.SegmentAnimationStarted[slot] = false;
         }
     }
@@ -148,9 +148,9 @@ public static class SamusGrappleBeamDrawing
         // Recompute from the final pose/position, not cached launch offsets. Physical
         // Start and presentation Flare remain separate coordinate pairs.
         grapple.RopeStart = samus.Position.Whole + new Offset16<RoomPixels>(
-            origin.X, unchecked((short)(origin.Y - physicalYOffset)));
+            origin.X, CoordinateAxis.Difference(origin.Y, physicalYOffset));
         grapple.BeamStart = samus.Position.Whole + new Offset16<RoomPixels>(
-            flare.X, unchecked((short)(flare.Y - graphicsYOffset)));
+            flare.X, CoordinateAxis.Difference(flare.Y, graphicsYOffset));
     }
 
 
@@ -158,7 +158,7 @@ public static class SamusGrappleBeamDrawing
     /// Moves the main-flare stream position by <paramref name="delta"/> as the cartridge's sixteen-bit ADC/SBC does:
     /// the position wraps through 65535 and zero, so malformed rewind data stays visible instead of clamped.
     /// </summary>
-    private static int StepFlareFrame(int frame, int delta) => unchecked((ushort)(frame + delta));
+    private static int StepFlareFrame(int frame, int delta) => WordWrap.Unsigned(frame + delta);
 
 
     /// <summary>
@@ -232,8 +232,8 @@ public static class SamusGrappleBeamDrawing
                 grapple.SegmentAnimationTimers[instructionSlot] = WrappingCountdown.Start(GrappleBeamDefinitions.Rendering.SegmentAnimationDelay);
                 if (grapple.SegmentAnimationStarted[instructionSlot])
                 {
-                    grapple.SegmentAnimationFrames[instructionSlot] = unchecked((byte)(
-                        (grapple.SegmentAnimationFrames[instructionSlot] + 1) % GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount));
+                    grapple.SegmentAnimationFrames[instructionSlot] =
+                        (grapple.SegmentAnimationFrames[instructionSlot] + 1) % GrappleBeamDefinitions.Rendering.SegmentAnimationFrameCount;
                 }
                 else
                 {
@@ -266,7 +266,7 @@ public static class SamusGrappleBeamDrawing
         Position16<RoomPixels> layer1, SamusPoseId samusPose)
     {
         bool swinging = samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
-        int relativeY = unchecked((ushort)(grapple.Anchor.Y - layer1.Y));
+        int relativeY = CoordinateAxis.Wrap(grapple.Anchor.Y - layer1.Y);
         // The ordinary endpoint tests its center before subtracting the sprite
         // half-width. Swinging deliberately bypasses this vertical rejection.
         if (!swinging && ScreenConversions.IsOutsideSpriteRange(relativeY))
@@ -278,7 +278,7 @@ public static class SamusGrappleBeamDrawing
         int borrowX = swinging && grapple.Anchor.X < layer1.X ? 1 : 0;
         int borrowY = swinging && grapple.Anchor.Y < layer1.Y ? 1 : 0;
         sprites.Add(new ImageSpriteDraw(new SpriteSource(SpriteSourceKind.SamusGrappleEndpoint), image,
-            new Position16<ScreenPixels>(unchecked((ushort)(grapple.Anchor.X - layer1.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset - borrowX)), unchecked((ushort)(relativeY - GrappleBeamDefinitions.Rendering.CharacterCenterOffset - borrowY))),
+            new Position16<ScreenPixels>(CoordinateAxis.Wrap(grapple.Anchor.X - layer1.X - GrappleBeamDefinitions.Rendering.CharacterCenterOffset - borrowX), CoordinateAxis.Wrap(relativeY - GrappleBeamDefinitions.Rendering.CharacterCenterOffset - borrowY)),
             SpriteMirror.None));
     }
 

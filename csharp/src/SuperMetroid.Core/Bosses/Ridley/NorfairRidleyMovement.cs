@@ -60,7 +60,7 @@ internal sealed class NorfairRidleyMovement
         int divisor,
         int reversalBoost)
     {
-        int distance = unchecked((short)(position - target));
+        int distance = CoordinateAxis.Difference(position, target);
         if (distance == 0) return axisVelocity;
         int step = Math.Max(1, Math.Abs(distance) / divisor);
         var run = new SeekingVelocityRun(axisVelocity, position, target);
@@ -77,7 +77,7 @@ internal sealed class NorfairRidleyMovement
             }
             run.Lower(step);
             SignedEightEight lowered = run.Velocity;
-            return unchecked((short)(lowered.RawValue - RidleyInertiaDefinitions.MinimumVelocity.RawValue)) < 0
+            return WordWrap.Signed(lowered.RawValue - RidleyInertiaDefinitions.MinimumVelocity.RawValue) < 0
                 ? RidleyInertiaDefinitions.MinimumVelocity
                 : lowered;
         }
@@ -91,7 +91,7 @@ internal sealed class NorfairRidleyMovement
         }
         run.Raise(step);
         SignedEightEight raised = run.Velocity;
-        return unchecked((short)(raised.RawValue - RidleyInertiaDefinitions.MaximumVelocity.RawValue)) >= 0
+        return WordWrap.Signed(raised.RawValue - RidleyInertiaDefinitions.MaximumVelocity.RawValue) >= 0
             ? RidleyInertiaDefinitions.MaximumVelocity
             : raised;
     }

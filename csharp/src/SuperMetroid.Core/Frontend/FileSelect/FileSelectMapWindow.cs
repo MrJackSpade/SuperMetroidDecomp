@@ -110,9 +110,9 @@ public sealed class FileSelectMapWindow
     }
 
     /// <summary>One edge's whole-pixel word, read as signed.</summary>
-    private short WholeWord(int edge) => unchecked((short)SixteenSixteen.WholeOf(edges[edge]));
+    private int WholeWord(int edge) => CoordinateAxis.AsSigned(SixteenSixteen.WholeOf(edges[edge]));
 
     /// <summary>Replaces one edge's whole-pixel word, keeping its fraction.</summary>
     private void SetWholeWord(int edge, int whole) =>
-        edges[edge] = SixteenSixteen.Compose(whole, (ushort)SixteenSixteen.FractionOf(edges[edge]));
+        edges[edge] = SixteenSixteen.Compose(whole, WordWrap.Unsigned(SixteenSixteen.FractionOf(edges[edge])));
 }

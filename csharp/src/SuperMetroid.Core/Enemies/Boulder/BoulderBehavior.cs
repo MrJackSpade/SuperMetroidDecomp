@@ -85,7 +85,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             initialYOffset = 1;
             state.StartsRollingWithoutBounce = true;
         }
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(state.InitialPosition.Y - initialYOffset)));
+        slot.Position = slot.Position.WithWrappedWholeY(state.InitialPosition.Y - initialYOffset);
 
         int horizontalReach = -settings.TriggerReach;
 
@@ -151,14 +151,14 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the bounce chain or direct roll only when Samus enters the direction-specific X window below the boulder.</summary>
     private static void RunBoulderWaiting(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus)
     {
-        int deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
-        if (deltaY < 0 || unchecked((short)(deltaY - state.TriggerReach.Y)) >= 0)
+        int deltaY = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole);
+        if (deltaY < 0 || CoordinateAxis.Difference(deltaY, state.TriggerReach.Y) >= 0)
             return;
 
-        int deltaX = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole));
+        int deltaX = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole);
         bool enteredHorizontalWindow = state.Roll != BoulderRoll.Right
-            ? deltaX < 0 && unchecked((short)(deltaX - state.TriggerReach.X)) >= 0
-            : deltaX >= 0 && unchecked((short)(deltaX - state.TriggerReach.X)) < 0;
+            ? deltaX < 0 && CoordinateAxis.Difference(deltaX, state.TriggerReach.X) >= 0
+            : deltaX >= 0 && CoordinateAxis.Difference(deltaX, state.TriggerReach.X) < 0;
         if (!enteredHorizontalWindow)
             return;
 
@@ -171,7 +171,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunBoulderInitialFall(RoomEnemySlot slot, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, direction: VerticalDirection.Down);
-        if (unchecked((short)(slot.Position.Y.Whole - state.InitialPosition.Y)) < 0)
+        if (CoordinateAxis.Difference(slot.Position.Y.Whole, state.InitialPosition.Y) < 0)
         {
             state.BounceSpeedAccumulator = AddAndCap(
                 state.BounceSpeedAccumulator,
@@ -211,7 +211,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates through terrain contact; ordinary impacts consume bounce indexes while selector two breaks immediately.</summary>
     internal void RunBoulderFalling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
-        int verticalDisplacement = EnemyQuadraticSpeeds.Row(unchecked((byte)(EightEight.WholeOf(state.BounceSpeedAccumulator)))).Positive;
+        int verticalDisplacement = EnemyQuadraticSpeeds.Row(WordWrap.LowByte(EightEight.WholeOf(state.BounceSpeedAccumulator))).Positive;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderImpactSound, priority: SoundRequestPriority.Normal);
@@ -253,7 +253,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunBoulderRolling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         int verticalDisplacement = unchecked(
-            EnemyQuadraticSpeeds.Row(unchecked((byte)(EightEight.WholeOf(state.TravelSpeedAccumulator)))).Positive +
+            EnemyQuadraticSpeeds.Row(WordWrap.LowByte(EightEight.WholeOf(state.TravelSpeedAccumulator))).Positive +
             SixteenSixteen.FromWhole(state.VerticalCompensation.Y));
         _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
         slot.Position = slot.Position.WithWhole(slot.Position.Whole - state.VerticalCompensation);
@@ -296,12 +296,12 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads the quadratic speed sample and signs it according to the spawn direction selector.</summary>
     private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
-        EnemyQuadraticSpeeds.Row(unchecked((byte)(EightEight.WholeOf(state.TravelSpeedAccumulator)))).Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        EnemyQuadraticSpeeds.Row(WordWrap.LowByte(EightEight.WholeOf(state.TravelSpeedAccumulator))).Toward(state.Roll != BoulderRoll.Right ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
 
     /// <summary>Adds or subtracts a quadratic table sample from the actor's wrapped 16.16 Y position.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, int accumulator, VerticalDirection direction)
     {
-        int displacement = EnemyQuadraticSpeeds.Row(unchecked((byte)(EightEight.WholeOf(accumulator)))).Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
+        int displacement = EnemyQuadraticSpeeds.Row(WordWrap.LowByte(EightEight.WholeOf(accumulator))).Toward(direction == VerticalDirection.Up ? EnemySpeedSign.Negative : EnemySpeedSign.Positive);
         uint position = slot.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
         slot.Position = slot.Position.WithY(FixedCoordinate.FromRaw(unchecked(position)));

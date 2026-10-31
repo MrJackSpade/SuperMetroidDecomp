@@ -6,17 +6,17 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 internal static class SporeSpawnProjectiles
 {
     /// <summary>$86:DCB9: four stalk segments spaced eight pixels apart, starting 64 pixels above the owner.</summary>
-    internal static ushort StalkYOffset(int spawnArgument) =>
-        unchecked((ushort)(-64 + 8 * SpawnIndex(spawnArgument)));
+    internal static int StalkYOffset(int spawnArgument) =>
+        CoordinateAxis.Wrap(-64 + 8 * SpawnIndex(spawnArgument));
 
     /// <summary>$86:DCE6: four ceiling emitters centered in successive 64-pixel room columns.</summary>
-    internal static ushort SpawnerX(int spawnArgument) =>
-        (ushort)(32 + 64 * SpawnIndex(spawnArgument));
+    internal static int SpawnerX(int spawnArgument) =>
+        CoordinateAxis.Wrap(32 + 64 * SpawnIndex(spawnArgument));
 
     /// <summary>One signed pixel delta pair from the wrapped movement stream: X at the offset and Y at the next byte.</summary>
     /// <param name="offset">The byte offset into the stream, 0 through 255; the Y delta's offset wraps within it.</param>
     internal static Offset16<RoomPixels> MovementAt(int offset) =>
-        new(Movement[offset], Movement[unchecked((byte)(offset + 1))]);
+        new(Movement[offset], Movement[WordWrap.LowByte(offset + 1)]);
 
     /// <summary>Accepts only the four stalk or ceiling-emitter ordinals used by the native spawn routines.</summary>
     private static int SpawnIndex(int spawnArgument)

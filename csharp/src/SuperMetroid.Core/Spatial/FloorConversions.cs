@@ -8,12 +8,12 @@ public static class FloorConversions
     /// The words are unchanged; the floor transform reads them as signed.
     /// </summary>
     public static Offset16<FloorPixels> AsFloorWord(this Position16<RoomPixels> layer1) =>
-        new(unchecked((short)layer1.X), unchecked((short)layer1.Y));
+        new(CoordinateAxis.AsSigned(layer1.X), CoordinateAxis.AsSigned(layer1.Y));
 
     /// <summary>
     /// A floor position as the signed offset a floor transform takes for its scroll or centre; the words are
     /// unchanged.
     /// </summary>
     public static Offset16<FloorPixels> AsSignedWord(this Position16<FloorPixels> position) =>
-        new(unchecked((short)position.X), unchecked((short)position.Y));
+        new(CoordinateAxis.AsSigned(position.X), CoordinateAxis.AsSigned(position.Y));
 }

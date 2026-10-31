@@ -38,7 +38,7 @@ internal sealed class DraygonDeath
         if ((body.FrameCounter & 15) == 0)
         {
             _spriteObjects.SpawnRoomSpriteObject(
-                body.Position.Whole + new Offset16<RoomPixels>((short)(state.FacingRight ? 32 : -32), -16),
+                body.Position.Whole + new Offset16<RoomPixels>(CoordinateAxis.AsSigned(state.FacingRight ? 32 : -32), -16),
                 RoomSpriteObjectKind.DraygonSpiralFoam,
                 graphics: default);
         }
@@ -47,8 +47,8 @@ internal sealed class DraygonDeath
         // algebraic simplification: logical shifts discard low coordinate bits and thereby
         // select slightly different table vectors near the destination.
         ByteAngle movementAngle = EnemyMath.CalculateBearing(new(
-            unchecked((short)(64 - (body.Position.X.Whole >> 2))),
-            unchecked((short)(120 - (body.Position.Y.Whole >> 2))))).ToTableAngle();
+            CoordinateAxis.Difference(64, (body.Position.X.Whole >> 2)),
+            CoordinateAxis.Difference(120, (body.Position.Y.Whole >> 2)))).ToTableAngle();
         MoveDraygonAtMovementAngle(body, movementAngle, speed: 1);
 
         if (!EnemyMath.IsWithinStrictModularDistance(body.Position.X.Whole, DraygonBehavior.DraygonDeathTargetX, 4) ||
@@ -99,8 +99,8 @@ internal sealed class DraygonDeath
         SpawnDyingDraygonSmoke(state, frameCounterLow);
         MoveDraygonDeathEvirs();
         RoomEnemySlot body = state.Body;
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
-        if (unchecked((short)(body.Position.Y.Whole - DraygonBehavior.DraygonBurialFinishedY)) < 0)
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, DraygonBehavior.DraygonBurialFinishedY) < 0)
             return;
 
         _parts.StartDraygonProgram(body, DraygonProgram.Delete);
@@ -134,7 +134,7 @@ internal sealed class DraygonDeath
             return;
 
         int random = _room.Random.Generate();
-        Position16<RoomPixels> smoke = new((ushort)((random & 127) + 192), (ushort)((SharedRandomState.UpperByte(random) & 63) + 400));
+        Position16<RoomPixels> smoke = new(WordWrap.Unsigned((random & 127) + 192), WordWrap.Unsigned((SharedRandomState.UpperByte(random) & 63) + 400));
         if (_spriteObjects.SpawnRoomSpriteObject(smoke, RoomSpriteObjectKind.DustCloud, graphics: default) is not null)
             state.DeathSmokeObjectsSpawned++;
     }
@@ -198,11 +198,11 @@ internal sealed class DraygonDeath
     {
         uint xMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
-            checked((ushort)speed),
+            Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
             angleOffset: RotationAngle.QuarterTurn.TableIndex));
         uint yMagnitude = unchecked((uint)EnemyMath.ReadUnsignedSineMagnitudeProduct(
             movementAngle,
-            checked((ushort)speed),
+            Ensure.BetweenInclusive(0, ushort.MaxValue, speed),
             angleOffset: RotationAngle.HalfTurn.TableIndex));
         body.Position = body.Position.WithX(DraygonMovement.AddDraygonAngleMagnitude(
             body.Position.X,

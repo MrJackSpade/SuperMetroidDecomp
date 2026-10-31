@@ -113,7 +113,7 @@ internal sealed class EnemyProcessingWindow
     {
         if (EnemyMath.IsNegative16(slot.Position.X.Whole))
             return true;
-        int fromCamera = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - cameraX));
+        int fromCamera = CoordinateAxis.Wrap(slot.Position.X.Whole + slot.Radius.X - cameraX);
         return EnemyMath.IsNegative16(fromCamera) || !EnemyMath.IsNegative16(fromCamera - 256 - slot.Radius.X);
     }
 

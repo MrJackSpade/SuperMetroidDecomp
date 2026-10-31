@@ -62,12 +62,12 @@ internal sealed class DownwardGateBehavior
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphics: default);
         int blockX = request.PlmBlockIndex % roomWidthInBlocks;
         int blockY = request.PlmBlockIndex / roomWidthInBlocks;
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
-            blockX * DownwardGateDefinitions.PixelsPerRoomBlock)), unchecked((ushort)(
+        projectile.Position = projectile.Position.WithWhole(new(CoordinateAxis.Wrap(
+            blockX * DownwardGateDefinitions.PixelsPerRoomBlock), CoordinateAxis.Wrap(
             blockY * DownwardGateDefinitions.PixelsPerRoomBlock +
             (kind == RoomEnemyProjectileKind.DownwardGateClosed
                 ? DownwardGateDefinitions.ClosedPositionOffsetPixels
-                : 0)))));
+                : 0))));
 
         // The gate's block ties the actor to its gate; $84:BBF0 searches for it when the gate needs to open again.
         projectile.State = new DownwardGateState(request.PlmBlockIndex);
@@ -101,7 +101,7 @@ internal sealed class DownwardGateBehavior
     /// <summary>Ports <c>$86:E605</c>'s one-block-at-a-time signed 8.8 motion.</summary>
     internal static void RunDownwardGateProjectileMovement(RoomEnemyProjectileSlot projectile)
     {
-        int speedMagnitude = Math.Abs(unchecked((short)projectile.Velocity.Y.RawValue));
+        int speedMagnitude = Math.Abs(projectile.Velocity.Y.SignedRawValue);
         int accumulated = projectile.GeneralTimer + speedMagnitude;
         if (accumulated >= DownwardGateDefinitions.OneBlockDistance)
         {
@@ -110,7 +110,7 @@ internal sealed class DownwardGateBehavior
             ResumeDownwardGate(projectile);
             accumulated = 0;
         }
-        projectile.GeneralTimer = unchecked((ushort)accumulated);
+        projectile.GeneralTimer = WordWrap.Unsigned(accumulated);
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 

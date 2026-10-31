@@ -42,18 +42,18 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Native countdown before a newly fired Rinka aims at Samus.</summary>
-    private const ushort RinkaInitialDelay = 26;
+    private const int RinkaInitialDelay = 26;
     /// <summary>Health restored to a special Rinka after its death delay.</summary>
-    private const ushort RinkaHealth = 10;
+    private const int RinkaHealth = 10;
     /// <summary>
     /// The colours both ordinary and Mother Brain variants draw in: the Rinka's own, which every graphics set holding
     /// Rinkas loads.
     /// </summary>
     private static readonly GraphicsSetMemberColouring RinkaColouring = new(EnemyDefinitionId.Rinka);
     /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along the cartridge angle into flight velocity.</summary>
-    private const ushort RinkaSpeed = 288;
+    private const int RinkaSpeed = 288;
     /// <summary>Number of Mother Brain Rinka actors sharing the eleven spawn resources.</summary>
-    private const ushort RinkaMaximumSpecialActors = 3;
+    private const int RinkaMaximumSpecialActors = 3;
 
     /// <summary>
     /// The eleven authored Japan/USA spawn points at <c>$A2:B75B</c>. Mother Brain's
@@ -247,12 +247,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                     .With(EnemyProperties.ProcessOffScreen);
 
                 ByteAngle velocityAngle = EnemyMath.CalculateBearing(
-                    new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ToTableAngle().AddTableUnits(ByteAngle.QuarterTurn.RawValue);
+                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ToTableAngle().AddTableUnits(ByteAngle.QuarterTurn.RawValue);
                 state.Velocity = new(
-                    new SignedEightEight(EnemyMath.MultiplySineSample(RinkaSpeed, velocityAngle)),
-                    new SignedEightEight(EnemyMath.MultiplySineSample(
+                    EnemyMath.MultiplySineSample(RinkaSpeed, velocityAngle),
+                    EnemyMath.MultiplySineSample(
                         RinkaSpeed,
-                        velocityAngle.AddTableUnits(ByteAngle.QuarterTurn.RawValue))));
+                        velocityAngle.AddTableUnits(ByteAngle.QuarterTurn.RawValue)));
                 return;
 
             case RinkaEnemyFunction.Flying:
@@ -446,27 +446,27 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports $A2:B8D3's asymmetric (-16..271, -16..239) flight rectangle.</summary>
     private bool RinkaIsOutsideFlightWindow(RoomEnemySlot slot)
     {
-        if (unchecked((short)slot.Position.Y.Whole) < 0)
+        if (CoordinateAxis.AsSigned(slot.Position.Y.Whole) < 0)
             return true;
-        int relativeY = unchecked((ushort)(slot.Position.Y.Whole + 16 - _rinkaCamera.Y));
-        if (unchecked((short)relativeY) < 0 || !EnemyMath.IsNegative16(relativeY - 256))
+        int relativeY = CoordinateAxis.Wrap(slot.Position.Y.Whole + 16 - _rinkaCamera.Y);
+        if (CoordinateAxis.AsSigned(relativeY) < 0 || !EnemyMath.IsNegative16(relativeY - 256))
             return true;
-        if (unchecked((short)slot.Position.X.Whole) < 0)
+        if (CoordinateAxis.AsSigned(slot.Position.X.Whole) < 0)
             return true;
-        int relativeX = unchecked((ushort)(slot.Position.X.Whole + 16 - _rinkaCamera.X));
-        return unchecked((short)relativeX) < 0 || !EnemyMath.IsNegative16(relativeX - 288);
+        int relativeX = CoordinateAxis.Wrap(slot.Position.X.Whole + 16 - _rinkaCamera.X);
+        return CoordinateAxis.AsSigned(relativeX) < 0 || !EnemyMath.IsNegative16(relativeX - 288);
     }
 
     /// <summary>Ports $A2:B8FF's strict camera-origin test used only for special spawns.</summary>
     private bool RinkaSpawnIsOutsideCamera(Position16<RoomPixels> position)
     {
-        if (unchecked((short)position.Y) < 0 ||
-            unchecked((short)(position.Y - _rinkaCamera.Y)) < 0 ||
+        if (CoordinateAxis.AsSigned(position.Y) < 0 ||
+            CoordinateAxis.Difference(position.Y, _rinkaCamera.Y) < 0 ||
             !EnemyMath.IsNegative16(position.Y - _rinkaCamera.Y - 224))
         {
             return true;
         }
-        return unchecked((short)(position.X - _rinkaCamera.X)) < 0 ||
+        return CoordinateAxis.Difference(position.X, _rinkaCamera.X) < 0 ||
             !EnemyMath.IsNegative16(position.X - _rinkaCamera.X - 256);
     }
 
@@ -591,10 +591,10 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // $86:E6E0 compares the position against camera + $100 and culls on BPL, so
         // a projectile exactly $100 past the camera is already off-screen.
-        if (unchecked((short)(projectile.Position.X.Whole - camera.X)) < 0 ||
-            unchecked((short)(projectile.Position.X.Whole - (camera.X + 256))) >= 0 ||
-            unchecked((short)(projectile.Position.Y.Whole - camera.Y)) < 0 ||
-            unchecked((short)(projectile.Position.Y.Whole - (camera.Y + 256))) >= 0)
+        if (CoordinateAxis.Difference(projectile.Position.X.Whole, camera.X) < 0 ||
+            CoordinateAxis.Difference(projectile.Position.X.Whole, (camera.X + 256)) >= 0 ||
+            CoordinateAxis.Difference(projectile.Position.Y.Whole, camera.Y) < 0 ||
+            CoordinateAxis.Difference(projectile.Position.Y.Whole, (camera.Y + 256)) >= 0)
         {
             projectile.Clear();
         }

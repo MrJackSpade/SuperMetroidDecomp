@@ -17,14 +17,14 @@ internal sealed class MotherBrainTurretState(int turret, int ringPosition) : Ene
     internal int RingPosition
     {
         get;
-        set => field = unchecked((byte)value);
-    } = unchecked((byte)ringPosition);
+        set => field = WordWrap.LowByte(value);
+    } = WordWrap.LowByte(ringPosition);
 
     /// <summary>The ring steps the turret turns by when it next turns, one either way; it starts turning forward.</summary>
     internal int RotationStep
     {
         get;
-        set => field = unchecked((sbyte)value);
+        set => field = WordWrap.SignedLowByte(value);
     } = 1;
 
     /// <summary>Updates until the turret next turns; it turns on the update this reaches zero.</summary>

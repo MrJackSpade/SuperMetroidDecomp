@@ -18,9 +18,9 @@ internal static class FileSelectHelmetAnimation
     /// The ninth native entry remains representable for exact bounded source parity;
     /// other indices reject before arithmetic, without narrowing or wrapping.
     /// </remarks>
-    internal static ushort SpritemapId(int frame)
+    internal static int SpritemapId(int frame)
     {
         if ((uint)frame >= EntryCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(44 + Math.Min(frame, FrameCount - 1));
+        return WordWrap.Unsigned(44 + Math.Min(frame, FrameCount - 1));
     }
 }

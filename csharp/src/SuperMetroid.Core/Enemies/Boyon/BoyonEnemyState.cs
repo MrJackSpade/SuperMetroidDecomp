@@ -17,7 +17,7 @@ public sealed class BoyonEnemyState
     public int SpeedMultiplier
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -27,7 +27,7 @@ public sealed class BoyonEnemyState
     public int Speed
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public sealed class BoyonEnemyState
     public int JumpHeight
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public sealed class BoyonEnemyState
     public int DistanceAccumulator
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>
@@ -60,7 +60,7 @@ public sealed class BoyonEnemyState
     public int SpeedTableIndex
     {
         get;
-        internal set => field = checked((ushort)value);
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
     /// <summary>The largest curve index the word holds: rising past entry zero leaves this value.</summary>
@@ -74,11 +74,11 @@ public sealed class BoyonEnemyState
 
     /// <summary>Adds one update's speed to the accumulated distance, wrapping as the cartridge's word addition does.</summary>
     internal void AccumulateBounceDistance(int speed) =>
-        DistanceAccumulator = unchecked((ushort)(DistanceAccumulator + speed));
+        DistanceAccumulator = WordWrap.Unsigned(DistanceAccumulator + speed);
 
     /// <summary>Moves one entry down the curve (falling), wrapping from <see cref="LargestSpeedTableIndex"/> to zero.</summary>
     internal void AdvanceSpeedTableIndex() =>
-        SpeedTableIndex = checked((ushort)(SpeedTableIndex == LargestSpeedTableIndex ? 0 : SpeedTableIndex + 1));
+        SpeedTableIndex = Ensure.BetweenInclusive(0, ushort.MaxValue, SpeedTableIndex == LargestSpeedTableIndex ? 0 : SpeedTableIndex + 1);
 
     /// <summary>
     /// Moves one entry up the curve (rising). The index wraps from zero to <see cref="LargestSpeedTableIndex"/>, and
@@ -87,7 +87,7 @@ public sealed class BoyonEnemyState
     /// </summary>
     internal bool RetreatSpeedTableIndex()
     {
-        CountdownStep step = WrappingCounter.Decrement(checked((ushort)SpeedTableIndex));
+        CountdownStep step = WrappingCounter.Decrement(Ensure.BetweenInclusive(0, ushort.MaxValue, SpeedTableIndex));
         SpeedTableIndex = step.Remaining.RemainingFrames;
         return step.IsNegative;
     }

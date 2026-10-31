@@ -15,10 +15,10 @@ internal static class MotherBrainTurretDefinitions
     internal static SpriteGraphics Graphics { get; } = SpriteGraphics.CharacterZeroIn(new GraphicsSetMemberColouring(EnemyDefinitionId.Rinka));
 
     /// <summary>Minimum random rotation delay applied by $86:BFDF.</summary>
-    internal const ushort MinimumRotationDelay = 32;
+    internal const int MinimumRotationDelay = 32;
 
     /// <summary>Minimum random firing cooldown applied by $86:C00A.</summary>
-    internal const ushort MinimumFiringCooldown = 128;
+    internal const int MinimumFiringCooldown = 128;
 
     /// <summary>$86:BE89-$BEF8 places four room bays of three turrets.</summary>
     internal const int TurretCount = 12;

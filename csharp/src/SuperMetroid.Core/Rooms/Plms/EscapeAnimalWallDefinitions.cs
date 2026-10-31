@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public static class EscapeAnimalWallDefinitions
 {
     /// <summary>The block column the room's setup spawns the rescue wall at.</summary>
-    public const byte WallX = 15;
+    public const int WallX = 15;
 
     /// <summary>The block row the room's setup spawns the rescue wall at.</summary>
-    public const byte WallY = 10;
+    public const int WallY = 10;
 
     /// <summary>The block behaviour of the rescue wall's shootable origin block, which selects the critters-escape reaction.</summary>
     public static readonly RoomBlockBehavior ReactionBehavior = new(79);

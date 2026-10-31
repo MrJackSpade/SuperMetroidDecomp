@@ -99,6 +99,7 @@ dotnet_diagnostic.SME6345.severity = error
 # #1323: [Flags] stay typed and gameplay state is not stored at the CPU register width.
 dotnet_diagnostic.SME6346.severity = error
 dotnet_diagnostic.SME6347.severity = error
+dotnet_diagnostic.SME6453.severity = error
 # #1324: countdowns use NativeCountdown, not hand-written DEC wraparound and sign-bit tests.
 dotnet_diagnostic.SME6348.severity = error
 dotnet_diagnostic.SME6349.severity = error
@@ -152,6 +153,7 @@ dotnet_diagnostic.SME6342.severity = none
 dotnet_diagnostic.SME6345.severity = none
 dotnet_diagnostic.SME6346.severity = none
 dotnet_diagnostic.SME6347.severity = none
+dotnet_diagnostic.SME6453.severity = none
 dotnet_diagnostic.SME6348.severity = none
 dotnet_diagnostic.SME6349.severity = none
 dotnet_diagnostic.SME6350.severity = none
@@ -249,6 +251,7 @@ dotnet_diagnostic.SME6342.severity = none
 dotnet_diagnostic.SME6345.severity = none
 dotnet_diagnostic.SME6346.severity = none
 dotnet_diagnostic.SME6347.severity = none
+dotnet_diagnostic.SME6453.severity = none
 dotnet_diagnostic.SME6348.severity = none
 dotnet_diagnostic.SME6349.severity = none
 dotnet_diagnostic.SME6350.severity = none

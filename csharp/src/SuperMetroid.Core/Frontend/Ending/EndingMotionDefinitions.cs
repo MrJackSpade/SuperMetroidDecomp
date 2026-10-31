@@ -13,37 +13,37 @@ public static class EndingMotionDefinitions
     public static Offset16<FloorPixels> AtmosphericFloorCenter => new(128, 128);
 
     /// <summary>The unity zoom.</summary>
-    public const ushort IdentityScale = 256;
+    public const int IdentityScale = 256;
 
     /// <summary>The escape scenes' initial floor angle.</summary>
     public static ByteAngle EscapeInitialAngle { get; } = new(32);
 
     /// <summary>The escape and explosion scenes' initial zoom.</summary>
-    public const ushort EscapeInitialScale = 64;
+    public const int EscapeInitialScale = 64;
 
     /// <summary>The zoom at which escape scenes A and B begin fading out.</summary>
-    public const ushort EscapeEndScale = 384;
+    public const int EscapeEndScale = 384;
 
     /// <summary>The zoom enabling side-cloud motion in escape scene A.</summary>
-    public const ushort CloudMotionStartScale = 96;
+    public const int CloudMotionStartScale = 96;
 
     /// <summary>The zoom below which scene B's top and bottom clouds keep moving.</summary>
-    public const ushort CloudSceneBScaleLimit = 176;
+    public const int CloudSceneBScaleLimit = 176;
 
     /// <summary>The space view's initial zoom for the gunship's emergence.</summary>
-    public const ushort PlanetEscapeInitialScale = 3072;
+    public const int PlanetEscapeInitialScale = 3072;
 
     /// <summary>The zoom below which fast spinning gives way to the slower emergence.</summary>
-    public const ushort PlanetFastEndScale = 1456;
+    public const int PlanetFastEndScale = 1456;
 
     /// <summary>The zoom below which the accelerating fly-to-camera phase starts.</summary>
-    public const ushort PlanetSlowEndScale = 1184;
+    public const int PlanetSlowEndScale = 1184;
 
     /// <summary>The fly-to-camera zoom below which the ship turns toward its exit angle on every fourth update.</summary>
-    public const ushort PlanetTurnStartScale = 384;
+    public const int PlanetTurnStartScale = 384;
 
     /// <summary>The fly-to-camera zoom below which gunship colours are restored and the operation-success message begins.</summary>
-    public const ushort PlanetExitScale = 32;
+    public const int PlanetExitScale = 32;
 
     /// <summary>The fly-to-camera phase's initial horizontal velocity: half a pixel per update.</summary>
     public static SignedSixteenSixteen PlanetInitialVelocity => SignedSixteenSixteen.FromSixteenthsOfPixel(8);

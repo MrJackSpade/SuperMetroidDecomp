@@ -19,10 +19,10 @@ public static class MotherBrainDeathDefinitions
     public const int CorpseColorCount = 15;
 
     /// <summary>The music track the escape starts.</summary>
-    public const byte EscapeMusicTrack = 7;
+    public const int EscapeMusicTrack = 7;
 
     /// <summary>The updates an escape-door fragment lives, counted through signed underflow.</summary>
-    public const ushort DoorFragmentLifetime = 32;
+    public const int DoorFragmentLifetime = 32;
 
     /// <summary>The drag subtracted from a door fragment's 8.8 horizontal speed each update.</summary>
     public const int DoorFragmentDrag = 16;

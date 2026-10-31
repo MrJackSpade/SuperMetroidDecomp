@@ -31,20 +31,20 @@ internal static class CeresDestructionSceneDefinitions
     internal static class Music
     {
         /// <summary>The station's destruction track when Samus has escaped.</summary>
-        internal const byte CeresTrack = 7;
+        internal const int CeresTrack = 7;
         /// <summary>The station's destruction track when Samus is still aboard.</summary>
-        internal const byte CeresWithSamusTrack = 8;
+        internal const int CeresWithSamusTrack = 8;
         /// <summary>The queue delay the destruction track is requested with.</summary>
-        internal const ushort QueueDelay = 14;
+        internal const int QueueDelay = 14;
     }
 
     /// <summary>Authored holds and the planet reveal's mosaic fade, in updates.</summary>
     internal static class Timing
     {
         /// <summary>Updates the completed Ceres explosion stays shown.</summary>
-        internal const ushort ExplosionHoldFrames = 192;
+        internal const int ExplosionHoldFrames = 192;
         /// <summary>Updates the completed Zebes approach stays shown.</summary>
-        internal const ushort ZebesHoldFrames = 64;
+        internal const int ZebesHoldFrames = 64;
         /// <summary>The planet reveal's starting mosaic size; each fade step lowers it by one until it clears at zero.</summary>
         internal const int InitialMosaicSize = 8;
         /// <summary>The mosaic sizes the screen's mosaic setting holds; lowering the smallest wraps to the largest.</summary>
@@ -79,11 +79,11 @@ internal static class CeresDestructionSceneDefinitions
         /// <summary>Minus one quarter pixel per update, in 1/65536 pixels.</summary>
         internal const int NegativeQuarterPixel16Point16 = -16384;
         /// <summary>The fleeing gunship's horizontal speed: a quarter pixel per update, in 1/65536 pixels.</summary>
-        internal const ushort GunshipXSubvelocity = 16384;
+        internal const int GunshipXSubvelocity = 16384;
         /// <summary>The fleeing gunship's vertical velocity: one sixteenth of a pixel upward per update.</summary>
         internal static SignedSixteenSixteen GunshipYVelocity { get; } = SignedSixteenSixteen.FromSixteenthsOfPixel(-1);
         /// <summary>The floor position, in pixels, that completes the gunship's exit.</summary>
-        internal const ushort FloorExitX = 62;
+        internal const int FloorExitX = 62;
         /// <summary>The floor's rotation during the Zebes approach: an eighth of a turn.</summary>
         internal static RotationAngle ApproachAngle => RotationAngle.FromTableIndex(32);
     }
@@ -100,6 +100,6 @@ internal static class CeresDestructionSceneDefinitions
         /// <summary>The slot of the invisible actor that spawns the explosions.</summary>
         internal const int SpawnerSlot = 14;
         /// <summary>The Zebes approach's starting horizontal scroll, in pixels.</summary>
-        internal const ushort ZebesInitialBackgroundX = 128;
+        internal const int ZebesInitialBackgroundX = 128;
     }
 }

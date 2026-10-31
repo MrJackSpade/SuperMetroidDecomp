@@ -19,7 +19,7 @@ internal static class MotherBrainFallingTubes
         int horizontalOffset = outer ? OuterOffset : InnerOffset;
         int x = main ? CenterX : CenterX + ((index & 1) == 0 ? -horizontalOffset : horizontalOffset);
         int compositionBottom = main ? MainBottom : outer ? OuterBottom : InnerBottom;
-        Position16<RoomPixels> position = new(checked((ushort)x), checked((ushort)(BottomBaseline - compositionBottom)));
+        Position16<RoomPixels> position = new(x, BottomBaseline - compositionBottom);
         EnemyProperties properties = EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions;
         if (main) properties |= EnemyProperties.ProcessOffScreen;
         return new(EnemyDefinitionId.MotherBrainTubes, position, properties, EnemyExtraProperties.None,

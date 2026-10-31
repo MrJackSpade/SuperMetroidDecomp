@@ -9,7 +9,7 @@ public readonly record struct MotherBrainSpecialSpriteSheetDefinition(
     MotherBrainSpritePageSheet Sheet, string FileName, int PageCount, int FirstCharacter)
 {
     /// <summary>Every page holds sixteen characters, $200 bytes.</summary>
-    public const ushort PageByteCount = 512;
+    public const int PageByteCount = 512;
 
     /// <summary>The sprite characters one page shows.</summary>
     public const int CharactersPerPage = 16;

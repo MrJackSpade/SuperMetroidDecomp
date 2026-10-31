@@ -45,15 +45,15 @@ internal sealed class BeamChargeState
     internal SamusVisorPaletteStepResult LastVisorPaletteStep { get; set; }
 
     /// <summary>Current animation frame for each of the three flare components.</summary>
-    internal readonly ushort[] FlareFrames = new ushort[3];
+    internal readonly int[] FlareFrames = new int[3];
     /// <summary>Countdown to each flare component's next authored frame.</summary>
     internal readonly WrappingCountdown[] FlareTimers = new WrappingCountdown[3];
 
     /// <summary>The current animation frame of flare <paramref name="component"/>.</summary>
-    internal ushort FlareFrame(int component) => FlareFrames[component];
+    internal int FlareFrame(int component) => FlareFrames[component];
 
     /// <summary>Sets flare <paramref name="component"/>'s animation frame.</summary>
-    internal void SetFlareFrame(int component, int frame) => FlareFrames[component] = checked((ushort)frame);
+    internal void SetFlareFrame(int component, int frame) => FlareFrames[component] = Ensure.BetweenInclusive(0, ushort.MaxValue, frame);
 
     /// <summary>Restarts flare <paramref name="component"/>'s countdown to its next frame.</summary>
     internal void StartFlareTimer(int component, int frames) => FlareTimers[component] = WrappingCountdown.Start(frames);

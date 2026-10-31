@@ -8,7 +8,7 @@ internal static class DraygonHealthPaletteDefinitions
 {
 
     /// <summary>Draygon body's authored enemy-header health at $A0:DE43.</summary>
-    public const ushort MaximumAuthoredHealth = 6000;
+    public const int MaximumAuthoredHealth = 6000;
 
     /// <summary>The health between successive band thresholds: threshold(i) = 750 * (7 - i).</summary>
     public const int HealthPerBand = 750;

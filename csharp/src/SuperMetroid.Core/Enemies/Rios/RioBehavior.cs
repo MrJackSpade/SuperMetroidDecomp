@@ -34,9 +34,9 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Strict horizontal Samus proximity threshold that starts a dive.</summary>
-    private const ushort RioTriggerDistance = 160;
+    private const int RioTriggerDistance = 160;
     /// <summary>8.8 vertical velocity decrement applied during dive and rebound.</summary>
-    private const ushort RioGravityStep = 24;
+    private const int RioGravityStep = 24;
 
     /// <summary>Ports <c>Rio_Init</c> at $A2:BBCD.</summary>
     internal static void InitializeRio(RoomEnemySlot slot)
@@ -83,8 +83,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Velocity = new EightEightVector<RoomPixels>(
                     new SignedEightEight(RioLaunchDefinitions.RioXVelocity),
                     new SignedEightEight(RioLaunchDefinitions.RioYVelocity));
-                if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
-                    state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
+                if (CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0)
+                    state.Velocity = state.Velocity.WithX(SignedEightEight.Wrapped(-state.Velocity.X.SignedRawValue));
                 InstallRioInstructionList(
                     slot,
                     state,
@@ -115,7 +115,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
                 {
-                    state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
+                    state.Velocity = state.Velocity.WithX(SignedEightEight.Wrapped(-state.Velocity.X.SignedRawValue));
                     ReverseRioVerticalVelocityAndBounce(state);
                     return;
                 }
@@ -128,7 +128,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 }
 
-                state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - RioGravityStep))));
+                state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue - RioGravityStep));
                 if (state.Velocity.Y.SignedRawValue < 0)
                 {
                     state.SavedHorizontalVelocity = state.Velocity.X;
@@ -152,7 +152,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                         slot,
                         EnemyMath.ToEightBitVelocityDisplacement(state.Velocity.X)))
                 {
-                    state.Velocity = state.Velocity.WithX(new SignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
+                    state.Velocity = state.Velocity.WithX(SignedEightEight.Wrapped(-state.Velocity.X.SignedRawValue));
                 }
                 if (_terrain.MoveEnemyVertically(
                         level,
@@ -167,7 +167,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 else
                 {
-                    state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - RioGravityStep))));
+                    state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(state.Velocity.Y.RawValue - RioGravityStep));
                 }
                 return;
 
@@ -178,17 +178,17 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 // Once Rio reaches Samus's Y coordinate from above, it restores the saved
                 // horizontal dive speed and starts the upward/bounce phase at -1/256 px.
-                if (unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= 0)
+                if (CoordinateAxis.Difference(slot.Position.Y.Whole, samus.Position.Y.Whole) >= 0)
                 {
                     state.Velocity = new EightEightVector<RoomPixels>(
                         state.SavedHorizontalVelocity,
-                        new SignedEightEight(unchecked((ushort)-1)));
+                        SignedEightEight.Wrapped(-1));
                     state.Function = RioEnemyFunction.BouncingBackToPerch;
                     return;
                 }
 
                 ByteAngle angle = EnemyMath.CalculateBearing(
-                    new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ReinterpretAsTableAngle();
+                    new(CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole), CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole))).ReinterpretAsTableAngle();
                 state.Velocity = state.Velocity.WithX(new SignedEightEight(ReadRioSignedSineCosineSample(
                     angle.AddTableUnits(EnemyByteAngleDefinitions.QuarterTurn))));
                 state.Velocity = state.Velocity.WithY(new SignedEightEight(ReadRioSignedSineCosineSample(angle)));
@@ -236,7 +236,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Reverses vertical velocity after collision and enters the rebound phase.</summary>
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(new SignedEightEight(unchecked((ushort)-state.Velocity.Y.SignedRawValue)));
+        state.Velocity = state.Velocity.WithY(SignedEightEight.Wrapped(-state.Velocity.Y.SignedRawValue));
         state.Function = RioEnemyFunction.BouncingBackToPerch;
     }
 
@@ -244,8 +244,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reads one sign-extended entry from kSinCosTable8bit_Sext at $A0:B443. Rio consumes
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
-    internal static ushort ReadRioSignedSineCosineSample(ByteAngle angle) =>
-        unchecked((ushort)Trigonometry.SignedSine(angle));
+    internal static int ReadRioSignedSineCosineSample(ByteAngle angle) =>
+        WordWrap.Unsigned(Trigonometry.SignedSine(angle));
 
     /// <summary>Rejects movement dispatch without active room collision data.</summary>
     private static void RequireRioLevel([NotNull] RoomLevelData? level)

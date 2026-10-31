@@ -24,13 +24,13 @@ internal struct SeekingVelocityRun
     internal SeekingVelocityRun(SignedEightEight start, int position, int target)
     {
         velocity = start.RawValue;
-        bool targetAhead = unchecked((short)(position - target)) < 0;
+        bool targetAhead = CoordinateAxis.Difference(position, target) < 0;
         bool orderedAhead = Ensure.BetweenInclusive(0, ushort.MaxValue, position) < Ensure.BetweenInclusive(0, ushort.MaxValue, target);
         extraUnit = targetAhead == orderedAhead ? 0 : 1;
     }
 
     /// <summary>The velocity the run has reached.</summary>
-    internal readonly SignedEightEight Velocity => new(checked((ushort)velocity));
+    internal readonly SignedEightEight Velocity => new(velocity);
 
     /// <summary>Starts a fresh run: the next step adds no unit for a crossing before it.</summary>
     internal void StartFresh() => extraUnit = 0;
@@ -40,7 +40,7 @@ internal struct SeekingVelocityRun
     {
         int sum = velocity + Ensure.BetweenInclusive(0, ushort.MaxValue, amount) + extraUnit;
         extraUnit = sum > ushort.MaxValue ? 1 : 0;
-        velocity = unchecked((ushort)sum);
+        velocity = WordWrap.Unsigned(sum);
     }
 
     /// <summary>Lowers the velocity by <paramref name="amount"/> units, 0 through 65535, plus any unit a crossing left.</summary>
@@ -48,6 +48,6 @@ internal struct SeekingVelocityRun
     {
         int difference = velocity - Ensure.BetweenInclusive(0, ushort.MaxValue, amount) - extraUnit;
         extraUnit = difference < 0 ? 1 : 0;
-        velocity = unchecked((ushort)difference);
+        velocity = WordWrap.Unsigned(difference);
     }
 }

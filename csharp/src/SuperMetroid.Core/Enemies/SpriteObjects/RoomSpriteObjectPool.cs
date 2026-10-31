@@ -146,10 +146,10 @@ internal sealed class RoomSpriteObjectPool
             // The 65816 uses signed branch tests on `(x + 16)`, `(x - 272)`, `y`, and
             // `(y - 272)`. Unsigned host comparisons incorrectly discarded partially visible
             // objects whose wrapped screen coordinate represented a small negative offset.
-            if (unchecked((short)(screen.X + 16)) < 0 ||
-                unchecked((short)(screen.X - 272)) >= 0 ||
-                unchecked((short)screen.Y) < 0 ||
-                unchecked((short)(screen.Y - 272)) >= 0)
+            if (CoordinateAxis.AsSigned(screen.X + 16) < 0 ||
+                CoordinateAxis.Difference(screen.X, 272) >= 0 ||
+                CoordinateAxis.AsSigned(screen.Y) < 0 ||
+                CoordinateAxis.Difference(screen.Y, 272) >= 0)
             {
                 continue;
             }

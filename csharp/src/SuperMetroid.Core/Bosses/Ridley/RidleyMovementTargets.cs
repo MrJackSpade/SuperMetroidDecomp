@@ -4,10 +4,10 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 public static class RidleyMovementTargets
 {
     /// <summary>$A6:B60D Ridley_Func_15: descending pogo uses quarter-arena points in reverse facing order.</summary>
-    public static ushort DescendingPogoX(RidleyFacing facing) => (ushort)(256 - AscendingPogoX(facing));
+    public static int DescendingPogoX(RidleyFacing facing) => WordWrap.Unsigned(256 - AscendingPogoX(facing));
 
     /// <summary>$A6:B63B Ridley_Func_16: ascending pogo uses successive 64-pixel quarter-arena points.</summary>
-    public static ushort AscendingPogoX(RidleyFacing facing) => facing switch
+    public static int AscendingPogoX(RidleyFacing facing) => facing switch
     {
         RidleyFacing.Left => 64,
         RidleyFacing.Turning => 128,
@@ -16,7 +16,7 @@ public static class RidleyMovementTargets
     };
 
     /// <summary>$A6:B6C8 Ridley_Func_19: left, turning and right attack staging positions.</summary>
-    public static ushort GroundAttackX(RidleyFacing facing) => facing switch
+    public static int GroundAttackX(RidleyFacing facing) => facing switch
     {
         RidleyFacing.Left => 176,
         RidleyFacing.Turning => 128,
@@ -25,7 +25,7 @@ public static class RidleyMovementTargets
     };
 
     /// <summary>$A6:BBEB Ridley_Func_36: carry anchors at the left/right sides; turning has no anchor.</summary>
-    public static ushort CarryAnchorX(RidleyFacing facing) => facing switch
+    public static int CarryAnchorX(RidleyFacing facing) => facing switch
     {
         RidleyFacing.Left => 64,
         RidleyFacing.Turning => 0,
@@ -34,7 +34,7 @@ public static class RidleyMovementTargets
     };
 
     /// <summary>$A6:BC62: carry-release destinations reflected about the arena center; turning has no target.</summary>
-    public static ushort CarryReleaseX(RidleyFacing facing) => facing switch
+    public static int CarryReleaseX(RidleyFacing facing) => facing switch
     {
         RidleyFacing.Left => 176,
         RidleyFacing.Turning => 0,
@@ -43,17 +43,17 @@ public static class RidleyMovementTargets
     };
 
     /// <summary>$A6:B439: hover divisor index first rises by four, then by two per health stage.</summary>
-    public static ushort HoverDivisorIndexes(int stage)
+    public static int HoverDivisorIndexes(int stage)
     {
         ValidateStage(stage);
-        return (ushort)(4 + 2 * stage + 2 * Math.Min(stage, 1));
+        return WordWrap.Unsigned(4 + 2 * stage + 2 * Math.Min(stage, 1));
     }
 
     /// <summary>$A6:BB4E: grab divisor indexes double-plus-one until the final cap of ten.</summary>
-    public static ushort GrabDivisorIndexes(int stage)
+    public static int GrabDivisorIndexes(int stage)
     {
         ValidateStage(stage);
-        return (ushort)Math.Min(10, (1 << (stage + 1)) - 1);
+        return WordWrap.Unsigned(Math.Min(10, (1 << (stage + 1)) - 1));
     }
 
     /// <summary>Limits health-stage selection to the four entries represented by the native movement tables.</summary>

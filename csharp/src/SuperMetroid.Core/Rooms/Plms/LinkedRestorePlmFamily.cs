@@ -124,7 +124,7 @@ internal sealed class LinkedRestorePlmFamily
         for (int run = 0; run < runs.Length; run++)
             runs[run] = new(draw.Vertical ? PlmRunDirection.Vertical : PlmRunDirection.Horizontal,
                 new[] { draw.BlockAt(run, 0), draw.BlockAt(run, 1) },
-                new(0, run + 1 < runs.Length ? (sbyte)1 : (sbyte)0));
+                new(0, run + 1 < runs.Length ? 1 : 0));
         return new(draw.Id, runs);
     }
 }

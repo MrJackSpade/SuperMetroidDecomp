@@ -15,6 +15,6 @@ internal static class RidleyLiquidMotion
     {
         state.FxTargetYPosition = target;
         state.FxTimer = delay;
-        roomFx.PublishLiquidMotion(checked((ushort)target), velocity.RawValue, checked((ushort)delay));
+        roomFx.PublishLiquidMotion(Ensure.BetweenInclusive(0, ushort.MaxValue, target), velocity.RawValue, Ensure.BetweenInclusive(0, ushort.MaxValue, delay));
     }
 }

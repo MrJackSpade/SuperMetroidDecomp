@@ -8,12 +8,12 @@ public static class MapScreenConversions
 
     /// <summary>The top-left map-plane pixel of a map tile (<c>tile × 8</c>), wrapping each axis at sixteen bits.</summary>
     public static Position16<MapPixels> ToMapPixels(this Position16<MapTiles> tile) =>
-        new(unchecked((ushort)(tile.X * PixelsPerTile)), unchecked((ushort)(tile.Y * PixelsPerTile)));
+        Position16<MapPixels>.Wrapped(tile.X * PixelsPerTile, tile.Y * PixelsPerTile);
 
     /// <summary>
     /// The screen position of a map-plane pixel under the map's BG scroll (<c>position - scroll</c>),
     /// wrapping each axis at sixteen bits exactly as the native sprite origins do.
     /// </summary>
     public static Position16<ScreenPixels> ToScreen(this Position16<MapPixels> position, Position16<MapPixels> scroll) =>
-        new(unchecked((ushort)(position.X - scroll.X)), unchecked((ushort)(position.Y - scroll.Y)));
+        Position16<ScreenPixels>.Wrapped(position.X - scroll.X, position.Y - scroll.Y);
 }

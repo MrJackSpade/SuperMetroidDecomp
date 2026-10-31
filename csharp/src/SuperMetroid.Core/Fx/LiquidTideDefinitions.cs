@@ -10,14 +10,14 @@ public static class LiquidTideDefinitions
     public const int LargeTideScale = 32;
 
     /// <summary>Small-tide phase delta for a nonnegative sine sample.</summary>
-    public const ushort SmallTidePositivePhaseDelta = 288;
+    public const int SmallTidePositivePhaseDelta = 288;
 
     /// <summary>Small-tide phase delta for a negative sine sample.</summary>
-    public const ushort SmallTideNegativePhaseDelta = 192;
+    public const int SmallTideNegativePhaseDelta = 192;
 
     /// <summary>Large-tide phase delta for a nonnegative sine sample.</summary>
-    public const ushort LargeTidePositivePhaseDelta = 224;
+    public const int LargeTidePositivePhaseDelta = 224;
 
     /// <summary>Large-tide phase delta for a negative sine sample.</summary>
-    public const ushort LargeTideNegativePhaseDelta = 128;
+    public const int LargeTideNegativePhaseDelta = 128;
 }

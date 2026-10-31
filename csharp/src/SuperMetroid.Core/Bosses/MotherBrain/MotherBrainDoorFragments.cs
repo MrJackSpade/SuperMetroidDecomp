@@ -17,7 +17,7 @@ internal static class MotherBrainDoorFragments
         }
 
         return new(new Offset16<RoomPixels>(0,
-                (short)(MotherBrainDoorFragmentDefinitions.FirstY + MotherBrainDoorFragmentDefinitions.YStep * parameter)),
+                WordWrap.Signed(MotherBrainDoorFragmentDefinitions.FirstY + MotherBrainDoorFragmentDefinitions.YStep * parameter)),
             new EightEightVector<RoomPixels>(MotherBrainDoorFragmentDefinitions.XVelocity, MotherBrainDoorFragmentDefinitions.YVelocities[parameter]));
     }
 }

@@ -27,7 +27,7 @@ public static class GrowingShutters
     /// </remarks>
     public static SignedSixteenSixteen Speed(int parameter)
     {
-        int index = (byte)parameter;
+        int index = WordWrap.LowByte(parameter);
         if (index >= SpeedCount)
             throw new InvalidDataException($"Growing shutter speed index {index} exceeds its 24-entry definition.");
         return SignedSixteenSixteen.FromRaw((index + 1) * SpeedStep);

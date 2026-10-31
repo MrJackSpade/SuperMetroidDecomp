@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireBodyLayerPlacementDefinitions
 {
     /// <summary>Native $A4:8B5B vertical-scroll origin.</summary>
-    internal const ushort VerticalOrigin = 67;
+    internal const int VerticalOrigin = 67;
 
     /// <summary>
     /// The body frames whose body-layer alignment needs a signed Y correction: steps 1 to 7 of the charge-forward step back and

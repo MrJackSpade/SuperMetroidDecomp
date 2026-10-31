@@ -66,7 +66,7 @@ public sealed class PipeBugEnemyState
     /// Whether a Norfair member's count has reached its <see cref="StaggerTarget"/>, judged as the cartridge does by
     /// the sign of their difference wrapped to sixteen bits.
     /// </summary>
-    internal bool HasReachedStaggerTarget => unchecked((short)(FormationCounter - StaggerTarget)) >= 0;
+    internal bool HasReachedStaggerTarget => CoordinateAxis.Difference(FormationCounter, StaggerTarget) >= 0;
 
     /// <summary>
     /// A Brinstar Pipe Bug's respawn countdown, in AI updates: started at 48 when it leaves the screen, and expiring

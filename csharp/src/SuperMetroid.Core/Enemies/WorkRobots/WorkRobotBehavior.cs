@@ -118,7 +118,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // pointer table has only three entries; retail populations use zero/one, and the
         // overrun into code at $CC36 fails loudly in the animation selection.
         int animation = slot.SpawnSettings<WorkRobotSpawnSettings>().Pose;
-        if (unchecked((short)animation) < 0 || animation >= 4)
+        if (WordWrap.Signed(animation) < 0 || animation >= 4)
             animation = 0;
         state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(
             WorkRobotPoses.InitialProgram(animation));
@@ -248,7 +248,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (samus is not null && EnemyCollision.IsEnemyTouchingSamusFromBelow(slot, samus))
         {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(unchecked((short)step.HorizontalPixels), 0));
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(CoordinateAxis.AsSigned(step.HorizontalPixels), 0));
         }
 
         if (!step.CheckLedge)
@@ -257,8 +257,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // The ROM moves only whole X/Y words for this temporary foot probe. In particular,
         // MoveEnemyDown's collision-produced Y subposition survives after Y is restored.
         state.BackupPosition = slot.Position.Whole;
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-            slot.Position.X.Whole + step.LedgeProbeDirection * slot.Radius.X * 2)));
+        slot.Position = slot.Position.WithWrappedWholeX(
+            slot.Position.X.Whole + step.LedgeProbeDirection * slot.Radius.X * 2);
         bool floorFound = _terrain.MoveEnemyVertically(level, slot, 1 << 16);
         slot.Position = slot.Position.WithWhole(state.BackupPosition);
         if (floorFound)
@@ -273,10 +273,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsWorkRobotOriginStrictlyOnScreen(
         RoomEnemySlot robot,
         Position16<RoomPixels> camera) =>
-        unchecked((short)(robot.Position.X.Whole - camera.X)) > 0 &&
-        unchecked((short)(camera.X + 256 - robot.Position.X.Whole)) >= 0 &&
-        unchecked((short)(robot.Position.Y.Whole - camera.Y)) > 0 &&
-        unchecked((short)(camera.Y + 224 - robot.Position.Y.Whole)) >= 0;
+        CoordinateAxis.Difference(robot.Position.X.Whole, camera.X) > 0 &&
+        CoordinateAxis.AsSigned(camera.X + 256 - robot.Position.X.Whole) >= 0 &&
+        CoordinateAxis.Difference(robot.Position.Y.Whole, camera.Y) > 0 &&
+        CoordinateAxis.AsSigned(camera.Y + 224 - robot.Position.Y.Whole) >= 0;
 
     /// <summary>Uses the existing random word to reset cooldown and enters the firing list when ready.</summary>
     private WorkRobotProgram? TryFireWorkRobotLaser(
@@ -311,7 +311,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ResolveWorkRobotTouch(RoomEnemySlot robot, SamusState samus)
     {
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(
-            robot.Position.X.Whole < samus.Position.X.Whole ? (short)4 : (short)-4, 0));
+            robot.Position.X.Whole < samus.Position.X.Whole ? 4 : -4, 0));
     }
 
     /// <summary>
@@ -359,7 +359,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (WorkRobotPaletteAnimationRecord == WorkRobotPaletteTimingDefinitions.RecordCount)
             WorkRobotPaletteAnimationRecord = 0;
         int record = WorkRobotPaletteAnimationRecord;
-        int recordByteOffset = checked((ushort)(record * WorkRobotPaletteTimingDefinitions.RecordByteCount));
+        int recordByteOffset = Ensure.BetweenInclusive(0, ushort.MaxValue, record * WorkRobotPaletteTimingDefinitions.RecordByteCount);
 
         ColourRun animated = _presentation.ColourSetOf(WorkRobotPaletteAnimationColouring)
             .Slice(WorkRobotPaletteDefinitions.FirstAnimatedColor, WorkRobotPaletteDefinitions.ColorCount);
@@ -451,7 +451,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(definition switch
         {
             WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
-                unchecked((ushort)-128),
+                WordWrap.Unsigned(-128),
             WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => 128,
             WorkRobotLaser.Horizontal => 0,
             _ => throw new InvalidOperationException(
@@ -462,8 +462,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // and sixteen pixels above the robot. The temporary graphics word comes from the
         // owner; pre-instruction $D3BF clears it before the first draw, matching the ROM's
         // use of palette/tile bits embedded directly in the bank-$8D laser spritemaps.
-        projectile.Position = new(new(unchecked((ushort)(robot.Position.X.Whole +
-            (state.LaserVelocity.X.SignedRawValue < 0 ? -4 : 4))), 0), new(unchecked((ushort)(robot.Position.Y.Whole - 16)), 0));
+        projectile.Position = new(new(CoordinateAxis.Wrap(robot.Position.X.Whole +
+            (state.LaserVelocity.X.SignedRawValue < 0 ? -4 : 4)), 0), new(CoordinateAxis.Wrap(robot.Position.Y.Whole - 16), 0));
         // $86:D326 clears the graphics word in the down-left/right initializer itself.
         // Upward and horizontal variants retain the owner's word until common
         // pre-instruction $D3BF clears it on their first projectile pass.
@@ -475,11 +475,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // `CMP Layer1YPosition`, so lasers only request sound while their owner's absolute
         // top edge is above scanline 224, even when a lower room row is on screen.
         bool horizontallyVisible =
-            unchecked((short)(robot.Position.X.Whole + robot.Radius.X - camera.X)) >= 0 &&
-            unchecked((short)(robot.Position.X.Whole - robot.Radius.X - 257 - camera.X)) < 0;
+            CoordinateAxis.AsSigned(robot.Position.X.Whole + robot.Radius.X - camera.X) >= 0 &&
+            CoordinateAxis.Difference(robot.Position.X.Whole - robot.Radius.X - 257, camera.X) < 0;
         bool verticallyVisible =
-            unchecked((short)(robot.Position.Y.Whole + robot.Radius.Y - camera.Y)) >= 0 &&
-            unchecked((short)(robot.Position.Y.Whole - robot.Radius.Y - 224)) < 0;
+            CoordinateAxis.AsSigned(robot.Position.Y.Whole + robot.Radius.Y - camera.Y) >= 0 &&
+            CoordinateAxis.Difference(robot.Position.Y.Whole - robot.Radius.Y, 224) < 0;
         if (horizontallyVisible && verticallyVisible)
             _audio.RequestSoundAtUpdateEnd(EnemySoundSource.WorkRobot, WorkRobotLaserSound, priority: SoundRequestPriority.Normal);
     }

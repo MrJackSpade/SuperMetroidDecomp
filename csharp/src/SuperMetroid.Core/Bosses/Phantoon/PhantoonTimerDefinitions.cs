@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 public static class PhantoonTimerDefinitions
 {
     /// <summary>$A7:CE2B, InitAI_PhantoonBody: Japan/USA initial flame countdown is 120 frames. PAL uses 96.</summary>
-    public const ushort InitialFlameDelayFrames = 120;
+    public const int InitialFlameDelayFrames = 120;
 
     /// <summary>Three selected exposure tiers used by the native RNG-bucket policies.</summary>
     internal enum DurationChoice

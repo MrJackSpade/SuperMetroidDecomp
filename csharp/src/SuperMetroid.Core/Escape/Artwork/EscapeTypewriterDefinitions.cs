@@ -16,7 +16,7 @@ public static class EscapeTypewriterDefinitions
     public const string FileName = "escape-typewriter.json";
 
     /// <summary>$A6:C450/$C49C runtime delay reset; unchanged and outside the installed programs table payload. No timing exemption is claimed.</summary>
-    public const ushort CharacterDelayFrames = 2;
+    public const int CharacterDelayFrames = 2;
     /// <summary>Maximum authored warning length and BG tilemap row width, in character cells.</summary>
     public const int MaximumLineLength = 32;
 

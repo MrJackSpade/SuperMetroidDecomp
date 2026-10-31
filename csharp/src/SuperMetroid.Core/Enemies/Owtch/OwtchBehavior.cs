@@ -64,9 +64,9 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Owtch linear-speed index {speedIndex} is outside the NTSC retail table.");
         }
         int undergroundTimer =
-            OwtchPatrol.UndergroundTimer((byte)undergroundTimerIndex);
+            OwtchPatrol.UndergroundTimer(WordWrap.LowByte(undergroundTimerIndex));
         int travelDistance =
-            OwtchPatrol.TravelDistance((byte)distanceIndex);
+            OwtchPatrol.TravelDistance(WordWrap.LowByte(distanceIndex));
 
         // The initializer masks the raw state only for its two-entry facing table. Thus
         // states two and four begin with the left list, while state three begins right.
@@ -80,8 +80,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             Behavior = InitialStates.At(initialState),
             BurialDepth = 0,
             UndergroundTimer = WrappingCountdown.FromRaw(undergroundTimer),
-            MinimumPosition = new(unchecked((ushort)(slot.Position.X.Whole - travelDistance)), 0),
-            MaximumPosition = new(unchecked((ushort)(slot.Position.X.Whole + travelDistance)), 0),
+            MinimumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole - travelDistance), 0),
+            MaximumPosition = new(CoordinateAxis.Wrap(slot.Position.X.Whole + travelDistance), 0),
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
         SetOwtchProgram(slot, state, initialProgram);
@@ -91,7 +91,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Behavior == OwtchBehaviorState.Underground)
         {
             state.BurialDepth = OwtchMaximumBurialDepth;
-            slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + OwtchMaximumBurialDepth)));
+            slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + OwtchMaximumBurialDepth);
         }
     }
 
@@ -117,7 +117,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case OwtchBehaviorState.Sinking:
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
                 // Sinking starts from zero, so the depth stays within one through sixteen and the cartridge's signed
                 // word comparison is an ordinary one.
                 state.BurialDepth++;
@@ -130,7 +130,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case OwtchBehaviorState.Rising:
-                slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 1)));
+                slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole - 1);
                 if (state.RiseOnePixel())
                 {
                     // $A2:A549 samples RandomNumberSeed+1 without advancing the RNG. The
@@ -184,7 +184,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     private void MaybeMakeOwtchSink(RoomEnemySlot slot, OwtchEnemyState state)
     {
         int random = _room.Random.Generate();
-        int decision = unchecked((byte)((byte)random + (byte)slot.FrameCounter));
+        int decision = WordWrap.LowByte(SharedRandomState.LowerByte(random) + WordWrap.LowByte(slot.FrameCounter));
         if (decision < 6)
             state.Behavior = OwtchBehaviorState.Sinking;
     }

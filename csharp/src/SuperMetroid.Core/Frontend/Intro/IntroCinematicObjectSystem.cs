@@ -235,22 +235,22 @@ internal sealed class IntroCinematicObjectSystem
             IntroNarrationCharacter? next = narrationCharacterIndex + 1 < program.Length
                 ? program[narrationCharacterIndex + 1]
                 : null;
-            (textGlow ??= new()).Spawn(new(checked((ushort)character.Column), checked((ushort)character.Row)), new(1, 1));
+            (textGlow ??= new()).Spawn(new(character.Column, character.Row), new(1, 1));
             if (next is { } following)
             {
                 Caret = new(
-                    unchecked((ushort)(following.Column *
-                        IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize)),
-                    unchecked((ushort)(following.Row *
+                    CoordinateAxis.Wrap(following.Column *
+                        IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize),
+                    CoordinateAxis.Wrap(following.Row *
                         IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize -
-                        IntroCinematicDefinitions.ObjectSystem.CharacterBaselineOffset)));
+                        IntroCinematicDefinitions.ObjectSystem.CharacterBaselineOffset));
             }
             else
             {
                 Caret = new(
                     IntroCinematicDefinitions.ObjectSystem.CaretLeftX,
-                    unchecked((ushort)((character.Row + 1) *
-                        IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize)));
+                    CoordinateAxis.Wrap((character.Row + 1) *
+                        IntroCinematicDefinitions.ObjectSystem.CharacterPixelSize));
             }
 
             typewriterSoundToggle = !typewriterSoundToggle;

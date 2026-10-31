@@ -58,7 +58,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case SkreeEnemyFunction.Idling:
-                if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) < 48)
+                if (CoordinateAxis.Distance(slot.Position.X.Whole, samus.Position.X.Whole) < 48)
                 {
                     state.RequestedInstructionIndex =
                         SkreeMetareeAnimationPhase.PreparingAttack;
@@ -116,9 +116,9 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 6)));
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
-            (unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) >= 0 ? -1 : 1))));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 6);
+        slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole +
+            (CoordinateAxis.Difference(slot.Position.X.Whole, samus.Position.X.Whole) >= 0 ? -1 : 1));
     }
 
     /// <summary>Advances the 21-frame burrow, spawning debris at eight and deleting the slot at zero.</summary>
@@ -135,7 +135,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.BurrowTimer.IsAt(8))
             _projectiles.SpawnMetalParticleBurst(slot, SkreeParticleDefinitions.Burst);
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
+        slot.Position = slot.Position.WithWrappedWholeY(slot.Position.Y.Whole + 1);
     }
 
     /// <summary>Changes the Skree phase list only when requested and installed phases differ.</summary>

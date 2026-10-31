@@ -74,7 +74,7 @@ public static class SamusBombJumpMovement
         // additionally selects mode two so normal horizontal movement decelerates after
         // this special handler relinquishes control.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
-            unchecked((short)samus.Kinematics.YSpeed.Whole) < 0)
+            WordWrap.Signed(samus.Kinematics.YSpeed.Whole) < 0)
         {
             samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -123,7 +123,7 @@ public static class SamusBombJumpMovement
         uint oldSpeed = state.VerticalSpeedFixed;
         uint acceleration = state.YAcceleration.RawValue;
         uint nextSpeed = unchecked(oldSpeed - acceleration);
-        state.YSpeed = new UnsignedSixteenSixteen(unchecked((ushort)(SixteenSixteen.WholeOf(nextSpeed))), unchecked((ushort)nextSpeed));
+        state.YSpeed = new UnsignedSixteenSixteen(WordWrap.Unsigned(SixteenSixteen.WholeOf(nextSpeed)), WordWrap.Unsigned(nextSpeed));
         int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             unchecked(-(int)oldSpeed));

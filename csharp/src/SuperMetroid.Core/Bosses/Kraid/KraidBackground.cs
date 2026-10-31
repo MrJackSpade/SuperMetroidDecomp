@@ -91,9 +91,9 @@ internal sealed class KraidBackground
             RoomEnemyProjectileKind.KraidCeilingRock,
             graphics: SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites)));
         rock.StartAnimation(new KraidRockAnimation(KraidRockProgram.SharedPose));
-        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(checked((ushort)xPosition), 312));
+        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, 312));
         rock.Velocity = rock.Velocity.WithX(new SignedEightEight(0));
-        rock.Velocity = rock.Velocity.WithY(new SignedEightEight(unchecked((ushort)((_access.ReadKraidRandomNumber() & 63) + 64))));
+        rock.Velocity = rock.Velocity.WithY(SignedEightEight.Wrapped((_access.ReadKraidRandomNumber() & 63) + 64));
         rock.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites));
         return true;
     }

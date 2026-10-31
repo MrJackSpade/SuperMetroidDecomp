@@ -70,7 +70,7 @@ internal static class EndingActorDefinitions
     internal static readonly EndingSpriteDefinition ClearTimeColon =
         EndingSpriteDefinition.At(new(172, 160), ScreenColourGroup.EndingClearTimeDigits, CinematicSpriteProgram.ClearTimeColon);
     /// <summary>Shared clear-time digit origin Y=160 screen pixels, aligned with the label and colon.</summary>
-    public const ushort ClearTimeDigitY = 160;
+    public const int ClearTimeDigitY = 160;
     /// <summary>Suitless idle-body actor: origin (120,136) pixels.</summary>
     internal static readonly EndingSpriteDefinition SuitlessRewardBody =
         EndingSpriteDefinition.At(new(120, 136), ScreenColourGroup.EndingSuitlessSamus, CinematicSpriteProgram.SuitlessIdle);

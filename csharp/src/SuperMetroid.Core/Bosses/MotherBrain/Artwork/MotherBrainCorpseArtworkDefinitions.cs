@@ -10,7 +10,7 @@ public static class MotherBrainCorpseArtworkDefinitions
     public const string FileName = "mother-brain-corpse-tiles.png";
 
     /// <summary>Each of the six corpse pages shows $1C0 bytes, leaving out its source page's last two tile rows ($A9:9003-$902E).</summary>
-    public const ushort PageByteCount = 448;
+    public const int PageByteCount = 448;
 
     /// <summary>$A9:E08B-$E130 extracts six tile rows of the right-hand corpse frame.</summary>
     public const int RowCount = 6;

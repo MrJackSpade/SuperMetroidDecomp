@@ -64,9 +64,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Fixed horizontal arena center used for hardening and the death trajectory.</summary>
-    private const ushort SporeSpawnDeathCenterX = 128;
+    private const int SporeSpawnDeathCenterX = 128;
     /// <summary>Fixed vertical arena center used for hardening and the death trajectory.</summary>
-    private const ushort SporeSpawnDeathCenterY = 624;
+    private const int SporeSpawnDeathCenterY = 624;
     /// <summary>Horizontal sway amplitude in room pixels the descent leaves for the fight's first sway.</summary>
     private const int SporeSpawnDescentMaximumXRadius = 48;
     /// <summary>Sway amplitude in room pixels below which each closing widens the sway.</summary>
@@ -74,7 +74,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Room pixels each closing adds to a sway narrower than the limit.</summary>
     private const int SporeSpawnRadiusWidening = 8;
     /// <summary>Ceiling Y coordinate anchoring the four stalk projectiles.</summary>
-    private const ushort SporeSpawnCeilingY = 560;
+    private const int SporeSpawnCeilingY = 560;
 
     /// <summary>Frame-local drop publications from boss death and individual spores.</summary>
     internal readonly List<SporeSpawnDropRequest> SporeSpawnDropRequests = new();
@@ -160,7 +160,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.InitialAlive);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 128)));
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 128);
 
         // `flag_process_all_enemies = FFFF` is a global bank-$A0 activity override, not an
         // enemy property. Preserve that distinction so all room actors use the same scan.
@@ -207,8 +207,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunSporeSpawnDescent(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(state);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
-        if (unchecked((short)(body.Position.Y.Whole - SporeSpawnDeathCenterY)) >= 0)
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
+        if (CoordinateAxis.Difference(body.Position.Y.Whole, SporeSpawnDeathCenterY) >= 0)
         {
             state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.FightStarted);
             body.InstructionTimer = WrappingCountdown.Start(1);
@@ -223,14 +223,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunSporeSpawnMovement(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         UpdateSporeSpawnStalks(state);
-        body.Position = body.Position.WithWholeX(unchecked((ushort)(
+        body.Position = body.Position.WithWrappedWholeX(
             state.MovementCenter.X +
-            EnemyMath.ReadEightBitCosineProduct(state.Angle.ToByteAngle(), checked((ushort)state.MaximumXRadius)))));
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(
+            EnemyMath.ReadEightBitCosineProduct(state.Angle.ToByteAngle(), Ensure.BetweenInclusive(0, ushort.MaxValue, state.MaximumXRadius)));
+        body.Position = body.Position.WithWrappedWholeY(
             state.MovementCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(
-                new ByteAngle(unchecked((byte)(2 * (state.Angle.TableIndex - RotationAngle.QuarterTurn.TableIndex)))),
-                unchecked((ushort)(state.MaximumXRadius - 16))))));
+                new ByteAngle(WordWrap.LowByte(2 * (state.Angle.TableIndex - RotationAngle.QuarterTurn.TableIndex))),
+                CoordinateAxis.Wrap(state.MaximumXRadius - 16)));
 
         // The phase advances by the signed delta and wraps around the turn.
         state.Angle = state.Angle.AddTableUnits(state.AngleDelta);
@@ -240,7 +240,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         ByteAngle direction = EnemyMath.CalculateBearing(
-            new(unchecked((short)(SporeSpawnDeathCenterX - body.Position.X.Whole)), unchecked((short)(SporeSpawnDeathCenterY - body.Position.Y.Whole)))).ToTableAngle();
+            new(CoordinateAxis.Difference(SporeSpawnDeathCenterX, body.Position.X.Whole), CoordinateAxis.Difference(SporeSpawnDeathCenterY, body.Position.Y.Whole))).ToTableAngle();
         state.DeathAngle = RotationAngle.FromTableIndex(direction.RawValue);
         state.DeathVelocityMagnitude = new(
             SignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 64)),
@@ -261,8 +261,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Position = body.Position.AdvanceX(SignedSixteenSixteen.FromRaw(xDisplacement));
         body.Position = body.Position.AdvanceY(SignedSixteenSixteen.FromRaw(yDisplacement));
 
-        if (EnemyMath.WrappedMagnitude(unchecked((ushort)(body.Position.X.Whole - SporeSpawnDeathCenterX))) < 8 &&
-            EnemyMath.WrappedMagnitude(unchecked((ushort)(body.Position.Y.Whole - SporeSpawnDeathCenterY))) < 8)
+        if (CoordinateAxis.Distance(body.Position.X.Whole, SporeSpawnDeathCenterX) < 8 &&
+            CoordinateAxis.Distance(body.Position.Y.Whole, SporeSpawnDeathCenterY) < 8)
         {
             state.Function = SporeSpawnFunction.Idle;
         }
@@ -273,7 +273,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int random = _room.Random.Generate();
             _ = _spriteObjects.SpawnRoomSpriteObject(
-                new(unchecked((ushort)(random % 64 + 96)), unchecked((ushort)(SharedRandomState.UpperByte(random) % 16 + 480))),
+                new(WordWrap.Unsigned(random % 64 + 96), WordWrap.Unsigned(SharedRandomState.UpperByte(random) % 16 + 480)),
                 RoomSpriteObjectKind.DustCloud,
                 graphics: default);
         }
@@ -291,7 +291,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         WriteSporeSpawnStalkAxis(
             firstPosition: SporeSpawnCeilingY,
             anchor: state.StalkAnchor.Y,
-            end: unchecked((ushort)(body.Position.Y.Whole - 40)),
+            end: CoordinateAxis.Wrap(body.Position.Y.Whole - 40),
             axis: Axis.Vertical);
     }
 
@@ -304,7 +304,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The signed distance from the anchor to the body is at most 32768 either way, so its
         // quarters never wrap; only the interpolated coordinates keep sixteen bits.
-        int delta = unchecked((short)(end - anchor));
+        int delta = CoordinateAxis.Difference(end, anchor);
         bool negative = delta < 0;
         int magnitude = Math.Abs(delta);
         int quarter = magnitude >> 2;
@@ -312,10 +312,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int threeQuarters = quarter + half;
         Span<ushort> positions = stackalloc ushort[4]
         {
-            checked((ushort)firstPosition),
-            unchecked((ushort)(anchor + (negative ? -quarter : quarter))),
-            unchecked((ushort)(anchor + (negative ? -half : half))),
-            unchecked((ushort)(anchor + (negative ? -threeQuarters : threeQuarters))),
+            Ensure.BetweenInclusive(0, ushort.MaxValue, firstPosition),
+            CoordinateAxis.Wrap(anchor + (negative ? -quarter : quarter)),
+            CoordinateAxis.Wrap(anchor + (negative ? -half : half)),
+            CoordinateAxis.Wrap(anchor + (negative ? -threeQuarters : threeQuarters)),
         };
 
         // The boss writes physical projectile slots 14,15,16,17 in this order even though
@@ -667,7 +667,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Generate();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SharedRandomState.UpperByte(random) % 128 - 64))),
+            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + random % 128 - 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + SharedRandomState.UpperByte(random) % 128 - 64)),
             MiscDustAnimation.BigDustCloud);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.HardeningDust);
     }
@@ -677,7 +677,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Generate();
         _ = _spriteObjects.SpawnRoomSpriteObject(
-            new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SharedRandomState.UpperByte(random) % 64 - 32))),
+            new(CoordinateAxis.Wrap(state.Body.Position.X.Whole + random % 128 - 64), CoordinateAxis.Wrap(state.Body.Position.Y.Whole + SharedRandomState.UpperByte(random) % 64 - 32)),
             RoomSpriteObjectKind.SporeSpawnDyingExplosion,
             graphics: default);
         RequestSporeSpawnSound(SporeSpawnSoundDefinitions.DyingExplosion);
@@ -689,7 +689,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int index = 0; index < 16; index++)
         {
             int random = _room.Random.Generate();
-            Position16<RoomPixels> drop = new((ushort)(random % 128 + 64), (ushort)(SharedRandomState.UpperByte(random) % 64 + 528));
+            Position16<RoomPixels> drop = new(WordWrap.Unsigned(random % 128 + 64), WordWrap.Unsigned(SharedRandomState.UpperByte(random) % 64 + 528));
             SporeSpawnDropRequests.Add(new SporeSpawnDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(drop, EnemyDefinitionId.SporeSpawn);
         }
@@ -714,9 +714,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             body.Graphics);
         stalk.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.Stalk));
         stalk.Position = stalk.Position.WithWholeX(body.Position.X.Whole);
-        stalk.Position = stalk.Position.WithWholeY(unchecked((ushort)(
+        stalk.Position = stalk.Position.WithWrappedWholeY(
             body.Position.Y.Whole +
-            SporeSpawnProjectiles.StalkYOffset(spawnArgument))));
+            SporeSpawnProjectiles.StalkYOffset(spawnArgument));
     }
 
     /// <summary>Ports projectile definition $86:DE88 and initializer $86:DCD4.</summary>
@@ -766,11 +766,11 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int xDelta = movement.X;
         if (drift.Mirrored)
             xDelta = -xDelta;
-        spore.Position = spore.Position.WithWholeX(unchecked((ushort)(spore.Position.X.Whole + xDelta)));
+        spore.Position = spore.Position.WithWrappedWholeX(spore.Position.X.Whole + xDelta);
 
         int yDelta = movement.Y;
-        spore.Position = spore.Position.WithWholeY(unchecked((ushort)(spore.Position.Y.Whole + yDelta + yDelta)));
-        if (unchecked((short)(spore.Position.Y.Whole - 768)) >= 0)
+        spore.Position = spore.Position.WithWrappedWholeY(spore.Position.Y.Whole + yDelta + yDelta);
+        if (CoordinateAxis.Difference(spore.Position.Y.Whole, 768) >= 0)
             spore.Clear();
 
         drift.AdvancePath();
@@ -854,10 +854,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             foreach (SporeSpawnCollisionHitbox hitbox in component.Hitboxes)
             {
                 if (!probe.Overlaps(
-                        unchecked((ushort)(componentOrigin.X + hitbox.Left)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Top)),
-                        unchecked((ushort)(componentOrigin.X + hitbox.Right)),
-                        unchecked((ushort)(componentOrigin.Y + hitbox.Bottom))))
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Left),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Top),
+                        CoordinateAxis.Wrap(componentOrigin.X + hitbox.Right),
+                        CoordinateAxis.Wrap(componentOrigin.Y + hitbox.Bottom)))
                     continue;
                 callback = probe.SelectShotCallback
                     ? SporeSpawnHitboxCallbackCodec.ToCallback(hitbox.Shot)

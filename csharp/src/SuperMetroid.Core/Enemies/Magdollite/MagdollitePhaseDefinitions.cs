@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal static class MagdollitePhaseDefinitions
 {
     /// <summary>$A8:B220, maximum whole-pixel rise before Magdollite reaches its apex.</summary>
-    internal const ushort MaximumRise = 108;
+    internal const int MaximumRise = 108;
 
     /// <summary>
     /// Whether an arm in each enemy slot grows one final phase on reaching <see cref="MaximumRise"/>. The cartridge's

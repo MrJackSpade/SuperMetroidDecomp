@@ -14,16 +14,16 @@ internal static class FloorRotationMatrix
     {
         int a = Scale(ReadSine(angle.AddRaw(RotationAngle.QuarterTurn.RawValue).ToByteAngle()), zoom);
         int b = Scale(ReadSine(angle.ToByteAngle()), zoom);
-        return new((short)a, (short)b, unchecked((short)-b), (short)a, center, scroll);
+        return new(WordWrap.Signed(a), WordWrap.Signed(b), WordWrap.Signed(-b), WordWrap.Signed(a), center, scroll);
     }
 
     /// <summary>The signed sine sample of a floor angle.</summary>
-    internal static short ReadSine(ByteAngle angle) => Trigonometry.SignedSine(angle);
+    internal static int ReadSine(ByteAngle angle) => Trigonometry.SignedSine(angle);
 
     /// <summary>
     /// A signed sine sample scaled by the 8.8 zoom, which stays below 32768, rounded down to a whole 8.8 coefficient that
     /// fits a signed sixteen-bit coefficient.
     /// </summary>
-    private static short Scale(int component, int scalar) =>
-        unchecked((short)(EightEight.Multiply(component, checked((short)scalar))));
+    private static int Scale(int component, int scalar) =>
+        WordWrap.Signed(EightEight.Multiply(component, Ensure.BetweenInclusive(short.MinValue, short.MaxValue, scalar)));
 }

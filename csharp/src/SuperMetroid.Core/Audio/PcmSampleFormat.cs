@@ -13,13 +13,13 @@ public static class PcmSampleFormat
     public const int MaximumReplacementSampleRate = 384_000;
 
     /// <summary>Instrument sample assets are mono; a voice pans them as it plays.</summary>
-    public const ushort ChannelCount = 1;
+    public const int ChannelCount = 1;
 
     /// <summary>Interleaved left/right channels of a rendered stereo clip (#1305).</summary>
-    public const ushort StereoChannelCount = 2;
+    public const int StereoChannelCount = 2;
 
     /// <summary>Signed 16-bit PCM holds every decoded instrument sample value.</summary>
-    public const ushort BitsPerSample = 16;
+    public const int BitsPerSample = 16;
 
     /// <summary>
     /// Number of source frames staged behind the four-tap interpolator at once: the streaming

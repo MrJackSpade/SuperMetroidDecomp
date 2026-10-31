@@ -21,10 +21,10 @@ internal static class RoomShakes
             throw new InvalidDataException(
                 $"Earthquake type ${earthquakeType:X4} exceeds the 36 rendered definitions.");
         int group = earthquakeType / 9;
-        int magnitude = (short)(earthquakeType / 3 % 3 + 1);
+        int magnitude = WordWrap.Signed(earthquakeType / 3 % 3 + 1);
         int direction = earthquakeType % 3;
         Offset16<RoomPixels> shake = new(
-            checked((short)(direction == 1 ? 0 : magnitude)), checked((short)(direction == 0 ? 0 : magnitude)));
+            direction == 1 ? 0 : magnitude, direction == 0 ? 0 : magnitude);
         return new(
             group == 3 ? Offset16<RoomPixels>.Zero : shake,
             group == 0 ? Offset16<BackgroundPixels>.Zero : new(shake.X, shake.Y),

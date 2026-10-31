@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Fx;
 internal static class ConveyorBlockDefinitions
 {
     /// <summary>The whole pixels a rightward conveyor carries Samus each frame.</summary>
-    public const short RightwardCarry = 2;
+    public const int RightwardCarry = 2;
 
     /// <summary>The whole pixels a leftward conveyor carries Samus each frame.</summary>
-    public const short LeftwardCarry = -2;
+    public const int LeftwardCarry = -2;
 }

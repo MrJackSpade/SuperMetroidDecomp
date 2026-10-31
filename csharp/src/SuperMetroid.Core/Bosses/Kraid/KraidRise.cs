@@ -145,9 +145,9 @@ internal sealed class KraidRise
     private void SetupKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         state.Parts[body.SlotIndex].Function = KraidAiFunction.SecondPhaseThinking;
-        _slotTable.Slots[2].Position = _slotTable.Slots[2].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 20)));
-        _slotTable.Slots[3].Position = _slotTable.Slots[3].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 46)));
-        _slotTable.Slots[4].Position = _slotTable.Slots[4].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 112)));
+        _slotTable.Slots[2].Position = _slotTable.Slots[2].Position.WithWrappedWholeY(body.Position.Y.Whole - 20);
+        _slotTable.Slots[3].Position = _slotTable.Slots[3].Position.WithWrappedWholeY(body.Position.Y.Whole + 46);
+        _slotTable.Slots[4].Position = _slotTable.Slots[4].Position.WithWrappedWholeY(body.Position.Y.Whole + 112);
         state.ThinkingTimer = WrappingCountdown.FromRaw(_head.ReadKraidThinkingTimer());
     }
 
@@ -166,9 +166,9 @@ internal sealed class KraidRise
             case KraidAiFunction.GrowBreakCeilingPlatforms:
                 if ((body.FrameCounter & 7) == 0)
                     RequestKraidRisingRock(body, state);
-                body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole +
-                    ((body.Position.Y.Whole & 2) == 0 ? 1 : -1))));
-                body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 1)));
+                body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
+                    ((body.Position.Y.Whole & 2) == 0 ? 1 : -1));
+                body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
                 if ((body.Position.Y.Whole & 3) == 0 && state.Parts[body.SlotIndex].CeilingRock < KraidCeilingRocks.Count)
                 {
                     int rock = state.Parts[body.SlotIndex].CeilingRock;
@@ -177,7 +177,7 @@ internal sealed class KraidRise
                     _frameResults.KraidPlms.Add(KraidPlmDefinitions.GrowthCeiling[rock]);
                     state.Parts[body.SlotIndex].CeilingRock = rock + 1;
                 }
-                if (unchecked((short)(body.Position.Y.Whole - 296)) < 0)
+                if (CoordinateAxis.Difference(body.Position.Y.Whole, 296) < 0)
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowBringBodyInFront;
                 return;
 
@@ -320,9 +320,9 @@ internal sealed class KraidRise
         // $86:9D17 tests bit zero: clear complements the offset to the left.
         int randomOffset = random & 63;
         if ((random & 1) == 0)
-            randomOffset = unchecked((short)~randomOffset);
-        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(body.Position.X.Whole + randomOffset)), 432));
-        rock.Velocity = new(new SignedEightEight(unchecked((ushort)(random & 1008))), SignedEightEight.FromSignedRaw(-1280));
+            randomOffset = CoordinateAxis.AsSigned(~randomOffset);
+        rock.Position = FixedPosition<RoomPixels>.FromWhole(new(CoordinateAxis.Wrap(body.Position.X.Whole + randomOffset), 432));
+        rock.Velocity = new(SignedEightEight.Wrapped(random & 1008), SignedEightEight.FromSignedRaw(-1280));
         rock.Graphics = SpriteGraphics.CharacterZeroIn(new EncounterSpriteColouring(BossColourDefinitions.KraidSprites));
         state.SpawnedRiseRockCount++;
         _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
@@ -391,10 +391,10 @@ internal sealed class KraidRise
                 RestrictSamusToKraidFirstScreen(samus);
                 if (_earthquake.EarthquakeTimer.CyclePhase(1, 8) is 0 or 2)
                     RequestKraidRisingRock(body, state);
-                body.Position = body.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole +
-                    ((body.Position.Y.Whole & 2) == 0 ? -1 : 1))));
+                body.Position = body.Position.WithWrappedWholeX(body.Position.X.Whole +
+                    ((body.Position.Y.Whole & 2) == 0 ? -1 : 1));
                 AddSignedKraidVerticalDisplacement(body, -32768);
-                if (unchecked((short)(body.Position.Y.Whole - 457)) < 0)
+                if (CoordinateAxis.Difference(body.Position.Y.Whole, 457) < 0)
                 {
                     body.Position = body.Position.WithWholeX(176);
                     // `$C97B` does not leave execution at setup routine `$ADE9`.
@@ -475,7 +475,7 @@ internal sealed class KraidRise
     /// </summary>
     private static void RestrictSamusToKraidFirstScreen(SamusState? samus)
     {
-        if (samus is not null && unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
+        if (samus is not null && CoordinateAxis.Difference(samus.Position.X.Whole, 256) >= 0)
         {
             samus.Position = samus.Position.WithWholeX(256);
             samus.WritePreviousXPosition(256);

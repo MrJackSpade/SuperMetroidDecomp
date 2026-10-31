@@ -54,7 +54,7 @@ internal sealed class KraidProjectiles
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.Frame = EnemyFrameId.KraidLint00;
         state.Parts[lint.SlotIndex].Function = KraidAiFunction.LintInactive;
-        state.Parts[lint.SlotIndex].LintXOffset = expectedSlot == 2 ? (ushort)0 : unchecked((ushort)-16);
+        state.Parts[lint.SlotIndex].LintXOffset = expectedSlot == 2 ? 0 : WordWrap.Unsigned(-16);
     }
 
     /// <summary>
@@ -150,18 +150,18 @@ internal sealed class KraidProjectiles
     {
         if (lint.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) || !samus.InvincibilityTimer.IsZero)
             return;
-        int edge = unchecked((ushort)(lint.Position.X.Whole + KraidContactDefinitions.LintLeadingEdge));
-        if (unchecked((short)(samus.Position.X.Whole + samus.Kinematics.Radius.X - edge)) < 0 ||
-            unchecked((short)(samus.Position.X.Whole - samus.Kinematics.Radius.X - edge)) >= 0 ||
-            unchecked((short)(samus.Position.Y.Whole + samus.Kinematics.Radius.Y -
-                lint.Position.Y.Whole - KraidContactDefinitions.LintTop)) < 0 ||
-            unchecked((short)(samus.Position.Y.Whole - samus.Kinematics.Radius.Y -
-                lint.Position.Y.Whole - KraidContactDefinitions.LintBottom)) >= 0)
+        int edge = CoordinateAxis.Wrap(lint.Position.X.Whole + KraidContactDefinitions.LintLeadingEdge);
+        if (CoordinateAxis.AsSigned(samus.Position.X.Whole + samus.Kinematics.Radius.X - edge) < 0 ||
+            CoordinateAxis.Difference(samus.Position.X.Whole - samus.Kinematics.Radius.X, edge) >= 0 ||
+            CoordinateAxis.AsSigned(samus.Position.Y.Whole + samus.Kinematics.Radius.Y -
+                lint.Position.Y.Whole - KraidContactDefinitions.LintTop) < 0 ||
+            CoordinateAxis.Difference(samus.Position.Y.Whole - samus.Kinematics.Radius.Y -
+                lint.Position.Y.Whole, KraidContactDefinitions.LintBottom) >= 0)
             return;
-        int push = unchecked((ushort)(~(samus.Kinematics.Radius.X + KraidContactDefinitions.LintPush) +
-            samus.Kinematics.ExtraDisplacement.X.WholePixels));
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(unchecked((short)(
-            unchecked((short)(push - KraidContactDefinitions.LintPush)) < 0 ? push : KraidContactDefinitions.LintPush)));
+        int push = CoordinateAxis.Wrap(~(samus.Kinematics.Radius.X + KraidContactDefinitions.LintPush) +
+            samus.Kinematics.ExtraDisplacement.X.WholePixels);
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(WordWrap.Signed(
+            WordWrap.Signed(push - KraidContactDefinitions.LintPush) < 0 ? push : KraidContactDefinitions.LintPush));
         _collision.ResolveNormalEnemyTouch(lint, samus);
         lint.Properties = lint.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
@@ -189,7 +189,7 @@ internal sealed class KraidProjectiles
                 return;
 
             case KraidAiFunction.FingernailWaitForLint:
-                if (unchecked((short)(_slotTable.Slots[2].Position.X.Whole - 256)) >= 0)
+                if (CoordinateAxis.Difference(_slotTable.Slots[2].Position.X.Whole, 256) >= 0)
                 {
                     state.Parts[nail.SlotIndex].Function = part.NextFunction;
                     nail.Properties = nail.Properties.Without(
@@ -283,8 +283,8 @@ internal sealed class KraidProjectiles
         {
             part.AlternateSpawn = false;
             RoomEnemySlot body = _slotTable.Slots[0];
-            nail.Position = nail.Position.WithWhole(new(unchecked((ushort)(
-                (body.Position.X.Whole - body.Radius.X - nail.Radius.X) & ~15)), unchecked((ushort)(_slotTable.Slots[1].Position.Y.Whole + 128))));
+            nail.Position = nail.Position.WithWhole(new(CoordinateAxis.Wrap(
+                (body.Position.X.Whole - body.Radius.X - nail.Radius.X) & ~15), CoordinateAxis.Wrap(_slotTable.Slots[1].Position.Y.Whole + 128)));
             return;
         }
 
@@ -314,10 +314,10 @@ internal sealed class KraidProjectiles
     internal bool KraidBodyContourReflectsNail(RoomEnemySlot nail)
     {
         RoomEnemySlot body = _slotTable.Slots[0];
-        int contourX = unchecked((ushort)(
+        int contourX = CoordinateAxis.Wrap(
             body.Position.X.Whole + KraidNailContour.LeftOffset(
-                unchecked((ushort)(nail.Position.Y.Whole - body.Position.Y.Whole)))));
-        return unchecked((short)(nail.Position.X.Whole + nail.Radius.X - contourX)) >= 0 &&
+                CoordinateAxis.Wrap(nail.Position.Y.Whole - body.Position.Y.Whole)));
+        return CoordinateAxis.AsSigned(nail.Position.X.Whole + nail.Radius.X - contourX) >= 0 &&
             _access.Part(nail).NailVelocity.X.WholePixels >= 0;
     }
 
@@ -327,7 +327,7 @@ internal sealed class KraidProjectiles
     /// fixed-point negation would; the resulting nonzero-fraction quirk is native.
     /// </summary>
     private static SignedSixteenSixteen ReflectKraidNailHorizontalVelocity(SignedSixteenSixteen velocity) =>
-        SignedSixteenSixteen.FromParts(unchecked((short)-velocity.WholeWord), unchecked((ushort)-velocity.Fraction));
+        SignedSixteenSixteen.FromParts(WordWrap.Signed(-velocity.WholeWord), WordWrap.Unsigned(-velocity.Fraction));
 
     /// <summary>Advances a lint part through idle, charge, fire, and reattachment states.</summary>
     internal void RunKraidLintMain(RoomEnemySlot lint, SamusState? samus)
@@ -413,7 +413,7 @@ internal sealed class KraidProjectiles
     /// <summary>Places a physical part at its body-relative offset.</summary>
     internal void AlignKraidPart(RoomEnemySlot partSlot, KraidPartState part)
     {
-        partSlot.Position = partSlot.Position.WithWholeX(unchecked((ushort)(_slotTable.Slots[0].Position.X.Whole - partSlot.Radius.X)));
+        partSlot.Position = partSlot.Position.WithWrappedWholeX(_slotTable.Slots[0].Position.X.Whole - partSlot.Radius.X);
         KraidEncounterAccess.TickKraidFunctionTimer(part);
     }
 
@@ -422,10 +422,10 @@ internal sealed class KraidProjectiles
     {
         lint.Properties = lint.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
-        lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
-            _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel)));
-        _access.Part(lint).LintTravel = unchecked((ushort)(_access.Part(lint).LintTravel + 1));
-        if (unchecked((short)(_access.Part(lint).LintTravel - 32)) >= 0)
+        lint.Position = lint.Position.WithWrappedWholeX(
+            _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel);
+        _access.Part(lint).LintTravel = WordWrap.Unsigned(_access.Part(lint).LintTravel + 1);
+        if (WordWrap.Signed(_access.Part(lint).LintTravel - 32) >= 0)
         {
             _access.Part(lint).Function = KraidAiFunction.LintCharge;
             _access.Part(lint).FunctionTimer = WrappingCountdown.Start(30);
@@ -438,8 +438,8 @@ internal sealed class KraidProjectiles
         lint.Colouring = _access.Part(lint).FunctionTimer.IsInAlternatePhase(1)
             ? new GraphicsSetMemberColouring(EnemyDefinitionId.Kraid)
             : SharedSpriteColouring.Common;
-        lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
-            _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel)));
+        lint.Position = lint.Position.WithWrappedWholeX(
+            _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel);
         CountdownStep charge = _access.Part(lint).FunctionTimer.Decrement();
         _access.Part(lint).FunctionTimer = charge.Remaining;
         if (charge.IsZero)
@@ -453,9 +453,9 @@ internal sealed class KraidProjectiles
     private static void FireKraidLint(RoomEnemySlot lint, KraidPartState part, SamusState? samus)
     {
         AddSignedKraidHorizontalDisplacement(lint, KraidPlatformMovement.FiringDisplacement);
-        if (unchecked((short)(lint.Position.X.Whole - 56)) < 0)
+        if (CoordinateAxis.Difference(lint.Position.X.Whole, 56) < 0)
             lint.Properties = lint.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        if (unchecked((short)(lint.Position.X.Whole - 32)) < 0)
+        if (CoordinateAxis.Difference(lint.Position.X.Whole, 32) < 0)
         {
             lint.Properties = lint.Properties.With(EnemyProperties.Invisible);
             part.Function = KraidAiFunction.AlignPartToKraid;
@@ -472,8 +472,8 @@ internal sealed class KraidProjectiles
             SignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X +
                 SignedSixteenSixteen.FromRaw(KraidPlatformMovement.FiringDisplacement);
             int whole = carry.WholePixels;
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(carry.WithWholePixels((short)(
-                unchecked((short)(whole - KraidPlatformMovement.MinimumCarryWholePixels)) < 0
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(carry.WithWholePixels(CoordinateAxis.AsSigned(
+                CoordinateAxis.Difference(whole, KraidPlatformMovement.MinimumCarryWholePixels) < 0
                     ? KraidPlatformMovement.MinimumCarryWholePixels : whole)));
         }
     }
@@ -500,11 +500,11 @@ internal sealed class KraidProjectiles
             return;
         }
 
-        int horizontal = unchecked((short)(rock.Velocity.X.RawValue + 8));
+        int horizontal = WordWrap.Signed(rock.Velocity.X.RawValue + 8);
         if (horizontal >= 256)
             horizontal = -256;
-        rock.Velocity = rock.Velocity.WithX(new SignedEightEight(unchecked((ushort)horizontal)));
-        rock.Velocity = rock.Velocity.WithY(new SignedEightEight(unchecked((ushort)(rock.Velocity.Y.RawValue + 64))));
+        rock.Velocity = rock.Velocity.WithX(SignedEightEight.Wrapped(horizontal));
+        rock.Velocity = rock.Velocity.WithY(SignedEightEight.Wrapped(rock.Velocity.Y.RawValue + 64));
     }
 
     /// <summary>Updates a falling ceiling rock and its contact with room terrain.</summary>
@@ -517,7 +517,7 @@ internal sealed class KraidProjectiles
             rock.Clear();
             return;
         }
-        rock.Velocity = rock.Velocity.WithY(new SignedEightEight(unchecked((ushort)((rock.Velocity.Y.RawValue + 24) & 16383))));
+        rock.Velocity = rock.Velocity.WithY(SignedEightEight.Wrapped((rock.Velocity.Y.RawValue + 24) & 16383));
     }
 
     /// <summary>Binds nail touch callbacks and their shared contact-damage path.</summary>

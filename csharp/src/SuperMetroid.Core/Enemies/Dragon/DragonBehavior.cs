@@ -48,13 +48,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Frames spent in each body rise or sink movement phase.</summary>
-    private const ushort DragonRiseOrSinkFrames = 48;
+    private const int DragonRiseOrSinkFrames = 48;
     /// <summary>Fireballs requested by one attacking volley.</summary>
-    private const ushort DragonShotCount = 3;
+    private const int DragonShotCount = 3;
     /// <summary>Pause after attack completion before the body begins sinking.</summary>
-    private const ushort DragonWaitBeforeSinkFrames = 96;
+    private const int DragonWaitBeforeSinkFrames = 96;
     /// <summary>Pause beneath the platform before the next rise attempt.</summary>
-    private const ushort DragonWaitBeforeRiseFrames = 128;
+    private const int DragonWaitBeforeRiseFrames = 128;
 
 
     /// <summary>Ports <c>InitAI_Dragon</c> at $A2:E606.</summary>
@@ -136,7 +136,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // $E666-$E672 records the sign of (Samus X - body X) as the body's facing. The following byte-sized list
         // edits use that sign to select even/odd left/right table entries for both physical records.
-        bool facingLeft = unchecked((short)(samus.Position.X.Whole - body.Position.X.Whole)) < 0;
+        bool facingLeft = CoordinateAxis.Difference(samus.Position.X.Whole, body.Position.X.Whole) < 0;
         bodyState.FacingLeft = facingLeft;
         bodyState.RequestedInstructionListIndex = DragonPhases.WithFacing(
             bodyState.RequestedInstructionListIndex,
@@ -164,8 +164,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native 16.16 constant is exactly -$0001:0000 in the NTSC build, so both
         // subpositions remain untouched while body and wing rise one whole pixel.
         RoomEnemySlot wing = GetDragonWing(body);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 1)));
-        wing.Position = wing.Position.WithWholeY(unchecked((ushort)(wing.Position.Y.Whole - 1)));
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole - 1);
+        wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole - 1);
     }
 
     /// <summary>Ports Dragon function $A2:E6F1.</summary>
@@ -220,8 +220,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // As with rising, the native regionalized 16.16 displacement is exactly one pixel.
         RoomEnemySlot wing = GetDragonWing(body);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
-        wing.Position = wing.Position.WithWholeY(unchecked((ushort)(wing.Position.Y.Whole + 1)));
+        body.Position = body.Position.WithWrappedWholeY(body.Position.Y.Whole + 1);
+        wing.Position = wing.Position.WithWrappedWholeY(wing.Position.Y.Whole + 1);
     }
 
     /// <summary>Ports instruction opcode $A2:E5FB.</summary>
@@ -368,13 +368,13 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             });
     }
     /// <summary>Native upward launch velocity of each Dragon fireball, in signed eight-eight units.</summary>
-    private const ushort DragonFireballInitialYVelocity = unchecked((ushort)-961);
+    private static readonly SignedEightEight DragonFireballInitialYVelocity = SignedEightEight.FromSignedRaw(-961);
     /// <summary>Native leftward eight-eight fireball velocity.</summary>
-    private const ushort DragonFireballLeftXVelocity = unchecked((ushort)-704);
+    private static readonly SignedEightEight DragonFireballLeftXVelocity = SignedEightEight.FromSignedRaw(-704);
     /// <summary>Native rightward eight-eight fireball velocity.</summary>
-    private const ushort DragonFireballRightXVelocity = 704;
+    private const int DragonFireballRightXVelocity = 704;
     /// <summary>Eight-eight downward acceleration applied to a live fireball.</summary>
-    private const ushort DragonFireballGravity = 32;
+    private const int DragonFireballGravity = 32;
 
     /// <summary>Ports projectile initializer $86:B4EF.</summary>
     internal void SpawnDragonFireball(RoomEnemySlot body, DragonEnemyState bodyState)
@@ -387,18 +387,18 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.DragonFireball,
             body.Graphics);
-        projectile.Position = projectile.Position.WithY(new(unchecked((ushort)(body.Position.Y.Whole - 28)), 0));
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(DragonFireballInitialYVelocity));
+        projectile.Position = projectile.Position.WithY(new(CoordinateAxis.Wrap(body.Position.Y.Whole - 28), 0));
+        projectile.Velocity = projectile.Velocity.WithY(DragonFireballInitialYVelocity);
 
         if (bodyState.FacingLeft)
         {
-            projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole - 12)));
-            projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(DragonFireballLeftXVelocity));
+            projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole - 12);
+            projectile.Velocity = projectile.Velocity.WithX(DragonFireballLeftXVelocity);
             projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballProgram.RisingLeft));
         }
         else
         {
-            projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole + 12)));
+            projectile.Position = projectile.Position.WithWrappedWholeX(body.Position.X.Whole + 12);
             projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(DragonFireballRightXVelocity));
             projectile.InstallAnimation(new DragonFireballAnimation(DragonFireballProgram.RisingRight));
         }
@@ -412,23 +412,23 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         projectile.Position = projectile.Position.Advance(projectile.Velocity.ToSixteenSixteen());
 
-        if (unchecked((short)projectile.Velocity.Y.RawValue) < 0)
+        if (projectile.Velocity.Y.SignedRawValue < 0)
         {
-            projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
-                projectile.Velocity.Y.RawValue + DragonFireballGravity))));
-            if (unchecked((short)projectile.Velocity.Y.RawValue) < 0)
+            projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(
+                projectile.Velocity.Y.RawValue + DragonFireballGravity));
+            if (projectile.Velocity.Y.SignedRawValue < 0)
                 return;
 
             // The exact zero crossing switches from the rising pair of two-frame loops to
             // the falling pair and forces an instruction tick on this same projectile pass.
-            projectile.StartAnimation(new DragonFireballAnimation(unchecked((short)projectile.Velocity.X.RawValue) < 0
+            projectile.StartAnimation(new DragonFireballAnimation(projectile.Velocity.X.SignedRawValue < 0
                 ? DragonFireballProgram.FallingLeft
                 : DragonFireballProgram.FallingRight));
             return;
         }
 
-        projectile.Velocity = projectile.Velocity.WithY(new SignedEightEight(unchecked((ushort)(
-            projectile.Velocity.Y.RawValue + DragonFireballGravity))));
+        projectile.Velocity = projectile.Velocity.WithY(SignedEightEight.Wrapped(
+            projectile.Velocity.Y.RawValue + DragonFireballGravity));
 
         // $86:B5B9 retains fireballs above the viewport; horizontal distance is never consulted.
         EnemyProjectileEngine.DeleteEnemyProjectileIfVerticallyOffScreen(projectile, cameraY);

@@ -151,7 +151,7 @@ internal sealed class MotherBrainRainbowAndDeath
             step.PhaseAfter == MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles ||
             step.EscapeMusicTrackQueued || step.EarthquakeTimerRefreshed)
         {
-            _earthquake.EarthquakeType = checked((ushort)sequence.State.EarthquakeType);
+            _earthquake.EarthquakeType = Ensure.BetweenInclusive(0, ushort.MaxValue, sequence.State.EarthquakeType);
             _earthquake.EarthquakeTimer = sequence.State.EarthquakeTimer;
         }
     }

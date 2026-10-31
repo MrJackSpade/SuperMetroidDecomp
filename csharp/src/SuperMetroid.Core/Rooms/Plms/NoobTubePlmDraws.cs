@@ -123,10 +123,10 @@ internal static class NoobTubePlmDraws
         };
 
         /// <summary>Gives the next run's absolute vertical offset from the PLM origin.</summary>
-        internal sbyte NextY(int run)
+        internal int NextY(int run)
         {
             CheckRun(run);
-            return run == RunCount - 1 ? (sbyte)0 : (sbyte)Row(run + 1);
+            return run == RunCount - 1 ? 0 : WordWrap.SignedLowByte(Row(run + 1));
         }
 
         /// <summary>The glass, rim, pipe-edge, or air block, with its collision and mirroring, of one tube cell.</summary>

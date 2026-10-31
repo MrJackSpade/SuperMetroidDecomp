@@ -109,8 +109,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidDataException(
                     $"Crawler speed parameter ${speedParameter:X4} exceeds $A3:E5F0.");
             }
-            int speed = CrawlerSpeeds.ForParameter(checked((ushort)speedParameter));
-            velocity = new(new SignedEightEight(checked((ushort)speed)), new SignedEightEight(checked((ushort)speed)));
+            int speed = CrawlerSpeeds.ForParameter(Ensure.BetweenInclusive(0, ushort.MaxValue, speedParameter));
+            velocity = new(new SignedEightEight(speed), new SignedEightEight(speed));
         }
 
         return SignedForBlockSide(blockSide, velocity);
@@ -149,8 +149,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        int velocity = CrawlerSpeeds.ForParameter(checked((ushort)speedParameter));
-        state.Velocity = new(new SignedEightEight(checked((ushort)velocity)), new SignedEightEight(checked((ushort)velocity)));
+        int velocity = CrawlerSpeeds.ForParameter(Ensure.BetweenInclusive(0, ushort.MaxValue, speedParameter));
+        state.Velocity = new(new SignedEightEight(velocity), new SignedEightEight(velocity));
         state.Velocity = SignedForBlockSide(settings.BlockSide, state.Velocity);
     }
 
@@ -211,7 +211,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            bool samusBelow = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)) >= 0;
+            bool samusBelow = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) >= 0;
             bool movingDown = state.Velocity.Y.SignedRawValue >= 0;
             if (samusBelow != movingDown)
                 state.Velocity = state.Velocity.ReversedY();
@@ -219,7 +219,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
-        if (unchecked((short)(state.ConsecutiveTurnCounter - 4)) >= 0)
+        if (WordWrap.Signed(state.ConsecutiveTurnCounter - 4) >= 0)
         {
             BeginCrawlerFall(state);
             return;
@@ -249,7 +249,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, slot);
-            bool samusRight = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0;
+            bool samusRight = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) >= 0;
             bool movingRight = state.Velocity.X.SignedRawValue >= 0;
             if (samusRight != movingRight)
                 state.Velocity = state.Velocity.ReversedX();
@@ -257,7 +257,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
-        if (unchecked((short)(state.ConsecutiveTurnCounter - 4)) >= 0)
+        if (WordWrap.Signed(state.ConsecutiveTurnCounter - 4) >= 0)
         {
             BeginCrawlerFall(state);
             return;
@@ -364,7 +364,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
-        if ((short)(state.ConsecutiveTurnCounter - 4) >= 0)
+        if (WordWrap.Signed(state.ConsecutiveTurnCounter - 4) >= 0)
         {
             BeginCrawlerFall(state);
             return;
@@ -402,7 +402,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.ConsecutiveTurnCounter = WrappingCounter.IncrementWord(state.ConsecutiveTurnCounter);
-        if ((short)(state.ConsecutiveTurnCounter - 4) >= 0)
+        if (WordWrap.Signed(state.ConsecutiveTurnCounter - 4) >= 0)
         {
             BeginCrawlerFall(state);
             return;
@@ -483,7 +483,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Crawler instruction-table offset ${state.SurfaceTableOffset:X4} is invalid.");
         }
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerSurfaceAnimations.SurfaceProgram(
-            checked((ushort)state.SurfaceTableOffset), orientation));
+            Ensure.BetweenInclusive(0, ushort.MaxValue, state.SurfaceTableOffset), orientation));
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Timer = WrappingCountdown.Start(0);
     }
@@ -505,14 +505,14 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         int surfaceY = velocity.Y.SignedRawValue < 0
-            ? unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))
-            : unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
+            ? CoordinateAxis.Wrap(slot.Position.Y.Whole - slot.Radius.Y)
+            : CoordinateAxis.Wrap(slot.Position.Y.Whole + slot.Radius.Y - 1);
         int blockX = slot.Position.X.Whole >> 4;
         int blockY = surfaceY >> 4;
         if ((uint)blockX < level.Size.X &&
             (uint)blockY < level.Size.Y)
         {
-            RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+            RoomCollisionBlock block = level.GetCollisionBlock(new(CoordinateAxis.Wrap(blockX), CoordinateAxis.Wrap(blockY)));
             int slopeShape = block.Behavior.SlopeShape;
             if (block.CollisionType == RoomCollisionType.Slope && slopeShape >= 5)
             {
@@ -529,13 +529,13 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Adds a whole-pixel probe margin in the direction of a signed eight-eight velocity.</summary>
     internal static int Shift8AddMagnitude(int velocity, int wholePixels)
     {
-        int signedVelocity = unchecked((short)velocity);
+        int signedVelocity = WordWrap.Signed(velocity);
         int bias = SixteenSixteen.FromWhole(wholePixels);
         return unchecked((SixteenSixteen.FromEightEight(signedVelocity)) + (signedVelocity < 0 ? -bias : bias));
     }
 
     /// <summary>Reverses a native 16-bit velocity word with wraparound semantics.</summary>
-    internal static ushort Negate16(int value) => unchecked((ushort)-value);
+    internal static int Negate16(int value) => WordWrap.Unsigned(-value);
 
     /// <summary>Ports Sciser's initializer wrapper.</summary>
     internal static void InitializeSciserAi(RoomEnemySlot slot) =>

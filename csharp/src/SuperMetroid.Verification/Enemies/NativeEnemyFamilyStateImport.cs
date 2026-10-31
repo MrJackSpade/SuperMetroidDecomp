@@ -96,7 +96,11 @@ internal static class NativeEnemyFamilyStateImport
         {
             kraidPartRecord.Function = (KraidAiFunction)words.A;
             kraidPartRecord.NailVelocity = FixedVector<RoomPixels>.FromWords(words.C, words.B, words.E, words.D);
-            kraidPartRecord.FunctionTimer = words.F;
+            // Word F is the ceiling rocks' byte cursor, two per rock, while Kraid's growth breaks the ceiling.
+            if (kraidPartRecord.Function == KraidAiFunction.GrowBreakCeilingPlatforms)
+                kraidPartRecord.CeilingRock = words.F / sizeof(ushort);
+            else
+                kraidPartRecord.FunctionTimer = words.F;
         }
         if (slot.SpeciesState<GunshipPartState>() is { } gunshipRecord)
         {

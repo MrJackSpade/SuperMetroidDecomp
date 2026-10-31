@@ -43,7 +43,7 @@ public sealed class KraidPartState
     /// <summary>The word holding a fingernail's vertical velocity whole pixels.</summary>
     private int _verticalWholeWord;
 
-    /// <summary>The word holding the function timer, or the body's ceiling-rock offset or rising-rock timer.</summary>
+    /// <summary>The word holding the function timer, or the body's next ceiling rock or rising-rock timer.</summary>
     private int _timerOrRockWord;
 
     /// <summary>The bank-$A7 function the part dispatches.</summary>
@@ -56,8 +56,11 @@ public sealed class KraidPartState
         internal set => _timerOrRockWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
 
-    /// <summary>The body's next growth ceiling rock, a byte offset into the ceiling-rock positions, two per rock.</summary>
-    public int CeilingRockOffset
+    /// <summary>
+    /// The body's next growth ceiling rock, one of <see cref="KraidCeilingRocks.Count"/> rocks; equal to the count once
+    /// every rock has fallen.
+    /// </summary>
+    public int CeilingRock
     {
         get => _timerOrRockWord;
         internal set => _timerOrRockWord = Ensure.BetweenInclusive(0, ushort.MaxValue, value);

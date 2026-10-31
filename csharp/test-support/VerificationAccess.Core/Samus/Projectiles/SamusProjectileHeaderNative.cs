@@ -66,7 +66,7 @@ internal static class SamusProjectileHeaderNative
             if (address is >= 0x9383c1 and < 0x938431 && (address & 1) == 1)
                 return SamusProjectileSelection.Entry(SamusProjectileSelectorTable.UnchargedBeam, (address - 0x9383c1) / 2)
                     is { } header ? Address(header) : (ushort)0;
-            return At(address) is { } damaged ? SamusProjectileDamage.Read(damaged)
+            return At(address) is { } damaged ? checked((ushort)SamusProjectileDamage.Read(damaged))
                 : throw new InvalidDataException($"Projectile selector word ${address:X6} is outside the compiled cartridge definitions.");
         }
     }
@@ -80,7 +80,7 @@ internal static class SamusProjectileHeaderNative
         internal static int BeamHeaderStride => 22;
 
         /// <summary>The damage of the header at bank-$93 <paramref name="address"/>.</summary>
-        internal static ushort Read(int address) => At(address) is { } header ? SamusProjectileDamage.Read(header)
+        internal static ushort Read(int address) => At(address) is { } header ? checked((ushort)SamusProjectileDamage.Read(header))
             : throw new InvalidDataException($"Projectile damage header ${address:X6} is outside the compiled cartridge definitions.");
     }
 

@@ -11,7 +11,7 @@ internal static class SamusSlopePhysicsAccess
         /// Returns the five-bit height sample selected by BTS shape/mirroring and Samus X.
         /// Values may be 0–20; masking with $1F is part of every native consumer.
         /// </summary>
-        internal static byte ReadAlignmentHeight(
+        internal static int ReadAlignmentHeight(
             byte behavior,
             ushort xPosition)
             => SamusSlopePhysics.ReadAlignmentHeight(new RoomBlockBehavior(behavior), xPosition);

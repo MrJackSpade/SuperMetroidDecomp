@@ -57,7 +57,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             KraidBodyAppearance appearance = baseline.State.BodyAppearance;
             for (int tick = 0; ; tick++)
             {
-                ushort stockResult = baseline.Step(), editedResult = changed.Step();
+                int stockResult = baseline.Step(), editedResult = changed.Step();
                 ticks++;
                 AssertEqual(stockResult, editedResult, "head interpretation result is not editable");
                 AssertAnimationValues(baseline.Body, changed.Body, "Kraid head tick " + tick);
@@ -143,7 +143,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
         internal SuperMetroid.AssetExtraction.Cartridge.SuperMetroidAddressSpace Memory { get; } =
             SuperMetroid.AssetExtraction.Cartridge.SuperMetroidAddressSpace.CreateWithoutCartridge();
         /// <summary>Bound production head-instruction dispatcher.</summary>
-        private readonly Func<RoomEnemySlot, KraidEnemyState, ushort> step;
+        private readonly Func<RoomEnemySlot, KraidEnemyState, int> step;
         /// <summary>Bound production mouth-versus-projectile overlap check.</summary>
         private readonly Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> hit;
         /// <summary>The selected art, from which the shown body resolves.</summary>
@@ -156,13 +156,13 @@ internal static class KraidInstalledPresentationHeadClockVerification
             Enemies = new RoomEnemySystem(new EnemySession(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence()), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             State = new KraidEnemyState();
             State.InitializeBodyLayer();
-            step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.Head.ProcessKraidHeadInstruction);
+            step = new Func<RoomEnemySlot, KraidEnemyState, int>(Enemies.KraidBehavior.Head.ProcessKraidHeadInstruction);
             hit = CoreAccess.KraidMouthHitboxOverlapsShot;
             Body.Position = Body.Position.WithWhole(new(512, 512));
         }
 
         /// <summary>Advances one head instruction tick using the production interpreter.</summary>
-        internal ushort Step() => step(Body, State);
+        internal int Step() => step(Body, State);
         /// <summary>The BG2 tilemap words Kraid's body frame shows.</summary>
         internal ushort[] Shown() => KraidBodyFixtures.Shown(art.Bosses, State);
         /// <summary>Tests a projectile against the selected physical mouth hitbox.</summary>

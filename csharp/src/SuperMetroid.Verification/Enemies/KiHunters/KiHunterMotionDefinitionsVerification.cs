@@ -20,7 +20,7 @@ internal static class KiHunterMotionDefinitionsVerification
         AssertEqual(high, KiHunterMotionDefinitions.Gravity.WholeWord, "Native KiHunter whole acceleration");
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
         var orbit = new Action<RoomEnemySlot, KiHunterEnemyState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
-        var delta = new Func<int, EnemySpeedSign, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
+        var delta = new Func<int, EnemySpeedSign, int>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
         var cosine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitCosineProduct(new ByteAngle(unchecked((byte)angle)), radius));
         var sine = new Func<ushort, ushort, int>((angle, radius) => EnemyMath.ReadEightBitNegativeSineProduct(new ByteAngle(unchecked((byte)angle)), radius));
         var gravity = KiHunterBehavior.KiHunterGravity;

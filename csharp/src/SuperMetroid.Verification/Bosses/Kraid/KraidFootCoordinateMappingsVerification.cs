@@ -25,7 +25,7 @@ internal static class KraidFootCoordinateMappingsVerification
     private const ushort UnshownFrame = 0x8f35;
 
     /// <summary>Compares 35 animation frames and the shared frame with native foot-component offsets.</summary>
-    private static void VerifyKraidFootCoordinate(SuperMetroidAddressSpace rom, int component, bool vertical, Func<int, short> calculate)
+    private static void VerifyKraidFootCoordinate(SuperMetroidAddressSpace rom, int component, bool vertical, Func<int, int> calculate)
     {
         ushort Word(int pointer) => LittleEndianBytes.Word(KraidFootCoordinateRomByte(rom, 0xa70000 | pointer), KraidFootCoordinateRomByte(rom, 0xa70000 | (pointer + 1)));
         for (int ordinal = 0; ordinal <= 35; ordinal++)

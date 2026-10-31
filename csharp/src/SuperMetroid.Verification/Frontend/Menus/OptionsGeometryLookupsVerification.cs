@@ -38,7 +38,7 @@ internal static class OptionsGeometryLookupsVerification
 
     /// <summary>Compares an indexed native geometry sequence and rejects indexes beyond its declared count.</summary>
     private static void VerifyOptionsGeometryWords(ISnesAddressSpace rom, int address,
-        int stride, int count, Func<int, ushort> actual, string name)
+        int stride, int count, Func<int, int> actual, string name)
     {
         for (int index = 0; index < count; index++)
             AssertEqual(ReadVerificationWord(rom, address + stride * index), actual(index),

@@ -31,7 +31,7 @@ internal static class DraygonScrollingSpeedCapVerification
         AssertEqual((ushort)(0x0150 - 12), y, "a 32-pixel rise puts the previous Y twelve above Samus");
 
         // Down 11: under the threshold, the frame's previous Y stands.
-        (_, y) = PreviousAfterDraygonMove(checkpoint, body: new(0x0190, 0x0153));
+        (ushort _, y) = PreviousAfterDraygonMove(checkpoint, body: new(0x0190, 0x0153));
         AssertEqual((ushort)0x0170, y, "an 11-pixel drop keeps the previous Y");
         Console.WriteLine("  Draygon scrolling-speed cap: carried Samus's previous position stays within twelve pixels.");
     }

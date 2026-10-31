@@ -732,7 +732,7 @@ internal static class EnemyTrigonometryVerification
             int address = EnemyMathReferenceData.SignedNegativeCosine + index * 2;
             return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         }
-        Func<byte, short>[] cinematicReaders =
+        Func<byte, int>[] cinematicReaders =
             [sample => FloorRotationMatrix.ReadSine(new ByteAngle(sample)), sample => EndingCreditsPresentation.ReadSine(new ByteAngle(sample))];
         for (int index = 0; index < 320; index++)
         {

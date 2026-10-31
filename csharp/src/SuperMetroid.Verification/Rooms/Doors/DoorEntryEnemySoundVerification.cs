@@ -64,7 +64,7 @@ internal static class DoorEntryEnemySoundVerification
         }
         AssertTrue(selected, "the Ki Hunter room has an exit");
         var audio = game.AudioForVerification;
-        byte start = audio.SoundQueueForVerification(1).Next;
+        int start = audio.SoundQueueForVerification(1).Next;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
 

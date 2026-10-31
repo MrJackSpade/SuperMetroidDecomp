@@ -56,13 +56,13 @@ internal static class DoorEntryShotBindingVerification
             }
             AssertTrue(selected, "the Ceres start room has an exit");
             var audio = game.AudioForVerification;
-            byte start = audio.SoundQueueForVerification(0).Next;
+            int start = audio.SoundQueueForVerification(0).Next;
             game.GameState = SuperMetroidGameState.HitDoorBlock;
             game.Step(held);
 
             AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,
                 "the entry frame begins the door sound wait");
-            byte next = audio.SoundQueueForVerification(0).Next;
+            int next = audio.SoundQueueForVerification(0).Next;
             AssertEqual(cancels, next != start,
                 $"physical {held} with shot bound to Y {(cancels ? "queues" : "does not queue")} the library-one cancel");
             if (cancels)

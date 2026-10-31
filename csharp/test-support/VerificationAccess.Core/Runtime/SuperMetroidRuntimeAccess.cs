@@ -114,7 +114,7 @@ internal static class SuperMetroidRuntimeAccess
             {
                 RoomCollisionBlock floor = self.Room.LevelData.GetCollisionBlock(new(checked((ushort)blockX), checked((ushort)blockY)));
 
-                byte height;
+                int height;
                 if (floor.CollisionType == RoomCollisionType.SolidBlock)
                 {
                     // Solid block type $8 uses the block's top edge as its floor. A height of

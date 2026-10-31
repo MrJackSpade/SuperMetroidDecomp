@@ -52,8 +52,8 @@ internal static class DoorSoundsDuringPowerBombVerification
 
         runtime.PowerBombExplosionActive = true;
         var audio = game.AudioForVerification;
-        byte library1 = audio.SoundQueueForVerification(0).Next;
-        byte library2 = audio.SoundQueueForVerification(1).Next;
+        int library1 = audio.SoundQueueForVerification(0).Next;
+        int library2 = audio.SoundQueueForVerification(1).Next;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
 

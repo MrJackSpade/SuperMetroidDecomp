@@ -80,7 +80,7 @@ internal static class FileSelectGeometryLookupsVerification
     private static byte FileSelectHelmetYRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks that each indexed geometry lookup rejects values outside its native row count.</summary>
-    private static void VerifyFileSelectGeometryBounds(Func<int, ushort> lookup, int count)
+    private static void VerifyFileSelectGeometryBounds(Func<int, int> lookup, int count)
     {
         foreach (int index in new[] { int.MinValue, -1, count, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => lookup(index), $"unsupported geometry index {index}");

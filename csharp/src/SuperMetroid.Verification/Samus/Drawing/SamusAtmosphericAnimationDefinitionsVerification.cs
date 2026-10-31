@@ -86,10 +86,10 @@ internal static class SamusAtmosphericAnimationDefinitionsVerification
             // types below the native Y clip so their unrelated body-art catalog
             // is not needed; direct small sprites still exercise installed art.
             ushort drawY = type is 3 or 5 ? (ushort)0x0100 : (ushort)100;
-            byte frameCount = SamusAtmosphericAnimations.FrameCount((SamusAtmosphericEffectType)type);
+            int frameCount = SamusAtmosphericAnimations.FrameCount((SamusAtmosphericEffectType)type);
             for (byte frame = 0; frame < frameCount; frame++)
             {
-                ushort expectedTimer =
+                int expectedTimer =
                     SamusAtmosphericAnimations.FrameTimer((SamusAtmosphericEffectType)type, frame);
 
                 var effects = new SamusAtmosphericEffectsState();

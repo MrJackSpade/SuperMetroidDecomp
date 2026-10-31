@@ -17,12 +17,12 @@ internal static class RidleyMovementTargetsVerification
     /// <summary>Compares 23 native words and exact carry, pogo, side, release, and grab acceleration.</summary>
     internal static void VerifyRidleyMovementTargets(SuperMetroidAddressSpace rom)
     {
-        ushort[] Facings(int address, Func<RidleyFacing, ushort> compiled)
+        ushort[] Facings(int address, Func<RidleyFacing, int> compiled)
         {
             AssertEqual(3, Enum.GetValues<RidleyFacing>().Length, "Ridley facing domain");
             return Table(address, index => compiled(RidleyNativeWords.Facings.Decode(index, "Ridley facing index")));
         }
-        ushort[] Table(int address, Func<int, ushort> compiled, int count = 3)
+        ushort[] Table(int address, Func<int, int> compiled, int count = 3)
         {
             var native = new ushort[count];
             for (int i = 0; i < native.Length; i++)

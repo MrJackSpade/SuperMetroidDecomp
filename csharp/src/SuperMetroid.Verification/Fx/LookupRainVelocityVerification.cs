@@ -19,7 +19,7 @@ internal static class LookupRainVelocityVerification
             // caller's word-index expression. Read the original word, not a formula.
             int nativeOffset = (random >> 1) & 6;
             ushort expected = ReadVerificationWord(rom, 0x88d992 + nativeOffset);
-            ushort actual = AtmosphereDrift.RainHorizontalVelocity((random >> 2) & 3);
+            int actual = AtmosphereDrift.RainHorizontalVelocity((random >> 2) & 3);
             AssertEqual(expected, actual, "Rain complete RNG selection domain");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })

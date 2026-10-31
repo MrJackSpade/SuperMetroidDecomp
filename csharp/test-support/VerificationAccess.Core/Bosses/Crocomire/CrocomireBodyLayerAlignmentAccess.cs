@@ -18,7 +18,7 @@ internal static class CrocomireBodyLayerAlignmentAccess
         internal static int EntryCount => 17;
 
         /// <summary>The BG2 vertical scroll for body Y <paramref name="bodyY"/> and the frame at native bank-$A4 address <paramref name="pointer"/>.</summary>
-        internal static ushort VerticalPlacement(ushort bodyY, ushort pointer) =>
+        internal static int VerticalPlacement(ushort bodyY, ushort pointer) =>
             CrocomireBodyLayerAlignment.VerticalPlacement(bodyY, RoomEnemySlotFrameAccess.TryFrameAt(CrocomireBodyCollision.Bank, pointer));
 
         /// <summary>Native pointer order: twelve charge/step-back frames followed by

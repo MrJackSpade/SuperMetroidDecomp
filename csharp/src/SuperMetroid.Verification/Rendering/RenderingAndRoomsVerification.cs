@@ -276,7 +276,7 @@ static void ResetFixtureMapStationBitsToSingleTile(TestAddressSpace bus, Positio
 {
     for (int index = 0; index < 0x100; index++)
         WriteTestByte(bus, 0x829000 + index, 0);
-    WriteTestByte(bus, 0x829000 + AreaMapPages.GetBitByteIndex(tile), AreaMapPages.GetBitMask(tile.X));
+    WriteTestByte(bus, 0x829000 + AreaMapPages.GetBitByteIndex(tile), (byte)AreaMapPages.GetBitMask(tile.X));
 }
 
 /// <summary>

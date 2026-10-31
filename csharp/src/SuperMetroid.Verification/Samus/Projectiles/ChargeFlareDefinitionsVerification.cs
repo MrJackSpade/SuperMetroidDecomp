@@ -45,7 +45,8 @@ internal static class ChargeFlareDefinitionsVerification
             foreach (ushort timer in new ushort[] { 0, 1, 2, 0x8000, 0xffff })
             for (int frame = 0; frame <= maximumLiveFrame; frame++)
             {
-                expectedFrame = frames[component] = frame == 256 ? ushort.MaxValue : (ushort)frame;
+                expectedFrame = frame == 256 ? ushort.MaxValue : (ushort)frame;
+                frames[component] = expectedFrame;
                 timers[component] = WrappingCountdown.FromRaw(timer);
                 expectedTimer = timer;
                 Reference(component, ref expectedFrame, ref expectedTimer);

@@ -32,7 +32,7 @@ public enum CrocomireDeathPhase
     ShowFirstMeltBands,
     /// <summary>Third hop rising phase.</summary>
     ThirdHopRise,
-    /// <summary>Starts the first column dissolve and vertical-scroll HDMA table.</summary>
+    /// <summary>Starts the first column dissolve and the melt's per-line vertical scroll.</summary>
     StartFirstDissolve,
     /// <summary>Dissolves the first body image.</summary>
     DissolveFirstImage,

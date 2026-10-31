@@ -59,7 +59,7 @@ internal sealed class CrocomireMelting
 
     /// <summary>
     /// <c>MainAI_Crocomire_DeathSequence_2C_Hop_6_LoadMeltingTilemap</c> ($A4:93ED). It
-    /// first refills the BG2 Y-scroll HDMA table ($A4:93DF) and leaves the tongue alone.
+    /// first refills the melt's per-line BG2 vertical scroll and leaves the tongue alone.
     /// </summary>
     internal void ShowSecondCrocomireMeltImage(CrocomireEnemyState state)
     {

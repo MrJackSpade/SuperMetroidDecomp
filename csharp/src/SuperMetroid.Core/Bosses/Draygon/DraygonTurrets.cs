@@ -31,7 +31,7 @@ internal sealed class DraygonTurrets
         if ((frameCounterLow & 63) != 0)
             return;
 
-        // $A5:87AA tests NMI_FrameCounter ($05B6), then advances the room RNG even when the
+        // The turret cadence tests the frame counter, then advances the room RNG even when the
         // chosen turret is disabled; the spawn itself is SpawnDraygonWallTurret.
         int random = _room.Random.Generate();
         state.TurretCadenceChecks++;

@@ -384,8 +384,8 @@ internal sealed class MotherBrainFakeDeath
         StopMotherBrainRoomPalette(state);
         _earthquake.EarthquakeType = 25;
         _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
-        // `$A9:8C0C/$8C0F` zero the channel words of HDMA objects 0-3, deleting the room's
-        // liquid scroll objects (and any X-ray object) for the rest of the encounter.
+        // The fake death ends the first four per-line display effects, removing the room's
+        // liquid scroll effects (and any X-ray cone) for the rest of the encounter.
         _frameResults.RemoveLiquidEffects = true;
         state.Head.Position = state.Head.Position.WithWholeY(196);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));

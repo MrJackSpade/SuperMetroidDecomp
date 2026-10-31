@@ -125,7 +125,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (IsSpecialRinka(slot))
         {
             // $A2:B69B tests its spawn points against layer 1. A door's loader runs this
-            // while the door IRQ is still scrolling, so that choice waits for the camera
+            // while the door transition is still scrolling, so that choice waits for the camera
             // of the update in which the loader reaches this slot.
             if (_frameContext.DeferLoaderTimeCameraReads)
                 _deferredRinkaSpawnSlots.Add(slot.SlotIndex);

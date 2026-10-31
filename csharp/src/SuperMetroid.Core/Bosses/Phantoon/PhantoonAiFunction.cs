@@ -60,7 +60,7 @@ public enum PhantoonAiFunction
     DyingFadeInOut,
     /// <summary>$A7:D98B: schedules physical death explosions and prepares the final distortion.</summary>
     DyingExplosions,
-    /// <summary>$A7:DA51: initializes the final wavy HDMA and mosaic death presentation.</summary>
+    /// <summary>$A7:DA51: initializes the final wave and mosaic death presentation.</summary>
     BeginFinalWavyDeath,
     /// <summary>$A7:DA86: advances the final wavy/mosaic palette fade-out.</summary>
     DyingFadeOut,

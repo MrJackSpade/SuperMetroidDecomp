@@ -16,9 +16,13 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Provides the preceding physical enemy record for follower WRAM aliases.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds lava-jumper behavior to room RNG and physical enemy slots.</summary>
-    internal NorfairLavaJumpingEnemyBehavior(EnemyRoomBinding room, EnemySlotTable slotTable)
+    internal NorfairLavaJumpingEnemyBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _slotTable = slotTable;
     }
@@ -27,9 +31,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     private const ushort NorfairLavaJumpingEnemyGravity = 56;
     /// <summary>Unsigned rising-velocity threshold that switches to the visible jump list.</summary>
     private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = unchecked((ushort)-1024);
-
-    /// <summary>Most recent library-two jump sound request emitted during this frame.</summary>
-    public SoundEffectId? LastNorfairLavaJumpingEnemySoundEffect { get; private set; }
 
     /// <summary>Ports <c>NorfairLavajumpingEnemy_Init</c> at $A2:BE99.</summary>
     internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)
@@ -81,7 +82,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 state.YVelocity = new SignedEightEight(NorfairLavaJumpDefinitions.InitialVerticalVelocity(random));
                 state.Function = NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch;
                 slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
-                LastNorfairLavaJumpingEnemySoundEffect = EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.NorfairLavaJumpingEnemy, EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound, priority: SoundRequestPriority.Normal);
                 return;
 
             case NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch:
@@ -235,16 +236,4 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         EnemyProgramAnimation.Advance(slot, NorfairLavaJumperAnimations.Programs, NorfairLavaJumperFrameDefinitions.ShownFrames.Of,
             static (NorfairLavaJumpingEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
             (state, cue, _) => ApplyNorfairLavaJumperCue(state, cue));
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastNorfairLavaJumpingEnemySoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueEnemySoundIfAny(LastNorfairLavaJumpingEnemySoundEffect, priority: SoundRequestPriority.Normal);
-    }
 }

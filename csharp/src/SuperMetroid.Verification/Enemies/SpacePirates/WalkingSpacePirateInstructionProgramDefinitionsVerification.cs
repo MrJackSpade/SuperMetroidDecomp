@@ -78,7 +78,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
             AssertEqual(3, state.SpawnedLaserCount,
                 $"walking Pirate {(movingRight ? "right" : "left")} laser count");
-            AssertEqual(EnemySoundEffectDefinitions.PirateMotherBrainLaserSound, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
+            AssertEqual(EnemySoundEffectDefinitions.PirateMotherBrainLaserSound, (enemies.Audio.PublishedSoundFrom(EnemySoundSource.SpacePirate) ?? throw new InvalidOperationException("Verification requires a pending space pirate sound.")),
                 $"walking Pirate {(movingRight ? "right" : "left")} laser sound");
         }
 

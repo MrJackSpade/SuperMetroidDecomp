@@ -30,9 +30,13 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Draws the fixed corpse hook using installed spritemap parts.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds corpse rotting to room memory, frame timing, projectiles, and presentation.</summary>
-    internal DeadTorizoBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
+    internal DeadTorizoBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _frameContext = frameContext;
         _projectiles = projectiles;
@@ -43,9 +47,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal DeadTorizoEnemyState? DeadTorizo { get; private set; }
     /// <summary>Slot zero's typed corpse pose (#641), started before the corpse state exists.</summary>
     private AnimationProgramCursor<DeadTorizoProgram> program;
-
-    /// <summary>The dust sound requested by a completed corpse row this frame, or null.</summary>
-    public SoundEffectId? LastDeadTorizoSoundEffect { get; private set; }
 
     /// <summary>Ports <c>DeadTorizo_Init</c> at <c>$A9:D308</c>.</summary>
     internal void InitializeDeadTorizo(RoomEnemySlot slot)
@@ -197,9 +198,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         return false;
     }
 
-
-
-
     /// <summary>Records a finished rot row, spawns dust from shared RNG, and optionally publishes sound.</summary>
     private void FinishDeadTorizoCorpseRow(DeadTorizoEnemyState state)
     {
@@ -210,9 +208,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext.RandomEnemyCounter & 7) == 0)
-            LastDeadTorizoSoundEffect = Library2Sound.LiquidDamage;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.DeadTorizo, Library2Sound.LiquidDamage, priority: SoundRequestPriority.Normal);
     }
-
 
     /// <summary>
     /// Applies bank-$A9's shared signed 8.8 enemy velocity pair. Dead Torizo and Shitroid
@@ -252,7 +249,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private static CorpseRotView ShownRot(DeadTorizoEnemyState state) =>
         new(DeadTorizoCorpseDefinitions.Kind, [state.EvenHalfStep, state.OddHalfStep]);
 
-
     /// <summary>
     /// Runs the post-enemy ordinary-spritemap hook at <c>$A9:D39A</c>, publishing its frame as the encounter's own (#1392),
     /// over the corpse's rows as their rot shows them.
@@ -277,14 +273,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!ReferenceEquals(state.Slot, slot))
             throw new InvalidDataException("A non-Dead-Torizo slot entered its dispatcher.");
         return state;
-    }
-
-
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastDeadTorizoSoundEffect = null;
     }
 
     /// <summary>Routes corpse bomb contact to rotting after the common no-op gate.</summary>
@@ -348,12 +336,5 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.CorpseTorizo &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DeadTorizoTouchAndShot,
             context => TriggerDeadTorizoRotting(context.Slot));
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastDeadTorizoSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

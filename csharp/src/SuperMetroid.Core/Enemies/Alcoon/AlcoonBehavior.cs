@@ -24,9 +24,13 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns the three directed fireball variants.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Connects Alcoon's per-room AI to collision, RNG, and projectile services.</summary>
-    internal AlcoonBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles)
+    internal AlcoonBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _terrain = terrain;
         _projectiles = projectiles;
@@ -42,15 +46,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case AlcoonCueKind.FireUpward:
                 SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 0);
-                LastAlcoonSoundEffect = EnemySoundEffectDefinitions.AlcoonFireSound;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.FireHorizontally:
                 SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 2);
-                LastAlcoonSoundEffect = EnemySoundEffectDefinitions.AlcoonFireSound;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.FireDownward:
                 SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 4);
-                LastAlcoonSoundEffect = EnemySoundEffectDefinitions.AlcoonFireSound;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonFireSound, priority: SoundRequestPriority.Normal);
                 return null;
             case AlcoonCueKind.StartWalking:
                 return StartAlcoonWalking(state);
@@ -71,8 +75,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort AlcoonHideXDistance = 112;
     /// <summary>Guards the initializer's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
-
-
 
     /// <summary>Ports <c>InitAI_Alcoon</c> at <c>$A8:DCCD</c>, including its floor search.</summary>
     private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData? level)
@@ -181,7 +183,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             InstallAlcoonInstruction(slot, state, AlcoonProgram.AirborneRightLookingUp);
         }
         state.Function = AlcoonEnemyFunction.EmergingRising;
-        LastAlcoonSoundEffect = EnemySoundEffectDefinitions.AlcoonEmergeSound;
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Alcoon, EnemySoundEffectDefinitions.AlcoonEmergeSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Integrates the emerging ascent until vertical velocity ceases to be negative.</summary>
@@ -482,20 +484,5 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 velocity = unchecked((short)AlcoonFireballTerminalHorizontalSpeed);
         }
         projectile.Velocity = projectile.Velocity.WithX(new SignedEightEight(unchecked((ushort)velocity)));
-    }
-
-    /// <summary>Last library-two Alcoon emerge or volley sound this enemy pass, using the Max6 queue entry; null means no current-pass request.</summary>
-    public SoundEffectId? LastAlcoonSoundEffect { get; private set; }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastAlcoonSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueEnemySoundIfAny(LastAlcoonSoundEffect, priority: SoundRequestPriority.Normal);
     }
 }

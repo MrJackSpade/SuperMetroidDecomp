@@ -126,18 +126,18 @@ internal static class NuclearWaffleDefinitionsVerification
             if (update == 10)
             {
                 AssertEqual(NuclearWaffleTurnState.BeforeTurns, state.HeadOrientationState, "Nuclear Waffle head before the rising threshold");
-                AssertEqual<SoundEffectId?>(null, enemies.NuclearWaffleBehavior.LastNuclearWaffleSoundEffect, "Nuclear Waffle is silent before any turn");
+                AssertEqual<SoundEffectId?>(null, enemies.Audio.PublishedSoundFrom(EnemySoundSource.NuclearWaffle), "Nuclear Waffle is silent before any turn");
             }
             if (update == 11)
             {
                 AssertEqual(NuclearWaffleTurnState.PastRisingThreshold, state.HeadOrientationState, "Nuclear Waffle head crosses the rising threshold");
-                AssertEqual<SoundEffectId?>(NuclearWaffleDefinitions.TurnSoundEffect, enemies.NuclearWaffleBehavior.LastNuclearWaffleSoundEffect,
+                AssertEqual<SoundEffectId?>(NuclearWaffleDefinitions.TurnSoundEffect, enemies.Audio.PublishedSoundFrom(EnemySoundSource.NuclearWaffle),
                     "Nuclear Waffle rising turn queues the turn sound");
             }
             if (update == 96)
             {
                 AssertEqual(NuclearWaffleTurnState.PastFallingThreshold, state.HeadOrientationState, "Nuclear Waffle head crosses the falling threshold");
-                AssertEqual<SoundEffectId?>(null, enemies.NuclearWaffleBehavior.LastNuclearWaffleSoundEffect, "Nuclear Waffle falling turn is silent");
+                AssertEqual<SoundEffectId?>(null, enemies.Audio.PublishedSoundFrom(EnemySoundSource.NuclearWaffle), "Nuclear Waffle falling turn is silent");
             }
         }
 

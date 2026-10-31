@@ -70,9 +70,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId ChozoFootstepsSound =
         EnemySoundEffectDefinitions.ChozoFootstepsSound;
 
-    /// <summary>Last library-two sound requested by either walking sequence.</summary>
-    public SoundEffectId? LastChozoStatueSoundEffect { get; private set; }
-
     /// <summary>Last value sent through native <c>CallSomeSamusCode(0/1)</c>.</summary>
     public bool ChozoStatueSamusControlsEnabled { get; private set; } = true;
 
@@ -266,12 +263,10 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.PlayGrabSound }:
-                LastChozoStatueSoundEffect = ChozoGrabsSamusSound;
                 _audio.QueueEnemySound(ChozoGrabsSamusSound, priority: SoundRequestPriority.Normal);
                 return null;
 
             case ChozoStatueCue.Command { Kind: ChozoStatueCueKind.PlayFootstepSound }:
-                LastChozoStatueSoundEffect = ChozoFootstepsSound;
                 _audio.QueueEnemySound(ChozoFootstepsSound, priority: SoundRequestPriority.Normal);
                 return null;
 

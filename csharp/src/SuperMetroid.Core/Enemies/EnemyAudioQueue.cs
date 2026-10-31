@@ -2,83 +2,143 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The enemy frame's bank-$80 sound and music queue calls, in publication order, plus the room-load
-/// initialization music hand-off. Sounds published while a power bomb explodes carry the native guard.
+/// The sound and music requests an enemy pass makes, in the order the audio queues receive them, plus the music the
+/// room's enemies start when the room loads. Sounds requested while a power bomb explodes are marked suppressed.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Most producers request immediately (<see cref="QueueEnemySound"/>), in the order they run. The sources named by
+/// <see cref="EnemySoundSource"/> and <see cref="EnemyMusicSource"/> instead hold their request until the enemy pass
+/// ends, and the room enemy system then publishes them in one fixed source order, after every immediate request of the
+/// pass. This end-of-update rule is gameplay-observable: the sound queues admit requests by how full they already are,
+/// so which requests come first decides which are dropped, and the Speed Booster's stage selection and the sound
+/// acceptance clock read the outcome.
+/// </para>
+/// <para>
+/// A source holds one sound per update: its latest request replaces an earlier one, so two requests of one species in
+/// the same pass produce one sound, the later. The rule and the fixed order reproduce the request sequence the port
+/// produced before the sources were named (#1478), which the recorded-movie replays (Ridley, 13% and 100%) exercise;
+/// they are kept as they are, not re-derived per species.
+/// </para>
+/// </remarks>
 internal sealed class EnemyAudioQueue
 {
-    /// <summary>Append-only per-frame sound calls so multiple enemy actors retain publication order.</summary>
+    /// <summary>The pass's published sound requests, in request order.</summary>
     private readonly List<SoundRequest> _soundRequests = [];
-    /// <summary>Append-only per-frame music calls from enemy AI.</summary>
+    /// <summary>The pass's published music requests, in request order.</summary>
     private readonly List<DelayedMusicRequest> _musicRequests = [];
+    /// <summary>Each end-of-update source's pending sound, its latest request.</summary>
+    private readonly Dictionary<EnemySoundSource, SoundRequest> _pendingSounds = [];
+    /// <summary>Each end-of-update source's pending music requests, in request order.</summary>
+    private readonly Dictionary<EnemyMusicSource, List<DelayedMusicRequest>> _pendingMusic = [];
 
     /// <summary>
     /// The power-bomb explosion bound for the current enemy frame. Runtime frame bindings are not duplicate
-    /// serialized cartridge owners: EnemyMain refreshes this before AI; later draw and room-main requests
+    /// serialized owners: EnemyMain refreshes this before AI; later draw and room-main requests
     /// sample the same owner.
     /// </summary>
     [field: NonSerialized]
     internal SamusPowerBombExplosionState? PowerBomb { get; set; }
 
-    /// <summary>Begins the native EnemyMain publication window: the previous frame's calls are discarded.</summary>
+    /// <summary>
+    /// Begins an enemy pass: the previous pass's published requests and every pending end-of-update request are dropped,
+    /// except the drop and death sounds (<see cref="EnemySoundSource.EnemyPickup"/>,
+    /// <see cref="EnemySoundSource.EnemyDeath"/>), which the enemy-projectile pass cancels instead
+    /// (<see cref="CancelSoundAtUpdateEnd"/>).
+    /// </summary>
     internal void BeginFrame()
     {
         _soundRequests.Clear();
         _musicRequests.Clear();
+        // The drop and death sounds come from the enemy-projectile pass, which runs after the enemy pass, so they are
+        // published at the end of the following enemy pass and stay pending until the next projectile pass begins.
+        bool hasPickup = _pendingSounds.TryGetValue(EnemySoundSource.EnemyPickup, out SoundRequest pickup);
+        bool hasDeath = _pendingSounds.TryGetValue(EnemySoundSource.EnemyDeath, out SoundRequest death);
+        _pendingSounds.Clear();
+        if (hasPickup)
+            _pendingSounds[EnemySoundSource.EnemyPickup] = pickup;
+        if (hasDeath)
+            _pendingSounds[EnemySoundSource.EnemyDeath] = death;
+        _pendingMusic.Clear();
     }
 
-    /// <summary>Records one enemy-owned <c>QueueMusic_Delayed*</c> call.</summary>
-    internal void QueueMusic(DelayedMusicRequest request) => _musicRequests.Add(request);
-
     /// <summary>
-    /// Exact bank-$A0/$A6/$A9 sound-queue calls published by the current enemy frame.
+    /// The sound requests of the current enemy pass, in the order the sound queues receive them.
     /// The frontend drains these only after all enemy AI and draw instructions have run.
     /// </summary>
     public IReadOnlyList<SoundRequest> SoundRequests => _soundRequests;
 
-    /// <summary>Exact music-queue calls published by the current enemy frame.</summary>
+    /// <summary>The music requests of the current enemy pass, in the order the music queue receives them.</summary>
     public IReadOnlyList<DelayedMusicRequest> MusicRequests => _musicRequests;
 
-    /// <summary>Transient room-load music calls consumed in the same update outside EnemyMain's frame window.</summary>
+    /// <summary>The music the loading room's enemies start, consumed in the same update outside the enemy pass.</summary>
     /// <remarks>The requests do not survive an update boundary or enter debugger snapshots.</remarks>
-    [NonSerialized] private List<MusicRequest>? _initializationMusicDelayed8;
+    [NonSerialized] private List<MusicRequest>? _roomEnemyStartMusic;
 
     /// <summary>
-    /// Records an enemy initialization's <c>QueueMusicDataOrTrack_8FrameDelay</c> ($80:8FC1)
-    /// call, which room loading performs after queuing the room's own music data.
+    /// Requests music an enemy's initialization starts as its room loads. Room loading plays it after the room's own
+    /// music, with the shortest music delay, and drops it when the music queue is full.
     /// </summary>
-    internal void QueueInitializationMusicDelayed8(MusicRequest request) =>
-        (_initializationMusicDelayed8 ??= []).Add(request);
+    internal void RequestRoomEnemyStartMusic(MusicRequest request) =>
+        (_roomEnemyStartMusic ??= []).Add(request);
 
-    /// <summary>Returns and clears the initialization music calls of the room just loaded.</summary>
-    internal IReadOnlyList<MusicRequest> ConsumeInitializationMusicDelayed8()
+    /// <summary>Returns and clears the music the enemies of the room just loaded start, in request order.</summary>
+    internal IReadOnlyList<MusicRequest> ConsumeRoomEnemyStartMusic()
     {
-        if (_initializationMusicDelayed8 is not { Count: > 0 } pending)
+        if (_roomEnemyStartMusic is not { Count: > 0 } pending)
             return [];
         MusicRequest[] requests = [.. pending];
         pending.Clear();
         return requests;
     }
 
-    /// <summary>
-    /// Records an already-decoded cartridge queue call without assigning host-side meaning
-    /// to its numeric sound ID. The bank-$80 queue remains the sole owner of arbitration.
-    /// </summary>
+    /// <summary>Requests <paramref name="soundEffect"/> immediately, after the pass's earlier sound requests.</summary>
     internal void QueueEnemySound(SoundEffectId soundEffect, SoundRequestPriority priority) =>
         _soundRequests.Add(new SoundRequest(soundEffect, priority,
             SoundSuppressed: PowerBomb?.IsActive == true));
 
-    /// <summary>Queues <paramref name="soundEffect"/> when an actor produced one this update.</summary>
-    internal void QueueEnemySoundIfAny(SoundEffectId? soundEffect, SoundRequestPriority priority)
+    /// <summary>
+    /// Requests <paramref name="soundEffect"/> from <paramref name="source"/> at the end of the enemy pass. The source's
+    /// latest request this update replaces its earlier one.
+    /// </summary>
+    internal void RequestSoundAtUpdateEnd(EnemySoundSource source, SoundEffectId soundEffect, SoundRequestPriority priority) =>
+        _pendingSounds[source] = new SoundRequest(soundEffect, priority);
+
+    /// <summary>Drops <paramref name="source"/>'s pending sound for this update; nothing happens when none is pending.</summary>
+    internal void CancelSoundAtUpdateEnd(EnemySoundSource source) => _pendingSounds.Remove(source);
+
+    /// <summary>
+    /// Requests <paramref name="request"/> from <paramref name="source"/> at the end of the enemy pass. The source's
+    /// latest request this update replaces its earlier ones.
+    /// </summary>
+    internal void RequestMusicAtUpdateEnd(EnemyMusicSource source, DelayedMusicRequest request) =>
+        _pendingMusic[source] = [request];
+
+    /// <summary>
+    /// Adds <paramref name="request"/> to <paramref name="source"/>'s music at the end of the enemy pass, after its
+    /// earlier requests this update: a source that plays a sequence keeps every request.
+    /// </summary>
+    internal void AppendMusicAtUpdateEnd(EnemyMusicSource source, DelayedMusicRequest request)
     {
-        if (soundEffect is SoundEffectId value)
-            QueueEnemySound(value, priority);
+        if (!_pendingMusic.TryGetValue(source, out List<DelayedMusicRequest>? requests))
+            _pendingMusic[source] = requests = [];
+        requests.Add(request);
     }
 
-    /// <summary>Retains a music request only when both the request and its delay are present.</summary>
-    internal void QueueLegacyMusic(MusicRequest? request, MusicQueueDelay? delay)
+    /// <summary>
+    /// Publishes <paramref name="source"/>'s pending sound after the pass's earlier requests, marked suppressed when a
+    /// power bomb explodes now. The request stays pending until its source's lifetime ends.
+    /// </summary>
+    internal void PublishSoundsFrom(EnemySoundSource source)
     {
-        if (request is MusicRequest value && delay is MusicQueueDelay wait)
-            _musicRequests.Add(new DelayedMusicRequest(value, wait));
+        if (_pendingSounds.TryGetValue(source, out SoundRequest request))
+            _soundRequests.Add(request with { SoundSuppressed = PowerBomb?.IsActive == true });
+    }
+
+    /// <summary>Publishes <paramref name="source"/>'s pending music after the pass's earlier music requests.</summary>
+    internal void PublishMusicFrom(EnemyMusicSource source)
+    {
+        if (_pendingMusic.TryGetValue(source, out List<DelayedMusicRequest>? requests))
+            _musicRequests.AddRange(requests);
     }
 }

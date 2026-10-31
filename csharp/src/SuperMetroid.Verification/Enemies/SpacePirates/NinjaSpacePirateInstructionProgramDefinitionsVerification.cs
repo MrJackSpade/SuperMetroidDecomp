@@ -222,7 +222,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 $"ninja Pirate dive program {program} function");
             AssertEqual(7, slot.PaletteRowIn(enemies),
                 $"ninja Pirate dive program {program} palette");
-            AssertEqual(NinjaSpacePirateSoundDefinitions.Attack, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
+            AssertEqual(NinjaSpacePirateSoundDefinitions.Attack, (enemies.Audio.PublishedSoundFrom(EnemySoundSource.SpacePirate) ?? throw new InvalidOperationException("Verification requires a pending space pirate sound.")),
                 $"ninja Pirate dive program {program} sound");
         }
 

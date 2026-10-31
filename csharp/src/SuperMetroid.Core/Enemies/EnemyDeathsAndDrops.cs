@@ -24,11 +24,14 @@ internal sealed class EnemyDeathsAndDrops
     private readonly EnemySlotTable _slotTable;
     /// <summary>Reinitializes a respawned enemy from its saved population record.</summary>
     private readonly IEnemyDispatch _dispatch;
+    /// <summary>Receives the pickup and death sounds, published at the end of the following enemy pass.</summary>
+    private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects death animation, pickup, and respawn processing to the room systems.</summary>
     internal EnemyDeathsAndDrops(EnemyRoomStatus roomStatus, EnemyProjectileEngine projectiles, EnemyRoomBinding room,
-        EnemySlotTable slotTable, IEnemyDispatch dispatch, PowerBombRadiusAfterKill powerBombRadius)
+        EnemySlotTable slotTable, IEnemyDispatch dispatch, PowerBombRadiusAfterKill powerBombRadius, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _roomStatus = roomStatus;
         _projectiles = projectiles;
         _room = room;
@@ -50,15 +53,16 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Binds the live Samus owner for the room load or enemy frame that follows.</summary>
     internal void BindSamus(SamusState? samus) => SamusForEnemyDrops = samus;
 
-    /// <summary>Last library-two sound requested by a collected enemy pickup this frame.</summary>
-    public SoundEffectId? LastEnemyPickupSoundEffect { get; internal set; }
+    /// <summary>Requests a collected drop's sound; it joins the queue only when the sound queue is idle.</summary>
+    private void RequestPickupSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyPickup, sound, priority: SoundRequestPriority.WhenIdle);
 
     /// <summary>
-    /// Last library-two sound requested by the shared death/pickup instruction lists this
-    /// frame: the enemy-killed cry, the small explosion or the contact-killed sound, each
-    /// authored directly in bank $86.
+    /// Requests a death program's sound (the enemy-killed cry, the small explosion or the contact-killed sound); it joins
+    /// the queue only when the sound queue is idle.
     /// </summary>
-    public SoundEffectId? LastEnemyDeathSoundEffectLibrary2 { get; internal set; }
+    private void RequestDeathSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyDeath, sound, priority: SoundRequestPriority.WhenIdle);
 
     /// <summary>The library-two enemy-killed cry that <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) queues.</summary>
     internal static readonly SoundEffectId EnemyKilledSound = Library2Sound.EnemyKilled;
@@ -458,23 +462,23 @@ internal sealed class EnemyDeathsAndDrops
         {
             case EnemyPickupKind.SmallEnergy:
                 RestoreEnemyDropEnergy(samus, 5);
-                LastEnemyPickupSoundEffect = Library2Sound.SmallEnergyPickup;
+                RequestPickupSound(Library2Sound.SmallEnergyPickup);
                 break;
             case EnemyPickupKind.BigEnergy:
                 RestoreEnemyDropEnergy(samus, 20);
-                LastEnemyPickupSoundEffect = Library2Sound.BigEnergyPickup;
+                RequestPickupSound(Library2Sound.BigEnergyPickup);
                 break;
             case EnemyPickupKind.PowerBomb:
                 RestoreEnemyDropPowerBombs(samus, 1);
-                LastEnemyPickupSoundEffect = Library2Sound.PowerBombPickup;
+                RequestPickupSound(Library2Sound.PowerBombPickup);
                 break;
             case EnemyPickupKind.Missile:
                 RestoreEnemyDropMissiles(samus, 2);
-                LastEnemyPickupSoundEffect = Library2Sound.MissilePickup;
+                RequestPickupSound(Library2Sound.MissilePickup);
                 break;
             case EnemyPickupKind.SuperMissile:
                 RestoreEnemyDropSuperMissiles(samus, 1);
-                LastEnemyPickupSoundEffect = Library2Sound.SuperMissilePickup;
+                RequestPickupSound(Library2Sound.SuperMissilePickup);
                 break;
             case EnemyPickupKind.None:
             case EnemyPickupKind.NoDrop:
@@ -544,15 +548,6 @@ internal sealed class EnemyDeathsAndDrops
     private static int AbsoluteWrappedDelta(int left, int right) =>
         Math.Abs((int)unchecked((short)(left - right)));
 
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastEnemyPickupSoundEffect is { } pickupSound)
-            audio.QueueEnemySound(pickupSound, priority: SoundRequestPriority.WhenIdle);
-        if (LastEnemyDeathSoundEffectLibrary2 is { } deathSound)
-            audio.QueueEnemySound(deathSound, priority: SoundRequestPriority.WhenIdle);
-    }
-
     /// <summary>
     /// Executes instruction $86:EF10 for the respawning enemy a death actor retains.
     /// The method is deliberately population/snapshot based so later respawning families can
@@ -588,7 +583,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Queues the library-two enemy-killed sound 9, as <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) does.</summary>
-    internal void QueueEnemyKilledSound() => LastEnemyDeathSoundEffectLibrary2 = EnemyKilledSound;
+    internal void QueueEnemyKilledSound() => RequestDeathSound(EnemyKilledSound);
 
     /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
     internal void ConnectDeathExplosionCues(EnemyProjectileHandlerTable table) =>
@@ -616,10 +611,10 @@ internal sealed class EnemyDeathsAndDrops
                 QueueEnemyKilledSound();
                 return null;
             case EnemyDeathProjectileCueKind.PlaySmallExplosionSound:
-                LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathSmallExplosionSound;
+                RequestDeathSound(EnemySoundEffectDefinitions.DeathSmallExplosionSound);
                 return null;
             case EnemyDeathProjectileCueKind.PlayContactKilledSound:
-                LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathContactKilledSound;
+                RequestDeathSound(EnemySoundEffectDefinitions.DeathContactKilledSound);
                 return null;
             case EnemyDeathProjectileCueKind.BecomePickup:
                 if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)

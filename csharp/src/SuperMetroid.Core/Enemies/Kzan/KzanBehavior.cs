@@ -16,9 +16,13 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Lets the lower actor mirror the immediately preceding top actor's position.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Uses native slot adjacency to couple each Kzan bottom to its top.</summary>
-    internal KzanBehavior(EnemySlotTable slotTable)
+    internal KzanBehavior(EnemySlotTable slotTable, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _slotTable = slotTable;
     }
 
@@ -137,7 +141,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RiseWaitTimer = WrappingCountdown.Start(KzanNtscRiseWaitFrames);
             state.Function = KzanEnemyFunction.WaitingToRise;
             slot.Position = slot.Position.WithWholeY(state.FallingTarget.Y);
-            LastKzanSoundEffect = KzanLandingSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Kzan, KzanLandingSound, priority: SoundRequestPriority.Normal);
         }
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
@@ -236,21 +240,5 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunKzanTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKzanTopMain(slot, slot.RequireSpeciesState<KzanEnemyState>(), frame.Samus);
-    }
-
-    /// <summary>Last library-two Kzan landing sound this enemy pass, using the Max6 queue entry; cleared at the next enemy-frame boundary.</summary>
-    public SoundEffectId? LastKzanSoundEffect { get; private set; }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastKzanSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastKzanSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

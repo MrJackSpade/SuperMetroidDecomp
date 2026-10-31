@@ -47,7 +47,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
                 state.Function, $"Norfair lava jumper production handoff {random:X4}");
             AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"Norfair lava jumper off-screen processing {random:X4}");
-            AssertEqual((SoundEffectId?)Library2Sound.SplashIn, enemies.NorfairLavaJumpingEnemyBehavior.LastNorfairLavaJumpingEnemySoundEffect,
+            AssertEqual((SoundEffectId?)Library2Sound.SplashIn, enemies.Audio.PublishedSoundFrom(EnemySoundSource.NorfairLavaJumpingEnemy),
                 $"Norfair lava jumper sound {random:X4}");
             AssertEqual(1, advances, $"Norfair lava jumper RNG advance {random:X4}");
         }

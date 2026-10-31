@@ -21,9 +21,13 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Allocates spike projectiles with source position and OBJ attributes.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds Cacatac patrol and spike behavior to room RNG and projectile allocation.</summary>
-    internal CacatacBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
+    internal CacatacBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _room = room;
         _projectiles = projectiles;
     }
@@ -47,9 +51,6 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         return null;
     }
-
-    /// <summary>Last library-two spike-release sound requested in this enemy frame.</summary>
-    public SoundEffectId? LastCacatacSoundEffect { get; private set; }
 
     /// <summary>Ports <c>InitAI_Cacatac</c> at $A2:9F48.</summary>
     internal static void InitializeCacatac(RoomEnemySlot slot)
@@ -165,7 +166,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Animation instruction $A2:9F2A: publish library-two sound $34.</summary>
     private void PlayCacatacSpikeSound() =>
-        LastCacatacSoundEffect = EnemySoundEffectDefinitions.CacatacSpikeSound;
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Cacatac, EnemySoundEffectDefinitions.CacatacSpikeSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Starts a patrol or attack animation on the next instruction tick.</summary>
     internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
@@ -248,18 +249,5 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((short)(bottom - projectile.Position.Y.Whole)) < 0;
         if (outside)
             projectile.Clear();
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastCacatacSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastCacatacSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

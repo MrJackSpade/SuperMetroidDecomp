@@ -23,9 +23,13 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Creates the dust explosion when a rolling or brittle boulder breaks.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Connects terrain collision and the shared projectile engine for Boulder AI.</summary>
-    internal BoulderBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles)
+    internal BoulderBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _terrain = terrain;
         _projectiles = projectiles;
     }
@@ -58,9 +62,6 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Largest travel clock while rolling: quadratic-speed record 64.</summary>
     private const int MaximumRollingTravelSpeed = 16384;
-
-    /// <summary>Most recent library-two sound emitted by a landing or terminal impact.</summary>
-    public SoundEffectId? LastBoulderSoundEffect { get; private set; }
 
     /// <summary>Interprets both spawn parameters as direction, trigger windows, vertical compensation, and initial height; a zero offset starts rolling without bounces.</summary>
     internal static void InitializeBoulder(RoomEnemySlot slot)
@@ -213,14 +214,14 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         int verticalDisplacement = EnemyQuadraticSpeeds.Row(unchecked((byte)(EightEight.WholeOf(state.BounceSpeedAccumulator)))).Positive;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
-            LastBoulderSoundEffect = BoulderImpactSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderImpactSound, priority: SoundRequestPriority.Normal);
             if (state.Roll == BoulderRoll.LeftBreakingOnImpact)
             {
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 _projectiles.SpawnRoomGraphicsDustExplosion(
                     slot.Position.Whole,
                     BoulderDustAnimationIndex);
-                LastBoulderSoundEffect = BoulderBreakSound;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderBreakSound, priority: SoundRequestPriority.Normal);
                 return;
             }
 
@@ -265,11 +266,11 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.Properties = slot.Properties.With(
                 EnemyProperties.Invisible | EnemyProperties.Deleted);
             state.Function = BoulderAiFunction.Inert;
-            LastBoulderSoundEffect = BoulderImpactSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderImpactSound, priority: SoundRequestPriority.Normal);
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 slot.Position.Whole,
                 BoulderDustAnimationIndex);
-            LastBoulderSoundEffect = BoulderBreakSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boulder, BoulderBreakSound, priority: SoundRequestPriority.Normal);
         }
         else
         {
@@ -321,18 +322,5 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunBoulderMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBoulderMain(slot, slot.RequireSpeciesState<BoulderEnemyState>(), frame.Samus, frame.Level);
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastBoulderSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastBoulderSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

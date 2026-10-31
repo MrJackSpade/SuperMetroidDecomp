@@ -54,12 +54,12 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case MetroidCueKind.PlayDrainingSound:
                 // The attached loop emits library-two sound $50.
-                LastMetroidSoundEffectLibrary2 = EnemySoundEffectDefinitions.MetroidAnimationSoundEffect;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, EnemySoundEffectDefinitions.MetroidAnimationSoundEffect, priority: SoundRequestPriority.Normal);
                 break;
             case MetroidCueKind.PlayRandomCry:
                 // GenerateRandomNumber advances exactly once and the low three result bits choose one of the eight
                 // cartridge-defined idle cries.
-                LastMetroidSoundEffectLibrary2 = MetroidReactions.RandomCrySoundEffect(_room.Random.Generate());
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, MetroidReactions.RandomCrySoundEffect(_room.Random.Generate()), priority: SoundRequestPriority.Normal);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MetroidCueKind)} {cue.Kind}.");
@@ -78,10 +78,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Drop publications generated after a frozen Metroid's death animation begins.</summary>
     internal readonly List<MetroidDropRequest> MetroidDropRequests = new();
-
-    /// <summary>Most recent library-two Metroid sound requested during this enemy frame.</summary>
-    public SoundEffectId? LastMetroidSoundEffectLibrary2 { get; private set; }
-
 
     /// <summary>Ports <c>Metroid_Init</c> at <c>$A3:EA4F</c>.</summary>
     internal void InitializeMetroid(RoomEnemySlot slot)
@@ -363,7 +359,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.IceDamageToFreeze -= collisionProjectileDamage;
         }
 
-        LastMetroidSoundEffectLibrary2 = EnemySoundEffectDefinitions.MetroidRecoilSoundEffect;
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Metroid, EnemySoundEffectDefinitions.MetroidRecoilSoundEffect, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Releases an attached Metroid into its four-frame escape and clears Samus's drain palette flag.</summary>
@@ -496,12 +492,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             context => ResolveMetroidTouch(context.Slot, context.Samus));
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastMetroidSoundEffectLibrary2 = null;
-    }
-
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation after the shared projectile prelude.</summary>
     internal bool ResolveMetroidOrdinaryShot(in EnemyShotContext c)
     {
@@ -549,12 +539,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
         ResolveMetroidNonFrozenShot(enemy, c.Projectile.Type, checked((ushort)c.Projectile.Damage), c.Projectiles.Slots[0].Position.Whole, c.Samus);
         return true;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueEnemySoundIfAny(LastMetroidSoundEffectLibrary2, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Routes ordinary projectile hits to Metroid-specific frozen and nonfrozen shot handling.</summary>

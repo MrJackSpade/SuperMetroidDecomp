@@ -8,6 +8,12 @@ namespace SuperMetroid.Core.Enemies.Boyon;
 /// <summary>The Boyon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
+    /// <summary>Builds the species owner on the room's enemy audio queue.</summary>
+    internal BoyonBehavior(EnemyAudioQueue audio) => _audio = audio;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boyon];
 
@@ -37,13 +43,9 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-
     /// <summary>The library-two sound the start-bounce cue queues.</summary>
     private static readonly SoundEffectId BoyonBounceSound =
         EnemySoundEffectDefinitions.BoyonBounceSound;
-
-    /// <summary>Last library-two bounce sound requested during the current enemy frame.</summary>
-    public SoundEffectId? LastBoyonSoundEffect { get; private set; }
 
     /// <summary>Ports <c>InitAI_Boyon</c> at <c>$A2:871C</c>.</summary>
     internal static void InitializeBoyon(RoomEnemySlot slot)
@@ -222,7 +224,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void StartBoyonBounce(BoyonEnemyState state)
     {
         state.BounceDisabled = false;
-        LastBoyonSoundEffect = BoyonBounceSound;
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Boyon, BoyonBounceSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>
@@ -230,18 +232,4 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Advance(slot, BoyonAnimations.Programs, BoyonFrameDefinitions.ShownFrames.Of,
             static (BoyonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
             (state, cue, _) => ApplyBoyonCue(slot, state, cue));
-
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastBoyonSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastBoyonSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
-    }
 }

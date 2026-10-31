@@ -23,9 +23,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Allocates the shared Pirate/Mother Brain laser projectile.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds the patrol collision owner and laser pool.</summary>
-    internal WalkingSpacePirateBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles)
+    internal WalkingSpacePirateBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _terrain = terrain;
         _projectiles = projectiles;
     }
@@ -78,10 +82,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     private const int WalkingPirateFastLaserPixelsPerFrame = 4;
 
     /// <summary>
-    /// Last library-two sound requested by the shared Pirate/Mother-Brain laser initializer
-    /// or a Space Pirate instruction during this frame.
+    /// Requests <paramref name="sound"/> at the end of the update from the space pirates' shared source: walking, wall
+    /// and ninja pirates and Mother Brain's pirate laser all speak through it, so the latest of them this update is heard.
     /// </summary>
-    public SoundEffectId? LastSpacePirateSoundEffect { get; internal set; }
+    internal void RequestSpacePirateSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.SpacePirate, sound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Recognizes the six walking variants that share patrol AI and laser behavior.</summary>
     internal static bool IsWalkingSpacePirateDefinition(EnemyDefinitionId definition) => definition is
@@ -369,7 +374,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         if (projectile is null)
             return false;
 
-        LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.PirateMotherBrainLaserSound;
+        RequestSpacePirateSound(EnemySoundEffectDefinitions.PirateMotherBrainLaserSound);
         return true;
     }
 
@@ -622,12 +627,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         state.Program = cursor;
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastSpacePirateSoundEffect = null;
-    }
-
     /// <summary>Runs the extended-hitbox shot callback, including native collision marking before rejection or reflection.</summary>
     internal bool ResolveSpacePirateHitboxShot(in EnemyShotContext c)
     {
@@ -667,16 +666,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             c.Projectile.IsSpent = false;
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),
                 c.Projectile.SlotIndex);
-            LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WalkingPirateReflectSound;
+            RequestSpacePirateSound(EnemySoundEffectDefinitions.WalkingPirateReflectSound);
             return true;
         }
         return false;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastSpacePirateSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

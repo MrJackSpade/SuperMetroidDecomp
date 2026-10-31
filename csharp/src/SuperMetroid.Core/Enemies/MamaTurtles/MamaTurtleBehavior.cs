@@ -30,9 +30,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies touch damage for Mama's expanded body or exposed shell.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Connects the tatori family to room terrain, collision, slots, and earthquake output.</summary>
-    internal MamaTurtleBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, EnemySlotTable slotTable, EnemyCollision collision)
+    internal MamaTurtleBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, EnemySlotTable slotTable, EnemyCollision collision, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _terrain = terrain;
         _earthquake = earthquake;
         _slotTable = slotTable;
@@ -54,7 +58,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartMamaTurtleRisingToHover(slot.RequireSpeciesState<MamaTurtleEnemyState>(), direction: HorizontalDirection.Left);
                 return MamaTurtleProgram.MamaSpinning;
             case MamaTurtleCueKind.PlaySpinningSound:
-                LastMamaTurtleSoundEffect = EnemySoundEffectDefinitions.MamaTurtleSpinSound;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MamaTurtle, EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
                 return null;
             case MamaTurtleCueKind.Crawl:
             case MamaTurtleCueKind.LeaveShell:
@@ -87,7 +91,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.RequireSpeciesState<BabyTurtleEnemyState>().Function = BabyTurtleAiFunction.SpinningStoppable;
                 return null;
             case MamaTurtleCueKind.PlaySpinningSound:
-                LastMamaTurtleSoundEffect = EnemySoundEffectDefinitions.MamaTurtleSpinSound;
+                _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MamaTurtle, EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
                 return null;
             case MamaTurtleCueKind.EnterShell:
             case MamaTurtleCueKind.RiseToHoverLeftwards:
@@ -109,9 +113,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort MamaTurtleMaximumFallingSpeed = 4;
     /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
     private const ushort MamaTurtleMaximumHoveringSpeed = 3;
-
-    /// <summary>Last library-two sound requested by this family during the enemy frame.</summary>
-    public SoundEffectId? LastMamaTurtleSoundEffect { get; private set; }
 
     /// <summary>Ports Mama Turtle initialization AI <c>$A2:8D6C</c>.</summary>
     internal static void InitializeMamaTurtle(RoomEnemySlot slot)
@@ -359,7 +360,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             ReverseMamaTurtleAtWall(state);
             _earthquake.EarthquakeType = 0;
             _earthquake.EarthquakeTimer = WrappingCountdown.Start(16);
-            LastMamaTurtleSoundEffect = EnemySoundEffectDefinitions.MamaTurtleWallSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.MamaTurtle, EnemySoundEffectDefinitions.MamaTurtleWallSound, priority: SoundRequestPriority.Normal);
             return;
         }
 
@@ -920,17 +921,5 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.BabyTurtle &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BabyTurtleTouch,
             context => ResolveBabyTurtleTouch(context.Slot, context.Slot.RequireSpeciesState<BabyTurtleEnemyState>(), context.Samus, context.Level));
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastMamaTurtleSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        audio.QueueEnemySoundIfAny(LastMamaTurtleSoundEffect, priority: SoundRequestPriority.Normal);
     }
 }

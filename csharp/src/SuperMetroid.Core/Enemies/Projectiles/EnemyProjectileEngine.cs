@@ -141,11 +141,9 @@ internal sealed class EnemyProjectileEngine
     /// <summary>All eighteen physical bank-$86 slots, including currently inactive slots.</summary>
     public IReadOnlyList<RoomEnemyProjectileSlot> EnemyProjectiles => _enemyProjectiles;
 
-    /// <summary>
-    /// Last library-one dud sound requested when an indestructible enemy projectile blocked
-    /// a Samus shot. This is a frame publication; the audio mixer remains an outer seam.
-    /// </summary>
-    public SoundEffectId? LastEnemyProjectileDudSoundEffect { get; internal set; }
+    /// <summary>Requests the dud sound a rejected Samus shot makes.</summary>
+    internal void RequestDudSound() =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.EnemyProjectileDud, Library1Sound.DudShot, priority: SoundRequestPriority.Low);
 
     /// <summary>
     /// Ports <c>EprojProjCollDet</c> and <c>HandleEprojCollWithProj</c> at
@@ -200,7 +198,7 @@ internal sealed class EnemyProjectileEngine
 
                 if (enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.IndestructibleDud)
                 {
-                    LastEnemyProjectileDudSoundEffect = Library1Sound.DudShot;
+                    RequestDudSound();
                 }
                 else
                 {
@@ -981,7 +979,7 @@ internal sealed class EnemyProjectileEngine
             projectile.Position.Whole,
             RoomSpriteObjectKind.EnemyProjectileDud,
             graphics: default);
-        LastEnemyProjectileDudSoundEffect = Library1Sound.DudShot;
+        RequestDudSound();
         projectile.IsSpent = true;
     }
 
@@ -1004,13 +1002,6 @@ internal sealed class EnemyProjectileEngine
         {
             projectile.Clear();
         }
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastEnemyProjectileDudSoundEffect is { } dudSound)
-            audio.QueueEnemySound(dudSound, priority: SoundRequestPriority.Low);
     }
 
     /// <summary>Registers Skree/Metaree particle movement with falling acceleration and camera-square deletion.</summary>

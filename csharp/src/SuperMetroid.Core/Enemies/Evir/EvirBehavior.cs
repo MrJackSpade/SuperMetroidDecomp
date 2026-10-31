@@ -23,9 +23,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The room's enemy presentation, whose current placement holds the colours whose palette selection Evir reads as a number.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
     /// <summary>Binds slot and collision owners for the three-record Evir actor.</summary>
-    internal EvirBehavior(EnemySlotTable slotTable, EnemyCollision collision, EnemyPresentation presentation)
+    internal EvirBehavior(EnemySlotTable slotTable, EnemyCollision collision, EnemyPresentation presentation, EnemyAudioQueue audio)
     {
+        _audio = audio;
         _slotTable = slotTable;
         _collision = collision;
         _presentation = presentation;
@@ -61,16 +65,12 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Margin beyond each camera edge that starts projectile regeneration.</summary>
     private const ushort EvirFarOffscreenDistance = 256;
 
-
     /// <summary>The library-two sound the spit plays when it is launched or regenerates.</summary>
     private static readonly SoundEffectId EvirSpitSound =
         EnemySoundEffectDefinitions.EvirSpitSound;
 
     /// <summary>The horizontal distance, in room pixels, from the mouth at which the regenerating spit starts.</summary>
     private const short RegenerationStartDistance = 8;
-
-    /// <summary>Most recent spit sound requested during this enemy frame.</summary>
-    public SoundEffectId? LastEvirSoundEffect { get; private set; }
 
     /// <summary>Ports <c>InitAI_Evir</c> at $A8:87E0.</summary>
     internal void InitializeEvir(RoomEnemySlot slot, SamusState? samus)
@@ -407,7 +407,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Instruction $A8:878F.</summary>
-    private void QueueEvirSpitSound() => LastEvirSoundEffect = EvirSpitSound;
+    private void QueueEvirSpitSound() => _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Evir, EvirSpitSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Instruction $A8:879B.</summary>
     private void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
@@ -602,18 +602,5 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
                 ResolveEvirCombatAfterCommon(context.Slot);
             });
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastEvirSoundEffect = null;
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastEvirSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

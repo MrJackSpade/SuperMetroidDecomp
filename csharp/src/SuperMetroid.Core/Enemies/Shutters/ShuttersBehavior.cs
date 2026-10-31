@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// <summary>The Shutters species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>Receives the species' end-of-update sound requests.</summary>
+    private readonly EnemyAudioQueue _audio;
+
+    /// <summary>Builds the species owner on the room's enemy audio queue.</summary>
+    internal ShuttersBehavior(EnemyAudioQueue audio) => _audio = audio;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. ShuttersPartDefinitions.Parts.Keys];
 
@@ -516,15 +522,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Frame camera used to admit activation sound only for on-screen shutters.</summary>
     private Position16<RoomPixels> _shutterCamera;
 
-    /// <summary>Last library-two shutter sound queued during the current enemy frame.</summary>
-    public SoundEffectId? LastShutterSoundEffect { get; private set; }
-
-    /// <summary>Captures the current camera and clears the prior frame's activation sound.</summary>
-    internal void BeginShutterFrame(Position16<RoomPixels> camera)
-    {
-        _shutterCamera = camera;
-        LastShutterSoundEffect = null;
-    }
+    /// <summary>Captures the current camera, which decides whether an activating shutter is heard.</summary>
+    internal void BeginShutterFrame(Position16<RoomPixels> camera) => _shutterCamera = camera;
 
     /// <summary>Includes shootable, destroyable, and Kamer definitions in the shared vertical AI.</summary>
     internal static bool IsVerticalShutterDefinition(EnemyDefinitionId definition) => definition is
@@ -569,7 +568,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         if (IsShutterCenterOnScreen(slot, camera))
-            LastShutterSoundEffect = ShutterActivationSound;
+            _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Shutters, ShutterActivationSound, priority: SoundRequestPriority.Normal);
     }
 
     /// <summary>Lets bombs trigger shootable vertical shutters without ordinary damage AI.</summary>
@@ -990,12 +989,5 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         BeginShutterFrame(frame.Camera);
-    }
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastShutterSoundEffect is SoundEffectId sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
     }
 }

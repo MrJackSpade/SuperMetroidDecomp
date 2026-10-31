@@ -25,7 +25,7 @@ internal static class SamusRenderingFixtureVerification
     {
         if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
         var stock = renderingFixtureStock.Value;
-        var result = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat(offset, InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = stock.DrainedYOffsets.ToArray() }, stock.BodyCharactersContentIdentity);
+        var result = new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = Enumerable.Repeat((int)offset, InstalledSamusBodyArtwork.PoseCount).ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = stock.DrainedYOffsets.ToArray() }, stock.BodyCharactersContentIdentity);
         graphicsOffsetFixtures.Add(offset, result);
         return result;
     }
@@ -67,7 +67,7 @@ internal static class SamusRenderingFixtureVerification
         var topPointers = OverrideWords(SamusSourceDefinitions.TopDefinitionListPointers.Value, stock.TopSetPointers.ToArray());
         var bottomPointers = OverrideWords(SamusSourceDefinitions.BottomDefinitionListPointers.Value, stock.BottomSetPointers.ToArray());
         var posePointers = OverrideWords(SamusSourceDefinitions.AnimationDefinitionListPointers.Value, stock.PosePointers.ToArray());
-        sbyte[] offsets = stock.GraphicsYOffsets.ToArray();
+        int[] offsets = stock.GraphicsYOffsets.ToArray();
         for (int pose = 0; pose < offsets.Length; pose++)
         {
             int address = SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
@@ -115,7 +115,7 @@ internal static class SamusRenderingFixtureVerification
         var sprites = new SamusSpritemapSources(
             Words(InstalledSamusSpritemaps.TopBaseAddress, InstalledSamusBodyArtwork.PoseCount),
             Words(InstalledSamusSpritemaps.BottomBaseAddress, InstalledSamusBodyArtwork.PoseCount), SamusSpritemapNative.Entries(spritePointers), maps);
-        ushort[] landing = stock.LandingYOffsets.ToArray();
+        int[] landing = stock.LandingYOffsets.ToArray();
         for (int index = 0; index < landing.Length; index++)
             if (bus.HasSeededByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index))
                 landing[index] = bus.ReadByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index);

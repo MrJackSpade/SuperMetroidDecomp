@@ -1,4 +1,3 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 
@@ -17,9 +16,9 @@ public abstract class InstalledSamusBodyArtwork
     public const int PoseCount = SamusPoseNumbering.RecordCount;
 
     /// <summary>Pose art-origin edits independent of physical collision offsets.</summary>
-    internal readonly Dictionary<int, sbyte> graphicsYOffsets;
+    internal readonly Dictionary<int, int> graphicsYOffsets;
     /// <summary>Edited landing visual bytes, including an adjacent unaligned-read byte.</summary>
-    internal readonly Dictionary<int, ushort> landingYOffsets;
+    internal readonly Dictionary<int, int> landingYOffsets;
     /// <summary>The installed posture-transition art offsets.</summary>
     private readonly sbyte[] postureYOffsets;
     /// <summary>The installed drained-state art offsets.</summary>
@@ -71,10 +70,12 @@ public abstract class InstalledSamusBodyArtwork
             content.Frames.Values.Any(frames => frames is null))
             throw new InvalidDataException("Samus body pictures do not cover exactly the poses with records.");
 
+        if (content.GraphicsYOffsets.Any(value => value is < sbyte.MinValue or > sbyte.MaxValue))
+            throw new InvalidDataException("Samus art origins must fit in one signed byte.");
         this.graphicsYOffsets = Enumerable.Range(0, content.GraphicsYOffsets.Length)
             .Where(index => content.GraphicsYOffsets[index] != SamusBodyPlacements.DefaultGraphicsYOffset(SamusPoseNumbering.FromNumber(index)))
             .ToDictionary(index => index, index => content.GraphicsYOffsets[index]);
-        if (content.LandingYOffsets.Any(value => value > byte.MaxValue))
+        if (content.LandingYOffsets.Any(value => value is < 0 or > byte.MaxValue))
             throw new InvalidDataException("Samus landing visual bytes must fit in one byte.");
         this.landingYOffsets = Enumerable.Range(0, content.LandingYOffsets.Length)
             .Where(index => content.LandingYOffsets[index] != (SamusBodyPlacements.LandingSourceIndex(index) == index
@@ -96,13 +97,13 @@ public abstract class InstalledSamusBodyArtwork
     public abstract string ContentIdentity { get; }
 
     /// <summary>Gets the resolved signed art-origin offset for every pose.</summary>
-    public ReadOnlySpan<sbyte> GraphicsYOffsets => graphicsYOffsetsTable ??= Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index))).ToArray();
+    public ReadOnlySpan<int> GraphicsYOffsets => graphicsYOffsetsTable ??= Enumerable.Range(0, PoseCount).Select(index => GraphicsYOffset(SamusPoseNumbering.FromNumber(index))).ToArray();
     /// <summary>The materialized <see cref="GraphicsYOffsets"/>; the installed tables never change after construction.</summary>
-    private sbyte[]? graphicsYOffsetsTable;
+    private int[]? graphicsYOffsetsTable;
     /// <summary>Native landing table, including the one adjacent byte read by an unaligned word.</summary>
-    public ReadOnlySpan<ushort> LandingYOffsets => landingYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
+    public ReadOnlySpan<int> LandingYOffsets => landingYOffsetsTable ??= Enumerable.Range(0, SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount).Select(LandingByte).ToArray();
     /// <summary>The materialized <see cref="LandingYOffsets"/>; the installed tables never change after construction.</summary>
-    private ushort[]? landingYOffsetsTable;
+    private int[]? landingYOffsetsTable;
     /// <summary>Gets the installed posture-transition vertical-offset table.</summary>
     public ReadOnlySpan<sbyte> PostureYOffsets => postureYOffsets;
     /// <summary>Gets the installed drained-state vertical-offset table.</summary>
@@ -122,7 +123,7 @@ public abstract class InstalledSamusBodyArtwork
             value = 0;
             return false;
         }
-        value = BinaryPrimitives.ReadUInt16LittleEndian([WordWrap.LowByte(LandingByte(index)), WordWrap.LowByte(LandingByte(index + 1))]);
+        value = LittleEndianWord.Unsigned(LandingByte(index), LandingByte(index + 1));
         return true;
     }
     /// <summary>Attempts to read a signed posture-transition art offset.</summary>

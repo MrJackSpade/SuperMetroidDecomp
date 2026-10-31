@@ -811,9 +811,9 @@ internal static class LookupStream1Verification
     /// <summary>Checks visual body Y origins across all poses without changing projectile origins.</summary>
     internal static void VerifyLookupStream1BodyGraphicsOrigins(ISnesAddressSpace rom)
     {
-        sbyte[] native = Enumerable.Range(0, 253).Select(pose => unchecked((sbyte)LookupStream1BodyGraphicsOriginsRomByte(rom, 0x91b62d + pose * 8))).ToArray();
+        int[] native = Enumerable.Range(0, 253).Select(pose => (int)unchecked((sbyte)LookupStream1BodyGraphicsOriginsRomByte(rom, 0x91b62d + pose * 8))).ToArray();
         InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
-        InstalledSamusBodyArtwork Create(sbyte[] selected) => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = selected, Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity);
+        InstalledSamusBodyArtwork Create(int[] selected) => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = selected, Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity);
         InstalledSamusBodyArtwork stock = Create(native);
         int Count(InstalledSamusBodyArtwork value) => value.graphicsYOffsets.Count;
         AssertEqual(0, Count(stock), "No stock graphics-origin override survives");
@@ -826,7 +826,7 @@ internal static class LookupStream1Verification
         string identity = stock.ContentIdentity;
         for (int edit = 0; edit < 253; edit++)
         {
-            sbyte[] selected = (sbyte[])native.Clone(); selected[edit] ^= 1;
+            int[] selected = (int[])native.Clone(); selected[edit] ^= 1;
             InstalledSamusBodyArtwork changed = Create(selected);
             AssertEqual(1, Count(changed), "Exactly one independent graphics-origin override");
             AssertTrue(changed.GraphicsYOffsets.SequenceEqual(selected), "Every supplied visual origin remains independent");
@@ -858,7 +858,7 @@ internal static class LookupStream1Verification
         InstalledSamusBodyArtwork stock = stockArt.Body;
         sbyte[] native = Enumerable.Range(0, 32).Select(index => unchecked((sbyte)LookupStream1DrainedGeometryRomByte(rom, 0x908def + index))).ToArray();
         InstalledSamusBodyArtwork Create(sbyte[] offsets, InstalledSamusSpritemaps? maps = null,
-            SamusBodyTileTransfer[][]? upper = null, SamusBodyTileTransfer[][]? lower = null, sbyte[]? graphics = null) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = graphics ?? stock.GraphicsYOffsets.ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = maps ?? stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = offsets }, upper ?? Enumerable.Range(0, SamusBodySources.TopSetCount).Select(index => stockArt.TopSet(index).ToArray()).ToArray(), lower ?? Enumerable.Range(0, SamusBodySources.BottomSetCount).Select(index => stockArt.BottomSet(index).ToArray()).ToArray()).Body;
+            SamusBodyTileTransfer[][]? upper = null, SamusBodyTileTransfer[][]? lower = null, int[]? graphics = null) => SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = stock.TopSetStarts.ToArray(), BottomSetStarts = stock.BottomSetStarts.ToArray(), PoseFirstFrames = stock.PoseFirstFrames.ToArray(), GraphicsYOffsets = graphics ?? stock.GraphicsYOffsets.ToArray(), Frames = stock.Frames.ToArray(), Spritemaps = maps ?? stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTilesContentIdentity = stock.DeathTilesContentIdentity, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = offsets }, upper ?? Enumerable.Range(0, SamusBodySources.TopSetCount).Select(index => stockArt.TopSet(index).ToArray()).ToArray(), lower ?? Enumerable.Range(0, SamusBodySources.BottomSetCount).Select(index => stockArt.BottomSet(index).ToArray()).ToArray()).Body;
         for (int index = 0; index < 32; index++)
         {
             sbyte[] changed = (sbyte[])native.Clone(); changed[index] ^= 1;
@@ -900,7 +900,7 @@ internal static class LookupStream1Verification
                 ordinal == changedPointer?.Ordinal ? map.Parts.Select(part => part with { Offset = part.Offset.WithY(unchecked((sbyte)(part.Offset.Y + 1))) }).ToArray() : map.Parts)).ToArray());
         var shifted = Create(native, shiftedMaps);
         AssertTrue(shifted.DrainedYOffsets.SequenceEqual(native), "Changed source support does not couple independent offset edits");
-        sbyte[] editedGraphics = stock.GraphicsYOffsets.ToArray();
+        int[] editedGraphics = stock.GraphicsYOffsets.ToArray();
         editedGraphics[0xe9]++; editedGraphics[0x02]++;
         AssertTrue(Create(native, graphics: editedGraphics).DrainedYOffsets.SequenceEqual(native),
             "Independently changed crouching/standing origins preserve all supplied drained offsets");
@@ -971,10 +971,10 @@ internal static class LookupStream1Verification
     /// <summary>Checks landing and facing offsets, edited placement, and strict selector bounds.</summary>
     internal static void VerifyLookupStream1BodyFacingOffsets(ISnesAddressSpace rom)
     {
-        ushort[] landing = Enumerable.Range(0, 17).Select(index => (ushort)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d28 + index)).ToArray();
+        int[] landing = Enumerable.Range(0, 17).Select(index => (int)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d28 + index)).ToArray();
         sbyte[] posture = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d80 + index))).ToArray();
         InstalledSamusBodyArtwork template = CreateSamusIdentityFixture();
-        InstalledSamusBodyArtwork Create(ushort[] selectedLanding, sbyte[] selectedPosture) => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = selectedLanding, PostureYOffsets = selectedPosture, DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity);
+        InstalledSamusBodyArtwork Create(int[] selectedLanding, sbyte[] selectedPosture) => new SamusBodySources(new SamusBodyArtworkParts { TopSetStarts = template.TopSetStarts.ToArray(), BottomSetStarts = template.BottomSetStarts.ToArray(), PoseFirstFrames = template.PoseFirstFrames.ToArray(), GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = template.Frames.ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTilesContentIdentity = template.DeathTilesContentIdentity, ArmCannon = template.ArmCannon, LandingYOffsets = selectedLanding, PostureYOffsets = selectedPosture, DrainedYOffsets = template.DrainedYOffsets.ToArray() }, template.BodyCharactersContentIdentity);
         InstalledSamusBodyArtwork stock = Create(landing, posture);
         var landingBasis = stock.landingYOffsets;
 
@@ -993,7 +993,7 @@ internal static class LookupStream1Verification
             AssertEqual(posture[index], posture[source], "Direct native posture facing equality");
 
         }
-        void Check(InstalledSamusBodyArtwork catalog, ushort[] expectedLanding, sbyte[] expectedPosture)
+        void Check(InstalledSamusBodyArtwork catalog, int[] expectedLanding, sbyte[] expectedPosture)
         {
             AssertTrue(catalog.LandingYOffsets.SequenceEqual(expectedLanding), "Landing snapshot preserves supplied bytes");
             AssertTrue(catalog.PostureYOffsets.SequenceEqual(expectedPosture), "Posture snapshot preserves supplied bytes");
@@ -1025,7 +1025,7 @@ internal static class LookupStream1Verification
         string identity = stock.ContentIdentity;
         for (int edit = 0; edit < 41; edit++)
         {
-            ushort[] changedLanding = (ushort[])landing.Clone(); sbyte[] changedPosture = (sbyte[])posture.Clone();
+            int[] changedLanding = (int[])landing.Clone(); sbyte[] changedPosture = (sbyte[])posture.Clone();
             if (edit < 17) changedLanding[edit] ^= 1; else changedPosture[edit - 17] ^= 1;
             InstalledSamusBodyArtwork changed = Create(changedLanding, changedPosture);
             Check(changed, changedLanding, changedPosture);
@@ -1130,7 +1130,7 @@ internal static class LookupStream1Verification
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
         InstalledSamusHurtColors Create(ushort[] supplied) => SamusHurtColorFile.Read(new MemoryStream(SamusHurtColorFile.Write(
             new SamusHurtColorDocument { Version = 1, Hurt = supplied.Take(16).Select(Color).ToArray(), Intro = supplied.Skip(16).Select(Color).ToArray() })));
-        Dictionary<int, byte> Levels(InstalledSamusHurtColors catalog) => catalog.introLevels;
+        Dictionary<int, int> Levels(InstalledSamusHurtColors catalog) => catalog.introLevels;
         var stock = Create(native);
         AssertEqual(0, stock.introOverrides.Count + stock.hurtOverrides.Count, "Zero stock channel/blend fallbacks");
         AssertEqual(0, Levels(stock).Count, "Zero stock shade samples survive");

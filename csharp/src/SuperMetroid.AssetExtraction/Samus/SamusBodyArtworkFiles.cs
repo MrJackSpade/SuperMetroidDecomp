@@ -246,7 +246,7 @@ public static class SamusBodyArtworkFiles
         // Cover coordinates the stock rules derive from the body's compositions are stored only where they differ.
         SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.Load(
             stockDirectory, overrideDirectory).WithBodyGeometry(spritemaps);
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets }, top, bottom);
+        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, GraphicsYOffsets = Array.ConvertAll<sbyte, int>(manifest.GraphicsYOffsets, value => value), Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTilesContentIdentity = deathTiles.ContentIdentity, ArmCannon = armCannon, LandingYOffsets = Array.ConvertAll<ushort, int>(manifest.LandingYOffsets, value => value), PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets }, top, bottom);
     }
 
     /// <summary>Re-encodes selected PNG sets into native planar bytes and rejects painted padding tiles.</summary>

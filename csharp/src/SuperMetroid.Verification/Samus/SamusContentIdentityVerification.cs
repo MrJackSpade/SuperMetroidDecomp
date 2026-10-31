@@ -66,9 +66,9 @@ internal static class SamusContentIdentityVerification
             .Select(index => firstRecord + index)];
         var poses = new int[InstalledSamusBodyArtwork.PoseCount];
         if (edit == "pose-pointer") poses[0] += 1;
-        var graphics = new sbyte[InstalledSamusBodyArtwork.PoseCount];
+        var graphics = new int[InstalledSamusBodyArtwork.PoseCount];
         if (edit == "graphics-offset") graphics[0] = -1;
-        var landing = new ushort[SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount];
+        var landing = new int[SamusDrawingDefinitions.BodyOffsets.LandingVerticalOffsetByteCount];
         if (edit == "landing-offset") landing[0] = 1;
         var posture = new sbyte[SamusDrawingDefinitions.BodyOffsets.PostureTransitionVerticalOffsetByteCount];
         if (edit == "posture-offset") posture[0] = -1;

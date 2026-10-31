@@ -15,10 +15,10 @@ public sealed record SamusBodyArtworkContent
     public required IReadOnlyDictionary<SamusPoseId, IReadOnlyList<SamusBodyFramePictures?>> Frames { get; init; }
 
     /// <summary>Per-pose signed vertical art origins.</summary>
-    public required sbyte[] GraphicsYOffsets { get; init; }
+    public required int[] GraphicsYOffsets { get; init; }
 
     /// <summary>Native landing vertical-offset bytes.</summary>
-    public required ushort[] LandingYOffsets { get; init; }
+    public required int[] LandingYOffsets { get; init; }
 
     /// <summary>Native posture-transition vertical offsets.</summary>
     public required sbyte[] PostureYOffsets { get; init; }

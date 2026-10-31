@@ -36,4 +36,7 @@ internal sealed record SporeSpawnBehaviorDependencies
 
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
+
+    /// <summary>The enemy update's sound and music requests.</summary>
+    public required EnemyAudioQueue Audio { get; init; }
 }

@@ -77,9 +77,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Health below which the later core-break list interrupts active AI.</summary>
     internal const ushort BombTorizoCoreExplosionHealth = 100;
 
-    /// <summary>Last delayed music request emitted by awakening/death bytecode.</summary>
-    public DelayedMusicRequest? LastBombTorizoMusicRequest { get; private set; }
-
     /// <summary>Creates the per-statue gradual color transition against the live CGRAM image on first use.</summary>
     private GradualPaletteTransition GetTorizoPaletteTransition(TorizoEnemyState state) =>
         state.PaletteTransition ??= new GradualPaletteTransition(
@@ -117,9 +114,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_room.Services.Plms.HasActiveHeader(PlmHeaderId.BombTorizoHand))
                     return;
 
-                LastBombTorizoMusicRequest = new DelayedMusicRequest(
-                    MusicRequest.SelectTrack(6),
-                    MusicQueueDelay.Shortest);
+                RequestBombTorizoMusic(MusicRequest.SelectTrack(6));
                 torizo.Properties = torizo.Properties.Without(EnemyProperties.SolidToSamus);
                 TorizoBody.StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoAnimations.AfterSleep(state.BodyProgram.Program)));
                 state.AwakeningReleased = true;
@@ -187,9 +182,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             yBase: state.IsGolden ? (ushort)288 : (ushort)96,
             yMask: TorizoRandomDefinitions.DropYMask);
         state.ItemDropRequested = true;
-        LastBombTorizoMusicRequest = new DelayedMusicRequest(
-            MusicRequest.SelectTrack(3),
-            MusicQueueDelay.Shortest);
+        RequestBombTorizoMusic(MusicRequest.SelectTrack(3));
     }
 
     /// <summary>Replaces Torizo's posture bits, keeping parameter 1's low thirteen bits.</summary>
@@ -310,9 +303,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.StartBombTorizoFight }:
-                LastBombTorizoMusicRequest = new DelayedMusicRequest(
-                    MusicRequest.SelectTrack(5),
-                    MusicQueueDelay.Shortest);
+                RequestBombTorizoMusic(MusicRequest.SelectTrack(5));
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.NoOperation }:
@@ -467,9 +458,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.StartGoldenTorizoFight }:
-                LastBombTorizoMusicRequest = new DelayedMusicRequest(
-                    MusicRequest.SelectTrack(5),
-                    MusicQueueDelay.Shortest);
+                RequestBombTorizoMusic(MusicRequest.SelectTrack(5));
                 torizo.Radius = new(18, 48);
                 return null;
 
@@ -609,15 +598,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         torizo.Position += move == BombTorizoPostureMove.SitDown ? -displacement : displacement;
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastBombTorizoMusicRequest = null;
-    }
-
-    /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacyMusic(EnemyAudioQueue audio)
-    {
-        audio.QueueLegacyMusic(LastBombTorizoMusicRequest?.Request, LastBombTorizoMusicRequest?.Delay);
-    }
+    /// <summary>
+    /// Requests the Torizo's music change at the end of the enemy update. A later change in the same update replaces
+    /// it: the update-end rule of <see cref="EnemyAudioQueue.RequestMusicAtUpdateEnd"/>.
+    /// </summary>
+    private void RequestBombTorizoMusic(MusicRequest request) =>
+        _audio.RequestMusicAtUpdateEnd(EnemyMusicSource.BombTorizo, new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 }

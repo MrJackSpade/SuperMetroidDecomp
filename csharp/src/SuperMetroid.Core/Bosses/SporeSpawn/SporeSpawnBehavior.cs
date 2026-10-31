@@ -44,12 +44,15 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork;
+    /// <summary>Receives Spore Spawn's sounds.</summary>
+    private readonly EnemyAudioQueue _audio;
 
 
     /// <summary>Captures the room and combat systems used by boss and spore behavior.</summary>
     internal SporeSpawnBehavior(SporeSpawnBehaviorDependencies dependencies)
     {
         _bossArtwork = dependencies.BossArtwork;
+        _audio = dependencies.Audio;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -76,8 +79,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Frame-local drop publications from boss death and individual spores.</summary>
     internal readonly List<SporeSpawnDropRequest> SporeSpawnDropRequests = new();
 
-    /// <summary>Last sound requested by the boss or one of its instructions in the current enemy frame.</summary>
-    public SoundEffectId? LastSporeSpawnSoundEffect { get; private set; }
+    /// <summary>
+    /// Requests a sound from the boss or one of its programs at the end of the enemy update. A later Spore Spawn sound
+    /// in the same update replaces it: the update-end rule of <see cref="EnemyAudioQueue.RequestSoundAtUpdateEnd"/>.
+    /// </summary>
+    private void RequestSporeSpawnSound(SoundEffectId sound) =>
+        _audio.RequestSoundAtUpdateEnd(EnemySoundSource.SporeSpawn, sound, SoundRequestPriority.Normal);
 
     /// <summary>
     /// Runs the global scrolling-finished callback installed by live Spore Spawn at
@@ -569,7 +576,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                     .Without(EnemyProperties.IgnoreSamusCollision);
                 return;
             case SporeSpawnCue.QueueSound queueSound:
-                LastSporeSpawnSoundEffect = queueSound.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound.");
+                RequestSporeSpawnSound(queueSound.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound."));
                 return;
             case SporeSpawnCue.Command { Kind: SporeSpawnCueKind.RequestDeathDrops }:
                 RequestSporeSpawnDeathDrops(state);
@@ -662,7 +669,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SharedRandomState.UpperByte(random) % 128 - 64))),
             MiscDustAnimation.BigDustCloud);
-        LastSporeSpawnSoundEffect = SporeSpawnSoundDefinitions.HardeningDust;
+        RequestSporeSpawnSound(SporeSpawnSoundDefinitions.HardeningDust);
     }
 
     /// <summary>Uses one RNG word to place a dying explosion sprite and request its sound.</summary>
@@ -673,7 +680,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SharedRandomState.UpperByte(random) % 64 - 32))),
             RoomSpriteObjectKind.SporeSpawnDyingExplosion,
             graphics: default);
-        LastSporeSpawnSoundEffect = SporeSpawnSoundDefinitions.DyingExplosion;
+        RequestSporeSpawnSound(SporeSpawnSoundDefinitions.DyingExplosion);
     }
 
     /// <summary>Generates sixteen RNG-positioned boss drops and marks the death drop as requested.</summary>
@@ -821,7 +828,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        LastSporeSpawnSoundEffect = null;
         SporeSpawnDropRequests.Clear();
     }
     /// <summary>Single active boss state, absent outside a room containing Spore Spawn.</summary>
@@ -829,13 +835,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Publishes Spore Spawn's pending target palette writes, if the boss is present.</summary>
     internal void ConsumeTargetColors(Action<SporeSpawnStagedColour> write) => SporeSpawn?.ConsumeTargetColors(write);
-
-    /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
-    internal void QueueLegacySounds(EnemyAudioQueue audio)
-    {
-        if (LastSporeSpawnSoundEffect is { } sound)
-            audio.QueueEnemySound(sound, priority: SoundRequestPriority.Normal);
-    }
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
     internal static bool? FindSporeSpawnHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)

@@ -341,7 +341,7 @@ internal static class NativeEnemyFamilyStateImport
             // $A2:A423-$A435: fraction then whole for each direction, then the state and the sink depth.
             owtchRecord.RightVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
             owtchRecord.LeftVelocity = SignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
-            owtchRecord.Behavior = (OwtchBehaviorState)words.E;
+            owtchRecord.Behavior = OwtchNativeWords.Behaviors.Decode(words.E, "recorded OwtchBehaviorState");
             owtchRecord.BurialDepth = words.F;
         }
         if (slot.SpeciesState<BullEnemyState>() is { } bullRecord)

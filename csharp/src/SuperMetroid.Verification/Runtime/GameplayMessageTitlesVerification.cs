@@ -34,7 +34,7 @@ internal static class GameplayMessageTitlesVerification
             // The title's content row is the cartridge's one-row tilemap named by the
             // message definition table; read it directly as the independent reference.
             int definition = HudSourceDefinitions.Messages.DefinitionTable +
-                ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
+                GameplayMessageNumbers.DefinitionEntry(id) * HudSourceDefinitions.Messages.DefinitionBytes;
             int content = HudSourceDefinitions.Messages.BankBase |
                 (LittleEndianBytes.Word(GameplayMessageTitlesRomByte(bus, definition + 4), GameplayMessageTitlesRomByte(bus, definition + 5)));
             ReadOnlySpan<BackgroundTile> row = installed.Tilemap(stockMessages).AsSpan(width, width);

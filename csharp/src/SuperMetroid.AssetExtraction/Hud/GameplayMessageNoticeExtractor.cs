@@ -23,7 +23,7 @@ public static class GameplayMessageNoticeExtractor
         foreach (GameplayMessageId id in GameplayMessageNoticeDefinitions.MessageIds)
         {
             int definition = HudSourceDefinitions.Messages.DefinitionTable +
-                ((byte)id - 1) * HudSourceDefinitions.Messages.DefinitionBytes;
+                GameplayMessageNumbers.DefinitionEntry(id) * HudSourceDefinitions.Messages.DefinitionBytes;
             int setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
             int draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
             int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));

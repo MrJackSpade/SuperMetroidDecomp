@@ -1879,7 +1879,7 @@ internal static class LookupStream4Verification
                 "Calculated notice rectangles preserve every original row/column/width");
             AssertTrue(notice.Text.All(region => region.Alignment == GameplayMessageTextAlignment.Left),
                 "Calculated notice regions retain left alignment");
-            int source = 0x850000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x85869f + ((byte)id - 1) * 6));
+            int source = 0x850000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x85869f + GameplayMessageNumbers.DefinitionEntry(id) * 6));
             var expected = new ushort[(notice.RowCount + 2) * 32];
             for (int column = 0; column < 32; column++)
                 expected[column] = expected[expected.Length - 32 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x858040 + column * 2));
@@ -1941,12 +1941,18 @@ internal static class LookupStream4Verification
         }
         GameplayMessagePanelPresentation panels = GameplayMessagePanelPresentation.Load(new MemoryStream(GameplayMessagePanelExtractor.Extract(rom)));
         var panelMessages = new GameplayMessageArtwork(null, panels);
+        AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(GameplayMessageId.None),
+            "Message button patch rejects no message");
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {
-            var id = (GameplayMessageId)raw;
             // The native table lists messages one through twenty-seven; its last entry is a dummy no message selects.
-            // No message, the gunship's save prompt beyond the table and every undefined identity are rejected.
-            if (raw is < 1 or > 27 || !Enum.IsDefined(id))
+            // The gunship's save prompt beyond the table is rejected, and other numbers name no message.
+            if (!GameplayMessageNumbers.Numbers.TryDecode(raw, out GameplayMessageId id))
+            {
+                AssertTrue(raw is 0 or 27 or > 28, "Message numbers name every message one through twenty-six and the gunship's");
+                continue;
+            }
+            if (raw > 27)
             {
                 AssertThrows<ArgumentOutOfRangeException>(() => GameplayMessageButtonGlyphs.SpecialGlyphByteOffset(id), "Message button patch exact native domain");
                 continue;

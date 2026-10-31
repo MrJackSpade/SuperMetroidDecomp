@@ -51,7 +51,7 @@ public enum EventNumber
     SecondMetroidHallCleared,
     /// <summary>The second Tourian Metroid shaft has met its clear condition; the metroids-cleared PLM records it for later room-state selection.</summary>
     SecondMetroidShaftCleared,
-    /// <summary>Unused in the bank-$80 event list, but retained because three Tourian room-state selectors still test this persistent bit.</summary>
+    /// <summary>Unused by any event-setting code, but retained because three Tourian room-state selectors still test this persistent bit.</summary>
     Unused14,
     /// <summary>The Speed Booster escape PLM has detected that Samus outran the rising-lava earthquake sequence, suppressing that hazard on later activation.</summary>
     OutranSpeedBoosterLavaquake,

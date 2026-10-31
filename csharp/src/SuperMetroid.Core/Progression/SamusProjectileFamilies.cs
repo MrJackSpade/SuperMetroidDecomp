@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Ranking predicates over the game's projectile family order (<see cref="SamusProjectileFamilyDefinitions.Order"/>) and
-/// each family's row in the per-family projectile tables. The cartridge's ordered family comparisons ("explosions and
+/// each family's row in the per-family projectile tables. The game's ordered family comparisons ("explosions and
 /// later", "bombs and later") are these predicates; a family's value is never compared.
 /// </summary>
 public static class SamusProjectileFamilies

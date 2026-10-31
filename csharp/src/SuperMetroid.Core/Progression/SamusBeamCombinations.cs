@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Progression;
 public static class SamusBeamCombinations
 {
     /// <summary>
-    /// The combinations in the order the native tables index them: a combination's index is its components'
+    /// The combinations in the order the beam tables index them: a combination's index is its components'
     /// equipment bits, Wave lowest, then Ice, Spazer and Plasma.
     /// </summary>
     private static readonly SamusBeamCombination[] TableOrder =
@@ -49,10 +49,10 @@ public static class SamusBeamCombinations
         return TableOrder[Array.IndexOf(TableComponents, components)];
     }
 
-    /// <summary>Exposes the native table index and equipment-bit predicates for a beam combination.</summary>
+    /// <summary>Exposes the beam-table index and equipment-bit predicates for a beam combination.</summary>
     extension(SamusBeamCombination combination)
     {
-        /// <summary>The four-bit index the native tables use.</summary>
+        /// <summary>The four-bit index the beam tables use.</summary>
         public int TableIndex => TablePosition.TryGetValue(combination, out int index)
             ? index
             : throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination.");
@@ -72,7 +72,7 @@ public static class SamusBeamCombinations
         /// <summary>Whether Plasma is a component.</summary>
         public bool HasPlasma => (combination.Components & SamusBeamFlags.Plasma) != SamusBeamFlags.None;
 
-        /// <summary>Whether retail equipment can produce this combination: every row the twelve-entry native tables define.</summary>
+        /// <summary>Whether retail equipment can produce this combination: every row the twelve-entry beam tables define.</summary>
         public bool IsRetail => combination switch
         {
             SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or

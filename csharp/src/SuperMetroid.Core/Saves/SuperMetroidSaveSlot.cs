@@ -61,7 +61,7 @@ public sealed record SuperMetroidSaveSlot(
     int Area)
 {
     /// <summary>
-    /// The startup route $82:EEB4 selects for <see cref="LoadingGameState"/>; a value the
+    /// The startup route the loading state selects for <see cref="LoadingGameState"/>; a value the
     /// dispatcher does not name resumes the main game.
     /// </summary>
     public SaveLoadingGameState StartupRoute => SaveLoadingGameStateCodec.Route(LoadingGameState);
@@ -69,22 +69,22 @@ public sealed record SuperMetroidSaveSlot(
     /// <summary>The checksum-backed seven-action controller permutation.</summary>
     public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
 
-    /// <summary>Saved nonzero WRAM word <c>$09E4</c>.</summary>
+    /// <summary>Whether the saved moonwalk setting is enabled.</summary>
     public bool MoonwalkEnabled { get; init; }
 
-    /// <summary>The checksummed cartridge debug value, carried unchanged.</summary>
+    /// <summary>The checksummed debug value, carried unchanged.</summary>
     public int DebugFlag { get; init; }
 
     /// <summary>The checksummed new-file marker, carried unchanged.</summary>
     public int NewFileMarker { get; init; }
 
-    /// <summary>Saved nonzero WRAM word <c>$09EA</c>.</summary>
+    /// <summary>Whether the saved icon-cancel setting is enabled.</summary>
     public bool IconCancelEnabled { get; init; }
 
-    /// <summary>The persistent excess-missile accumulator mirrored from WRAM <c>$09D8</c>.</summary>
+    /// <summary>The persistent excess-missile accumulator.</summary>
     public int ReserveMissiles { get; init; }
 
-    /// <summary>Whether the alternate Japanese text setting stored at WRAM <c>$09E2</c> is enabled.</summary>
+    /// <summary>Whether the alternate Japanese text setting is enabled.</summary>
     public bool JapaneseText { get; init; }
 
     /// <summary>

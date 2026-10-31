@@ -2,7 +2,7 @@ using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Saves;
 
-/// <summary>The seven configurable actions, each represented by one SNES controller bit.</summary>
+/// <summary>The seven configurable actions, each represented by one controller button bit.</summary>
 /// <param name="Shoot">Button assigned to firing beams and weapons.</param>
 /// <param name="Jump">Button assigned to jumping.</param>
 /// <param name="Dash">Button assigned to running and speed-boost input.</param>

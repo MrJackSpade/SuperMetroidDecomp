@@ -30,7 +30,7 @@ public enum SamusEquipmentFlags
     /// </summary>
     UnassignedItem = 1 << 4,
 
-    /// <summary>Enables Gravity Suit movement protection and the cartridge's strongest damage reduction.</summary>
+    /// <summary>Enables Gravity Suit movement protection and the game's strongest damage reduction.</summary>
     GravitySuit = 1 << 5,
 
     /// <summary>Applies the Hi-Jump Boots' increased jump acceleration.</summary>

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// Independent beam-equipment bits stored at WRAM <c>$09A6</c>. Low-nibble beam bits may
-/// be combined; Charge occupies bit twelve just as it does in the cartridge word.
+/// Independent beam-equipment bits. Low-nibble beam bits may
+/// be combined; Charge occupies bit twelve of the saved equipment word.
 /// </summary>
 [Flags]
 public enum SamusBeamFlags

@@ -6,7 +6,7 @@ internal static class SamusProjectileFamilyDefinitions
 {
     /// <summary>
     /// The families in the order the game ranks them: fired shots, then bombs, then the explosions shots leave. The
-    /// cartridge's ordered family comparisons read this order.
+    /// game's ordered family comparisons read this order.
     /// </summary>
     internal static readonly SamusProjectileFamily[] Order =
     [

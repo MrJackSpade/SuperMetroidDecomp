@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Saves;
 
-/// <summary>A cartridge load point expressed with typed area identity.</summary>
+/// <summary>A save load point expressed with typed area identity.</summary>
 /// <param name="Area">Retail world area that owns the load-station table.</param>
 /// <param name="SaveStation">
 /// Zero-based load-station index within <paramref name="Area"/>; a JSON number the codec accepts in

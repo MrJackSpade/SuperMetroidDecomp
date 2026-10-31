@@ -83,7 +83,7 @@ internal static class NativeEnemyFamilyStateImport
             // The cartridge gives each record word a meaning per part (#1476); the part's identity says which.
             if (slot.DefinitionId == EnemyDefinitionId.PhantoonEye)
             {
-                phantoonPartRecord.ClosedTimer = words.A;
+                phantoonPartRecord.ClosedTimer = WrappingCountdown.FromRaw(words.A);
                 phantoonPartRecord.ShotMarker = words.B;
                 phantoonPartRecord.FigureEightReversed = words.C != 0;
                 phantoonPartRecord.DyingFadeCycles = words.C;
@@ -104,7 +104,7 @@ internal static class NativeEnemyFamilyStateImport
             else if (slot.DefinitionId == EnemyDefinitionId.PhantoonMouth)
             {
                 phantoonPartRecord.CasualFlamePattern = words.A;
-                phantoonPartRecord.CasualFlameHold = words.B;
+                phantoonPartRecord.CasualFlameHold = WrappingCountdown.FromRaw(words.B);
                 phantoonPartRecord.CasualFlameCount = unchecked((short)words.C);
                 phantoonPartRecord.WaveAmplitude = words.D;
                 phantoonPartRecord.WaveAmplitudeShrinking = words.E != 0;
@@ -119,7 +119,7 @@ internal static class NativeEnemyFamilyStateImport
                 phantoonPartRecord.SpeedFraction = words.B;
                 phantoonPartRecord.SpeedWhole = words.C;
                 phantoonPartRecord.SpeedPhase = words.D;
-                phantoonPartRecord.FunctionTimer = words.E;
+                phantoonPartRecord.FunctionTimer = WrappingCountdown.FromRaw(words.E);
                 if (words.F != 0)
                     phantoonPartRecord.Function = PhantoonNativeWords.AiFunctions.Decode(words.F, "recorded PhantoonAiFunction");
             }

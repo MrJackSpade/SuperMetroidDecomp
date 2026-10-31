@@ -19,7 +19,7 @@ internal static class PhantoonRecordStateVerification
         slot.SetSpeciesState(part, part.ClearWithRecord);
 
         part.PathCursor = 533;
-        AssertEqual(0, part.ClosedTimer, "the path cursor leaves the eye's closed timer alone");
+        AssertEqual(0, part.ClosedTimer.RawValue, "the path cursor leaves the eye's closed timer alone");
         part.SpeedWhole = 1;
         AssertTrue(!part.FigureEightReversed, "the speed leaves the eye's figure-eight direction alone");
         part.Function = PhantoonAiFunction.SpawnStartingFlames;

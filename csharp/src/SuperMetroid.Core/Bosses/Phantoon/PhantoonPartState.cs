@@ -42,7 +42,7 @@ public sealed class PhantoonPartState
     public int ExplosionPass { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The eye's updates before it opens.</summary>
-    public int ClosedTimer { get; internal set => field = InRecordRange(value); }
+    public WrappingCountdown ClosedTimer { get; internal set; }
 
     /// <summary>Whether the tentacles have taken the shot that makes Phantoon swoop when its eye closes.</summary>
     public bool SwoopRequested { get; internal set; }
@@ -63,7 +63,7 @@ public sealed class PhantoonPartState
     public int RoundDamage { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The mouth's updates before its next casual flame.</summary>
-    public int CasualFlameHold { get; internal set => field = InRecordRange(value); }
+    public WrappingCountdown CasualFlameHold { get; internal set; }
 
     /// <summary>The body's figure-eight speed in whole path entries per update, as the cartridge stores it.</summary>
     public int SpeedWhole { get; internal set => field = InRecordRange(value); }
@@ -108,7 +108,7 @@ public sealed class PhantoonPartState
     public int WaveAmplitude { get; internal set => field = InRecordRange(value); }
 
     /// <summary>The body's updates before its current function moves on.</summary>
-    public int FunctionTimer { get; internal set => field = InRecordRange(value); }
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>The eye's palette fade numerator.</summary>
     public int FadeNumerator { get; internal set => field = InRecordRange(value); }
@@ -194,14 +194,14 @@ public sealed class PhantoonPartState
         StartingFlameIndex = 0;
         PathCursor = 0;
         ExplosionPass = 0;
-        ClosedTimer = 0;
+        ClosedTimer = WrappingCountdown.Start(0);
         SwoopRequested = false;
         CasualFlamePattern = 0;
         StartingFlamesActive = false;
         SpeedFraction = 0;
         ShotMarker = 0;
         RoundDamage = 0;
-        CasualFlameHold = 0;
+        CasualFlameHold = WrappingCountdown.Start(0);
         SpeedWhole = 0;
         FigureEightReversed = false;
         DyingFadeCycles = 0;
@@ -210,7 +210,7 @@ public sealed class PhantoonPartState
         SpeedPhase = 0;
         FadeDenominator = 0;
         WaveAmplitude = 0;
-        FunctionTimer = 0;
+        FunctionTimer = WrappingCountdown.Start(0);
         FadeNumerator = 0;
         WaveAmplitudeShrinking = false;
         _function = null;

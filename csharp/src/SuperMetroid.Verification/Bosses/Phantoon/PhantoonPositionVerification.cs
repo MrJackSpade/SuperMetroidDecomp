@@ -43,7 +43,7 @@ internal static class PhantoonPositionVerification
             var state = boundary.Enemies.PhantoonBehavior.Combat.Phantoon;
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
             boundaryState.Parts[boundaryState.Body.SlotIndex].Function = PhantoonAiFunction.MoveInFigureEightThenOpenEye;
-            boundaryState.Parts[boundaryState.Eye.SlotIndex].ClosedTimer = timer;
+            boundaryState.Parts[boundaryState.Eye.SlotIndex].ClosedTimer = WrappingCountdown.FromRaw(timer);
             boundary.StepFrame(0);
             AssertEqual(timer == 2 ? PhantoonAiFunction.MoveInFigureEightThenOpenEye : PhantoonAiFunction.NoOperation,
                 boundaryState.Parts[boundaryState.Body.SlotIndex].Function, $"Native figure-eight DEC/BEQ/BPL boundary from {timer}");
@@ -54,7 +54,7 @@ internal static class PhantoonPositionVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Phantoon);
         PhantoonEnemyState loaded = runtime.Enemies.PhantoonBehavior.Combat.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.PhantoonBehavior.Phantoon.");
-        AssertEqual(120, loaded.Parts[loaded.Body.SlotIndex].FunctionTimer,
+        AssertEqual(120, loaded.Parts[loaded.Body.SlotIndex].FunctionTimer.RawValue,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(40, 184));

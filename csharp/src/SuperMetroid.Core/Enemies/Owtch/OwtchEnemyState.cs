@@ -37,15 +37,14 @@ public sealed class OwtchEnemyState
     }
 
     /// <summary>
-    /// Counts one rising pixel off the burial depth and reports whether it reached zero (<c>DEC</c>, <c>BNE</c>). An
+    /// Counts one rising pixel off the burial depth and reports whether it reached zero. An
     /// Owtch that starts rising unburied wraps to 65535, as the cartridge's decrement does, and keeps rising that many
     /// more updates.
     /// </summary>
     internal bool RiseOnePixel()
     {
-        CountdownStep step = WrappingCounter.Decrement(checked((ushort)BurialDepth));
-        BurialDepth = step.Remaining.RemainingFrames;
-        return step.IsZero;
+        BurialDepth = WrappingCounter.DecrementWord(BurialDepth);
+        return BurialDepth == 0;
     }
 
     /// <summary>Native extended word <c>$7E:7800,x</c>.</summary>

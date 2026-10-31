@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Harness;
@@ -252,7 +253,7 @@ internal static class VerificationHelpersVerification
     /// and whole-pixel position are assigned; all other fields retain production defaults
     /// unless the test changes them explicitly afterward.
     /// </summary>
-    internal static SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position) => new()
+    internal static SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position) => new(InstalledFixtures.AnimationContinuation)
     {
         Pose = pose,
         Position = FixedPosition<RoomPixels>.FromWhole(position),

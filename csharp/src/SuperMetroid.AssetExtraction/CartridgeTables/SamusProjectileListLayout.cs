@@ -27,7 +27,7 @@ internal sealed class SamusProjectileListLayout
     /// <summary>Where one program's list stands: its entry and the word just before it.</summary>
     /// <param name="Entry">The list's first instruction pointer.</param>
     /// <param name="PrecedingWord">The word just before the list, which a trail spawned at the list's start reads as its animation frame.</param>
-    internal readonly record struct ListPosition(ushort Entry, ushort PrecedingWord);
+    internal readonly record struct ListPosition(int Entry, int PrecedingWord);
 
     /// <summary>Lays every program's steps out from its list position.</summary>
     /// <param name="positions">Every program's list entry and preceding word.</param>
@@ -47,7 +47,7 @@ internal sealed class SamusProjectileListLayout
     }
 
     /// <summary>The word just before <paramref name="program"/>'s list.</summary>
-    internal ushort Prefix(SamusProjectileProgram program) => _positions[program].PrecedingWord;
+    internal ushort Prefix(SamusProjectileProgram program) => checked((ushort)_positions[program].PrecedingWord);
 
     /// <summary>The instruction pointer <paramref name="cursor"/> stands for.</summary>
     internal ushort Position(AnimationProgramCursor<SamusProjectileProgram> cursor) => stepPositions[cursor.Program][cursor.Position];
@@ -72,7 +72,7 @@ internal sealed class SamusProjectileListLayout
         {
             var step = steps[position];
             places[position] = step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.FallIntoStep fallInto
-                ? _positions[fallInto.Target].Entry
+                ? checked((ushort)_positions[fallInto.Target].Entry)
                 : (ushort)place;
             place += step is AnimationProgramStep<SamusProjectileProgram, SamusProjectileFrame, NoAnimationCue>.ShowStep ? TimedRecordByteCount : sizeof(ushort);
         }
@@ -82,7 +82,7 @@ internal sealed class SamusProjectileListLayout
     /// <summary>Indexes every list position; an entry stands for its own program's start.</summary>
     private Dictionary<ushort, AnimationProgramCursor<SamusProjectileProgram>> BuildCursors()
     {
-        var cursors = ListOrder.ToDictionary(program => _positions[program].Entry, AnimationProgramCursor<SamusProjectileProgram>.Start);
+        var cursors = ListOrder.ToDictionary(program => checked((ushort)_positions[program].Entry), AnimationProgramCursor<SamusProjectileProgram>.Start);
         foreach (SamusProjectileProgram program in ListOrder)
         {
             ushort[] places = stepPositions[program];

@@ -109,7 +109,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         finally { File.WriteAllBytes(stockPath, stockBytes); }
         Console.WriteLine("Pause equipment base: 1024 native words, guarded transitions, visible edits, state-safe rebind and strict failures pass.");
 
-        static SamusState Samus() => new()
+        static SamusState Samus() => new(InstalledFixtures.AnimationContinuation)
         {
             CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Wave),
             EquippedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),

@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -41,11 +42,9 @@ internal sealed record SamusOverreadDocument(
     internal sealed record Continuation(string Pose, int Shift);
 
     /// <summary>Where a trail's two sparkles start, as signed offsets from the projectile.</summary>
-    /// <param name="LeftX">The left sparkle's horizontal offset.</param>
-    /// <param name="LeftY">The left sparkle's vertical offset.</param>
-    /// <param name="RightX">The right sparkle's horizontal offset.</param>
-    /// <param name="RightY">The right sparkle's vertical offset.</param>
-    internal sealed record Placement(int LeftX, int LeftY, int RightX, int RightY);
+    /// <param name="Left">The left sparkle's offset.</param>
+    /// <param name="Right">The right sparkle's offset.</param>
+    internal sealed record Placement(Offset16<RoomPixels> Left, Offset16<RoomPixels> Right);
 
     /// <summary>The leading entries of each progression table the copy replaces, and the loading state when reached.</summary>
     /// <param name="Events">Story-event bitset bytes.</param>

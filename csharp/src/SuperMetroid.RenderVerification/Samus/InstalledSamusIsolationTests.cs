@@ -231,13 +231,13 @@ internal sealed class InstalledSamusIsolationTests
         var samus = InstalledFixtures.CreateSamus();
         var baseline = new SamusMechanicsSnapshot(samus);
         MustDiffer(() => samus.Position += new Offset16<RoomPixels>(1, 0), "whole position");
-        samus = new(); baseline = new(samus);
+        samus = new(InstalledFixtures.AnimationContinuation); baseline = new(samus);
         MustDiffer(() => samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(unchecked((ushort)(samus.Kinematics.Position.X.Fraction + 1))), "fractional position");
-        samus = new(); baseline = new(samus);
+        samus = new(InstalledFixtures.AnimationContinuation); baseline = new(samus);
         MustDiffer(() => samus.AnimationFrame++, "animation frame");
-        samus = new(); baseline = new(samus);
+        samus = new(InstalledFixtures.AnimationContinuation); baseline = new(samus);
         MustDiffer(() => samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(unchecked((ushort)(samus.Kinematics.Radius.Y + 1))), "collision radius");
-        samus = PrepareFlash(new());
+        samus = PrepareFlash(new(InstalledFixtures.AnimationContinuation));
         var sequence = new SamusMechanicsSnapshot(samus.CrystalFlash);
         Require(samus.CrystalFlash.TryBegin(samus, FlashChord),
             "Sensitivity setup could not activate the sequence");

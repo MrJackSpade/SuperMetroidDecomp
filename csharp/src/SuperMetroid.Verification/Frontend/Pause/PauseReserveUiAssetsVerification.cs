@@ -113,7 +113,7 @@ internal static class PauseReserveUiAssetsVerification
         finally { File.WriteAllBytes(stockPath, stockBytes); }
         Console.WriteLine("Pause reserve UI: labels, ten digits and 32 arrow phases match native with guarded reads; edits, restore and strict failures pass.");
 
-        static SamusState Samus() => new()
+        static SamusState Samus() => new(InstalledFixtures.AnimationContinuation)
         {
             MaxHealth = 499, Health = 499, MaxReserveEnergy = 400, ReserveEnergy = 245,
             ReserveTankMode = ReserveTankMode.Auto,

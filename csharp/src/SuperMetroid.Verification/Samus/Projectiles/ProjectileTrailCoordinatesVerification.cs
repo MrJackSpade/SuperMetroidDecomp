@@ -60,7 +60,7 @@ internal static class ProjectileTrailCoordinatesVerification
             .Distinct()
             .Order()];
         foreach (SamusProjectileProgram program in Enum.GetValues<SamusProjectileProgram>())
-            AssertEqual((int)SamusProjectileProgramAddresses.Prefix(program), trailStarts.FrameAtListStart(program),
+            AssertEqual(SamusProjectileProgramAddresses.Prefix(program), trailStarts.FrameAtListStart(program),
                 $"A trail spawned at {program}'s start reads the word before its list");
         int overruns = 0;
         foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())

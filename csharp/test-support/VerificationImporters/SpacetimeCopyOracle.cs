@@ -40,7 +40,7 @@ internal static class SpacetimeCopyOracle
                 if ((uint)sliceOffset >= ProgressionSliceByteCount)
                     continue;
                 int source = y + offset;
-                if (source < 0x8000 || source > ushort.MaxValue)
+                if (source is < 0x8000 or > ushort.MaxValue)
                     throw new InvalidDataException($"The SpaceTime copy writes progression byte {sliceOffset} from scratch memory at $00:{source:X4}.");
                 slice[sliceOffset] = cartridge.ReadCartridgeByte(0x800000 | source);
             }

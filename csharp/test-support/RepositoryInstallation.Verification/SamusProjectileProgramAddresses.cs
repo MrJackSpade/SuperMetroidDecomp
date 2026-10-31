@@ -29,10 +29,10 @@ internal static class SamusProjectileProgramAddresses
     /// <inheritdoc cref="SamusProjectileListLayout.Position(AnimationProgramCursor{SamusProjectileProgram})"/>
     internal static ushort Address(AnimationProgramCursor<SamusProjectileProgram> cursor) => Layout.Position(cursor);
 
-    /// <inheritdoc cref="SamusProjectileListLayout.Position(AnimationProgramCursor{SamusProjectileProgram}?)"/>
+    /// <summary>The bank position of <paramref name="cursor"/>, or zero for no cursor.</summary>
     internal static ushort Address(AnimationProgramCursor<SamusProjectileProgram>? cursor) => Layout.Position(cursor);
 
-    /// <inheritdoc cref="SamusProjectileListLayout.CursorAt"/>
+    /// <summary>The cursor the bank position <paramref name="address"/> names, or none for zero.</summary>
     internal static AnimationProgramCursor<SamusProjectileProgram>? CursorAt(ushort address) => Layout.CursorAt(address);
 
     /// <inheritdoc cref="SamusProjectileListLayout.RecordPosition"/>

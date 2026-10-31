@@ -1593,7 +1593,7 @@ internal static class LookupStream1Verification
             byte expected = tableByte % sizeof(ushort) == 0 ? LittleEndianBytes.LowByte(programWord) : LittleEndianBytes.HighByte(programWord);
             AssertEqual(LookupStream1CadenceProgramsRomByte(rom, SamusSourceDefinitions.ChargeFlarePrograms.Value - distance), expected,
                 "stream1 flare program table names each program's place");
-            AssertEqual((int)expected, below.DelayBelow(distance), "stream1 installed flare delay below the programs");
+            AssertEqual(expected, below.DelayBelow(distance), "stream1 installed flare delay below the programs");
             AssertEqual(expected, ChargeFlareAnimations.ReadDelay(0, -distance, below), "stream1 main flare reads the table below its program");
         }
         AssertThrows<InvalidDataException>(() => ChargeFlareAnimations.ReadDelay(0, -(ChargeFlareAnimationDefinitions.ProgramTableByteCount + 1), below),

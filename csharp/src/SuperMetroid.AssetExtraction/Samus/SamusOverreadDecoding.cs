@@ -97,7 +97,7 @@ internal static class SamusOverreadDecoding
                 }
                 byte[] bytes = RomDataReader.ReadFixedBank(cartridge, record, ProjectileTrailPlacementSources.RecordByteCount);
                 frames.Add(frame.ToString(System.Globalization.CultureInfo.InvariantCulture), new SamusOverreadDocument.Placement(
-                    unchecked((sbyte)bytes[0]), unchecked((sbyte)bytes[1]), unchecked((sbyte)bytes[2]), unchecked((sbyte)bytes[3])));
+                    new(unchecked((sbyte)bytes[0]), unchecked((sbyte)bytes[1])), new(unchecked((sbyte)bytes[2]), unchecked((sbyte)bytes[3]))));
             }
             result.Add(list.ToString(), frames);
         }
@@ -197,7 +197,7 @@ internal static class SamusOverreadDecoding
                 if (sliceOffset < 0 || sliceOffset >= slice.Length)
                     continue;
                 int read = source + offset;
-                if (read < SamusOverreadSourceDefinitions.CartridgeHalfStart || read > ushort.MaxValue)
+                if (read is < SamusOverreadSourceDefinitions.CartridgeHalfStart or > ushort.MaxValue)
                     throw new InvalidDataException($"SpaceTime's copy from list position {place} in slot {slot} writes progression from scratch memory.");
                 slice[sliceOffset] = cartridge.ReadCartridgeByte(SamusOverreadSourceDefinitions.SpacetimeCopySourceBank | read);
             }

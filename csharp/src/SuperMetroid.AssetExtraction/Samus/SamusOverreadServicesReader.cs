@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using System.Globalization;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
@@ -74,8 +75,7 @@ internal static class SamusOverreadServicesReader
             placements.Add(list, byFrame.ToDictionary(
                 pair => ParseCount(pair.Key, $"{list} trail frame"),
                 pair => pair.Value is { } placement
-                    ? new ProjectileTrailPlacement(new(SparkleOffset(placement.LeftX), SparkleOffset(placement.LeftY)),
-                        new(SparkleOffset(placement.RightX), SparkleOffset(placement.RightY)))
+                    ? new ProjectileTrailPlacement(Sparkle(placement.Left), Sparkle(placement.Right))
                     : (ProjectileTrailPlacement?)null));
         }
         if (pastRecords.Count != placements.Count)
@@ -173,6 +173,9 @@ internal static class SamusOverreadServicesReader
     }
 
     /// <summary>A sparkle's signed offset from its projectile, -128 through 127 pixels.</summary>
+    private static Offset16<RoomPixels> Sparkle(Offset16<RoomPixels> offset) => new(SparkleOffset(offset.X), SparkleOffset(offset.Y));
+
+    /// <summary>One sparkle offset component, which a trail record holds as a signed byte.</summary>
     private static short SparkleOffset(int pixels) => pixels is >= sbyte.MinValue and <= sbyte.MaxValue
         ? (short)pixels
         : throw new InvalidDataException($"Samus overread trail placement offset {pixels} lies outside -128 through 127.");

@@ -123,6 +123,7 @@ internal static class FrontendRomFreeVerification
     {
         var maps = installation.LoadMaps();
         var palettes = installation.LoadGameplayBasePalettes();
+        var overreads = installation.LoadSamusOverreads();
         var enemies = enemyArtwork ?? installation.LoadEnemyTiles();
         var objects = installation.LoadStandardObjects();
         var intro = installation.LoadIntroCinematicArt();
@@ -166,6 +167,7 @@ internal static class FrontendRomFreeVerification
             {
                 MapPresentation = maps,
                 GameplayBasePalettes = palettes,
+                SamusOverreads = overreads,
                 EnemyTileArtwork = enemies.Enemies,
                 EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets,
                 SpriteSheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets,

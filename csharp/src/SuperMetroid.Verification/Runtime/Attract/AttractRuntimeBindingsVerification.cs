@@ -37,6 +37,7 @@ internal static class AttractRuntimeBindingsVerification
         game.BindArtwork(game.Artwork with
         {
             GameplayBasePalettes = palettes,
+            SamusOverreads = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads,
             EnemyTileArtwork = enemyArtwork.Enemies,
             EnemySheets = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemySheets, BossArtwork = enemyArtwork.Bosses, AreaArtwork = enemyArtwork.Areas,
             StandardObjectArt = objects,

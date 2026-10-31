@@ -54,6 +54,7 @@ internal static class BoulderBehaviorVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(256, 512));
+            slot.SetSpawnWords(EnemyDefinitionId.Boulder, words => words);
             BoulderBehavior.InitializeBoulder(slot);
             BoulderEnemyState state = slot.RequireSpeciesState<BoulderEnemyState>();
             state.Function = BoulderAiFunction.Rebound;

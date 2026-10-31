@@ -16,6 +16,6 @@ public enum GameOverMenuPhase
     FadeOutToContinue,
     /// <summary>Native menu-index-seven path: fades the accepted No answer to black and publishes <see cref="GameOverMenuState.TitleRequested"/> for the outer soft reset.</summary>
     FadeOutToTitle,
-    /// <summary>Native menu-index-zero setup: fades out (already black after state $19), cancels library-three sounds, and waits for NMI before configuring the menu graphics.</summary>
+    /// <summary>The menu's first step: fades out (already black after the death black-out), cancels library-three sounds, and waits out one update before configuring the menu graphics.</summary>
     ConfigureGraphics,
 }

@@ -59,7 +59,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Gates one brightness decrement every other frame in the closing fade.</summary>
     private int fadeDelay;
 
-    /// <summary>Loads installed flight art into PPU memory and leaves the scene in forced blank for the setup dispatch.</summary>
+    /// <summary>Loads installed flight art and leaves the scene black for the setup update.</summary>
     /// <param name="audio">The shared music queue that $8B:BDE4 waits on.</param>
     /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
     /// <param name="japaneseText">Native <c>AltText</c>, which adds the katakana SPACE COLONY caption.</param>
@@ -81,7 +81,7 @@ internal sealed class IntroCeresFlightState
         // $BCCD loads the floor's front view and the OBJ characters; the scene shows the front view's installed floor (#1467).
         objects = new ScreenSprites();
         content.Palette.LoadTo(palette);
-        // The PPU loads above are invisible: the screen stays in forced blank until $8B:BDE4.
+        // The loads above are invisible: the screen stays black until the music queue drains.
         // $8B:BCA0 itself runs as the next dispatch's cinematic function.
         Phase = IntroCeresFlightPhase.Initial;
     }
@@ -108,7 +108,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Current native cinematic dispatch phase, including the final handoff to Ceres gameplay.</summary>
     public IntroCeresFlightPhase Phase { get; private set; }
 
-    /// <summary>True after the native SPACE COLONY hold and final fade reach forced blank.</summary>
+    /// <summary>True after the SPACE COLONY hold and final fade reach black.</summary>
     public bool Finished => Phase == IntroCeresFlightPhase.Finished;
 
     /// <summary>Advances the music gate, camera, rear-view actors, title cadence, or final fade for one dispatch.</summary>
@@ -158,7 +158,7 @@ internal sealed class IntroCeresFlightState
                 break;
 
             case IntroCeresFlightPhase.StartGameAtCeres:
-                // $8B:C100 runs as the dispatch after forced blank; it hands control to state
+                // The handoff runs as the update after the screen goes black; it hands control to state
                 // $1F, whose owner also performs this function's area-six checkpoint save.
                 Phase = IntroCeresFlightPhase.Finished;
                 break;
@@ -341,7 +341,7 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FadeOut;
     }
 
-    /// <summary>Lowers brightness every other dispatch until forced blank permits the Ceres handoff.</summary>
+    /// <summary>Lowers brightness every other dispatch until the black screen permits the Ceres handoff.</summary>
     private void StepFadeOut()
     {
         // `$C0A2` seeds both fade words with one. `$8B:C0C5` calls HandleFadingOut, which

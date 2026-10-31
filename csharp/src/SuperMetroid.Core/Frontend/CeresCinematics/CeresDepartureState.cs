@@ -21,7 +21,7 @@ public sealed class CeresDepartureState
     public WrappingCountdown HoldFramesRemaining { get; private set; }
 
     /// <summary>
-    /// Master brightness during the state-$21 fade, from fifteen (full) down to zero (forced blank); every step is
+    /// Master brightness during the state-$21 fade, from fifteen (full) down to zero (black); every step is
     /// guarded by the level above one, so the value never leaves that range.
     /// </summary>
     public int Brightness { get; private set; } = 15;
@@ -62,7 +62,7 @@ public sealed class CeresDepartureState
     /// <summary>
     /// Applies one state-<c>$21</c> <c>HandleFadeOut</c> call after ordinary gameplay.
     /// </summary>
-    /// <returns>Whether brightness one reached forced blank and completed this timing owner; the caller owns checkpoint saving and cinematic dispatch.</returns>
+    /// <returns>Whether brightness one went black and completed this timing owner; the caller owns checkpoint saving and cinematic dispatch.</returns>
     /// <exception cref="InvalidOperationException">The blackout-fade phase is not active.</exception>
     public bool StepFadeAfterGameplay()
     {

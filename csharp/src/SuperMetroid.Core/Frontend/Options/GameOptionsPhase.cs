@@ -19,13 +19,13 @@ public enum GameOptionsPhase
     ScrollControllerDown,
     /// <summary>Scroll the controller page toward its upper rows.</summary>
     ScrollControllerUp,
-    /// <summary>Fade to forced blank before starting the opening sequence.</summary>
+    /// <summary>Fade to black before starting the opening sequence.</summary>
     FadeOutToIntro,
-    /// <summary>Fade to forced blank before returning to file select.</summary>
+    /// <summary>Fade to black before returning to file select.</summary>
     FadeOutToFileSelect,
     /// <summary>Publish the opening-sequence request after the preceding fade completes.</summary>
     StartGame,
-    /// <summary>Native index zero: finish the previous menu's fade-out at forced blank.</summary>
+    /// <summary>Native index zero: finish the previous menu's fade-out at black.</summary>
     FinishFadingOut,
     /// <summary>Native index one: load the menu pages and spawn the selection missile.</summary>
     LoadingMenu,

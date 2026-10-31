@@ -63,7 +63,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>The state of the post-credits text, which exists while that phase runs.</summary>
     private EndingBackgroundTextState PostCreditsText => InstalledArtwork.ActivePostCreditsText ??
         throw new InvalidOperationException("The post-credits text is not running.");
-    /// <summary>NMI waits <c>CinematicFunction_Ending_Setup</c> has made so far.</summary>
+    /// <summary>Waiting updates the ending setup has made so far.</summary>
     private int setupFrameWaits;
     /// <summary>Post-credits suitless or helmet-removal gesture actor.</summary>
     internal EndingRewardGesture? CurrentRewardGesture { get; private set; }
@@ -111,8 +111,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
         Stage.Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
     /// <summary>
-    /// True when the next call resumes inside the setup's NMI wait loop rather than starting
-    /// a MainGameLoop iteration, so it makes no main-loop RNG call.
+    /// True when the next call continues the setup's wait rather than starting
+    /// a new update of the ending, so it makes no per-update random advance.
     /// </summary>
     internal bool ResumesAfterFrameWait =>
         Stage.Phase == EndingCreditsPhase.SetupEscapeFromZebes && setupFrameWaits > 0;

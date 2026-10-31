@@ -7,7 +7,7 @@ public enum FileSelectPhase
     FadeIn,
     /// <summary>Accept slot, Copy, Clear and Exit navigation; data-management items are skipped when all slots are empty.</summary>
     Main,
-    /// <summary>Fade the main screen to forced blank, then initialize the selected Copy or Clear page.</summary>
+    /// <summary>Fade the main screen to black, then initialize the selected Copy or Clear page.</summary>
     FadeOutToDataManagement,
     /// <summary>Brighten the newly built Copy, Clear or main page; covers both the submenu and the return-to-main fade-ins.</summary>
     FadeInFromDataManagement,
@@ -25,22 +25,22 @@ public enum FileSelectPhase
     ClearConfirm,
     /// <summary>Display the completed clear without a selection missile and wait for a newly pressed button before returning to main.</summary>
     ClearCompleted,
-    /// <summary>Fade the data-management page to forced blank, then rebuild main from the updated slot contents.</summary>
+    /// <summary>Fade the data-management page to black, then rebuild main from the updated slot contents.</summary>
     FadeOutToMain,
     /// <summary>Turn only the selected slot's helmet; a new Start/A press can end the animation early.</summary>
     TurnSelectedHelmet,
-    /// <summary>Fade the selected helmet and main page to forced blank, then signal the game-options handoff.</summary>
+    /// <summary>Fade the selected helmet and main page to black, then signal the game-options handoff.</summary>
     FadeOutToOptions,
-    /// <summary>Fade to forced blank after Exit/B, then request the host's reset path corresponding to native SoftReset.</summary>
+    /// <summary>Fade to black after Exit/B, then request the host's reset path corresponding to native SoftReset.</summary>
     FadeOutToTitle,
-    /// <summary>Finish entry fade-out and establish forced blank before the dispatch's internal NMI wait.</summary>
+    /// <summary>Finish the entry fade-out and blank the display, then wait out one update.</summary>
     EnterBlankScreen,
-    /// <summary>Continuation of initialization after its frame wait; the next update advances to background loading without another main-loop RNG call.</summary>
+    /// <summary>Continuation of initialization after its frame wait; the next update advances to background loading without another per-update random advance.</summary>
     EnterBlankScreenAfterFrameWait,
     /// <summary>Represent the Zebes/starfield BG2 transfer stage; installed graphics were loaded atomically by construction.</summary>
     LoadBackground,
-    /// <summary>Set both fade timing words to one and release forced blank before its internal NMI wait.</summary>
+    /// <summary>Set both fade timings to one and unblank the display, then wait out one update.</summary>
     InitializeMain,
-    /// <summary>Continuation of the screen setup after its frame wait; advance to main-screen fade-in without another main-loop RNG call.</summary>
+    /// <summary>Continuation of the screen setup after its frame wait; advance to main-screen fade-in without another per-update random advance.</summary>
     InitializeMainAfterFrameWait,
 }

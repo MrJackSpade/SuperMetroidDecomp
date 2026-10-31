@@ -134,13 +134,13 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
         switch (Phase)
         {
             case GameOptionsPhase.FinishFadingOut:
-                // $82:EBDB index zero: the previous menu already reached forced blank, so
+                // $82:EBDB index zero: the previous menu already reached black, so
                 // HandleFadingOut leaves it there and the index advances.
                 Phase = GameOptionsPhase.LoadingMenu;
                 break;
 
             case GameOptionsPhase.LoadingMenu:
-                // $82:EC11 index one loads the menu under forced blank; fading starts next update.
+                // $82:EC11 index one loads the menu on a black screen; fading starts next update.
                 Phase = GameOptionsPhase.FadeIn;
                 break;
 
@@ -201,7 +201,7 @@ public sealed class GameOptionsMenuState : IMenuFrontendScreen
                 break;
 
             case GameOptionsPhase.FadeOutToIntro:
-                // $82:EE92 index $0C: reaching forced blank selects index four, which
+                // $82:EE92 index $0C: reaching black selects index four, which
                 // dispatches the loading game state on the following update.
                 brightness = Math.Max(0, brightness - 1);
                 if (brightness == 0)

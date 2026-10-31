@@ -253,7 +253,7 @@ public sealed class TitleSequenceState : IFrontendScreen
                 break;
 
             case TitleSequencePhase.SceneThreeZoom:
-                // `$8B:9E8B` increments only on even NMI frame counters.
+                // The zoom grows only on every second update.
                 if ((PhaseTimer++ & 1) == 0 && Zoom < TitleSequenceDefinitions.Scenes.IdentityScale)
                     Zoom++;
                 if (Zoom >= TitleSequenceDefinitions.Scenes.IdentityScale)

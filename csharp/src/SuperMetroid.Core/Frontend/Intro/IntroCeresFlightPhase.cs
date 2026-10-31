@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <remarks>Debugger states store these numerically, so new members are appended.</remarks>
 internal enum IntroCeresFlightPhase
 {
-    /// <summary>$8B:BDE4: forced blank until the music queue drains.</summary>
+    /// <summary>The screen stays black until the music queue drains.</summary>
     WaitForMusicQueue,
     /// <summary>The front-view gunship zooms toward the camera while stars and background accelerate diagonally.</summary>
     FlyingIntoCamera,
@@ -12,12 +12,12 @@ internal enum IntroCeresFlightPhase
     FlyingTowardCeres,
     /// <summary>The SPACE COLONY caption writes letters, optional katakana, and a final hold.</summary>
     SpaceColonyTitle,
-    /// <summary>The caption and surviving actors dim every other frame toward forced blank.</summary>
+    /// <summary>The caption and surviving actors dim every other frame toward black.</summary>
     FadeOut,
     /// <summary>$8B:C100 has run; game state $1F follows.</summary>
     Finished,
     /// <summary>$8B:BCA0: the PPU setup dispatch that queues the flight's music.</summary>
     Initial,
-    /// <summary>$8B:C0C5 reached forced blank and installed $8B:C100 for the next dispatch.</summary>
+    /// <summary>The fade reached black and installed the handoff for the next update.</summary>
     StartGameAtCeres,
 }

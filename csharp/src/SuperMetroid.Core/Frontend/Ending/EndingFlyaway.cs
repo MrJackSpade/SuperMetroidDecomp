@@ -166,7 +166,7 @@ internal sealed class EndingFlyaway
 
     /// <summary>
     /// The ending's first flyaway reuses the Ceres approach's cartridge source.
-    /// Rebind only chunks already transferred by the native 16-NMI DMA sequence;
+    /// Rebind only chunks already loaded by the sixteen-update load;
     /// future chunks must still arrive on their original scheduled frames.
     /// </summary>
     internal void BindFlightArtwork(CeresFlightArtwork? value)
@@ -178,7 +178,7 @@ internal sealed class EndingFlyaway
     internal void PrepareFlyawayUploads()
     {
         // Func117 restores the BG half before disabling BG1. OBJ VRAM and palettes
-        // remain live while Func118 replaces the two Mode-7 lanes over sixteen NMIs.
+        // remain live while the two floor lanes are replaced over sixteen updates.
         _stage.StaticScreen(EndingPaletteId.Explosion).LoadBackgroundsTo(screen.Palette);
     }
 

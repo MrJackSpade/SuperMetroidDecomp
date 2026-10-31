@@ -15,7 +15,7 @@ public static class IntroNarrationDefinitions
     public const int FirstTextRow = 4;
     /// <summary>Last permitted text row in BG tile cells, sixteen, inclusive.</summary>
     public const int LastTextRow = 16;
-    /// <summary>Five cinematic background-object updates between character records, including spaces; independent of hardware lag or host elapsed time.</summary>
+    /// <summary>Five cinematic background-object updates between character records, including spaces; independent of host elapsed time.</summary>
     public const ushort CharacterDelayFrames = 5;
     /// <summary>One-update duration of the no-op marker at the beginning of each native page stream.</summary>
     public const ushort InitialMarkerDelayFrames = 1;

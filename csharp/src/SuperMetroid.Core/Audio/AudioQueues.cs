@@ -285,8 +285,8 @@ public sealed class AudioQueues
     }
 
     /// <summary>
-    /// Runs <c>$88:84BD</c>'s music call before a new outer door dispatch.
-    /// IRQ-only continuations do not invoke this owner.
+    /// Processes the music queue once before a new update of the running phase.
+    /// An update that continues a waiting step does not invoke this owner.
     /// </summary>
     internal IReadOnlyList<AudioRequest> AdvanceMusicDispatch()
     {

@@ -171,9 +171,9 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
     public PauseScreenMode ScreenMode { get; private set; }
 
     /// <summary>
-    /// Runs state-$0F menu input after the caller has latched NMI input and invoked the
-    /// bank-$80 delayed-held filter. Returns true when Start requests game state $10.
-    /// The runtime supplies its accepted-NMI byte counter for cartridge palette phase;
+    /// Runs the pause menu's input after the caller has latched the update's input and applied the
+    /// delayed-held filter. Returns true when Start requests unpausing.
+    /// The runtime supplies its short frame counter for the colour animation's phase;
     /// standalone diagnostic callers may leave that phase at zero.
     /// </summary>
     public bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null, int frameCounterByte = 0)
@@ -820,8 +820,8 @@ internal sealed class PauseMenuState : IMenuFrontendScreen
         }
     }
 
-    /// <summary>Retains only the HUD gameplay's last NMI displayed, not the pending WRAM tilemap.</summary>
-    /// <param name="gameplayHud">The HUD gameplay latched at that NMI (#1351, #1466).</param>
+    /// <summary>Retains only the HUD gameplay last displayed, not one still being written.</summary>
+    /// <param name="gameplayHud">The HUD gameplay latched at that frame (#1351, #1466).</param>
     public void SynchronizeAcceptedHud(ShownHud gameplayHud)
     {
         // Pause owns its own screen. Mirror the HUD's drawn rows, leaving its static

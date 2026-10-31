@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -37,6 +38,8 @@ public sealed class DraygonEnemyState
     public RoomEnemySlot Arms { get => field ?? throw new InvalidOperationException("Draygon's arms part is not attached; part initialization attaches it."); internal set; }
 
 
+    /// <summary>Room-loading IRQ command selected by Draygon's body instruction stream.</summary>
+    public RoomLoadingInterruptCommand RoomLoadingIrqCommand { get; internal set; }
 
     /// <summary>The boss-room load disables the normal minimap and marks its four tiles.</summary>
     public bool MinimapDisabledAndBossTilesExplored { get; internal set; }

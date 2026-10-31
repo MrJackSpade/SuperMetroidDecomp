@@ -69,8 +69,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         Projectiles = new MotherBrainProjectiles(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.DeathsAndDrops, _motherBrainEncounter, dependencies.RoomActors);
         Access = new MotherBrainEncounterAccess(_frameResults, _motherBrainEncounter);
         Head = new MotherBrainHead(new MotherBrainHeadDependencies { Room = _room, Projectiles = dependencies.Projectiles, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access  });
-        Body = new MotherBrainBody(new MotherBrainBodyDependencies { FrameResults = _frameResults, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = _presentation, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, Extensions = Extensions, ProjectileAttacks = Projectiles, Access = Access , BossArtwork = _bossArtwork });
-        FakeDeath = new MotherBrainFakeDeath(new MotherBrainFakeDeathDependencies { FrameResults = _frameResults, Dispatch = dependencies.Dispatch, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = _presentation, MotherBrainEncounter = _motherBrainEncounter, Extensions = Extensions, Access = Access , BossArtwork = _bossArtwork });
+        Body = new MotherBrainBody(new MotherBrainBodyDependencies { FrameResults = _frameResults, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = _presentation, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , BossArtwork = _bossArtwork });
+        FakeDeath = new MotherBrainFakeDeath(new MotherBrainFakeDeathDependencies { FrameResults = _frameResults, Dispatch = dependencies.Dispatch, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = _presentation, MotherBrainEncounter = _motherBrainEncounter, Access = Access , BossArtwork = _bossArtwork });
         Ascent = new MotherBrainAscent(_room, dependencies.Projectiles, dependencies.Earthquake, _presentation, dependencies.FrameContext, _motherBrainEncounter, _bossArtwork);
         RainbowAndDeath = new MotherBrainRainbowAndDeath(new MotherBrainRainbowAndDeathDependencies { FrameResults = _frameResults, Room = _room, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Audio = dependencies.Audio, Presentation = _presentation, FrameContext = dependencies.FrameContext, MotherBrainEncounter = _motherBrainEncounter, RoomActors = dependencies.RoomActors, ProjectileAttacks = Projectiles, Access = Access , BossArtwork = _bossArtwork });
         Attacks = new MotherBrainAttacks(_room, RainbowAndDeath);
@@ -78,12 +78,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
-    internal readonly MotherBrainExtensionWords[] Extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static MotherBrainExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, EnemySlotOrder.Capacity).Select(_ => new MotherBrainExtensionWords())];
 
     /// <summary>Ports the common body main/hurt entry at <c>$A9:873E</c>.</summary>
     internal void RunMotherBrainBodyMain(

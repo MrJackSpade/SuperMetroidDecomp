@@ -61,7 +61,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.HeadSlotCursor = body[InstructionList(state.Head)];
         Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
-            runtime.Enemies.MotherBrainBehavior.Extensions[tube.SlotIndex].FallingTubeCursor = tubes[InstructionList(tube)];
+            tube.RequireSpeciesState<MotherBrainFallingTubeState>().Cursor = tubes[InstructionList(tube)];
         state.BrainMainShakeTimer = WrappingCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.RainbowPaletteCursor = W(MotherBrainMemory.RainbowPaletteIndex);

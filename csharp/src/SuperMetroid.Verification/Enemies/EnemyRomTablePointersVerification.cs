@@ -124,7 +124,7 @@ internal static class EnemyRomTablePointersVerification
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
                 AnimationProgramCursor<TourianEntranceStatueProgram>.Start(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatue(parameter)),
-                system.TourianEntranceStatueBehavior.Extensions[slot.SlotIndex].Program,
+                slot.RequireSpeciesState<TourianEntranceStatueState>().Program,
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }
 

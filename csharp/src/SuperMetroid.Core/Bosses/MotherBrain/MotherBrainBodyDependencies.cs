@@ -31,8 +31,6 @@ internal sealed record MotherBrainBodyDependencies
     /// <summary>The other actors in the room: the Baby, the Rinkas, the Pirate laser and the afterburn.</summary>
     public required IMotherBrainRoomActors RoomActors { get; init; }
 
-    /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
-    public required MotherBrainExtensionWords[] Extensions { get; init; }
 
     /// <summary>Mother Brain's projectiles: bombs, onion rings, drool, lasers, hand beams, turret shots and the tank's glass.</summary>
     public required MotherBrainProjectiles ProjectileAttacks { get; init; }

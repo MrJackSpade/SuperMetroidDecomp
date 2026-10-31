@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>
-/// The Boulder's mirrored rolling loops as typed programs (#641), one per bank-$A6 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="BoulderAnimations"/>.
+/// The Boulder's mirrored rolling loops as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="BoulderAnimations"/>.
 /// </summary>
 internal enum BoulderProgram
 {
-    /// <summary>The native list at $A6:86A7.</summary>
+    /// <summary>The left animation.</summary>
     Left,
-    /// <summary>The native list at $A6:86CB.</summary>
+    /// <summary>The right animation.</summary>
     Right,
 }

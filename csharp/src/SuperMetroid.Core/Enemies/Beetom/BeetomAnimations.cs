@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Beetom.BeetomProgram;
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
-/// The Beetom's crawl, hop and drain animations as typed programs (#641), in place of their bank-$A8 lists. Generated from the verified native lists: each
+/// The Beetom's crawl, hop and drain animations as typed programs (#641). Each
 /// frame shows a <see cref="BeetomFrame"/> pose and each callback becomes a <see cref="BeetomCue"/> with its typed operands.
 /// </summary>
 internal static class BeetomAnimations
@@ -106,7 +106,7 @@ internal static class BeetomAnimations
     /// <summary>Runs on into <paramref name="program"/>, authored next.</summary>
     private static AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue> FallInto(BeetomProgram program) => AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue>.FallInto(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue> Hold => AnimationProgramStep<BeetomProgram, BeetomFrame, BeetomCue>.Hold;
 
 }

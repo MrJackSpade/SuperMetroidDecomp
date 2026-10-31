@@ -11,7 +11,7 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
 {
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
-    /// <summary>Native PLM slot pool searched from the final slot toward the first.</summary>
+    /// <summary>PLM slot pool searched from the final slot toward the first.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Binds the animal-rescue PLM behaviors to room events and the shared slot table.</summary>
@@ -20,10 +20,10 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
         _events = events;
         _slotTable = slotTable;
     }
-    /// <summary>Runs $84:B9C5: make the three-block rescue wall shootable, preserving artwork.</summary>
+    /// <summary>Makes the three-block rescue wall shootable, preserving artwork.</summary>
     public void SetupCrittersEscapeBlock(RoomLevelData level, int blockIndex)
     {
-        // Hardcoded spawn cannot execute setup when every native PLM slot is occupied.
+        // Hardcoded spawn cannot execute setup when every PLM slot is occupied.
         if (_slotTable.IsFull)
             throw new InvalidOperationException("Animal rescue wall setup has no free PLM slot.");
         PlmLevelWrites.WritePlmCollisionAndBehavior(level, blockIndex, EscapeAnimalWallDefinitions.OriginCollisionType,
@@ -35,8 +35,8 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
     }
 
     /// <summary>
-    /// Runs room setup $8F:9194's Spawn_Hardcoded_PLM of $84:BB30 at block ($3D,$0B). Setup
-    /// $84:BB09 clears the PLM ID unless event $0F (critters escaped) is set, so the passage
+    /// Runs the room setup that spawns the escape wall at block (61,11). Its setup
+    /// removes the wall unless the critters-escaped event is set, so the passage
     /// stays shut when the animals were left behind.
     /// </summary>
     /// <returns>False when no PLM remains: the event is unset or every slot is occupied.</returns>
@@ -61,7 +61,7 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
         return true;
     }
 
-    /// <summary>Runs $84:B978 and schedules its ROM animation/event list in native slot order.</summary>
+    /// <summary>Spawns the rescue wall's reaction and schedules its authored animation/event list in slot order.</summary>
     public bool TrySpawnCrittersEscapeReaction(RoomLevelData level, int blockIndex,
         SamusProjectileType projectileType)
     {

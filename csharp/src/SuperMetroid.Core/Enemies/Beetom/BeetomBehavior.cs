@@ -57,7 +57,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                 break;
             case BeetomCueKind.Nothing:
-                // Beetom's initial drain animation calls a literal RTS stub before it falls through into the looping
+                // Beetom's initial drain animation calls a cue that does nothing before it falls through into the looping
                 // blood-spray frames. It changes no state.
                 break;
             default:
@@ -71,7 +71,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Input changes required to dislodge an attached draining Beetom.</summary>
     private const int BeetomMashCount = 64;
 
-    /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
+    /// <summary>Ports <c>InitAI_Beetom</c>.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, ControllerButton controllerInput)
     {
         if (samus is null)
@@ -88,7 +88,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousController1Input = controllerInput;
 
         // Every Beetom initializer writes the global seed, even when several Beetoms share
-        // a room. This is observable cartridge behavior, not a per-actor random stream.
+        // a room. This is observable game behavior, not a per-actor random stream.
         Action<int> setRandomNumber = _room.Random.Seed;
         setRandomNumber(23);
 
@@ -226,7 +226,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Uses the shared native RNG's low three bits to choose an idle or hop branch.</summary>
+    /// <summary>Uses the shared RNG's low three bits to choose an idle or hop branch.</summary>
     internal void ChooseDistantBeetomAction(BeetomEnemyState state)
     {
         int random = _room.Random.Generate();
@@ -279,7 +279,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 : BeetomProgram.HopRight);
     }
 
-    /// <summary>Aims the lunge toward Samus using the native signed horizontal difference.</summary>
+    /// <summary>Aims the lunge toward Samus using the signed horizontal difference.</summary>
     private static void StartBeetomLunge(RoomEnemySlot slot, BeetomEnemyState state, SamusState samus)
     {
         bool left = CoordinateAxis.Difference(samus.Position.X.Whole, slot.Position.X.Whole) < 0;
@@ -332,9 +332,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // The native ledge probe temporarily moves the center eight pixels ahead, then
+        // The ledge probe temporarily moves the center eight pixels ahead, then
         // performs a real one-pixel downward collision move. Restore only the whole words,
-        // preserving collision-produced subposition just as bank $A8 does.
+        // preserving collision-produced subposition just as the game does.
         slot.Position = slot.Position.WithWrappedWholeX(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? -8 : 8));
         if (!_terrain.MoveEnemyVertically(level, slot, 1 << 16))
         {
@@ -425,7 +425,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // Escape throws the Beetom sixteen pixels away. A wall reverses the direction and
-        // applies an additional 32-pixel move, producing the native net sixteen-pixel throw
+        // applies an additional 32-pixel move, producing the net sixteen-pixel throw
         // to the other side rather than merely cancelling the first displacement.
         int initialDisplacement = side == HorizontalDirection.Left ? 16 << 16 : -(16 << 16);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, initialDisplacement))
@@ -479,10 +479,10 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             if (CoordinateAxis.Difference(accumulatedHeight, targetHeight) >= 0)
                 return tableIndex;
         }
-        throw new InvalidDataException("Beetom initial-speed calculation did not reach its ROM target height.");
+        throw new InvalidDataException("Beetom initial-speed calculation did not reach its authored target height.");
     }
 
-    /// <summary>Ports Beetom's custom touch handler at $A8:BE2E.</summary>
+    /// <summary>Ports Beetom's custom touch handler.</summary>
     private void ResolveBeetomTouch(
         RoomEnemySlot slot,
         BeetomEnemyState state,
@@ -526,7 +526,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.KnockbackTimer = WrappingCountdown.Start(0);
     }
 
-    /// <summary>Ports the private post-common-shot tail at $A8:BEAC.</summary>
+    /// <summary>Ports the private post-common-shot tail.</summary>
     private static void ResolveBeetomShotAfterCommon(RoomEnemySlot slot, BeetomEnemyState state)
     {
         if (!slot.FrozenTimer.IsZero && state.Function is
@@ -565,7 +565,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
     internal static void AddBeetomBombReactions(EnemySharedReactions table)
     {
-        // Common damage can clear a lethally hit slot before this private tail runs. Bank $A8 still clears Beetom's
+        // Common damage can clear a lethally hit slot before this private tail runs. The game still clears Beetom's
         // separate attached flag after returning from common shot AI, so the identity is matched before dispatch.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Beetom &&
                                                        EnemyCollision.ShotAi(c.Enemy) == EnemyReaction.BeetomShot &&

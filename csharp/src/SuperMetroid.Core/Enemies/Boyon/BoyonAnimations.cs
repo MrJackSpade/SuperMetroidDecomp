@@ -5,7 +5,7 @@ using P = SuperMetroid.Core.Enemies.Boyon.BoyonProgram;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>
-/// Boyon's idle and bouncing loops as typed programs (#641), in place of their bank-$A2 lists. Generated from the verified native lists: each
+/// Boyon's idle and bouncing loops as typed programs (#641). Each
 /// frame shows a <see cref="BoyonFrame"/> pose and each callback becomes a <see cref="BoyonCue"/> with its typed operands.
 /// </summary>
 internal static class BoyonAnimations

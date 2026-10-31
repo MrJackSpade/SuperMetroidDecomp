@@ -14,7 +14,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AtomicEntity(slot, common);
 
 
-    /// <summary>Ports <c>InitAI_Atomic</c> at <c>$A8:E388</c>.</summary>
+    /// <summary>Ports <c>InitAI_Atomic</c>.</summary>
     internal static void InitializeAtomic(RoomEnemySlot slot)
     {
         var state = new AtomicEnemyState();
@@ -32,7 +32,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports <c>MainAI_Atomic</c> at <c>$A8:E3C3</c>, including all four indirect targets.
+    /// Ports <c>MainAI_Atomic</c>, including all four indirect targets.
     /// Atomic deliberately ignores terrain and chooses both signs again every frame.
     /// </summary>
     private static void RunAtomicMain(
@@ -43,9 +43,9 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Atomic movement requires the active Samus actor.");
 
-        // The cartridge treats equality as the positive direction: down for Y and right for
+        // The game treats equality as the positive direction: down for Y and right for
         // X. Compare the wrapped 16-bit subtraction as signed, matching BMI rather than a host
-        // integer comparison that would disagree across the $0000/$FFFF coordinate boundary.
+        // integer comparison that would disagree across the 0/65535 coordinate boundary.
         state.VerticalMovement = CoordinateAxis.Difference(samus.Position.Y.Whole, slot.Position.Y.Whole) < 0
             ? AtomicVerticalMovement.MoveUp
             : AtomicVerticalMovement.MoveDown;

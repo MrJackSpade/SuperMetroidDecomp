@@ -18,7 +18,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DachoraEntity(this, slot, common);
 
-    /// <summary>Provides the room bus and active context for Dachora's native AI.</summary>
+    /// <summary>Provides the room bus and active context for Dachora's AI.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
     private readonly EnemyTerrain _terrain;
@@ -40,13 +40,13 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         _presentation = presentation;
     }
 
-    /// <summary>Native $A7:F4C9 horizontal proximity threshold for activating the bird.</summary>
+    /// <summary>Horizontal proximity threshold for activating the bird.</summary>
     private const int DachoraActivationXDistance = 96;
-    /// <summary>Native $A7:F4CB vertical proximity threshold for activating the bird.</summary>
+    /// <summary>Vertical proximity threshold for activating the bird.</summary>
     private const int DachoraActivationYDistance = 64;
-    /// <summary>Native warning interval before Dachora starts its leftward run.</summary>
+    /// <summary>Warning interval before Dachora starts its leftward run.</summary>
     private const int DachoraBlinkDuration = 120;
-    /// <summary>Native stored-shine countdown before Dachora launches.</summary>
+    /// <summary>Stored-shine countdown before Dachora launches.</summary>
     private const int DachoraChargeDuration = 60;
     /// <summary>Accepted-frame interval between echo position captures.</summary>
     private const int DachoraEchoPositionInterval = 1;
@@ -84,7 +84,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly SoundEffectId DachoraCeilingImpactSound =
         EnemySoundEffectDefinitions.DachoraCeilingImpactSound;
 
-    /// <summary>Ports <c>InitAI_Dachora</c> at <c>$A7:F4DD</c>.</summary>
+    /// <summary>Ports <c>InitAI_Dachora</c>.</summary>
     internal static void InitializeDachora(RoomEnemySlot slot)
     {
         DachoraSpawnSettings settings = slot.SpawnSettings<DachoraSpawnSettings>();
@@ -94,8 +94,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        // Native property $2000 both disables Samus collision and admits enemy bytecode.
-        // Population property $0400 already excludes these actors from host interaction.
+        // The animation-script property both disables Samus collision and admits enemy animation scripts.
+        // The population's tangibility property already excludes these actors from host interaction.
         slot.Properties = slot.Properties.With(EnemyProperties.RunsAnimationScript);
         slot.Frame = EnemyFrameId.Empty;
         slot.FrameHold = WrappingCountdown.Start(1);
@@ -117,7 +117,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = DachoraAiFunction.WaitingForSamus;
     }
 
-    /// <summary>Ports <c>MainAI_Dachora</c>'s bank-local indirect jump.</summary>
+    /// <summary>Ports <c>MainAI_Dachora</c>'s indirect jump.</summary>
     private void RunDachoraMain(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -127,7 +127,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Echo AI needs only the frame counter's parity. Every body state needs both the active
         // Samus gravity words and authentic room collision, so fail loudly if a caller
-        // attempts to run the family without the state that native code reads globally.
+        // attempts to run the family without the state that code reads globally.
         if (state.Function == DachoraAiFunction.Echo)
         {
             RunDachoraEcho(slot, state, frameCounterByte);
@@ -168,7 +168,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports $A7:F570, including the one-pixel floor probe before proximity.</summary>
+    /// <summary>Waits for Samus, including the one-pixel floor probe before proximity.</summary>
     private void RunDachoraWaiting(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -193,7 +193,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraActivationSound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Ports the 120-frame warning countdown at $A7:F5BC.</summary>
+    /// <summary>Ports the 120-frame warning countdown.</summary>
     private static void RunDachoraBlinking(RoomEnemySlot slot, DachoraEnemyState state)
     {
         state.PhaseTimer = state.PhaseTimer.Decrement().Remaining;
@@ -212,7 +212,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SetPaletteCycle(frame: 0, ticks: 1);
     }
 
-    /// <summary>Ports $A7:F5ED. Leftward speed is the exact two's complement of A.B.</summary>
+    /// <summary>Runs left. Leftward speed is the exact two's complement of the whole and fractional speed.</summary>
     private void RunDachoraLeft(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -237,7 +237,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
     }
 
-    /// <summary>Ports $A7:F65E, including the hard-coded tutorial launch coordinate.</summary>
+    /// <summary>Runs right, including the hard-coded tutorial launch coordinate.</summary>
     private void RunDachoraRight(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -269,8 +269,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Ports <c>AccelerateRunningDachora</c> at $A7:F6D5. This intentionally retains the
-    /// strange packed palette timer: after frame three is reached, native code reloads that
+    /// Ports <c>AccelerateRunningDachora</c>. This intentionally retains the
+    /// strange packed palette timer: after frame three is reached, the game reloads that
     /// brightest speed palette every sixteen frames instead of wrapping to frame zero.
     /// </summary>
     internal int AccelerateDachora(
@@ -296,11 +296,11 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        // Native presses the body down one pixel every running frame before changing speed.
+        // Presses the body down one pixel every running frame before changing speed.
         // The collision result is discarded; the probe keeps Dachora glued to room slopes.
         _terrain.MoveEnemyVertically(level, slot, 1 << 16);
 
-        // The cartridge compares the whole and fraction words separately, each by the sign of its difference
+        // The game compares the whole and fraction words separately, each by the sign of its difference
         // from the cap's; a fraction with its top bit set therefore also counts as below the cap.
         SignedSixteenSixteen speed = state.Speed;
         bool belowMaximum = WordWrap.Signed(speed.WholePixels - DachoraMaximumSpeed.WholePixels) < 0 ||
@@ -310,7 +310,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             speed += DachoraAcceleration;
             state.Speed = speed;
 
-            // Native's 28-byte cursor jump lands at the matching pose in the faster clone of the
+            // The game's speed-up jump lands at the matching pose in the faster clone of the
             // current six-pose run loop. The animation keeps its phase and timing.
             if ((speed.WholePixels is 4 or 8) && speed.Fraction == 0)
                 state.Program = state.Program with { Program = FasterDachoraRun(state.Program.Program) };
@@ -323,7 +323,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         return state.Speed.RawValue;
     }
 
-    /// <summary>Ports the stored-shine countdown and echo activation at $A7:F78F.</summary>
+    /// <summary>Ports the stored-shine countdown and echo activation.</summary>
     private void RunDachoraCharging(RoomEnemySlot slot, DachoraEnemyState state)
     {
         StepDachoraShinePalette(slot, state);
@@ -331,8 +331,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.PhaseTimer.IsZero)
             return;
 
-        // The charge animation is asleep at $F4B7. Stepping past the sleep enters the same
-        // right-facing echo animation used by the four trails, exactly as the cartridge does on launch.
+        // The charge animation is asleep at its launch wait. Stepping past the sleep enters the same
+        // right-facing echo animation used by the four trails, exactly as the game does on launch.
         state.Program = AnimationProgramCursor<DachoraProgram>.Start(DachoraAnimations.AfterSleep(state.Program.Program));
         slot.FrameHold = WrappingCountdown.Start(1);
         state.Function = DachoraAiFunction.Shinesparking;
@@ -352,7 +352,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             InstallDachoraInstruction(echo, echo.RequireSpeciesState<DachoraEnemyState>(), echoList);
     }
 
-    /// <summary>Ports upward acceleration, trail placement, and ceiling collision at $A7:F806.</summary>
+    /// <summary>Ports upward acceleration, trail placement, and ceiling collision.</summary>
     private void RunDachoraShinespark(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -392,7 +392,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.RequestSoundAtUpdateEnd(EnemySoundSource.Dachora, DachoraCeilingImpactSound, priority: SoundRequestPriority.Normal);
     }
 
-    /// <summary>Ports the gravity-capped return to the ground at $A7:F935.</summary>
+    /// <summary>Ports the gravity-capped return to the ground.</summary>
     private void RunDachoraFalling(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -423,7 +423,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Speed = SignedSixteenSixteen.Zero;
     }
 
-    /// <summary>Ports the four-slot, first-free echo pipeline at $A7:F89A.</summary>
+    /// <summary>Ports the four-slot, first-free echo pipeline.</summary>
     private void UpdateDachoraEchoPositions(RoomEnemySlot body)
     {
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(body);
@@ -447,7 +447,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports the alternating, lifetime-owned echo visibility at $A7:F98C.</summary>
+    /// <summary>Ports the alternating, lifetime-owned echo visibility.</summary>
     private static void RunDachoraEcho(
         RoomEnemySlot slot,
         DachoraEnemyState state,
@@ -469,7 +469,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
     }
 
-    /// <summary>Ports the four-frame shine palette loop at $A7:F90A.</summary>
+    /// <summary>Ports the four-frame shine palette loop.</summary>
     internal void StepDachoraShinePalette(RoomEnemySlot slot, DachoraEnemyState state)
     {
         int paletteIndex = state.PaletteFrame;
@@ -482,7 +482,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AdvanceShinePaletteCycle();
     }
 
-    /// <summary>Copies one full native OBJ palette into the actor-selected sprite palette.</summary>
+    /// <summary>Copies one full OBJ palette into the actor-selected sprite palette.</summary>
     internal void LoadDachoraPalette(
         RoomEnemySlot slot, DachoraPalettePhase phase, int frame)
     {
@@ -523,7 +523,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.FrameHold = WrappingCountdown.Start(1);
     }
 
-    /// <summary>The faster clone of a run loop, where native's 28-byte speed-up jump lands at the same pose.</summary>
+    /// <summary>The faster clone of a run loop, where the speed-up jump lands at the same pose.</summary>
     private static DachoraProgram FasterDachoraRun(DachoraProgram program) => program switch
     {
         DachoraProgram.RunningLeft
@@ -544,7 +544,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         _ => throw new InvalidOperationException($"Dachora speed-up from {program}, which has no faster run."),
     };
 
-    /// <summary>Uses wrapped signed positions and a strict native proximity threshold on one axis.</summary>
+    /// <summary>Uses wrapped signed positions and a strict proximity threshold on one axis.</summary>
     private static bool DachoraWithinAxis(int actor, int samus, int distance) =>
         Math.Abs(WordWrap.Signed(actor - samus)) < distance;
 

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Animals.Artwork;
 
 /// <summary>
-/// The presentation boundary of the escaping Dachora's programs (#641): the bank-$B3 spritemap each
+/// The presentation boundary of the escaping Dachora's programs (#641): the spritemap each
 /// <see cref="EscapeDachoraFrame"/> pose shows, in ascending spritemap order.
 /// </summary>
 internal static class EscapeDachoraFrameDefinitions

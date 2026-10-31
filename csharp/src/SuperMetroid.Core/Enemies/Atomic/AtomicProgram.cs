@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>
-/// Atomic's four spinning animations as typed programs (#641), one per bank-$A8 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="AtomicAnimations"/>.
+/// Atomic's four spinning animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="AtomicAnimations"/>.
 /// </summary>
 internal enum AtomicProgram
 {
-    /// <summary>The native list at $A8:E310.</summary>
+    /// <summary>The up right animation.</summary>
     UpRight,
-    /// <summary>The native list at $A8:E32C.</summary>
+    /// <summary>The up left animation.</summary>
     UpLeft,
-    /// <summary>The native list at $A8:E348.</summary>
+    /// <summary>The down left animation.</summary>
     DownLeft,
-    /// <summary>The native list at $A8:E364.</summary>
+    /// <summary>The down right animation.</summary>
     DownRight,
 }

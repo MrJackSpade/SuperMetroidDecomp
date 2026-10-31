@@ -4,7 +4,7 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The Dachora's run, idle, blink, shinespark charge, echo and fall animations as typed programs (#641), in place of their bank-$A7 lists. Generated from the verified native lists: each
+/// The Dachora's run, idle, blink, shinespark charge, echo and fall animations as typed programs (#641). Each
 /// frame shows a <see cref="DachoraFrame"/> pose and its lists use no owner callbacks.
 /// </summary>
 internal static class DachoraAnimations
@@ -183,7 +183,7 @@ internal static class DachoraAnimations
     /// <summary>Continues at <paramref name="program"/>.</summary>
     private static AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue> GoTo(DachoraProgram program) => AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue>.GoTo(program);
 
-    /// <summary>Holds the last frame, as the native sleep does.</summary>
+    /// <summary>Holds the last frame, as the sleep does.</summary>
     private static AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue> Hold => AnimationProgramStep<DachoraProgram, DachoraFrame, NoAnimationCue>.Hold;
 
 }

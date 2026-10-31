@@ -5,7 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>
-/// Alcoon's fireball program (#641), in place of their bank-$86 lists. Generated from the verified native lists: each
+/// Alcoon's fireball program (#641). Each
 /// frame shows a <see cref="AlcoonFireballFrame"/> pose and each command becomes a <see cref="EnemyProjectileCommonCue"/> with its typed operands.
 /// </summary>
 internal static class AlcoonFireballAnimations

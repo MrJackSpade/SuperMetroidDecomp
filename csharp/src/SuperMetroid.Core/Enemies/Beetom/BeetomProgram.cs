@@ -1,29 +1,29 @@
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
-/// The Beetom's crawl, hop and drain animations as typed programs (#641), one per bank-$A8 list a spawn, branch or resumed sleep enters, in authored order.
-/// Generated from the verified native lists; see <see cref="BeetomAnimations"/>.
+/// The Beetom's crawl, hop and drain animations as typed programs (#641), one per animation a spawn, branch or resumed sleep enters, in authored order.
+/// Their steps are <see cref="BeetomAnimations"/>.
 /// </summary>
 internal enum BeetomProgram
 {
-    /// <summary><c>InstList_Beetom_Crawling_FacingLeft_0</c> at $A8:B696.</summary>
+    /// <summary>The crawling left animation.</summary>
     CrawlingLeft,
-    /// <summary>The loop at $A8:B698.</summary>
+    /// <summary>The loop.</summary>
     CrawlingLeftLoop,
-    /// <summary><c>InstList_Beetom_Hop_FacingLeft</c> at $A8:B6AC.</summary>
+    /// <summary>The hop left animation.</summary>
     HopLeft,
-    /// <summary><c>InstList_Beetom_DrainingSamus_FacingLeft_0</c> at $A8:B6CC.</summary>
+    /// <summary>The draining left animation.</summary>
     DrainingLeft,
-    /// <summary>The loop at $A8:B6DE.</summary>
+    /// <summary>The loop.</summary>
     DrainingLeftLoop,
-    /// <summary><c>InstList_Beetom_Crawling_FacingRight_0</c> at $A8:B6F2.</summary>
+    /// <summary>The crawling right animation.</summary>
     CrawlingRight,
-    /// <summary>The loop at $A8:B6F4.</summary>
+    /// <summary>The loop.</summary>
     CrawlingRightLoop,
-    /// <summary><c>InstList_Beetom_Hop_FacingRight</c> at $A8:B708.</summary>
+    /// <summary>The hop right animation.</summary>
     HopRight,
-    /// <summary><c>InstList_Beetom_DrainingSamus_FacingRight_0</c> at $A8:B728.</summary>
+    /// <summary>The draining right animation.</summary>
     DrainingRight,
-    /// <summary>The loop at $A8:B73A.</summary>
+    /// <summary>The loop.</summary>
     DrainingRightLoop,
 }

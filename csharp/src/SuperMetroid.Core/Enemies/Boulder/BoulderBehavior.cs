@@ -80,7 +80,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         int initialYOffset = settings.Drop;
         if (initialYOffset == 0)
         {
-            // A zero high byte is not “no offset.” Native substitutes one pixel and sets
+            // A zero high byte is not “no offset.” The game substitutes one pixel and sets
             // var07 so the trigger jumps directly to rolling instead of the bounce chain.
             initialYOffset = 1;
             state.StartsRollingWithoutBounce = true;
@@ -190,7 +190,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, direction: VerticalDirection.Up);
 
-        // The cartridge subtracts one record and branches on the sign of the result, storing zero in place of a
+        // The game subtracts one record and branches on the sign of the result, storing zero in place of a
         // result below zero, so the clock never keeps a value below zero past this update.
         int slowed = state.BounceSpeedAccumulator - BounceSpeedStep;
         if (slowed < 0)
@@ -261,7 +261,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         int horizontalDisplacement = ReadBoulderHorizontalDisplacement(state);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
-            // Native ORA #$0300 both hides and deletes the record. The inert function is
+            // Setting the hidden and deleted properties both hides and deletes the record. The inert function is
             // still written before DetermineWhichEnemiesToProcess clears it next frame.
             slot.Properties = slot.Properties.With(
                 EnemyProperties.Invisible | EnemyProperties.Deleted);
@@ -308,7 +308,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Advances an acceleration clock and caps it. The cartridge compares the sum with the cap by the sign of their
+    /// Advances an acceleration clock and caps it. The game compares the sum with the cap by the sign of their
     /// word difference; both stay within 0 through 24576 here, so that is the ordinary comparison.
     /// </summary>
     private static int AddAndCap(int value, int increment, int maximum) => Math.Min(value + increment, maximum);
